@@ -308,7 +308,8 @@ mapdata decode_mapdata_ref(int ref)
 			return mapdata{};
 
 		int screen = ref % MAPSCRS;
-		return mapdata{mapdata_type::CanonicalScreen, &TheMaps[ref], screen, 0};
+		mapscr* scr = &TheMaps[ref];
+		return mapdata{mapdata_type::CanonicalScreen, scr, scr, screen, 0};
 	}
 
 	// Negative values are for temporary screens.
@@ -327,17 +328,24 @@ mapdata decode_mapdata_ref(int ref)
 			screen = cur_screen;
 	}
 
+	mapscr* base_scr = nullptr;
 	mapscr* scr = nullptr;
 	if (is_scrolling)
 	{
 		int index = screen * 7 + layer;
 		if (index >= 0 && index < FFCore.ScrollingScreensAll.size())
+		{
+			base_scr = FFCore.ScrollingScreensAll[screen * 7];
 			scr = FFCore.ScrollingScreensAll[index];
+		}
 	}
 	else
 	{
 		if (layer >= 0 && layer <= 6 && is_in_current_region(screen))
+		{
+			base_scr = get_scr_layer(screen, 0);
 			scr = get_scr_layer(screen, layer);
+		}
 	}
 
 	if (!scr)
@@ -353,7 +361,7 @@ mapdata decode_mapdata_ref(int ref)
 	else if (!is_region && !is_scrolling)
 		type = mapdata_type::TemporaryCurrentScreen;
 
-	return mapdata{type, scr, screen, layer};
+	return mapdata{type, base_scr, scr, screen, layer};
 }
 
 static int create_mapdata_temp_ref(mapdata_type type, int screen, int layer)
@@ -1781,16 +1789,7 @@ rpos_handle_t mapdata::resolve_pos(int pos)
 		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max) != SH::_NoError)
 			return rpos_handle_t{};
 
-		int origin_screen = scrolling_region.origin_screen;
-		int origin_screen_x = origin_screen % 16;
-		int origin_screen_y = origin_screen / 16;
-		int scr_index = static_cast<int32_t>(rpos) / 176;
-		int scr_x = origin_screen_x + scr_index%cur_region.screen_width;
-		int scr_y = origin_screen_y + scr_index/cur_region.screen_width;
-		int screen = map_scr_xy_to_index(scr_x, scr_y);
-		mapscr* scr = FFCore.ScrollingScreensAll[screen * 7 + layer];
-
-		return {scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
+		return {base_scr, scr, scr->screen, layer, rpos, RPOS_TO_POS(rpos)};
 	}
 
 	// Otherwise, access is limited to just one screen.
@@ -1798,21 +1797,21 @@ rpos_handle_t mapdata::resolve_pos(int pos)
 		return rpos_handle_t{};
 
 	if (type == mapdata_type::CanonicalScreen)
-		return {scr, screen, 0, (rpos_t)pos, pos};
+		return {base_scr, scr, screen, 0, (rpos_t)pos, pos};
 
 	if (scrolling())
 	{
 		if (!scr->is_valid())
 			return rpos_handle_t{};
 
-		return {scr, screen, layer, (rpos_t)pos, pos};
+		return {base_scr, scr, screen, layer, (rpos_t)pos, pos};
 	}
 
 	rpos_t rpos = POS_TO_RPOS(pos, screen);
 	if (BC::checkComboRpos(rpos) != SH::_NoError)
 		return rpos_handle_t{};
 
-	return {scr, screen, layer, rpos, pos};
+	return {base_scr, scr, screen, layer, rpos, pos};
 }
 
 ffc_handle_t mapdata::resolve_ffc_handle(int index)

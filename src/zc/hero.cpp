@@ -22024,12 +22024,12 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(create_screen_handles(rpos_handle.base_scr()), 1<<cmb.attribytes[5], false);
+		remove_xstatecombos(create_screen_handles(rpos_handle.base_scr), 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
 		setmapflag(rpos_handle.scr, mLOCKBLOCK);
-		remove_lockblocks(create_screen_handles(rpos_handle.base_scr()));
+		remove_lockblocks(create_screen_handles(rpos_handle.base_scr));
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -24616,7 +24616,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 							setmapflag(rpos_handle.scr, mSECRET);
 						}
 						sfx(warpsound,pan((int32_t)x));
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), false);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr, false);
 						didstrig = true;
 					}
 				}
@@ -24627,7 +24627,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						stepsecret = rpos;
 
 						bool high16only = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), high16only);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr, high16only);
 						didstrig = true;
 						sfx(warpsound,pan((int32_t)x));
 					}
@@ -25008,7 +25008,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			for (auto lyr = 0; lyr < 7; ++lyr)
 			{
 				auto rpos_handle = get_rpos_handle(rposes[p], lyr);
-				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr()->flags2 & fAIRCOMBOS))
+				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr->flags2 & fAIRCOMBOS))
 					continue;
 				auto& cmb = rpos_handle.combo();
 				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
@@ -25356,12 +25356,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{ 
 				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, mSECRET);
 				
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), false);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr, false);
 			}
 			else 
 			{
 				bool only16_31 = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), only16_31);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr, only16_31);
 			}
 		}
 	}

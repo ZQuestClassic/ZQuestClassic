@@ -8,11 +8,6 @@
 #include "ffc.h"
 #include <variant>
 
-mapscr* rpos_handle_t::base_scr() const
-{
-	return layer == 0 ? scr : get_scr(scr->map, scr->screen);
-}
-
 mapscr* rpos_handle_t::get_mapscr() const
 {
 	return scr;
@@ -248,7 +243,7 @@ combined_handle_t::operator bool() const
 mapscr* combined_handle_t::base_scr() const
 {
 	if (std::holds_alternative<rpos_handle_t>(*this))
-		return std::get<rpos_handle_t>(*this).base_scr();
+		return std::get<rpos_handle_t>(*this).base_scr;
 
 	return std::get<ffc_handle_t>(*this).scr;
 }

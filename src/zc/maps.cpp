@@ -252,18 +252,20 @@ static void prepare_current_region_handles()
 		for (int x = 0; x < cur_region.screen_width; x++)
 		{
 			int screen = cur_screen + x + y*16;
+			mapscr* base_scr = get_scr(screen);
+			if (!base_scr->is_valid())
+				continue;
+
 			int index_start = current_region_screen_count;
+
 			for (int layer = 0; layer <= 6; layer++)
 			{
 				mapscr* scr = get_scr_layer(screen, layer);
 				if (!scr->is_valid())
-				{
-					if (layer == 0) break;
 					continue;
-				}
 
 				rpos_t base_rpos = POS_TO_RPOS(0, get_region_relative_dx(screen), get_region_relative_dy(screen));
-				current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
+				current_region_rpos_handles[current_region_screen_count] = {base_scr, scr, screen, layer, base_rpos, 0};
 				current_region_screen_count += 1;
 			}
 
@@ -459,10 +461,12 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_in_scrolling_region())
-		return {get_scr_layer(cur_screen, layer), cur_screen, layer, rpos, RPOS_TO_POS(rpos)};
+		return {origin_scr, get_scr_layer(cur_screen, layer), cur_screen, layer, rpos, RPOS_TO_POS(rpos)};
+
 	int screen = get_screen_for_rpos(rpos);
 	mapscr* scr = get_scr_layer(screen, layer);
-	return {scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
+	mapscr* base_scr = layer == 0 ? scr : get_scr(screen);
+	return {base_scr, scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
 }
 
 // x, y are world coordinates (aka, in relation to origin screen at the top-left).
@@ -476,8 +480,10 @@ rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 	if (!is_in_scrolling_region())
 	{
 		int pos = COMBOPOS(x, y);
-		return {get_scr_layer(cur_screen, layer), cur_screen, layer, (rpos_t)pos, pos};
+		mapscr* scr = get_scr_layer(cur_screen, layer);
+		return {origin_scr, scr, cur_screen, layer, (rpos_t)pos, pos};
 	}
+
 	return get_rpos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
@@ -485,15 +491,19 @@ rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {get_scr_layer(screen, layer), screen, layer, POS_TO_RPOS(pos, screen), pos};
+	mapscr* scr = get_scr_layer(screen, layer);
+	mapscr* base_scr = layer == 0 ? scr : get_scr(screen);
+	return {base_scr, scr, screen, layer, POS_TO_RPOS(pos, screen), pos};
 }
 
 // Return a rpos_handle_t for a screen-specific `pos` (0-175).
 // Use this instead of the other `get_pos_handle_for_screen` if you already have a reference to the screen.
+// `scr` must be from the active region.
 rpos_handle_t get_rpos_handle_for_scr(mapscr* scr, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {scr, scr->screen, layer, POS_TO_RPOS(pos, scr->screen), pos};
+	mapscr* base_scr = layer == 0 ? scr : get_scr(scr->map, scr->screen);
+	return {base_scr, scr, scr->screen, layer, POS_TO_RPOS(pos, scr->screen), pos};
 }
 
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer)
@@ -1872,7 +1882,7 @@ void update_combo_cycling()
 				continue;
 
 			rpos_t rpos = (rpos_t)(rpos_base + i);
-			rpos_handle_t rpos_handle = {scr, screen, 0, rpos, i};
+			rpos_handle_t rpos_handle = {scr, scr, screen, 0, rpos, i};
 			screen_combo_modify_preroutine(rpos_handle);
 			scr->data[i]=newdata[i];
 			if(newcset[i]>-1)

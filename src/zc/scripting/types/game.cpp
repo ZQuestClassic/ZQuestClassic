@@ -280,13 +280,20 @@ static auto ResolveGameScreens(const char* context)
 		return result;
 	}
 
-	result.canonical_rpos_handle = {&TheMaps[index], screen, 0, (rpos_t)pos, pos};
+	result.canonical_rpos_handle = {&TheMaps[index], &TheMaps[index], screen, 0, (rpos_t)pos, pos};
 
 	// Since this is deprecated, we only support looking at the temporary for the origin screen.
 	if (map == cur_map && screen == cur_screen)
-		result.tmp_rpos_handle = {origin_scr, screen, 0, (rpos_t)pos, pos};
+		result.tmp_rpos_handle = {origin_scr, origin_scr, screen, 0, (rpos_t)pos, pos};
 	if (layr > -1)
-		result.tmp_layer_rpos_handle = {get_scr_layer(cur_screen, layr + 1), screen, 0, (rpos_t)pos, pos};
+		result.tmp_layer_rpos_handle = {
+			get_scr_layer(cur_screen, 0),
+			get_scr_layer(cur_screen, layr + 1),
+			screen,
+			layr + 1,
+			(rpos_t)pos,
+			pos
+		};
 
 	return result;
 }

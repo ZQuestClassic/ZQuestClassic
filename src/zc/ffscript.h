@@ -587,6 +587,7 @@ enum class mapdata_type
 
 struct mapdata {
 	mapdata_type type;
+	mapscr* base_scr;
 	mapscr* scr;
 	int screen;
 	int layer;

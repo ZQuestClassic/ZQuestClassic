@@ -27,6 +27,8 @@ typedef std::array<screen_handle_t, 7> screen_handles_t;
 
 struct rpos_handle_t
 {
+	// The 0th-layer screen associated with this rpos.
+	mapscr* base_scr;
 	mapscr* scr;
 	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
@@ -40,7 +42,6 @@ struct rpos_handle_t
 		return scr;
 	}
 
-	mapscr* base_scr() const;
 	mapscr* get_mapscr() const;
 
 	newcombo& combo() const;

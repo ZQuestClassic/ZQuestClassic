@@ -810,7 +810,7 @@ bool movingblock::animate(int32_t)
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.base_scr(), true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.base_scr, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
@@ -1045,7 +1045,7 @@ bool movingblock::animate(int32_t)
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.base_scr(), true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.base_scr, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||

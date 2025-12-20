@@ -293,6 +293,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(const screen_handles_t& screen_han
 	// Not in current region.
 
 	rpos_handle_t rpos_handle;
+	rpos_handle.base_scr = base_scr;
 	int screen = base_scr->screen;
 	rpos_handle.screen = screen;
 	for (int lyr = 0; lyr <= 6; ++lyr)
