@@ -52,15 +52,7 @@ void call_testqst_dialog()
 	TestQstDialog().show();
 }
 
-std::string qst_cfg_header_from_path(std::string path)
-{
-	path = relativize_path(path);
-	util::replchar(path, '[', '_');
-	util::replchar(path, ']', '_');
-	util::replchar(path, ' ', '_');
-	util::replchar(path, '\\', '/');
-	return path;
-}
+std::string qst_cfg_header_from_path(std::string path);
 
 TestQstDialog::TestQstDialog() : dmap_list(GUI::ZCListData::dmaps(true))
 {}

@@ -29,7 +29,7 @@
 #include "zc/render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
-#include "dialog/cheatkeys.h"
+#include "dialog/control_binding.h"
 #include "metadata/metadata.h"
 #include "zc/zelda.h"
 #include "zc/saves.h"
@@ -78,9 +78,6 @@ int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
-static ALLEGRO_JOYSTICK* gamepad_dlg_cur_joystick;
-static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
-
 extern byte monochrome_console;
 
 extern HeroClass Hero;
@@ -106,7 +103,6 @@ extern const char* dmaplist(int32_t index, int32_t* list_size);
 int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
-extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 
 static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
@@ -201,7 +197,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
-			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_joylist_proc)
+			else if(d[i].proc == jwin_droplist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
 				d[i].h = int32_t((double)d[i].h*1.25);
@@ -229,7 +225,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_joylist_proc);
+		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
@@ -256,7 +252,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /**********************************/
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
-static char ctrl_sect[] = "Controls";
 static char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
@@ -281,119 +276,16 @@ bool is_reserved_keycombo(int c, int modflag)
 }
 bool checkcheat(Cheat cheat)
 {
-	if(cheatkeys[cheat][0] && zc_readkey(cheatkeys[cheat][0]))
+	if(active_control_scheme->cheatkeys[cheat][0] && zc_readkey(active_control_scheme->cheatkeys[cheat][0]))
 		return true; //Main key pressed
-	if(cheatkeys[cheat][1] && zc_readkey(cheatkeys[cheat][1]))
+	if(active_control_scheme->cheatkeys[cheat][1] && zc_readkey(active_control_scheme->cheatkeys[cheat][1]))
 		return true; //Alt key pressed
 	return false;
 }
-void load_default_cheatkeys()
-{
-	memset(cheatkeys, 0, sizeof(cheatkeys));
-	cheatkeys[Cheat::Life][0] = KEY_H;
-	cheatkeys[Cheat::Life][1] = KEY_ASTERISK;
-	cheatkeys[Cheat::Magic][0] = KEY_M;
-	cheatkeys[Cheat::Magic][1] = KEY_SLASH_PAD;
-	cheatkeys[Cheat::Rupies][0] = KEY_R;
-	cheatkeys[Cheat::Bombs][0] = KEY_B;
-	cheatkeys[Cheat::Arrows][0] = KEY_A;
-	cheatkeys[Cheat::Clock][0] = KEY_I;
-	cheatkeys[Cheat::Walls][0] = KEY_F11;
-	cheatkeys[Cheat::Fast][0] = KEY_Q;
-	cheatkeys[Cheat::Light][0] = KEY_L;
-	cheatkeys[Cheat::IgnoreSideView][0] = KEY_V;
-	cheatkeys[Cheat::Kill][0] = KEY_K;
-	cheatkeys[Cheat::GoTo][0] = KEY_G;
-	cheatkeys[Cheat::TrigSecrets][0] = KEY_S;
-	cheatkeys[Cheat::ShowL0][0] = KEY_0;
-	cheatkeys[Cheat::ShowL1][0] = KEY_1;
-	cheatkeys[Cheat::ShowL2][0] = KEY_2;
-	cheatkeys[Cheat::ShowL3][0] = KEY_3;
-	cheatkeys[Cheat::ShowL4][0] = KEY_4;
-	cheatkeys[Cheat::ShowL5][0] = KEY_5;
-	cheatkeys[Cheat::ShowL6][0] = KEY_6;
-	cheatkeys[Cheat::ShowFFC][0] = KEY_7;
-	cheatkeys[Cheat::ShowSprites][0] = KEY_8;
-	cheatkeys[Cheat::ShowWalkability][0] = KEY_W;
-	cheatkeys[Cheat::ShowEffects][0] = KEY_E;
-	cheatkeys[Cheat::ShowOverhead][0] = KEY_O;
-	cheatkeys[Cheat::ShowPushblock][0] = KEY_P;
-	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
-	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
-}
+
 void load_game_configs()
 {
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
-	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
-	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
-	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
-	js_stick_1_x_offset = zc_get_config(ctrl_sect,"js_stick_1_x_offset",0) ? 128 : 0;
-	js_stick_1_y_stick = zc_get_config(ctrl_sect,"js_stick_1_y_stick",0);
-	js_stick_1_y_axis = zc_get_config(ctrl_sect,"js_stick_1_y_axis",1);
-	js_stick_1_y_offset = zc_get_config(ctrl_sect,"js_stick_1_y_offset",0) ? 128 : 0;
-	js_stick_2_x_stick = zc_get_config(ctrl_sect,"js_stick_2_x_stick",1);
-	js_stick_2_x_axis = zc_get_config(ctrl_sect,"js_stick_2_x_axis",0);
-	js_stick_2_x_offset = zc_get_config(ctrl_sect,"js_stick_2_x_offset",0) ? 128 : 0;
-	js_stick_2_y_stick = zc_get_config(ctrl_sect,"js_stick_2_y_stick",1);
-	js_stick_2_y_axis = zc_get_config(ctrl_sect,"js_stick_2_y_axis",1);
-	js_stick_2_y_offset = zc_get_config(ctrl_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-	analog_movement = (zc_get_config(ctrl_sect,"analog_movement",1));
-   
-	//cheat modifier keya
-	cheat_modifier_keys[0] = zc_get_config(ctrl_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
-	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
-	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
-	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
-	
-	//cheat keys
-	load_default_cheatkeys();
-	char buf[256];
-	for(size_t q = 1; q < Cheat::Last; ++q)
-	{
-		if(!bindable_cheat((Cheat)q)) continue;
-		std::string cheatname = cheat_to_string((Cheat)q);
-		util::lowerstr(cheatname);
-		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
-		cheatkeys[q][0] = zc_get_config(ctrl_sect,buf,cheatkeys[q][0]);
-		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
-		cheatkeys[q][1] = zc_get_config(ctrl_sect,buf,cheatkeys[q][1]);
-	}
-   
-	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
-		joystick_index = 0;
-	   
-	Akey = zc_get_config(ctrl_sect,"key_a",KEY_Z);
-	Bkey = zc_get_config(ctrl_sect,"key_b",KEY_X);
-	Skey = zc_get_config(ctrl_sect,"key_s",KEY_ENTER);
-	Lkey = zc_get_config(ctrl_sect,"key_l",KEY_Q);
-	Rkey = zc_get_config(ctrl_sect,"key_r",KEY_W);
-	Pkey = zc_get_config(ctrl_sect,"key_p",KEY_SPACE);
-	Exkey1 = zc_get_config(ctrl_sect,"key_ex1",KEY_A);
-	Exkey2 = zc_get_config(ctrl_sect,"key_ex2",KEY_S);
-	Exkey3 = zc_get_config(ctrl_sect,"key_ex3",KEY_D);
-	Exkey4 = zc_get_config(ctrl_sect,"key_ex4",KEY_C);
-   
-	DUkey = zc_get_config(ctrl_sect,"key_up",   KEY_UP);
-	DDkey = zc_get_config(ctrl_sect,"key_down", KEY_DOWN);
-	DLkey = zc_get_config(ctrl_sect,"key_left", KEY_LEFT);
-	DRkey = zc_get_config(ctrl_sect,"key_right",KEY_RIGHT);
-   
-	Abtn = zc_get_config(ctrl_sect,"btn_a",2);
-	Bbtn = zc_get_config(ctrl_sect,"btn_b",1);
-	Sbtn = zc_get_config(ctrl_sect,"btn_s",10);
-	Mbtn = zc_get_config(ctrl_sect,"btn_m",9);
-	Lbtn = zc_get_config(ctrl_sect,"btn_l",5);
-	Rbtn = zc_get_config(ctrl_sect,"btn_r",6);
-	Pbtn = zc_get_config(ctrl_sect,"btn_p",12);
-	Exbtn1 = zc_get_config(ctrl_sect,"btn_ex1",7);
-	Exbtn2 = zc_get_config(ctrl_sect,"btn_ex2",8);
-	Exbtn3 = zc_get_config(ctrl_sect,"btn_ex3",4);
-	Exbtn4 = zc_get_config(ctrl_sect,"btn_ex4",3);
-   
-	DUbtn = zc_get_config(ctrl_sect,"btn_up",13);
-	DDbtn = zc_get_config(ctrl_sect,"btn_down",14);
-	DLbtn = zc_get_config(ctrl_sect,"btn_left",15);
-	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
 	
@@ -462,86 +354,6 @@ void load_game_configs()
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
-}
-
-void save_control_configs(bool kb)
-{
-	if(kb)
-	{
-		zc_set_config(ctrl_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
-		zc_set_config(ctrl_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
-		zc_set_config(ctrl_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
-		zc_set_config(ctrl_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
-		
-		if (!replay_is_replaying())
-		{
-			zc_set_config(ctrl_sect,"key_a",Akey);
-			zc_set_config(ctrl_sect,"key_b",Bkey);
-			zc_set_config(ctrl_sect,"key_s",Skey);
-			zc_set_config(ctrl_sect,"key_l",Lkey);
-			zc_set_config(ctrl_sect,"key_r",Rkey);
-			zc_set_config(ctrl_sect,"key_p",Pkey);
-			zc_set_config(ctrl_sect,"key_ex1",Exkey1);
-			zc_set_config(ctrl_sect,"key_ex2",Exkey2);
-			zc_set_config(ctrl_sect,"key_ex3",Exkey3);
-			zc_set_config(ctrl_sect,"key_ex4",Exkey4);
-			zc_set_config(ctrl_sect,"key_up",   DUkey);
-			zc_set_config(ctrl_sect,"key_down", DDkey);
-			zc_set_config(ctrl_sect,"key_left", DLkey);
-			zc_set_config(ctrl_sect,"key_right",DRkey);
-		}
-	}
-	else
-	{
-		zc_set_config(ctrl_sect,"joystick_index",joystick_index);
-		zc_set_config(ctrl_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
-		zc_set_config(ctrl_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
-		zc_set_config(ctrl_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
-		zc_set_config(ctrl_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
-		zc_set_config(ctrl_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
-		zc_set_config(ctrl_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
-		zc_set_config(ctrl_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
-		zc_set_config(ctrl_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
-		zc_set_config(ctrl_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
-		zc_set_config(ctrl_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
-		zc_set_config(ctrl_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
-		zc_set_config(ctrl_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
-		zc_set_config(ctrl_sect,"analog_movement",analog_movement);
-		
-		zc_set_config(ctrl_sect,"btn_a",Abtn);
-		zc_set_config(ctrl_sect,"btn_b",Bbtn);
-		zc_set_config(ctrl_sect,"btn_s",Sbtn);
-		zc_set_config(ctrl_sect,"btn_m",Mbtn);
-		zc_set_config(ctrl_sect,"btn_l",Lbtn);
-		zc_set_config(ctrl_sect,"btn_r",Rbtn);
-		zc_set_config(ctrl_sect,"btn_p",Pbtn);
-		zc_set_config(ctrl_sect,"btn_ex1",Exbtn1);
-		zc_set_config(ctrl_sect,"btn_ex2",Exbtn2);
-		zc_set_config(ctrl_sect,"btn_ex3",Exbtn3);
-		zc_set_config(ctrl_sect,"btn_ex4",Exbtn4);
-		
-		zc_set_config(ctrl_sect,"btn_up",DUbtn);
-		zc_set_config(ctrl_sect,"btn_down",DDbtn);
-		zc_set_config(ctrl_sect,"btn_left",DLbtn);
-		zc_set_config(ctrl_sect,"btn_right",DRbtn);
-	}
-}
-
-void save_cheatkeys()
-{
-	char buf[256];
-	for(size_t q = 1; q < Cheat::Last; ++q)
-	{
-		if(!bindable_cheat((Cheat)q)) continue;
-		std::string cheatname = cheat_to_string((Cheat)q);
-		util::lowerstr(cheatname);
-		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
-		zc_set_config(ctrl_sect,buf,cheatkeys[q][0]);
-		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
-		if(cheatkeys[q][1])
-			zc_set_config(ctrl_sect,buf,cheatkeys[q][1]);
-		else zc_set_config(ctrl_sect,buf,(char*)nullptr);
-	}
 }
 
 void save_game_configs()
@@ -4372,13 +4184,13 @@ bool CheatModifierKeys()
 	if (replay_is_replaying())
 		return false;
 
-	if ( ( cheat_modifier_keys[0] > 0 && key[cheat_modifier_keys[0]] ) ||
-		( cheat_modifier_keys[1] > 0 && key[cheat_modifier_keys[1]] ) ||
-		(cheat_modifier_keys[0] <= 0 && cheat_modifier_keys[1] <= 0))
+	if ( ( active_control_scheme->cheat_modifier_keys[0] > 0 && key[active_control_scheme->cheat_modifier_keys[0]] ) ||
+		( active_control_scheme->cheat_modifier_keys[1] > 0 && key[active_control_scheme->cheat_modifier_keys[1]] ) ||
+		(active_control_scheme->cheat_modifier_keys[0] <= 0 && active_control_scheme->cheat_modifier_keys[1] <= 0))
 	{
-		if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) ||
-			( cheat_modifier_keys[3] > 0 && key[cheat_modifier_keys[3]] )  ||
-			(cheat_modifier_keys[2] <= 0 && cheat_modifier_keys[3] <= 0))
+		if ( ( active_control_scheme->cheat_modifier_keys[2] <= 0 || key[active_control_scheme->cheat_modifier_keys[2]] ) ||
+			( active_control_scheme->cheat_modifier_keys[3] > 0 && key[active_control_scheme->cheat_modifier_keys[3]] )  ||
+			(active_control_scheme->cheat_modifier_keys[2] <= 0 && active_control_scheme->cheat_modifier_keys[3] <= 0))
 		{
 			return true;
 		}
@@ -5118,237 +4930,16 @@ bool is_Fkey(int32_t k)
 	return false;
 }
 
-void kb_getkey(DIALOG *d);
-
-//Used by all keyboard key settings dialogues.
-void kb_clearjoystick(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	textout_centre_ex(screen, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	
-	update_hw_screen();
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	//shnarf
-	//47=f1
-	//59=esc
-//	if(k>0 && k<123 && !((k>46)&&(k<60)))
-//		*((int32_t*)d->dp3) = k;
-	if ( k != 59 ) *((int32_t*)d->dp3) = 0;
-		
-		
-	d->flags&=~D_SELECTED;
-}
-
-//Clears key to 0. 
-//Used by all keyboard key settings dialogues.
-void kb_clearkey(DIALOG *d);
-
-int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-	
-		kb_clearjoystick(d);
-		
-		while(gui_mouse_b())
-		{
-			clear_keybuf();
-			rest(1);
-		}
-			
-		return D_REDRAW;
-	}
-	
-	return jwin_button_proc(msg,d,c);
-}
-
-int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-//Only used in keyboard settings dialogues to clear keys. 
-int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-
-int32_t j_getbtn(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	int32_t y = screen->h/2 - 12;
-	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	
-	update_hw_screen();
-	
-	int32_t b = next_joy_input(true);
-	if (b == -2)
-		return D_CLOSE;
-	
-	if(b>=0)
-		*((int32_t*)d->dp3) = b;
-		
-	d->flags&=~D_SELECTED;
-	
-	return D_O_K;
-}
-
-void j_getstick(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	int32_t y = screen->h/2 - 12;
-	textout_centre_ex(screen, font, "Move a stick (or DPAD)", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	
-	update_hw_screen();
-	
-	int32_t b = next_joy_input(false);
-	
-	if(b>=0)
-		*((int32_t*)d->dp3) = b;
-		
-	d->flags&=~D_SELECTED;
-}
-
-int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		int ret = j_getbtn(d);
-		if (ret != D_O_K)
-			return ret;
-		
-		while(gui_mouse_b()) {
-			rest(1);
-			clear_keybuf();
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
-
-int32_t d_jstick_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		j_getstick(d);
-		
-		while(gui_mouse_b()) {
-			rest(1);
-			clear_keybuf();
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
-
-//shnarf
-extern const char *key_str[];
-std::string get_keystr(int key);
-
 const char *pan_str[4] = { "  MONO", "   1/2", "   3/4", "  FULL" };
-
-static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
-	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80],
-	str_primary_stick[80], str_secondary_stick[80];
-
-int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
+static char str_midi[80],str_emusic[80],str_sfx[80],str_pan[80],str_qst[80],str_ver[80];
+int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-
-	if (d->w == 1)
-	{
-		if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
-		{
-			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-			return D_CLOSE;
-		}
-	}
-
 	if(msg==MSG_DRAW)
 	{
-		switch(d->w)
-		{
-			case 0:
-				sprintf(str_a,"%03d\n%s",Akey,key_str[Akey]);
-				sprintf(str_b,"%03d\n%s",Bkey,key_str[Bkey]);
-				sprintf(str_s,"%03d\n%s",Skey,key_str[Skey]);
-				sprintf(str_l,"%03d\n%s",Lkey,key_str[Lkey]);
-				sprintf(str_r,"%03d\n%s",Rkey,key_str[Rkey]);
-				sprintf(str_p,"%03d\n%s",Pkey,key_str[Pkey]);
-				sprintf(str_ex1,"%03d\n%s",Exkey1,key_str[Exkey1]);
-				sprintf(str_ex2,"%03d\n%s",Exkey2,key_str[Exkey2]);
-				sprintf(str_ex3,"%03d\n%s",Exkey3,key_str[Exkey3]);
-				sprintf(str_ex4,"%03d\n%s",Exkey4,key_str[Exkey4]);
-				sprintf(str_up,"%03d\n%s",DUkey,key_str[DUkey]);
-				sprintf(str_down,"%03d\n%s",DDkey,key_str[DDkey]);
-				sprintf(str_left,"%03d\n%s",DLkey,key_str[DLkey]);
-				sprintf(str_right,"%03d\n%s",DRkey,key_str[DRkey]);
-				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
-				break;
-				
-			case 1:
-				sprintf(str_a,"%03d\n%s",Abtn,joybtn_name(Abtn));
-				sprintf(str_b,"%03d\n%s",Bbtn,joybtn_name(Bbtn));
-				sprintf(str_s,"%03d\n%s",Sbtn,joybtn_name(Sbtn));
-				sprintf(str_l,"%03d\n%s",Lbtn,joybtn_name(Lbtn));
-				sprintf(str_r,"%03d\n%s",Rbtn,joybtn_name(Rbtn));
-				sprintf(str_m,"%03d\n%s",Mbtn,joybtn_name(Mbtn));
-				sprintf(str_p,"%03d\n%s",Pbtn,joybtn_name(Pbtn));
-				sprintf(str_ex1,"%03d\n%s",Exbtn1,joybtn_name(Exbtn1));
-				sprintf(str_ex2,"%03d\n%s",Exbtn2,joybtn_name(Exbtn2));
-				sprintf(str_ex3,"%03d\n%s",Exbtn3,joybtn_name(Exbtn3));
-				sprintf(str_ex4,"%03d\n%s",Exbtn4,joybtn_name(Exbtn4));
-				sprintf(str_up,"%03d\n%s",DUbtn,joybtn_name(DUbtn));
-				sprintf(str_down,"%03d\n%s",DDbtn,joybtn_name(DDbtn));
-				sprintf(str_left,"%03d\n%s",DLbtn,joybtn_name(DLbtn));
-				sprintf(str_right,"%03d\n%s",DRbtn,joybtn_name(DRbtn));
-				sprintf(str_primary_stick,"%03d\n%s",js_stick_1_x_stick,joystick_name(js_stick_1_x_stick));
-				sprintf(str_secondary_stick,"%03d\n%s",js_stick_2_x_stick,joystick_name(js_stick_2_x_stick));
-				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%03d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
-				break;
-				
-			case 2:
-				sprintf(str_a,"   %3d",midi_volume);
-				sprintf(str_l,"   %3d",emusic_volume);
-				sprintf(str_r,"   %3d",sfx_volume);
-				strcpy(str_s,pan_str[pan_style]);
-				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
-				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
-				sprintf(str_rightmod1,"%3d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
-				sprintf(str_rightmod2,"%3d\n%s",cheat_modifier_keys[3],key_str[cheat_modifier_keys[3]]);
-				break;
-		}
+		sprintf(str_midi,"   %3d",midi_volume);
+		sprintf(str_emusic,"   %3d",emusic_volume);
+		sprintf(str_sfx,"   %3d",sfx_volume);
+		strcpy(str_pan,pan_str[pan_style]);
 	}
 	
 	return D_O_K;
@@ -5388,285 +4979,6 @@ int32_t set_pan(void *dp3, int32_t d2)
 	return D_O_K;
 }
 
-static int32_t gamepad_joys_list[] =
-{
-	61,
-	-1
-};
-
-static int32_t gamepad_btn_list[] =
-{
-	6,
-	7,8,9,10,11,12,13,14,15,16,17,
-	18,19,20,21,22,23,24,25,26,27,28,
-	29,30,31,32,33,34,35,36,37,38,39,
-	-1
-};
-
-static int32_t gamepad_dirs_list[] =
-{
-	40,41,42,43,
-	44,45,46,47,
-	48,49,50,51,
-	52,53,54,55,
-	56,57,58,59,
-	60,
-	-1
-};
-
-static TABPANEL gamepad_tabs[] =
-{
-	// (text)
-	{ (char *)"Controllers",		D_SELECTED,  gamepad_joys_list, 0, NULL },
-	{ (char *)"Buttons",		0,  gamepad_btn_list, 0, NULL },
-	{ (char *)"Directions",  0,		   gamepad_dirs_list, 0, NULL },
-	{ NULL,				  0,		   NULL,			   0, NULL }
-};
-
-const char *joy_list(int32_t index, int32_t *list_size)
-{
-	if (index == -1)
-	{
-		*list_size = al_get_num_joysticks();
-		return NULL;
-	}
-
-	ALLEGRO_JOYSTICK* joy = al_get_joystick(index);
-	if (!joy)
-	{
-		return "?";
-	}
-
-	return al_get_joystick_name(joy);
-}
-
-static ListData joy__list(joy_list, &font);
-
-static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	int32_t d2 = d->d2;
-	int32_t ret = jwin_droplist_proc(msg,d,c);
-	
-	if(d2!=d->d2)
-	{
-		joystick_index = d->d2;
-		ret |= D_REDRAW_ALL;
-	}
-	
-	return ret;
-}
-
-static DIALOG gamepad_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3)
-	{ jwin_win_proc,	   8,	24,   304,  256,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Gamepad Controls", NULL,  NULL },
-	{ jwin_tab_proc,	   8+4, 24+23,304-8,256-52,vc(0),   vc(15),  0,	   0,		 0,		0, (void *) gamepad_tabs, NULL, (void *)gamepad_dlg },
-	{ d_stringloader,	  0,	0,	1,	0,	0,	   0,	   0,	   0,		 0,		0,	   NULL, NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ jwin_button_proc,	90,   254,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	170,  254,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
-	// 6
-	{ d_dummy_proc,	 14,   61,   294,  192,  0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	// 7
-	{ jwin_ctext_proc,	  92,   92-20,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_a, NULL,  NULL },
-	{ jwin_ctext_proc,	  92,   120-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_b, NULL,  NULL },
-	{ jwin_ctext_proc,	  92,   148-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
-	{ jwin_ctext_proc,	  92,   180-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex1, NULL,  NULL },
-	{ jwin_ctext_proc,	  92,   212-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex3, NULL,  NULL },
-	{ jwin_ctext_proc,	  237,  92-20,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_l, NULL,  NULL },
-	{ jwin_ctext_proc,	  237,  120-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_r, NULL,  NULL },
-	{ jwin_ctext_proc,	  237,  148-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_p, NULL,  NULL },
-	{ jwin_ctext_proc,	  237,  180-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex2, NULL,  NULL },
-	{ jwin_ctext_proc,	  237,  212-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex4, NULL,  NULL },
-	{ jwin_ctext_proc,	  92,   244-20,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_m, NULL,  NULL },
-	// 18
-	{ d_jbutton_proc,	  22,   90-20,   61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "A",	 NULL, &Abtn},
-	{ d_jbutton_proc,	  22,   118-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "B",	 NULL, &Bbtn},
-	{ d_jbutton_proc,	  22,   146-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Start", NULL, &Sbtn},
-	{ d_jbutton_proc,	  22,   178-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "X (EX1)",	 NULL, &Exbtn1},
-	{ d_jbutton_proc,	  22,   210-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "EX3", NULL, &Exbtn3},
-	{ d_jbutton_proc,	  167,  90-20,   61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "L",	 NULL, &Lbtn},
-	{ d_jbutton_proc,	  167,  118-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "R",	 NULL, &Rbtn},
-	{ d_jbutton_proc,	  167,  146-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Map",   NULL, &Pbtn},
-	{ d_jbutton_proc,	  167,  178-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Y (EX2)",	 NULL, &Exbtn2},
-	{ d_jbutton_proc,	  167,  210-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "EX4",   NULL, &Exbtn4},
-	{ d_jbutton_proc,	  22,   242-20,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Menu",  NULL, &Mbtn},
-	// 29
-	{ d_j_clearbutton_proc,	  22+91,  90-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Abtn},
-	{ d_j_clearbutton_proc,	  22+91,  118-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Bbtn},
-	{ d_j_clearbutton_proc,	  22+91,  146-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Sbtn},
-	{ d_j_clearbutton_proc,	  22+91,  178-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exbtn1},
-	{ d_j_clearbutton_proc,	  22+91,  210-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exbtn3},
-	{ d_j_clearbutton_proc,	  167+91,  90-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Lbtn},
-	{ d_j_clearbutton_proc,	  167+91,  118-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Rbtn},
-	{ d_j_clearbutton_proc,	  167+91,  146-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Pbtn},
-	{ d_j_clearbutton_proc,	  167+91,  178-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exbtn2},
-	{ d_j_clearbutton_proc,	  167+91,  210-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exbtn4},
-	{ d_j_clearbutton_proc,	  22+91,  242-20,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Mbtn},
-	// 40
-	{ jwin_frame_proc,	 14,   62,   147,  80,  0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_frame_proc,	 159,  62,   147,  80,  0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		 30,   68,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Vertical", NULL,  NULL },
-	{ jwin_text_proc,		 175,  68,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Horizontal", NULL,  NULL },
-	// 44
-	{ jwin_text_proc,	  92,   84,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_up, NULL,  NULL },
-	{ jwin_text_proc,	  92,   112,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_down, NULL,  NULL },
-	{ jwin_text_proc,	  237,  84,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_left, NULL,  NULL },
-	{ jwin_text_proc,	  237,  112,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_right, NULL,  NULL },
-	// 48
-	{ d_jbutton_proc,	  22,   82,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Up",	 NULL, &DUbtn },
-	{ d_jbutton_proc,	  22,   110,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Down",   NULL, &DDbtn },
-	{ d_jbutton_proc,	  167,  82,   61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Left",   NULL, &DLbtn },
-	{ d_jbutton_proc,	  167,  110,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Right",  NULL, &DRbtn },
-	// 52
-	{ d_j_clearbutton_proc,	  22+91,  82,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DUbtn},
-	{ d_j_clearbutton_proc,	  22+91,  110,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DDbtn},
-	{ d_j_clearbutton_proc,	  167+91, 82,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",   NULL, &DLbtn},
-	{ d_j_clearbutton_proc,	  167+91, 110,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DRbtn},
-	// 56
-	{ jwin_check_proc,	 22,   150,  147,  8,	vc(14),  vc(1),   0,	   0,		 1,		0, (void *) "Primary: Use Analog Stick (Ignore above and use below instead)", NULL, NULL },
-	{ d_jstick_proc,	  22,   165,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Primary",	 NULL, &js_stick_1_x_stick },
-	{ d_jstick_proc,	  22,   195,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Secondary",	 NULL, &js_stick_2_x_stick },
-	{ jwin_text_proc,	  90,   165,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_primary_stick, NULL,  NULL },
-	{ jwin_text_proc,	  90,   195,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_secondary_stick, NULL,  NULL },
-
-	// 61
-	{ d_joylist_proc,  22,   62,  150,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &joy__list, NULL,  NULL },
-
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-static int32_t keyboard_keys_list[] =
-{
-	6,7,8,9,10,
-	11,12,13,14,15,16,17,18,19,20,
-	21,22,23,24,25,26,27,28,29,30,
-	31,32,33,34,35,36,37,38,39,40,
-	-1
-};
-
-static int32_t keyboard_dirs_list[] =
-{
-	41,42,43,44,
-	45,46,47,48,
-	49,50,51,52,
-	53,54,55,56,
-	-1
-};
-
-static int32_t keyboard_mods_list[] =
-{
-	57,58,59,60,
-	61,62,63,64,
-	65,66,67,68,
-	69,70,71,72,
-	-1
-};
-
-static TABPANEL keyboard_control_tabs[] =
-{
-	// (text)
-	{ (char *)"Keys",		D_SELECTED,  keyboard_keys_list, 0, NULL },
-	{ (char *)"Directions",  0,		   keyboard_dirs_list, 0, NULL },
-	{ (char *)"Cheat Mods",  0,		   keyboard_mods_list, 0, NULL },
-	{ NULL,				  0,		   NULL,			   0, NULL }
-};
-
-static DIALOG keyboard_control_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3)
-	{ jwin_win_proc,	   8,	39,   304,  240,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Keyboard Controls", NULL,  NULL },
-	{ jwin_tab_proc,	   8+4, 39+23,304-8,240-56,vc(0),   vc(15),  0,	   0,		 0,		0, (void *) keyboard_control_tabs, NULL, (void *)keyboard_control_dlg },
-	{ d_stringloader,	  0,	0,	0,	0,	0,	   0,	   0,	   0,		 0,		0, NULL, NULL,  NULL },
-	{ jwin_button_proc,	90,   254,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	170,  254,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	// Keys
-	// 6
-	{ jwin_frame_proc,	 14,   80,   148,  105,  0,	   0,	   0,	   0,		 FR_ETCHED,0, NULL, NULL,  NULL },
-	{ jwin_frame_proc,	 158,  80,   148,  105,  0,	   0,	   0,	   0,		 FR_ETCHED,0, NULL, NULL,  NULL },
-	{ jwin_frame_proc,	 14,   181,  292,  67,   0,	   0,	   0,	   0,		 FR_ETCHED,0, NULL, NULL,  NULL },
-	{ jwin_text_proc,	  30,   86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Standard", NULL,  NULL },
-	{ jwin_text_proc,	  175,  86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Extended", NULL,  NULL },
-	// 11
-	{ jwin_text_proc,	  92-4,   102,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_a, NULL,  NULL },
-	{ jwin_text_proc,	  92-4,   130,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_b, NULL,  NULL },
-	{ jwin_text_proc,	  92-4,   158,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
-	{ jwin_text_proc,	  92-4,   190,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex1, NULL,  NULL },
-	{ jwin_text_proc,	  92-4,   222,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex3, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  102,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_l, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  130,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_r, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  158,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_p, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  190,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex2, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  222,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ex4, NULL,  NULL },
-	// 21
-	{ d_kbutton_proc,	  22,   100,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "A",	 NULL, &Akey},
-	{ d_kbutton_proc,	  22,   128,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "B",	 NULL, &Bkey},
-	{ d_kbutton_proc,	  22,   156,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Start", NULL, &Skey},
-	{ d_kbutton_proc,	  22,   188,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "X (EX1)",	 NULL, &Exkey1},
-	{ d_kbutton_proc,	  22,   220,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "EX3", NULL, &Exkey3},
-	{ d_kbutton_proc,	  167,  100,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "L",	 NULL, &Lkey},
-	{ d_kbutton_proc,	  167,  128,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "R",	 NULL, &Rkey},
-	{ d_kbutton_proc,	  167,  156,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Map",   NULL, &Pkey},
-	{ d_kbutton_proc,	  167,  188,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Y (EX2)",	 NULL, &Exkey2},
-	{ d_kbutton_proc,	  167,  220,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "EX4",   NULL, &Exkey4},
-	// 31
-	{ d_k_clearbutton_proc,	  22+91,  100,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Akey},
-	{ d_k_clearbutton_proc,	  22+91,  128,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Bkey},
-	{ d_k_clearbutton_proc,	  22+91,  156,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Skey},
-	{ d_k_clearbutton_proc,	  22+91,  188,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exkey1},
-	{ d_k_clearbutton_proc,	  22+91,  220,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exkey3},
-	{ d_k_clearbutton_proc,	  167+91, 100,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Lkey},
-	{ d_k_clearbutton_proc,	  167+91, 128,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Rkey},
-	{ d_k_clearbutton_proc,	  167+91, 156,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Pkey},
-	{ d_k_clearbutton_proc,	  167+91, 188,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exkey2},
-	{ d_k_clearbutton_proc,	  167+91, 220,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &Exkey4},
-	// Dirs
-	// 41
-	{ jwin_frame_proc,	 14,   80,   147,  80,   0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_frame_proc,	 159,  80,   147,  80,   0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		 30,   86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Vertical", NULL,  NULL },
-	{ jwin_text_proc,		 175,  86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Horizontal", NULL,  NULL },
-	// 45
-	{ jwin_text_proc,	  92-4,   102,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_up, NULL,  NULL },
-	{ jwin_text_proc,	  92-4,   130,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_down, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  102,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_left, NULL,  NULL },
-	{ jwin_text_proc,	  237-4,  130,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_right, NULL,  NULL },
-	// 49
-	{ d_kbutton_proc,	  22,   100,  61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Up",	 NULL, &DUkey},
-	{ d_kbutton_proc,	  22,   128,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Down",   NULL, &DDkey},
-	{ d_kbutton_proc,	  167,  100,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Left",   NULL, &DLkey},
-	{ d_kbutton_proc,	  167,  128,  61,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Right",  NULL, &DRkey},
-	// 53
-	{ d_k_clearbutton_proc,	  22+91,  100,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DUkey},
-	{ d_k_clearbutton_proc,	  22+91,  128,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DDkey},
-	{ d_k_clearbutton_proc,	  167+91, 100,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DLkey},
-	{ d_k_clearbutton_proc,	  167+91, 128,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DRkey},
-	// Mods
-	// 57
-	{ jwin_frame_proc,	 14,   80,   148,  140-58,  0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_frame_proc,	 158,  80,   148,  140-58,  0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,	  30,   86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Left", NULL,  NULL },
-	{ jwin_text_proc,	  175,  86,   160,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Right", NULL,  NULL },
-	// 61
-	{ jwin_text_proc,	  92-26,   101,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_leftmod1, NULL,  NULL },
-	{ jwin_text_proc,	  92-26,   129,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_rightmod1, NULL,  NULL },
-	{ jwin_text_proc,	  237-4-22,101,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_leftmod2, NULL,  NULL },
-	{ jwin_text_proc,	  237-4-22,129,  60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_rightmod2, NULL,  NULL },
-	// 65
-	{ d_kbutton_proc,	  22,   100,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Main",	 NULL, &cheat_modifier_keys[0]},
-	{ d_kbutton_proc,	  22,   128,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Second",	 NULL, &cheat_modifier_keys[2]},
-	{ d_kbutton_proc,	  167,  100,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Main", NULL, &cheat_modifier_keys[1]},
-	{ d_kbutton_proc,	  167,  128,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Second",	 NULL, &cheat_modifier_keys[3]},
-	// 69
-	{ d_k_clearbutton_proc,	  22+91,  100,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &cheat_modifier_keys[0]},
-	{ d_k_clearbutton_proc,	  22+91,  128,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &cheat_modifier_keys[2]},
-	{ d_k_clearbutton_proc,	  167+91, 100,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",   NULL, &cheat_modifier_keys[1]},
-	{ d_k_clearbutton_proc,	  167+91, 128,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &cheat_modifier_keys[3]},
-	// 73
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
 int32_t midi_dp[3] = {0,0,0};
 int32_t emus_dp[3] = {2,0,0};
 int32_t sfx_dp[3]  = {3,0,0};
@@ -5676,18 +4988,18 @@ static DIALOG sound_dlg[] =
 {
 	//(dialog proc)		  (x)	 (y)	(w)	 (h)	(fg)	   (bg)				 (key) (flags)	   (d1)		   (d2) (dp)						   (dp2)			   (dp3)
 	{ jwin_win_proc,		  0,	  0,	320,	178,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "Sound Settings",	  NULL,			   NULL	 },
-	{ d_stringloader,		 0,	  0,	  2,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
+	{ d_stringloader,		 0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 	{ jwin_button_proc,	  58,	148,	 61,	 21,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "OK",				  NULL,			   NULL	 },
 	{ jwin_button_proc,	 138,	148,	 61,	 21,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "Cancel",			  NULL,			   NULL	 },
 	{ d_timer_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 	{ jwin_frame_proc,	   10,	 28,	300,	112,	0,		 0,				   0,	0,			FR_ETCHED,	 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 40,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_a,				 NULL,			   NULL	 },
+	{ jwin_rtext_proc,	  190,	 40,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_midi,				 NULL,			   NULL	 },
 	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 56,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_l,				 NULL,			   NULL	 },
+	{ jwin_rtext_proc,	  190,	 56,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_emusic,				 NULL,			   NULL	 },
 	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 	// 10
-	{ jwin_rtext_proc,	  190,	 72,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_r,				 NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 88,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_s,				 NULL,			   NULL	 },
+	{ jwin_rtext_proc,	  190,	 72,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_sfx,				 NULL,			   NULL	 },
+	{ jwin_rtext_proc,	  190,	 88,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_pan,				 NULL,			   NULL	 },
 	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
@@ -5713,38 +5025,17 @@ static DIALOG sound_dlg[] =
 	{ NULL,				   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
 };
 
-char zc_builddate[80];
-char zc_aboutstr[80];
-
-static DIALOG about_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
-	{ jwin_win_proc,	   68,   52,   184,  154,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "About", NULL,  NULL },
-	{ jwin_button_proc,	140,  176,  41,   21,   vc(14),  0,	   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ jwin_ctext_proc,		160,  84,   0,	8,	vc(0),   vc(11),  0,	   0,		 0,		0, zc_aboutstr, NULL,  NULL },
-	{ jwin_ctext_proc,		160,  92,   0,	8,	vc(0) ,  vc(11),  0,	   0,		 0,		0, str_s, NULL,  NULL },
-	{ jwin_ctext_proc,		160,  100,  0,	8,	vc(0) ,  vc(11),  0,	   0,		 0,		0, zc_builddate, NULL,  NULL },
-	{ jwin_text_proc,		 88,   124,  140,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Coded by:", NULL,  NULL },
-	{ jwin_text_proc,		 88,   132,  140,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "  Phantom Menace", NULL,  NULL },
-	{ jwin_text_proc,		 88,   144,  140,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Produced by:", NULL,  NULL },
-	{ jwin_text_proc,		 88,   152,  140,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "  Armageddon Games", NULL,  NULL },
-	{ jwin_frame_proc,	 80,   117,  160,  50,   0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-
 static DIALOG quest_dlg[] =
 {
 	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
 	{ jwin_win_proc,	   68,   25,   184,  190,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Quest Info", NULL,  NULL },
 	{ jwin_edit_proc,	  84,   54,   152,  16,   0,	   0,	   0,	   D_READONLY, 100,	 0,	   NULL, NULL,  NULL },
 	{ jwin_text_proc,		 89,   84,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Number:", NULL,  NULL },
-	{ jwin_text_proc,		 152,  84,   24,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_a, NULL,  NULL },
+	{ jwin_text_proc,		 152,  84,   24,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_qst, NULL,  NULL },
 	{ jwin_text_proc,		 89,   94,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Version:", NULL,  NULL },
 	{ jwin_text_proc,		 160,  94,   64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   header_version_nul_term, NULL,  NULL },
 	{ jwin_text_proc,		 89,   104,  141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "ZQ Version:", NULL,  NULL },
-	{ jwin_text_proc,		 184,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
+	{ jwin_text_proc,		 184,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ver, NULL,  NULL },
 	{ jwin_text_proc,		 84,   126,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Title:", NULL,  NULL },
 	{ jwin_textbox_proc,   84,   136,  152,  24,   0,	   0,	   0,	   0,		 0,		0,	   QHeader.title, NULL,  NULL },
 	{ jwin_text_proc,		 84,   168,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Author:", NULL,  NULL },
@@ -6367,11 +5658,11 @@ int32_t onQuest()
 	quest_dlg[1].dp = fname;
 	
 	if(QHeader.quest_number==0)
-		sprintf(str_a,"Custom");
+		sprintf(str_qst,"Custom");
 	else
-		sprintf(str_a,"%d",QHeader.quest_number);
+		sprintf(str_qst,"%d",QHeader.quest_number);
 		
-	sprintf(str_s,"%s",VerStr(QHeader.zelda_version));
+	sprintf(str_ver,"%s",VerStr(QHeader.zelda_version));
 	
 	quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
 	quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
@@ -6394,295 +5685,10 @@ int32_t onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-void load_ukeys(int32_t* arr)
+bool edit_controls_dialog();
+int32_t onControls()
 {
-	arr[ukey_a] = Akey;
-	arr[ukey_b] = Bkey;
-	arr[ukey_s] = Skey;
-	arr[ukey_l] = Lkey;
-	arr[ukey_r] = Rkey;
-	arr[ukey_p] = Pkey;
-	arr[ukey_ex1] = Exkey1;
-	arr[ukey_ex2] = Exkey2;
-	arr[ukey_ex3] = Exkey3;
-	arr[ukey_ex4] = Exkey4;
-	arr[ukey_du] = DUkey;
-	arr[ukey_dd] = DDkey;
-	arr[ukey_dl] = DLkey;
-	arr[ukey_dr] = DRkey;
-	arr[ukey_mod1a] = cheat_modifier_keys[0];
-	arr[ukey_mod1b] = cheat_modifier_keys[1];
-	arr[ukey_mod2a] = cheat_modifier_keys[2];
-	arr[ukey_mod2b] = cheat_modifier_keys[3];
-};
-
-static const char* ukey_names[] = {
-	"A", "B", "Start", "L", "R", "Map",
-	"Ex1", "Ex2", "Ex3", "Ex4", "Up", "Down",
-	"Left", "Right", "Cheat Mod L1", "Cheat Mod L2",
-	"Cheat Mod R1", "Cheat Mod R2",
-};
-std::string get_ukey_name(int32_t k)
-{
-	if (k < num_ukey) return ukey_names[k];
-	return "";
-}
-
-int32_t onKeyboard()
-{
-	int32_t a = Akey;
-	int32_t b = Bkey;
-	int32_t s = Skey;
-	int32_t l = Lkey;
-	int32_t r = Rkey;
-	int32_t p = Pkey;
-	int32_t ex1 = Exkey1;
-	int32_t ex2 = Exkey2;
-	int32_t ex3 = Exkey3;
-	int32_t ex4 = Exkey4;
-	int32_t du = DUkey;
-	int32_t dd = DDkey;
-	int32_t dl = DLkey;
-	int32_t dr = DRkey;
-	int32_t mod1a = cheat_modifier_keys[0];
-	int32_t mod1b = cheat_modifier_keys[1];
-	int32_t mod2a = cheat_modifier_keys[2];
-	int32_t mod2b = cheat_modifier_keys[3];
-	bool done=false;
-	int32_t ret;
-	
-	keyboard_control_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	large_dialog(keyboard_control_dlg);
-		
-	while(!done)
-	{
-		ret = do_zqdialog(keyboard_control_dlg,3);
-		
-		if(ret==3) // OK
-		{
-			int32_t ukeys[num_ukey];
-			load_ukeys(ukeys);
-			std::vector<std::string> uniqueError;
-			for(int32_t q = 0; q < num_ukey; ++q)
-			{
-				for(int32_t p = q+1; p < num_ukey; ++p)
-				{
-					if(ukeys[q] == ukeys[p] && ukeys[q] != 0)
-					{
-						char buf[64];
-						sprintf(buf, "'%s' conflicts with '%s'", get_ukey_name(q).c_str(), get_ukey_name(p).c_str());
-						std::string str(buf);
-						uniqueError.push_back(str);
-					}
-				}
-			}
-			if(uniqueError.size() == 0)
-			{
-				done = true;
-				save_control_configs(true);
-			}
-			else
-			{
-				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
-				box_out("Cannot have duplicate keybinds!"); box_eol();
-				for(std::vector<std::string>::iterator it = uniqueError.begin();
-					it != uniqueError.end(); ++it)
-				{
-					box_out((*it).c_str()); box_eol();
-				}
-				box_end(true);
-			}
-		}
-		else // Cancel
-		{
-			Akey = a;
-			Bkey = b;
-			Skey = s;
-			Lkey = l;
-			Rkey = r;
-			Pkey = p;
-			Exkey1 = ex1;
-			Exkey2 = ex2;
-			Exkey3 = ex3;
-			Exkey4 = ex4;
-			DUkey = du;
-			DDkey = dd;
-			DLkey = dl;
-			DRkey = dr;
-			cheat_modifier_keys[0] = mod1a;
-			cheat_modifier_keys[1] = mod1b;
-			cheat_modifier_keys[2] = mod2a;
-			cheat_modifier_keys[3] = mod2b;
-
-			done=true;
-		}
-
-        rest(1);
-	}
-	
-	return D_O_K;
-}
-
-int32_t onGamepad()
-{
-	if (al_get_num_joysticks() == 0)
-	{
-		InfoDialog("ZC", "No gamepads detected.").show();
-		return D_O_K;
-	}
-
-	int32_t a = Abtn;
-	int32_t b = Bbtn;
-	int32_t s = Sbtn;
-	int32_t l = Lbtn;
-	int32_t r = Rbtn;
-	int32_t m = Mbtn;
-	int32_t p = Pbtn;
-	int32_t ex1 = Exbtn1;
-	int32_t ex2 = Exbtn2;
-	int32_t ex3 = Exbtn3;
-	int32_t ex4 = Exbtn4;
-	int32_t up = DUbtn;
-	int32_t down = DDbtn;
-	int32_t left = DLbtn;
-	int32_t right = DRbtn;
-	int32_t joy = joystick_index;
-	int32_t stick_1 = js_stick_1_x_stick;
-	int32_t stick_2 = js_stick_2_x_stick;
-
-	gamepad_dlg[0].dp2=get_zc_font(font_lfont);
-	if(analog_movement)
-		gamepad_dlg[56].flags|=D_SELECTED;
-	else
-		gamepad_dlg[56].flags&=~D_SELECTED;
-
-	// TODO: should use controller device GUID or name instead of index, otherwise this value is not
-	// consistent unless exact same number of joysticks is always connected. Name is problematic b/c
-	// xinput driver doesn't actually get a name (at least, doesn't for my Xbox controller).
-	// TODO: should store gamepad control mappings per-controller, otherwise switching joystick
-	// requires remapping every time.
-	if (joystick_index >= al_get_num_joysticks())
-		joystick_index = 0;
-	gamepad_dlg[61].d2 = joystick_index;
-
-	gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
-	if (!gamepad_dlg_cur_joystick)
-	{
-		InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-		return D_CLOSE;
-	}
-
-	large_dialog(gamepad_dlg);
-		
-	int32_t ret = do_zqdialog(gamepad_dlg,4);
-	
-	if(ret == 4) //OK
-	{
-		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
-		joystick_index = gamepad_dlg[61].d2;
-		gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
-		if (!gamepad_dlg_cur_joystick)
-		{
-			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-			return D_CLOSE;
-		}
-		js_stick_1_y_stick = js_stick_1_x_stick;
-		js_stick_2_y_stick = js_stick_2_x_stick;
-		save_control_configs(false);
-	}
-	else //Cancel
-	{
-		Abtn = a;
-		Bbtn = b;
-		Sbtn = s;
-		Lbtn = l;
-		Rbtn = r;
-		Mbtn = m;
-		Pbtn = p;
-		Exbtn1 = ex1;
-		Exbtn2 = ex2;
-		Exbtn3 = ex3;
-		Exbtn4 = ex4;
-		DUbtn = up;
-		DDbtn = down;
-		DLbtn = left;
-		DRbtn = right;
-		joystick_index = joy;
-		js_stick_1_x_stick = stick_1;
-		js_stick_2_x_stick = stick_2;
-	}
-
-	return D_O_K;
-}
-
-int32_t onCheatKeys()
-{
-	int32_t oldcheats[Cheat::Last][2];
-	memcpy(oldcheats, cheatkeys, sizeof(cheatkeys));
-	
-	bool done=false;
-	
-	while(!done)
-	{
-		bool confirm = false;
-		CheatKeysDialog(&confirm).show();
-		if(confirm) // OK
-		{
-			std::vector<std::string> uniqueError;
-			char buf[512];
-			for(size_t q = 1; q < Cheat::Last; ++q)
-			{
-				if(cheatkeys[q][1] && !cheatkeys[q][0])
-				{
-					cheatkeys[q][0] = cheatkeys[q][1];
-					cheatkeys[q][1] = 0;
-				}
-			}
-			for(size_t q = 1; q < Cheat::Last; ++q)
-			{
-				if(!bindable_cheat((Cheat)q)) continue;
-				for(size_t p = q+1; p < Cheat::Last; ++p)
-				{
-					if(!bindable_cheat((Cheat)p)) continue;
-					for(size_t q2 = 0; q2 <= 1; ++q2)
-						for(size_t p2 = 0; p2 <= 1; ++p2)
-						{
-							if(cheatkeys[q][q2] == cheatkeys[p][p2] && cheatkeys[q][q2] != 0)
-							{
-								uniqueError.push_back(fmt::format("'{}' ({}) conflicts with '{}' ({}) - both '{}'",
-									cheat_to_string((Cheat)q), q2?"Alt":"Main",
-									cheat_to_string((Cheat)p), p2?"Alt":"Main",
-									get_keystr(cheatkeys[q][q2])));
-							}
-						}
-				}
-			}
-			if(uniqueError.size() == 0)
-			{
-				done = true;
-				save_cheatkeys();
-			}
-			else
-			{
-				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, 500,400, 2);
-				box_out("Cannot have duplicate keybinds!"); box_eol();
-				for(std::vector<std::string>::iterator it = uniqueError.begin();
-					it != uniqueError.end(); ++it)
-				{
-					box_out((*it).c_str()); box_eol();
-				}
-				box_end(true);
-			}
-		}
-		else // Cancel
-		{
-			memcpy(cheatkeys, oldcheats, sizeof(cheatkeys));
-			done=true;
-		}
-        rest(1);
-	}
-	
+	edit_controls_dialog();
 	return D_O_K;
 }
 
@@ -7180,13 +6186,6 @@ static NewMenu bottom_8_pixels_menu
 	{ "&Off", std::bind(onSetBottom8Pixels, 2) },
 };  
 
-static NewMenu controls_menu
-{
-	{ "Key&board...", onKeyboard },
-	{ "&Gamepad...", onGamepad },
-	{ "&Cheat Keys...", onCheatKeys },
-};
-
 static NewMenu name_entry_mode_menu
 {
 	{ "&Keyboard", onKeyboardEntry },
@@ -7249,7 +6248,7 @@ enum
 static NewMenu settings_menu
 {
 	{ "&Sound...", onSound },
-	{ "C&ontrols", &controls_menu, MENUID_SETTINGS_CONTROLS },
+	{ "C&ontrols", onControls, MENUID_SETTINGS_CONTROLS },
 	{},
 	{ "Options", &options_menu },
 	{},
@@ -7943,13 +6942,10 @@ void System()
 
 void fix_dialogs()
 {
-	jwin_center_dialog(about_dlg);
-	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
 	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
-	jwin_center_dialog(keyboard_control_dlg);
 	jwin_center_dialog(midi_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
@@ -8504,141 +7500,6 @@ int32_t pan(int32_t x)
 	return vbound(x,0,255);
 }
 
-/*******************************/
-/******* Input Handlers ********/
-/*******************************/
-
-bool joybtn(int32_t b)
-{
-	if(b == 0)
-		return false;
-	if (b-1 >= joy[joystick_index].num_buttons)
-		return false;
-		
-	return joy[joystick_index].button[b-1].b !=0;
-}
-
-bool joystick(int32_t s)
-{
-	if(s < 0)
-		return false;
-	if (s >= joy[joystick_index].num_sticks)
-		return false;
-	
-	for (int i = 0; i < joy[joystick_index].stick[s].num_axis; i++)
-	{
-		if (joy[joystick_index].stick[s].axis[i].d1 || joy[joystick_index].stick[s].axis[i].d2)
-			return true;
-	}
-	return false;
-}
-
-const char* joybtn_name(int32_t b)
-{
-	if (b <= 0 || b > joy[joystick_index].num_buttons)
-		return "";
-
-	return joy[joystick_index].button[b-1].name;
-}
-
-const char* joystick_name(int32_t s)
-{
-	if (s < 0 || s >= joy[joystick_index].num_sticks)
-		return "";
-
-	return joy[joystick_index].stick[s].name;
-}
-
-int32_t next_press_key();
-
-int32_t next_joy_input(bool buttons)
-{
-	clear_keybuf();
-
-	//first, we need to wait until they're pressing no buttons
-	for(;;)
-	{
-		if(keypressed())
-		{
-			switch(readkey()>>8)
-			{
-			case KEY_ESC:
-				return -1;
-				
-			case KEY_SPACE:
-				return 0;
-			}
-		}
-		
-		poll_joystick();
-		bool done = true;
-		
-		if (buttons)
-		{
-			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
-			{
-				if(joybtn(i)) done = false;
-			}
-		}
-		else
-		{
-			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
-			{
-				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-				return -2;
-			}
-			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
-			{
-				if(joystick(i)) done = false;
-			}
-		}
-		
-		if(done) break;
-		rest(1);
-	}
-
-	//now, we need to wait for them to press any button
-	for(;;)
-	{
-		if(keypressed())
-		{
-			switch(readkey()>>8)
-			{
-			case KEY_ESC:
-				return -1;
-				
-			case KEY_SPACE:
-				return 0;
-			}
-		}
-		
-		poll_joystick();
-		
-		if (buttons)
-		{
-			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
-			{
-				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
-				return -2;
-			}
-			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
-			{
-				if(joybtn(i))
-					return i;
-			}
-		}
-		else
-		{
-			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
-			{
-				if(joystick(i))
-					return i;
-			}
-		}
-		rest(1);
-	}
-}
-
 static bool rButton(bool &btn, bool &flag, bool rawbtn)
 {
 	bool ret = btn && !flag;
@@ -8692,10 +7553,15 @@ static bool key_system_press[127];
 bool button_press[ZC_CONTROL_STATES];
 bool button_hold[ZC_CONTROL_STATES];
 
-#define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
-#define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
-#define STICK_2_X joy[joystick_index].stick[js_stick_2_x_stick].axis[js_stick_2_x_axis]
-#define STICK_2_Y joy[joystick_index].stick[js_stick_2_y_stick].axis[js_stick_2_y_axis]
+#define STICK_1_X joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_x][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_x][control_scheme::data_axis]]
+#define STICK_1_Y joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_axis]]
+#define STICK_1_X_OFFSET active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_x][control_scheme::data_offset]
+#define STICK_1_Y_OFFSET active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_offset]
+
+#define STICK_2_X joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_x][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_x][control_scheme::data_axis]]
+#define STICK_2_Y joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_y][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_y][control_scheme::data_axis]]
+#define STICK_2_X_OFFSET active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_x][control_scheme::data_offset]
+#define STICK_2_Y_OFFSET active_control_scheme->stick_data[control_scheme::stick_2][control_scheme::axis_y][control_scheme::data_offset]
 #define STICK_PRECISION   56 //define your own sensitivity
 
 void load_control_state()
@@ -8710,28 +7576,27 @@ void load_control_state()
 
 	if (!replay_is_replaying())
 	{
-		raw_control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
-		raw_control_state[1]=zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
-		raw_control_state[2]=zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
-		raw_control_state[3]=zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
-		raw_control_state[4]=zc_getrawkey(Akey, true)||joybtn(Abtn);
-		raw_control_state[5]=zc_getrawkey(Bkey, true)||joybtn(Bbtn);
-		raw_control_state[6]=zc_getrawkey(Skey, true)||joybtn(Sbtn);
-		raw_control_state[7]=zc_getrawkey(Lkey, true)||joybtn(Lbtn);
-		raw_control_state[8]=zc_getrawkey(Rkey, true)||joybtn(Rbtn);
-		raw_control_state[9]=zc_getrawkey(Pkey, true)||joybtn(Pbtn);
-		raw_control_state[10]=zc_getrawkey(Exkey1, true)||joybtn(Exbtn1);
-		raw_control_state[11]=zc_getrawkey(Exkey2, true)||joybtn(Exbtn2);
-		raw_control_state[12]=zc_getrawkey(Exkey3, true)||joybtn(Exbtn3);
-		raw_control_state[13]=zc_getrawkey(Exkey4, true)||joybtn(Exbtn4);
+		raw_control_state[0]=zc_getrawkey(active_control_scheme->keys[btnUp], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]));
+		raw_control_state[1]=zc_getrawkey(active_control_scheme->keys[btnDown], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]));
+		raw_control_state[2]=zc_getrawkey(active_control_scheme->keys[btnLeft], true)||(active_control_scheme->analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]));
+		raw_control_state[3]=zc_getrawkey(active_control_scheme->keys[btnRight], true)||(active_control_scheme->analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]));
+		raw_control_state[4]=zc_getrawkey(active_control_scheme->keys[btnA], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnA]);
+		raw_control_state[5]=zc_getrawkey(active_control_scheme->keys[btnB], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnB]);
+		raw_control_state[6]=zc_getrawkey(active_control_scheme->keys[btnS], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnS]);
+		raw_control_state[7]=zc_getrawkey(active_control_scheme->keys[btnL], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnL]);
+		raw_control_state[8]=zc_getrawkey(active_control_scheme->keys[btnR], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnR]);
+		raw_control_state[9]=zc_getrawkey(active_control_scheme->keys[btnP], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnP]);
+		raw_control_state[10]=zc_getrawkey(active_control_scheme->keys[btnEx1], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx1]);
+		raw_control_state[11]=zc_getrawkey(active_control_scheme->keys[btnEx2], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx2]);
+		raw_control_state[12]=zc_getrawkey(active_control_scheme->keys[btnEx3], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx3]);
+		raw_control_state[13]=zc_getrawkey(active_control_scheme->keys[btnEx4], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx4]);
 		
 		if(num_joysticks != 0)
 		{
-			raw_control_state[14] = STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
-			raw_control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
-			raw_control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
-			raw_control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
-			// zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, raw_control_state[14]?1:0, raw_control_state[15]?1:0, raw_control_state[16]?1:0, raw_control_state[17]?1:0);
+			raw_control_state[14] = STICK_2_Y.pos - STICK_2_Y_OFFSET < -STICK_PRECISION;
+			raw_control_state[15] = STICK_2_Y.pos - STICK_2_Y_OFFSET > STICK_PRECISION;
+			raw_control_state[16] = STICK_2_X.pos - STICK_2_X_OFFSET < -STICK_PRECISION;
+			raw_control_state[17] = STICK_2_X.pos - STICK_2_X_OFFSET > STICK_PRECISION;
 		}
 		else
 		{
@@ -8739,7 +7604,6 @@ void load_control_state()
 			raw_control_state[15] = false;
 			raw_control_state[16] = false;
 			raw_control_state[17] = false;
-			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
 	}
 	if (replay_is_active())
@@ -8798,20 +7662,20 @@ void load_control_state()
 bool zc_key_pressed()
 //may also need to use zc_getrawkey
 {
-	if((zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
-	   (zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
-	   (zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
-	   (zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
-	   (zc_getrawkey(Akey, true)||joybtn(Abtn)) ||
-	   (zc_getrawkey(Bkey, true)||joybtn(Bbtn)) ||
-	   (zc_getrawkey(Skey, true)||joybtn(Sbtn)) ||
-	   (zc_getrawkey(Lkey, true)||joybtn(Lbtn)) ||
-	   (zc_getrawkey(Rkey, true)||joybtn(Rbtn)) ||
-	   (zc_getrawkey(Pkey, true)||joybtn(Pbtn)) ||
-	   (zc_getrawkey(Exkey1, true)||joybtn(Exbtn1)) ||
-	   (zc_getrawkey(Exkey2, true)||joybtn(Exbtn2)) ||
-	   (zc_getrawkey(Exkey3, true)||joybtn(Exbtn3)) ||
-	   (zc_getrawkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
+	if((zc_getrawkey(active_control_scheme->keys[btnUp], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - STICK_1_Y_OFFSET< -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnUp]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnDown], true)||(active_control_scheme->analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - STICK_1_Y_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnDown]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnLeft], true)||(active_control_scheme->analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - STICK_1_X_OFFSET < -STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnLeft]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnRight], true)||(active_control_scheme->analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - STICK_1_X_OFFSET > STICK_PRECISION : joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnRight]))) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnA], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnA])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnB], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnB])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnS], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnS])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnL], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnL])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnR], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnR])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnP], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnP])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnEx1], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx1])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnEx2], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx2])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnEx3], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx3])) ||
+	   (zc_getrawkey(active_control_scheme->keys[btnEx4], true)||joybtn(active_control_scheme->joystick_index, active_control_scheme->btns[btnEx4]))) // Skipping joystick axes
 		return true;
 	
 	return false;

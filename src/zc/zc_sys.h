@@ -55,11 +55,7 @@ int32_t onPauseInBackground();
 int32_t onCheatBombs();
 int32_t onCheatArrows();
 
-int32_t  next_press_key();
-int32_t  next_joy_input(bool buttons);
-bool joybtn(int32_t b);
-const char* joybtn_name(int32_t b);
-const char* joystick_name(int32_t s);
+bool joybtn(int stick_idx, int b);
 bool zc_readkey(int32_t k, bool ignoreDisable = false);
 bool zc_getkey(int32_t k, bool ignoreDisable = false);
 bool zc_readrawkey(int32_t k, bool ignoreDisable = false);
@@ -82,7 +78,6 @@ extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
 extern bool key_current_frame[127];
 extern bool key_previous_frame[127];
 extern bool button_press[ZC_CONTROL_STATES];
-extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 extern const char *qst_dir_name;
 extern char qst_files_path[2048];
 
@@ -161,15 +156,6 @@ bool DrunkrEx1btn();
 bool DrunkrEx2btn();
 bool DrunkrEx3btn();
 bool DrunkrEx4btn();
-
-enum uKey
-{
-	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
-	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
-	num_ukey
-};
-void load_ukeys(int32_t* arr);
-std::string get_ukey_name(int32_t k);
 
 int32_t after_time();
 

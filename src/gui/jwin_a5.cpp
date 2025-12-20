@@ -17,7 +17,6 @@ using namespace util;
 
 void update_hw_screen();
 extern int32_t zq_screen_w, zq_screen_h;
-extern int32_t joystick_index;
 
 extern bool is_editor();
 

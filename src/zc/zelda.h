@@ -10,6 +10,7 @@
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "base/zc_array.h"
+#include "zc/control_scheme.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
 #include "sound/zcmusic.h"
@@ -321,14 +322,9 @@ extern bool scrolling_using_new_region_coords;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
-extern bool analog_movement;
-extern int32_t joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern int32_t Quit;
 extern uint32_t GameFlags;
-extern int32_t js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
-extern int32_t js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
-extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
-extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
-extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
+extern int32_t ss_after, ss_speed, ss_density, ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;

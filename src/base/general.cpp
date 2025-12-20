@@ -81,6 +81,7 @@ zfix vbound(zfix val, int low, int high)
 	return val;
 }
 
+// exclusive of high
 int wrap(int x,int low,int high)
 {
     while(x<low)
@@ -88,6 +89,17 @@ int wrap(int x,int low,int high)
 
     while(x>high)
         x-=high-low+1;
+
+    return x;
+}
+// inclusive
+double wrap_float(double x,double low,double high)
+{
+    while(x<low)
+        x+=high-low;
+
+    while(x>high)
+        x-=high-low;
 
     return x;
 }

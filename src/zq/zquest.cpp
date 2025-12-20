@@ -659,7 +659,6 @@ int32_t ff_combo = 0;
 
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int32_t zqColorDepth = 8;
-int32_t joystick_index=0;
 
 void set_last_timed_save(char const* buf)
 {

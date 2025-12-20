@@ -4186,25 +4186,10 @@ int32_t get_register(const int32_t arg)
 		case KEYBINDINGS:
 		{
 			int32_t keyid = ri->d[rINDEX]/10000;
-			switch(keyid)
-			{
-				case 0: ret = DUkey * 10000; break;
-				case 1: ret = DDkey * 10000; break; 
-				case 2: ret = DLkey * 10000; break;
-				case 3: ret = DRkey * 10000; break;
-				case 4: ret = Akey * 10000; break;
-				case 5: ret = Bkey * 10000; break;
-				case 6: ret = Skey * 10000; break;
-				case 7: ret = Lkey * 10000; break;
-				case 8: ret = Rkey * 10000; break;
-				case 9: ret = Pkey * 10000; /*map*/ break; 
-				case 10: ret = Exkey1 * 10000; break;
-				case 11: ret = Exkey2 * 10000; break;
-				case 12: ret = Exkey3 * 10000; break;
-				case 13: ret = Exkey4 * 10000; break;
-				
-				default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); ret = 0; break; }
-			}
+			ret = 0;
+			if (unsigned(keyid) >= 14)
+				Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid);
+			else ret = 10000 * active_control_scheme->keys[keyid];
 			break;
 		}
 
@@ -4235,7 +4220,7 @@ int32_t get_register(const int32_t arg)
 		{
 			//Checks if a press is from the joypad, not keyboard. 
 			int32_t button = ri->d[rINDEX]/10000;
-			ret = joybtn(button)?10000:0;
+			ret = joybtn(active_control_scheme->joystick_index, button)?10000:0;
 		}
 		break;
 		
@@ -17239,29 +17224,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case KEYBINDINGS:
-		{
-			int32_t keyid = ri->d[rINDEX]/10000;
-			switch(keyid)
-			{
-				case 0: DUkey = ( value/10000 ); break;
-				case 1: DDkey = ( value/10000 ); break; 
-				case 2: DLkey = ( value/10000 ); break;
-				case 3: DRkey = ( value/10000 ); break;
-				case 4: Akey = ( value/10000 ); break;
-				case 5: Bkey = ( value/10000 ); break;
-				case 6: Skey = ( value/10000 ); break;
-				case 7: Lkey = ( value/10000 ); break;
-				case 8: Rkey = ( value/10000 ); break;
-				case 9: Pkey = ( value/10000 ); /*map*/ break; 
-				case 10: Exkey1 = ( value/10000 ); break;
-				case 11: Exkey2 = ( value/10000 ); break;
-				case 12: Exkey3 = ( value/10000 ); break;
-				case 13: Exkey4 = ( value/10000 ); break;
-				
-				default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); break; }
-			}
-			break;
-		}
+			break; // read only
 		
 		case DISABLEKEY:
 		{

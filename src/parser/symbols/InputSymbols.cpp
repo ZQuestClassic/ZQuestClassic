@@ -16,7 +16,7 @@ static AccessorTable InputTable[] =
 	{ "getMouse[]",                 0,       ZTID_UNTYPED,   MOUSEARR,                  0,  { ZTID_INPUT, ZTID_FLOAT },{} },
 	{ "setMouse[]",                 0,          ZTID_VOID,   MOUSEARR,                  0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getKeyBindings[]",           0,         ZTID_FLOAT,   KEYBINDINGS,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
-	{ "setKeyBindings[]",           0,          ZTID_VOID,   KEYBINDINGS,               0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "setKeyBindings[]",           0,          ZTID_VOID,   KEYBINDINGS,       FL_RDONLY,  { ZTID_INPUT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getModifierKeys",            0,         ZTID_FLOAT,   KEYMODIFIERS,              0,  { ZTID_INPUT },{} },
 	{ "setModifierKeys",            0,          ZTID_VOID,   KEYMODIFIERS,              0,  { ZTID_INPUT, ZTID_FLOAT },{} },
 	
