@@ -597,6 +597,8 @@ add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
 target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 target_include_directories(zconsolelogger PUBLIC src)
 
+target_link_libraries(zcbase PUBLIC zconsolelogger)
+
 #############################################################
 # Sound Library
 #############################################################

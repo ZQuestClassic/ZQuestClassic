@@ -1,6 +1,9 @@
-#include "base/zc_alleg.h"
 #include "zconfig.h"
+#include "base/zc_alleg.h"
+#include "base/headers.h"
 #include <string>
+
+void Z_error(const char *format,...);
 
 char const* get_config_file_name(App a)
 {
@@ -116,11 +119,11 @@ void zc_set_config_hex(char const* header, char const* name, int32_t val, App a)
 	set_config_hex(header,name,val);
 	zc_pop_config();
 }
-void zc_set_config(char const* header, char const* name, double default_val, App a)
+void zc_set_config(char const* header, char const* name, double val, App a)
 {
 	zc_push_config();
 	zc_config_file(get_config_file_name(a));
-	set_config_float(header, name, default_val);
+	set_config_float(header, name, val);
 	zc_pop_config();
 }
 void zc_set_config(char const* header, char const* name, char const* val, App a)
@@ -159,12 +162,235 @@ void zc_set_config_basic_hex(char const* header, char const* name, int32_t val)
 {
 	set_config_hex(header,name,val);
 }
-void zc_set_config_basic(char const* header, char const* name, double default_val)
+void zc_set_config_basic(char const* header, char const* name, double val)
 {
-	set_config_float(header, name, default_val);
+	set_config_float(header, name, val);
 }
 void zc_set_config_basic(char const* header, char const* name, char const* val)
 {
 	set_config_string(header,name,val);
 }
 
+zc_a5_cfg::zc_a5_cfg()
+	: data(nullptr), path(), dirty(false)
+{}
+
+zc_a5_cfg::zc_a5_cfg(string const& path)
+	: data(nullptr), path(path), dirty(true)
+{
+	if (!load())
+		data = al_create_config();
+}
+zc_a5_cfg::~zc_a5_cfg()
+{
+	destroy();
+}
+
+void zc_a5_cfg::destroy()
+{
+	if (data)
+	{
+		save();
+		al_destroy_config(data);
+		data = nullptr;
+		dirty = false;
+		path.clear();
+	}
+}
+
+bool zc_a5_cfg::is_valid() const
+{
+	return data != nullptr;
+}
+
+void zc_a5_cfg::re_load(string const& new_path)
+{
+	path = new_path;
+	dirty = true;
+	if (data)
+	{
+		al_destroy_config(data);
+		data = nullptr;
+	}
+	if (!load())
+		data = al_create_config();
+}
+
+bool zc_a5_cfg::load()
+{
+	if (path.empty()) return false;
+	dirty = true;
+	if (data) al_destroy_config(data);
+	data = al_load_config_file(path.c_str());
+	if (!data)
+		return false;
+	dirty = false;
+	return true;
+}
+
+bool zc_a5_cfg::save()
+{
+	if (path.empty()) return false;
+	if (!data) return false;
+	if (!dirty) return true; // nothing to save
+	if (al_save_config_file(path.c_str(), data))
+	{
+		dirty = false;
+		return true;
+	}
+	Z_error("Failed to save config file '%s'!\n", path.c_str());
+	return false;
+}
+
+void zc_a5_cfg::add_comment(const char* header, const char* comment)
+{
+	if (!data) return;
+	dirty = true;
+	al_add_config_comment(data, header, comment);
+}
+
+void zc_a5_cfg::add_section(const char* header)
+{
+	if (!data) return;
+	dirty = true;
+	al_add_config_section(data, header);
+}
+
+bool zc_a5_cfg::remove_section(const char* header)
+{
+	if (!data) return false;
+	if (al_remove_config_section(data, header))
+	{
+		dirty = true;
+		return true;
+	}
+	return false;
+}
+
+bool zc_a5_cfg::remove_key(const char* header, const char* name)
+{
+	if (!data) return false;
+	if (al_remove_config_key(data, header, name))
+	{
+		dirty = true;
+		return true;
+	}
+	return false;
+}
+
+optional<int> zc_a5_cfg::get_config_int(char const* header, char const* name)
+{
+	if (!data) return std::nullopt;
+	const char* str = al_get_config_value(data, header, name);
+	if (!str) return std::nullopt;
+	return atoi(str);
+}
+optional<double> zc_a5_cfg::get_config_float(char const* header, char const* name)
+{
+	if (!data) return std::nullopt;
+	const char* str = al_get_config_value(data, header, name);
+	if (!str) return std::nullopt;
+	return std::stod(str);
+}
+optional<string> zc_a5_cfg::get_config(char const* header, char const* name)
+{
+	if (!data) return std::nullopt;
+	const char* str = al_get_config_value(data, header, name);
+	if (!str) return std::nullopt;
+	return str;
+}
+void zc_a5_cfg::set_config(char const* header, char const* name, int val)
+{
+	if (!data) return;
+	dirty = true;
+	al_set_config_value(data, header, name, std::to_string(val).c_str());
+}
+void zc_a5_cfg::set_config(char const* header, char const* name, double val)
+{
+	if (!data) return;
+	dirty = true;
+	al_set_config_value(data, header, name, std::to_string(val).c_str());
+}
+void zc_a5_cfg::set_config(char const* header, char const* name, char const* val)
+{
+	if (!data) return;
+	if (!val)
+	{
+		remove_key(header, name);
+		return;
+	}
+	dirty = true;
+	al_set_config_value(data, header, name, val);
+}
+
+zc_a5_cfg_iterator zc_a5_cfg::iterate_sections()
+{
+	return zc_a5_cfg_iterator(data);
+}
+zc_a5_cfg_iterator zc_a5_cfg::iterate_entries(const char* header)
+{
+	return zc_a5_cfg_iterator(data, header);
+}
+zc_a5_cfg_iterator::operator bool() const
+{
+	return is_valid();
+}
+
+
+optional<string> zc_a5_cfg_iterator::operator*()
+{
+	return peek();
+}
+zc_a5_cfg_iterator& zc_a5_cfg_iterator::operator++()
+{
+	advance();
+	return *this;
+}
+zc_a5_cfg_iterator zc_a5_cfg_iterator::operator++(int)
+{
+	zc_a5_cfg_iterator ret(*this);
+	advance();
+	return ret;
+}
+optional<string> zc_a5_cfg_iterator::peek()
+{
+	return value;
+}
+bool zc_a5_cfg_iterator::advance()
+{
+	const char* str = nullptr;
+	if (section_it)
+		str = al_get_next_config_section(section_it);
+	else if (entry_it)
+		str = al_get_next_config_entry(entry_it);
+	if (str)
+		value = string(str);
+	else value = std::nullopt;
+	return is_valid();
+}
+optional<string> zc_a5_cfg_iterator::next()
+{
+	auto ret = value;
+	advance();
+	return ret;
+}
+bool zc_a5_cfg_iterator::is_valid() const
+{
+	return value != std::nullopt;
+}
+zc_a5_cfg_iterator::zc_a5_cfg_iterator(ALLEGRO_CONFIG const *data)
+	: section_it(nullptr), entry_it(nullptr), value(std::nullopt)
+{
+	const char* str = al_get_first_config_section(data, section_it);
+	if (str)
+		value = string(str);
+	else value = std::nullopt;
+}
+zc_a5_cfg_iterator::zc_a5_cfg_iterator(ALLEGRO_CONFIG const *data, const char* header)
+	: section_it(nullptr), entry_it(nullptr), value(std::nullopt)
+{
+	const char* str = al_get_first_config_entry(data, header, entry_it);
+	if (str)
+		value = string(str);
+	else value = std::nullopt;
+}
