@@ -87,7 +87,14 @@ void load_control_state();
 extern int32_t sfx_voice[WAV_COUNT];
 
 bool getInput(int32_t btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
+
+// returns {kb_pressed, joy_pressed} to differentiate kb 'esc' from gamepad 'menu'
+std::pair<bool, bool> menu_buttons(bool just_pressed);
+// calls the other function, and returns the || of the result (so, if EITHER is pressed)
+bool menu_pressed(bool just_pressed);
+
 byte getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
+
 byte checkIntBtnVal(byte intbtn, byte vals);
 
 bool Up();
