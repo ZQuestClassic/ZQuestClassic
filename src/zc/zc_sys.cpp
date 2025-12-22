@@ -3996,7 +3996,7 @@ void syskeys()
 	handle_close_btn_quit();
 	if(Quit == qEXIT) return;
 	
-	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
+	if(menu_pressed(true) || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
 		System();
 	}
@@ -6740,8 +6740,10 @@ void System()
 	the_player_menu.position(0, 0);
 	
 	bool running = true;
-	bool esc = key[KEY_ESC] || cMbtn();
-	bool autopop = esc;
+	// if pressing ESC on keyboard, pop open menu.
+	// Ignore gamepad 'Menu' button, as gamepad can't navigate the popped-open menu, and would get stuck!
+	bool autopop = menu_buttons(false).first;
+	menu_pressed(true); // eat menu input
 	do
 	{
 		if(reload_fonts)
@@ -6862,13 +6864,11 @@ void System()
 		}
 		
 		poll_keyboard();
-		if(esc)
-		{
-			if(!key[KEY_ESC])
-				esc = false;
-		}
+		poll_joystick();
+		if (menu_pressed(true))
+			running = false;
 		
-		if(keypressed() && !CHECK_ALT) //System hotkeys
+		if(running && keypressed() && !CHECK_ALT) //System hotkeys
 		{
 			auto c = peekkey();
 			bool eatkey = true;
@@ -6912,8 +6912,7 @@ void System()
 					onDebug();
 					break;
 				case KEY_ESC:
-					if(!esc)
-						running = false;
+					// is handled by menu button check
 					break;
 			}
 			if(eatkey)
@@ -7780,6 +7779,32 @@ bool getInput(int32_t btn, int input_flags)
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
+}
+
+std::pair<bool, bool> menu_buttons(bool just_pressed)
+{
+	static bool menu_pressed_state = false;
+	bool menu_kb = key[KEY_ESC];
+	bool menu_joy = joybtn(active_control_scheme->joystick_index, active_control_scheme->btn_menu);
+	if (just_pressed)
+	{
+		if (menu_pressed_state)
+		{
+			if (menu_joy || menu_kb)
+			{
+				menu_joy = false;
+				menu_kb = false;
+			}
+			else menu_pressed_state = false;
+		}
+		else menu_pressed_state = menu_joy || menu_kb;
+	}
+	return {menu_kb, menu_joy};
+}
+bool menu_pressed(bool just_pressed)
+{
+	auto [kb, joy] = menu_buttons(just_pressed);
+	return kb || joy;
 }
 
 byte getIntBtnInput(byte intbtn, int input_flags)
