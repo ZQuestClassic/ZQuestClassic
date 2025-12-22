@@ -14,7 +14,7 @@ struct Transform
 {
 	bool operator==(const Transform&) const = default;
 
-	int x, y;
+	int x = 0, y = 0;
 	float xscale = 1;
 	float yscale = 1;
 };
