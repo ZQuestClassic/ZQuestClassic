@@ -22,6 +22,7 @@ src/dialog/info.cpp
 src/dialog/alert.cpp
 src/dialog/vidmode.cpp
 src/dialog/numpick.cpp
+src/dialog/text_prompt.cpp
 src/dialog/ditherpick.cpp
 src/dialog/zc_options.cpp
 
