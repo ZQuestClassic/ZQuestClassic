@@ -89,6 +89,7 @@ src/dialog/combopool.cpp
 src/dialog/compilezscript.cpp
 src/dialog/compilesetting.cpp
 src/dialog/numpick.cpp
+src/dialog/text_prompt.cpp
 src/dialog/ditherpick.cpp
 src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
