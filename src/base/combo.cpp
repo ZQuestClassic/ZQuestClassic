@@ -434,7 +434,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 	// Conditionals
 	{
 		if (trigcooldown)
-			conditions << indent << trigcooldown << " frame cooldown\n";
+			conditions << indent << fmt::format("{} frame cooldown\n", trigcooldown);
 		if (triggeritem)
 		{
 			string pref;
@@ -889,9 +889,9 @@ if (var > -2) \
 		if (exdoor_dir > -1)
 		{
 			if (trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
-				effects << indent << fmt::format("Unsets ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
+				effects << indent << fmt::format("Unsets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
 			else
-				effects << indent << fmt::format("Sets ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
+				effects << indent << fmt::format("Sets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
 		}
 
 		if (trigger_flags.get(TRIGFLAG_LEVELSTATE))
