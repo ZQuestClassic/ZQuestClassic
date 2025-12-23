@@ -3,8 +3,10 @@
 #include "user_object.h"
 #include "zasm/table.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
 #include "zscriptversion.h"
+#include <algorithm>
 
 void push_ri();
 void pop_ri();
@@ -163,6 +165,30 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 	{
 		for (int i = 0; i < arr.Size(); i++)
 			ids.push_back(arr[i]);
+	}
+	else if (arr.MaybeHoldsObjects())
+	{
+		if (internal_id)
+		{
+			if (internal_expired) return;
+
+			// TODO: not very efficient. Should add a zasm_array_get_all method.
+			int size = std::min(zasm_array_size(internal_id->zasm_var, internal_id->ref), (int)untyped_is_object.size());
+			for (int i = 0; i < size; i++)
+			{
+				if (untyped_is_object[i])
+					ids.push_back(zasm_array_get(internal_id->zasm_var, internal_id->ref, i));
+			}
+
+			return;
+		}
+
+		int size = std::min(zasm_array_size(internal_id->zasm_var, internal_id->ref), (int)untyped_is_object.size());
+		for (int i = 0; i < size; i++)
+		{
+			if (untyped_is_object[i])
+				ids.push_back(arr[i]);
+		}
 	}
 }
 

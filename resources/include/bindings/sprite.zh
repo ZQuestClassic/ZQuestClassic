@@ -360,6 +360,7 @@ class sprite {
 	//
 	// [ffc]: only 16 values.
 	//
+	// @maybe_retains_objects
 	// @zasm_var SPRITE_MISCD
 	internal untyped Misc[];
 

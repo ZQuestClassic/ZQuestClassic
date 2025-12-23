@@ -50,7 +50,11 @@ public:
 	}
 	bool HoldsObjects() const
 	{
-		return _object_type != script_object_type::none;
+		return _object_type != script_object_type::none && _object_type != script_object_type::untyped;
+	}
+	bool MaybeHoldsObjects() const
+	{
+		return _object_type == script_object_type::untyped;
 	}
 
     void Resize(const size_t size)

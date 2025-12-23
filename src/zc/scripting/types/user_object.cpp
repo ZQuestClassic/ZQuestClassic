@@ -123,26 +123,38 @@ static void do_readclass()
 	}
 }
 
-static void do_writeclass()
+static void do_writeclass(bool value_is_object)
 {
 	int data = GET_D(rEXP1);
 
 	dword id = get_register(sarg1);
-	int32_t ind = sarg2;
+	int32_t index = sarg2;
 	if (auto obj = user_objects.check(id))
 	{
-		if(unsigned(ind) >= obj->data.size())
+		if (unsigned(index) >= obj->data.size())
 		{
-			scripting_log_error_with_context("Script tried to write position '{}' out of bounds on a '{}' size object ({}).", ind, obj->data.size(), id);
+			scripting_log_error_with_context("Script tried to write position '{}' out of bounds on a '{}' size object ({}).", index, obj->data.size(), id);
+			return;
+		}
+
+		auto type = obj->getMemberFieldType(index);
+		if (type == script_object_type::untyped)
+		{
+			if (value_is_object)
+				script_object_ref_inc(data);
+			if (obj->untyped_is_object.size() > index && obj->untyped_is_object[index])
+				script_object_ref_dec(obj->data[index]);
+			obj->data[index] = data;
+		}
+		else if (type != script_object_type::none)
+		{
+			script_object_ref_inc(data);
+			script_object_ref_dec(obj->data[index]);
+			obj->data[index] = data;
 		}
 		else
 		{
-			bool is_object = obj->isMemberObjectType(ind);
-			if (is_object)
-				script_object_ref_dec(obj->data[ind]);
-			obj->data[ind] = data;
-			if (is_object)
-				script_object_ref_inc(obj->data[ind]);
+			obj->data[index] = data;
 		}
 	}
 }
@@ -185,7 +197,12 @@ std::optional<int32_t> user_object_run_command(word command)
 		}
 		case ZCLASS_WRITE:
 		{
-			do_writeclass();
+			do_writeclass(false);
+			break;
+		}
+		case ZCLASS_WRITE_OBJECT:
+		{
+			do_writeclass(true);
 			break;
 		}
 		case ZCLASS_FREE:

@@ -874,6 +874,10 @@ static constexpr script_command command_list[]=
 	{ "SAVEMENU_OPT_SET_STRING", SAVEMENU_OPT_SET_STRING, 2, { REG_R, REG_R }, 0, 0 },
 	{ "SAVEMENU_OPEN", SAVEMENU_OPEN, 0, {}, 0, 0 },
 	{ "LOADSAVEMENU", LOADSAVEMENU, 1, { REG_R }, 0, 0 },
+
+	// TODO !
+	{ "ZCLASS_WRITE_OBJECT", ZCLASS_WRITE_OBJECT, 1, { REG_R }, 0, 0 },
+	{ "MARK_TYPE_PARAMETERS", MARK_TYPE_PARAMETERS, 1, { REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

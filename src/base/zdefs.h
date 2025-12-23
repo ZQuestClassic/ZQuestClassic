@@ -1307,12 +1307,22 @@ public:
 
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
-	std::set<uint32_t> stack_pos_is_object;
+	std::set<uint32_t> stack_pos_is_object; // TODO ! rm
+	std::vector<script_object_type> stack_pos_object_types;
 	bool overflow;
 
 	void Clear()
 	{
 		*this = refInfo();
+	}
+
+	bool stackPosHasObject(int index)
+	{
+		// if (index > stack_pos_object_types.size())
+		// 	return false;
+
+		// return stack_pos_object_types[index] != script_object_type::none;
+		return stack_pos_is_object.contains(index);
 	}
 };
 

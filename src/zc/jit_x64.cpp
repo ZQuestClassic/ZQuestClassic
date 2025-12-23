@@ -505,6 +505,8 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
+		// game->global_d_types
+
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
 		cc.mov(x86::ptr_32(address, (r - GD(0)) * 4), val);

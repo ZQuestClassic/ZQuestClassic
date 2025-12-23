@@ -81,6 +81,7 @@
 #include "zc/scripting/arrays.h"
 #include "base/check.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/script_object.h"
 
 #include <cstddef>
 
@@ -114,7 +115,7 @@ public:
 		return 0;
 	}
 
-	bool setElement(int zasm_var, int ref, int index, int value)
+	bool setElement(int zasm_var, int ref, int index, int value, bool is_object)
 	{
 		if (auto impl = m_arrays[zasm_var])
 		{
@@ -124,7 +125,28 @@ public:
 				return false;
 			}
 
-			return impl->setElement(ref, index, value);
+			bool maybe_retains_objects = zasm_var == SPRITE_MISCD;
+			if (!maybe_retains_objects)
+				return impl->setElement(ref, index, value);
+
+			// If about to give the array an object, then add the reference count now.
+			if (is_object)
+				script_object_ref_inc(value);
+
+			auto array = find_or_create_internal_script_array({zasm_var, ref});
+
+			// If this slot previously was retaining a reference to some other object, release it now.
+			DCHECK(array->arr.MaybeHoldsObjects()); // TODO ! ?
+			if (array->untyped_is_object.size() > index && array->untyped_is_object[index])
+				script_object_ref_dec(impl->getElement(ref, index));
+
+			bool success = impl->setElement(ref, index, value);
+
+			if (index >= array->untyped_is_object.size())
+				array->untyped_is_object.resize(index + 1);
+			array->untyped_is_object[index] = is_object;
+
+			return success;
 		}
 
 		return false;
@@ -151,9 +173,9 @@ int zasm_array_get(int zasm_var, int ref, int index)
 	return g_arrayManager.getElement(zasm_var, ref, index);
 }
 
-bool zasm_array_set(int zasm_var, int ref, int index, int value)
+bool zasm_array_set(int zasm_var, int ref, int index, int value, bool is_object)
 {
-	return g_arrayManager.setElement(zasm_var, ref, index, value);
+	return g_arrayManager.setElement(zasm_var, ref, index, value, is_object);
 }
 
 bool zasm_array_supports(int zasm_var)

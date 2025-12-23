@@ -1208,6 +1208,7 @@ A: No.
   }
 
   // check for qst that haven't been uncompressed+gzipped, in case something was missed somehow.
+  console.log('checking for qst.gz ...');
   for (const quest of questsMap.values()) {
     for (const release of quest.releases) {
       for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
@@ -1227,6 +1228,7 @@ A: No.
   }
 
   if (isLoggedIn) {
+    console.log('updating authors ...');
     const seenAuthors = new Set();
     for (const quest of questsMap.values()) {
       if (!quest.authors) {
@@ -1245,6 +1247,7 @@ A: No.
       saveAuthors();
     }
 
+    console.log('updating ratings ...');
     for (const quest of questsMap.values()) {
       if (ratingsMap.has(quest.id)) continue;
 

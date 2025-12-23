@@ -624,23 +624,30 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		// untyped does not increase reference count.
+		// untyped can increase reference count, but only if an object was set to it.
 		printf("=== Test %d - untyped === \n", ++tests);
 		{
 			untyped a = new Person();
+			yield(); // Release the reference from the autorelease pool.
 			check("RefCount(a)", RefCount(a), 1L);
 			check("(1) count", count, 1);
-			yield(); // Release the single reference, which is from the autorelease pool.
+			a = 100;
+			check("RefCount(a)", RefCount(a), -1L);
 			check("(2) count", count, 0);
+
+			a = new Person();
+			yield();
+			check("RefCount(a)", RefCount(a), 1L);
 		}
+		check("(3) count", count, 0);
+		// TODO ! now check untyped member field.
 
 		printf("=== Test %d === \n", ++tests);
 		{
 			untyped a = new Person();
-			Person b = a;
-			check("RefCount(a)", RefCount(a), 1L);
 			yield();
-			check("RefCount(a)", RefCount(a), 1L);
+			Person b = a;
+			check("RefCount(a)", RefCount(a), 2L);
 		}
 		check("count", count, 0);
 
@@ -654,7 +661,7 @@ generic script garbage_collection
 		}
 		check("count", count, 0);
 
-		printf("=== Test %d === \n", ++tests);
+		printf("=== Test %d - untyped arrays === \n", ++tests);
 		{
 			Person a = new Person();
 			untyped arr[3] = {a, a, a};

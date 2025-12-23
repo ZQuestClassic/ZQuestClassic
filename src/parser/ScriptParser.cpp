@@ -716,12 +716,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Retain references from parameters that are objects.
 			// Callers pushed them on the stack, and here we mark that part of the stack
 			// as retaining an object.
+			std::vector<int> parameter_types_data;
 			for (auto&& datum : function.getInternalScope()->getLocalData())
 			{
+				// TODO !
 				// Exclude 'this' for now.
 				if (dynamic_cast<BuiltinVariable*>(datum))
 					continue;
 
+				// TODO !
 				if (!datum->type.isObject())
 					continue;
 
@@ -730,9 +733,14 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
+				parameter_types_data.push_back(*position);
+				parameter_types_data.push_back((int)datum->type.getScriptObjectTypeId());
 				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
+
+			// if (parameter_types_data.size())
+			// 	addOpcode2(funccode, new OMarkTypeParameters(new VectorArgument(parameter_types_data)));
 			
 			CleanupVisitor cv(program, scope);
 			node.execute(cv);
@@ -864,6 +872,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Retain references from parameters that are objects.
 			// Callers pushed them on the stack, and here we mark that part of the stack
 			// as retaining an object.
+			std::vector<int> parameter_types_data;
 			for (auto&& datum : function.getInternalScope()->getLocalData())
 			{
 				if (!datum->type.isObject())
@@ -874,9 +883,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
+				// parameter_types_data.push_back(*position);
+				// parameter_types_data.push_back((int)datum->type.getScriptObjectTypeId());
 				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
+
+			// TODO !
+			// if (parameter_types_data.size())
+			// 	addOpcode2(funccode, new OMarkTypeParameters(new VectorArgument(parameter_types_data)));
 
 			CleanupVisitor cv(program, scope);
 			node.execute(cv);
@@ -1421,6 +1436,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 				++it;
 				continue;
 			}
+			// TODO ! remove ...
 			// If [STORE reg,lit] is followed by [LOAD reg,lit], the LOAD
 			// can be deleted, as 'reg' already will contain the value to be loaded.
 			if(OStoreDirect* stored = dynamic_cast<OStoreDirect*>(ocode))

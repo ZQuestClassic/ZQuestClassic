@@ -1,5 +1,6 @@
 #include "zc/scripting/script_object.h"
 
+#include "base/general.h"
 #include "base/zc_array.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/types/user_object.h"
@@ -13,6 +14,7 @@ std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
 std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
 std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
+std::vector<uint32_t> untyped_internal_arrays_retaining_references;
 
 static int allocations_since_last_gc;
 static int deallocations_since_last_gc;
@@ -331,14 +333,18 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		if (object->global)
 			live_object_ids.insert(object->id);
 	}
-	for (auto& aptr : game->globalRAM)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if (aptr.HoldsObjects())
+		for (auto& aptr : game->globalRAM)
 		{
-			for (int i = 0; i < aptr.Size(); i++)
+			if (aptr.HoldsObjects())
 			{
-				live_object_ids.insert(aptr[i]);
+				for (int i = 0; i < aptr.Size(); i++)
+				{
+					live_object_ids.insert(aptr[i]);
+				}
 			}
+			// Not checking "MaybeHoldsObjects" because globalRAM is only used for older games.
 		}
 	}
 	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
@@ -348,13 +354,16 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 	}
 	if (!only_include_global_roots)
 	{
-		for (auto& aptr : localRAM)
+		if (!ZScriptVersion::gc_arrays())
 		{
-			if (aptr.HoldsObjects())
+			for (auto& aptr : localRAM)
 			{
-				for (int i = 0; i < aptr.Size(); i++)
+				if (aptr.HoldsObjects())
 				{
-					live_object_ids.insert(aptr[i]);
+					for (int i = 0; i < aptr.Size(); i++)
+					{
+						live_object_ids.insert(aptr[i]);
+					}
 				}
 			}
 		}
@@ -363,6 +372,15 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 			for (int i : data.ref.stack_pos_is_object)
 				live_object_ids.insert(data.stack[i]);
 		}
+		// TODO ! rm
+		// for (auto& data : scriptEngineDatas | std::views::values)
+		// {
+		// 	for (int i = 0; i < data.ref.stack_pos_object_types.size(); i++)
+		// 	{
+		// 		if (data.ref.stack_pos_object_types[i] != script_object_type::none)
+		// 			live_object_ids.insert(data.stack[i]);
+		// 	}
+		// }
 		for (auto id : script_object_autorelease_pool)
 			live_object_ids.insert(id);
 	}

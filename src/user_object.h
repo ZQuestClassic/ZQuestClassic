@@ -83,6 +83,7 @@ struct script_array : public user_abstract_obj
 	};
 
 	ZScriptArray arr;
+	std::vector<bool> untyped_is_object;
 	std::optional<internal_array_id> internal_id;
 	bool internal_expired;
 
@@ -112,6 +113,7 @@ struct scr_func_exec
 struct user_object : public user_abstract_obj
 {
 	std::vector<int32_t> data;
+	std::vector<bool> untyped_is_object;
 	size_t owned_vars;
 	std::vector<script_object_type> var_types;
 	scr_func_exec destruct;
@@ -130,13 +132,31 @@ struct user_object : public user_abstract_obj
 	bool isMemberObjectType(size_t index)
 	{
 		if (index < owned_vars)
-			return var_types.size() > index && var_types[index] != script_object_type::none;
+		{
+			auto type = var_types.size() > index ? var_types[index] : script_object_type::none;
+			if (type == script_object_type::untyped)
+				return untyped_is_object.size() > index && untyped_is_object[index];
+
+			return type != script_object_type::none;
+		}
 
 		if (index < data.size())
 			return true;
 		
 		NOTREACHED();
 		return false;
+	}
+
+	script_object_type getMemberFieldType(size_t index)
+	{
+		if (index < owned_vars)
+			return var_types.size() > index ? var_types[index] : script_object_type::none;
+
+		if (index < data.size())
+			return script_object_type::array;
+		
+		NOTREACHED();
+		return script_object_type::none;
 	}
 };
 struct saved_user_object

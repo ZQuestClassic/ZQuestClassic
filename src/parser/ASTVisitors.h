@@ -208,6 +208,7 @@ namespace ZScript
 			caseDefault(host, param);}
 		
 		int parsing_user_class;
+		bool is_setting_object;
 		bool sidefx_only;
 		Function* in_func;
 		//Current scope

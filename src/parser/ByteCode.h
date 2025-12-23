@@ -58,6 +58,7 @@ namespace ZScript {
 	typedef Opcode1<GOTOR, LabelArgument> OGotoRegister;
 	typedef Opcode1<GOTOTRUE, LabelArgument> OGotoTrueImmediate;
 	typedef Opcode1<MAKEVARGARRAY, LiteralArgument> OMakeVargArray;
+	typedef Opcode1<MARK_TYPE_PARAMETERS, VectorArgument> OMarkTypeParameters;
 	typedef Opcode1<PEEK, VarArgument> OPeek;
 	typedef Opcode1<POP, VarArgument> OPopRegister;
 	typedef Opcode1<PUSHR, VarArgument> OPushRegister;
@@ -148,8 +149,9 @@ namespace ZScript {
 	typedef Opcode2<XORV, VarArgument, LiteralArgument> OXorImmediate;
 	typedef Opcode2<XORV32, VarArgument, LiteralArgument> O32BitXorImmediate;
 	typedef Opcode2<ZCLASS_CONSTRUCT, VarArgument, VectorArgument> OConstructClass;
-	typedef Opcode2<ZCLASS_READ, VarArgument, LiteralArgument> OReadObject;
-	typedef Opcode2<ZCLASS_WRITE, VarArgument, LiteralArgument> OWriteObject;
+	typedef Opcode2<ZCLASS_READ, VarArgument, LiteralArgument> OClassRead;
+	typedef Opcode2<ZCLASS_WRITE, VarArgument, LiteralArgument> OClassWrite;
+	typedef Opcode2<ZCLASS_WRITE_OBJECT, VarArgument, LiteralArgument> OClassWriteObject;
 
 	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateGlobalMemImmediate;
 	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateMemImmediate;

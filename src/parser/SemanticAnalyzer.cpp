@@ -1341,6 +1341,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		if (host.index)
 		{
 			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT, &DataType::UNTYPED}, true, true);
+			// bool is_object = true;
+			// writer = fns.size() ? (is_object ? fns[1] : fns[0]) : nullptr;
 			writer = fns.size() ? fns[0] : nullptr;
 		}
 		else

@@ -1803,6 +1803,7 @@ int32_t init_game()
 			replay_set_meta_bool("qst_modified", true);
 	}
 
+	markGlobalRegisters();
 	zasm_pipeline_init();
 
 	if (replay_version_check(0, 39))

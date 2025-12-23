@@ -1619,6 +1619,8 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	else
 	{
 		int32_t offset = manager.getStackOffset(false);
+		if (is_object)
+			addOpcode(new OMarkTypeStack(new LiteralArgument(offset), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 		if (comptime_val)
 		{
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
@@ -1691,9 +1693,25 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
+
+	bool is_object = false;
+	if (auto type = host.right->getReadType(scope, nullptr))
+		is_object = type->isObject();
+	// TODO ! also if write type is object ???
+
+	// bool is_setting_object = false;
+	// if (auto type = host.getWriteType(scope, nullptr))
+	// {
+	// 	if (type->isUntyped())
+	// 		store_as_object = is_setting_object;
+	// 	else
+	// 		store_as_object = type->isObject();
+	// }
+
 	//and store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
+	helper.is_setting_object = is_object;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1723,7 +1741,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
 		UserClass& user_class = *ucv->getClass();
-		addOpcode(new OReadObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassRead(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 	
@@ -1755,7 +1773,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	{
 		SIDEFX_CHECK(host.left.get());
 		visit(host.left.get(), param);
-		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassRead(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -3832,7 +3850,84 @@ void BuildOpcodes::arrayLiteralFree(
 				visit(*it, &context);
 				// opcodeTargets.pop_back();
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
-				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+
+				// TODO ! markdown, docs/
+				// Objects and memory management / reference counting
+				// --------------------------------------------------
+				//
+				// Only these types are considered objects: arrays, bitmaps, custom objects, etc. (see the
+				// script_object_type enum for full list). This excludes basic types such as int, and engine
+				// types such as ffc, npc, etc.) There is additionally "untyped", which may or may not hold
+				// an object. The runtime tracks type information for untyped variables as scripts run.
+				//
+				// To support automatic memory management / reference counting for objects, the runtime
+				// needs to know if a variable is an object, untyped, or neither. There are multiple places
+				// where variables live: in global data, on the stack (local), in an array, and in a class
+				// field.
+				//
+				// The type of each variable is known at runtime because it is emitted by the compiler in
+				// various commands (one of the "object" types, "untyped", or "none"):
+				//
+				// global: MARK_TYPE_REG
+				// stack: MARK_TYPE_STACK
+				// array: ALLOCATEGMEMV and ALLOCATEMEMV?
+				// class field: ZCLASS_CONSTRUCT
+				//
+				// When a variable is assigned:
+				//
+				// - For the object case, the runtime releases the reference for the variable's old
+				//   object, then sets the new object + increases its reference count.
+				// - For the untyped case, the runtime only releases the reference for the current
+				//   value if it was last marked as holding an object. The runtime records whether or
+				//   not the new value is an object, which is encoded in the write instructions by the
+				//   compiler.
+				//
+				// ~~The type of each variable at runtime comes from these commands:~~
+				// When a value is written to a variable, the specific command used is based on if the compiler
+				// knows the value is an object or not an object. The commands for each variable source are:
+				//
+				// global:
+				//
+				// non-object var: SETV, SETR
+				// object var: SET_OBJECT
+				// untyped var: SETV, SETR, SET_OBJECT
+				//
+				// For global variables, the runtime knows which are untyped by preprocessing
+				// MARK_TYPE_REG in the init script on startup. When SETV/SETR runs for an untyped
+				// variable, the previous object is released and the variable is marked as no longer
+				// holding an object.
+				//
+				// stack:
+				//
+				// non-object var: STOREV, STORE
+				// object var: STORE_OBJECT
+				// untyped var: STOREV_UNTYPED, STORE_UNTYPED, STORE_OBJECT
+				//
+				// For stack variables, type information is more difficult to determine at runtime
+				// since a function may reuse the same stack slot for variables that don't overlap
+				// in lifetime.
+				// TODO ! try just.... enumerating every function + listing type per store pc.
+				//        or stick with STORE_UNTYPED plan.... idk.
+				//
+				// array:
+				//
+				// non-object var: WRITEPODARRAYVR, WRITEPODARRAYRR
+				// object var: WRITEPODARRAYRR_OBJECT
+				// untyped var: WRITEPODARRAYVR, WRITEPODARRAYRR, WRITEPODARRAYRR_OBJECT
+				//
+				// class field:
+				//
+				// non-object var: ZCLASS_WRITE
+				// object var: ZCLASS_WRITE_OBJECT
+				// untyped var: ZCLASS_WRITE, ZCLASS_WRITE_OBJECT
+				//
+				
+
+				auto type = (*it)->getReadType(scope, this);
+				if (type->isObject())
+					addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+				else
+					addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
 			}
 		}
 	}
@@ -4065,7 +4160,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
-		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassWrite(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -4078,14 +4173,19 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		return;
 	}
 
-	bool is_object = false;
+	bool store_as_object = false;
 	if (auto type = host.getWriteType(scope, nullptr))
-		is_object = type->isObject();
+	{
+		if (type->isUntyped())
+			store_as_object = is_setting_object;
+		else
+			store_as_object = type->isObject();
+	}
 
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
-		if (is_object)
+		if (store_as_object)
 			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
@@ -4095,7 +4195,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	// Set the stack.
 	int32_t offset = host.binding->getStackOffset(false);
 
-	if (is_object)
+	if (store_as_object)
 		addOpcode(new OStoreObject(new VarArgument(EXP1),new LiteralArgument(offset)));
 	else
 		addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
@@ -4112,7 +4212,10 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		addOpcodes(oc.getResult());
 		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		addOpcode(new OPopRegister(new VarArgument(EXP1)));
-		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		if (is_setting_object)
+			addOpcode(new OClassWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		else
+			addOpcode(new OClassWrite(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -4176,16 +4279,37 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			addOpcodes(oc2.getResult());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
+
+		// TODO ! how to use a setter function here that uses SET_OBJECT rather than SETR...
+		// maybe in SemanticAnalyzer, change the write function. and give the symbols two functions via setIndexedVariable.
+
+		bool sets_object = is_setting_object && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
+		
+
+		// auto writeType = &host.right->resolveType(scope, this);
+		// bool is_object = writeType && writeType->isObject();
+
+		// bool sets_object = helper.is_setting_object
 		
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.writeFunction->getCode();
-		for(auto it = funcCode.begin();
-			it != funcCode.end(); ++it)
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
 		{
+			if (sets_object)
+			{
+				if (auto op = dynamic_cast<OSetRegister*>(it->get()))
+				{
+					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone()));
+					continue;
+				}
+			}
+
 			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else
 	{
+		printf("TODO ! hmmmm... \n");
+		// CHECK(false);
 		// This is actually implemented as a settor function call.
 		bool never_ret = host.writeFunction->getFlag(FUNCFLAG_NEVER_RETURN);
 		// Push the stack frame.

@@ -320,7 +320,8 @@ void ArrayManager::set(int32_t indx, int32_t val)
 	{
 		if (ZScriptVersion::gc_arrays())
 		{
-			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val);
+			// TODO !
+			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val, false);
 			return;
 		}
 
