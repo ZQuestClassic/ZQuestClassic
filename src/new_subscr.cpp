@@ -3068,7 +3068,7 @@ word SW_Clear::getH() const
 	switch(sub ? sub->sub_type : sstPASSIVE)
 	{
 		case sstACTIVE:
-			hei = 168;
+			hei = 168 + (get_qr(qr_ACTIVE_SUB_IGNORE_8PX) || get_qr(qr_HIDE_BOTTOM_8_PIXELS) ? 0 : 8);
 			break;
 		case sstPASSIVE:
 			hei = 56;

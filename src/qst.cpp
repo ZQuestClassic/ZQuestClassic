@@ -3454,7 +3454,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 
 	// Older than 2.55.11?
-	if (tempheader.compareVer(2, 55, 11) < 0 && strcmp(tempheader.author, "zcdev") != 0)
+	if (tempheader.compareVer(2, 55, 11) < 0)
 	{
 		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
 		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
@@ -3465,7 +3465,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 
 	// Older than 2.55.12?
 	if (tempheader.compareVer(2, 55, 12) < 0)
+	{
 		set_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, 1);
+		set_qr(qr_ACTIVE_SUB_IGNORE_8PX, 1);
+	}
 
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	

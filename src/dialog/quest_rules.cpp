@@ -990,7 +990,10 @@ static GUI::ListData compatRulesList
 		"If enabled, pitfall combos will be less sensitive, allowing them to be walked over in some cases." },
 	{ "Active Shields and Roc Items on Buttons don't run scripts", qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
 		"If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero,"
-		" will not run their Action Script." }
+		" will not run their Action Script." },
+	{ "Active/Map Subscreens Always 168 Tall", qr_ACTIVE_SUB_IGNORE_8PX,
+		"If enabled, Active/Map subscrens will be 168 pixels tall, regardless of the 'Hide Bottom 8 Pixels' rule. The extra space will be filled with black."
+		"\nOtherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting."},
 };
 
 static GUI::ListData enemiesRulesList
