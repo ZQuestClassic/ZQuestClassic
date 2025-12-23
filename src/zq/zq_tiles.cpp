@@ -10196,13 +10196,13 @@ REDRAW:
 					} },
 				{ "Paste", [&]()
 					{
-						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, false);
-						if (!b) mark_save_dirty();
+						if (copy_tiles(tile, tile2, copy, copycnt, rect_sel, false))
+							mark_save_dirty();
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Move", [&]()
 					{
-						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, true);
-						if (!b) mark_save_dirty();
+						if (copy_tiles(tile, tile2, copy, copycnt, rect_sel, true))
+							mark_save_dirty();
 					}, nullopt, copy < 0 ? MFL_DIS : 0 },
 				{ "Clear", [&]()
 					{
@@ -10226,13 +10226,13 @@ REDRAW:
 					} },
 				{ "Scale", [&]()
 					{
-						bool b = scale_or_rotate_tiles(tile, tile2, cs, false);
-						if (!b) mark_save_dirty();
+						if (scale_or_rotate_tiles(tile, tile2, cs, false))
+							mark_save_dirty();
 					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Angular Rotation", [&]()
 					{
-						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
-						if (!b) mark_save_dirty();
+						if (scale_or_rotate_tiles(tile, tile2, cs, true))
+							mark_save_dirty();
 					}, nullopt, type != 0 ? MFL_DIS : 0 },
 				{ "Color Depth", &select_tile_color_depth_menu },
 				{},
