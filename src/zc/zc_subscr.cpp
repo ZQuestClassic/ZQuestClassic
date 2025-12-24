@@ -216,34 +216,34 @@ void dosubscr()
 			byte btn_press = getIntBtnInput(0xFF, INPUT_PRESS | (legacy_btn_press_peek ? INPUT_PEEK : 0));
 			int32_t pos = pg.cursor_pos;
 			
-			if(rUp())         pg.move_cursor(SEL_UP);
-			else if(rDown())  pg.move_cursor(SEL_DOWN);
-			else if(rLeft())  pg.move_cursor(SEL_LEFT);
-			else if(rRight()) pg.move_cursor(SEL_RIGHT);
+			if(getInput(btnUp, INPUT_PRESS)) pg.move_cursor(SEL_UP);
+			else if(getInput(btnDown, INPUT_PRESS)) pg.move_cursor(SEL_DOWN);
+			else if(getInput(btnLeft, INPUT_PRESS)) pg.move_cursor(SEL_LEFT);
+			else if(getInput(btnRight, INPUT_PRESS)) pg.move_cursor(SEL_RIGHT);
 			else if(compat)
 			{
-				if(rLbtn())
+				if(getInput(btnL, INPUT_PRESS))
 				{
 					if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 					{
 						pg.cursor_pos = pg.movepos_legacy(SEL_LEFT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true)>>8;
 					}
 				}
-				else if(rRbtn() )
+				else if(getInput(btnR, INPUT_PRESS))
 				{
 					if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
 					{
 						pg.cursor_pos = pg.movepos_legacy(SEL_RIGHT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true)>>8;
 					}
 				}
-				else if(rEx3btn() )
+				else if(getInput(btnEx3, INPUT_PRESS))
 				{
 					if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
 					{
 						selectNextAWpn(SEL_LEFT);
 					}
 				}
-				else if(rEx4btn() )
+				else if(getInput(btnEx4, INPUT_PRESS))
 				{
 					if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
 					{
@@ -494,7 +494,7 @@ void dosubscr()
 		if (replay_version_check(11))
 			load_control_state();
 		
-		if(can_btn && NESquit && Up() && cAbtn() && cBbtn())
+		if(can_btn && NESquit && getInput(btnUp) && getInput(btnA) && getInput(btnB))
 		{
 			down_control_states[btnUp] = true;
 			Quit=qQUIT;
@@ -503,7 +503,7 @@ void dosubscr()
 		if(Quit)
 			return;
 			
-		if(can_btn && (rSbtn() || ((map_subscreen_open || get_qr(qr_MAP_BUTTON_CLOSES_SUBSCREEN)) && rPbtn())))
+		if(can_btn && (getInput(btnS, INPUT_PRESS) || ((map_subscreen_open || get_qr(qr_MAP_BUTTON_CLOSES_SUBSCREEN)) && getInput(btnP, INPUT_PRESS))))
 			done=true;
 	}
 	while(!done);

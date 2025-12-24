@@ -19835,10 +19835,10 @@ bool runMenuCursor()
 	menu_choice* ch = &menu_options[pos];
 	
 	bool pressed = true;
-	if(rUp()) pos = ch->upos;
-	else if(rDown()) pos = ch->dpos;
-	else if(rLeft()) pos = ch->lpos;
-	else if(rRight()) pos = ch->rpos;
+	if(getInput(btnUp, INPUT_PRESS)) pos = ch->upos;
+	else if(getInput(btnDown, INPUT_PRESS)) pos = ch->dpos;
+	else if(getInput(btnLeft, INPUT_PRESS)) pos = ch->lpos;
+	else if(getInput(btnRight, INPUT_PRESS)) pos = ch->rpos;
 	else pressed = false;
 	
 	if(pressed)
@@ -19849,10 +19849,10 @@ bool runMenuCursor()
 	if(hold_input)
 	{
 		held = true;
-		if(Up()) pos = ch->upos;
-		else if(Down()) pos = ch->dpos;
-		else if(Left()) pos = ch->lpos;
-		else if(Right()) pos = ch->rpos;
+		if(getInput(btnUp)) pos = ch->upos;
+		else if(getInput(btnDown)) pos = ch->dpos;
+		else if(getInput(btnLeft)) pos = ch->lpos;
+		else if(getInput(btnRight)) pos = ch->rpos;
 		else held = false;
 	}
 	//If the cursor is at an invalid pos, find the first pos >= 0...
@@ -19875,13 +19875,17 @@ bool runMenuCursor()
 	
 	if(!msg_menu_data[MNU_CAN_CONFIRM]) //Prevent instantly accepting when holding A
 	{
-		rAbtn(); //Eat
-		if(!cAbtn()) msg_menu_data[MNU_CAN_CONFIRM] = 1;
+		getInput(btnA, INPUT_PRESS); //Eat
+		if(!getInput(btnA)) msg_menu_data[MNU_CAN_CONFIRM] = 1;
 	}
 	
-	bool ret = (pressed || held) ? false : rAbtn();
+	bool ret = (pressed || held) ? false : getInput(btnA, INPUT_PRESS);
 	//Eat inputs
-	rUp(); rDown(); rLeft(); rRight(); rAbtn();
+	getInput(btnUp, INPUT_PRESS);
+	getInput(btnDown, INPUT_PRESS);
+	getInput(btnLeft, INPUT_PRESS);
+	getInput(btnRight, INPUT_PRESS);
+	getInput(btnA, INPUT_PRESS);
 	
 	if(ret)
 		menu_options.clear();
@@ -21024,7 +21028,7 @@ void putmsg()
 	{
 		if(linkedmsgclk==1)
 		{
-			if(do_end_str||cAbtn()||cBbtn())
+			if(do_end_str || getInput(btnA) || getInput(btnB))
 			{
 				do_end_str = false;
 				linkedmsgclk = 0;
@@ -21090,11 +21094,11 @@ void putmsg()
 	// If the player is holding down the B button, or if msgspeed is 0, process as many characters
 	// as possible. This skips the character-by-character animation that usually renders a string
 	// slowly over many frames.
-	if ((cBbtn() && get_qr(qr_ALLOWMSGBYPASS)) || msgspeed == 0)
+	if ((getInput(btnB) && get_qr(qr_ALLOWMSGBYPASS)) || msgspeed == 0)
 	{
 		while (!msg_it->done())
 		{
-			if (msgspeed && !(cBbtn() && get_qr(qr_ALLOWMSGBYPASS)))
+			if (msgspeed && !(getInput(btnB) && get_qr(qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
 			if (msg_it->get_post_segment_delay() && msg_it->get_post_segment_delay_forced())
 				goto breakout; // or if a ForceDelay command was hit.
@@ -21115,7 +21119,7 @@ void putmsg()
 	{
 breakout:
 		word tempspeed = msgspeed;
-		bool go_fast = get_qr(qr_ALLOWFASTMSG) && cAbtn();
+		bool go_fast = get_qr(qr_ALLOWFASTMSG) && getInput(btnA);
 		if (do_run_menu)
 			tempspeed = 0;
 		if (msg_it->get_post_segment_delay() && msg_it->peek(0).empty())

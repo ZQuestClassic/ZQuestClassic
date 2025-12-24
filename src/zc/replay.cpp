@@ -81,7 +81,7 @@ static std::vector<std::pair<int, int>> unexpected_gfx_segments_limited;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
-static bool previous_control_state[ZC_CONTROL_STATES];
+static bool previous_control_state[controls::btnLast];
 static char previous_keys[KEY_MAX];
 static std::vector<zc_randgen *> rngs;
 static std::map<int, int> rng_seed_count_this_frame;
