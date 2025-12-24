@@ -1066,7 +1066,10 @@ static GUI::ListData compatRulesList
 		"If multiple wind lweapons are on screen and the player is in one, the player will lose track"
 		" of which wind they are in, and teleport between them." },
 	{ "No enemy death event for segmented enemy cores", qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
-		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." }
+		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." },
+	{ "Screen Edge Flag Checks Ignore Changes", qr_BROKEN_SCREEN_EDGE_FLAG_CHECKS,
+		"If enabled, some flags will not be properly detected across screen transitions if they would be changed by an effect"
+		" such as triggers/secrets."},
 };
 
 static GUI::ListData enemiesRulesList
