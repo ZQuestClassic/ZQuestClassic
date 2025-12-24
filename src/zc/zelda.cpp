@@ -4221,9 +4221,13 @@ int main(int argc, char **argv)
 
 	if (used_switch(argc, argv, "-upload-replays"))
 	{
+#ifdef HAS_CURL
 		replay_upload();
 		return 0;
-	}
+#else
+		return 1;
+#endif
+	}	
 
 	if (used_switch(argc,argv,"-test-zc"))
 	{
