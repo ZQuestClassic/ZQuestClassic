@@ -535,13 +535,16 @@ def backfill(release_platform: str):
     gaps.sort(key=lambda x: -x[0])
 
     print('gaps:\n')
-    for size, middle, rev_1, rev_2 in gaps:
-        print(f'{size} {rev_1} {rev_2} middle: @{middle}')
+    for gap, middle, rev_1, rev_2 in gaps:
+        sha = next(r.tag for r in revs if r.commit_count == middle)
+        print(f'{gap} middle: @{middle} {sha} {rev_1} {rev_2}')
     print()
 
     middles = []
-    for size, middle, rev_1, rev_2 in gaps:
-        middles.append(middle)
+    for gap, middle, rev_1, rev_2 in gaps:
+        candidates = list(range(rev_1.commit_count + 1, rev_2.commit_count, max(step // 3, step)))
+        candidates.append(middle)
+        middles.extend(set(candidates))
     middles.sort()
 
     print('building these commits:')
