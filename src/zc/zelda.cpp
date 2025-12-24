@@ -4720,7 +4720,7 @@ int main(int argc, char **argv)
 	int window_title_arg = used_switch(argc, argv, "-window-title");
 	if (window_title_arg > 0)
 		window_title = argv[window_title_arg + 1];
-	set_window_title(window_title);
+	alleg4_set_window_title(window_title);
 
 	initFonts();
 

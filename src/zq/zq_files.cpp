@@ -482,7 +482,7 @@ int32_t onSaveAs()
 		strcpy(filepath,temppath);
 		update_recent_quest(temppath);
 		sprintf(buf,"ZC Editor - [%s]", get_filename(filepath));
-		set_window_title(buf);
+		alleg4_set_window_title(buf);
 		sprintf(buf,"Saved %s",name);
 		jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		saved = autosaved = true;

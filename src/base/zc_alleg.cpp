@@ -1,4 +1,5 @@
 #include "base/zc_alleg.h"
+#include "metadata/versionsig.h"
 
 PACKFILE *pack_fopen_password(const char *filename, const char *mode, const char *password)
 {
@@ -33,4 +34,16 @@ bool alleg4_save_bitmap(BITMAP* source, int scale, const char* filename, AL_CONS
 	int result = save_bitmap(filename, scaled ? scaled : source, pal ? pal : default_pal);
 	destroy_bitmap(scaled);
 	return result == 0;
+}
+
+void alleg4_set_window_title(const char* title)
+{
+#if ZC_IS_PRERELEASE > 0
+	char title2[200] = {0};
+    strcpy(title2, title);
+    strcat(title2, " [PRERELEASE]");
+	set_window_title(title2);
+#else
+	set_window_title(title);
+#endif
 }

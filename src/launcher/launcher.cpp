@@ -1,5 +1,6 @@
 // Launcher executable main file
 #include "base/files.h"
+#include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "launcher/launcher.h"
 #include "base/module.h"
@@ -203,7 +204,7 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 
-	set_window_title("ZQuest Classic Launcher");
+	alleg4_set_window_title("ZQuest Classic Launcher");
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();

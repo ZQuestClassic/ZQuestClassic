@@ -26464,7 +26464,7 @@ int32_t main(int32_t argc,char **argv)
 		//Z_message("OK\n");
 	}
 
-	set_window_title("ZC Editor");
+	alleg4_set_window_title("ZC Editor");
 
 	initFonts();
 	load_size_poses();

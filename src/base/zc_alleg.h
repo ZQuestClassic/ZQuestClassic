@@ -37,5 +37,6 @@ PACKFILE *pack_fopen_password(const char *filename, const char *mode, const char
 uint64_t file_size_ex_password(const char *filename, const char *password);
 
 bool alleg4_save_bitmap(BITMAP* bitmap, int scale, const char* filename, AL_CONST RGB *pal = nullptr);
+void alleg4_set_window_title(const char* title);
 
 #endif

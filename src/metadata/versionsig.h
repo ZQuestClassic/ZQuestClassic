@@ -17,4 +17,5 @@
 #define V_ZC_RELEASE 1
 
 #define ZC_IS_NIGHTLY 0
+#define ZC_IS_PRERELEASE 0
 

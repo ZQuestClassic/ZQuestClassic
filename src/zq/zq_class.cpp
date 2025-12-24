@@ -6,6 +6,7 @@
 
 #include "base/general.h"
 #include "base/zapp.h"
+#include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "dialog/info.h"
 #include "metadata/metadata.h"
@@ -6311,7 +6312,7 @@ int32_t init_quest(std::string tileset_path)
     load_quest(tileset_path.c_str());
     loading_file_new = false;
 
-    set_window_title("ZC Editor - Untitled Quest");
+    alleg4_set_window_title("ZC Editor - Untitled Quest");
     zinit.last_map = 0;
     zinit.last_screen = 0;
 
@@ -6599,7 +6600,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			if (show_progress)
 			{
 				sprintf(buf,"ZC Editor - [%s]", get_filename(filename));
-				set_window_title(buf);
+				alleg4_set_window_title(buf);
 			}
 		}
 	}
@@ -6673,7 +6674,7 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 				bmap=NULL;
 			}
 			
-			set_window_title("ZC Editor - Untitled Quest");
+			alleg4_set_window_title("ZC Editor - Untitled Quest");
 			first_save = false;
 			mark_save_dirty();
 			memset(filepath,0,255);
