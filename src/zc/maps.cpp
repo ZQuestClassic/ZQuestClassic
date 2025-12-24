@@ -277,14 +277,16 @@ static void prepare_current_region_handles()
 
 std::tuple<const rpos_handle_t*, int> get_current_region_handles()
 {
-	DCHECK(!current_region_rpos_handles_dirty);
+	if (current_region_rpos_handles_dirty)
+		prepare_current_region_handles();
 	return {current_region_rpos_handles, current_region_screen_count};
 }
 
 std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr)
 {
-	DCHECK(!current_region_rpos_handles_dirty);
-	if (scr == special_warp_return_scr || current_region_rpos_handles_dirty)
+	if (current_region_rpos_handles_dirty)
+		prepare_current_region_handles();
+	if (scr == special_warp_return_scr)
 		return {nullptr, 0};
 
 	if (cur_screen >= 0x80)

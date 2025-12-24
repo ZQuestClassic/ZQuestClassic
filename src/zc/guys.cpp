@@ -18564,7 +18564,11 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	rpos_handle.scr->valid |= mVALID;
+	if (!(rpos_handle.scr->valid & mVALID))
+	{
+		rpos_handle.scr->valid |= mVALID;
+		mark_current_region_handles_dirty(); // a new layer becoming valid needs to reload the region handles
+	}
 	activate_fireball_statue(rpos_handle);
 
 	if(rpos_handle.ctype()==cSPINTILE1)
