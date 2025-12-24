@@ -2590,7 +2590,7 @@ void putintro()
         return;
     }
     
-    if((cBbtn())&&(get_qr(qr_ALLOWMSGBYPASS)))
+    if(getInput(btnB) && get_qr(qr_ALLOWMSGBYPASS))
     {
         //finish writing out the string
         for(; intropos<72; ++intropos)
@@ -2608,7 +2608,7 @@ void putintro()
         return;
     }
     
-    if(((introclk++)%6<5)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
+    if(((introclk++) % 6 < 5) && (!getInput(btnA) || !get_qr(qr_ALLOWFASTMSG)))
         return;
         
     dmapmsgclk=51;
@@ -3670,7 +3670,7 @@ void game_loop()
 
 void runDrunkRNG(){
 	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
-	//Index 0-10 refer to control_state[0]-[9], while index 11 is used for `DrunkrMbtn()`/`DrunkcMbtn()`, which do not use control_states[]
+	//Index 0-10 refer to control_state[0]-[10]
 	for(int32_t i = 0; i<sizeof(drunk_toggle_state); i++){
 		if((!(frame%((zc_oldrand(&drunk_rng)%100)+1)))&&(zc_oldrand(&drunk_rng)%MAXDRUNKCLOCK<Hero.DrunkClock())){
 			drunk_toggle_state[i] = (zc_oldrand(&drunk_rng)%2)?true:false;

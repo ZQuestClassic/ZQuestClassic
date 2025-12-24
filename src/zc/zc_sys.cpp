@@ -114,9 +114,6 @@ extern TopMenu the_player_menu;
 #define getcwd _getcwd
 #endif
 
-bool rF11();
-bool rI();
-bool rQ();
 bool zc_key_pressed();
 
 #ifdef _WIN32
@@ -4306,7 +4303,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		should_reset_down_state = replay_version_check(11, 16);
 	if (should_reset_down_state)
 	{
-		for (int i = 0; i < ZC_CONTROL_STATES; i++)
+		for (int i = 0; i < controls::btnLast; i++)
 			down_control_states[i] = raw_control_state[i];
 	}
 	
@@ -7566,13 +7563,13 @@ static bool rButtonPeek(bool btn, bool flag)
 // Updated only by keyboard/gamepad.
 // If in replay mode, this is set directly by the replay system.
 // This should never be read from directly - use control_state instead.
-bool raw_control_state[ZC_CONTROL_STATES];
+bool raw_control_state[controls::btnLast];
 
 // Every call to load_control_state (pretty much every frame) resets this to be equal to raw_control_state.
 // This state can drift from raw_control_state if button states are "eaten" or overriden by a script. But that only
 // lasts until the next call to load_control_state.
-bool control_state[ZC_CONTROL_STATES];
-bool disable_control[ZC_CONTROL_STATES];
+bool control_state[controls::btnLast];
+bool disable_control[controls::btnLast];
 bool drunk_toggle_state[11];
 bool disabledKeys[127];
 bool KeyInput[127];
@@ -7585,8 +7582,8 @@ static bool key_system[127];
 static bool key_system_previous[127];
 static bool key_system_press[127];
 
-bool button_press[ZC_CONTROL_STATES];
-bool button_hold[ZC_CONTROL_STATES];
+bool button_press[controls::btnLast];
+bool button_hold[controls::btnLast];
 
 #define STICK_1_X joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_x][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_x][control_scheme::data_axis]]
 #define STICK_1_Y joy[active_control_scheme->joystick_index].stick[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_stick]].axis[active_control_scheme->stick_data[control_scheme::stick_1][control_scheme::axis_y][control_scheme::data_axis]]
@@ -7605,7 +7602,7 @@ void load_control_state()
 
 	if (replay_version_check(8, 11))
 	{
-		for (int i = 0; i < ZC_CONTROL_STATES; i++)
+		for (int i = 0; i < controls::btnLast; i++)
 			down_control_states[i] = raw_control_state[i];
 	}
 
@@ -7656,7 +7653,7 @@ void load_control_state()
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
 	bool botched_input = replay_is_active() && replay_get_version() != 1 && replay_get_version() < 8;
-	for (int i = 0; i < ZC_CONTROL_STATES; i++)
+	for (int i = 0; i < controls::btnLast; i++)
 	{
 		control_state[i] = raw_control_state[i];
 		if (botched_input && !control_state[i])
@@ -7718,6 +7715,7 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, int input_flags)
 {
+	if(FFCore.kb_typing_mode) return false;
 	if((input_flags & INPUT_HERO_ACTION) && Hero.no_control())
 		return false;
 	
@@ -7727,47 +7725,14 @@ bool getInput(int32_t btn, int input_flags)
 	bool eatEntirely = input_flags & INPUT_EAT_ENTIRELY;
 	bool peek = input_flags & INPUT_PEEK;
 	
-	bool ret = false, drunkstate = false, rawret = false;;
+	bool drunkstate = btn < 11 && drunk_toggle_state[btn];
+	if(!ignoreDisable && get_qr(qr_FIXDRUNKINPUTS) && disable_control[btn])
+		drunkstate = false;
+	
 	bool* flag = &down_control_states[btn];
-	switch(btn)
-	{
-		case btnF12:
-			ret = zc_getkey(KEY_F12, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
-			eatEntirely = false;
-			break;
-		case btnF11:
-			ret = zc_getkey(KEY_F11, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
-			eatEntirely = false;
-			break;
-		case btnF5:
-			ret = zc_getkey(KEY_F5, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
-			eatEntirely = false;
-			break;
-		case btnQ:
-			ret = zc_getkey(KEY_Q, ignoreDisable);
-			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
-			eatEntirely = false;
-			break;
-		case btnI:
-			ret = zc_getkey(KEY_I, ignoreDisable);
-			rawret = zc_getrawkey(KEY_I, ignoreDisable);
-			eatEntirely = false;
-			break;
-		case btnM:
-			if(FFCore.kb_typing_mode) return false;
-			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
-			eatEntirely = false;
-			break;
-		default: //control_state[] index
-			if(FFCore.kb_typing_mode) return false;
-			if(!ignoreDisable && get_qr(qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
-			else if(btn<11) drunkstate = drunk_toggle_state[btn];
-			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
-			rawret = raw_control_state[btn];
-	}
+	bool ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+	bool rawret = raw_control_state[btn];
+	
 	assert(flag);
 	if(press)
 	{
@@ -7776,8 +7741,10 @@ bool getInput(int32_t btn, int input_flags)
 		else if(get_qr(qr_BROKEN_INPUT_DOWN_STATE)) ret = rButton(ret, *flag);
 		else ret = rButton(ret, *flag, rawret);
 	}
-	if(eatEntirely && ret) control_state[btn] = false;
-	if(drunk && drunkstate) ret = !ret;
+	if(eatEntirely && ret)
+		control_state[btn] = false;
+	if(drunk && drunkstate)
+		ret = !ret;
 	return ret;
 }
 
@@ -7826,314 +7793,11 @@ byte checkIntBtnVal(byte intbtn, byte vals)
 	return intbtn&vals;
 }
 
-bool Up()
-{
-	return getInput(btnUp);
-}
-bool Down()
-{
-	return getInput(btnDown);
-}
-bool Left()
-{
-	return getInput(btnLeft);
-}
-bool Right()
-{
-	return getInput(btnRight);
-}
-bool cAbtn()
-{
-	return getInput(btnA);
-}
-bool cBbtn()
-{
-	return getInput(btnB);
-}
-bool cSbtn()
-{
-	return getInput(btnS);
-}
-bool cLbtn()
-{
-	return getInput(btnL);
-}
-bool cRbtn()
-{
-	return getInput(btnR);
-}
-bool cPbtn()
-{
-	return getInput(btnP);
-}
-bool cEx1btn()
-{
-	return getInput(btnEx1);
-}
-bool cEx2btn()
-{
-	return getInput(btnEx2);
-}
-bool cEx3btn()
-{
-	return getInput(btnEx3);
-}
-bool cEx4btn()
-{
-	return getInput(btnEx4);
-}
-bool AxisUp()
-{
-	return getInput(btnAxisUp);
-}
-bool AxisDown()
-{
-	return getInput(btnAxisDown);
-}
-bool AxisLeft()
-{
-	return getInput(btnAxisLeft);
-}
-bool AxisRight()
-{
-	return getInput(btnAxisRight);
-}
-
-bool cMbtn()
-{
-	return getInput(btnM);
-}
-bool cF12()
-{
-	return getInput(btnF12);
-}
-bool cF11()
-{
-	return getInput(btnF11);
-}
-bool cF5()
-{
-	return getInput(btnF5);
-}
-bool cQ()
-{
-	return getInput(btnQ);
-}
-bool cI()
-{
-	return getInput(btnI);
-}
-
-bool rUp()
-{
-	return getInput(btnUp, INPUT_PRESS);
-}
-bool rDown()
-{
-	return getInput(btnDown, INPUT_PRESS);
-}
-bool rLeft()
-{
-	return getInput(btnLeft, INPUT_PRESS);
-}
-bool rRight()
-{
-	return getInput(btnRight, INPUT_PRESS);
-}
-bool rAbtn()
-{
-	return getInput(btnA, INPUT_PRESS);
-}
-bool rBbtn()
-{
-	return getInput(btnB, INPUT_PRESS);
-}
-bool rSbtn()
-{
-	return getInput(btnS, INPUT_PRESS);
-}
-bool rMbtn()
-{
-	return getInput(btnM, INPUT_PRESS);
-}
-bool rLbtn()
-{
-	return getInput(btnL, INPUT_PRESS);
-}
-bool rRbtn()
-{
-	return getInput(btnR, INPUT_PRESS);
-}
-bool rPbtn()
-{
-	return getInput(btnP, INPUT_PRESS);
-}
-bool rEx1btn()
-{
-	return getInput(btnEx1, INPUT_PRESS);
-}
-bool rEx2btn()
-{
-	return getInput(btnEx2, INPUT_PRESS);
-}
-bool rEx3btn()
-{
-	return getInput(btnEx3, INPUT_PRESS);
-}
-bool rEx4btn()
-{
-	return getInput(btnEx4, INPUT_PRESS);
-}
-bool rAxisUp()
-{
-	return getInput(btnAxisUp, INPUT_PRESS);
-}
-bool rAxisDown()
-{
-	return getInput(btnAxisDown, INPUT_PRESS);
-}
-bool rAxisLeft()
-{
-	return getInput(btnAxisLeft, INPUT_PRESS);
-}
-bool rAxisRight()
-{
-	return getInput(btnAxisRight, INPUT_PRESS);
-}
-
-bool rF11()
-{
-	return getInput(btnF11, INPUT_PRESS);
-}
-bool rQ()
-{
-	return getInput(btnQ, INPUT_PRESS);
-}
-bool rI()
-{
-	return getInput(btnI, INPUT_PRESS);
-}
-
-bool DrunkUp()
-{
-	return getInput(btnUp, INPUT_DRUNK);
-}
-bool DrunkDown()
-{
-	return getInput(btnDown, INPUT_DRUNK);
-}
-bool DrunkLeft()
-{
-	return getInput(btnLeft, INPUT_DRUNK);
-}
-bool DrunkRight()
-{
-	return getInput(btnRight, INPUT_DRUNK);
-}
-bool DrunkcAbtn()
-{
-	return getInput(btnA, INPUT_DRUNK);
-}
-bool DrunkcBbtn()
-{
-	return getInput(btnB, INPUT_DRUNK);
-}
-bool DrunkcEx1btn()
-{
-	return getInput(btnEx1, INPUT_DRUNK);
-}
-bool DrunkcEx2btn()
-{
-	return getInput(btnEx2, INPUT_DRUNK);
-}
-bool DrunkcSbtn()
-{
-	return getInput(btnS, INPUT_DRUNK);
-}
-bool DrunkcMbtn()
-{
-	return getInput(btnM, INPUT_DRUNK);
-}
-bool DrunkcLbtn()
-{
-	return getInput(btnL, INPUT_DRUNK);
-}
-bool DrunkcRbtn()
-{
-	return getInput(btnR, INPUT_DRUNK);
-}
-bool DrunkcPbtn()
-{
-	return getInput(btnP, INPUT_DRUNK);
-}
-
-bool DrunkrUp()
-{
-	return getInput(btnUp, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrDown()
-{
-	return getInput(btnDown, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrLeft()
-{
-	return getInput(btnLeft, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrRight()
-{
-	return getInput(btnRight, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrAbtn()
-{
-	return getInput(btnA, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrBbtn()
-{
-	return getInput(btnB, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrEx1btn()
-{
-	return getInput(btnEx1, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrEx2btn()
-{
-	return getInput(btnEx2, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrEx3btn()
-{
-	return getInput(btnEx3, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrEx4btn()
-{
-	return getInput(btnEx4, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrSbtn()
-{
-	return getInput(btnS, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrMbtn()
-{
-	return getInput(btnM, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrLbtn()
-{
-	return getInput(btnL, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrRbtn()
-{
-	return getInput(btnR, INPUT_PRESS | INPUT_DRUNK);
-}
-bool DrunkrPbtn()
-{
-	return getInput(btnP, INPUT_PRESS | INPUT_DRUNK);
-}
-
 void eat_buttons()
 {
 	getInput(btnA, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	getInput(btnB, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	getInput(btnS, INPUT_PRESS | INPUT_IGNORE_DISABLE);
-	getInput(btnM, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	getInput(btnL, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	getInput(btnR, INPUT_PRESS | INPUT_IGNORE_DISABLE);
 	getInput(btnP, INPUT_PRESS | INPUT_IGNORE_DISABLE);

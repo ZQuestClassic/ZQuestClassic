@@ -71,21 +71,20 @@ void update_system_keys();
 void update_keys();
 void eat_buttons();
 
-#define ZC_CONTROL_STATES 18
-extern bool raw_control_state[ZC_CONTROL_STATES];
-extern bool control_state[ZC_CONTROL_STATES];
-extern bool disable_control[ZC_CONTROL_STATES];
+extern bool raw_control_state[controls::btnLast];
+extern bool control_state[controls::btnLast];
+extern bool disable_control[controls::btnLast];
 extern bool drunk_toggle_state[11];
 extern bool disabledKeys[127];
 extern bool KeyInput[127]; //ZScript 'Input->Key[]'
 extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
 extern bool key_current_frame[127];
 extern bool key_previous_frame[127];
-extern bool button_press[ZC_CONTROL_STATES];
+extern bool button_press[controls::btnLast];
 extern const char *qst_dir_name;
 extern char qst_files_path[2048];
 
-extern bool button_hold[ZC_CONTROL_STATES];
+extern bool button_hold[controls::btnLast];
 
 void load_control_state();
 extern int32_t sfx_voice[WAV_COUNT];
@@ -99,73 +98,6 @@ bool menu_pressed(bool just_pressed);
 
 byte getIntBtnInput(byte intbtn, int input_flags = 0);
 byte checkIntBtnVal(byte intbtn, byte vals);
-
-bool Up();
-bool Down();
-bool Left();
-bool Right();
-bool DrunkUp();
-bool DrunkDown();
-bool DrunkLeft();
-bool DrunkRight();
-bool rUp();
-bool rDown();
-bool rLeft();
-bool rRight();
-bool DrunkrUp();
-bool DrunkrDown();
-bool DrunkrLeft();
-bool DrunkrRight();
-bool cAbtn();
-bool cBbtn();
-bool cSbtn();
-bool cMbtn();
-bool cLbtn();
-bool cRbtn();
-bool cPbtn();
-bool cEx1btn();
-bool cEx2btn();
-bool cEx3btn();
-bool cEx4btn();
-bool AxisUp();
-bool AxisDown();
-bool AxisLeft();
-bool AxisRight();
-bool DrunkcAbtn();
-bool DrunkcBbtn();
-bool DrunkcEx1btn();
-bool DrunkcEx2btn();
-bool DrunkcSbtn();
-bool DrunkcMbtn();
-bool DrunkcLbtn();
-bool DrunkcRbtn();
-bool DrunkcPbtn();
-bool rAbtn();
-bool rBbtn();
-bool rSbtn();
-bool rMbtn();
-bool rLbtn();
-bool rRbtn();
-bool rPbtn();
-bool rEx1btn();
-bool rEx2btn();
-bool rEx3btn();
-bool rEx4btn();
-bool rAxisUp();
-bool rAxisDown();
-bool rAxisLeft();
-bool rAxisRight();
-bool DrunkrAbtn();
-bool DrunkrBbtn();
-bool DrunkrSbtn();
-bool DrunkrMbtn();
-bool DrunkrLbtn();
-bool DrunkrRbtn();
-bool DrunkrPbtn();
-bool DrunkrEx1btn();
-bool DrunkrEx2btn();
-bool DrunkrEx3btn();
-bool DrunkrEx4btn();
 
 int32_t after_time();
 

@@ -33070,7 +33070,7 @@ void HeroClass::ganon_intro()
         draw_screen();
         advanceframe(true);
         
-        if(rSbtn())
+        if(getInput(btnS, INPUT_PRESS))
         {
             conveyclk=3;
             int32_t tmp_subscr_clk = frame;

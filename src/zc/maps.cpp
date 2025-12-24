@@ -8030,9 +8030,9 @@ void ViewMap()
 
 		int32_t step = int32_t(16.0/scales[sc]);
 		step = (step>>1) + (step&1);
-		bool r = cRbtn();
+		bool r = getInput(btnR);
 		
-		if(cLbtn())
+		if(getInput(btnL))
 		{
 			step <<= 2;
 			delay = 0;
@@ -8040,25 +8040,25 @@ void ViewMap()
 		
 		if(r)
 		{
-			if(rUp())
+			if(getInput(btnUp, INPUT_PRESS))
 			{
 				py+=step;
 				redraw=true;
 			}
 			
-			if(rDown())
+			if(getInput(btnDown, INPUT_PRESS))
 			{
 				py-=step;
 				redraw=true;
 			}
 			
-			if(rLeft())
+			if(getInput(btnLeft, INPUT_PRESS))
 			{
 				px+=step;
 				redraw=true;
 			}
 			
-			if(rRight())
+			if(getInput(btnRight, INPUT_PRESS))
 			{
 				px-=step;
 				redraw=true;
@@ -8066,25 +8066,25 @@ void ViewMap()
 		}
 		else
 		{
-			if(Up())
+			if(getInput(btnUp))
 			{
 				py+=step;
 				redraw=true;
 			}
 			
-			if(Down())
+			if(getInput(btnDown))
 			{
 				py-=step;
 				redraw=true;
 			}
 			
-			if(Left())
+			if(getInput(btnLeft))
 			{
 				px+=step;
 				redraw=true;
 			}
 			
-			if(Right())
+			if(getInput(btnRight))
 			{
 				px-=step;
 				redraw=true;
@@ -8095,8 +8095,8 @@ void ViewMap()
 			--delay;
 		else
 		{
-			bool a = cAbtn();
-			bool b = cBbtn();
+			bool a = getInput(btnA);
+			bool b = getInput(btnB);
 			
 			if(a && !b)
 			{
@@ -8113,7 +8113,7 @@ void ViewMap()
 			}
 		}
 		
-		if(rPbtn())
+		if(getInput(btnP, INPUT_PRESS))
 			--view_map_show_mode;
 			
 		px = vbound(px,-4096,4096);

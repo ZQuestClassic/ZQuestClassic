@@ -433,7 +433,7 @@ static bool register_name()
 			spos = grid_y*letter_grid_width+grid_x;
 			load_control_state();
 			
-			if(rLeft())
+			if(getInput(btnLeft, INPUT_PRESS))
 			{
 				--grid_x;
 				
@@ -450,7 +450,7 @@ static bool register_name()
 				
 				sfx(WAV_CHIME);
 			}
-			else if(rRight())
+			else if(getInput(btnRight, INPUT_PRESS))
 			{
 				++grid_x;
 				
@@ -467,7 +467,7 @@ static bool register_name()
 				
 				sfx(WAV_CHIME);
 			}
-			else if(rUp())
+			else if(getInput(btnUp, INPUT_PRESS))
 			{
 				--grid_y;
 				
@@ -478,7 +478,7 @@ static bool register_name()
 				
 				sfx(WAV_CHIME);
 			}
-			else if(rDown())
+			else if(getInput(btnDown, INPUT_PRESS))
 			{
 				++grid_y;
 				
@@ -489,7 +489,7 @@ static bool register_name()
 				
 				sfx(WAV_CHIME);
 			}
-			else if(rBbtn())
+			else if(getInput(btnB, INPUT_PRESS))
 			{
 				if(x<8 && name[zc_min(x,7)])
 				{
@@ -502,7 +502,7 @@ static bool register_name()
 					x=0;
 				}
 			}
-			else if(rAbtn())
+			else if(getInput(btnA, INPUT_PRESS))
 			{
 				name[zc_min(x,7)]=(NameEntryMode2==2)?complete_grid[spos]:simple_grid[spos];
 				++x;
@@ -514,7 +514,7 @@ static bool register_name()
 				
 				sfx(WAV_PLACE);
 			}
-			else if(rSbtn())
+			else if(getInput(btnS, INPUT_PRESS))
 			{
 				done=true;
 				int32_t ltrs=0;
@@ -540,7 +540,7 @@ static bool register_name()
 			// Allow gamepad to submit name.
 			poll_joystick();
 			load_control_state();
-			if(rSbtn())
+			if(getInput(btnS, INPUT_PRESS))
 			{
 				done = true;
 				break;
@@ -688,7 +688,7 @@ static bool register_name()
 		draw_cursor((NameEntryMode2>0)?0:pos,0);
 		advanceframe(true);
 		/*
-		  if(rBbtn())
+		  if(getInput(btnB, INPUT_PRESS))
 		  {
 		  x=-1;
 		  done=true;
@@ -1038,20 +1038,20 @@ static int32_t game_details(save_t* save)
 		advanceframe(true);
 		load_control_state();
 		
-		if(rBbtn())
+		if(getInput(btnB, INPUT_PRESS))
 		{
 			blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 			return 0;
 		}
 		
-		if(rSbtn())
+		if(getInput(btnS, INPUT_PRESS))
 		{
 			blit(framebuf,scrollbuf,0,0,0,0,framebuf->w,framebuf->h);
 			return 1;
 		}
 
 		// TODO: consider allowing qst file to be reconfigured, in case it is moved.
-		if(rAbtn() && !header->has_played)
+		if(getInput(btnA, INPUT_PRESS) && !header->has_played)
 		{
 			if (prompt_for_quest_path(save->header->qstpath))
 			{
@@ -1156,7 +1156,7 @@ static void select_game(bool skip = false)
 			}
 		}
 		
-		if(rSbtn())
+		if(getInput(btnS, INPUT_PRESS))
 			switch(pos)
 			{
 			case 3:
@@ -1238,7 +1238,7 @@ static void select_game(bool skip = false)
 				}
 			}
 			
-		if(rUp())
+		if(getInput(btnUp, INPUT_PRESS))
 		{
 			--pos;
 			
@@ -1248,7 +1248,7 @@ static void select_game(bool skip = false)
 			sfx(WAV_CHIME);
 		}
 		
-		if(rDown())
+		if(getInput(btnDown, INPUT_PRESS))
 		{
 			++pos;
 			
@@ -1258,21 +1258,21 @@ static void select_game(bool skip = false)
 			sfx(WAV_CHIME);
 		}
 		
-		if(rLeft() && listpos>2)
+		if(getInput(btnLeft, INPUT_PRESS) && listpos>2)
 		{
 			listpos-=3;
 			sfx(WAV_CHIME);
 			refreshpal=true;
 		}
 		
-		if(rRight() && listpos+3<saves_count())
+		if(getInput(btnRight, INPUT_PRESS) && listpos+3<saves_count())
 		{
 			listpos+=3;
 			sfx(WAV_CHIME);
 			refreshpal=true;
 		}
 		
-		if(rBbtn() && mode)
+		if(getInput(btnB, INPUT_PRESS) && mode)
 		{
 			if(mode==2) pos=4;
 			
@@ -1282,7 +1282,7 @@ static void select_game(bool skip = false)
 			select_mode();
 		}
 		
-		if (rAbtn() && !mode && pos<3 && saveslot < saves_count())
+		if (getInput(btnA, INPUT_PRESS) && !mode && pos<3 && saveslot < saves_count())
 		{
 			if (auto r = saves_get_slot(saveslot); !r)
 			{
@@ -1729,7 +1729,10 @@ bool save_game(bool savepoint, int32_t type)
 		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
 		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		
-		rUp(); rDown(); rSbtn(); //eat inputs
+		//eat inputs
+		getInput(btnUp, INPUT_PRESS);
+		getInput(btnDown, INPUT_PRESS);
+		getInput(btnS, INPUT_PRESS);
 		do
 		{
 			load_control_state();
@@ -1836,7 +1839,10 @@ bool save_game(bool savepoint, int32_t type)
 				int32_t g=-1;
 				bool done3=false;
 				
-				rUp(); rDown(); rSbtn(); //eat inputs
+				//eat inputs
+				getInput(btnUp, INPUT_PRESS);
+				getInput(btnDown, INPUT_PRESS);
+				getInput(btnS, INPUT_PRESS);
 				do
 				{
 					load_control_state();
