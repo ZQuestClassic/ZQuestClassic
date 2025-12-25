@@ -1,6 +1,5 @@
 #include "undercombo_dlg.h"
 #include "common.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
 #include "base/combo.h"
@@ -237,17 +236,13 @@ bool UnderComboDialog::save_results()
 {
 	if (whole_map)
 	{
-		bool do_set_map = false;
-		AlertDialog("Are you sure?",
-			fmt::format("This will set undercombos for this entire map, and selected layers!\n{}",
-				overwrite_mode
+		if (!alert_confirm("Are you sure?", fmt::format("This will set undercombos"
+			" for this entire map, and selected layers!\n{}", overwrite_mode
 					? "All undercombos will be overwritten!"
-					: "Only blank undercombos (set to combo 0) will be overwritten."),
-			[&](bool ret,bool)
-			{
-				do_set_map = ret;
-			}).show();
-		if (!do_set_map) return false;
+					: "Only blank undercombos (set to combo 0) will be overwritten.")))
+		{
+			return false;
+		}
 		for (int scr = 0; scr < 0x80; ++scr)
 		{
 			mapscr& s = TheMaps[map * MAPSCRS + scr];

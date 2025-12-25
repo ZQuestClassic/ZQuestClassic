@@ -1142,10 +1142,8 @@ static void maybe_take_snapshot()
 static void fail_replay(std::string error)
 {
 	int line_number = replay_log_current_index + meta_map.size() + 1;
-	std::string error1 = fmt::format("<{}> {}! stopping replay", line_number, error);
-	std::string error2 = fmt::format("frame {}", frame_count);
-	fprintf(stderr, "%s\n", error1.c_str());
-	fprintf(stderr, "%s\n", error2.c_str());
+	std::string err_out = fmt::format("<{}> {}! stopping replay\nframe {}", line_number, error, frame_count);
+	fprintf(stderr, "%s\n", err_out.c_str());
 
 	if (failing_frame == -1)
 	{
@@ -1155,7 +1153,7 @@ static void fail_replay(std::string error)
 	if (!exit_when_done)
 	{
 		enter_sys_pal();
-		jwin_alert(replay_mode_to_string(mode).c_str(), error1.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+		displayinfo(replay_mode_to_string(mode), err_out);
 		exit_sys_pal();
 	}
 
@@ -1303,11 +1301,7 @@ void replay_poll()
         uninstall_keyboard_handlers();
 		
 		enter_sys_pal();
-		if (jwin_alert("Replay",
-					   "Would you like to halt the replay and",
-					   "take back control?",
-					   "",
-					   "Yes", "No", 'y', 'n', get_zc_font(font_lfont)) == 1)
+		if (alert_confirm("Replay", "Would you like to halt the replay and take back control?"))
 		{
 			replay_quit();
 			exit_sys_pal();
@@ -1335,7 +1329,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            jwin_alert("Recording", "Replaying stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+            displayinfo("Recording", "Replaying stopped at requested frame");
             exit_sys_pal();
         }
     }
@@ -1389,7 +1383,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+            displayinfo(replay_mode_to_string(mode), "Stopped at requested frame");
             exit_sys_pal();
             return;
         }
@@ -1635,7 +1629,7 @@ void replay_stop(bool aborted)
         else if (has_assert_failed)
         {
             enter_sys_pal();
-            jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+            displayinfo("Assert", "Replay has stopped, and the assert failed.");
             exit_sys_pal();
 			Paused = true;
         }
@@ -1657,7 +1651,7 @@ void replay_stop(bool aborted)
             else
             {
                 enter_sys_pal();
-                jwin_alert("Update", "Failed to update replay as there was a non-graphical change.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+                displayinfo("Update", "Failed to update replay as there was a non-graphical change.");
                 exit_sys_pal();
             }
         }

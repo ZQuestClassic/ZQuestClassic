@@ -1,7 +1,6 @@
 #include "door_sel.h"
 #include "gui/builder.h"
 #include "gui/key.h"
-#include "alert.h"
 #include "zc_list_data.h"
 #include "zq/render.h"
 #include "zq/zq_misc.h"

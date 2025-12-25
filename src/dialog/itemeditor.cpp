@@ -1,7 +1,6 @@
 #include "itemeditor.h"
 #include "itemwizard.h"
 #include "info.h"
-#include "alert.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
@@ -2539,15 +2538,8 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::DEFAULT:
 		{
-			bool cancel = false;
-			AlertDialog(
-				"Reset itemdata?",
-				"Reset this item to default?",
-				[&](bool ret,bool)
-				{
-					cancel = !ret;
-				}).show();
-			if(cancel) return false;
+			if (!alert_confirm("Reset itemdata?", "Reset this item to default?"))
+				return false;
 			_reset_default = true;
 			static_ref = local_itemref;
 			reset_name = itemname;

@@ -3,7 +3,6 @@
 #include "combo_trigger_editor.h"
 #include "gui/key.h"
 #include "info.h"
-#include "alert.h"
 #include "base/zsys.h"
 #include "tiles.h"
 #include "gui/builder.h"
@@ -11,6 +10,7 @@
 #include "items.h"
 #include "base/qrs.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "zinfo.h"
 #include "base/combo.h"
 #include "weap_data_editor.h"
@@ -2884,18 +2884,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									onPressFunc = [&]()
 									{
 										if(trigger_index < 0) return;
-										bool doclear = false;
-										AlertDialog("Are you sure?",
-											"Deleting a trigger cannot be undone!",
-											[&](bool ret,bool)
-											{
-												doclear = ret;
-											}).show();
-										if(doclear)
-										{
-											local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), trigger_index));
-											refresh_dlg();
-										}
+										if (!alert_confirm("Are you sure?", "Deleting a trigger cannot be undone!"))
+											return;
+										local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), trigger_index));
+										refresh_dlg();
 									}),
 								//
 								trigbtnPasteNewCursor = Button(text = "Paste New (at cursor)",
@@ -3733,20 +3725,11 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::CLEAR:
 		{
-			bool doclear = false;
-			AlertDialog("Are you sure?",
-				"Clearing the combo will reset all values",
-				[&](bool ret,bool)
-				{
-					doclear = ret;
-				}).show();
-			if(doclear)
-			{
-				local_comboref.clear();
-				rerun_dlg = true;
-				return true;
-			}
-			return false;
+			if (!alert_confirm("Are you sure?", "Clearing the combo will reset all values"))
+				return false;
+			local_comboref.clear();
+			rerun_dlg = true;
+			return true;
 		}
 		case message::DEFAULT:
 		{
@@ -3766,21 +3749,13 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::WARNINGS:
 			if(warnings.size())
-				displayinfo("Warnings",warnings,
-					"The following issues were found with this combo:");
+				displayinfo("Warnings",warnings,"The following issues were found with this combo:");
 			return false;
 		case message::OK:
 		{
 			if(warnings.size())
 			{
-				bool cancel = false;
-				AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
-					{
-						if(!ret) cancel = true;
-					});
-				alert.setSubtext("The following issues were found with this combo:");
-				alert.show();
-				if(cancel)
+				if (!alert_confirm("Warnings", fmt::format("{}", fmt::join(warnings, "\n")), "OK", "Cancel", "The following issues were found with this combo:"))
 					return false;
 			}
 			apply_combo();

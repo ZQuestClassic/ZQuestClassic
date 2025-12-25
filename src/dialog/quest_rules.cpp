@@ -4,7 +4,6 @@
 #include "cheat_codes.h"
 #include "headerdlg.h"
 #include "info.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "gui/jwin.h"
 #include "zq/zquest.h"
@@ -2364,30 +2363,22 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				word new_map_count = mapCountTF->getVal();
 				if(new_map_count < map_count)
 				{
-					AlertDialog(
-						"WARNING! Map Deletion",
+					if (!alert_confirm("WARNING! Map Deletion",
 						"This action will delete " + std::to_string(map_count-new_map_count)
-						+ " maps from the end of your map list!",
-						[&new_map_count](bool ret,bool)
-						{
-							if(ret)
-							{
-								if(mapcount_will_affect_layers(new_map_count))
-								{
-									AlertDialog(
-										"WARNING! Layer Deletion!",
-										"Some of the maps being deleted are used as layermaps for screens that will remain!"
-										" If you continue, these screens will have their layermap set to 0!",
-										[&new_map_count](bool ret,bool)
-										{
-											if(ret) update_map_count(new_map_count);
-										}).show();
-								}
-								else update_map_count(new_map_count);
-							}
-						}).show();
+						+ " maps from the end of your map list!"))
+					{
+						new_map_count = map_count;
+					}
+					else if (mapcount_will_affect_layers(new_map_count)
+						&& !alert_confirm("WARNING! Layer Deletion!",
+							"Some of the maps being deleted are used as layermaps for screens that will remain!"
+							" If you continue, these screens will have their layermap set to 0!"))
+					{
+						new_map_count = map_count;
+					}
 				}
-				else update_map_count(new_map_count);
+				if (new_map_count != map_count)
+					update_map_count(new_map_count);
 				
 				QMisc.savemenu_game_over = save_gameover_menu;
 				QMisc.savemenu_f6 = save_f6_menu;

@@ -5,7 +5,7 @@
 #include "tiles.h"
 #include "zq/zq_misc.h"
 #include "zc_list_data.h"
-#include "alert.h"
+#include "info.h"
 
 extern bool reload_fonts;
 void load_size_poses();
@@ -768,14 +768,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 						vAlign = 0.0,
 						onPressFunc = [&]()
 						{
-							bool doclear = false;
-							AlertDialog("Default Fonts",
-								"Reset all font dropdowns to defaults?",
-								[&](bool ret,bool)
-								{
-									doclear = ret;
-								}).show();
-							if(!doclear) return;
+							if (!alert_confirm("Default Fonts", "Reset all font dropdowns to defaults?"))
+								return;
 							
 							for(int q = OPT_FIRSTFONT; q <= OPT_LASTFONT; ++q)
 							{

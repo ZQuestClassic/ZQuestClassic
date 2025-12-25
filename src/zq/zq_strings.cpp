@@ -3,7 +3,6 @@
 #include "gui/EditboxNew.h"
 #include "base/gui.h"
 #include "gui/jwin.h"
-#include "dialog/alert.h"
 #include "base/qst.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
@@ -477,9 +476,9 @@ int32_t onStrings()
 		switch(ret)
 		{
 			case 18:
-				jwin_alert("String Index","Create a string beginning with two hyphens '--'",
-						   "and it will be listed in this index, serving as a",
-						   "shortcut to a location in your string list.","O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("String Index","Create a string beginning with two hyphens '--'"
+					"and it will be listed in this index, serving as a"
+					"shortcut to a location in your string list.");
 				break;
 				
 			case 17: // Go to category
@@ -640,7 +639,7 @@ int32_t onStrings()
 				strip_extra_spaces(buf);
 				shorten_string(shortbuf, buf.c_str(), font, 72, 288);
 
-				if (jwin_alert("Confirm Clear", "Clear this message string?", " ", shortbuf, "Yes", "No", 'y', 27, get_zc_font(font_lfont)) == 1)
+				if (alert_confirm("Confirm Clear", fmt::format("Clear this message string?\n\n{}", shortbuf)))
 				{
 					mark_save_dirty();
 					word pos = MsgStrings[index].listpos;
@@ -856,9 +855,8 @@ void fix_string_list()
 		
 		if(FFCore.getQuestHeaderInfo(vZelda) >= 0x250) //not an error before this, don't pop up
 		{
-			jwin_alert("Notice","Your quest's string ordering was corrupted.",
-				"It has been reverted to the default order.",NULL,
-				"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			displayinfo("Notice","Your quest's string ordering was corrupted."
+				"\nIt has been reverted to the default order.");
 		}
 	}
 }

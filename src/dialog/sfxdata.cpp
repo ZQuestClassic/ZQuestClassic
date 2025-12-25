@@ -1,7 +1,6 @@
 #include "sfxdata.h"
 #include "gui/key.h"
 #include "info.h"
-#include "alert.h"
 #include "gui/builder.h"
 #include "base/files.h"
 #include "sfx.h"
@@ -143,19 +142,12 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if (prompt_for_new_file_compat("Save .WAV file", "wav", NULL, temppath, true))
 			{
 				if (!saveWAV(index, temppath))
-				{
-					jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-				}
+					displayinfo("Error!", fmt::format("Could not write file\n{}", temppath));
 				else
-				{
-					jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-				}
+					displayinfo("Success!", fmt::format("Saved WAV file\n{}", temppath));
 			}
 		}
-		else
-		{
-			jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-		}
+		else displayinfo("Error!", "Cannot save an enpty slot!");
 		break;
 	}
 	case message::LOAD:
@@ -164,9 +156,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			SAMPLE* temp_sample;
 
 			if ((temp_sample = load_wav(temppath)) == NULL)
-			{
-				jwin_alert("Error", "Could not open file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-			}
+				displayinfo("Error", fmt::format("Could not open file '{}'", temppath));
 			else
 			{
 				char sfxtitle[36];

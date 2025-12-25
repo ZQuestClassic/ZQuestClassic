@@ -233,11 +233,10 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
-				char buf[120],buf2[120],buf3[120];
-				sprintf(buf,"Unable to parse instruction %d",i+1);
-				sprintf(buf2,"The error was: Duplicate Label");
-				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
-				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Error", fmt::format("Unable to parse instruction {}"
+					"\nThe error was: Duplicate Label"
+					"\nThe duplicate label was: \"{}\"",
+					i+1, lbuf));
 				stop=true;
 				success=false;
 				goto zasmfile_fail_str;
@@ -430,18 +429,19 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 				parse_err = ERR_STR;
 			if(bad_dvec)
 				parse_err = ERR_VEC;
-			char buf[512], name[13];
+			char name[13];
 			extract_name(temppath,name,FILENAME8_3);
 			char vstrbuf[64] = {0};
 			if(has_str || has_vec)
 				sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-			sprintf(buf,"Unable to parse instruction %d"
-				"\nThe error was: %s"
-				"\nThe command was (%s) (%s,%s)%s"
-				,i+1
-				,errstrbuf[parse_err]
-				,combuf,arg1buf,arg2buf,vstrbuf);
-			displayinfo("Error", buf);
+			displayinfo("Error", fmt::format(
+				"Unable to parse instruction {}"
+				"\nThe error was: {}"
+				"\nThe command was ({}) ({},{}){}",
+				i+1,
+				errstrbuf[parse_err],
+				combuf, arg1buf, arg2buf, vstrbuf
+			));
 			stop=true;
 			success=false;
 			zasm.pop_back();
@@ -449,11 +449,9 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 	}
 
 	if(report_success && success) //(!stop) // stop is never true here
-	{
-		jwin_alert("Success",NULL,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-	}
+		displayinfo("Success", "");
 zasmfile_fail_str:
-	return success?D_O_K:D_CLOSE;
+	return success ? D_O_K : D_CLOSE;
 }
 
 int32_t set_argument(char const* argbuf, int32_t& arg)

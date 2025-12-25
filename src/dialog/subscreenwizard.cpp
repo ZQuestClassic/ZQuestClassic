@@ -1,6 +1,5 @@
 #include "dialog/subscreenwizard.h"
 #include "info.h"
-#include "alert.h"
 #include "zc_list_data.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
@@ -236,16 +235,10 @@ bool SubscreenWizardDialog::finalize()
 			bool transparent = cboxes[1]->getChecked();
 			if (auto badscr = (scrid + (w-1) + ((h-1) * 0x10)); badscr >= MAPSCRSNORMAL)
 			{
-				bool go_anyway = false;
-				AlertDialog("Screen value out of bounds",
+				if (!alert_confirm("Screen value out of bounds",
 					fmt::format("Attempting to create a grid of '{}x{}' screens starting with screen '0x{:02X}'"
 					" would go out of bounds to invalid screen '0x{:02X}'. Tiles that would match an invalid"
-					" screen will be ignored, their TileBlock widget not being created, if you continue.", w, h, scrid, badscr),
-					[&](bool ret,bool)
-					{
-						go_anyway = ret;
-					}).show();
-				if (!go_anyway)
+					" screen will be ignored, their TileBlock widget not being created, if you continue.", w, h, scrid, badscr)))
 					return false;
 			}
 			if (get_qr(qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE))
@@ -834,14 +827,8 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							width = btnsz, height = btnsz,
 							onPressFunc = [&, idx]()
 							{
-								bool doclear = false;
-								AlertDialog("Are you sure?",
-									"This layer of tile settings will be erased.",
-									[&](bool ret,bool)
-									{
-										doclear = ret;
-									}).show();
-								if (!doclear) return;
+								if (!alert_confirm("Are you sure?", "This layer of tile settings will be erased."))
+									return;
 								auto it = tileblock_sets.begin();
 								std::advance(it, idx);
 								tileblock_sets.erase(it);

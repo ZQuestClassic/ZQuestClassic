@@ -1413,18 +1413,9 @@ static void prompt_for_uploading_replays()
 	if (!replay_upload_auto_enabled() && !replay_upload_prompt)
 	{
 		enter_sys_pal();
-		if(jwin_alert3(
-			"Upload replays", 
-			"Would you like to periodically upload replays of your gameplay to the developers?",
-			"This helps development by preventing bugs and simplifying bug reports.",
-			NULL,
-		"&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)
+		if (alert_confirm("Upload replays",
+			"Would you like to periodically upload replays of your gameplay to the developers?"
+			"\nThis helps development by preventing bugs and simplifying bug reports."))
 		{
 			zc_set_config("zeldadx", "replay_new_saves", true);
 			zc_set_config("zeldadx", "replay_upload", true);

@@ -20,17 +20,44 @@ void info_dsa(string const& title, string const& text, string const& dsastr)
 		).show();
 	}
 }
-bool alert_confirm(string const& title, string const& text, bool okc)
+static bool return_val, dsa_val;
+static void _default_alert_proc(bool ret, bool)
 {
-	bool ret = false;
-	AlertDialog(title, text,
-		[&](bool val,bool)
-		{
-			ret = val;
-		},
-		okc ? "OK" : "Yes", okc ? "Cancel" : "No",
-		0,false,false).show();
-	return ret;
+	return_val = ret;
+}
+static void _default_alert_dsa_proc(bool ret, bool dsa)
+{
+	return_val = ret;
+	dsa_val = dsa;
+}
+bool alert_confirm(string const& title, string const& text,
+	optional<string> yes_btn, optional<string> no_btn, optional<string> subtext)
+{
+	return_val = false;
+	AlertDialog alert(title, text,
+		_default_alert_proc,
+		yes_btn.value_or("Yes"),
+		no_btn.value_or("No"),
+		0,false,false);
+	if (subtext)
+		alert.setSubtext(*subtext);
+	alert.show();
+	return return_val;
+}
+std::pair<bool,bool> alert_confirm_dsa(string const& title, string const& text,
+	optional<string> yes_btn, optional<string> no_btn, optional<string> subtext)
+{
+	return_val = false;
+	dsa_val = false;
+	AlertDialog alert(title, text,
+		_default_alert_dsa_proc,
+		yes_btn.value_or("Yes"),
+		no_btn.value_or("No"),
+		0,false,true);
+	if (subtext)
+		alert.setSubtext(*subtext);
+	alert.show();
+	return {return_val, dsa_val};
 }
 
 AlertDialog::AlertDialog(string const& title, string const& text, std::function<void(bool,bool)> onEnd, string truebtn, string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):

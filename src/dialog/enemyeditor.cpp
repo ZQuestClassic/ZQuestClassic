@@ -1,7 +1,6 @@
 #include "enemyeditor.h"
 #include "gui/key.h"
 #include "info.h"
-#include "alert.h"
 #include "base/zsys.h"
 #include "tiles.h"
 #include "gui/builder.h"
@@ -9,6 +8,7 @@
 #include "items.h"
 #include "base/qrs.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "zinfo.h"
 #include "defdata.h"
 #include "weap_data_editor.h"
@@ -1718,63 +1718,42 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	case message::CLEAR:
 	{
-		bool doclear = false;
-		AlertDialog("Are you sure?",
-			"Clearing the enemy will set all values to null!",
-			[&](bool ret, bool)
-			{
-				doclear = ret;
-			}).show();
-		if (doclear)
-		{
-			local_guyref = guysbuf[0];
-			enemy_name = fmt::format("e{:03}", index);
-			rerun_dlg = true;
-			return true;
-		}
-		return false;
+		if (!alert_confirm("Are you sure?", "Clearing the enemy will set all values to null!"))
+			return false;
+		local_guyref = guysbuf[0];
+		enemy_name = fmt::format("e{:03}", index);
+		rerun_dlg = true;
+		return true;
 	}
 	case message::DEFAULT:
 	{
-		bool doclear = false;
-		AlertDialog("Are you sure?",
-			"This will reset all values back to their defaults!",
-			[&](bool ret, bool)
-			{
-				doclear = ret;
-			}).show();
-		if (doclear)
+		if (!alert_confirm("Are you sure?", "This will reset all values back to their defaults!"))
+			return false;
+		local_guyref = default_guys[0];
+		if (index < OLDMAXGUYS)
 		{
-			local_guyref = default_guys[0];
-			if (index < OLDMAXGUYS)
+			local_guyref = default_guys[index];
+			string name = old_guy_string[index];
+			enemy_name = name;
+			// sprites
+			local_guyref.spr_shadow = (local_guyref.type == eeROCK && local_guyref.attributes[9] == 1) ? iwLargeShadow : iwShadow;
+			local_guyref.spr_death = iwDeath;
+			local_guyref.spr_spawn = iwSpawn;
+			// darknuts
+			if (index == eDKNUT1 || index == eDKNUT2 || index == eDKNUT3 || index == eDKNUT4 || index == eDKNUT5)
 			{
-				local_guyref = default_guys[index];
-				string name = old_guy_string[index];
-				enemy_name = name;
-				// sprites
-				local_guyref.spr_shadow = (local_guyref.type == eeROCK && local_guyref.attributes[9] == 1) ? iwLargeShadow : iwShadow;
-				local_guyref.spr_death = iwDeath;
-				local_guyref.spr_spawn = iwSpawn;
-				// darknuts
-				if (index == eDKNUT1 || index == eDKNUT2 || index == eDKNUT3 || index == eDKNUT4 || index == eDKNUT5)
+				if (get_qr(qr_NEWENEMYTILES))
 				{
-					if (get_qr(qr_NEWENEMYTILES))
-					{
-						local_guyref.s_tile = local_guyref.e_tile + 120;
-						local_guyref.s_width = local_guyref.e_width;
-						local_guyref.s_height = local_guyref.e_height;
-					}
-					else local_guyref.s_tile = 860;
+					local_guyref.s_tile = local_guyref.e_tile + 120;
+					local_guyref.s_width = local_guyref.e_width;
+					local_guyref.s_height = local_guyref.e_height;
 				}
+				else local_guyref.s_tile = 860;
 			}
-			else
-			{
-				enemy_name = fmt::format("e{:03}", index);
-			}
-			rerun_dlg = true;
-			return true;
 		}
-		return false;
+		else enemy_name = fmt::format("e{:03}", index);
+		rerun_dlg = true;
+		return true;
 	}
 
 	case message::WARNINGS:
@@ -1786,14 +1765,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		if (warnings.size())
 		{
-			bool cancel = false;
-			AlertDialog alert("Warnings", warnings, [&](bool ret, bool)
-				{
-					if (!ret) cancel = true;
-				});
-			alert.setSubtext("The following issues were found with this enemy:");
-			alert.show();
-			if (cancel)
+			if (!alert_confirm("Warnings", fmt::format("{}", fmt::join(warnings, "\n")), "OK", "Cancel", "The following issues were found with this enemy:"))
 				return false;
 		}
 		apply_enemy();

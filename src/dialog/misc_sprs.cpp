@@ -1,6 +1,5 @@
 #include "misc_sprs.h"
 #include "info.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "gui/jwin.h"
 #include "zq/zquest.h"

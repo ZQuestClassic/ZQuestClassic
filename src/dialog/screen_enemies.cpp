@@ -3,7 +3,6 @@
 #include "screen_data.h"
 #include "enemypattern.h"
 #include "gui/key.h"
-#include "alert.h"
 #include "info.h"
 #include "base/zsys.h"
 #include "gui/builder.h"
@@ -243,12 +242,8 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				end = true;
 			else if (end)
 			{
-				AlertDialog("Inactive Enemies!",
-					"Enemies won't appear if preceded by '(None)' in the list! Continue?",
-					[&](bool ret, bool)
-					{
-						confirm = ret;
-					}).show();
+				confirm = alert_confirm("Inactive Enemies!", "Enemies won't appear"
+					" if preceded by '(None)' in the list! Continue?");
 				break;
 			}
 		}

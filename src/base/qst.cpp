@@ -41,7 +41,6 @@
 #include "zinfo.h"
 #include "zc/ffscript.h"
 #include "particles.h"
-#include "dialog/alert.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
@@ -893,7 +892,7 @@ PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool v
     {
         if(!valid_zqt(f))
         {
-            jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			displayinfo("Error", "Invalid Quest Template");
             pack_fclose(f);
 			clear_quest_tmpfile();
             return NULL;
@@ -2698,15 +2697,11 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		if(loadquest_report)
 		{
 			enter_sys_pal();
-			AlertDialog("Quest saved in newer version",
+			r = alert_confirm("Quest saved in newer version",
 				"This quest was last saved in a newer version of ZQuest."
 				" Attempting to load this quest may not work correctly; to"
 				" avoid issues, try loading this quest in at least '" + std::string(tempheader.getVerStr()) + "'"
-				"\n\nWould you like to continue loading anyway? (Not recommended)",
-				[&](bool ret,bool)
-				{
-					r = ret;
-				}).show();
+				"\n\nWould you like to continue loading anyway? (Not recommended)");
 			exit_sys_pal();
 		}
 		if(!r)

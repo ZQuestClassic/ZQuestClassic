@@ -3,9 +3,6 @@
 
 #include "info.h"
 
-void info_dsa(string const& title, string const& text, string const& dsastr);
-bool alert_confirm(string const& title, string const& text, bool okc = false);
-
 // A basic dialog that just shows some lines of text and a yes/no button
 class AlertDialog: public InfoDialog
 {

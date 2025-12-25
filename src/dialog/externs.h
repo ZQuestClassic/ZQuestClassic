@@ -18,6 +18,14 @@ optional<zfix> call_get_zfix(string const& lbl, string const& inf, zfix dv, zfix
 void displayinfo(string const& title, string const& text, optional<string> subtext = nullopt);
 void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
 
+void info_dsa(string const& title, string const& text, string const& dsastr);
+bool alert_confirm(string const& title, string const& text,
+	optional<string> yes_btn = std::nullopt, optional<string> no_btn = std::nullopt,
+	optional<string> subtext = std::nullopt);
+std::pair<bool,bool> alert_confirm_dsa(string const& title, string const& text,
+	optional<string> yes_btn = std::nullopt, optional<string> no_btn = std::nullopt,
+	optional<string> subtext = std::nullopt);
+
 bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, bitstring& flags, std::optional<size_t> per_col = nullopt);
 bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, int32_t& flags, std::optional<size_t> per_col = nullopt);
 bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, dword& flags, std::optional<size_t> per_col = nullopt);

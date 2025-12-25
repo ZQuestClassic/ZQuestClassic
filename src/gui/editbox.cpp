@@ -2,7 +2,6 @@
 #include "base/zc_alleg.h"
 #include "gui/jwin.h"
 #include "base/fonts.h"
-#include "dialog/alert.h"
 #include <stdio.h>
 
 #include "gui/EditboxNew.h"
@@ -491,13 +490,11 @@ bool do_box_edit(DIALOG* edit_box_dlg, std::function<bool(int)> proc, string& st
 		}
 		if(str != editstr)
 		{
-			AlertDialog(title, "Save changes?", [&](bool ret,bool){
-				if(ret)
-				{
-					did_edit = true;
-					str = editstr;
-				}
-			}).show();
+			if (alert_confirm(title, "Save changes?"))
+			{
+				did_edit = true;
+				str = editstr;
+			}
 		}
 		delete em;
 	}

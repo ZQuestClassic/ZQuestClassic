@@ -4,7 +4,6 @@
 #include "zq/zquest.h"
 #include "base/misctypes.h"
 #include "zc_list_data.h"
-#include "alert.h"
 
 void call_editsavemenu_dialog(int index)
 {
@@ -54,14 +53,9 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 						width = btnsz, height = btnsz,
 						onPressFunc = [&, idx]()
 						{
-							bool doclear = false;
-							AlertDialog("Are you sure?",
-								fmt::format("This option '{}' will be erased.", local_ref.options[idx].text),
-								[&](bool ret,bool)
-								{
-									doclear = ret;
-								}).show();
-							if (!doclear) return;
+							if (!alert_confirm("Are you sure?", fmt::format("This option '{}'"
+								" will be erased.", local_ref.options[idx].text)))
+								return;
 							auto it = local_ref.options.begin();
 							std::advance(it, idx);
 							local_ref.options.erase(it);

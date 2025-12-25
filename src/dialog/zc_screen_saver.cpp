@@ -1,6 +1,5 @@
 #include "zc_screen_saver.h"
 #include "common.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
 #include "zc/zelda.h"

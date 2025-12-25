@@ -42,7 +42,6 @@
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "zq/zq_files.h"
-#include "dialog/alert.h"
 #include "slopes.h"
 #include "drawing.h"
 #include "zinfo.h"
@@ -219,7 +218,7 @@ bool zmap::clearall(bool validate)
     {
         if(!valid_zqt(header.templatepath))
         {
-            jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+            displayinfo("Error","Invalid Quest Template");
             return false;
         }
     }
@@ -418,7 +417,7 @@ bool zmap::clearmap(bool newquest)
         {
             if(!reset_templates(false))
             {
-                jwin_alert("Error","Error resetting","template screens.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+                displayinfo("Error","Error resetting template screens.");
             }
         }
     }
@@ -6251,7 +6250,7 @@ bool setMapCount2(int32_t c)
     }
     catch(...)
     {
-        jwin_alert("Error","Failed to change map count.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error","Failed to change map count.");
         return false;
     }
     
@@ -6489,25 +6488,18 @@ void popup_bugfix_dlg(const char* cfg, byte* dest_qrs)
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
 	if(!dont_show_again && hasCompatRulesEnabled())
 	{
-		AlertDialog("Apply New Bugfixes",
+		auto [ret, dsa] = alert_confirm_dsa("Apply New Bugfixes",
 			"New bugfixes found that can be applied to this quest!"
 			"\nWould you like to apply them?"
-			"\n(Applies 'Bugfix' rule template, un-checking compat rules)",
-			[&](bool ret,bool dsa)
-			{
-				if(ret)
-				{
-					applyRuleTemplate(ruletemplateFixCompat,dest_qrs);
-				}
-				if(dsa)
-				{
-					zc_set_config("zquest",cfg,1);
-				}
-			},
-			"Yes","No",
-			0,false, //timeout - none
-			true //"Don't show this again"
-		).show();
+			"\n(Applies 'Bugfix' rule template, un-checking compat rules)");
+		if(ret)
+		{
+			applyRuleTemplate(ruletemplateFixCompat,dest_qrs);
+		}
+		if(dsa)
+		{
+			zc_set_config("zquest",cfg,1);
+		}
 	}
 }
 
@@ -7114,9 +7106,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeheader()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeheader()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -7179,9 +7169,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writerules()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writerules()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -7441,9 +7429,7 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writedoorcombosets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writedoorcombosets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -7712,9 +7698,7 @@ int32_t writedmaps(PACKFILE *f, word, word, word start_dmap, word max_dmaps)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writedmaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writedmaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -7913,9 +7897,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writemisccolors()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -7975,9 +7957,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writegameicons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writegameicons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -8337,9 +8317,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writemisc()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -8798,9 +8776,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeitems()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeitems()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -8904,9 +8880,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeweapons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeweapons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -9522,9 +9496,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writemaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -9986,9 +9958,7 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writecombos()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writecombos()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -10193,9 +10163,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writecomboaliases()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writecomboaliases()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -10296,9 +10264,7 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writecolordata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writecolordata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -10502,9 +10468,7 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writestrings()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writestrings()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -10833,9 +10797,7 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writetiles()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writetiles()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -10958,9 +10920,7 @@ int32_t writemidis(PACKFILE *f)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writemidis()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writemidis()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -11028,9 +10988,7 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writecheats()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writecheats()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -11557,9 +11515,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writeguys()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writeguys()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -12147,9 +12103,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeherosprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeherosprites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -12246,9 +12200,7 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writesubscreens()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -12965,9 +12917,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -13854,9 +13804,7 @@ int32_t writeffscript_old(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -14179,9 +14127,7 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writesfx()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -14393,9 +14339,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writeinitdata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writeinitdata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
@@ -14479,9 +14423,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+        displayinfo("Error: writeitemdropsets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
     }
     
     new_return(0);
@@ -14576,9 +14518,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writefavorites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error: writefavorites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	}
 	
 	new_return(0);
