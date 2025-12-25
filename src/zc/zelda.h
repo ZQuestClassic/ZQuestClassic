@@ -423,7 +423,6 @@ extern char *qstdir;
 
 extern std::string load_qstpath;
 extern std::string only_qstpath;
-extern char header_version_nul_term[17];
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;

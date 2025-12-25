@@ -485,7 +485,6 @@ char     *qstdir=NULL;
 std::string load_qstpath;
 // if set, no file select is possible for the title screen, and only this quest apply to new saves.
 std::string only_qstpath;
-char header_version_nul_term[17];
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
@@ -1509,8 +1508,6 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		{
 			g->header.title = QHeader.title;
 			strncpy(g->version,QHeader.version,sizeof(g->version));
-			// Put the fixed-length header version field into a safer string.
-			strncpy(header_version_nul_term,QHeader.version,sizeof(QHeader.version));
 		}
 		else
 		{
