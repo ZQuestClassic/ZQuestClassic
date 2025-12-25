@@ -4944,26 +4944,6 @@ static DIALOG quest_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static DIALOG triforce_dlg[] =
-{
-	/* (dialog proc)	 (x)   (y)   (w)   (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp) */
-	{ jwin_win_proc,	  72,	64,  177,  105,  vc(14),   vc(1),	0,  D_EXIT,		   0,		0, (void *) "Triforce Pieces", NULL,  NULL },
-	// 1
-	{ jwin_check_proc,   129,	94,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "1", NULL,  NULL },
-	{ jwin_check_proc,   129,   104,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "2", NULL,  NULL },
-	{ jwin_check_proc,   129,   114,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "3", NULL,  NULL },
-	{ jwin_check_proc,   129,   124,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "4", NULL,  NULL },
-	{ jwin_check_proc,   172,	94,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "5", NULL,  NULL },
-	{ jwin_check_proc,   172,   104,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "6", NULL,  NULL },
-	{ jwin_check_proc,   172,   114,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "7", NULL,  NULL },
-	{ jwin_check_proc,   172,   124,   24,	9,   vc(0),  vc(11),	0,	   0,		   1,		0, (void *) "8", NULL,  NULL },
-	// 9
-	{ jwin_button_proc,  90,	144,   61,   21,   vc(0),  vc(11),  'k',  D_EXIT,		   0,		0, (void *) "O&K", NULL,  NULL },
-	{ jwin_button_proc,  170,   144,   61,   21,   vc(0),  vc(11),   27,  D_EXIT,		   0,		0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
 int32_t onToggleRecordingNewSaves()
 {
 	if (zc_get_config("zeldadx", "replay_new_saves", false))
@@ -5206,17 +5186,6 @@ static NewMenu replay_menu
 	{ "Upload replays", onUploadReplays, MENUID_REPLAY_UPLOAD },
 	{ "Clear upload cache", onClearUploadCache, MENUID_REPLAY_CLEARUPLOADCACHE },
 #endif
-};
-
-static DIALOG credits_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
-	{ jwin_win_proc,	   40,   38,   241,  173,  vc(14),  vc(1),   0,	   D_EXIT,	0,		0, (void *) "ZQuest Classic Credits", NULL,  NULL },
-	{ jwin_frame_proc,	 47,   65,   227,  115,  vc(15),  vc(1),   0,	   0,		 FR_DEEP,  0,	   NULL, NULL,  NULL },
-	{ d_bitmap_proc,	   49,   67,   222,  110,  vc(15),  vc(1),   0,	   0,		 0,		0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	140,  184,  41,   21,   vc(14),  vc(1),   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
 extern ListData dmap_list;
@@ -6543,13 +6512,11 @@ void System()
 
 void fix_dialogs()
 {
-	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
 	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
-	jwin_center_dialog(triforce_dlg);
 }
 
 INLINE int32_t mixvol(int32_t v1,int32_t v2)
