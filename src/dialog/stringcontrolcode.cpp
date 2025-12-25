@@ -11,7 +11,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-extern ListData dmap_list;
 extern bool sorted_fontdd;
 
 void call_geninit_wzrd(zinitdata& start, size_t index);
@@ -210,7 +209,7 @@ SCCDialog::SCCDialog() :
 	list_shtype(createShadowTypesListData()),
 	list_items(GUI::ZCListData::items(true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
-	list_dmaps(dmap_list),
+	list_dmaps(GUI::ZCListData::dmaps(true)),
 	list_weffect(GUI::ZCListData::warpeffects()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_midi(GUI::ZCListData::midinames(true)),

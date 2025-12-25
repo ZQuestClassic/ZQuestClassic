@@ -98,7 +98,6 @@ bool is_sys_pal = false;
 static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
-extern const char* dmaplist(int32_t index, int32_t* list_size);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 
@@ -5191,51 +5190,10 @@ static NewMenu replay_menu
 #endif
 };
 
-extern ListData dmap_list;
-
-static DIALOG goto_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)					 (dp2) (dp3) */
-	{ jwin_win_proc,	   48,   25,   205,  100,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Goto Location", NULL,  NULL },
-	{ jwin_button_proc,	90,   176-78,  61,   21,   vc(14),  0,	   13,	 D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	170,  176-78,  61,   21,   vc(14),  0,	   27,	 D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
-	{ jwin_text_proc,	  55,   129-75,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "DMap:", NULL,  NULL },
-	{ jwin_droplist_proc,	  88,  126-75,  160,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &dmap_list, NULL,  NULL },
-	{ jwin_text_proc,	  55,   149-75,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Screen:", NULL,  NULL },
-	{ jwin_edit_proc,	  132,  146-75,  91,   16,   0,	   0,	   0,	   0,		 2,		0,	   NULL, NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
+void call_warp_cheat_picker();
 int32_t onGoTo()
 {
-	bool music = false;
-	music = music;
-	sprintf(cheat_goto_screen_str,"%X",cheat_goto_screen);
-	
-	goto_dlg[0].dp2=get_zc_font(font_lfont);
-	goto_dlg[4].d2=cheat_goto_dmap;
-	goto_dlg[6].dp=cheat_goto_screen_str;
-	
-	clear_keybuf();
-	
-	large_dialog(goto_dlg);
-		
-	if(do_zqdialog(goto_dlg,4)==1)
-	{
-		int dmap = goto_dlg[4].d2;
-		int screen = zc_xtoi(cheat_goto_screen_str);
-		int adjusted_screen = screen + DMaps[dmap].xoff;
-		if (adjusted_screen < 0 || adjusted_screen >= 128)
-		{
-			InfoDialog("Invalid screen", fmt::format("The screen {:02X} is out of bounds.", adjusted_screen)).show();
-		}
-		else
-		{
-			cheats_enqueue(Cheat::GoTo, dmap, screen);
-		}
-	};
-	
+	call_warp_cheat_picker();
 	return D_O_K;
 }
 
@@ -6490,7 +6448,6 @@ void System()
 void fix_dialogs()
 {
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
 }

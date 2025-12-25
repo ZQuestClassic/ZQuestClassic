@@ -213,26 +213,6 @@ int32_t d_dropdmaplist_proc(int32_t ,DIALOG *,int32_t)
     return D_O_K;
 }
 
-int32_t dmap_list_size=MAXDMAPS;
-bool dmap_list_zero=true;
-
-const char *dmaplist(int32_t index, int32_t *list_size)
-{
-    static std::string str;
-
-    if(index>=0)
-    {
-        bound(index,0,dmap_list_size-1);
-        str = fmt::format("{:03}-{}", index+(dmap_list_zero?0:1), DMaps[index].name);
-        if (DMaps[index].xoff)
-            str += fmt::format(" xoff: {}", (int)DMaps[index].xoff);
-        return str.c_str();
-    }
-
-    *list_size=dmap_list_size;
-    return NULL;
-}
-ListData dmap_list(dmaplist, &font);
 
 int32_t curr_tb_page=0;
 
@@ -377,8 +357,6 @@ byte SnapshotScale;
 
 char   zeldadat_sig[52]={0};
 char   fontsdat_sig[52]={0};
-char   cheat_goto_dmap_str[4]={0};
-char   cheat_goto_screen_str[3]={0};
 int32_t  visited[6]={0};
 std::array<std::map<int, byte>, 8> activation_counters;
 mapscr* origin_scr;
