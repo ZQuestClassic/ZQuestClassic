@@ -683,6 +683,11 @@ void zqdialog_tag(uint tagid)
 	if(active_dlg_rti)
 		active_dlg_rti->type = tagid;
 }
+void zqdialog_freeze(bool frozen)
+{
+	if(active_dlg_rti)
+		active_dlg_rti->freeze = frozen;
+}
 void get_zqdialog_xy(int& x, int& y)
 {
 	if(active_dlg_rti)

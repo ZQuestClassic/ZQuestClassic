@@ -43,68 +43,57 @@ static void UpdateColumns();
 static void DrawLetter(int32_t x, int32_t y, int32_t color);
 static void DrawEraser(int32_t x, int32_t y, int32_t type);
 
-void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
+void refresh_pal_mouse();
+
+void screen_saver(int32_t speed, int32_t density)
 {
-    rti_matrix.visible = true;
-    rti_root.add_child_before(&rti_matrix, &rti_menu);
+	clear_keybuf();
+	
+	rti_matrix.visible = true;
+	rti_root.add_child(&rti_matrix);
 
-    int w = al_get_bitmap_width(rti_game.bitmap);
-    int h = al_get_bitmap_height(rti_game.bitmap);
-    target_bitmap = create_bitmap_ex(8, w, h);
-    clear_bitmap(target_bitmap);
-    rti_matrix.a4_bitmap = target_bitmap;
+	int w = rti_root.width;
+	int h = rti_root.height;
+	target_bitmap = create_bitmap_ex(8, w, h);
+	clear_bitmap(target_bitmap);
+	rti_matrix.a4_bitmap = target_bitmap;
 	rti_matrix.set_size(w, h);
+	rti_matrix.transparency_index = 0;
 
-    // speed 0-6, density 0-6
-    _density = zc_max(zc_min(density, 6), 0);
-    _speed = zc_max(zc_min(speed, 6), 0);
-    
-    InitMatrix();
-    input_idle(true);
-    
-    for(;;)
-    {
-        AddTracer();
-        AddEraser(-1);
-        UpdateTracers();
-        UpdateErasers();
-        UpdateColumns();
+	// speed 0-6, density 0-6
+	_density = zc_max(zc_min(density, 6), 0);
+	_speed = zc_max(zc_min(speed, 6), 0);
+	
+	InitMatrix();
+	input_idle();
+	
+	for(;;)
+	{
+		AddTracer();
+		AddEraser(-1);
+		UpdateTracers();
+		UpdateErasers();
+		UpdateColumns();
 
-        auto [game_pos_x, game_pos_y] = rti_game.pos();
-        rti_matrix.set_transform({
-            .x = game_pos_x,
-            .y = game_pos_y,
-            .xscale = rti_game.get_transform().xscale,
-            .yscale = rti_game.get_transform().yscale,
-        });
+		rti_matrix.set_transform(rti_root.get_transform());
+		rti_matrix.set_size(rti_root.width, rti_root.height);
 
-        update_hw_screen();
-        
-        poll_joystick();
-        
-        int32_t idle;
-        
-        if(mousedelay > 0)
-        {
-            mousedelay--;
-            idle = input_idle(false);
-        }
-        else
-        {
-            idle = input_idle(true);
-        }
-        
-        if(!idle)
-            break;
-    }
+		update_hw_screen();
+		
+		poll_joystick();
+		
+		if(!input_idle())
+			break;
+	}
 
-    rti_root.remove_child(&rti_matrix);
-    destroy_bitmap(target_bitmap);
-    
-    if(linebmp != NULL)
-        destroy_bitmap(linebmp);
-        
-    clear_keybuf();
+	rti_root.remove_child(&rti_matrix);
+	destroy_bitmap(target_bitmap);
+	
+	if(linebmp != NULL)
+		destroy_bitmap(linebmp);
+		
+	clear_keybuf();
+	refresh_pal_mouse();
 }
 
 static void InitMatrix()

@@ -121,6 +121,7 @@ static void configure_render_tree()
 {
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
+	rti_root.set_size(resx, resy);
 	
 	int w = rti_game.width;
 	int h = rti_game.height;

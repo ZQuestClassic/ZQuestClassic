@@ -297,7 +297,8 @@ int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
 int32_t Quit=0;
 uint32_t GameFlags=0;
-int32_t ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
+int32_t ss_speed = 0, ss_density = 0, ss_seconds = -1;
+bool ss_enable = false;
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0;
 std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
