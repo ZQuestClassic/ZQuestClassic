@@ -8695,7 +8695,7 @@ bool ePeahat::animate(int32_t index)
 		misc=1;
 	
 	if(!watch)
-		floater_walk(misc?rate:0,      hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10,  80, 16);
+		floater_walk(misc?rate:0,      hrate, zslongToFix(dstep*100),zslongToFix(dstep*10), 10,  dmisc16, dmisc17);
 	
 	if(get_qr(qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
