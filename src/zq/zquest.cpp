@@ -64,7 +64,6 @@
 
 #include "dialog/cheat_codes.h"
 #include "dialog/set_password.h"
-#include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
@@ -20871,8 +20870,6 @@ int32_t main(int32_t argc,char **argv)
 	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
 	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
 	
-	call_foo_dlg();
-
 	application_has_loaded = true;
 
 	while(!exiting_program)
