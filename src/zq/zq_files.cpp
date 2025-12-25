@@ -1108,14 +1108,10 @@ int32_t onExport_Combos()
 
 int32_t onImport_Tiles()
 {
-    int32_t ret=getnumber("Import Start Page",0);
-    
-    if(cancelgetnum)
-    {
-        return D_O_K;
-    }
-    
-    bound(ret,0,TILE_PAGES-1);
+	int ret;
+	if (auto num = call_get_num("Import Start Page", 0, TILE_PAGES-1))
+		ret = *num;
+	else return D_O_K;
     
     if(!prompt_for_existing_file_compat("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;

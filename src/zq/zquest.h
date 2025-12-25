@@ -42,7 +42,6 @@
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
-extern bool cancelgetnum;
 
 extern int32_t RulesetDialog;
 
@@ -251,8 +250,6 @@ void rebuild_string_list();
 int32_t onResetTransparency();
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t getnumber(const char *prompt,int32_t initialval);
-int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
 void savesometiles(const char *prompt,int32_t initialval);
 void writesometiles_to(const char *prompt,int32_t initialval);
@@ -272,9 +269,6 @@ void savesomedmaps(const char *prompt,int32_t initialval);
 
 void do_importdoorset(const char *prompt,int32_t initialval);
 void do_exportdoorset(const char *prompt,int32_t initialval);
-
-int32_t gettilepagenumber(const char *prompt, int32_t initialval);
-int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
