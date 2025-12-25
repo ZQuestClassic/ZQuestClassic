@@ -4,7 +4,6 @@
 #include "base/files.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
-#include "dialog/alert.h"
 #include "zc_list_data.h"
 #include "zinfo.h"
 
@@ -143,37 +142,27 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL itemclass names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_ic_name();
-											fields[FLD_IC_NAME]->setText("");
-											fields[FLD_IC_NAME]->setDisabled(true);
-											defcheck[FLD_IC_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL itemclass names to default!"))
+								{
+									lzinfo.clear_ic_name();
+									fields[FLD_IC_NAME]->setText("");
+									fields[FLD_IC_NAME]->setDisabled(true);
+									defcheck[FLD_IC_NAME]->setChecked(true);
+								}
 							}),
 						Button(
 							text = "Help Text",
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL itemclass helptext to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_ic_help();
-											helplbl[LBL_IC_HELP]->setText("");
-											fields[FLD_IC_HELP]->setText("");
-											fields[FLD_IC_HELP]->setDisabled(true);
-											defcheck[FLD_IC_HELP]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL itemclass helptext to default!"))
+								{
+									lzinfo.clear_ic_help();
+									helplbl[LBL_IC_HELP]->setText("");
+									fields[FLD_IC_HELP]->setText("");
+									fields[FLD_IC_HELP]->setDisabled(true);
+									defcheck[FLD_IC_HELP]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -252,37 +241,27 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL combo type names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_ctype_name();
-											fields[FLD_CT_NAME]->setText("");
-											fields[FLD_CT_NAME]->setDisabled(true);
-											defcheck[FLD_CT_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL combo type names to default!"))
+								{
+									lzinfo.clear_ctype_name();
+									fields[FLD_CT_NAME]->setText("");
+									fields[FLD_CT_NAME]->setDisabled(true);
+									defcheck[FLD_CT_NAME]->setChecked(true);
+								}
 							}),
 						Button(
 							text = "Help Text",
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL combo type help text to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_ctype_help();
-											helplbl[LBL_CT_HELP]->setText("");
-											fields[FLD_CT_HELP]->setText("");
-											fields[FLD_CT_HELP]->setDisabled(true);
-											defcheck[FLD_CT_HELP]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL combo type help text to default!"))
+								{
+									lzinfo.clear_ctype_help();
+									helplbl[LBL_CT_HELP]->setText("");
+									fields[FLD_CT_HELP]->setText("");
+									fields[FLD_CT_HELP]->setDisabled(true);
+									defcheck[FLD_CT_HELP]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -361,37 +340,27 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL mapflag names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_mf_name();
-											fields[FLD_MF_NAME]->setText("");
-											fields[FLD_MF_NAME]->setDisabled(true);
-											defcheck[FLD_MF_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL mapflag names to default!"))
+								{
+									lzinfo.clear_mf_name();
+									fields[FLD_MF_NAME]->setText("");
+									fields[FLD_MF_NAME]->setDisabled(true);
+									defcheck[FLD_MF_NAME]->setChecked(true);
+								}
 							}),
 						Button(
 							text = "Help Text",
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL mapflag help text to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_mf_help();
-											helplbl[LBL_MF_HELP]->setText("");
-											fields[FLD_MF_HELP]->setText("");
-											fields[FLD_MF_HELP]->setDisabled(true);
-											defcheck[FLD_MF_HELP]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL mapflag help text to default!"))
+								{
+									lzinfo.clear_mf_help();
+									helplbl[LBL_MF_HELP]->setText("");
+									fields[FLD_MF_HELP]->setText("");
+									fields[FLD_MF_HELP]->setDisabled(true);
+									defcheck[FLD_MF_HELP]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -438,18 +407,13 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL weapon names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_weap_name();
-											fields[FLD_WPN_NAME]->setText("");
-											fields[FLD_WPN_NAME]->setDisabled(true);
-											defcheck[FLD_WPN_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL weapon names to default!"))
+								{
+									lzinfo.clear_weap_name();
+									fields[FLD_WPN_NAME]->setText("");
+									fields[FLD_WPN_NAME]->setDisabled(true);
+									defcheck[FLD_WPN_NAME]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -496,18 +460,13 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL Counter names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_ctr_name();
-											fields[FLD_CTR_NAME]->setText("");
-											fields[FLD_CTR_NAME]->setDisabled(true);
-											defcheck[FLD_CTR_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL Counter names to default!"))
+								{
+									lzinfo.clear_ctr_name();
+									fields[FLD_CTR_NAME]->setText("");
+									fields[FLD_CTR_NAME]->setDisabled(true);
+									defcheck[FLD_CTR_NAME]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -554,18 +513,13 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL enemy type names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_etype_name();
-											fields[FLD_ETYPE_NAME]->setText("");
-											fields[FLD_ETYPE_NAME]->setDisabled(true);
-											defcheck[FLD_ETYPE_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL enemy type names to default!"))
+								{
+									lzinfo.clear_etype_name();
+									fields[FLD_ETYPE_NAME]->setText("");
+									fields[FLD_ETYPE_NAME]->setDisabled(true);
+									defcheck[FLD_ETYPE_NAME]->setChecked(true);
+								}
 							})
 					)
 				)),
@@ -668,55 +622,40 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL level item names to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_li_name();
-											fields[FLD_LI_NAME]->setText("");
-											fields[FLD_LI_NAME]->setDisabled(true);
-											defcheck[FLD_LI_NAME]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL level item names to default!"))
+								{
+									lzinfo.clear_li_name();
+									fields[FLD_LI_NAME]->setText("");
+									fields[FLD_LI_NAME]->setDisabled(true);
+									defcheck[FLD_LI_NAME]->setChecked(true);
+								}
 							}),
 						Button(
 							text = "Abbreviations",
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL level item abbreviations to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_li_abbr();
-											fields[FLD_LI_ABBR]->setText("");
-											fields[FLD_LI_ABBR]->setDisabled(true);
-											defcheck[FLD_LI_ABBR]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL level item abbreviations to default!"))
+								{
+									lzinfo.clear_li_abbr();
+									fields[FLD_LI_ABBR]->setText("");
+									fields[FLD_LI_ABBR]->setDisabled(true);
+									defcheck[FLD_LI_ABBR]->setChecked(true);
+								}
 							}),
 						Button(
 							text = "Help Text",
 							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
-								AlertDialog("Are you sure?",
-									"This will clear ALL level item helptext to default!",
-									[&](bool ret,bool)
-									{
-										if(ret)
-										{
-											lzinfo.clear_li_help();
-											helplbl[LBL_LI_HELP]->setText("");
-											fields[FLD_LI_HELP]->setText("");
-											fields[FLD_LI_HELP]->setDisabled(true);
-											defcheck[FLD_LI_HELP]->setChecked(true);
-										}
-									}).show();
+								if (alert_confirm("Are you sure?", "This will clear ALL level item helptext to default!"))
+								{
+									lzinfo.clear_li_help();
+									helplbl[LBL_LI_HELP]->setText("");
+									fields[FLD_LI_HELP]->setText("");
+									fields[FLD_LI_HELP]->setDisabled(true);
+									defcheck[FLD_LI_HELP]->setChecked(true);
+								}
 							})
 					)
 				))
@@ -823,10 +762,8 @@ bool save_zi(zinfo const& tzi)
         
     if(exists(temppath))
     {
-        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
-        {
+        if(!alert_confirm("Confirm Overwrite",fmt::format("{} already exists. Write over existing file?", temppath)))
             return false;
-        }
     }
     
 	PACKFILE *inf = pack_fopen_password(temppath, F_WRITE, "");
@@ -859,14 +796,7 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::LOAD:
 		{
-			bool r = false;
-			AlertDialog("Are you sure?",
-				"This will overwrite all info fields!",
-				[&](bool ret,bool)
-				{
-					r = ret;
-				}).show();
-			if(r)
+			if (alert_confirm("Are you sure?", "This will overwrite all info fields!"))
 			{
 				if(load_zi(tmp_zinfo))
 				{

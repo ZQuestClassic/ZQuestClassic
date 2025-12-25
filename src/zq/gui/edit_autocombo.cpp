@@ -7,7 +7,6 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"
-#include "dialog/alert.h"
 
 void mark_save_dirty();
 combo_auto temp_autocombo;
@@ -160,13 +159,8 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							bool doChange = true;
 							if (numCombosSet())
 							{
-								AlertDialog("Clear Autocombo?",
-									"Changing this autocombo's type will clear all its combos. Are you sure you want to do this?",
-									[&doChange](bool ret, bool)
-									{
-										if (!ret)
-											doChange = false;
-									}).show();
+								doChange = alert_confirm("Clear Autocombo?", "Changing this autocombo's type will clear"
+									" all its combos. Are you sure you want to do this?");
 							}
 							if (doChange)
 							{

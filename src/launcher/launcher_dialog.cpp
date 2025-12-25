@@ -29,15 +29,9 @@ bool handle_close_btn_quit()
 	if(close_button_quit)
 	{
 		#if LAUNCHER_EXIT_WARN
-		bool r = false;
-		AlertDialog("Exit",
-			"Are you sure?",
-			[&](bool ret,bool)
-			{
-				r = ret;
-			}).show();
+		exiting_program = alert_confirm("Exit", "Are you sure?");
 		close_button_quit = false;
-		return (exiting_program = r);
+		return exiting_program;
 		#else
 		return (exiting_program = true);
 		#endif

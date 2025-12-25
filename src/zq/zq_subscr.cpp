@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <fmt/format.h>
 #include "dialog/info.h"
-#include "dialog/alert.h"
 #include "dialog/subscr_props.h"
 #include "dialog/info_lister.h"
 #include "dialog/subscreenwizard.h"
@@ -307,20 +306,12 @@ int32_t onDeleteWidgetC()
 		bool run = true;
 		if(subscr_confirm_delete)
 		{
-			run = false;
-			AlertDialog("Delete Widget?",
+			auto [ret, dsa] = alert_confirm_dsa("Delete Widget?",
 				fmt::format("Are you sure you want to delete widget {}, {}?",
-					curr_widg, widg->getTypeName()),
-				[&](bool ret,bool dsa)
-				{
-					run = ret;
-					if(dsa)
-						onToggleConfDelete();
-				},
-				"Yes","No",
-				0,false, //timeout - none
-				true //"Don't show this again"
-			).show();
+					curr_widg, widg->getTypeName()));
+			if (dsa)
+				onToggleConfDelete();
+			run = ret;
 		}
 		if(run)
 			delete_widget();
@@ -2533,19 +2524,10 @@ bool edit_subscreen()
 				case 49: // Del Page
 				{
 					auto count = subscr_edit.cur_page().size();
-					bool del = !count;
-					if(!del)
-					{
-						AlertDialog("Delete Current Page",
-							fmt::format("Are you sure you want to delete the current page {},"
-								" including {}?", subscr_edit.curpage,
-								count==1?"its 1 widget":fmt::format("all its {} widgets",count)),
-							[&](bool ret,bool)
-							{
-								del = ret;
-							}).show();
-					}
-					if(del)
+					if(!count || alert_confirm("Delete Current Page",
+						fmt::format("Are you sure you want to delete the current page {},"
+							" including {}?", subscr_edit.curpage,
+							count==1?"its 1 widget":fmt::format("all its {} widgets",count))))
 						subscr_edit.delete_page(subscr_edit.curpage);
 					break;
 				}
@@ -2571,14 +2553,8 @@ bool edit_subscreen()
 				bool exit = true;
 				if(ret != 1)
 				{
-					exit = false;
-					AlertDialog("Exit without saving?",
-							"Are you sure you want to exit without saving your changes to this subscreen? (if you made any)",
-							[&exit](bool ret,bool)
-							{
-								if(ret)
-									exit = true;
-							}).show();
+					exit = alert_confirm("Exit without saving?",
+						"Are you sure you want to exit without saving your changes to this subscreen? (if you made any)");
 				}
 				if(exit)
 					return true;

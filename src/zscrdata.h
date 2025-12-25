@@ -187,7 +187,7 @@ void read_compile_data(vector<shared_ptr<ZScript::Opcode>>& zasm, map<string, ZS
 			
 	if(!tempfile)
 	{
-		//jwin_alert("Error","Unable to open the temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		//displayinfo("Error","Unable to open the temporary file in current directory!");
 		return;
 	}
 	
@@ -282,7 +282,7 @@ void write_compile_data(vector<shared_ptr<ZScript::Opcode>>& zasm, map<string, Z
 			
 	if(!tempfile)
 	{
-		//jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		//displayinfo("Error","Unable to create a temporary file in current directory!");
 		return;
 	}
 	

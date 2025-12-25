@@ -2,7 +2,6 @@
 #include "comboeditor.h"
 #include "gui/key.h"
 #include "info.h"
-#include "alert.h"
 #include "base/zsys.h"
 #include "tiles.h"
 #include "gui/builder.h"
@@ -10,6 +9,7 @@
 #include "items.h"
 #include "base/qrs.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "zinfo.h"
 #include "base/combo.h"
 
@@ -1751,14 +1751,7 @@ bool ComboTriggerDialog::apply_trigger()
 	updateWarnings();
 	if(warnings.size())
 	{
-		bool cancel = false;
-		AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
-			{
-				if(!ret) cancel = true;
-			});
-		alert.setSubtext("The following issues were found with this trigger:");
-		alert.show();
-		if(cancel)
+		if (!alert_confirm("Warnings", fmt::format("{}", fmt::join(warnings, "\n")), "OK", "Cancel", "The following issues were found with this trigger:"))
 			return false;
 	}
 	
@@ -1776,21 +1769,12 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::CLEAR:
 		{
-			bool doclear = false;
-			AlertDialog("Are you sure?",
-				"Clearing the trigger will reset all values",
-				[&](bool ret,bool)
-				{
-					doclear = ret;
-				}).show();
-			if(doclear)
-			{
-				local_ref.clear();
-				rerun_dlg = true;
-				load_trigger();
-				return true;
-			}
-			return false;
+			if (!alert_confirm("Are you sure?", "Clearing the trigger will reset all values"))
+				return false;
+			local_ref.clear();
+			rerun_dlg = true;
+			load_trigger();
+			return true;
 		}
 		
 		case message::WARNINGS:

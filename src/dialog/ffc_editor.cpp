@@ -3,8 +3,8 @@
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
-#include "alert.h"
 #include "zc_list_data.h"
+#include "info.h"
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
@@ -511,12 +511,8 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			if(ffc.script && !ffc.data)
 			{
-				AlertDialog("Inactive FFC","FFCs that use Combo 0 cannot run scripts! Continue?",
-					[&](bool ret,bool)
-					{
-						m = ret;
-					}).show();
-				if(!m) return false; //cancelled
+				if (!alert_confirm("Inactive FFC","FFCs that use Combo 0 cannot run scripts! Continue?"))
+					return false; //cancelled
 			}
 			ffc.save(thescr, screen, ffind);
 			mark_save_dirty();

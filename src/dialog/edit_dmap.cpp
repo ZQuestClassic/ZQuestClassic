@@ -735,7 +735,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 
 											if (strlen(tmfname) > 55)
 											{
-												jwin_alert("Error", "Filename too long", "(>55 characters)", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
+												displayinfo("Error", "Filename too long (>55 characters)");
 												temppath[0] = 0;
 											}
 											else

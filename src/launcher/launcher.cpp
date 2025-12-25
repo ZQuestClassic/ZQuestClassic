@@ -3,7 +3,6 @@
 #include "launcher/launcher.h"
 #include "base/fonts.h"
 #include "base/render.h"
-#include "dialog/alert.h"
 #include "launcher/launcher_dialog.h"
 #include "base/process_management.h"
 #include "base/zapp.h"

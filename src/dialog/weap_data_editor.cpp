@@ -1,6 +1,5 @@
 #include "weap_data_editor.h"
 #include "info.h"
-#include "alert.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"

@@ -6,7 +6,6 @@
 #include "base/gui.h"
 #include "gui/jwin.h"
 #include "dialog/info.h"
-#include "dialog/alert.h"
 #include <fmt/format.h>
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
@@ -594,26 +593,16 @@ bool ObjectTemplate::try_delete()
 			std::max(sel, *sel2)) : fmt::format(" {}", sel),
 			get_cb(OBJPG_CB_RECTSEL) ? (get_cb(OBJPG_CB_COLMODE) ?
 				" (Rectangularly, 4-column)" : " (Rectangularly)") : "");
-	bool did = false;
-	AlertDialog(fmt::format("Delete {}s", name()),
-		toclear,
-		[&](bool ret,bool)
-		{
-			if(ret)
-				did = true;
-		}).show();
-	if(did)
-	{
-		clear_backup();
-		for_area(sel,sel2,[&](int s){
-			backup(s);
-			do_delete(s);
-		});
-		
-		mark_save_dirty();
-		return true;
-	}
-	return false;
+	if (!alert_confirm(fmt::format("Delete {}s", name()), toclear))
+		return false;
+	clear_backup();
+	for_area(sel,sel2,[&](int s){
+		backup(s);
+		do_delete(s);
+	});
+	
+	mark_save_dirty();
+	return true;
 }
 
 bool ObjectTemplate::get_cb(uint indx) const

@@ -274,7 +274,6 @@ void update_combo_cycling();
 
 enum {dm_normal, dm_alias = 3, dm_cpool, dm_auto, dm_max};
 
-bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
 int32_t onOptions();
 void fix_drawing_mode_menu();

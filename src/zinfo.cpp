@@ -900,11 +900,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	}
 	
 	if(writesize!=int32_t(section_size))
-	{
-		char ebuf[80];
-		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-	}
+		displayinfo("Error:  writezinfo()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
 	
 	new_return(0);
 }

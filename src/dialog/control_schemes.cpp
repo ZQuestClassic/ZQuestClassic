@@ -1,6 +1,5 @@
 // See 'zc/control_scheme.cpp' for design comments
 #include "control_schemes.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "gui/jwin.h"
 #include "base/zsys.h"
@@ -113,15 +112,12 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 						{
 							if (!control_schemes.contains(edit_scheme))
 								return; // shouldn't happen
-							bool doclear = false;
-							AlertDialog("Are you sure?",
+							if (!alert_confirm("Are you sure?",
 								fmt::format("This will remove control scheme '{}' entirely."
-									" Quests set to use it will no longer have a control override set.", edit_scheme),
-								[&](bool ret, bool)
-								{
-									doclear = ret;
-								}).show();
-							if (!doclear) return;
+									" Quests set to use it will no longer have a control override set.", edit_scheme)))
+							{
+								return;
+							}
 							refresh_dlg();
 							if (delete_control_scheme(edit_scheme))
 								reload_schemes();

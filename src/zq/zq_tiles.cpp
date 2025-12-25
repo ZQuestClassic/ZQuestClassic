@@ -31,7 +31,6 @@
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 #include "dialog/rotatetile.h"
-#include "dialog/alert.h"
 #include "drawing.h"
 #include "colorname.h"
 #include "zq/render.h"
@@ -484,8 +483,7 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 			sprintf(buf, "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
 		else
 			sprintf(buf, "Fit to 4 columns?"); // Meh, whatever.
-		int32_t ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', get_zc_font(font_lfont));
-		if(ret==1)
+		if (alert_confirm("Wrapping", buf))
 			smartWrap=true;
 	}
 		
@@ -4358,7 +4356,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	
 	if(currtile+(width*height)>NEWMAXTILES)
 	{
-		if(jwin_alert("Confirm Truncation","Too many tiles.","Truncation may occur.",NULL,"&OK","&Cancel",'o','c',get_zc_font(font_lfont))==2)
+		if (!alert_confirm("Confirm Truncation","Too many tiles. Truncation may occur."))
 		{
 			delete[] testtile;
 			return false;
@@ -7449,14 +7447,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	if(dest_last>=NEWMAXTILES)
 	{
-		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
+		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy"));
 		return false;
-//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
-		// {
-		//  return false;
-		// }
 	}
 	
 	
@@ -7540,8 +7532,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
-		sprintf(buf4, "%s operation cancelled.", tmd.move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
+		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", tmd.move ? "Move" : "Copy"));
 		return false;
 	}
 	
@@ -7883,14 +7874,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
-		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
+		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy"));
 		return false;
-		//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
-		// {
-		//  return false;
-		// }
 	}
 	
 	TileMoveUndo on_undo;
@@ -8257,7 +8242,7 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 		sprintf(buf,"Delete tiles %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 	}
 	
-	if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+	if (alert_confirm("Confirm Delete",buf))
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
 		
@@ -8518,11 +8503,13 @@ void draw_tile_list_window()
 
 void show_blank_tile(int32_t t)
 {
-	char tbuf[80], tbuf2[80], tbuf3[80];
-	sprintf(tbuf, "Tile is%s blank.", blank_tile_table[t]?"":" not");
-	sprintf(tbuf2, "%c %c", blank_tile_quarters_table[t*4]?'X':'-', blank_tile_quarters_table[(t*4)+1]?'X':'-');
-	sprintf(tbuf3, "%c %c", blank_tile_quarters_table[(t*4)+2]?'X':'-', blank_tile_quarters_table[(t*4)+3]?'X':'-');
-	jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,get_zc_font(font_lfont));
+	displayinfo("Blank Tile Information",fmt::format(
+		"Tile is{} blank.\n{} {}\n{} {}",
+		blank_tile_table[t]?"":" not",
+		blank_tile_quarters_table[t*4]?'X':'-',
+		blank_tile_quarters_table[(t*4)+1]?'X':'-',
+		blank_tile_quarters_table[(t*4)+2]?'X':'-',
+		blank_tile_quarters_table[(t*4)+3]?'X':'-'));
 }
 
 static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, int format, bool shift, bool alt, bool skip_prompt = false)
@@ -8537,7 +8524,7 @@ static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_s
 	char buf[80];
 	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",num_bits);
 	
-	if (skip_prompt || jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+	if (skip_prompt || alert_confirm("Convert Tile?",buf))
 	{
 		go_tiles();
 		mark_save_dirty();
@@ -9098,11 +9085,11 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					if (!readtilefile(f))
 					{
 						al_trace("Could not read from .ztile packfile %s\n", temppath);
-						jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						displayinfo("ZTILE File: Error","Could not load the specified Tile.");
 					}
 					else
 					{
-						jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						displayinfo("ZTILE File: Success!","Loaded the source tiles to your tile sheets!");
 					}
 				
 					pack_fclose(f);
@@ -9678,21 +9665,17 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						else
 							sprintf(buf,"Remove tile %d?",tile);
 							
-						AlertDialog("Remove Tiles", std::string(buf)
+						if (alert_confirm("Remove Tiles", std::string(buf)
 							+"\nThis will offset the tiles that follow!"
-							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
-							[&](bool ret,bool)
+							+(warn?"\nRemoving tiles ignores rectangular selections!":"")))
+						{
+							go_tiles();
+							if(copy_tiles(tile,tile2,copy,copycnt,false,true))
 							{
-								if(ret)
-								{
-									go_tiles();
-									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
-									{
-										redraw=true;
-										mark_save_dirty();
-									}
-								}
-							}).show();
+								redraw=true;
+								mark_save_dirty();
+							}
+						}
 					}
 					delete_tiles(tile,tile2,rect_sel);
 					redraw=true;
@@ -9741,21 +9724,17 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							else
 								sprintf(buf,"Remove tile %d?",tile);
 								
-							AlertDialog("Remove Tiles", std::string(buf)
+							if (alert_confirm("Remove Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
-								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
-								[&](bool ret,bool)
+								+(warn?"\nRemoving tiles ignores rectangular selections!":"")))
+							{
+								go_tiles();
+								if(copy_tiles(tile,tile2,copy,copycnt,false,true))
 								{
-									if(ret)
-									{
-										go_tiles();
-										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
-										{
-											redraw=true;
-											mark_save_dirty();
-										}
-									}
-								}).show();
+									redraw=true;
+									mark_save_dirty();
+								}
+							}
 						}
 						else
 						{
@@ -9766,21 +9745,17 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							else
 								sprintf(buf,"Insert a blank tile?");
 								
-							AlertDialog("Insert Tiles", std::string(buf)
+							if (alert_confirm("Insert Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
-								+(warn?"\nInserting tiles ignores rectangular selections!":""),
-								[&](bool ret,bool)
+								+(warn?"\nInserting tiles ignores rectangular selections!":"")))
+							{
+								go_tiles();
+								if(copy_tiles(copy,tile2,tile,copycnt,false,true))
 								{
-									if(ret)
-									{
-										go_tiles();
-										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
-										{
-											redraw=true;
-											mark_save_dirty();
-										}
-									}
-								}).show();
+									redraw=true;
+									mark_save_dirty();
+								}
+							}
 						}
 						
 						copy=-1;
@@ -9839,13 +9814,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						
 						if(!same)
 						{
-							jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
+							displayinfo("Error","The source tiles are not in the same format.");
 							break;
 						}
 						
 						if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 						{
-							jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
+							displayinfo("Error","Too many tiles will be created");
 							break;
 						}
 						
@@ -10291,18 +10266,14 @@ REDRAW:
 						else
 							msg = "Insert a blank tile?";
 							
-						AlertDialog("Insert Tiles", msg
+						if (alert_confirm("Insert Tiles", msg
 							+"\nThis will offset the tiles that follow!"
-							+(warn?"\nInserting tiles ignores rectangular selections!":""),
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									go_tiles();
-									if(copy_tiles(copy, tile2, tile, copycnt, false, true))
-										mark_save_dirty();
-								}
-							}).show();
+							+(warn?"\nInserting tiles ignores rectangular selections!":"")))
+						{
+							go_tiles();
+							if(copy_tiles(copy, tile2, tile, copycnt, false, true))
+								mark_save_dirty();
+						}
 						
 						copy=-1;
 						tile2=tile=z;
@@ -10326,18 +10297,14 @@ REDRAW:
 						else
 							msg = fmt::format("Remove tile {}?", tile);
 						
-						AlertDialog("Remove Tiles", msg
+						if (alert_confirm("Remove Tiles", msg
 							+"\nThis will offset the tiles that follow!"
-							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									go_tiles();
-									if(copy_tiles(tile, tile2, copy, copycnt, false, true))
-										mark_save_dirty();
-								}
-							}).show();
+							+(warn?"\nRemoving tiles ignores rectangular selections!":"")))
+						{
+							go_tiles();
+							if(copy_tiles(tile, tile2, copy, copycnt, false, true))
+								mark_save_dirty();
+						}
 						
 						copy=-1;
 						tile2=tile=z;
@@ -11354,7 +11321,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					else
 						sprintf(buf,"Remove combo %d?",tile);
 						
-					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+					if (alert_confirm("Confirm Remove",fmt::format("{}\nThis will offset all of the combos that follow!",buf)))
 					{
 						move_combos(tile,tile2,copy, copycnt);
 						//don't allow the user to undo; quest combo references are incorrect -DD
@@ -11371,7 +11338,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					else
 						sprintf(buf,"Insert a blank combo?");
 						
-					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+					if (alert_confirm("Confirm Insert",fmt::format("{}\nThis will offset all of the combos that follow!", buf)))
 					{
 						move_combos(copy,tile2,tile, copycnt);
 						go_combos();
@@ -11397,7 +11364,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 				}
 				
-				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+				if(alert_confirm("Confirm Delete",buf))
 				{
 					go_combos();
 					
@@ -11671,14 +11638,7 @@ REDRAW:
 							msg = fmt::format("Delete combo {}?",tile);
 						else
 							msg = fmt::format("Delete combos {}-{}?",zc_min(tile,tile2),zc_max(tile,tile2));
-						bool didconfirm = false;
-						AlertDialog("Confirm Delete",msg,
-							[&](bool ret,bool)
-							{
-								if(ret)
-									didconfirm = true;
-							}).show();
-						if(didconfirm)
+						if (alert_confirm("Confirm Delete",msg))
 						{
 							go_combos();
 							
@@ -11713,14 +11673,7 @@ REDRAW:
 							msg = fmt::format("Insert combo {}?"
 								" This will offset all of the combos that follow!",tile);
 						
-						bool didconfirm = false;
-						AlertDialog("Confirm Insert",msg,
-							[&](bool ret,bool)
-							{
-								if(ret)
-									didconfirm = true;
-							}).show();
-						if(didconfirm)
+						if (alert_confirm("Confirm Insert",msg))
 							move_combos(copy, tile2, tile, copycnt);
 						else return;
 						
@@ -11749,14 +11702,7 @@ REDRAW:
 							msg = fmt::format("Remove combo {}?"
 								" This will offset all of the combos that follow!",tile);
 						
-						bool didconfirm = false;
-						AlertDialog("Confirm Remove",msg,
-							[&](bool ret,bool)
-							{
-								if(ret)
-									didconfirm = true;
-							}).show();
-						if(didconfirm)
+						if (alert_confirm("Confirm Remove", msg))
 							move_combos(tile, tile2, copy, copycnt);
 						else return;
 						
@@ -11854,11 +11800,8 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t ok=1;
 			
 			if(newtilebuf[d->d1].format==tf8Bit)
-				jwin_alert("Warning",
-						   "You have selected an 8-bit tile.",
-						   "It will not be drawn correctly",
-						   "on the file select screen.",
-						   "&OK",NULL,'o',0,get_zc_font(font_lfont));
+				displayinfo("Warning", "You have selected an 8-bit tile."
+				   "\nIt will not be drawn correctly on the file select screen.");
 						   
 			return D_REDRAW;
 		}

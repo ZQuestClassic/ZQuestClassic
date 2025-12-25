@@ -1,6 +1,5 @@
 #include "subscr_lists_edit.h"
 #include <gui/builder.h>
-#include "alert.h"
 #include <utility>
 #include <sstream>
 #include <fmt/format.h>
@@ -117,14 +116,10 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 				if(ci==si) return;
 				bool run = true;
 				if(!newslot)
-					AlertDialog(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
+					run = alert_confirm(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
 						fmt::format("Are you sure you want to overwrite {0} Subscreen {1} '{2}'"
 							" with {0} Subscreen {3} '{4}'? This cannot be undone!", subscr_names[cur_type], si,
-							vec[si].name, ci, vec[ci].name),
-						[&](bool ret,bool)
-						{
-							run = ret;
-						}).show();
+							vec[si].name, ci, vec[ci].name));
 				if(run)
 				{
 					if(newslot)
@@ -182,17 +177,13 @@ bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			auto& vec = *subscr_vecs[cur_type];
 			if(sel_inds[cur_type] >= vec.size())
 				return false;
-			bool run = false;
-			AlertDialog(fmt::format("Delete {} Subscreen?",subscr_names[cur_type]),
+			if (alert_confirm(fmt::format("Delete {} Subscreen?",subscr_names[cur_type]),
 				fmt::format("Are you sure you want to delete {} Subscreen {} '{}'?"
 					" This cannot be undone!", subscr_names[cur_type], sel_inds[cur_type],
-					vec[sel_inds[cur_type]].name),
-				[&](bool ret,bool)
-				{
-					run = ret;
-				}).show();
-			if(run)
+					vec[sel_inds[cur_type]].name)))
+			{
 				delete_subscreen(sel_inds[cur_type],cur_type);
+			}
 			refresh = true;
 			break;
 		}

@@ -1,7 +1,6 @@
 #include "mapstyles.h"
 #include "gui/key.h"
 #include "info.h"
-#include "alert.h"
 #include "tiles.h"
 #include "gui/builder.h"
 #include "base/misctypes.h"

@@ -58,7 +58,6 @@
 #include "sound/zcmusic.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
-#include "dialog/alert.h"
 #include "zc/combos.h"
 #include "zc/jit.h"
 #include "zc/zc_subscr.h"
@@ -3662,7 +3661,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		enter_sys_pal();
-		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		displayinfo("View Map","Not enough memory.");
 		exit_sys_pal();
 		return D_O_K;;
 	}
@@ -4785,18 +4784,9 @@ int32_t onClickToFreeze()
 
 int32_t OnSaveZCConfig()
 {
-	if(jwin_alert3(
-			"Save Configuration", 
-			"Are you sure that you wish to save your present configuration settings?", 
-			"This will overwrite your prior settings!",
-			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
+	if (alert_confirm("Save Configuration",
+		"Are you sure that you wish to save your present configuration settings?"
+		"\nThis will overwrite your prior settings!"))
 	{
 		save_game_configs();
 		return D_O_K;
@@ -4807,18 +4797,9 @@ int32_t OnSaveZCConfig()
 int32_t OnnClearQuestDir()
 {
 	auto current_path = fs::current_path() / "quests";
-	if(jwin_alert3(
-			"Clear Current Directory Cache", 
-			"Are you sure that you wish to reset where ZC Player looks for quests?", 
-			fmt::format("The new directory will be: {}", current_path.string()).c_str(),
-			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
+	if (alert_confirm("Clear Current Directory Cache",
+		fmt::format("Are you sure that you wish to reset where ZC Player looks for quests?"
+			"The new directory will be: {}", current_path.string())))
 	{
 		zc_set_config("zeldadx","quest_dir","quests");
 		flush_config_file();
@@ -4835,17 +4816,13 @@ int32_t onConsole()
 {
 	if ( !console_enabled )
 	{
-		AlertDialog("ZC Console",
-			"Open the ZC Console?" 
+		if (alert_confirm("ZC Console",
+			"Open the ZC Console?"
 			"\nThis will display any messages logged by scripts,"
-			" including errors.",
-			[&](bool ret,bool)
-			{
-				if(ret)
-				{
-					FFCore.ZScriptConsole(true);
-				}
-			}).show();
+			" including errors."))
+		{
+			FFCore.ZScriptConsole(true);
+		}
 		return D_O_K;
 	}
 	else
@@ -4955,8 +4932,7 @@ int32_t onToggleRecordingNewSaves()
 	else
 	{
 		zc_set_config("zeldadx", "replay_new_saves", true);
-		jwin_alert("Recording", "Newly created saves will be recorded and written to a replay file.",
-			NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		displayinfo("Recording", "Newly created saves will be recorded and written to a replay file.");
 	}
 	return D_O_K;
 }
@@ -4971,10 +4947,9 @@ int32_t onToggleAutoUploadReplays()
 	else
 	{
 		zc_set_config("zeldadx", "replay_upload", true);
-		jwin_alert("Replays", "Replays will be automatically uploaded. This helps development by",
-			" preventing bugs and simplifying bug reports.",
-			"Upload will happen no more than once a week when closing ZC",
-			"OK",NULL,13,27,get_zc_font(font_lfont));
+		displayinfo("Replays", "Replays will be automatically uploaded. This helps development by"
+			" preventing bugs and simplifying bug reports."
+			"\nUpload will happen no more than once a week when closing ZC");
 
 		if (!zc_get_config("zeldadx", "replay_new_saves", false))
 			onToggleRecordingNewSaves();
@@ -4984,40 +4959,19 @@ int32_t onToggleAutoUploadReplays()
 
 int32_t onUploadReplays()
 {
-	if(jwin_alert3(
-			"Upload replays", 
-			"Upload your replays now to assist in development?",
-			NULL,
-			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
+	if (alert_confirm("Upload replays",
+		"Upload your replays now to assist in development?"))
 	{
 		int num_uploaded = replay_upload();
-		jwin_alert("Upload replays", fmt::format("Uploaded {} replays", num_uploaded).c_str(),
-			NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		displayinfo("Upload replays", fmt::format("Uploaded {} replays", num_uploaded));
 	}
 	return D_O_K;
 }
 
 int32_t onClearUploadCache()
 {
-	if(jwin_alert3(
-			"Upload replays", 
-			"Clear the upload cache?",
-			"This simply deletes replays/state.json. There's no harm in doing this, but",
-			"likely is not necessary.",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
+	if (alert_confirm("Upload replays",
+		"Clear the upload cache?\nThis simply deletes replays/state.json. There's no harm in doing this, but likely is not necessary."))
 	{
 		replay_upload_clear_cache();
 	}
@@ -5041,17 +4995,13 @@ int32_t onStopReplayOrRecord()
 	{
 		if (!replay_get_meta_bool("test_mode"))
 		{
-			jwin_alert("Recording", "You cannot stop recording a save file.",
-				NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+			displayinfo("Recording", "You cannot stop recording a save file.");
 			return D_CLOSE;
 		}
 
-		if (jwin_alert("Stop Recording",
-			"Save replay to disk and stop recording?",
-			"This will stop the recording.",
-			NULL,
-			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
-		return D_CLOSE;
+		if (!alert_confirm("Stop Recording", "Save replay to disk and stop recording?"
+			"\nThis will stop the recording."))
+			return D_CLOSE;
 
 		replay_save();
 		replay_stop();
@@ -5064,32 +5014,27 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 	bool ctrl = CHECK_CTRL_CMD;
 	if (Playing)
 	{
-		if (jwin_alert("Replay - Warning!",
-			"Loading a replay will exit the current game.",
-			"All unsaved progress will be lost.",
-			"Do you wish to continue?",
-			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
-		return D_CLOSE;
+		if (!alert_confirm("Replay - Warning!",
+			"Loading a replay will exit the current game."
+			"\nAll unsaved progress will be lost."
+			"\nDo you wish to continue?"))
+			return D_CLOSE;
 	}
 
 	std::string mode_string = replay_mode_to_string(mode);
 	mode_string[0] = std::toupper(mode_string[0]);
 
-	std::string line_1 = "Select a replay file to play back.";
-	std::string line_2 = "You won't be able to save, and it won't effect existing saves.";
-	std::string line_3 = "You can stop the replay and take over manually any time.";
+	std::string msg = "Select a replay file to play back."
+		"\nYou won't be able to save, and it won't effect existing saves."
+		"\nYou can stop the replay and take over manually any time.";
 	if (mode == ReplayMode::Update)
 	{
-		line_1 = "Select a replay file to update.";
-		line_2 = "WARNING: be sure to back up the zplay file";
-		line_3 = "and verify that the updated replay works as expected!";
+		msg = "Select a replay file to update."
+			"\nWARNING: be sure to back up the zplay file"
+			"\nand verify that the updated replay works as expected!";
 	}
 
-	if (jwin_alert(mode_string.c_str(),
-		line_1.c_str(),
-		line_2.c_str(),
-		line_3.c_str(),
-		"OK","Nevermind",13,27,get_zc_font(font_lfont)) == 1)
+	if (alert_confirm(mode_string, msg, "OK","Nevermind"))
 	{
 		std::string replay_path = "replays/";
 		if(ctrl && devpwd())
@@ -5129,11 +5074,10 @@ int32_t onSaveReplay()
 	{
 		if (!replay_get_meta_bool("test_mode"))
 		{
-			if (jwin_alert("Save Replay",
-				"This will save a copy of the replay up to this point.",
-				"The official replay file will be untouched.",
-				"Do you wish to continue?",
-				"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
+			if (!alert_confirm("Save Replay",
+				"This will save a copy of the replay up to this point."
+				"\nThe official replay file will be untouched."
+				"\nDo you wish to continue?"))
 			{
 				return D_CLOSE;
 			}
@@ -5147,8 +5091,7 @@ int32_t onSaveReplay()
 
 			if (fileexists(replay_path.c_str()))
 			{
-				jwin_alert("Save Replay", "You cannot overwrite an existing file.",
-					NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+				displayinfo("Save Replay", "You cannot overwrite an existing file.");
 				return D_CLOSE;
 			}
 
@@ -5281,36 +5224,27 @@ int32_t onSound()
 	return D_O_K;
 }
 
-int32_t queding(char const* s1, char const* s2, char const* s3)
-{
-	return jwin_alert("ZQuest Classic",s1,s2,s3,"&Yes","&No",'y','n',get_zc_font(font_lfont));
-}
-
 int32_t onQuit()
 {
 	if(Playing)
 	{
-		int32_t ret=0;
+		string s = "End current game?";
 		
 		if(get_qr(qr_NOCONTINUE))
 		{
 			if(standalone_mode)
 			{
-				ret=queding("End current game?",
-							"The continue screen is disabled; the game",
-							"will be reloaded from the last save.");
+				s += "\nThe continue screen is disabled; the game"
+					"\nwill be reloaded from the last save.";
 			}
 			else
 			{
-				ret=queding("End current game?",
-							"The continue screen is disabled. You will",
-							"be returned to the file select screen.");
+				s += "\nThe continue screen is disabled. You will"
+					"\nbe returned to the file select screen.";
 			}
 		}
-		else
-			ret=queding("End current game?",NULL,NULL);
-			
-		if(ret==1)
+		
+		if(alert_confirm("End Current Game?", s))
 		{
 			disableClickToFreeze=false;
 			Quit=qQUIT;
@@ -5360,7 +5294,7 @@ int32_t onTryQuit(bool inMenu)
 
 int32_t onReset()
 {
-	if(queding("  Reset system?  ",NULL,NULL)==1)
+	if(alert_confirm("Reset system?", "Reset system?"))
 	{
 		disableClickToFreeze=false;
 		Quit=qRESET;
@@ -5373,7 +5307,7 @@ int32_t onReset()
 
 int32_t onExit()
 {
-	if(queding(" Quit ZQuest Classic? ",NULL,NULL)==1)
+	if(alert_confirm("Quit ZQuest Classic?", "Quit ZQuest Classic?"))
 	{
 		Quit=qEXIT;
 		return D_CLOSE;
@@ -5405,18 +5339,9 @@ int32_t onSaveIndicator()
 
 int32_t onEpilepsy()
 {
-	if(jwin_alert3(
-			"Epilepsy Flash Reduction", 
-			"Enabling this will reduce the intensity of flashing and screen wave effects.",
-			"Disabling this will restore standard flash and wavy behaviour.",
-			"Proceed?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)
+	if (alert_confirm("Epilepsy Flash Reduction",
+		"Enabling this will reduce the intensity of flashing and screen wave effects."
+		"\nDisabling this will restore standard flash and wavy behaviour.\nProceed?"))
 	{
 		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
 		zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
@@ -5842,18 +5767,8 @@ TopMenu the_player_menu
 
 int32_t onPauseInBackground()
 {
-	if(jwin_alert3(
-			"Toggle Pause In Background", 
-			"This action will change whether ZC Player pauses when the window loses focus.",
-			"",
-			"Proceed?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)
+	if (alert_confirm("Toggle Pause In Background",
+		"This action will change whether ZC Player pauses when the window loses focus.\nProceed?"))
 	{
 		pause_in_background = pause_in_background ? 0 : 1;
 		zc_set_config("zeldadx","pause_in_background", pause_in_background);

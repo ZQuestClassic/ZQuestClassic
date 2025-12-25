@@ -1415,7 +1415,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 			{
 				if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
 					edit_cycles((first-poLEVEL)/pdLEVEL);
-				else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				else displayinfo("Notice","Palettes above 0xFF do not have Palette Cycles");
 			}
 		}
 		

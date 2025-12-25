@@ -60,7 +60,6 @@
 #include "base/qst.h"
 #include "base/util.h"
 #include "drawing.h"
-#include "dialog/alert.h"
 #include "dialog/info.h"
 #include "zc/replay.h"
 #include "zc/cheats.h"
@@ -1741,7 +1740,7 @@ int32_t init_game()
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
 					game->header.replay_file);
 				enter_sys_pal();
-				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+				displayinfo("Recording",msg);
 				exit_sys_pal();
 			}
 			else
@@ -4376,17 +4375,16 @@ int main(int argc, char **argv)
 	{
 		clear_to_color(screen,BLACK);
 		enter_sys_pal();
-		int32_t ret=jwin_alert3("Multiple Instances",
-							"Another instance of ZC is already running.",
-							"Running multiple instances may cause your",
-							"save file to be deleted. Continue anyway?",
-							"&No","&Yes", 0, 'n', 'y', 0, get_zc_font(font_lfont));
-		exit_sys_pal();
-		if(ret!=2)
+		if (alert_confirm("Multiple Instances",
+			"Another instance of ZC is already running."
+			"\nRunning multiple instances may cause your"
+			" save file to be deleted. Continue anyway?"))
 		{
+			exit_sys_pal();
 			zc_exit(0);
 			return 0;
 		}
+		exit_sys_pal();
 	}
 	
 	// TODO: we are repeating this code (See few lines above) but different switch mode ...

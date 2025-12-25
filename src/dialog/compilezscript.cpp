@@ -3,7 +3,6 @@
 #include "base/files.h"
 #include "zalleg/zalleg.h"
 #include "zq/zquest.h"
-#include "alert.h"
 #include "alertfunc.h"
 #include "headerdlg.h"
 #include "zc/ffscript.h"
@@ -88,7 +87,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 
 	if(!tempfile)
 	{
-		jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		displayinfo("Error","Unable to create a temporary file in current directory!");
 		return true;
 	}
 	
@@ -461,7 +460,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			//Load from File
 			if(zScript.size() > 0)
 			{
-				if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
+				if(!alert_confirm("Confirm Overwrite","Loading will erase the current buffer. Proceed anyway?"))
 					return false;
 					
 				zScript.clear();
@@ -476,7 +475,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(zscript == NULL)
 			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Error","Cannot open specified file!");
 				return false;
 			}
 			
@@ -501,7 +500,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				
 			if(exists(temppath))
 			{
-				if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
+				if(!alert_confirm("Confirm Overwrite","File already exists. Overwrite?"))
 					break;
 			}
 			
@@ -509,14 +508,14 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(!zscript)
 			{
-				jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Error","Unable to open file for writing!");
 				break;
 			}
 			
 			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
 			
 			if(written != (int32_t)zScript.size())
-				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Error","IO error while writing script to file!");
 				
 			fclose(zscript);
 			return false;

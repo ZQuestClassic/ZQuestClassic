@@ -791,18 +791,7 @@ void KeyFileName(char *kfname);
 
 int32_t onClearQuestFilepath()
 {
-	if(jwin_alert3(
-			"Clear Quest Path",
-			"Clear the current default filepath?",
-			NULL,
-			NULL,
-		 "&Yes",
-		"&No",
-		NULL,
-		'y',
-		'n',
-		0,
-		get_zc_font(font_lfont)) == 1)
+	if (alert_confirm("Clear Quest Path", "Clear the current default filepath?"))
 	{
 		ZQ_ClearQuestPath();
 		save_config_file();

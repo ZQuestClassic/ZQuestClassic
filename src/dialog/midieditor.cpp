@@ -1,5 +1,4 @@
 #include "midieditor.h"
-#include "alert.h"
 #include "gui/builder.h"
 #include "gui/key.h"
 #include "info.h"

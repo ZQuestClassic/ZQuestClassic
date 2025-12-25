@@ -14,7 +14,6 @@
 #include "zq/zq_class.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
-#include "dialog/alert.h"
 #include "zq/render.h"
 #include "dialog/door_sel.h"
 
@@ -1337,14 +1336,12 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				if ( ret )
 				{
 					extract_name(temppath,name,FILENAMEALL);
-					sprintf(tmpbuf,"Saved %s",name);
-					jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("Success!", fmt::format("Saved {}", name));
 				}
 				else
 				{
 					extract_name(temppath,name,FILENAMEALL);
-					sprintf(tmpbuf,"Failed to save %s",name);
-					jwin_alert("Error!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("Error!", fmt::format("Failed to save {}", name));
 				}
 			} },
 		{ "Load", [&]()
@@ -1360,16 +1357,16 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", temppath);
-					jwin_alert("ZDOOR File: Error","Could not load the specified doorset.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOOR File: Error","Could not load the specified doorset.");
 				}
 				else if ( ret == 1 )
 				{
-					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOORS File: Success!","Loaded the source doorsets!");
 					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
-					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOORS File: Issue:","Targets exceed doorset count!");
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -1389,7 +1386,7 @@ int32_t doorcombosetlist_del()
     
     if((d>0 || door_combo_set_count>2) && d<door_combo_set_count-1)
     {
-        if(jwin_alert("Confirm Delete","Delete this door combo set?",DoorComboSetNames[d].c_str(),NULL,"Yes","No",'y',27,get_zc_font(font_lfont))==1)
+        if (alert_confirm("Confirm Delete", fmt::format("Delete this door combo set?\n{}",DoorComboSetNames[d])))
         {
             mark_save_dirty();
             

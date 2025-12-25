@@ -54,7 +54,6 @@
 #include "base/zc_alleg.h"
 #include "particles.h"
 #include "dialog/combopool.h"
-#include "dialog/alert.h"
 #include "dialog/alertfunc.h"
 #include "zq/gui/edit_autocombo.h"
 
@@ -1330,36 +1329,28 @@ int32_t onStrFix()
 {
 	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS))
 	{
-		AlertDialog("Fix: Old Margins",
+		if (alert_confirm("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
-			" to instead be cut off. Are you sure?",
-			[&](bool ret,bool)
-			{
-				if(ret)
-				{
-					set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
-					mark_save_dirty();
-				}
-			}).show();
+			" to instead be cut off. Are you sure?"))
+		{
+			set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
+			mark_save_dirty();
+		}
 	}
 	if(get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 	{
-		AlertDialog("Fix: Old Frame Size",
+		if (alert_confirm("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
-			" as the string width/height will be fixed, but the compat QR will also be unchecked.",
-			[&](bool ret,bool)
+			" as the string width/height will be fixed, but the compat QR will also be unchecked."))
+		{
+			for(auto q = 0; q < msg_count; ++q)
 			{
-				if(ret)
-				{
-					for(auto q = 0; q < msg_count; ++q)
-					{
-						MsgStrings[q].w += 16;
-						MsgStrings[q].h += 16;
-					}
-					set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
-					mark_save_dirty();
-				}
-			}).show();
+				MsgStrings[q].w += 16;
+				MsgStrings[q].h += 16;
+			}
+			set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
+			mark_save_dirty();
+		}
 	}
 	return D_O_K;
 }
@@ -1594,7 +1585,7 @@ int32_t onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+    displayinfo("Notice","Translucency Table Rebuilt");
     
     refresh(rALL);
     return D_O_K;
@@ -1934,9 +1925,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 			{
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[PATH_MAX+20]={0};
-				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Success!",fmt::format("Saved {}",name));
 			}
 		}
 	}
@@ -2003,11 +1992,11 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZTILE File: Error","Could not load the specified Tile.");
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZTILE File: Success!","Loaded the source tiles to your tile sheets!");
 				}
 				pack_fclose(f);
 			}
@@ -2076,9 +2065,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 			{
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[PATH_MAX+20]={0};
-				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Success!",fmt::format("Saved {}",name));
 			}
 		}
 	}
@@ -2152,11 +2139,11 @@ void writesomecombos(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,first_tile_id,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Error","Could not load the specified combos.");
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2233,11 +2220,11 @@ void loadcombopack(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,0,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Error","Could not load the specified Tile.");
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
 					mark_save_dirty();
 				}
 			}
@@ -2330,11 +2317,11 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 				if (!readcombofile_to_location(f,first_tile_id,nooverwrite, skipover))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Error","Could not load the specified combos.");
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2414,18 +2401,15 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 		{
 			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
 			{
-				char buf[PATH_MAX+20],name[PATH_MAX];
+				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				sprintf(buf,"Unable to load %s",name);
-				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Error",fmt::format("Unable to load {}",name));
 			}
 			else
 			{
 				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				char tmpbuf[PATH_MAX+20]={0};
-				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Success!",fmt::format("Saved {}",name));
 			}
 		}
 		pack_fclose(f);
@@ -2492,9 +2476,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 			{
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[PATH_MAX+20]={0};
-				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Success!",fmt::format("Saved {}",name));
 			}
 		}
 	}
@@ -2561,11 +2543,11 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZALIAS File: Error","Could not load the specified combo aliases.");
 				}
 				else
 				{
-					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZALIAS File: Success!","Loaded the source combos to your combo alias table!");
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2635,9 +2617,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 			{
 				writezdoorsets(f,first_doorset_id,the_doorset_count);
 				pack_fclose(f);
-				char tmpbuf[512]={0};
-				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				displayinfo("Success!",fmt::format("Saved {}",name));
 			}
 		}
 	}
@@ -2714,16 +2694,16 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", name);
-					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOORS File: Error","Could not load the specified doorsets.");
 				}
 				else if ( ret == 1 )
 				{
-					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOORS File: Success!","Loaded the source doorsets!");
 					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
-					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("ZDOORS File: Issue:","Targets exceed doorset count!");
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2757,25 +2737,25 @@ bool layers_valid(mapscr *tempscr)
 
 void fix_layers(mapscr *tempscr, bool showwarning)
 {
-    char buf[80]="layers have been changed: ";
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        if(tempscr->layermap[i]>map_count)
-        {
-            strcat(buf, "%d ");
-            sprintf(buf, buf, i+1);
-            tempscr->layermap[i]=0;
-        }
-    }
-    
-    if(showwarning)
-    {
-        jwin_alert("Invalid layers detected",
-                   "One or more layers on this screen used",
-                   "maps that do not exist. The settings of these",
-                   buf, "O&K", NULL, 'o', 0, get_zc_font(font_lfont));
-    }
+	char buf[80]="";
+
+	for(int32_t i=0; i<6; i++)
+	{
+		if(tempscr->layermap[i]>map_count)
+		{
+			strcat(buf, "%d ");
+			sprintf(buf, buf, i+1);
+			tempscr->layermap[i]=0;
+		}
+	}
+
+	if(showwarning)
+	{
+		displayinfo("Invalid layers detected",
+		   fmt::format("One or more layers on this screen used"
+		   "maps that do not exist. The settings of these"
+		   "layers have been changed: {}", buf));
+	}
 }
 
 extern const char *colorlist(int32_t index, int32_t *list_size);
@@ -2955,7 +2935,7 @@ int32_t onDrawingModeAuto()
 
 int32_t onReTemplate()
 {
-    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+    if (alert_confirm("Confirm Overwrite","Apply NES Dungeon template to all screens on this map?"))
     {
         Map.TemplateAll();
         refresh(rALL);
@@ -3018,19 +2998,15 @@ int32_t onPasteAll()
 
 int32_t onPasteToAll()
 {
-	if(confirmBox("You are about to paste to all screens on the current map."))
-	{
+	if(alert_confirm("Confirmation", "You are about to paste to all screens on the current map.\nAre you sure?"))
 		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartialToEveryScreen);
-	}
 	return D_O_K;
 }
 
 int32_t onPasteAllToAll()
 {
-	if(confirmBox("You are about to paste to all screens on the current map."))
-	{
+	if(alert_confirm("Confirmation", "You are about to paste to all screens on the current map.\nAre you sure?"))
 		Map.DoPasteScreenCommand(PasteCommandType::ScreenAllToEveryScreen);
-	}
 	return D_O_K;
 }
 
@@ -3123,7 +3099,7 @@ int32_t onDelete()
 
 	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
 	mapscr* scr = active_visible_screen ? active_visible_screen->scr : Map.CurrScr();
-	if(!(scr->valid&mVALID) || jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+	if(!(scr->valid&mVALID) || alert_confirm("Confirm Delete","Delete this screen?"))
 	{
 		Map.DoClearScreenCommand(screen);
 	}
@@ -3134,7 +3110,7 @@ int32_t onDelete()
 
 int32_t onDeleteMap()
 {
-    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Delete","Clear this entire map?"))
     {
         Map.clearmap(false);
         refresh(rALL);
@@ -3178,13 +3154,13 @@ int32_t onDecMap()
 
 int32_t onDefault_Pals()
 {
-    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset all palette data?"))
     {
         mark_save_dirty();
         
         if(!init_colordata(true, &header, &QMisc))
         {
-            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+            displayinfo("Error","Palette reset failed.");
         }
         
         refresh_pal();
@@ -3195,13 +3171,13 @@ int32_t onDefault_Pals()
 
 int32_t onDefault_Combos()
 {
-    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset combo data?"))
     {
         mark_save_dirty();
         
         if(!init_combos(true, &header))
         {
-            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+            displayinfo("Error","Combo reset failed.");
         }
         
         refresh(rALL);
@@ -3212,7 +3188,7 @@ int32_t onDefault_Combos()
 
 int32_t onDefault_Items()
 {
-    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset all items?"))
     {
         mark_save_dirty();
         reset_items(true, &header);
@@ -3223,7 +3199,7 @@ int32_t onDefault_Items()
 
 int32_t onDefault_Weapons()
 {
-    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset weapon/misc. sprite data?"))
     {
         mark_save_dirty();
         reset_wpns(true, &header);
@@ -3234,7 +3210,7 @@ int32_t onDefault_Weapons()
 
 int32_t onDefault_Guys()
 {
-    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset all enemy/NPC data?"))
     {
         mark_save_dirty();
         reset_guys();
@@ -3246,13 +3222,13 @@ int32_t onDefault_Guys()
 
 int32_t onDefault_Tiles()
 {
-    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset","Reset all tiles?"))
     {
         mark_save_dirty();
         
         if(!init_tiles(true, &header))
         {
-            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+            displayinfo("Error","Tile reset failed.");
         }
         
         refresh(rALL);
@@ -3265,7 +3241,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int32_t onDefault_SFX()
 {
-	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+	if (alert_confirm("Confirm Reset", "Reset all sound effects?"))
 	{
 		mark_save_dirty();
 		SAMPLE *temp_sample;
@@ -3288,7 +3264,7 @@ int32_t onDefault_SFX()
 
 int32_t onDefault_MapStyles()
 {
-    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+    if (alert_confirm("Confirm Reset", "Reset all map styles?"))
     {
         mark_save_dirty();
         reset_mapstyles(true, &QMisc);
@@ -4277,7 +4253,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        displayinfo("Error",fmt::format("Error loading image: {}",imagepath));
         return 2;
     }
     
@@ -4341,7 +4317,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        displayinfo("Error",fmt::format("Error loading image: {}",imagepath));
         return 2;
     }
     
@@ -4417,7 +4393,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	
 	if(!buf)
 	{
-		jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		displayinfo("Error","Error creating temp bitmap");
 		mapview_close();
 		popup_zqdialog_end();
 		return D_O_K;
@@ -10349,21 +10325,17 @@ void domouse()
 		{
 			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X"))
 			{
-				AlertDialog("Clear Favorite Combos",
-					"Are you sure you want to clear all favorite combos?",
-					[&](bool ret,bool)
+				if (alert_confirm("Clear Favorite Combos", "Are you sure you want"
+					" to clear all favorite combos?"))
+				{
+					for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
 					{
-						if(ret)
-						{
-							for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
-							{
-								favorite_combos[q] = -1;
-								favorite_combo_modes[q] = dm_normal;
-							}
-							mark_save_dirty();
-							refresh(rFAVORITES);
-						}
-					}).show();
+						favorite_combos[q] = -1;
+						favorite_combo_modes[q] = dm_normal;
+					}
+					mark_save_dirty();
+					refresh(rFAVORITES);
+				}
 			}
 			goto domouse_doneclick;
 		}
@@ -10428,20 +10400,13 @@ void domouse()
 		{
 			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X"))
 			{
-				AlertDialog("Clear Favorite Commands",
-					"Are you sure you want to clear all favorite commands?",
-					[&](bool ret,bool)
-					{
-						if(ret)
-						{
-							char buf[20];
-							for(auto q = 0; q < MAXFAVORITECOMMANDS; ++q)
-							{
-								write_fav_command(q,0);
-							}
-							refresh(rFAVORITES);
-						}
-					}).show();
+				if (alert_confirm("Clear Favorite Commands", "Are you sure you want"
+					" to clear all favorite commands?"))
+				{
+					for(auto q = 0; q < MAXFAVORITECOMMANDS; ++q)
+						write_fav_command(q,0);
+					refresh(rFAVORITES);
+				}
 			}
 			goto domouse_doneclick;
 		}
@@ -10675,15 +10640,8 @@ void domouse()
 								{ "Copy FFC", [&](){Map.CopyFFC(active_visible_screen->screen, i);} },
 								{ "Paste FFC data", [&]()
 									{
-										bool didconfirm = false;
-										AlertDialog("Confirm Paste",
-											"Really replace the FFC with the data of the copied FFC?",
-											[&](bool ret,bool)
-											{
-												if(ret)
-													didconfirm = true;
-											}).show();
-										if(didconfirm)
+										if(alert_confirm("Confirm Paste", "Really replace the FFC with"
+											" the data of the copied FFC?"))
 										{
 											auto set_ffc_data = Map.getCopyFFCData();
 											set_ffc_data.x = scr->ffcs[i].x;
@@ -10694,15 +10652,7 @@ void domouse()
 								{ "Edit FFC", [&](){call_ffc_dialog(i, active_visible_screen->scr, active_visible_screen->screen);} },
 								{ "Clear FFC", [&]()
 									{
-										bool didconfirm = false;
-										AlertDialog("Confirm Clear",
-											"Really clear this Freeform Combo?",
-											[&](bool ret,bool)
-											{
-												if(ret)
-													didconfirm = true;
-											}).show();
-										if(didconfirm)
+										if (alert_confirm("Confirm Clear", "Really clear this Freeform Combo?"))
 										{
 											Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, {
 												.x = 0,
@@ -11845,12 +11795,12 @@ static DIALOG cflag_dlg[] =
 
 void questrev_help()
 {
-	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,get_zc_font(font_lfont));
+	displayinfo("Help","The revision number of your quest.");
 }
 
 void questminrev_help()
 {
-	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,get_zc_font(font_lfont));
+	displayinfo("Help","If a player's saved game was from a revision less than the minimum revision, they have to restart from the beginning. This is useful if you make major changes to your quest.");
 }
 
 int32_t select_cflag(const char *prompt,int32_t flag)
@@ -14919,7 +14869,7 @@ int32_t onPath()
             {
                 if(path_dlg[i+8].d1 == path_dlg[12].d1)
                 {
-                    if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
+                    if (alert_confirm("Exit Problem","One of the path's directions is also the normal Exit direction! Continue?"))
                         ret = -1;
                         
                     break;
@@ -14940,7 +14890,7 @@ int32_t onPath()
 		Map.CurrScr()->maze_transition_wipe = path_dlg[13].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
-            if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)
+            if (alert_confirm("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?\n(Go to 'Screen Data' to turn it off.)"))
                 Map.CurrScr()->flags |= fMAZE;
     }
     
@@ -16321,10 +16271,7 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
 		{
-			char buf[100];
-			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
-			buf[99]='\0';
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			displayinfo("Error",fmt::format("Invalid source (range 0-{})", MAXCOMBOALIASES-1));
 			ret = 1;
 		}
 		
@@ -16345,17 +16292,13 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
 		{
-			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			displayinfo("Error","Source and dest can't be the same.");
 			ret = 1;
 		}
 		
 		if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
 		{
-			char buf[100];
-			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
-			buf[99]='\0';
-			
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			displayinfo("Error",fmt::format("Invalid dest (range 0-{})", MAXCOMBOALIASES-1));
 			ret = 1;
 		}
 		
@@ -18295,7 +18238,7 @@ bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
 					
 				if(lind == 0)
 				{
-					jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("Error","ZScript reserves this slot.");
 					break;
 				}
 				
@@ -19273,16 +19216,6 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
         sfx1->data = malloc(len);
         memcpy(sfx1->data, sfx2->data, len);
     }
-}
-
-bool confirmBox(const char *m1, const char *m2, const char *m3)
-{
-	if(!m3)
-	{
-		if(!m2) m2 = "Are you sure?";
-		else m3 = "Are you sure?";
-	}
-	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', get_zc_font(font_lfont)) == 1;
 }
 
 int32_t onSelectSFX()
@@ -20717,7 +20650,7 @@ int32_t main(int32_t argc,char **argv)
 	//clearConsole();
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
-		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+		if (alert_confirm("ZQuest","It appears that ZQuest crashed last time.\nWould you like to load the last timed save?"))
 		{
 			int32_t ret = load_quest(last_timed_save);
 			
@@ -20729,7 +20662,7 @@ int32_t main(int32_t argc,char **argv)
 			}
 			else
 			{
-				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+				displayinfo("Error","Unable to reload the last timed save.");
 			}
 		}
 	}
@@ -22364,7 +22297,7 @@ void check_autosave()
 				
 				if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
 				{
-					jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
+					displayinfo("Auto Save","This quest was saved in an older version of ZQuest.\nIf you wish to use the autosave feature, you must manually save the files in this version first.");
 					time(&auto_save_time_start);
 					return;
 				}
@@ -22373,7 +22306,7 @@ void check_autosave()
 				
 				if(ret)
 				{
-					jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					displayinfo("Error","Timed save did not complete successfully.");
 					set_last_timed_save(nullptr);
 				}
 				else autosaved = true;

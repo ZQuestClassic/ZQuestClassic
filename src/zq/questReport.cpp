@@ -128,7 +128,7 @@ void showQuestReport()
 						
 					if(exists(temppath))
 					{
-						if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
+						if(!alert_confirm("Confirm Overwrite","File already exists. Overwrite?"))
 							return false;
 					}
 					
@@ -136,14 +136,14 @@ void showQuestReport()
 					
 					if(!report)
 					{
-						jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						displayinfo("Error","Unable to open file for writing!");
 						return false;
 					}
 					
 					int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
 					
 					if(written != (int32_t)quest_report_str.size())
-						jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						displayinfo("Error","IO error while writing script to file!");
 						
 					fclose(report);
 					return false;
@@ -2358,7 +2358,7 @@ int32_t onComboLocationReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        displayinfo("Combo Locations", "No other screens use this combo.");
         
     return D_O_K;
 }
@@ -2373,7 +2373,7 @@ int32_t onBuggedNextComboLocationReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        displayinfo("Combo Locations", "No buggy ->Next combos.");
         
     return D_O_K;
 }
@@ -2578,7 +2578,7 @@ int32_t onWhatWarpsReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        jwin_alert("What Links Here", "No other screens warp to this screen", "or use this screen as a layer.",NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        displayinfo("What Links Here", "No other screens warp to this screen or use this screen as a layer.");
         
     return D_O_K;
 }

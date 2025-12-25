@@ -5,6 +5,7 @@
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
 #include "base/gui.h"
+#include "dialog/externs.h"
 
 struct ListData
 {
@@ -250,9 +251,6 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
 int32_t gui_text_width(FONT *f, const char *s);
 
 int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
-
-int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font);
-int32_t jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int32_t c1, int32_t c2, FONT *title_font);
 
 /* event handler that closes a dialog */
 int32_t close_dlg();

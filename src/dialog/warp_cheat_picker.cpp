@@ -1,10 +1,10 @@
 #include "warp_cheat_picker.h"
 #include "common.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
 #include "zc/cheats.h"
 #include "base/dmap.h"
+#include "info.h"
 
 extern int cheat_goto_dmap, cheat_goto_screen;
 void call_warp_cheat_picker()

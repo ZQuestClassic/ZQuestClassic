@@ -1,12 +1,12 @@
 #include "zc_midi_dlg.h"
 #include "common.h"
-#include "alert.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
 #include "zc/zelda.h"
 #include "midi.h"
 #include "base/files.h"
 #include <fmt/format.h>
+#include "info.h"
 
 extern int paused_midi_pos;
 extern byte midi_suspended;
@@ -134,14 +134,8 @@ bool ZCMidiDlg::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				if(exists(fname->c_str()))
 				{
-					bool overwrite = false;
-					AlertDialog("Overwrite?",
-						fmt::format("File '{}' already exists; overwrite it?", *fname),
-						[&](bool ret,bool)
-						{
-							overwrite = ret;
-						}).show();
-					if (!overwrite)
+					if (!alert_confirm("Overwrite?", fmt::format("File '{}' already exists;"
+						" overwrite it?", *fname)))
 						return false;
 				}
 				if (save_midi(fname->c_str(), tunes[tune].data) != 0)

@@ -1,7 +1,6 @@
 #include "screen_notes.h"
 #include <gui/builder.h>
 #include <base/new_menu.h>
-#include "alert.h"
 #include "zc_list_data.h"
 #include "base/mapscr.h"
 #include "zq/zquest.h"
@@ -11,6 +10,7 @@
 #include <fmt/format.h>
 #include <utility>
 #include <sstream>
+#include "info.h"
 
 void edit_screen_notes(mapscr* scr, int map, int screen)
 {
