@@ -99,8 +99,6 @@ bool menu_pressed(bool just_pressed);
 byte getIntBtnInput(byte intbtn, int input_flags = 0);
 byte checkIntBtnVal(byte intbtn, byte vals);
 
-int32_t after_time();
-
 enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 
 void dump_pal(BITMAP *dest);

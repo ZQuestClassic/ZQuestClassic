@@ -30,6 +30,7 @@ src/dialog/ditherpick.cpp
 src/dialog/zc_options.cpp
 src/dialog/zc_midi_dlg.cpp
 src/dialog/warp_cheat_picker.cpp
+src/dialog/zc_screen_saver.cpp
 
 ## End of Zelda GUI module
 )

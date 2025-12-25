@@ -286,7 +286,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-static char cfg_sect[] = "zeldadx"; //We need to rename this.
+char cfg_sect[] = "zeldadx"; //We need to rename this.
 char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
@@ -380,8 +380,26 @@ void load_game_configs()
 
 	strcpy(qstdir,zc_get_config(cfg_sect,"quest_dir","quests"));
 	strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
-	ss_enable = zc_get_config(cfg_sect,"ss_enable",1) ? 1 : 0;
-	ss_after = vbound(zc_get_config(cfg_sect,"ss_after",14), 0, 14);
+	ss_enable = zc_get_config(cfg_sect, "ss_enable", 0) != 0;
+	ss_seconds = zc_get_config(cfg_sect,"ss_seconds", 5 * 60);
+	
+	if (int old_ss_time = zc_get_config(cfg_sect, "ss_after", -99); old_ss_time != -99)
+	{
+		if(old_ss_time <= 0)
+			ss_seconds = 5;
+		else if(old_ss_time <= 3)
+			ss_seconds = old_ss_time * 15;
+		else if(old_ss_time <= 13)
+			ss_seconds = (old_ss_time - 3) * 60;
+		else if (ss_enable)
+		{
+			ss_enable = false;
+			zc_set_config(cfg_sect, "ss_enable", 0);
+		}
+		zc_set_config(cfg_sect, "ss_after", nullptr);
+		zc_set_config(cfg_sect, "ss_seconds", ss_seconds);
+	}
+	
 	ss_speed = vbound(zc_get_config(cfg_sect,"ss_speed",2), 0, 6);
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
 	heart_beep = zc_get_config(cfg_sect,"heart_beep",0)!=0;
@@ -508,6 +526,20 @@ void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale
 	else
 	{
 		MouseSprite::assign(ZCM_CUSTOM, bmp, fx, fy);
+	}
+}
+
+void refresh_pal_mouse()
+{
+	if (is_sys_pal)
+	{
+		system_pal(true);
+		sys_mouse();
+	}
+	else
+	{
+		game_pal();
+		game_mouse();
 	}
 }
 
@@ -3820,12 +3852,11 @@ int32_t onIgnoreSideview()
 	return D_O_K;
 }
 
-int32_t input_idle(bool checkmouse)
+int32_t input_idle()
 {
-	static int32_t mx, my, mz, mb;
+	static int32_t mz, mb;
 	
-	if(keypressed() || zc_key_pressed() ||
-	   (checkmouse && (mx != mouse_x || my != mouse_y || mz != mouse_z || mb != mouse_b)))
+	if(keypressed() || button_pressed() || zc_key_pressed() || mz != mouse_z || mb != mouse_b)
 	{
 		idle_count = 0;
 		
@@ -3840,8 +3871,6 @@ int32_t input_idle(bool checkmouse)
 		active_count = 0;
 	}
 	
-	mx = mouse_x;
-	my = mouse_y;
 	mz = mouse_z;
 	mb = mouse_b;
 	
@@ -3995,7 +4024,7 @@ void syskeys()
 		System();
 	}
 	
-	mouse_down=gui_mouse_b();
+	mouse_down = gui_mouse_b();
 	
 	if(zc_read_system_key(KEY_F1))
 	{
@@ -4087,20 +4116,14 @@ void syskeys()
 	if(zc_readkey(KEY_F8))  Showpal=!Showpal;
 	
 	if(zc_readkey(KEY_F7))
-	{
-		Matrix(ss_speed, ss_density, 0);
-		game_pal();
-	}
+		screen_saver(ss_speed, ss_density);
 #else
 	// The reason these are different on Mac in the first place is that
 	// the OS doesn't let us use F9 and F10...
 	if(zc_readkey(KEY_F10))  Showpal=!Showpal;
 	
 	if(zc_readkey(KEY_F9))
-	{
-		Matrix(ss_speed, ss_density, 0);
-		game_pal();
-	}
+		screen_saver(ss_speed, ss_density);
 #endif
 	if(zc_readkey(KEY_PLUS_PAD) || zc_readkey(KEY_EQUALS))
 	{
@@ -4169,11 +4192,10 @@ void syskeys()
 	
 bottom:
 
-	if(input_idle(true) > after_time())
-	{
-		Matrix(ss_speed, ss_density, 0);
-		game_pal();
-	}
+	if(ss_enable && input_idle() > ss_seconds * 60)
+		screen_saver(ss_speed, ss_density);
+	
+	mouse_down = gui_mouse_b();
 }
 
 void checkQuitKeys()
@@ -5509,97 +5531,10 @@ int32_t onCheatBombs()
 	return D_O_K;
 }
 
-// *** screen saver
-
-int32_t after_time()
-{
-	if(ss_enable == 0)
-		return INT_MAX;
-
-	if(ss_after <= 0)
-		return 5 * 60;
-		
-	if(ss_after <= 3)
-		return ss_after * 15 * 60;
-		
-	if(ss_after <= 13)
-		return (ss_after - 3) * 60 * 60;
-		
-	return MAX_IDLE + 1;
-}
-
-static const char *after_str[15] =
-{
-	" 5 sec", "15 sec", "30 sec", "45 sec", " 1 min", " 2 min", " 3 min",
-	" 4 min", " 5 min", " 6 min", " 7 min", " 8 min", " 9 min", "10 min",
-	"Never"
-};
-
-const char *after_list(int32_t index, int32_t *list_size)
-{
-	if(index < 0)
-	{
-		*list_size = 15;
-		return NULL;
-	}
-	
-	return after_str[index];
-}
-
-static ListData after__list(after_list, &font);
-
-static DIALOG scrsaver_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)  (dp2)	(dp3) */
-	{ jwin_win_proc,	   32,   64,   256,  136,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Screen Saver Settings", NULL,  NULL },
-	{ jwin_frame_proc,	 42,   92,   236,  70,   0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		 60,   104,  48,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Run After", NULL,  NULL },
-	{ jwin_text_proc,		 60,   128,  48,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Speed", NULL,  NULL },
-	{ jwin_text_proc,		 60,   144,  48,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Density", NULL,  NULL },
-	{ jwin_droplist_proc,  144,  100,  96,   16,   0,	   0,	   0,	   0,		 0,		0, (void *) &after__list, NULL,  NULL },
-	{ jwin_slider_proc,	144,  128,  116,  8,	7,   0,  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
-	{ jwin_slider_proc,	144,  144,  116,  8,	7,   0,  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	42,   170,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	124,  170,  72,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Preview", NULL,  NULL },
-	{ jwin_button_proc,	218,  170,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
+void call_screen_saver_settings();
 int32_t onScreenSaver()
 {
-	scrsaver_dlg[0].dp2=get_zc_font(font_lfont);
-	int32_t oldcfgs[3];
-	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = oldcfgs[0] = ss_after;
-	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
-	scrsaver_dlg[7].d2 = oldcfgs[2] = ss_density;
-	
-	large_dialog(scrsaver_dlg);
-		
-	int32_t ret = do_zqdialog(scrsaver_dlg,-1);
-	
-	if(ret == 8 || ret == 9)
-	{
-		ss_after   = scrsaver_dlg[5].d1;
-		ss_speed   = scrsaver_dlg[6].d2;
-		ss_density = scrsaver_dlg[7].d2;
-		if(oldcfgs[0] != ss_after)
-			zc_set_config(cfg_sect,"ss_after",ss_after);
-		if(oldcfgs[1] != ss_speed)
-			zc_set_config(cfg_sect,"ss_speed",ss_speed);
-		if(oldcfgs[2] != ss_density)
-			zc_set_config(cfg_sect,"ss_density",ss_density);
-	}
-	
-	if(ret == 9)
-		// preview Screen Saver
-	{
-		clear_keybuf();
-		Matrix(ss_speed, ss_density, 30);
-		system_pal(true);
-		sys_mouse();
-	}
-	
+	call_screen_saver_settings();
 	return D_O_K;
 }
 
@@ -5651,11 +5586,6 @@ static NewMenu name_entry_mode_menu
 	{ "&Letter Grid", onLetterGridEntry },
 	{ "&Extended Letter Grid", onExtLetterGridEntry },
 };
-
-static void set_controls_menu_active()
-{
-	
-}
 
 enum
 {
@@ -6312,15 +6242,8 @@ void System()
 			mouse_down = mb;
 		}
 		
-		if(input_idle(true) > after_time())
-			// run Screeen Saver
-		{
-			// Screen saver enabled for now.
-			clear_keybuf();
-			Matrix(ss_speed, ss_density, 0);
-			system_pal(true);
-			sys_mouse();
-		}
+		if(ss_enable && input_idle() > ss_seconds * 60)
+			screen_saver(ss_speed, ss_density);
 		
 		poll_keyboard();
 		poll_joystick();
@@ -6413,7 +6336,6 @@ void System()
 void fix_dialogs()
 {
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(scrsaver_dlg);
 }
 
 INLINE int32_t mixvol(int32_t v1,int32_t v2)

@@ -259,6 +259,7 @@ extern ALLEGRO_COLOR* override_dlg_tint;
 void zqdialog_set_skiptint(bool skipTint);
 void zqdialog_name(string const& name);
 void zqdialog_tag(uint tagid);
+void zqdialog_freeze(bool frozen);
 void get_zqdialog_xy(int& x, int& y);
 void on_zqdialog_close(std::function<void()>&& proc);
 void popup_zqdialog_start(string name, uint tagid, int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);

@@ -308,7 +308,8 @@ extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, X
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,whistleclk,pan_style;
 extern int32_t Quit;
 extern uint32_t GameFlags;
-extern int32_t ss_after, ss_speed, ss_density, ss_enable;
+extern int32_t ss_speed, ss_density, ss_seconds;
+extern bool ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
 // Stores zoras that are "killed" during clocks, so they can be restored after.
 // (screen, id)
