@@ -9494,11 +9494,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_P:
 				{
-					int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
-					
-					if(whatPage >= 0)
-						sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
-						
+					if (auto num = call_get_num("Goto Page", (PreFillComboEditorPage?(first/TILES_PER_PAGE):0), NEWMAXTILES/TILES_PER_PAGE))
+						sel_tile(tile, tile2, first, type, ((*num-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
 					break;
 				}
 				
@@ -10812,12 +10809,11 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				
 			case KEY_P:
 			{
-				int32_t choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
-				
-				if(!cancelgetnum)
-					page=(zc_min(choosepage,COMBO_PAGES-1));
-					
-				cmb=tile2=(page<<8)+(cmb&0xFF);
+				if (auto num = call_get_num("Goto Page", (PreFillComboEditorPage?page:0), COMBO_PAGES-1))
+				{
+					page = *num;
+					cmb = tile2 = (page<<8)+(cmb&0xFF);
+				}
 				break;
 			}
 			}
@@ -11224,12 +11220,11 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			
 			case KEY_P:
 			{
-				int32_t choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
-				
-				if(!cancelgetnum)
-					page=(zc_min(choosepage,COMBO_PAGES-1));
-					
-				tile=tile2=(page<<8)+(tile&0xFF);
+				if (auto num = call_get_num("Goto Page", (PreFillComboEditorPage?page:0), COMBO_PAGES-1))
+				{
+					page = *num;
+					tile = tile2 = (page<<8)+(tile&0xFF);
+				}
 			}
 			break;
 			

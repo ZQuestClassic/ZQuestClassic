@@ -70,6 +70,7 @@
 #include "base/new_menu.h"
 #include "base/files.h"
 #include "iter.h"
+#include "dialog/externs.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -98,7 +99,6 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
-int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 
@@ -3953,8 +3953,11 @@ int32_t onShowHitboxes()
 }
 int32_t onShowInfoOpacity()
 {
-	info_opacity = vbound(getnumber("Debug Info Opacity",info_opacity),0,255);
-	zc_set_config("zc","debug_info_opacity",info_opacity);
+	if (auto num = call_get_num("Debug Info Opacity", info_opacity, 255, 0))
+	{
+		info_opacity = *num;
+		zc_set_config("zc", "debug_info_opacity", info_opacity);
+	}
 	return D_O_K;
 }
 
@@ -5478,71 +5481,44 @@ int32_t onEpilepsy()
 
 bool rc = false;
 
-static DIALOG getnum_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)	(w)	 (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-	{ jwin_win_proc,		80,   80,	 160,	72,   vc(0),  vc(11),  0,	   D_EXIT,	 0,			 0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		  104,  104+4,  48,	 8,	vc(0),  vc(11),  0,	   0,		  0,			 0, (void *) "Number:", NULL,  NULL },
-	{ jwin_edit_proc,	   168,  104,	48,	 16,	0,	 0,	   0,	   0,		  6,			 0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	 90,   126,	61,	 21,   vc(0),  vc(11),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	 170,  126,	61,	 21,   vc(0),  vc(11),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-	char buf[20];
-	sprintf(buf,"%d",initialval);
-	getnum_dlg[0].dp=(void *)prompt;
-	getnum_dlg[0].dp2=get_zc_font(font_lfont);
-	getnum_dlg[2].dp=buf;
-	
-	large_dialog(getnum_dlg);
-		
-	if(do_zqdialog(getnum_dlg,2)==3)
-		return atoi(buf);
-		
-	return initialval;
-}
-
 int32_t onLife()
 {
-	int value = vbound(getnumber("Life",game->get_life()),1,game->get_maxlife());
-	cheats_enqueue(Cheat::Life, value);
+	if (auto num = call_get_num("Life", game->get_life()/game->get_hp_per_heart(), game->get_maxlife()/game->get_hp_per_heart(), 1))
+		cheats_enqueue(Cheat::Life, *num * game->get_hp_per_heart());
 	return D_O_K;
 }
 
 int32_t onHeartC()
 {
-	int max_life = vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart();
-	int life = vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,max_life/game->get_hp_per_heart())*game->get_hp_per_heart();
-	cheats_enqueue(Cheat::MaxLife, max_life);
-	cheats_enqueue(Cheat::Life, life);
+	if (auto num = call_get_num("Heart Containers", game->get_maxlife()/game->get_hp_per_heart(), 65535/game->get_hp_per_heart(), 1))
+		cheats_enqueue(Cheat::MaxLife, *num * game->get_hp_per_heart());
+	onLife();
 	return D_O_K;
 }
 
 int32_t onMagicC()
 {
-	int max_magic = vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block();
-	int magic = vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,max_magic/game->get_mp_per_block())*game->get_mp_per_block();
-	cheats_enqueue(Cheat::MaxMagic, max_magic);
-	cheats_enqueue(Cheat::Magic, magic);
+	if (auto num = call_get_num("Magic Containers", game->get_maxmagic()/game->get_mp_per_block(), 65535/game->get_mp_per_block(), 0))
+		cheats_enqueue(Cheat::MaxMagic, *num * game->get_mp_per_block());
+	if (auto num = call_get_num("Magic", game->get_magic()/game->get_mp_per_block(), game->get_maxmagic()/game->get_mp_per_block(), 0))
+		cheats_enqueue(Cheat::Magic, *num * game->get_mp_per_block());
 	return D_O_K;
 }
 
 int32_t onRupies()
 {
-	int value = vbound(getnumber("Rupees",game->get_rupies()),0,game->get_maxcounter(1));
-	cheats_enqueue(Cheat::Rupies, value);
+	if (auto num = call_get_num("Rupees", game->get_rupies(), game->get_maxcounter(1), 0))
+		cheats_enqueue(Cheat::Rupies, *num);
 	return D_O_K;
 }
 
 int32_t onMaxBombs()
 {
-	int value = vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF);
-	cheats_enqueue(Cheat::MaxBombs, value);
-	cheats_enqueue(Cheat::Bombs, value);
+	if (auto num = call_get_num("Max Bombs", game->get_maxbombs(), 0xFFFF, 0))
+	{
+		cheats_enqueue(Cheat::MaxBombs, *num);
+		cheats_enqueue(Cheat::Bombs, *num);
+	}
 	return D_O_K;
 }
 
@@ -5988,7 +5964,8 @@ int32_t devTimestmp()
 #if DEVLEVEL > 1
 int32_t setCheat()
 {
-	cheat = (vbound(getnumber("Cheat Level",cheat), 0, 4));
+	if (auto num = call_get_num("Cheat Level", cheat, 4, 0))
+		cheat = *num;
 	return D_O_K;
 }
 #endif //DEVLEVEL > 1
@@ -6513,7 +6490,6 @@ void System()
 void fix_dialogs()
 {
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);

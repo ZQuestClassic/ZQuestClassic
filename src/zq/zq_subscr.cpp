@@ -1986,7 +1986,8 @@ static int32_t onToggleDuplicateInPlace()
 }
 static int32_t onSetSubscrDmap()
 {
-	zq_subscr_override_dmap = vbound(getnumber("Preview DMap?",zq_subscr_override_dmap),-1,MAXDMAPS-1);
+	if (auto num = call_get_num("Preview DMap?", zq_subscr_override_dmap, MAXDMAPS-1, -1))
+		zq_subscr_override_dmap = *num;
 	return D_O_K;
 }
 

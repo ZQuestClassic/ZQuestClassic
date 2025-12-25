@@ -217,8 +217,6 @@ void do_previewtext();
 bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
 	map<string, disassembled_script_data> &scripts, int assign_mode);
 
-bool cancelgetnum=false;
-
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_ffc=0;
 int32_t combobrushoverride=-1;
 ComboPosition mouse_combo_pos;
@@ -1877,42 +1875,6 @@ int32_t onIncColour()
 	}
  }
 
-static DIALOG getnum_dlg[] =
-{
-    // (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,        80,   80,     160,    72,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_rtext_proc,      114,  104+4,  48,     8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Value:", NULL, NULL },
-    { jwin_edit_proc,       168,  104,    48,     16,    0,                 0,                0,       0,          6,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   126,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  126,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-    cancelgetnum=true;
-    char buf[20];
-    sprintf(buf,"%d",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=get_zc_font(font_lfont);
-    getnum_dlg[2].dp=(void *)buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret=do_zqdialog(getnum_dlg,2);
-    
-    if(ret!=0&&ret!=4)
-    {
-        cancelgetnum=false;
-    }
-    
-    if(ret==3)
-        return atoi(buf);
-        
-    return initialval;
-}
-
 static DIALOG save_tiles_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -2769,48 +2731,6 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 			}
 		}
 	}
-}
-
-int32_t gettilepagenumber(const char *prompt, int32_t initialval)
-{
-    char buf[20];
-    sprintf(buf,"%d",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=get_zc_font(font_lfont);
-    getnum_dlg[2].dp=buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret = do_zqdialog(getnum_dlg,2);
-    
-    if(ret==3)
-        return atoi(buf);
-        
-    return -1;
-}
-
-int32_t gethexnumber(const char *prompt,int32_t initialval)
-{
-    cancelgetnum=true;
-    char buf[20];
-    sprintf(buf,"%X",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=get_zc_font(font_lfont);
-    getnum_dlg[2].dp=(void *)buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret=do_zqdialog(getnum_dlg,2);
-    
-    if(ret!=0&&ret!=4)
-    {
-        cancelgetnum=false;
-    }
-    
-    if(ret==3)
-        return zc_xtoi(buf);
-        
-    return initialval;
 }
 
 void update_combo_cycling()
@@ -13574,32 +13494,30 @@ int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_CLICK)
     {
-        int32_t v = getnumber("Piece Number",d->d1);
+		int v;
+		if (auto num = call_get_num("Piece Number", d->d1, 8, 1))
+			v = *num;
+		else return D_O_K;
         
-        if(v>=0)
-        {
-            bound(v,1,8);
-            
-            if(v!=d->d1)
-            {
-                DIALOG *tp = d - d->d2;
-                
-                for(int32_t i=0; i<8; i++)
-                {
-                    if(tp->d1==v)
-                    {
-                        tp->d1 = d->d1;
-                        ((char*)(tp->dp))[0] = d->d1+'0';
-                        jwin_button_proc(MSG_DRAW,tp,0);
-                    }
-                    
-                    ++tp;
-                }
-                
-                d->d1 = v;
-                ((char*)(d->dp))[0] = v+'0';
-            }
-        }
+		if(v!=d->d1)
+		{
+			DIALOG *tp = d - d->d2;
+			
+			for(int32_t i=0; i<8; i++)
+			{
+				if(tp->d1==v)
+				{
+					tp->d1 = d->d1;
+					((char*)(tp->dp))[0] = d->d1+'0';
+					jwin_button_proc(MSG_DRAW,tp,0);
+				}
+				
+				++tp;
+			}
+			
+			d->d1 = v;
+			((char*)(d->dp))[0] = v+'0';
+		}
         
         d->flags = 0;
         jwin_button_proc(MSG_DRAW,d,0);
@@ -22049,7 +21967,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editcomboa_dlg);
     jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editshop_dlg);
-    jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
     jwin_center_dialog(misccolors_dlg);
