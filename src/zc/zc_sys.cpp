@@ -4924,28 +4924,6 @@ bool is_Fkey(int32_t k)
 	return false;
 }
 
-static char str_qst[80],str_ver[80];
-
-static DIALOG quest_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
-	{ jwin_win_proc,	   68,   25,   184,  190,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Quest Info", NULL,  NULL },
-	{ jwin_edit_proc,	  84,   54,   152,  16,   0,	   0,	   0,	   D_READONLY, 100,	 0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		 89,   84,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Number:", NULL,  NULL },
-	{ jwin_text_proc,		 152,  84,   24,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_qst, NULL,  NULL },
-	{ jwin_text_proc,		 89,   94,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Version:", NULL,  NULL },
-	{ jwin_text_proc,		 160,  94,   64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   header_version_nul_term, NULL,  NULL },
-	{ jwin_text_proc,		 89,   104,  141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "ZQ Version:", NULL,  NULL },
-	{ jwin_text_proc,		 130,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_ver, NULL,  NULL },
-	{ jwin_text_proc,		 84,   126,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Title:", NULL,  NULL },
-	{ jwin_textbox_proc,   84,   136,  152,  24,   0,	   0,	   0,	   0,		 0,		0,	   QHeader.title, NULL,  NULL },
-	{ jwin_text_proc,		 84,   168,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Author:", NULL,  NULL },
-	{ jwin_textbox_proc,   84,   178,  152,  24,   0,	   0,	   0,	   0,		 0,		0,	   QHeader.author, NULL,  NULL },
-	{ jwin_frame_proc,	 84,   79,   152,  38,   0,	   0,	   0,	   0,		 FR_ETCHED,0,	   NULL, NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
 int32_t onToggleRecordingNewSaves()
 {
 	if (zc_get_config("zeldadx", "replay_new_saves", false))
@@ -5247,24 +5225,11 @@ int32_t onAbout()
 
 int32_t onQuest()
 {
-	char fname[100];
-	strcpy(fname, get_filename(qstpath));
-	quest_dlg[0].dp2=get_zc_font(font_lfont);
-	quest_dlg[1].dp = fname;
-	
-	if(QHeader.quest_number==0)
-		sprintf(str_qst,"Custom");
-	else
-		sprintf(str_qst,"%d",QHeader.quest_number);
-		
-	sprintf(str_ver,"%s",QHeader.getVerStr());
-	
-	quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
-	quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
-	
-	large_dialog(quest_dlg);
-		
-	do_zqdialog(quest_dlg, 0);
+	string title_str = QHeader.title[0] ? fmt::format("\n--- Title ---\n{}\n", QHeader.title) : "Untitled Quest\n";
+	string author_str = QHeader.author[0] ? fmt::format("\n--- Author ---\n{}\n", QHeader.author) : "No Author Listed\n";
+	string qst_ver_str = QHeader.version[0] ? fmt::format("Quest Version: {}\n", QHeader.version) : "";
+	InfoDialog(get_filename(qstpath), fmt::format("{}\n{}ZQ Version: {}\n{}{}",
+		relativize_path(string(qstpath)), qst_ver_str, QHeader.getVerStr(), title_str, author_str)).show();
 	return D_O_K;
 }
 
@@ -6448,7 +6413,6 @@ void System()
 void fix_dialogs()
 {
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
 }
 
