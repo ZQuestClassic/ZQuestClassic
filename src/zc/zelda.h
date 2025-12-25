@@ -366,8 +366,6 @@ extern bool show_layers[7];
 extern bool show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts, show_effectflags;
 
 extern int32_t    cheat_goto_dmap, cheat_goto_screen;
-extern char   cheat_goto_dmap_str[4];
-extern char   cheat_goto_screen_str[3];
 extern int32_t  visited[6];
 extern mapscr scrolling_screen;
 // The top-left screen of the currently loaded region.
