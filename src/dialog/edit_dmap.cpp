@@ -319,7 +319,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										dmap_slider->setDisabled(!smol);
 										if (smol)
 										{
-											local_dmap.xoff = dmap_slider->getOffset();
+											local_dmap.xoff = dmap_slider->getValue();
 											dmap_mmap->setOffset(local_dmap.xoff);
 										}
 										else
@@ -379,9 +379,9 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							dmap_slider = Slider(
 								colSpan = 2, fitParent = true, 
 								disabled = !sm_dmap(local_dmap.type),
-								offset = local_dmap.xoff,
 								maxheight = 16_px,
-								minOffset = -7, maxOffset = 15,
+								min_value = -7, max_value = 15,
+								value = local_dmap.xoff,
 								onValChangedFunc = [&](int32_t offset)
 								{
 									local_dmap.xoff = offset;

@@ -79,7 +79,6 @@ using namespace std::chrono_literals;
 
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
-int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
@@ -225,14 +224,11 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
 			d[i].x = int32_t(d[0].x + (xpc*d[0].w));
 			
-			if(d[i].proc != d_stringloader)
+			if(d[i].proc==d_bitmap_proc)
 			{
-				if(d[i].proc==d_bitmap_proc)
-				{
-					d[i].w *= 2;
-				}
-				else d[i].w = int32_t(d[i].w*RESIZE_AMT);
+				d[i].w *= 2;
 			}
+			else d[i].w = int32_t(d[i].w*RESIZE_AMT);
 			
 			// Place elements vertically
 			double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
@@ -293,7 +289,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 }
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
-static char sfx_sect[] = "Volume";
+char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
@@ -4927,100 +4923,7 @@ bool is_Fkey(int32_t k)
 	return false;
 }
 
-const char *pan_str[4] = { "  MONO", "   1/2", "   3/4", "  FULL" };
-static char str_midi[80],str_emusic[80],str_sfx[80],str_pan[80],str_qst[80],str_ver[80];
-int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t)
-{
-	if(msg==MSG_DRAW)
-	{
-		sprintf(str_midi,"   %3d",midi_volume);
-		sprintf(str_emusic,"   %3d",emusic_volume);
-		sprintf(str_sfx,"   %3d",sfx_volume);
-		strcpy(str_pan,pan_str[pan_style]);
-	}
-	
-	return D_O_K;
-}
-
-int32_t set_vol(void *dp3, int32_t d2)
-{
-	switch(((int32_t*)dp3)[0])
-	{
-	case 0:
-		midi_volume   = zc_min(d2<<3,255);
-		break;
-		
-	case 1:
-		digi_volume   = zc_min(d2<<3,255);
-		break;
-		
-	case 2:
-		emusic_volume = zc_min(d2<<3,255);
-		break;
-		
-	case 3:
-		sfx_volume	= zc_min(d2<<3,255);
-		break;
-	}
-	
-	// text_mode(vc(11));
-	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"   %3d",zc_min(d2<<3,255));
-	return D_O_K;
-}
-
-int32_t set_pan(void *dp3, int32_t d2)
-{
-	pan_style = vbound(d2,0,3);
-	// text_mode(vc(11));
-	textout_right_ex(screen,get_zc_font(font_lfont_l), pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	return D_O_K;
-}
-
-int32_t midi_dp[3] = {0,0,0};
-int32_t emus_dp[3] = {2,0,0};
-int32_t sfx_dp[3]  = {3,0,0};
-int32_t pan_dp[3]  = {0,0,0};
-
-static DIALOG sound_dlg[] =
-{
-	//(dialog proc)		  (x)	 (y)	(w)	 (h)	(fg)	   (bg)				 (key) (flags)	   (d1)		   (d2) (dp)						   (dp2)			   (dp3)
-	{ jwin_win_proc,		  0,	  0,	320,	178,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "Sound Settings",	  NULL,			   NULL	 },
-	{ d_stringloader,		 0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_button_proc,	  58,	148,	 61,	 21,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "OK",				  NULL,			   NULL	 },
-	{ jwin_button_proc,	 138,	148,	 61,	 21,	0,		 0,				   0,	D_EXIT,	   0,			 0, (void *) "Cancel",			  NULL,			   NULL	 },
-	{ d_timer_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_frame_proc,	   10,	 28,	300,	112,	0,		 0,				   0,	0,			FR_ETCHED,	 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 40,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_midi,				 NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 56,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_emusic,				 NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	// 10
-	{ jwin_rtext_proc,	  190,	 72,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_sfx,				 NULL,			   NULL	 },
-	{ jwin_rtext_proc,	  190,	 88,	 40,	  8,	vc(7),	 vc(11),			  0,	0,			0,			 0, (void *) str_pan,				 NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_slider_proc,	 196,	 40,	 96,	  8,	vc(0),	 jwin_pal[jcBOX],	 0,	0,		   32,			 0,  NULL, (void *) set_vol,   midi_dp  },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_slider_proc,	 196,	 56,	 96,	  8,	vc(0),	 jwin_pal[jcBOX],	 0,	0,		   32,			 0,  NULL, (void *) set_vol,   emus_dp  },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_slider_proc,	 196,	 72,	 96,	  8,	vc(0),	 jwin_pal[jcBOX],	 0,	0,		   32,			 0,  NULL, (void *) set_vol,   sfx_dp   },
-	//20
-	{ jwin_slider_proc,	 196,	88,	 96,	  8,	vc(0),	 jwin_pal[jcBOX],	 0,	0,			3,			 0,  NULL, (void *) set_pan,   pan_dp   },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_text_proc,		17,	 40,	 48,	  8,	vc(0),	 vc(11),			  0,	0,			0,			 0, (void *) "MIDI Volume",  NULL,			   NULL	 },
-	{ jwin_text_proc,		17,	 56,	 48,	  8,	vc(0),	 vc(11),			  0,	0,			0,			 0, (void *) "Music Volume (Enhanced Music)",	 NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ jwin_text_proc,		17,	 72,	 48,	  8,	vc(0),	 vc(11),			  0,	0,			0,			 0, (void *) "SFX Volume",		  NULL,			   NULL	 },
-	{ jwin_text_proc,		17,	 88,	 48,	  8,	vc(0),	 vc(11),			  0,	0,			0,			 0, (void *) "SFX Pan",			 NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	//30
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ d_dummy_proc,		   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-	{ NULL,				   0,	  0,	  0,	  0,	0,		 0,				   0,	0,			0,			 0,  NULL,						   NULL,			   NULL	 },
-};
+static char str_qst[80],str_ver[80];
 
 static DIALOG quest_dlg[] =
 {
@@ -5690,84 +5593,10 @@ int32_t onControls()
 	return D_O_K;
 }
 
+void call_volume_dialog();
 int32_t onSound()
 {
-	if (get_qr(qr_OLD_SCRIPT_VOLUME))
-	{
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
-		{
-			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
-		{
-			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
-		{
-			emusic_volume = (int32_t)FFCore.usr_music_volume;
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
-		{
-			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-		}
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-		pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-
-	int32_t m = midi_volume;
-	int32_t e = emusic_volume;
-	int32_t s = sfx_volume;
-	int32_t p = pan_style;
-	pan_style = vbound(pan_style,0,3);
-	
-	sound_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	large_dialog(sound_dlg);
-		
-	midi_dp[1] = sound_dlg[6].x;
-	midi_dp[2] = sound_dlg[6].y;
-	emus_dp[1] = sound_dlg[8].x;
-	emus_dp[2] = sound_dlg[8].y;
-	sfx_dp[1]  = sound_dlg[10].x;
-	sfx_dp[2]  = sound_dlg[10].y;
-	pan_dp[1]  = sound_dlg[11].x;
-	pan_dp[2]  = sound_dlg[11].y;
-	sound_dlg[15].d2 = (midi_volume==255) ? 32 : midi_volume>>3;
-	sound_dlg[17].d2 = (emusic_volume==255) ? 32 : emusic_volume>>3;
-	sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
-	sound_dlg[20].d2 = pan_style;
-	
-	int32_t ret = do_zqdialog(sound_dlg,1);
-	
-	if(ret==2)
-	{
-		master_volume(digi_volume,midi_volume);
-		if (zcmusic)
-			zcmusic_set_volume(zcmusic, emusic_volume);
-		
-		int32_t temp_volume = sfx_volume;
-		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
-			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
-		for(int32_t i=0; i<WAV_COUNT; ++i)
-		{
-			if(sfx_voice[i] >= 0)
-				voice_set_volume(sfx_voice[i], temp_volume);
-		}
-		zc_set_config(sfx_sect,"midi",midi_volume);
-		zc_set_config(sfx_sect,"sfx",sfx_volume);
-		zc_set_config(sfx_sect,"emusic",emusic_volume);
-		zc_set_config(sfx_sect,"pan",pan_style);
-	}
-	else
-	{
-		midi_volume   = m;
-		emusic_volume = e;
-		sfx_volume	= s;
-		pan_style	 = p;
-	}
-	
+	call_volume_dialog();
 	return D_O_K;
 }
 
@@ -6096,8 +5925,8 @@ static DIALOG scrsaver_dlg[] =
 	{ jwin_text_proc,		 60,   128,  48,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Speed", NULL,  NULL },
 	{ jwin_text_proc,		 60,   144,  48,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Density", NULL,  NULL },
 	{ jwin_droplist_proc,  144,  100,  96,   16,   0,	   0,	   0,	   0,		 0,		0, (void *) &after__list, NULL,  NULL },
-	{ jwin_slider_proc,	144,  128,  116,  8,	vc(0),   jwin_pal[jcBOX],  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
-	{ jwin_slider_proc,	144,  144,  116,  8,	vc(0),   jwin_pal[jcBOX],  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
+	{ jwin_slider_proc,	144,  128,  116,  8,	7,   0,  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
+	{ jwin_slider_proc,	144,  144,  116,  8,	7,   0,  0,	   0,		 6,		0,	   NULL, NULL,  NULL },
 	{ jwin_button_proc,	42,   170,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
 	{ jwin_button_proc,	124,  170,  72,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Preview", NULL,  NULL },
 	{ jwin_button_proc,	218,  170,  61,   21,   0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
@@ -6957,7 +6786,6 @@ void fix_dialogs()
 	jwin_center_dialog(midi_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
-	jwin_center_dialog(sound_dlg);
 	jwin_center_dialog(triforce_dlg);
 }
 
