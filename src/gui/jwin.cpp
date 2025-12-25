@@ -6070,118 +6070,289 @@ int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c)
   *  prototype:
   *
   *  int32_t function(void *dp3, int32_t d2);
-  *
-  *  The d_slider_proc object will return the value of the callback function.
   */
 int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    BITMAP *slhan = NULL;
-    int32_t sfg;                /* slider foreground color */
-    int32_t vert = TRUE;        /* flag: is slider vertical? */
-    int32_t hh = 7;             /* handle height (width for horizontal sliders) */
-    int32_t hmar;               /* handle margin */
-    int32_t slp;                /* slider position */
-    int32_t irange;
-    int32_t slx, sly, slh, slw;
-    fixed slratio, slmax, slpos;
-    ASSERT(d);
-    
-    /* check for slider direction */
-    if(d->h < d->w)
-    {
-        vert = FALSE;
-    }
-    
-    /* set up the metrics for the control */
-    if(d->dp != NULL)
-    {
-        slhan = (BITMAP *)d->dp;
-        
-        if(vert)
-        {
-            hh = slhan->h;
-        }
-        else
-        {
-            hh = slhan->w;
-        }
-    }
-    
-    hmar = hh/2;
-    irange = (vert) ? d->h : d->w;
-    slmax = itofix(irange-hh);
-    slratio = slmax / (d->d1);
-    slpos = slratio * d->d2;
-    slp = fixtoi(slpos);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-        //      sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : scheme[jcBOXFG];
-        sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : scheme[jcBOXFG];
-        
-        if(vert)
-        {
-            rectfill(screen, d->x, d->y, d->x+d->w/2-2, d->y+d->h, scheme[jcBOX]);
-            rectfill(screen, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h, sfg);
-            rectfill(screen, d->x+d->w/2+2, d->y, d->x+d->w, d->y+d->h, scheme[jcBOX]);
-        }
-        else
-        {
-            rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h/2-2, scheme[jcBOX]);
-            rectfill(screen, d->x, d->y+d->h/2-1, d->x+d->w, d->y+d->h/2+1, sfg);
-            rectfill(screen, d->x, d->y+d->h/2+2, d->x+d->w, d->y+d->h, scheme[jcBOX]);
-        }
-        
-        if(d->flags & D_GOTFOCUS)
-        {
-            _dotted_rect(d->x, d->y, d->x+d->w, d->y+d->h, sfg, scheme[jcBOX]);
-        }
-        
-        /* okay, background and slot are drawn, now draw the handle */
-        if(slhan)
-        {
-            if(vert)
-            {
-                slx = d->x+(d->w/2)-(slhan->w/2);
-                sly = d->y+d->h-(hh+slp);
-            }
-            else
-            {
-                slx = d->x+slp;
-                sly = d->y+(d->h/2)-(slhan->h/2);
-            }
-            
-            draw_sprite(screen, slhan, slx, sly);
-        }
-        else
-        {
-            /* draw default handle */
-            if(vert)
-            {
-                slx = d->x;
-                sly = d->y+d->h-(hh+slp);
-                slw = d->w;
-                slh = hh;
-            }
-            else
-            {
-                slx = d->x+slp;
-                sly = d->y;
-                slw = hh;
-                slh = d->h;
-            }
-            
-            jwin_draw_button(screen, slx, sly, slw+1, slh+1, d->flags&D_DISABLED?3:0, 0);
-        }
-        
-        break;
-        
-    default:
-        return d_jslider_proc(msg, d, c);
-    }
-    
-    return D_O_K;
+	BITMAP *slhan = NULL;
+	int32_t oldpos, newpos;
+	int32_t sfg;                /* slider foreground color */
+	int32_t vert = TRUE;        /* flag: is slider vertical? */
+	int32_t hh = 7;             /* handle height (width for horizontal sliders) */
+	int32_t hmar;               /* handle margin */
+	int32_t slp;                /* slider position */
+	int32_t mp;                 /* mouse position */
+	int32_t irange;
+	int32_t slx, sly, slh, slw;
+	fixed slratio, slmax, slpos;
+	BITMAP *gui_bmp = screen;
+	int32_t msx, msy;
+	int32_t retval = D_O_K;
+	int32_t upkey, downkey;
+	int32_t pgupkey, pgdnkey;
+	int32_t homekey, endkey;
+	int32_t delta;
+	typedef int32_t (*SLIDER_TYPE)(void*, int32_t);
+	SLIDER_TYPE proc = NULL;
+	int32_t oldval;
+	ASSERT(d);
+	
+	/* check for slider direction */
+	if(d->h < d->w)
+		vert = FALSE;
+	
+	if (d->fg > 7)
+		hh = d->fg;
+	
+	/* set up the metrics for the control */
+	if(d->dp != NULL)
+	{
+		slhan = (BITMAP *)d->dp;
+		
+		if(vert)
+		{
+			hh = slhan->h;
+		}
+		else
+		{
+			hh = slhan->w;
+		}
+	}
+	
+	hmar = hh/2;
+	irange = (vert) ? d->h : d->w;
+	slmax = itofix(irange-hh);
+	slratio = slmax / (d->d1);
+	slpos = slratio * d->d2;
+	slp = fixtoi(slpos);
+	
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : scheme[jcBOXFG];
+			
+			rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h, scheme[jcBOX]);
+			int bar_wid = zc_max(1, d->bg);
+			int bar_high = bar_wid / 2;
+			int bar_low = -(bar_wid - 1 - bar_high);
+			const int FOCUS_OFFS = 3;
+			if(vert)
+			{
+				rectfill(screen, d->x+d->w/2+bar_low, d->y, d->x+d->w/2+bar_high, d->y+d->h, sfg);
+				if(d->flags & D_GOTFOCUS)
+					_dotted_rect(d->x+d->w/2+bar_low-FOCUS_OFFS, d->y, d->x+d->w/2+bar_high+FOCUS_OFFS, d->y+d->h, sfg, scheme[jcBOX]);
+			}
+			else
+			{
+				rectfill(screen, d->x, d->y+d->h/2+bar_low, d->x+d->w, d->y+d->h/2+bar_high, sfg);
+				if(d->flags & D_GOTFOCUS)
+					_dotted_rect(d->x, d->y+d->h/2+bar_low-FOCUS_OFFS, d->x+d->w, d->y+d->h/2+bar_high+FOCUS_OFFS, sfg, scheme[jcBOX]);
+			}
+			
+			/* okay, background and slot are drawn, now draw the handle */
+			if(slhan)
+			{
+				if(vert)
+				{
+					slx = d->x+(d->w/2)-(slhan->w/2);
+					sly = d->y+d->h-(hh+slp);
+				}
+				else
+				{
+					slx = d->x+slp;
+					sly = d->y+(d->h/2)-(slhan->h/2);
+				}
+				
+				draw_sprite(screen, slhan, slx, sly);
+			}
+			else
+			{
+				/* draw default handle */
+				if(vert)
+				{
+					slx = d->x;
+					sly = d->y+d->h-(hh+slp);
+					slw = d->w;
+					slh = hh;
+				}
+				else
+				{
+					slx = d->x+slp;
+					sly = d->y;
+					slw = hh;
+					slh = d->h;
+				}
+				
+				jwin_draw_button(screen, slx, sly, slw+1, slh+1, d->flags&D_DISABLED?3:0, 0);
+			}
+			
+			break;
+		}
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			if(!(d->flags & D_GOTFOCUS))
+				return D_WANTFOCUS;
+			else
+				return D_O_K;
+				
+		case MSG_CHAR:
+		{
+			/* handle movement keys to move slider */
+			c >>= 8;
+			
+			if(vert)
+			{
+				upkey = KEY_UP;
+				downkey = KEY_DOWN;
+				pgupkey = KEY_PGUP;
+				pgdnkey = KEY_PGDN;
+				homekey = KEY_END;
+				endkey = KEY_HOME;
+			}
+			else
+			{
+				upkey = KEY_RIGHT;
+				downkey = KEY_LEFT;
+				pgupkey = KEY_PGDN;
+				pgdnkey = KEY_PGUP;
+				homekey = KEY_HOME;
+				endkey = KEY_END;
+			}
+			
+			if(c == upkey)
+				delta = 1;
+			else if(c == downkey)
+				delta = -1;
+			else if(c == pgdnkey)
+				delta = -d->d1 / 16;
+			else if(c == pgupkey)
+				delta = d->d1 / 16;
+			else if(c == homekey)
+				delta = -d->d2;
+			else if(c == endkey)
+				delta = d->d1 - d->d2;
+			else
+				delta = 0;
+				
+			if(delta)
+			{
+				oldpos = slp;
+				oldval = d->d2;
+				
+				//while (true) {
+				for(; ;)     //thank you, MSVC ~pkmnfrk
+				{
+					d->d2 = d->d2+delta;
+					slpos = slratio*d->d2;
+					slp = fixtoi(slpos);
+					
+					if((slp != oldpos) || (d->d2 <= 0) || (d->d2 >= d->d1))
+						break;
+				}
+				
+				if(d->d2 < 0)
+					d->d2 = 0;
+					
+				if(d->d2 > d->d1)
+					d->d2 = d->d1;
+					
+				retval = D_USED_CHAR;
+				
+				if(d->d2 != oldval)
+				{
+					/* call callback function here */
+					if(d->dp2)
+					{
+						proc = (SLIDER_TYPE)(d->dp2);
+						retval |= (*proc)(d->dp3, d->d2);
+					}
+
+					GUI_EVENT(d, geCHANGE_VALUE);
+					
+					object_message(d, MSG_DRAW, 0);
+				}
+			}
+			
+			break;
+		}
+		case MSG_WANTWHEEL:
+			return 1;
+
+		case MSG_WHEEL:
+		{
+			oldval = d->d2;
+			d->d2 = MID(0, d->d2+c, d->d1);
+			
+			if(d->d2 != oldval)
+			{
+				/* call callback function here */
+				if(d->dp2)
+				{
+					proc = (SLIDER_TYPE)(d->dp2);
+					retval |= (*proc)(d->dp3, d->d2);
+				}
+				
+				GUI_EVENT(d, geCHANGE_VALUE);
+				object_message(d, MSG_DRAW, 0);
+				retval |= D_REDRAWME;
+			}
+			
+			break;
+		}
+			
+		case MSG_CLICK:
+		{
+			/* track the mouse until it is released */
+			mp = slp;
+			
+			while(gui_mouse_b())
+			{
+				msx = gui_mouse_x();
+				msy = gui_mouse_y();
+				oldval = d->d2;
+				
+				if(vert)
+					mp = (d->y+d->h-hmar)-msy;
+				else
+					mp = msx-(d->x+hmar);
+					
+				if(mp < 0)
+					mp = 0;
+					
+				if(mp > irange-hh)
+					mp = irange-hh;
+					
+				slpos = itofix(mp);
+				slmax = fixdiv(slpos, slratio);
+				newpos = fixtoi(slmax);
+				
+				if(newpos != oldval)
+				{
+					d->d2 = newpos;
+					
+					/* call callback function here */
+					if(d->dp2 != NULL)
+					{
+						proc = (SLIDER_TYPE)(d->dp2);
+						retval |= (*proc)(d->dp3, d->d2);
+					}
+					
+					GUI_EVENT(d, geCHANGE_VALUE);
+					object_message(d, MSG_DRAW, 0);
+				}
+				
+				/* let other objects continue to animate */
+				broadcast_dialog_message(MSG_IDLE, 0);
+				update_hw_screen();
+			}
+			break;
+		}
+	}
+	
+	return retval;
 }
 
 const char* rowpref(int32_t row, bool alt)
@@ -8727,287 +8898,6 @@ void jwin_ulalign_dialog(DIALOG *dialog)
         dialog[c].x -= xc;
         dialog[c].y -= yc;
     }
-}
-
-//Custom slider proc
-int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
-{
-    BITMAP *gui_bmp = screen;
-    BITMAP *slhan = NULL;
-    int32_t oldpos, newpos;
-    int32_t sfg;                /* slider foreground color */
-    int32_t vert = TRUE;        /* flag: is slider vertical? */
-    int32_t hh = 7;             /* handle height (width for horizontal sliders) */
-    int32_t hmar;               /* handle margin */
-    int32_t slp;                /* slider position */
-    int32_t mp;                 /* mouse position */
-    int32_t irange;
-    int32_t slx, sly, slh, slw;
-    int32_t msx, msy;
-    int32_t retval = D_O_K;
-    int32_t upkey, downkey;
-    int32_t pgupkey, pgdnkey;
-    int32_t homekey, endkey;
-    int32_t delta;
-    fixed slratio, slmax, slpos;
-    typedef int32_t (*SLIDER_TYPE)(void*, int32_t);
-    SLIDER_TYPE proc = NULL;
-    //int32_t (*proc)(void *cbpointer, int32_t d2value);
-    int32_t oldval;
-    ASSERT(d);
-    
-    /* check for slider direction */
-    if(d->h < d->w)
-        vert = FALSE;
-        
-    /* set up the metrics for the control */
-    if(d->dp != NULL)
-    {
-        slhan = (BITMAP *)d->dp;
-        
-        if(vert)
-            hh = slhan->h;
-        else
-            hh = slhan->w;
-    }
-    
-    hmar = hh/2;
-    irange = (vert) ? d->h : d->w;
-    slmax = itofix(irange-hh);
-    slratio = slmax / (d->d1);
-    slpos = slratio * d->d2;
-    slp = fixtoi(slpos);
-    
-    switch(msg)
-    {
-    
-    case MSG_DRAW:
-        sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
-        
-        if(vert)
-        {
-            rectfill(gui_bmp, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
-            rectfill(gui_bmp, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
-            rectfill(gui_bmp, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
-        }
-        else
-        {
-            rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
-            rectfill(gui_bmp, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
-            rectfill(gui_bmp, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
-        }
-        
-        /* okay, background and slot are drawn, now draw the handle */
-        if(slhan)
-        {
-            if(vert)
-            {
-                slx = d->x+(d->w/2)-(slhan->w/2);
-                sly = d->y+(d->h-1)-(hh+slp);
-            }
-            else
-            {
-                slx = d->x+slp;
-                sly = d->y+(d->h/2)-(slhan->h/2);
-            }
-            
-            draw_sprite(gui_bmp, slhan, slx, sly);
-        }
-        else
-        {
-            /* draw default handle */
-            if(vert)
-            {
-                slx = d->x;
-                sly = d->y+(d->h)-(hh+slp);
-                slw = d->w-1;
-                slh = hh-1;
-            }
-            else
-            {
-                slx = d->x+slp;
-                sly = d->y;
-                slw = hh-1;
-                slh = d->h-1;
-            }
-            
-            /* draw body */
-            rectfill(gui_bmp, slx+2, sly, slx+(slw-2), sly+slh, sfg);
-            vline(gui_bmp, slx+1, sly+1, sly+slh-1, sfg);
-            vline(gui_bmp, slx+slw-1, sly+1, sly+slh-1, sfg);
-            vline(gui_bmp, slx, sly+2, sly+slh-2, sfg);
-            vline(gui_bmp, slx+slw, sly+2, sly+slh-2, sfg);
-            vline(gui_bmp, slx+1, sly+2, sly+slh-2, d->bg);
-            hline(gui_bmp, slx+2, sly+1, slx+slw-2, d->bg);
-            putpixel(gui_bmp, slx+2, sly+2, d->bg);
-        }
-        
-        if(d->flags & D_GOTFOCUS)
-            dotted_rect(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, sfg, d->bg);
-            
-        break;
-        
-    case MSG_WANTFOCUS:
-    case MSG_LOSTFOCUS:
-        return D_WANTFOCUS;
-        
-    case MSG_KEY:
-        if(!(d->flags & D_GOTFOCUS))
-            return D_WANTFOCUS;
-        else
-            return D_O_K;
-            
-    case MSG_CHAR:
-        /* handle movement keys to move slider */
-        c >>= 8;
-        
-        if(vert)
-        {
-            upkey = KEY_UP;
-            downkey = KEY_DOWN;
-            pgupkey = KEY_PGUP;
-            pgdnkey = KEY_PGDN;
-            homekey = KEY_END;
-            endkey = KEY_HOME;
-        }
-        else
-        {
-            upkey = KEY_RIGHT;
-            downkey = KEY_LEFT;
-            pgupkey = KEY_PGDN;
-            pgdnkey = KEY_PGUP;
-            homekey = KEY_HOME;
-            endkey = KEY_END;
-        }
-        
-        if(c == upkey)
-            delta = 1;
-        else if(c == downkey)
-            delta = -1;
-        else if(c == pgdnkey)
-            delta = -d->d1 / 16;
-        else if(c == pgupkey)
-            delta = d->d1 / 16;
-        else if(c == homekey)
-            delta = -d->d2;
-        else if(c == endkey)
-            delta = d->d1 - d->d2;
-        else
-            delta = 0;
-            
-        if(delta)
-        {
-            oldpos = slp;
-            oldval = d->d2;
-            
-            //while (true) {
-            for(; ;)     //thank you, MSVC ~pkmnfrk
-            {
-                d->d2 = d->d2+delta;
-                slpos = slratio*d->d2;
-                slp = fixtoi(slpos);
-                
-                if((slp != oldpos) || (d->d2 <= 0) || (d->d2 >= d->d1))
-                    break;
-            }
-            
-            if(d->d2 < 0)
-                d->d2 = 0;
-                
-            if(d->d2 > d->d1)
-                d->d2 = d->d1;
-                
-            retval = D_USED_CHAR;
-            
-            if(d->d2 != oldval)
-            {
-                /* call callback function here */
-                if(d->dp2)
-                {
-                    proc = (SLIDER_TYPE)(d->dp2);
-                    retval |= (*proc)(d->dp3, d->d2);
-                }
-
-				GUI_EVENT(d, geCHANGE_VALUE);
-                
-                object_message(d, MSG_DRAW, 0);
-            }
-        }
-        
-        break;
-        
-    case MSG_WANTWHEEL:
-        return 1;
-
-    case MSG_WHEEL:
-        oldval = d->d2;
-        d->d2 = MID(0, d->d2+c, d->d1);
-        
-        if(d->d2 != oldval)
-        {
-            /* call callback function here */
-            if(d->dp2)
-            {
-                proc = (SLIDER_TYPE)(d->dp2);
-                retval |= (*proc)(d->dp3, d->d2);
-            }
-            
-			GUI_EVENT(d, geCHANGE_VALUE);
-            object_message(d, MSG_DRAW, 0);
-			retval |= D_REDRAWME;
-        }
-        
-        break;
-        
-    case MSG_CLICK:
-        /* track the mouse until it is released */
-        mp = slp;
-        
-        while(gui_mouse_b())
-        {
-            msx = gui_mouse_x();
-            msy = gui_mouse_y();
-            oldval = d->d2;
-            
-            if(vert)
-                mp = (d->y+d->h-hmar)-msy;
-            else
-                mp = msx-(d->x+hmar);
-                
-            if(mp < 0)
-                mp = 0;
-                
-            if(mp > irange-hh)
-                mp = irange-hh;
-                
-            slpos = itofix(mp);
-            slmax = fixdiv(slpos, slratio);
-            newpos = fixtoi(slmax);
-            
-            if(newpos != oldval)
-            {
-                d->d2 = newpos;
-                
-                /* call callback function here */
-                if(d->dp2 != NULL)
-                {
-                    proc = (SLIDER_TYPE)(d->dp2);
-                    retval |= (*proc)(d->dp3, d->d2);
-                }
-                
-				GUI_EVENT(d, geCHANGE_VALUE);
-                object_message(d, MSG_DRAW, 0);
-            }
-            
-            /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-			update_hw_screen();
-        }
-        
-        break;
-    }
-    
-    return retval;
 }
 
 // This is only used by jwin_check_proc and jwin_radio_proc.

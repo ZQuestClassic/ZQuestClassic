@@ -12,18 +12,27 @@ namespace GUI
 	public:
 		Slider();
 
-		void setOffset(int32_t newoffset);
-		int32_t getOffset() const;
+		void setValue(int32_t new_value);
+		int32_t getValue() const;
 
-		void setMinOffset(int32_t newoffset);
-		int32_t getMinOffset() const;
+		void setMinValue(int32_t new_value);
+		int32_t getMinValue() const;
 
-		void setMaxOffset(int32_t newoffset);
-		int32_t getMaxOffset() const;
+		void setMaxValue(int32_t new_value);
+		int32_t getMaxValue() const;
+
+		void setStep(int32_t new_step);
+		int32_t getStep() const;
+
+		void setHandleWidth(Size new_handle_width);
+		int32_t getHandleWidth() const;
+		
+		void setBarWidth(Size new_bar_width);
+		int32_t getBarWidth() const;
 
 		int32_t getTotalRange() const
 		{
-			return getMaxOffset() - getMinOffset();
+			return getMaxValue() - getMinValue();
 		}
 
 		template<typename T>
@@ -41,7 +50,8 @@ namespace GUI
 		int32_t message;
 		std::function<void(int32_t)> onValChangedFunc;
 
-		int32_t offset, min_offset, max_offset;
+		int32_t value, min_value, max_value, step;
+		Size handle_width, bar_width;
 
 		DialogRef alDialog;
 
