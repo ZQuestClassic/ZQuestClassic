@@ -19,6 +19,7 @@
 #include <chrono>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include "dialog/externs.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_IMPLEMENTATION
@@ -1087,7 +1088,7 @@ static void check_assert()
             if (!exit_when_done)
             {
                 enter_sys_pal();
-                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, get_zc_font(font_lfont));
+                displayinfo("Assert", error);
                 exit_sys_pal();
             }
             break;
