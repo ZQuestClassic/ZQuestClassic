@@ -54,7 +54,6 @@ src/dialog/subscr_lists_edit.cpp
 src/dialog/subscreenwizard.cpp
 src/dialog/save_menu_editor.cpp
 src/dialog/room.cpp
-src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp
 src/dialog/script_rules.cpp
 src/dialog/pickruleset.cpp
