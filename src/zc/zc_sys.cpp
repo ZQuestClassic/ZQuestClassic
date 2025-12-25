@@ -79,7 +79,6 @@ using namespace std::chrono_literals;
 
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
-int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
@@ -267,7 +266,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
@@ -5294,245 +5293,10 @@ int32_t onCredits()
 	return D_O_K;
 }
 
-const char *midilist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size=0;
-		
-		for(int32_t i=0; i<MAXMIDIS; i++)
-			if(tunes[i].data)
-				++(*list_size);
-				
-		return NULL;
-	}
-	
-	int32_t i=0,m=0;
-	
-	while(m<=index && i<=MAXMIDIS)
-	{
-		if(tunes[i].data)
-			++m;
-			
-		++i;
-	}
-	
-	--i;
-	
-	if(i==MAXMIDIS && m<index)
-		return "(null)";
-		
-	return tunes[i].title;
-}
-
-/*  ------- MIDI info stuff -------- */
-
-char *text;
-midi_info *zmi;
-bool dialog_running;
-bool listening;
-
-void get_info(int32_t index);
-
-int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	int32_t d2 = d->d2;
-	int32_t ret = jwin_droplist_proc(msg,d,c);
-	
-	if(d2!=d->d2)
-	{
-		get_info(d->d2);
-	}
-	
-	return ret;
-}
-
-int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	/* 'd->d1' is offset from 'd' in DIALOG array to midilist proc */
-	
-	int32_t ret = jwin_button_proc(msg,d,c);
-	
-	if(ret == D_CLOSE)
-	{
-		// get current midi index
-		int32_t index = (d+(d->d1))->d2;
-		int32_t i=0, m=0;
-		
-		while(m<=index && i<=MAXMIDIS)
-		{
-			if(tunes[i].data)
-				++m;
-				
-			++i;
-		}
-		
-		--i;
-		jukebox(i);
-		listening = true;
-		ret = D_O_K;
-	}
-	
-	return ret;
-}
-
-int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	/* 'd->d1' is offset from 'd' in DIALOG array to midilist proc */
-	
-	int32_t ret = jwin_button_proc(msg,d,c);
-	
-	if(ret == D_CLOSE)
-	{
-		// get current midi index
-		int32_t index = (d+(d->d1))->d2;
-		int32_t i=0, m=0;
-		
-		while(m<=index && i<=MAXMIDIS)
-		{
-			if(tunes[i].data)
-				++m;
-				
-			++i;
-		}
-		
-		--i;
-
-		char title[40] = "Save MIDI: ";
-		static EXT_LIST list[] =
-		{
-			{ (char *)"MIDI files (*.mid)", (char *)"mid" },
-			{ NULL,								  NULL }
-		};
-		
-		strcpy(title+11, tunes[i].title);
-	title[39] = '\0';
-
-		std::string fname;
-		if (auto result = prompt_for_new_file(title, "", list, "tune.mid"))
-			fname = *result;
-		else
-			goto done;
-			
-		if(exists(fname.c_str()))
-		{
-			if(jwin_alert(title, fname.c_str(), "already exists.", "Overwrite it?", "&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
-				goto done;
-		}
-		
-		// save midi i
-		
-		if (save_midi(fname.c_str(), tunes[i].data) != 0)
-			jwin_alert(title, "Error saving MIDI to", fname.c_str(), NULL, "Darn", NULL,13,27,get_zc_font(font_lfont));
-			
-done:
-		chop_path(fname.data());
-		ret = D_REDRAW;
-	}
-	
-	return ret;
-}
-
-static ListData midi_list(midilist, &font);
-
-static DIALOG midi_dlg[] =
-{
-	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
-	{ jwin_win_proc,	   8,	28,   304,  184,  0,	   0,		0,	   D_EXIT,	0,		0, (void *) "MIDI Info", NULL,  NULL },
-	{ jwin_text_proc,		 32,   60,   40,   8,	vc(0),   vc(11),   0,	   0,		 0,		0, (void *) "Tune:", NULL,  NULL },
-	{ d_midilist_proc,	 80,   56,   192,  16,   0,	   0,		0,	   0,		 0,		0, (void *) &midi_list, NULL,  NULL },
-	{ jwin_textbox_proc,   15,   80,   290,  96,   0,	   0,		0,	   0,		 0,		0,	   NULL, NULL,  NULL },
-	{ d_listen_proc,	   24,   183,  72,   21,   0,	   0,		'l',	 D_EXIT,	-2,	   0, (void *) "&Listen", NULL,  NULL },
-	{ d_savemidi_proc,	 108,  183,  72,   21,   0,	   0,		's',	 D_EXIT,	-3,	   0, (void *) "&Save", NULL,  NULL },
-	{ jwin_button_proc,	236,  183,  61,   21,   0,	   0,		'k',	 D_EXIT,	0,		0, (void *) "O&K", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-void get_info(int32_t index)
-{
-	int32_t i=0, m=0;
-	
-	while(m<=index && i<=MAXMIDIS)
-	{
-		if(tunes[i].data)
-			++m;
-			
-		++i;
-	}
-	
-	--i;
-	
-	if(i==MAXMIDIS && m<index)
-		strcpy(text,"(null)");
-	else
-	{
-		get_midi_info(tunes[i].data,zmi);
-		get_midi_text(tunes[i].data,zmi,text);
-	}
-	
-	midi_dlg[0].dp2=get_zc_font(font_lfont);
-	midi_dlg[3].dp = text;
-	midi_dlg[3].d1 = midi_dlg[3].d2 = 0;
-	midi_dlg[5].flags = (tunes[i].flags&tfDISABLESAVE) ? D_DISABLED : D_EXIT;
-	
-	if(dialog_running)
-	{
-		jwin_textbox_proc(MSG_DRAW,midi_dlg+3,0);
-		d_savemidi_proc(MSG_DRAW,midi_dlg+5,0);
-	}
-}
-
+void call_zc_midi_dlg();
 int32_t onMIDICredits()
 {
-	text = (char*)malloc(4096);
-	zmi = (midi_info*)malloc(sizeof(midi_info));
-	
-	if(!text || !zmi)
-	{
-		jwin_alert(NULL,"Not enough memory",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-		return D_O_K;
-	}
-	
-	bool do_pause_midi = midi_pos >= 0 && currmidi;
-	auto restore_midi = currmidi;
-	if(do_pause_midi)
-	{
-		paused_midi_pos = midi_pos;
-		stop_midi();
-		midi_suspended = midissuspHALTED;
-	}
-	
-	midi_dlg[0].dp2=get_zc_font(font_lfont);
-	midi_dlg[2].d1 = 0;
-	midi_dlg[2].d2 = 0;
-	midi_dlg[4].flags = D_EXIT;
-	midi_dlg[5].flags = (tunes[midi_dlg[2].d1].flags&tfDISABLESAVE) ? D_DISABLED : D_EXIT;
-	
-	listening = false;
-	dialog_running=false;
-	get_info(0);
-	
-	dialog_running=true;
-	
-	large_dialog(midi_dlg);
-		
-	do_zqdialog(midi_dlg,0);
-	dialog_running=false;
-	
-	if(listening)
-		music_stop();
-	
-	if(do_pause_midi)
-	{
-		// TODO: this probably doesn't resume midis nicely when scrolling (or in some other inner-gameloop).
-		midi_suspended = midissuspRESUME;
-		currmidi = restore_midi;
-		midi_pos = paused_midi_pos;
-	}
-		
-	if(text) free(text);
-	if(zmi) free(zmi);
+	call_zc_midi_dlg();
 	return D_O_K;
 }
 
@@ -6783,7 +6547,6 @@ void fix_dialogs()
 	jwin_center_dialog(gamemode_dlg);
 	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
-	jwin_center_dialog(midi_dlg);
 	jwin_center_dialog(quest_dlg);
 	jwin_center_dialog(scrsaver_dlg);
 	jwin_center_dialog(triforce_dlg);
