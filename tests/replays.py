@@ -377,7 +377,8 @@ class CLIPlayerInterface:
             output_dir,
             '-script-runtime-debug-folder',
             str(output_dir / 'zscript-debug'),
-            '-optimize-zasm',
+            # TODO !
+            '-no-optimize-zasm',
             '-optimize-zasm-experimental',
         ]
 
@@ -397,6 +398,7 @@ class CLIPlayerInterface:
         if replay.frame_arg != None:
             exe_args.extend(['-frame', str(replay.frame_arg)])
 
+        ctx.jit = False # TODO !
         if ctx.jit:
             exe_args.append('-jit')
             exe_args.append('-jit-log')
@@ -473,7 +475,7 @@ class WebPlayerInterface:
         extra_args = [
             '-replay-exit-when-done',
             '-show-fps',
-            '-optimize-zasm',
+            '-no-optimize-zasm',
             '-optimize-zasm-experimental',
         ]
         if ctx.extra_args:

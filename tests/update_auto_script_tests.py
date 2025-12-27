@@ -84,7 +84,7 @@ def compile():
             },
         )
     except Exception as e:
-        e.add_note(log.read_text())
+        e.add_note(allegro_log_path.read_text())
         raise e
 
 

@@ -834,6 +834,7 @@ static bool optimize_stack(OptContext& ctx)
 						break;
 					case PUSHR:
 					case PUSHV:
+					case PUSH_OBJECT:
 						count++;
 						break;
 					case PUSHARGSR:

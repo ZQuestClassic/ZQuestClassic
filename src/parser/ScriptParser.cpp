@@ -735,13 +735,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 				parameter_types_data.push_back(*position);
 				parameter_types_data.push_back((int)datum->type.getScriptObjectTypeId());
-				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument((int)datum->type.getScriptObjectTypeId()), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
 
 			// if (parameter_types_data.size())
 			// 	addOpcode2(funccode, new OMarkTypeParameters(new VectorArgument(parameter_types_data)));
-			
+
 			CleanupVisitor cv(program, scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
@@ -787,7 +787,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 				if (puc == puc_construct) //return val
 				{
-					addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+					addOpcode2(funccode, new OSetObject(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
 					addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
 				}
 				addOpcode2(funccode, new OReturnFunc());
@@ -883,9 +883,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
-				// parameter_types_data.push_back(*position);
-				// parameter_types_data.push_back((int)datum->type.getScriptObjectTypeId());
-				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				parameter_types_data.push_back(*position);
+				parameter_types_data.push_back((int)datum->type.getScriptObjectTypeId());
+				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument((int)datum->type.getScriptObjectTypeId()), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
 

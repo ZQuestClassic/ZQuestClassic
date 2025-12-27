@@ -243,7 +243,7 @@ namespace ZScript
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		
-		void push_param(bool varg = false);
+		void push_param(bool varg = false, bool is_object = false);
 		optional<int> eatSetCompare();
 		optional<bool> rec_booltree_shortcircuit(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param);
 		void rec_booltree_noshort(BoolTreeNode& node, int parentMode, void* param);

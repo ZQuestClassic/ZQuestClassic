@@ -90,6 +90,7 @@ struct gamedata
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
 	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
 	script_object_type global_d_types[MAX_SCRIPT_REGISTERS];
+	bool global_d_holds_object[MAX_SCRIPT_REGISTERS]; // TODO ! save
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;

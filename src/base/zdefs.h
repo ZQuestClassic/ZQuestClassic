@@ -1283,6 +1283,7 @@ public:
 	int32_t d[8]; //d registers
 	uint32_t sp = MAX_STACK_SIZE; //stack pointer for current script
 	uint32_t retsp; //stack pointer for the return stack
+	bool d2_is_object;
 	
 	uint32_t ffcref;
 	int32_t itemdataref;
@@ -1307,8 +1308,8 @@ public:
 
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
-	std::set<uint32_t> stack_pos_is_object; // TODO ! rm
-	std::vector<script_object_type> stack_pos_object_types;
+	std::set<uint32_t> stack_pos_holds_object; // TODO ! rm
+	std::vector<script_object_type> stack_pos_types;
 	bool overflow;
 
 	void Clear()
@@ -1318,11 +1319,11 @@ public:
 
 	bool stackPosHasObject(int index)
 	{
-		// if (index > stack_pos_object_types.size())
+		// if (index > stack_pos_types.size())
 		// 	return false;
 
-		// return stack_pos_object_types[index] != script_object_type::none;
-		return stack_pos_is_object.contains(index);
+		// return stack_pos_types[index] != script_object_type::none;
+		return stack_pos_holds_object.contains(index);
 	}
 };
 

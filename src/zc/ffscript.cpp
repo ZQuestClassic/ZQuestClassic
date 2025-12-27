@@ -743,16 +743,17 @@ static void log_call_limit_error()
 	scripting_log_error_with_context("Function call limit reached! Too much recursion. Max nested function calls is {}", MAX_CALL_FRAMES);
 }
 
-void SH::write_stack(const uint32_t sp, const int32_t value)
+bool SH::write_stack(const uint32_t sp, const int32_t value)
 {
 	if (sp >= MAX_STACK_SIZE)
 	{
 		log_stack_overflow_error();
 		ri->overflow = true;
-		return;
+		return false;
 	}
 	
 	(*stack)[sp] = value;
+	return true;
 }
 
 int32_t SH::read_stack(const uint32_t sp)
@@ -2306,26 +2307,26 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	if (ZScriptVersion::gc() && script_engine_data_exists(scriptType, UID))
 	{
 		auto& data = get_script_engine_data(scriptType, UID);
-		for (uint32_t offset : data.ref.stack_pos_is_object)
+		for (uint32_t offset : data.ref.stack_pos_holds_object)
 		{
 			uint32_t id = data.stack[offset];
 			ids_to_clear.push_back(id);
 		}
-		data.ref.stack_pos_is_object.clear();
+		data.ref.stack_pos_holds_object.clear();
 	}
 	// TODO ! rm
 	// if (ZScriptVersion::gc() && script_engine_data_exists(scriptType, UID))
 	// {
 	// 	auto& data = get_script_engine_data(scriptType, UID);
-	// 	for (int i = 0; i < data.ref.stack_pos_object_types.size(); i++)
+	// 	for (int i = 0; i < data.ref.stack_pos_types.size(); i++)
 	// 	{
-	// 		if (data.ref.stack_pos_object_types[i] != script_object_type::none)
+	// 		if (data.ref.stack_pos_types[i] != script_object_type::none)
 	// 		{
 	// 			uint32_t id = data.stack[i];
 	// 			ids_to_clear.push_back(id);
 	// 		}
 	// 	}
-	// 	data.ref.stack_pos_object_types.clear();
+	// 	data.ref.stack_pos_types.clear();
 	// }
 
 	if (ZScriptVersion::gc())
@@ -2368,12 +2369,12 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 			if (key.first != scriptType)
 				continue;
 
-			for (uint32_t offset : data.ref.stack_pos_is_object)
+			for (uint32_t offset : data.ref.stack_pos_holds_object)
 			{
 				uint32_t id = data.stack[offset];
 				ids_to_clear.push_back(id);
 			}
-			data.ref.stack_pos_is_object.clear();
+			data.ref.stack_pos_holds_object.clear();
 		}
 		// TODO ! rm
 		// for (auto& [key, data] : scriptEngineDatas)
@@ -2381,12 +2382,12 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 		// 	if (key.first != scriptType)
 		// 		continue;
 
-		// 	for (int i = 0; i < data.ref.stack_pos_object_types.size(); i++)
+		// 	for (int i = 0; i < data.ref.stack_pos_types.size(); i++)
 		// 	{
 		// 		uint32_t id = data.stack[i];
 		// 		ids_to_clear.push_back(id);
 		// 	}
-		// 	data.ref.stack_pos_object_types.clear();
+		// 	data.ref.stack_pos_types.clear();
 		// }
 
 		for (auto id : ids_to_clear)
@@ -2445,25 +2446,25 @@ void FFScript::deallocateAllScriptOwnedCont()
 	{
 		for (auto& [key, data] : scriptEngineDatas)
 		{
-			for (uint32_t offset : data.ref.stack_pos_is_object)
+			for (uint32_t offset : data.ref.stack_pos_holds_object)
 			{
 				uint32_t id = data.stack[offset];
 				ids_to_clear.push_back(id);
 			}
-			data.ref.stack_pos_is_object.clear();
+			data.ref.stack_pos_holds_object.clear();
 		}
 		// TODO ! rm
 		// for (auto& [key, data] : scriptEngineDatas)
 		// {
-		// 	for (int i = 0; i < data.ref.stack_pos_object_types.size(); i++)
+		// 	for (int i = 0; i < data.ref.stack_pos_types.size(); i++)
 		// 	{
-		// 		if (data.ref.stack_pos_object_types[i] != script_object_type::none)
+		// 		if (data.ref.stack_pos_types[i] != script_object_type::none)
 		// 		{
 		// 			uint32_t id = data.stack[i];
 		// 			ids_to_clear.push_back(id);
 		// 		}
 		// 	}
-		// 	data.ref.stack_pos_is_object.clear();
+		// 	data.ref.stack_pos_holds_object.clear();
 		// }
 
 		for (auto id : ids_to_clear)
@@ -10327,17 +10328,45 @@ int32_t get_register(int32_t arg)
 
 //Setter Instructions
 
+void set_global_register_untyped_non_object(int32_t index, int32_t value)
+{
+	if (game->global_d_holds_object[index])
+		script_object_ref_dec(game->global_d[index]);
+	game->global_d[index] = value;
+	game->global_d_holds_object[index] = false;
+}
 
 void set_register(int32_t arg, int32_t value)
 {
 	if (arg >= D(0) && arg <= D(7))
 	{
+		if (arg == D(2) && ri->d2_is_object)
+		{
+			ri->d2_is_object = false;
+			script_object_ref_dec(ri->d[2]);
+		}
+		// if (arg == D(4)) // TODO ! needed?
+		// {
+		// 	int prev = ri->d[arg - D(0)];
+		// 	for (int i = prev; i < value; i++)
+		// 	{
+		// 		if (ri->stackPosHasObject(i))
+		// 		{
+		// 			ri->stack_pos_holds_object.erase(i);
+		// 			script_object_ref_dec((*stack)[i]);
+		// 		}
+		// 	}
+		// }
+
 		ri->d[arg - D(0)] = value;
 		return;
 	}
 	else if (arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		game->global_d[arg-GD(0)] = value;
+		if (game->global_d_types[arg - GD(0)] == script_object_type::untyped)
+			set_global_register_untyped_non_object(arg - GD(0), value);
+		else
+			game->global_d[arg-GD(0)] = value;
 		return;
 	}
 
@@ -17765,7 +17794,15 @@ void do_push_vargs(const bool v)
 
 void do_pop()
 {
-	set_register(sarg1, stack_pop());
+	if (ri->stackPosHasObject(ri->sp) && sarg1 == D(2))
+	{
+		CHECK(!ri->d2_is_object);
+		ri->stack_pos_holds_object.erase(ri->sp);
+		ri->d2_is_object = true;
+		ri->d[2] = stack_pop();
+	}
+	else
+		set_register(sarg1, stack_pop());
 }
 
 void do_peek()
@@ -17822,7 +17859,14 @@ void do_load()
 {
 	const int32_t stackoffset = GET_D(rSFRAME) + sarg2;
 	const int32_t value = SH::read_stack(stackoffset);
-	set_register(sarg1, value);
+	if (ri->pc == 2960-1)
+		printf(".");
+
+	void set_object(int dest, uint32_t value);
+	if (sarg1 == D(2) && ri->stackPosHasObject(stackoffset))
+		set_object(sarg1, value);
+	else
+		set_register(sarg1, value);
 }
 
 static void do_load_internal_array()
@@ -17849,26 +17893,52 @@ void do_stored(const bool v)
 	SH::write_stack(stackoffset, value);
 }
 
+static std::vector<bool> store_is_untyped;
+
 void do_store(const bool v)
 {
 	const int32_t stackoffset = GET_D(rSFRAME) + sarg2;
 	const int32_t value = SH::get_arg(sarg1, v);
+
+	if (store_is_untyped[ri->pc])
+	{
+		bool is_object = sarg3;
+
+		if (is_object)
+			script_object_ref_inc(value);
+		if (ri->stack_pos_holds_object.contains(stackoffset))
+			script_object_ref_dec(SH::read_stack(stackoffset));
+
+		SH::write_stack(stackoffset, value);
+		if (stackoffset == 5118)
+			printf("TODO !\n");
+
+		if (is_object)
+			ri->stack_pos_holds_object.insert(stackoffset);
+		else
+			ri->stack_pos_holds_object.erase(stackoffset);
+
+		return;
+	}
+
 	SH::write_stack(stackoffset, value);
-	CHECK(sarg3 == 0); // TODO ! rm
 }
 
-void script_store_object(uint32_t offset, uint32_t new_id)
+void script_store_object(uint32_t offset, uint32_t new_id, bool is_object)
 {
 	DCHECK(offset < MAX_STACK_SIZE);
 
 	// Increase, then decrease, to handle the case where a variable (holding the only reference to an object) is assigned to itself.
 	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
 	uint32_t id = SH::read_stack(offset);
-	script_object_ref_inc(new_id);
+	if (is_object)
+		script_object_ref_inc(new_id);
 	if (ri->stackPosHasObject(offset))
 		script_object_ref_dec(id);
+	if (is_object)
+		ri->stack_pos_holds_object.insert(offset);
 	else
-		ri->stack_pos_is_object.insert(offset);
+		ri->stack_pos_holds_object.erase(offset);
 
 	SH::write_stack(offset, new_id);
 
@@ -17880,7 +17950,77 @@ void do_store_object(const bool v)
 {
 	const int32_t stackoffset = GET_D(rSFRAME) + sarg2;
 	const int32_t new_id = SH::get_arg(sarg1, v);
-	script_store_object(stackoffset, new_id);
+	bool is_object = !v && sarg1 == D(2) ? ri->d2_is_object : true;
+	if (ri->pc == 2960)
+	printf(".");
+	script_store_object(stackoffset, new_id, is_object);
+
+
+	// TODO ! ...
+	if (!v && sarg1 == D(2) && ri->d2_is_object)
+	{
+		ri->d2_is_object = false;
+		script_object_ref_dec(new_id);
+	}
+}
+
+void set_object(int dest, uint32_t value)
+{
+	if (dest >= GD(0) && dest <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		int index = dest-GD(0);
+		assert(game->global_d_types[index] != script_object_type::none);
+		script_object_ref_inc(value);
+		script_object_ref_dec(game->global_d[index]);
+		game->global_d[index] = value;
+		game->global_d_holds_object[index] = true;
+	}
+	else if (dest == D(2))
+	{
+		script_object_ref_inc(value);
+		if (ri->d2_is_object)
+			script_object_ref_dec(ri->d[2]);
+
+		ri->d[2] = value;
+		ri->d2_is_object = true;
+	}
+	else
+	{
+		// TODO ! also allow SPRITE_MISCD
+		// assert(false);
+		if (zasm_array_supports(dest))
+		{
+			// int zasm_var = dest;
+			// int index = GET_D(rINDEX) / 10000;
+			// int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
+			// int ref = ref_arg ? get_ref(ref_arg) : 0;
+
+			// // About to give the array this value. Do the +1 ref count now.
+			// script_object_ref_inc(value);
+
+			// // If this slot previously was retaining a reference to some other object, release it now.
+			// auto script_array = find_or_create_internal_script_array({zasm_var, ref});
+			// CHECK(script_array->arr.MaybeHoldsObjects()); // TODO ! ?
+			// if (script_array->untyped_is_object[index])
+			// 	script_object_ref_dec(zasm_array_get(zasm_var, ref, index));
+
+			// // Give the object to the array and mark the slot as holding an object.
+			// zasm_array_set(zasm_var, ref, index, value);
+			// script_array->untyped_is_object[index] = true;
+
+			int zasm_var = dest;
+			int index = GET_D(rINDEX) / 10000;
+			int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
+			int ref = ref_arg ? get_ref(ref_arg) : 0;
+			zasm_array_set(zasm_var, ref, index, value, true);
+		}
+	}
+
+	// if (dest != D(2))
+	{
+		if (util::remove_if_exists(script_object_autorelease_pool, value))
+			script_object_ref_dec(value);
+	}
 }
 
 void script_remove_object_ref(int32_t offset)
@@ -17895,10 +18035,16 @@ void script_remove_object_ref(int32_t offset)
 		return;
 
 	uint32_t id = SH::read_stack(offset);
-	script_object_ref_dec(id);
-	ri->stack_pos_is_object.erase(offset);
+	if (ri->stack_pos_holds_object.contains(offset))
+	{
+		script_object_ref_dec(id);
+		ri->stack_pos_holds_object.erase(offset);
+	}
+
+	// TODO ! why is this needed now?
+	SH::write_stack(offset, 0);
 	// TODO ! rm
-	// ri->stack_pos_object_types[offset] = script_object_type::none;
+	// ri->stack_pos_types[offset] = script_object_type::none;
 }
 
 void do_comp(bool v, const bool inv = false)
@@ -18129,6 +18275,12 @@ void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UI
 	assert(sarg3 >= 0 && sarg3 <= (int)script_object_type::last);
 	uint32_t id = allocatemem(size, local, type, UID, (script_object_type)sarg3);
 	set_register(sarg1, id);
+
+	if (ZScriptVersion::gc_arrays() && sarg1 == D(2))
+	{
+		script_object_ref_inc(id);
+		ri->d2_is_object = true;
+	}
 }
 
 void do_deallocatemem()
@@ -23835,6 +23987,46 @@ static void markRegisterType(int reg, int type)
 // the global register types ahead of time.
 void markGlobalRegisters()
 {
+	// TODO ! separate function
+	if (ZScriptVersion::singleZasmChunk())
+	{
+		extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+
+		auto& zasm = zasm_scripts.at(0)->zasm;
+		std::array<bool, MAX_STACK_SIZE> is_untyped = {};
+		store_is_untyped.clear();
+		store_is_untyped.resize(zasm.size());
+
+		for (int i = 0; i < zasm.size(); i++)
+		{
+			const auto& op = zasm[i];
+			switch (op.command)
+			{
+				case MARK_TYPE_STACK:
+				{
+					is_untyped[op.arg2] = op.arg1 == (int)script_object_type::untyped;
+					break;
+				}
+				case STORE:
+				case STOREV:
+				{
+					store_is_untyped[i] = is_untyped[op.arg2];
+					break;
+				}
+				case REF_REMOVE:
+				{
+					is_untyped[op.arg1] = false;
+					break;
+				}
+				case RETURNFUNC:
+				{
+					is_untyped = {};
+					break;
+				}
+			}
+		}
+	}
+
 	word scommand;
 	auto& init_script = *globalscripts[GLOBAL_SCRIPT_INIT];
 	if (!init_script.valid())
@@ -24550,6 +24742,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case CALLFUNC:
 			{
+				if (ri->d2_is_object)
+				{
+					ri->d2_is_object = false;
+					script_object_ref_dec(ri->d[2]);
+				}
+
 				retstack_push(ri->pc+1);
 				if(sarg1 < 0 )
 				{
@@ -27848,15 +28046,40 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					break;
 				}
 
-				if (offset >= ri->stack_pos_object_types.size())
-					ri->stack_pos_object_types.resize(offset + 1);
-				ri->stack_pos_object_types[offset] = (script_object_type)sarg1;
+				if (offset >= ri->stack_pos_types.size())
+					ri->stack_pos_types.resize(offset + 1);
+				ri->stack_pos_types[offset] = (script_object_type)sarg1;
 
 				// TODO ! ???
-				if (sarg1)
-					ri->stack_pos_is_object.insert(offset);
-				else
-					ri->stack_pos_is_object.erase(offset);
+				if (sarg1 != (int)script_object_type::untyped)
+				{
+					if (sarg1)
+						ri->stack_pos_holds_object.insert(offset);
+					else
+						ri->stack_pos_holds_object.erase(offset);
+				}
+				break;
+			}
+			case PUSH_OBJECT:
+			{
+				const int32_t value = get_register(sarg1);
+				bool is_object = sarg1 == D(2) ? ri->d2_is_object : true;
+
+				if (SH::write_stack(--ri->sp, value))
+				{
+					if (is_object)
+						ri->stack_pos_holds_object.insert(ri->sp);
+					else
+						ri->stack_pos_holds_object.erase(ri->sp);
+
+					if (is_object)
+					{
+						if (sarg1 == D(2))
+							ri->d2_is_object = false;
+						else
+							script_object_ref_inc(value);
+					}
+				}
 				break;
 			}
 			case MARK_TYPE_PARAMETERS:
@@ -27870,9 +28093,9 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					int offset = GET_D(rSFRAME) + sargvec->at(i);
 					int type = sargvec->at(i + 1);
 
-					if (offset >= ri->stack_pos_object_types.size())
-						ri->stack_pos_object_types.resize(offset + 1);
-					ri->stack_pos_object_types[offset] = (script_object_type)type;
+					if (offset >= ri->stack_pos_types.size())
+						ri->stack_pos_types.resize(offset + 1);
+					ri->stack_pos_types[offset] = (script_object_type)type;
 
 					uint32_t id = SH::read_stack(offset);
 					script_object_ref_inc(id);
@@ -27901,48 +28124,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				run_gc();
 				break;
 			}
+			// TODO ! rename to SET_TYPED_OBJECT <dest> <source>
+			// TODO ! SET_TYPED_POD <dest> <source>
+			// TODO ! MOVE_OBJECT <dest> <source>
 			case SET_OBJECT:
 			{
-				int value = get_register(sarg2);
-				if (sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS))
-				{
-					int index = sarg1-GD(0);
-					assert(game->global_d_types[index] != script_object_type::none);
-					script_object_ref_inc(value);
-					script_object_ref_dec(game->global_d[index]);
-					game->global_d[index] = value;
-				}
-				else
-				{
-					// TODO ! also allow SPRITE_MISCD
-					// assert(false);
-					if (zasm_array_supports(sarg1))
-					{
-						// int zasm_var = sarg1;
-						// int index = GET_D(rINDEX) / 10000;
-						// int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
-						// int ref = ref_arg ? get_ref(ref_arg) : 0;
-
-						// // About to give the array this value. Do the +1 ref count now.
-						// script_object_ref_inc(value);
-
-						// // If this slot previously was retaining a reference to some other object, release it now.
-						// auto script_array = find_or_create_internal_script_array({zasm_var, ref});
-						// CHECK(script_array->arr.MaybeHoldsObjects()); // TODO ! ?
-						// if (script_array->untyped_is_object[index])
-						// 	script_object_ref_dec(zasm_array_get(zasm_var, ref, index));
-
-						// // Give the object to the array and mark the slot as holding an object.
-						// zasm_array_set(zasm_var, ref, index, value);
-						// script_array->untyped_is_object[index] = true;
-
-						int zasm_var = sarg1;
-						int index = GET_D(rINDEX) / 10000;
-						int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
-						int ref = ref_arg ? get_ref(ref_arg) : 0;
-						zasm_array_set(zasm_var, ref, index, value, true);
-					}
-				}
+				set_object(sarg1, get_register(sarg2));
 				break;
 			}
 			case LOAD_INTERNAL_ARRAY:

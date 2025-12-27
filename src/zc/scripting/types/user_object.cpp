@@ -4,6 +4,7 @@
 #include "base/zdefs.h"
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
+#include "zc/replay.h"
 #include "zc/scripting/script_object.h"
 #include "zscriptversion.h"
 #include <optional>

@@ -1601,17 +1601,25 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	auto writeType = &host.resolveType(scope, this);
-	bool is_object = writeType && writeType->isObject();
+	bool holds_object = writeType->isObject();
+
+	// TODO ! rm
+	// bool is_object = holds_object;
+	// if (writeType->isUntyped())
+	// {
+	// 	// TODO !
+	// 	is_object = init && init->getReadType(scope, this)->isObject();
+	// }
 
 	// Set variable to EXP1 or comptime_val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
-		if (is_object)
+		if (holds_object)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (comptime_val)
 			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
-		else if (is_object)
+		else if (holds_object)
 			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
@@ -1619,14 +1627,14 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	else
 	{
 		int32_t offset = manager.getStackOffset(false);
-		if (is_object)
-			addOpcode(new OMarkTypeStack(new LiteralArgument(offset), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
+		if (holds_object)
+			addOpcode(new OMarkTypeStack(new LiteralArgument((int)writeType->getScriptObjectTypeId()), new LiteralArgument(offset)));
 		if (comptime_val)
 		{
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
 			addOpcode(new OStoreV(new LiteralArgument(*comptime_val), new LiteralArgument(offset)));
 		}
-		else if (is_object)
+		else if (holds_object)
 		{
 			// This command decrements the reference of the object currently stored at the position before
 			// setting the new object and incrementing its reference. Since we set the initial value for
@@ -1757,8 +1765,10 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable, so just get its value.
-		addOpcode(new OSetRegister(new VarArgument(EXP1),
-								   new GlobalArgument(*globalId)));
+		if (host.binding->type.isObject())
+			addOpcode(new OSetObject(new VarArgument(EXP1), new GlobalArgument(*globalId)));
+		else
+			addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(*globalId)));
 		return;
 	}
 
@@ -1982,6 +1992,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		// User functions actually can't really benefit from any optimization like this... -Em
 		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
 		size_t num_used_params = host.parameters.size();
+		std::vector<int> param_is_object;
 		
 		if (host.left->isTypeArrow())
 		{
@@ -1997,6 +2008,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				//visit(host.getLeft(), INITCTX);
 				//push it onto the stack
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+				// TODO !
+				// param_is_object.push_back(host.left->getReadType(scope, this)->isObject());
 			}
 		}
 
@@ -2022,8 +2035,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				VISIT_USEVAL(arg, INITCTX);
-				push_param();
+				bool is_object = arg->getReadType(scope, this)->isObject();
+				push_param(false, is_object);
 			}
+
+			param_is_object.push_back(arg->getReadType(scope, this)->isObject());
 		}
 		if(vargcount)
 		{
@@ -2041,6 +2057,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 		}
+
+		// TODO ! bitflags
+		// addOpcode(new OMarkTypeStacks(new VectorArgument(param_is_object)));
 
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		auto it = funcCode.begin();
@@ -2120,6 +2139,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
 		int v = num_used_params-num_actual_params;
 		size_t vargcount = v > 0 ? v : 0;
+		std::vector<int> param_is_object;
 		
 		commentStartEnd(targ_sz, fmt::format("Class{} Vargs",func_comment));
 		//push the this key/stack frame pointer
@@ -2127,6 +2147,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+			param_is_object.push_back(true);
+			param_is_object.push_back(false);
 		}
 		
 		targ_sz = commentTarget();
@@ -2149,8 +2171,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				VISIT_USEVAL(arg, INITCTX);
-				push_param();
+				bool is_object = arg->getReadType(scope, this)->isObject();
+				push_param(false, is_object);
 			}
+
+			param_is_object.push_back(arg->getReadType(scope, this)->isObject());
 		}
 
 		if(vargs)
@@ -2168,14 +2193,19 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				else
 				{
 					VISIT_USEVAL(arg, INITCTX);
-					push_param(true);
+					push_param(true); // TODO !
 				}
 			}
 			addOpcode(new OMakeVargArray(new LiteralArgument(element_script_object_type_id)));
 			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			commentBack("Push the Vargs array pointer");
+
+			param_is_object.push_back(true);
 		}
+
+		// TODO ! bitflags
+		// addOpcode(new OMarkTypeStacks(new VectorArgument(param_is_object)));
 
 		if (host.left->isTypeArrow())
 		{
@@ -2255,7 +2285,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				VISIT_USEVAL(arg, INITCTX);
-				push_param();
+				bool is_object = arg->getReadType(scope, this)->isObject();
+				push_param(false, is_object);
 			}
 		}
 
@@ -3730,7 +3761,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 											new LiteralArgument(element_script_object_type_id)));
 	}
 
-	addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	addOpcode(new OPushObject(new VarArgument(EXP1)));
 
 	// Initialize array.
 	std::vector<int32_t> constelements;
@@ -3814,7 +3845,7 @@ void BuildOpcodes::arrayLiteralFree(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L),
 									  new LiteralArgument(element_script_object_type_id)));
-	addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	addOpcode(new OPushObject(new VarArgument(EXP1)));
 
 	// Initialize.
 	std::vector<int32_t> constelements;
@@ -3851,6 +3882,8 @@ void BuildOpcodes::arrayLiteralFree(
 				// opcodeTargets.pop_back();
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
 
+				// TODO ! ZCLASS_WRITE_UNTYPED
+
 				// TODO ! markdown, docs/
 				// Objects and memory management / reference counting
 				// --------------------------------------------------
@@ -3865,13 +3898,15 @@ void BuildOpcodes::arrayLiteralFree(
 				// where variables live: in global data, on the stack (local), in an array, and in a class
 				// field.
 				//
-				// The type of each variable is known at runtime because it is emitted by the compiler in
-				// various commands (one of the "object" types, "untyped", or "none"):
+				// The type (one of the "object" types, "untyped", or "none") of each variable is known at
+				// runtime because it is emitted by the compiler in various commands:
 				//
 				// global: MARK_TYPE_REG
 				// stack: MARK_TYPE_STACK
 				// array: ALLOCATEGMEMV and ALLOCATEMEMV?
 				// class field: ZCLASS_CONSTRUCT
+				//
+				// Basic types like "int", "long" and "char" are recorded as "none".
 				//
 				// When a variable is assigned:
 				//
@@ -4042,7 +4077,7 @@ void BuildOpcodes::buildPostOp(ASTExpr* operand, void* param, vector<shared_ptr<
 	addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::push_param(bool varg)
+void BuildOpcodes::push_param(bool varg, bool is_object)
 {
 	VarArgument* reg = nullptr;
 	LiteralArgument* lit = nullptr;
@@ -4093,7 +4128,8 @@ void BuildOpcodes::push_param(bool varg)
 	else
 	{
 		if(varg)
-			op = new OPushVargR(reg);
+			op = new OPushVargR(reg); // TODO ! object?
+		else if (is_object) op = new OPushObject(reg);
 		else op = new OPushRegister(reg);
 	}
 	addOpcode(op);

@@ -505,7 +505,17 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		// game->global_d_types
+		if (game->global_d_types[r - GD(0)] == script_object_type::untyped)
+		{
+			// TODO !
+			// Call external set_global_register_untyped_non_object.
+			void set_global_register_untyped_non_object(int index, int value);
+			InvokeNode *invokeNode;
+			cc.invoke(&invokeNode, set_global_register_untyped_non_object, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, r - GD(0));
+			invokeNode->setArg(1, val);
+			return;
+		}
 
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
@@ -1375,11 +1385,12 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			x86::Gp val = get_z_register(state, cc, arg1);
 
-			InvokeNode *invokeNode;
-			void script_store_object(uint32_t offset, uint32_t new_id);
-			cc.invoke(&invokeNode, script_store_object, FuncSignatureT<void, uint32_t, uint32_t>(state.calling_convention));
-			invokeNode->setArg(0, offset);
-			invokeNode->setArg(1, val);
+			// TODO !
+			// InvokeNode *invokeNode;
+			// void script_store_object(uint32_t offset, uint32_t new_id);
+			// cc.invoke(&invokeNode, script_store_object, FuncSignatureT<void, uint32_t, uint32_t>(state.calling_convention));
+			// invokeNode->setArg(0, offset);
+			// invokeNode->setArg(1, val);
 		}
 		break;
 		case STOREV:
@@ -2554,6 +2565,8 @@ static bool exec_script(JittedExecutionContext* ctx)
 
 	if (exec_result == EXEC_RESULT_CALL)
 	{
+		j_instance->ri->d2_is_object = false;
+
 		if (j_instance->ri->retsp >= MAX_CALL_FRAMES)
 		{
 			ctx->ret_code = RUNSCRIPT_JIT_CALL_LIMIT;

@@ -59,8 +59,10 @@ namespace ZScript {
 	typedef Opcode1<GOTOTRUE, LabelArgument> OGotoTrueImmediate;
 	typedef Opcode1<MAKEVARGARRAY, LiteralArgument> OMakeVargArray;
 	typedef Opcode1<MARK_TYPE_PARAMETERS, VectorArgument> OMarkTypeParameters;
+	typedef Opcode1<MARK_TYPE_STACKS, VectorArgument> OMarkTypeStacks;
 	typedef Opcode1<PEEK, VarArgument> OPeek;
 	typedef Opcode1<POP, VarArgument> OPopRegister;
+	typedef Opcode1<PUSH_OBJECT, VarArgument> OPushObject;
 	typedef Opcode1<PUSHR, VarArgument> OPushRegister;
 	typedef Opcode1<PUSHV, LiteralArgument> OPushImmediate;
 	typedef Opcode1<PUSHVARGR, VarArgument> OPushVargR;

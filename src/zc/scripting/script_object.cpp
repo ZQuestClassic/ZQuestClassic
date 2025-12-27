@@ -3,6 +3,7 @@
 #include "base/general.h"
 #include "base/zc_array.h"
 #include "zc/ffscript.h"
+#include "zc/replay.h"
 #include "zc/scripting/types/user_object.h"
 #include "zscriptversion.h"
 
@@ -163,10 +164,14 @@ void register_script_object(user_abstract_obj* object, script_object_type type, 
 static void script_object_ref_inc(user_abstract_obj* object)
 {
 	object->ref_count++;
+	// TODO !
+	// if (object->id == 60029)
+	// 	replay_step_comment("INC");
 
 	// Remove the autorelease pool when an object gets its first explicit retaining reference.
-	if (object->ref_count == 2 && util::remove_if_exists(script_object_autorelease_pool, object->id))
-		script_object_ref_dec(object->id);
+	// TODO ! rm?
+	// if (object->ref_count == 2 && util::remove_if_exists(script_object_autorelease_pool, object->id))
+	// 	script_object_ref_dec(object->id);
 }
 
 void script_object_ref_inc(uint32_t id)
@@ -187,6 +192,9 @@ static void script_object_ref_dec(user_abstract_obj* object)
 
 	if (object->global)
 		return;
+	// TODO !
+	// if (object->id == 60029)
+	// 	replay_step_comment("DEC");
 
 	if (ZScriptVersion::gc() && object->ref_count == 0)
 		delete_script_object(object->id);
@@ -369,15 +377,17 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		}
 		for (auto& data : scriptEngineDatas | std::views::values)
 		{
-			for (int i : data.ref.stack_pos_is_object)
+			for (int i : data.ref.stack_pos_holds_object)
 				live_object_ids.insert(data.stack[i]);
+			if (data.ref.d2_is_object)
+				live_object_ids.insert(data.ref.d[2]);
 		}
 		// TODO ! rm
 		// for (auto& data : scriptEngineDatas | std::views::values)
 		// {
-		// 	for (int i = 0; i < data.ref.stack_pos_object_types.size(); i++)
+		// 	for (int i = 0; i < data.ref.stack_pos_types.size(); i++)
 		// 	{
-		// 		if (data.ref.stack_pos_object_types[i] != script_object_type::none)
+		// 		if (data.ref.stack_pos_types[i] != script_object_type::none)
 		// 			live_object_ids.insert(data.stack[i]);
 		// 	}
 		// }
