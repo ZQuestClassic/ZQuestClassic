@@ -42,7 +42,7 @@ char subscr_namebuf[512];
 ZCSubscreen subscr_edit;
 SubscrPage subscr_copied_page;
 bool has_copied_page = false;
-bool sso_selection[MAXSUBSCREENITEMS];
+bool sso_selection[NEW_MAXSUBSCREENITEMS];
 SubscrWidget* subscr_copied_widget = nullptr;
 int copied_widget_page = -1;
 enum
@@ -95,6 +95,16 @@ int32_t onGridSnapBottom();
 static int32_t onToggleConfDelete();
 static int32_t onToggleDuplicateInPlace();
 static int32_t onSetSubscrDmap();
+
+static bool check_full_error()
+{
+	if (subscr_edit.cur_page().full())
+	{
+		displayinfo("Page Full!", "This subscreen page is full, and cannot hold any more widgets!");
+		return true;
+	}
+	return false;
+}
 
 void subscr_properties(int indx)
 {
@@ -164,6 +174,7 @@ void paste_widget_to(int indx)
 SubscrWidget* paste_widget_new()
 {
 	if(!subscr_copied_widget) return nullptr;
+	if (check_full_error()) return nullptr;
 	SubscrPage& pg = subscr_edit.cur_page();
     
 	SubscrWidget* widg = subscr_copied_widget->clone();
@@ -207,6 +218,8 @@ int32_t onNewWidget()
 }
 int32_t onDuplicateWidget()
 {
+	if (check_full_error())
+		return D_O_K;
 	SubscrPage& pg = subscr_edit.cur_page();
     size_t objs = pg.size();
     
@@ -350,12 +363,8 @@ int32_t onInvertSelection()
 
 int32_t onClearSelection()
 {
-    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
-    {
-        sso_selection[i]=false;
-    }
-    
-    return D_O_K;
+	memset(sso_selection, 0, sizeof(sso_selection));
+	return D_O_K;
 }
 
 static int32_t onToggleInvis();
@@ -1389,6 +1398,8 @@ static DIALOG sel_options_dlg[] =
 
 SubscrWidget* create_new_widget_of(int32_t type, int x, int y, bool runDialog)
 {
+	if (check_full_error())
+		return nullptr;
 	SubscrWidget* widg = SubscrWidget::newType(type);
 	if(!widg) return nullptr;
 	widg->posflags = sspUP | sspDOWN | sspSCROLLING;
@@ -1414,7 +1425,7 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y, bool runDialog)
 	
 	int32_t temp_cso=curr_widg;
 	SubscrPage& pg = subscr_edit.cur_page();
-	curr_widg=subscr_edit.cur_page().size();
+	curr_widg = subscr_edit.cur_page().size();
 	if (!runDialog)
 	{
 		pg.push_back(widg);
@@ -1440,6 +1451,8 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y, bool runDialog)
 
 SubscrWidget* create_new_widget(int x, int y)
 {
+	if (check_full_error())
+		return nullptr;
 	SubscrWidgListerDialog().show(); //pick an index!
 	
 	return create_new_widget_of(lister_sel_val, x, y);
@@ -1592,27 +1605,28 @@ typedef struct dist_obj
 	int32_t m;
 } dist_obj;
 
-void distribute_objects(bool *, int32_t distribute_type)
+void distribute_objects(bool *selection, int32_t distribute_type)
 {
 	int32_t count=0;
-	dist_obj temp_do[MAXSUBSCREENITEMS];
+	vector<dist_obj> temp_do; // only grows to the size of the current *selection*, which should be much smaller than NEW_MAXSUBSCREENITEMS
 	
 	auto& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i < pg.size(); ++i)
 	{
-		if(sso_selection[i]==true||i==curr_widg)
+		if(selection[i]==true||i==curr_widg)
 		{
 			SubscrWidget& widg = *pg[i];
-			temp_do[count].index=i;
-			temp_do[count].l=widg.getX();
-			temp_do[count].t=widg.getY();
-			temp_do[count].w=widg.getW();
-			temp_do[count].h=widg.getH();
+			dist_obj& ref = temp_do.emplace_back();
+			ref.index = i;
+			ref.l = widg.getX();
+			ref.t = widg.getY();
+			ref.w = widg.getW();
+			ref.h = widg.getH();
 			
-			temp_do[count].r=temp_do[count].l+temp_do[count].w-1;
-			temp_do[count].b=temp_do[count].t+temp_do[count].h-1;
-			temp_do[count].c=temp_do[count].l+temp_do[count].w/2;
-			temp_do[count].m=temp_do[count].t+temp_do[count].h/2;
+			ref.r = ref.l + ref.w - 1;
+			ref.b = ref.t + ref.h - 1;
+			ref.c = ref.l + ref.w / 2;
+			ref.m = ref.t + ref.h / 2;
 			++count;
 		}
 	}

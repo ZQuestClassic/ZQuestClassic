@@ -197,7 +197,8 @@ double wrap_float(double x,double low,double high);
 #define COMBO_PAGES                255
 #define MAXCOMBOS                  (COMBO_PAGES*COMBOS_PER_PAGE)
 #define BOUND_COMBO(c)             vbound(c, 0, MAXCOMBOS)
-#define MAXSUBSCREENITEMS          256
+#define OLD_MAXSUBSCREENITEMS      256
+#define NEW_MAXSUBSCREENITEMS      0x2000 // zscript only has this much space in the pointer- bitmask is 0x1FFF for widgets
 #define MAXCUSTOMSUBSCREENS        128
 #define MAXNPCS                    512
 

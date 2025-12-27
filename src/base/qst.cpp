@@ -11618,7 +11618,7 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 	
 	int32_t j;
 	
-	for(j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
+	for(j=0; (j<OLD_MAXSUBSCREENITEMS&&j<numsub); j++)
 	{
 		memset(temp_sub,0,sizeof(subscreen_object));
 		
@@ -12073,7 +12073,7 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 		g->ss_type = temp_ss;
 	}
 	
-	for(j=numsub; j<MAXSUBSCREENITEMS; j++)
+	for(j=numsub; j<OLD_MAXSUBSCREENITEMS; j++)
 	{
 		//clear all unused object in this subscreen -DD
 		switch(g->objects[j].type)
@@ -12157,7 +12157,7 @@ int32_t readsubscreens(PACKFILE *f)
 
 void reset_subscreen(subscreen_group *tempss)
 {
-    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(int32_t i=0; i<OLD_MAXSUBSCREENITEMS; ++i)
     {
         switch(tempss->objects[i].type)
         {

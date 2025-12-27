@@ -20,7 +20,7 @@ Frame( \
 		}) \
 )
 
-extern bool sso_selection[MAXSUBSCREENITEMS];
+extern bool sso_selection[NEW_MAXSUBSCREENITEMS];
 extern ZCSubscreen subscr_edit;
 
 void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y)
@@ -32,12 +32,8 @@ void group_select_widget(SubscrWidget* widg)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
 	for (int32_t q = 0; q < pg.size(); ++q)
-	{
 		if (pg[q] == widg)
-		{
 			sso_selection[q] = true;
-		}
-	}
 }
 
 static bool initialized[NUM_SUBWIZARD_TYPES] = {0};
@@ -117,6 +113,12 @@ static size_t tab_ptrs[1];
 
 bool SubscreenWizardDialog::finalize()
 {
+#define HANDLE_FAILURE(widget) \
+if (!widget) \
+{ \
+	displayinfo("Error", "Failed creating a widget; subscreen page might be full, or else an unexpected error occurred."); \
+	return true; \
+}
 	memset(sso_selection, 0, sizeof(sso_selection));
 	switch (wizard_type)
 	{
@@ -131,6 +133,7 @@ bool SubscreenWizardDialog::finalize()
 				for (int32_t x = 0; x < w; ++x)
 				{
 					SubscrWidget* widg = (SW_ItemSlot*)create_new_widget_of(widgITEMSLOT, tfs[1]->getVal() + x * tfs[5]->getVal(), tfs[2]->getVal() + y * tfs[6]->getVal(), false);
+					HANDLE_FAILURE(widg)
 					SETFLAG(widg->flags, SUBSCR_CURITM_NONEQP, non_equippable);
 					group_select_widget(widg);
 					if (non_selectable)
@@ -180,12 +183,14 @@ bool SubscreenWizardDialog::finalize()
 			for (int32_t q = 0; q < tfs[2]->getVal(); ++q)
 			{
 				SW_MiniTile* mt = (SW_MiniTile*)create_new_widget_of(widgMINITILE, x, y, false);
+				HANDLE_FAILURE(mt)
 				group_select_widget(mt);
 				mt->tile = tswatches[0]->getTile();
 				mt->cs.set_int_cset(tswatches[0]->getCSet());
 				mt->crn = tswatches[0]->getMiniCrn();
 
 				SW_Text* txt = (SW_Text*)create_new_widget_of(widgTEXT, x + 8 + dividerw, y + yoff, false);
+				HANDLE_FAILURE(txt)
 				group_select_widget(txt);
 				txt->fontid = fontid;
 				txt->shadtype = shadtype;
@@ -199,6 +204,7 @@ bool SubscreenWizardDialog::finalize()
 				txt->c_bg.color = misccolors[wizard_index][2][1];
 
 				SW_Counter* ctr = (SW_Counter*)create_new_widget_of(widgCOUNTER, x + 8 + dividerw, y + yoff, false);
+				HANDLE_FAILURE(ctr)
 				group_select_widget(ctr);
 				ctr->fontid = fontid;
 				ctr->shadtype = shadtype;
@@ -264,6 +270,7 @@ bool SubscreenWizardDialog::finalize()
 						if (!tile_data.tile) // don't create for tile 0
 							continue;
 						SW_TileBlock* widg = (SW_TileBlock*)create_new_widget_of(widgTILEBLOCK, tfs[1]->getVal() + x * tfs[5]->getVal(), tfs[2]->getVal() + y * tfs[6]->getVal(), false);
+						HANDLE_FAILURE(widg)
 						group_select_widget(widg);
 						if (non_selectable)
 							widg->genflags &= ~SUBSCRFLAG_SELECTABLE;
