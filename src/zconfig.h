@@ -68,8 +68,8 @@ struct zc_a5_cfg
 };
 struct zc_a5_cfg_iterator
 {
-	ALLEGRO_CONFIG_SECTION** section_it = nullptr;
-	ALLEGRO_CONFIG_ENTRY** entry_it = nullptr;
+	ALLEGRO_CONFIG_SECTION* section_it = nullptr;
+	ALLEGRO_CONFIG_ENTRY* entry_it = nullptr;
 	std::optional<std::string> value = std::nullopt;
 	
 	std::optional<std::string> operator*(); // peek()
