@@ -378,9 +378,9 @@ bool zc_a5_cfg_iterator::advance()
 {
 	const char* str = nullptr;
 	if (section_it)
-		str = al_get_next_config_section(section_it);
+		str = al_get_next_config_section(&section_it);
 	else if (entry_it)
-		str = al_get_next_config_entry(entry_it);
+		str = al_get_next_config_entry(&entry_it);
 	if (str)
 		value = string(str);
 	else value = std::nullopt;
@@ -399,7 +399,7 @@ bool zc_a5_cfg_iterator::is_valid() const
 zc_a5_cfg_iterator::zc_a5_cfg_iterator(ALLEGRO_CONFIG const *data)
 	: section_it(nullptr), entry_it(nullptr), value(std::nullopt)
 {
-	const char* str = al_get_first_config_section(data, section_it);
+	const char* str = al_get_first_config_section(data, &section_it);
 	if (str)
 		value = string(str);
 	else value = std::nullopt;
@@ -407,7 +407,7 @@ zc_a5_cfg_iterator::zc_a5_cfg_iterator(ALLEGRO_CONFIG const *data)
 zc_a5_cfg_iterator::zc_a5_cfg_iterator(ALLEGRO_CONFIG const *data, const char* header)
 	: section_it(nullptr), entry_it(nullptr), value(std::nullopt)
 {
-	const char* str = al_get_first_config_entry(data, header, entry_it);
+	const char* str = al_get_first_config_entry(data, header, &entry_it);
 	if (str)
 		value = string(str);
 	else value = std::nullopt;
