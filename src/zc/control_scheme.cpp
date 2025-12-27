@@ -119,9 +119,9 @@ void load_control_schemes()
 	while (it)
 	{
 		string name = *it.next();
+		if (name == DEFAULT_CONTROL_SCHEME_NAME) continue; // skip loading the Default as it is always reset
 		control_schemes.emplace(name, name);
 	}
-	control_schemes.erase(DEFAULT_CONTROL_SCHEME_NAME); // will be reset
 	
 	if (control_schemes.empty()) // no controls, load the old config
 	{
