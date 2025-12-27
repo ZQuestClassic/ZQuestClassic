@@ -5598,14 +5598,21 @@ ZCSubscreen const* SubscrPage::getParent() const
 {
 	return parent;
 }
-void SubscrPage::push_back(SubscrWidget* widg)
+bool SubscrPage::push_back(SubscrWidget* widg)
 {
+	if (full())
+		return false;
 	widg->parentPage = this;
 	contents.push_back(widg);
+	return true;
 }
 size_t SubscrPage::size() const
 {
 	return contents.size();
+}
+bool SubscrPage::full() const
+{
+	return contents.size() >= NEW_MAXSUBSCREENITEMS;
 }
 bool SubscrPage::empty() const
 {
@@ -5796,7 +5803,7 @@ void ZCSubscreen::load_old(subscreen_group const& g)
 	SubscrPage& p = pages.emplace_back();
 	p.index = 0;
 	p.parent = this;
-	for(int ind = 0; ind < MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
+	for(int ind = 0; ind < OLD_MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
 	{
 		auto* w = SubscrWidget::fromOld(g.objects[ind]);
 		if(w)
@@ -5811,7 +5818,7 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 	SubscrPage& p = pages.emplace_back();
 	p.index = 0;
 	p.parent = this;
-	for(int ind = 0; ind < MAXSUBSCREENITEMS && arr[ind].type != ssoNULL; ++ind)
+	for(int ind = 0; ind < OLD_MAXSUBSCREENITEMS && arr[ind].type != ssoNULL; ++ind)
 	{
 		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
 		if(!w) continue;

@@ -21,7 +21,7 @@ Frame( \
 		}) \
 )
 
-extern bool sso_selection[MAXSUBSCREENITEMS];
+extern bool sso_selection[NEW_MAXSUBSCREENITEMS];
 extern ZCSubscreen subscr_edit;
 
 void call_subscreen_wizard(subwizardtype stype, int32_t x, int32_t y)
@@ -33,12 +33,8 @@ void group_select_widget(SubscrWidget* widg)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
 	for (int32_t q = 0; q < pg.size(); ++q)
-	{
 		if (pg[q] == widg)
-		{
 			sso_selection[q] = true;
-		}
-	}
 }
 
 SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t x, int32_t y) : wizard_type(stype),
@@ -75,10 +71,13 @@ size_t SubscreenWizardDialog::getRadio(size_t rs)
 
 void SubscreenWizardDialog::endUpdate()
 {
-	for (int32_t q = 0; q < MAXSUBSCREENITEMS; ++q)
-	{
-		sso_selection[q] = false;
-	}
+#define HANDLE_FAILURE(widget) \
+if (!widget) \
+{ \
+	displayinfo("Error", "Failed creating a widget; subscreen page might be full, or else an unexpected error occurred."); \
+	return; \
+}
+	memset(sso_selection, 0, sizeof(sso_selection));
 	switch (wizard_type)
 	{
 		case subwizardtype::SW_ITEM_GRID:
@@ -92,6 +91,8 @@ void SubscreenWizardDialog::endUpdate()
 				for (int32_t x = 0; x < w; ++x)
 				{
 					SubscrWidget* widg = (SW_ItemSlot*)create_new_widget_of(widgITEMSLOT, tfs[1]->getVal() + x * tfs[5]->getVal(), tfs[2]->getVal() + y * tfs[6]->getVal(), false);
+					HANDLE_FAILURE(widg)
+					SETFLAG(widg->flags, SUBSCR_CURITM_NONEQP, non_equippable);
 					group_select_widget(widg);
 					if (non_selectable)
 						widg->genflags &= ~SUBSCRFLAG_SELECTABLE;
@@ -140,12 +141,14 @@ void SubscreenWizardDialog::endUpdate()
 			for (int32_t q = 0; q < tfs[2]->getVal(); ++q)
 			{
 				SW_MiniTile* mt = (SW_MiniTile*)create_new_widget_of(widgMINITILE, x, y, false);
+				HANDLE_FAILURE(mt)
 				group_select_widget(mt);
 				mt->tile = tswatches[0]->getTile();
 				mt->cs.set_int_cset(tswatches[0]->getCSet());
 				mt->crn = tswatches[0]->getMiniCrn();
 
 				SW_Text* txt = (SW_Text*)create_new_widget_of(widgTEXT, x + 8 + dividerw, y + yoff, false);
+				HANDLE_FAILURE(txt)
 				group_select_widget(txt);
 				txt->fontid = fontid;
 				txt->shadtype = shadtype;
@@ -159,6 +162,7 @@ void SubscreenWizardDialog::endUpdate()
 				txt->c_bg.color = misccolors[2][1];
 
 				SW_Counter* ctr = (SW_Counter*)create_new_widget_of(widgCOUNTER, x + 8 + dividerw, y + yoff, false);
+				HANDLE_FAILURE(ctr)
 				group_select_widget(ctr);
 				ctr->fontid = fontid;
 				ctr->shadtype = shadtype;
@@ -195,16 +199,20 @@ Button(height = hei, text = "?", \
 
 void SubscreenWizardDialog::updateTitle()
 {
+	string info;
 	switch (wizard_type)
 	{
 		case subwizardtype::SW_ITEM_GRID:
 			tyname = "Item Grid";
+			info = "Creates a grid of items, with selection directions linked between them.";
 			break;
 		case subwizardtype::SW_COUNTER_BLOCK:
 			tyname = "Counter Block";
+			info = "Creates a block of counters.";
 			break;
 	}
 	window->setTitle("Subscreen Wizard (" + tyname + ")");
+	window->setHelp(info);
 }
 
 std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()

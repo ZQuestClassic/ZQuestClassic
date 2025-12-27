@@ -61,7 +61,7 @@ struct subscreen_group
 {
 	byte             ss_type;
 	char             name[64];
-	subscreen_object objects[MAXSUBSCREENITEMS];
+	subscreen_object objects[OLD_MAXSUBSCREENITEMS];
 };
 //
 
@@ -1091,8 +1091,9 @@ struct SubscrPage
 	void setParent(ZCSubscreen const* newparent);
 	ZCSubscreen const* getParent() const;
 	
-	void push_back(SubscrWidget* widg);
+	bool push_back(SubscrWidget* widg);
 	size_t size() const;
+	bool full() const;
 	bool empty() const;
 	SubscrWidget* at(size_t ind);
 	SubscrWidget* const& operator[](size_t ind) const;
