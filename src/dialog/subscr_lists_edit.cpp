@@ -64,7 +64,8 @@ std::shared_ptr<GUI::Widget> SubscrListEditDialog::view()
 				return fmt::format("{} ({:03d})",(*vec)[ind].name,ind);
 			},
 			[&](size_t ind){return int32_t(ind);});
-		subscr_lists[q].add(fmt::format("<New {} Subscreen>",subscr_names[q]),vec->size());
+		if (vec->size() < NEW_MAXCUSTOMSUBSCREENS)
+			subscr_lists[q].add(fmt::format("<New {} Subscreen>",subscr_names[q]),vec->size());
 		message edit_msg = message(int(message::EDIT0)+q),
 			del_msg = message(int(message::DEL0)+q);
 		g->add(TabRef(name = subscr_names[q],
