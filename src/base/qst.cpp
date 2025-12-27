@@ -11551,7 +11551,7 @@ int32_t read_old_subscreens(PACKFILE *f, word s_version)
 	subscreens_passive.clear();
 	subscreens_overlay.clear();
 	subscreens_map.clear();
-	for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
+	for(int32_t i=0; i<OLD_MAXCUSTOMSUBSCREENS; i++)
 	{
 		subscreen_group g;
 		memset(&g,0,sizeof(subscreen_group));
