@@ -671,10 +671,10 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 							tfs[4] = TextField(
 								fitParent = true, minwidth = 3_em,
 								type = GUI::TextField::type::INT_DECIMAL,
-								low = 1, high = 8, val = tf_values[wizard_index][6],
+								low = 1, high = 8, val = tf_values[wizard_index][7],
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									tf_values[wizard_index][6] = val;
+									tf_values[wizard_index][7] = val;
 								}
 							),
 							INFOBTN("Sets the number of widgets in the grid along the Y-axis"),
