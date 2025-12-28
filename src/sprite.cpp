@@ -2070,7 +2070,7 @@ bool SpriteSorter::operator()(sprite* s1, sprite* s2) const
 	return uid_1 < uid_2;
 }
 
-sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255),
+sprite_list::sprite_list() : count(0), active_iterator(-1), max_sprites(255),
 	lastUIDRequested(0), lastSpriteRequested(0) {}
 void sprite_list::clear(bool force)
 {
