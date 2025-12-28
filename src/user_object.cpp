@@ -144,6 +144,11 @@ bool script_array::internal_array_id::matches(ScriptType script_type, int32_t ui
 bool script_array::internal_array_id::matches(ScriptType script_type) const
 {
 	int zasm_var_ref = get_register_ref_dependency(zasm_var).value_or(0);
+
+	// Handle sprite base class.
+	if (zasm_var_ref == REFSPRITE)
+		return script_type == ScriptType::Ewpn || script_type == ScriptType::Lwpn || script_type == ScriptType::FFC || script_type == ScriptType::ItemSprite || script_type == ScriptType::NPC;
+
 	switch (script_type)
 	{
 		case ScriptType::Ewpn: return zasm_var_ref == REFEWPN;
