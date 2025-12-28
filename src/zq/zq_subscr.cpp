@@ -528,11 +528,29 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 				
 				if(zinit.ss_flags&ssflagSHOWGRID)
 				{
-					for(int32_t x=zinit.ss_grid_xofs; x<256; x+=zinit.ss_grid_x)
+					if (zinit.ss_flags & ssflagGRIDLINES)
 					{
-						for(int32_t y=zinit.ss_grid_yofs; y<hei; y+=zinit.ss_grid_y)
+						for (int x = zinit.ss_grid_xofs; x < 256; x += zinit.ss_grid_x)
 						{
-							buf->line[y][x]=vc(zinit.ss_grid_color);
+							if (x < 0) continue;
+							vline(buf, x, 0, hei, vc(zinit.ss_grid_color));
+						}
+						for (int y = zinit.ss_grid_yofs; y < hei; y += zinit.ss_grid_y)
+						{
+							if (y < 0) continue;
+							hline(buf, 0, y, 256, vc(zinit.ss_grid_color));
+						}
+					}
+					else
+					{
+						for(int32_t x=zinit.ss_grid_xofs; x<256; x+=zinit.ss_grid_x)
+						{
+							if (x < 0) continue;
+							for(int32_t y=zinit.ss_grid_yofs; y<hei; y+=zinit.ss_grid_y)
+							{
+								if (y < 0) continue;
+								buf->line[y][x]=vc(zinit.ss_grid_color);
+							}
 						}
 					}
 				}
@@ -1357,28 +1375,6 @@ const char *colorlist(int32_t index, int32_t *list_size)
 
 static ListData color_list(colorlist, &font);
 
-static DIALOG grid_dlg[] =
-{
-	// (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-	{ jwin_win_proc,        0,    0,      158,    120,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Edit Grid Properties", NULL, NULL },
-	{ jwin_button_proc,     18,    95,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,     81,    95,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_text_proc,       6,     29,    186,    16,   0,                  0,                0,       0,          0,             0, (void *) "X Size:", NULL, NULL },
-	{ jwin_edit_proc,       42,    25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
-	// 5
-	{ jwin_text_proc,       6,     49,    186,    16,   0,                  0,                0,       0,          0,             0, (void *) "Y Size:", NULL, NULL },
-	{ jwin_edit_proc,       42,    45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,       78,    29,    186,    16,   0,                  0,                0,       0,          0,             0, (void *) "X Offset:", NULL, NULL },
-	{ jwin_edit_proc,       126,   25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,       78,    49,    186,    16,   0,                  0,                0,       0,          0,             0, (void *) "Y Offset:", NULL, NULL },
-	// 10
-	{ jwin_edit_proc,       126,   45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,       6,     69,    186,    16,   0,                  0,                0,       0,          0,             0, (void *) "Color:", NULL, NULL },
-	{ jwin_droplist_proc,   36,    65,    116,    16,   0,                  0,                0,       0,          0,             0, (void *) &color_list, NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static DIALOG sel_options_dlg[] =
 {
 	// (dialog proc)       (x)    (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
@@ -1996,36 +1992,11 @@ static int32_t onSetSubscrDmap()
 	return D_O_K;
 }
 
+void call_subscr_edit_grid();
 static int32_t onEditGrid()
 {
-	grid_dlg[0].dp2=get_zc_font(font_lfont);
-	char xsize[11];
-	char ysize[11];
-	char xoffset[4];
-	char yoffset[4];
-	sprintf(xsize, "%d", zc_max(zinit.ss_grid_x,1));
-	sprintf(ysize, "%d", zc_max(zinit.ss_grid_y,1));
-	sprintf(xoffset, "%d", zinit.ss_grid_xofs);
-	sprintf(yoffset, "%d", zinit.ss_grid_yofs);
-	grid_dlg[4].dp=xsize;
-	grid_dlg[6].dp=ysize;
-	grid_dlg[8].dp=xoffset;
-	grid_dlg[10].dp=yoffset;
-	grid_dlg[12].d1=zinit.ss_grid_color;
-	
-	large_dialog(grid_dlg);
-		
-	int32_t ret = do_zqdialog(grid_dlg,2);
-	
-	if(ret==1)
-	{
-		zinit.ss_grid_x=zc_max(atoi(xsize),1);
-		zinit.ss_grid_xofs=atoi(xoffset);
-		zinit.ss_grid_y=zc_max(atoi(ysize),1);
-		zinit.ss_grid_yofs=atoi(yoffset);
-		zinit.ss_grid_color=grid_dlg[12].d1;
-	}
-	
+	call_subscr_edit_grid();
+	ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_GRID, zinit.ss_flags&ssflagSHOWGRID);
 	return D_O_K;
 }
 
@@ -2664,7 +2635,6 @@ void update_sso_name()
 
 void center_zq_subscreen_dialogs()
 {
-    jwin_center_dialog(grid_dlg);
     jwin_center_dialog(sel_options_dlg);
     jwin_center_dialog(subscreen_dlg);
 }

@@ -5,8 +5,9 @@
 #include "new_subscr.h"
 #include "base/zc_alleg.h"
 
-#define ssflagSHOWGRID  1
-#define ssflagSHOWINVIS 2
+#define ssflagSHOWGRID  0x01
+#define ssflagSHOWINVIS 0x02
+#define ssflagGRIDLINES 0x04
 
 extern bool show_subscreen_dmap_dots;
 extern bool show_subscreen_numbers;
