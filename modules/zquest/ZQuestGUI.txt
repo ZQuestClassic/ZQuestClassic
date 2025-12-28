@@ -108,6 +108,7 @@ src/dialog/door_sel.cpp
 src/dialog/weap_data_editor.cpp
 src/dialog/layer_dialog.cpp
 src/dialog/undercombo_dlg.cpp
+src/dialog/subscr_grid_dlg.cpp
 
 ## End of ZQuest GUI module
 )
