@@ -80,9 +80,13 @@
 
 #include "zc/scripting/arrays.h"
 #include "base/check.h"
+#include "base/general.h"
+#include "zasm/table.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/script_object.h"
 
 #include <cstddef>
+#include <vector>
 
 class ZasmArrayManager
 {
@@ -114,8 +118,18 @@ public:
 		return 0;
 	}
 
-	bool setElement(int zasm_var, int ref, int index, int value)
+	std::vector<int> getAll(int zasm_var, int ref) const
 	{
+		if (auto impl = m_arrays[zasm_var])
+			return impl->getAll(ref);
+
+		return {};
+	}
+
+	bool setElement(int zasm_var, int ref, int index, int value, bool is_object)
+	{
+		static bool IS_UNTYPED_ARRAY[NUMVARIABLES];
+
 		if (auto impl = m_arrays[zasm_var])
 		{
 			if (impl->readOnly())
@@ -124,7 +138,33 @@ public:
 				return false;
 			}
 
-			return impl->setElement(ref, index, value);
+			if (!is_object && !IS_UNTYPED_ARRAY[zasm_var])
+				return impl->setElement(ref, index, value);
+
+			// The compiler should only emit code where `is_object` is true for untyped arrays. This
+			// is a hack to keep the common case - internal arrays that are not untyped - fast;
+			// without hardcoding a list of which zasm vars correspond to untyped arrays.
+			IS_UNTYPED_ARRAY[zasm_var] = true;
+
+			int resolved_index = impl->getResolvedIndex(impl->getSize(ref), index);
+
+			auto array = find_or_create_internal_script_array({zasm_var, ref});
+			array->arr.setObjectType(script_object_type::untyped);
+
+			int previous = 0;
+			if (array->holds_untyped_object(resolved_index))
+				previous = impl->getElement(ref, index);
+
+			bool success = impl->setElement(ref, index, value);
+			if (success)
+			{
+				array->set_holds_untyped_object(resolved_index, is_object);
+				if (is_object)
+					script_object_ref_inc(value);
+				script_object_ref_dec(previous);
+			}
+
+			return success;
 		}
 
 		return false;
@@ -151,9 +191,14 @@ int zasm_array_get(int zasm_var, int ref, int index)
 	return g_arrayManager.getElement(zasm_var, ref, index);
 }
 
-bool zasm_array_set(int zasm_var, int ref, int index, int value)
+std::vector<int> zasm_array_get_all(int zasm_var, int ref)
 {
-	return g_arrayManager.setElement(zasm_var, ref, index, value);
+	return g_arrayManager.getAll(zasm_var, ref);
+}
+
+bool zasm_array_set(int zasm_var, int ref, int index, int value, bool is_object)
+{
+	return g_arrayManager.setElement(zasm_var, ref, index, value, is_object);
 }
 
 bool zasm_array_supports(int zasm_var)

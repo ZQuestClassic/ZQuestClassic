@@ -226,8 +226,14 @@ namespace ZScript
 		};
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const = 0;
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
-		bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
-		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::none;}
+		bool isObject() const {
+			auto type = getScriptObjectTypeId();
+			return type != script_object_type::none && type != script_object_type::untyped;
+		}
+		virtual script_object_type getScriptObjectTypeId() const {
+			if (isUntyped()) return script_object_type::untyped;
+			return script_object_type::none;
+		}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
 
@@ -382,7 +388,7 @@ namespace ZScript
 			return elementType.getName() + "[]";}
 		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
-		virtual bool canHoldObject() const {return elementType.canHoldObject();}
+		virtual bool canHoldObject() const {return elementType.canHoldObject() && !elementType.isUntyped();}
 		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::array;}
 		
 		virtual bool isArray() const {return true;}
@@ -425,6 +431,8 @@ namespace ZScript
 		virtual bool isUsrClass() const {return user_class != nullptr;}
 		virtual bool canHoldObject() const;
 		virtual script_object_type getScriptObjectTypeId() const {
+			if (isUntyped()) return script_object_type::untyped;
+
 			std::string name = getName();
 			if (name == "bitmap") return script_object_type::bitmap;
 			if (name == "directory") return script_object_type::dir;

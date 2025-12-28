@@ -267,7 +267,7 @@ STORE D2 0
 PUSHR D4
 LOAD D2 0; UsrFunc[ffc RunFFCScriptOrQuit(int, untyped[])] Params Start
 PUSHR D2
-ALLOCATEMEMV D2 3 0
+ALLOCATEMEMV D2 3 0.0010
 PUSHR D2
 WRITEPODARRAY D2 {2,3,1}; UsrFunc[ffc RunFFCScriptOrQuit(int, untyped[])] Params End
 CALLFUNC 0.0596; UsrFunc[ffc RunFFCScriptOrQuit(int, untyped[])] Call

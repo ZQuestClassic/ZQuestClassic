@@ -273,6 +273,11 @@ byte zq_fix_ui_color(byte color);
 
 // These values must remain stable.
 // Also must update getScriptObjectTypeId in Types.h
+// The 'none' type indicates that this type is not an object.
+// The 'untyped' type indicates that this type _may_ be an object (but only for elements of an array).
+//    Note: I attempted to make all untyped variables (not just arrays) dynamically retain objects, but
+//          it didn't go well. I left a messy branch of work at "zscript-untyped".
+// Everything else always holds an object reference.
 enum class script_object_type
 {
 	none,
@@ -285,7 +290,8 @@ enum class script_object_type
 	websocket,
 	object,
 	array,
-	last = array,
+	untyped,
+	last = untyped,
 };
 
 enum // used for gamedata ITEMS

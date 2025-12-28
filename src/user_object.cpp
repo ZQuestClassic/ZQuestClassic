@@ -3,8 +3,10 @@
 #include "user_object.h"
 #include "zasm/table.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
 #include "zscriptversion.h"
+#include <algorithm>
 
 void push_ri();
 void pop_ri();
@@ -164,11 +166,38 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 		for (int i = 0; i < arr.Size(); i++)
 			ids.push_back(arr[i]);
 	}
+	else if (arr.MaybeHoldsObjects())
+	{
+		if (internal_id)
+		{
+			if (internal_expired) return;
+
+			std::vector<int> values = zasm_array_get_all(internal_id->zasm_var, internal_id->ref);
+			int size = std::min(values.size(), untyped_is_object.size());
+			for (int i = 0; i < size; i++)
+			{
+				if (untyped_is_object[i])
+					ids.push_back(values[i]);
+			}
+
+			return;
+		}
+
+		int size = std::min(arr.Size(), untyped_is_object.size());
+		for (int i = 0; i < size; i++)
+		{
+			if (untyped_is_object[i])
+				ids.push_back(arr[i]);
+		}
+	}
 }
 
 void script_array::restore_references()
 {
 	if (!arr.HoldsObjects())
+		return;
+
+	if (internal_expired)
 		return;
 
 	if (!can_restore_object_type(arr.ObjectType()))
@@ -185,6 +214,21 @@ void script_array::restore_references()
 		else
 			arr[i] = 0;
 	}
+}
+
+bool script_array::holds_untyped_object(int index) const
+{
+	if (index >= untyped_is_object.size())
+		return false;
+
+	return untyped_is_object[index];
+}
+
+void script_array::set_holds_untyped_object(int index, bool is_object)
+{
+	if (index >= untyped_is_object.size())
+		untyped_is_object.resize(index + 1);
+	untyped_is_object[index] = is_object;
 }
 
 void scr_func_exec::clear()

@@ -624,7 +624,7 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
-		// untyped does not increase reference count.
+		// untyped variables do not increase reference count.
 		printf("=== Test %d - untyped === \n", ++tests);
 		{
 			untyped a = new Person();
@@ -654,28 +654,33 @@ generic script garbage_collection
 		}
 		check("count", count, 0);
 
-		printf("=== Test %d === \n", ++tests);
+		// However, untyped arrays can retain objects.
+		// The runtime keeps track of which elements are objects.
+		printf("=== Test %d - untyped arrays === \n", ++tests);
 		{
 			Person a = new Person();
 			untyped arr[3] = {a, a, a};
-			check("RefCount(a)", RefCount(a), 1L);
-			a = NULL;
-			checkCountWithGC(0);
+			check("RefCount(arr)", RefCount(arr), 1L);
+			check("RefCount(a) (1)", RefCount(a), 4L);
+			arr[0] = <int>a;
+			check("RefCount(a) (2)", RefCount(a), 3L);
+			arr = NULL;
+			check("RefCount(a) (3)", RefCount(a), 1L);
 		}
-		check("count", count, 0);
+		checkCountWithGC(0);
 
 		printf("=== Test %d === \n", ++tests);
 		{
 			untyped arr[2];
 			{
 				Person a = new Person();
-				yield();
 				arr[0] = a;
 				arr[1] = a;
-				check("RefCount(a)", RefCount(a), 1L);
+				check("RefCount(a)", RefCount(a), 3L);
 			}
-			checkCountWithGC(0);
+			checkCountWithGC(1);
 		}
+		checkCountWithGC(0);
 
 		printf("=== Test %d === \n", ++tests);
 		{
@@ -840,12 +845,34 @@ generic script garbage_collection
 		printf("=== Test %d === \n", ++tests);
 		{
 			npc[] b = Screen->NPCs;
-			check("RefCount(b)", RefCount(b), 1L);
+			check("RefCount(b)", RefCount(b), 2L); // 1 from `b` variable, 1 implicit ref from the engine npc.
 			npc[] c = b;
-			check("RefCount(b)", RefCount(b), 2L);
+			check("RefCount(b)", RefCount(b), 3L);
 			// Same as above.
-			check("RefCount(Screen->NPCs)", RefCount(Screen->NPCs), 2L);
+			check("RefCount(Screen->NPCs)", RefCount(Screen->NPCs), 3L);
 		}
+		check("RefCount(Screen->NPCs)", RefCount(Screen->NPCs), 1L);
+
+		printf("=== Test %d - untyped internal arrays === \n", ++tests);
+		{
+			npc n = Screen->CreateNPC(NPC_BAT);
+			Person a = new Person();
+
+			n->Misc[0] = a;
+			n->Misc[Choose(1, 2)] = a;
+			check("RefCount(a) (1)", RefCount(a), 3L);
+
+			auto arr = n->Misc;
+			n->Misc[3] = a;
+			check("RefCount(a) (2)", RefCount(a), 4L);
+			n->Misc[4] = <int>a;
+			check("RefCount(a) (3)", RefCount(a), 4L); // no change
+			n->Misc[3] = NULL;
+			check("RefCount(a) (4)", RefCount(a), 3L);
+		}
+		checkCountWithGC(1); // npc is still alive
+		Screen->LoadNPC(1)->Remove();
+		checkCountWithGC(0);
 
 		printf("=== Test %d - varargs === \n", ++tests);
 		{

@@ -48,7 +48,7 @@ void main()
 	fnNewStyleArrayObjects(bitmaps_good_arr);
 
 	// lweapon is not a reference counted object, so this type mismatch defaults to a warning.
-	lweapon weapons_legacy_arr = {NULL};
+	lweapon weapons_legacy_arr = {<lweapon>NULL};
 
 	SizeOfArray(arr); // Exact match.
 	SizeOfArray(arr2); // int casts to int[] (no warning)
@@ -56,6 +56,15 @@ void main()
 	// OK.
 	// https://discord.com/channels/876899628556091432/1295149938031722547
 	ffc f = Screen->FFCs[0];
+
+	// OK.
+	untyped data[1];
+	npc heads[1];
+	commenceIntroSequence(data, heads);
+}
+
+void commenceIntroSequence(int data, npc heads)
+{
 }
 
 void fnOverloaded(int[] arr)

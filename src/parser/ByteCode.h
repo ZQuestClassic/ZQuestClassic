@@ -140,21 +140,21 @@ namespace ZScript {
 	typedef Opcode2<SUBV, VarArgument, LiteralArgument> OSubImmediate;
 	typedef Opcode2<SUBV2, LiteralArgument, VarArgument> OSubImmediate2;
 	typedef Opcode2<WRITEPODARRAY, VarArgument, VectorArgument> OWritePODArray;
-	typedef Opcode2<WRITEPODARRAYRR, VarArgument, VarArgument> OWritePODArrayRR;
-	typedef Opcode2<WRITEPODARRAYVR, LiteralArgument, VarArgument> OWritePODArrayIR;
 	typedef Opcode2<WRITEPODSTRING, VarArgument, StringArgument> OWritePODString;
 	typedef Opcode2<XORR, VarArgument, VarArgument> OXorRegister;
 	typedef Opcode2<XORR32, VarArgument, VarArgument> O32BitXorRegister;
 	typedef Opcode2<XORV, VarArgument, LiteralArgument> OXorImmediate;
 	typedef Opcode2<XORV32, VarArgument, LiteralArgument> O32BitXorImmediate;
 	typedef Opcode2<ZCLASS_CONSTRUCT, VarArgument, VectorArgument> OConstructClass;
-	typedef Opcode2<ZCLASS_READ, VarArgument, LiteralArgument> OReadObject;
-	typedef Opcode2<ZCLASS_WRITE, VarArgument, LiteralArgument> OWriteObject;
+	typedef Opcode2<ZCLASS_READ, VarArgument, LiteralArgument> OClassRead;
+	typedef Opcode2<ZCLASS_WRITE, VarArgument, LiteralArgument> OClassWrite;
 
 	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateGlobalMemImmediate;
 	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateMemImmediate;
 	typedef Opcode3<LOAD_INTERNAL_ARRAY_REF, VarArgument, LiteralVarArgument, VarArgument> OLoadInternalArrayRef;
 	typedef Opcode3<STACKWRITEATVV_IF, LiteralArgument, LiteralArgument, CompareArgument> OStackWriteAtVV_If;
+	typedef Opcode3<WRITEPODARRAYRR, VarArgument, VarArgument, LiteralArgument> OWritePODArrayRR;
+	typedef Opcode3<WRITEPODARRAYVR, LiteralArgument, VarArgument, LiteralArgument> OWritePODArrayIR;
 }
 
 #endif

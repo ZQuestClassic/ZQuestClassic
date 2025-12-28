@@ -64,7 +64,8 @@ This associates a reference to the object with the current script, so when that 
 if there are no other references to the object it will be destroyed. Only one script may
 own a particular object - subsequent calls transfer which script holds the reference.
 You shouldn't need this functionality for most usages. One example of it being necessary
-is if the only place you store an object is an untyped variable, which does not hold a reference.
+is if the only place you store an object is an untyped variable, which does not hold a reference
+(note: objects within untyped arrays do retain references - just not plain untyped variables).
 
 For simple objects with no cyclical references, they are destroyed just after their last
 reference is removed (as local variable going out of scope, or being overwritten, etc).
@@ -90,7 +91,7 @@ destructors immediately if their reference count is now zero.
 
 On save, an object persists to the save file (including all its variables and arrays) if it has
 been globalized via |GlobalObject|, or if it is reachable from a global variable or array (note:
-untyped or int arrays do not count).
+int arrays do not retain objects, but untyped arrays do).
 
 .. versionchanged:: 3.0
 	Prior to this version, only globalized objects persist to the save file.
@@ -105,8 +106,3 @@ untyped or int arrays do not count).
 	the garbage collector runs or an object destructor is called is an implementation detail that
 	may change. Do NOT implement critical game functionality in destructors - doing so will result
 	in unpredictable behavior, and may break your quest in future versions of ZC.
-
-Examples
---------
-
-* To pass objects between scripts via `InitD` (or similar int/untyped variables), you must ensure something else retains the object else it may be destroyed before the target script can load it. `Read this discussion for more information <https://discord.com/channels/876899628556091432/1365314060543070329/1365502641236344923>`_.

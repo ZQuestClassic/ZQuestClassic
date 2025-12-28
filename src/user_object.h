@@ -83,12 +83,15 @@ struct script_array : public user_abstract_obj
 	};
 
 	ZScriptArray arr;
+	std::vector<bool> untyped_is_object;
 	std::optional<internal_array_id> internal_id;
 	bool internal_expired;
 
 #ifdef IS_PLAYER
 	void get_retained_ids(std::vector<uint32_t>& ids);
 	void restore_references();
+	bool holds_untyped_object(int index) const;
+	void set_holds_untyped_object(int index, bool is_object);
 #endif
 };
 

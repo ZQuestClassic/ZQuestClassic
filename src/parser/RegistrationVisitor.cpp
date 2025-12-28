@@ -365,6 +365,8 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 					fn2->setFlag(FUNCFLAG_DEPRECATED);
 					fn2->setInfo(*deprecated);
 				}
+				if (var_type->isUntyped())
+					fn2->setFlag(FUNCFLAG_MAY_SET_OBJECT);
 			}
 			else if (var_type == &DataType::BOOL)
 			{

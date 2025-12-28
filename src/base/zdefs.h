@@ -1314,6 +1314,11 @@ public:
 	{
 		*this = refInfo();
 	}
+
+	bool stackPosHasObject(int pos) const
+	{
+		return stack_pos_is_object.contains(pos);
+	}
 };
 
 

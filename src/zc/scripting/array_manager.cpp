@@ -171,11 +171,14 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg)
 	_invalid = false;
 	internal_array_id = {};
 	legacy_internal_id = 0;
+	script_array_object = nullptr;
 
 	if (ZScriptVersion::gc_arrays())
 	{
 		if (auto* array = checkArray(ptr))
 		{
+			script_array_object = array;
+
 			if (array->internal_id.has_value())
 			{
 				if (array->internal_expired)
@@ -295,7 +298,7 @@ int32_t ArrayManager::get(int32_t indx) const
 	return get_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE) ? -10000 : 0;
 }
 
-void ArrayManager::set(int32_t indx, int32_t val)
+void ArrayManager::set(int32_t indx, int32_t val, bool is_object)
 {
 	if(_invalid) return;
 
@@ -306,21 +309,27 @@ void ArrayManager::set(int32_t indx, int32_t val)
 		{
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
-			if (aptr->HoldsObjects())
+
+			if (is_object || aptr->HoldsObjects())
+				script_object_ref_inc(val);
+
+			if (holds_object(indx))
 			{
 				int id = (*aptr)[indx];
 				script_object_ref_dec(id);
 			}
+
 			(*aptr)[indx] = val;
-			if (aptr->HoldsObjects())
-				script_object_ref_inc(val);
+
+			if (aptr->MaybeHoldsObjects())
+				script_array_object->set_holds_untyped_object(indx, is_object);
 		}
 	}
 	else //internal special array
 	{
 		if (ZScriptVersion::gc_arrays())
 		{
-			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val);
+			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val, is_object);
 			return;
 		}
 
@@ -376,6 +385,23 @@ bool ArrayManager::resize_min(size_t newsize)
 	if(size() >= newsize)
 		return true;
 	return resize(newsize);
+}
+
+bool ArrayManager::holds_object(int indx)
+{
+	if (_invalid) return false;
+
+	if (aptr && script_array_object)
+		return aptr->HoldsObjects() || (aptr->MaybeHoldsObjects() && script_array_object->holds_untyped_object(indx));
+
+	// For compat.
+	if (aptr)
+		return aptr->HoldsObjects();
+
+	if (script_array_object && script_array_object->internal_id.has_value())
+		return script_array_object->arr.HoldsObjects() || (script_array_object->arr.MaybeHoldsObjects() && script_array_object->holds_untyped_object(indx));
+
+	return false;
 }
 
 bool ArrayManager::can_resize()

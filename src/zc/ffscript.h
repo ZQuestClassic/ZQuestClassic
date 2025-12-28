@@ -445,6 +445,7 @@ struct user_paldata : public user_abstract_obj
 script_array* create_script_array();
 void register_existing_script_array(script_array* array);
 std::vector<script_array*> get_script_arrays();
+script_array* find_or_create_internal_script_array(script_array::internal_array_id internal_id);
 script_array* checkArray(uint32_t id, bool skipError = false);
 
 int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, int32_t pc, uint32_t sp, int32_t count);
@@ -1187,7 +1188,7 @@ public:
 	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);
 	
 	//Set element in array
-	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false);
+	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false, const bool is_object = false);
 	
 	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
 	template <typename T>

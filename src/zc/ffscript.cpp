@@ -175,7 +175,7 @@ std::vector<script_array*> get_script_arrays()
 	return result;
 }
 
-static script_array* find_or_create_internal_script_array(script_array::internal_array_id internal_id)
+script_array* find_or_create_internal_script_array(script_array::internal_array_id internal_id)
 {
 	if (!zasm_array_supports(internal_id.zasm_var))
 	{
@@ -186,6 +186,7 @@ static script_array* find_or_create_internal_script_array(script_array::internal
 	for (auto id : script_object_ids_by_type[script_arrays.type])
 	{
 		auto object = static_cast<script_array*>(get_script_object_checked(id));
+		DCHECK(object);
 		if (!object->internal_expired && object->internal_id.has_value() && object->internal_id.value() == internal_id)
 			return object;
 	}
@@ -195,6 +196,8 @@ static script_array* find_or_create_internal_script_array(script_array::internal
 	{
 		array->arr.setValid(true);
 		array->internal_id = internal_id;
+		// Retain a reference until the underlying engine object is destroyed.
+		script_object_ref_inc(array->id);
 	}
 	return array;
 }
@@ -205,18 +208,26 @@ static void expire_internal_script_arrays(ScriptType scriptType, int ref)
 		return;
 
 	// Expire internal arrays referring to this script object.
+	std::vector<uint32_t> retained_ids;
 	for (auto& script_object : script_objects | std::views::values)
 	{
 		if (script_object->type != script_object_type::array)
 			continue;
 
 		auto array = static_cast<script_array*>(script_object.get());
-		if (!array->internal_id.has_value())
+		if (!array->internal_id.has_value() || array->internal_expired)
 			continue;
 
 		if (array->internal_id->matches(scriptType, ref))
+		{
+			retained_ids.push_back(array->id);
+			array->get_retained_ids(retained_ids);
 			array->internal_expired = true;
+		}
 	}
+
+	for (auto id : retained_ids)
+		script_object_ref_dec(id);
 }
 
 static void expire_internal_script_arrays(ScriptType scriptType)
@@ -225,18 +236,26 @@ static void expire_internal_script_arrays(ScriptType scriptType)
 		return;
 
 	// Expire internal arrays referring to this script object.
+	std::vector<uint32_t> retained_ids;
 	for (auto& script_object : script_objects | std::views::values)
 	{
 		if (script_object->type != script_object_type::array)
 			continue;
 
 		auto array = static_cast<script_array*>(script_object.get());
-		if (!array->internal_id.has_value())
+		if (!array->internal_id.has_value() || array->internal_expired)
 			continue;
 
 		if (array->internal_id->matches(scriptType))
+		{
+			retained_ids.push_back(array->id);
+			array->get_retained_ids(retained_ids);
 			array->internal_expired = true;
+		}
 	}
+
+	for (auto id : retained_ids)
+		script_object_ref_dec(id);
 }
 
 script_array* checkArray(uint32_t id, bool skipError)
@@ -2186,10 +2205,10 @@ INLINE int32_t ArrayH::getElement(const int32_t ptr, int32_t offset, const bool 
 }
 
 //Set element in array
-INLINE void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg)
+INLINE void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg, const bool is_object)
 {
 	ArrayManager am(ptr,neg);
-	am.set(offset,value);
+	am.set(offset, value, is_object);
 }
 
 int32_t ArrayH::setArray(const int32_t ptr, string const& s2, bool resize)
@@ -17461,7 +17480,7 @@ void set_register(int32_t arg, int32_t value)
 				if (ref_arg) debug_get_ref(ref_arg);
 #endif
 				int ref = ref_arg ? get_ref(ref_arg) : 0;
-				zasm_array_set(arg, ref, GET_D(rINDEX) / 10000, value);
+				zasm_array_set(arg, ref, GET_D(rINDEX) / 10000, value, false);
 			}
 			else
 			{
@@ -17821,7 +17840,7 @@ void script_store_object(uint32_t offset, uint32_t new_id)
 	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
 	uint32_t id = SH::read_stack(offset);
 	script_object_ref_inc(new_id);
-	if (ri->stack_pos_is_object.contains(offset))
+	if (ri->stackPosHasObject(offset))
 		script_object_ref_dec(id);
 	else
 		ri->stack_pos_is_object.insert(offset);
@@ -17847,7 +17866,7 @@ void script_remove_object_ref(int32_t offset)
 		return;
 	}
 
-	if (!ri->stack_pos_is_object.contains(offset))
+	if (!ri->stackPosHasObject(offset))
 		return;
 
 	uint32_t id = SH::read_stack(offset);
@@ -23690,7 +23709,8 @@ void do_writepod(const bool v1, const bool v2)
 {
 	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
 	int32_t val = SH::get_arg(sarg2, v2);
-	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array);
+	bool is_object = sarg3;
+	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array, is_object);
 }
 void do_writepodstr()
 {
@@ -27727,7 +27747,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 
 				int offset = GET_D(rSFRAME) + sarg1;
-				if (!ri->stack_pos_is_object.contains(offset))
+				if (!ri->stackPosHasObject(offset))
 				{
 					assert(false);
 					break;
@@ -27746,7 +27766,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 
 				int offset = GET_D(rSFRAME) + sarg1;
-				if (!ri->stack_pos_is_object.contains(offset))
+				if (!ri->stackPosHasObject(offset))
 				{
 					assert(false);
 					break;
@@ -27825,18 +27845,24 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case SET_OBJECT:
 			{
-				if (!(sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS)))
-				{
-					assert(false);
-					break;
-				}
-
 				int value = get_register(sarg2);
-				int index = sarg1-GD(0);
-				assert(game->global_d_types[index] != script_object_type::none);
-				script_object_ref_inc(value);
-				script_object_ref_dec(game->global_d[index]);
-				game->global_d[index] = value;
+				if (sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS))
+				{
+					int index = sarg1-GD(0);
+					assert(game->global_d_types[index] != script_object_type::none);
+					script_object_ref_inc(value);
+					script_object_ref_dec(game->global_d[index]);
+					game->global_d[index] = value;
+				}
+				else if (zasm_array_supports(sarg1))
+				{
+					int zasm_var = sarg1;
+					int index = GET_D(rINDEX) / 10000;
+					int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
+					int ref = ref_arg ? get_ref(ref_arg) : 0;
+					zasm_array_set(zasm_var, ref, index, value, true);
+				}
+				else NOTREACHED();
 				break;
 			}
 			case LOAD_INTERNAL_ARRAY:

@@ -14,11 +14,12 @@ public:
 	ArrayManager(int32_t ptr);
 	
 	int32_t get(int32_t indx) const;
-	void set(int32_t indx, int32_t val);
+	void set(int32_t indx, int32_t val, bool is_object = false);
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
 	bool resize_min(size_t minsz);
+	bool holds_object(int indx);
 	bool can_resize();
 	bool push(int32_t val, int indx = -1);
 	int32_t pop(int indx = -1);
@@ -32,6 +33,7 @@ public:
 	bool negAccess;
 private:
 	ZScriptArray* aptr;
+	script_array* script_array_object;
 	int32_t legacy_internal_id;
 	script_array::internal_array_id internal_array_id;
 	bool _invalid;

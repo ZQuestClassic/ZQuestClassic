@@ -14,12 +14,14 @@
 #include <optional>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #define MAX_ZC_ARRAY_SIZE 214748
 
 int zasm_array_size(int zasm_var, int ref);
 int zasm_array_get(int zasm_var, int ref, int index);
-bool zasm_array_set(int zasm_var, int ref, int index, int value);
+std::vector<int> zasm_array_get_all(int zasm_var, int ref);
+bool zasm_array_set(int zasm_var, int ref, int index, int value, bool is_object);
 bool zasm_array_supports(int zasm_var);
 
 template <typename T, size_t N>
@@ -183,7 +185,9 @@ class IScriptingArray
 {
 public:
 	virtual ~IScriptingArray() = default;
+	virtual size_t getResolvedIndex(int size, int index) const;
 	virtual size_t getSize(int ref) const = 0;
+	virtual std::vector<int> getAll(int ref) const;
 	virtual int getElement(int ref, int index) const = 0;
 	virtual bool setElement(int ref, int index, int value) = 0;
 
@@ -311,12 +315,43 @@ protected:
 	}
 };
 
+inline size_t IScriptingArray::getResolvedIndex(int size, int index) const
+{
+	return resolveIndex(index, size, m_boundSetterIndex).value_or(-1);
+}
+
+// TODO: implement efficient versions for all derived classes. This default implementation will
+// "resolve" the object ref once per element.
+inline std::vector<int> IScriptingArray::getAll(int ref) const
+{
+	std::vector<int> values;
+
+	int size = getSize(ref);
+	values.reserve(size);
+	for (int i = 0; i < size; i++)
+		values.push_back(getElement(ref, i));
+
+	return values;
+}
+
 template<typename T_Element>
 class ScriptingArray_GlobalCArray : public IScriptingArray {
 public:
 	ScriptingArray_GlobalCArray(T_Element* data, size_t size) : m_data(data), m_size(size) {}
 
 	size_t getSize(int) const override { return m_size; }
+
+	std::vector<int> getAll(int ref) const override
+	{
+		std::vector<int> values(m_data, m_data + m_size);
+		if (m_mul10000)
+		{
+			for (int i = 0; i < m_size; i++)
+				values[i] *= 10000;
+		}
+
+		return values;
+	}
 
 	int getElement(int, int index) const override
 	{
@@ -438,6 +473,11 @@ public:
 
 	size_t getSize(int ref) const override { return m_sizeFunc(ref); }
 
+	size_t getResolvedIndex(int size, int index) const override
+	{
+		return resolveIndexOneIndexed(index, size, m_boundSetterIndex).value_or(-1);
+	}
+
 	int getElement(int ref, int index) const override
 	{
 		size_t sz = getSize(ref);
@@ -478,6 +518,24 @@ public:
 	static_assert(std::is_array<MemberType>(), "Can only use ScriptingArray_ObjectMemberCArray for array types");
 
 	size_t getSize(int) const override { return N::value; }
+
+	std::vector<int> getAll(int ref) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return {};
+
+		size_t size = N::value;
+
+		std::vector<int> values(obj->*T_MemberPtr, obj->*T_MemberPtr + size);
+		if (m_mul10000)
+		{
+			for (int i = 0; i < values.size(); i++)
+				values[i] *= 10000;
+		}
+
+		return values;
+	}
 
 	int getElement(int ref, int index) const override
 	{
@@ -610,6 +668,29 @@ public:
 			return 0;
 
 		return m_sizeFunc(obj);
+	}
+
+	std::vector<int> getAll(int ref) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj)
+			return {};
+
+		size_t size = m_sizeFunc(obj);
+
+		std::vector<int> values;
+		values.reserve(size);
+		for (int i = 0; i < size; i++)
+		{
+			T_Element result = m_getFunc(obj, i);
+			if constexpr (std::is_same<T_Element, bool>::value)
+				result = result ? (m_mul10000 ? 10000 : 1) : 0;
+			else
+				result = result * (m_mul10000 ? 10000 : 1);
+			values.push_back(result);
+		}
+
+		return values;
 	}
 
 	int getElement(int ref, int index) const override

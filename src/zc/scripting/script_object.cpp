@@ -1,6 +1,8 @@
 #include "zc/scripting/script_object.h"
 
+#include "base/general.h"
 #include "base/zc_array.h"
+#include "user_object.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/types/user_object.h"
 #include "zscriptversion.h"
@@ -13,15 +15,24 @@ std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
 std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
 std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
+std::vector<uint32_t> untyped_internal_arrays_retaining_references;
 
 static int allocations_since_last_gc;
 static int deallocations_since_last_gc;
 
-// Returns true if an id is not usable for an object id.
-static bool is_reserved_object_id(uint32_t id)
+static bool is_reserved_bitmap_id(uint32_t id)
 {
 	// Used by internal bitmaps (see do_loadbitmapid).
 	if (id >= 9 && id <= 16)
+		return true;
+
+	return false;
+}
+
+// Returns true if an id is not usable for an object id.
+static bool is_reserved_object_id(uint32_t id)
+{
+	if (is_reserved_bitmap_id(id))
 		return true;
 
 	// RT_SCREEN, RT_BITMAP0, etc. can be given the draw commands. We must be able to
@@ -210,7 +221,7 @@ user_abstract_obj* get_script_object(uint32_t id)
 
 user_abstract_obj* get_script_object_checked(uint32_t id)
 {
-	if (is_reserved_object_id(id))
+	if (is_reserved_bitmap_id(id))
 		return nullptr;
 
 	auto object = get_script_object(id);
@@ -323,22 +334,35 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 	std::set<uint32_t> live_object_ids;
 
 	std::vector<user_abstract_obj*> all_objects;
+	std::vector<script_array*> script_arrays;
 	for (auto& [id, object] : script_objects)
+	{
 		all_objects.push_back(object.get());
+
+		if (object->type == script_object_type::array)
+		{
+			auto array = static_cast<script_array*>(object.get());
+			script_arrays.push_back(array);
+		}
+	}
 
 	for (auto& object : all_objects)
 	{
 		if (object->global)
 			live_object_ids.insert(object->id);
 	}
-	for (auto& aptr : game->globalRAM)
+	if (!ZScriptVersion::gc_arrays())
 	{
-		if (aptr.HoldsObjects())
+		for (auto& aptr : game->globalRAM)
 		{
-			for (int i = 0; i < aptr.Size(); i++)
+			if (aptr.HoldsObjects())
 			{
-				live_object_ids.insert(aptr[i]);
+				for (int i = 0; i < aptr.Size(); i++)
+				{
+					live_object_ids.insert(aptr[i]);
+				}
 			}
+			// Not checking "MaybeHoldsObjects" because globalRAM is only used in older quests.
 		}
 	}
 	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
@@ -348,15 +372,24 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 	}
 	if (!only_include_global_roots)
 	{
-		for (auto& aptr : localRAM)
+		if (!ZScriptVersion::gc_arrays())
 		{
-			if (aptr.HoldsObjects())
+			for (auto& aptr : localRAM)
 			{
-				for (int i = 0; i < aptr.Size(); i++)
+				if (aptr.HoldsObjects())
 				{
-					live_object_ids.insert(aptr[i]);
+					for (int i = 0; i < aptr.Size(); i++)
+					{
+						live_object_ids.insert(aptr[i]);
+					}
 				}
+				// Not checking "MaybeHoldsObjects" because localRAM is only used in older quests.
 			}
+		}
+		for (auto array : script_arrays)
+		{
+			if (array->internal_id && !array->internal_expired)
+				live_object_ids.insert(array->id);
 		}
 		for (auto& data : scriptEngineDatas | std::views::values)
 		{

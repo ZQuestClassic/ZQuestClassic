@@ -1691,9 +1691,15 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
+
+	bool is_setting_object = false;
+	if (auto type = host.right->getReadType(scope, nullptr))
+		is_setting_object = type->isObject();
+
 	//and store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
+	helper.is_setting_object = is_setting_object;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1723,7 +1729,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
 		UserClass& user_class = *ucv->getClass();
-		addOpcode(new OReadObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassRead(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 	
@@ -1755,7 +1761,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	{
 		SIDEFX_CHECK(host.left.get());
 		visit(host.left.get(), param);
-		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassRead(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -3746,7 +3752,9 @@ void BuildOpcodes::arrayLiteralDeclaration(
 				addOpcode(new OPushRegister(new VarArgument(INDEX)));
 				visit(*it, &context);
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
-				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+
+				bool is_object = (*it)->getReadType(scope, this)->isObject();
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new LiteralArgument(is_object ? 1 : 0)));
 			}
 		}
 	}
@@ -3832,7 +3840,9 @@ void BuildOpcodes::arrayLiteralFree(
 				visit(*it, &context);
 				// opcodeTargets.pop_back();
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
-				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+
+				bool is_object = (*it)->getReadType(scope, this)->isObject();
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new LiteralArgument(is_object ? 1 : 0)));
 			}
 		}
 	}
@@ -4065,7 +4075,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
-		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassWrite(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -4112,7 +4122,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		addOpcodes(oc.getResult());
 		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		addOpcode(new OPopRegister(new VarArgument(EXP1)));
-		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		addOpcode(new OClassWrite(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
 
@@ -4176,61 +4186,29 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			addOpcodes(oc2.getResult());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
-		
+
+		// Some internal variables (untyped arrays like sprite::Misc[]) may set objects. For those,
+		// use SET_OBJECT instead of SETR.
+		bool sets_object = is_setting_object && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
+
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.writeFunction->getCode();
-		for(auto it = funcCode.begin();
-			it != funcCode.end(); ++it)
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
 		{
+			if (sets_object)
+			{
+				if (auto op = dynamic_cast<OSetRegister*>(it->get()))
+				{
+					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone()));
+					continue;
+				}
+			}
+
 			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else
 	{
-		// This is actually implemented as a settor function call.
-		bool never_ret = host.writeFunction->getFlag(FUNCFLAG_NEVER_RETURN);
-		// Push the stack frame.
-		if(!never_ret)
-			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		
-		if (!(host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
-		{
-			//Push rval
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			//Get lval
-			BuildOpcodes oc(program, this);
-			oc.parsing_user_class = parsing_user_class;
-			oc.visit(host.left.get(), param);
-			addOpcodes(oc.getResult());
-			//Pop rval
-			addOpcode(new OPopRegister(new VarArgument(EXP2)));
-			//Push lval
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-			//Push rval
-			addOpcode(new OPushRegister(new VarArgument(EXP2)));
-		}
-		else
-		{
-			//Push rval
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-		}
-		
-		//and push the index, if indexed
-		if(isIndexed)
-		{
-			BuildOpcodes oc2(program, this);
-			oc2.parsing_user_class = parsing_user_class;
-			oc2.visit(host.index.get(), param);
-			addOpcodes(oc2.getResult());
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
-		}
-		
-		//finally, goto!
-		int32_t label = host.writeFunction->getLabel();
-		addOpcode(new OCallFunc(new LabelArgument(label, true)));
-
-		// Pop the stack frame
-		if(!never_ret)
-			addOpcode(new OPopRegister(new VarArgument(SFRAME)));
+		program.errorHandler->handleError(CompileError::Error(&host, "internal error: missing writeFunction"));
 	}
 }
 
@@ -4293,8 +4271,9 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	{
 		addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
 	}
-	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1)));
-	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1)));
+
+	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1), new LiteralArgument(is_setting_object ? 1 : 0)));
+	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new LiteralArgument(is_setting_object ? 1 : 0)));
 }
 
 
