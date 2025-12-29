@@ -874,6 +874,41 @@ generic script garbage_collection
 		Screen->LoadNPC(1)->Remove();
 		checkCountWithGC(0);
 
+		printf("=== Test %d - The 'Innocent Bystander' (Mark-and-Sweep Leak) === \n", ++tests);
+		{
+			Person innocent = new Person(); 
+
+			// Create cyclical references so standard reference-counting won't delete them.
+			Person cyclerA = new Person();
+			Person cyclerB = new Person();
+			cyclerA->lastPersonShookHandsWith = cyclerB;
+			cyclerB->lastPersonShookHandsWith = cyclerA;
+			check("RefCount(cyclerA)", RefCount(cyclerA), 2L); // 1 var + 1 from B
+
+			// Have the dead cycle hold a reference to the innocent live object.
+			cyclerA->children[0] = innocent;
+
+			// 1 from 'innocent' variable, 1 from 'cyclerA->children'.
+			check("RefCount(innocent)", RefCount(innocent), 2L);
+
+			// Clear the variables retaining the cycle. Next GC will identify the cycle and delete the objects.
+			cyclerA = NULL;
+			cyclerB = NULL;
+
+			// At this point, the cycle A<->B exists in memory, but is unreachable.
+			check("RefCount(innocent) pre-GC", RefCount(innocent), 2L);
+
+			// We expect 3 objects alive: innocent, cyclerA, cyclerB.
+			check("count (pre GC)", count, 3);
+
+			// Only 'innocent' should be left after a GC.
+			GC();
+			check("count (post GC)", count, 1);
+			// The cycle's retained a reference to `innocent`, but not anymore.
+			check("RefCount(innocent) post-GC", RefCount(innocent), 1L);
+		}
+		checkCountWithGC(0);
+
 		printf("=== Test %d - varargs === \n", ++tests);
 		{
 			storeVarargs(1, 2, 3);

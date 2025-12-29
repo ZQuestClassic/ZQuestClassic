@@ -459,6 +459,19 @@ void run_gc()
 		if (live_object_ids.contains(object->id))
 			continue;
 
+		// We're about to delete an unreachable object, but it's possible that
+		// it is retaining an object that is reachable. It's important to release
+		// those references now.
+		std::vector<uint32_t> retained_ids;
+		object->get_retained_ids(retained_ids);
+		for (auto id : retained_ids)
+		{
+			// The child may have been unreachable too, and thus will be deleted
+			// when the outer loops reaches it. So just update ref_count.
+			auto child = get_script_object(id);
+			if (child) child->ref_count--;
+		}
+
 		bool remove_refs = false;
 		delete_script_object(object->id, remove_refs);
 	}
