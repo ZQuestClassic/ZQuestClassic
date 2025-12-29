@@ -15,6 +15,7 @@ class Counter
 
 Thing globalThing;
 Thing[] globalThings = {NULL};
+untyped[] globalUntypedThings = {NULL, NULL, 1337, NULL};
 Thing thingNotGlobalized;
 Thing[] thingsNotGlobalized = {NULL};
 int[] internalArray;
@@ -44,6 +45,9 @@ generic script global_objects
 			globalThing->someCounters[0] = new Counter();
 			globalThing->otherThing->someCounters[0] = new Counter();
 			globalThings[0] = globalThing;
+			globalUntypedThings[0] = globalThing;
+			globalUntypedThings[1] = <int>globalThing;
+			globalUntypedThings[3] = new bitmap();
 			GlobalObject(globalThing);
 			GlobalObject(globalThing->otherThing);
 			GlobalObject(globalThing->someCounters[0]);
@@ -86,14 +90,22 @@ generic script global_objects
 
 		// Should be valid only on the first load.
 		Test::AssertEqual(globalThing->a_bitmap != NULL, firstTime, "globalThing->a_bitmap != NULL");
+		Test::AssertEqual(globalUntypedThings[3] != NULL, firstTime, "globalUntypedThings[3] != NULL");
 		Test::AssertEqual(IsValidArray(<Thing>(untypedThingNotGlobalized)->someCounters), firstTime, "IsValidArray(<Thing>(untypedThingNotGlobalized)->someCounters)");
 
 		// Should always be valid - they are held by a global variable.
 		Test::Assert(globalThing->not_globalized != NULL, "globalThing->not_globalized != NULL");
 		Test::Assert(globalThing, "globalThing");
 		Test::Assert(globalThings[0], "globalThings[0]");
+		Test::Assert(globalUntypedThings[0], "globalUntypedThings[0]");
+		Test::Assert(globalUntypedThings[1], "globalUntypedThings[1]");
+		Test::AssertEqual(globalUntypedThings[2], 1337, "globalUntypedThings[2]");
 		Test::Assert(thingNotGlobalized, "thingNotGlobalized");
 		Test::Assert(thingsNotGlobalized[0], "thingsNotGlobalized[0]");
+
+		Test::AssertEqual(RefCount(globalThings[0]), 3L, "RefCount(globalThings[0])");
+		Test::AssertEqual(RefCount(globalUntypedThings[0]), 3L, "RefCount(globalUntypedThings[0])");
+		Test::AssertEqual(RefCount(globalUntypedThings[2]), -1L, "RefCount(globalUntypedThings[2])");
 
 		// Internal arrays do not persist to save file.
 		if (firstTime)

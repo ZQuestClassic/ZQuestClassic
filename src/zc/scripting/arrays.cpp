@@ -126,7 +126,7 @@ public:
 		return {};
 	}
 
-	bool setElement(int zasm_var, int ref, int index, int value, bool is_object)
+	bool setElement(int zasm_var, int ref, int index, int value, script_object_type type)
 	{
 		static bool IS_UNTYPED_ARRAY[NUMVARIABLES];
 
@@ -138,10 +138,11 @@ public:
 				return false;
 			}
 
+			bool is_object = type != script_object_type::none;
 			if (!is_object && !IS_UNTYPED_ARRAY[zasm_var])
 				return impl->setElement(ref, index, value);
 
-			// The compiler should only emit code where `is_object` is true for untyped arrays. This
+			// The compiler should only emit code where `type` is not none for untyped arrays. This
 			// is a hack to keep the common case - internal arrays that are not untyped - fast;
 			// without hardcoding a list of which zasm vars correspond to untyped arrays.
 			IS_UNTYPED_ARRAY[zasm_var] = true;
@@ -158,7 +159,7 @@ public:
 			bool success = impl->setElement(ref, index, value);
 			if (success)
 			{
-				array->set_holds_untyped_object(resolved_index, is_object);
+				array->set_type_in_untyped_array(resolved_index, type);
 				if (is_object)
 					script_object_ref_inc(value);
 				script_object_ref_dec(previous);
@@ -196,9 +197,9 @@ std::vector<int> zasm_array_get_all(int zasm_var, int ref)
 	return g_arrayManager.getAll(zasm_var, ref);
 }
 
-bool zasm_array_set(int zasm_var, int ref, int index, int value, bool is_object)
+bool zasm_array_set(int zasm_var, int ref, int index, int value, script_object_type type)
 {
-	return g_arrayManager.setElement(zasm_var, ref, index, value, is_object);
+	return g_arrayManager.setElement(zasm_var, ref, index, value, type);
 }
 
 bool zasm_array_supports(int zasm_var)

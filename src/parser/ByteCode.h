@@ -123,7 +123,6 @@ namespace ZScript {
 	typedef Opcode2<RSHIFTR32, VarArgument, VarArgument> O32BitRShiftRegister;
 	typedef Opcode2<RSHIFTV, VarArgument, LiteralArgument> ORShiftImmediate;
 	typedef Opcode2<RSHIFTV32, VarArgument, LiteralArgument> O32BitRShiftImmediate;
-	typedef Opcode2<SET_OBJECT, VarArgument, VarArgument> OSetObject;
 	typedef Opcode2<SETCMP, VarArgument, CompareArgument> OSetCompare;
 	typedef Opcode2<SETR, VarArgument, VarArgument> OSetRegister;
 	typedef Opcode2<SETV, VarArgument, LabelArgument> OSetImmediateLabel;
@@ -152,6 +151,7 @@ namespace ZScript {
 	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateGlobalMemImmediate;
 	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateMemImmediate;
 	typedef Opcode3<LOAD_INTERNAL_ARRAY_REF, VarArgument, LiteralVarArgument, VarArgument> OLoadInternalArrayRef;
+	typedef Opcode3<SET_OBJECT, VarArgument, VarArgument, LiteralArgument> OSetObject;
 	typedef Opcode3<STACKWRITEATVV_IF, LiteralArgument, LiteralArgument, CompareArgument> OStackWriteAtVV_If;
 	typedef Opcode3<WRITEPODARRAYRR, VarArgument, VarArgument, LiteralArgument> OWritePODArrayRR;
 	typedef Opcode3<WRITEPODARRAYVR, LiteralArgument, VarArgument, LiteralArgument> OWritePODArrayIR;

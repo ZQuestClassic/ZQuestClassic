@@ -1238,6 +1238,16 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				a.Resize(tempdword);
 				a.setValid(true); //should always be valid
 
+				if (type == (int)script_object_type::untyped)
+				{
+					std::vector<byte> bytes;
+					if (!p_getlvec(&bytes, f))
+						return 121;
+
+					array.untyped_array_types.resize(bytes.size());
+					std::memcpy(array.untyped_array_types.data(), bytes.data(), bytes.size() * sizeof(script_object_type));
+				}
+
 				//And then fill in the contents
 				for(dword k = 0; k < a.Size(); k++)
 					if(!p_igetl(&(a[k]), f))
@@ -1657,7 +1667,15 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 		if(!p_iputw((word)a.ObjectType(), f))
 			return 117;
-			
+
+		if (a.ObjectType() == script_object_type::untyped)
+		{
+			std::vector<byte> bytes(array.untyped_array_types.size());
+			std::memcpy(bytes.data(), array.untyped_array_types.data(), array.untyped_array_types.size() * sizeof(script_object_type));
+			if(!p_putlvec(bytes, f))
+				return 119;
+		}
+
 		//Followed by its contents
 		for(dword k = 0; k < a.Size(); k++)
 			if(!p_iputl(a[k], f))

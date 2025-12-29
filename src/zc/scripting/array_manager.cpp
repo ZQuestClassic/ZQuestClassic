@@ -1,4 +1,5 @@
 #include "zc/scripting/array_manager.h"
+#include "base/general.h"
 #include "base/qrs.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
@@ -298,7 +299,7 @@ int32_t ArrayManager::get(int32_t indx) const
 	return get_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE) ? -10000 : 0;
 }
 
-void ArrayManager::set(int32_t indx, int32_t val, bool is_object)
+void ArrayManager::set(int32_t indx, int32_t val, script_object_type type)
 {
 	if(_invalid) return;
 
@@ -310,6 +311,7 @@ void ArrayManager::set(int32_t indx, int32_t val, bool is_object)
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
 
+			bool is_object = type != script_object_type::none;
 			if (is_object || aptr->HoldsObjects())
 				script_object_ref_inc(val);
 
@@ -322,14 +324,14 @@ void ArrayManager::set(int32_t indx, int32_t val, bool is_object)
 			(*aptr)[indx] = val;
 
 			if (aptr->MaybeHoldsObjects())
-				script_array_object->set_holds_untyped_object(indx, is_object);
+				script_array_object->set_type_in_untyped_array(indx, type);
 		}
 	}
 	else //internal special array
 	{
 		if (ZScriptVersion::gc_arrays())
 		{
-			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val, is_object);
+			zasm_array_set(internal_array_id.zasm_var, internal_array_id.ref, indx, val, type);
 			return;
 		}
 

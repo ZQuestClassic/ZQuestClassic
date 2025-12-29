@@ -153,6 +153,6 @@ docs-www/source/zscript/index.rst
 docs-www/source/_static/highlight-11.11.1.min.js
 .sentry-native
 *.tsbuildinfo
-resources/out.zasm
+*.zasm
 resources/includepaths.txt
 .aider*

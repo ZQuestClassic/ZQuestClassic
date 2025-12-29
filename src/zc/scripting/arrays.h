@@ -21,7 +21,7 @@
 int zasm_array_size(int zasm_var, int ref);
 int zasm_array_get(int zasm_var, int ref, int index);
 std::vector<int> zasm_array_get_all(int zasm_var, int ref);
-bool zasm_array_set(int zasm_var, int ref, int index, int value, bool is_object);
+bool zasm_array_set(int zasm_var, int ref, int index, int value, script_object_type type);
 bool zasm_array_supports(int zasm_var);
 
 template <typename T, size_t N>

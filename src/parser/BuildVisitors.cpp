@@ -5,6 +5,7 @@
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "base/general.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
 #include "parser/ByteCode.h"
@@ -1612,7 +1613,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		if (comptime_val)
 			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
 		else if (is_object)
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 	}
@@ -1692,14 +1693,14 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
 
-	bool is_setting_object = false;
-	if (auto type = host.right->getReadType(scope, nullptr))
-		is_setting_object = type->isObject();
+	auto setting_object_type = script_object_type::none;
+	if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+		setting_object_type = type->getScriptObjectTypeId();
 
 	//and store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
-	helper.is_setting_object = is_setting_object;
+	helper.setting_object_type = setting_object_type;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -4096,7 +4097,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	{
 		// Global variable.
 		if (is_object)
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		return;
@@ -4189,7 +4190,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 		// Some internal variables (untyped arrays like sprite::Misc[]) may set objects. For those,
 		// use SET_OBJECT instead of SETR.
-		bool sets_object = is_setting_object && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
+		bool sets_object = setting_object_type != script_object_type::none && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
 
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.writeFunction->getCode();
 		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
@@ -4198,7 +4199,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			{
 				if (auto op = dynamic_cast<OSetRegister*>(it->get()))
 				{
-					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone()));
+					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone(), new LiteralArgument((int)setting_object_type)));
 					continue;
 				}
 			}
@@ -4272,8 +4273,8 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
 	}
 
-	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1), new LiteralArgument(is_setting_object ? 1 : 0)));
-	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new LiteralArgument(is_setting_object ? 1 : 0)));
+	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
+	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
 }
 
 

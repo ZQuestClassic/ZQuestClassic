@@ -850,7 +850,7 @@ static constexpr script_command command_list[]=
 	{ "ZCLASS_MARK_TYPE", ZCLASS_MARK_TYPE, 0, {}, 2, 0 },
 	{ "STORE_OBJECT", STORE_OBJECT, 2, { REG_R, NUM }, 0, 0 },
 	{ "GC", GC, 0, { }, 0, 0 },
-	{ "SET_OBJECT", SET_OBJECT, 2, { REG_W, REG_R }, 0, 0 },
+	{ "SET_OBJECT", SET_OBJECT, 3, { REG_W, REG_R, NUM }, 0, 0 },
 	{ "TILEBLIT", TILEBLIT, 0, {}, 0, 0 },
 	{ "COMBOBLIT", COMBOBLIT, 0, {}, 0, 0 },
 	{ "BMPTILEBLIT", BMPTILEBLIT, 0, {}, 0, 0 },

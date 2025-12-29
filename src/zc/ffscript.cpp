@@ -2205,10 +2205,10 @@ INLINE int32_t ArrayH::getElement(const int32_t ptr, int32_t offset, const bool 
 }
 
 //Set element in array
-INLINE void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg, const bool is_object)
+INLINE void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg, const script_object_type type)
 {
 	ArrayManager am(ptr,neg);
-	am.set(offset, value, is_object);
+	am.set(offset, value, type);
 }
 
 int32_t ArrayH::setArray(const int32_t ptr, string const& s2, bool resize)
@@ -17480,7 +17480,7 @@ void set_register(int32_t arg, int32_t value)
 				if (ref_arg) debug_get_ref(ref_arg);
 #endif
 				int ref = ref_arg ? get_ref(ref_arg) : 0;
-				zasm_array_set(arg, ref, GET_D(rINDEX) / 10000, value, false);
+				zasm_array_set(arg, ref, GET_D(rINDEX) / 10000, value, script_object_type::none);
 			}
 			else
 			{
@@ -23709,8 +23709,8 @@ void do_writepod(const bool v1, const bool v2)
 {
 	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
 	int32_t val = SH::get_arg(sarg2, v2);
-	bool is_object = sarg3;
-	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array, is_object);
+	auto type = (script_object_type)sarg3;
+	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array, type);
 }
 void do_writepodstr()
 {
@@ -27856,11 +27856,13 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				}
 				else if (zasm_array_supports(sarg1))
 				{
+					auto type = (script_object_type)sarg3;
+
 					int zasm_var = sarg1;
 					int index = GET_D(rINDEX) / 10000;
 					int ref_arg = get_register_ref_dependency(zasm_var).value_or(0);
 					int ref = ref_arg ? get_ref(ref_arg) : 0;
-					zasm_array_set(zasm_var, ref, index, value, true);
+					zasm_array_set(zasm_var, ref, index, value, type);
 				}
 				else NOTREACHED();
 				break;

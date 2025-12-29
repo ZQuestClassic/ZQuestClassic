@@ -178,20 +178,20 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 			if (internal_expired) return;
 
 			std::vector<int> values = zasm_array_get_all(internal_id->zasm_var, internal_id->ref);
-			int size = std::min(values.size(), untyped_is_object.size());
+			int size = std::min(values.size(), untyped_array_types.size());
 			for (int i = 0; i < size; i++)
 			{
-				if (untyped_is_object[i])
+				if (untyped_array_types[i] != script_object_type::none)
 					ids.push_back(values[i]);
 			}
 
 			return;
 		}
 
-		int size = std::min(arr.Size(), untyped_is_object.size());
+		int size = std::min(arr.Size(), untyped_array_types.size());
 		for (int i = 0; i < size; i++)
 		{
-			if (untyped_is_object[i])
+			if (untyped_array_types[i] != script_object_type::none)
 				ids.push_back(arr[i]);
 		}
 	}
@@ -199,41 +199,65 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 
 void script_array::restore_references()
 {
-	if (!arr.HoldsObjects())
+	if (!arr.HoldsObjects() && !arr.MaybeHoldsObjects())
 		return;
 
 	if (internal_expired)
 		return;
 
-	if (!can_restore_object_type(arr.ObjectType()))
+	if (arr.HoldsObjects())
+	{
+		if (!can_restore_object_type(arr.ObjectType()))
+		{
+			for (int i = 0; i < arr.Size(); i++)
+				arr[i] = 0;
+			return;
+		}
+
+		for (int i = 0; i < arr.Size(); i++)
+		{
+			if (script_objects.contains(arr[i]))
+				script_object_ref_inc(arr[i]);
+			else
+				arr[i] = 0;
+		}
+	}
+	else if (arr.MaybeHoldsObjects())
 	{
 		for (int i = 0; i < arr.Size(); i++)
-			arr[i] = 0;
-		return;
-	}
+		{
+			if (!holds_untyped_object(i))
+				continue;
 
-	for (int i = 0; i < arr.Size(); i++)
-	{
-		if (script_objects.contains(arr[i]))
-			script_object_ref_inc(arr[i]);
-		else
-			arr[i] = 0;
+			if (can_restore_object_type(get_type_in_untyped_array(i)) && script_objects.contains(arr[i]))
+				script_object_ref_inc(arr[i]);
+			else
+				arr[i] = 0;
+		}
 	}
 }
 
 bool script_array::holds_untyped_object(int index) const
 {
-	if (index >= untyped_is_object.size())
+	if (index >= untyped_array_types.size())
 		return false;
 
-	return untyped_is_object[index];
+	return untyped_array_types[index] != script_object_type::none;
 }
 
-void script_array::set_holds_untyped_object(int index, bool is_object)
+script_object_type script_array::get_type_in_untyped_array(int index) const
 {
-	if (index >= untyped_is_object.size())
-		untyped_is_object.resize(index + 1);
-	untyped_is_object[index] = is_object;
+	if (index >= untyped_array_types.size())
+		return script_object_type::none;
+
+	return untyped_array_types[index];
+}
+
+void script_array::set_type_in_untyped_array(int index, script_object_type type)
+{
+	if (index >= untyped_array_types.size())
+		untyped_array_types.resize(index + 1);
+	untyped_array_types[index] = type;
 }
 
 void scr_func_exec::clear()

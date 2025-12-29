@@ -30,7 +30,7 @@ MARK_TYPE_REG GD1 0.0001; void run() Body Start
 SETV GD1 0
 ALLOCATEGMEMV D2 6 0.0010
 MARK_TYPE_REG GD2 0.0009
-SET_OBJECT GD2 D2
+SET_OBJECT GD2 D2 0.0009
 QUIT; void run() Body End
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
@@ -252,7 +252,7 @@ PUSHARGSV 0 0.0006; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, in
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 LOAD D2 0.0001
-SET_OBJECT GD1 D2
+SET_OBJECT GD1 D2 0.0001
 REF_REMOVE 0.0001
 POPARGS D5 0.0003
 RETURNFUNC; Func[void resize(int)] Body End
@@ -294,7 +294,7 @@ POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bitmap create(int, int)] Body End
 SETR D4 SP2; Func[void destroy()] Body Start
 SETV D2 0
-SET_OBJECT GD1 D2
+SET_OBJECT GD1 D2 0
 SETV D2 0
 PUSHR D2
 SETR D2 GD2
@@ -407,7 +407,7 @@ PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 PUSHV 1024; UsrFunc[bitmap create(int, int)] Params End
 CALLFUNC 0.0257; UsrFunc[bitmap create(int, int)] Call
 POP D4
-SET_OBJECT GD1 D2
+SET_OBJECT GD1 D2 0.0001
 SETR D2 GD1; InlineFunc[void bitmap::Clear(int)] Params Start
 PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End

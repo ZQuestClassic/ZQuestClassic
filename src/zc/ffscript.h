@@ -1188,7 +1188,7 @@ public:
 	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);
 	
 	//Set element in array
-	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false, const bool is_object = false);
+	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false, const script_object_type type = script_object_type::none);
 	
 	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
 	template <typename T>

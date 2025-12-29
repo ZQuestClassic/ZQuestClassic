@@ -437,10 +437,10 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			displayinfo("Error", fmt::format(
 				"Unable to parse instruction {}"
 				"\nThe error was: {}"
-				"\nThe command was ({}) ({},{}){}",
+				"\nThe command was ({}) ({},{},{}){}",
 				i+1,
 				errstrbuf[parse_err],
-				combuf, arg1buf, arg2buf, vstrbuf
+				combuf, arg1buf, arg2buf, arg3buf, vstrbuf
 			));
 			stop=true;
 			success=false;

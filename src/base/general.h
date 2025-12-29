@@ -278,7 +278,7 @@ byte zq_fix_ui_color(byte color);
 //    Note: I attempted to make all untyped variables (not just arrays) dynamically retain objects, but
 //          it didn't go well. I left a messy branch of work at "zscript-untyped".
 // Everything else always holds an object reference.
-enum class script_object_type
+enum class script_object_type : byte
 {
 	none,
 	bitmap,

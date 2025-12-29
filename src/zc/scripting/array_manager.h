@@ -1,6 +1,7 @@
 #ifndef ZC_SCRIPTING_ARRAY_MANAGER_H_
 #define ZC_SCRIPTING_ARRAY_MANAGER_H_
 
+#include "base/general.h"
 #include "base/zc_array.h"
 #include "user_object.h"
 #include <cstdint>
@@ -14,7 +15,7 @@ public:
 	ArrayManager(int32_t ptr);
 	
 	int32_t get(int32_t indx) const;
-	void set(int32_t indx, int32_t val, bool is_object = false);
+	void set(int32_t indx, int32_t val, script_object_type is_object = script_object_type::none);
 	int32_t size() const;
 	
 	bool resize(size_t newsize);

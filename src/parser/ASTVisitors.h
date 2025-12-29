@@ -3,6 +3,7 @@
 
 #include "AST.h"
 #include "CompileError.h"
+#include "base/general.h"
 
 enum
 {
@@ -15,7 +16,7 @@ namespace ZScript
 	class ASTVisitor
 	{
 	public:
-		ASTVisitor() : parsing_user_class(puc_none), sidefx_only(false), is_setting_object(false),
+		ASTVisitor() : parsing_user_class(puc_none), sidefx_only(false), setting_object_type(script_object_type::none),
 			in_func(nullptr), scope(nullptr), lexical_options_scope(nullptr) {}
 		virtual ~ASTVisitor() = default;
 		
@@ -209,7 +210,7 @@ namespace ZScript
 		
 		int parsing_user_class;
 		bool sidefx_only;
-		bool is_setting_object;
+		script_object_type setting_object_type;
 		Function* in_func;
 		//Current scope
 		ZScript::Scope* scope;
