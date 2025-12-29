@@ -4009,11 +4009,9 @@ bool handle_close_btn_quit()
 
 void syskeys()
 {
-	update_system_keys();
-	
-	int32_t oldtitle_version;
-	
+	poll_keyboard();
 	poll_joystick();
+	update_system_keys();
 	
 	handle_close_btn_quit();
 	if(Quit == qEXIT) return;
