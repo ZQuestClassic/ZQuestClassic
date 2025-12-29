@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-12-07 03:15:32</td>
+      <td>2025-12-29 10:30:12</td>
     </tr>
   </table>
 </div>
@@ -42,7 +42,7 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>1404</td>
+      <td>1407</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
@@ -54,7 +54,7 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>0</td>
-      <td>728</td>
+      <td>764</td>
       <td class="coverage-none">0.0%</td>
     </tr>
   </table>
@@ -1065,7 +1065,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="k">if</span><span class="p">(</span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Confirm Overwrite&quot;</span><span class="p">,</span><span class="s">&quot;File already exists.&quot;</span><span class="p">,</span><span class="s">&quot;Overwrite?&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;Yes&quot;</span><span class="p">,</span><span class="s">&quot;No&quot;</span><span class="p">,</span><span class="sc">&#39;y&#39;</span><span class="p">,</span><span class="sc">&#39;n&#39;</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">))</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">alert_confirm</span><span class="p">(</span><span class="s">&quot;Confirm Overwrite&quot;</span><span class="p">,</span><span class="s">&quot;File already exists. Overwrite?&quot;</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
@@ -1121,7 +1121,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="s">&quot;Unable to open file for writing!&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;O&amp;K&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="sc">&#39;k&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">displayinfo</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="s">&quot;Unable to open file for writing!&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
@@ -1170,7 +1170,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="s">&quot;IO error while writing script to file!&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;O&amp;K&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="sc">&#39;k&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">displayinfo</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="s">&quot;IO error while writing script to file!&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
@@ -16675,7 +16675,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Combo Locations&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No other screens use this combo.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;OK&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">displayinfo</span><span class="p">(</span><span class="s">&quot;Combo Locations&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No other screens use this combo.&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2362" href="#l2362">2362</a></td>
@@ -16695,8 +16695,8 @@
       <td class="lineno"><a id="l2364" href="#l2364">2364</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2365" href="#l2365">2365</a></td>
@@ -16780,7 +16780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Combo Locations&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No other screens use this combo.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;OK&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">displayinfo</span><span class="p">(</span><span class="s">&quot;Combo Locations&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No buggy -&gt;Next combos.&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2377" href="#l2377">2377</a></td>
@@ -16800,8 +16800,8 @@
       <td class="lineno"><a id="l2379" href="#l2379">2379</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2380" href="#l2380">2380</a></td>
@@ -18215,7 +18215,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;What Links Here&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No other screens warp to this screen&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;or use this screen as a layer.&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;OK&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">displayinfo</span><span class="p">(</span><span class="s">&quot;What Links Here&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No other screens warp to this screen or use this screen as a layer.&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2582" href="#l2582">2582</a></td>
@@ -18235,8 +18235,8 @@
       <td class="lineno"><a id="l2584" href="#l2584">2584</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2585" href="#l2585">2585</a></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-12-07 03:15:32</td>
+      <td>2025-12-29 10:30:12</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l253">$_1::operator()() const (line 253)</a></td><td>called 429 times, returned 429 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l253">$_1::operator()() const (line 253)</a></td><td>called 430 times, returned 430 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l255">$_1::operator()() const::&#39;lambda&#39;(user_websocket*)::operator()(user_websocket*) const (line 255)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l256">$_1::operator()() const::&#39;lambda&#39;(user_websocket*, int)::operator()(user_websocket*, int) const (line 256)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l257">$_1::operator()() const::&#39;lambda&#39;(user_websocket*, int, char)::operator()(user_websocket*, int, char) const (line 257)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -87,7 +87,7 @@
     <tr><td><a href="#l41">user_websocket::send(WebSocketMessageType, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 41)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l15">user_websocket::~user_websocket() (line 15)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l86">websocket_get_register(int) (line 86)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l80">websocket_init() (line 80)</a></td><td>called 437 times, returned 437 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l80">websocket_init() (line 80)</a></td><td>called 440 times, returned 440 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l122">websocket_run_command(unsigned short) (line 122)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
@@ -660,7 +660,7 @@
       <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">437</td>
+      <td class="linecount coveredLine">440</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">websocket_init</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -674,21 +674,21 @@
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">437</td>
+      <td class="linecount coveredLine">440</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">user_websockets</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">437</td>
+      <td class="linecount coveredLine">440</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">websocket_pool_destroy</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">437</td>
+      <td class="linecount coveredLine">440</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1871,7 +1871,7 @@
       <td class="lineno"><a id="l253" href="#l253">253</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">858</td>
+      <td class="linecount coveredLine">860</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">ArrayRegistrar</span><span class="w"> </span><span class="n">WEBSOCKET_URL_registrar</span><span class="p">(</span><span class="n">WEBSOCKET_URL</span><span class="p">,</span><span class="w"> </span><span class="p">[]{</span></td>
     </tr>
     <tr class="source-line">
@@ -1880,23 +1880,23 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 429 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 430 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 429 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 429 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 430 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 430 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">429</td>
+      <td class="linecount partialCoveredLine">430</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">ScriptingArray_ObjectComputed</span><span class="o">&lt;</span><span class="n">user_websocket</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">&gt;</span><span class="w"> </span><span class="n">impl</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l255" href="#l255">255</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">429</td>
+      <td class="linecount coveredLine">430</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">[](</span><span class="n">user_websocket</span><span class="o">*</span><span class="w"> </span><span class="n">ws</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ws</span><span class="o">-&gt;</span><span class="n">url</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
@@ -1924,21 +1924,21 @@
       <td class="lineno"><a id="l259" href="#l259">259</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">429</td>
+      <td class="linecount coveredLine">430</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setMul10000</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l260" href="#l260">260</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">429</td>
+      <td class="linecount coveredLine">430</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setReadOnly</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l261" href="#l261">261</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">429</td>
+      <td class="linecount coveredLine">430</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">impl</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

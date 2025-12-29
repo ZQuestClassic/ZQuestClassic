@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-12-07 03:15:32</td>
+      <td>2025-12-29 10:30:12</td>
     </tr>
   </table>
 </div>
@@ -42,7 +42,7 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>1</td>
-      <td>94</td>
+      <td>95</td>
       <td class="coverage-low">1.1%</td>
     </tr>
     <tr>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l11">MapViewRTI::render(bool) (line 11)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l90">auto MapViewRTI::render(bool)::$_0::operator()&lt;MapViewRTI::render(bool)::ScreenColorInfo, MapViewRTI::render(bool)::ScreenColorInfo&gt;(MapViewRTI::render(bool)::ScreenColorInfo const&amp;, MapViewRTI::render(bool)::ScreenColorInfo const&amp;) const (line 90)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l149">mapview_close() (line 149)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l156">mapview_close() (line 156)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l131">mapview_get_rti() (line 131)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l136">mapview_open(int, int, int, int, int) (line 136)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -1104,88 +1104,137 @@
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">get_root_rti</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add_child</span><span class="p">(</span><span class="n">rti_map_view</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">render_zq</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Add to the back of the dialogs. This allows popups intended to show over the map to still be visible (such as the image failing to save)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Adding directly to `rti_dialogs` causes `screen` to end up `nullptr` and crashes, so add to the last child of dialogs instead.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Reload the tints first to ensure the last child is not `rti_tint`, otherwise the entire map vanishes on using the KEY_SPACE shortcut.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">mapview_close</span><span class="p">()</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// `popup_zq_dialog_start()` should have been used before calling `mapview_open`, and `popup_zq_dialog_end()` should be called after `mapview_close()`.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">reload_dialog_tint</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_map_view</span><span class="p">.</span><span class="n">view_map_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">rti_dialogs</span><span class="p">.</span><span class="n">has_children</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_map_view</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_dialogs</span><span class="p">.</span><span class="n">get_children</span><span class="p">().</span><span class="n">back</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add_child</span><span class="p">(</span><span class="n">rti_map_view</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">render_zq</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l154" href="#l154">154</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">reload_zq_gui</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l155" href="#l155">155</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">reload_zq_gui</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l155" href="#l155">155</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l156" href="#l156">156</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">mapview_close</span><span class="p">()</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l158" href="#l158">158</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_map_view</span><span class="p">.</span><span class="n">view_map_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l159" href="#l159">159</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rti_map_view</span><span class="p">.</span><span class="n">remove</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l160" href="#l160">160</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l161" href="#l161">161</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">reload_zq_gui</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l162" href="#l162">162</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">reload_zq_gui</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l163" href="#l163">163</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
