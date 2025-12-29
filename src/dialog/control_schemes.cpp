@@ -51,13 +51,13 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 	string quest_str = quest_active ? quest_control_path.substr(quest_control_prefix.size()) : "[No Quest Loaded]";
 	
 	scheme_global = DropDownList(data = schemes_list_no_none,
-		fitParent = true,
+		fitParent = true, maxwidth = 250_px,
 		onSelectFunc = [&](int32_t val)
 		{
 			global_scheme = schemes_list_no_none.findText(val);
 		});
 	scheme_quest = DropDownList(data = schemes_list_quest,
-		fitParent = true,
+		fitParent = true, maxwidth = 250_px,
 		disabled = !quest_active,
 		onSelectFunc = [&](int32_t val)
 		{
@@ -66,7 +66,7 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 			else quest_scheme = schemes_list_quest.findText(val);
 		});
 	scheme_edit = DropDownList(data = schemes_list_no_none,
-		fitParent = true,
+		fitParent = true, maxwidth = 250_px,
 		onSelectFunc = [&](int32_t val)
 		{
 			edit_scheme = schemes_list_no_none.findText(val);
