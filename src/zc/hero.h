@@ -423,6 +423,7 @@ public:
 	void checklocked();
 	void deselectbombs(int32_t super); // switch Hero's weapon if his current weapon (bombs) was depleted.
 	bool startwpn(int32_t itemid);
+	bool can_be_used(int32_t itemid);
 	bool on_cooldown(int32_t itemid);
 	void start_cooldown(int32_t itemid);
 	int onWater(bool drownonly);
