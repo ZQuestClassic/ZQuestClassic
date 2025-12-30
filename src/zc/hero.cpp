@@ -82,6 +82,7 @@ bool item_error()
 		sfx(QMisc.miscsfx[sfxERROR]);
 	return false;
 }
+
 static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t oldy)
 {
 	if(check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, false, true) < 0) return true;
@@ -12849,6 +12850,13 @@ bool HeroClass::startwpn(int32_t itemid)
 	return ret;
 }
 
+// If this returns false, it will act as though the button wasn't even pressed for the item.
+bool HeroClass::can_be_used(int itmid)
+{
+	if (IsSideSwim() && (itemsbuf[itmid].flags & ITEM_SIDESWIM_DISABLED))
+		return false;
+	return true;
+}
 
 bool HeroClass::doattack()
 {
@@ -14574,11 +14582,22 @@ void HeroClass::moveheroOld()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn >= MAXITEMS) directWpn = -1;
-		
-		// The Quick Sword only allows repeated sword or wand swings.
-		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-			btnwpn=-1;
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		if (!can_be_used(itmid))
+		{
+			directWpn = olddirectwpn;
+			btnwpn = -1;
+			dowpn = -1;
+			did_scriptb = false;
+		}
+		else
+		{
+			if(directWpn >= MAXITEMS) directWpn = -1;
+			
+			// The Quick Sword only allows repeated sword or wand swings.
+			if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+				btnwpn=-1;
+		}
 	}
 	
 	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
@@ -18915,7 +18934,6 @@ bool HeroClass::can_moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove)
 	});
 }
 
-
 bool HeroClass::premove()
 {
 	if(lstunclock) return false;
@@ -19005,11 +19023,22 @@ bool HeroClass::premove()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn >= MAXITEMS) directWpn = -1;
-		
-		// The Quick Sword only allows repeated sword or wand swings.
-		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-			btnwpn=-1;
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		if (!can_be_used(itmid))
+		{
+			directWpn = olddirectwpn;
+			btnwpn = -1;
+			dowpn = -1;
+			did_scriptb = false;
+		}
+		else
+		{
+			if(directWpn >= MAXITEMS) directWpn = -1;
+			
+			// The Quick Sword only allows repeated sword or wand swings.
+			if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+				btnwpn=-1;
+		}
 	}
 	
 	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
