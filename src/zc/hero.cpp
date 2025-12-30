@@ -99,6 +99,7 @@ bool item_error()
 		sfx(QMisc.miscsfx[sfxERROR]);
 	return false;
 }
+
 static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t oldy)
 {
 	if(check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, false, true) < 0) return true;
@@ -12945,6 +12946,17 @@ bool HeroClass::startwpn(int32_t itemid)
 
 	return ret;
 }
+
+// If this returns false, it will act as though the button wasn't even pressed for the item.
+bool HeroClass::can_be_used(int itmid)
+{
+	if (on_cooldown(itmid))
+		return false;
+	if (IsSideSwim() && (itemsbuf[itmid].flags & item_sideswim_disabled))
+		return false;
+	return true;
+}
+
 bool HeroClass::on_cooldown(int32_t itemid)
 {
 	if (itemid < 0 || itemid >= MAXITEMS) return false;
@@ -14824,7 +14836,7 @@ void HeroClass::moveheroOld()
 		}
 		
 		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
-		if (on_cooldown(itmid))
+		if (!can_be_used(itmid))
 		{
 			directWpn = olddirectwpn;
 			btnwpn = -1;
@@ -19179,7 +19191,6 @@ bool HeroClass::can_moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove)
 	});
 }
 
-
 bool HeroClass::premove()
 {
 	if(is_autowalking()) return true;
@@ -19245,7 +19256,7 @@ bool HeroClass::premove()
 		}
 		
 		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
-		if (on_cooldown(itmid))
+		if (!can_be_used(itmid))
 		{
 			directWpn = olddirectwpn;
 			btnwpn = -1;
