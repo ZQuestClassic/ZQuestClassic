@@ -20,6 +20,7 @@
 
 static bool is_enabled;
 static bool jit_log_enabled;
+static bool jit_use_cached_regs_enabled;
 static bool jit_precompile;
 
 static int worker_pool_generation;
@@ -157,6 +158,11 @@ bool jit_log_is_enabled()
 	return jit_log_enabled;
 }
 
+bool jit_is_use_cached_regs_enabled()
+{
+	return jit_use_cached_regs_enabled;
+}
+
 bool jit_should_precompile()
 {
 	return jit_precompile;
@@ -189,6 +195,7 @@ void jit_startup(bool precompile)
 	zasm_init_meta_cache();
 
 	jit_log_enabled = is_feature_enabled("-jit-log", "ZSCRIPT", "jit_log", false) || is_ci();
+	jit_use_cached_regs_enabled = is_feature_enabled("-jit-cache-registers", "ZSCRIPT", "jit_cache_registers", true);
 	jit_precompile = precompile;
 
 	jit_startup_impl();

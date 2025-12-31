@@ -2003,8 +2003,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	std::string comment;
 	std::map<int, int> uncompiled_command_counts;
 
-	static bool use_cached_regs_enabled = is_feature_enabled("-jit-cache-registers", "ZSCRIPT", "jit_cache_registers", true);
-	state.use_cached_regs = use_cached_regs_enabled && !runtime_debugging;
+	state.use_cached_regs = jit_is_use_cached_regs_enabled() && !runtime_debugging;
 
 	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
 

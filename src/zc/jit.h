@@ -25,6 +25,7 @@ void jit_error(const char *format, ...);
 bool jit_is_enabled();
 void jit_set_enabled(bool enabled);
 bool jit_log_is_enabled();
+bool jit_is_use_cached_regs_enabled();
 bool jit_should_precompile();
 JittedScriptInstance* jit_create_script_instance(script_data* script, refInfo* ri);
 void jit_profiler_increment_function_back_edge(JittedScriptInstance* j_instance, pc_t pc);
