@@ -30932,13 +30932,8 @@ void FFScript::do_tracetobase()
 		break;
 	}
 
+	s2 += "\n";
 	traceStr(s2);
-
-	if ( console_enabled ) 
-	{
-		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
-	}
 }
 
 int32_t FFScript::getHeroOTile(int32_t index1, int32_t index2)
