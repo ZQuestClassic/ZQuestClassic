@@ -5538,16 +5538,20 @@ bool weapon::animate(int32_t index)
 		if(clip())
 			onhit(true);
 	
-	if(dead == -1 && (misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID)))
+	if(dead == -1 && (misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID|WFLAG_TEMP_IGNORE_SOLID)))
 	{
 		if(collide_solid())
 		{
-			findcombotriggers(); //Hit solid triggers
-			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
-				kill_weapon_special();
-			if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
-				step = 0;
+			if (!(misc_wflags & WFLAG_TEMP_IGNORE_SOLID))
+			{
+				findcombotriggers(); //Hit solid triggers
+				if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+					kill_weapon_special();
+				if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
+					step = 0;
+			}
 		}
+		else misc_wflags &= ~WFLAG_TEMP_IGNORE_SOLID;
 	}
 	
 	if(bounce)

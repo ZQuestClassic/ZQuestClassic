@@ -158,7 +158,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 					),
 					Column(
 						Frame(title = "Misc Flags",
-							Rows_Columns<2,5>(
+							Rows_Columns<2,6>(
 								Checkbox(text = "Pick Up Items",
 									checked = local_ref.wflags & WFLAG_PICKUP_ITEMS,
 									fitParent = true,
@@ -179,16 +179,6 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								),
 								INFOBTN("The weapon will die when it lands after being airborne."),
 								//
-								Checkbox(text = "Break On Solid",
-									checked = local_ref.wflags & WFLAG_BREAK_ON_SOLID,
-									fitParent = true,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_ref.wflags, WFLAG_BREAK_ON_SOLID, state);
-									}
-								),
-								INFOBTN("The weapon will die when it collides with a solid."),
-								//
 								Checkbox(text = "Stop On Landing",
 									checked = local_ref.wflags & WFLAG_STOP_WHEN_LANDING,
 									fitParent = true,
@@ -199,6 +189,16 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								),
 								INFOBTN("The weapon will stop moving when it lands after being airborne."),
 								//
+								Checkbox(text = "Break On Solid",
+									checked = local_ref.wflags & WFLAG_BREAK_ON_SOLID,
+									fitParent = true,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.wflags, WFLAG_BREAK_ON_SOLID, state);
+									}
+								),
+								INFOBTN("The weapon will die when it collides with a solid."),
+								//
 								Checkbox(text = "Stop On Solid",
 									checked = local_ref.wflags & WFLAG_STOP_WHEN_HIT_SOLID,
 									fitParent = true,
@@ -208,6 +208,17 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 									}
 								),
 								INFOBTN("The weapon will stop moving when it collides with a solid."),
+								//
+								Checkbox(text = "Temp Ignore Solids",
+									checked = local_ref.wflags & WFLAG_TEMP_IGNORE_SOLID,
+									fitParent = true,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.wflags, WFLAG_TEMP_IGNORE_SOLID, state);
+									}
+								),
+								INFOBTN("The weapon will ignore any solids it hits, until it is NOT inside of a solid."
+									"Useful for solid Shooter combos, so their projectiles don't collide with themselves."),
 								//
 								Checkbox(text = "Ignited: Any",
 									checked = local_ref.wflags & WFLAG_BURN_ANYFIRE,
