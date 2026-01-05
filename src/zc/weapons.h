@@ -15,8 +15,6 @@ extern byte boomframe[16];
 extern byte bszboomflip[4];
 
 #define WEAPON_CLOCKS 10
-#define WFLAG_MAX 10
-#define WFLAG_BURNFLAGS            0x0078
 
 class weapon : public sprite
 {

@@ -114,17 +114,18 @@ enum WarpType
 
 enum WeaponFlag
 {
-	WFLAG_PICKUP_ITEMS,
-	WFLAG_BREAKS_ON_LANDING,
-	WFLAG_BREAKS_ON_SOLID,
-	WFLAG_BURN_ANYFIRE,
-	WFLAG_BURN_STRONGFIRE,
-	WFLAG_BURN_MAGICFIRE,
-	WFLAG_BURN_DIVINEFIRE,
-	WFLAG_STOP_ON_LANDING,
-	WFLAG_STOP_ON_SOLID,
-	WFLAG_UPDATE_BURNSPR,
-	WFLAG_NO_COLL_WHEN_STILL,
+	WFLAG_PICKUP_ITEMS, // The weapon collects items it touches for the player, similar to melee weapon behavior.
+	WFLAG_BREAKS_ON_LANDING, // The weapon is destroyed when it lands after being in mid-air.
+	WFLAG_BREAKS_ON_SOLID, // The weapon is destroyed when it touches a solid.
+	WFLAG_BURN_ANYFIRE, // The weapon is on fire, counting as 'Any' type fire.
+	WFLAG_BURN_STRONGFIRE, // The weapon is on fire, counting as 'Strong' type fire.
+	WFLAG_BURN_MAGICFIRE, // The weapon is on fire, counting as 'Magic' type fire.
+	WFLAG_BURN_DIVINEFIRE, // The weapon is on fire, counting as 'Divine' type fire.
+	WFLAG_STOP_ON_LANDING, // The weapon stops moving when it lands after being in mid-air.
+	WFLAG_STOP_ON_SOLID, // The weapon stops moving when it touches a solid.
+	WFLAG_UPDATE_BURNSPR, // The weapon changes sprites when it's BURN weapon flags change.
+	WFLAG_NO_COLL_WHEN_STILL, // The weapon has no collision while it isn't moving
+	WFLAG_TEMP_IGNORE_SOLID, // The weapon will not trigger [WFLAG_STOP_ON_SOLID] or [WFLAG_BREAKS_ON_SOLID]. This flag is automatically unset when the weapon is NOT touching any solids.
 	WFLAG_MAX
 };
 
