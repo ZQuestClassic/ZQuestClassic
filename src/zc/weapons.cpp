@@ -3234,6 +3234,7 @@ void weapon::limited_animate()
 			{
 				id = parentitem>-1 ? ((itemsbuf[parentitem].type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
+				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
@@ -3741,7 +3742,7 @@ bool weapon::animate(int32_t index)
 				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
 				{
 					collision_check();
-					dead = 0;
+					kill_weapon_special();
 				}
 				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 				{
@@ -3768,7 +3769,7 @@ bool weapon::animate(int32_t index)
 						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
 						{
 							collision_check();
-							dead = 0;
+							kill_weapon_special();
 						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 						{
@@ -3794,7 +3795,7 @@ bool weapon::animate(int32_t index)
 						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
 						{
 							collision_check();
-							dead = 0;
+							kill_weapon_special();
 						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 						{
@@ -4223,6 +4224,7 @@ bool weapon::animate(int32_t index)
 			if(clk==(misc-2) && step==0)
 			{
 				id = (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb);
+				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
 				hxofs=2000;
 			}
 			
@@ -5542,7 +5544,7 @@ bool weapon::animate(int32_t index)
 		{
 			findcombotriggers(); //Hit solid triggers
 			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
-				dead = 0;
+				kill_weapon_special();
 			if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
 				step = 0;
 		}
@@ -5583,7 +5585,7 @@ bool weapon::animate(int32_t index)
 	if(weap_timeout > 0)
 	{
 		if(!--weap_timeout)
-			dead = 0;
+			kill_weapon_special();
 	}
 	
 	bool ret = dead==0;
@@ -6938,6 +6940,27 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
     default:
         dead=1;
     }
+}
+
+void weapon::kill_weapon_special()
+{
+	switch (id)
+	{
+		case wLitBomb: case wLitSBomb:
+		case ewLitBomb: case ewLitSBomb:
+		{
+			// stop it in place, ensure it has a fuse timer, and make the fuse run out imminently.
+			step = 0;
+			misc = 50;
+			clk = misc - 3;
+			
+			// broke already by exploding
+			misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+			break;
+		}
+		default:
+			dead = 0;
+	}
 }
 
 // override hit detection to check for invicibility, etc
