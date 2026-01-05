@@ -110,7 +110,7 @@ double wrap_float(double x,double low,double high);
 #define MAX_DWORD                  dword(-1)
 #define MIN_DWORD                  0
 
-#define STANDING_Z_MAX             214748.3648_zf
+#define STANDING_Z_MAX             214748.3647_zf
 
 #define SINGLE_TILE_SIZE           128
 #define TILES_PER_ROW              20
