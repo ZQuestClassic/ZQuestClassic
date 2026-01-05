@@ -185,6 +185,7 @@ public:
 	void collision_check();
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
     virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1);
+	void kill_weapon_special(); // kill a weapon, with SOME special handling; i.e. blow up bombs
     // override hit detection to check for invicibility, etc
     virtual bool hit();
     virtual bool hit(sprite *s);
