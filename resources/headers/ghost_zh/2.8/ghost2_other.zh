@@ -226,8 +226,8 @@ npc SpawnNPC(int id)
 int FindUnusedFFC()
 {
     ffc f;
-    
-    for(int i=1; i<33; ++i)
+    int max_ffc = Game->FFRules[qr_OLD_FFC_FUNCTIONALITY] ? 32 : 128;
+    for(int i=1; i<=max_ffc; ++i)
     {
         f=Screen->LoadFFC(i);
         
@@ -251,8 +251,8 @@ int FindUnusedFFC()
 int FindUnusedFFC(int startingFrom)
 {
     ffc f;
-    
-    for(int i=Max(startingFrom+1, AUTOGHOST_MIN_FFC); i<=(Min(AUTOGHOST_MAX_FFC,32)); ++i)
+    int max_ffc = Game->FFRules[qr_OLD_FFC_FUNCTIONALITY] ? 32 : 128;
+    for(int i=Max(startingFrom+1, 1); i<=max_ffc; ++i)
     {
         f=Screen->LoadFFC(i);
         
