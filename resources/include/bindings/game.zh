@@ -505,6 +505,7 @@ class Game {
 	internal long LevelStates[];
 
 	// The 256 global switch timers.
+	// -1 = on, 0 = off, > 0 = on for that many frames
 	//
 	// @zasm_var GAMEGSWITCH
 	internal int GlobalStates[];
