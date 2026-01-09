@@ -41,6 +41,7 @@ src/zc/scripting/context_strings.cpp
 src/zc/scripting/script_object.cpp
 src/zc/scripting/sram.cpp
 src/zc/scripting/string_utils.cpp
+src/zc/scripting/type_store.cpp
 src/zc/debugger/debugger.cpp
 src/zc/debugger/debugger_gui.cpp
 src/zc/debugger/vm.cpp

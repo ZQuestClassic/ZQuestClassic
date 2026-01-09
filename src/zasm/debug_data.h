@@ -10,6 +10,8 @@
 #include "base/ints.h"
 #include "zasm/pc.h"
 
+using TypeID = uint32_t;
+
 struct SourceFile
 {
 	std::string path;
@@ -43,7 +45,7 @@ struct DebugScope
 	DebugScopeFlags flags;
 	int parent_index = -1;
 	int inheritance_index = -1;
-	uint32_t type_id;
+	TypeID type_id;
 	pc_t start_pc;
 	pc_t end_pc;
 	std::string name;
@@ -70,7 +72,7 @@ struct DebugSymbol
 {
 	int32_t scope_index; // Which scope owns this variable?
 	int32_t offset;      // Based on storage. e.g., stack offset, or global index, or class field, ...
-	uint32_t type_id;
+	TypeID type_id;
 	uint32_t declaration_line;
 	DebugSymbolStorage storage;
 	DebugSymbolFlags flags;
@@ -160,7 +162,7 @@ struct DebugData
 	bool exists() const;
 
 	int getScopeIndex(const DebugScope* scope) const;
-	uint32_t getTypeID(const DebugType* type) const;
+	TypeID getTypeID(const DebugType* type) const;
 	int getSourceFileIndex(const SourceFile* source_file) const;
 	const SourceFile* getSourceFile(std::string path) const;
 	const std::vector<DebugLine>& getLineTable() const;
@@ -173,11 +175,11 @@ struct DebugData
 	const DebugScope* resolveClassScope(pc_t pc) const;
 	const DebugScope* resolveFileScope(std::string fname) const;
 	pc_t findFunctionPrologueEnd(const DebugScope* scope) const;
-	const DebugType* getType(uint32_t type_id) const;
+	const DebugType* getType(TypeID type_id) const;
 	const DebugType* getType(const DebugScope* scope) const;
 	const DebugType* getTypeForScope(const DebugScope* scope) const;
 	std::string getTypeName(const DebugType* type) const;
-	std::string getTypeName(uint32_t type_id) const;
+	std::string getTypeName(TypeID type_id) const;
 	std::pair<const SourceFile*, int> getSymbolLocation(const DebugSymbol* scope) const;
 	std::string getFullSymbolName(const DebugSymbol* symbol) const;
 	std::string getFullScopeName(const DebugScope* scope) const;

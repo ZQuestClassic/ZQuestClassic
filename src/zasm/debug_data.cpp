@@ -1,5 +1,7 @@
-// TODO: use DebugData type_id for script_object_type. Complex change w/ many compat
-// considerations. I started on branch: type-store
+// TODO ! compiler changes
+// TODO ! handle run_types (see ScriptsData::fillFromAssembler)
+// TODO ! handle saves
+// TODO ! handle compat
 
 #include "zasm/debug_data.h"
 #include "base/check.h"
@@ -175,7 +177,7 @@ int DebugData::getScopeIndex(const DebugScope* scope) const
 	return (int32_t)(scope - &scopes[0]);
 }
 
-uint32_t DebugData::getTypeID(const DebugType* type) const
+TypeID DebugData::getTypeID(const DebugType* type) const
 {
 	switch (type->tag)
 	{
@@ -495,7 +497,7 @@ DebugType BasicTypes[] = {
 	DebugType{TYPE_RGB, TYPE_RGB},
 };
 
-const DebugType* DebugData::getType(uint32_t type_id) const
+const DebugType* DebugData::getType(TypeID type_id) const
 {
 	if (type_id <= TYPE_RGB) return &BasicTypes[type_id];
 
@@ -559,7 +561,7 @@ std::string DebugData::getTypeName(const DebugType* type) const
 	}
 }
 
-std::string DebugData::getTypeName(uint32_t type_id) const
+std::string DebugData::getTypeName(TypeID type_id) const
 {
 	return getTypeName(getType(type_id));
 }
@@ -684,7 +686,7 @@ uint32_t DebugData::getFunctionAdditionalStackSize(const DebugScope* scope) cons
 
 std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 {
-	auto format_storage = [](DebugSymbolStorage s, int32_t offset, uint32_t type_id) -> std::string {
+	auto format_storage = [](DebugSymbolStorage s, int32_t offset, TypeID type_id) -> std::string {
 		switch(s) {
 			case CONSTANT:
 			{

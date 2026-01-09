@@ -1,5 +1,5 @@
-#ifndef ZC_SCRIPTING_SCRIPTING_ENGINE_H_
-#define ZC_SCRIPTING_SCRIPTING_ENGINE_H_
+#ifndef ZC_SCRIPTING_TYPES_H_
+#define ZC_SCRIPTING_TYPES_H_
 
 #include "base/compiler.h"
 #include "base/ints.h"

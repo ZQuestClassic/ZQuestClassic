@@ -11,6 +11,7 @@
 #include "base/general.h"
 #include "parser/Scope.h"
 #include "parserDefs.h"
+#include "zasm/debug_data.h"
 
 namespace ZScript
 {
@@ -27,6 +28,21 @@ namespace ZScript
 
 	typedef int32_t DataTypeId;
 
+	class DebugTypeBuilder
+	{
+		std::vector<DebugType>& table;
+		std::map<std::string, int32_t> cache; // function signature -> id.
+
+	public:
+		DebugTypeBuilder(std::vector<DebugType>& out_table) : table(out_table) {}
+
+		std::optional<int32_t> getPrimitiveID(const DataType* type);
+		uint32_t getTypeID(const DataType* type, const std::map<UserClass*, int>& class_scope_map, const std::map<int, int>& enum_id_to_scope_index);
+
+	private:
+		uint32_t addEntry(DebugType dt);
+	};
+
 	////////////////////////////////////////////////////////////////
 	// Stores and lookup types and classes.
 	class TypeStore
@@ -40,6 +56,9 @@ namespace ZScript
 		std::optional<DataTypeId> getTypeId(DataType const& type) const;
 		std::optional<DataTypeId> assignTypeId(DataType const& type);
 		std::optional<DataTypeId> getOrAssignTypeId(DataType const& type);
+
+		// TODO: could combine this with the above.
+		int getDebugTypeIndex(DataType const& type);
 
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)
@@ -61,6 +80,7 @@ namespace ZScript
 
 		std::vector<DataType const*> ownedTypes;
 		std::map<DataType const*, DataTypeId, TypeIdMapComparator> typeIdMap;
+		DebugTypeBuilder debugTypeBuilder;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -441,7 +461,7 @@ namespace ZScript
 			if (name == "stack") return script_object_type::stack;
 			if (name == "websocket") return script_object_type::websocket;
 			if (canHoldObject())
-				return script_object_type::object;
+				return script_object_type::class_object;
 			return script_object_type::none;
 		}
 		virtual UserClass* getUsrClass() const {return user_class;}

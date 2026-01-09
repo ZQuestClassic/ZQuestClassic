@@ -13,6 +13,7 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "dialog/info.h"
+#include "zc/scripting/type_store.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
@@ -694,7 +695,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					word type;
 					if(!p_igetw(&type, f))
 						return 119;
-					a.setObjectType((script_object_type)type);
+					a.setElementType(type);
 				}
 	
 				//We allocate the container
@@ -1007,7 +1008,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
-					zsarr.setObjectType((script_object_type)type);
+					zsarr.setElementType(type);
 					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
@@ -1131,20 +1132,49 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				word type;
 				if(!p_igetw(&type, f))
 					return 119;
-				a.setObjectType((script_object_type)type);
+				a.setElementType(type);
 
 				//We allocate the container
 				a.Resize(tempdword);
 				a.setValid(true); //should always be valid
 
-				if (type == (int)script_object_type::untyped)
+				bool elements_are_untyped;
+				if (section_version >= 48)
+				{
+					if(!p_getc(&elements_are_untyped,f))
+						return 85;
+				}
+				else
+				{
+					elements_are_untyped = type == (int)script_object_type:::untyped;
+				}
+
+				if (section_version >= 48)
+				{
+					if(!p_getc(&elements_are_untyped,f))
+						return 85;
+				}
+				else
+				{
+					if (type == (int)script_object_type:::untyped)
+					{
+						std::vector<byte> bytes;
+						if (!p_getlvec(&bytes, f))
+							return 121;
+
+						array.untyped_array_types.resize(bytes.size());
+						std::memcpy(array.untyped_array_types.data(), bytes.data(), bytes.size() * sizeof(script_object_type)); // TODO ! ?
+					}
+				}
+
+				if (elements_are_untyped)
 				{
 					std::vector<byte> bytes;
 					if (!p_getlvec(&bytes, f))
 						return 121;
 
 					array.untyped_array_types.resize(bytes.size());
-					std::memcpy(array.untyped_array_types.data(), bytes.data(), bytes.size() * sizeof(script_object_type));
+					std::memcpy(array.untyped_array_types.data(), bytes.data(), bytes.size() * sizeof(script_object_type)); // TODO !
 				}
 
 				//And then fill in the contents
@@ -1566,11 +1596,13 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw((word)a.ObjectType(), f))
 			return 117;
 
-		if (a.ObjectType() == script_object_type::untyped)
+		bool holds_untyped = type_store_is_untyped(a.ObjectType());
+		if(!p_putc(holds_untyped ? 1 : 0, f))
+			return 120;
+
+		if (holds_untyped)
 		{
-			std::vector<byte> bytes(array.untyped_array_types.size());
-			std::memcpy(bytes.data(), array.untyped_array_types.data(), array.untyped_array_types.size() * sizeof(script_object_type));
-			if(!p_putlvec(bytes, f))
+			if(!p_putlvec(array.untyped_array_types, f))
 				return 119;
 		}
 

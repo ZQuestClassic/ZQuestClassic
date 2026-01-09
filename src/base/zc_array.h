@@ -1,7 +1,7 @@
 #ifndef ZC_ARRAY_H_
 #define ZC_ARRAY_H_
 
-#include "base/general.h"
+#include "zasm/debug_data.h"
 #include <cstdint>
 #include <vector>
 
@@ -40,21 +40,23 @@ public:
 	{
 		_valid = v;
 	}
-	void setObjectType(script_object_type v)
+	void setElementType(TypeID v)
 	{
-		_object_type = v;
+		_object_type_id = v;
 	}
-	script_object_type ObjectType() const
+	TypeID ObjectType() const
 	{
-		return _object_type;
+		return _object_type_id;
 	}
 	bool HoldsObjects() const
 	{
-		return _object_type != script_object_type::none && _object_type != script_object_type::untyped;
+		return _holds_objects;
+		// return type_store_is_object((int)_object_type_id) && !type_store_is_untyped((int)_object_type_id);
 	}
 	bool MaybeHoldsObjects() const
 	{
-		return _object_type == script_object_type::untyped;
+		return _maybe_holds_objects;
+		// return type_store_is_untyped((int)_object_type_id);
 	}
 
     void Resize(const size_t size)
@@ -94,7 +96,9 @@ public:
 private:
 	std::vector<int32_t> _data;
 	bool _valid;
-	script_object_type _object_type;
+	bool _holds_objects;
+	bool _maybe_holds_objects;
+	TypeID _object_type_id;
 };
 
 #endif

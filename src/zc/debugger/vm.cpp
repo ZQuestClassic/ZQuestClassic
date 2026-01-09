@@ -23,7 +23,7 @@ const DebugType* getDebugTypeOfUntypedArrayElement(script_object_type engine_typ
 	if (!script_obj)
 		return &BasicTypes[TYPE_UNTYPED];
 
-	if (engine_type == script_object_type::object)
+	if (engine_type == script_object_type::class_object)
 	{
 		if (auto obj = dynamic_cast<user_object*>(script_obj))
 		{
@@ -184,7 +184,7 @@ std::optional<std::vector<DebugValue>> VM::readArray(DebugValue array)
 		// Elements within untyped arrays have dynamic typing.
 		if (default_elem_type->isUntyped(zasm_debug_data) && am.script_array())
 		{
-			script_object_type type = am.script_array()->get_type_in_untyped_array(i);
+			script_object_type type = (script_object_type)am.script_array()->get_type_in_untyped_array(i);
 			int id = data[i];
 			const DebugType* elem_type = getDebugTypeOfUntypedArrayElement(type, id, array.type);
 			// This type shouldn't ever be null, but just incase...
@@ -221,7 +221,7 @@ std::optional<DebugValue> VM::readArrayElement(DebugValue array, int index)
 	const DebugType* default_elem_type = zasm_debug_data.getType(array.type->extra);
 	if (default_elem_type->isUntyped(zasm_debug_data) && am.script_array())
 	{
-		script_object_type type = am.script_array()->get_type_in_untyped_array(index);
+		script_object_type type = (script_object_type)am.script_array()->get_type_in_untyped_array(index);
 		int id = value;
 		const DebugType* elem_type = getDebugTypeOfUntypedArrayElement(type, id, array.type);
 		return DebugValue{id, elem_type};

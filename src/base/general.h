@@ -277,6 +277,7 @@ enum controls
 #define WHITE         254
 byte zq_fix_ui_color(byte color);
 
+// TODO ! rm
 // These values must remain stable.
 // Also must update getScriptObjectTypeId in Types.h
 // The 'none' type indicates that this type is not an object.
@@ -294,7 +295,7 @@ enum class script_object_type : byte
 	rng,
 	stack,
 	websocket,
-	object,
+	class_object,
 	array,
 	untyped,
 	last = untyped,

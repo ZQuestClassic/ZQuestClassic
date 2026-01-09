@@ -11,6 +11,84 @@ using namespace ZScript;
 using std::string;
 using std::shared_ptr;
 
+std::optional<int32_t> DebugTypeBuilder::getPrimitiveID(const DataType* type)
+{
+	if (type->isConstant()) return std::nullopt;
+	if (type->isTemplate()) return TYPE_TEMPLATE_UNBOUNDED;
+
+	if (const DataTypeSimple* t = dynamic_cast<const DataTypeSimple*>(type))
+	{
+		if (t->getId() == ZTID_VOID) return TYPE_VOID;
+		if (t->getId() == ZTID_UNTYPED) return TYPE_UNTYPED;
+		if (t->getId() == ZTID_LONG) return TYPE_LONG;
+		if (t->getId() == ZTID_FLOAT) return TYPE_INT; // Not a typo. What ZScript calls "int", the compiler calls "float", even though it is really a fixed int.
+		if (t->getId() == ZTID_BOOL) return TYPE_BOOL;
+		if (t->getId() == ZTID_CHAR) return TYPE_CHAR32;
+		if (t->getId() == ZTID_RGBDATA) return TYPE_RGB;
+	}
+
+	return std::nullopt;
+}
+
+uint32_t DebugTypeBuilder::getTypeID(const DataType* type, const std::map<UserClass*, int>& class_scope_map, const std::map<int, int>& enum_id_to_scope_index)
+{
+	auto primitive_id = getPrimitiveID(type);
+	if (primitive_id)
+		return primitive_id.value();
+
+	std::string key = type->getName();
+	if (cache.count(key)) return cache[key];
+
+	uint32_t result_id = 0;
+
+	if (type->isConstant())
+	{
+		// Recursively get the underlying type.
+		uint32_t base_id = getTypeID(type->getMutType(), class_scope_map, enum_id_to_scope_index);
+
+		DebugType dt{};
+		dt.tag = TYPE_CONST;
+		dt.extra = base_id;
+		result_id = addEntry(dt);
+	}
+	else if (type->isArray())
+	{
+		auto arrType = static_cast<const DataTypeArray*>(type);
+		uint32_t elem_id = getTypeID(&arrType->getElementType(), class_scope_map, enum_id_to_scope_index);
+
+		DebugType dt{};
+		dt.tag = TYPE_ARRAY;
+		dt.extra = elem_id;
+		result_id = addEntry(dt);
+	}
+	else if (type->isClass())
+	{
+		UserClass* cls = type->getUsrClass();
+		DebugType dt{};
+		dt.tag = TYPE_CLASS;
+		dt.extra = class_scope_map.at(cls);
+		result_id = addEntry(dt);
+	}
+	else if (type->isEnum())
+	{
+		const DataTypeCustom* enum_type = static_cast<const DataTypeCustom*>(type);
+		DebugType dt{};
+		dt.tag = enum_type->isBitflagsEnum() ? TYPE_BITFLAGS : TYPE_ENUM;
+		dt.extra = enum_id_to_scope_index.at(enum_type->getCustomId());
+		result_id = addEntry(dt);
+	}
+
+	cache[key] = result_id;
+	return result_id;
+}
+
+uint32_t DebugTypeBuilder::addEntry(DebugType dt)
+{
+	uint32_t id = table.size() + DEBUG_TYPE_TAG_TABLE_START;
+	table.push_back(dt);
+	return id;
+}
+
 ////////////////////////////////////////////////////////////////
 // TypeStore
 
@@ -72,6 +150,11 @@ std::optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 	ownedTypes.push_back(storedType);
 	typeIdMap[storedType] = id;
 	return id;
+}
+
+int TypeStore::getDebugTypeIndex(DataType const& type)
+{
+	return debugTypeBuilder.getTypeID(&type, {}, {});
 }
 
 // Internal

@@ -42,6 +42,7 @@
 #include "zc/scripting/script_object.h"
 #include "zc/scripting/sram.h"
 #include "zc/scripting/string_utils.h"
+#include "zc/scripting/type_store.h"
 #include "zc/scripting/types.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
@@ -18165,7 +18166,7 @@ void do_destroy_array()
 	else Z_scripterrlog_force_trace("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-static dword allocatemem_old(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
+static dword allocatemem_old(int32_t size, bool local, ScriptType type, const uint32_t UID, script_type element_type)
 {
 	dword ptrval;
 	
@@ -18192,7 +18193,7 @@ static dword allocatemem_old(int32_t size, bool local, ScriptType type, const ui
 			
 			a.Resize(size);
 			a.setValid(true);
-			a.setObjectType(object_type);
+			a.setElementType(element_type);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -18220,7 +18221,7 @@ static dword allocatemem_old(int32_t size, bool local, ScriptType type, const ui
 		
 		a.Resize(size);
 		a.setValid(true);
-		a.setObjectType(object_type);
+		a.setElementType(element_type);
 		
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
@@ -18249,7 +18250,7 @@ uint32_t allocatemem(int32_t size, bool local, ScriptType type, const uint32_t U
 	ZScriptArray &a = array->arr;
 	a.Resize(size);
 	a.setValid(true);
-	a.setObjectType(object_type);
+	a.setElementType(object_type);
 
 	for(dword j = 0; j < (dword)size; j++)
 		a[j] = 0; //initialize array
@@ -23967,7 +23968,8 @@ static void markRegisterType(int reg, int type)
 	{
 		assert(false);
 	}
-	if (!(type >= 0 && type <= (int)script_object_type::last))
+
+	if (!type_store_is_valid(type))
 	{
 		assert(false);
 	}
@@ -28342,6 +28344,7 @@ void FFScript::user_websockets_init()
 void FFScript::script_arrays_init()
 {
 	script_arrays.clear();
+	script_arrays = {script_object_type::array, "array"};
 }
 
 ///----------------------------------------------------------------------------------------------------
@@ -30951,7 +30954,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_obj
 		ZScriptArray &a = array->arr;
 		a.Resize(size);
 		a.setValid(true);
-		a.setObjectType(object_type);
+		a.setElementType(object_type);
 
 		for(size_t j = 0; j < size; ++j)
 			a[j] = vargs[j]; //initialize array

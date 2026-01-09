@@ -6,6 +6,7 @@
 #include "base/zc_array.h"
 #include "base/general.h"
 #include "zasm/pc.h"
+#include "zasm/debug_data.h"
 #include <map>
 #include <memory>
 #include <optional>
@@ -94,7 +95,7 @@ struct script_array : public user_abstract_obj
 	};
 
 	ZScriptArray arr;
-	std::vector<script_object_type> untyped_array_types;
+	std::vector<TypeID> untyped_array_types;
 	std::optional<internal_array_id> internal_id;
 	bool internal_expired;
 
@@ -102,8 +103,8 @@ struct script_array : public user_abstract_obj
 	void get_retained_ids(std::vector<uint32_t>& ids);
 	void restore_references();
 	bool holds_untyped_object(int index) const;
-	script_object_type get_type_in_untyped_array(int index) const;
-	void set_type_in_untyped_array(int index, script_object_type type);
+	TypeID get_type_in_untyped_array(int index) const;
+	void set_type_in_untyped_array(int index, TypeID type_id);
 #endif
 };
 

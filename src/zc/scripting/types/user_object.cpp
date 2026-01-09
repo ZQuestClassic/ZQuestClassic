@@ -15,7 +15,7 @@ extern int32_t sarg3;
 extern vector<int32_t> *sargvec;
 extern string *sargstr;
 
-static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
+static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::class_object, "object"};
 
 void register_existing_user_object(user_object* object)
 {

@@ -1,10 +1,12 @@
 #include "base/general.h"
 #include "base/zdefs.h"
 #include "user_object.h"
+#include "zasm/debug_data.h"
 #include "zasm/table.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/type_store.h"
 #include "zc/zscriptversion.h"
 #include <algorithm>
 #include <memory>
@@ -25,7 +27,7 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
 bool can_restore_object_type(script_object_type type)
 {
-	return type == script_object_type::object || type == script_object_type::array;
+	return type == script_object_type::class_object || type == script_object_type::array;
 }
 
 // About object ownership.
@@ -182,7 +184,7 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 			int size = std::min(values.size(), untyped_array_types.size());
 			for (int i = 0; i < size; i++)
 			{
-				if (untyped_array_types[i] != script_object_type::none)
+				if (type_store_is_object(untyped_array_types[i]))
 					ids.push_back(values[i]);
 			}
 
@@ -192,7 +194,7 @@ void script_array::get_retained_ids(std::vector<uint32_t>& ids)
 		int size = std::min(arr.Size(), untyped_array_types.size());
 		for (int i = 0; i < size; i++)
 		{
-			if (untyped_array_types[i] != script_object_type::none)
+			if (type_store_is_object(untyped_array_types[i]))
 				ids.push_back(arr[i]);
 		}
 	}
@@ -208,7 +210,7 @@ void script_array::restore_references()
 
 	if (arr.HoldsObjects())
 	{
-		if (!can_restore_object_type(arr.ObjectType()))
+		if (!type_store_is_restorable(arr.ObjectType()))
 		{
 			for (int i = 0; i < arr.Size(); i++)
 				arr[i] = 0;
@@ -230,7 +232,7 @@ void script_array::restore_references()
 			if (!holds_untyped_object(i))
 				continue;
 
-			if (can_restore_object_type(get_type_in_untyped_array(i)) && script_objects.contains(arr[i]))
+			if (type_store_is_restorable(get_type_in_untyped_array(i)) && script_objects.contains(arr[i]))
 				script_object_ref_inc(arr[i]);
 			else
 				arr[i] = 0;
@@ -243,22 +245,22 @@ bool script_array::holds_untyped_object(int index) const
 	if (index >= untyped_array_types.size())
 		return false;
 
-	return untyped_array_types[index] != script_object_type::none;
+	return type_store_is_object(untyped_array_types[index]);
 }
 
-script_object_type script_array::get_type_in_untyped_array(int index) const
+TypeID script_array::get_type_in_untyped_array(int index) const
 {
 	if (index >= untyped_array_types.size())
-		return script_object_type::none;
+		return 0;
 
 	return untyped_array_types[index];
 }
 
-void script_array::set_type_in_untyped_array(int index, script_object_type type)
+void script_array::set_type_in_untyped_array(int index, TypeID type_id)
 {
 	if (index >= untyped_array_types.size())
 		untyped_array_types.resize(index + 1);
-	untyped_array_types[index] = type;
+	untyped_array_types[index] = type_id;
 }
 
 void scr_func_exec::clear()
