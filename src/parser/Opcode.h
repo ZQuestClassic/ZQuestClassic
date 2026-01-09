@@ -20,6 +20,7 @@ namespace ZScript
 	class LabelArgument;
 	class GlobalArgument;
 	class StringArgument;
+	class TypeArgument;
 	class VectorArgument;
 
 	class ArgumentVisitor
@@ -28,6 +29,7 @@ namespace ZScript
 		virtual void caseLiteral(LiteralArgument&, void *){}
 		virtual void caseCompare(CompareArgument&, void *){}
 		virtual void caseString(StringArgument&, void *){}
+		virtual void caseType(TypeArgument&, void *){}
 		virtual void caseVector(VectorArgument&, void *){}
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLiteralVar(LiteralVarArgument&, void *){}
@@ -95,6 +97,24 @@ namespace ZScript
 	{
 		return arg == val;
 	}
+
+	class TypeArgument : public Argument
+	{
+	public:
+		TypeArgument(const DataType* type) : script_object_type_id(type->getScriptObjectTypeId()) {}
+		std::string toString() const;
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseType(*this, param);
+		}
+		TypeArgument* clone() const
+		{
+			return new TypeArgument(script_object_type_id);
+		}
+	private:
+		TypeArgument(script_object_type script_object_type_id) : script_object_type_id(script_object_type_id) {}
+		script_object_type script_object_type_id;
+	};
 	
 	class CompareArgument : public Argument
 	{

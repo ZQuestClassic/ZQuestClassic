@@ -560,7 +560,7 @@ GOTO 516; while() #3 End
 POP D5
 RETURNFUNC; Func[void playMessage(int)] Body End
 SETR D4 SP2; Func[void playMessage(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
 PUSHV 1; UsrFunc[messagedata setMessage(int, char32[])] Params Start
@@ -576,7 +576,7 @@ POP D5
 RETURNFUNC; Func[void playMessage(char32[])] Body End
 PUSHV 0; Func[messagedata setMessage(int, char32[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 LOAD D2 0.0002; InlineFunc[messagedata Game::LoadMessageData(int)] Params
 LOADMESSAGEDATAR D2; InlineFunc[messagedata Game::LoadMessageData(int)] Body Start

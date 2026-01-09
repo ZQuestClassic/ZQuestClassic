@@ -641,7 +641,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Fail(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #1 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
@@ -686,7 +686,7 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #8 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
 SETR D4 SP2; Func[void Assert(bool, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #14 Test
 COMPAREV D2 0
@@ -698,7 +698,7 @@ REF_REMOVE 0
 POPARGS D5 0.0002
 RETURNFUNC; Func[void Assert(bool, char32[])] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #17 Test
 PUSHR D2
@@ -724,7 +724,7 @@ REF_REMOVE 0
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
 SETR D4 SP2; Func[void AssertEqual(bool, bool, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #18 Test
 PUSHR D2
@@ -750,9 +750,9 @@ REF_REMOVE 0
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(bool, bool, char32[])] Body End
 SETR D4 SP2; Func[void Assert(Thing, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0008 0.0001
 REF_INC 0.0001
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #15 Test
 COMPAREV D2 0
@@ -765,7 +765,7 @@ REF_REMOVE 0
 POPARGS D5 0.0002
 RETURNFUNC; Func[void Assert(Thing, char32[])] Body End
 SETR D4 SP2; Func[void Assert(untyped, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #16 Test
 COMPAREV D2 0
@@ -777,7 +777,7 @@ REF_REMOVE 0
 POPARGS D5 0.0002
 RETURNFUNC; Func[void Assert(untyped, char32[])] Body End
 SETR D4 SP2; Func[void AssertEqual(untyped, untyped, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #19 Test
 PUSHR D2
@@ -803,7 +803,7 @@ REF_REMOVE 0
 POPARGS D5 0.0003
 RETURNFUNC; Func[void AssertEqual(untyped, untyped, char32[])] Body End
 SETR D4 SP2; Func[void AssertEqual(long, long, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #20 Test
 PUSHR D2

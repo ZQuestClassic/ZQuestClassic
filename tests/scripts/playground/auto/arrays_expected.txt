@@ -664,7 +664,7 @@ POPARGS D5 0.0020
 QUIT; void run() Body End
 PUSHARGSV 0 0.0003; Func[bool ArrayContains(int[], int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
 LOAD D2 0.0004; for(each) #1 ArrDecl
 STORE_OBJECT D2 0.0001
@@ -703,7 +703,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Fail(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #110 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
@@ -748,7 +748,7 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #438 Body End
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
 SETR D4 SP2; Func[void Assert(int[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; unless() #440 Test
 COMPAREV D2 0
@@ -792,7 +792,7 @@ CALLFUNC 0.0677; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless
 POP D5
 RETURNFUNC; Func[void Assert(itemsprite)] Body End
 SETR D4 SP2; Func[void Assert(itemsprite[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; unless() #442 Test
 COMPAREV D2 0
@@ -826,9 +826,9 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #445 Body End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(itemsprite, itemsprite)] Body End
 SETR D4 SP2; Func[void AssertEqual(int[], int[])] Body Start
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; if() #446 Test
 PUSHR D2

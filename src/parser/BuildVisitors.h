@@ -260,6 +260,8 @@ namespace ZScript
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
 		std::vector<std::shared_ptr<Opcode>> const& getResult() {return result;}
+
+		const DataType* setting_type;
 	private:
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode>& code);

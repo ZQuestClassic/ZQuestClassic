@@ -36,7 +36,7 @@ PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
 CALLFUNC 0.0526; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void addHeader(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
 LOAD D2 0; UsrFunc[void addLine(char32[], int, int, int, int)] Params Start
@@ -64,7 +64,7 @@ POP D5
 RETURNFUNC; Func[void addHeader(char32[])] Body End
 PUSHARGSV 0 0.0003; Func[void addLine(char32[], int, int, int, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 STOREV 0 0.0002
 LOAD D2 0.0005; switch() #51 Key
@@ -177,7 +177,7 @@ REF_REMOVE 0.0007
 POPARGS D5 0.0008
 RETURNFUNC; Func[void addLine(char32[], int, int, int, int)] Body End
 SETR D4 SP2; Func[void addLine(char32[], int)] Body Start
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void addLine(char32[], int, int, int, int)] Params Start
@@ -294,7 +294,7 @@ POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bitmap create(int, int)] Body End
 SETR D4 SP2; Func[void destroy()] Body Start
 SETV D2 0
-SET_OBJECT GD1 D2 0
+SET_OBJECT GD1 D2 0.0001
 SETV D2 0
 PUSHR D2
 SETR D2 GD2
@@ -452,7 +452,7 @@ WRITEPODARRAYVR 5 D2 0
 RETURNFUNC; Func[void init()] Body End
 PUSHV 0; Func[void output(char32[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start

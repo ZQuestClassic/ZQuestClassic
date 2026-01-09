@@ -692,7 +692,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[bool Ghost_IsInUse(npc)] Body End
 PUSHARGSV 0 0.0007; Func[int __AutoGhostParseName(npc, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 ALLOCATEMEMV D2 64 0
 STORE_OBJECT D2 0.0006
@@ -7421,7 +7421,7 @@ POPARGS D5 0.0005; return End
 RETURNFUNC; Func[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Body End
 PUSHARGSV 0 0.0006; Func[void __SetUpDrawingArray(ffc, npc, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0006
+MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 STOREV 0 0.0005
 LOAD D2 0.0008; if() #687 Test

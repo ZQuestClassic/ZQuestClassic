@@ -163,7 +163,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Fail(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #1 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End

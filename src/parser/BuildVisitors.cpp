@@ -1608,12 +1608,12 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	if (auto globalId = manager.getGlobalId())
 	{
 		if (is_object)
-			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
+			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new TypeArgument(writeType)));
 
 		if (comptime_val)
 			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
 		else if (is_object)
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new TypeArgument(writeType)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 	}
@@ -1666,7 +1666,6 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	auto array_type = dynamic_cast<const DataTypeArray*>(&type);
-	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
 	// Allocate the array.
 	if (auto globalId = manager.getGlobalId())
@@ -1674,11 +1673,11 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(totalSize),
-						  new LiteralArgument(element_script_object_type_id)));
+						  new TypeArgument(&array_type->getElementType())));
 	}
 	else
 	{
-		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(element_script_object_type_id)));
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new TypeArgument(&array_type->getElementType())));
 	}
 }
 
@@ -1693,14 +1692,14 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
 
-	auto setting_object_type = script_object_type::none;
+	const DataType* setting_type = &DataType::ZVOID;
 	if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
-		setting_object_type = type->getScriptObjectTypeId();
+		setting_type = type;
 
 	//and store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
-	helper.setting_object_type = setting_object_type;
+	helper.setting_type = setting_type;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -2089,6 +2088,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(program, this);
 					helper.parsing_user_class = parsing_user_class;
+					helper.setting_type = &DataType::ZVOID;
 					arr->left->execute(helper, INITC_CTXT);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
@@ -2312,6 +2312,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 						addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 						LValBOHelper helper(program, this);
 						helper.parsing_user_class = parsing_user_class;
+						helper.setting_type = &DataType::ZVOID;
 						arr->left->execute(helper, INITC_CTXT);
 						addOpcodes(helper.getResult());
 						if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
@@ -3614,13 +3615,13 @@ void BuildOpcodes::stringLiteralDeclaration(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
-						  new LiteralArgument(0)));
+						  new TypeArgument(&DataType::CHAR)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
-											new LiteralArgument(0)));
+											new TypeArgument(&DataType::CHAR)));
 	}
 
 	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
@@ -3633,7 +3634,7 @@ void BuildOpcodes::stringLiteralFree(
 	string data = host.value;
 	int32_t size = data.size() + 1;
 
-	addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L), new LiteralArgument(0)));
+	addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L), new TypeArgument(&DataType::CHAR)));
 	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
 }
 
@@ -3702,7 +3703,6 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	}
 
 	auto array_type = dynamic_cast<const DataTypeArray*>(&type);
-	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
 	// Create the array and store its id.
 	if (manager.getGlobalId())
@@ -3710,13 +3710,13 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
-						  new LiteralArgument(element_script_object_type_id)));
+						  new TypeArgument(&array_type->getElementType())));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
-											new LiteralArgument(element_script_object_type_id)));
+											new TypeArgument(&array_type->getElementType())));
 	}
 
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -3754,8 +3754,8 @@ void BuildOpcodes::arrayLiteralDeclaration(
 				visit(*it, &context);
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
 
-				bool is_object = (*it)->getReadType(scope, this)->isObject();
-				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new LiteralArgument(is_object ? 1 : 0)));
+				auto type = (*it)->getReadType(scope, this);
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new TypeArgument(type)));
 			}
 		}
 	}
@@ -3799,12 +3799,11 @@ void BuildOpcodes::arrayLiteralFree(
 	}
 
 	auto array_type = dynamic_cast<const DataTypeArray*>(type);
-	int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
 	addOpcode(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L),
-									  new LiteralArgument(element_script_object_type_id)));
+									  new TypeArgument(&array_type->getElementType())));
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Initialize.
@@ -3842,8 +3841,8 @@ void BuildOpcodes::arrayLiteralFree(
 				// opcodeTargets.pop_back();
 				addOpcode(new OPopRegister(new VarArgument(INDEX)));
 
-				bool is_object = (*it)->getReadType(scope, this)->isObject();
-				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new LiteralArgument(is_object ? 1 : 0)));
+				auto type = (*it)->getReadType(scope, this);
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1), new TypeArgument(type)));
 			}
 		}
 	}
@@ -3931,6 +3930,7 @@ void BuildOpcodes::buildPreOp(ASTExpr* operand, void* param, vector<shared_ptr<O
 	// Store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
+	helper.setting_type = &DataType::ZVOID;
 	operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -3951,6 +3951,7 @@ void BuildOpcodes::buildPostOp(ASTExpr* operand, void* param, vector<shared_ptr<
 	// Store it
 	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
+	helper.setting_type = &DataType::ZVOID;
 	operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 	
@@ -4035,11 +4036,11 @@ void BuildOpcodes::pop_params(uint count)
 /////////////////////////////////////////////////////////////////////////////////
 // LValBOHelper
 
-LValBOHelper::LValBOHelper(Program& program, Scope* scope) : program(program)
+LValBOHelper::LValBOHelper(Program& program, Scope* scope) : setting_type(nullptr), program(program)
 {
 	ASTVisitor::scope = scope;
 }
-LValBOHelper::LValBOHelper(Program& program, BuildOpcodes* bo) : program(program)
+LValBOHelper::LValBOHelper(Program& program, BuildOpcodes* bo) : setting_type(nullptr), program(program)
 {
 	ASTVisitor::scope = bo->scope;
 	parsing_user_class = bo->parsing_user_class;
@@ -4089,15 +4090,15 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		return;
 	}
 
-	bool is_object = false;
+	const DataType* var_type = &DataType::ZVOID;
 	if (auto type = host.getWriteType(scope, nullptr))
-		is_object = type->isObject();
+		var_type = type;
 
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
-		if (is_object)
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
+		if (var_type->isObject())
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new TypeArgument(var_type)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		return;
@@ -4106,7 +4107,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	// Set the stack.
 	int32_t offset = host.binding->getStackOffset(false);
 
-	if (is_object)
+	if (var_type->isObject())
 		addOpcode(new OStoreObject(new VarArgument(EXP1),new LiteralArgument(offset)));
 	else
 		addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
@@ -4190,7 +4191,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 		// Some internal variables (untyped arrays like sprite::Misc[]) may set objects. For those,
 		// use SET_OBJECT instead of SETR.
-		bool sets_object = setting_object_type != script_object_type::none && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
+		bool sets_object = setting_type && setting_type->isObject() && host.writeFunction->getFlag(FUNCFLAG_MAY_SET_OBJECT);
 
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.writeFunction->getCode();
 		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
@@ -4199,7 +4200,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			{
 				if (auto op = dynamic_cast<OSetRegister*>(it->get()))
 				{
-					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone(), new LiteralArgument((int)setting_object_type)));
+					addOpcode(new OSetObject(op->getFirstArgument()->clone(), op->getSecondArgument()->clone(), new TypeArgument(setting_type)));
 					continue;
 				}
 			}
@@ -4273,8 +4274,8 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 		addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
 	}
 
-	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
-	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new LiteralArgument((int)setting_object_type)));
+	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1), new TypeArgument(setting_type)));
+	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1), new TypeArgument(setting_type)));
 }
 
 

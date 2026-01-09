@@ -2,6 +2,7 @@
 #include "parser/Compiler.h"
 #include "parser/DocVisitor.h"
 #include "parser/MetadataVisitor.h"
+#include "parser/Opcode.h"
 #include "parser/owning_vector.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
@@ -730,7 +731,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
-				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				addOpcode2(funccode, new OMarkTypeStack(new TypeArgument(&datum->type), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
 			
@@ -874,7 +875,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
-				addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+				addOpcode2(funccode, new OMarkTypeStack(new TypeArgument(&datum->type), new LiteralArgument(*position)));
 				addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
 			}
 

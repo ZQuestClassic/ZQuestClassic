@@ -289,7 +289,7 @@ CALLFUNC 0.0332; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0002; Func[int sum(int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0; for() #3 setup
@@ -322,7 +322,7 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[int sum(int[])] Body End
 PUSHARGSV 0 0.0002; Func[int sumAndMultiply(int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0; for() #4 setup
@@ -388,7 +388,7 @@ RETURNFUNC; Func[void Init(int)] Body End
 REF_INC -0.0001; Func[int TestClass::sum(int[])] Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0; for() #7 setup
@@ -423,7 +423,7 @@ RETURNFUNC; Func[int TestClass::sum(int[])] Body End
 REF_INC -0.0001; Func[int TestClass::sumAndMultiply(int, int[])] Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0; for() #8 setup

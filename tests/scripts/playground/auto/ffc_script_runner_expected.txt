@@ -496,7 +496,7 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[void ClearFFC(int)] Body End
 PUSHARGSV 0 0.0003; Func[int RunFFCScript(int, untyped[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0003
+MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
 LOAD D2 0.0004; if() #273 Test
 COMPAREV D2 0
@@ -623,7 +623,7 @@ POPARGS D5 0.0005
 RETURNFUNC; Func[int RunFFCScript(int, untyped[])] Body End
 PUSHV 0; Func[ffc RunFFCScriptOrQuit(int, untyped[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 LOAD D2 0.0002; if() #276 Test
 COMPAREV D2 0
@@ -658,7 +658,7 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[ffc RunFFCScriptOrQuit(int, untyped[])] Body End
 PUSHARGSV 0 0.0002; Func[genericdata RunGenericScriptFrz(int, untyped[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 LOAD D2 0.0003; if() #280 Test
 COMPAREV D2 1
@@ -724,7 +724,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Fail(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #92 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End

@@ -1061,7 +1061,7 @@ POPARGS D5 0.0003; if() #79 Else End AND if() #331 Body End
 RETURNFUNC; Func[void Tango_ActivateSlot(int)] Body End
 PUSHV 0; Func[int ShowString(char32[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 PUSHR D4
 PUSHV -1; UsrFunc[int Tango_GetFreeSlot(int)] Params
@@ -1106,7 +1106,7 @@ REF_REMOVE 0.0001; return End
 POPARGS D5 0.0002
 RETURNFUNC; Func[int ShowString(char32[])] Body End
 SETR D4 SP2; Func[void Tango_LoadString(int, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void __Tango_LoadString(int, char32[], bool, int)] Params Start
@@ -1726,7 +1726,7 @@ REF_REMOVE 0.0002
 POPARGS D5 0.0009
 RETURNFUNC; Func[void __Tango_LoadMessage(int, int, bool, int)] Body End
 SETR D4 SP2; Func[void Tango_AppendString(int, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void __Tango_LoadString(int, char32[], bool, int)] Params Start
@@ -1742,7 +1742,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void Tango_AppendString(int, char32[])] Body End
 PUSHARGSV 0 0.0003; Func[void __Tango_LoadString(int, char32[], bool, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0005
+MARK_TYPE_STACK 0.0009 0.0005
 REF_INC 0.0005
 PUSHR D4; unless() #474 Test
 LOAD D2 0.0006; UsrFunc[bool __Tango_ValidateSlot(int)] Params Start
@@ -2115,9 +2115,9 @@ POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int Tango_GetSlotVar(int, int)] Body End
 PUSHARGSV 0 0.0003; Func[int Tango_GetStringWidth(char32[], int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0003
+MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
 STOREV 0 0.0002
 STOREV 0 0.0001
@@ -2313,7 +2313,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __Tango_LogError(int, untyped)] Body End
 PUSHARGSV 0 0.0002; Func[void Tango_SaveMenuState(int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 SETR D2 GD2; InlineFunc[int SizeOfArray(untyped[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
@@ -4288,7 +4288,7 @@ POP D5; return End
 RETURNFUNC; Func[bool __Tango_IsSpecialDataMarker(int)] Body End
 PUSHARGSV 0 0.0005; Func[void __Tango_LoadIntoBuffer(char32[], int, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int __Tango_GetStringEnd(char32[])] Params Start
@@ -4688,7 +4688,7 @@ SETV D2 0; return Start AND if() #99 Else Start
 POP D5; return End AND if() #99 Else End
 RETURNFUNC; Func[int __Tango_BoolToInt(bool)] Body End
 SETR D4 SP2; Func[bool __Tango_CharacterWillFit(char32, int[], int, int)] Body Start
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 LOAD D2 0; return Start
 PUSHR D2
@@ -4711,7 +4711,7 @@ REF_REMOVE 0.0002; return End
 POPARGS D5 0.0004
 RETURNFUNC; Func[bool __Tango_CharacterWillFit(char32, int[], int, int)] Body End
 SETR D4 SP2; Func[int __Tango_GetCharacterWidth(char32, int[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; if() #124 Test
 PUSHR D2
@@ -5012,7 +5012,7 @@ POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_DrawComboBackdrop(int, int, int)] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
 STOREV 0 0.0001
 STOREV 0 0; for() #122 setup
@@ -5368,9 +5368,9 @@ POPARGS D5 0.0005
 RETURNFUNC; Func[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Body End
 PUSHV 0; Func[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0005
+MARK_TYPE_STACK 0.0009 0.0005
 REF_INC 0.0005
-MARK_TYPE_STACK 0.0001 0.0006
+MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 LOAD D2 0.0007; if() #109 Test
 COMPAREV D2 9
@@ -5456,7 +5456,7 @@ POPARGS D5 0.0008
 RETURNFUNC; Func[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Body End
 PUSHV 0; Func[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 LOAD D2 0.0008; if() #522 Test
 COMPAREV D2 32
@@ -6170,7 +6170,7 @@ POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, in
 POPARGS D5 0.0011
 RETURNFUNC; Func[void __Tango_TransferText(int, int, int, int)] Body End
 SETR D4 SP2; Func[int __Tango_EatSpaces(char32[], int)] Body Start
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 LOAD D2 0.0001; while() #4 Test
 PUSHR D2
@@ -6234,7 +6234,7 @@ POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int __Tango_FindDestStart(bool)] Body End
 PUSHV 0; Func[int __Tango_FindSrcStart(char32[], char32)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 LOAD D2 0.0001; if() #418 Test
 COMPAREV D2 0
@@ -6278,7 +6278,7 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[int __Tango_FindSrcStart(char32[], char32)] Body End
 PUSHARGSV 0 0.0006; Func[int __Tango_FloatToASCII(char32[], int, bool)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0008
+MARK_TYPE_STACK 0.0009 0.0008
 REF_INC 0.0008
 STOREV 0 0.0005
 STOREV 100000 0.0004
@@ -6830,7 +6830,7 @@ POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_FuncSaveName(int)] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_FuncString(char32[], int)] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0003
+MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
 PUSHR D4; unless() #426 Test
 LOAD D2 0.0003; UsrFunc[bool __Tango_ValidateString(char32[])] Params Start
@@ -6896,7 +6896,7 @@ REF_REMOVE 0.0003
 POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_FuncString(char32[], int)] Body End
 SETR D4 SP2; Func[bool __Tango_ValidateString(char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0; InlineFunc[bool IsValidArray(char32[])] Params AND unless() #318 Test
 ISVALIDARRAY D2; InlineFunc[bool IsValidArray(char32[])] Body
@@ -6919,7 +6919,7 @@ POP D5
 RETURNFUNC; Func[bool __Tango_ValidateString(char32[])] Body End
 PUSHARGSV 0 0.0002; Func[int __Tango_FuncSync(int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0
@@ -7688,7 +7688,7 @@ POP D5; return End AND if() #146 Else End AND if() #139 Else End
 RETURNFUNC; Func[int __Tango_GetNumSCCArgs(int)] Body End
 PUSHARGSV 0 0.0002; Func[int __Tango_GetStringEnd(char32[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0
@@ -7905,7 +7905,7 @@ POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int __Tango_GetVar(int)] Body End
 PUSHARGSV 0 0.0002; Func[int __Tango_GetWordWidth(int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 STOREV 0 0.0001
 STOREV 0 0
@@ -8139,9 +8139,9 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __Tango_InitializeMenu(int)] Body End
 PUSHARGSV 0 0.0003; Func[bool __Tango_ParseTopLevelCode(char32[], int, int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0003
+MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
-MARK_TYPE_STACK 0.0001 0.0006
+MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 LOAD D2 0.0004
 STORE D2 0.0002
@@ -8434,9 +8434,9 @@ POPARGS D5 0.0007
 RETURNFUNC; Func[bool __Tango_ParseTopLevelCode(char32[], int, int, int[])] Body End
 PUSHARGSV 0 0.0004; Func[bool __Tango_LoadStringControlCode(char32[], int, int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 LOAD D2 0.0007
 PUSHR D2
@@ -9527,7 +9527,7 @@ REF_REMOVE 0.0004
 POPARGS D5 0.0010
 RETURNFUNC; Func[int __Tango_RunFunction(int, bool)] Body End
 SETR D4 SP2; Func[bool __Tango_WordWillFit(int, int[], int, int)] Body Start
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 LOAD D2 0; return Start
 PUSHR D2
@@ -9551,9 +9551,9 @@ POPARGS D5 0.0004
 RETURNFUNC; Func[bool __Tango_WordWillFit(int, int[], int, int)] Body End
 PUSHARGSV 0 0.0002; Func[bool __Tango_ParseArgumentCode(char32[], int, int, bool, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
-MARK_TYPE_STACK 0.0001 0.0006
+MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 LOAD D2 0.0004
 STORE D2 0.0001
@@ -9712,9 +9712,9 @@ POPARGS D5 0.0007
 RETURNFUNC; Func[bool __Tango_ParseArgumentCode(char32[], int, int, bool, int[])] Body End
 PUSHARGSV 0 0.0002; Func[int __Tango_ReadIdentifier(char32[], int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
 STOREV 0 0.0001
 STOREV 0 0
@@ -9844,9 +9844,9 @@ POPARGS D5 0.0002; if() #281 Else End
 RETURNFUNC; Func[void __Tango_SetStartMarker(int, int)] Body End
 PUSHARGSV 0 0.0003; Func[bool __Tango_ParseArguments(char32[], int, int, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0003
+MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
-MARK_TYPE_STACK 0.0001 0.0006
+MARK_TYPE_STACK 0.0009 0.0006
 REF_INC 0.0006
 STOREV 0 0.0002
 STOREV 0 0.0001
@@ -10126,9 +10126,9 @@ POPARGS D5 0.0002; return End AND if() #280 Else End AND if() #279 Else End
 RETURNFUNC; Func[int __Tango_SetEndMarker(int, int)] Body End
 PUSHARGSV 0 0.0004; Func[int __Tango_ReadNumber(char32[], int, bool, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0004
+MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
-MARK_TYPE_STACK 0.0001 0.0007
+MARK_TYPE_STACK 0.0009 0.0007
 REF_INC 0.0007
 STOREV 0 0.0003
 STOREV 0 0.0002
@@ -10243,7 +10243,7 @@ SETR D2 INPUTPRESSA; return Start
 RETURNFUNC; return End AND Func[bool __Tango_PressMenuSelect()] Body End
 PUSHARGSV 0 0.0002; Func[void __Tango_PrintNextChar(int, char32, int[])] Body Start
 SETR D4 SP2
-MARK_TYPE_STACK 0.0001 0.0002
+MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
 PUSHR D4
 PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
@@ -12456,7 +12456,7 @@ SETV D2 0; return Start AND if() #206 Else Start
 POPARGS D5 0.0005; return End AND if() #206 Else End AND if() #205 Else End
 RETURNFUNC; Func[int __Tango_ReadArgLength(int)] Body End
 SETR D4 SP2; Func[int __Tango_RunCustomFunction(int, int[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void Tango_LogUndefinedFunction(int)] Params Start

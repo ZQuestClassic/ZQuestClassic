@@ -304,7 +304,7 @@ POP D4
 POPARGS D5 0.0002
 RETURNFUNC; Func[void doMaths(bool, int)] Body End
 SETR D4 SP2; Func[void maybePrint(bool, char32[], int)] Body Start
-MARK_TYPE_STACK 0.0001 0.0001
+MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
 LOAD D2 0.0002; if() #437 Test
 COMPAREV D2 0

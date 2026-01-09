@@ -97,8 +97,8 @@ namespace ZScript {
 	typedef Opcode2<LSHIFTR32, VarArgument, VarArgument> O32BitLShiftRegister;
 	typedef Opcode2<LSHIFTV, VarArgument, LiteralArgument> OLShiftImmediate;
 	typedef Opcode2<LSHIFTV32, VarArgument, LiteralArgument> O32BitLShiftImmediate;
-	typedef Opcode2<MARK_TYPE_REG, GlobalArgument, LiteralArgument> OMarkTypeRegister;
-	typedef Opcode2<MARK_TYPE_STACK, LiteralArgument, LiteralArgument> OMarkTypeStack;
+	typedef Opcode2<MARK_TYPE_REG, GlobalArgument, TypeArgument> OMarkTypeRegister;
+	typedef Opcode2<MARK_TYPE_STACK, TypeArgument, LiteralArgument> OMarkTypeStack;
 	typedef Opcode2<MODR, VarArgument, VarArgument> OModuloRegister;
 	typedef Opcode2<MODV, VarArgument, LiteralArgument> OModuloImmediate;
 	typedef Opcode2<MODV2, LiteralArgument, VarArgument> OModuloImmediate2;
@@ -148,13 +148,13 @@ namespace ZScript {
 	typedef Opcode2<ZCLASS_READ, VarArgument, LiteralArgument> OClassRead;
 	typedef Opcode2<ZCLASS_WRITE, VarArgument, LiteralArgument> OClassWrite;
 
-	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateGlobalMemImmediate;
-	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, LiteralArgument> OAllocateMemImmediate;
+	typedef Opcode3<ALLOCATEGMEMV, VarArgument, LiteralArgument, TypeArgument> OAllocateGlobalMemImmediate;
+	typedef Opcode3<ALLOCATEMEMV, VarArgument, LiteralArgument, TypeArgument> OAllocateMemImmediate;
 	typedef Opcode3<LOAD_INTERNAL_ARRAY_REF, VarArgument, LiteralVarArgument, VarArgument> OLoadInternalArrayRef;
-	typedef Opcode3<SET_OBJECT, VarArgument, VarArgument, LiteralArgument> OSetObject;
+	typedef Opcode3<SET_OBJECT, VarArgument, VarArgument, TypeArgument> OSetObject;
 	typedef Opcode3<STACKWRITEATVV_IF, LiteralArgument, LiteralArgument, CompareArgument> OStackWriteAtVV_If;
-	typedef Opcode3<WRITEPODARRAYRR, VarArgument, VarArgument, LiteralArgument> OWritePODArrayRR;
-	typedef Opcode3<WRITEPODARRAYVR, LiteralArgument, VarArgument, LiteralArgument> OWritePODArrayIR;
+	typedef Opcode3<WRITEPODARRAYRR, VarArgument, VarArgument, TypeArgument> OWritePODArrayRR;
+	typedef Opcode3<WRITEPODARRAYVR, LiteralArgument, VarArgument, TypeArgument> OWritePODArrayIR;
 }
 
 #endif

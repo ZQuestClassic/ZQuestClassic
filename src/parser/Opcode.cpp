@@ -73,6 +73,11 @@ string StringArgument::toString() const
 	return util::escape_string(value);
 }
 
+string TypeArgument::toString() const
+{
+	return la_toString((int)script_object_type_id);
+}
+
 string VectorArgument::toString() const
 {
 	return util::stringify_vector(value, true);

@@ -137,7 +137,7 @@ POP D4
 CALLFUNC 0.0121; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void clobber(foo)] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0008 0
 REF_INC 0
 ALLOCATEMEMV D2 8 0; InlineFunc[void Trace(char32[])] Params Start
 WRITEPODSTRING D2 "clobber"; InlineFunc[void Trace(char32[])] Params End
@@ -200,7 +200,7 @@ SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[foo foo::foo()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start
-MARK_TYPE_STACK 0.0001 0
+MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #10 Test
 PUSHR D2

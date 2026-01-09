@@ -27809,11 +27809,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					assert(false);
 					break;
 				}
-				if (sarg1 < 0 || sarg1 > 1)
-				{
-					assert(false);
-					break;
-				}
 
 				if (sarg1)
 					ri->stack_pos_is_object.insert(offset);
