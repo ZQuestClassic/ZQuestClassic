@@ -1411,8 +1411,9 @@ ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	  identifier(other.identifier), list(NULL),
 	  manager(NULL),
 	  baseType(other.baseType),
+	  resolvedType(other.resolvedType),
 	  extraArrays(other.extraArrays),
-	  resolvedType(other.resolvedType)
+	  flags(other.flags)
 {
 	if(other.initializer_)
 		setInitializer(other.initializer_.clone());
@@ -1427,6 +1428,7 @@ ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 	baseType = rhs.baseType;
 	identifier = rhs.identifier;
 	extraArrays = rhs.extraArrays;
+	flags = rhs.flags;
 	setInitializer(rhs.initializer_.clone());
 
 	return *this;
