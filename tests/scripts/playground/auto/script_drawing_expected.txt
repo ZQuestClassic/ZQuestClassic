@@ -384,12 +384,12 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0172; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0002
-LOAD D2 0.0004; if() #433 Test
+LOAD D2 0.0004; if() #439 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 416 ==; Test 'if'
-LOAD D2 0.0012; if() #433 Body Start
+LOAD D2 0.0012; if() #439 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
@@ -440,7 +440,7 @@ CALLFUNC 0.0218; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0.0009; if() #433 Body End
+STORE D2 0.0009; if() #439 Body End
 ALLOCATEMEMV D2 12 0
 PUSHR D2
 WRITEPODARRAY D2 {0,0,0,0,0,0,0,0,0,0,0,0}

@@ -153,7 +153,7 @@ POP D0
 POP REFNPC
 SETR D2 NPCDD
 STORE D2 0
-SETR D2 GD3; if() #828 Test AND while(true) #9 Body [Opt:AlwaysOn] Start
+SETR D2 GD3; if() #834 Test AND while(true) #9 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 GOTOCMP 136 !=
 SETR D2 GD5
@@ -164,10 +164,10 @@ GOTO 137
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 143 ==; Test 'if'
-SETV D2 1.5000; if() #828 Body Start
+SETV D2 1.5000; if() #834 Body Start
 SETR GD5 D2
 LOAD D2 0; InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #828 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #834 Body End
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params Start
 PUSHR D2
@@ -15388,12 +15388,12 @@ LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Params End
 CALLFUNC 0.4133; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Call
 POP D4
-LOAD D2 0; if() #827 Test
+LOAD D2 0; if() #833 Test
 COMPAREV D2 29
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 15400 ==; Test 'if'
-SETR D2 UNDERCOMBO; if() #827 Body Start
+SETR D2 UNDERCOMBO; if() #833 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int ComboAt(int, int)] Params Start
 PUSHR D2
@@ -15424,7 +15424,7 @@ COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 PUSHR D2
 POP D0
 POP D2
-SETR COMBOCD D2; if() #827 Body End
+SETR COMBOCD D2; if() #833 Body End
 LOAD D2 0; for() #220 Body End AND for() #220 LoopIncrement
 ADDV D2 1
 STORE D2 0

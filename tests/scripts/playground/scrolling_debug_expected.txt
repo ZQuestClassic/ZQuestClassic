@@ -89,7 +89,7 @@ POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-SETV D2 0; if() #433 Test
+SETV D2 0; if() #439 Test
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -97,7 +97,7 @@ COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 169 ==; Test 'if'
-SETR D2 VIEWPORT_X; if() #434 Test AND if() #433 Body Start
+SETR D2 VIEWPORT_X; if() #440 Test AND if() #439 Body Start
 PUSHR D2
 SETV D2 5
 PUSHR D2
@@ -122,7 +122,7 @@ GOTO 95
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 112 ==; Test 'if'
-ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[])] Params Start AND if() #434 Body Start
+ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[])] Params Start AND if() #440 Body Start
 WRITEPODSTRING D2 "failed expectation! %d %d %d %d\n"
 PUSHR D2
 PUSHVARGR VIEWPORT_X
@@ -136,11 +136,11 @@ PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #434 Body End
-SETR D2 GD4; unless() #435 Test
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #440 Body End
+SETR D2 GD4; unless() #441 Test
 COMPAREV D2 0
 GOTOCMP 169 !=; Test 'unless'
-SETV D2 1; if() #436 Test AND unless() #435 Body Start
+SETV D2 1; if() #442 Test AND unless() #441 Body Start
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -154,7 +154,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 142 ==; Test 'if'
-ALLOCATEMEMV D2 84 0; InlineFunc[void printf(char32[])] Params Start AND if() #436 Body Start
+ALLOCATEMEMV D2 84 0; InlineFunc[void printf(char32[])] Params Start AND if() #442 Body Start
 WRITEPODSTRING D2 "failed expectation! Game->Scrolling[SCROLL_NX]: %d Game->Scrolling[SCROLL_NRX]: %d\n"
 PUSHR D2
 SETV D2 1
@@ -166,8 +166,8 @@ PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #436 Body End
-SETV D2 2; if() #437 Test
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #442 Body End
+SETV D2 2; if() #443 Test
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -181,7 +181,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 169 ==; Test 'if'
-ALLOCATEMEMV D2 84 0; InlineFunc[void printf(char32[])] Params Start AND if() #437 Body Start
+ALLOCATEMEMV D2 84 0; InlineFunc[void printf(char32[])] Params Start AND if() #443 Body Start
 WRITEPODSTRING D2 "failed expectation! Game->Scrolling[SCROLL_NY]: %d Game->Scrolling[SCROLL_NRY]: %d\n"
 PUSHR D2
 SETV D2 2
@@ -193,8 +193,8 @@ PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #437 Body End
-SETR D2 GAMETIME; unless() #435 Body End AND if() #433 Body End AND if() #111 Test
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #443 Body End
+SETR D2 GAMETIME; unless() #441 Body End AND if() #439 Body End AND if() #111 Test
 MODV D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I==
@@ -374,7 +374,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-SETV D2 0; if() #431 Test
+SETV D2 0; if() #437 Test
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -382,7 +382,7 @@ COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 451 ==; Test 'if'
-SETV D2 0.0006; if() #431 Body Start
+SETV D2 0.0006; if() #437 Body Start
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
@@ -475,7 +475,7 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #431 Body End
+POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #437 Body End
 SETR D2 GAMETIME; if() #110 Test
 MODV D2 0.0003
 COMPAREV D2 0
@@ -912,7 +912,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-SETV D2 0; if() #432 Test
+SETV D2 0; if() #438 Test
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -920,7 +920,7 @@ COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 991 ==; Test 'if'
-PUSHR D4; if() #432 Body Start
+PUSHR D4; if() #438 Body Start
 SETV D2 0.0001; UsrFunc[int engineRound(int)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -1015,6 +1015,6 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #432 Body End
+POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #438 Body End
 POPARGS D5 0.0005
 RETURNFUNC; Func[void jankyOldScrollingVars()] Body End
