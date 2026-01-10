@@ -595,14 +595,14 @@ LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #453 Test AND wh
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 223 ==; Test 'if'
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start AND if() #453 Body Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #453 Body Start
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0009
 GOTO 225; if() #453 Body End
 SETV D2 0; if() #453 Else Start
@@ -677,7 +677,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 313 ==; Test 'if'
-LOAD D2 0.0006; InlineFunc[int Max(int, int)] Params Start AND if() #455 Body Start
+LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #455 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -691,8 +691,8 @@ POP D3
 SUBR D3 D2
 PUSHVARGR D3
 LOAD D2 0.0009
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0006
 GOTO 315; if() #455 Body End
 LOAD D2 0.0009; if() #455 Else Start
@@ -995,7 +995,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 631 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int Max(int, int)] Params Start AND if() #449 Body Start
+LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #449 Body Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1009,8 +1009,8 @@ POP D3
 SUBR D3 D2
 PUSHVARGR D3
 LOAD D2 0.0008
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0005
 GOTO 633; if() #449 Body End
 LOAD D2 0.0008; if() #449 Else Start
@@ -1235,14 +1235,14 @@ LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #473 Test AND wh
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 863 ==; Test 'if'
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start AND if() #473 Body Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #473 Body Start
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0009
 GOTO 865; if() #473 Body End
 SETV D2 0; if() #473 Else Start
@@ -1317,7 +1317,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 953 ==; Test 'if'
-LOAD D2 0.0006; InlineFunc[int Max(int, int)] Params Start AND if() #475 Body Start
+LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #475 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1331,8 +1331,8 @@ POP D3
 SUBR D3 D2
 PUSHVARGR D3
 LOAD D2 0.0009
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0006
 GOTO 955; if() #475 Body End
 LOAD D2 0.0009; if() #475 Else Start
@@ -1635,7 +1635,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1271 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int Max(int, int)] Params Start AND if() #463 Body Start
+LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #463 Body Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1649,8 +1649,8 @@ POP D3
 SUBR D3 D2
 PUSHVARGR D3
 LOAD D2 0.0008
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0005
 GOTO 1273; if() #463 Body End
 LOAD D2 0.0008; if() #463 Else Start
@@ -2264,16 +2264,16 @@ STORE_OBJECT D2 0.0001
 ALLOCATEMEMV D2 80 0
 WRITEPODSTRING D2 "  Script name: %s\n"
 STORE_OBJECT D2 0
-LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
 REF_REMOVE 0.0001
 REF_REMOVE 0
@@ -2397,21 +2397,21 @@ STORE_OBJECT D2 0.0003
 ALLOCATEMEMV D2 55 0
 WRITEPODSTRING D2 "  Script name should start after this character: %c\n"
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0.0004; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0003; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
-PUSHVARGV 64; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGV 64; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
 REF_REMOVE 0.0004
 REF_REMOVE 0.0003
@@ -2478,11 +2478,11 @@ RETURNFUNC; Func[void __AutoGhostKill(npc)] Body End
 PUSHARGSV 0 0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
-LOAD D2 0.0002; InlineFunc[int Max(int, int)] Params Start AND for() #38 setup
+LOAD D2 0.0002; InlineFunc[int Max(...int[])] Params Start AND for() #38 setup
 ADDV D2 1
 PUSHVARGR D2
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0
 LOAD D2 0; for() #38 LoopTest
 PUSHR D2
@@ -4743,7 +4743,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 4710 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start AND if() #540 Body Start
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params Start AND if() #540 Body Start
 LOAD D2 0.0007
 PUSHR D2
 POP REFEWPN
@@ -4758,8 +4758,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 POP D3
 SUBR D3 D2
-PUSHVARGR D3; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D3; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -7276,7 +7276,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2; if() #720 Body End
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -7294,8 +7294,8 @@ SETR D2 SPRITE_MISCD
 POP D3
 ADDR D2 D3
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -7388,7 +7388,7 @@ CALLFUNC 1.1122; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, in
 POP D4
 COMPAREV D2 0
 GOTOCMP 7138 !=; Test 'unless'
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start AND unless() #721 Body Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start AND unless() #721 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -7397,8 +7397,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 SUBV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -7613,7 +7613,7 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Y_OFFSET D2; unless() #377 Else End
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -7622,8 +7622,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 ADDV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV 3.2000; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 3.2000; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -10268,7 +10268,7 @@ COMPAREV D2 512
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 9897 !=; Test 'if' AND continue 1; AND if() #577 Body
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0002
 PUSHR D2
@@ -10276,8 +10276,8 @@ SETV D2 3
 PUSHR D2
 POP D0
 POP REFSPRITE
-PUSHVARGR SPRITE_MISCD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR SPRITE_MISCD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001; for() #163 Body End
 LOAD D2 0; for() #163 LoopIncrement
 SUBV D2 1
@@ -12053,14 +12053,14 @@ COMPAREV D2 0
 GOTOCMP 11682 ==; Test 'if'
 LOAD D2 0.0002; if() #843 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #843 Body End
@@ -12077,14 +12077,14 @@ COMPAREV D2 0
 GOTOCMP 11706 ==; Test 'if'
 LOAD D2 0.0002; if() #844 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #844 Body End
@@ -12101,14 +12101,14 @@ COMPAREV D2 0
 GOTOCMP 11730 ==; Test 'if'
 LOAD D2 0.0002; if() #845 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #845 Body End
@@ -12125,14 +12125,14 @@ COMPAREV D2 0
 GOTOCMP 11754 ==; Test 'if'
 LOAD D2 0.0002; if() #846 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #846 Body End
@@ -12149,14 +12149,14 @@ COMPAREV D2 0
 GOTOCMP 11778 ==; Test 'if'
 LOAD D2 0.0002; if() #847 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #847 Body End
@@ -12173,14 +12173,14 @@ COMPAREV D2 0
 GOTOCMP 11802 ==; Test 'if'
 LOAD D2 0.0002; if() #848 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #848 Body End
@@ -13373,14 +13373,14 @@ COMPAREV D2 0
 GOTOCMP 13002 ==; Test 'if'
 LOAD D2 0.0002; if() #895 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #895 Body End
@@ -13397,14 +13397,14 @@ COMPAREV D2 0
 GOTOCMP 13026 ==; Test 'if'
 LOAD D2 0.0002; if() #896 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #896 Body End
@@ -13421,14 +13421,14 @@ COMPAREV D2 0
 GOTOCMP 13050 ==; Test 'if'
 LOAD D2 0.0002; if() #897 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #897 Body End
@@ -13445,14 +13445,14 @@ COMPAREV D2 0
 GOTOCMP 13074 ==; Test 'if'
 LOAD D2 0.0002; if() #898 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #898 Body End
@@ -13469,14 +13469,14 @@ COMPAREV D2 0
 GOTOCMP 13098 ==; Test 'if'
 LOAD D2 0.0002; if() #899 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #899 Body End
@@ -13493,14 +13493,14 @@ COMPAREV D2 0
 GOTOCMP 13122 ==; Test 'if'
 LOAD D2 0.0002; if() #900 Body Start
 PUSHR D2
-PUSHR D4; InlineFunc[int Max(int, int)] Params Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.3688; UsrFunc[int HealthBar_GetHP(npc)] Call
 POP D4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #900 Body End

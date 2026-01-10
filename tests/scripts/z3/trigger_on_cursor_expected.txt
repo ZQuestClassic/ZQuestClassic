@@ -32,36 +32,36 @@ PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
-ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->Width: %d\n"
 PUSHR D2
-PUSHVARGR REGION_WIDTH; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR REGION_WIDTH; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->Height: %d\n"
 PUSHR D2
-PUSHVARGR REGION_HEIGHT; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 25 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR REGION_HEIGHT; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 25 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->ScreenWidth: %d\n"
 PUSHR D2
-PUSHVARGR REGION_SCREEN_WIDTH; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR REGION_SCREEN_WIDTH; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->ScreenHeight: %d\n"
 PUSHR D2
-PUSHVARGR REGION_SCREEN_HEIGHT; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR REGION_SCREEN_HEIGHT; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Region->NumCombos: %d\n"
 PUSHR D2
-PUSHVARGR REGION_NUM_COMBOS; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR REGION_NUM_COMBOS; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D0

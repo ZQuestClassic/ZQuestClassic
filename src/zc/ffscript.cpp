@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <deque>
+#include <limits>
 #include <memory>
 #include <string>
 #include <sstream>
@@ -30610,7 +30611,7 @@ void FFScript::do_printfarr()
 void FFScript::do_varg_max()
 {
 	int32_t num_args = zs_vargs.size();
-	int32_t val = 0;
+	int32_t val = std::numeric_limits<int32_t>::min();
 	if (num_args > 0)
 		val = zs_vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
@@ -30624,7 +30625,7 @@ void FFScript::do_varg_max()
 void FFScript::do_varg_min()
 {
 	int32_t num_args = zs_vargs.size();
-	int32_t val = 0;
+	int32_t val = std::numeric_limits<int32_t>::max();
 	if (num_args > 0)
 		val = zs_vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)

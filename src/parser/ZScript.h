@@ -417,7 +417,7 @@ namespace ZScript
 		operator std::string() const {return asString();}
 
 		std::string name;
-		bool prefix, destructor;
+		bool prefix, destructor, vargs;
 		DataType const* returnType;
 		std::vector<DataType const*> parameterTypes;
 	};
@@ -438,7 +438,6 @@ namespace ZScript
 		string name;
 		bool hasPrefixType;
 		bool isFromTypeTemplate;
-		byte extra_vargs;
 		
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::shared_ptr<const std::string>> paramNames;
@@ -491,6 +490,11 @@ namespace ZScript
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
 			state ? flags |= flag : flags &= ~flag;
+		}
+		void setFlags(int32_t flags_)
+		{
+			if(node) node->flags = flags_;
+			flags = flags_;
 		}
 		bool getFlag(int32_t flag) const
 		{

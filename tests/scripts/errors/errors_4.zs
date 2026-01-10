@@ -17,11 +17,12 @@ global script Global
 		auto choice_2 = Choose(1, 2, obj);
 		auto max_1 = Max(1, 2, obj);
 		auto max_2 = Max(1, obj);
-		auto max_3 = Max(1);
+		auto max_3 = Max(); // Doesn't work because T is unresolved.
 
 		SizeOfArray(Hero); // TODO: this should warn since the type was coerced to an array (LEGACY_ARRAYS).
 
 		// OK.
+		auto max_3 = Max(1);
 		Object objects2[] = {new Object()};
 		Object o = ArrayPopBack(objects2);
 		int n2 = ArrayPopBack(numbers);

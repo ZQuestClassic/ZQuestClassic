@@ -786,22 +786,20 @@ internal constexpr int WrapDegrees(int degrees);
 // args to fill in parts of the string that are specially marked. Does not
 // include a newline character after the string.
 //
-// @vargs 0
 // @zasm
 //   PRINTFVARG
 //   POP D5
-internal void printf(char32[] format);
+internal void printf(char32[] format, ...untyped[] values);
 
 // Acts exactly as [printf], but places the result in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
 //
 // Returns the number of characters used.
 //
-// @vargs 0
 // @zasm
 //   SPRINTFVARG
 //   POPARGS D5 0.0002
-internal int sprintf(char32[] dest, char32[] format);
+internal int sprintf(char32[] dest, char32[] format, ...untyped[] values);
 
 // Same as [printf], but with the format parameters as an array.
 //
@@ -819,24 +817,21 @@ internal int sprintfa<T>(char32[] dest, char32[] format, T[] args);
 
 // Returns the largest parameter.
 //
-// @vargs 2
 // @zasm
 //   MAXVARG
-internal constexpr T Max<T>(T val1, T val2);
+internal constexpr T Max<T>(...T[] rest);
 
 // Returns the smallest parameter.
 //
-// @vargs 2
 // @zasm
 //   MINVARG
-internal constexpr T Min<T>(T val1, T val2);
+internal constexpr T Min<T>(...T[] rest);
 
 // Returns a random parameter, using the global RandGen.
 //
-// @vargs 1
 // @zasm
 //   CHOOSEVARG
-internal T Choose<T>(T val1);
+internal T Choose<T>(...T[] rest);
 
 // Increases the size of the array by 1, inserting [val] at the
 // back of the array.

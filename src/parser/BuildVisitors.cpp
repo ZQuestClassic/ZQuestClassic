@@ -1968,7 +1968,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	else if(func.getFlag(FUNCFLAG_INLINE) && (func.isInternal() || func.getFlag(FUNCFLAG_INTERNAL))) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
-		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
+		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
 		size_t num_used_params = host.parameters.size();
 		
 		if (host.left->isTypeArrow())

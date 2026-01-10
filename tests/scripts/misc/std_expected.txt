@@ -179,13 +179,13 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 13 D2 0
-ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "tango.zh error: %d\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 POP D5
 RETURNFUNC; Func[void __Tango_LogError(int)] Body End
 SETR D4 SP2; Func[void __Tango_UnpressMenu()] Body Start
@@ -3782,15 +3782,15 @@ LOAD D2 0.0005
 ADDV D2 1
 STORE D2 0.0005; if() #195 Else End
 GOTO 3478; if() #192 Else End AND while() #10 Body End AND while() #10 End
-LOAD D2 0.0005; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0005; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 SETR D2 GD2
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0005
 SETV D2 0
 PUSHR D2
@@ -4032,7 +4032,7 @@ GOTOCMP 4007 ==; Test 'if'
 LOAD D2 0; if() #442 Body Start
 MULTV D2 5
 STORE D2 0; if() #442 Body End
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params Start
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0001
@@ -4043,8 +4043,8 @@ PUSHR D2
 LOAD D2 0
 POP D3
 SUBR D3 D2
-PUSHVARGR D3; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D3; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -6058,12 +6058,12 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
 GOTO 6070; return (Void) AND unless() #466 Body End
-LOAD D2 0.0003; InlineFunc[int strlen(char32[])] Params Start AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0003; InlineFunc[int strlen(char32[])] Params Start AND InlineFunc[int Min(...int[])] Params Start
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
 STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 PUSHVARGR D2
-PUSHVARGV 16; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 16; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001
 STOREV 0 0; for() #138 setup
 LOAD D2 0; for() #138 LoopTest
@@ -10533,7 +10533,7 @@ COMPAREV D2 11
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10541 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start AND if() #296 Body Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start AND if() #296 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10554,8 +10554,8 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 POP D0
-PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -10571,7 +10571,7 @@ COMPAREV D2 12
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 10573 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start AND if() #297 Body Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start AND if() #297 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10586,8 +10586,8 @@ READPODARRAYV D2 1
 POP D3
 SUBR D3 D2
 PUSHVARGR D3
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -10651,7 +10651,7 @@ MULTR D2 D3
 DIVV D2 100
 LSHIFTV D2 0
 STORE D2 0
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10669,8 +10669,8 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 POP D0
-PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -10703,7 +10703,7 @@ MULTR D2 D3
 DIVV D2 100
 LSHIFTV D2 0
 STORE D2 0
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -10715,8 +10715,8 @@ LOAD D2 0
 POP D3
 SUBR D3 D2
 PUSHVARGR D3
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2

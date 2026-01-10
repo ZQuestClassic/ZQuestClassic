@@ -8746,10 +8746,10 @@ POP REFNPC
 SETR D2 NPCHALTRATE
 MULTV D2 8
 PUSHR D2
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start
+PUSHVARGV 0; InlineFunc[int Choose(...int[])] Params Start
 PUSHVARGV 8
-PUSHVARGV 16; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 16; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void EZB_Waitframes(ffc, npc, int, int)] Params End
@@ -8909,15 +8909,15 @@ STORE D2 0.0006; if() #986 Body End
 LOAD D2 0.0006; if() #987 Test
 COMPAREV D2 0
 GOTOCMP 1485 <=
-LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(int, int)] Params Start AND InlineFunc[int Rand(int)] Params Start
+LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(...int[])] Params Start AND InlineFunc[int Rand(int)] Params Start
 PUSHR D2
 POP REFNPC
 SETR D2 NPCRATE
 MULTV D2 0.5000; InlineFunc[int Ceiling(int)] Params End
 CEILING D2; InlineFunc[int Ceiling(int)] Body
 PUSHVARGR D2
-PUSHVARGV 2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR D3 D2; InlineFunc[int Rand(int)] Params End
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
 COMPAREV D2 0
@@ -8958,10 +8958,10 @@ POP REFNPC
 SETR D2 NPCHALTRATE
 MULTV D2 8
 PUSHR D2
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start
+PUSHVARGV 0; InlineFunc[int Choose(...int[])] Params Start
 PUSHVARGV 8
-PUSHVARGV 16; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 16; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void EZB_Waitframes(ffc, npc, int, int)] Params End
@@ -8986,15 +8986,15 @@ STORE D2 0.0006; if() #989 Body End
 LOAD D2 0.0006; if() #990 Test
 COMPAREV D2 0
 GOTOCMP 1562 <=
-LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(int, int)] Params Start AND InlineFunc[int Rand(int)] Params Start
+LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(...int[])] Params Start AND InlineFunc[int Rand(int)] Params Start
 PUSHR D2
 POP REFNPC
 SETR D2 NPCRATE
 MULTV D2 0.5000; InlineFunc[int Ceiling(int)] Params End
 CEILING D2; InlineFunc[int Ceiling(int)] Body
 PUSHVARGR D2
-PUSHVARGV 2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR D3 D2; InlineFunc[int Rand(int)] Params End
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
 COMPAREV D2 0
@@ -9449,9 +9449,9 @@ POP D4
 GOTO 2118; if() #559 Body End
 LOAD D2 0.0042; InlineFunc[int WrapDegrees(int)] Params Start AND if() #559 Else Start
 PUSHR D2
-PUSHVARGV -140; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 140; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -140; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 140; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 POP D3
 ADDR D2 D3; InlineFunc[int WrapDegrees(int)] Params End
 WRAPDEGREES D2; InlineFunc[int WrapDegrees(int)] Body
@@ -9847,9 +9847,9 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2417 ==; Test 'if'
-PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND if() #574 Body Start
-PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(...Direction[])] Params Start AND if() #574 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -9864,9 +9864,9 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2434 ==; Test 'if'
-PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND if() #575 Body Start
-PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(...Direction[])] Params Start AND if() #575 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -9881,9 +9881,9 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2451 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND if() #576 Body Start
-PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(...Direction[])] Params Start AND if() #576 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -9898,9 +9898,9 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2467 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND if() #1008 Body Start
-PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(...Direction[])] Params Start AND if() #1008 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -10020,12 +10020,12 @@ LOAD D2 0.0005
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0.0033
 PUSHR D2
 POP REFNPC
-PUSHVARGR NPCRATE; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR NPCRATE; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0046
 LOAD D2 0.0046; InlineFunc[int Rand(int)] Params Start AND if() #1013 Test
 SETR D3 D2; InlineFunc[int Rand(int)] Params End
@@ -10282,12 +10282,12 @@ LOAD D2 0.0005
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0.0033
 PUSHR D2
 POP REFNPC
-PUSHVARGR NPCRATE; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR NPCRATE; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0046
 LOAD D2 0.0046; InlineFunc[int Rand(int)] Params Start AND if() #1021 Test
 SETR D3 D2; InlineFunc[int Rand(int)] Params End
@@ -10506,10 +10506,10 @@ POP REFNPC
 SETR D2 NPCHALTRATE
 MULTV D2 8
 PUSHR D2
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start
+PUSHVARGV 0; InlineFunc[int Choose(...int[])] Params Start
 PUSHVARGV 4
-PUSHVARGV 8; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 8; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void EZB_Waitframes(ffc, npc, int, int)] Params End
@@ -10536,15 +10536,15 @@ STORE D2 0.0006; if() #1028 Body End
 LOAD D2 0.0006; if() #1029 Test
 COMPAREV D2 0
 GOTOCMP 3112 <=
-LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(int, int)] Params Start AND InlineFunc[int Rand(int)] Params Start
+LOAD D2 0.0033; InlineFunc[int Ceiling(int)] Params Start AND InlineFunc[int Max(...int[])] Params Start AND InlineFunc[int Rand(int)] Params Start
 PUSHR D2
 POP REFNPC
 SETR D2 NPCRATE
 MULTV D2 0.5000; InlineFunc[int Ceiling(int)] Params End
 CEILING D2; InlineFunc[int Ceiling(int)] Body
 PUSHVARGR D2
-PUSHVARGV 2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR D3 D2; InlineFunc[int Rand(int)] Params End
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
 COMPAREV D2 0
@@ -11436,11 +11436,11 @@ CALLFUNC 4.0625; UsrFunc[bool EZB_CanMoveAngle(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 4028 ==; Test 'while'
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start AND while() #13 Body Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start AND while() #13 Body Start
 ADDV D2 0.2000
 PUSHVARGR D2
-PUSHVARGV 5; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 5; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -12186,9 +12186,9 @@ PUSHR D2
 PUSHV 1; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 PUSHR GD4; UsrFunc[int EZB_DirAngle(int)] Params
@@ -12293,9 +12293,9 @@ PUSHR D2
 PUSHV 1; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0044
 PUSHARGSR D4 0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
 LOAD D2 0.0033; UsrFunc[int CenterX(npc)] Params Start
@@ -12600,9 +12600,9 @@ PUSHR D2
 PUSHV 1; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0044
 SETV D3 360; InlineFunc[int Rand(int)] Params
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
@@ -13157,7 +13157,7 @@ COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 5836 ==; for() #279 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #279 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #279 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -13166,8 +13166,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 -2; for() #280 setup
 STORE D2 0.0045
@@ -13284,7 +13284,7 @@ COMPAREV D2 25
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 5971 ==; for() #281 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #281 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #281 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -13298,8 +13298,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 -2; for() #282 setup
 STORE D2 0.0045
@@ -13433,9 +13433,9 @@ PUSHR D2
 PUSHV 2; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0044
 PUSHARGSR D4 0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
 LOAD D2 0.0033; UsrFunc[int CenterX(npc)] Params Start
@@ -13470,7 +13470,7 @@ COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6148 ==; for() #283 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #283 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #283 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -13479,8 +13479,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHR D4; InlineFunc[int Distance(int, int, int, int)] Params Start AND if() #1067 Test
 LOAD D2 0.0033; UsrFunc[int CenterX(npc)] Params Start
@@ -13596,7 +13596,7 @@ COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6239 ==; for() #285 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #285 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #285 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -13610,8 +13610,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 0; for() #286 setup
 STORE D2 0.0045
@@ -13685,7 +13685,7 @@ COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6334 ==; for() #287 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #287 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #287 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -13699,8 +13699,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 0; for() #288 setup
 STORE D2 0.0045
@@ -13780,7 +13780,7 @@ COMPAREV D2 120
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6430 ==; for() #289 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #289 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #289 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -13794,8 +13794,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 0; for() #290 setup
 STORE D2 0.0045
@@ -13876,7 +13876,7 @@ COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 6525 ==; for() #291 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #291 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #291 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -13890,8 +13890,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 SETV D2 0; for() #292 setup
 STORE D2 0.0045
@@ -15501,11 +15501,11 @@ COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8096 ==; for() #310 TestFail?
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start AND for() #310 Body Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start AND for() #310 Body Start
 ADDV D2 0.5000
 PUSHVARGR D2
-PUSHVARGV 5; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 5; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -15607,11 +15607,11 @@ GOTOCMP 8318 ==; Test 'while'
 LOAD D2 0.0046; while() #16 Body Start
 ADDV D2 1
 STORE D2 0.0046
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start
 ADDV D2 0.2000
 PUSHVARGR D2
-PUSHVARGV 5; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 5; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -15826,11 +15826,11 @@ COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8421 ==; for() #311 TestFail?
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start AND for() #311 Body Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start AND for() #311 Body Start
 ADDV D2 0.1000
 PUSHVARGR D2
-PUSHVARGV 4; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 4; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -15981,11 +15981,11 @@ POP D3
 ADDR D2 D3; InlineFunc[int WrapDegrees(int)] Params End
 WRAPDEGREES D2; InlineFunc[int WrapDegrees(int)] Body
 STORE D2 0.0042; if() #1096 Body End
-LOAD D2 0.0044; if() #1095 Body End AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0044; if() #1095 Body End AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 0.1000
 PUSHVARGR D2
-PUSHVARGV 4; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 4; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -16878,11 +16878,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1103 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -17248,11 +17248,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1107 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -17629,11 +17629,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1111 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -18017,11 +18017,11 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 2.0742; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0042
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start
 ADDV D2 0.5000
 PUSHVARGR D2
-PUSHVARGV 5; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 5; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -18122,11 +18122,11 @@ CALLFUNC 4.0625; UsrFunc[bool EZB_CanMoveAngle(int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 10714 ==; Test 'while'
-LOAD D2 0.0044; InlineFunc[int Min(int, int)] Params Start AND while() #24 Body Start
+LOAD D2 0.0044; InlineFunc[int Min(...int[])] Params Start AND while() #24 Body Start
 ADDV D2 0.2000
 PUSHVARGR D2
-PUSHVARGV 5; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 5; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0044
 PUSHR D4
 LOAD D2 0.0042; UsrFunc[void Ghost_MoveAtAngle(int, int, int)] Params Start
@@ -18698,11 +18698,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1119 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -19116,11 +19116,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1123 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -19545,11 +19545,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
 CALLFUNC 2.6843; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4; if() #1127 Body End
-SETR D2 GD3; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD3; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 4
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD3 D2
 PUSHR D4
 LOAD D2 0.0047; UsrFunc[void EZB_Waitframe(ffc, npc, int)] Params Start
@@ -19943,9 +19943,9 @@ PUSHR D2
 PUSHV 12; UsrFunc[void EZB_Waitframes(ffc, npc, int, int)] Params End
 CALLFUNC 4.6852; UsrFunc[void EZB_Waitframes(ffc, npc, int, int)] Call
 POP D4
-PUSHVARGV -40; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 40; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -40; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 40; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0045
 SETV D2 0; for() #338 setup
 STORE D2 0.0044
@@ -21684,7 +21684,7 @@ COMPAREV D2 60
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 14425 ==; for() #351 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #351 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #351 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -21693,8 +21693,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHR D4
 PUSHV 3; UsrFunc[void EZB_DoLaser(int, int, int, int, int, int, int, int, int, int, int)] Params Start
@@ -21873,7 +21873,7 @@ COMPAREV D2 16
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 14634 ==; for() #354 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #354 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #354 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -21887,8 +21887,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHR D4
 PUSHV 3; UsrFunc[void EZB_DoLaser(int, int, int, int, int, int, int, int, int, int, int)] Params Start
@@ -22115,9 +22115,9 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 2.0742; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 PUSHR D2
-PUSHVARGV -60; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 60; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -60; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 60; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 POP D3
 ADDR D2 D3
 PUSHR D2
@@ -22401,7 +22401,7 @@ COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 15225 ==; for() #361 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #361 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #361 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -22410,8 +22410,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHR D4; InlineFunc[int Distance(int, int, int, int)] Params Start
 LOAD D2 0.0033; UsrFunc[int CenterX(npc)] Params Start
@@ -22687,7 +22687,7 @@ COMPAREV D2 80
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 15500 ==; for() #364 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #364 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #364 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -22701,8 +22701,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHV 128; InlineFunc[int Distance(int, int, int, int)] Params Start
 PUSHV 88
@@ -22771,12 +22771,12 @@ COMPAREV D2 5
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 15412 ==; for() #365 TestFail?
-LOAD D2 0.0046; InlineFunc[int Max(int, int)] Params Start AND for() #365 Body Start
+LOAD D2 0.0046; InlineFunc[int Max(...int[])] Params Start AND for() #365 Body Start
 MULTV D2 2
 SUBV2 160 D2
 PUSHVARGR D2
-PUSHVARGV 40; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 40; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0044
 LOAD D2 0.0036
 PUSHR D2
@@ -22961,7 +22961,7 @@ COMPAREV D2 80
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 15819 ==; for() #367 TestFail?
-LOAD D2 0.0028; InlineFunc[int Choose(int)] Params Start AND for() #367 Body Start
+LOAD D2 0.0028; InlineFunc[int Choose(...int[])] Params Start AND for() #367 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -22970,8 +22970,8 @@ LOAD D2 0.0028
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0043
 PUSHR D4
 LOAD D2 0.0033; UsrFunc[int CenterX(npc)] Params Start
@@ -24435,11 +24435,11 @@ POP D4
 STORE D2 0.0042
 SETV D2 30; InlineFunc[void Game::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Game::PlaySound(int)] Body
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -24448,11 +24448,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -24617,11 +24617,11 @@ POP D4
 STORE D2 0.0042
 SETV D2 30; InlineFunc[void Game::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Game::PlaySound(int)] Body
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -24630,11 +24630,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -24797,11 +24797,11 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 2.0742; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0042
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -24810,11 +24810,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -25071,11 +25071,11 @@ PUSHR D2
 PUSHV 1; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -25084,11 +25084,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 4
 PUSHR D2
 LOAD D2 0.0035
@@ -25297,11 +25297,11 @@ POP D4
 STORE D2 0.0042
 SETV D2 30; InlineFunc[void Game::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Game::PlaySound(int)] Body
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -25310,11 +25310,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -25777,11 +25777,11 @@ POP D4
 STORE D2 0.0042
 SETV D2 30; InlineFunc[void Game::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Game::PlaySound(int)] Body
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -25790,11 +25790,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -26132,11 +26132,11 @@ PUSHR D2
 PUSHV 2; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Params End
 CALLFUNC 4.2972; UsrFunc[void EZB_FiringAnim(ffc, npc, int, int)] Call
 POP D4
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -26146,11 +26146,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 4
 PUSHR D2
 LOAD D2 0.0035
@@ -26327,11 +26327,11 @@ POP D4
 STORE D2 0.0042
 SETV D2 30; InlineFunc[void Game::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Game::PlaySound(int)] Body
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 MULTV D2 8
 ADDV D2 16
@@ -26340,11 +26340,11 @@ LOAD D2 0.0035
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2 0
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0011
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 PUSHR D2
 LOAD D2 0.0035
@@ -27116,19 +27116,19 @@ PUSHR D2; UsrFunc[int EZB_BarrierShift_TransformAnimSize(npc, int)] Params End
 CALLFUNC 3.9877; UsrFunc[int EZB_BarrierShift_TransformAnimSize(npc, int)] Call
 POP D4
 STORE D2 0.0045
-LOAD D2 0.0045; InlineFunc[int Max(int, int)] Params Start AND if(true) #1185 [Opt:AlwaysOn]
+LOAD D2 0.0045; InlineFunc[int Max(...int[])] Params Start AND if(true) #1185 [Opt:AlwaysOn]
 PUSHVARGR D2
-LOAD D2 0.0033; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0033; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_TILE_W
 LOAD D2 0.0033
 PUSHR D2
 POP REFSPRITE
-PUSHVARGR SPRITE_TILE_H; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR SPRITE_TILE_H; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 MULTV D2 8
 ADDV D2 8
 STORE D2 0.0044
@@ -28828,16 +28828,16 @@ STORE_OBJECT D2 0.0001
 ALLOCATEMEMV D2 80 0
 WRITEPODSTRING D2 "  Script name: %s\n"
 STORE_OBJECT D2 0
-LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
 REF_REMOVE 0.0001
 REF_REMOVE 0
@@ -28961,21 +28961,21 @@ STORE_OBJECT D2 0.0003
 ALLOCATEMEMV D2 55 0
 WRITEPODSTRING D2 "  Script name should start after this character: %c\n"
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0.0004; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0003; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
-PUSHVARGV 64; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGV 64; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
 REF_REMOVE 0.0004
 REF_REMOVE 0.0003
@@ -29042,11 +29042,11 @@ RETURNFUNC; Func[void __AutoGhostKill(npc)] Body End
 PUSHARGSV 0 0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
-LOAD D2 0.0002; InlineFunc[int Max(int, int)] Params Start AND for() #38 setup
+LOAD D2 0.0002; InlineFunc[int Max(...int[])] Params Start AND for() #38 setup
 ADDV D2 1
 PUSHVARGR D2
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0
 LOAD D2 0; for() #38 LoopTest
 PUSHR D2
@@ -33621,9 +33621,9 @@ GOTO 26180
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 26195 !=; Test 'unless'
-PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #256 Body Start
-PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(...Direction[])] Params Start AND unless() #256 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 SETR GD4 D2; unless() #256 Body End
 GOTO 26195; if() #99 Body End
 LOAD D2 0.0001; if() #100 Test AND if() #99 Else Start
@@ -33683,9 +33683,9 @@ GOTO 26242
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 26257 !=; Test 'unless'
-PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #257 Body Start
-PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(...Direction[])] Params Start AND unless() #257 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 SETR GD4 D2; unless() #257 Body End
 GOTO 26257; if() #102 Body End
 LOAD D2 0.0001; if() #103 Test AND if() #102 Else Start
@@ -36033,9 +36033,9 @@ GOTO 28592
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 28607 !=; Test 'unless'
-PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #283 Body Start
-PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(...Direction[])] Params Start AND unless() #283 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 SETR GD4 D2; unless() #283 Body End
 GOTO 28607; if() #121 Body End
 LOAD D2 0.0001; if() #122 Test AND if() #121 Else Start
@@ -36095,9 +36095,9 @@ GOTO 28654
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 28669 !=; Test 'unless'
-PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #284 Body Start
-PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
-CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(...Direction[])] Params Start AND unless() #284 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(...Direction[])] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(...Direction[])] Body
 SETR GD4 D2; unless() #284 Body End
 GOTO 28669; if() #124 Body End
 LOAD D2 0.0001; if() #125 Test AND if() #124 Else Start
@@ -36735,19 +36735,19 @@ LOAD D2 0; for() #50 Body End AND for() #50 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 29209; for() #50 End
-ALLOCATEMEMV D2 60 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 60 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "ghost.zh: AutoGhost initialization failed - enemy missing.\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 22 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 22 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "  DMap %d, screen %X\n"
 PUSHR D2
 PUSHVARGR CURDMAP
-PUSHVARGR CURDSCR; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR CURDSCR; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "  Script %d, enemy ID %d\n"
 PUSHR D2
 LOAD D2 0.0004
@@ -36755,9 +36755,9 @@ PUSHR D2
 POP REFFFC
 PUSHVARGR FFSCRIPT
 LOAD D2 0.0003
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0
 PUSHR D2
 LOAD D2 0.0004
@@ -37339,11 +37339,11 @@ PUSHR GD5
 PUSHV 2; UsrFunc[void Ghost_Move(int, int, int)] Params End
 CALLFUNC 2.8836; UsrFunc[void Ghost_Move(int, int, int)] Call
 POP D4
-SETR D2 GD5; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD5; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD5 D2
 SETR D2 GD5; if() #331 Test
 COMPAREV D2 0
@@ -37382,11 +37382,11 @@ CALLFUNC 2.3282; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 29950 ==; Test 'if'
-SETR D2 GD5; InlineFunc[int Max(int, int)] Params Start AND if() #160 Body Start
+SETR D2 GD5; InlineFunc[int Max(...int[])] Params Start AND if() #160 Body Start
 SUBV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD5 D2
 GOTO 29952; if() #160 Body End
 SETV D2 0; if() #160 Else Start
@@ -37430,11 +37430,11 @@ SETR D2 GD5
 POP D3
 ADDR D2 D3
 SETR GD3 D2
-SETR D2 GD5; InlineFunc[int Max(int, int)] Params Start
+SETR D2 GD5; InlineFunc[int Max(...int[])] Params Start
 SUBV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SETR GD5 D2; if() #161 Else End
 SETR D2 GD6; if() #333 Body End AND if() #158 Else End AND unless() #329 Body End AND if() #334 Test
 COMPAREV D2 0
@@ -38836,11 +38836,11 @@ COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 31429 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND InlineFunc[int Min(int, int)] Params Start AND for() #122 setup AND if() #466 Body Start
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND InlineFunc[int Min(...int[])] Params Start AND for() #122 setup AND if() #466 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHVARGR D2
-PUSHVARGV 8; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 8; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 SUBV D2 1
 STORE D2 0
 LOAD D2 0; for() #122 LoopTest
@@ -39905,7 +39905,7 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 32815 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start AND if() #540 Body Start
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params Start AND if() #540 Body Start
 LOAD D2 0.0007
 PUSHR D2
 POP REFEWPN
@@ -39920,8 +39920,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 POP D3
 SUBR D3 D2
-PUSHVARGR D3; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D3; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -42438,7 +42438,7 @@ POP D0
 POP D2
 POP REFSPRITE
 SETR SPRITE_MISCD D2; if() #720 Body End
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 SETV D2 7
 PUSHR D2
@@ -42456,8 +42456,8 @@ SETR D2 SPRITE_MISCD
 POP D3
 ADDR D2 D3
 PUSHVARGR D2
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -42550,7 +42550,7 @@ CALLFUNC 3.9587; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, in
 POP D4
 COMPAREV D2 0
 GOTOCMP 35243 !=; Test 'unless'
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start AND unless() #721 Body Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start AND unless() #721 Body Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -42559,8 +42559,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 SUBV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -42775,7 +42775,7 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_Y_OFFSET D2; unless() #377 Else End
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -42784,8 +42784,8 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD
 ADDV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV 3.2000; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 3.2000; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -45430,7 +45430,7 @@ COMPAREV D2 512
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 38002 !=; Test 'if' AND continue 1; AND if() #577 Body
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0002
 PUSHR D2
@@ -45438,8 +45438,8 @@ SETV D2 3
 PUSHR D2
 POP D0
 POP REFSPRITE
-PUSHVARGR SPRITE_MISCD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR SPRITE_MISCD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001; for() #163 Body End
 LOAD D2 0; for() #163 LoopIncrement
 SUBV D2 1
@@ -47367,11 +47367,11 @@ PUSHV 4; UsrFunc[int Clamp(int, int, int)] Params End
 CALLFUNC 2.1842; UsrFunc[int Clamp(int, int, int)] Call
 POP D4
 STORE D2 0.0001
-LOAD D2 0.0002; InlineFunc[int Max(int, int)] Params Start AND return Start
+LOAD D2 0.0002; InlineFunc[int Max(...int[])] Params Start AND return Start
 PUSHVARGR D2
 LOAD D2 0.0001
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POPARGS D5 0.0007; return End
 RETURNFUNC; Func[int EZB_BarrierShift_TransformAnimSize(npc, int)] Body End
 PUSHARGSV 0 0.0002; Func[void EZB_Barriershift_Load(npc, int, bool, bool)] Body Start
@@ -48184,13 +48184,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 40913 !=; Test 'if' AND break 1; AND if() #847 Body
-LOAD D2 0; for() #227 Body End AND for() #227 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #227 Body End AND for() #227 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0003
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 40711; for() #227 End
 GOTO 40913; if() #453 Body End
@@ -48238,13 +48238,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 40913 !=; Test 'if' AND break 1; AND if() #849 Body
-LOAD D2 0; for() #228 Body End AND for() #228 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #228 Body End AND for() #228 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0003
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 40762; for() #228 End
 GOTO 40913; if() #454 Body End
@@ -48289,13 +48289,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 40913 !=; Test 'if' AND break 1; AND if() #851 Body
-LOAD D2 0; for() #229 Body End AND for() #229 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #229 Body End AND for() #229 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0002
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 40816; for() #229 End
 GOTO 40913; if() #455 Body End
@@ -48343,13 +48343,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 40913 !=; Test 'if' AND break 1; AND if() #854 Body
-LOAD D2 0; for() #230 Body End AND for() #230 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #230 Body End AND for() #230 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0002
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 40867; for() #230 End
 SETV D2 1; if() #852 Body End AND if() #455 Else End AND if() #454 Else End AND if() #453 Else End AND return Start
@@ -48443,7 +48443,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41023 !=; Test 'if' AND break 1; AND if() #856 Body
-LOAD D2 0; for() #232 Body End AND for() #232 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #232 Body End AND for() #232 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0004
@@ -48458,8 +48458,8 @@ SETR D2 SPRITE_HIT_HEIGHT
 POP D3
 ADDR D2 D3
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 40947; for() #232 End
 LOAD D2 0.0001; if() #857 Test
@@ -48481,7 +48481,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41061 !=; Test 'if' AND break 1; AND if() #857 Body
-LOAD D2 0.0001; for() #231 Body End AND for() #231 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; for() #231 Body End AND for() #231 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0004
@@ -48496,8 +48496,8 @@ SETR D2 SPRITE_HIT_WIDTH
 POP D3
 ADDR D2 D3
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001
 GOTO 40923; for() #231 End
 SETV D2 1; return Start
@@ -48553,13 +48553,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41123 !=; Test 'if' AND break 1; AND if() #859 Body
-LOAD D2 0; for() #234 Body End AND for() #234 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0; for() #234 Body End AND for() #234 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0002
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 GOTO 41077; for() #234 End
 LOAD D2 0.0001; if() #860 Test
@@ -48571,13 +48571,13 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41141 !=; Test 'if' AND break 1; AND if() #860 Body
-LOAD D2 0.0001; for() #233 Body End AND for() #233 LoopIncrement AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; for() #233 Body End AND for() #233 LoopIncrement AND InlineFunc[int Min(...int[])] Params Start
 ADDV D2 8
 PUSHVARGR D2
 LOAD D2 0.0003
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001
 GOTO 41067; for() #233 End
 SETV D2 1; return Start
@@ -48834,7 +48834,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41693 ==; Test 'if'
-LOAD D2 0.0008; InlineFunc[int Choose(int)] Params Start AND if() #465 Body Start
+LOAD D2 0.0008; InlineFunc[int Choose(...int[])] Params Start AND if() #465 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 1
@@ -48843,8 +48843,8 @@ LOAD D2 0.0008
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0003
 LOAD D2 0.0007; if() #866 Test
 COMPAREV D2 -1
@@ -48897,15 +48897,15 @@ POP D4
 POP D3
 ADDR D2 D3
 STORE D2 0.0012
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int Round(int)] Params Start
 DIVV D2 4
 PUSHR D2; UsrFunc[int Round(int)] Params End
 CALLFUNC 2.9628; UsrFunc[int Round(int)] Call
 POP D4
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0001
 LOAD D2 0.0014; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR D2
@@ -48983,15 +48983,15 @@ COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 41624 ==; Test 'if'
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start AND if() #466 Body Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start AND if() #466 Body Start
 PUSHR D4
 LOAD D2 0.0011; UsrFunc[int Round(int)] Params Start
 DIVV D2 16
 PUSHR D2; UsrFunc[int Round(int)] Params End
 CALLFUNC 2.9628; UsrFunc[int Round(int)] Call
 POP D4
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0002
 PUSHR D4
 LOAD D2 0.0014; UsrFunc[void EZB_DrawThickLine(int, int, int, int, int, int, int, bool, int)] Params Start
@@ -49132,7 +49132,7 @@ LINER; InlineFunc[void screendata::Line(int, int, int, int, int, int, int, int, 
 POPARGS D5 0.0011; InlineFunc[void screendata::Line(int, int, int, int, int, int, int, int, int, int, int)] Body End AND if() #466 Else End
 REF_REMOVE 0; if() #867 Body End
 GOTO 41781; if() #465 Body End
-LOAD D2 0.0008; InlineFunc[int Choose(int)] Params Start AND if() #465 Else Start
+LOAD D2 0.0008; InlineFunc[int Choose(...int[])] Params Start AND if() #465 Else Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -49146,8 +49146,8 @@ LOAD D2 0.0008
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0003
 LOAD D2 0.0007; if() #868 Test
 COMPAREV D2 -1
@@ -49156,15 +49156,15 @@ COMPAREV D2 0
 GOTOCMP 41717 ==; Test 'if'
 LOAD D2 0.0007; if() #868 Body Start
 STORE D2 0.0003; if() #868 Body End
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start
 PUSHR D4
 LOAD D2 0.0011; UsrFunc[int Round(int)] Params Start
 DIVV D2 8
 PUSHR D2; UsrFunc[int Round(int)] Params End
 CALLFUNC 2.9628; UsrFunc[int Round(int)] Call
 POP D4
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0001
 PUSHR D4
 LOAD D2 0.0014; UsrFunc[void EZB_DrawLaser(int, int, int, int, int, int)] Params Start
@@ -49387,11 +49387,11 @@ POPARGS D5 0.0006
 RETURNFUNC; Func[void EZB_DrawLaser(int, int, int, int, int, int)] Body End
 PUSHARGSV 0 0.0003; Func[bool EZB_LaserCollision(int, int, int, int)] Body Start
 SETR D4 SP2
-PUSHVARGV 1; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 1; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0.0004
 SUBV D2 3
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0002
 LOAD D2 0.0006
 PUSHR D2
@@ -50964,15 +50964,15 @@ STOREV 0 0.0006
 STOREV 0 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 POP REFSPRITE
 PUSHVARGR SPRITE_TILE_W
 LOAD D2 0.0012
 PUSHR D2
 POP REFSPRITE
-PUSHVARGR SPRITE_TILE_H; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR SPRITE_TILE_H; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 SUBV D2 1
 STORE D2 0.0002
 STOREV 0 0.0001
@@ -50983,13 +50983,13 @@ COMPAREV D2 128
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 43613 ==; for() #240 TestFail?
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start AND for() #240 Body Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start AND for() #240 Body Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0007
-PUSHVARGV -1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV -1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0006
 LOAD D2 0.0002
 MULTV D2 16
@@ -52941,10 +52941,10 @@ GOTO 45507; if() #495 Body End
 ALLOCATEMEMV D2 73 0; if() #495 Else Start
 WRITEPODSTRING D2 "ERROR: EZBoss_Effects script wasn't found. Did you forget to assign it?\n"
 STORE_OBJECT D2 0
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0; if() #495 Else End
 REF_REMOVE 0.0002
 POPARGS D5 0.0011
@@ -53232,13 +53232,13 @@ COMPAREV D2 0
 GOTOCMP 45793 ==; Test 'if'
 SETV D2 4; if() #929 Body Start
 STORE D2 0.0011; if() #929 Body End
-LOAD D2 0.0004; if() #502 Else End AND InlineFunc[int Choose(int)] Params Start
+LOAD D2 0.0004; if() #502 Else End AND InlineFunc[int Choose(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0003
 PUSHVARGR D2
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGR D2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 STORE D2 0.0001
 STOREV 0 0; for() #248 setup
 LOAD D2 0; for() #248 LoopTest
@@ -53299,11 +53299,11 @@ LOAD D2 0; for() #248 Body End AND for() #248 LoopIncrement
 ADDV D2 1
 STORE D2 0
 GOTO 45802; for() #248 End
-LOAD D2 0.0008; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0008; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0007
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 PUSHR D4; InlineFunc[int Distance(int, int, int, int)] Params Start AND if() #931 Test
 CALLFUNC 2.1678; UsrFunc[int CenterLinkX()] Call
@@ -56635,59 +56635,59 @@ MULTR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0008; InlineFunc[int Max(int, int)] Params Start AND if() #631 Test
+LOAD D2 0.0008; InlineFunc[int Max(...int[])] Params Start AND if() #631 Test
 PUSHVARGR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
-LOAD D2 0.0012; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0010
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49254 <
-LOAD D2 0.0008; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0008; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
-LOAD D2 0.0012; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0012; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0010
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49254 >
-LOAD D2 0.0007; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0007; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
-LOAD D2 0.0011; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0011; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0009
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49254 <
-LOAD D2 0.0007; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0007; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
-LOAD D2 0.0011; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0011; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0009
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49254 >
@@ -56696,31 +56696,31 @@ GOTO 49255
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 49296 ==; Test 'if'
-LOAD D2 0.0007; InlineFunc[int Min(int, int)] Params Start AND if() #632 Test AND if() #631 Body Start
+LOAD D2 0.0007; InlineFunc[int Min(...int[])] Params Start AND if() #632 Test AND if() #631 Body Start
 PUSHVARGR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49287 >
-LOAD D2 0.0007; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0007; InlineFunc[int Max(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 POP D3
 COMPARER D3 D2
 GOTOCMP 49287 <

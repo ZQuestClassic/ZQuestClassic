@@ -33,7 +33,7 @@ PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0005
 SETR D4 SP2
-ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "FFC script started, ID: %d x: %d y: %d\n"
 PUSHR D2
 LOAD D2 0.0005
@@ -47,22 +47,22 @@ PUSHVARGR SPRITE_X
 LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
-PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 9 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 9 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "num: %d\n"
 PUSHR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Screen->Index: %d\n"
 PUSHR D2
-PUSHVARGR SCREEN_INDEX; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR SCREEN_INDEX; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0004
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #4 Body [Opt:AlwaysOn] Start
 LOAD D2 0.0004; if() #439 Test
@@ -74,7 +74,7 @@ COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 66 ==; Test 'if'
-ALLOCATEMEMV D2 43 0; InlineFunc[void printf(char32[])] Params Start AND if() #439 Body Start
+ALLOCATEMEMV D2 43 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #439 Body Start
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
 PUSHR D2
 LOAD D2 0.0005
@@ -88,9 +88,9 @@ PUSHVARGR SPRITE_X
 LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE
-PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #439 Body End
+PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #439 Body End
 LOAD D2 0.0005
 PUSHR D2
 POP REFSPRITE

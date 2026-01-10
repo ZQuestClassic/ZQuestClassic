@@ -86,12 +86,6 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	if (parsed_comment.contains_tag("reassign_ptr"))
 		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
 
-	if (auto vargs = parsed_comment.get_tag("vargs"))
-	{
-		fn->extra_vargs = std::stoi(*vargs);
-		fn->setFlag(FUNCFLAG_VARARGS);
-	}
-
 	std::vector<std::string> zasm_lines;
 	if (auto zasm = parsed_comment.get_tag("zasm"))
 		util::split(*zasm, zasm_lines, '\n');
@@ -99,6 +93,8 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	int stack_change = fn->numParams();
 	if (fn->getClass() && !fn->getClass()->internalRefVarString.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
 		stack_change += 1;
+	if (fn->getFlag(FUNCFLAG_VARARGS))
+		stack_change -= 1;
 
 	std::vector<std::shared_ptr<Opcode>> code;
 	for (auto& op_string : zasm_lines)
@@ -227,7 +223,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		return;
 	}
 
-	if (!fn->getFlag(FUNCFLAG_VARARGS) && stack_change != 0)
+	if (stack_change != 0)
 	{
 		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Stack is not preserved - did you forget to POP the parameters?", fn->name)));
 		return;
@@ -914,7 +910,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			continue;
 		}
 		bool vargs = function->getFlag(FUNCFLAG_VARARGS);
-		bool user_vargs = vargs && !function->isInternal() && !function->getFlag(FUNCFLAG_INTERNAL);
+		bool user_vargs = vargs && !function->isInternal();
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
@@ -1653,6 +1649,7 @@ Function* BasicScope::addFunction(
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
+	fun->setFlags(node->getFlags());
 	fun->node = node;
 	if(!subscope)
 		subscope = this;

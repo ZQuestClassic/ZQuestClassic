@@ -309,12 +309,12 @@ REF_INC 0.0001
 LOAD D2 0.0002; if() #437 Test
 COMPAREV D2 0
 GOTOCMP 290 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start AND if() #437 Body Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #437 Body Start
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #437 Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #437 Body End
 REF_REMOVE 0.0001
 POPARGS D5 0.0003
 RETURNFUNC; Func[void maybePrint(bool, char32[], int)] Body End

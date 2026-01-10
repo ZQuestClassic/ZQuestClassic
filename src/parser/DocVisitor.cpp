@@ -243,7 +243,7 @@ void DocVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		(*symbol)["parameters"][host.parameters.size() - host.optparams.size() + i]["default"] = (*symbol)["value"] = snippet;
 	}
 	if (host.getFlag(FUNCFLAG_VARARGS))
-		(*symbol)["varargs"] = host.func->extra_vargs;
+		(*symbol)["varargs"] = true;
 }
 
 std::string DocVisitor::getOutput()

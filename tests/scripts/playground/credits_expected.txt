@@ -227,13 +227,13 @@ PUSHR D2
 PUSHV 0; InlineFunc[void bitmap::Clear(int)] Params End
 CLEARBITMAP; InlineFunc[void bitmap::Clear(int)] Body Start
 POPARGS D5 0.0002; InlineFunc[void bitmap::Clear(int)] Body End
-SETR D2 GD1; InlineFunc[int Min(int, int)] Params Start
+SETR D2 GD1; InlineFunc[int Min(...int[])] Params Start
 PUSHR D2
 POP REFBITMAP
 PUSHVARGR BITMAPHEIGHT
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2

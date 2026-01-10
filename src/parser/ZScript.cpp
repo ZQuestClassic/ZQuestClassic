@@ -480,12 +480,12 @@ std::optional<string> Constant::getName() const {return node.getName();}
 
 FunctionSignature::FunctionSignature(string const& name,
 	vector<DataType const*> const& parameterTypes, DataType const* returnType )
-	: name(name), prefix(false), destructor(false),
+	: name(name), prefix(false), destructor(false), vargs(false),
 	parameterTypes(parameterTypes), returnType(returnType)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function, bool useret)
-	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)),
+	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)), vargs(function.getFlag(FUNCFLAG_VARARGS)),
 	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
 {
 	if (function.getClass())
@@ -508,6 +508,10 @@ int32_t FunctionSignature::compare(FunctionSignature const& other) const
 		c = returnType->compare(*other.returnType);
 		if (c) return c;
 	}
+	c = destructor - other.destructor;
+	if (c) return c;
+	c = vargs - other.vargs;
+	if (c) return c;
 	return 0;
 }
 
@@ -538,12 +542,16 @@ string FunctionSignature::asString() const
 	if(it != parameterTypes.end())
 	{
 		//Add the first type; the loop adds a comma before it.
+		if (vargs && it + 1 == parameterTypes.end())
+			oss << "...";
 		oss << (*it)->getName();
 		++it;
 	}
 	for (; it != parameterTypes.end(); ++it)
 	{
 		oss << ", ";
+		if (vargs && it + 1 == parameterTypes.end())
+			oss << "...";
 		oss << (*it)->getName();
 	}
 	oss << ")";
@@ -556,7 +564,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<shared_ptr<const string>> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
-	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), numOptionalParams(), id(id),
+	  paramTypes(paramTypes), paramNames(paramNames), numOptionalParams(), id(id),
 	  node(NULL), data_decl_source_node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
 	  internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),

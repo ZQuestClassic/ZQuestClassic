@@ -822,13 +822,13 @@ SETV D2 1
 COMPAREV D2 0
 SETCMP D2 I==
 GOTO 804; return End
-ALLOCATEMEMV D2 60 0; Case block AND InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 60 0; Case block AND InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
 PUSHR D2
 LOAD D2 0.0005
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; return Start
 POPARGS D5 0.0008; return End
 RETURNFUNC; Func[bool CanWalk(int, int, int, int, bool)] Body End

@@ -61,13 +61,13 @@ ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
 LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
 GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
-ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] Running %s\n"
 PUSHR D2
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
@@ -76,11 +76,11 @@ COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 57 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #652 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #652 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #652 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -1156,13 +1156,13 @@ SETR D2 GD2
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 13 D2 0
-ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "tango.zh error: %d\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 POP D5
 RETURNFUNC; Func[void __Tango_LogError(int)] Body End
 SETR D4 SP2; Func[void __Tango_UnpressMenu()] Body Start
@@ -4579,15 +4579,15 @@ LOAD D2 0.0005
 ADDV D2 1
 STORE D2 0.0005; if() #163 Else End
 GOTO 4275; if() #160 Else End AND while() #8 Body End AND while() #8 End
-LOAD D2 0.0005; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0005; InlineFunc[int Min(...int[])] Params Start
 PUSHVARGR D2
 SETR D2 GD2
 PUSHR D2
 POP D0
 READPODARRAYV D2 2
 SUBV D2 1
-PUSHVARGR D2; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR D2; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0005
 SETV D2 0
 PUSHR D2
@@ -4829,7 +4829,7 @@ GOTOCMP 4804 ==; Test 'if'
 LOAD D2 0; if() #402 Body Start
 MULTV D2 5
 STORE D2 0; if() #402 Body End
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params Start
 SETR D2 GD5
 PUSHR D2
 LOAD D2 0.0001
@@ -4840,8 +4840,8 @@ PUSHR D2
 LOAD D2 0
 POP D3
 SUBR D3 D2
-PUSHVARGR D3; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGR D3; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 SETR D2 GD5
 PUSHR D2
@@ -6855,12 +6855,12 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
 GOTO 6867; return (Void) AND unless() #426 Body End
-LOAD D2 0.0003; InlineFunc[int strlen(char32[])] Params Start AND InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0003; InlineFunc[int strlen(char32[])] Params Start AND InlineFunc[int Min(...int[])] Params Start
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
 STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 PUSHVARGR D2
-PUSHVARGV 16; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGV 16; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 STORE D2 0.0001
 STOREV 0 0; for() #131 setup
 LOAD D2 0; for() #131 LoopTest
@@ -11330,7 +11330,7 @@ COMPAREV D2 11
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11338 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start AND if() #264 Body Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start AND if() #264 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -11351,8 +11351,8 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 POP D0
-PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -11368,7 +11368,7 @@ COMPAREV D2 12
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 11370 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start AND if() #265 Body Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start AND if() #265 Body Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -11383,8 +11383,8 @@ READPODARRAYV D2 1
 POP D3
 SUBR D3 D2
 PUSHVARGR D3
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -11448,7 +11448,7 @@ MULTR D2 D3
 DIVV D2 100
 LSHIFTV D2 0
 STORE D2 0
-LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(...int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -11466,8 +11466,8 @@ POP D0
 READPODARRAYV D2 0
 PUSHR D2
 POP D0
-PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(int, int)] Params End
-MINVARG; InlineFunc[int Min(int, int)] Body
+PUSHVARGR GAMEMCOUNTERD; InlineFunc[int Min(...int[])] Params End
+MINVARG; InlineFunc[int Min(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -11500,7 +11500,7 @@ MULTR D2 D3
 DIVV D2 100
 LSHIFTV D2 0
 STORE D2 0
-LOAD D2 0.0001; InlineFunc[int Max(int, int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Max(...int[])] Params Start
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -11512,8 +11512,8 @@ LOAD D2 0
 POP D3
 SUBR D3 D2
 PUSHVARGR D3
-PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
-MAXVARG; InlineFunc[int Max(int, int)] Body
+PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
+MAXVARG; InlineFunc[int Max(...int[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -13474,21 +13474,21 @@ POP D2
 WRITEPODARRAYVR 28 D2 0; if() #300 Else End
 RETURNFUNC; Func[void __Tango_UpdateCursorMovement()] Body End
 SETR D4 SP2; Func[void End()] Body Start
-ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] done\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
-ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
 PUSHR D2
 PUSHVARGV 5
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0; if() #651 Test
 COMPAREV D2 0
 SETCMP D2 I!=
@@ -13570,7 +13570,7 @@ POP D2
 SETR FFRULE D2
 ALLOCATEMEMV D2 0 0
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0001; InlineFunc[int sprintf(char32[], char32[])] Params Start
+LOAD D2 0.0001; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params Start
 PUSHR D2
 ALLOCATEMEMV D2 19 0
 WRITEPODSTRING D2 "hello %c%c%cworld!"
@@ -13589,16 +13589,16 @@ PUSHR D4
 PUSHV 2; UsrFunc[int scc(int)] Params
 CALLFUNC 1.3635; UsrFunc[int scc(int)] Call
 POP D4
-PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
-SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
-POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
+PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
+SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
+POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int ShowString(char32[])] Params Start
 PUSHR D2; UsrFunc[int ShowString(char32[])] Params End
 CALLFUNC 0.1034; UsrFunc[int ShowString(char32[])] Call
 POP D4
 STORE D2 0
-LOAD D2 0.0001; InlineFunc[int sprintf(char32[], char32[])] Params Start
+LOAD D2 0.0001; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params Start
 PUSHR D2
 ALLOCATEMEMV D2 15 0
 WRITEPODSTRING D2 "%cHow are you?"
@@ -13607,9 +13607,9 @@ PUSHR D4
 PUSHV 25; UsrFunc[int scc(int)] Params
 CALLFUNC 1.3635; UsrFunc[int scc(int)] Call
 POP D4
-PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[])] Params End
-SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
-POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
+PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
+SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
+POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
 PUSHR D4
 LOAD D2 0; UsrFunc[void Tango_AppendString(int, char32[])] Params Start
 PUSHR D2

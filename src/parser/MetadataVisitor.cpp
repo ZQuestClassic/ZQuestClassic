@@ -189,8 +189,6 @@ static std::string getComment(const AST* node)
 	{
 		if (k == "zasm")
 			continue;
-		if (k == "vargs")
-			continue;
 		if (k == "zasm_var")
 			continue;
 

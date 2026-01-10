@@ -138,13 +138,13 @@ ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
 LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
 GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
-ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] Running %s\n"
 PUSHR D2
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
@@ -153,11 +153,11 @@ COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #438 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #438 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #438 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -190,15 +190,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
 CALLFUNC 0.3774; UsrFunc[void Init(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -279,15 +279,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -304,15 +304,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -350,15 +350,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -397,15 +397,15 @@ PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 44 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 44 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - custom object functions === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -457,15 +457,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 68 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 68 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - custom object functions, called on loose object === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -513,15 +513,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - randgen === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOADRNG; InlineFunc[randgen randgen::randgen()] Body
 STORE_OBJECT D2 0.0003
 PUSHR D4
@@ -541,15 +541,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 48 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 48 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - int does not retain randgen === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0003
 LOADRNG; InlineFunc[randgen Game::LoadRNG()] Body
 STORE_OBJECT D2 0.0002
@@ -588,15 +588,15 @@ PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 54 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 54 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - int does not retain const randgen === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0003
 LOADRNG; InlineFunc[randgen Game::LoadRNG()] Body
 STORE_OBJECT D2 0.0002
@@ -625,15 +625,15 @@ PUSHR D2
 PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 57 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 57 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - GC keeps objects in autorelease pool === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -654,15 +654,15 @@ PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 10; ClassFunc[Person Person::Person(int)] Params
@@ -689,30 +689,30 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0003
 REF_REMOVE 0.0003
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 10; ClassFunc[Person Person::Person(int)] Params
@@ -749,15 +749,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETR D2 GD1
 PUSHR D2
 PUSHR CLASS_THISKEY
@@ -802,15 +802,15 @@ PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -844,15 +844,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -882,15 +882,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 50 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 50 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - pass free object as parameter === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[void usePerson2(Person)] Params Start
 PUSHR D4
@@ -904,15 +904,15 @@ PEEK D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 71 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 71 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - functions add returned objects to autorelease pool === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[Person usePerson3(Person)] Params Start
 PUSHR D4
@@ -942,15 +942,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - simple block === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -982,15 +982,15 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - if === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1025,15 +1025,15 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 38 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 38 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - if w/ declaration === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1068,15 +1068,15 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 26 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - while === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1250,15 +1250,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 51 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 51 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - if w/ declaration inside while === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1331,15 +1331,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 31 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 31 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - usePerson5 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[Person usePerson5(Person, bool)] Params Start
 PUSHR D4
@@ -1372,15 +1372,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 31 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 31 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - usePerson5 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHR CLASS_THISKEY; UsrFunc[Person usePerson5(Person, bool)] Params Start
 PUSHR D4
@@ -1413,15 +1413,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - createPerson1 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 CALLFUNC 0.3959; UsrFunc[Person createPerson1()] Call
 POP D4
@@ -1444,15 +1444,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - createPerson2 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 CALLFUNC 0.3997; UsrFunc[Person createPerson2()] Call
 POP D4
@@ -1475,15 +1475,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - createPerson2 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHARGSR D4 0.0002; UsrFunc[Person usePerson3(Person)] Params Start
 CALLFUNC 0.3997; UsrFunc[Person createPerson2()] Call
 POP D4
@@ -1511,15 +1511,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 CALLFUNC 0.4006; UsrFunc[Person createPerson3()] Call
 POP D4
@@ -1542,15 +1542,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1602,15 +1602,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1693,15 +1693,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - arrays 1 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1776,15 +1776,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1813,15 +1813,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - arrays 2 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1879,15 +1879,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - arrays 3 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -1941,15 +1941,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - arrays 4 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 1 0.0008
 PUSHR D2
 SETR D0 D2
@@ -1991,15 +1991,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 29 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - arrays 5 === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 1 0.0008
 PUSHR D2
 SETR D0 D2
@@ -2028,15 +2028,15 @@ PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2094,15 +2094,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2145,15 +2145,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2236,15 +2236,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0003
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -2293,15 +2293,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - untyped === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2335,15 +2335,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2383,15 +2383,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2426,15 +2426,15 @@ PUSHR GD1
 PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - untyped arrays === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2512,15 +2512,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 2 0.0010
 STORE_OBJECT D2 0.0003
 PUSHR CLASS_THISKEY
@@ -2562,15 +2562,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -2644,15 +2644,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - randgen (many) === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 STOREV 0 0.0003; for() #154 setup
 LOAD D2 0.0003; for() #154 LoopTest
 COMPAREV D2 300
@@ -2712,15 +2712,15 @@ PUSHR GD2; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4445; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-ALLOCATEMEMV D2 46 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 46 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - Arrays and array literals === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 2 0
 STORE_OBJECT D2 0.0003
 PUSHR D4
@@ -2780,15 +2780,15 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 2 0.0009
 PUSHR D2
 SETR D0 D2
@@ -2878,15 +2878,15 @@ CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
 REF_REMOVE 0.0002
-ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - bitmaps === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 -1; InlineFunc[bitmap Game::LoadBitmapID(int)] Params
 LOADBITMAPDATAR D2; InlineFunc[bitmap Game::LoadBitmapID(int)] Body Start
 SETR D2 REFBITMAP; InlineFunc[bitmap Game::LoadBitmapID(int)] Body End
@@ -2937,15 +2937,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - class member arrays === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 0; ProtoFunc[List List::List()] Set Destructor
 PUSHR CLASS_THISKEY
 ZCLASS_CONSTRUCT D2 {0.0001,0}
@@ -3030,15 +3030,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - return local string === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 PUSHV 5; UsrFunc[char32[] makeString(int)] Params
 CALLFUNC 0.4036; UsrFunc[char32[] makeString(int)] Call
@@ -3062,15 +3062,15 @@ PUSHV 5; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4445; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 39 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 39 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - return local array === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
 CALLFUNC 0.4029; UsrFunc[int[] makeArray()] Call
 POP D4
@@ -3092,15 +3092,15 @@ PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4445; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - string literal === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 10 0
 WRITEPODSTRING D2 "hi there\n"
 STORE_OBJECT D2 0.0003
@@ -3129,15 +3129,15 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 34 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - array literal === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 3 0.0008
 PUSHR D2
 SETR D0 D2
@@ -3276,15 +3276,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 37 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 37 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - array of strings === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 2 0.0009
 PUSHR D2
 SETR D0 D2
@@ -3408,15 +3408,15 @@ PUSHV 6; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4445; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 40 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - 2d array of strings === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 ALLOCATEMEMV D2 2 0.0009
 PUSHR D2
 SETR D0 D2
@@ -3495,15 +3495,15 @@ PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4445; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 REF_REMOVE 0.0003
-ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 18 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD_INTERNAL_ARRAY_REF D2 @SCREEN_NPCS REFSCREEN
 STORE_OBJECT D2 0.0003
 PUSHR D4
@@ -3549,15 +3549,15 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 44 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 44 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - untyped internal arrays === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 SETV D2 106; InlineFunc[npc screendata::CreateNPC(int)] Params
 CREATENPCR D2; InlineFunc[npc screendata::CreateNPC(int)] Body Start
 SETR D2 REFNPC; InlineFunc[npc screendata::CreateNPC(int)] Body End
@@ -3587,9 +3587,9 @@ LOAD D2 0.0003
 POP D3
 PUSHR D2
 PUSHR D3
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params Start
-PUSHVARGV 2; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 1; InlineFunc[int Choose(...int[])] Params Start
+PUSHVARGV 2; InlineFunc[int Choose(...int[])] Params End
+CHOOSEVARG; InlineFunc[int Choose(...int[])] Body
 PUSHR D2
 POP D0
 POP D2
@@ -3692,15 +3692,15 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 67 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 67 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - The 'Innocent Bystander' (Mark-and-Sweep Leak) === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -3807,22 +3807,22 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 28 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - varargs === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR D4
-PUSHVARGV 1; UsrFunc[void storeVarargs(int[])] Params Start
+PUSHVARGV 1; UsrFunc[void storeVarargs(...int[])] Params Start
 PUSHVARGV 2
 PUSHVARGV 3
 MAKEVARGARRAY 0; Allocate Vargs array
-PUSHR D2; Push the Vargs array pointer AND UsrFunc[void storeVarargs(int[])] Params End
-CALLFUNC 0.4466; UsrFunc[void storeVarargs(int[])] Call
+PUSHR D2; Push the Vargs array pointer AND UsrFunc[void storeVarargs(...int[])] Params End
+CALLFUNC 0.4466; UsrFunc[void storeVarargs(...int[])] Call
 PEEK D4
 ALLOCATEMEMV D2 24 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(storedVarargs)"
@@ -3833,15 +3833,15 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3880; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 33 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "=== Test %d - GlobalObject === \n"
 PUSHR D2
 SETR D2 GD4
 ADDV D2 1
 SETR GD4 D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 0; ClassFunc[Person Person::Person(int)] Params
@@ -3862,11 +3862,11 @@ CALLFUNC 0.3921; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 CALLFUNC 0.3743; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void End()] Body Start
-ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] done\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void Fail(char32[])] Body Start
 MARK_TYPE_STACK 0.0009 0
@@ -3878,29 +3878,29 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 3768 ==; Test 'if'
-ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[])] Params Start AND if() #110 Body Start
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #110 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GOTO 3773; if() #110 Body End
-ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[])] Params Start AND if() #110 Else Start
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #110 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
-PUSHR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #110 Else End
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #110 Else End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
-ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
 PUSHR D2
 PUSHVARGV 5
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0; if() #437 Test
 COMPAREV D2 0
 SETCMP D2 I!=
@@ -3953,7 +3953,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 3847 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #455 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #455 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
 LOAD D2 0.0001
@@ -3961,9 +3961,9 @@ PUSHVARGR D2
 LOAD D2 0.0002
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #455 Body End
 REF_REMOVE 0
 POPARGS D5 0.0003
@@ -4024,7 +4024,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 3918 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[])] Params Start AND if() #454 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #454 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
 LOAD D2 0.0001
@@ -4032,9 +4032,9 @@ PUSHVARGR D2
 LOAD D2 0.0002
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #454 Body End
 REF_REMOVE 0
 POPARGS D5 0.0003
@@ -4572,19 +4572,19 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 4464 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[])] Params Start AND if() #453 Body Start
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #453 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
 PUSHVARGR D2
 LOAD D2 0.0001
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #453 Body End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
-SETR D4 SP2; Func[void storeVarargs(int[])] Body Start
+SETR D4 SP2; Func[void storeVarargs(...int[])] Body Start
 MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 PUSHR D4
@@ -4601,7 +4601,7 @@ LOAD D2 0
 SET_OBJECT GD3 D2 0.0009
 REF_REMOVE 0
 POP D5
-RETURNFUNC; Func[void storeVarargs(int[])] Body End
+RETURNFUNC; Func[void storeVarargs(...int[])] Body End
 STARTDESTRUCTOR "Hat"; Func[void ~Hat::Hat()] Body Start
 SETR D4 SP2
 SETR D2 GD1

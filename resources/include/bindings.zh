@@ -34,10 +34,6 @@
 //    Any parameters are already pushed onto the stack. The value of D2 should contain
 //    the return result, if any.
 //
-// @vargs <number>
-//
-//    The xtra_vargs
-//
 // @delete
 //
 //   Mark a constructor as not available, preventing the class from being created with `new`.

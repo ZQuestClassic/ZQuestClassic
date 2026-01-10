@@ -5,19 +5,19 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_4.zs Line 58 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
+errors_4.zs Line 59 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
 
-56                #option LEGACY_ARRAYS off
-57    
-58                ArrayPushBack(ptr, 1);
+57                #option LEGACY_ARRAYS off
+58    
+59                ArrayPushBack(ptr, 1);
                   ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 59 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
+errors_4.zs Line 60 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
 
-57    
-58                ArrayPushBack(ptr, 1);
-59                ResizeArray(ptr, 1);
+58    
+59                ArrayPushBack(ptr, 1);
+60                ResizeArray(ptr, 1);
                   ^~~~~~~~~~~
 
 
@@ -77,11 +77,11 @@ errors_4.zs Line 19 @ Columns 16-19 - Error T021: Function Max(int, Object) has 
                    ^~~
 
 
-errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max(int) has not been declared.
+errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max() has not been declared.
 
 18    auto max_1 = Max(1, 2, obj);
 19    auto max_2 = Max(1, obj);
-20    auto max_3 = Max(1);
+20    auto max_3 = Max(); // Doesn't work because T is unresolved.
                    ^~~
 
 
@@ -97,11 +97,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 57,
+          "line": 58,
           "character": 3
         },
         "end": {
-          "line": 57,
+          "line": 58,
           "character": 16
         }
       },
@@ -111,11 +111,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 58,
+          "line": 59,
           "character": 3
         },
         "end": {
-          "line": 58,
+          "line": 59,
           "character": 14
         }
       },
@@ -232,13 +232,13 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "T021: Function Max(int) has not been declared."
+      "message": "T021: Function Max() has not been declared."
     }
   ],
   "metadata": {
-    "currentFileSymbols": 18,
-    "symbols": 25,
-    "identifiers": 61,
+    "currentFileSymbols": 19,
+    "symbols": 26,
+    "identifiers": 63,
     "elided": true
   }
 }

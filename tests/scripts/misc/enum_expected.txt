@@ -29,7 +29,7 @@ zasm:
 QUIT; void run() Body
 PUSHV 0; void run() Body Start
 SETR D4 SP2
-ALLOCATEMEMV D2 6 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 6 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "%aad\n"
 PUSHR D2
 ALLOCATEMEMV D2 5 0.0009
@@ -71,8 +71,8 @@ POP D2
 POP D0
 WRITEPODARRAYVR 4 D2 0.0009
 POP D2
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 POP D5
 QUIT; void run() Body End

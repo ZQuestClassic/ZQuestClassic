@@ -205,13 +205,13 @@ QUIT; void run() Body End
 SETR D4 SP2; Func[void print(int[][])] Body Start
 MARK_TYPE_STACK 0.0009 0
 REF_INC 0
-ALLOCATEMEMV D2 15 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 15 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Arr[][]: %aad\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0
 POP D5
 RETURNFUNC; Func[void print(int[][])] Body End
@@ -269,13 +269,13 @@ RETURNFUNC; Func[void arraycat(int[], int[])] Body End
 SETR D4 SP2; Func[void print(int[])] Body Start
 MARK_TYPE_STACK 0.0009 0
 REF_INC 0
-ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[])] Params Start
+ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "Arr[]: %ad\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0
 POP D5
 RETURNFUNC; Func[void print(int[])] Body End

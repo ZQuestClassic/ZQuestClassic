@@ -165,7 +165,7 @@ class Enum(Symbol):
 @dataclass
 class Parameters:
     variables: list[Variable]
-    varargs: Optional[int]
+    varargs: bool
 
     def __str__(self) -> str:
         parts = []
@@ -175,11 +175,8 @@ class Parameters:
                 value_str = format_value(var.type, var.value)
                 def_str = f' = ``{value_str}``'
             parts.append(f'{var.type} {var.name}{def_str}')
-        if self.varargs != None:
-            if self.variables and self.variables[-1].type.name == 'T':
-                parts.append(f'{self.variables[-1].type} |varargs| ...')
-            else:
-                parts.append('untyped |varargs| ...')
+        if self.varargs:
+            parts.append(f'{self.variables[-1].type} |varargs| ...')
         text = ', '.join(parts)
         return f'({text})'
 
@@ -266,7 +263,6 @@ def parse_doc_comment(x) -> Optional[Comment]:
             'reassign_ptr',
             'soft_deprecated',
             'value',
-            'vargs',
             'zasm_ref',
             'zasm_var',
         ]
@@ -284,7 +280,7 @@ def parse_doc_comment(x) -> Optional[Comment]:
 
 def parse_doc_parameters(x) -> Parameters:
     variables = []
-    varargs = x.get('varargs', None)
+    varargs = x.get('varargs', False)
 
     params = x['parameters']
     for i, param in enumerate(params):
