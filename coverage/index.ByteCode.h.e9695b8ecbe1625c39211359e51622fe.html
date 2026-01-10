@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-10 09:10:08</td>
+      <td>2026-01-10 10:20:36</td>
     </tr>
   </table>
 </div>
@@ -804,14 +804,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode2</span><span class="o">&lt;</span><span class="n">MARK_TYPE_REG</span><span class="p">,</span><span class="w"> </span><span class="n">GlobalArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OMarkTypeRegister</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode2</span><span class="o">&lt;</span><span class="n">MARK_TYPE_REG</span><span class="p">,</span><span class="w"> </span><span class="n">GlobalArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OMarkTypeRegister</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode2</span><span class="o">&lt;</span><span class="n">MARK_TYPE_STACK</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OMarkTypeStack</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode2</span><span class="o">&lt;</span><span class="n">MARK_TYPE_STACK</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OMarkTypeStack</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
@@ -1161,14 +1161,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">ALLOCATEGMEMV</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OAllocateGlobalMemImmediate</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">ALLOCATEGMEMV</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OAllocateGlobalMemImmediate</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">ALLOCATEMEMV</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OAllocateMemImmediate</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">ALLOCATEMEMV</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OAllocateMemImmediate</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
@@ -1182,7 +1182,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">SET_OBJECT</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OSetObject</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">SET_OBJECT</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OSetObject</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
@@ -1196,14 +1196,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">WRITEPODARRAYRR</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OWritePODArrayRR</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">WRITEPODARRAYRR</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OWritePODArrayRR</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">WRITEPODARRAYVR</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OWritePODArrayIR</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="k">typedef</span><span class="w"> </span><span class="n">Opcode3</span><span class="o">&lt;</span><span class="n">WRITEPODARRAYVR</span><span class="p">,</span><span class="w"> </span><span class="n">LiteralArgument</span><span class="p">,</span><span class="w"> </span><span class="n">VarArgument</span><span class="p">,</span><span class="w"> </span><span class="n">TypeArgument</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OWritePODArrayIR</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
