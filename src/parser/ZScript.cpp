@@ -577,17 +577,16 @@ std::vector<std::shared_ptr<Opcode>> Function::takeCode()
 {
 	if(aliased_func)
 		return aliased_func->takeCode();
-	std::vector<std::shared_ptr<Opcode>> code = ownedCode;
-	ownedCode.clear();
-	return code;
+
+	return std::move(ownedCode);
 }
 
 void Function::giveCode(vector<shared_ptr<Opcode>>& code)
 {
 	if(aliased_func)
 		return aliased_func->giveCode(code);
-	appendElements(ownedCode, code);
-	code.clear();
+
+	ownedCode = std::move(code);
 }
 
 Script* Function::getScript() const
