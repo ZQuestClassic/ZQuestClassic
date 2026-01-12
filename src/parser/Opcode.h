@@ -5,9 +5,10 @@
 #include "zasm/defines.h"
 #include "zasm/serialize.h"
 
+#include <list>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 int32_t StringToVar(std::string var);
 
@@ -45,6 +46,13 @@ namespace ZScript
 		void execute(std::vector<std::shared_ptr<Opcode>> const& vec, void* param)
 		{
 			for (auto it = vec.cbegin(); it != vec.cend(); ++it)
+			{
+				(*it)->execute(*this, param);
+			}
+		}
+		void execute(const std::list<std::shared_ptr<Opcode>>& list, void* param)
+		{
+			for (auto it = list.cbegin(); it != list.cend(); ++it)
 			{
 				(*it)->execute(*this, param);
 			}

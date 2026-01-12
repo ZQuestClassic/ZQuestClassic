@@ -1168,7 +1168,7 @@ void ScriptAssembler::optimize_function(Function* fn)
 }
 
 template <typename T>
-static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, vector<shared_ptr<Opcode>>& code, vector<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc)
+static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, std::list<shared_ptr<Opcode>>& code, std::list<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc)
 {
 	if(condfunc && !condfunc(op))
 	{
@@ -1216,8 +1216,11 @@ static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, vector<shared_ptr<Opco
 	return 0;
 }
 
-void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
+void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 {
+	// Copy vector to list for O(1) modifications.
+	std::list<shared_ptr<Opcode>> code(code_vec.begin(), code_vec.end());
+
 	// Run automatic optimizations
 	{
 		{ //macros
@@ -1666,6 +1669,8 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code)
 			}
 		END_OPT_PASS()
 	}
+
+	code_vec.assign(code.begin(), code.end());
 }
 
 // Insert every used function's code into `rval`.

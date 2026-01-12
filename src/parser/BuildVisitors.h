@@ -8,6 +8,7 @@
 #include "base/headers.h"
 #include "parser/DataStructs.h"
 #include <algorithm>
+#include <list>
 #include <vector>
 #include <set>
 
@@ -345,10 +346,10 @@ namespace ZScript
 					return;
 				}
 		}
-		static void merge(int targ_label, vector<int> const& labels, vector<std::shared_ptr<Opcode>> const& vec, void* param, vector<int32_t*> const* lblvec)
+		static void merge(int targ_label, vector<int> const& labels, std::list<std::shared_ptr<Opcode>> const& list, void* param, vector<int32_t*> const* lblvec)
 		{
 			MergeLabels ml(targ_label, labels);
-			ml.execute(vec, param);
+			ml.execute(list, param);
 			if(lblvec)
 				for(int32_t* ptr : *lblvec)
 				{
