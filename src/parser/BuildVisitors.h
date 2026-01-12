@@ -13,6 +13,7 @@
 #include <set>
 
 void addOpcode2(std::vector<std::shared_ptr<ZScript::Opcode>>& v, ZScript::Opcode* code);
+void addOpcode2PopArgs(vector<shared_ptr<ZScript::Opcode>>& v, int amount);
 
 namespace ZScript
 {

@@ -85,15 +85,6 @@ ASSERT_NON_NUL(); \
 if(reg!=EXP2) addOpcode2 (code, new OSetRegister(new VarArgument(EXP2), new VarArgument(reg))); \
 function->setIntFlag(IFUNCFLAG_REASSIGNPTR)
 
-/*
-	Pop multiple args to 1 register; mostly used to clear the stack after drawing commands.
-*/
-#define POP_ARGS(num_args, t) \
-	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new LiteralArgument(num_args)))
-
-#define POP_ARG(t) \
-	addOpcode2 (code, new OPopRegister(new VarArgument(t)))
-
 //}
 
 #endif

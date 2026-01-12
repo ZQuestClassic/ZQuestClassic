@@ -769,9 +769,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				}
 
 				// Pop off everything
-
-				if (stackSize)
-					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(stackSize)));
+				addOpcode2PopArgs(funccode, stackSize);
 
 				if (puc == puc_construct)
 					addOpcode2(funccode, new ORefAutorelease(new VarArgument(CLASS_THISKEY)));
@@ -909,9 +907,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				}
 				
 				// Pop off everything.
-				if(stackSize)
-					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
-						new LiteralArgument(stackSize)));
+				addOpcode2PopArgs(funccode, stackSize);
 				
 				//if it's a main script, quit.
 				if (isRun)

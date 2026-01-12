@@ -131,6 +131,17 @@ void addOpcode2(vector<shared_ptr<Opcode>>& v, Opcode* code)
 	v.push_back(op);
 }
 
+void addOpcode2PopArgs(vector<shared_ptr<Opcode>>& v, int amount)
+{
+	if (amount == 0)
+		return;
+
+	if (amount == 1)
+		addOpcode2(v, new OPopRegister(new VarArgument(NUL)));
+	else
+		addOpcode2(v, new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(amount)));
+}
+
 void BuildOpcodes::visit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
