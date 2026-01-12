@@ -24305,24 +24305,31 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             break;
         }
 		
-        int32_t pos = COMBOPOS(cx%256, cy%176);
-        const mapscr* scr = get_canonical_scr(map, screen);
-        if (!comboflag)
-        {
-            return scr->sflag[pos];
-        }
-        else
-        {
-            return combo_caches::flag.minis[scr->data[pos]].flag;
-        }
-    }
-    
-    if(comboflag)
-    {
-        return MAPCOMBOFLAG(cx,cy);
-    }
-    
-    return MAPFLAG(cx,cy);
+		if (get_qr(qr_BROKEN_SCREEN_EDGE_FLAG_CHECKS))
+		{
+			const mapscr* scr = get_canonical_scr(map, screen);
+			int32_t pos = COMBOPOS(cx%256, cy%176);
+			
+			if (comboflag)
+				return combo_caches::flag.minis[scr->data[pos]].flag;
+			else
+				return scr->sflag[pos];
+		}
+		else
+		{
+			if (comboflag)
+			{
+				int cid = MAPCOMBO3(map, screen, -1, cx, cy, true);
+				return combo_caches::flag.minis[cid].flag;
+			}
+			else return MAPFLAG3(map, screen, -1, cx, cy, true);
+		}
+	}
+	
+	if(comboflag)
+		return MAPCOMBOFLAG(cx,cy);
+	
+	return MAPFLAG(cx,cy);
 }
 
 void HeroClass::checkspecial()
