@@ -67,9 +67,14 @@ namespace ZScript
 		virtual void execute(ArgumentVisitor &host, void *param)=0;
 		virtual Argument* clone() const = 0;
 		virtual ~Argument() {}
+
+		virtual bool equals(const Argument& other) const = 0;
+
 		bool operator==(Argument const& other) const
 		{
-			return toString() == other.toString();
+			if (this == &other) return true;
+			if (typeid(*this) != typeid(other)) return false;
+			return equals(other);
 		}
 	};
 
@@ -87,24 +92,15 @@ namespace ZScript
 		{
 			return new LiteralArgument(value);
 		}
-		bool operator==(int val) const
+
+		bool equals(const Argument& other) const
 		{
-			return val == value;
+			const auto& o = static_cast<const LiteralArgument&>(other);
+			return value == o.value;
 		}
-		bool operator==(zfix const& val) const
-		{
-			return val.getZLong() == value;
-		}
+
 		int32_t value;
 	};
-	inline bool operator==(int val, LiteralArgument const& arg)
-	{
-		return arg == val;
-	}
-	inline bool operator==(zfix const& val, LiteralArgument const& arg)
-	{
-		return arg == val;
-	}
 
 	class TypeArgument : public Argument
 	{
@@ -119,6 +115,13 @@ namespace ZScript
 		{
 			return new TypeArgument(script_object_type_id);
 		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const TypeArgument&>(other);
+			return script_object_type_id == o.script_object_type_id;
+		}
+
 	private:
 		TypeArgument(script_object_type script_object_type_id) : script_object_type_id(script_object_type_id) {}
 		script_object_type script_object_type_id;
@@ -137,6 +140,13 @@ namespace ZScript
 		{
 			return new CompareArgument(value);
 		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const CompareArgument&>(other);
+			return value == o.value;
+		}
+
 		int32_t value;
 	};
 	
@@ -153,17 +163,16 @@ namespace ZScript
 		{
 			return new StringArgument(value);
 		}
-		bool operator==(string const& str) const
+
+		bool equals(const Argument& other) const
 		{
-			return str == value;
+			const auto& o = static_cast<const StringArgument&>(other);
+			return value == o.value;
 		}
+
 	private:
 		std::string value;
 	};
-	inline bool operator==(string const& val, StringArgument const& arg)
-	{
-		return arg == val;
-	}
 	
 	class VectorArgument : public Argument
 	{
@@ -178,17 +187,16 @@ namespace ZScript
 		{
 			return new VectorArgument(value);
 		}
-		bool operator==(vector<int32_t> const& vec) const
+
+		bool equals(const Argument& other) const
 		{
-			return vec == value;
+			const auto& o = static_cast<const VectorArgument&>(other);
+			return value == o.value;
 		}
+
 	private:
 		std::vector<int32_t> value;
 	};
-	inline bool operator==(vector<int32_t> const& val, VectorArgument const& arg)
-	{
-		return arg == val;
-	}
 
 	std::string VarToString(int32_t ID);
 
@@ -205,6 +213,13 @@ namespace ZScript
 		{
 			return new VarArgument(ID);
 		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const VarArgument&>(other);
+			return ID == o.ID;
+		}
+
 		int32_t ID;
 	};
 
@@ -221,6 +236,13 @@ namespace ZScript
 		{
 			return new LiteralVarArgument(ID);
 		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const LiteralVarArgument&>(other);
+			return ID == o.ID;
+		}
+
 		int32_t ID;
 	};
 
@@ -236,6 +258,12 @@ namespace ZScript
 		GlobalArgument* clone() const
 		{
 			return new GlobalArgument(ID);
+		}
+
+		bool equals(const Argument& other) const
+		{
+			const auto& o = static_cast<const GlobalArgument&>(other);
+			return ID == o.ID;
 		}
 	};
 
@@ -265,20 +293,19 @@ namespace ZScript
 			haslineno=true;
 			lineno=l;
 		}
-		bool operator==(int lbl) const
+
+		bool equals(const Argument& other) const
 		{
-			return lbl == ID;
+			const auto& o = static_cast<const LabelArgument&>(other);
+			return ID == o.ID && altstr == o.altstr;
 		}
+
 	private:
 		int32_t ID;
 		int32_t lineno;
 		bool haslineno;
 		bool altstr;
 	};
-	inline bool operator==(int val, LabelArgument const& arg)
-	{
-		return arg == val;
-	}
 
 	template <ASM_DEFINE Command>
 	class Opcode0 : public Opcode

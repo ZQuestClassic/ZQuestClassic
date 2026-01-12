@@ -1251,8 +1251,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 					break; \
 				if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
 				{ \
-					if(!op->getArgument()->toString().compare( \
-						op2->getArgument()->toString())) \
+					if(*op->getArgument() == *op2->getArgument()) \
 					{ \
 						auto lbl2 = op2->getLabel(); \
 						op2->mergeComment(comment, true); \
@@ -1388,7 +1387,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 					else if(multi_op) \
 					{ \
 						LiteralArgument* litarg = multi_op->getSecondArgument(); \
-						if(*litarg == 1) \
+						if(litarg->value == 1) \
 						{ \
 							auto arg = multi_op->takeFirstArgument(); \
 							it = code.erase(it); \
