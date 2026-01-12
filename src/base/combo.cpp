@@ -746,7 +746,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		if (trigchange)
 			effects << indent << "Change combo by " << trigchange << "\n";
 		if (trigcschange)
-			effects << indent << "Change cset by " << trigcschange << "\n";
+			effects << indent << "Change cset by " << int(trigcschange) << "\n";
 		if (trigsfx)
 			effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, sfx_string[trigsfx]);
 		if (trig_genscr)
