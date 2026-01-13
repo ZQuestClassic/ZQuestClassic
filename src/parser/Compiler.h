@@ -32,6 +32,7 @@ namespace ZScript
 
 	// ByteCode.h
 	class ArgumentVisitor;
+	class Argument;
 
 	// ZScript.h
 	class Program;
@@ -139,6 +140,28 @@ namespace ZScript
 		{}
 	};
 
+	using LabelUsageIndex = std::vector<std::vector<int32_t*>>;
+
+	inline LabelUsageIndex makeLabelUsageIndex(const std::vector<int32_t*>& vec)
+	{
+		LabelUsageIndex result;
+
+		for (int32_t* ptr : vec)
+		{
+			if (!ptr) continue;
+
+			int lbl_id = *ptr;
+			if (lbl_id < 0) continue;
+
+			if (lbl_id >= result.size())
+				result.resize(lbl_id + 1024); // Resize with some padding
+
+			result[lbl_id].push_back(ptr);
+		}
+
+		return result;
+	}
+
 	class ScriptAssembler
 	{
 	public:
@@ -156,7 +179,10 @@ namespace ZScript
 		vector<shared_ptr<Opcode>> rval;
 		map<Script*,std::pair<int32_t,int32_t>> runlabels;
 		vector<int32_t*> runlbl_ptrs;
-		
+		LabelUsageIndex label_index;
+		// Temporarly hold deleted arguments, such that label_index never points to released memory.
+		std::vector<std::unique_ptr<Argument>> argument_trash_bin;
+
 		void assemble_init();
 		void assemble_script(Script* scr, vector<shared_ptr<Opcode>> runCode,
 			int numparams, string const& runsig);
@@ -243,4 +269,3 @@ namespace ZScript
 }
 
 #endif
-

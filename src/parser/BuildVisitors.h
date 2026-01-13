@@ -331,6 +331,7 @@ namespace ZScript
 			return it->second;
 		}
 	};
+
 	class MergeLabels : public ArgumentVisitor
 	{
 		vector<int> labels;
@@ -347,20 +348,41 @@ namespace ZScript
 					return;
 				}
 		}
-		static void merge(int targ_label, vector<int> const& labels, std::list<std::shared_ptr<Opcode>> const& list, void* param, vector<int32_t*> const* lblvec)
+		static void merge(int targ_label, vector<int> const& labels, std::list<std::shared_ptr<Opcode>> const& list, void* param, LabelUsageIndex* lbl_index)
 		{
 			MergeLabels ml(targ_label, labels);
 			ml.execute(list, param);
-			if(lblvec)
-				for(int32_t* ptr : *lblvec)
+
+			// Ensure target vector exists.
+			if (targ_label >= lbl_index->size())
+				lbl_index->resize(targ_label + 1);
+
+			// Cache reference to the target bucket to avoid repeated lookups.
+			auto& target_bucket = (*lbl_index)[targ_label];
+
+			for (int old_label : labels)
+			{
+				// Skip self-merge or out-of-bounds labels.
+				if (old_label == targ_label || old_label >= lbl_index->size())
+					continue;
+
+				auto& old_bucket = (*lbl_index)[old_label];
+
+				// Update the actual values in memory.
+				for (int32_t* ptr : old_bucket)
+					*ptr = targ_label;
+
+				// Move the tracking pointers to the new label's bucket.
+				if (target_bucket.empty())
 				{
-					for(int lbl : labels)
-						if(lbl == *ptr)
-						{
-							*ptr = targ_label;
-							break;
-						}
+					target_bucket = std::move(old_bucket);
 				}
+				else
+				{
+					target_bucket.insert(target_bucket.end(), old_bucket.begin(), old_bucket.end());
+					old_bucket.clear();
+				}
+			}
 		}
 	};
 }

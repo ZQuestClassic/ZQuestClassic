@@ -4,6 +4,7 @@
 #include "parser/MetadataVisitor.h"
 #include "parser/Opcode.h"
 #include "parser/owning_vector.h"
+#include "parser/parserDefs.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
@@ -930,7 +931,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 }
 
 ScriptAssembler::ScriptAssembler(IntermediateData& id) : program(id.program),
-	rval(), runlabels(), runlbl_ptrs(), ginit(id.globalsInit), assemble_err(false)
+	assemble_err(false), ginit(id.globalsInit), rval(), runlabels(), runlbl_ptrs(), label_index()
 {}
 
 void ScriptAssembler::assemble()
@@ -1095,6 +1096,7 @@ void ScriptAssembler::gather_labels()
 		runlbl_ptrs.push_back(&lbls.first);
 		runlbl_ptrs.push_back(&lbls.second);
 	}
+	label_index = makeLabelUsageIndex(runlbl_ptrs);
 }
 void ScriptAssembler::link_functions()
 {
@@ -1164,7 +1166,7 @@ void ScriptAssembler::optimize_function(Function* fn)
 }
 
 template <typename T>
-static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, std::list<shared_ptr<Opcode>>& code, std::list<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc)
+static int trash_op(T* op, LabelUsageIndex* label_index, std::list<shared_ptr<Opcode>>& code, std::list<shared_ptr<Opcode>>::iterator& it, std::function<bool(T*)> condfunc, std::vector<std::unique_ptr<Argument>>* trash_bin)
 {
 	if(condfunc && !condfunc(op))
 	{
@@ -1182,6 +1184,11 @@ static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, std::list<shared_ptr<O
 		nextcode->mergeComment(comment, true);
 	if(lbl == -1) /*no label, just trash it*/
 	{
+		if constexpr (requires { op->takeFirstArgument(); }) {
+			trash_bin->emplace_back(op->takeFirstArgument());
+		} else if constexpr (requires { op->takeArgument(); }) {
+			trash_bin->emplace_back(op->takeArgument());
+		}
 		it = code.erase(it);
 		return 0;
 	}
@@ -1192,6 +1199,11 @@ static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, std::list<shared_ptr<O
 		{
 			ONoOp* nop = new ONoOp(lbl);
 			nop->setComment(comment);
+			if constexpr (requires { op->takeFirstArgument(); }) {
+				trash_bin->emplace_back(op->takeFirstArgument());
+			} else if constexpr (requires { op->takeArgument(); }) {
+				trash_bin->emplace_back(op->takeArgument());
+			}
 			it = code.erase(it);
 			it = code.insert(it,std::shared_ptr<Opcode>(nop));
 		}
@@ -1202,13 +1214,23 @@ static int trash_op(T* op, vector<int32_t*>& runlbl_ptrs, std::list<shared_ptr<O
 	if(lbl2 == -1) /*next code has no label, pass the label*/
 	{
 		nextcode->setLabel(lbl);
+		if constexpr (requires { op->takeFirstArgument(); }) {
+			trash_bin->emplace_back(op->takeFirstArgument());
+		} else if constexpr (requires { op->takeArgument(); }) {
+			trash_bin->emplace_back(op->takeArgument());
+		}
 		it = code.erase(it);
 		return 0;
 	}
 
 	/*Else merge the two labels!*/
+	if constexpr (requires { op->takeFirstArgument(); }) {
+		trash_bin->emplace_back(op->takeFirstArgument());
+	} else if constexpr (requires { op->takeArgument(); }) {
+		trash_bin->emplace_back(op->takeArgument());
+	}
 	it = code.erase(it);
-	MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs);
+	MergeLabels::merge(lbl2, {lbl}, code, nullptr, label_index);
 	return 0;
 }
 
@@ -1233,7 +1255,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 			#define TRASH_OP(ty, condfunc) \
 			if (auto op = dynamic_cast<ty*>(ocode)) \
 			{ \
-				if (auto r = trash_op<ty>(op, runlbl_ptrs, code, it, condfunc); r == 0) \
+				if (auto r = trash_op<ty>(op, &label_index, code, it, condfunc, &argument_trash_bin); r == 0) \
 					continue; \
 				else if (r == 1) break; \
 			}
@@ -1254,13 +1276,15 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 						if(lbl2 == -1 && lbl > -1) \
 						{ \
 							op2->setLabel(lbl); \
+							argument_trash_bin.emplace_back(op->takeArgument()); \
 							it = code.erase(it); \
 							continue; \
 						} \
+						argument_trash_bin.emplace_back(op->takeArgument()); \
 						it = code.erase(it); \
 						if(lbl > -1) \
 						{ \
-							MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs); \
+							MergeLabels::merge(lbl2, {lbl}, code, nullptr, &label_index); \
 						} \
 						continue; \
 					} \
@@ -1292,10 +1316,11 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 				if(lbl2 > -1 && label_arg->getID() == lbl2) \
 				{ \
 					nextcode->mergeComment(comment, true); \
+					argument_trash_bin.emplace_back(op->takeArgument()); \
 					it = code.erase(it); \
 					if(lbl > -1) \
 					{ \
-						MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs); \
+						MergeLabels::merge(lbl2, {lbl}, code, nullptr, &label_index); \
 					} \
 					continue; \
 				} \
@@ -1315,10 +1340,11 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 				if(lbl2 > -1 && label_arg->getID() == lbl2) \
 				{ \
 					nextcode->mergeComment(comment, true); \
+					argument_trash_bin.emplace_back(op->takeFirstArgument()); \
 					it = code.erase(it); \
 					if(lbl > -1) \
 					{ \
-						MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs); \
+						MergeLabels::merge(lbl2, {lbl}, code, nullptr, &label_index); \
 					} \
 					continue; \
 				} \
@@ -1523,13 +1549,16 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 						if(lbl2 == -1 && lbl > -1)
 						{
 							op2->setLabel(lbl);
+							argument_trash_bin.emplace_back(op->takeFirstArgument());
 							it = code.erase(it);
 							continue;
 						}
+
+						argument_trash_bin.emplace_back(op->takeFirstArgument());
 						it = code.erase(it);
 						if(lbl > -1)
 						{
-							MergeLabels::merge(lbl2, {lbl}, code, nullptr, &runlbl_ptrs);
+							MergeLabels::merge(lbl2, {lbl}, code, nullptr, &label_index);
 						}
 						continue;
 					}
@@ -1563,7 +1592,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 					auto targ_lbl = static_cast<LabelArgument*>(op->getArgument())->getID();
 					if(targ_lbl != lbl)
 					{
-						MergeLabels::merge(targ_lbl, {lbl}, code, nullptr, &runlbl_ptrs);
+						MergeLabels::merge(targ_lbl, {lbl}, code, nullptr, &label_index);
 						op->setLabel(-1);
 					}
 				}
@@ -1626,6 +1655,7 @@ void ScriptAssembler::optimize_code(vector<shared_ptr<Opcode>>& code_vec)
 						lblarg->setID(mid_lbl_arg->getID());
 						cmparg->value = INVERT_CMP(cmparg->value);
 						op->mergeComment(op2->getComment());
+						argument_trash_bin.emplace_back(op2->takeArgument());
 						code.erase(it2);
 						++it;
 						continue;
