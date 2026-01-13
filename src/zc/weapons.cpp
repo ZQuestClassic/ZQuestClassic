@@ -184,7 +184,9 @@ void killgenwpn(weapon* w)
 		case wHammer:
 			return;
 		default:
-			w->dead = 1;
+			w->kill_weapon_special();
+			if (w->dead == 0)
+				w->dead = 1;
 			break;
 	}
 }
@@ -6955,8 +6957,11 @@ void weapon::kill_weapon_special()
 		{
 			// stop it in place, ensure it has a fuse timer, and make the fuse run out imminently.
 			step = 0;
-			misc = 50;
-			clk = misc - 3;
+			if (misc != 50 || clk < misc - 3 || clk > misc) // don't reset clk repeatedly if it's already been special-killed
+			{
+				misc = 50;
+				clk = misc - 3;
+			}
 			
 			// broke already by exploding
 			misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
