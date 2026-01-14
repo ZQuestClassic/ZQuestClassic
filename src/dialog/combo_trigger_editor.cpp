@@ -33,9 +33,28 @@ ComboTriggerDialog::ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigg
 	local_ref(parentdlg.local_comboref.triggers[index]), parent(parentdlg),
 	parent_comboref(parentdlg.local_comboref), index(index), _ice_cs(0)
 {
+	refresh_music_list();
 	load_trigger();
 }
 
+static const GUI::ListData list_music_refresh
+{
+	{ "(None)", -1 },
+	{ "Screen", MUSIC_UPDATE_SCREEN },
+	{ "DMap", MUSIC_UPDATE_DMAP },
+	{ "Level", MUSIC_UPDATE_LEVEL },
+	{ "Never", MUSIC_UPDATE_NEVER },
+	{ "Region", MUSIC_UPDATE_REGION },
+};
+
+void ComboTriggerDialog::refresh_music_list()
+{
+	list_music = GUI::ZCListData::music_names(true, false);
+	list_music.accessItem(0).text = "(Stop Music) (000)";
+	list_music.add("(Play Screen/DMap Music) (-001)", -1);
+	list_music.add("(None) (-002)", -2);
+	list_music.valsort(0);
+}
 void ComboTriggerDialog::load_trigger()
 {
 	force_ice_combo = local_ref.force_ice_combo > -1;
@@ -179,6 +198,8 @@ static bool has_trigger_effect(combo_trigger const& trig)
 	if(trig.trig_bunnytime != -2) return true;
 	if(trig.trig_msgstr || trig.fail_msgstr) return true;
 	if(trig.player_bounce) return true;
+	if(trig.play_music != -2) return true;
+	if(trig.set_music_refresh != -1) return true;
 	return false;
 }
 
@@ -586,129 +607,170 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 				TabRef(name = "Effects", TabPanel(
 					ptr = &trig_tabs[2],
 					TabRef(name = "Misc",
-						Row(padding = 0_px,
-							Column(vAlign = 0.0,
-								Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
-									Label(text = "Combo Change:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -65535, high = 65535, val = local_ref.trigchange,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						Column(padding = 0_px,
+							Frame(title = "Music",
+								Rows<4>(
+									Label(text = "Music:", hAlign = 1.0),
+									DropDownList(data = list_music,
+										vPadding = 0_px, maxwidth = 250_px,
+										fitParent = true, selectedValue = local_ref.play_music,
+										onSelectFunc = [&](int32_t val)
 										{
-											local_ref.trigchange = val;
+											local_ref.play_music = val;
 										}),
-									IBTN_T("Combo Change","If the value is not 0, the combo will"
-										" change by that much when triggered."
-										"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
-									Label(text = "CSet Change:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = -15, high = 15, val = local_ref.trigcschange,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									IBTN_T("Play Music", "Play the specified music when the combo is triggered."
+										"\n-2 does nothing, -1 plays the screen/dmap music, 0 stops currently playing music."),
+									Button(text = "Edit Music",
+										forceFitH = true, padding = 0_px,
+										onPressFunc = [&]()
 										{
-											local_ref.trigcschange = val;
+											call_music_dialog(local_ref.play_music);
+											refresh_music_list();
+											refresh_dlg();
 										}),
-									IBTN_T("CSet Change","If the value is not 0, the cset will"
-										" change by that much when triggered."
-										"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
-								),
-								Rows_Columns<2,5>(framed = true, hAlign = 1.0,
-									IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-										" unless 'Temporary Secrets' screen data flag is checked."),
-									TRIGFLAG(TRIGFLAG_SECRETS,"Triggers Secrets"),
-									IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
-									TRIGFLAG(TRIGFLAG_TOGGLEDARK,"Toggle Darkness"),
-									IBTN("After triggering, the combo animation is reset. If the combo has changed"
-										" (by any trigger effect), the new combo is the one that resets."),
-									TRIGFLAG(TRIGFLAG_RESETANIM,"Reset Anim"),
-									IBTN("Triggers on this combo listed below this trigger will not trigger from this cause."),
-									TRIGFLAG(TRIGFLAG_CANCEL_TRIGGER,"Cancel Further Triggers"),
-									IBTN("Triggering the combo will cause its inherent type-based effects to occur."
-										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-										" Not available for all combo types; will be greyed out when unavailable."),
-									cteff_tflag = TRIGFLAG(TRIGFLAG_CMBTYPEFX,"->ComboType Effects"),
 									//
-									IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-									TRIGFLAG(TRIGFLAG_KILLENEMIES, "Kill Enemies"),
-									IBTN("Delete all enemies on screen."),
-									TRIGFLAG(TRIGFLAG_CLEARENEMIES, "Clear Enemies"),
-									IBTN("Delete all LWeapons on screen."),
-									TRIGFLAG(TRIGFLAG_CLEARLWEAPONS, "Clear LWeapons"),
-									IBTN("Delete all EWeapons on screen."),
-									TRIGFLAG(TRIGFLAG_CLEAREWEAPONS, "Clear EWeapons")
+									Label(text = "Set Music Refresh:", hAlign = 1.0),
+									DropDownList(data = list_music_refresh,
+										vPadding = 0_px, maxwidth = 250_px,
+										fitParent = true, selectedValue = local_ref.set_music_refresh,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.set_music_refresh = val;
+										}),
+									IBTN_T("Set Music Refresh", "Changes the current music refresh mode."
+										" This determines when the engine will try to re-play the current screen's music next."
+										"\nThe mode will reset itself to 'Screen' the next time it refreshes."
+										"\nDoes nothing if set to (None)"),
+									DummyWidget()
 								)
 							),
-							Column(vAlign = 0.0,
-								Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
-									hAlign = 0.0,
-									Label(text = "SFX:", hAlign = 1.0),
-									DropDownList(data = parent.list_sfx,
-										vPadding = 0_px, maxwidth = 250_px,
-										fitParent = true, selectedValue = local_ref.trigsfx,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_ref.trigsfx = val;
-										}),
-									IBTN_T("Trigger SFX", "If the value is >0, the combo will"
-										" play the specified SFX when triggered."),
-									Label(text = "RunFrozen:", hAlign = 1.0),
-									DropDownList(data = parent.list_genscr,
-										vPadding = 0_px, maxwidth = 250_px,
-										fitParent = true, selectedValue = local_ref.trig_genscr,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_ref.trig_genscr = val;
-										}),
-									IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
-									//
-									Label(text = "Trigger String:", hAlign = 1.0),
-									DropDownList(data = parent.list_strings,
-										vPadding = 0_px, forceFitW = true,
-										fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_ref.trig_msgstr = val*10000;
-										}),
-									IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
-									Label(text = "Fail String:", hAlign = 1.0),
-									DropDownList(data = parent.list_strings,
-										vPadding = 0_px, forceFitW = true,
-										fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_ref.fail_msgstr = val*10000;
-										}),
-									IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
-								),
-								Column(framed = true, padding = DEFAULT_PADDING*1.5,
-									hAlign = 0.0,
-									Rows<2>(
-										IBTN("Sets the screen's gravity to the specified value."),
-										TRIGFLAG(TRIGFLAG_SET_GRAVITY, "Set Gravity"),
-										IBTN("Reverts the screen's gravity to editor settings."),
-										TRIGFLAG(TRIGFLAG_REVERT_GRAVITY, "Revert Gravity")
-									),
-									Rows<2>(
-										Label(text = "Gravity:", hAlign = 1.0),
-										TextField(maxLength = 11,
-											type = GUI::TextField::type::NOSWAP_ZSINT,
-											swap_type = nswapDEC, val = local_ref.trig_gravity.getZLong(),
+							Row(padding = 0_px,
+								Column(vAlign = 0.0,
+									Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
+										Label(text = "Combo Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -65535, high = 65535, val = local_ref.trigchange,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
-												local_ref.trig_gravity = zslongToFix(val);
+												local_ref.trigchange = val;
 											}),
-										Label(text = "Terminal Velocity:", hAlign = 1.0),
-										TextField(maxLength = 11,
-											type = GUI::TextField::type::NOSWAP_ZSINT,
-											swap_type = nswapDEC, val = local_ref.trig_terminal_v.getZLong(),
+										IBTN_T("Combo Change","If the value is not 0, the combo will"
+											" change by that much when triggered."
+											"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
+										Label(text = "CSet Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -15, high = 15, val = local_ref.trigcschange,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
-												local_ref.trig_terminal_v = zslongToFix(val);
-											})
+												local_ref.trigcschange = val;
+											}),
+										IBTN_T("CSet Change","If the value is not 0, the cset will"
+											" change by that much when triggered."
+											"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
+									),
+									Rows_Columns<2,5>(framed = true, hAlign = 1.0,
+										IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+											" unless 'Temporary Secrets' screen data flag is checked."),
+										TRIGFLAG(TRIGFLAG_SECRETS,"Triggers Secrets"),
+										IBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
+										TRIGFLAG(TRIGFLAG_TOGGLEDARK,"Toggle Darkness"),
+										IBTN("After triggering, the combo animation is reset. If the combo has changed"
+											" (by any trigger effect), the new combo is the one that resets."),
+										TRIGFLAG(TRIGFLAG_RESETANIM,"Reset Anim"),
+										IBTN("Triggers on this combo listed below this trigger will not trigger from this cause."),
+										TRIGFLAG(TRIGFLAG_CANCEL_TRIGGER,"Cancel Further Triggers"),
+										IBTN("Triggering the combo will cause its inherent type-based effects to occur."
+											" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+											" Not available for all combo types; will be greyed out when unavailable."),
+										cteff_tflag = TRIGFLAG(TRIGFLAG_CMBTYPEFX,"->ComboType Effects"),
+										//
+										IBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+										TRIGFLAG(TRIGFLAG_KILLENEMIES, "Kill Enemies"),
+										IBTN("Delete all enemies on screen."),
+										TRIGFLAG(TRIGFLAG_CLEARENEMIES, "Clear Enemies"),
+										IBTN("Delete all LWeapons on screen."),
+										TRIGFLAG(TRIGFLAG_CLEARLWEAPONS, "Clear LWeapons"),
+										IBTN("Delete all EWeapons on screen."),
+										TRIGFLAG(TRIGFLAG_CLEAREWEAPONS, "Clear EWeapons")
+									)
+								),
+								Column(vAlign = 0.0,
+									Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
+										hAlign = 0.0,
+										//
+										Label(text = "SFX:", hAlign = 1.0),
+										DropDownList(data = parent.list_sfx,
+											vPadding = 0_px, maxwidth = 250_px,
+											fitParent = true, selectedValue = local_ref.trigsfx,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.trigsfx = val;
+											}),
+										IBTN_T("Trigger SFX", "If the value is >0, the combo will"
+											" play the specified SFX when triggered."),
+										//
+										Label(text = "RunFrozen:", hAlign = 1.0),
+										DropDownList(data = parent.list_genscr,
+											vPadding = 0_px, maxwidth = 250_px,
+											fitParent = true, selectedValue = local_ref.trig_genscr,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.trig_genscr = val;
+											}),
+										IBTN_T("Run Frozen Generic Script", "The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)"),
+										//
+										Label(text = "Trigger String:", hAlign = 1.0),
+										DropDownList(data = parent.list_strings,
+											vPadding = 0_px, forceFitW = true,
+											fitParent = true, selectedValue = local_ref.trig_msgstr/10000,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.trig_msgstr = val*10000;
+											}),
+										IBTN_T("Trigger String", "The string to play when triggered. Negative values are special, reading the string number from somewhere else."),
+										//
+										Label(text = "Fail String:", hAlign = 1.0),
+										DropDownList(data = parent.list_strings,
+											vPadding = 0_px, forceFitW = true,
+											fitParent = true, selectedValue = local_ref.fail_msgstr/10000,
+											onSelectFunc = [&](int32_t val)
+											{
+												local_ref.fail_msgstr = val*10000;
+											}),
+										IBTN_T("Fail Trigger String", "The string to play when triggered, but the combo trigger's conditions fail. Negative values are special, reading the string number from somewhere else.")
+									),
+									Column(framed = true, padding = DEFAULT_PADDING*1.5,
+										hAlign = 0.0,
+										Rows<2>(
+											IBTN("Sets the screen's gravity to the specified value."),
+											TRIGFLAG(TRIGFLAG_SET_GRAVITY, "Set Gravity"),
+											IBTN("Reverts the screen's gravity to editor settings."),
+											TRIGFLAG(TRIGFLAG_REVERT_GRAVITY, "Revert Gravity")
+										),
+										Rows<2>(
+											Label(text = "Gravity:", hAlign = 1.0),
+											TextField(maxLength = 11,
+												type = GUI::TextField::type::NOSWAP_ZSINT,
+												swap_type = nswapDEC, val = local_ref.trig_gravity.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.trig_gravity = zslongToFix(val);
+												}),
+											Label(text = "Terminal Velocity:", hAlign = 1.0),
+											TextField(maxLength = 11,
+												type = GUI::TextField::type::NOSWAP_ZSINT,
+												swap_type = nswapDEC, val = local_ref.trig_terminal_v.getZLong(),
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.trig_terminal_v = zslongToFix(val);
+												})
+										)
 									)
 								)
 							)

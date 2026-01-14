@@ -668,8 +668,16 @@ class mapdata {
 	// @zasm_var MAPDATAHOLDUPSFX
 	internal int ItemSFX;
 
+	// The Music to play for this screen.
+	// NULL / [MUSIC_SILENCE] represents silence.
+	// [MUSIC_INHERIT] as a special value represents using the current dmap's Music.
+	//
+	// @zasm_var MAPDATA_MUSIC
+	internal musicdata Music;
+
 	// The 'Screen MIDI' to play for this screen.
 	//
+	// @deprecated Use [Music] / [musicdata::MIDI] instead!
 	// @zasm_var MAPDATASCREENMIDI
 	internal int MIDI;
 

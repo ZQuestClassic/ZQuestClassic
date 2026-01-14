@@ -31,6 +31,7 @@
 #include "base/initdata.h"
 #include "zc/combos.h"
 #include "iter.h"
+#include "advanced_music.h"
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
@@ -13527,7 +13528,6 @@ void getBigTri(mapscr* scr, int32_t id2)
 		advanceframe(true);
 	}
 	
-	//play_DmapMusic();
 	playLevelMusic();
 	
 	if(itemsbuf[id2].flags & item_flag1 && cur_screen < 128)
@@ -20086,6 +20086,30 @@ static bool parsemsgcode(const StringCommand& command)
 				music_stop();
 			else
 				jukebox(music+MIDIOFFSET_ZSCRIPT);
+				
+			return true;
+		}
+		
+		case MSGC_MUSIC:
+		{
+			int32_t music = args[0];
+			
+			if (music == -1)
+				playLevelMusic();
+			else if(unsigned(music - 1) < quest_music.size())
+				quest_music[music - 1].play();
+			else
+				music_stop();
+				
+			return true;
+		}
+		
+		case MSGC_MUSIC_REFRESH:
+		{
+			int32_t refresh_type = args[0];
+			
+			if(refresh_type >= MUSIC_UPDATE_SCREEN && refresh_type <= MUSIC_UPDATE_REGION)
+				FFCore.music_update_cond = refresh_type;
 				
 			return true;
 		}

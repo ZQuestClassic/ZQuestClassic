@@ -501,6 +501,7 @@ int32_t onDmaps();
 
 int32_t onDoorCombos();
 
+int32_t onMusic();
 int32_t onMidis();
 
 const char *warptypelist(int32_t index, int32_t *list_size);

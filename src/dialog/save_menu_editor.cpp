@@ -15,14 +15,11 @@ void call_editsavemenu_dialog(int index)
 SaveMenuDialog::SaveMenuDialog(SaveMenu& dest):
 	dest_ref(dest), local_ref(dest),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_midi(GUI::ZCListData::midinames(true, true)),
+	list_music(GUI::ZCListData::music_names(true, false)),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_genscr(GUI::ZCListData::generic_script())
-{
-	list_midi.add("Game Over (-004)", -1);
-	list_midi.valsort(1);
-}
+{}
 
 static size_t savemenu_tabs[2];
 std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
@@ -312,7 +309,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 								),
 								INFOBTN("The tile width and height of the 'BG Tile'.")
 							),
-							Rows<3>(
+							Rows<4>(
 								Label(text = "Cursor SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_ref.cursor_sfx,
@@ -321,6 +318,8 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										local_ref.cursor_sfx = val;
 									}),
 								INFOBTN("The SFX to play when the selected choice changes."),
+								DummyWidget(),
+								
 								Label(text = "Choose SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_ref.choose_sfx,
@@ -329,6 +328,8 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										local_ref.choose_sfx = val;
 									}),
 								INFOBTN("The SFX to play when a choice is selected."),
+								DummyWidget(),
+								
 								Label(text = "Text Align:", hAlign = 1.0),
 								DropDownList(data = list_aligns,
 									fitParent = true, selectedValue = local_ref.text_align,
@@ -337,6 +338,8 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										local_ref.text_align = val;
 									}),
 								INFOBTN("The alignment of the text, relative to the other text."),
+								DummyWidget(),
+								
 								Label(text = "Textbox Align:", hAlign = 1.0),
 								DropDownList(data = list_aligns,
 									fitParent = true, selectedValue = local_ref.textbox_align,
@@ -345,15 +348,26 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										local_ref.textbox_align = val;
 									}),
 								INFOBTN("The alignment of the text, relative to 'Option X'."),
-								Label(text = "MIDI:", hAlign = 1.0),
-								midi_ddl = DropDownList(data = list_midi,
-									fitParent = true, selectedValue = local_ref.midi - (MIDIOFFSET_DMAP - MIDIOFFSET_ZSCRIPT),
+								DummyWidget(),
+								
+								Label(text = "Music:", hAlign = 1.0),
+								midi_ddl = DropDownList(data = list_music,
+									fitParent = true,
+									selectedValue = local_ref.music,
 									disabled = local_ref.flags & SMENU_DONT_KILL_MUSIC,
 									onSelectFunc = [&](int32_t val)
 									{
-										local_ref.midi = val + (MIDIOFFSET_DMAP - MIDIOFFSET_ZSCRIPT);
+										local_ref.music = val;
 									}),
-								INFOBTN("The MIDI to play during the save menu. (Enhanced music is not yet supported)")
+								INFOBTN("The music to play during the save menu."),
+								Button(text = "Edit Music",
+									forceFitH = true,
+									onPressFunc = [&]()
+									{
+										call_music_dialog(local_ref.music);
+										list_music = GUI::ZCListData::music_names(true, false);
+										refresh_dlg();
+									})
 							),
 							Rows_Columns<2,3>(
 								Checkbox(text = "'A' chooses",
@@ -388,7 +402,7 @@ std::shared_ptr<GUI::Widget> SaveMenuDialog::view()
 										SETFLAG(local_ref.flags, SMENU_DONT_KILL_MUSIC, state);
 										midi_ddl->setDisabled(state);
 									}),
-								INFOBTN("If checked, the music will not be killed by the menu. This means that the set 'MIDI' will be ignored as well."),
+								INFOBTN("If checked, the music will not be killed by the menu. This means that the set 'Music' will be ignored as well."),
 								Checkbox(text = "Don't Kill SFX",
 									hAlign = 0.0,
 									checked = local_ref.flags & SMENU_DONT_KILL_SFX,

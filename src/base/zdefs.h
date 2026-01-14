@@ -141,17 +141,18 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_FFSCRIPT       ZC_ID('F','F','S','C')              //ff scripts data
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
+#define ID_ADVMUSIC       ZC_ID('A','M','U','S')              //Advanced Music data
 
 //Version number of the different section types
 #define V_HEADER           9
 #define V_RULES           17
 #define V_STRINGS         11
-#define V_MISC            17
+#define V_MISC            18
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          61
+#define V_COMBOS          62
 #define V_CSETS            6 //palette data
-#define V_MAPS            36
-#define V_DMAPS           24
+#define V_MAPS            37
+#define V_DMAPS           25
 #define V_DOORS            1
 #define V_ITEMS           65
 #define V_WEAPONS          8
@@ -171,6 +172,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 #define V_ZINFO            5
+#define V_ADVMUSIC         1
 
 // not 'real' sections, just separate version numbers
 #define V_COMPATRULE       100
@@ -1290,7 +1292,7 @@ public:
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapdataref, msgdataref, shopdataref;
 	int32_t mapdataref;
 	dword dropsetdataref;
-	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref;
+	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref, musicref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combodataref, comboposref;
 	dword combotriggerref;

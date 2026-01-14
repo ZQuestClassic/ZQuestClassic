@@ -5,6 +5,7 @@
 #include "new_subscr.h"
 #include "qst.h"
 #include "zc_list_data.h"
+#include "advanced_music.h"
 
 extern const char* icounter_str2[-(sscMIN + 1)];
 extern char *item_string[MAXITEMS];
@@ -936,6 +937,43 @@ if (var > -2) \
 			effects << indent << "Set quake effect timer to " << trigquaketime << "\n";
 		if (trigwavytime > -1)
 			effects << indent << "Set wavy effect timer to " << trigwavytime << "\n";
+		switch (play_music)
+		{
+			case -2: break;
+			case -1: effects << indent << "Play screen/dmap music\n"; break;
+			case 0: effects << indent << "Stop currently playing music\n"; break;
+			default:
+			{
+				string mus_name = "(?ERROR?)";
+				if (unsigned(play_music-1) < quest_music.size())
+					mus_name = quest_music[play_music-1].name;
+				effects << indent << "Play music " << play_music << " '" << mus_name << "'\n";
+				break;
+			}
+		}
+		if (set_music_refresh > -1)
+		{
+			effects << indent << "Set Music Refresh to: ";
+			switch (set_music_refresh)
+			{
+				case MUSIC_UPDATE_SCREEN:
+					effects << "on Screen Change";
+					break;
+				case MUSIC_UPDATE_DMAP:
+					effects << "on DMap Change";
+					break;
+				case MUSIC_UPDATE_LEVEL:
+					effects << "on Level Change";
+					break;
+				case MUSIC_UPDATE_NEVER:
+					effects << "Never (until Music Refresh is manually changed again)";
+					break;
+				case MUSIC_UPDATE_REGION:
+					effects << "on Region Change";
+					break;
+			}
+			effects << "\n";
+		}
 
 		if (trig_levelitems)
 		{

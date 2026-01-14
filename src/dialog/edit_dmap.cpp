@@ -12,12 +12,10 @@
 #include "subscr.h"
 #include <fmt/format.h>
 #include <base/qrs.h>
-#include "music_playback.h"
 
 static size_t editdmap_tab = 0;
 static size_t editdmap_tab2 = 0;
 static int32_t dmap_use_script_data = 2;
-extern int32_t midi_volume;
 extern script_data* dmapscripts[NUMSCRIPTSDMAP];
 #define DSCRDATA_NONE    0x00
 #define DSCRDATA_ACTIVE  0x01
@@ -52,91 +50,11 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_mapsub(GUI::ZCListData::subscreens(sstMAP, true, true)),
 	list_strings(GUI::ZCListData::strings()),
 	list_lpals(GUI::ZCListData::lpals()),
-	list_midis(GUI::ZCListData::midinames(false, true)),
-	list_tracks(GUI::ListData::numbers(false, 1, 1)),
 	list_disableditems(GUI::ZCListData::disableditems(local_dmap.disableditems)),
 	list_items(GUI::ZCListData::items(false, false)),
-	list_dmapscript(GUI::ZCListData::dmap_script())
-{
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
-
-	int32_t numtracks = 1;
-	if (tempdmapzcmusic != NULL)
-	{
-		numtracks = zcmusic_get_tracks(tempdmapzcmusic);
-		numtracks = (numtracks < 2) ? 1 : numtracks;
-		list_tracks = GUI::ListData::numbers(false, 1, numtracks);
-
-		zcmusic_unload_file(tempdmapzcmusic);
-	}
-}
-
-bool EditDMapDialog::disableEnhancedMusic(bool disableontracker)
-{
-	if (local_dmap.tmusic[0] == 0)
-		return true;
-
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
-	bool isTracker = true;
-
-	if (tempdmapzcmusic != NULL)
-	{
-		if (disableontracker && !(tempdmapzcmusic->type == ZCMF_MP3 || tempdmapzcmusic->type == ZCMF_OGG || tempdmapzcmusic->type == ZCMF_DUH))
-			return true;
-	}
-	else
-		return true;
-
-	return false;
-}
-
-bool EditDMapDialog::disableMusicTracks()
-{
-	if (list_tracks.size() < 2)
-		return true;
-	return disableEnhancedMusic();
-}
-
-void EditDMapDialog::silenceMusicPreview()
-{
-	zc_stop_midi();
-
-	if (zcmusic != NULL)
-	{
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-	}
-}
-
-void EditDMapDialog::musicPreview(bool previewloop)
-{
-	silenceMusicPreview();
-
-	if (local_dmap.tmusic[0] == 0)
-	{
-		if (local_dmap.midi > 3)
-			zc_play_midi((MIDI*)customtunes[local_dmap.midi-4].data, true);
-	}
-	else
-	{
-		if(local_dmap.tmusic[0])
-		{
-			if(play_enh_music_crossfade(local_dmap.tmusic, filepath, local_dmap.tmusictrack, midi_volume, (previewloop || musicpreview_saved) ? 0 : local_dmap.tmusic_xfade_in, local_dmap.tmusic_xfade_out))
-			{
-				if (previewloop)
-				{
-					int32_t startpos = zc_max(local_dmap.tmusic_loop_end - 10000, 0);
-					zcmusic_set_curpos(zcmusic, startpos);
-				}
-				if (musicpreview_saved)
-					zcmusic_set_curpos(zcmusic, musicpreview_saved);
-				zcmusic_set_loop(zcmusic, double(local_dmap.tmusic_loop_start / 10000.0), double(local_dmap.tmusic_loop_end / 10000.0));
-			}
-		}
-	}
-}
+	list_dmapscript(GUI::ZCListData::dmap_script()),
+	list_music(GUI::ZCListData::music_names(true, false))
+{}
 
 bool sm_dmap(int dmaptype)
 {
@@ -253,20 +171,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 	window = Window(
 		title = titlebuf,
 		onClose = message::CANCEL,
-		use_vsync = true,
-		onTick = [&]()
-		{
-			zcmixer_update(zcmixer, midi_volume, 1000000, false);
-			if (zcmusic)
-			{
-				int32_t pos = zcmusic_get_curpos(zcmusic);
-				if (pos > 0)
-					tmusic_progress_lbl->setText(fmt::format("{:.4f}s", pos / 10000.0));
-				else
-					tmusic_progress_lbl->setText("");
-			}
-			return ONTICK_CONTINUE;
-		},
 		Column(
 			Row(hAlign = 0.0,
 				Label(text = "Name:", hAlign = 0.0, colSpan = 2),
@@ -288,7 +192,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 				ptr = &editdmap_tab,
 				onSwitch = [&](size_t, size_t)
 				{
-					silenceMusicPreview();
 					refreshGridSquares();
 				},
 				TabRef(name = "Mechanics", TabPanel(
@@ -493,7 +396,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					))
 				)),
 				TabRef(name = "Appearance", Column(
-					Rows<2>(
+					Rows<4>(
 						Label(text = "Level Palette:"),
 						DropDownList(data = list_lpals,
 							fitParent = true,
@@ -501,7 +404,28 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							onSelectFunc = [&](int32_t val)
 							{
 								local_dmap.color = val;
-							})
+							}),
+						DummyWidget(),
+						DummyWidget(),
+						//
+						Label(text = "Music:"),
+						DropDownList(data = list_music,
+							fitParent = true,
+							selectedValue = local_dmap.music,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.music = val;
+							}),
+						INFOBTN("The music to play on this dmap. Screen-specific music takes priority."),
+						Button(text = "Edit Music",
+							forceFitH = true,
+							onPressFunc = [&]()
+							{
+								call_music_dialog(local_dmap.music);
+								list_music = GUI::ZCListData::music_names(true, false);
+								refresh_dlg();
+							}
+						)
 					),
 					string_switch = Switcher(
 						Rows<2>(
@@ -595,228 +519,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							}),
 						INFOBTN("The map subscreen to use on this dmap. If not '(None)',"
 							" will replace the standard large map when pressing the Map button.")
-					)
-				)),
-				TabRef(name = "Music", Column(
-					Rows<2>(
-						Label(text = "Midi:"),
-						DropDownList(data = list_midis,
-							fitParent = true,
-							selectedValue = local_dmap.midi,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_dmap.midi = val;
-							})
-					),
-					Frame(title = "Enhanced Music",
-						Column(
-							Rows<2>(
-								tmusic_field = TextField(
-									colSpan = 2,
-									fitParent = true,
-									type = GUI::TextField::type::TEXT,
-									read_only = true, disabled = disableEnhancedMusic(),
-									text = local_dmap.tmusic),
-								Label(text = "Track:"),
-								tmusic_track_list = DropDownList(data = list_tracks,
-									fitParent = true,
-									selectedValue = local_dmap.tmusictrack + 1,
-									disabled = disableMusicTracks(),
-									onSelectFunc = [&](int32_t val)
-									{
-										local_dmap.tmusictrack = val - 1;
-									})
-							),
-							Rows<2>(
-								Rows<2>(framed = true, frameText = "Loop Points",
-									Label(text = "Start:", hAlign = 1.0),
-									tmusic_start_field = TextField(
-										fitParent = true, hAlign = 0.0,
-										type = GUI::TextField::type::FIXED_DECIMAL,
-										disabled = disableEnhancedMusic(true),
-										low = 0, high = 2147479999,
-										val = local_dmap.tmusic_loop_start,
-										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-										{
-											local_dmap.tmusic_loop_start = val;
-										}),
-									Label(text = "End:", hAlign = 1.0),
-									tmusic_end_field = TextField(
-										fitParent = true, hAlign = 0.0,
-										type = GUI::TextField::type::FIXED_DECIMAL,
-										disabled = disableEnhancedMusic(true),
-										val = local_dmap.tmusic_loop_end,
-										low = 0, high = 2147479999,
-										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-										{
-											local_dmap.tmusic_loop_end = val;
-										})
-								),
-								Rows<2>(framed = true, frameText = "Crossfades",
-									Label(text = "In:", hAlign = 1.0),
-									tmusic_xfadein_field = TextField(
-										fitParent = true, hAlign = 0.0,
-										type = GUI::TextField::type::INT_DECIMAL,
-										disabled = disableEnhancedMusic(),
-										val = local_dmap.tmusic_xfade_in,
-										low = 0, high = 65535,
-										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-										{
-											local_dmap.tmusic_xfade_in = val;
-										}),
-									Label(text = "Out:", hAlign = 1.0),
-									tmusic_xfadeout_field = TextField(
-										fitParent = true, hAlign = 0.0,
-										type = GUI::TextField::type::INT_DECIMAL,
-										disabled = disableEnhancedMusic(),
-										val = local_dmap.tmusic_xfade_out,
-										low = 0, high = 65535,
-										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-										{
-											local_dmap.tmusic_xfade_out = val;
-										})
-								)
-							),
-							tmusic_progress_lbl = Label(text = "", hAlign = 0.0),
-							Rows<3>(
-								tmusic_preview_btn = Button(text = "Preview",
-									maxheight = 24_px,
-									disabled = disableEnhancedMusic(),
-									onPressFunc = [&]()
-									{
-										musicpreview_saved = 0;
-										musicPreview();
-									}),
-								tmusic_previewloop_btn = Button(text = "Preview Loop",
-									maxheight = 24_px,
-									disabled = disableEnhancedMusic(true),
-									onPressFunc = [&]()
-									{
-										musicpreview_saved = 0;
-										musicPreview(true);
-									}),
-								tmusic_previewstop_btn = Button(text = "Pause",
-									maxheight = 24_px,
-									disabled = disableEnhancedMusic(true),
-									onPressFunc = [&]()
-									{
-										if(musicpreview_saved)
-										{
-											musicPreview();
-											musicpreview_saved = 0;
-										}
-										else
-										{
-											if (zcmusic)
-												musicpreview_saved = zcmusic_get_curpos(zcmusic);
-											silenceMusicPreview();
-										}
-									})
-							),
-							Rows<2>(
-								Button(text = "Load",
-									maxheight = 24_px,
-									onPressFunc = [&]()
-									{
-										zc_stop_midi();
-
-										if (zcmusic != NULL)
-										{
-											zcmusic_stop(zcmusic);
-											zcmusic_unload_file(zcmusic);
-											zcmusic = NULL;
-											zcmixer->newtrack = NULL;
-										}
-
-										if (prompt_for_existing_file_compat("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
-										{
-											strcpy(tmusicpath, temppath);
-											char* tmfname = get_filename(tmusicpath);
-
-											if (strlen(tmfname) > 55)
-											{
-												displayinfo("Error", "Filename too long (>55 characters)");
-												temppath[0] = 0;
-											}
-											else
-											{
-												auto [music, err] = zcmusic_load_for_quest(tmfname, filepath);
-
-												int32_t numtracks = 1;
-												if (music)
-												{
-													numtracks = zcmusic_get_tracks(music);
-													numtracks = (numtracks < 2) ? 1 : numtracks;
-													list_tracks = GUI::ListData::numbers(false, 1, numtracks);
-													tmusic_track_list->setSelectedValue(1);
-												
-													std::string str;
-													str.assign(music->filename);
-													strncpy(local_dmap.tmusic, str.c_str(), 56);
-													local_dmap.tmusic[55] = 0;
-													local_dmap.tmusictrack = 0;
-
-													zcmusic_unload_file(music);
-												}
-												else
-												{
-													string s = "";
-													switch(err)
-													{
-														case ZCM_E_NO_AUDIO:
-															s = "Allegro's audio driver is not initialized.";
-															break;
-														case ZCM_E_NOT_FOUND:
-															s =  "File not found."
-																"\nEnhanced music files must be saved in the same folder as the quest, the ZC program folder,"
-																" or in a \"music\" or \"questname_music\" subfolder of the two.";
-															break;
-														case ZCM_E_ERROR:
-															s =  "Error loading file.";
-															break;
-													}
-													InfoDialog("Error", s).show();
-												}
-
-												tmusic_field->setText(local_dmap.tmusic);
-												tmusic_track_list->setDisabled(disableMusicTracks());
-												tmusic_start_field->setDisabled(disableEnhancedMusic(true));
-												tmusic_end_field->setDisabled(disableEnhancedMusic(true));
-												tmusic_xfadein_field->setDisabled(disableEnhancedMusic());
-												tmusic_xfadeout_field->setDisabled(disableEnhancedMusic());
-												tmusic_preview_btn->setDisabled(disableEnhancedMusic());
-												tmusic_previewloop_btn->setDisabled(disableEnhancedMusic(true));
-												tmusic_previewstop_btn->setDisabled(disableEnhancedMusic(true));
-											}
-										}
-									}),
-								Button(text = "Clear",
-									maxheight = 24_px,
-									onPressFunc = [&]()
-									{
-										zc_stop_midi();
-
-										if (zcmusic != NULL)
-										{
-											zcmusic_stop(zcmusic);
-											zcmusic_unload_file(zcmusic);
-											zcmusic = NULL;
-											zcmixer->newtrack = NULL;
-										}
-
-										memset(local_dmap.tmusic, 0, 56);
-										tmusic_field->setText("");
-										tmusic_track_list->setDisabled(true);
-										tmusic_start_field->setDisabled(true);
-										tmusic_end_field->setDisabled(true);
-										tmusic_xfadein_field->setDisabled(true);
-										tmusic_xfadeout_field->setDisabled(true);
-										tmusic_preview_btn->setDisabled(true);
-										tmusic_previewloop_btn->setDisabled(true);
-										tmusic_previewstop_btn->setDisabled(true);
-									})
-							)
-						)
 					)
 				)),
 				TabRef(name = "Maps", Column(
@@ -1206,7 +908,6 @@ bool EditDMapDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		[[fallthrough]];
 	case message::CANCEL:
 	default:
-		silenceMusicPreview();
 		return true;
 	}
 	return false;

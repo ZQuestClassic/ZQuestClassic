@@ -1,5 +1,6 @@
 #include "play_midi.h"
 #include "midi.h"
+#include "advanced_music.h"
 
 #ifdef __EMSCRIPTEN__
 #include <SDL2/SDL_mixer.h>
@@ -90,6 +91,7 @@ int play_midi_em(MIDI *midi, int32_t loop)
 
 int zc_play_midi(MIDI *midi, int loop)
 {
+	clear_current_music_data();
 #ifdef __EMSCRIPTEN__
   return play_midi_em(midi, loop);
 #else

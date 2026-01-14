@@ -103,6 +103,21 @@ class Audio {
 
 	// @zasm_var GETMIDI
 	internal const int MIDI;
+	
+	// Returns the number of [musicdata]s that exist in the quest.
+	//
+	// @zasm_var NUM_MUSICS
+	internal const int NumMusics;
+	
+	// Returns true if the 'engine music' is active.
+	// ('engine music' means the music set for the current screen, or current dmap if the screen has [MUSIC_INHERIT] set)
+	//
+	// If true, changing [Screen->Music] or [mapdata::Music] for the screen the player is on,
+	// or changing [dmapdata::Music] for the current dmap if the current screen's music is [MUSIC_INHERIT],
+	// will result in the currently playing music changing to match.
+	//
+	// @zasm_var ENGINE_MUSIC_ACTIVE
+	internal const bool EngineMusicActive;
 
 	// @deprecated Use [AdjustMusicVolume] or [AdjustSFXVolume] instead.
 	// @zasm_var AUDIOVOLUME
@@ -184,7 +199,27 @@ class Audio {
 	//   RESUMEMUSIC
 	internal void ResumeCurMIDI();
 
-	// Plays the MIDI [midi]. Will revert upon changing screens.
+	// Plays the Music [music_index]. See [MusicRefresh] for details on when the engine will change the music back.
+	// Index 0 will stop currently playing music.
+	// Index -1 will play the music of the current screen/dmap, as the engine would.
+	// Otherwise, the index should be > 0 and <= [NumMusics].
+	//
+	// @zasm
+	//   POP REFMUSIC
+	//   DIVV REFMUSIC 10000
+	//   PLAY_MUSIC REFMUSIC
+	internal void PlayMusic(int music_index);
+	
+	// Loads a musicdata ref for the music ID [music_index].
+	// Returns [MUSIC_SILENCE] without error for ID 0.
+	// Fails (returning MUSIC_SILENCE, with error) if the ID is < 0 or > [NumMusics]
+	//
+	// @zasm
+	//   POP D2
+	//   LOADMUSICDATA D2
+	internal musicdata LoadMusicData(int music_index);
+
+	// Plays the MIDI [midi]. See [MusicRefresh] for details on when the engine will change the music back.
 	//
 	// @zasm
 	//   POP D2

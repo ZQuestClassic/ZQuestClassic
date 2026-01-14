@@ -8,9 +8,11 @@ const char* scripting_get_zasm_register_context_string(int reg)
 {
 	switch (reg)
 	{
+		case ENGINE_MUSIC_ACTIVE: return "Audio->EngineMusicActive";
 		case GETMIDI: return "Audio->MIDI";
 		case MUSICUPDATECOND: return "Audio->MusicRefresh";
 		case MUSICUPDATEFLAGS: return "Audio->MusicRefreshFlags[]";
+		case NUM_MUSICS: return "Audio->NumMusics";
 		case AUDIOPAN: return "Audio->PanStyle";
 		case AUDIOVOLUME: return "Audio->Volume[]";
 		case GAMEASUBOPEN: return "Game->ActiveSubscreenOpen";
@@ -311,6 +313,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case PUSHBLOCKLAYER: return "Screen->MovingBlockLayer";
 		case PUSHBLOCKX: return "Screen->MovingBlockX";
 		case PUSHBLOCKY: return "Screen->MovingBlockY";
+		case SCREENDATA_MUSIC: return "Screen->Music";
 		case SCREEN_NPCS: return "Screen->NPCs[]";
 		case SCREENDATANEXTMAP: return "Screen->NextMap";
 		case SCREENDATANEXTSCREEN: return "Screen->NextScreen";
@@ -515,6 +518,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case CMBTRIGLSTATE: return "combotrigger::LevelState";
 		case CMBTRIGLIGHTBEAM: return "combotrigger::LightBeam";
 		case CMBTRIGLVLPAL: return "combotrigger::LvlPal";
+		case CMBTRIG_MUSIC_REFRESH: return "combotrigger::MusicRefresh";
+		case CMBTRIG_PLAY_MUSIC: return "combotrigger::PlayMusic";
 		case CMBTRIGGERPROMPTCS: return "combotrigger::PromptCSet";
 		case CMBTRIGGERPROMPTCID: return "combotrigger::PromptCombo";
 		case CMBTRIGGERPROMPTX: return "combotrigger::PromptX";
@@ -580,6 +585,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case DMAPDATAMINIMAPCSET: return "dmapdata::MiniMapCSet[]";
 		case DMAPDATAMINIMAPTILE: return "dmapdata::MiniMapTile[]";
 		case DMAPDATAMIRRDMAP: return "dmapdata::MirrorDMap";
+		case DMAPDATA_MUSIC: return "dmapdata::Music";
 		case DMAPDATAXFADEIN: return "dmapdata::MusicCrossfadeIn";
 		case DMAPDATAXFADEOUT: return "dmapdata::MusicCrossfadeOut";
 		case DMAPDATALOOPEND: return "dmapdata::MusicLoopEnd";
@@ -883,6 +889,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MAPDATASCREENMIDI: return "mapdata::MIDI";
 		case MAPDATAMAP: return "mapdata::Map";
 		case MAPDATAPATH: return "mapdata::MazePath[]";
+		case MAPDATA_MUSIC: return "mapdata::Music";
 		case MAPDATANEXTMAP: return "mapdata::NextMap";
 		case MAPDATANEXTSCREEN: return "mapdata::NextScreen";
 		case MAPDATANOCARRY: return "mapdata::NoCarry";
@@ -952,6 +959,15 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case MESSAGEDATAW: return "messagedata::Width";
 		case MESSAGEDATAX: return "messagedata::X";
 		case MESSAGEDATAY: return "messagedata::Y";
+		case MUSICDATA_IS_ACTIVE: return "musicdata::Active";
+		case MUSICDATA_XFADEIN: return "musicdata::CrossfadeIn";
+		case MUSICDATA_XFADEOUT: return "musicdata::CrossfadeOut";
+		case MUSICDATA_ID: return "musicdata::ID";
+		case MUSICDATA_IS_ENHANCED: return "musicdata::IsEnhanced";
+		case MUSICDATA_LOOPEND: return "musicdata::LoopEnd";
+		case MUSICDATA_LOOPSTART: return "musicdata::LoopStart";
+		case MUSICDATA_MIDI: return "musicdata::MIDI";
+		case MUSICDATA_TRACK: return "musicdata::Track";
 		case NPCFRAMERATE: return "npc::ASpeed";
 		case NPCDD: return "npc::Attributes[]";
 		case NPCBEHAVIOUR: return "npc::BFlags[]";
@@ -1103,6 +1119,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case SAVEMENU_HSPACE: return "save_menu::HSpace";
 		case SAVEMENU_ID: return "save_menu::ID";
 		case SAVEMENU_MIDI: return "save_menu::MIDI";
+		case SAVEMENU_MUSIC: return "save_menu::Music";
 		case SAVEMENU_NUM_OPTIONS: return "save_menu::NumOptions";
 		case SAVEMENU_OPT_FLAGS: return "save_menu::OptionFlags[]";
 		case SAVEMENU_OPT_COLOR_PICKED: return "save_menu::PickedColors[]";
@@ -1567,10 +1584,12 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case GETENHMUSICLEN: return "Audio->GetMusicLength()";
 		case GETENHMUSICPOS: return "Audio->GetMusicPos()";
 		case GETSFXCOMPLETION: return "Audio->GetSoundCompletion()";
+		case LOADMUSICDATA: return "Audio->LoadMusicData()";
 		case PAUSEMUSIC: return "Audio->PauseCurMIDI()";
 		case PAUSESOUNDR: return "Audio->PauseSound()";
 		case PLAYENHMUSIC: return "Audio->PlayEnhancedMusic()";
 		case PLAYMIDIR: return "Audio->PlayMIDI()";
+		case PLAY_MUSIC: return "Audio->PlayMusic()";
 		case PLAYENHMUSICEX: return "Audio->PlayOgg()";
 		case PLAYSOUNDR: return "Audio->PlaySound()";
 		case PLAYSOUNDEX: return "Audio->PlaySoundEx()";
@@ -1963,6 +1982,10 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case MAPDATAISSOLIDLYR: return "mapdata::isSolidLayer()";
 		case MESSAGEDATAGETSTRINGR: return "messagedata::Get()";
 		case MESSAGEDATASETSTRINGR: return "messagedata::Set()";
+		case MUSICDATA_GETNAME: return "musicdata::GetName()";
+		case MUSICDATA_GETPATH: return "musicdata::GetPath()";
+		case MUSICDATA_SETNAME: return "musicdata::SetName()";
+		case MUSICDATA_SETPATH: return "musicdata::SetPath()";
 		case NPCATTACK: return "npc::Attack()";
 		case BREAKSHIELD: return "npc::BreakShield()";
 		case NPCFIREBREATH: return "npc::BreathAttack()";

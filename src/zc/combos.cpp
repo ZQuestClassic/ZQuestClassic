@@ -19,6 +19,9 @@
 #include "base/misctypes.h"
 #include "iter.h"
 #include "zscriptversion.h"
+#include "advanced_music.h"
+
+void playLevelMusic();
 
 extern sprite_list items, decorations;
 
@@ -2341,6 +2344,21 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 				Hero.setStunClock(trig.trig_stuntime);
 			if (trig.trig_bunnytime > -2)
 				Hero.setBunnyClock(trig.trig_bunnytime);
+		}
+		
+		if (trig.play_music > -2)
+		{
+			if (trig.play_music == -1)
+				playLevelMusic();
+			else if (unsigned(trig.play_music - 1) < quest_music.size())
+				quest_music[trig.play_music - 1].play();
+			else
+				music_stop();
+		}
+		if (trig.set_music_refresh > -1)
+		{
+			FFCore.music_update_cond = trig.set_music_refresh;
+			FFCore.music_update_flags |= MUSIC_UPDATE_FLAG_REVERT;
 		}
 
 		if (trig.exstate > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))

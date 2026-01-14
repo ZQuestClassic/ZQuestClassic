@@ -37,6 +37,7 @@
 #include "base/misctypes.h"
 #include "music_playback.h"
 #include "iter.h"
+#include "advanced_music.h"
 
 extern refInfo playerScriptData;
 #include "zscriptversion.h"
@@ -25777,15 +25778,14 @@ RaftingStuff:
 		{
 			if (FFCore.can_dmap_change_music(tdm))
 			{
-				if (zcmusic != NULL)
+				int amusic = get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->music;
+				if (amusic == -1)
+					amusic = DMaps[tdm].music;
+				if (unsigned(amusic - 1) < quest_music.size())
 				{
-					if (strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
-						(zcmusic->type == ZCMF_GME && zcmusic->track != DMaps[tdm].tmusictrack))
+					if (quest_music[amusic-1].is_playing())
 						music_stop();
 				}
-				else if (DMaps[hero_scr->tilewarpdmap[index]].midi != (currmidi - MIDIOFFSET_DMAP) &&
-					get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->screen_midi != (currmidi - MIDIOFFSET_DMAP))
-					music_stop();
 			}
 		}
 		

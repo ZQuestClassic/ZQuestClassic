@@ -24,7 +24,7 @@ private:
 	SaveMenu local_ref;
 	
 	std::shared_ptr<GUI::DropDownList> midi_ddl;
-	GUI::ListData list_sfx, list_midi, list_aligns, list_font, list_genscr;
+	GUI::ListData list_sfx, list_music, list_aligns, list_font, list_genscr;
 };
 
 #endif

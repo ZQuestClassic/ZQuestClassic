@@ -67,6 +67,8 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_SETSCREEND, {"SetScreenD", 4}}, // (dmap, screen, reg, value)
 	{MSGC_SFX, {"SFX", 1}}, //  (sfx)
 	{MSGC_MIDI, {"MIDI", 1}}, //  (midi)
+	{MSGC_MUSIC, {"Music", 1}}, //  (music)
+	{MSGC_MUSIC_REFRESH, {"MusicRefresh", 1}}, //  (music)
 	{MSGC_WAIT_ADVANCE, {"WaitAdvance", 0}},
 	{MSGC_DELAY, {"Delay", 1}},
 	{MSGC_FORCE_DELAY, {"ForceDelay", 1}},

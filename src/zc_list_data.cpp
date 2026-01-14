@@ -6,6 +6,7 @@
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
 #include "zinfo.h"
+#include "advanced_music.h"
 #include "base/misctypes.h"
 #include "base/autocombo.h"
 #include <fmt/format.h>
@@ -715,42 +716,78 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	
 	return ls;
 }
+const string builtin_midi_names[ZC_MIDI_COUNT] = {
+	"Dungeon",
+	"Ending",
+	"Game Over",
+	"Level 9",
+	"Overworld",
+	"Title",
+	"McGuffin",
+};
 GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 {
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
-	ls.add(numbered ? "(None) (000)" : "(None)", 0);
-	auto ofs = 1;
 	if (incl_engine)
 	{
-		if (numbered)
+		for (int q = BUILTIN_MIDI_MIN; q < BUILTIN_MIDI_NONE; ++q)
 		{
-			ls.add("Overworld (-003)", 1);
-			ls.add("Dungeon (-002)", 2);
-			ls.add("Level 9 (-001)", 3);
+			auto const& name = builtin_midi_names[-(q+1)];
+			if (numbered)
+				ls.add(fmt::format("{} ({:03})", name, q), q);
+			else ls.add(name, q);
 		}
-		else
-		{
-			ls.add("Overworld", 1);
-			ls.add("Dungeon", 2);
-			ls.add("Level 9", 3);
-		}
-		ofs = 4;
 	}
-	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
+	
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
+	
+	for(int32_t i = 1; i <= MAXCUSTOMTUNES; ++i)
 	{
-		char const* midi_name = customtunes[i].title;
+		char const* midi_name = customtunes[i-1].title;
 		if(midi_name[0] == ' ' || !midi_name[0])
 			midi_name = "zzUntitled";
 		if(numbered)
-			ls.add(fmt::format("{} ({:03})", midi_name, i + 1), i+ofs);
-		else ls.add(midi_name, i+ofs);
+			ls.add(fmt::format("{} ({:03})", midi_name, i), i);
+		else ls.add(midi_name, i);
 	}
 	
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::music_names(bool numbered, bool incl_override)
+{
+	GUI::ListData ls;
+	
+	if (incl_override)
+	{
+		if (numbered)
+			ls.add("Use Default (-001)", -1);
+		else ls.add("Use Default", -1);
+	}
+	if (numbered)
+		ls.add("(None) (000)", 0);
+	else ls.add("(None)", 0);
+	
+	for(size_t q = 0; q < quest_music.size(); ++q)
+	{
+		auto const& amus = quest_music[q];
+		if(numbered)
+		{
+			if(amus.name.empty())
+				ls.add(fmt::format("zz{:02} ({:03})",q+1,q+1),q+1);
+			else
+				ls.add(fmt::format("{} ({:03})",amus.name,q+1),q+1);
+		}
+		else if(amus.name.empty())
+			ls.add(fmt::format("zz{:02}", q+1), q+1);
+		else
+			ls.add(amus.name,q+1);
+	}
+	
+	return ls;
+}
 GUI::ListData GUI::ZCListData::savemenus(bool numbered, bool incl_def, bool only_valid)
 {
 	GUI::ListData ls;

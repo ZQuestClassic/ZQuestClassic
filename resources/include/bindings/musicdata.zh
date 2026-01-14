@@ -1,0 +1,126 @@
+// @zasm_ref REFMUSIC
+class musicdata {
+	// @delete
+	internal musicdata();
+	
+	// The ID of this music data.
+	// If ID is > 0, this is a normal music ID.
+	// If ID is <= 0, this is a special value, and you should not use this pointer for anything other than it's specified special purposes.
+	// (special pointers are [MUSIC_TRIGGER_NONE]: -2, [MUSIC_INHERIT]: -1, [MUSIC_SILENCE]: 0)
+	//
+	// @zasm_var MUSICDATA_ID
+	internal const int ID;
+	
+	// Returns true if this music is 'active'. The active music is whichever music is currently playing,
+	// though it remains 'active' even if the music is paused via ex. [Audio::PauseCurMIDI].
+	//
+	// Always returns false for [MUSIC_SILENCE].
+	//
+	// If true, modifying the values of this music will immediately update the currently playing music.
+	//
+	// @zasm_var MUSICDATA_IS_ACTIVE
+	internal const bool Active;
+	
+	// The MIDI that plays for this music index.
+	// If an enhanced music is set, the MIDI will only be played if the enhanced music file is missing / fails to load.
+	// 
+	// @value Special values: [MIDI_NONE], [MIDI_OVERWORLD], [MIDI_DUNGEON], [MIDI_LEVEL9]. Values > 0 use that number midi.
+	//
+	// @zasm_var MUSICDATA_MIDI
+	internal int MIDI;
+	
+	// Returns true if enhanced music is set up on this music index. (Regardless of if it loads successfully or not)
+	// Returns false when the enhanced music path is blank.
+	//
+	// @zasm_var MUSICDATA_IS_ENHANCED
+	internal const bool IsEnhanced;
+	
+	// The track number to use for enhanced music.
+	//
+	// @zasm_var MUSICDATA_TRACK
+	internal int Track;
+	
+	// The starting loop point for enhanced music in seconds.
+	//
+	// @zasm_var MUSICDATA_LOOPSTART
+	internal int LoopStart;
+
+	// The ending loop point for enhanced music in seconds.
+	//
+	// @zasm_var MUSICDATA_LOOPEND
+	internal int LoopEnd;
+
+	// The number of frames enhanced music fades in for.
+	//
+	// @zasm_var MUSICDATA_XFADEIN
+	internal int CrossfadeIn;
+
+	// The number of frames enhanced music fades out for.
+	//
+	// @zasm_var MUSICDATA_XFADEOUT
+	internal int CrossfadeOut;
+	
+	// Fills the buffer with the music path to the enhanced music file being used.
+	// Empty string indicates enhanced music will not be used, and only the [MIDI] will be played.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFMUSIC
+	//   MUSICDATA_GETPATH D2
+	internal void GetPath(char32[] buffer);
+
+	// Sets the path to the enhanced music file to use.
+	// An empty string or NULL pointer clears the enhanced music, so only the [MIDI] will be played.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFMUSIC
+	//   MUSICDATA_SETPATH D2
+	internal void SetPath(char32[] filename);
+	
+	// Fills the buffer with the name of this musicdata.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFMUSIC
+	//   MUSICDATA_GETNAME D2
+	internal void GetName(char32[] buffer);
+
+	// Sets the name of this musicdata.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFMUSIC
+	//   MUSICDATA_SETNAME D2
+	internal void SetName(char32[] name);
+	
+	// Plays the specified music.
+	// If used on [MUSIC_INHERIT], plays the currently assigned screen or dmap music.
+	// If used on [MUSIC_SILENCE], stops currently playing music.
+	// Otherwise, tries to play the specified enhanced music.
+	// If the enhanced music is set to an empty string, or if it fails to load, the [MIDI] will be played instead.
+	//
+	// @zasm
+	//   POP REFMUSIC
+	//   PLAY_MUSIC REFMUSIC
+	internal void Play();
+}
+// Special [musicdata] pointer.
+// Can be used on [combotrigger::Music] as a value indicating "don't play music".
+// [musicdata::ID] will read '-2'.
+// Should otherwise not be used.
+const musicdata MUSIC_TRIGGER_NONE = <musicdata>(-2L);
+// Special [musicdata] pointer.
+// Can be used on [Screen->Music] or [mapdata::Music] to use the dmap's music.
+// Can be used on [combotrigger::Music] to play the current screen's music.
+// Can call [MUSIC_INHERIT->Play()] to play the current screen's music.
+// [musicdata::ID] will read '-1'.
+// Should otherwise not be used.
+const musicdata MUSIC_INHERIT = <musicdata>(-1L);
+// Special [musicdata] pointer. Uninitialized musicdata pointers are equivalent to this pointer.
+// Can be used on [Screen->Music], [mapdata::Music], [dmapdata::Music], or [combotrigger::Music] to stop all music.
+// Can call [MUSIC_SILENCE->Play()] to stop all music.
+// [musicdata::ID] will read '-1'.
+// All variables can be read from, and will return `0` ([GetPath] will give an empty string)
+// Should otherwise not be used; writing to any variables (or calling [SetPath]) is an error.
+const musicdata MUSIC_SILENCE = <musicdata>NULL;

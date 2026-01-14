@@ -14,6 +14,8 @@
 #include "zc/hero.h"
 #include "zc/maps.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/types/musicdata.h"
+#include "advanced_music.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -1249,24 +1251,32 @@ static ArrayRegistrar DMAPMIDID_registrar(DMAPMIDID, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int){ return MAXDMAPS; },
 		[](int, int index) -> int {
-			// Based on play_DmapMusic
-			switch (DMaps[index].midi)
+			if (auto* amus = checkMusic(DMaps[index].music))
 			{
-				case 2: return -6; // Dungeon
-				case 3: return -3; // Level 9
-				case 1: return -2; // Overworld
-				case 0: return 0; // None
-				default: return DMaps[index].midi - 3;
+				// some weird hardcodes...
+				switch (amus->midi)
+				{
+					case -1: return -6; // Dungeon
+					case 0: return -3; // Level 9
+					case -2: return -2; // Overworld
+					case -3: return 0; // None
+					default: return amus->midi;
+				}
 			}
+			return 0;
 		},
 		[](int, int index, int value){
-			switch (DMaps[index].midi)
+			if (auto* amus = checkMusic(DMaps[index].music))
 			{
-				case -6: DMaps[index].midi = 2; // Dungeon
-				case -3: DMaps[index].midi = 3; // Level 9
-				case -2: DMaps[index].midi = 1; // Overworld
-				case 0: DMaps[index].midi = 0; // None
-				default: DMaps[index].midi = value + 3;
+				// some weird hardcodes...
+				switch (value)
+				{
+					case -6: amus->midi = -1; // Dungeon
+					case -3: amus->midi = 0; // Level 9
+					case -2: amus->midi = -2; // Overworld
+					case 0: amus->midi = -3; // None
+					default: amus->midi = value;
+				}
 			}
 			return true;
 		}

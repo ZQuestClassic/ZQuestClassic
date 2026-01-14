@@ -141,8 +141,15 @@ class save_menu
 	// @zasm_var SAVEMENU_CLOSE_FLASH_RATE
 	internal int CloseFlashRate;
 
+	// The Music to play for this screen.
+	// NULL / [MUSIC_SILENCE] represents silence.
+	//
+	// @zasm_var SAVEMENU_MUSIC
+	internal musicdata Music;
+	
 	// The MIDI to play.
 	// 
+	// @deprecated Use [Music] / [musicdata::MIDI] instead!
 	// @zasm_var SAVEMENU_MIDI
 	internal int MIDI;
 

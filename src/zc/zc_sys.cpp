@@ -70,6 +70,7 @@
 #include "base/files.h"
 #include "iter.h"
 #include "dialog/externs.h"
+#include "advanced_music.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -5993,24 +5994,6 @@ void music_resume()
 	zc_midi_resume();
 }
 
-void music_stop()
-{
-	//al_stop_duh(tmplayer);
-	//unload_duh(tmusic);
-	//tmusic=NULL;
-	//tmplayer=NULL;
-	zcmusic_stop(zcmusic);
-	zcmusic_unload_file(zcmusic);
-	if (zcmixer->oldtrack)
-	{
-		zcmusic_stop(zcmixer->oldtrack);
-		zcmusic_unload_file(zcmixer->oldtrack);
-	}
-	zcmixer->newtrack = NULL;
-	zc_stop_midi();
-	currmidi=-1;
-}
-
 bool reload_fonts = false;
 void System()
 {
@@ -6340,143 +6323,33 @@ void jukebox(int32_t index)
 	jukebox(index,tunes[index].loop);
 }
 
-void play_DmapMusic()
-{
-	if (is_headless())
-		return;
-
-	static char tfile[2048];
-	static int32_t ttrack=0;
-	bool domidi=false;
-	
-	int32_t fadeoutframes = 0;
-	if (zcmusic != NULL)
-		fadeoutframes = zcmusic->fadeoutframes;
-
-	if(DMaps[cur_dmap].tmusic[0]!=0)
-	{
-		if(zcmusic==NULL ||
-		   strcmp(zcmusic->filename,DMaps[cur_dmap].tmusic)!=0 ||
-		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[cur_dmap].tmusictrack))
-		{
-			if (DMaps[cur_dmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
-			{
-				if (play_enh_music_crossfade(DMaps[cur_dmap].tmusic, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes))
-				{
-					if (zcmusic != NULL)
-					{
-						zcmusic->fadeoutframes = DMaps[cur_dmap].tmusic_xfade_out;
-						zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
-					}
-				}
-			}
-			else
-			{
-				if (zcmusic != NULL)
-				{
-					zcmusic_stop(zcmusic);
-					zcmusic_unload_file(zcmusic);
-					zcmusic = NULL;
-					zcmixer->newtrack = NULL;
-				}
-
-				zcmusic = zcmusic_load_for_quest(DMaps[cur_dmap].tmusic, qstpath).first;
-				zcmixer->newtrack = zcmusic;
-
-				if (zcmusic != NULL)
-				{
-					zc_stop_midi();
-					strcpy(tfile, DMaps[cur_dmap].tmusic);
-					zcmusic_play(zcmusic, emusic_volume);
-					int32_t temptracks = 0;
-					temptracks = zcmusic_get_tracks(zcmusic);
-					temptracks = (temptracks < 2) ? 1 : temptracks;
-					ttrack = vbound(DMaps[cur_dmap].tmusictrack, 0, temptracks - 1);
-					zcmusic_change_track(zcmusic, ttrack);
-					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
-				}
-				else
-				{
-					tfile[0] = 0;
-					domidi = true;
-				}
-			}
-		}
-	}
-	else
-	{
-		if (DMaps[cur_dmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[cur_dmap].tmusic) != 0)
-		{
-			play_enh_music_crossfade(NULL, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes);
-		}
-		else
-		{
-			domidi = true;
-		}
-	}
-	
-	if(domidi)
-	{
-		int32_t m=DMaps[cur_dmap].midi;
-		
-		switch(m)
-		{
-		case 1:
-			jukebox(ZC_MIDI_OVERWORLD);
-			break;
-			
-		case 2:
-			jukebox(ZC_MIDI_DUNGEON);
-			break;
-			
-		case 3:
-			jukebox(ZC_MIDI_LEVEL9);
-			break;
-			
-		default:
-			if(m>=4 && m<4+MAXCUSTOMMIDIS)
-				jukebox(m+MIDIOFFSET_DMAP);
-			else
-				music_stop();
-		}
-	}
-}
-
 void playLevelMusic()
 {
 	if (is_headless())
 		return;
 
-	int32_t m=hero_scr->screen_midi;
+	int32_t m = hero_scr->music;
 
 	switch(m)
 	{
 	case -2:
 		music_stop();
-		break;
+		return;
 		
 	case -1:
-		play_DmapMusic();
-		break;
-		
-	case 1:
-		jukebox(ZC_MIDI_OVERWORLD);
-		break;
-		
-	case 2:
-		jukebox(ZC_MIDI_DUNGEON);
-		break;
-		
-	case 3:
-		jukebox(ZC_MIDI_LEVEL9);
-		break;
-		
+		m = DMaps[cur_dmap].music;
+	[[fallthrough]];
 	default:
-		if(m>=4 && m<4+MAXCUSTOMMIDIS)
-			jukebox(m+MIDIOFFSET_MAPSCR);
+		if (m > 0 && m <= quest_music.size())
+		{
+			auto& amus = quest_music[m-1];
+			if (!amus.is_playing()) // avoid resetting the song
+				amus.play();
+		}
 		else
 			music_stop();
 	}
+	engine_music_active = true;
 }
 
 void master_volume(int32_t dv,int32_t mv)

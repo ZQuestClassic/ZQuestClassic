@@ -67,6 +67,7 @@
 #include "subscr.h"
 #include "zc_list_data.h"
 #include "music_playback.h"
+#include "advanced_music.h"
 #include "iter.h"
 #include <sstream>
 
@@ -92,6 +93,8 @@ using namespace util;
 
 using namespace util;
 using std::ostringstream;
+
+void playLevelMusic();
 
 static ASM_DEFINE current_zasm_command;
 static uint32_t current_zasm_register;
@@ -2996,6 +2999,7 @@ static int get_ref(int arg)
 		case REFSUBSCREENWIDG: return ri->subscreenwidgref;
 		case REFWEBSOCKET: return ri->websocketref;
 		case REFSAVEMENU: return ri->savemenuref;
+		case REFMUSIC: return ri->musicref;
 
 		default: NOTREACHED();
 	}
@@ -5687,6 +5691,14 @@ int32_t get_register(int32_t arg)
 		case GETMIDI:
 			ret=(currmidi-MIDIOFFSET_ZSCRIPT)*10000;
 			break;
+		
+		case NUM_MUSICS:
+			ret = quest_music.size() * 10000;
+			break;
+		
+		case ENGINE_MUSIC_ACTIVE:
+			ret = engine_music_active ? 10000 : 0;
+			break;
 			
 		case CURDSCR:
 		{
@@ -5962,9 +5974,28 @@ int32_t get_register(int32_t arg)
 		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx); break;	//B
 		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx); break;	//B
 		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx); break; //B
+		case SCREENDATA_MUSIC:
+		{
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (m->music < -1 || m->music > quest_music.size())
+				ret = -1;
+			else ret = m->music;
+			break;
+		}
 		case SCREENDATASCREENMIDI:
 		{
-			ret = ((get_scr(GET_REF(screenref))->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (unsigned(m->music) > quest_music.size())
+				ret = -40000; // old value for using dmap music
+			else if (!m->music)
+				ret = 0;
+			else
+			{
+				auto const& amus = quest_music[m->music-1];
+				if (amus.enhanced.is_empty())
+					ret = convert_to_old_midi_id(amus.midi, true) * 10000;
+				else ret = -10000; // error using outdated zasm with new features
+			}
 			break;
 		}
 		case SCREENDATA_GRAVITY_STRENGTH:
@@ -6421,11 +6452,32 @@ int32_t get_register(int32_t arg)
 		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
 		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
 		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATA_MUSIC:
+		{
+			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			{
+				if (m->music < -1 || m->music > quest_music.size())
+					ret = -1;
+				else ret = m->music;
+			}
+			else ret = -1;
+			break;
+		}
 		case MAPDATASCREENMIDI:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+				if (unsigned(m->music) > quest_music.size())
+					ret = -40000; // old value for using dmap music
+				else if (!m->music)
+					ret = 0;
+				else
+				{
+					auto const& amus = quest_music[m->music-1];
+					if (amus.enhanced.is_empty())
+						ret = convert_to_old_midi_id(amus.midi, true) * 10000;
+					else ret = -10000; // error using outdated zasm with new features
+				}
 			}
 			else
 			{
@@ -6569,9 +6621,16 @@ int32_t get_register(int32_t arg)
 		{
 			ret = (DMaps[GET_REF(dmapdataref)].script) * 10000; break;
 		}
+		case DMAPDATA_MUSIC:
+		{
+			ret = DMaps[GET_REF(dmapdataref)].music;
+			break;
+		}
 		case DMAPDATAMIDI:	//byte
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].midi-MIDIOFFSET_DMAP) * 10000; break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = convert_to_old_midi_id(amus->midi) * 10000;
+			break;
 		}
 		case DMAPDATA_GRAVITY_STRENGTH:
 		{
@@ -6597,7 +6656,9 @@ int32_t get_register(int32_t arg)
 		}
 		case DMAPDATAMUISCTRACK:	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].tmusictrack) * 10000; break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = amus->enhanced.track * 10000;
+			break;
 		}
 		case DMAPDATASUBSCRA:
 		{
@@ -6621,19 +6682,27 @@ int32_t get_register(int32_t arg)
 		}
 		case DMAPDATALOOPSTART:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].tmusic_loop_start); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = amus->enhanced.loop_start;
+			break;
 		}
 		case DMAPDATALOOPEND:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].tmusic_loop_end); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = amus->enhanced.loop_end;
+			break;
 		}
 		case DMAPDATAXFADEIN:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].tmusic_xfade_in * 10000); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = amus->enhanced.xfade_in * 10000;
+			break;
 		}
 		case DMAPDATAXFADEOUT:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].tmusic_xfade_out * 10000); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				ret = amus->enhanced.xfade_out * 10000;
+			break;
 		}
 		case DMAPDATAINTROSTRINGID:
 		{
@@ -7949,6 +8018,19 @@ int32_t get_register(int32_t arg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIG_PLAY_MUSIC:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+				ret = trig->play_music;
+			else ret = -2;
+			break;
+		}
+		case CMBTRIG_MUSIC_REFRESH:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+				ret = trig->set_music_refresh * 10000;
+			break;
+		}
 		case CMBTRIGTINTR:
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
@@ -8573,6 +8655,7 @@ int32_t get_register(int32_t arg)
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
 		case REFSAVEMENU: ret = ri->savemenuref; break;
+		case REFMUSIC: ret = ri->musicref; break;
 		
 			
 		case SP:
@@ -13526,9 +13609,20 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case SCREENDATA_MUSIC:
+		{
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (m->music != value && (value == -1 || value == 0 || checkMusic(value)))
+			{
+				m->music = value;
+				if (engine_music_active && m == hero_scr)
+					playLevelMusic();
+			}
+			break;
+		}
 		case SCREENDATASCREENMIDI:
 		{
-			get_scr(GET_REF(screenref))->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+			get_scr(GET_REF(screenref))->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4), true));
 			break;
 		}
 		case SCREENDATA_GRAVITY_STRENGTH:
@@ -13993,11 +14087,22 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
 		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
 		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATA_MUSIC:
+		{
+			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+				if (m->music != value && (value == -1 || value == 0 || checkMusic(value)))
+				{
+					m->music = value;
+					if (engine_music_active && m == hero_scr)
+						playLevelMusic();
+				}
+			break;
+		}
 		case MAPDATASCREENMIDI:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+				m->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4), true));
 			}
 			break;
 		}
@@ -14093,9 +14198,23 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case DMAPDATA_MUSIC:
+		{
+			auto dmid = GET_REF(dmapdataref);
+			auto& dm = DMaps[dmid];
+			if (dm.music != value && (value == 0 || checkMusic(value)))
+			{
+				dm.music = value;
+				if (engine_music_active && dmid == cur_dmap && hero_scr->music == -1)
+					playLevelMusic();
+			}
+			break;
+		}
 		case DMAPDATAMIDI:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].midi = ((byte)((value / 10000)+MIDIOFFSET_DMAP)); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				amus->midi = convert_from_old_midi_id(value / 10000);
+			break;
 		}
 		case DMAPDATA_GRAVITY_STRENGTH:
 		{
@@ -14127,7 +14246,9 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAMUISCTRACK:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].tmusictrack= ((byte)(value / 10000)); break;
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				amus->enhanced.track = ((byte)(value / 10000));
+			break;
 		}
 		case DMAPDATASUBSCRA:
 		{
@@ -14163,39 +14284,37 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATALOOPSTART:
 		{
-			DMaps[GET_REF(dmapdataref)].tmusic_loop_start = value; 
-			if (ri->dmapdataref == cur_dmap)
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
-				if (FFCore.doing_dmap_enh_music(cur_dmap))
-				{
-					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
-				}
+				amus->enhanced.loop_start = value; 
+				if (ri->dmapdataref == cur_dmap && amus->is_playing() && zcmusic)
+					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
 		}
 		case DMAPDATALOOPEND:
 		{
-			DMaps[GET_REF(dmapdataref)].tmusic_loop_end = value;
-			if (ri->dmapdataref == cur_dmap)
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
-				if (FFCore.doing_dmap_enh_music(cur_dmap))
-				{
-					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
-				}
+				amus->enhanced.loop_end = value; 
+				if (ri->dmapdataref == cur_dmap && amus->is_playing() && zcmusic)
+					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
 		}
 		case DMAPDATAXFADEIN:
 		{
-			DMaps[GET_REF(dmapdataref)].tmusic_xfade_in = (value / 10000);
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
+				amus->enhanced.xfade_in = (value / 10000);
 			break;
 		}
 		case DMAPDATAXFADEOUT:
 		{
-			DMaps[GET_REF(dmapdataref)].tmusic_xfade_out = (value / 10000);
-			if (DMaps[cur_dmap].tmusic[0]!=0 && strcmp(DMaps[GET_REF(dmapdataref)].tmusic, zcmusic->filename) == 0)
+			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
-				zcmusic->fadeoutframes = (value / 10000);
+				amus->enhanced.xfade_out = (value / 10000);
+				if (amus->is_playing() && zcmusic)
+					zcmusic->fadeoutframes = (value / 10000);
 			}
 			break;
 		}
@@ -15360,6 +15479,21 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case CMBTRIG_PLAY_MUSIC:
+		{
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+				if (value == -2 || value == -1 || value == 0 || checkMusic(value))
+					trig->play_music = value;
+			break;
+		}
+		case CMBTRIG_MUSIC_REFRESH:
+		{
+			auto v = value / 10000;
+			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
+				if (v >= -1 && v <= MUSIC_UPDATE_REGION)
+					trig->set_music_refresh = v;
+			break;
+		}
 		case CMBTRIGTINTR:
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
@@ -15831,6 +15965,7 @@ void set_register(int32_t arg, int32_t value)
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
 		case REFSAVEMENU: ri->savemenuref = value; break;
+		case REFMUSIC: ri->musicref = value; break;
 	
 		//-------------------------------------------------------------------------------------------------
 
@@ -21244,7 +21379,11 @@ void FFScript::do_getDMapData_music(const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
+	string path;
+	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
+		path = amus->enhanced.path;
+	
+	if(ArrayH::setArray(arrayptr, path) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'dmapdata->GetMusic()' not large enough\n");
 }
 
@@ -21256,11 +21395,10 @@ void FFScript::do_setDMapData_music(const bool v)
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
-		
-		
-	ArrayH::getString(arrayptr, filename_str, 56);
-	strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
-	DMaps[ID].tmusic[55]='\0';
+	
+	ArrayH::getString(arrayptr, filename_str, 256);
+	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
+		amus->enhanced.path = filename_str;
 }
 
 void FFScript::do_loadnpcdata(const bool v)
@@ -22807,7 +22945,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
-			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) playLevelMusic();
 			currcset=DMaps[cur_dmap].color;
 			dointro();
 			Hero.set_respawn_point();
@@ -22942,7 +23080,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
-			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC))Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC))playLevelMusic();
 			currcset=DMaps[cur_dmap].color;
 			dointro();
 			Hero.set_respawn_point();
@@ -23029,7 +23167,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				lighting(false, true);
 			}
 			
-			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) playLevelMusic();
 			currcset=DMaps[cur_dmap].color;
 			dointro();
 			break;
@@ -23343,32 +23481,6 @@ void do_enh_music_crossfade()
 	}
 }
 
-bool FFScript::doing_dmap_enh_music(int32_t dm)
-{
-	if (DMaps[dm].tmusic[0] != 0)
-	{
-		if (zcmusic != NULL)
-		{
-			if (strcmp(zcmusic->filename, DMaps[dm].tmusic) == 0)
-			{
-				switch (zcmusic_get_type(zcmusic))
-				{
-				case ZCMF_OGG:
-				case ZCMF_MP3:
-					return true;
-				case ZCMF_DUH:
-				case ZCMF_GME:
-					if (zcmusic->track == DMaps[dm].tmusictrack)
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	return false;
-}
-
 bool FFScript::can_change_music_within_region()
 {
 	return music_update_cond == MUSIC_UPDATE_SCREEN;
@@ -23430,8 +23542,11 @@ void do_get_enh_music_filename(const bool v)
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
+	string path;
+	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
+		path = amus->enhanced.path;
 		
-	if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, path) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetDMapMusicFilename' not large enough\n");
 }
 
@@ -23441,8 +23556,11 @@ void do_get_enh_music_track(const bool v)
 	
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
-		
-	set_register(sarg1, (DMaps[ID].tmusictrack+1)*10000);
+	
+	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
+		set_register(sarg1, (amus->enhanced.track+1)*10000);
+	else
+		set_register(sarg1, 0);
 }
 
 void do_set_dmap_enh_music(const bool v)
@@ -23455,10 +23573,12 @@ void do_set_dmap_enh_music(const bool v)
 	if(BC::checkDMapID(ID) != SH::_NoError)
 		return;
 		
-	ArrayH::getString(arrayptr, filename_str, 56);
-	strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
-	DMaps[ID].tmusic[55]='\0';
-	DMaps[ID].tmusictrack=track;
+	ArrayH::getString(arrayptr, filename_str, 256);
+	if (auto* amus = checkMusic(find_or_make_dmap_music(ID)))
+	{
+		amus->enhanced.path = filename_str;
+		amus->enhanced.track = track;
+	}
 }
 
 
@@ -27415,6 +27535,17 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				ri->savemenuref = SET_D(rEXP1, val);
 				break;
 			}
+			case LOADMUSICDATA:
+			{
+				auto val = get_register(sarg1)/10000;
+				if (val && unsigned(val-1) >= quest_music.size())
+				{
+					Z_scripterrlog("Tried to load invalid musicdata index '%d'\n", val);
+					val = 0; // return null pointer
+				}
+				ri->musicref = SET_D(rEXP1, val);
+				break;
+			}
 			case LOADGENERICDATA:
 				FFCore.do_loadgenericdata(false); break;
 			case RUNGENFRZSCR:
@@ -28950,40 +29081,6 @@ void FFScript::do_fs_remove()
 {
 	string resolved_path = get_filestr(true, true);
 	set_register(sarg1, !resolved_path.empty() && remove(resolved_path.c_str()) ? 0 : 10000);
-}
-
-void FFScript::Play_Level_Music()
-{
-	int32_t m = hero_scr->screen_midi;
-	
-	switch(m)
-	{
-	case -2:
-		music_stop();
-		break;
-		
-	case -1:
-		play_DmapMusic();
-		break;
-		
-	case 1:
-		jukebox(ZC_MIDI_OVERWORLD);
-		break;
-		
-	case 2:
-		jukebox(ZC_MIDI_DUNGEON);
-		break;
-		
-	case 3:
-		jukebox(ZC_MIDI_LEVEL9);
-		break;
-		
-	default:
-		if(m>=4 && m<4+MAXCUSTOMMIDIS)
-			jukebox(m+MIDIOFFSET_MAPSCR);
-		else
-			music_stop();
-	}
 }
 
 static void warp_ex(int args[wexLast])

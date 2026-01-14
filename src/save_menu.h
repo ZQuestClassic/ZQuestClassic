@@ -51,7 +51,7 @@ struct SaveMenu
 	byte text_align = ALIGN_LEFT, textbox_align = ALIGN_CENTER;
 	word close_frames = 30;
 	byte close_flash_rate = 5;
-	int16_t midi = -4;
+	word music;
 	std::vector<SaveMenuOption> options;
 	
 	bool is_empty() const;

@@ -14,7 +14,6 @@
 extern word map_count;
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern char *guy_string[eMAXGUYS];
-extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 
 static size_t screendata_tab = 0;
 void call_screendata_dialog()
@@ -36,9 +35,7 @@ ScreenDataDialog::ScreenDataDialog(int map, int scr) :
 		return fmt::format("0x{0:02X} ({0:03})",v);
 	})),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_screenmidi(MAXCUSTOMMIDIS_ZQ+1,
-		[](size_t ind){return screen_midi_string[ind];},
-		[](size_t ind){return int32_t(ind)-1;})
+	list_screenmusic(GUI::ZCListData::music_names(true, true))
 {
 	mapscr* thescreen = Map.AbsoluteScr(map,scr);
 	thescr = thescreen;
@@ -522,7 +519,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					)
 				)),
 				TabRef(name = "Data", Column(
-					Rows<3>(
+					Rows<4>(
 						Label(text = "Damage Combo Sensitivity", hAlign = 1.0),
 						DINFOBTN(),
 						TextField(
@@ -534,15 +531,24 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							{
 								local_scr.csensitive = val;
 							}),
+						DummyWidget(),
 						//
-						Label(text = "Screen MIDI", hAlign = 1.0),
-						INFOBTN("MIDI to play on this screen"),
-						DropDownList(data = list_screenmidi,
+						Label(text = "Screen Music", hAlign = 1.0),
+						INFOBTN("Music to play on this screen. 'Use Default' uses the music of the dmap."),
+						DropDownList(data = list_screenmusic,
 							fitParent = true,
-							selectedValue = local_scr.screen_midi,
+							selectedValue = local_scr.music,
 							onSelectFunc = [&](int32_t val)
 							{
-								local_scr.screen_midi = val;
+								local_scr.music = val;
+							}
+						),
+						Button(text = "Edit Music",
+							onPressFunc = [&]()
+							{
+								call_music_dialog(local_scr.music);
+								list_screenmusic = GUI::ZCListData::music_names(true, true);
+								refresh_dlg();
 							}
 						),
 						//
@@ -556,6 +562,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								local_scr.oceansfx = val;
 							}
 						),
+						DummyWidget(),
 						//
 						Label(text = "Boss Roar Sound", hAlign = 1.0),
 						INFOBTN("Sound the boss on this screen roars"),
@@ -567,6 +574,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								local_scr.bosssfx = val;
 							}
 						),
+						DummyWidget(),
 						//
 						Label(text = "Hold Up Item Sound", hAlign = 1.0),
 						INFOBTN("Sound played when holding up an item"),
@@ -578,6 +586,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								local_scr.holdupsfx = val;
 							}
 						),
+						DummyWidget(),
 						//
 						Label(text = "Secret Sound", hAlign = 1.0),
 						INFOBTN("Sound played when secrets are triggered"),
@@ -589,6 +598,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 								local_scr.secretsfx = val;
 							}
 						),
+						DummyWidget(),
 						//
 						DummyWidget(),
 						SCR_CB(flags2,fSECRET_SFX,1,"Play Secret SFX on Entry","Play the 'Secret Sound' when entering the screen.")

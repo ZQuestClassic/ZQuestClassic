@@ -5,6 +5,7 @@
 #include <gui/label.h>
 #include <gui/list.h>
 #include <gui/grid.h>
+#include <gui/button.h>
 #include <gui/checkbox.h>
 #include <gui/window.h>
 #include <zq/gui/tileanim_frame.h>
@@ -69,6 +70,7 @@ protected:
 	std::shared_ptr<GUI::DMapFrame> mapPrev;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Grid> prev_holder;
+	std::shared_ptr<GUI::Grid> btnrow, btnrow2;
 };
 
 class ItemListerDialog: public BasicListerDialog
@@ -202,5 +204,23 @@ protected:
 	void rclick(int x, int y) override;
 	void copy() override;
 	bool paste() override;
+};
+
+class MusicListerDialog : public BasicListerDialog
+{
+public:
+	MusicListerDialog(int index = -1, bool selecting = false);
+	
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update(bool startup = false) override;
+	void edit() override;
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+
+private:
+	std::shared_ptr<GUI::Button> up_btn, down_btn, del_btn;
 };
 #endif

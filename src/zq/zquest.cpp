@@ -1186,7 +1186,8 @@ static NewMenu graphics_menu
 static NewMenu audio_menu
 {
 	{ "SF&X Data", onSelectSFX },
-	{ "&MIDIs", onMidis },
+	{ "&Music", onMusic },
+	{ "M&IDIs", onMidis },
 	{ "Mis&c SFX", onMiscSFX },
 };
 
@@ -13905,6 +13906,12 @@ int32_t onMaps()
     return D_O_K;
 }
 
+int32_t onMusic()
+{
+    stopMusic();
+	call_music_dialog();
+    return D_O_K;
+}
 int32_t onMidis()
 {
     stopMusic();
@@ -20096,7 +20103,6 @@ static void allocate_crap()
 	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
 	{
 		midi_string[i+4]=customtunes[i].title;
-		screen_midi_string[i+5]=customtunes[i].title;
 	}
 	
 	for(int32_t i=0; i<WAV_COUNT; i++)

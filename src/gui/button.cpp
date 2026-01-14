@@ -482,6 +482,10 @@ void Button::setIcon(int icon)
 	if(alDialog && btnType == type::ICON)
 		alDialog->d1 = icon;
 }
+string const& Button::getText() const
+{
+	return text;
+}
 void Button::setText(std::string newText)
 {
 	// text = std::move(newText);

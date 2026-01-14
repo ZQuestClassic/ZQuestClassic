@@ -953,8 +953,16 @@ class screendata {
 	// @zasm_var SCREENDATAHOLDUPSFX
 	internal int ItemSFX;
 
+	// The Music to play for this screen.
+	// NULL / [MUSIC_SILENCE] represents silence.
+	// [MUSIC_INHERIT] as a special value represents using the current dmap's Music.
+	//
+	// @zasm_var SCREENDATA_MUSIC
+	internal musicdata Music;
+	
 	// The MIDI that plays on this screen.
 	//
+	// @deprecated Use [Music] / [musicdata::MIDI] instead!
 	// @zasm_var SCREENDATASCREENMIDI
 	internal int MIDI;
 

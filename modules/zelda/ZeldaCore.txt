@@ -31,6 +31,7 @@ src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/zc/commands.cpp
 src/music_playback.cpp
+src/advanced_music.cpp
 src/zc/scripting/arrays.cpp
 src/zc/scripting/array_manager.cpp
 src/zc/scripting/common.cpp
@@ -59,6 +60,7 @@ src/zc/scripting/types/itemsprite.cpp
 src/zc/scripting/types/itemsprite.h
 src/zc/scripting/types/map.cpp
 src/zc/scripting/types/message.cpp
+src/zc/scripting/types/musicdata.cpp
 src/zc/scripting/types/npc.cpp
 src/zc/scripting/types/npcdata.cpp
 src/zc/scripting/types/paldata.cpp
