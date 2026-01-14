@@ -13,7 +13,6 @@ struct dmap
 	char xoff;
 	byte compass;
 	word color;
-	byte midi;
 	byte cont;
 	byte type;
 	byte grid[8];
@@ -26,8 +25,6 @@ struct dmap
 	int32_t largemap_tile[2];
 	byte minimap_cset[2];
 	byte largemap_cset[2];
-	char tmusic[57];
-	byte tmusictrack;
 	byte active_subscreen;
 	byte passive_subscreen;
 	byte overlay_subscreen;
@@ -46,11 +43,8 @@ struct dmap
 	int32_t onmap_initD[8];
 	char onmap_initD_label[8][65];
 	int16_t mirrorDMap;
-	int32_t tmusic_loop_start;
-	int32_t tmusic_loop_end;
-	int32_t tmusic_xfade_in;
-	int32_t tmusic_xfade_out;
 	uint32_t intro_string_id;
+	word music = 0;
 	
 	zfix dmap_gravity, dmap_terminal_v;
 

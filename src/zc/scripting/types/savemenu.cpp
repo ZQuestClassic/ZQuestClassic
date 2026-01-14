@@ -143,11 +143,22 @@ std::optional<int32_t> savemenu_get_register(int32_t reg)
 			else ret = -10000L;
 			break;
 		}
-		case SAVEMENU_MIDI:
+		case SAVEMENU_MUSIC:
 		{
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
-				ret = menu->midi * 10000L;
-			else ret = -10000L;
+				ret = menu->music;
+			break;
+		}
+		case SAVEMENU_MIDI:
+		{
+			ret = -10000L;
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			{
+				if (!menu->music)
+					ret = 0;
+				else if (auto* amus = checkMusic(menu->music))
+					ret = convert_to_old_midi_id(amus->midi) * 10000L;
+			}
 			break;
 		}
 		case SAVEMENU_NUM_OPTIONS:
@@ -276,10 +287,17 @@ bool savemenu_set_register(int32_t reg, int32_t value)
 				menu->close_flash_rate = vbound(value / 10000L, 0, 255);
 			break;
 		}
+		case SAVEMENU_MUSIC:
+		{
+			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+				if (value == 0 || checkMusic(value))
+					menu->music = value;
+			break;
+		}
 		case SAVEMENU_MIDI:
 		{
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
-				menu->midi = vbound(value / 10000L, -6, MAXCUSTOMMIDIS);
+				menu->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4)));
 			break;
 		}
 		

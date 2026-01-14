@@ -1,7 +1,10 @@
 #ifndef ZC_LIST_DATA_H_
 #define ZC_LIST_DATA_H_
 
+#include "base/general.h"
 #include "gui/list_data.h"
+
+extern const string builtin_midi_names[ZC_MIDI_COUNT];
 
 namespace GUI::ZCListData
 {
@@ -27,6 +30,7 @@ namespace GUI::ZCListData
 	GUI::ListData defenses(byte first, byte last, bool enemy);
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);
+	GUI::ListData music_names(bool numbered = false, bool incl_override = false);
 	GUI::ListData savemenus(bool numbered = false, bool incl_def = true, bool only_valid = false);
 	GUI::ListData lpals();
 	GUI::ListData subscreens(byte type, bool numbered = false, bool incl_none = false);

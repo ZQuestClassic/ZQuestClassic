@@ -101,6 +101,8 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_WARP); // Warp
 	addCommand(ld, MSGC_SFX); // Play SFX
 	addCommand(ld, MSGC_MIDI); // Play MIDI
+	addCommand(ld, MSGC_MUSIC); // Play Music
+	addCommand(ld, MSGC_MUSIC_REFRESH); // Change MusicRefresh
 	
 	addCommand(ld, MSGC_NAME); // Insert Hero Name
 	addCommand(ld, MSGC_COUNTER); // Insert Counter
@@ -242,8 +244,17 @@ SCCDialog::SCCDialog() :
 		refstr = &def_refstr;
 		def_refstr.clear();
 	}
+	refresh_music_list();
 }
 
+static const GUI::ListData list_music_refresh
+{
+	{ "Screen", MUSIC_UPDATE_SCREEN },
+	{ "DMap", MUSIC_UPDATE_DMAP },
+	{ "Level", MUSIC_UPDATE_LEVEL },
+	{ "Never", MUSIC_UPDATE_NEVER },
+	{ "Region", MUSIC_UPDATE_REGION },
+};
 static const GUI::ListData list_arrivals
 {
 	{ "A", 0 },
@@ -252,6 +263,15 @@ static const GUI::ListData list_arrivals
 	{ "D", 3 },
 	{ "Pit Warp", 5 }
 };
+
+void SCCDialog::refresh_music_list()
+{
+	list_music = GUI::ZCListData::music_names(true, false);
+	list_music.accessItem(0).text = "(Stop Music) (000)";
+	list_music.add("(Play Screen/DMap Music) (-001)", -1);
+	list_music.valsort(0);
+}
+
 std::string scc_help(byte scc)
 {
 	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
@@ -286,6 +306,10 @@ std::string scc_help(byte scc)
 		case MSGC_SETSCREEND: return "Set the value of any screen's 'Screen->D[]'";
 		case MSGC_SFX: return "Plays an SFX";
 		case MSGC_MIDI: return "Plays a MIDI";
+		case MSGC_MUSIC: return "Plays a Music";
+		case MSGC_MUSIC_REFRESH: return "Changes the current music refresh mode."
+			" This determines when the engine will try to re-play the current screen's music next."
+			"\nThe mode will reset itself to 'Screen' the next time it refreshes.";
 		case MSGC_NAME: return "Insert the Hero's save file name in the string";
 		case MSGC_GOTOIFCREEND: return "Switch to another string if an index of a"
 			" remote screen's 'Screen->D[]' is at least a given value";
@@ -860,6 +884,36 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					TXT("MIDI:"),
 					DDL(cur_args[0], list_midi),
 					INFOBTN("MIDI to play")
+				)
+			);
+			break;
+		}
+		case MSGC_MUSIC:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Music:"),
+					DDL(cur_args[0], list_music),
+					INFOBTN("Music to play"),
+					Button(text = "Edit Music",
+						forceFitH = true, padding = 0_px,
+						onPressFunc = [&]()
+						{
+							call_music_dialog(cur_args[0]);
+							refresh_music_list();
+							refresh_dlg();
+						})
+				)
+			);
+			break;
+		}
+		case MSGC_MUSIC_REFRESH:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Set Music Refresh:"),
+					DDL(cur_args[0], list_music_refresh),
+					INFOBTN("When the engine tries to reload the current screen's music setting.")
 				)
 			);
 			break;

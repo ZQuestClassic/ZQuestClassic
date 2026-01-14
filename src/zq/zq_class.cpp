@@ -50,6 +50,7 @@
 #include "iter.h"
 #include <fmt/format.h>
 #include <filesystem>
+#include "advanced_music.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -4816,7 +4817,7 @@ void zmap::PasteScreenData(const mapscr& copymapscr, int screen)
         screens[screen].path[3] = copymapscr.path[3];
         screens[screen].pattern = copymapscr.pattern;
         screens[screen].exitdir = copymapscr.exitdir;
-        screens[screen].screen_midi = copymapscr.screen_midi;
+        screens[screen].music = copymapscr.music;
         screens[screen].stairx = copymapscr.stairx;
         screens[screen].stairy = copymapscr.stairy;
         screens[screen].timedwarptics = copymapscr.timedwarptics;
@@ -7464,11 +7465,6 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 		new_return(10);
 	}
 	
-	if(!p_putc(DMaps[index].midi,f))
-	{
-		new_return(11);
-	}
-	
 	if(!p_putc(DMaps[index].cont,f))
 	{
 		new_return(12);
@@ -7542,16 +7538,6 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 		new_return(25);
 	}
 	
-	if(!pfwrite(&DMaps[index].tmusic,sizeof(DMaps[0].tmusic)-1,f))
-	{
-		new_return(26);
-	}
-	
-	if(!p_putc(DMaps[index].tmusictrack,f))
-	{
-		new_return(25);
-	}
-	
 	if(!p_putc(DMaps[index].active_subscreen,f))
 	{
 		new_return(26);
@@ -7613,14 +7599,6 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 				new_return(40);
 	if(!p_iputw(DMaps[index].mirrorDMap,f))
 		new_return(41);
-	if (!p_iputl(DMaps[index].tmusic_loop_start, f))
-		new_return(42);
-	if (!p_iputl(DMaps[index].tmusic_loop_end, f))
-		new_return(43);
-	if (!p_iputl(DMaps[index].tmusic_xfade_in, f))
-		new_return(44);
-	if (!p_iputl(DMaps[index].tmusic_xfade_out, f))
-		new_return(45);
 	if(!p_putc(DMaps[index].overlay_subscreen, f))
 		new_return(46);
 	if (!p_iputl(DMaps[index].intro_string_id, f))
@@ -7636,6 +7614,8 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 		new_return(50);
 	if(!p_putc(DMaps[index].floor, f))
 		new_return(51);
+	if(!p_iputw(DMaps[index].music, f))
+		new_return(52);
 	return 0;
 }
 int32_t writedmaps(PACKFILE *f, word, word, word start_dmap, word max_dmaps)
@@ -8261,7 +8241,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			if (!p_putc(menu.close_flash_rate, f))
 				new_return(44);
 			
-			if (!p_iputw(menu.midi, f))
+			if (!p_iputw(menu.music, f))
 				new_return(45);
 			
 			if (!p_iputl(menu.bg_tile, f))
@@ -9037,7 +9017,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	if(screen.color || screen.csensitive != 1
 		|| screen.oceansfx || screen.bosssfx
 		|| screen.secretsfx || screen.holdupsfx
-		|| screen.timedwarptics || screen.screen_midi != -1
+		|| screen.timedwarptics || screen.music != -1
 		|| screen.lens_layer || screen.lens_show || screen.lens_hide)
 		scr_has_flags |= SCRHAS_MISC;
 	
@@ -9309,7 +9289,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_iputw(screen.timedwarptics,f))
 			return qe_invalid;
-		if(!p_iputw(screen.screen_midi,f))
+		if(!p_iputl(screen.music,f))
 			return qe_invalid;
 		if(!p_putc(screen.lens_layer,f))
 			return qe_invalid;
@@ -9651,6 +9631,10 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 131;
 	if(!p_putc(tmp_trig.trigstatescreen, f))
 		return 132;
+	if(!p_iputl(tmp_trig.play_music, f))
+		return 133;
+	if(!p_putc(tmp_trig.set_music_refresh, f))
+		return 134;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb)
@@ -14524,6 +14508,50 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	new_return(0);
 }
 
+int32_t write_adv_music(PACKFILE *f, zquestheader*)
+{
+    dword section_id = ID_ADVMUSIC;
+    dword section_version = V_ADVMUSIC;
+    dword section_size = 0;
+	
+    //section id
+    if(!p_mputl(section_id,f))
+        new_return(1);
+    //section version info
+    if(!p_iputw(section_version,f))
+        new_return(2);
+    if(!write_deprecated_section_cversion(section_version,f))
+        new_return(3);
+    
+	size_t count = quest_music.size();
+	if (count > MAX_QUEST_MUSIC) // shouldn't happen
+	{
+		count = MAX_QUEST_MUSIC;
+		box_out(" ...too many? truncating...");
+	}
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing = (writecycle==0);
+		
+        //section size
+        if(!p_iputl(section_size,f))
+            new_return(4);
+		
+		writesize = 0;
+		
+		if (!p_iputw(count,f))
+            new_return(5);
+		
+		for (size_t q = 0; q < count; ++q)
+			if (auto ret = quest_music[q].write(f))
+				return ret;
+		
+		if(writecycle == 0)
+            section_size = writesize;
+	}
+	new_return(0);
+}
+
 static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, const char *afname)
 {
 	if(!afname) afname = filename;
@@ -14778,6 +14806,14 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	
 	if(writefavorites(f, &header)!=0)
 		return 26;
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Advanced Music...");
+	
+	if(write_adv_music(f, &header)!=0)
+		return 27;
 	
 	box_out("okay.");
 	box_eol();

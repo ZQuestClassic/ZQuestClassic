@@ -665,15 +665,6 @@ const char *midi_string[MAXCUSTOMMIDIS_ZQ] =
     "Level 9",
 };
 
-const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
-{
-    "Use DMap MIDI",
-    "(None)",
-    "Overworld",
-    "Dungeon",
-    "Level 9",
-};
-
 void domouse();
 
 int32_t PickRuleset();

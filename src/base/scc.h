@@ -75,6 +75,8 @@
 #define MSGC_FORCE_DELAY           156  // 1 arg (frames)
 #define MSGC_GOTOIFBOTTLE          157  // 3 args (quantity, fill type, newstring)
 #define MSGC_CHANGEBOTTLE          158  // 3 args (quantity, old fill type, new fill type)
+#define MSGC_MUSIC                 159  // 1 arg (music)
+#define MSGC_MUSIC_REFRESH         160  // 1 arg (music refresh)
 
 #define MAX_SCC_ARG_COUNT 6
 

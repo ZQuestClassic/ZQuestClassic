@@ -116,8 +116,15 @@ class dmapdata {
 	// @zasm_var DMAPDATAPALETTE
 	internal int Palette;
 
+	// The Music set to play on this dmap.
+	// NULL / MUSIC_SILENCE represents silence.
+	//
+	// @zasm_var DMAPDATA_MUSIC
+	internal musicdata Music;
+	
 	// The MIDI set to play on this dmap.
 	//
+	// @deprecated Use [Music] / [musicdata::MIDI] instead!
 	// @zasm_var DMAPDATAMIDI
 	internal int MIDI;
 
@@ -138,6 +145,7 @@ class dmapdata {
 
 	// The track number to use for enhanced music. See [GetMusic].
 	//
+	// @deprecated Use [Music] / [musicdata::Track] instead!
 	// @zasm_var DMAPDATAMUISCTRACK
 	internal int MusicTrack;
 
@@ -275,21 +283,25 @@ class dmapdata {
 
 	// The starting loop point for enhanced music in seconds.
 	//
+	// @deprecated Use [Music] / [musicdata::LoopStart] instead!
 	// @zasm_var DMAPDATALOOPSTART
 	internal int MusicLoopStart;
 
 	// The ending loop point for enhanced music in seconds.
 	//
+	// @deprecated Use [Music] / [musicdata::LoopEnd] instead!
 	// @zasm_var DMAPDATALOOPEND
 	internal int MusicLoopEnd;
 
 	// The number of frames enhanced music fades in for.
 	//
+	// @deprecated Use [Music] / [musicdata::CrossfadeIn] instead!
 	// @zasm_var DMAPDATAXFADEIN
 	internal int MusicCrossfadeIn;
 
 	// The number of frames enhanced music fades out for.
 	//
+	// @deprecated Use [Music] / [musicdata::CrossfadeOut] instead!
 	// @zasm_var DMAPDATAXFADEOUT
 	internal int MusicCrossfadeOut;
 
@@ -349,6 +361,7 @@ class dmapdata {
 	// Fills the buffer with the dmap's enhanced music filename. See
 	// [MusicTrack].
 	//
+	// @deprecated Use [Music] / [musicdata::GetPath()] instead!
 	// @zasm
 	//   POP D2
 	//   POP REFDMAPDATA
@@ -358,6 +371,7 @@ class dmapdata {
 	// Sets the DMap's enhanced music filename to the buffer contents. See
 	// [MusicTrack].
 	//
+	// @deprecated Use [Music] / [musicdata::SetPath()] instead!
 	// @zasm
 	//   POP D2
 	//   POP REFDMAPDATA

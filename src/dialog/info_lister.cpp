@@ -17,10 +17,12 @@
 #include "zq/zq_class.h"
 #include "zq/zq_custom.h"
 #include "base/qst.h"
+#include "base/dmap.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <utility>
 #include <sstream>
+#include "advanced_music.h"
 
 extern char *item_string[];
 extern char *weapon_string[];
@@ -49,10 +51,11 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	lister_sel_val = start_val;
 	
 	widgList.reset(); // make sure calling `resort` from `preinit` is safe
+	btnrow2.reset();
 	
 	preinit();
 	
-	std::shared_ptr<GUI::Grid> g, btnrow, wcolumn;
+	std::shared_ptr<GUI::Grid> g, wcolumn;
 	window = Window(
 		title = titleTxt,
 		onClose = message::EXIT,
@@ -85,10 +88,10 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 				})
 		));
 	
-	wcolumn->add(g = Columns<2>(
+	wcolumn->add(g = Columns<3>(
 		widgList = List(data = lister, isABC = true,
 			selectedValue = selected_val,
-			rowSpan = 2, fitParent = true,
+			rowSpan = 3, fitParent = true,
 			focused = true,
 			onSelectFunc = [&](int32_t val)
 			{
@@ -142,7 +145,6 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	}
 	else if(use_mappreview)
 	{
-		_d,
 		g->add(mapPrev = DMapFrame(visible = false));
 		g->add(widgInfo = Label(text = "", fitParent = true));
 	}
@@ -154,6 +156,11 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	resort();
 	postinit();
 	update(true);
+	
+	if (btnrow2)
+		g->add(btnrow2);
+	else widgList->setRowSpan(2);
+	
 	return window;
 }
 
@@ -1051,7 +1058,7 @@ void SaveMenuListerDialog::preinit()
 	resort();
 	if (selected_val < 0)
 		selected_val = lister.getValue(0);
-	selected_val = vbound(selected_val, 0, MAXDMAPS - 1);
+	selected_val = vbound(selected_val, 0, NUM_SAVE_MENUS - 1);
 }
 void SaveMenuListerDialog::postinit()
 {
@@ -1112,6 +1119,192 @@ bool SaveMenuListerDialog::paste()
 	if (unsigned(copied_savemenu_id) >= NUM_SAVE_MENUS || unsigned(selected_val-1) >= NUM_SAVE_MENUS)
 		return false;
 	QMisc.save_menus[selected_val-1] = QMisc.save_menus[copied_savemenu_id];
+	mark_save_dirty();
+	return true;
+}
+
+void call_music_dialog(int index)
+{
+	MusicListerDialog(index).show();
+}
+MusicListerDialog::MusicListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select Music", "music", index, selecting)
+{
+	use_preview = false;
+	alphabetized = get_config("alphabetized", false);
+}
+
+void MusicListerDialog::preinit()
+{
+	lister = GUI::ZCListData::music_names(true, false);
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
+		lister.removeInd(0); // remove '(None)'
+	lister.add(fmt::format("<New Music> ({:03})", quest_music.size() + 1), quest_music.size() + 1);
+	resort();
+	if (selected_val < 0)
+		selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 0, MAX_QUEST_MUSIC - 1);
+}
+static bool empty_music(AdvancedMusic const& ref)
+{
+	return ref.enhanced.is_empty() && (!ref.midi || ref.midi > 0 && !customtunes[ref.midi - 1].data);
+}
+void MusicListerDialog::postinit()
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	using namespace GUI::Key;
+	window->setHelp(get_info(selecting, false, false));
+	widgInfo->overrideWidth(300_px);
+	bool has_empty = false;
+	for (auto const& amus : quest_music)
+	{
+		if (empty_music(amus)) // don't show button if nothing to clean up
+		{
+			has_empty = true;
+			break;
+		}
+	}
+	btnrow2 = Columns<2>(
+		Button(text = "Cleanup",
+			fitParent = true,
+			disabled = !has_empty,
+			onPressFunc = [&]()
+			{
+				if (!alert_confirm("Clear empty musics?",
+					"This will clear any entries that have no playable music set."
+					"\nAnything using these entries will be cleared to using '0', the (None) entry."))
+					return;
+				
+				delete_quest_music(empty_music);
+				refresh_dlg();
+			}),
+		del_btn = Button(text = "Delete",
+			fitParent = true,
+			onPressFunc = [&]()
+			{
+				string const& name = quest_music[selected_val-1].name;
+				if (!alert_confirm(fmt::format("Delete music '{}'?", name),
+					fmt::format("This will delete music #{}, '{}'."
+					"\nAnything using this entry will be cleared to using '0', the (None) entry.",
+					selected_val, name)))
+					return;
+				
+				delete_quest_music(selected_val);
+				refresh_dlg();
+			}),
+		up_btn = Button(text = "Up",
+			fitParent = true,
+			onPressFunc = [&]()
+			{
+				swap_quest_music(selected_val, selected_val-1);
+				--selected_val;
+				refresh_dlg();
+			}),
+		down_btn = Button(text = "Down",
+			fitParent = true,
+			onPressFunc = [&]()
+			{
+				swap_quest_music(selected_val, selected_val+1);
+				++selected_val;
+				refresh_dlg();
+			})
+	);
+}
+static int16_t copied_music_id = -1;
+void MusicListerDialog::update(bool)
+{
+	static const size_t NUM_LINES = 5;
+	static const string nl_str = string(NUM_LINES-1, '\n');
+	string info;
+	if (!selected_val)
+		info = fmt::format("[None]{}", nl_str);
+	else if (unsigned(selected_val-1) < quest_music.size())
+	{
+		auto const& amus = quest_music[selected_val-1]; // vals are 1-indexed
+		if (amus.is_empty())
+			info = fmt::format("[Empty]{}", nl_str);
+		else
+		{
+			vector<string> lines;
+			lines.reserve(NUM_LINES);
+			lines.emplace_back(amus.name);
+			
+			if (amus.midi)
+			{
+				string midi_name = "(?ERROR?)";
+				if (unsigned(amus.midi-1) < MAXCUSTOMTUNES)
+					midi_name = customtunes[amus.midi-1].title;
+				else if (amus.midi < 0)
+				{
+					int m = amus.get_real_midi();
+					if (unsigned(m) < ZC_MIDI_COUNT)
+						midi_name = builtin_midi_names[m];
+				}
+				lines.emplace_back(fmt::format("MIDI: {} '{}'", amus.midi, midi_name));
+			}
+			else lines.emplace_back("MIDI: (None)");
+			
+			if (amus.enhanced.is_empty())
+			{
+				lines.emplace_back("[No Enhanced Music]");
+				lines.resize(NUM_LINES);
+			}
+			else
+			{
+				lines.emplace_back(fmt::format("Enh: '{}' #{}", amus.enhanced.path, amus.enhanced.track));
+				lines.emplace_back(fmt::format("Loop: {} - {}", amus.enhanced.loop_start, amus.enhanced.loop_end));
+				lines.emplace_back(fmt::format("Crossfade: In {}, Out {}", amus.enhanced.xfade_in, amus.enhanced.xfade_out));
+			}
+			info = fmt::format("{}", fmt::join(lines, "\n"));
+		}
+	}
+	else info = nl_str;
+	widgInfo->setText(fmt::format("{}\nCopied: {}", info, copied_music_id+1));
+	up_btn->setDisabled(unsigned(selected_val - 2) >= quest_music.size() - 1);
+	down_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size() - 1);
+	del_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size());
+}
+void call_edit_music_dialog(size_t idx);
+void MusicListerDialog::edit()
+{
+	if (unsigned(selected_val-1) > quest_music.size())
+		return;
+	call_edit_music_dialog(selected_val-1);
+	refresh_dlg();
+}
+void MusicListerDialog::rclick(int x, int y)
+{
+	if (!selected_val) return; // no rclick menu on the 'None' option
+	bool oob = unsigned(selected_val-1) > quest_music.size();
+	auto& amus = quest_music[selected_val-1];
+	NewMenu rcmenu {
+		{ "Clear", [&](){quest_music[selected_val-1].clear(); refresh_dlg();}, 0,
+			(oob || quest_music[selected_val-1].is_empty()) ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy(); update();}, 0, oob ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_music_id < 0 ? MFL_DIS : 0 },		// { "&Save", [&](){save(); update();} },
+		// { "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+void MusicListerDialog::copy()
+{
+	if (!selected_val) return; // skip none
+	if (selected_val-1 >= quest_music.size()) return; // skip <New Music>
+	copied_music_id = selected_val-1;
+	update();
+}
+bool MusicListerDialog::paste()
+{
+	if (unsigned(copied_music_id) >= quest_music.size() || unsigned(selected_val-1) > quest_music.size())
+		return false;
+	if (selected_val-1 == quest_music.size())
+		quest_music.emplace_back(quest_music[copied_music_id]);
+	else quest_music[selected_val-1] = quest_music[copied_music_id];
+	quest_music[selected_val-1].id = selected_val;
+	mark_save_dirty();
 	return true;
 }
 

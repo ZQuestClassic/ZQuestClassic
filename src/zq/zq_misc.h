@@ -67,7 +67,6 @@ extern const char *walkmisc7_string[e7tEATHURT+1];
 extern const char *walkmisc9_string[e9tARMOS+1];
 extern const char *patramisc28_string[patratLAST];
 extern const char *midi_string[MAXCUSTOMMIDIS_ZQ];
-extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 extern const char *enetype_string[eeMAX];
 extern const char *eneanim_string[aMAX];
 extern const char *eweapon_string[wMax-wEnemyWeapons];

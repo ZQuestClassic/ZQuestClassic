@@ -34,12 +34,13 @@ private:
 	int32_t args[256][MAX_SCC_ARG_COUNT];
 	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
 		list_weffect, list_sfx, list_midi, list_screenstate, list_level_items, list_font, list_font_order,
-		list_genscr, list_bottletypes;
+		list_genscr, list_bottletypes, list_music;
 	std::shared_ptr<GUI::DropDownList> fontlist;
 	std::shared_ptr<GUI::Button> miscbtn;
 	int32_t* cur_args;
 	bool warp_xy_toggle;
 	
+	void refresh_music_list();
 	void default_args();
 	bool load_scc_str(std::string const& str);
 };

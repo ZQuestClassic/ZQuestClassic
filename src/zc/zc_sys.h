@@ -148,7 +148,6 @@ int32_t get_zcmusiclen();
 void set_zcmusicloop(double start, double end);
 void jukebox(int32_t index);
 void jukebox(int32_t index,int32_t loop);
-void play_DmapMusic();
 void music_pause();
 void music_resume();
 void music_stop();

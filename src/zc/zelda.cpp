@@ -2433,7 +2433,6 @@ int32_t cont_game()
 	
 	if(!Quit)
 	{
-		//play_DmapMusic();
 		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
@@ -2538,7 +2537,6 @@ void restart_level()
 	
 	if(!Quit)
 	{
-		//play_DmapMusic();
 		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())

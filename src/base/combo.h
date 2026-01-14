@@ -122,6 +122,9 @@ struct combo_trigger
 	
 	zfix trig_gravity, trig_terminal_v;
 	
+	int32_t play_music = -2;
+	int8_t set_music_refresh = -1;
+	
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();

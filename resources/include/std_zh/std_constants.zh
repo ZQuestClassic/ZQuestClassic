@@ -427,14 +427,27 @@ DEFINEF DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
-//MIDI values, used for [Screen->MIDI], [dmapdata::MIDI], [mapdata::MIDI], [Audio->PlayMIDI].
+// MIDI values, used for [Audio->PlayMIDI] (and deprecated [Screen->MIDI], [dmapdata::MIDI], [mapdata::MIDI]).
 enum
 {
-    MIDI_USE_DMAP = -4, // ONLY for [Screen->MIDI] and [mapdata::MIDI].
+    MIDI_USE_DMAP = -4, // @deprecated ONLY for [Screen->MIDI] and [mapdata::MIDI]
     MIDI_NONE,
     MIDI_OVERWORLD,
     MIDI_DUNGEON,
     MIDI_LEVEL9 // Cannot be played by [Audio->PlayMIDI].
+};
+
+// MIDI values, used for [musicdata::MIDI]
+enum
+{
+	BUILTIN_MIDI_TRIFORCE = -7,
+	BUILTIN_MIDI_TITLE = -6,
+	BUILTIN_MIDI_OVERWORLD = -5,
+	BUILTIN_MIDI_LEVEL9 = -4,
+	BUILTIN_MIDI_GAMEOVER = -3,
+	BUILTIN_MIDI_ENDING = -2,
+	BUILTIN_MIDI_DUNGEON = -1,
+	BUILTIN_MIDI_NONE = 0,
 };
 
 // Used with [AimEWeapon].

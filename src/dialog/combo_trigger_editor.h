@@ -44,8 +44,11 @@ private:
 	std::shared_ptr<GUI::TextField> req_litems_field, trig_buttons_field, spawned_ip_field;
 	std::shared_ptr<GUI::Button> warnbtn;
 	
+	GUI::ListData list_music;
+	
 	ComboTriggerDialog(ComboEditorDialog& parentdlg, combo_trigger& trigger, size_t index);
 	
+	void refresh_music_list();
 	void load_trigger();
 	void updateWarnings();
 	bool apply_trigger();

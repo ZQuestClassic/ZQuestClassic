@@ -435,6 +435,22 @@ enum //subscreen text alignment
 	ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT, ALIGN_MAX
 };
 
+//Music Update States
+//Used for determining when music should update on warps
+enum
+{
+	MUSIC_UPDATE_SCREEN,
+	MUSIC_UPDATE_DMAP,
+	MUSIC_UPDATE_LEVEL,
+	MUSIC_UPDATE_NEVER,
+	MUSIC_UPDATE_REGION,
+};
+enum
+{
+	MUSIC_UPDATE_FLAG_NOCUT  = 0x1, //Music persists through things that would normally cut to silence (such as entrance exit warps)
+	MUSIC_UPDATE_FLAG_REVERT = 0x2 //State reverts to screen on music switch
+};
+
 // directions
 enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 static const char* dirstr[] = {"up","down","left","right","up-left","up-right","down-left","down-right"};

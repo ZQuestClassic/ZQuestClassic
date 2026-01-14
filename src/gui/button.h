@@ -28,7 +28,7 @@ public:
 	void setBindName(std::string const& new_name);
 	void setIcon(int icon);
 	
-	/* Sets the text to appear on the button. */
+	std::string const& getText() const;
 	void setText(std::string newText);
 	
 	/* Sets a function to be called on press. */

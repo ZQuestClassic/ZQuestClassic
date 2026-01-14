@@ -43,6 +43,7 @@
 #include "particles.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "advanced_music.h"
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern void setZScriptVersion(int32_t s_version);
@@ -4342,7 +4343,7 @@ int32_t count_dmaps()
     while(i>=0 && !found)
     {
         if((DMaps[i].map!=0)||(DMaps[i].level!=0)||(DMaps[i].xoff!=0)||
-                (DMaps[i].compass!=0)||(DMaps[i].color!=0)||(DMaps[i].midi!=0)||
+                (DMaps[i].compass!=0)||(DMaps[i].color!=0)||(DMaps[i].music!=0)||
                 (DMaps[i].cont!=0)||(DMaps[i].type!=0))
             found=true;
             
@@ -4354,7 +4355,7 @@ int32_t count_dmaps()
         }
         
         if((DMaps[i].name[0]!=0)||(DMaps[i].title[0]!=0)||
-                (DMaps[i].intro[0]!=0)||(DMaps[i].tmusic[0]!=0))
+                (DMaps[i].intro[0]!=0))
             found=true;
             
         if((DMaps[i].minimap_tile[0]!=0)||(DMaps[i].minimap_tile[1]!=0)||
@@ -4516,8 +4517,12 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_dmaps);
 	dmap tempDMap;
+	static AdvancedMusic tempMusic;
 	char legacy_title[22];
 	byte padding;
+	
+	if (s_version < 25)
+		tempMusic.clear();
 	
 	if (!should_skip)
 	{
@@ -4583,9 +4588,11 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			tempDMap.color = (word)tempbyte;
 		}
 		
-		if(!p_getc(&tempDMap.midi,f))
+		if (s_version < 25)
 		{
-			return qe_invalid;
+			if(!p_getc(&padding,f))
+				return qe_invalid;
+			tempMusic.midi = convert_from_old_midi_id(padding + (MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT));
 		}
 		
 		if(!p_getc(&tempDMap.cont,f))
@@ -4776,18 +4783,20 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 				return qe_invalid;
 			}
 			
-			if(!p_getstr(tempDMap.tmusic,sizeof(DMaps[0].tmusic)-1,f))
+			if (s_version < 25)
 			{
-				return qe_invalid;
+				char tmusic[57] = {0};
+				if(!p_getstr(tmusic,sizeof(tmusic)-1,f))
+					return qe_invalid;
+				tempMusic.enhanced.path = tmusic;
 			}
 		}
 		
 		if(s_version>1)
 		{
-			if(!p_getc(&tempDMap.tmusictrack,f))
-			{
-				return qe_invalid;
-			}
+			if (s_version < 25)
+				if(!p_getc(&tempMusic.enhanced.track,f))
+					return qe_invalid;
 			
 			if(!p_getc(&tempDMap.active_subscreen,f))
 			{
@@ -5009,31 +5018,16 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 		}
 
 		// Enhanced music loop points
-		if (s_version >= 18)
+		if (s_version >= 18 && s_version < 25)
 		{
-			if (!p_igetl(&tempDMap.tmusic_loop_start, f))
-			{
+			if (!p_igetl(&tempMusic.enhanced.loop_start, f))
 				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_loop_end, f))
-			{
+			if (!p_igetl(&tempMusic.enhanced.loop_end, f))
 				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_in, f))
-			{
+			if (!p_igetl(&tempMusic.enhanced.xfade_in, f))
 				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_out, f))
-			{
+			if (!p_igetl(&tempMusic.enhanced.xfade_out, f))
 				return qe_invalid;
-			}
-		}
-		else
-		{
-			tempDMap.tmusic_loop_start = 0;
-			tempDMap.tmusic_loop_end = 0;
-			tempDMap.tmusic_xfade_in = 0;
-			tempDMap.tmusic_xfade_out = 0;
 		}
 		
 		if(s_version >= 19)
@@ -5077,6 +5071,23 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 				return qe_invalid;
 			if(!p_getc(&tempDMap.floor, f))
 				return qe_invalid;
+		}
+		if (s_version >= 25)
+		{
+			if (!p_igetw(&tempDMap.music, f))
+				return qe_invalid;
+		}
+		else if (!should_skip) // add an AdvancedMusic to the quest
+		{
+			if (tempMusic.is_empty())
+				tempDMap.music = 0;
+			else
+			{
+				tempMusic.name = fmt::format("DMap {}", index);
+				auto& ref = quest_music.emplace_back(tempMusic);
+				tempDMap.music = word(quest_music.size());
+				ref.id = tempDMap.music;
+			}
 		}
 
 		if (!should_skip)
@@ -5158,6 +5169,9 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	
 	dmapstoread = zc_min(dmapstoread, max_dmaps);
 	dmapstoread = zc_min(dmapstoread, MAXDMAPS-start_dmap);
+	
+	if (s_version < 25) // reserve space for the advanced music that will be created
+		quest_music.reserve(quest_music.size() + dmapstoread);
 	
 	for(int i = start_dmap; i < dmapstoread + start_dmap; ++i)
 	{
@@ -6336,7 +6350,16 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			if (!p_getc(&menu.close_flash_rate, f))
 				return qe_invalid;
 			
-			if (!p_igetw(&menu.midi, f))
+			if (s_version < 18)
+			{
+				int16_t midi;
+				if (!p_igetw(&midi, f))
+					return qe_invalid;
+				if (should_skip)
+					menu.music = 0;
+				else menu.music = find_or_make_midi_music(convert_from_old_midi_id(midi));
+			}
+			else if (!p_igetw(&menu.music, f))
 				return qe_invalid;
 			
 			if (!p_igetl(&menu.bg_tile, f))
@@ -15733,7 +15756,7 @@ darknuts:
         tempguy->flags |= (guy_doesnt_count);
 }
 
-int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
+int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind, bool keep_music)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
 
@@ -16774,14 +16797,18 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version>4)
 	{
-		if(!p_igetw(&(temp_mapscr->screen_midi),f))
-		{
+		int16_t m;
+		if(!p_igetw(&m, f))
 			return qe_invalid;
-		}
+		if (m <= 0)
+			temp_mapscr->music = vbound(m, 0, -1);
+		else if (!keep_music) // can't safely convert without modifying quest_music, so just use -1
+			temp_mapscr->music = -1;
+		else temp_mapscr->music = find_or_make_midi_music(convert_from_old_midi_id(m + (MIDIOFFSET_MAPSCR - MIDIOFFSET_ZSCRIPT),true));
 	}
 	else
 	{
-		temp_mapscr->screen_midi = -1;
+		temp_mapscr->music = -1;
 	}
 	
 	if(version>=17)
@@ -17124,11 +17151,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	return 0;
 }
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind, bool keep_music)
 {
 	if(version < 23)
 	{
-		auto ret = readmapscreen_old(f,Header,temp_mapscr,version,scrind);
+		auto ret = readmapscreen_old(f,Header,temp_mapscr,version,scrind,keep_music);
 		if(ret) return ret;
 	}
 	else
@@ -17462,7 +17489,18 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_igetw(&(temp_mapscr->timedwarptics),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->screen_midi),f))
+			if (version < 37)
+			{
+				int16_t m;
+				if(!p_igetw(&m, f))
+					return qe_invalid;
+				if (m <= 0)
+					temp_mapscr->music = vbound(m, 0, -1);
+				else if (!keep_music) // can't safely convert without modifying quest_music, so just use -1
+					temp_mapscr->music = -1;
+				else temp_mapscr->music = find_or_make_midi_music(convert_from_old_midi_id(m + (MIDIOFFSET_MAPSCR - MIDIOFFSET_ZSCRIPT), true));
+			}
+			else if (!p_igetl(&(temp_mapscr->music), f))
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->lens_layer),f))
 				return qe_invalid;
@@ -17476,7 +17514,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 		else
 		{
-			temp_mapscr->screen_midi = -1;
+			temp_mapscr->music = -1;
 			temp_mapscr->csensitive = 1;
 		}
 		//FFC
@@ -17722,7 +17760,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			scr->map = i;
 			scr->screen = j;
 			if(valid)
-				readmapscreen(f, Header, scr, version, screen);
+				readmapscreen(f, Header, scr, version, screen, !should_skip);
 			else if (!should_skip)
 				clear_screen(scr);
 		}
@@ -17746,7 +17784,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 				
 				TheMaps[screen].zero_memory();
 				TheMaps[screen].valid = mVERSION;
-				TheMaps[screen].screen_midi = -1;
+				TheMaps[screen].music = -1;
 				TheMaps[screen].csensitive = 1;
 			}
 		}
@@ -18558,6 +18596,13 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_getc(&temp_trigger.trigstatemap, f))
 			return qe_invalid;
 		if(!p_getc(&temp_trigger.trigstatescreen, f))
+			return qe_invalid;
+	}
+	if (s_version >= 62)
+	{
+		if(!p_igetl(&temp_trigger.play_music, f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.set_music_refresh, f))
 			return qe_invalid;
 	}
 	return 0;
@@ -21981,6 +22026,35 @@ int32_t readfavorites(PACKFILE *f, int32_t)
 	return 0;
 }
 
+int32_t read_adv_music(PACKFILE *f)
+{
+	word s_version = 0;
+	dword section_size;
+	
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+	if (s_version > V_ADVMUSIC)
+		return qe_version;
+	if(!read_deprecated_section_cversion(f))
+		return qe_invalid;
+	if(!p_igetl(&section_size,f))
+		return qe_invalid;
+	
+	word count = 0;
+	if (!p_igetw(&count, f))
+		return qe_invalid;
+	
+	quest_music.clear();
+	for (size_t q = 0; q < count; ++q)
+	{
+		AdvancedMusic& m = quest_music.emplace_back();
+		if (auto ret = m.read(f, s_version))
+			return ret;
+		m.id = q + 1;
+	}
+	return 0;
+}
+
 /*
   switch (ret) {
   case 0:
@@ -22006,7 +22080,7 @@ const char *skip_text[skip_max]=
     "skip_weapons", "skip_colors", "skip_icons", "skip_initdata",
     "skip_guys", "skip_herosprites", "skip_subscreens", "skip_ffscript",
     "skip_sfx", "skip_midis", "skip_cheats", "skip_itemdropsets",
-    "skip_favorites"
+    "skip_favorites", "skip_zinfo", "skip_adv_music"
 };
 
 
@@ -22075,6 +22149,7 @@ static int section_id_to_enum(int id)
 		case ID_ITEMDROPSETS: return skip_itemdropsets;
 		case ID_FAVORITES: return skip_favorites;
 		case ID_ZINFO: return skip_zinfo;
+		case ID_ADVMUSIC: return skip_adv_music;
 	}
 
 	return -1;
@@ -22283,6 +22358,11 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 	if (!get_bit(skip_flags, skip_maps))
 		Regions = {};
     
+	if (!(get_bit(skip_flags, skip_dmaps) &&
+		get_bit(skip_flags, skip_maps) &&
+		get_bit(skip_flags, skip_adv_music)))
+		quest_music.clear(); // dmaps/maps of old quests will create advanced music
+	
 	if(do_clear_scripts)
 	{
 		zScript.clear();
@@ -22866,6 +22946,23 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 
                 box_out("Reading Favorite Combos...");
                 ret=readfavorites(f, tempheader.zelda_version);
+                checkstatus(ret);
+                box_out("okay.");
+                box_eol();
+                break;
+			
+            case ID_ADVMUSIC:
+            
+                // advanced music
+                if(catchup)
+                {
+                    box_out("found.");
+                    box_eol();
+                    catchup=false;
+                }
+                
+                box_out("Reading Advanced Music...");
+                ret = read_adv_music(f);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();

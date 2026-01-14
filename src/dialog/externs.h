@@ -33,5 +33,7 @@ bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& fla
 void edit_screen_notes(mapscr* scr, int map, int screen);
 void browse_screen_notes();
 
+void call_music_dialog(int index = -1);
+
 #endif
 

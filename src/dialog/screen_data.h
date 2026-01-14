@@ -60,7 +60,7 @@ private:
 	
 	bounded_map<dword,int32_t> screen_misc_data;
 	
-	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmidi;
+	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmusic;
 };
 
 #endif

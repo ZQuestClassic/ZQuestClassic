@@ -2,6 +2,7 @@
 #include "base/fonts.h"
 #include "tiles.h"
 #include "zc/zc_sys.h"
+#include "advanced_music.h"
 
 #ifdef IS_PLAYER
 #include "zc/zelda.h"
@@ -50,9 +51,8 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 	bool running = true;
 	while (running)
 	{
-		auto m = midi + MIDIOFFSET_ZSCRIPT;
-		if (use_music && midi && currmidi != m)
-			jukebox(m);
+		if (use_music && unsigned(music-1) < quest_music.size())
+			quest_music[music-1].play();
 		while (!tick(cursor, clk))
 		{
 			if (Quit)

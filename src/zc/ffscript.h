@@ -157,20 +157,6 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
-//Music Update States
-//Used for determining when music should update on warps 
-enum {
-	MUSIC_UPDATE_SCREEN,
-	MUSIC_UPDATE_DMAP,
-	MUSIC_UPDATE_LEVEL,
-	MUSIC_UPDATE_NEVER,
-	MUSIC_UPDATE_REGION,
-};
-enum {
-	MUSIC_UPDATE_FLAG_NOCUT  = 0x1, //Music persists through things that would normally cut to silence (such as entrance exit warps)
-	MUSIC_UPDATE_FLAG_REVERT = 0x2 //State reverts to screen on music switch
-};
-
 //SYstem Date and Time Categories for GetSystemTime()
 enum { curyear, curmonth, curday_month, curday_week, curhour, 
 	curminute, cursecond, curdayyear, curDST, curTimeLAST };
@@ -660,7 +646,6 @@ std::vector<int32_t> eventData;
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
-void Play_Level_Music();
 int32_t getTime(int32_t type); //get system RTC Information.
 void getRTC();
 int32_t getQuestHeaderInfo(int32_t type);
@@ -854,7 +839,6 @@ uint32_t create_user_bitmap_ex(int32_t w, int32_t h);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
-bool doing_dmap_enh_music(int32_t dm);
 bool can_change_music_within_region();
 bool can_dmap_change_music(int32_t dm);
 void do_set_music_position(const bool v);
