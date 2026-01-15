@@ -77,7 +77,8 @@ enum MusicRefreshMode
 	MR_SCREEN, // Refresh on every screen transition.
 	MR_DMAP,   // Refresh when the dmap changes.
 	MR_LEVEL,  // Refresh when the level changes.
-	MR_NEVER   // Never refresh on a screen transition.
+	MR_NEVER,  // Never refresh on a screen transition.
+	MR_REGION, // Refresh when the region changes
 };
 
 // Used with [Audio->MusicRefreshFlags].

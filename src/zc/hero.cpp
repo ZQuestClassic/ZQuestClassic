@@ -502,7 +502,12 @@ void HeroClass::update_current_screen()
 		prev_hero_scr = hero_scr;
 		hero_scr = get_scr(current_screen);
 		screen_spawned = current_screen;
-		playLevelMusic();
+		if (FFCore.can_change_music_within_region())
+		{
+			playLevelMusic();
+			if (FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT)
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
+		}
 	}
 	if (game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
 		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
