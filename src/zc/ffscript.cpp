@@ -23369,16 +23369,21 @@ bool FFScript::doing_dmap_enh_music(int32_t dm)
 	return false;
 }
 
+bool FFScript::can_change_music_within_region()
+{
+	return music_update_cond == MUSIC_UPDATE_SCREEN;
+}
 bool FFScript::can_dmap_change_music(int32_t dm)
 {
 	switch (music_update_cond)
 	{
-	case MUSIC_UPDATE_SCREEN:
-		return true;
-	case MUSIC_UPDATE_DMAP:
-		return dm != -1 && dm != cur_dmap;
-	case MUSIC_UPDATE_LEVEL:
-		return dm != -1 && DMaps[dm].level != DMaps[cur_dmap].level;
+		case MUSIC_UPDATE_SCREEN:
+		case MUSIC_UPDATE_REGION:
+			return true;
+		case MUSIC_UPDATE_DMAP:
+			return dm != -1 && dm != cur_dmap;
+		case MUSIC_UPDATE_LEVEL:
+			return dm != -1 && DMaps[dm].level != DMaps[cur_dmap].level;
 	}
 	return false;
 }

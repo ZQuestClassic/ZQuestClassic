@@ -163,7 +163,8 @@ enum {
 	MUSIC_UPDATE_SCREEN,
 	MUSIC_UPDATE_DMAP,
 	MUSIC_UPDATE_LEVEL,
-	MUSIC_UPDATE_NEVER
+	MUSIC_UPDATE_NEVER,
+	MUSIC_UPDATE_REGION,
 };
 enum {
 	MUSIC_UPDATE_FLAG_NOCUT  = 0x1, //Music persists through things that would normally cut to silence (such as entrance exit warps)
@@ -854,6 +855,7 @@ void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
 bool doing_dmap_enh_music(int32_t dm);
+bool can_change_music_within_region();
 bool can_dmap_change_music(int32_t dm);
 void do_set_music_position(const bool v);
 void do_get_music_position();
