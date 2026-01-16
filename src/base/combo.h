@@ -22,10 +22,6 @@ enum lift_flags : uint8_t
 };
 } // ends namespace
 
-#define NUM_COMBO_ATTRIBUTES            4
-#define NUM_COMBO_ATTRIBYTES            8
-#define NUM_COMBO_ATTRISHORTS           8
-
 #define MAX_COMBO_TRIGGERS              255
 ///user flags
 #define cflag1                          0x00001
@@ -147,7 +143,7 @@ struct newcombo
 	word nexttimer;
 	byte skipanimy;
 	byte animflags;
-	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	zfix c_attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; // combodata->Flags
 	int16_t genflags; // general flags
 	lift_flags liftflags;
@@ -168,8 +164,6 @@ struct newcombo
 	weapon_data lift_weap_data {weapon_data::def_lifting_data};
 	weapon_data misc_weap_data {weapon_data::def_data};
 	std::string label;
-	byte attribytes[NUM_COMBO_ATTRIBYTES];
-	int16_t attrishorts[NUM_COMBO_ATTRISHORTS];
 	word script;
 	int32_t initd[8];
 	int32_t o_tile;

@@ -913,7 +913,7 @@ static GUI::ListData compatRulesList
 		"If enabled, FFCs will lack certain functionality, such as hookshotability, switch_hookability,"
 		" and ffc triggers, among other misc changes."},
 	{ "Old Shallow Water SFX Attribute", qr_OLD_SHALLOW_SFX,
-		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for its splash sound." },
+		"If enabled, Shallow Water will use attributes[8] instead of attributes[13] for its splash sound." },
 	{ "Weapon Sparkles Inherit Properties", qr_SPARKLES_INHERIT_PROPERTIES,
 		"If enabled, sparkle weapons inherit properties such as script, type, and default defense"
 		" from the parent item." },

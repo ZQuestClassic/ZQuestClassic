@@ -228,6 +228,8 @@ double wrap_float(double x,double low,double high);
 #define NUM_BOTTLE_SLOTS           256
 #define NUM_SAVE_MENUS             32
 
+#define NUM_COMBO_ATTRIBUTES       24
+
 #define QSTPWD_LEN                 256
 
 // Args for 'getInput()'

@@ -78,7 +78,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 				}
 			}
 		}
-		auto rate = custom_spd ? zc_max(cmb.attribytes[0], 1) : 3;
+		auto rate = custom_spd ? zc_max(cmb.c_attributes[8].getTrunc(), 1) : 3;
 		if(custom_spd && (newconveyorclk % rate)) return -1;
 		return cmbid;
 	}
@@ -100,8 +100,8 @@ void sprite::check_conveyor()
         deltay=combo_class_buf[ctype].conveyor_y_speed;
 		if (is_conveyor(ctype) && custom_spd)
 		{
-			deltax = zslongToFix(cmb->attributes[0]);
-			deltay = zslongToFix(cmb->attributes[1]);
+			deltax = cmb->c_attributes[0];
+			deltay = cmb->c_attributes[1];
 		}
         if(deltax!=0||deltay!=0)
         {
@@ -384,7 +384,7 @@ bool movingblock::animate(int32_t)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
 		{
-			int s = combobuf[fallCombo].attribytes[0];
+			int s = combobuf[fallCombo].c_attributes[8].getTrunc();
 			if(block_cmb.sfx_falling)
 				s = block_cmb.sfx_falling;
 			sfx(s, pan(x));
@@ -399,7 +399,7 @@ bool movingblock::animate(int32_t)
 	{
 		if(drownclk == WATER_DROWN_FRAMES)
 		{
-			int s = combobuf[drownCombo].attribytes[4];
+			int s = combobuf[drownCombo].c_attributes[12].getTrunc();
 			if(combobuf[drownCombo].usrflags&cflag1)
 			{
 				if(block_cmb.sfx_lava_drowning)
@@ -734,8 +734,8 @@ bool movingblock::animate(int32_t)
 			}
 			if(fallclk||drownclk) return false;
 			
-			if(block_cmb.attribytes[2])
-				sfx(block_cmb.attribytes[2],pan(x));
+			if(block_cmb.c_attributes[10].getTrunc())
+				sfx(block_cmb.c_attributes[10].getTrunc(),pan(x));
 			bool didtrigger = trigger;
 			if(didtrigger)
 			{

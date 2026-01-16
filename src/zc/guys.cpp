@@ -989,7 +989,7 @@ bool enemy::do_falling(int32_t index)
 {
 	if(fallclk > 0)
 	{
-		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].c_attributes[8].getTrunc(), pan(x));
 		if(!--fallclk)
 		{
 			if(immortal) //Keep alive forever
@@ -1028,7 +1028,7 @@ bool enemy::do_drowning(int32_t index)
 {
 	if(drownclk > 0)
 	{
-		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x));
+		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].c_attributes[8].getTrunc(), pan(x));
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{

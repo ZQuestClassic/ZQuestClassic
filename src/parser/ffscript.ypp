@@ -1148,7 +1148,7 @@ Annotated_Script :
 				}
 				else if(!key.compare(0,9,"Attribute"))
 				{
-					if(c < 10)
+					if(c < 10) // 1 digit number
 					{
 						if(annot_type_check(ANNTY_STR, data))
 						{
@@ -1165,23 +1165,42 @@ Annotated_Script :
 						if(annot_type_check(ANNTY_STR, data))
 						{
 							annot_trunc_str(data.unescaped_val, 255);
-							script->metadata.attribytes[c] = data.unescaped_val;
+							script->metadata.attributes[8+c] = data.unescaped_val;
 						}
 						return true;
 					}
 				}
 			}
-			else if(key.size() == 11 && !key.compare(0,10,"Attrishort"))
+			else if(key.size() == 11)
 			{
-				byte c = key[10]-'0';
-				if(c < 8)
+				if(!key.compare(0,9,"Attribute"))
 				{
-					if(annot_type_check(ANNTY_STR, data))
+					if (byte(key[9])-'0' < 10 && byte(key[10])-'0' < 10)
 					{
-						annot_trunc_str(data.unescaped_val, 255);
-						script->metadata.attrishorts[c] = data.unescaped_val;
+						byte c = atoi(key.c_str()+9);
+						if (c < NUM_ZMETA_ATTRIBUTES)
+						{
+							if(annot_type_check(ANNTY_STR, data))
+							{
+								annot_trunc_str(data.unescaped_val, 255);
+								script->metadata.attributes[c] = data.unescaped_val;
+							}
+							return true;
+						}
 					}
-					return true;
+				}
+				else if (!key.compare(0,10,"Attrishort"))
+				{
+					byte c = key[10]-'0';
+					if(c < 8)
+					{
+						if(annot_type_check(ANNTY_STR, data))
+						{
+							annot_trunc_str(data.unescaped_val, 255);
+							script->metadata.attributes[16+c] = data.unescaped_val;
+						}
+						return true;
+					}
 				}
 			}
 			else if(key.size() == 14)
@@ -1189,7 +1208,7 @@ Annotated_Script :
 				if(!key.compare(0,13,"AttributeHelp"))
 				{
 					byte c = key[13]-'0';
-					if(c < 10)
+					if(c < 10) // 1 digit number
 					{
 						if(annot_type_check(ANNTY_STR, data))
 						{
@@ -1207,23 +1226,42 @@ Annotated_Script :
 						if(annot_type_check(ANNTY_STR, data))
 						{
 							annot_trunc_str(data.val, 65535);
-							script->metadata.attribytes_help[c] = data.val;
+							script->metadata.attributes_help[8+c] = data.val;
 						}
 						return true;
 					}
 				}
 			}
-			else if(key.size() == 15 && !key.compare(0,14,"AttrishortHelp"))
+			else if(key.size() == 15)
 			{
-				byte c = key[14]-'0';
-				if(c < 8)
+				if(!key.compare(0,13,"AttributeHelp"))
 				{
-					if(annot_type_check(ANNTY_STR, data))
+					if (byte(key[13])-'0' < 10 && byte(key[14])-'0' < 10)
 					{
-						annot_trunc_str(data.val, 65535);
-						script->metadata.attrishorts_help[c] = data.val;
+						byte c = atoi(key.c_str()+13);
+						if(c < NUM_ZMETA_ATTRIBUTES)
+						{
+							if(annot_type_check(ANNTY_STR, data))
+							{
+								annot_trunc_str(data.val, 65535);
+								script->metadata.attributes_help[c] = data.val;
+							}
+							return true;
+						}
 					}
-					return true;
+				}
+				else if (!key.compare(0,14,"AttrishortHelp"))
+				{
+					byte c = key[14]-'0';
+					if(c < 8)
+					{
+						if(annot_type_check(ANNTY_STR, data))
+						{
+							annot_trunc_str(data.val, 65535);
+							script->metadata.attributes_help[16+c] = data.val;
+						}
+						return true;
+					}
 				}
 			}
 			return false;

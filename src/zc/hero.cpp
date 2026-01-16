@@ -604,9 +604,9 @@ void HeroClass::force_ice_velocity(optional<zfix> vx, optional<zfix> vy)
 		//Special case to prevent the forced vx/vy from being overwritten
 		sliding = 1;
 		ice_vx = ice_vy = 0;
-		ice_entry_count = ice_entry_mcount = icecmb.attribytes[1];
+		ice_entry_count = ice_entry_mcount = icecmb.c_attributes[9].getTrunc();
 	}
-	zfix cap = zslongToFix(zc_max(1,abs(icecmb.attributes[2])));
+	zfix cap = zc_max(0.0001_zf,abs(icecmb.c_attributes[2]));
 	if(vx) ice_vx = vbound(*vx, -cap, cap);
 	if(vy) ice_vy = vbound(*vy, -cap, cap);
 }
@@ -4094,15 +4094,16 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		int32_t it = -1;
 		int32_t thedropset = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? combobuf[MAPCOMBO(bx,by)-1].c_attributes[1].getTrunc() : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
+			auto id = combobuf[cid].c_attributes[9].getTrunc();
 			if(combobuf[cid].usrflags&cflag11)
-				it = combobuf[cid].attribytes[1];
+				it = id;
 			else
 			{
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				thedropset = combobuf[cid].attribytes[1]; 
+				it = select_dropitem(id); 
+				thedropset = id; 
 			}
 		}
 		else
@@ -4126,14 +4127,14 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],pan(bx));
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 			}
 		}
 		else
 		{
 			if (combobuf[cid].usrflags&cflag3)
 			{
-				sfx(combobuf[cid].attribytes[2],pan(bx));
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 			}
 			else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 		}
@@ -4331,14 +4332,15 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			int32_t thedropset = -1;
 			if ( (cmb.usrflags&cflag2) ) //specific dropset or item
 			{
+				auto id = cmb.c_attributes[9].getTrunc();
 				if ( cmb.usrflags&cflag11 ) 
 				{
-					it = cmb.attribytes[1];
+					it = id;
 				}
 				else
 				{
-					it = select_dropitem(cmb.attribytes[1]);
-					thedropset = cmb.attribytes[1];
+					it = select_dropitem(id);
+					thedropset = id;
 				}
 			}
 			else
@@ -4363,14 +4365,14 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				if (cmb.usrflags&cflag3)
 				{
-					sfx(cmb.attribytes[2],pan(bx));
+					sfx(cmb.c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (cmb.usrflags&cflag3)
 				{
-					sfx(cmb.attribytes[2],pan(bx));
+					sfx(cmb.c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
@@ -4392,12 +4394,13 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			int32_t thedropset=-1;
 			if ( (cmb_ff.usrflags&cflag2) )
 			{
+				auto id = cmb_ff.c_attributes[9].getTrunc();
 				if(cmb_ff.usrflags&cflag11)
-					it = cmb_ff.attribytes[1];
+					it = id;
 				else
 				{
-					it = select_dropitem(cmb_ff.attribytes[1]); 
-					thedropset = cmb_ff.attribytes[1]; 
+					it = select_dropitem(id); 
+					thedropset = id; 
 				}
 			}
 			else
@@ -4432,14 +4435,14 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(cmb_ff.attribytes[2],pan(bx));
+					sfx(cmb_ff.c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(cmb_ff.attribytes[2],pan(bx));
+					sfx(cmb_ff.c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
@@ -4617,12 +4620,13 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 		
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
+				auto id = combobuf[cid].c_attributes[9].getTrunc();
 				if(combobuf[cid].usrflags&cflag11)
-					it = combobuf[cid].attribytes[1];
+					it = id;
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]); 
-					thedropset = combobuf[cid].attribytes[1];
+					it = select_dropitem(id); 
+					thedropset = id;
 				}
 			}
 			else
@@ -4647,27 +4651,27 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].c_attributes[8].getTrunc()) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
 		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -4863,14 +4867,15 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
+				auto id = combobuf[cid].c_attributes[9].getTrunc();
 				if ( combobuf[cid].usrflags&cflag11 ) 
 				{
-					it = combobuf[cid].attribytes[1];
+					it = id;
 				}
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]);
-					thedropset = combobuf[cid].attribytes[1];
+					it = select_dropitem(id);
+					thedropset = id;
 				}
 			}
 			else
@@ -4896,27 +4901,27 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].c_attributes[8].getTrunc()) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
 		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -4937,12 +4942,13 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             int32_t thedropset=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
+				auto id = combobuf[cid].c_attributes[9].getTrunc();
 				if(combobuf[cid].usrflags&cflag11)
-					it = combobuf[cid].attribytes[1];
+					it = id;
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]); 
-					thedropset = combobuf[cid].attribytes[1];
+					it = select_dropitem(id); 
+					thedropset = id;
 				}
 			}
 			else
@@ -4973,27 +4979,27 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].c_attributes[8].getTrunc()) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
 		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -5227,14 +5233,15 @@ void HeroClass::check_slash_block(weapon *w)
 			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
+				auto id = combobuf[cid].c_attributes[9].getTrunc();
 				if ( combobuf[cid].usrflags&cflag11 ) 
 				{
-					it = combobuf[cid].attribytes[1];
+					it = id;
 				}
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]);
-					thedropset = combobuf[cid].attribytes[1];
+					it = select_dropitem(id);
+					thedropset = id;
 				}
 			}
 			else
@@ -5259,27 +5266,27 @@ void HeroClass::check_slash_block(weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].c_attributes[8].getTrunc()) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
 		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -5300,12 +5307,13 @@ void HeroClass::check_slash_block(weapon *w)
 			int32_t thedropset = -1;
 			if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 			{
+				auto id = combobuf[MAPCOMBO(bx,by)-1].c_attributes[9].getTrunc();
 				if(combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11)
-					it = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
+					it = id;
 				else
 				{
-					thedropset = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
-					it = select_dropitem(thedropset);
+					it = select_dropitem(id);
+					thedropset = id;
 				}
 			}
 			else
@@ -5328,27 +5336,27 @@ void HeroClass::check_slash_block(weapon *w)
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 			}
 			else
 			{
 				if (combobuf[cid].usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],pan(bx));
+					sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],pan(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].c_attributes[8].getTrunc()) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
 		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -7166,7 +7174,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[0] = cmb.attributes[0] / -10000L;
+				hp_mod[0] = -cmb.c_attributes[0].getTrunc();
 			else 
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7179,7 +7187,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[1] = cmb.attributes[0] / -10000L;
+				hp_mod[1] = -cmb.c_attributes[0].getTrunc();
 			else 
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7192,7 +7200,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[2] = cmb.attributes[0] / -10000L;
+				hp_mod[2] = -cmb.c_attributes[0].getTrunc();
 			else 
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7205,7 +7213,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
-				hp_mod[3] = cmb.attributes[0] / -10000L;
+				hp_mod[3] = -cmb.c_attributes[0].getTrunc();
 			else 
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7283,7 +7291,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[0] = cmb.attributes[0]/-10000L;
+				hp_mod[0] = -cmb.c_attributes[0].getTrunc();
 			else
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7298,7 +7306,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[1] = cmb.attributes[0]/-10000L;
+				hp_mod[1] = -cmb.c_attributes[0].getTrunc();
 			else
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7313,7 +7321,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[2] = cmb.attributes[0]/-10000L;
+				hp_mod[2] = -cmb.c_attributes[0].getTrunc();
 			else
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -7328,7 +7336,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[3] = cmb.attributes[0]/-10000L;
+				hp_mod[3] = -cmb.c_attributes[0].getTrunc();
 			else
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -8037,9 +8045,9 @@ heroanimate_skip_liftwpn:;
 					newcombo const& cmb = combobuf[grasscid];
 					if(decorations.idCount(dTALLGRASS)==0)
 					{
-						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.c_attributes[14].getTrunc()));
 					}
-					int32_t thesfx = cmb.attribytes[3];
+					int32_t thesfx = cmb.c_attributes[11].getTrunc();
 					if (action==walking)
 						sfx_no_repeat(thesfx,pan((int32_t)x));
 				}
@@ -8070,9 +8078,9 @@ heroanimate_skip_liftwpn:;
 					newcombo const& cmb = combobuf[grasscid];
 					if(decorations.idCount(dTALLGRASS)==0)
 					{
-						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.c_attributes[14].getTrunc()));
 					}
-					int32_t thesfx = cmb.attribytes[3];
+					int32_t thesfx = cmb.c_attributes[11].getTrunc();
 					if (action==walking )
 						sfx_no_repeat(thesfx,pan((int32_t)x));
 				}
@@ -8100,19 +8108,19 @@ heroanimate_skip_liftwpn:;
 					if(waterid)
 					{
 						newcombo const& watercmb = combobuf[waterid];
-						auto ripplesprite = watercmb.attribytes[6];
+						auto ripplesprite = watercmb.c_attributes[14].getTrunc();
 						if(decorations.idCount(dRIPPLES)==0)
 							decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
 						if (watercmb.usrflags&cflag2)
 						{
-							if (!(current_item(watercmb.attribytes[2]) > 0 && current_item(watercmb.attribytes[2]) >= watercmb.attribytes[3]))
+							if (auto ilvl = current_item(watercmb.c_attributes[10].getTrunc()); !(ilvl > 0 && ilvl >= watercmb.c_attributes[11].getTrunc()))
 							{
 								onpassivedmg = true;
 								if (!damageovertimeclk)
 								{
 									int32_t curhp = game->get_life();
-									auto dmg = watercmb.attributes[1]/10000L;
-									auto hitsfx = watercmb.attributes[2]/10000L;
+									auto dmg = watercmb.c_attributes[1].getTrunc();
+									auto hitsfx = watercmb.c_attributes[2].getTrunc();
 									bool hitstun = dmg < 0 && (watercmb.usrflags&cflag7);
 									
 									if(game->get_life() == curhp && (watercmb.usrflags&cflag6))
@@ -8152,9 +8160,10 @@ heroanimate_skip_liftwpn:;
 										}
 									}
 								}
-								if (watercmb.attribytes[1] > 0)
+								if (auto v = watercmb.c_attributes[9].getTrunc(); v > 0)
 								{
-									if (!damageovertimeclk || damageovertimeclk > watercmb.attribytes[1]) damageovertimeclk = watercmb.attribytes[1];
+									if (!damageovertimeclk || damageovertimeclk > v)
+										damageovertimeclk = v;
 									else --damageovertimeclk;
 								}
 								else damageovertimeclk = 0;
@@ -8162,13 +8171,14 @@ heroanimate_skip_liftwpn:;
 							else damageovertimeclk = 0;
 						}
 						else damageovertimeclk = 0;
-						int32_t thesfx = watercmb.attribytes[0];
-						if (watercmb.type != cSHALLOWWATER || !get_qr(qr_OLD_SHALLOW_SFX))
-						{
-							thesfx = watercmb.attribytes[5];
-						}
+						
 						if (action==walking)
-							sfx_no_repeat(thesfx,pan((int32_t)x));
+						{
+							int idx = 8;
+							if (watercmb.type != cSHALLOWWATER || !get_qr(qr_OLD_SHALLOW_SFX))
+								idx = 13;
+							sfx_no_repeat(watercmb.c_attributes[idx].getTrunc(),pan((int32_t)x));
+						}
 					}
 				}
 			}
@@ -8178,26 +8188,30 @@ heroanimate_skip_liftwpn:;
 			if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER))
 			{
 				int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
-				auto ripplesprite = combobuf[watercheck].attribytes[6];
+				auto ripplesprite = combobuf[watercheck].c_attributes[14].getTrunc();
 				if(decorations.idCount(dRIPPLES)==0)
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
 				}
 				if (combobuf[watercheck].usrflags&cflag2)
 				{
-					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+					if (auto ilvl = current_item(combobuf[watercheck].c_attributes[10].getTrunc()); !(ilvl > 0 && ilvl >= combobuf[watercheck].c_attributes[11].getTrunc()))
 					{
 						onpassivedmg = true;
 						if (!damageovertimeclk)
 						{
 							int32_t curhp = game->get_life();
-							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
-							else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
-							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
+							auto hp_change = combobuf[watercheck].c_attributes[1].getTrunc();
+							if (combobuf[watercheck].usrflags&cflag5) // Affected by rings
+								hp_change = ringpower(hp_change);
+							game->set_life(vbound(game->get_life()+hp_change, 0, game->get_maxlife()));
+							if (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))
+								sfx(combobuf[watercheck].c_attributes[2].getTrunc());
 						}
-						if (combobuf[watercheck].attribytes[1] > 0)
+						if (auto v = combobuf[watercheck].c_attributes[9].getTrunc(); v > 0)
 						{
-							if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+							if (!damageovertimeclk || damageovertimeclk > v)
+								damageovertimeclk = v;
 							else --damageovertimeclk;
 						}
 						else damageovertimeclk = 0;
@@ -8205,9 +8219,9 @@ heroanimate_skip_liftwpn:;
 					else damageovertimeclk = 0;
 				}
 				else damageovertimeclk = 0;
-				int32_t thesfx = combobuf[watercheck].attribytes[0];
-				if (action==walking )
-					sfx_no_repeat(thesfx,pan((int32_t)x));
+				
+				if (action==walking)
+					sfx_no_repeat(combobuf[watercheck].c_attributes[8].getTrunc(),pan((int32_t)x));
 			}
 		}
 		
@@ -8940,18 +8954,19 @@ heroanimate_skip_liftwpn:;
 													int32_t thedropset = -1;
 													if(cmb.usrflags&cflag4) //drop item
 													{
+														auto id = cmb.c_attributes[10].getTrunc();
 														if(cmb.usrflags&cflag5)
-															it = cmb.attribytes[2];
+															it = id;
 														else
 														{
-															it = select_dropitem(cmb.attribytes[2]); 
-															thedropset = cmb.attribytes[2];
+															it = select_dropitem(id); 
+															thedropset = id;
 														}
 													}
-													
+													auto brspr = cmb.c_attributes[9].getTrunc();
 													breakable* br = new breakable(x, y, 0_zf,
-														cmb, target_rpos_handle.cset(), it, thedropset, cmb.attribytes[2],
-														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
+														cmb, target_rpos_handle.cset(), it, thedropset, cmb.c_attributes[10].getTrunc(),
+														brspr ? -1 : 0, brspr, switchhookclk);
 													br->switch_hooked = true;
 													decorations.add(br);
 													hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
@@ -9037,12 +9052,13 @@ heroanimate_skip_liftwpn:;
 												{
 													if ( (cmb.usrflags&cflag2) )
 													{
+														auto id = cmb.c_attributes[9].getTrunc();
 														if(cmb.usrflags&cflag11)
-															it = cmb.attribytes[1];
+															it = id;
 														else
 														{
-															it = select_dropitem(cmb.attribytes[1]); 
-															thedropset = cmb.attribytes[1];
+															it = select_dropitem(id); 
+															thedropset = id;
 														}
 													}
 													else
@@ -9052,12 +9068,12 @@ heroanimate_skip_liftwpn:;
 													}
 												}
 												
-												byte breaksfx = 0;
+												int breaksfx = 0;
 												if(get_qr(qr_MORESOUNDS)) //SFX
 												{
 													if (cmb.usrflags&cflag3)
 													{
-														breaksfx = cmb.attribytes[2];
+														breaksfx = cmb.c_attributes[10].getTrunc();
 													}
 													else if(isBushType(cmb.type)
 														|| isFlowersType(cmb.type)
@@ -9070,7 +9086,7 @@ heroanimate_skip_liftwpn:;
 												//Clipping sprite
 												int16_t decotype = (cmb.usrflags & cflag1) ?
 													((cmb.usrflags & cflag10)
-														? (cmb.attribytes[0])
+														? (cmb.c_attributes[8].getTrunc())
 														: (-1))
 													: (0);
 												if(decotype > 3) decotype = 0;
@@ -9083,7 +9099,7 @@ heroanimate_skip_liftwpn:;
 												
 												breakable* br = new breakable(x, y, 0_zf,
 													cmb, breakcs, it, thedropset, breaksfx,
-													decotype, cmb.attribytes[0], switchhookclk);
+													decotype, cmb.c_attributes[8].getTrunc(), switchhookclk);
 												br->switch_hooked = true;
 												decorations.add(br);
 												hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
@@ -9457,7 +9473,7 @@ heroanimate_skip_liftwpn:;
 				else if (standing_switchblock || standing_combo)
 				{
 					bool should_z_offs = standing_switchblock ? (cmb.usrflags&cflag10) : (cmb.genflags & cflag4);
-					zfix cmb_z = standing_switchblock ? zslongToFix(cmb.attributes[2]) : cmb.z_height;
+					zfix cmb_z = standing_switchblock ? cmb.c_attributes[2] : cmb.z_height;
 					if (!cmb_z) cmb_z = STANDING_Z_MAX;
 					
 					if (standing_on_z >= 0)
@@ -9778,7 +9794,7 @@ heroanimate_skip_liftwpn:;
 			
 			int32_t damage = 4;
 			if (watercmb.type == cWATER)
-				damage = watercmb.attributes[0]/10000L;
+				damage = watercmb.c_attributes[0].getTrunc();
 			else water = 0;
 			
 			if(cheat_superman && damage > 0)
@@ -9952,15 +9968,15 @@ heroanimate_skip_liftwpn:;
 			int32_t watercheck = iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
-				if (current_item(combobuf[watercheck].attribytes[2]) < combobuf[watercheck].attribytes[3])
+				if (current_item(combobuf[watercheck].c_attributes[10].getTrunc()) < combobuf[watercheck].c_attributes[11])
 				{
 					onpassivedmg = true;
 					if (damageovertimeclk == 0)
 					{
 						int32_t curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
-						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
+						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].c_attributes[1].getTrunc()), 0, game->get_maxlife())); //Affected by rings
+						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].c_attributes[1].getTrunc()), 0, game->get_maxlife()));
+						if ((game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].c_attributes[2].getTrunc());
 						if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
 						{
 							hclk = 48;
@@ -9970,9 +9986,10 @@ heroanimate_skip_liftwpn:;
 							else {action = swimhit; FFCore.setHeroAction(swimhit);}
 						}
 					}
-					if (combobuf[watercheck].attribytes[1] > 0)
+					if (auto v = combobuf[watercheck].c_attributes[9].getTrunc(); v > 0)
 					{
-						if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+						if (!damageovertimeclk || damageovertimeclk > v)
+							damageovertimeclk = v;
 						else --damageovertimeclk;
 					}
 					else damageovertimeclk = 0;
@@ -9980,7 +9997,7 @@ heroanimate_skip_liftwpn:;
 				else damageovertimeclk = 0;
 			}
 			else damageovertimeclk = 0;
-			//combobuf[watercheck].attributes[0]
+			//combobuf[watercheck].c_attributes[0]
 		}
 
 	}
@@ -10699,7 +10716,7 @@ static bool drown_check(int cid)
 		return true;
 	itemdata const& itm = itemsbuf[flippers_id];
 	newcombo const& cmb = combobuf[cid];
-	return (itm.level < cmb.attribytes[0] || ((cmb.usrflags & cflag1) && !(itm.flags & item_flag3)));
+	return (itm.level < cmb.c_attributes[8] || ((cmb.usrflags & cflag1) && !(itm.flags & item_flag3)));
 }
 int HeroClass::onWater(bool drownonly)
 {
@@ -11564,7 +11581,7 @@ void HeroClass::doSwitchHook(byte style)
 				{
 					if((cmb.usrflags&cflag1) && player_scr->data[player_pos])
 						continue; //don't swap with non-zero combo
-					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].level) < cmb.attribytes[0])
+					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].level) < cmb.c_attributes[8])
 						continue; //too low a switchhook level
 					hooked_layerbits |= 1<<q; //Swapping
 					if(cmb.usrflags&cflag3)
@@ -14333,7 +14350,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	bool irresistable = val & (replay_compat_pitslide_bug() ? 0x100 : flag_pit_irresistable);
 	int32_t dir = val&0xFF;
 	int32_t cmbid = (val&0xFFFF00)>>8;
-	int32_t sensitivity = combobuf[cmbid].attribytes[2];
+	int32_t sensitivity = combobuf[cmbid].c_attributes[10].getTrunc();
 	if(combobuf[cmbid].usrflags&cflag5) //No pull at all
 	{
 		pit_pulldir = -1;
@@ -14348,7 +14365,7 @@ bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	}
 	pit_pulldir = dir;
 	int32_t step = 1;
-	if(sensitivity == 0)
+	if(sensitivity <= 0)
 	{
 		step = 2;
 		sensitivity = 1;
@@ -14385,7 +14402,7 @@ bool HeroClass::pitfall()
 	if(fallclk)
 	{
 		drop_liftwpn();
-		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].c_attributes[8].getTrunc(), pan(x));
 		//Handle falling
 		if(!--fallclk)
 		{
@@ -14415,7 +14432,7 @@ bool HeroClass::pitfall()
 			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
 			if(cmb)
 			{
-				dmg = cmb->attributes[0]/10000L;
+				dmg = cmb->c_attributes[0].getTrunc();
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
 			}
@@ -14441,7 +14458,7 @@ bool HeroClass::pitfall()
 				{
 					setpit();
 				}
-				dowarp(hero_scr, 0, vbound(cmb->attribytes[1],0,3), 0);
+				dowarp(hero_scr, 0, vbound(cmb->c_attributes[9].getTrunc(),0,3), 0);
 			}
 			else //Reset to screen entry
 			{
@@ -14527,8 +14544,7 @@ bool HeroClass::try_drown()
 	if (combobuf[water].usrflags&cflag1)
 		Drown(1);
 	else Drown();
-	if(byte drown_sfx = combobuf[water].attribytes[4])
-		sfx(drown_sfx, pan(x));
+	sfx(combobuf[water].c_attributes[12].getTrunc(), pan(x));
 	return true;
 }
 
@@ -14549,17 +14565,17 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 		if(is_inair)
 			return;
 		sliding = 1;
-		zfix start_perc = icecmb.attribytes[0] / 100_zf;
+		zfix start_perc = icecmb.c_attributes[8] / 100_zf;
 		ice_vx = dx * start_perc;
 		ice_vy = dy * start_perc;
-		ice_entry_count = ice_entry_mcount = icecmb.attribytes[1];
+		ice_entry_count = ice_entry_mcount = icecmb.c_attributes[9].getTrunc();
 	}
 	else //not the first frame sliding
 	{
 		if(is_inair)
 			sliding = 2;
-		zfix accel = zslongToFix(zc_max(1,icecmb.attributes[0]));
-		zfix decel = zslongToFix(zc_max(1,icecmb.attributes[1]));
+		zfix accel = zc_max(0.0001_zf, icecmb.c_attributes[0]);
+		zfix decel = zc_max(0.0001_zf, icecmb.c_attributes[1]);
 		
 		if(ice_entry_count)
 		{
@@ -14661,7 +14677,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 			}
 		}
 	}
-	zfix cap = zslongToFix(zc_max(1,abs(icecmb.attributes[2])));
+	zfix cap = zc_max(0.0001_zf, abs(icecmb.c_attributes[2]));
 	dx = ice_vx = vbound(ice_vx, -cap, cap);
 	dy = ice_vy = vbound(ice_vy, -cap, cap);
 	if(!dx && !dy)
@@ -17123,7 +17139,7 @@ void HeroClass::moveheroOld()
 		int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)), -1, x+15,y+(bigHitbox?0:8), true, false);
 		int32_t wtrc = iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?8:12)), -1, x+8,y+(bigHitbox?8:12), true, false);
 		
-		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
+		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].c_attributes[8]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 		{
 			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 			{
@@ -18281,7 +18297,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 		if(current_item(itype_flippers) && z==0 && fakez==0)
 		{
 			int32_t wtrx  = iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy);
-			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
+			if (current_item(itype_flippers) >= combobuf[wtrx].c_attributes[8] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
 			{
 				//ladder ignores water combos that are now walkable thanks to flippers -DD
 				unwalkablex = unwalkablex && (!wtrx);
@@ -18389,7 +18405,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 							// to make big changes to this stuff.
 							bool deployLadder=true;
 							int32_t lx=dx&0xF0;
-							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].c_attributes[8] && z==0 && fakez==0)
 							{
 								if(iswaterex_z3(MAPCOMBO(lx, y), -1, lx, y) && 
 									iswaterex_z3(MAPCOMBO(lx+15, y), -1, lx+15, y) &&
@@ -19825,7 +19841,7 @@ void HeroClass::movehero()
 			int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)), -1, x+15,y+(bigHitbox?0:8), true, false);
 			int32_t wtrc = iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?8:12)), -1, x+8,y+(bigHitbox?8:12), true, false);
 			
-			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
+			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].c_attributes[8]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 			{
 				if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 				{
@@ -20721,9 +20737,9 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 void HeroClass::start_auto_walk(const combined_handle_t& target)
 {
 	auto& cmb = target.combo();
-	if(cmb.type != cCUTSCENEEFFECT || cmb.attribytes[0] != CUTEFF_PLAYER_WALK) return;
+	if(cmb.type != cCUTSCENEEFFECT || cmb.c_attributes[8].getTrunc() != CUTEFF_PLAYER_WALK) return;
 	
-	zfix dx = zslongToFix(cmb.attributes[0]), dy = zslongToFix(cmb.attributes[1]);
+	zfix dx = cmb.c_attributes[0], dy = cmb.c_attributes[1];
 	if(cmb.usrflags & cflag1)
 	{
 		auto [cx, cy] = target.center_xy();
@@ -20750,7 +20766,7 @@ void HeroClass::finish_auto_walk()
 	if(autowalk_combo_id >= 0 && autowalk_handle.data() == autowalk_combo_id)
 	{
 		auto& cmb = autowalk_handle.combo();
-		if(cmb.type == cCUTSCENEEFFECT && cmb.attribytes[0] == CUTEFF_PLAYER_WALK)
+		if(cmb.type == cCUTSCENEEFFECT && cmb.c_attributes[8].getTrunc() == CUTEFF_PLAYER_WALK)
 			do_trigger_ctype_causes(autowalk_handle);
 	}
 	autowalk_handle = rpos_handle_t();
@@ -20770,11 +20786,8 @@ void HeroClass::autowalk_move()
 	if(autowalk_combo_id > -1)
 	{
 		newcombo const& cmb = combobuf[autowalk_combo_id];
-		if(cmb.type == cCUTSCENEEFFECT && cmb.attribytes[0] == CUTEFF_PLAYER_WALK)
-		{
-			if(cmb.attributes[2])
-				pix_dist = zslongToFix(cmb.attributes[2]);
-		}
+		if(cmb.type == cCUTSCENEEFFECT && cmb.c_attributes[8].getTrunc() == CUTEFF_PLAYER_WALK)
+			pix_dist = cmb.c_attributes[2];
 	}
 	if(!pix_dist)
 	{
@@ -21151,7 +21164,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         {
 		int32_t wtrx  = iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy);
 		int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
-		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
+		if (current_item(itype_flippers) >= combobuf[wtrx8].c_attributes[8] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
 		{
 		//ladder ignores water combos that are now walkable thanks to flippers -DD
 		    unwalkablex = unwalkablex && (!wtrx);
@@ -21276,7 +21289,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             // to make big changes to this stuff.
                             bool deployLadder=true;
                             int32_t lx= TRUNCATE_TILE(wx);
-                            if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+                            if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].c_attributes[8] && z==0 && fakez==0)
                             {
                                 if(iswaterex_z3(MAPCOMBO(lx, y), -1, lx, y) && 
 				iswaterex_z3(MAPCOMBO(lx+15, y), -1, lx+15, y) &&
@@ -21633,7 +21646,7 @@ void HeroClass::checkpushblock()
 		else if(t==cPUSH_HEAVY2 || t==cPUSH_HW2)
 			heavy = 2;
 		else if(t == cPUSHBLOCK)
-			heavy = cmb.attribytes[0];
+			heavy = cmb.c_attributes[8].getTrunc();
 		
 		if(waitblock && (pushing<16 || hasMainGuy(m->screen))) continue;
 		
@@ -21665,7 +21678,7 @@ void HeroClass::checkpushblock()
 			bool cancel_opp = (cmb.usrflags & cflag9);
 			if(cmb.usrflags & cflag5) //Separate directions
 			{
-				int limit = cmb.attribytes[4+blockdir];
+				int limit = cmb.c_attributes[12+blockdir].getTrunc();
 				if(limit || (cmb.usrflags & cflag9)) // don't limit if limit should be infinite
 				{
 					int pushes = cpinfo.pushes[blockdir];
@@ -21677,7 +21690,7 @@ void HeroClass::checkpushblock()
 			}
 			else
 			{
-				if(int limit = cmb.attribytes[4])
+				if(int limit = cmb.c_attributes[12].getTrunc())
 				{
 					if(cpinfo.sumpush() >= limit)
 						doit = false;
@@ -21787,14 +21800,13 @@ void HeroClass::checkpushblock()
 				if(t == cPUSHBLOCK)
 				{
 					zfix blockstep = 0.5;
-					if(cmb.attrishorts[0] > 0)
-						blockstep = zslongToFix(cmb.attrishorts[0]*100);
+					if(cmb.c_attributes[16] > 0)
+						blockstep = cmb.c_attributes[16] / 100;
 					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
 					mblock2.blockinfo = cpinfo;
 					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
 					cpinfo.clearInfo();
-					if(cmb.attribytes[1])
-						sfx(cmb.attribytes[1],(int32_t)x);
+					sfx(cmb.c_attributes[9].getTrunc(),(int32_t)x);
 				}
 				else
 				{
@@ -22040,8 +22052,9 @@ void HeroClass::oldchecklockblock()
 	auto rpos_handle = found1 ? get_rpos_handle_for_world_xy(bx, by, 0) : get_rpos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(create_screen_handles(rpos_handle.base_scr), 1<<cmb.attribytes[5], false);
+		auto v = 1 << cmb.c_attributes[13].getTrunc();
+		setxmapflag(rpos_handle.screen, v);
+		remove_xstatecombos(create_screen_handles(rpos_handle.base_scr), v, false);
 	}
 	else
 	{
@@ -22050,8 +22063,7 @@ void HeroClass::oldchecklockblock()
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
-		if ( (cmb3.attribytes[3]) )
-			sfx(cmb3.attribytes[3]);
+		sfx(cmb3.c_attributes[11].getTrunc());
 	}
 	else sfx(WAV_DOOR);
 }
@@ -22218,16 +22230,16 @@ void HeroClass::oldcheckbosslockblock()
 	mapscr* scr = get_scr(cmb_screen_index);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(create_screen_handles(scr), 1<<cmb.attribytes[5]);
+		auto v = 1 << cmb.c_attributes[13].getTrunc();
+		setxmapflag(cmb_screen_index, v);
+		remove_xstatecombos(create_screen_handles(scr), v);
 	}
 	else
 	{
 		setmapflag(scr, mBOSSLOCKBLOCK);
 		remove_bosslockblocks(create_screen_handles(scr));
 	}
-	if ( (combobuf[cid].attribytes[3]) )
-		sfx(combobuf[cid].attribytes[3]);
+	sfx(combobuf[cid].c_attributes[11].getTrunc());
 }
 
 void HeroClass::oldcheckchest(int32_t type)
@@ -22577,20 +22589,20 @@ void HeroClass::checkchest(int32_t type)
 				return;
 			break;
 	}
-	int32_t intbtn = cmb->attribytes[2];
+	int32_t intbtn = cmb->c_attributes[10].getTrunc();
 	
 	if(intbtn) //
 	{
 		if(cmb->usrflags & cflag13) //display prompt
 		{
-			int altcmb = cmb->attributes[2]/10000;
-			prompt_combo = cmb->attributes[1]/10000;
+			int altcmb = cmb->c_attributes[2].getTrunc();
+			prompt_combo = cmb->c_attributes[1].getTrunc();
 			if(altcmb && ((islocked && !can_locked_combo(*cmb))
 				|| (isbosslocked && !(game->lvlitems[dlevel]&(1 << li_boss_key)))))
 				prompt_combo = altcmb;
-			prompt_cset = cmb->attribytes[4];
-			prompt_x = cmb->attrishorts[0];
-			prompt_y = cmb->attrishorts[1];
+			prompt_cset = cmb->c_attributes[12].getTrunc();
+			prompt_x = cmb->c_attributes[16].getTrunc();
+			prompt_y = cmb->c_attributes[17].getTrunc();
 		}
 		if(!getIntBtnInput(intbtn, INPUT_PRESS | INPUT_DRUNK))
 		{
@@ -22893,7 +22905,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					goto endsigns;
 				break;
 		}
-		int32_t intbtn = cmb.attribytes[2];
+		int32_t intbtn = cmb.c_attributes[10].getTrunc();
 		
 		if(intbtn) //
 		{
@@ -22902,10 +22914,10 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 			{
 				if(cmb.usrflags & cflag13) //display prompt
 				{
-					prompt_combo = cmb.attributes[1]/10000;
-					prompt_cset = cmb.attribytes[4];
-					prompt_x = cmb.attrishorts[0];
-					prompt_y = cmb.attrishorts[1];
+					prompt_combo = cmb.c_attributes[1].getTrunc();
+					prompt_cset = cmb.c_attributes[12].getTrunc();
+					prompt_x = cmb.c_attributes[16].getTrunc();
+					prompt_y = cmb.c_attributes[17].getTrunc();
 					didprompt = true;
 				}
 				goto endsigns; //Button not pressed
@@ -22951,10 +22963,10 @@ endsigns:
 		return;
 	else if(cmb.type == cBUTTONPROMPT)
 	{
-		prompt_combo = cmb.attributes[0]/10000;
-		prompt_cset = cmb.attribytes[0];
-		prompt_x = cmb.attrishorts[0];
-		prompt_y = cmb.attrishorts[1];
+		prompt_combo = cmb.c_attributes[0].getTrunc();
+		prompt_cset = cmb.c_attributes[8].getTrunc();
+		prompt_x = cmb.c_attributes[16].getTrunc();
+		prompt_y = cmb.c_attributes[17].getTrunc();
 	}
 	else for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
@@ -23296,13 +23308,19 @@ struct lightbeam_xy
 #define SP_GOFLAG(dir)   (0x20<<dir)
 #define BEAM_AGE_LIMIT   512
 
+static int lbeam_flag(uint idx)
+{
+	if (idx)
+		return 1 << (idx - 1);
+	return ~0;
+}
 static void handleBeam(spot_t* grid, size_t age, byte spotdir, rpos_t rpos, byte set, bool block, bool refl)
 {
 	if(spotdir > 3) return; //invalid dir
 
 	int combos_wide = cur_region.screen_width * 16;
 	int combos_tall = cur_region.screen_height * 11;
-	int32_t trigflag = set ? (1 << (set-1)) : ~0;
+	int32_t trigflag = lbeam_flag(set);
 	bool doAge = true;
 	spot_t f = 0;
 	while (rpos < region_max_rpos)
@@ -23425,7 +23443,7 @@ static void handleBeam(spot_t* grid, size_t age, byte spotdir, rpos_t rpos, byte
 				auto cid = customTypeMap[(int)rpos];
 				if(unsigned(cid) >= MAXCOMBOS) break;
 				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.attribytes[spotdir];
+				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
 				if(newdir > 7) return;
 				if(newdir > 3) break;
 				spotdir = newdir;
@@ -23438,7 +23456,7 @@ static void handleBeam(spot_t* grid, size_t age, byte spotdir, rpos_t rpos, byte
 static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir, lightbeam_xy curxy, byte set, bool block, bool refl, byte beamwid)
 {
 	if(spotdir > 3) return; //invalid dir
-	int32_t trigflag = set ? (1 << (set-1)) : ~0;
+	int32_t trigflag = lbeam_flag(set);
 	bool doAge = true;
 	byte f = 0;
 	while(curxy.valid())
@@ -23476,7 +23494,7 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 				auto cid = customTypeMap[(int)curpos];
 				if(unsigned(cid) >= MAXCOMBOS) break;
 				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.attribytes[spotdir];
+				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
 				if(newdir > 7) return;
 				break;
 			}
@@ -23561,7 +23579,7 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 				auto cid = customTypeMap[(int)curpos];
 				if(unsigned(cid) >= MAXCOMBOS) break;
 				newcombo const& cmb = combobuf[cid];
-				byte newdir = cmb.attribytes[spotdir];
+				byte newdir = cmb.c_attributes[8+spotdir].getTrunc();
 				if(newdir > 3) break;
 				spotdir = newdir;
 				break;
@@ -23575,10 +23593,10 @@ static int get_beamid(newcombo const& cmb)
 {
 	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
 	if(cmb.usrflags&cflag1) //use tile/cset style
-		return std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24;
+		return std::max(0,cmb.c_attributes[0].getTrunc())|(cmb.c_attributes[9].getTrunc()%12)<<24;
 	else //use 3-color style
 	{
-		auto id = -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
+		auto id = -((cmb.c_attributes[11].getTrunc()<<16)|(cmb.c_attributes[10].getTrunc()<<8)|(cmb.c_attributes[9].getTrunc()));
 		if(!id) //0 would clash with the tile/cset style
 			id = BEAMID_COLOR0;
 		return id;
@@ -23597,17 +23615,18 @@ static bool launch_lightbeam(const rpos_handle_t& rpos_handle, std::map<int32_t,
 		maps[id] = grid = new spot_t[region_num_rpos];
 		memset(grid, 0, sizeof(spot_t)*region_num_rpos);
 	}
-	byte spotdir = cmb.attribytes[0];
+	byte spotdir = vbound(cmb.c_attributes[8].getTrunc(), 255, 0);
+	auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 	if(spotdir > 3)
 	{
 		grid[(int)rpos_handle.rpos] |= SP_VISITED;
-		istrig[(int)rpos_handle.rpos] |= cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
+		istrig[(int)rpos_handle.rpos] |= lbeam_flag(trigflag_idx);
 	}
 	if(refl && rpos_handle.rpos == beam_hero_rpos)
 	{
 		spotdir = Hero.getDir();
 	}
-	handleBeam(grid, 0, spotdir, rpos_handle.rpos, cmb.attribytes[4], block, refl);
+	handleBeam(grid, 0, spotdir, rpos_handle.rpos, trigflag_idx, block, refl);
 	return true;
 }
 
@@ -23618,15 +23637,16 @@ static bool launch_fflightbeam(ffcdata const& ffc,
 	int32_t id = get_beamid(cmb);
 	//Get the grid array for this tile/color
 	std::map<dword,spot_t>& grid = ffmaps[id]; // grid of (x<<16)|(y&0xFFFF)
-	byte spotdir = cmb.attribytes[0];
+	byte spotdir = vbound(cmb.c_attributes[8].getTrunc(), 255, 0);
+	auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 	lightbeam_xy sxy(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
 	if(spotdir > 3 && sxy.valid())
 	{
 		grid[sxy.ffpos()] |= SP_VISITED;
-		int32_t trigflag = cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
-		istrig[(int)sxy.pos()] |= trigflag;
+		istrig[(int)sxy.pos()] |= lbeam_flag(trigflag_idx);
 	}
-	auto beamwid = cmb.attribytes[5] < 1 ? 8 : cmb.attribytes[5];
+	int beamwid = cmb.c_attributes[13].getTrunc();
+	if (beamwid < 1) beamwid = 8;
 	if(refl && beam_hero_rpos != rpos_t::None && sxy.herocollide(beamwid))
 	{
 		spotdir = Hero.getDir();
@@ -23646,7 +23666,7 @@ static bool launch_fflightbeam(ffcdata const& ffc,
 			sxy.x = zc_max(0,sxy.x);
 			break;
 	}
-	handleFFBeam(grid, 0, spotdir, sxy, cmb.attribytes[4], block, refl, beamwid);
+	handleFFBeam(grid, 0, spotdir, sxy, trigflag_idx, block, refl, beamwid);
 	return true;
 }
 
@@ -23873,7 +23893,7 @@ void HeroClass::handleSpotlights()
 					{
 						case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
 						case cMAGICPRISM: case cMAGICPRISM4:
-							if(!cmb.attributes[0] || (cmb.attributes[0] & sh_lightbeam))
+							if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & sh_lightbeam))
 							{
 								typeMap[(int)rpos] = cmb.type;
 								found_combo = true;
@@ -23884,7 +23904,7 @@ void HeroClass::handleSpotlights()
 							found_combo = true;
 							break;
 						case cMIRRORNEW:
-							if(!cmb.attributes[0] || (cmb.attributes[0] & sh_lightbeam))
+							if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & sh_lightbeam))
 							{
 								typeMap[(int)rpos] = cMIRRORNEW;
 								customTypeMap[(int)rpos] = layer_scr->data[pos];
@@ -24002,9 +24022,9 @@ void HeroClass::handleSpotlights()
 		{
 			auto& cmb = rpos_handle.combo();
 			bool alltrig = getmapflag(rpos_handle.scr, mLIGHTBEAM);
-			int32_t trigflag = cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
+			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(rpos_handle.screen);
-			bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
+			bool trigged = istrig[(int)rpos_handle.rpos] & lbeam_flag(trigflag_idx);
 			if(cmb.usrflags&cflag2) //Invert
 				trigged = !trigged;
 			if(cmb.usrflags&cflag1) //Solved Version
@@ -24025,7 +24045,7 @@ void HeroClass::handleSpotlights()
 		else if (mini_cmb.trigger)
 		{
 			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
+				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
 			});
@@ -24045,9 +24065,9 @@ void HeroClass::handleSpotlights()
 		{
 			auto& cmb = ffc_handle.combo();
 			bool alltrig = getmapflag(ffc_handle.scr, mLIGHTBEAM);
-			int32_t trigflag = cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
+			auto trigflag_idx = cmb.c_attributes[12].getTrunc();
 			screens_triggered.insert(ffc_handle.screen);
-			bool trigged = (istrig[(int)rpos]&trigflag);
+			bool trigged = istrig[(int)rpos] & lbeam_flag(trigflag_idx);
 			if(cmb.usrflags&cflag2) //Invert
 				trigged = !trigged;
 			if(cmb.usrflags&cflag1) //Solved Version
@@ -24068,7 +24088,7 @@ void HeroClass::handleSpotlights()
 		else //if (mini_cmb.trigger)
 		{
 			trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-				int32_t trigflag = trig.triglbeam ? (1 << (trig.triglbeam-1)) : ~0;
+				int32_t trigflag = lbeam_flag(trig.triglbeam);
 				bool trigged = (istrig[(int)rpos]&trigflag);
 				return trig.trigger_flags.get(trigged ? TRIGFLAG_LIGHTON : TRIGFLAG_LIGHTOFF);
 			});
@@ -24554,7 +24574,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			newcombo const& cmb = combobuf[comboid];
 			int32_t stype = cmb.type;
-			int32_t warpsound = cmb.attribytes[0];
+			int32_t warpsound = cmb.c_attributes[8].getTrunc();
 			if(cmb.only_gentrig)
 				stype = cNONE;
 			if(stype==cSWARPA)
@@ -24842,162 +24862,162 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if(types[i]==cCAVE)
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cCAVEB)
 		{
 			types[i]=cCAVE;
 			index=1;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cCAVEC)
 		{
 			types[i]=cCAVE;
 			index=2;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cCAVED)
 		{
 			types[i]=cCAVE;
 			index=3;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		
 		if(types[i]==cPIT) 
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cPITB)
 		{
 			types[i]=cPIT;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=1;
 		}
 		else if(types[i]==cPITC)
 		{
 			types[i]=cPIT;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=2;
 		}
 		else if(types[i]==cPITD)
 		{
 			types[i]=cPIT;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=3;
 		}
 		else if(types[i]==cPITR)
 		{
 			types[i]=cPIT;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=zc_oldrand()%4;
 		}
 		
 		if(types[i]==cSTAIR)
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cSTAIRB)
 		{
 			types[i]=cSTAIR;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=1;
 		}
 		else if(types[i]==cSTAIRC)
 		{
 			types[i]=cSTAIR;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=2;
 		}
 		else if(types[i]==cSTAIRD)
 		{
 			types[i]=cSTAIR;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=3;
 		}
 		else if(types[i]==cSTAIRR)
 		{
 			types[i]=cSTAIR;
 			index=zc_oldrand()%4;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		
 		if(types[i]==cCAVE2)
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cCAVE2B)
 		{
 			types[i]=cCAVE2;
 			index=1;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cCAVE2C)
 		{
 			types[i]=cCAVE2;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=2;
 		}
 		else if(types[i]==cCAVE2D)
 		{
 			types[i]=cCAVE2;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=3;
 		}
 		
 		if(types[i]==cSWIMWARP) 
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cSWIMWARPB)
 		{
 			types[i]=cSWIMWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=1;
 		}
 		else if(types[i]==cSWIMWARPC)
 		{
 			types[i]=cSWIMWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=2;
 		}
 		else if(types[i]==cSWIMWARPD)
 		{
 			types[i]=cSWIMWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=3;
 		}
 		
 		if(types[i]==cDIVEWARP) 
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cDIVEWARPB)
 		{
 			types[i]=cDIVEWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=1;
 		}
 		else if(types[i]==cDIVEWARPC)
 		{
 			types[i]=cDIVEWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=2;
 		}
 		else if(types[i]==cDIVEWARPD)
 		{
 			types[i]=cDIVEWARP;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 			index=3;
 		}
 		
-		if(types[i]==cSTEP) warpsfx2 = combobuf[cids[i]].attribytes[0];
-		else if(types[i]==cSTEPSAME) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0];}
-		else if(types[i]==cSTEPALL) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].attribytes[0]; }
+		if(types[i]==cSTEP) warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
+		else if(types[i]==cSTEPSAME) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();}
+		else if(types[i]==cSTEPALL) { types[i]=cSTEP; warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc(); }
 	}
 	
 	// Special case for step combos; otherwise, they act oddly in some cases
@@ -25287,25 +25307,25 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if(types[i]==cPIT) 
 		{
 			index=0;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cPITB)
 		{
 			types[i]=cPIT;
 			index=1;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cPITC)
 		{
 			types[i]=cPIT;
 			index=2;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 		else if(types[i]==cPITD)
 		{
 			types[i]=cPIT;
 			index=3;
-			warpsfx2 = combobuf[cids[i]].attribytes[0];
+			warpsfx2 = combobuf[cids[i]].c_attributes[8].getTrunc();
 		}
 	}
 	
@@ -25367,7 +25387,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			stepsecret = COMBOPOS_REGION(tx+8, ty+8);
 			auto rpos_handle = get_rpos_handle(stepsecret, 0);
-			sfx(combobuf[MAPCOMBO(rpos_handle)].attribytes[0],pan((int32_t)x));
+			sfx(combobuf[MAPCOMBO(rpos_handle)].c_attributes[8].getTrunc(),pan((int32_t)x));
 			
 			if(type==cTRIGFLAG && canPermSecret(cur_dmap, rpos_handle.screen))
 			{ 
@@ -25411,8 +25431,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if (combobuf[water].usrflags&cflag1)
 					Drown(1);
 				else Drown();
-				if(byte drown_sfx = combobuf[water].attribytes[4])
-					sfx(drown_sfx, pan(x));
+				sfx(combobuf[water].c_attributes[12].getTrunc(), pan(x));
 			}
 		}
 		else if (!isSwimming())
@@ -25433,43 +25452,30 @@ void HeroClass::checkspecial2(int32_t *ls)
 			stepnext = next_step;
 			auto rpos_handle = get_rpos_handle(stepnext, 0);
 			int cid = MAPCOMBO(rpos_handle);
+			auto const& cmb = combobuf[cid];
+			uint req_item_id = combobuf[cid].c_attributes[9].getTrunc();
+			int step_sfx_id = cmb.c_attributes[8].getTrunc();
 			
-			if
-		(
-			COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
-			(!combobuf[cid].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
-			&& /*HEAVY*/
-			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
-		)
-		{
-			sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-			rpos_handle.increment_data();
-		}
-			
-			if
-		(
-			COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
-			(!combobuf[cid].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
-			&& /*HEAVY*/
-			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
-		)
+			if (req_item_id && req_item_id < MAXITEMS && !game->item[req_item_id])
+				; // missing req item
+			else if ((cmb.usrflags&cflag1) && !Hero.HasHeavyBoots())
+				; // missing heavy boots
+			else if (cmb.type==cSTEP)
 			{
-				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
+				sfx(step_sfx_id,pan((int32_t)x));
+				rpos_handle.increment_data();
+			}
+			else if (cmb.type==cSTEPSAME)
+			{
+				sfx(step_sfx_id,pan((int32_t)x));
 				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 					if (rpos_handle.data() == cid)
 						rpos_handle.increment_data();
 				});
 			}
-			
-			if
-		(
-			COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
-			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
-			&& /*HEAVY*/
-			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
-		)
+			else if (cmb.type==cSTEPALL)
 			{
-				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
+				sfx(step_sfx_id,pan((int32_t)x));
 
 				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 					if (isStepType(rpos_handle.ctype()))
@@ -26813,7 +26819,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		
 		int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
-		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,get_standing_z_state()) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))
+		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,get_standing_z_state()) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].c_attributes[8] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))
 		{
 			hopclk=0xFF;
 			SetSwim();
@@ -27133,7 +27139,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	// But keep him swimming if he ought to be!
 	// Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
 	if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,get_standing_z_state()) || get_qr(qr_DROWN))
-			//&& (current_item(itype_flippers) >= combobuf[checkwater].attribytes[0]) 
+			//&& (current_item(itype_flippers) >= combobuf[checkwater].c_attributes[8]) 
 		&& (action!=inwind))
 	{
 		hopclk=0xFF;
@@ -33264,7 +33270,7 @@ void HeroClass::check_conveyor()
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
 		int32_t ctype=cmb->type;
-		auto rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
+		auto rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
 		if(custom_spd && (newconveyorclk % rate)) return;
 		if((cmb->usrflags&cflag5) && HasHeavyBoots())
 			return;
@@ -33277,8 +33283,8 @@ void HeroClass::check_conveyor()
 		
 		if (is_conveyor(ctype) && custom_spd)
 		{
-			deltax = zslongToFix(cmb->attributes[0]);
-			deltay = zslongToFix(cmb->attributes[1]);
+			deltax = cmb->c_attributes[0];
+			deltay = cmb->c_attributes[1];
 		}
 		
 		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid_oldpos(this)))
@@ -33287,13 +33293,13 @@ void HeroClass::check_conveyor()
 			cmb = &combobuf[cmbid];
 			custom_spd = cmb->usrflags&cflag2;
 			ctype=(cmb->type);
-			rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
+			rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
 			deltax=combo_class_buf[ctype].conveyor_x_speed;
 			deltay=combo_class_buf[ctype].conveyor_y_speed;
 			if ((deltax != 0 || deltay != 0) && custom_spd)
 			{
-				deltax = zslongToFix(cmb->attributes[0]);
-				deltay = zslongToFix(cmb->attributes[1]);
+				deltax = cmb->c_attributes[0];
+				deltay = cmb->c_attributes[1];
 			}
 		}
 		

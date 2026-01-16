@@ -2071,7 +2071,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 							return 0;
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
-						|| (hero && current_item(itype_flippers) < cmb.attribytes[0])
+						|| (hero && current_item(itype_flippers) < cmb.c_attributes[8])
 						|| (hero && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))))
 					{
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
@@ -2579,7 +2579,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 			{
 				auto& cmb = rpos_handle.combo();
 				if(!(cmb.usrflags&cflag16)) return; //custom state instead of normal state
-				if(cmb.attribytes[5] == xflag)
+				if(cmb.c_attributes[13].getTrunc() == xflag)
 				{
 					rpos_handle.increment_data();
 					didit=true;
@@ -2608,7 +2608,7 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 				case cBOSSCHEST: case cBOSSCHEST2:
 				{
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-					if(cmb.attribytes[5] == xflag)
+					if(cmb.c_attributes[13].getTrunc() == xflag)
 					{
 						zc_ffc_modify(*ffc_handle.ffc, 1);
 						didit=true;
@@ -7053,8 +7053,8 @@ static inline bool standing_on_z(newcombo const& cmb, zfix const& standing_z_sta
 	zfix cmb_z, cmb_z_step;
 	if(cmb.type == cCSWITCHBLOCK && (cmb.usrflags & cflag9))
 	{
-		cmb_z = zslongToFix(cmb.attributes[2]);
-		cmb_z_step = zslongToFix(zc_max(0,cmb.attributes[3]));
+		cmb_z = cmb.c_attributes[2];
+		cmb_z_step = zc_max(0_zf,cmb.c_attributes[3]);
 	}
 	else if(cmb.genflags & cflag3)
 	{
@@ -7511,15 +7511,15 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 			trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
 				return trig.trigger_flags.get(TRIGFLAG_TRIGLEVELSTATE) && trig.trig_lstate < 32 && (flags&(1<<trig.trig_lstate));
 			}, ctrigSWITCHSTATE);
-		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
+		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && unsigned(cmb.c_attributes[8].getTrunc()) < 32
 			&& !(cmb.usrflags & cflag11)) //global state
 		{
-			if(flags&(1<<cmb.attribytes[0]))
+			if(flags&(1<<cmb.c_attributes[8].getTrunc()))
 			{
 				set<int32_t> oldData;
 				//Increment the combo/cset by the attributes
-				int32_t cmbofs = (cmb.attributes[0]/10000L);
-				int32_t csofs = (cmb.attributes[1]/10000L);
+				int32_t cmbofs = cmb.c_attributes[0].getTrunc();
+				int32_t csofs = cmb.c_attributes[1].getTrunc();
 				oldData.insert(scr->data[pos]);
 				scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 				scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -7561,7 +7561,7 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 						continue;
 					newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
 					if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
-							&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
+							&& unsigned(cmb_2.c_attributes[8].getTrunc()) < 32 && (flags&(1<<cmb_2.c_attributes[8].getTrunc())))
 						continue; //This is a switch/block that will be hit later in the loop!
 					set<int32_t> oldData2;
 					//Increment the combo/cset by the original cmb's attributes
@@ -7602,13 +7602,13 @@ void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_han
 	if(get_qr(qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
-		if(!(cmb.usrflags & cflag11) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
+		if(!(cmb.usrflags & cflag11) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && unsigned(cmb.c_attributes[8].getTrunc()) < 32)
 		{
-			if(flags&(1<<cmb.attribytes[0]))
+			if(flags&(1<<cmb.c_attributes[8].getTrunc()))
 			{
 				//Increment the combo/cset by the attributes
-				int32_t cmbofs = (cmb.attributes[0]/10000L);
-				int32_t csofs = (cmb.attributes[1]/10000L);
+				int32_t cmbofs = cmb.c_attributes[0].getTrunc();
+				int32_t csofs = cmb.c_attributes[1].getTrunc();
 				mblock2.bcombo = BOUND_COMBO(mblock2.bcombo + cmbofs);
 				mblock2.cs = (mblock2.cs + csofs) & 15;
 				int32_t cmbid = mblock2.bcombo;
@@ -7686,12 +7686,13 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 			newcombo const& cmb = combobuf[cid];
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
 			{
-				if(states[cmb.attribytes[0]])
+				uint state_idx = cmb.c_attributes[8].getTrunc();
+				if(state_idx < 256 && states[state_idx])
 				{
 					set<int32_t> oldData;
 					//Increment the combo/cset by the attributes
-					int32_t cmbofs = (cmb.attributes[0]/10000L);
-					int32_t csofs = (cmb.attributes[1]/10000L);
+					int32_t cmbofs = cmb.c_attributes[0].getTrunc();
+					int32_t csofs = cmb.c_attributes[1].getTrunc();
 					oldData.insert(scr->data[pos]);
 					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
 					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
@@ -7730,8 +7731,9 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 						if(!scr_2 || !scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
+						uint state_idx = cmb_2.c_attributes[8].getTrunc();
 						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK)
-							&& (cmb_2.usrflags & cflag11) && (states[cmb_2.attribytes[0]]))
+							&& (cmb_2.usrflags & cflag11) && (state_idx < 256 && states[state_idx]))
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
@@ -7774,11 +7776,12 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 		newcombo const& cmb = combobuf[mblock2.bcombo];
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && (cmb.usrflags & cflag11))
 		{
-			if(states[cmb.attribytes[0]])
+			uint state_idx = cmb.c_attributes[8].getTrunc();
+			if(state_idx < 256 && states[state_idx])
 			{
 				//Increment the combo/cset by the attributes
-				int32_t cmbofs = (cmb.attributes[0]/10000L);
-				int32_t csofs = (cmb.attributes[1]/10000L);
+				int32_t cmbofs = cmb.c_attributes[0].getTrunc();
+				int32_t csofs = cmb.c_attributes[1].getTrunc();
 				mblock2.bcombo = BOUND_COMBO(mblock2.bcombo + cmbofs);
 				mblock2.cs = (mblock2.cs + csofs) & 15;
 				int32_t cmbid = mblock2.bcombo;

@@ -5,14 +5,34 @@
 // combodata arrays.
 
 static ArrayRegistrar COMBODATTRIBUTES_registrar(COMBODATTRIBUTES, []{
-	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attributes> impl;
+	static ScriptingArray_ObjectComputed<newcombo, int> impl(
+		[](newcombo* cmb) {
+			return NUM_COMBO_ATTRIBUTES;
+		},
+		[](newcombo* cmb, int index) -> int {
+			return cmb->c_attributes[index].getZLong();
+		},
+		[](newcombo* cmb, int index, int value) {
+			cmb->c_attributes[index] = zslongToFix(value);
+		}
+	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar COMBODATTRISHORTS_registrar(COMBODATTRISHORTS, []{
-	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attrishorts> impl;
+	static ScriptingArray_ObjectComputed<newcombo, int> impl(
+		[](newcombo* cmb){
+			return 8;
+		},
+		[](newcombo* cmb, int index) -> int {
+			return cmb->c_attributes[16 + index].getTrunc();
+		},
+		[](newcombo* cmb, int index, int value){
+			cmb->c_attributes[16 + index] = value;
+		}
+	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vbound<-32768, 32767>);
@@ -20,10 +40,19 @@ static ArrayRegistrar COMBODATTRISHORTS_registrar(COMBODATTRISHORTS, []{
 }());
 
 static ArrayRegistrar COMBODATTRIBYTES_registrar(COMBODATTRIBYTES, []{
-	static ScriptingArray_ObjectMemberCArray<newcombo, &newcombo::attribytes> impl;
+	static ScriptingArray_ObjectComputed<newcombo, int> impl(
+		[](newcombo* cmb){
+			return 8;
+		},
+		[](newcombo* cmb, int index) -> int {
+			return cmb->c_attributes[8 + index].getTrunc();
+		},
+		[](newcombo* cmb, int index, int value){
+			cmb->c_attributes[8 + index] = value;
+		}
+	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-
 	impl.setValueTransform(transforms::vbound<0, 214747>);
 	return &impl;
 }());

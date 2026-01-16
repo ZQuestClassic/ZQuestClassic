@@ -132,9 +132,6 @@ size_t ComboWizardDialog::getRadio(size_t rs)
 	return 0;
 }
 
-#define RESET(member) (local_ref.member = src_ref.member)
-#define ZERO(member) (local_ref.member = 0)
-#define RESET_ZERO(member,flag) (local_ref.member = (flag ? 0 : src_ref.member))
 void ComboWizardDialog::update(bool first)
 {
 	switch(local_ref.type)
@@ -206,23 +203,23 @@ void ComboWizardDialog::update(bool first)
 		}
 		case cSLOPE:
 		{
-			tfs[0]->setVal(local_ref.attrishorts[0]);
-			tfs[1]->setVal(local_ref.attrishorts[1]);
-			tfs[2]->setVal(local_ref.attrishorts[2]);
-			tfs[3]->setVal(local_ref.attrishorts[3]);
-			tfs[4]->setVal(local_ref.attributes[0]);
+			tfs[0]->setVal(local_ref.c_attributes[16]);
+			tfs[1]->setVal(local_ref.c_attributes[17]);
+			tfs[2]->setVal(local_ref.c_attributes[18]);
+			tfs[3]->setVal(local_ref.c_attributes[19]);
+			tfs[4]->setVal(local_ref.c_attributes[0].getZLong());
 			break;
 		}
 		case cSHOOTER:
 		{
-			auto& weap_type = local_ref.attribytes[1];
+			auto& weap_type = local_ref.c_attributes[9];
 			bool lw = weap_type < wEnemyWeapons;
 			if(weap_type >= wScript1 && weap_type <= wScript10)
 				lw = (local_ref.usrflags&cflag5)!=0;
 			if(first || (!(flags&1) != !lw)) //init or lw status changed
 			{
 				switcher[0]->switchTo(lw?0:1);
-				ddls[lw?3:4]->setSelectedValue(local_ref.attribytes[5]);
+				ddls[lw?3:4]->setSelectedValue(local_ref.c_attributes[13]);
 				SETFLAG(flags, 1, lw);
 			}
 			//
@@ -263,12 +260,10 @@ void ComboWizardDialog::update(bool first)
 			cboxes[0]->setDisabled(lvl < 1); //'Use Special Item State'
 			//
 			
-			byte& exstate = local_ref.attribytes[5];
 			auto rad0 = getRadio(0);
 			
 			tfs[0]->setDisabled(rad0==0);
 			
-			int16_t& contains_item = local_ref.attrishorts[2];
 			auto rad1 = getRadio(1);
 			
 			ddls[2]->setDisabled(rad1!=0);
@@ -319,7 +314,6 @@ void ComboWizardDialog::update(bool first)
 			grids[0]->setDisabled(lvl < 3); //Locking
 			//
 			
-			byte& exstate = local_ref.attribytes[5];
 			auto rad0 = getRadio(0);
 			
 			tfs[0]->setDisabled(rad0==0);
@@ -383,14 +377,14 @@ void ComboWizardDialog::endUpdate()
 		{
 			if(src_ref.type == cSTEPCOPY)
 			{
-				local_ref.attribytes[0] = src_ref.attribytes[0];
-				local_ref.attribytes[1] = src_ref.attribytes[1];
+				local_ref.c_attributes[8] = src_ref.c_attributes[8];
+				local_ref.c_attributes[9] = src_ref.c_attributes[9];
 				local_ref.usrflags = src_ref.usrflags;
 			}
 			else
 			{
-				local_ref.attribytes[0] = 0;
-				local_ref.attribytes[1] = 0;
+				local_ref.c_attributes[8] = 0;
+				local_ref.c_attributes[9] = 0;
 				local_ref.usrflags &= ~cflag1;
 			}
 			break;
@@ -401,19 +395,19 @@ void ComboWizardDialog::endUpdate()
 			{
 				if(src_ref.usrflags&cflag2)
 				{
-					local_ref.attribytes[1] = 0;
-					local_ref.attribytes[2] = 0;
-					local_ref.attribytes[3] = 0;
-					local_ref.attributes[1] = 0;
-					local_ref.attributes[2] = 0;
+					local_ref.c_attributes[9] = 0;
+					local_ref.c_attributes[10] = 0;
+					local_ref.c_attributes[11] = 0;
+					local_ref.c_attributes[1] = 0;
+					local_ref.c_attributes[2] = 0;
 				}
 				else
 				{
-					local_ref.attribytes[1] = src_ref.attribytes[1];
-					local_ref.attribytes[2] = src_ref.attribytes[2];
-					local_ref.attribytes[3] = src_ref.attribytes[3];
-					local_ref.attributes[1] = src_ref.attributes[1];
-					local_ref.attributes[2] = src_ref.attributes[2];
+					local_ref.c_attributes[9] = src_ref.c_attributes[9];
+					local_ref.c_attributes[10] = src_ref.c_attributes[10];
+					local_ref.c_attributes[11] = src_ref.c_attributes[11];
+					local_ref.c_attributes[1] = src_ref.c_attributes[1];
+					local_ref.c_attributes[2] = src_ref.c_attributes[2];
 					local_ref.usrflags &= ~(cflag5|cflag6|cflag7);
 					local_ref.usrflags |= src_ref.usrflags & (cflag5|cflag6|cflag7);
 				}
@@ -422,8 +416,8 @@ void ComboWizardDialog::endUpdate()
 		}
 		case cARMOS: case cGRAVE: case cBSGRAVE:
 		{
-			byte& e1 = local_ref.attribytes[0];
-			byte& e2 = local_ref.attribytes[1];
+			zfix& e1 = local_ref.c_attributes[8];
+			zfix& e2 = local_ref.c_attributes[9];
 			bool fl1 = src_ref.usrflags&cflag1;
 			bool fl2 = src_ref.usrflags&cflag2;
 			
@@ -441,13 +435,13 @@ void ComboWizardDialog::endUpdate()
 					zc_swap(e1,e2);
 				local_ref.usrflags |= cflag1;
 				local_ref.usrflags &= ~cflag2;
-				RESET_ZERO(attribytes[1],fl2);
+				local_ref.c_attributes[9] = (fl2 ? 0_zf : src_ref.c_attributes[9]);
 			}
 			else
 			{
 				local_ref.usrflags &= ~(cflag1|cflag2);
-				RESET_ZERO(attribytes[0],fl1);
-				RESET_ZERO(attribytes[1],fl2);
+				local_ref.c_attributes[8] = (fl1 ? 0_zf : src_ref.c_attributes[8]);
+				local_ref.c_attributes[9] = (fl2 ? 0_zf : src_ref.c_attributes[9]);
 			}
 			break;
 		}
@@ -456,29 +450,29 @@ void ComboWizardDialog::endUpdate()
 			//Angle stuff
 			size_t adir = getRadio(0);
 			SETFLAG(local_ref.usrflags,cflag1,adir!=0);
-			int32_t& a0 = local_ref.attributes[0];
+			zfix& angle_dir = local_ref.c_attributes[0];
 			switch(adir)
 			{
 				case 0:
-					a0 = ddls[5]->getSelectedValue()*10000;
+					angle_dir = ddls[5]->getSelectedValue();
 					break;
 				case 1: //Angle
-					a0 = tfs[2]->getVal();
-					a0 = SMART_WRAP(a0, 360*10000);
+					angle_dir = zslongToFix(tfs[2]->getVal());
+					angle_dir = SMART_WRAP(angle_dir, 360_zf);
 					break;
 				case 2:
-					a0 = -1*10000;
+					angle_dir = -1;
 					break;
 				case 3:
-					a0 = -2*10000;
+					angle_dir = -2;
 					break;
 				case 4:
-					a0 = -3*10000;
+					angle_dir = -3*10000;
 					break;
 			}
 			//Rate stuff
-			int16_t& rate = local_ref.attrishorts[0];
-			int16_t& high_rate = local_ref.attrishorts[1];
+			zfix& rate = local_ref.c_attributes[16];
+			zfix& high_rate = local_ref.c_attributes[17];
 			SETFLAG(local_ref.usrflags,cflag2,high_rate != rate);
 			if(high_rate != rate)
 			{
@@ -491,37 +485,39 @@ void ComboWizardDialog::endUpdate()
 			}
 			else
 			{
-				high_rate = src_ref.attrishorts[1];
+				high_rate = src_ref.c_attributes[17];
 			}
 			//Proximity stuff
-			int32_t& a1 = local_ref.attributes[1];
+			zfix& prox = local_ref.c_attributes[1];
 			if(!(local_ref.usrflags&cflag4))
 			{
 				if(!(src_ref.usrflags&cflag4))
-					a1 = 0;
-				else a1 = src_ref.attributes[1];
+					prox = 0;
+				else prox = src_ref.c_attributes[1];
 			}
 			//Spread stuff
-			byte& b3 = local_ref.attribytes[3];
-			int32_t& a3 = local_ref.attributes[3];
+			zfix& shot_count = local_ref.c_attributes[11];
+			zfix& spread = local_ref.c_attributes[3];
 			if(!(local_ref.usrflags&cflag7))
 			{
 				if(src_ref.usrflags&cflag7)
 				{
-					a3 = 0;
-					b3 = 0;
+					spread = 0;
+					shot_count = 0;
 				}
 				else
 				{
-					a3 = src_ref.attributes[3];
-					b3 = src_ref.attribytes[3];
+					spread = src_ref.c_attributes[3];
+					shot_count = src_ref.c_attributes[11];
 				}
 			}
 			// misc weap data
+			zfix& unblockable = local_ref.c_attributes[12];
+			zfix& script = local_ref.c_attributes[13];
 			if(local_ref.usrflags & cflag10)
 			{
-				local_ref.attribytes[4] = 0;
-				local_ref.attribytes[5] = 0;
+				unblockable = 0;
+				script = 0;
 			}
 			break;
 		}
@@ -533,7 +529,9 @@ void ComboWizardDialog::endUpdate()
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
 			size_t decoty = getRadio(0);
-			byte& decospr = local_ref.attribytes[0];
+			zfix& decospr = local_ref.c_attributes[8];
+			zfix& dropitem = local_ref.c_attributes[9];
+			zfix& cutsfx = local_ref.c_attributes[10];
 			
 			SETFLAG(local_ref.usrflags,cflag1,decoty != 0);
 			SETFLAG(local_ref.usrflags,cflag10,decoty == 1);
@@ -551,7 +549,6 @@ void ComboWizardDialog::endUpdate()
 			}
 			
 			size_t dropty = getRadio(1);
-			byte& dropitem = local_ref.attribytes[1];
 			switch(dropty)
 			{
 				case 0:
@@ -570,14 +567,15 @@ void ComboWizardDialog::endUpdate()
 			size_t sfxty = getRadio(2);
 			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
 			if(sfxty==0)
-				local_ref.attribytes[2] = 0;
-			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
+				cutsfx = 0;
+			else cutsfx = ddls[4]->getSelectedValue();
 			break;
 		}
 		case cSLASHNEXT:
 		{
 			size_t decoty = getRadio(0);
-			byte& decospr = local_ref.attribytes[0];
+			zfix& decospr = local_ref.c_attributes[8];
+			zfix& cutsfx = local_ref.c_attributes[10];
 			
 			SETFLAG(local_ref.usrflags,cflag1,decoty != 0);
 			SETFLAG(local_ref.usrflags,cflag10,decoty == 1);
@@ -597,8 +595,8 @@ void ComboWizardDialog::endUpdate()
 			size_t sfxty = getRadio(2);
 			SETFLAG(local_ref.usrflags,cflag3,sfxty==1);
 			if(sfxty==0)
-				local_ref.attribytes[2] = 0;
-			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
+				cutsfx = 0;
+			else cutsfx = ddls[4]->getSelectedValue();
 			break;
 		}
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -612,14 +610,14 @@ void ComboWizardDialog::endUpdate()
 			else if(local_ref.type == cLOCKEDCHEST)
 				lvl = 3;
 			
-			byte& exstate = local_ref.attribytes[5];
+			zfix& exstate = local_ref.c_attributes[13];
 			auto rad0 = getRadio(0);
 			
 			if(rad0==0)
 				exstate = 0;
 			SETFLAG(local_ref.usrflags,cflag16,rad0);
 			
-			int16_t& contains_item = local_ref.attrishorts[2];
+			zfix& contains_item = local_ref.c_attributes[18];
 			auto rad1 = getRadio(1);
 			
 			contains_item = ddls[rad1==1 ? 3 : 2]->getSelectedValue();
@@ -628,11 +626,11 @@ void ComboWizardDialog::endUpdate()
 			bool prompt = lvl > 0 && cboxes[1]->getChecked();
 			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
 			
-			int32_t& prompt_combo = local_ref.attributes[1];
-			int32_t& prompt_combo2 = local_ref.attributes[2];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& prompt_combo = local_ref.c_attributes[1];
+			zfix& prompt_combo2 = local_ref.c_attributes[2];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
 			prompt_combo = 0;
 			prompt_cset = 0;
 			prompt_xoff = 12;
@@ -640,12 +638,12 @@ void ComboWizardDialog::endUpdate()
 			prompt_combo2 = 0;
 			if(prompt)
 			{
-				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_combo = cmbswatches[0]->getCombo();
 				prompt_cset = cmbswatches[0]->getCSet();
 				prompt_xoff = tfs[1]->getVal();
 				prompt_yoff = tfs[2]->getVal();
 				if(lockprompt)
-					prompt_combo2 = cmbswatches[1]->getCombo()*10000;
+					prompt_combo2 = cmbswatches[1]->getCombo();
 			}
 			
 			//Locking
@@ -653,9 +651,9 @@ void ComboWizardDialog::endUpdate()
 			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
 			
 			auto rad2 = getRadio(2);
-			byte& usecounter = local_ref.attribytes[1];
-			byte& reqitem = local_ref.attribytes[0];
-			int32_t& amount = local_ref.attributes[0];
+			zfix& reqitem = local_ref.c_attributes[8];
+			zfix& usecounter = local_ref.c_attributes[9];
+			zfix& amount = local_ref.c_attributes[0];
 			
 			if(!itemkey)
 			{
@@ -690,7 +688,7 @@ void ComboWizardDialog::endUpdate()
 			else if(local_ref.type == cLOCKBLOCK)
 				lvl = 3;
 			
-			byte& exstate = local_ref.attribytes[5];
+			zfix& exstate = local_ref.c_attributes[13];
 			auto rad0 = getRadio(0);
 			
 			if(rad0==0)
@@ -701,11 +699,11 @@ void ComboWizardDialog::endUpdate()
 			bool prompt = lvl > 0 && cboxes[1]->getChecked();
 			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
 			
-			int32_t& prompt_combo = local_ref.attributes[1];
-			int32_t& prompt_combo2 = local_ref.attributes[2];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& prompt_combo = local_ref.c_attributes[1];
+			zfix& prompt_combo2 = local_ref.c_attributes[2];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
 			prompt_combo = 0;
 			prompt_cset = 0;
 			prompt_xoff = 12;
@@ -713,12 +711,12 @@ void ComboWizardDialog::endUpdate()
 			prompt_combo2 = 0;
 			if(prompt)
 			{
-				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_combo = cmbswatches[0]->getCombo();
 				prompt_cset = cmbswatches[0]->getCSet();
 				prompt_xoff = tfs[1]->getVal();
 				prompt_yoff = tfs[2]->getVal();
 				if(lockprompt)
-					prompt_combo2 = cmbswatches[1]->getCombo()*10000;
+					prompt_combo2 = cmbswatches[1]->getCombo();
 			}
 			
 			//Locking
@@ -726,9 +724,9 @@ void ComboWizardDialog::endUpdate()
 			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
 			
 			auto rad2 = getRadio(2);
-			byte& usecounter = local_ref.attribytes[1];
-			byte& reqitem = local_ref.attribytes[0];
-			int32_t& amount = local_ref.attributes[0];
+			zfix& reqitem = local_ref.c_attributes[8];
+			zfix& usecounter = local_ref.c_attributes[9];
+			zfix& amount = local_ref.c_attributes[0];
 			
 			if(!itemkey)
 			{
@@ -757,17 +755,17 @@ void ComboWizardDialog::endUpdate()
 		case cSIGNPOST:
 		{
 			bool prompt = cboxes[1]->getChecked();
-			int32_t& prompt_combo = local_ref.attributes[1];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& prompt_combo = local_ref.c_attributes[9];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
 			prompt_combo = 0;
 			prompt_cset = 0;
 			prompt_xoff = 12;
 			prompt_yoff = -8;
 			if(prompt)
 			{
-				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_combo = cmbswatches[0]->getCombo();
 				prompt_cset = cmbswatches[0]->getCSet();
 				prompt_xoff = tfs[1]->getVal();
 				prompt_yoff = tfs[2]->getVal();
@@ -779,17 +777,17 @@ void ComboWizardDialog::endUpdate()
 			bool ending = (local_ref.usrflags & cflag1);
 			if(ending)
 			{
-				local_ref.attributes[0] = 0;
-				local_ref.attribytes[0] = 0;
+				local_ref.c_attributes[0] = 0;
+				local_ref.c_attributes[8] = 0;
 				SETFLAG(local_ref.usrflags,cflag2,false);
 			}
 			break;
 		}
 		case cCRUMBLE:
 		{
-			if(dest_ref.attribytes[0] == CMBTY_CRUMBLE_RESET
-				&& local_ref.attribytes[0] != CMBTY_CRUMBLE_RESET)
-				local_ref.attrishorts[1] = 0;
+			if(dest_ref.c_attributes[8] == CMBTY_CRUMBLE_RESET
+				&& local_ref.c_attributes[8] != CMBTY_CRUMBLE_RESET)
+				local_ref.c_attributes[17] = 0;
 			break;
 		}
 		case cICY:
@@ -798,11 +796,11 @@ void ComboWizardDialog::endUpdate()
 			bool wasplayer = (src_ref.usrflags & cflag2);
 			if(wasplayer && !player)
 			{
-				local_ref.attribytes[0] = 0;
-				local_ref.attribytes[1] = 0;
-				local_ref.attributes[0] = 0;
-				local_ref.attributes[1] = 0;
-				local_ref.attributes[2] = 0;
+				local_ref.c_attributes[8] = 0;
+				local_ref.c_attributes[9] = 0;
+				local_ref.c_attributes[0] = 0;
+				local_ref.c_attributes[1] = 0;
+				local_ref.c_attributes[2] = 0;
 			}
 			break;
 		}
@@ -811,9 +809,9 @@ void ComboWizardDialog::endUpdate()
 		case cSAVE: case cSAVE2:
 		{
 			if (!(local_ref.usrflags & cflag1))
-				local_ref.attribytes[0] = 0;
+				local_ref.c_attributes[8] = 0;
 			if (!(local_ref.usrflags & cflag2))
-				local_ref.attribytes[1] = 0;
+				local_ref.c_attributes[9] = 0;
 			break;
 		}
 	}
@@ -865,9 +863,7 @@ void combo_default(newcombo& ref, bool typeonly)
 {
 	if(typeonly)
 	{
-		memset(ref.attributes, 0, sizeof(ref.attributes));
-		memset(ref.attribytes, 0, sizeof(ref.attribytes));
-		memset(ref.attrishorts, 0, sizeof(ref.attrishorts));
+		memset(ref.c_attributes, 0, sizeof(ref.c_attributes));
 		ref.usrflags = 0;
 	}
 	else
@@ -879,58 +875,58 @@ void combo_default(newcombo& ref, bool typeonly)
 	switch(ref.type)
 	{
 		case cSLOPE:
-			ref.attrishorts[0] = 15;
-			ref.attrishorts[3] = 15;
+			ref.c_attributes[16] = 15;
+			ref.c_attributes[19] = 15;
 			break;
 		case cWATER:
-			ref.attributes[0] = 40000;
+			ref.c_attributes[0] = 4;
 			break;
 		case cSHOOTER:
-			ref.attribytes[1] = ewArrow;
-			ref.attribytes[2] = 19;
-			ref.attrishorts[0] = 60;
-			ref.attrishorts[2] = 2;
-			ref.attributes[0] = -1*10000;
-			ref.attributes[1] = 4*10000;
-			ref.attributes[2] = 200*10000;
+			ref.c_attributes[9] = ewArrow;
+			ref.c_attributes[10] = 19;
+			ref.c_attributes[16] = 60;
+			ref.c_attributes[18] = 2;
+			ref.c_attributes[0] = -1;
+			ref.c_attributes[1] = 4;
+			ref.c_attributes[2] = 200;
 			ref.usrflags = cflag1 | cflag4;
 			break;
 		case cSTEPSFX:
-			ref.attribytes[1] = ewBomb;
-			ref.attribytes[3] = 76;
-			ref.attributes[0] = 4*10000;
+			ref.c_attributes[9] = ewBomb;
+			ref.c_attributes[11] = 76;
+			ref.c_attributes[0] = 4;
 			ref.usrflags = cflag1;
 			break;
 		case cTORCH:
-			ref.attribytes[0] = 32;
+			ref.c_attributes[8] = 32;
 			break;
 		case cMIRRORNEW:
 			for(byte q = 0; q < 8; ++q)
-				ref.attribytes[q] = q;
+				ref.c_attributes[q + 8] = q;
 		[[fallthrough]];
 		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
-			ref.attributes[0] = 0;
+			ref.c_attributes[0] = 0;
 			break;
 		case cCRUMBLE:
-			ref.attrishorts[0] = 45;
+			ref.c_attributes[16] = 45;
 			break;
 		case cICY:
 			ref.usrflags |= cflag1|cflag2;
-			ref.attribytes[0] = 75;
-			ref.attribytes[1] = 15;
-			ref.attributes[0] = 0.0400_zl;
-			ref.attributes[1] = 0.0200_zl;
-			ref.attributes[2] = 1.5000_zl;
+			ref.c_attributes[8] = 75;
+			ref.c_attributes[9] = 15;
+			ref.c_attributes[0] = 0.0400_zf;
+			ref.c_attributes[1] = 0.0200_zf;
+			ref.c_attributes[2] = 1.5000_zf;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
-			ref.attributes[0] = 1*10000;
+			ref.c_attributes[0] = 1;
 			[[fallthrough]];
 		case cBOSSCHEST:
 			[[fallthrough]];
 		case cCHEST:
-			ref.attribytes[2] = 0x01;
-			ref.attrishorts[2] = -1;
+			ref.c_attributes[10] = 0x01;
+			ref.c_attributes[18] = -1;
 			ref.usrflags = cflag7|cflag9|cflag11|cflag12;
 			if(!typeonly)
 				ref.flag = mfARMOS_ITEM;
@@ -939,23 +935,23 @@ void combo_default(newcombo& ref, bool typeonly)
 			break;
 		//LOCKBLOCKS
 		case cLOCKBLOCK:
-			ref.attributes[0] = 1*10000;
+			ref.c_attributes[0] = 1;
 			[[fallthrough]];
 		case cBOSSLOCKBLOCK:
-			ref.attribytes[3] = WAV_DOOR;
+			ref.c_attributes[11] = WAV_DOOR;
 			[[fallthrough]];
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
 			break;
 		case cCUTSCENEEFFECT:
 		{
-			switch(ref.attribytes[0])
+			switch(ref.c_attributes[8].getTrunc())
 			{
 				default:
-					ref.attribytes[0] = CUTEFF_PLAYER_WALK;
+					ref.c_attributes[8] = CUTEFF_PLAYER_WALK;
 				[[fallthrough]];
 				case CUTEFF_PLAYER_WALK:
-					ref.attributes[0] = ref.attributes[1] = 0;
-					ref.attributes[2] = 0;
+					ref.c_attributes[0] = ref.c_attributes[1] = 0;
+					ref.c_attributes[2] = 0;
 					SETFLAG(ref.usrflags, cflag1, true);
 					SETFLAG(ref.usrflags, cflag2, false);
 					break;
@@ -964,8 +960,8 @@ void combo_default(newcombo& ref, bool typeonly)
 		}
 		case cSAVE: case cSAVE2:
 		{
-			ref.attribytes[0] = 100;
-			ref.attribytes[1] = 100;
+			ref.c_attributes[8] = 100;
+			ref.c_attributes[9] = 100;
 			ref.usrflags |= (cflag1|cflag2);
 			break;
 		}
@@ -1013,7 +1009,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		{
-			byte& warp_sfx = local_ref.attribytes[0];
+			zfix& warp_sfx = local_ref.c_attributes[8];
+			warp_sfx.doTrunc();
+			
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm){return isWarpType(itm.value);});
 			windowRow->add(
@@ -1041,17 +1039,20 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cCUTSCENETRIG:
 		{
-			byte& errsfx = local_ref.attribytes[0];
+			zfix& errsfx = local_ref.c_attributes[8];
+			int32_t& btns = local_ref.c_attributes[0].val;
+			errsfx.doTrunc();
+			
 			grids[0] = Columns<7>();
 			static const char* btn_names[] = {"Up","Down","Left","Right","A","B","Start","L","R","Map","Ex1","Ex2","Ex3","Ex4","StickUp","StickDown","StickLeft","StickRight"};
 			for(int q = 0; q < 18; ++q)
 			{
 				grids[0]->add(Checkbox(
 					text = btn_names[q], hAlign = 0.0,
-					checked = (local_ref.attributes[0]&(1<<q)),
+					checked = (btns&(1<<q)),
 					onToggleFunc = [&,q](bool state)
 					{
-						SETFLAG(local_ref.attributes[0],(1<<q),state);
+						SETFLAG(btns,(1<<q),state);
 					}
 				));
 			}
@@ -1100,11 +1101,15 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cSLOPE:
 		{
 			local_ref.walk -= local_ref.walk & 0x0F; //nonsolid combo
-			int16_t& x1 = local_ref.attrishorts[0];
-			int16_t& y1 = local_ref.attrishorts[1];
-			int16_t& x2 = local_ref.attrishorts[2];
-			int16_t& y2 = local_ref.attrishorts[3];
-			int32_t& slip = local_ref.attributes[0];
+			zfix& x1 = local_ref.c_attributes[0];
+			zfix& y1 = local_ref.c_attributes[1];
+			zfix& x2 = local_ref.c_attributes[2];
+			zfix& y2 = local_ref.c_attributes[3];
+			int32_t& slip = local_ref.c_attributes[0].val;
+			
+			x1.doTrunc(); y1.doTrunc();
+			x2.doTrunc(); y2.doTrunc();
+			
 			windowRow->add(Row(
 				Rows<3>(
 					Label(text = "X Offset 1:", hAlign = 1.0),
@@ -1268,7 +1273,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
 		{
-			byte& trig_sfx = local_ref.attribytes[0];
+			zfix& trig_sfx = local_ref.c_attributes[8];
+			trig_sfx.doTrunc();
+			
 			bool perm = (local_ref.type==cTRIGFLAG||local_ref.type==cSTRIGFLAG);
 			bool sens = (local_ref.type==cSTRIGNOFLAG||local_ref.type==cSTRIGFLAG);
 			windowRow->add(
@@ -1335,8 +1342,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
 		{
-			byte& step_sfx = local_ref.attribytes[0];
-			byte& req_item = local_ref.attribytes[1];
+			zfix& step_sfx = local_ref.c_attributes[8];
+			zfix& req_item = local_ref.c_attributes[9];
+			step_sfx.doTrunc();
+			req_item.doTrunc();
+			
 			if(local_ref.type == cSTEPCOPY)
 			{
 				step_sfx = 0;
@@ -1432,9 +1442,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cARMOS: case cGRAVE: case cBSGRAVE:
 		{
 			lists[0] = GUI::ZCListData::enemies(true).filter(
-				[&](GUI::ListItem& itm){return unsigned(itm.value)<256;});
-			byte& e1 = local_ref.attribytes[0];
-			byte& e2 = local_ref.attribytes[1];
+				[&](GUI::ListItem& itm){return unsigned(itm.value)<MAXGUYS;});
+			zfix& e1 = local_ref.c_attributes[8];
+			zfix& e2 = local_ref.c_attributes[9];
+			e1.doTrunc();
+			e2.doTrunc();
+			
 			bool armos = local_ref.type==cARMOS;
 			
 			if(!(local_ref.usrflags&cflag1))
@@ -1515,23 +1528,34 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				{ "Solid is Shallow", cflag4 }
 			});
 			auto sel_val = (local_ref.usrflags&cflag4) ? cflag4 : (local_ref.usrflags&cflag3);
-			byte& flipp_level = local_ref.attribytes[0];
-			byte& drown_sfx = local_ref.attribytes[4];
-			int32_t& drown_damage = local_ref.attributes[0];
+			zfix& flipp_level = local_ref.c_attributes[8];
+			zfix& drown_sfx = local_ref.c_attributes[12];
+			zfix& drown_damage = local_ref.c_attributes[0];
 			
-			byte& ripple_sprite = local_ref.attribytes[6];
+			zfix& ripple_sprite = local_ref.c_attributes[14];
 			
 			//Shallow only
-			int shallow_indx = get_qr(qr_OLD_SHALLOW_SFX) ? 0 : 5;
-			byte& splash_sfx = local_ref.attribytes[shallow_indx];
+			int shallow_indx = get_qr(qr_OLD_SHALLOW_SFX) ? 8 : 13;
+			zfix& splash_sfx = local_ref.c_attributes[shallow_indx];
 			
 			//Both
 			lists[1] = GUI::ZCListData::itemclass(true,true);
-			byte& hp_delay = local_ref.attribytes[1];
-			byte& req_ic = local_ref.attribytes[2];
-			byte& req_it_lvl = local_ref.attribytes[3];
-			int32_t& hp_mod = local_ref.attributes[1];
-			int32_t& mod_sfx = local_ref.attributes[2];
+			zfix& hp_delay = local_ref.c_attributes[9];
+			zfix& req_ic = local_ref.c_attributes[10];
+			zfix& req_it_lvl = local_ref.c_attributes[11];
+			zfix& hp_mod = local_ref.c_attributes[1];
+			zfix& mod_sfx = local_ref.c_attributes[2];
+			
+			flipp_level.doTrunc();
+			drown_sfx.doTrunc();
+			drown_damage.doTrunc();
+			ripple_sprite.doTrunc();
+			splash_sfx.doTrunc();
+			hp_delay.doTrunc();
+			req_ic.doTrunc();
+			req_it_lvl.doTrunc();
+			hp_mod.doTrunc();
+			mod_sfx.doTrunc();
 			
 			std::shared_ptr<GUI::Grid> mainrow;
 			if(local_ref.type == cWATER) //deep
@@ -1597,10 +1621,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[1] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							val = drown_damage / 10000,
+							val = drown_damage,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								drown_damage = val * 10000;
+								drown_damage = val;
 							}),
 						INFOBTN("The amount of damage dealt when drowning, in HP points."
 							" If negative, drowning will heal the Hero."),
@@ -1668,10 +1692,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[2] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							val = hp_mod / 10000,
+							val = hp_mod,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								hp_mod = val * 10000;
+								hp_mod = val;
 							}),
 						INFOBTN("How much HP should be modified by (negative for damage)"),
 						//
@@ -1709,10 +1733,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						//
 						Label(text = "Mod SFX:", hAlign = 1.0),
 						ddls[3] = DropDownList(data = parent.list_sfx,
-							fitParent = true, selectedValue = mod_sfx/10000,
+							fitParent = true, selectedValue = mod_sfx,
 							onSelectFunc = [&](int32_t val)
 							{
-								mod_sfx = val*10000;
+								mod_sfx = val;
 							}),
 						INFOBTN("The SFX played every 'HP Delay' frames the Hero is in the liquid."),
 						//
@@ -1755,7 +1779,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		{
-			int32_t& damage = local_ref.attributes[0];
+			int32_t& damage = local_ref.c_attributes[0].val;
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm){return isDamageType(itm.value);});
 			rs_sz[0] = 2;
@@ -1821,40 +1845,53 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSHOOTER:
 		{
-			byte& shot_sfx = local_ref.attribytes[0];
-			byte& weap_type = local_ref.attribytes[1];
-			byte& weap_sprite = local_ref.attribytes[2];
-			int16_t& damage = local_ref.attrishorts[2];
-			int32_t& step = local_ref.attributes[2];
+			zfix& shot_sfx = local_ref.c_attributes[8];
+			zfix& weap_type = local_ref.c_attributes[9];
+			zfix& weap_sprite = local_ref.c_attributes[10];
+			zfix& damage = local_ref.c_attributes[18];
+			zfix& step = local_ref.c_attributes[2];
 			
-			byte& unblockable = local_ref.attribytes[4];
-			byte& script = local_ref.attribytes[5];
-			byte& parentid = local_ref.attribytes[6];
+			zfix& unblockable = local_ref.c_attributes[12];
+			zfix& script = local_ref.c_attributes[13];
+			zfix& parentid = local_ref.c_attributes[14];
 			
-			int32_t& angle_dir = local_ref.attributes[0];
+			zfix& angle_dir = local_ref.c_attributes[0];
 			
-			int16_t& rate = local_ref.attrishorts[0];
-			int16_t& high_rate = local_ref.attrishorts[1];
+			zfix& rate = local_ref.c_attributes[16];
+			zfix& high_rate = local_ref.c_attributes[17];
 			if(!(local_ref.usrflags&cflag2))
 				high_rate = rate;
 			
-			int32_t& prox = local_ref.attributes[1];
+			zfix& prox = local_ref.c_attributes[1];
 			if(prox < 0) prox = 0;
 			
-			byte& shot_count = local_ref.attribytes[3];
-			int32_t& spread = local_ref.attributes[3];
-			spread = SMART_WRAP(spread, 360*10000);
+			zfix& shot_count = local_ref.c_attributes[11];
+			zfix& spread = local_ref.c_attributes[3];
+			
+			shot_sfx.doTrunc();
+			weap_type.doTrunc();
+			weap_sprite.doTrunc();
+			damage.doTrunc();
+			step.doTrunc();
+			unblockable.doTrunc();
+			script.doTrunc();
+			parentid.doTrunc();
+			rate.doTrunc();
+			high_rate.doTrunc();
+			shot_count.doTrunc();
+			
+			spread = SMART_WRAP(spread, 360_zf);
 			if(shot_count < 2) shot_count = 2;
 			
 			size_t seladir = 0;
-			int32_t angle = 0;
+			zfix angle = 0;
 			int32_t dir = 0;
 			if(local_ref.usrflags&cflag1)
 			{
 				if(angle_dir < 0)
 				{
 					seladir = 4;
-					switch(angle_dir/10000)
+					switch(angle_dir.getTrunc())
 					{
 						case -1:
 							seladir = 2;
@@ -1869,13 +1906,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				else
 				{
 					seladir = 1;
-					angle = vbound(angle_dir,0,3599999);
-					dir = AngleToDir(WrapAngle(DegreesToRadians(angle/10000.0)));
+					angle = vbound(angle_dir,0_zf,359.9999_zf);
+					dir = AngleToDir(WrapAngle(DegreesToRadians(double(angle))));
 				}
 			}
 			else
 			{
-				dir = NORMAL_DIR(angle_dir / 10000);
+				dir = NORMAL_DIR(angle_dir.getTrunc());
 			}
 			
 			rs_sz[0] = 5;
@@ -2055,10 +2092,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[1] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_ZSINT,
-									val = step,
+									val = step.getZLong(),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										step = val;
+										step = zslongToFix(val);
 									}),
 								INFOBTN("The speed of the weapon, in 100ths px/frame"),
 								//
@@ -2104,10 +2141,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[5] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_ZSINT,
-									low = 0, val = prox, disabled = !(local_ref.usrflags&cflag4),
+									low = 0, val = prox.getZLong(), disabled = !(local_ref.usrflags&cflag4),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										prox = val;
+										prox = zslongToFix(val);
 									}),
 								INFOBTN("If enabled, the shooter will stop shooting when the Hero"
 									" is within this distance (in pixels) of the combo."),
@@ -2155,11 +2192,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								tfs[7] = TextField(
 									fitParent = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_ZSINT,
-									val = spread,
+									val = spread.getZLong(),
 									disabled = !(local_ref.usrflags&cflag7),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										spread = val;
+										spread = zslongToFix(val);
 									}),
 								INFOBTN("Angle in degrees between shots, if Multishot is enabled")
 							)
@@ -2181,7 +2218,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									disabled = seladir != 0,
 									onSelectFunc = [&](int32_t val)
 									{
-										angle_dir = val*10000;
+										angle_dir = val;
 									}),
 								//
 								rset[0][1] = Radio(
@@ -2196,10 +2233,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									forceFitH = true, minwidth = 8_em,
 									type = GUI::TextField::type::SWAP_ZSINT,
 									disabled = seladir != 1,
-									val = angle,
+									val = angle.getZLong(),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										angle_dir = val;
+										angle_dir = zslongToFix(val);
 									}),
 								//
 								rset[0][2] = Radio(
@@ -2261,13 +2298,20 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSTEPSFX:
 		{
-			byte& shot_sfx = local_ref.attribytes[0];
-			byte& weap_type = local_ref.attribytes[1];
-			byte& weap_dir = local_ref.attribytes[2];
-			byte& weap_sprite = local_ref.attribytes[3];
-			byte& parentid = local_ref.attribytes[4];
-			int32_t& damage = local_ref.attributes[0];
-			if(damage/10000 < 1) damage = 4*10000;
+			zfix& shot_sfx = local_ref.c_attributes[8];
+			zfix& weap_type = local_ref.c_attributes[9];
+			zfix& weap_dir = local_ref.c_attributes[10];
+			zfix& weap_sprite = local_ref.c_attributes[11];
+			zfix& parentid = local_ref.c_attributes[12];
+			zfix& damage = local_ref.c_attributes[0];
+			shot_sfx.doTrunc();
+			weap_type.doTrunc();
+			weap_dir.doTrunc();
+			weap_sprite.doTrunc();
+			parentid.doTrunc();
+			damage.doTrunc();
+			
+			if(damage < 1) damage = 4;
 			
 			lists[0] = GUI::ZCListData::items(true).filter(
 				[&](GUI::ListItem& itm)
@@ -2336,10 +2380,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 1, high = 214748, val = damage / 10000,
+							low = 1, high = 214748, val = damage,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								damage = val * 10000;
+								damage = val;
 							}),
 						INFOBTN("The damage of the spawned weapon.")
 					),
@@ -2416,9 +2460,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cTORCH:
 		{
-			byte& radius = local_ref.attribytes[0];
-			byte& shape = local_ref.attribytes[1];
-			byte& dir = local_ref.attribytes[2];
+			zfix& radius = local_ref.c_attributes[8];
+			zfix& shape = local_ref.c_attributes[9];
+			zfix& dir = local_ref.c_attributes[10];
+			radius.doTrunc();
+			shape.doTrunc();
+			dir.doTrunc();
+			
 			windowRow->add(
 				Rows<3>(
 					Label(text = "Size", hAlign = 1.0),
@@ -2453,72 +2501,83 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cMIRRORNEW:
 		{
+			zfix& refls_up = local_ref.c_attributes[8+up];
+			zfix& refls_down = local_ref.c_attributes[8+down];
+			zfix& refls_left = local_ref.c_attributes[8+left];
+			zfix& refls_right = local_ref.c_attributes[8+right];
+			zfix& refls_l_up = local_ref.c_attributes[8+l_up];
+			zfix& refls_r_up = local_ref.c_attributes[8+r_up];
+			zfix& refls_l_down = local_ref.c_attributes[8+l_down];
+			zfix& refls_r_down = local_ref.c_attributes[8+r_down];
+			refls_up.doTrunc(); refls_down.doTrunc(); refls_left.doTrunc(); refls_right.doTrunc();
+			refls_l_up.doTrunc(); refls_r_up.doTrunc(); refls_l_down.doTrunc(); refls_r_down.doTrunc();
+			
 			lists[0] = list_dirs;
 			lists[0].add("Block",8);
 			windowRow->add(
 				Rows<3>(
 					Label(text = "Up Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[up],
+						fitParent = true, selectedValue = refls_up,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[up] = val;
+							refls_up = val;
 						}),
 					INFOBTN("Weapons/light beams facing up (coming from below) will move in this direction."),
 					Label(text = "Down Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[down],
+						fitParent = true, selectedValue = refls_down,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[down] = val;
+							refls_down = val;
 						}),
 					INFOBTN("Weapons/light beams facing down (coming from above) will move in this direction."),
 					Label(text = "Left Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[left],
+						fitParent = true, selectedValue = refls_left,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[left] = val;
+							refls_left = val;
 						}),
 					INFOBTN("Weapons/light beams facing left (coming from the right) will move in this direction."),
 					Label(text = "Right Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[right],
+						fitParent = true, selectedValue = refls_right,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[right] = val;
+							refls_right = val;
 						}),
 					INFOBTN("Weapons/light beams facing right (coming from the left) will move in this direction."),
 					Label(text = "Up-Left Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[l_up],
+						fitParent = true, selectedValue = refls_l_up,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[l_up] = val;
+							refls_l_up = val;
 						}),
 					INFOBTN("Weapons facing up-left (coming from down-right) will move in this direction."),
 					Label(text = "Up-Right Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[r_up],
+						fitParent = true, selectedValue = refls_r_up,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[r_up] = val;
+							refls_r_up = val;
 						}),
 					INFOBTN("Weapons facing up-right (coming from down-left) will move in this direction."),
 					Label(text = "Down-Left Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[l_down],
+						fitParent = true, selectedValue = refls_l_down,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[l_down] = val;
+							refls_l_down = val;
 						}),
 					INFOBTN("Weapons facing down-left (coming from up-right) will move in this direction."),
 					Label(text = "Down-Right Reflect", hAlign = 1.0),
 					DropDownList(data = lists[0],
-						fitParent = true, selectedValue = local_ref.attribytes[r_down],
+						fitParent = true, selectedValue = refls_r_down,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_ref.attribytes[r_down] = val;
+							refls_r_down = val;
 						}),
 					INFOBTN("Weapons facing down-right (coming from up-left) will move in this direction.")
 				)
@@ -2527,7 +2586,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		[[fallthrough]];
 		case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH: case cMAGICPRISM: case cMAGICPRISM4:
 		{
-			auto& refl_flags = local_ref.attributes[0];
+			int32_t& refl_flags = local_ref.c_attributes[0].val;
 			windowRow->add(
 				Row(
 					Label(text = "Reflect Flags:", hAlign = 1.0),
@@ -2574,6 +2633,14 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cICY:
 		{
+			zfix& start_spd = local_ref.c_attributes[8];
+			zfix& leeway_frames = local_ref.c_attributes[9];
+			int32_t& accel = local_ref.c_attributes[0].val;
+			int32_t& decel = local_ref.c_attributes[1].val;
+			int32_t& max_spd = local_ref.c_attributes[2].val;
+			start_spd.doTrunc();
+			leeway_frames.doTrunc();
+			
 			windowRow->add(
 				Column(padding = 0_px,
 					Rows<2>(
@@ -2603,50 +2670,50 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = local_ref.attribytes[0],
+							low = 0, high = 255, val = start_spd,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_ref.attribytes[0] = val;
+								start_spd = val;
 							}),
 						Label(text = "Entry Leeway Frames", hAlign = 1.0),
 						INFOBTN("For this many frames after entering the ice, the Hero will have additional traction. The traction gradually decreases over time until the frames are up."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
-							low = 0, high = 255, val = local_ref.attribytes[1],
+							low = 0, high = 255, val = leeway_frames,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_ref.attribytes[1] = val;
+								leeway_frames = val;
 							}),
 						Label(text = "Acceleration", hAlign = 1.0),
 						INFOBTN("Speed gained when holding a direction, in pixels per frame."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = local_ref.attributes[0],
+							low = 0, high = SWAP_MAX, val = accel,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_ref.attributes[0] = val;
+								accel = val;
 							}),
 						Label(text = "Deceleration", hAlign = 1.0),
 						INFOBTN("Speed lost when not holding a direction, in pixels per frame."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = local_ref.attributes[1],
+							low = 0, high = SWAP_MAX, val = decel,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_ref.attributes[1] = val;
+								decel = val;
 							}),
 						Label(text = "Max Speed", hAlign = 1.0),
 						INFOBTN("The highest speed that can be reached, in pixels per frame."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, high = SWAP_MAX, val = local_ref.attributes[2],
+							low = 0, high = SWAP_MAX, val = max_spd,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_ref.attributes[2] = val;
+								max_spd = val;
 							})
 					)
 				)
@@ -2655,9 +2722,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
-			int32_t& xspd = local_ref.attributes[0];
-			int32_t& yspd = local_ref.attributes[1];
-			byte& rate = local_ref.attribytes[0];
+			int32_t& xspd = local_ref.c_attributes[0].val;
+			int32_t& yspd = local_ref.c_attributes[1].val;
+			zfix& rate = local_ref.c_attributes[8];
+			rate.doTrunc();
+			
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm){return isConveyorType(itm.value);});
 			rs_sz[0] = 2;
@@ -2793,11 +2862,17 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		{
-			byte& decospr = local_ref.attribytes[0];
-			byte& dropitem = local_ref.attribytes[1];
-			byte& cutsfx = local_ref.attribytes[2];
-			byte& walksfx = local_ref.attribytes[3];
-			byte& grass_spr = local_ref.attribytes[6];
+			zfix& decospr = local_ref.c_attributes[8];
+			zfix& dropitem = local_ref.c_attributes[9];
+			zfix& cutsfx = local_ref.c_attributes[10];
+			zfix& walksfx = local_ref.c_attributes[11];
+			zfix& grass_spr = local_ref.c_attributes[14];
+			decospr.doTrunc();
+			dropitem.doTrunc();
+			cutsfx.doTrunc();
+			walksfx.doTrunc();
+			grass_spr.doTrunc();
+			
 			auto radmode = 0;
 			if(local_ref.usrflags&cflag1)
 			{
@@ -2813,7 +2888,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					radmode2 = 2;
 			}
 			
-			byte defcut = cutsfx;
+			auto defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
 				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
@@ -2840,7 +2915,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[0] = DropDownList(data = list_clippings,
-							fitParent = true, selectedValue = radmode==1 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==1 ? decospr : 0_zf,
 							disabled = radmode != 1,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -2856,7 +2931,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[1] = DropDownList(data = list_sprites,
-							fitParent = true, selectedValue = radmode==2 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==2 ? decospr : 0_zf,
 							disabled = radmode != 2,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -2885,7 +2960,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[2] = DropDownList(data = list_dropsets,
-							fitParent = true, selectedValue = radmode==1 ? dropitem : 0,
+							fitParent = true, selectedValue = radmode==1 ? dropitem : 0_zf,
 							disabled = radmode != 1,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -2901,7 +2976,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[3] = DropDownList(data = parent.list_items,
-							fitParent = true, selectedValue = radmode==2 ? dropitem : 0,
+							fitParent = true, selectedValue = radmode==2 ? dropitem : 0_zf,
 							disabled = radmode != 2,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -2968,9 +3043,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
-			byte& decospr = local_ref.attribytes[0];
-			byte& dropitem = local_ref.attribytes[1];
-			byte& cutsfx = local_ref.attribytes[2];
+			zfix& decospr = local_ref.c_attributes[8];
+			zfix& dropitem = local_ref.c_attributes[9];
+			zfix& cutsfx = local_ref.c_attributes[10];
+			decospr.doTrunc();
+			dropitem.doTrunc();
+			cutsfx.doTrunc();
+			
 			auto radmode = 0;
 			if(local_ref.usrflags&cflag1)
 			{
@@ -2986,7 +3065,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					radmode2 = 2;
 			}
 			
-			byte defcut = cutsfx;
+			auto defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
 				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
@@ -3013,7 +3092,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[0] = DropDownList(data = list_clippings,
-							fitParent = true, selectedValue = radmode==1 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==1 ? decospr : 0_zf,
 							disabled = radmode != 1,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3029,7 +3108,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[1] = DropDownList(data = list_sprites,
-							fitParent = true, selectedValue = radmode==2 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==2 ? decospr : 0_zf,
 							disabled = radmode != 2,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3058,7 +3137,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[2] = DropDownList(data = list_dropsets,
-							fitParent = true, selectedValue = radmode2==1 ? dropitem : 0,
+							fitParent = true, selectedValue = radmode2==1 ? dropitem : 0_zf,
 							disabled = radmode2 != 1,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3074,7 +3153,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET1
 						),
 						ddls[3] = DropDownList(data = parent.list_items,
-							fitParent = true, selectedValue = radmode2==2 ? dropitem : 0,
+							fitParent = true, selectedValue = radmode2==2 ? dropitem : 0_zf,
 							disabled = radmode2 != 2,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3120,8 +3199,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSLASHNEXT:
 		{
-			byte& decospr = local_ref.attribytes[0];
-			byte& cutsfx = local_ref.attribytes[2];
+			zfix& decospr = local_ref.c_attributes[8];
+			zfix& cutsfx = local_ref.c_attributes[10];
+			decospr.doTrunc();
+			cutsfx.doTrunc();
+			
 			auto radmode = 0;
 			if(local_ref.usrflags&cflag1)
 			{
@@ -3130,7 +3212,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					radmode = 1;
 			}
 			
-			byte defcut = cutsfx;
+			auto defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
 				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
@@ -3157,7 +3239,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[0] = DropDownList(data = list_clippings,
-							fitParent = true, selectedValue = radmode==1 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==1 ? decospr : 0_zf,
 							disabled = radmode != 1,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3173,7 +3255,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							onToggle = message::RSET0
 						),
 						ddls[1] = DropDownList(data = list_sprites,
-							fitParent = true, selectedValue = radmode==2 ? decospr : 0,
+							fitParent = true, selectedValue = radmode==2 ? decospr : 0_zf,
 							disabled = radmode != 2,
 							onSelectFunc = [&](int32_t val)
 							{
@@ -3227,10 +3309,14 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			else if(local_ref.type == cLOCKEDCHEST)
 				lvl = 3;
 			
-			byte& exstate = local_ref.attribytes[5];
-			byte& openbtn = local_ref.attribytes[2];
-			byte& opensfx = local_ref.attribytes[3];
-			int16_t& contains_item = local_ref.attrishorts[2];
+			zfix& exstate = local_ref.c_attributes[13];
+			zfix& openbtn = local_ref.c_attributes[10];
+			zfix& opensfx = local_ref.c_attributes[11];
+			zfix& contains_item = local_ref.c_attributes[18];
+			exstate.doTrunc();
+			openbtn.doTrunc();
+			opensfx.doTrunc();
+			contains_item.doTrunc();
 			
 			auto radmode0 = 0;
 			if(local_ref.usrflags&cflag16)
@@ -3239,7 +3325,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			auto radmode1 = 0;
 			auto spitem_def = contains_item;
 			auto normitem_def = 0;
-			if(unsigned(contains_item) < 256)
+			if(uint(contains_item) < MAXITEMS)
 			{
 				radmode1 = 1;
 				spitem_def = -1;
@@ -3255,33 +3341,41 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			else if(local_ref.usrflags & cflag6)
 				radmode3 = 2;
 			
-			int32_t& prompt_combo = local_ref.attributes[1];
-			int32_t& prompt_combo2 = local_ref.attributes[2];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& prompt_combo = local_ref.c_attributes[1];
+			zfix& prompt_combo2 = local_ref.c_attributes[2];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
+			prompt_combo.doTrunc();
+			prompt_combo2.doTrunc();
+			prompt_cset.doTrunc();
+			prompt_xoff.doTrunc();
+			prompt_yoff.doTrunc();
 			
-			int32_t def_prompt_combo = 0;
-			int32_t def_prompt_combo2 = 0;
-			byte def_prompt_cset = 0;
-			int16_t def_prompt_xoff = 12;
-			int16_t def_prompt_yoff = -8;
+			int def_prompt_combo = 0;
+			int def_prompt_combo2 = 0;
+			int def_prompt_cset = 0;
+			int def_prompt_xoff = 12;
+			int def_prompt_yoff = -8;
 			if(local_ref.usrflags&cflag13)
 			{
-				def_prompt_combo = prompt_combo/10000;
+				def_prompt_combo = prompt_combo;
 				def_prompt_cset = prompt_cset;
 				def_prompt_xoff = prompt_xoff;
 				def_prompt_yoff = prompt_yoff;
 				if(lvl > 1) //boss or locked
-					def_prompt_combo2 = prompt_combo2/10000;
+					def_prompt_combo2 = prompt_combo2;
 			}
 			
-			byte& reqitem = local_ref.attribytes[0];
+			zfix& reqitem = local_ref.c_attributes[8];
+			zfix& usecounter = local_ref.c_attributes[9];
+			zfix& amount = local_ref.c_attributes[0];
+			zfix& messagestr = local_ref.c_attributes[3];
+			reqitem.doTrunc();
+			usecounter.doTrunc();
+			amount.doTrunc();
+			messagestr.doTrunc();
 			
-			byte& usecounter = local_ref.attribytes[1];
-			int32_t& amount = local_ref.attributes[0];
-			
-			auto& messagestr = local_ref.attributes[3];
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm)
 				{
@@ -3471,7 +3565,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										cset = def_prompt_cset,
 										onSelectFunc = [&](int32_t cmb, int32_t c)
 										{
-											prompt_combo = cmb*10000;
+											prompt_combo = cmb;
 											prompt_cset = c;
 											cmbswatches[1]->setCSet(prompt_cset);
 										}
@@ -3521,7 +3615,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										cset = def_prompt_cset,
 										onSelectFunc = [&](int32_t cmb, int32_t c)
 										{
-											prompt_combo2 = cmb*10000;
+											prompt_combo2 = cmb;
 											prompt_cset = c;
 											cmbswatches[0]->setCSet(prompt_cset);
 										}
@@ -3574,7 +3668,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									//
 									Label(text = "Required Item:"),
 									ddls[4] = DropDownList(data = lists[1],
-										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0,
+										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0_zf,
 										onSelectFunc = [&](int32_t val)
 										{
 											reqitem = val;
@@ -3603,7 +3697,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										colSpan = 2, set = 2
 									),
 									ddls[5] = DropDownList(data = list_counters,
-										fitParent = true, selectedValue = (radmode2==1) ? usecounter : crMONEY,
+										fitParent = true, selectedValue = (radmode2==1) ? int(usecounter) : crMONEY,
 										onSelectFunc = [&](int32_t val)
 										{
 											usecounter = val;
@@ -3614,8 +3708,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									lbls[0] = Label(text = "Amount:"),
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
-										type = GUI::TextField::type::FIXED_DECIMAL,
-										low = 10000, high = 655350000, val = amount,
+										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+										low = 1, high = 65535, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -3660,10 +3754,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
 							ddls[1] = DropDownList(data = parent.list_strings,
-								fitParent = true, selectedValue = messagestr/10000,
+								fitParent = true, selectedValue = messagestr,
 								onSelectFunc = [&](int32_t val)
 								{
-									messagestr = val*10000;
+									messagestr = val;
 								}),
 							INFOBTN("The string to play when failing to open. Negative values are special, reading the string number from somewhere else.")
 						)
@@ -3685,9 +3779,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			else if(local_ref.type == cLOCKBLOCK)
 				lvl = 3;
 			
-			byte& exstate = local_ref.attribytes[5];
-			byte& openbtn = local_ref.attribytes[2];
-			byte& opensfx = local_ref.attribytes[3];
+			zfix& exstate = local_ref.c_attributes[13];
+			zfix& openbtn = local_ref.c_attributes[10];
+			zfix& opensfx = local_ref.c_attributes[11];
+			exstate.doTrunc();
+			openbtn.doTrunc();
+			opensfx.doTrunc();
 			
 			auto radmode0 = 0;
 			if(local_ref.usrflags&cflag16)
@@ -3702,32 +3799,40 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			else if(local_ref.usrflags & cflag6)
 				radmode3 = 2;
 			
-			int32_t& prompt_combo = local_ref.attributes[1];
-			int32_t& prompt_combo2 = local_ref.attributes[2];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& prompt_combo = local_ref.c_attributes[1];
+			zfix& prompt_combo2 = local_ref.c_attributes[2];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
+			prompt_combo.doTrunc();
+			prompt_combo2.doTrunc();
+			prompt_cset.doTrunc();
+			prompt_xoff.doTrunc();
+			prompt_yoff.doTrunc();
 			
-			int32_t def_prompt_combo = 0;
-			int32_t def_prompt_combo2 = 0;
-			byte def_prompt_cset = 0;
-			int16_t def_prompt_xoff = 12;
-			int16_t def_prompt_yoff = -8;
+			int def_prompt_combo = 0;
+			int def_prompt_combo2 = 0;
+			int def_prompt_cset = 0;
+			int def_prompt_xoff = 12;
+			int def_prompt_yoff = -8;
 			if(local_ref.usrflags&cflag13)
 			{
-				def_prompt_combo = prompt_combo/10000;
+				def_prompt_combo = prompt_combo;
 				def_prompt_cset = prompt_cset;
 				def_prompt_xoff = prompt_xoff;
 				def_prompt_yoff = prompt_yoff;
 				if(lvl > 1) //boss or locked
-					def_prompt_combo2 = prompt_combo2/10000;
+					def_prompt_combo2 = prompt_combo2;
 			}
 			
-			byte& reqitem = local_ref.attribytes[0];
-			
-			byte& usecounter = local_ref.attribytes[1];
-			int32_t& amount = local_ref.attributes[0];
-			auto& messagestr = local_ref.attributes[3];
+			zfix& reqitem = local_ref.c_attributes[8];
+			zfix& usecounter = local_ref.c_attributes[9];
+			zfix& amount = local_ref.c_attributes[0];
+			zfix& messagestr = local_ref.c_attributes[3];
+			reqitem.doTrunc();
+			usecounter.doTrunc();
+			amount.doTrunc();
+			messagestr.doTrunc();
 			
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm)
@@ -3941,7 +4046,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										cset = def_prompt_cset,
 										onSelectFunc = [&](int32_t cmb, int32_t c)
 										{
-											prompt_combo = cmb*10000;
+											prompt_combo = cmb;
 											prompt_cset = c;
 											cmbswatches[1]->setCSet(prompt_cset);
 										}
@@ -3991,7 +4096,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										cset = def_prompt_cset,
 										onSelectFunc = [&](int32_t cmb, int32_t c)
 										{
-											prompt_combo2 = cmb*10000;
+											prompt_combo2 = cmb;
 											prompt_cset = c;
 											cmbswatches[0]->setCSet(prompt_cset);
 										}
@@ -4044,7 +4149,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									//
 									Label(text = "Required Item:"),
 									ddls[4] = DropDownList(data = lists[1],
-										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0,
+										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0_zf,
 										onSelectFunc = [&](int32_t val)
 										{
 											reqitem = val;
@@ -4073,7 +4178,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										colSpan = 2, set = 2
 									),
 									ddls[5] = DropDownList(data = list_counters,
-										fitParent = true, selectedValue = (radmode2==1) ? usecounter : crMONEY,
+										fitParent = true, selectedValue = (radmode2==1) ? int(usecounter) : crMONEY,
 										onSelectFunc = [&](int32_t val)
 										{
 											usecounter = val;
@@ -4084,8 +4189,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									lbls[0] = Label(text = "Amount:"),
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
-										type = GUI::TextField::type::FIXED_DECIMAL,
-										low = 10000, high = 655350000, val = amount,
+										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+										low = 1, high = 65535, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -4130,10 +4235,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						Row(
 							Label(text = "Locked String:", hAlign = 1.0),
 							ddls[1] = DropDownList(data = parent.list_strings,
-								fitParent = true, selectedValue = messagestr/10000,
+								fitParent = true, selectedValue = messagestr,
 								onSelectFunc = [&](int32_t val)
 								{
-									messagestr = val*10000;
+									messagestr = val;
 								}),
 							INFOBTN("The string to play when failing to open. Negative values are special, reading the string number from somewhere else.")
 						)
@@ -4147,21 +4252,26 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSIGNPOST:
 		{
-			auto& messagestr = local_ref.attributes[0];
+			int32_t& messagestr = local_ref.c_attributes[0].val;
 			
-			byte& openbtn = local_ref.attribytes[2];
-			int32_t& prompt_combo = local_ref.attributes[1];
-			byte& prompt_cset = local_ref.attribytes[4];
-			int16_t& prompt_xoff = local_ref.attrishorts[0];
-			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			zfix& openbtn = local_ref.c_attributes[10];
+			zfix& prompt_combo = local_ref.c_attributes[9];
+			zfix& prompt_cset = local_ref.c_attributes[12];
+			zfix& prompt_xoff = local_ref.c_attributes[16];
+			zfix& prompt_yoff = local_ref.c_attributes[17];
+			openbtn.doTrunc();
+			prompt_combo.doTrunc();
+			prompt_cset.doTrunc();
+			prompt_xoff.doTrunc();
+			prompt_yoff.doTrunc();
 			
-			int32_t def_prompt_combo = 0;
-			byte def_prompt_cset = 0;
-			int16_t def_prompt_xoff = 12;
-			int16_t def_prompt_yoff = -8;
+			int def_prompt_combo = 0;
+			int def_prompt_cset = 0;
+			int def_prompt_xoff = 12;
+			int def_prompt_yoff = -8;
 			if(local_ref.usrflags&cflag13)
 			{
-				def_prompt_combo = prompt_combo/10000;
+				def_prompt_combo = prompt_combo;
 				def_prompt_cset = prompt_cset;
 				def_prompt_xoff = prompt_xoff;
 				def_prompt_yoff = prompt_yoff;
@@ -4319,7 +4429,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										cset = def_prompt_cset,
 										onSelectFunc = [&](int32_t cmb, int32_t c)
 										{
-											prompt_combo = cmb*10000;
+											prompt_combo = cmb;
 											prompt_cset = c;
 											cmbswatches[0]->setCSet(prompt_cset);
 										}
@@ -4357,10 +4467,14 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cCRUMBLE:
 		{
-			byte& crumble_type = local_ref.attribytes[0];
-			byte& crumble_sens = local_ref.attribytes[1];
-			int16_t& crumble_time = local_ref.attrishorts[0];
-			int16_t& reset_change = local_ref.attrishorts[1];
+			zfix& crumble_type = local_ref.c_attributes[8];
+			zfix& crumble_sens = local_ref.c_attributes[9];
+			zfix& crumble_time = local_ref.c_attributes[16];
+			zfix& reset_change = local_ref.c_attributes[17];
+			crumble_type.doTrunc();
+			crumble_sens.doTrunc();
+			crumble_time.doTrunc();
+			reset_change.doTrunc();
 			lists[0] = GUI::ListData({
 				{ "Reset", CMBTY_CRUMBLE_RESET, "Timer resets when stepped off of, can also change combo" },
 				{ "Cumulative", CMBTY_CRUMBLE_CUMULATIVE, "Timer does not reset, just pauses when stepped off of" },
@@ -4434,7 +4548,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cCUTSCENEEFFECT:
 		{
-			byte& effect_type = local_ref.attribytes[0];
+			zfix& effect_type = local_ref.c_attributes[8];
+			effect_type.doTrunc();
 			lists[0] = GUI::ListData({
 				{ "Player Walk", CUTEFF_PLAYER_WALK, "The player auto-walks to the destination (angularly) (when triggered via '->ComboType Effects')."
 					"\nTriggers 'ComboType Causes->' when the player finishes the auto-walk (either because they reached their destination,"
@@ -4443,7 +4558,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					"\nRequires 'Newer Hero Movement'." + QRHINT({qr_NEW_HERO_MOVEMENT2}) }
 			});
 			std::shared_ptr<GUI::Grid> g;
-			switch(effect_type)
+			switch(effect_type.getTrunc())
 			{
 				case CUTEFF_PLAYER_WALK:
 				{
@@ -4453,9 +4568,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{ "Relative to Combo", cflag1 },
 						{ "Relative to Player", cflag2 }
 					});
-					int32_t& dest_x = local_ref.attributes[0];
-					int32_t& dest_y = local_ref.attributes[1];
-					int32_t& move_speed = local_ref.attributes[2];
+					int32_t& dest_x = local_ref.c_attributes[0].val;
+					int32_t& dest_y = local_ref.c_attributes[1].val;
+					int32_t& move_speed = local_ref.c_attributes[2].val;
 					g = Rows<3>(
 						Label(text = "Dest X:", hAlign = 1.0),
 						TextField(
@@ -4532,9 +4647,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSAVE: case cSAVE2:
 		{
-			byte& heal_hp = local_ref.attribytes[0];
-			byte& heal_mp = local_ref.attribytes[1];
-			byte& save_menu = local_ref.attribytes[2];
+			zfix& heal_hp = local_ref.c_attributes[8];
+			zfix& heal_mp = local_ref.c_attributes[9];
+			zfix& save_menu = local_ref.c_attributes[10];
+			heal_hp.doTrunc();
+			heal_mp.doTrunc();
+			save_menu.doTrunc();
 			
 			if(!(local_ref.usrflags&cflag1))
 				heal_hp = 0;

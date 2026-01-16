@@ -13169,6 +13169,160 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 	return 0;
 }
 
+int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
+{
+	char b33[34] = { 0 };
+	b33[33] = 0;
+	if(!p_igetw(&(temp_meta.zasm_v),f))
+		return qe_invalid;
+	if(!p_igetw(&(temp_meta.meta_v),f))
+		return qe_invalid;
+	if(!p_igetw(&(temp_meta.ffscript_v),f))
+		return qe_invalid;
+	if(!p_getc(&(temp_meta.script_type),f))
+		return qe_invalid;
+	
+	for(int32_t q = 0; q < 8; ++q)
+	{
+		if(zmeta_version < 3)
+		{
+			for(int32_t c = 0; c < 33; ++c)
+			{
+				if(!p_getc(&(b33[c]),f))
+				{
+					return qe_invalid;
+				}
+			}
+			temp_meta.run_idens[q].assign(b33);
+		}
+		else
+		{
+			if(!p_getcstr(&temp_meta.run_idens[q],f))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	
+	for(int32_t q = 0; q < 8; ++q)
+		if(!p_getc(&(temp_meta.run_types[q]),f))
+			return qe_invalid;
+	
+	if(!p_getc(&(temp_meta.flags),f))
+		return qe_invalid;
+	
+	if(!p_igetw(&(temp_meta.compiler_v1),f))
+		return qe_invalid;
+	if(!p_igetw(&(temp_meta.compiler_v2),f))
+		return qe_invalid;
+	if(!p_igetw(&(temp_meta.compiler_v3),f))
+		return qe_invalid;
+	if(!p_igetw(&(temp_meta.compiler_v4),f))
+		return qe_invalid;
+	
+	if(zmeta_version == 2)
+	{
+		for(int32_t c = 0; c < 33; ++c)
+		{
+			if(!p_getc(&b33[c],f))
+			{
+				return qe_invalid;
+			}
+		}
+		temp_meta.script_name.assign(b33);
+		
+		for(int32_t c = 0; c < 33; ++c)
+		{
+			if(!p_getc(&b33[c],f))
+			{
+				return qe_invalid;
+			}
+		}
+		temp_meta.author.assign(b33);
+	}
+	else if(zmeta_version > 2)
+	{
+		if(!p_getcstr(&temp_meta.script_name,f))
+		return qe_invalid;
+		if(!p_getcstr(&temp_meta.author,f))
+			return qe_invalid;
+		word num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
+		string tmpstr;
+		if (zmeta_version < 6)
+		{
+			for(auto q = 0; q < num_meta_attrib; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attributes[q],f))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attributes_help[q],f))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&tmpstr,f))
+					return qe_invalid;
+				if (8+q >= num_meta_attrib || !tmpstr.empty())
+					temp_meta.attributes[8+q] = tmpstr;
+				if(!p_getwstr(&tmpstr,f))
+					return qe_invalid;
+				if (8+q >= num_meta_attrib || !tmpstr.empty())
+					temp_meta.attributes_help[8+q] = tmpstr;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attributes[16+q],f))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attributes_help[16+q],f))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			if (!p_igetw(&num_meta_attrib, f))
+				return qe_invalid;
+			if (num_meta_attrib > NUM_ZMETA_ATTRIBUTES)
+				return qe_invalid;
+			for(auto q = 0; q < num_meta_attrib; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attributes[q],f))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attributes_help[q],f))
+					return qe_invalid;
+			}
+		}
+		
+		for(auto q = 0; q < 16; ++q)
+		{
+			if(!p_getcstr(&temp_meta.usrflags[q],f))
+				return qe_invalid;
+			if(!p_getwstr(&temp_meta.usrflags_help[q],f))
+				return qe_invalid;
+		}
+	}
+	
+	if(zmeta_version > 3)
+	{
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(!p_getcstr(&temp_meta.initd[q],f))
+				return qe_invalid;
+			if(!p_getwstr(&temp_meta.initd_help[q],f))
+				return qe_invalid;
+		}
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(!p_getc(&temp_meta.initd_type[q],f))
+				return qe_invalid;
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 8; ++q)
+			temp_meta.initd[q] = temp_meta.run_idens[q];
+	}
+	
+	return 0;
+}
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, script_data *script, word zmeta_version)
 {
 	ASSERT(script);
@@ -13187,84 +13341,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	//Read meta
 	{
 		zasm_meta temp_meta;
-		
-		if(!p_igetw(&(temp_meta.zasm_v),f))
-			return qe_invalid;
-		if(!p_igetw(&(temp_meta.meta_v),f))
-			return qe_invalid;
-		if(!p_igetw(&(temp_meta.ffscript_v),f))
-			return qe_invalid;
-		if(!p_getc(&(temp_meta.script_type),f))
-			return qe_invalid;
-		
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			if(!p_getcstr(&temp_meta.run_idens[q],f))
-				return qe_invalid;
-		}
-		
-		for(int32_t q = 0; q < 8; ++q)
-			if(!p_getc(&(temp_meta.run_types[q]),f))
-				return qe_invalid;
-		
-		if(!p_getc(&(temp_meta.flags),f))
-			return qe_invalid;
-		
-		if(!p_igetw(&(temp_meta.compiler_v1),f))
-			return qe_invalid;
-		if(!p_igetw(&(temp_meta.compiler_v2),f))
-			return qe_invalid;
-		if(!p_igetw(&(temp_meta.compiler_v3),f))
-			return qe_invalid;
-		if(!p_igetw(&(temp_meta.compiler_v4),f))
-			return qe_invalid;
-		
-		if(!p_getcstr(&temp_meta.script_name,f))
-			return qe_invalid;
-		if(!p_getcstr(&temp_meta.author,f))
-			return qe_invalid;
-		auto num_meta_attrib = 10;
-		for(auto q = 0; q < num_meta_attrib; ++q)
-		{
-			if(!p_getcstr(&temp_meta.attributes[q],f))
-				return qe_invalid;
-			if(!p_getwstr(&temp_meta.attributes_help[q],f))
-				return qe_invalid;
-		}
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_getcstr(&temp_meta.attribytes[q],f))
-				return qe_invalid;
-			if(!p_getwstr(&temp_meta.attribytes_help[q],f))
-				return qe_invalid;
-		}
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_getcstr(&temp_meta.attrishorts[q],f))
-				return qe_invalid;
-			if(!p_getwstr(&temp_meta.attrishorts_help[q],f))
-				return qe_invalid;
-		}
-		for(auto q = 0; q < 16; ++q)
-		{
-			if(!p_getcstr(&temp_meta.usrflags[q],f))
-				return qe_invalid;
-			if(!p_getwstr(&temp_meta.usrflags_help[q],f))
-				return qe_invalid;
-		}
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_getcstr(&temp_meta.initd[q],f))
-				return qe_invalid;
-			if(!p_getwstr(&temp_meta.initd_help[q],f))
-				return qe_invalid;
-		}
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_getc(&temp_meta.initd_type[q],f))
-				return qe_invalid;
-		}
-		
+		if (auto ret = read_one_zmeta(f, temp_meta, zmeta_version))
+			return ret;
 		script->meta = temp_meta;
 	}
 	if(!p_igetl(&script->pc, f))
@@ -13290,8 +13368,6 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 
 int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, script_data *script, word zmeta_version)
 {
-	char b33[34] = {0};
-	b33[33] = 0;
 	int32_t num_commands=1000;
 	
 	if(s_version>=2)
@@ -13318,161 +13394,8 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	if(s_version >= 16)
 	{
 		zasm_meta temp_meta;
-		
-		if(!p_igetw(&(temp_meta.zasm_v),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.meta_v),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.ffscript_v),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_getc(&(temp_meta.script_type),f))
-		{
-			return qe_invalid;
-		}
-		
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			if(zmeta_version < 3)
-			{
-				for(int32_t c = 0; c < 33; ++c)
-				{
-					if(!p_getc(&(b33[c]),f))
-					{
-						return qe_invalid;
-					}
-				}
-				temp_meta.run_idens[q].assign(b33);
-			}
-			else
-			{
-				if(!p_getcstr(&temp_meta.run_idens[q],f))
-				{
-					return qe_invalid;
-				}
-			}
-		}
-		
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			if(!p_getc(&(temp_meta.run_types[q]),f))
-			{
-				return qe_invalid;
-			}
-		}
-		
-		if(!p_getc(&(temp_meta.flags),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.compiler_v1),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.compiler_v2),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.compiler_v3),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(!p_igetw(&(temp_meta.compiler_v4),f))
-		{
-			return qe_invalid;
-		}
-		
-		if(zmeta_version == 2)
-		{
-			for(int32_t c = 0; c < 33; ++c)
-			{
-				if(!p_getc(&b33[c],f))
-				{
-					return qe_invalid;
-				}
-			}
-			temp_meta.script_name.assign(b33);
-			
-			for(int32_t c = 0; c < 33; ++c)
-			{
-				if(!p_getc(&b33[c],f))
-				{
-					return qe_invalid;
-				}
-			}
-			temp_meta.author.assign(b33);
-		}
-		else if(zmeta_version > 2)
-		{
-			if(!p_getcstr(&temp_meta.script_name,f))
-				return qe_invalid;
-			if(!p_getcstr(&temp_meta.author,f))
-				return qe_invalid;
-			auto num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
-			for(auto q = 0; q < num_meta_attrib; ++q)
-			{
-				if(!p_getcstr(&temp_meta.attributes[q],f))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attributes_help[q],f))
-					return qe_invalid;
-			}
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_getcstr(&temp_meta.attribytes[q],f))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attribytes_help[q],f))
-					return qe_invalid;
-			}
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_getcstr(&temp_meta.attrishorts[q],f))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attrishorts_help[q],f))
-					return qe_invalid;
-			}
-			for(auto q = 0; q < 16; ++q)
-			{
-				if(!p_getcstr(&temp_meta.usrflags[q],f))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.usrflags_help[q],f))
-					return qe_invalid;
-			}
-		}
-		if(zmeta_version > 3)
-		{
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_getcstr(&temp_meta.initd[q],f))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.initd_help[q],f))
-					return qe_invalid;
-			}
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_getc(&temp_meta.initd_type[q],f))
-					return qe_invalid;
-			}
-		}
-		else
-		{
-			for(auto q = 0; q < 8; ++q)
-			{
-				temp_meta.initd[q] = temp_meta.run_idens[q];
-			}
-		}
-		
+		if (auto ret = read_one_zmeta(f, temp_meta, zmeta_version))
+			return ret;
 		script->meta = temp_meta;
 	} else script->meta = {};
 	
@@ -17817,10 +17740,10 @@ void update_combo(newcombo& cmb, word section_version)
 		switch(cmb.type)
 		{
 			case cWATER: case cSHALLOWWATER:
-				cmb.attribytes[6] = iwRipples;
+				cmb.c_attributes[8 + 6] = iwRipples;
 				break;
 			case cTALLGRASS: case cTALLGRASSNEXT: case cTALLGRASSTOUCHY:
-				cmb.attribytes[6] = iwTallGrass;
+				cmb.c_attributes[8 + 6] = iwTallGrass;
 				break;
 		}
 	}
@@ -17844,6 +17767,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	word combos_used=0;
 	int32_t dummy;
 	byte padding;
+	word wpadding;
 	newcombo temp_combo;
 
 	if (!should_skip)
@@ -17971,8 +17895,8 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			
 			if(section_version>=8) //combo Attributes[4] and userflags.
 			{
-				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-					if(!p_igetl(&temp_combo.attributes[q],f))
+				for ( int32_t q = 0; q < 4; q++ )
+					if(!p_igetzf(&temp_combo.c_attributes[q],f))
 						return qe_invalid;
 				if(!p_igetl(&temp_combo.usrflags,f))
 					return qe_invalid;
@@ -18054,10 +17978,15 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 						return qe_invalid;
 				temp_combo.label = label;
 			}
-			if(section_version>=13) //attribytes[4]
+			if(section_version >= 13 && section_version < 63) //attribytes[4]
+			{
 				for ( int32_t q = 0; q < 4; q++ )
-					if(!p_getc(&temp_combo.attribytes[q],f))
+				{
+					if(!p_getc(&padding,f))
 						return qe_invalid;
+					temp_combo.c_attributes[8 + q] = padding;
+				}
+			}
 			/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
 			* This fixes a poor implementation of a ->next flag bug thing.
 			* Zoria didn't bump up the versions as liberally as he should have, but thankfully
@@ -18083,14 +18012,20 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				if(!p_getc(&temp_combo.cur_frame,f)) return qe_invalid;
 				if(!p_getc(&temp_combo.aclk,f)) return qe_invalid;
 			}
-			if(section_version>=17) //attribytes[4]
+			if(section_version >= 17 && section_version < 63) //attribytes[4]
 			{
 				for ( int32_t q = 4; q < 8; q++ ) //bump up attribytes...
-					if(!p_getc(&temp_combo.attribytes[q],f))
+				{
+					if(!p_getc(&padding,f))
 						return qe_invalid;
+					temp_combo.c_attributes[8 + q] = padding;
+				}
 				for ( int32_t q = 0; q < 8; q++ ) //...and add attrishorts
-					if(!p_igetw(&temp_combo.attrishorts[q],f))
+				{
+					if(!p_igetw(&wpadding,f))
 						return qe_invalid;
+					temp_combo.c_attributes[16 + q] = int16_t(wpadding);
+				}
 			}
 			
 			if(version < 0x193)
@@ -18133,7 +18068,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			
 		if(section_version < 19)
 			for(int32_t q = 0; q < 4; ++q)
-				temp_combo.attributes[q] *= 10000L;
+				temp_combo.c_attributes[q] *= 10000;
 		
 		if(section_version < 23)
 		{
@@ -18151,7 +18086,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			{
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 					if(!(temp_combo.usrflags & cflag3))
-						temp_combo.attribytes[3] = WAV_DOOR;
+						temp_combo.c_attributes[8 + 3] = WAV_DOOR;
 					temp_combo.usrflags &= ~cflag3;
 					break;
 			}
@@ -18185,7 +18120,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			switch(temp_combo.type)
 			{
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-					temp_combo.attrishorts[2] = -1;
+					temp_combo.c_attributes[16 + 2] = -1;
 					temp_combo.usrflags |= cflag7;
 					break;
 			}
@@ -18317,7 +18252,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		{
 			if (combobuf[tmpcounter].type == cWATER)
 			{
-				combobuf[tmpcounter].attributes[0] = 40000L;
+				combobuf[tmpcounter].c_attributes[0] = 4;
 			}
 		}
 	}
@@ -18611,6 +18546,7 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 {
 	byte tempbyte;
+	word tempword;
 	word combo_has_flags;
 	if(s_version < 55)
 	{
@@ -18695,15 +18631,37 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_ATTRIB)
 		{
-			for ( int32_t q = 0; q < 4; q++ )
-				if(!p_igetl(&temp_combo.attributes[q],f))
+			if (s_version < 63)
+			{
+				for ( int32_t q = 0; q < 4; q++ )
+					if(!p_igetzf(&temp_combo.c_attributes[q],f))
+						return qe_invalid;
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.c_attributes[8 + q] = tempbyte;
+				}
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_igetw(&tempword,f))
+						return qe_invalid;
+					temp_combo.c_attributes[16 + q] = int16_t(tempword);
+				}
+			}
+			else
+			{
+				word num_attributes;
+				if (!p_igetw(&num_attributes, f))
 					return qe_invalid;
-			for ( int32_t q = 0; q < 8; q++ )
-				if(!p_getc(&temp_combo.attribytes[q],f))
+				if (num_attributes > NUM_COMBO_ATTRIBUTES)
 					return qe_invalid;
-			for ( int32_t q = 0; q < 8; q++ )
-				if(!p_igetw(&temp_combo.attrishorts[q],f))
-					return qe_invalid;
+				for (size_t q = 0; q < num_attributes; ++q)
+				{
+					if (!p_igetzf(&temp_combo.c_attributes[q],f))
+						return qe_invalid;
+				}
+			}
 		}
 		if(combo_has_flags&CHAS_FLAG)
 		{

@@ -272,7 +272,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 					causes << indent << "Falling Here\n";
 					break;
 				case cCUTSCENEEFFECT:
-					switch (cmb.attribytes[0])
+					switch (cmb.c_attributes[8].getTrunc())
 					{
 						case CUTEFF_PLAYER_WALK:
 							causes << indent << "Auto-walk finishes\n";
@@ -674,7 +674,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 					effects << indent << "Apply the engine combo-type based effects";
 					break;
 				case cCUTSCENEEFFECT:
-					switch (cmb.attribytes[0])
+					switch (cmb.c_attributes[8].getTrunc())
 					{
 						case CUTEFF_PLAYER_WALK:
 							effects << indent << "Auto-walk the player\n";
@@ -1099,14 +1099,10 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(skipanimy) return false;
 	if(animflags) return false;
 	for(auto q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
-		if(attributes[q]) return false;
+		if(c_attributes[q]) return false;
 	if(usrflags) return false;
 	if(genflags) return false;
 	if(!label.empty()) return false;
-	for(auto q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
-		if(attribytes[q]) return false;
-	for(auto q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
-		if(attrishorts[q]) return false;
 	if(script) return false;
 	for(auto q = 0; q < 8; ++q)
 		if(initd[q]) return false;
@@ -1221,12 +1217,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		flag = other.flag;
 	if(flags.get(CMB_ADVP_ATTRIBUTE))
 	{
-		for(int32_t q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
-			attribytes[q] = other.attribytes[q];
-		for(int32_t q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
-			attrishorts[q] = other.attrishorts[q];
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
-			attributes[q] = other.attributes[q];
+			c_attributes[q] = other.c_attributes[q];
 	}
 	if(flags.get(CMB_ADVP_FLAGS))
 		usrflags = other.usrflags;

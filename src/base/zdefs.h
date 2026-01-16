@@ -149,7 +149,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         11
 #define V_MISC            18
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          62
+#define V_COMBOS          63
 #define V_CSETS            6 //palette data
 #define V_MAPS            37
 #define V_DMAPS           25
@@ -1348,12 +1348,13 @@ const char* ScriptTypeToString(ScriptType type);
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			5
+#define METADATA_V			6
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
 #define V_COMPILER_FOURTH	BUILDTM_HOUR
 #define ZMETA_NULL_TYPE		1
+#define NUM_ZMETA_ATTRIBUTES       NUM_COMBO_ATTRIBUTES
 struct zasm_meta
 {
 	word zasm_v;
@@ -1366,13 +1367,9 @@ struct zasm_meta
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
 	std::string script_name;
 	std::string author;
-	std::string attributes[10];
-	std::string attribytes[8];
-	std::string attrishorts[8];
+	std::string attributes[NUM_ZMETA_ATTRIBUTES];
 	std::string usrflags[16];
-	std::string attributes_help[10];
-	std::string attribytes_help[8];
-	std::string attrishorts_help[8];
+	std::string attributes_help[NUM_ZMETA_ATTRIBUTES];
 	std::string usrflags_help[16];
 	std::string initd[8];
 	std::string initd_help[8];
@@ -1409,23 +1406,19 @@ struct zasm_meta
 		compiler_v2 = 0;
 		compiler_v3 = 0;
 		compiler_v4 = 0;
-		for(int32_t q = 0; q < 16; ++q)
+		for(int32_t q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		{
-			usrflags[q].clear();
-			usrflags_help[q].clear();
-			if(q > 9) continue;
 			attributes[q].clear();
 			attributes_help[q].clear();
+			if(q > 15) continue;
+			usrflags[q].clear();
+			usrflags_help[q].clear();
 			if(q > 7) continue;
 			initd[q].clear();
 			initd_help[q].clear();
 			initd_type[q] = -1;
 			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
-			attribytes[q].clear();
-			attribytes_help[q].clear();
-			attrishorts[q].clear();
-			attrishorts_help[q].clear();
 		}
 		script_name.clear();
 		author.clear();
@@ -1456,24 +1449,19 @@ struct zasm_meta
 		meta_v = other.meta_v;
 		ffscript_v = other.ffscript_v;
 		script_type = other.script_type;
-		for(auto q = 0; q < 16; ++q)
+		for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		{
-			usrflags[q] = other.usrflags[q];
-			usrflags_help[q] = other.usrflags_help[q];
-			if(q > 9) continue;
 			attributes[q] = other.attributes[q];
 			attributes_help[q] = other.attributes_help[q];
+			if(q > 15) continue;
+			usrflags[q] = other.usrflags[q];
+			usrflags_help[q] = other.usrflags_help[q];
 			if(q > 7) continue;
 			initd[q] = other.initd[q];
 			initd_help[q] = other.initd_help[q];
 			initd_type[q] = other.initd_type[q];
 			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
-			attribytes[q] = other.attribytes[q];
-			attribytes_help[q] = other.attribytes_help[q];
-			attrishorts[q] = other.attrishorts[q];
-			attrishorts_help[q] = other.attrishorts_help[q];
-			if(q > 3) continue;
 		}
 		flags = other.flags;
 		compiler_v1 = other.compiler_v1;
@@ -1495,16 +1483,16 @@ struct zasm_meta
 		if(compiler_v2 != other.compiler_v2) return false;
 		if(compiler_v3 != other.compiler_v3) return false;
 		if(compiler_v4 != other.compiler_v4) return false;
-		for(auto q = 0; q < 16; ++q)
+		for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		{
-			if(usrflags[q].compare(other.usrflags[q]))
-				return false;
-			if(usrflags_help[q].compare(other.usrflags_help[q]))
-				return false;
-			if(q > 9) continue;
 			if(attributes[q].compare(other.attributes[q]))
 				return false;
 			if(attributes_help[q].compare(other.attributes_help[q]))
+				return false;
+			if(q > 15) continue;
+			if(usrflags[q].compare(other.usrflags[q]))
+				return false;
+			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
 			if(q > 7) continue;
 			if(initd[q].compare(other.initd[q]))
@@ -1516,14 +1504,6 @@ struct zasm_meta
 			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])
-				return false;
-			if(attribytes[q].compare(other.attribytes[q]))
-				return false;
-			if(attribytes_help[q].compare(other.attribytes_help[q]))
-				return false;
-			if(attrishorts[q].compare(other.attrishorts[q]))
-				return false;
-			if(attrishorts_help[q].compare(other.attrishorts_help[q]))
 				return false;
 		}
 		if(script_name.compare(other.script_name))

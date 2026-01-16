@@ -212,7 +212,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		{
 			if (combobuf[cid].usrflags & cflag10)
 			{
-				switch (combobuf[cid].attribytes[0])
+				switch (combobuf[cid].c_attributes[8].getTrunc())
 				{
 					case 0:
 					case 1:
@@ -227,20 +227,21 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
+			auto id = combobuf[cid].c_attributes[9].getTrunc();
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
-				it = combobuf[cid].attribytes[1];
+				it = id;
 			}
 			else
 			{
-				it = select_dropitem(combobuf[cid].attribytes[1]);
-				thedropset = combobuf[cid].attribytes[1];
+				it = select_dropitem(id);
+				thedropset = id;
 			}
 		}
 		if( it != -1 )
@@ -265,8 +266,8 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 			scr->cset[pos] = scr->secretcset[ft];
 			scr->sflag[pos] = scr->secretflag[ft];
 			screen_combo_modify_postroutine(rpos_handle);
-			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(x));
+			if ( combobuf[cid].c_attributes[10].getTrunc() > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(x));
 		}
 		
 		//loop next combo
@@ -311,14 +312,14 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,x,y) : MAPCOMBO(x,y);
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(x));
+			if ( (combobuf[cid].c_attributes[10].getTrunc()) > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(x));
 			
 			
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(rpos_handle.screen,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(rpos_handle.screen,x,y,combobuf[cid].c_attributes[12],((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 	w->rposes_checked.insert({rpos_handle.layer, rpos_handle.rpos});
@@ -340,7 +341,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			if (combobuf[cid].usrflags & cflag10)
 			{
-				switch (combobuf[cid].attribytes[0])
+				switch (combobuf[cid].c_attributes[8].getTrunc())
 				{
 					case 0:
 					case 1:
@@ -355,20 +356,21 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc->x, ffc->y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc->x, ffc->y, 0, 0, combobuf[cid].c_attributes[8].getTrunc()));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
+			auto id = combobuf[cid].c_attributes[9].getTrunc();
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
-				it = combobuf[cid].attribytes[1];
+				it = id;
 			}
 			else
 			{
-				it = select_dropitem(combobuf[cid].attribytes[1]);
-				thedropset = combobuf[cid].attribytes[1];
+				it = select_dropitem(id);
+				thedropset = id;
 			}
 		}
 		if( it != -1 )
@@ -393,8 +395,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 			ffc_handle.set_data(ffc_handle.scr->secretcombo[ft]);
 			ffc->cset = ffc_handle.scr->secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
-			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
+			if ( combobuf[cid].c_attributes[2].getTrunc() > 0 )
+				sfx(combobuf[cid].c_attributes[2].getTrunc(),pan(ffc->x));
 		}
 		
 		//loop next combo
@@ -420,13 +422,13 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				if (combobuf[cid].usrflags&cflag5) cid = ffc_handle.data(); //cid needs to be set to data so continuous combos work
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
+			if ( (combobuf[cid].c_attributes[2].getTrunc()) > 0 )
+				sfx(combobuf[cid].c_attributes[2].getTrunc(),pan(ffc->x));
 		}
 
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc_handle.screen,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc_handle.screen,ffc->x,ffc->y,combobuf[cid].c_attributes[12],((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 	w->ffcs_checked.insert(ffc);
@@ -3411,7 +3413,7 @@ bool weapon::animate(int32_t index)
 	}
 	if(fallclk > 0)
 	{
-		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x));
+		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].c_attributes[8].getTrunc(), pan(x));
 		if(!--fallclk)
 		{
 			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
@@ -3448,7 +3450,7 @@ bool weapon::animate(int32_t index)
 	}
 	if(drownclk > 0)
 	{
-		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].attribytes[0], pan(x));
+		//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[drownCombo].c_attributes[8].getTrunc(), pan(x));
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
@@ -6140,7 +6142,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 		}
 		case cMIRRORNEW:
 		{
-			byte newdir = mirror_cmb.attribytes[NORMAL_DIR(w->dir)];
+			byte newdir = mirror_cmb.c_attributes[8 + NORMAL_DIR(w->dir)].getTrunc();
 			if(newdir > 7)
 			{
 				dead = 0;
@@ -6400,7 +6402,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			auto const& cmb = combobuf[cid];
 			if (!check_mirror_type(cmb.type, can_duplicate))
 				continue;
-			if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
+			if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & refl_flag))
 			{
 				if(!_mirror_refl(newx, newy, cpos, -1, cmb))
 					return ret_fail;
@@ -6424,7 +6426,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 				auto& cmb = ffc_handle.combo();
 				if (!check_mirror_type(cmb.type, can_duplicate))
 					return true;
-				if(!cmb.attributes[0] || (cmb.attributes[0] & refl_flag))
+				if(!cmb.c_attributes[0] || (cmb.c_attributes[0].getZLong() & refl_flag))
 				{
 					auto [nx, ny] = ffc_handle.center_xy();
 					nx -= check_x_ofs;

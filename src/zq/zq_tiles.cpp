@@ -6394,7 +6394,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				{
 					if(!(cmb.usrflags & cflag1))
 						break;
-					movelist->add_tile_10k(&cmb.attributes[0], 16, 1, fmt::format("{} - Type '{}' - Beam Tiles", lbl, type_name));
+					movelist->add_tile_10k(&cmb.c_attributes[0].val, 16, 1, fmt::format("{} - Type '{}' - Beam Tiles", lbl, type_name));
 					break;
 				}
 			}
@@ -6961,7 +6961,7 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 					next = true;
 					break;
 				case cCSWITCH: case cCSWITCHBLOCK:
-					combo_links.add_to(q, q+cmb.attributes[0]);
+					combo_links.add_to(q, q+cmb.c_attributes[0]);
 					break;
 				case cLIGHTTARGET:
 					if(cmb.usrflags & cflag1)
@@ -7010,26 +7010,26 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 			{
 				case cLOCKEDCHEST: case cBOSSCHEST:
 					if(cmb.usrflags & cflag13)
-						ADDC_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[2].val, fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
 				[[fallthrough]];
 				case cCHEST:
 					if(cmb.usrflags & cflag13)
-						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[1].val, fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 					if(cmb.usrflags & cflag13)
 					{
-						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-						ADDC_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[1].val, fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[2].val, fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
 					}
 					break;
 				case cSIGNPOST:
 					if(cmb.usrflags & cflag13)
-						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[1].val, fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 				case cBUTTONPROMPT:
 					if(cmb.usrflags & cflag13)
-						ADDC_10k(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						ADDC_10k(&cmb.c_attributes[0].val, fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 			}
 		}
@@ -12387,6 +12387,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 	dword section_version, int32_t index, int32_t count)
 {
 	byte tempbyte;
+	word tempword;
 	newcombo temp_combo;
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
@@ -12469,9 +12470,9 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 		{
 			if  ( section_version >= 12 )
 			{
-				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < 4; q++ )
 				{
-					if(!p_igetl(&temp_combo.attributes[q],f))
+					if(!p_igetzf(&temp_combo.c_attributes[q],f))
 					{
 						return 0;
 					}
@@ -12530,7 +12531,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 					{
 						case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 							if(!(temp_combo.usrflags & cflag3))
-								temp_combo.attribytes[3] = WAV_DOOR;
+								temp_combo.c_attributes[11] = WAV_DOOR;
 							temp_combo.usrflags &= ~cflag3;
 							break;
 					}
@@ -12647,12 +12648,11 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			}
 			if  ( section_version >= 13 )
 			{
-				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				for ( int32_t q = 0; q < 4; q++ )
 				{
-					if(!p_getc(&temp_combo.attribytes[q],f))
-					{
+					if(!p_getc(&tempbyte,f))
 						return 0;
-					}
+					temp_combo.c_attributes[8 + q] = tempbyte;
 				}
 				
 			}

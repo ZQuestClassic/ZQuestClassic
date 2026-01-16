@@ -202,21 +202,24 @@ class combodata {
 	// @zasm_var COMBODANIMFLAGS
 	internal int AnimFlags;
 
-	// The 4 combo attributes. These have a full range (all zscript values,
+	// The 24 combo attributes. These have a full range (all zscript values,
 	// including decimal). Their effect depends on the combo type.
 	//
+	// @versionchanged 3.0 Used to be size 4
 	// @zasm_var COMBODATTRIBUTES
 	internal int Attributes[];
 
 	// The 8 combo attribytes. These have a byte-sized range, `0 to 255`. Their
 	// effect depends on the combo type.
 	//
+	// @deprecated Use [Attributes] indexes 8-15 instead!
 	// @zasm_var COMBODATTRIBYTES
 	internal int Attribytes[];
 
 	// The 8 combo attrishorts. These have a short-sized range, `-32768 to
 	// 32767`. Their effect depends on the combo type.
 	//
+	// @deprecated Use [Attributes] indexes 16-23 instead!
 	// @zasm_var COMBODATTRISHORTS
 	internal int Attrishorts[];
 
