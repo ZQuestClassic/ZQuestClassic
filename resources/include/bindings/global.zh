@@ -656,24 +656,6 @@ internal int xtoa(char32[] dest, int val);
 //   XTOI D2 D3
 internal int xtoi(char32[] str);
 
-// Saves/loads internal data (which is normally temporarily altered by scripts)
-// of the types specified in [flags].
-//
-// @zasm
-//   POP D3
-//   POP D2
-//   SAVEGAMESTRUCTS D2 D3
-internal int SaveSRAM(char32[] filename, int flags);
-
-// Saves/loads internal data (which is normally temporarily altered by scripts)
-// of the types specified in [flags].
-//
-// @zasm
-//   POP D3
-//   POP D2
-//   READGAMESTRUCTS D2 D3
-internal int LoadSRAM(char32[] filename, int flags);
-
 // Appends [src] to the end of [dest]. Returns [dest].
 //
 // @zasm
