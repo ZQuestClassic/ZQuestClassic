@@ -11,10 +11,10 @@ std::map<slope_id_t, slope_object> slopes;
 slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs)
 	: cmb(&cmb)
 {
-	x1 = xoffs + int32_t(cmb.attrishorts[0]);
-	y1 = yoffs + int32_t(cmb.attrishorts[1]);
-	x2 = xoffs + int32_t(cmb.attrishorts[2]);
-	y2 = yoffs + int32_t(cmb.attrishorts[3]);
+	x1 = xoffs + cmb.c_attributes[16];
+	y1 = yoffs + cmb.c_attributes[17];
+	x2 = xoffs + cmb.c_attributes[18];
+	y2 = yoffs + cmb.c_attributes[19];
 	
 	if(x1 > x2)
 	{
@@ -142,7 +142,7 @@ slope_object::slope_object(word* cid, ffcdata* ffc, int ffc_id, int xoffs_, int 
 }
 
 zfix slope_info::slope()        const { return (y2-y1)/(x2-x1); }
-zfix slope_info::slipperiness() const { return cmb ? zslongToFix(cmb->attributes[0]) : 0_zf; }
+zfix slope_info::slipperiness() const { return cmb ? cmb->c_attributes[0] : 0_zf; }
 bool slope_info::stairs()       const { return cmb && (cmb->usrflags & cflag1); }
 bool slope_info::ignorebottom() const { return cmb && (cmb->usrflags & cflag2); }
 bool slope_info::ignoretop()    const { return cmb && (cmb->usrflags & cflag3); }

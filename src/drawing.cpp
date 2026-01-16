@@ -215,7 +215,7 @@ void doDarkroomSquare(int32_t cx, int32_t cy, word glowRad, BITMAP* dest, BITMAP
 	}
 }
 
-void handle_lighting(int cx, int cy, byte shape, word rad, byte dir, BITMAP* dest, BITMAP* transdest,
+void handle_lighting(int cx, int cy, dword shape, dword rad, dword dir, BITMAP* dest, BITMAP* transdest,
 	int dith_perc, int trans_perc, int dith_type, int dith_arg,
 	optional<word> wave_rate, optional<word> wave_size)
 {
@@ -241,7 +241,7 @@ void handle_lighting(int cx, int cy, byte shape, word rad, byte dir, BITMAP* des
 void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* transdest)
 {
 	ASSERT(cmb.type == cTORCH);
-	handle_lighting(cx, cy, cmb.attribytes[1], cmb.attribytes[0], cmb.attribytes[2], dest, transdest);
+	handle_lighting(cx, cy, cmb.c_attributes[9].getTrunc(), cmb.c_attributes[8].getTrunc(), cmb.c_attributes[10].getTrunc(), dest, transdest);
 }
 
 bool dither_staticcheck(int x, int y, double percentage)

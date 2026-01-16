@@ -27,7 +27,7 @@ void doDarkroomCone(int32_t sx, int32_t sy, word glowRad, int32_t dir, BITMAP* d
 void doDarkroomSquare(int32_t cx, int32_t cy, word glowRad, BITMAP* dest=NULL, BITMAP* transdest=NULL,
 	int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1,
 	optional<word> wave_rate=nullopt, optional<word> wave_size=nullopt);
-void handle_lighting(int cx, int cy, byte shape, word rad, byte dir, BITMAP* dest=NULL,BITMAP* transdest=NULL,
+void handle_lighting(int cx, int cy, dword shape, dword rad, dword dir, BITMAP* dest=NULL,BITMAP* transdest=NULL,
 	int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1,
 	optional<word> wave_rate=nullopt, optional<word> wave_size=nullopt);
 void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest=NULL,BITMAP* transdest=NULL);

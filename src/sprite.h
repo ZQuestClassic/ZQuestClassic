@@ -337,11 +337,11 @@ public:
 	newcombo const& cmb;
 	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;
-	byte breaksfx,breakspr;
+	int32_t breaksfx,breakspr;
 	
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset);
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
-		int32_t fromdropset, byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
+		int32_t fromdropset, int32_t breaksfx, int8_t breaksprtype, int32_t breakspr, int32_t breaktimer);
 	
 	virtual bool animate(int32_t);
 };

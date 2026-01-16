@@ -11722,8 +11722,8 @@ void setPitDamage(int32_t flags, int32_t lowcombo, int32_t highcombo, int32_t da
 		|| (combobuf[i].type == cWATER && (combobuf[i].usrflags & (1<<0)) && (flags & (1<<2))))
 		{
 			if ((combobuf[i].type != cPITFALL || (flags & (1<<9)) || !(combobuf[i].usrflags & (1<<0)))
-			&& ((flags & (1<<8)) || combobuf[i].attributes[0] == 0))
-				combobuf[i].attributes[0] = damage*10000; 
+			&& ((flags & (1<<8)) || combobuf[i].c_attributes[0] == 0))
+				combobuf[i].c_attributes[0] = damage;
 		}
 	}
 }
@@ -17384,30 +17384,12 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
-				for(auto q = 0; q < 4; ++q)
+				for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 				{
 					if(!meta.attributes[q].size())
 						continue;
 					memset(buf, 0, sizeof(buf));
 					sprintf(buf, "Attributes[%d]: %s", q, meta.attributes[q].c_str());
-					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-					d->w = zc_max(d->w, t_w);
-				}
-				for(auto q = 0; q < 8; ++q)
-				{
-					if(!meta.attribytes[q].size())
-						continue;
-					memset(buf, 0, sizeof(buf));
-					sprintf(buf, "Attribytes[%d]: %s", q, meta.attribytes[q].c_str());
-					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
-					d->w = zc_max(d->w, t_w);
-				}
-				for(auto q = 0; q < 8; ++q)
-				{
-					if(!meta.attrishorts[q].size())
-						continue;
-					memset(buf, 0, sizeof(buf));
-					sprintf(buf, "Attrishorts[%d]: %s", q, meta.attrishorts[q].c_str());
 					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 					d->w = zc_max(d->w, t_w);
 				}

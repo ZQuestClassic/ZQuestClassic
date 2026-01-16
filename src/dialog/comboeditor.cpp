@@ -76,7 +76,7 @@ bool is_misc_lweapon(newcombo const& cmb)
 		{
 			if(!(cmb.usrflags & cflag1))
 				break; // no weapon
-			auto id = cmb.attribytes[1];
+			auto id = cmb.c_attributes[9].getTrunc();
 			if(id >= wEnemyWeapons)
 				return false;
 			if(id >= wScript1 && id <= wScript10)
@@ -85,7 +85,7 @@ bool is_misc_lweapon(newcombo const& cmb)
 		}
 		case cSHOOTER:
 		{
-			auto id = cmb.attribytes[1];
+			auto id = cmb.c_attributes[9].getTrunc();
 			if(id >= wEnemyWeapons)
 				return false;
 			if(id >= wScript1 && id <= wScript10)
@@ -818,18 +818,13 @@ void ComboEditorDialog::refreshScript()
 void ComboEditorDialog::loadComboType()
 {
 	#define FL(fl) (local_comboref.usrflags & (fl))
-	for(size_t q = 0; q < 16; ++q)
+	for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 	{
-		l_flag[q] = "Flags["+to_string(q)+"]";
-		h_flag[q].clear();
-		if(q > 7) continue;
-		l_attribyte[q] = "Attribytes["+to_string(q)+"]:";
-		l_attrishort[q] = "Attrishorts["+to_string(q)+"]:";
-		h_attribyte[q].clear();
-		h_attrishort[q].clear();
-		if(q > 3) continue;
 		l_attribute[q] = "Attributes["+to_string(q)+"]:";
 		h_attribute[q].clear();
+		if(q > 15) continue;
+		l_flag[q] = "Flags["+to_string(q)+"]";
+		h_flag[q].clear();
 	}
 	switch(local_comboref.type) //Label names
 	{
@@ -840,20 +835,20 @@ void ComboEditorDialog::loadComboType()
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		{
-			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play during the warp";
+			l_attribute[8] = "Sound:";
+			h_attribute[8] = "SFX to play during the warp";
 			break;
 		}
 		case cSLOPE:
 		{
-			l_attrishort[0] = "X Offset 1:";
-			h_attrishort[0] = "X Offset of the starting point of the slope line.";
-			l_attrishort[1] = "Y Offset 1:";
-			h_attrishort[1] = "Y Offset of the starting point of the slope line.";
-			l_attrishort[2] = "X Offset 2:";
-			h_attrishort[2] = "X Offset of the ending point of the slope line.";
-			l_attrishort[3] = "Y Offset 2:";
-			h_attrishort[3] = "Y Offset of the ending point of the slope line.";
+			l_attribute[16] = "X Offset 1:";
+			h_attribute[16] = "X Offset of the starting point of the slope line.";
+			l_attribute[17] = "Y Offset 1:";
+			h_attribute[17] = "Y Offset of the starting point of the slope line.";
+			l_attribute[18] = "X Offset 2:";
+			h_attribute[18] = "X Offset of the ending point of the slope line.";
+			l_attribute[19] = "Y Offset 2:";
+			h_attribute[19] = "Y Offset of the ending point of the slope line.";
 			l_attribute[0] = "Slipperiness:";
 			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
 			l_flag[0] = "Is Stairs";
@@ -875,18 +870,18 @@ void ComboEditorDialog::loadComboType()
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
 		{
-			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play when activated";
+			l_attribute[8] = "Sound:";
+			h_attribute[8] = "SFX to play when activated";
 			break;
 		}
 		case cSTEP: case cSTEPSAME: case cSTEPALL:
 		{
 			l_flag[0] = "Heavy";
 			h_flag[0] = "Requires Heavy Boots to activate";
-			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play when activated";
-			l_attribyte[1] = "Req. Item";
-			h_attribyte[1] = "Item ID that must be owned in order to activate. If '0', no item is required.";
+			l_attribute[8] = "Sound:";
+			h_attribute[8] = "SFX to play when activated";
+			l_attribute[9] = "Req. Item";
+			h_attribute[9] = "Item ID that must be owned in order to activate. If '0', no item is required.";
 			break;
 		}
 		case cWATER:
@@ -903,14 +898,14 @@ void ComboEditorDialog::loadComboType()
 			h_flag[3] = "Solid areas of the combo are treated as non-solid Shallow Liquid combo";
 			l_attribute[0] = "Drown Damage:";
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the Hero.";
-			l_attribyte[0] = "Flipper Level:";
-			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
-			l_attribyte[4] = "Drown SFX:";
-			h_attribyte[4] = "The SFX played when drowning";
-			l_attribyte[5] = "Splash SFX:";
-			h_attribyte[5] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
-			l_attribyte[6] = "Ripple Sprite:";
-			h_attribyte[6] = "Sprite ID to show when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
+			l_attribute[8] = "Flipper Level:";
+			h_attribute[8] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
+			l_attribute[12] = "Drown SFX:";
+			h_attribute[12] = "The SFX played when drowning";
+			l_attribute[13] = "Splash SFX:";
+			h_attribute[13] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
+			l_attribute[14] = "Ripple Sprite:";
+			h_attribute[14] = "Sprite ID to show when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -923,12 +918,12 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
 				h_attribute[2] = "What SFX should play when HP is modified";
-				l_attribyte[1] = "HP Delay:";
-				h_attribyte[1] = "The number of frames between HP modifications";
-				l_attribyte[2] = "Req Itemclass:";
-				h_attribyte[2] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
-				l_attribyte[3] = "Req Itemlevel:";
-				h_attribyte[3] = "A minimum item level to go with 'Req Itemclass'.";
+				l_attribute[9] = "HP Delay:";
+				h_attribute[9] = "The number of frames between HP modifications";
+				l_attribute[10] = "Req Itemclass:";
+				h_attribute[10] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
+				l_attribute[11] = "Req Itemlevel:";
+				h_attribute[11] = "A minimum item level to go with 'Req Itemclass'.";
 			}
 			break;
 		}
@@ -939,16 +934,16 @@ void ComboEditorDialog::loadComboType()
 				" (either healing or damaging).";
 			if (get_qr(qr_OLD_SHALLOW_SFX))
 			{
-				l_attribyte[0] = "Splash Sound";
-				h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
+				l_attribute[8] = "Splash Sound";
+				h_attribute[8] = "SFX ID to play when stepping in the shallow liquid";
 			}
 			else
 			{
-				l_attribyte[5] = "Splash Sound";
-				h_attribyte[5] = "SFX ID to play when stepping in the shallow liquid";
+				l_attribute[13] = "Splash Sound";
+				h_attribute[13] = "SFX ID to play when stepping in the shallow liquid";
 			}
-			l_attribyte[6] = "Ripple Sprite:";
-			h_attribyte[6] = "Sprite ID to show when stepping in the shallow liquid";
+			l_attribute[14] = "Ripple Sprite:";
+			h_attribute[14] = "Sprite ID to show when stepping in the shallow liquid";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -961,19 +956,19 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
 				h_attribute[2] = "What SFX should play when HP is modified";
-				l_attribyte[1] = "HP Delay:";
-				h_attribyte[1] = "The number of frames between HP modifications";
-				l_attribyte[2] = "Req Itemclass:";
-				h_attribyte[2] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
-				l_attribyte[3] = "Req Itemlevel:";
-				h_attribyte[3] = "A minimum item level to go with 'Req Itemclass'.";
+				l_attribute[9] = "HP Delay:";
+				h_attribute[9] = "The number of frames between HP modifications";
+				l_attribute[10] = "Req Itemclass:";
+				h_attribute[10] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
+				l_attribute[11] = "Req Itemlevel:";
+				h_attribute[11] = "A minimum item level to go with 'Req Itemclass'.";
 			}
 			break;
 		}
 		case cARMOS:
 		{
 			l_flag[0] = "Specify";
-			h_flag[0] = "If checked, attribytes are used to specify enemy IDs. Otherwise, the lowest"
+			h_flag[0] = "If checked, attributes are used to specify enemy IDs. Otherwise, the lowest"
 				" enemy ID with the armos flag checked will be spawned.";
 			if(FL(cflag1))
 			{
@@ -981,15 +976,15 @@ void ComboEditorDialog::loadComboType()
 				h_flag[1] = "Randomly choose between two enemy IDs (50/50)";
 				if(FL(cflag2))
 				{
-					l_attribyte[0] = "Enemy 1:";
-					h_attribyte[0] = "The first enemy ID, 50% chance of being spawned";
-					l_attribyte[1] = "Enemy 2:";
-					h_attribyte[1] = "The second enemy ID, 50% chance of being spawned";
+					l_attribute[8] = "Enemy 1:";
+					h_attribute[8] = "The first enemy ID, 50% chance of being spawned";
+					l_attribute[9] = "Enemy 2:";
+					h_attribute[9] = "The second enemy ID, 50% chance of being spawned";
 				}
 				else
 				{
-					l_attribyte[0] = "Enemy:";
-					h_attribyte[0] = "The enemy ID to be spawned";
+					l_attribute[8] = "Enemy:";
+					h_attribute[8] = "The enemy ID to be spawned";
 				}
 			}
 			l_flag[2] = "Handle Large";
@@ -1001,7 +996,7 @@ void ComboEditorDialog::loadComboType()
 		case cGRAVE:
 		{
 			l_flag[0] = "Specify";
-			h_flag[0] = "If checked, attribytes are used to specify enemy IDs. Otherwise, the lowest"
+			h_flag[0] = "If checked, attributes are used to specify enemy IDs. Otherwise, the lowest"
 				" enemy ID with the grave flag checked will be spawned.";
 			if(FL(cflag1))
 			{
@@ -1009,15 +1004,15 @@ void ComboEditorDialog::loadComboType()
 				h_flag[1] = "Randomly choose between two enemy IDs (50/50)";
 				if(FL(cflag2))
 				{
-					l_attribyte[0] = "Enemy 1:";
-					h_attribyte[0] = "The first enemy ID, 50% chance of being spawned";
-					l_attribyte[1] = "Enemy 2:";
-					h_attribyte[1] = "The second enemy ID, 50% chance of being spawned";
+					l_attribute[8] = "Enemy 1:";
+					h_attribute[8] = "The first enemy ID, 50% chance of being spawned";
+					l_attribute[9] = "Enemy 2:";
+					h_attribute[9] = "The second enemy ID, 50% chance of being spawned";
 				}
 				else
 				{
-					l_attribyte[0] = "Enemy:";
-					h_attribyte[0] = "The enemy ID to be spawned";
+					l_attribute[8] = "Enemy:";
+					h_attribute[8] = "The enemy ID to be spawned";
 				}
 			}
 			break;
@@ -1040,8 +1035,8 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[0] = "Pixels moved in the X direction per rate frames.\nNegative is Left, Positive is Right";
 				l_attribute[1] = "Y Speed:";
 				h_attribute[1] = "Pixels moved in the Y direction per rate frames\nNegative is Up, Positive is Down";
-				l_attribyte[0] = "Rate:";
-				h_attribyte[0] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
+				l_attribute[8] = "Rate:";
+				h_attribute[8] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
 			}
 			if(!FL(cflag6)) //Force Walk
 			{
@@ -1062,42 +1057,42 @@ void ComboEditorDialog::loadComboType()
 				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
 				if(FL(cflag10))
 				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+					l_attribute[8] = "Clipping Sprite:";
+					h_attribute[8] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
 				}
 				else
 				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+					l_attribute[8] = "Sprite:";
+					h_attribute[8] = "Sprite Data sprite ID to display as a clipping";
 				}
 			}
 			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
+			h_flag[1] = "Allows specifying the dropset to use as an attribute";
 			l_flag[2] = "Custom Slash SFX";
 			h_flag[2] = "Specify a custom slash SFX";
-			l_attribyte[3] = "Walking Sound:";
-			h_attribyte[3] = "The SFX to play when the Hero walks through this combo. If 0, no sound is played.";
-			l_attribyte[6] = "Grass Sprite";
-			h_attribyte[6] = "The sprite to show when the Hero walks through this combo.";
+			l_attribute[11] = "Walking Sound:";
+			h_attribute[11] = "The SFX to play when the Hero walks through this combo. If 0, no sound is played.";
+			l_attribute[14] = "Grass Sprite";
+			h_attribute[14] = "The sprite to show when the Hero walks through this combo.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
 				if(FL(cflag11))
 				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
+					l_attribute[9] = "Item:";
+					h_attribute[9] = "The item ID to drop";
 				}
 				else
 				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
+					l_attribute[9] = "Dropset:";
+					h_attribute[9] = "The dropset to select a drop item from";
 				}
 			}
 			if(FL(cflag3))
 			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
+				l_attribute[10] = "Slash Sound:";
+				h_attribute[10] = "The SFX to play when slashed";
 			}
 			break;
 		}
@@ -1114,17 +1109,17 @@ void ComboEditorDialog::loadComboType()
 				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
 				if(FL(cflag10))
 				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+					l_attribute[8] = "Clipping Sprite:";
+					h_attribute[8] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
 				}
 				else
 				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+					l_attribute[8] = "Sprite:";
+					h_attribute[8] = "Sprite Data sprite ID to display as a clipping";
 				}
 			}
 			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
+			h_flag[1] = "Allows specifying the dropset to use as an attribute";
 			l_flag[2] = "Custom SFX";
 			h_flag[2] = "Specify a custom slash SFX";
 			if(FL(cflag2))
@@ -1133,19 +1128,19 @@ void ComboEditorDialog::loadComboType()
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
 				if(FL(cflag11))
 				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
+					l_attribute[9] = "Item:";
+					h_attribute[9] = "The item ID to drop";
 				}
 				else
 				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
+					l_attribute[9] = "Dropset:";
+					h_attribute[9] = "The dropset to select a drop item from";
 				}
 			}
 			if(FL(cflag3))
 			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
+				l_attribute[10] = "Slash Sound:";
+				h_attribute[10] = "The SFX to play when slashed";
 			}
 			break;
 		}
@@ -1176,13 +1171,13 @@ void ComboEditorDialog::loadComboType()
 				h_flag[4] = "Consume the required item instead of simply requiring its presence";
 				if(FL(cflag5))
 				{
-					l_attribyte[0] = "Consumed Item";
-					h_attribyte[0] = "The Item ID to open the lock block. Consumed.";
+					l_attribute[8] = "Consumed Item";
+					h_attribute[8] = "The Item ID to open the lock block. Consumed.";
 				}
 				else
 				{
-					l_attribyte[0] = "Held Item";
-					h_attribyte[0] = "The Item ID to open the lock block. Not consumed.";
+					l_attribute[8] = "Held Item";
+					h_attribute[8] = "The Item ID to open the lock block. Not consumed.";
 				}
 				l_flag[1] = "Require Item";
 				h_flag[1] = "Only the required item can open this block (instead of ALSO allowing a key)";
@@ -1198,8 +1193,8 @@ void ComboEditorDialog::loadComboType()
 				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
 				if(FL(cflag4))
 				{
-					l_attribyte[1] = "Counter:";
-					h_attribyte[1] = "The counter to use to open this block";
+					l_attribute[9] = "Counter:";
+					h_attribute[9] = "The counter to use to open this block";
 					l_flag[7] = "No Drain";
 					h_flag[7] = "Requires the counter have the amount, but do not consume from it";
 					if(!FL(cflag8))
@@ -1224,11 +1219,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[12] = "Display prompt combo";
 			h_flag[12] = "Displays a prompt combo when able to interact\n"
 				"Must set: Combo, Xoffset, Yoffset, CSet";
-			l_attribyte[2] = "Button:";
-			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+			l_attribute[10] = "Button:";
+			h_attribute[10] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the block will activate it.";
-			l_attribyte[3] = "Unlock Sound:";
-			h_attribyte[3] = "The sound to play when unlocking the block";
+			l_attribute[11] = "Unlock Sound:";
+			h_attribute[11] = "The sound to play when unlocking the block";
 			if(FL(cflag13))
 			{
 				l_attribute[1] = "Prompt Combo";
@@ -1236,12 +1231,12 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[2] = "Locked Prompt Combo";
 				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
 					" open it. If 0, the normal prompt will be used instead.";
-				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
-				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
-				l_attribyte[4] = "Prompt CSet";
-				h_attribyte[4] = "CSet to draw the prompt in";
+				l_attribute[16] = "Prompt Xoffset";
+				h_attribute[16] = "X offset from Hero's position for the prompt to display at";
+				l_attribute[17] = "Prompt Yoffset";
+				h_attribute[17] = "Y offset from Hero's position for the prompt to display at";
+				l_attribute[12] = "Prompt CSet";
+				h_attribute[12] = "CSet to draw the prompt in";
 			}
 			
 			l_attribute[3] = "Locked String:";
@@ -1262,12 +1257,12 @@ void ComboEditorDialog::loadComboType()
 				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2: ss_str = "Boss Lockblock"; break;
 			}
 			l_flag[15] = "Use ExtraState";
-			h_flag[15] = "If checked, the 'extra state' specified in the attribytes"
+			h_flag[15] = "If checked, the 'extra state' specified in the attributes"
 				" will be used instead of the usual '" + ss_str + "' screen state.";
 			if(FL(cflag16))
 			{
-				l_attribyte[5] = "ExtraState";
-				h_attribyte[5] = "Which ExtraState (0 to 31) to use instead of the usual '"
+				l_attribute[13] = "ExtraState";
+				h_attribute[13] = "Which ExtraState (0 to 31) to use instead of the usual '"
 					+ ss_str + "' screen state.";
 			}
 			break;
@@ -1282,13 +1277,13 @@ void ComboEditorDialog::loadComboType()
 				h_flag[4] = "Consume the required item instead of simply requiring its presence";
 				if(FL(cflag5))
 				{
-					l_attribyte[0] = "Consumed Item";
-					h_attribyte[0] = "The Item ID to open the chest. Consumed.";
+					l_attribute[8] = "Consumed Item";
+					h_attribute[8] = "The Item ID to open the chest. Consumed.";
 				}
 				else
 				{
-					l_attribyte[0] = "Held Item";
-					h_attribyte[0] = "The Item ID to open the chest. Not consumed.";
+					l_attribute[8] = "Held Item";
+					h_attribute[8] = "The Item ID to open the chest. Not consumed.";
 				}
 				l_flag[1] = "Require Item";
 				h_flag[1] = "Only the required item can open this chest (instead of ALSO allowing a key)";
@@ -1304,8 +1299,8 @@ void ComboEditorDialog::loadComboType()
 				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
 				if(FL(cflag4))
 				{
-					l_attribyte[1] = "Counter:";
-					h_attribyte[1] = "The counter to use to open this block";
+					l_attribute[9] = "Counter:";
+					h_attribute[9] = "The counter to use to open this block";
 					l_flag[7] = "No Drain";
 					h_flag[7] = "Requires the counter have the amount, but do not consume from it";
 					if(!FL(cflag8))
@@ -1347,24 +1342,24 @@ void ComboEditorDialog::loadComboType()
 			l_flag[12] = "Display prompt combo";
 			h_flag[12] = "Displays a prompt combo when able to interact\n"
 				"Must set: Combo, Xoffset, Yoffset, CSet";
-			l_attribyte[2] = "Button:";
-			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+			l_attribute[10] = "Button:";
+			h_attribute[10] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the chest will activate it.";
-			l_attribyte[3] = "Open Sound:";
-			h_attribyte[3] = "The sound to play when opening the chest";
+			l_attribute[11] = "Open Sound:";
+			h_attribute[11] = "The sound to play when opening the chest";
 			if(FL(cflag13))
 			{
 				l_attribute[1] = "Prompt Combo";
 				h_attribute[1] = "Combo to display as a 'prompt'";
-				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
-				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
-				l_attribyte[4] = "Prompt CSet";
-				h_attribyte[4] = "CSet to draw the prompt in";
+				l_attribute[16] = "Prompt Xoffset";
+				h_attribute[16] = "X offset from Hero's position for the prompt to display at";
+				l_attribute[17] = "Prompt Yoffset";
+				h_attribute[17] = "Y offset from Hero's position for the prompt to display at";
+				l_attribute[12] = "Prompt CSet";
+				h_attribute[12] = "CSet to draw the prompt in";
 			}
-			l_attrishort[2] = "Contained Item";
-			h_attrishort[2] = "The item contained by the chest."
+			l_attribute[18] = "Contained Item";
+			h_attribute[18] = "The item contained by the chest."
 				"\n0-256: Use specified item ID\n"
 				"-1: Use screen special item (catchall)\n"
 				"-10 to -17: Use Screen->D[0] to [7] as item ID";
@@ -1384,12 +1379,12 @@ void ComboEditorDialog::loadComboType()
 				case cBOSSCHEST: case cBOSSCHEST2: ss_str = "Boss Chest"; break;
 			}
 			l_flag[15] = "Use ExtraState";
-			h_flag[15] = "If checked, the 'extra state' specified in the attribytes"
+			h_flag[15] = "If checked, the 'extra state' specified in the attributes"
 				" will be used instead of the usual '" + ss_str + "' screen state.";
 			if(FL(cflag16))
 			{
-				l_attribyte[5] = "ExtraState";
-				h_attribyte[5] = "Which ExtraState (0 to 31) to use instead of the usual '"
+				l_attribute[13] = "ExtraState";
+				h_attribute[13] = "Which ExtraState (0 to 31) to use instead of the usual '"
 					+ ss_str + "' screen state.";
 			}
 			break;
@@ -1407,8 +1402,8 @@ void ComboEditorDialog::loadComboType()
 			l_flag[12] = "Display prompt combo";
 			h_flag[12] = "Displays a prompt combo when able to interact\n"
 				"Must set: Combo, Xoffset, Yoffset, CSet";
-			l_attribyte[2] = "Button:";
-			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+			l_attribute[10] = "Button:";
+			h_attribute[10] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the signpost will activate it.";
 			l_attribute[0] = "String:";
 			h_attribute[0] = "1+: Use specified string\n"
@@ -1419,12 +1414,12 @@ void ComboEditorDialog::loadComboType()
 			{
 				l_attribute[1] = "Prompt Combo";
 				h_attribute[1] = "Combo to display as a 'prompt'";
-				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
-				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
-				l_attribyte[4] = "Prompt CSet";
-				h_attribyte[4] = "CSet to draw the prompt in";
+				l_attribute[16] = "Prompt Xoffset";
+				h_attribute[16] = "X offset from Hero's position for the prompt to display at";
+				l_attribute[17] = "Prompt Yoffset";
+				h_attribute[17] = "Y offset from Hero's position for the prompt to display at";
+				l_attribute[12] = "Prompt CSet";
+				h_attribute[12] = "CSet to draw the prompt in";
 			}
 			break;
 		}
@@ -1432,37 +1427,37 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_attribute[0] = "Prompt Combo";
 			h_attribute[0] = "Combo to display as a 'prompt'";
-			l_attrishort[0] = "Prompt Xoffset";
-			h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
-			l_attrishort[1] = "Prompt Yoffset";
-			h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
-			l_attribyte[0] = "Prompt CSet";
-			h_attribyte[0] = "CSet to draw the prompt in";
+			l_attribute[16] = "Prompt Xoffset";
+			h_attribute[16] = "X offset from Hero's position for the prompt to display at";
+			l_attribute[17] = "Prompt Yoffset";
+			h_attribute[17] = "Y offset from Hero's position for the prompt to display at";
+			l_attribute[8] = "Prompt CSet";
+			h_attribute[8] = "CSet to draw the prompt in";
 			break;
 		}
 		case cCUSTOMBLOCK:
 		{
-			l_attribyte[0] = "Block SFX";
-			h_attribyte[0] = "SFX to play when blocking a weapon";
+			l_attribute[8] = "Block SFX";
+			h_attribute[8] = "SFX to play when blocking a weapon";
 			break;
 		}
 		case cSHOOTER:
 		{
-			l_attribyte[0] = "Shot SFX:";
-			h_attribyte[0] = "SFX to play when shooting a weapon";
-			l_attribyte[1] = "Weapon Type:";
-			h_attribyte[1] = "The LWeapon or EWeapon ID to be shot";
-			l_attribyte[2] = "Sprite:";
-			h_attribyte[2] = "The sprite of the spawned weapon";
+			l_attribute[8] = "Shot SFX:";
+			h_attribute[8] = "SFX to play when shooting a weapon";
+			l_attribute[9] = "Weapon Type:";
+			h_attribute[9] = "The LWeapon or EWeapon ID to be shot";
+			l_attribute[10] = "Sprite:";
+			h_attribute[10] = "The sprite of the spawned weapon";
 			//byte[3] : multishot shot count
 			//byte[4] : unblockable
 			//byte[5] : script
-			l_attribyte[6] = "Parent Item:";
-			h_attribyte[6] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+			l_attribute[14] = "Parent Item:";
+			h_attribute[14] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
 				"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			//short[0],[1] : Rate
-			l_attrishort[2] = "Damage:";
-			h_attrishort[2] = "The damage of the spawned weapon";
+			l_attribute[18] = "Damage:";
+			h_attribute[18] = "The damage of the spawned weapon";
 			
 			//bute[0] : Angle/Dir
 			//bute[1] : Prox Limit
@@ -1503,15 +1498,15 @@ void ComboEditorDialog::loadComboType()
 			}
 			if(FL(cflag2)) //Variable rate
 			{
-				l_attrishort[0] = "Lower Fire Rate:";
-				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates. (in frames)";
-				l_attrishort[1] = "Upper Fire Rate:";
-				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates. (in frames)";
+				l_attribute[16] = "Lower Fire Rate:";
+				h_attribute[16] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates. (in frames)";
+				l_attribute[17] = "Upper Fire Rate:";
+				h_attribute[17] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates. (in frames)";
 			}
 			else
 			{
-				l_attrishort[0] = "Fire Rate:";
-				h_attrishort[0] = "Combo fires every this many frames (0 = don't fire)";
+				l_attribute[16] = "Fire Rate:";
+				h_attribute[16] = "Combo fires every this many frames (0 = don't fire)";
 			}
 			if(FL(cflag4)) //Stops by Hero Proximity
 			{
@@ -1524,8 +1519,8 @@ void ComboEditorDialog::loadComboType()
 			}
 			if(FL(cflag7)) //Multi Shot
 			{
-				l_attribyte[3] = "Shot Count";
-				h_attribyte[3] = "How many shots (min 1) to fire";
+				l_attribute[11] = "Shot Count";
+				h_attribute[11] = "How many shots (min 1) to fire";
 				l_attribute[3] = "Shot Spread";
 				h_attribute[3] = "Angle (in degrees) between each weapon (0 to 360)";
 			}
@@ -1534,14 +1529,14 @@ void ComboEditorDialog::loadComboType()
 			else
 			{
 				// Misc Weapon Data overwrites whatever would be set here
-				l_attribyte[4] = "Unblockable:";
-				h_attribyte[4] = "Sum the following values to create a flagset:"
+				l_attribute[12] = "Unblockable:";
+				h_attribute[12] = "Sum the following values to create a flagset:"
 					"\n1: Bypass 'Block' defense"
 					"\n2: Bypass 'Ignore' defense"
 					"\n4: Bypass enemy/Hero shield blocking"
 					"\n8: Bypass Hero shield reflecting";
-				l_attribyte[5] = "Script:";
-				h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
+				l_attribute[13] = "Script:";
+				h_attribute[13] = "LWeapon or EWeapon script ID to attach to the fired weapons."
 					"\nNote that there is no way to supply InitD to such scripts.";
 			}
 			break;
@@ -1560,21 +1555,18 @@ void ComboEditorDialog::loadComboType()
 					"\nR=256,Map=512,Ex1=1024,Ex2=2048,Ex3=4096,Ex4=8192,"
 					"\nStickUp=16384,StickDown=32768,StickLeft=65536,StickRight=131072"
 					"\nAdd the values of whichever buttons you would like to ALLOW during the cutscene.";
-				l_attribyte[0] = "Error SFX";
-				h_attribyte[0] = "If >0, SFX played when trying to press a disabled button";
+				l_attribute[8] = "Error SFX";
+				h_attribute[8] = "If >0, SFX played when trying to press a disabled button";
 			}
 			break;
 		}
 		case cCUTSCENEEFFECT:
 		{
-			for(size_t q = 0; q < 16; ++q)
+			for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			{
-				h_flag[q] = "Use the Wizard to set up this combo.";
-				if(q > 7) continue;
-				h_attribyte[q] = "Use the Wizard to set up this combo.";
-				h_attrishort[q] = "Use the Wizard to set up this combo.";
-				if(q > 3) continue;
 				h_attribute[q] = "Use the Wizard to set up this combo.";
+				if(q > 15) continue;
+				h_flag[q] = "Use the Wizard to set up this combo.";
 			}
 			break;
 		}
@@ -1588,21 +1580,21 @@ void ComboEditorDialog::loadComboType()
 				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
 				if(FL(cflag10))
 				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+					l_attribute[8] = "Clipping Sprite:";
+					h_attribute[8] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
 				}
 				else
 				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+					l_attribute[8] = "Sprite:";
+					h_attribute[8] = "Sprite Data sprite ID to display as a clipping";
 				}
 			}
 			l_flag[2] = "Custom SFX";
 			h_flag[2] = "Specify a custom slash SFX";
 			if(FL(cflag3))
 			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
+				l_attribute[10] = "Slash Sound:";
+				h_attribute[10] = "The SFX to play when slashed";
 			}
 			break;
 		}
@@ -1627,13 +1619,13 @@ void ComboEditorDialog::loadComboType()
 				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
 				if(FL(cflag10))
 				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+					l_attribute[8] = "Clipping Sprite:";
+					h_attribute[8] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
 				}
 				else
 				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a decoration";
+					l_attribute[8] = "Sprite:";
+					h_attribute[8] = "Sprite Data sprite ID to display as a decoration";
 				}
 			}
 			l_flag[1] = "Drop Item";
@@ -1644,13 +1636,13 @@ void ComboEditorDialog::loadComboType()
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
 				if(FL(cflag11))
 				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
+					l_attribute[9] = "Item:";
+					h_attribute[9] = "The item ID to drop";
 				}
 				else
 				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
+					l_attribute[9] = "Dropset:";
+					h_attribute[9] = "The dropset to select a drop item from";
 				}
 			}
 			l_flag[3] = "Change Combo";
@@ -1671,32 +1663,32 @@ void ComboEditorDialog::loadComboType()
 			h_flag[13] = "Spawn an Enemy when activated";
 			if(FL(cflag14))
 			{
-				l_attribyte[4] = "Enemy ID";
-				h_attribyte[4] = "The Enemy ID to spawn";
+				l_attribute[12] = "Enemy ID";
+				h_attribute[12] = "The Enemy ID to spawn";
 			}
 			
 			l_flag[6] = "Trigger Singular Secret";
 			h_flag[6] = "Triggers a single secret flag temporarily";
 			if(FL(cflag7|cflag4))
 			{
-				l_attribyte[2] = "SFX:";
+				l_attribute[10] = "SFX:";
 				switch(FL(cflag7|cflag4))
 				{
 					case cflag4:
-						h_attribyte[2] = "SFX to play when changing combo.";
+						h_attribute[10] = "SFX to play when changing combo.";
 						break;
 					case cflag7:
-						h_attribyte[2] = "SFX to play when activating singular secret.";
+						h_attribute[10] = "SFX to play when activating singular secret.";
 						break;
 					case cflag4|cflag7:
-						h_attribyte[2] = "SFX to play when activating singular secret or changing combo";
+						h_attribute[10] = "SFX to play when activating singular secret or changing combo";
 						break;
 				}
 			}
 			if(FL(cflag7))
 			{
-				l_attribyte[3] = "Singular Secret:";
-				h_attribyte[3] = "Which single secret combo to activate, using the 'SECCMB_' constants from 'include/std_zh/std_constants.zh'";
+				l_attribute[11] = "Singular Secret:";
+				h_attribute[11] = "Which single secret combo to activate, using the 'SECCMB_' constants from 'include/std_zh/std_constants.zh'";
 			}
 			if(FL(cflag14)) //Drop Enemy flag
 			{
@@ -1720,19 +1712,19 @@ void ComboEditorDialog::loadComboType()
 			h_flag[4] = "Don't suck in the Hero at all";
 			l_attribute[0] = "Damage:";
 			h_attribute[0] = "The amount of damage, in HP, to take when falling. Negative values heal.";
-			l_attribyte[0] = "Fall SFX:";
-			h_attribyte[0] = "The SFX to play when falling";
+			l_attribute[8] = "Fall SFX:";
+			h_attribute[8] = "The SFX to play when falling";
 			if(FL(cflag1)) //Warp enabled
 			{
 				l_flag[1] = "Direct Warp";
 				h_flag[1] = "The warp keeps the Hero at the same x/y position";
-				l_attribyte[1] = "TileWarp ID";
-				h_attribyte[1] = "0 = A, 1 = B, 2 = C, 3 = D";
+				l_attribute[9] = "TileWarp ID";
+				h_attribute[9] = "0 = A, 1 = B, 2 = C, 3 = D";
 			}
 			if(!(FL(cflag5))) //"No Pull"
 			{
-				l_attribyte[2] = "Pull Sensitivity:";
-				h_attribyte[2] = "Pull the Hero 1 pixel every this many frames.\n"
+				l_attribute[10] = "Pull Sensitivity:";
+				h_attribute[10] = "Pull the Hero 1 pixel every this many frames.\n"
 					"If set to 0, pulls 2 pixels every frame.";
 			}
 			break;
@@ -1741,8 +1733,8 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_flag[0] = "Landmine (Step->Wpn)";
 			h_flag[0] = "Spawns a weapon when activated, and by default advances to the next combo in the combo list.";
-			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play when stepped on";
+			l_attribute[8] = "Sound:";
+			h_attribute[8] = "SFX to play when stepped on";
 			if(FL(cflag1)) //Landmine
 			{
 				l_flag[1] = "Script weapon IDs spawn LWeapons";
@@ -1757,15 +1749,15 @@ void ComboEditorDialog::loadComboType()
 				h_flag[9] = "The combo's 'Misc Weapon Data' will be applied to the weapon after it spawns.";
 				l_attribute[0] = "Damage:";
 				h_attribute[0] = "The damage value for the spawned weapon. If this is < 1, it will default to 4 damage.";
-				l_attribyte[1] = "Weapon Type:";
-				h_attribyte[1] = "The weapon type to spawn. Script1-10 weapon types are eweapons by default."
+				l_attribute[9] = "Weapon Type:";
+				h_attribute[9] = "The weapon type to spawn. Script1-10 weapon types are eweapons by default."
 					" If 0 or invalid, uses an enemy bomb type as a default.";
-				l_attribyte[2] = "Weapon Dir:";
-				h_attribyte[2] = "Direction for the weapon. 0-7 are the standard dirs, 8+ selects a random dir.";
-				l_attribyte[3] = "Wpn Sprite:";
-				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 1 to 255.";
-				l_attribyte[4] = "Parent Item:";
-				h_attribyte[4] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+				l_attribute[10] = "Weapon Dir:";
+				h_attribute[10] = "Direction for the weapon. 0-7 are the standard dirs, 8+ selects a random dir.";
+				l_attribute[11] = "Wpn Sprite:";
+				h_attribute[11] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 1 to 255.";
+				l_attribute[12] = "Parent Item:";
+				h_attribute[12] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
 					"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			}
 			break;
@@ -1781,14 +1773,14 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "Value to add to the combo ID when activated";
 			l_attribute[1] = "CSet Change:";
 			h_attribute[1] = "Value to add to the cset when activated";
-			l_attribyte[1] = "SFX:";
-			h_attribyte[1] = "SFX to play when activated";
+			l_attribute[9] = "SFX:";
+			h_attribute[9] = "SFX to play when activated";
 			l_flag[10] = "Global State";
 			h_flag[10] = "Use a global state instead of a level-based state.";
 			if(FL(cflag11)) //Global State
 			{
-				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to activate from";
+				l_attribute[8] = "State Num:";
+				h_attribute[8] = "Range 0-255 inclusive, which of the global switch states to activate from";
 				l_attribute[2] = "Timed State";
 				h_attribute[2] = "If > 0, the state will revert after this many frames."
 					" If used, the state will NOT remain through save/load."
@@ -1797,8 +1789,8 @@ void ComboEditorDialog::loadComboType()
 			}
 			else
 			{
-				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to activate from";
+				l_attribute[8] = "State Num:";
+				h_attribute[8] = "Range 0-31 inclusive, which of the level's switch states to activate from";
 			}
 			break;
 		}
@@ -1839,24 +1831,24 @@ void ComboEditorDialog::loadComboType()
 			h_flag[10] = "Use a global state instead of a level-based state.";
 			if(FL(cflag11)) //Global State
 			{
-				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to activate from";
+				l_attribute[8] = "State Num:";
+				h_attribute[8] = "Range 0-255 inclusive, which of the global switch states to activate from";
 			}
 			else
 			{
-				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to activate from";
+				l_attribute[8] = "State Num:";
+				h_attribute[8] = "Range 0-31 inclusive, which of the level's switch states to activate from";
 			}
 			break;
 		}
 		case cTORCH:
 		{
-			l_attribyte[0] = "Radius:";
-			h_attribyte[0] = "The radius of light, in pixels, to light up in dark rooms.";
-			l_attribyte[1] = "Shape:";
-			h_attribyte[1] = "The shape of light. 0=circle, 1=cone, 2=square";
-			l_attribyte[2] = "Direction:";
-			h_attribyte[2] = "The direction the torch is facing, for direction-requiring shapes like 'cone'.";
+			l_attribute[8] = "Radius:";
+			h_attribute[8] = "The radius of light, in pixels, to light up in dark rooms.";
+			l_attribute[9] = "Shape:";
+			h_attribute[9] = "The shape of light. 0=circle, 1=cone, 2=square";
+			l_attribute[10] = "Direction:";
+			h_attribute[10] = "The direction the torch is facing, for direction-requiring shapes like 'cone'.";
 			break;
 		}
 		case cSPOTLIGHT:
@@ -1865,30 +1857,30 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "Uses a set of tiles in a preset order, instead of a set of 3 colors, to represent the light beam.";
 			l_flag[1] = "Works on FFCs";
 			h_flag[1] = "This spotlight can fire a beam from FFCs, off-the-grid";
-			l_attribyte[0] = "Dir:";
-			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
-			l_attribyte[4] = "Trigger Set:";
-			h_attribyte[4] = "0-32; if 0 will activate any targets, otherwise only activates matching targets";
+			l_attribute[8] = "Dir:";
+			h_attribute[8] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
+			l_attribute[12] = "Trigger Set:";
+			h_attribute[12] = "0-32; if 0 will activate any targets, otherwise only activates matching targets";
 			if(FL(cflag1))
 			{
 				l_attribute[0] = "Start Tile:";
 				h_attribute[0] = "Tiles in order: Ground, Up, Down, Left, Right, U+L, U+R, D+L, D+R, U+D, L+R, D+L+R, U+L+R, U+D+R, U+D+L, U+D+L+R";
-				l_attribyte[1] = "CSet (0-11):";
-				h_attribyte[1] = "CSet for the light beam graphic";
+				l_attribute[9] = "CSet (0-11):";
+				h_attribute[9] = "CSet for the light beam graphic";
 			}
 			else
 			{
-				l_attribyte[1] = "Inner Color:";
-				h_attribyte[1] = "One of the colors used to generate the light beam graphic";
-				l_attribyte[2] = "Middle Color:";
-				h_attribyte[2] = "One of the colors used to generate the light beam graphic";
-				l_attribyte[3] = "Outer Color:";
-				h_attribyte[3] = "One of the colors used to generate the light beam graphic";
+				l_attribute[9] = "Inner Color:";
+				h_attribute[9] = "One of the colors used to generate the light beam graphic";
+				l_attribute[10] = "Middle Color:";
+				h_attribute[10] = "One of the colors used to generate the light beam graphic";
+				l_attribute[11] = "Outer Color:";
+				h_attribute[11] = "One of the colors used to generate the light beam graphic";
 			}
 			if(FL(cflag2))
 			{
-				l_attribyte[5] = "Beam Width (FFC)";
-				h_attribyte[5] = "The 'width' of the beam. This is only used when the spotlight"
+				l_attribute[13] = "Beam Width (FFC)";
+				h_attribute[13] = "The 'width' of the beam. This is only used when the spotlight"
 					" is on an FFC, and is used to center the beam and determine the hitbox."
 					"\nDoes not affect the visual in any way. If < 1, uses '8' as a default.";
 			}
@@ -1903,8 +1895,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "If checked, counts as activated when light is NOT hitting it.";
 			l_flag[2] = "Blocks Light";
 			h_flag[2] = "Light that hits will activate, but not pass, the target";
-			l_attribyte[4] = "Trigger Set:";
-			h_attribyte[4] = "0-32; if 0 will be activated by any beams, otherwise only by matching beams";
+			l_attribute[12] = "Trigger Set:";
+			h_attribute[12] = "0-32; if 0 will be activated by any beams, otherwise only by matching beams";
 			break;
 		}
 		case cSWITCHHOOK:
@@ -1921,14 +1913,14 @@ void ComboEditorDialog::loadComboType()
 			h_flag[6] = "This combo counts as a 'pushblock' for purposes of switching it onto"
 				" block triggers/holes, though this does not allow it to be pushed"
 				" (unless a push flag is placed on it).";
-			l_attribyte[0] = "Hook Level:";
-			h_attribyte[0] = "The minimum level of SwitchHook that can swap this combo";
+			l_attribute[8] = "Hook Level:";
+			h_attribute[8] = "The minimum level of SwitchHook that can swap this combo";
 			if(FL(cflag3)) //break info
 			{
-				l_attribyte[1] = "Break Sprite:";
-				h_attribyte[1] = "Sprite Data sprite ID to display when broken";
-				l_attribyte[2] = "Break SFX:";
-				h_attribyte[2] = "SFX to be played when broken";
+				l_attribute[9] = "Break Sprite:";
+				h_attribute[9] = "Sprite Data sprite ID to display when broken";
+				l_attribute[10] = "Break SFX:";
+				h_attribute[10] = "SFX to be played when broken";
 				l_flag[3] = "Drop Item";
 				h_flag[3] = "Will drop an item upon breaking.";
 				l_flag[5] = "Next instead of Undercombo";
@@ -1939,13 +1931,13 @@ void ComboEditorDialog::loadComboType()
 					h_flag[4] = "Drop a specific item instead of an item from a dropset";
 					if(FL(cflag5))
 					{
-						l_attribyte[2] = "Item:";
-						h_attribyte[2] = "The item ID to drop";
+						l_attribute[10] = "Item:";
+						h_attribute[10] = "The item ID to drop";
 					}
 					else
 					{
-						l_attribyte[2] = "Dropset:";
-						h_attribyte[2] = "The dropset to select a drop item from";
+						l_attribute[10] = "Dropset:";
+						h_attribute[10] = "The dropset to select a drop item from";
 					}
 				}
 			}
@@ -1954,21 +1946,21 @@ void ComboEditorDialog::loadComboType()
 		case cSAVE: case cSAVE2:
 		{
 			l_flag[0] = "Restores Life";
-			h_flag[0] = "If checked, restores life up to the percentage listed in attribytes.";
+			h_flag[0] = "If checked, restores life up to the percentage listed in attributes.";
 			l_flag[1] = "Restores Magic";
-			h_flag[1] = "If checked, restores magic up to the percentage listed in attribytes.";
+			h_flag[1] = "If checked, restores magic up to the percentage listed in attributes.";
 			if(FL(cflag1))
 			{
-				l_attribyte[0] = "Life Percentage";
-				h_attribyte[0] = "Restore life up to this percentage, if it is lower.";
+				l_attribute[8] = "Life Percentage";
+				h_attribute[8] = "Restore life up to this percentage, if it is lower.";
 			}
 			if(FL(cflag2))
 			{
-				l_attribyte[1] = "Magic Percentage";
-				h_attribyte[1] = "Restore magic up to this percentage, if it is lower.";
+				l_attribute[9] = "Magic Percentage";
+				h_attribute[9] = "Restore magic up to this percentage, if it is lower.";
 			}
-			l_attribyte[2] = "Save Menu";
-			h_attribyte[2] = "If >0, saving will use the specified Save Menu instead of the default engine save menu.";
+			l_attribute[10] = "Save Menu";
+			h_attribute[10] = "If >0, saving will use the specified Save Menu instead of the default engine save menu.";
 			break;
 		}
 		case cPUSHBLOCK:
@@ -1999,34 +1991,34 @@ void ComboEditorDialog::loadComboType()
 			l_flag[10] = "Obeys Gravity";
 			h_flag[10] = "Falls down in sideview until it hits the floor (when pushed, NOT passively)";
 			
-			l_attrishort[0] = "Push Speed";
-			h_attrishort[0] = "If 0 or less, uses the default push speed of 0.5 pixels per frame."
+			l_attribute[16] = "Push Speed";
+			h_attribute[16] = "If 0 or less, uses the default push speed of 0.5 pixels per frame."
 				" Otherwise, uses this speed as a step value (1/100ths pixel per frame).";
-			l_attribyte[0] = "Heavy Level";
-			h_attribyte[0] = "If >0, a bracelet of at least this level is required to push this block.";
-			l_attribyte[1] = "Push SFX";
-			h_attribyte[1] = "The SFX to play when the block is pushed.";
-			l_attribyte[2] = "Stop SFX";
-			h_attribyte[2] = "The SFX to play when the block stops moving.";
+			l_attribute[8] = "Heavy Level";
+			h_attribute[8] = "If >0, a bracelet of at least this level is required to push this block.";
+			l_attribute[9] = "Push SFX";
+			h_attribute[9] = "The SFX to play when the block is pushed.";
+			l_attribute[10] = "Stop SFX";
+			h_attribute[10] = "The SFX to play when the block stops moving.";
 			if(FL(cflag5))
 			{
-				l_attribyte[4] = "Times Pushable (Up):";
-				h_attribyte[4] = "How many times the block can be pushed Up before it can no"
+				l_attribute[12] = "Times Pushable (Up):";
+				h_attribute[12] = "How many times the block can be pushed Up before it can no"
 					" longer be pushed up. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
-				l_attribyte[5] = "Times Pushable (Down):";
-				h_attribyte[5] = "How many times the block can be pushed Down before it can no"
+				l_attribute[13] = "Times Pushable (Down):";
+				h_attribute[13] = "How many times the block can be pushed Down before it can no"
 					" longer be pushed down. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
-				l_attribyte[6] = "Times Pushable (Left):";
-				h_attribyte[6] = "How many times the block can be pushed Left before it can no"
+				l_attribute[14] = "Times Pushable (Left):";
+				h_attribute[14] = "How many times the block can be pushed Left before it can no"
 					" longer be pushed left. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
-				l_attribyte[7] = "Times Pushable (Right):";
-				h_attribyte[7] = "How many times the block can be pushed Right before it can no"
+				l_attribute[15] = "Times Pushable (Right):";
+				h_attribute[15] = "How many times the block can be pushed Right before it can no"
 					" longer be pushed right. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
 			}
 			else
 			{
-				l_attribyte[4] = "Times Pushable:";
-				h_attribyte[4] = "How many times the block can be pushed before it clicks into place."
+				l_attribute[12] = "Times Pushable:";
+				h_attribute[12] = "How many times the block can be pushed before it clicks into place."
 					" '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
 			}
 			break;
@@ -2040,10 +2032,10 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "The Hero will slip and slide on the ice. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
 			if(FL(cflag2))
 			{
-				l_attribyte[0] = "Start Speed Percentage";
-				h_attribyte[0] = "The percentage of the Hero's movement speed to carry onto the ice when first stepping onto it.";
-				l_attribyte[1] = "Entry Leeway Frames";
-				h_attribyte[1] = "For this many frames after entering the ice, the Hero will have additional traction. The traction gradually decreases over time until the frames are up.";
+				l_attribute[8] = "Start Speed Percentage";
+				h_attribute[8] = "The percentage of the Hero's movement speed to carry onto the ice when first stepping onto it.";
+				l_attribute[9] = "Entry Leeway Frames";
+				h_attribute[9] = "For this many frames after entering the ice, the Hero will have additional traction. The traction gradually decreases over time until the frames are up.";
 				l_attribute[0] = "Acceleration";
 				h_attribute[0] = "Speed gained when holding a direction, in pixels per frame.";
 				l_attribute[1] = "Deceleration";
@@ -2055,40 +2047,40 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cMIRRORNEW:
 		{
-			l_attribyte[up] = "Up Reflect";
-			h_attribyte[up] = "Weapons/light beams facing up (coming from below) will move in this direction."
+			l_attribute[8+up] = "Up Reflect";
+			h_attribute[8+up] = "Weapons/light beams facing up (coming from below) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[down] = "Down Reflect";
-			h_attribyte[down] = "Weapons/light beams facing down (coming from above) will move in this direction."
+			l_attribute[8+down] = "Down Reflect";
+			h_attribute[8+down] = "Weapons/light beams facing down (coming from above) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[left] = "Left Reflect";
-			h_attribyte[left] = "Weapons/light beams facing left (coming from the right) will move in this direction."
+			l_attribute[8+left] = "Left Reflect";
+			h_attribute[8+left] = "Weapons/light beams facing left (coming from the right) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[right] = "Right Reflect";
-			h_attribyte[right] = "Weapons/light beams facing right (coming from the left) will move in this direction."
+			l_attribute[8+right] = "Right Reflect";
+			h_attribute[8+right] = "Weapons/light beams facing right (coming from the left) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[l_up] = "Up-Left Reflect";
-			h_attribyte[l_up] = "Weapons facing up-left (coming from down-right) will move in this direction."
+			l_attribute[8+l_up] = "Up-Left Reflect";
+			h_attribute[8+l_up] = "Weapons facing up-left (coming from down-right) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[r_up] = "Up-Right Reflect";
-			h_attribyte[r_up] = "Weapons facing up-right (coming from down-left) will move in this direction."
+			l_attribute[8+r_up] = "Up-Right Reflect";
+			h_attribute[8+r_up] = "Weapons facing up-right (coming from down-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[l_down] = "Down-Left Reflect";
-			h_attribyte[l_down] = "Weapons facing down-left (coming from up-right) will move in this direction."
+			l_attribute[8+l_down] = "Down-Left Reflect";
+			h_attribute[8+l_down] = "Weapons facing down-left (coming from up-right) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
-			l_attribyte[r_down] = "Down-Right Reflect";
-			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
+			l_attribute[8+r_down] = "Down-Right Reflect";
+			h_attribute[8+r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
 		}
@@ -2101,21 +2093,21 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cCRUMBLE:
 		{
-			l_attribyte[0] = "Crumble Type";
-			h_attribyte[0] = "0 = Reset (Timer resets when stepped off of, can also change combo)"
+			l_attribute[8] = "Crumble Type";
+			h_attribute[8] = "0 = Reset (Timer resets when stepped off of, can also change combo)"
 				"\n1 = Cumulative (Timer does not reset, just pauses when stepped off of)"
 				"\n2 = Inevitable (Timer keeps going even if stepped off of)";
 			l_flag[0] = "Continuous";
 			h_flag[0] = "If the next combo is a Crumbling combo of the 'Inevitable' type, it will continue crumbling automatically.";
-			l_attribyte[1] = "Crumble Sensitivity";
-			h_attribyte[1] = "This many pixels of leeway are given. 0 = fully sensitive."
+			l_attribute[9] = "Crumble Sensitivity";
+			h_attribute[9] = "This many pixels of leeway are given. 0 = fully sensitive."
 				"\nIf leeway exceeds combo/ffc size, no crumbling will occur.";
-			l_attrishort[0] = "Crumble Time";
-			h_attrishort[0] = "The time, in frames, before the combo crumbles into the next combo in the combo list.";
-			if(local_comboref.attribytes[0] == CMBTY_CRUMBLE_RESET)
+			l_attribute[16] = "Crumble Time";
+			h_attribute[16] = "The time, in frames, before the combo crumbles into the next combo in the combo list.";
+			if(local_comboref.c_attributes[8].getTrunc() == CMBTY_CRUMBLE_RESET)
 			{
-				l_attrishort[1] = "Reset Change";
-				h_attrishort[1] = "If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
+				l_attribute[17] = "Reset Change";
+				h_attribute[17] = "If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
 					" when the Hero steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)";
 			}
 			break;
@@ -2124,40 +2116,26 @@ void ComboEditorDialog::loadComboType()
 	if(local_comboref.script && combo_use_script_data)
 	{
 		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
-		for(size_t q = 0; q < 16; ++q)
+		for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 		{
-			if(meta.usrflags[q].size())
-				l_flag[q] = meta.usrflags[q];
-			if(meta.usrflags_help[q].size())
-				h_flag[q] = meta.usrflags_help[q];
-			if(q > 7) continue;
-			if(meta.attribytes[q].size())
-				l_attribyte[q] = meta.attribytes[q];
-			if(meta.attribytes_help[q].size())
-				h_attribyte[q] = meta.attribytes_help[q];
-			if(meta.attrishorts[q].size())
-				l_attrishort[q] = meta.attrishorts[q];
-			if(meta.attrishorts_help[q].size())
-				h_attrishort[q] = meta.attrishorts_help[q];
-			if(q > 3) continue;
 			if(meta.attributes[q].size())
 				l_attribute[q] = meta.attributes[q];
 			if(meta.attributes_help[q].size())
 				h_attribute[q] = meta.attributes_help[q];
+			if(q > 15) continue;
+			if(meta.usrflags[q].size())
+				l_flag[q] = meta.usrflags[q];
+			if(meta.usrflags_help[q].size())
+				h_flag[q] = meta.usrflags_help[q];
 		}
 	}
-	for(size_t q = 0; q < 16; ++q)
+	for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 	{
-		l_flags[q]->setText(l_flag[q]);
-		ib_flags[q]->setDisabled(h_flag[q].empty());
-		if(q > 7) continue;
-		ib_attribytes[q]->setDisabled(h_attribyte[q].empty());
-		l_attribytes[q]->setText(l_attribyte[q]);
-		ib_attrishorts[q]->setDisabled(h_attrishort[q].empty());
-		l_attrishorts[q]->setText(l_attrishort[q]);
-		if(q > 3) continue;
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
+		if (q > 15) continue;
+		l_flags[q]->setText(l_flag[q]);
+		ib_flags[q]->setDisabled(h_flag[q].empty());
 	}
 	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	updateWarnings();
@@ -2323,54 +2301,6 @@ Checkbox(text = str, \
 		} \
 	)
 
-std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px, colSpan = 3,
-		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_attribytes[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("Attribyte Info",h_attribyte[index]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_BYTE,
-			low = 0, high = 255, val = local_comboref.attribytes[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_comboref.attribytes[index] = val;
-			})
-	);
-}
-
-std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px, colSpan = 3,
-		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("Attrishort Info",h_attrishort[index]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_SSHORT,
-			low = -32768, high = 32767, val = local_comboref.attrishorts[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_comboref.attrishorts[index] = val;
-			})
-	);
-}
-
 std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 {
 	using namespace GUI::Builder;
@@ -2387,10 +2317,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 		TextField(
 			fitParent = true, minwidth = 8_em,
 			type = GUI::TextField::type::SWAP_ZSINT,
-			val = local_comboref.attributes[index],
+			val = local_comboref.c_attributes[index].getZLong(),
 			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
 			{
-				local_comboref.attributes[index] = val;
+				local_comboref.c_attributes[index] = zslongToFix(val);
 			})
 	);
 }
@@ -2755,36 +2685,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_FLAG(13),
 							CMB_FLAG(14),
 							CMB_FLAG(15)
-						)
-					)),
-					TabRef(name = "Attribs 1", Row(
-						Rows<3>(framed = true, frameText = "Attribytes",
-							CMB_ATTRIBYTE(0),
-							CMB_ATTRIBYTE(1),
-							CMB_ATTRIBYTE(2),
-							CMB_ATTRIBYTE(3),
-							CMB_ATTRIBYTE(4),
-							CMB_ATTRIBYTE(5),
-							CMB_ATTRIBYTE(6),
-							CMB_ATTRIBYTE(7)
-						),
-						Rows<3>(framed = true, frameText = "Attrishorts",
-							CMB_ATTRISHORT(0),
-							CMB_ATTRISHORT(1),
-							CMB_ATTRISHORT(2),
-							CMB_ATTRISHORT(3),
-							CMB_ATTRISHORT(4),
-							CMB_ATTRISHORT(5),
-							CMB_ATTRISHORT(6),
-							CMB_ATTRISHORT(7)
-						)
-					)),
-					TabRef(name = "Attribs 2", Column(
-						Rows<3>(framed = true, frameText = "Attributes",
-							CMB_ATTRIBUTE(0),
-							CMB_ATTRIBUTE(1),
-							CMB_ATTRIBUTE(2),
-							CMB_ATTRIBUTE(3)
 						),
 						Row(
 							Button(text = "Misc Weapon Data",
@@ -2793,6 +2693,40 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									call_weap_data_editor(local_comboref.misc_weap_data, is_misc_lweapon(local_comboref), true);
 								}),
 							IBTN("Usable by some combo types for weapon-related effects.")
+						)
+					)),
+					TabRef(name = "Attribs 1", Row( // TODO_C_ATTRIBUTES: horizontal scroll panel for this?
+						Rows<3>(framed = true, frameText = "Attribytes",
+							CMB_ATTRIBUTE(8+0),
+							CMB_ATTRIBUTE(8+1),
+							CMB_ATTRIBUTE(8+2),
+							CMB_ATTRIBUTE(8+3),
+							CMB_ATTRIBUTE(8+4),
+							CMB_ATTRIBUTE(8+5),
+							CMB_ATTRIBUTE(8+6),
+							CMB_ATTRIBUTE(8+7)
+						),
+						Rows<3>(framed = true, frameText = "Attrishorts",
+							CMB_ATTRIBUTE(16+0),
+							CMB_ATTRIBUTE(16+1),
+							CMB_ATTRIBUTE(16+2),
+							CMB_ATTRIBUTE(16+3),
+							CMB_ATTRIBUTE(16+4),
+							CMB_ATTRIBUTE(16+5),
+							CMB_ATTRIBUTE(16+6),
+							CMB_ATTRIBUTE(16+7)
+						)
+					)),
+					TabRef(name = "Attribs 2", Column(
+						Rows<3>(framed = true, frameText = "Attributes",
+							CMB_ATTRIBUTE(0),
+							CMB_ATTRIBUTE(1),
+							CMB_ATTRIBUTE(2),
+							CMB_ATTRIBUTE(3),
+							CMB_ATTRIBUTE(4),
+							CMB_ATTRIBUTE(5),
+							CMB_ATTRIBUTE(6),
+							CMB_ATTRIBUTE(7)
 						)
 					))
 				)),

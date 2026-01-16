@@ -9641,10 +9641,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 {
 	//Check what needs writing
 	word combo_has_flags = 0;
-	for(auto q = 0; q < 8; ++q)
+	for(auto q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 	{
-		if(tmp_cmb.attribytes[q] || tmp_cmb.attrishorts[q]
-			|| (q < 4 && tmp_cmb.attributes[q]))
+		if(tmp_cmb.c_attributes[q])
 		{
 			combo_has_flags |= CHAS_ATTRIB;
 			break;
@@ -9750,15 +9749,11 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(combo_has_flags&CHAS_ATTRIB)
 	{
-		for ( int32_t q = 0; q < 4; q++ )
-			if(!p_iputl(tmp_cmb.attributes[q],f))
+		if (!p_iputw(NUM_COMBO_ATTRIBUTES, f))
+			return 25;
+		for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			if(!p_iputzf(tmp_cmb.c_attributes[q],f))
 				return 20;
-		for ( int32_t q = 0; q < 8; q++ )
-			if(!p_putc(tmp_cmb.attribytes[q],f))
-				return 25;
-		for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
-			if(!p_iputw(tmp_cmb.attrishorts[q],f))
-				return 32;
 	}
 	if(combo_has_flags&CHAS_FLAG)
 	{
@@ -12979,19 +12974,8 @@ int32_t write_quest_zasm(PACKFILE *f)
 	return 0;
 }
 
-int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *script)
+int32_t write_one_ffscript_meta(PACKFILE *f, zasm_meta const& tmeta)
 {
-	if (!script->valid())
-	{
-		if (!p_putc(0, f))
-			new_return(-1);
-		return 0;
-	}
-
-	if (!p_putc(1, f))
-		new_return(-1);
-
-	zasm_meta const& tmeta = script->meta;
 	if(!p_iputw(tmeta.zasm_v,f))
 		new_return(1);
 	if(!p_iputw(tmeta.meta_v,f))
@@ -13030,26 +13014,15 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *sc
 		new_return(12);
 	if(!p_putcstr(tmeta.author,f))
 		new_return(13);
-	for(auto q = 0; q < 10; ++q)
+	
+	if (!p_iputw(NUM_ZMETA_ATTRIBUTES, f))
+		new_return(27);
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 	{
 		if(!p_putcstr(tmeta.attributes[q],f))
-			new_return(14);
+			new_return(28);
 		if(!p_putwstr(tmeta.attributes_help[q],f))
-			new_return(15);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attribytes[q],f))
-			new_return(16);
-		if(!p_putwstr(tmeta.attribytes_help[q],f))
-			new_return(17);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attrishorts[q],f))
-			new_return(18);
-		if(!p_putwstr(tmeta.attrishorts_help[q],f))
-			new_return(19);
+			new_return(29);
 	}
 	for(auto q = 0; q < 16; ++q)
 	{
@@ -13070,6 +13043,24 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *sc
 		if(!p_putc(tmeta.initd_type[q],f))
 			new_return(24);
 	}
+	
+	return 0;
+}
+
+int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_data *script)
+{
+	if (!script->valid())
+	{
+		if (!p_putc(0, f))
+			new_return(-1);
+		return 0;
+	}
+
+	if (!p_putc(1, f))
+		new_return(-1);
+
+	if (auto ret = write_one_ffscript_meta(f, script->meta))
+		return ret;
 
 	if(!p_iputl(script->pc, f))
 		new_return(25);
@@ -13080,14 +13071,13 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *, int32_t, script_data *sc
     return 0;
 }
 
-
 int32_t writeffscript_old(PACKFILE *f, zquestheader *Header)
 {
     dword section_id       = ID_FFSCRIPT;
     dword section_version  = 26;
     dword section_cversion = 1;
     dword section_size     = 0;
-	dword zasmmeta_version = 5;
+	dword zasmmeta_version = METADATA_V;
     byte numscripts        = 0;
     numscripts = numscripts; //to avoid unused variables warnings
     
@@ -13798,10 +13788,6 @@ int32_t writeffscript_old(PACKFILE *f, zquestheader *Header)
 
 int32_t write_one_ffscript_old(PACKFILE *f, zquestheader *Header, int32_t i, script_data *script)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    i=i;
-    
     size_t num_commands = script->zasm_script ? script->zasm_script->size : 0;
     
     if(!p_iputl(num_commands,f))
@@ -13810,110 +13796,8 @@ int32_t write_one_ffscript_old(PACKFILE *f, zquestheader *Header, int32_t i, scr
     }
 	
 	//Metadata
-	zasm_meta const& tmeta = script->meta;
-	if(!p_iputw(tmeta.zasm_v,f))
-	{
-		new_return(7);
-	}
-	
-	if(!p_iputw(tmeta.meta_v,f))
-	{
-		new_return(8);
-	}
-	
-	if(!p_iputw(tmeta.ffscript_v,f))
-	{
-		new_return(9);
-	}
-	
-	if(!p_putc((int)tmeta.script_type,f))
-	{
-		new_return(10);
-	}
-	
-	for(int32_t q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.run_idens[q],f))
-			new_return(11);
-	}
-	
-	for(int32_t q = 0; q < 8; ++q)
-	{
-		if(!p_putc(tmeta.run_types[q],f))
-		{
-			new_return(12);
-		}
-	}
-	
-	if(!p_putc(tmeta.flags,f))
-	{
-		new_return(13);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v1,f))
-	{
-		new_return(14);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v2,f))
-	{
-		new_return(15);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v3,f))
-	{
-		new_return(16);
-	}
-	
-	if(!p_iputw(tmeta.compiler_v4,f))
-	{
-		new_return(17);
-	}
-	
-	if(!p_putcstr(tmeta.script_name,f))
-		new_return(18);
-	if(!p_putcstr(tmeta.author,f))
-		new_return(19);
-	for(auto q = 0; q < 10; ++q)
-	{
-		if(!p_putcstr(tmeta.attributes[q],f))
-			new_return(27);
-		if(!p_putwstr(tmeta.attributes_help[q],f))
-			new_return(28);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attribytes[q],f))
-			new_return(29);
-		if(!p_putwstr(tmeta.attribytes_help[q],f))
-			new_return(30);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.attrishorts[q],f))
-			new_return(31);
-		if(!p_putwstr(tmeta.attrishorts_help[q],f))
-			new_return(32);
-	}
-	for(auto q = 0; q < 16; ++q)
-	{
-		if(!p_putcstr(tmeta.usrflags[q],f))
-			new_return(33);
-		if(!p_putwstr(tmeta.usrflags_help[q],f))
-			new_return(34);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putcstr(tmeta.initd[q],f))
-			new_return(35);
-		if(!p_putwstr(tmeta.initd_help[q],f))
-			new_return(36);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!p_putc(tmeta.initd_type[q],f))
-			new_return(37);
-	}
+	if (auto ret = write_one_ffscript_meta(f, script->meta))
+		return ret;
 	
     for(int32_t j=0; j<num_commands; j++)
     {

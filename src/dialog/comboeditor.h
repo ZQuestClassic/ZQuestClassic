@@ -55,14 +55,10 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tf_initd[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
-	std::shared_ptr<GUI::Label> l_attributes[4];
-	std::shared_ptr<GUI::Label> l_attribytes[8];
-	std::shared_ptr<GUI::Label> l_attrishorts[8];
+	std::shared_ptr<GUI::Label> l_attributes[NUM_COMBO_ATTRIBUTES];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Button> ib_initds[8];
-	std::shared_ptr<GUI::Button> ib_attributes[4];
-	std::shared_ptr<GUI::Button> ib_attribytes[8];
-	std::shared_ptr<GUI::Button> ib_attrishorts[8];
+	std::shared_ptr<GUI::Button> ib_attributes[NUM_COMBO_ATTRIBUTES];
 	std::shared_ptr<GUI::Button> ib_flags[16];
 	std::shared_ptr<GUI::Button> wizardButton, warnbtn;
 	std::shared_ptr<GUI::Label> l_flip;
@@ -76,10 +72,8 @@ private:
 		trigbtnDelete, trigbtnPasteNewCursor, trigbtnPasteNewEnd, trigbtnPaste, trigbtnUp,
 		trigbtnDown, trigbtnSummarize, trigbtnSummarizeAll;
 	
-	string h_initd[8], h_attribute[4], h_attribyte[8],
-		h_attrishort[8], h_flag[16];
-	string l_initd[8], l_attribute[4], l_attribyte[8],
-		l_attrishort[8], l_flag[16];
+	string h_initd[8], h_attribute[NUM_COMBO_ATTRIBUTES], h_flag[16];
+	string l_initd[8], l_attribute[NUM_COMBO_ATTRIBUTES], l_flag[16];
 	
 	vector<string> warnings;
 	

@@ -117,7 +117,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		{
 			if (combobuf[cid].usrflags & cflag10)
 			{
-				switch (combobuf[cid].attribytes[0])
+				switch (combobuf[cid].c_attributes[8].getTrunc())
 				{
 					case 0:
 					case 1:
@@ -132,21 +132,22 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 		}
 		
 		int32_t it = -1; 
 		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
+			auto id = combobuf[cid].c_attributes[9].getTrunc();
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
-				it = combobuf[cid].attribytes[1];
+				it = id;
 			}
 			else
 			{
-				it = select_dropitem(combobuf[cid].attribytes[1]);
-				thedropset = combobuf[cid].attribytes[1];
+				it = select_dropitem(id);
+				thedropset = id;
 			}
 		}
 		if( it != -1 )
@@ -172,8 +173,8 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 			scr->sflag[pos] = scr->secretflag[ft];
 			// newflag = s->secretflag[ft];
 			screen_combo_modify_postroutine(rpos_handle);
-			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(bx));
+			if ( combobuf[cid].c_attributes[10].getTrunc() > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 		}
 		
 		//loop next combo
@@ -218,12 +219,12 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 				
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = rpos_handle.data();
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(bx));
+			if ( (combobuf[cid].c_attributes[10].getTrunc()) > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(bx));
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(rpos_handle.screen,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(rpos_handle.screen,x,y,combobuf[cid].c_attributes[12],((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 }
@@ -243,7 +244,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		{
 			if (combobuf[cid].usrflags & cflag10)
 			{
-				switch (combobuf[cid].attribytes[0])
+				switch (combobuf[cid].c_attributes[8].getTrunc())
 				{
 					case 0:
 					case 1:
@@ -258,21 +259,22 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc->x, ffc->y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc->x, ffc->y, dCOMBOSPRITE, 0, combobuf[cid].c_attributes[8].getTrunc()));
 		}
 		
 		int32_t it = -1; 
 		int32_t thedropset = -1;
 		if (combobuf[cid].usrflags&cflag2)
 		{
+			auto id = combobuf[cid].c_attributes[9].getTrunc();
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
-				it = combobuf[cid].attribytes[1];
+				it = id;
 			}
 			else
 			{
-				it = select_dropitem(combobuf[cid].attribytes[1]);
-				thedropset = combobuf[cid].attribytes[1];
+				it = select_dropitem(id);
+				thedropset = id;
 			}
 		}
 		if( it != -1 )
@@ -297,8 +299,8 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 			ffc->cset = scr->secretcset[ft];
 			// newflag = s->secretflag[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
-			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
+			if ( combobuf[cid].c_attributes[10].getTrunc() > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(ffc->x));
 		}
 		
 		//loop next combo
@@ -323,14 +325,14 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc_handle.data();
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],pan(ffc->x));
+			if ( (combobuf[cid].c_attributes[10].getTrunc()) > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(ffc->x));
 			
 			
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc_handle.screen,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc_handle.screen,ffc->x,ffc->y,combobuf[cid].c_attributes[12],((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		
 	}
@@ -340,7 +342,7 @@ void do_cutscene_effect(const combined_handle_t& handle)
 {
 	auto& cmb = handle.combo();
 	if(cmb.type != cCUTSCENEEFFECT) return;
-	switch(cmb.attribytes[0])
+	switch(cmb.c_attributes[8].getTrunc())
 	{
 		case CUTEFF_PLAYER_WALK:
 			Hero.start_auto_walk(handle);
@@ -357,17 +359,18 @@ void do_cutscene_flags(newcombo const& cmb)
 		return;
 	}
 	active_cutscene.active = true;
-	active_cutscene.allowed_btns = cmb.attributes[0];
+	active_cutscene.allowed_btns = cmb.c_attributes[0].getZLong();
 	active_cutscene.nof6 = (cmb.usrflags & cflag2)!=0;
-	active_cutscene.errsfx = cmb.attribytes[0];
+	active_cutscene.errsfx = cmb.c_attributes[8].getTrunc();
 }
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 {
-	byte pair = cmb.attribytes[0];
+	uint pair = cmb.c_attributes[8].getTrunc();
+	if (pair > 255) return false;
 	if(cmb.usrflags & cflag11) //global state
 	{
-		int32_t tmr = cmb.attributes[2] / 10000;
+		int32_t tmr = cmb.c_attributes[2].getTrunc();
 		bool oldstate = game->gswitch_timers[pair];
 		if(tmr > 0)
 		{
@@ -392,7 +395,7 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 	}
 	if(w && (cmb.usrflags&cflag1))
 		killgenwpn(w); //Kill weapon
-	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
+	if(cmb.c_attributes[9].getTrunc()) sfx(cmb.c_attributes[9].getTrunc());
 	return true;
 }
 
@@ -402,8 +405,8 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 	auto& cmb = handle.combo();
 	if (cmb.type != cCSWITCHBLOCK) return;
 
-	int32_t cmbofs = (cmb.attributes[0]/10000L);
-	int32_t csofs = (cmb.attributes[1]/10000L);
+	int32_t cmbofs = cmb.c_attributes[0].getTrunc();
+	int32_t csofs = cmb.c_attributes[1].getTrunc();
 	handle.modify_data(cmbofs);
 	handle.set_cset((handle.cset() + csofs) & 15);
 
@@ -469,7 +472,7 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 
 void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix combo_x, zfix combo_y)
 {
-	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
+	int32_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.c_attributes[8].getTrunc()) : (-1)) : (0);
 	if(decotype > 3) decotype = 0;
 	if(!decotype) decotype = (isBushType(cmb.type) ? 1 :
 		(isFlowersType(cmb.type) ? 2 :
@@ -479,7 +482,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix combo_x, zfix
 	{
 		case -2: break; //nothing
 		case -1:
-			decorations.add(new comboSprite(combo_x-8, combo_y-8, dCOMBOSPRITE, 0, cmb.attribytes[0]));
+			decorations.add(new comboSprite(combo_x-8, combo_y-8, dCOMBOSPRITE, 0, cmb.c_attributes[8].getTrunc()));
 			break;
 		case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
 		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -587,14 +590,15 @@ void trigger_cuttable(const combined_handle_t& handle)
 		int32_t thedropset = -1;
 		if (cmb.usrflags&cflag2) //specific dropset or item
 		{
+			auto id = cmb.c_attributes[9].getTrunc();
 			if (cmb.usrflags&cflag11) 
 			{
-				it = cmb.attribytes[1];
+				it = id;
 			}
 			else
 			{
-				it = select_dropitem(cmb.attribytes[1]);
-				thedropset = cmb.attribytes[1];
+				it = select_dropitem(id);
+				thedropset = id;
 			}
 		}
 		else
@@ -615,7 +619,7 @@ void trigger_cuttable(const combined_handle_t& handle)
 	{
 		if (cmb.usrflags&cflag3)
 		{
-			sfx(cmb.attribytes[2],pan(x));
+			sfx(cmb.c_attributes[10].getTrunc(),pan(x));
 		}
 		else if (isBushType(type) || isFlowersType(type) || isGrassType(type))
 		{
@@ -629,12 +633,12 @@ bool trigger_step(const combined_handle_t& handle)
 {
 	auto& cmb = handle.combo();	
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
-	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
+	if(cmb.c_attributes[9].getTrunc() < MAXITEMS && !game->item[cmb.c_attributes[9].getTrunc()])
 		return false; //lacking required item
 	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
 		return false;
-	if(cmb.attribytes[0])
-		sfx(cmb.attribytes[0], pan(handle.xy().first));
+	if(cmb.c_attributes[8].getTrunc())
+		sfx(cmb.c_attributes[8].getTrunc(), pan(handle.xy().first));
 	switch(cmb.type)
 	{
 		case cSTEP:
@@ -681,10 +685,10 @@ bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 			break;
 		default: return false; //not a locked container?
 	}
-	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
+	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.c_attributes[8].getTrunc() : 0;
 	int32_t itemonly = cmb.usrflags&cflag2;
-	int32_t thecounter = cmb.attribytes[1];
-	int32_t ctr_amount = cmb.attributes[0]/10000L;
+	int32_t thecounter = cmb.c_attributes[9].getTrunc();
+	int32_t ctr_amount = cmb.c_attributes[0].getTrunc();
 	if( requireditem && game->item[requireditem]) 
 	{
 		return true;
@@ -714,10 +718,10 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 			break;
 		default: return false; //not a locked container?
 	}
-	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
+	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.c_attributes[8].getTrunc() : 0;
 	int32_t itemonly = cmb.usrflags&cflag2;
-	int32_t thecounter = cmb.attribytes[1];
-	int32_t ctr_amount = cmb.attributes[0]/10000L;
+	int32_t thecounter = cmb.c_attributes[9].getTrunc();
+	int32_t ctr_amount = cmb.c_attributes[0].getTrunc();
 	if( requireditem && game->item[requireditem]) 
 	{
 		if ((cmb.usrflags&cflag5)) 
@@ -780,7 +784,7 @@ void trigger_string(combo_trigger const& trig, bool success)
 
 void trigger_sign(newcombo const& cmb, optional<int> screen)
 {
-	play_combo_string(cmb.attributes[0]/10000L, screen);
+	play_combo_string(cmb.c_attributes[0].getTrunc(), screen);
 }
 
 bool trigger_warp(const combined_handle_t& handle)
@@ -796,7 +800,7 @@ bool trigger_warp(const combined_handle_t& handle)
 	auto stype = simplifyWarpType(cmb.type);
 	if(wtype==wtNOWARP && stype != cAWARPA)
 		return false;
-	auto wsfx = cmb.attribytes[0];
+	auto wsfx = cmb.c_attributes[8].getTrunc();
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
@@ -810,7 +814,6 @@ bool trigger_warp(const combined_handle_t& handle)
 		wtype = wscr->sidewarptype[index];
 		if (wtype == wtNOWARP)
 			return false;
-		wsfx = cmb.attribytes[0];
 		tdm = wscr->sidewarpdmap[index];
 		tscr = wscr->sidewarpscr[index];
 		ws = map_screen_index(DMaps[tdm].map, wscr->sidewarpscr[index] + DMaps[tdm].xoff);
@@ -855,20 +858,21 @@ bool trigger_chest(const combined_handle_t& handle)
 	mapscr* base_scr = handle.base_scr();
 	int screen = handle.get_screen();
 
-	auto& cmb = handle.combo();	
+	auto& cmb = handle.combo();
+	uint flag = 1 << cmb.c_attributes[13].getTrunc();
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
 			if(!try_locked_combo(cmb))
 			{
-				play_combo_string(cmb.attributes[3]/10000L);
+				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(screen, 1<<cmb.attribytes[5]);
+				setxmapflag(screen, flag);
 				
-				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5]);
+				remove_xstatecombos(create_screen_handles(base_scr), flag);
 				break;
 			}
 			setmapflag(base_scr, mLOCKEDCHEST);
@@ -877,8 +881,8 @@ bool trigger_chest(const combined_handle_t& handle)
 		case cCHEST:
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5]);
+				setxmapflag(screen, flag);
+				remove_xstatecombos(create_screen_handles(base_scr), flag);
 				break;
 			}
 			setmapflag(base_scr, mCHEST);
@@ -887,7 +891,7 @@ bool trigger_chest(const combined_handle_t& handle)
 		case cBOSSCHEST:
 			if(!(game->lvlitems[dlevel]&(1 << li_boss_key)))
 			{
-				play_combo_string(cmb.attributes[3]/10000L);
+				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
 			// Run Boss Key Script
@@ -908,15 +912,15 @@ bool trigger_chest(const combined_handle_t& handle)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5]);
+				setxmapflag(screen, flag);
+				remove_xstatecombos(create_screen_handles(base_scr), flag);
 				break;
 			}
 			setmapflag(base_scr, mBOSSCHEST);
 			break;
 	}
 	
-	sfx(cmb.attribytes[3]); //opening sfx
+	sfx(cmb.c_attributes[11].getTrunc()); //opening sfx
 	
 	bool itemflag = false;
 	if (handle.is_ffc())
@@ -952,7 +956,7 @@ bool trigger_chest(const combined_handle_t& handle)
 	if(itemflag && !itemstate)
 	{
 		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((base_scr->flags8&fITEMSECRET) ? ipSECRETS : 0);
-		int32_t itid = cmb.attrishorts[2];
+		int32_t itid = cmb.c_attributes[18].getTrunc();
 		switch(itid)
 		{
 			case -10: case -11: case -12: case -13:
@@ -979,19 +983,20 @@ bool trigger_lockblock(const combined_handle_t& handle)
 	mapscr* base_scr = handle.base_scr();
 	int screen = handle.get_screen();
 	
-	auto& cmb = handle.combo();	
+	auto& cmb = handle.combo();
+	uint flag = 1 << cmb.c_attributes[13].getTrunc();
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
 			if(!try_locked_combo(cmb))
 			{
-				play_combo_string(cmb.attributes[3]/10000L);
+				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5], false);
+				setxmapflag(screen, flag);
+				remove_xstatecombos(create_screen_handles(base_scr), flag, false);
 				break;
 			}
 			setmapflag(base_scr, mLOCKBLOCK);
@@ -1002,7 +1007,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 		{
 			if (!(game->lvlitems[dlevel] & (1 << li_boss_key)))
 			{
-				play_combo_string(cmb.attributes[3]/10000L);
+				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
 			// Run Boss Key Script
@@ -1023,8 +1028,8 @@ bool trigger_lockblock(const combined_handle_t& handle)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5], false);
+				setxmapflag(screen, flag);
+				remove_xstatecombos(create_screen_handles(base_scr), flag, false);
 				break;
 			}
 			setmapflag(base_scr, mBOSSLOCKBLOCK);
@@ -1034,8 +1039,8 @@ bool trigger_lockblock(const combined_handle_t& handle)
 		default: return false;
 	}
 	
-	if(cmb.attribytes[3])
-		sfx(cmb.attribytes[3]); //opening sfx
+	if(cmb.c_attributes[11].getTrunc())
+		sfx(cmb.c_attributes[11].getTrunc()); //opening sfx
 	return true;
 }
 
@@ -1069,7 +1074,7 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 			if (cmb.usrflags & cflag1) //custom ID
 			{
 				int32_t r = (cmb.usrflags & cflag2) ? zc_oldrand() % 2 : 0;
-				id2 = cmb.attribytes[0 + r];
+				id2 = cmb.c_attributes[8 + r].getTrunc();
 			}
 			else //default ID
 			{
@@ -1248,7 +1253,7 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 			if (cmb.usrflags & cflag1) //Custom ID
 			{
 				int32_t r = (cmb.usrflags & cflag2) ? zc_oldrand() % 2 : 0;
-				id2 = cmb.attribytes[0 + r];
+				id2 = cmb.c_attributes[8 + r].getTrunc();
 			}
 			else //Default ID
 			{
@@ -1291,7 +1296,7 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 		return false; //immune
 	int32_t dmg = 0;
 	if(cmb.usrflags & cflag1) //custom
-		dmg = cmb.attributes[0] / -10000L;
+		dmg = -cmb.c_attributes[0].getTrunc();
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
@@ -1363,8 +1368,8 @@ static void trigger_stepfx_add_weapon_and_load_gfx(sprite_list& list, const newc
 	if (!list.add(wpn))
 		return;
 
-	if (cmb.attribytes[3] > 0)
-		wpn->LOADGFX(cmb.attribytes[3]);
+	if (cmb.c_attributes[11].getTrunc() > 0)
+		wpn->LOADGFX(cmb.c_attributes[11].getTrunc());
 	
 	if(cmb.usrflags & cflag10)
 		wpn->load_weap_data(cmb.misc_weap_data);
@@ -1376,20 +1381,20 @@ bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
 
 	auto& cmb = handle.combo();
 
-	int32_t thesfx = cmb.attribytes[0];
+	uint thesfx = cmb.c_attributes[8].getTrunc();
 	sfx_no_repeat(thesfx,pan(tx));
 
 	if ( cmb.usrflags&cflag1) //landmine
 	{
-		int32_t wpn = cmb.attribytes[1];
-		int32_t wpdir = cmb.attribytes[2];
-		if ( ((unsigned)wpdir) > r_down )
-		{
+		uint wpn = cmb.c_attributes[9].getTrunc();
+		uint wpdir = cmb.c_attributes[10].getTrunc();
+		if ( wpdir > r_down )
 			wpdir = zc_oldrand()&3;
-		}
-		int32_t damg = cmb.attributes[0]/10000L;
+		int32_t damg = cmb.c_attributes[0].getTrunc();
 		if(damg < 1) damg = 4;
-		auto parentitem = cmb.attribytes[4]>0 ? cmb.attribytes[4] : -1;
+		int parentitem = cmb.c_attributes[12].getTrunc();
+		if (parentitem <= 0)
+			parentitem = -1;
 		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].level : 0;
 		switch(wpn)
 		{
@@ -1550,11 +1555,11 @@ bool trigger_switchhookblock(const combined_handle_t& handle)
 
 static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool angular, double radians, int32_t dir)
 {
-	byte weapid = cmb.attribytes[1];
+	uint weapid = cmb.c_attributes[9].getTrunc();
 	if(!weapid) return nullptr;
-	byte weapspr = cmb.attribytes[2];
-	int32_t damage = cmb.attrishorts[2];
-	zfix steprate = zslongToFix(cmb.attributes[2]/100);
+	uint weapspr = cmb.c_attributes[10].getTrunc();
+	int damage = cmb.c_attributes[18].getTrunc();
+	zfix steprate = cmb.c_attributes[2]/100;
 	if(damage < 0) damage = 0;
 	bool lw = weapid < wEnemyWeapons;
 	if(weapid >= wScript1 && weapid <= wScript10)
@@ -1566,7 +1571,9 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	weapon* wpn = nullptr;
 	if(lw)
 	{
-		int pitem = cmb.attribytes[6]>0 ? cmb.attribytes[6] : -1;
+		int pitem = cmb.c_attributes[14].getTrunc();
+		if (pitem <= 0)
+			pitem = -1;
 		int plvl = pitem > -1 ? itemsbuf[pitem].level : 0;
 		
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr,autorot);
@@ -1597,9 +1604,9 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	{
 		SETFLAG(wpn->level, 1, boss);
 	}
-	wpn->unblockable = cmb.attribytes[4] & WPNUNB_ALL;
+	wpn->unblockable = cmb.c_attributes[12].getTrunc() & WPNUNB_ALL;
 	
-	wpn->script = cmb.attribytes[5];
+	wpn->script = cmb.c_attributes[13].getTrunc();
 	if(cmb.usrflags & cflag10)
 		wpn->load_weap_data(cmb.misc_weap_data);
 	
@@ -1611,13 +1618,13 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
-	if(!cmb.attribytes[1]) return false; //no weapon
+	if(!cmb.c_attributes[9].getTrunc()) return false; //no weapon
 	if(wx >= world_w || wx < -15 || wy >= world_h || wy < -15) return false;
 	if (!get_sprite_freeze_rect().contains_point(wx, wy)) return false;
 
 	bool proxstop = cmb.usrflags&cflag4;
 	bool invprox = cmb.usrflags&cflag9;
-	zfix proxlim = zslongToFix(cmb.attributes[1]);
+	zfix proxlim = cmb.c_attributes[1];
 
 	auto dst = dist(wx,wy,Hero.getX(),Hero.getY());
 	if(proxstop && (invprox ? (dst > proxlim) : (dst <= proxlim)))
@@ -1626,12 +1633,12 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	bool angular = cmb.usrflags&cflag1;
 	double radians = 0;
 	int32_t dir = -1;
+	zfix zdegrees = cmb.c_attributes[0];
 	if(angular)
 	{
-		int32_t zslDegrees = cmb.attributes[0];
-		if(zslDegrees >= 0 && zslDegrees <= 3600000)
+		if(zdegrees >= 0 && zdegrees <= 360_zf)
 		{
-			radians = WrapAngle(DegreesToRadians(zslDegrees/10000.0));
+			radians = WrapAngle(DegreesToRadians(double(zdegrees)));
 			dir = AngleToDir(radians);
 		}
 		else
@@ -1639,7 +1646,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 			double _MSVC2022_tmp1, _MSVC2022_tmp2;
 			double at_player = atan2_MSVC2022_FIX(double(Hero.getY()-wy),double(Hero.getX()-wx));
 			at_player = WrapAngle(at_player);
-			switch(zslDegrees/10000)
+			switch(zdegrees.getTrunc())
 			{
 				case -1: //4-dir at player
 				{
@@ -1663,10 +1670,10 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 			}
 		}
 	}
-	else dir = vbound(cmb.attributes[0]/10000, -1, 15);
+	else dir = vbound(zdegrees.getTrunc(), -1, 15);
 	
-	byte shotsfx = cmb.attribytes[0];
-	auto shotcount = zc_max(1,cmb.attribytes[3]);
+	uint shotsfx = cmb.c_attributes[8].getTrunc();
+	auto shotcount = zc_max(1,cmb.c_attributes[11].getTrunc());
 	if((cmb.usrflags&cflag7) && shotcount > 1) //multishot
 	{
 		if(!angular)
@@ -1674,7 +1681,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 			angular = true;
 			radians = WrapAngle(DirToRadians(dir));
 		}
-		double spreadangle = WrapAngle(DegreesToRadians(cmb.attributes[3]/10000.0));
+		double spreadangle = WrapAngle(DegreesToRadians(double(cmb.c_attributes[3])));
 		double startangle = 0;
 		if(shotcount&1) //odd
 		{
@@ -1707,23 +1714,23 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 	auto save_type = cmb.type == cSAVE2 ? 1 : 0;
 	if(cmb.usrflags & cflag1) //restore hp
 	{
-		double perc = cmb.attribytes[0]/100.0;
-		word life = word(perc*game->get_maxlife());
-		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+		zfix perc = cmb.c_attributes[8] / 100_zf;
+		word life = word(int(perc * game->get_maxlife()));
+		if(cmb.c_attributes[8] >= 100)
 			life = game->get_maxlife();
 		if(game->get_life() < life)
 			game->set_life(life);
 	}
 	if(cmb.usrflags & cflag2) //restore magic
 	{
-		double perc = cmb.attribytes[1]/100.0;
-		word magic = word(perc*game->get_maxmagic());
-		if(cmb.attribytes[1]==100) //sanity incase of floating point error
+		zfix perc = cmb.c_attributes[9] / 100_zf;
+		word magic = word(int(perc * game->get_maxmagic()));
+		if(cmb.c_attributes[9] >= 100)
 			magic = game->get_maxmagic();
 		if(game->get_magic() < magic)
 			game->set_magic(magic);
 	}
-	byte save_menu = cmb.attribytes[2]-1;
+	uint save_menu = cmb.c_attributes[10].getTrunc() - 1;
 	if (save_menu >= NUM_SAVE_MENUS || !QMisc.save_menus[save_menu].is_valid())
 		save_game((scr->flags4&fSAVEROOM) != 0, save_type);
 	else
@@ -2554,15 +2561,15 @@ bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t speci
 					else
 					{
 						if(w)
-							do_generic_combo(*rpos_handle, w, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], false);
-						else do_generic_combo2(combo_x, combo_y, cid, flag, flag2, cmb.attribytes[3], *rpos_handle, false);
+							do_generic_combo(*rpos_handle, w, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.c_attributes[11].getTrunc(), false);
+						else do_generic_combo2(combo_x, combo_y, cid, flag, flag2, cmb.c_attributes[11].getTrunc(), *rpos_handle, false);
 					}
 					break;
 				case cCUSTOMBLOCK:
 					if(!w) break;
 					killgenwpn(w);
-					if(cmb.attribytes[0])
-						sfx(cmb.attribytes[0]);
+					if(cmb.c_attributes[8].getTrunc())
+						sfx(cmb.c_attributes[8].getTrunc());
 					break;
 			}
 			if(!check_bit)
@@ -2805,8 +2812,8 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 
 static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix wy)
 {
-	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
-	int32_t highrate = zc_max(0,cmb.attrishorts[1]);
+	int32_t lowrate = zc_max(0,cmb.c_attributes[16].getTrunc());
+	int32_t highrate = zc_max(0,cmb.c_attributes[17].getTrunc());
 	bool splitrate = cmb.usrflags&cflag2;
 	bool instashot = cmb.usrflags&cflag3;
 	if(splitrate)
@@ -2847,20 +2854,20 @@ static void trigger_crumble(newcombo const& cmb, cpos_info& timer, word& cid)
 	//Continue crumbling through the change
 	newcombo const& ncmb = combobuf[cid];
 	if(ncmb.type == cCRUMBLE && (cmb.usrflags&cflag1)
-		&& (ncmb.attribytes[0] == CMBTY_CRUMBLE_INEVITABLE))
+		&& (ncmb.c_attributes[8].getTrunc() == CMBTY_CRUMBLE_INEVITABLE))
 		timer.crumbling = true;
 }
 
 static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfix x, zfix y, zfix w, zfix h)
 {
 	bool breaking = false;
-	byte ty = cmb.attribytes[0];
+	auto ty = cmb.c_attributes[8].getTrunc();
 	if(ty == CMBTY_CRUMBLE_INEVITABLE)
 		if(timer.crumbling)
 			breaking = true;
 	if(!breaking)
 	{
-		byte sens_offset = cmb.attribytes[1];
+		auto sens_offset = cmb.c_attributes[9];
 		if(Hero.sideview_mode())
 		{
 			if((Hero.getY()+16-y).getAbs() < 0.5_zf
@@ -2889,7 +2896,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 	if(breaking)
 	{
 		// Crumble
-		if(cmb.attrishorts[0] < 1)
+		if(cmb.c_attributes[16] < 1)
 		{
 			trigger_crumble(cmb, timer, cid);
 			return true;
@@ -2902,12 +2909,12 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 				return true;
 			}
 		}
-		else timer.type_clk = cmb.attrishorts[0];
+		else timer.type_clk = cmb.c_attributes[16].getTrunc();
 	}
 	else if(ty == CMBTY_CRUMBLE_RESET && timer.crumbling)
 	{
 		timer.type_clk = 0;
-		if(int16_t diff = cmb.attrishorts[1])
+		if(int diff = cmb.c_attributes[17].getTrunc())
 		{
 			cid += diff;
 			timer.updateData(cid);

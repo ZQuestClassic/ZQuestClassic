@@ -101,20 +101,12 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	write_w(meta.compiler_v4, f);
 	write_str(meta.script_name, f);
 	write_str(meta.author, f);
-	for(auto q = 0; q < 10; ++q)
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		write_str(meta.attributes[q], f);
-	for(auto q = 0; q < 8; ++q)
-		write_str(meta.attribytes[q], f);
-	for(auto q = 0; q < 8; ++q)
-		write_str(meta.attrishorts[q], f);
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags[q], f);
-	for(auto q = 0; q < 10; ++q)
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		write_str(meta.attributes_help[q], f);
-	for(auto q = 0; q < 8; ++q)
-		write_str(meta.attribytes_help[q], f);
-	for(auto q = 0; q < 8; ++q)
-		write_str(meta.attrishorts_help[q], f);
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -146,20 +138,12 @@ void read_meta(zasm_meta& meta, FILE* f)
 	read_w(meta.compiler_v4, f);
 	read_str(meta.script_name, f);
 	read_str(meta.author, f);
-	for(auto q = 0; q < 10; ++q)
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		read_str(meta.attributes[q], f);
-	for(auto q = 0; q < 8; ++q)
-		read_str(meta.attribytes[q], f);
-	for(auto q = 0; q < 8; ++q)
-		read_str(meta.attrishorts[q], f);
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags[q], f);
-	for(auto q = 0; q < 10; ++q)
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 		read_str(meta.attributes_help[q], f);
-	for(auto q = 0; q < 8; ++q)
-		read_str(meta.attribytes_help[q], f);
-	for(auto q = 0; q < 8; ++q)
-		read_str(meta.attrishorts_help[q], f);
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -506,29 +490,13 @@ string zasm_meta::get_meta() const
 		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getDataTypeName(run_types[q])
 			<< "\n#PARAM_NAME_" << q << " = " << run_idens[q];
 	}
-	for(auto q = 0; q < 10; ++q)
+	for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
 	{
 		if(attributes[q].size())
 			oss << "\n#ATTRIBUTE_" << q << " = " << attributes[q];
 		if(attributes_help[q].size())
 			oss << "\n#ATTRIBUTE_HELP_" << q << " = "
 				<< util::escape_characters(attributes_help[q]);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(attribytes[q].size())
-			oss << "\n#ATTRIBYTE_" << q << " = " << attribytes[q];
-		if(attribytes_help[q].size())
-			oss << "\n#ATTRIBYTE_HELP_" << q << " = "
-				<< util::escape_characters(attribytes_help[q]);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(attrishorts[q].size())
-			oss << "\n#ATTRISHORT_" << q << " = " << attrishorts[q];
-		if(attrishorts_help[q].size())
-			oss << "\n#ATTRISHORT_HELP_" << q << " = "
-				<< util::escape_characters(attrishorts_help[q]);
 	}
 	for(auto q = 0; q < 16; ++q)
 	{
@@ -648,27 +616,45 @@ bool zasm_meta::parse_meta(const char *buffer)
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
 	{
 		byte ind = cmd.at(11) - '0';
-		if (ind < 10)
+		if (ind < 10) // 1 digit number
 		{
 			attributes[ind] = val;
 		}
 		else return false;
 	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
+	{
+		if (byte(cmd.at(11)) - '0' >= 10 || byte(cmd.at(12)) - '0' >= 10)
+			return false;
+		byte ind = atoi(cmd.c_str()+11);
+		if (ind >= NUM_ZMETA_ATTRIBUTES)
+			return false;
+		attributes[ind] = val;
+	}
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
 	{
 		byte ind = cmd.at(16) - '0';
-		if (ind < 10)
+		if (ind < 10) // 1 digit number
 		{
 			attributes_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
+	}
+	else if (cmd.size() == 18 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
+	{
+		if (byte(cmd.at(16)) - '0' >= 10 || byte(cmd.at(17)) - '0' >= 10)
+			return false;
+		byte ind = atoi(cmd.c_str()+16);
+		if (ind >= NUM_ZMETA_ATTRIBUTES)
+			return false;
+		attributes_help[ind] = util::unescape_characters(val);
 	}
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
 	{
 		byte ind = cmd.at(11) - '0';
 		if (ind < 8)
 		{
-			attribytes[ind] = val;
+			attributes[8+ind] = val;
 		}
 		else return false;
 	}
@@ -677,7 +663,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(16) - '0';
 		if (ind < 8)
 		{
-			attribytes_help[ind] = util::unescape_characters(val);
+			attributes_help[8+ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
@@ -686,7 +672,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(12) - '0';
 		if (ind < 8)
 		{
-			attrishorts[ind] = val;
+			attributes[16+ind] = val;
 		}
 		else return false;
 	}
@@ -695,7 +681,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(17) - '0';
 		if (ind < 8)
 		{
-			attrishorts_help[ind] = util::unescape_characters(val);
+			attributes_help[16+ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}

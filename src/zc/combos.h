@@ -18,7 +18,7 @@ class CutsceneState
 	bool active = false;
 	int32_t allowed_btns = 0;
 	bool nof6 = false;
-	byte errsfx = 0;
+	int errsfx = 0;
 public:
 	void clear();
 	bool can_button(int q);
