@@ -3474,6 +3474,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY, 1);
 		set_qr(qr_BUGGY_MULTIPLE_WIND, 1);
 		set_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES, 1);
+		set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
 	}
 
 	*Header = tempheader;

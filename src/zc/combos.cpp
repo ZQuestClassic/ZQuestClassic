@@ -2336,7 +2336,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = tmp->data[pos] == cid;
+			bool skipself = !get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || tmp->data[pos] == cid;
 			copycat_id = cmb.trigcopycat;
 			for(auto cclayer = 0; cclayer < 7; ++cclayer)
 			{
@@ -2388,7 +2388,7 @@ void do_ex_trigger_ffc(int32_t pos)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = ffc.data == cid;
+			bool skipself = !get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || ffc.data == cid;
 			copycat_id = cmb.trigcopycat;
 			for(auto cclayer = 0; cclayer < 7; ++cclayer)
 			{
@@ -2856,7 +2856,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			{
 				if(!copycat_id) //not already in a copycat
 				{
-					bool skipself = tmp->data[pos] == cid;
+					bool skipself = !get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || tmp->data[pos] == cid;
 					copycat_id = cmb.trigcopycat;
 					for(auto cclayer = 0; cclayer < 7; ++cclayer)
 					{
@@ -3261,7 +3261,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			{
 				if(!copycat_id) //not already in a copycat
 				{
-					bool skipself = ffc.data == cid;
+					bool skipself = !get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || ffc.data == cid;
 					copycat_id = cmb.trigcopycat;
 					for(auto cclayer = 0; cclayer < 7; ++cclayer)
 					{
