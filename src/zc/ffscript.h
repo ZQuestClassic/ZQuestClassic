@@ -86,14 +86,6 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 void doWarpEffect(int32_t warpEffect, bool out);
 
-#define svALL 		0
-#define svGUYS 		0x01
-#define svITEMS 	0x02
-#define svWEAPONS 	0x04
-#define svCOMBOS 	0x08
-#define svDMAPS 	0x10
-#define svMAPSCR 	0x20
-
 void apply_qr_rule(int qr_id);
 
 enum herospritetype

@@ -1702,7 +1702,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case ISVALIDARRAY: return "IsValidArray()";
 		case LPOWERR: return "LPow()";
 		case LOGE: return "Ln()";
-		case READGAMESTRUCTS: return "LoadSRAM()";
 		case LOG10: return "Log10()";
 		case MAXVARG: return "Max()";
 		case MINVARG: return "Min()";
@@ -1720,7 +1719,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case ROUNDAWAY: return "RoundAway()";
 		case SRNDR: return "SRand()";
 		case SRNDRND: return "SRand()";
-		case SAVEGAMESTRUCTS: return "SaveSRAM()";
 		case ARCR: return "Screen->Arc()";
 		case CIRCLER: return "Screen->Circle()";
 		case CLEARSPRITESR: return "Screen->ClearSprites()";
