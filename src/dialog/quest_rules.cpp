@@ -1065,7 +1065,9 @@ static GUI::ListData compatRulesList
 		"If multiple wind lweapons are on screen and the player is in one, the player will lose track"
 		" of which wind they are in, and teleport between them." },
 	{ "No enemy death event for segmented enemy cores", qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
-		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." }
+		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." },
+	{ "Broken Combo Change + 'Copycat' triggers", qr_BROKEN_COPYCAT_SELF_TRIGGER,
+		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." }
 };
 
 static GUI::ListData enemiesRulesList

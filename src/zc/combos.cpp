@@ -1771,7 +1771,7 @@ static void trig_copycat(int cid, const combined_handle_t& handle, byte trigcopy
 	if (handle.is_ffc())
 	{
 		auto& ffc_handle = handle.get_ffc();
-		if (ffc_handle.data() == cid) //skip self
+		if (!get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || ffc_handle.data() == cid) // Skip self
 			copycat_skip_ffc = ffc_handle.i;
 		trig_copycat(trigcopyid);
 		copycat_skip_ffc = -1;
@@ -1779,7 +1779,7 @@ static void trig_copycat(int cid, const combined_handle_t& handle, byte trigcopy
 	else
 	{
 		auto& rpos_handle = handle.get_rpos();
-		if (rpos_handle.data() == cid) //skip self
+		if (!get_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER) || rpos_handle.data() == cid) // Skip self
 		{
 			copycat_skip_lyr = rpos_handle.layer;
 			copycat_skip_rpos = rpos_handle.rpos;
