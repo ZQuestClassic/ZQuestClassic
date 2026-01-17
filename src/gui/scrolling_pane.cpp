@@ -45,23 +45,23 @@ static int32_t minusOneHundred()
 
 int32_t ScrollingPane::mouseBreakerProc(int32_t msg, DIALOG* d, int32_t c)
 {
-	switch(msg)
+	switch (msg)
 	{
-	case MSG_WANTMOUSE:
-	{
-		auto* sp=static_cast<ScrollingPane*>(d->dp);
-		sp->oldMouseX=gui_mouse_x;
-		sp->oldMouseY=gui_mouse_y;
-		int32_t mx=gui_mouse_x();
-		int32_t my=gui_mouse_y();
-		DIALOG& spd=*sp->alDialog;
-		if(mx<spd.x || mx>=spd.x+spd.w || my<spd.y || my>=spd.y+spd.h)
+		case MSG_WANTMOUSE:
 		{
-			gui_mouse_x=minusOneHundred;
-			gui_mouse_y=minusOneHundred;
+			auto* sp = static_cast<ScrollingPane*>(d->dp);
+			sp->oldMouseX = gui_mouse_x;
+			sp->oldMouseY = gui_mouse_y;
+			int32_t mx = gui_mouse_x();
+			int32_t my = gui_mouse_y();
+			DIALOG& spd = *sp->alDialog;
+			if (mx < spd.x || mx >= spd.x + spd.w || my < spd.y || my >= spd.y + spd.h)
+			{
+				gui_mouse_x = minusOneHundred;
+				gui_mouse_y = minusOneHundred;
+			}
+			return D_DONTWANTMOUSE;
 		}
-		return D_DONTWANTMOUSE;
-	}
 	}
 
 	return D_O_K;
@@ -69,20 +69,20 @@ int32_t ScrollingPane::mouseBreakerProc(int32_t msg, DIALOG* d, int32_t c)
 
 int32_t ScrollingPane::mouseFixerProc(int32_t msg, DIALOG* d, int32_t c)
 {
-	switch(msg)
+	switch (msg)
 	{
-	case MSG_WANTMOUSE:
-	{
-		auto* sp=static_cast<ScrollingPane*>(d->dp);
-		gui_mouse_x=sp->oldMouseX;
-		gui_mouse_y=sp->oldMouseY;
-		sp->oldMouseX=nullptr;
-		sp->oldMouseY=nullptr;
-		return D_DONTWANTMOUSE;
-	}
-	case MSG_DRAW:
-		clear_clip_rect(screen);
-		break;
+		case MSG_WANTMOUSE:
+		{
+			auto* sp = static_cast<ScrollingPane*>(d->dp);
+			gui_mouse_x = sp->oldMouseX;
+			gui_mouse_y = sp->oldMouseY;
+			sp->oldMouseX = nullptr;
+			sp->oldMouseY = nullptr;
+			return D_DONTWANTMOUSE;
+		}
+		case MSG_DRAW:
+			clear_clip_rect(screen);
+			break;
 	}
 	return D_O_K;
 }
@@ -90,11 +90,11 @@ int32_t ScrollingPane::mouseFixerProc(int32_t msg, DIALOG* d, int32_t c)
 int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 {
 	ScrollingPane* sp = static_cast<ScrollingPane*>(d->dp);
-	switch(msg)
+	switch (msg)
 	{
 		case MSG_DRAWCLIPPED:
 		{
-			auto* child=&sp->alDialog[c];
+			auto* child = &sp->alDialog[c];
 			START_CLIP(d);
 			child->flags |= D_ISCLIPPED;
 			child->proc(MSG_DRAW, child, 0);
@@ -103,14 +103,14 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 			return D_O_K;
 		}
 		case MSG_CHILDFOCUSED:
-			if(sp->scrollToShowChild(c))
+			if (sp->scrollToShowChild(c))
 				return D_REDRAW;
 			else
 				return D_O_K;
-		
+
 		case MSG_WANTFOCUS:
-			if(gui_mouse_b())
-				return D_WANTFOCUS|D_REDRAW;
+			if (gui_mouse_b())
+				return D_WANTFOCUS | D_REDRAW;
 			else return D_O_K;
 		case MSG_GOTFOCUS:
 		case MSG_LOSTFOCUS:
@@ -118,26 +118,26 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
+			rectfill(screen, d->x, d->y, d->x + d->w - 1, d->y + d->h - 1, d->bg);
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame(d, sp->contentHeight, sp->scrollPos, d->h, 0);
 			START_CLIP(d);
-			if(d->d1)
+			if (d->d1)
 			{
 				// The scrollbar is being dragged; we need to scroll and redraw
 				// everything in the pane.
-				int32_t scrollAmount=d->d2-sp->scrollPos;
-				d->d2=sp->scrollPos;
-				for(size_t i = 1; i < sp->childrenEnd; ++i)
+				int32_t scrollAmount = d->d2 - sp->scrollPos;
+				d->d2 = sp->scrollPos;
+				for (size_t i = 1; i < sp->childrenEnd; ++i)
 				{
-					DIALOG* child=&sp->alDialog[i];
+					DIALOG* child = &sp->alDialog[i];
 					child->y += scrollAmount;
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
 			else // needed for edge cases, such as the MSG_DRAW received after losing focus
 			{
-				for(size_t i = 1; i < sp->childrenEnd; ++i)
+				for (size_t i = 1; i < sp->childrenEnd; ++i)
 					object_message(&sp->alDialog[i], MSG_DRAW, 0);
 			}
 			END_CLIP();
@@ -145,85 +145,86 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 		}
 		case MSG_CLICK:
 		{
-			if(gui_mouse_x() >= d->x+d->w-18)
+			if (gui_mouse_x() >= d->x + d->w - 18)
 			{
 				// This emits MSG_DRAW as it scrolls
-				d->d1=1;
-				d->d2=sp->scrollPos;
+				d->d1 = 1;
+				d->d2 = sp->scrollPos;
 				_handle_jwin_scrollable_scroll_click(d, sp->contentHeight, &sp->scrollPos, nullptr);
-				if(sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
-				d->d1=0;
+				if (sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
+				d->d1 = 0;
 			}
 			return D_O_K;
 		}
 
 		case MSG_WHEEL:
-			sp->scroll(-8*c);
+			sp->scroll(-8 * c);
 			return D_REDRAW;
 
 		case MSG_XCHAR:
-			switch(c>>8)
+			switch (c >> 8)
 			{
 				case KEY_PGDN:
 				{
-					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(d->h/3);
+					if (sp->maxScrollPos < d->h * 2)
+						sp->scroll(d->h / 3);
 					else sp->scroll(d->h);
-					return D_USED_CHAR|D_REDRAW;
+					return D_USED_CHAR | D_REDRAW;
 				}
 				case KEY_PGUP:
 				{
-					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(-d->h/3);
+					if (sp->maxScrollPos < d->h * 2)
+						sp->scroll(-d->h / 3);
 					else sp->scroll(-d->h);
-					return D_USED_CHAR|D_REDRAW;
+					return D_USED_CHAR | D_REDRAW;
 				}
 				case KEY_HOME:
 				{
 					sp->scroll(-sp->maxScrollPos);
-					return D_USED_CHAR|D_REDRAW;
+					return D_USED_CHAR | D_REDRAW;
 				}
 				case KEY_END:
 				{
 					sp->scroll(sp->maxScrollPos);
-					return D_USED_CHAR|D_REDRAW;
+					return D_USED_CHAR | D_REDRAW;
 				}
 			}
+			break;
 	}
 
 	return D_O_K;
 }
 
-ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
+ScrollingPane::ScrollingPane() : childrenEnd(0), scrollPos(0), maxScrollPos(0),
 	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr), scrollptr(nullptr),
 	targHei(0_px)
 {
-	bgColor=jwin_pal[jcBOX];
+	bgColor = jwin_pal[jcBOX];
 }
 
 void ScrollingPane::scroll(int32_t amount) noexcept
 {
-	if(maxScrollPos < 0) return; //No scrolling
-	int32_t newPos=std::clamp(scrollPos+amount, 0, maxScrollPos);
-	amount=newPos-scrollPos;
-	scrollPos=newPos;
-	if(scrollptr && alDialog) *scrollptr = scrollPos;
-	for(size_t i = 1; i < childrenEnd; ++i)
-		alDialog[i].y-=amount;
+	if (maxScrollPos < 0) return; //No scrolling
+	int32_t newPos = std::clamp(scrollPos + amount, 0, maxScrollPos);
+	amount = newPos - scrollPos;
+	scrollPos = newPos;
+	if (scrollptr && alDialog) *scrollptr = scrollPos;
+	for (size_t i = 1; i < childrenEnd; ++i)
+		alDialog[i].y -= amount;
 }
 
 bool ScrollingPane::scrollToShowChild(int32_t childPos)
 {
-	DIALOG& pane=*alDialog;
-	DIALOG& child=alDialog[childPos];
-	if(child.y < pane.y)
+	DIALOG& pane = *alDialog;
+	DIALOG& child = alDialog[childPos];
+	if (child.y < pane.y)
 	{
-		scroll(child.y-pane.y);
+		scroll(child.y - pane.y);
 		return true;
 	}
-	else if(child.y+child.h > pane.y+pane.h)
+	else if (child.y + child.h > pane.y + pane.h)
 	{
-		scroll((child.y+child.h)-(pane.y+pane.h));
+		scroll((child.y + child.h) - (pane.y + pane.h));
 		return true;
 	}
 	else
@@ -233,15 +234,15 @@ bool ScrollingPane::scrollToShowChild(int32_t childPos)
 void ScrollingPane::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
-	if(alDialog) alDialog.applyVisibility(visible);
-	if(content)
+	if (alDialog) alDialog.applyVisibility(visible);
+	if (content)
 	{
 		if (screen)
 		{
 			int clip, cl, cr, ct, cb;
-			if(isConstructed()) START_CLIP_BYOB(alDialog);
+			if (isConstructed()) START_CLIP_BYOB(alDialog);
 			content->applyVisibility(visible);
-			if(isConstructed()) END_CLIP();
+			if (isConstructed()) END_CLIP();
 		}
 		else content->applyVisibility(visible);
 	}
@@ -250,8 +251,8 @@ void ScrollingPane::applyVisibility(bool visible)
 void ScrollingPane::applyDisabled(bool dis)
 {
 	Widget::applyDisabled(dis);
-	if(alDialog) alDialog.applyDisabled(dis);
-	if(content)
+	if (alDialog) alDialog.applyDisabled(dis);
+	if (content)
 	{
 		START_CLIP(alDialog);
 		content->applyDisabled(dis);
@@ -262,8 +263,8 @@ void ScrollingPane::applyDisabled(bool dis)
 void ScrollingPane::setPtr(int32_t* ptr)
 {
 	scrollptr = ptr;
-	if(ptr && alDialog)
-		scroll(*ptr-scrollPos);
+	if (ptr && alDialog)
+		scroll(*ptr - scrollPos);
 }
 
 void ScrollingPane::calculateSize()
@@ -276,28 +277,28 @@ void ScrollingPane::calculateSize()
 
 void ScrollingPane::growToTarget()
 {
-	if(!content)
+	if (!content)
 	{
-		if(targHei > 0 && targHei > getHeight())
+		if (targHei > 0 && targHei > getHeight())
 			setPreferredHeight(targHei);
 		return;
 	}
 	content->calculateSize();
-	setPreferredWidth(Size::pixels(content->getTotalWidth())+4_em);
-	contentHeight=content->getTotalHeight();
+	setPreferredWidth(Size::pixels(content->getTotalWidth()) + 4_em);
+	contentHeight = content->getTotalHeight();
 	auto hei = getHeight();
-	if(hei > contentHeight)
+	if (hei > contentHeight)
 	{
 		setPreferredHeight(Size::pixels(contentHeight));
 	}
-	else if(targHei > 0 && targHei > hei)
+	else if (targHei > 0 && targHei > hei)
 	{
-		if(contentHeight < targHei)
+		if (contentHeight < targHei)
 			setPreferredHeight(Size::pixels(contentHeight));
 		else setPreferredHeight(targHei);
 	}
-	
-	maxScrollPos=contentHeight-getHeight();
+
+	maxScrollPos = contentHeight - getHeight();
 }
 
 void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
@@ -305,24 +306,24 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	// We want to be about as big as possible...
 	setPreferredWidth(Size::pixels(contW));
 	setPreferredHeight(Size::pixels(contH));
-	
+
 	growToTarget();
 	Widget::arrange(contX, contY, contW, contH);
-	if(content)
+	if (content)
 	{
 		Size widoffs = 0_px;
-		if(getHeight() < content->getTotalHeight())
+		if (getHeight() < content->getTotalHeight())
 			widoffs = 18_px;
-		content->arrange(x, y, getWidth()-widoffs, std::max(getHeight(),content->getTotalHeight()));
-		contentHeight=content->getTotalHeight();
-		maxScrollPos=contentHeight-getHeight();
+		content->arrange(x, y, getWidth() - widoffs, std::max(getHeight(), content->getTotalHeight()));
+		contentHeight = content->getTotalHeight();
+		maxScrollPos = contentHeight - getHeight();
 	}
 }
 
 void ScrollingPane::realize(DialogRunner& runner)
 {
-	oldMouseX=gui_mouse_x;
-	oldMouseY=gui_mouse_y;
+	oldMouseX = gui_mouse_x;
+	oldMouseY = gui_mouse_y;
 	/*
 	runner.push(shared_from_this(), DIALOG {
 		jwin_frame_proc,
@@ -334,7 +335,7 @@ void ScrollingPane::realize(DialogRunner& runner)
 		nullptr, nullptr, nullptr // dp, dp2, dp3
 	});
 	*/
-	runner.push(shared_from_this(), DIALOG {
+	runner.push(shared_from_this(), DIALOG{
 		mouseBreakerProc,
 		0, 0, 2000, 2000, // As int32_t as it covers the screen
 		0, 0,
@@ -343,7 +344,7 @@ void ScrollingPane::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
-	alDialog = runner.push(shared_from_this(), DIALOG {
+	alDialog = runner.push(shared_from_this(), DIALOG{
 		scrollProc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
@@ -353,16 +354,16 @@ void ScrollingPane::realize(DialogRunner& runner)
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
 
-	size_t sizeBefore=runner.size();
+	size_t sizeBefore = runner.size();
 	content->realize(runner);
-	childrenEnd=runner.size()+1-sizeBefore;
+	childrenEnd = runner.size() + 1 - sizeBefore;
 
 	// Every child needs D_SCROLLING set so its proc knows to use
 	// some special event handling.
-	for(size_t i=1; i<childrenEnd; i++)
-		alDialog[i].flags|=D_SCROLLING;
+	for (size_t i = 1; i < childrenEnd; i++)
+		alDialog[i].flags |= D_SCROLLING;
 
-	runner.push(shared_from_this(), DIALOG {
+	runner.push(shared_from_this(), DIALOG{
 		mouseFixerProc,
 		-100, -100, 1, 1, // Exactly where the replacement functions point
 		0, 0,
@@ -371,9 +372,9 @@ void ScrollingPane::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
-	
-	if(scrollptr)
-		scroll(*scrollptr-scrollPos);
+
+	if (scrollptr)
+		scroll(*scrollptr - scrollPos);
 }
 
 }
