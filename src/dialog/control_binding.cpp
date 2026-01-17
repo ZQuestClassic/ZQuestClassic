@@ -483,7 +483,7 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 			maxwidth = Size::pixels(zq_screen_w),
 			TabPanel(ptr = &tab_pos1, padding = 0_px,
 				TabRef(name = "Keyboard", ScrollingPane(
-					ptr = &scroll_pos[0],
+					ptr_y = &scroll_pos[0],
 					fitParent = true,
 					minheight = pane_height,
 					Column(hPadding = 0_px, vPadding = 0.5_em,
@@ -491,7 +491,7 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 					)
 				)),
 				TabRef(name = "Gamepad", ScrollingPane(
-					ptr = &scroll_pos[0],
+					ptr_y = &scroll_pos[0],
 					fitParent = true,
 					minheight = pane_height,
 					Column(hPadding = 0_px, vPadding = 0.5_em,
@@ -499,7 +499,7 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 					)
 				)),
 				TabRef(name = "Cheat Keys", ScrollingPane(
-					ptr = &scroll_pos[2],
+					ptr_y = &scroll_pos[2],
 					fitParent = true,
 					minheight = pane_height,
 					Column(hPadding = 0_px, vPadding = 0.5_em,

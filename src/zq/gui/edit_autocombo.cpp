@@ -1076,7 +1076,7 @@ void AutoComboDialog::refreshWidgets()
 	if (grid_ind / per_row >= vis_rows)
 	{
 		wingrid->add(ScrollingPane(
-			ptr = &scroll_pos1,
+			ptr_y = &scroll_pos1,
 			minheight = Size::pixels(hei * vis_rows + DEFAULT_PADDING_INT * 2),
 			sgrid));
 	}
