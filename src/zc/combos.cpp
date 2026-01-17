@@ -1716,9 +1716,9 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 	}
 	if(cmb.usrflags & cflag2) //restore magic
 	{
-		double perc = cmb.attribytes[0]/100.0;
+		double perc = cmb.attribytes[1]/100.0;
 		word magic = word(perc*game->get_maxmagic());
-		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+		if(cmb.attribytes[1]==100) //sanity incase of floating point error
 			magic = game->get_maxmagic();
 		if(game->get_magic() < magic)
 			game->set_magic(magic);
