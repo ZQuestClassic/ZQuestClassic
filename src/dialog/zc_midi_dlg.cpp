@@ -87,7 +87,7 @@ std::shared_ptr<GUI::Widget> ZCMidiDlg::view()
 						refresh_status();
 						refresh_dlg();
 					}),
-				ScrollingPane(ptr = &scroll_pos, height = 150_px,
+				ScrollingPane(ptr_y = &scroll_pos, height = 150_px,
 					description = Label(width = 300_px, maxwidth = 300_px, maxLines = 500, vAlign = 0.0, hAlign = 0.0, hPadding = 10_px)
 				)
 			),

@@ -168,7 +168,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 		{
 			scrollpane = std::make_shared<ScrollingPane>();
 			scrollpane->setContent(content);
-			scrollpane->setPtr((int32_t*)indexptr);
+			scrollpane->setPtrY((int32_t*)indexptr);
 			scrollpane->setPadding(0_px);
 			if(scrollHeight > 0)
 				scrollpane->minHeight(scrollHeight);

@@ -451,8 +451,11 @@ ZCGUI_BUILDER_FUNCTION_TEMPLATE2(Grid, Columns_Rows, makeColumnsRows, std::size_
 
 
 ZCGUI_BUILDER_START(ScrollingPane)
-	ZCGUI_ACCEPT_PROP(ptr, setPtr, int32_t*)
+	ZCGUI_ACCEPT_PROP(ptr_x, setPtrX, int32_t*)
+	ZCGUI_ACCEPT_PROP(ptr_y, setPtrY, int32_t*)
+	ZCGUI_ACCEPT_PROP(targWidth, setTargWidth, ::GUI::Size)
 	ZCGUI_ACCEPT_PROP(targHeight, setTargHeight, ::GUI::Size)
+	ZCGUI_ACCEPT_PROP(mode, setMode, ScrollingPane::Mode)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(ScrollingPane, ScrollingPane, makeScrollingPane)

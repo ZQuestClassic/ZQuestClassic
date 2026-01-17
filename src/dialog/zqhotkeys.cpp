@@ -142,7 +142,7 @@ std::shared_ptr<GUI::Widget> ZQHotkeyDialog::view()
 		Column(
 			maxwidth = Size::pixels(zq_screen_w),
 			spane = ScrollingPane(
-				ptr = &scroll_pos1,
+				ptr_y = &scroll_pos1,
 				fitParent = true,
 				minheight = 500_px,
 				minwidth = dlg_minwid,
