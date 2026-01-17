@@ -14,7 +14,7 @@ namespace GUI
  *
  * Don't ever nest scrolling panes. It will crash.
  */
-class ScrollingPane: public Widget
+class ScrollingPane : public Widget
 {
 public:
 	ScrollingPane();
@@ -31,7 +31,7 @@ public:
 	void setPtr(int32_t* ptr);
 
 private:
-	using mousePosFunc=int32_t();
+	using mousePosFunc = int32_t();
 
 
 	std::shared_ptr<Widget> content;
