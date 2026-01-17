@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-10 10:20:36</td>
+      <td>2026-01-17 08:03:16</td>
     </tr>
   </table>
 </div>
@@ -82,7 +82,7 @@
     <tr><td><a href="#l541">CConsoleLogger::kill() (line 541)</a></td><td>called 346 times, returned 346 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l584">CConsoleLogger::printf(char const*, ...) (line 584)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l572">CConsoleLogger::valid() (line 572)</a></td><td>called 442 times, returned 442 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l510">CConsoleLogger::~CConsoleLogger() (line 510)</a></td><td>called 351099 times, returned 351099 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l510">CConsoleLogger::~CConsoleLogger() (line 510)</a></td><td>called 351109 times, returned 351109 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l632">CConsoleLoggerEx::CConsoleLoggerEx() (line 632)</a></td><td>called 1321 times, returned 1321 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l746">CConsoleLoggerEx::_cprint(int, char const*, int) (line 746)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l641">CConsoleLoggerEx::_print(char const*, int) (line 641)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -94,7 +94,7 @@
     <tr><td><a href="#l689">CConsoleLoggerEx::cprintf(int, char const*, ...) (line 689)</a></td><td>called 15244 times, returned 15244 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l681">CConsoleLoggerEx::gotoxy(int, int) (line 681)</a></td><td>called 449 times, returned 449 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l735">CConsoleLoggerEx::safeprint(char const*) (line 735)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l706">CConsoleLoggerEx::safeprint(int, char const*) (line 706)</a></td><td>called 1155 times, returned 1155 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l706">CConsoleLoggerEx::safeprint(int, char const*) (line 706)</a></td><td>called 1158 times, returned 1158 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -3676,7 +3676,7 @@
       <td class="lineno"><a id="l510" href="#l510">510</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">351099</td>
+      <td class="linecount coveredLine">351109</td>
       <td class="src coveredLine"><span class="n">CConsoleLogger</span><span class="o">::~</span><span class="n">CConsoleLogger</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -3697,7 +3697,7 @@
       <td class="lineno"><a id="l513" href="#l513">513</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">351099</td>
+      <td class="linecount coveredLine">351109</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -5069,7 +5069,7 @@
       <td class="lineno"><a id="l706" href="#l706">706</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1155</td>
+      <td class="linecount coveredLine">1158</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">safeprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -5083,7 +5083,7 @@
       <td class="lineno"><a id="l708" href="#l708">708</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1155</td>
+      <td class="linecount coveredLine">1158</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -5099,12 +5099,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1155 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1158 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1155</td>
+      <td class="linecount partialCoveredLine">1158</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_textlog</span><span class="p">)</span><span class="w"> </span><span class="n">al_append_native_text_log</span><span class="p">(</span><span class="n">m_textlog</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -5118,7 +5118,7 @@
       <td class="lineno"><a id="l712" href="#l712">712</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1155</td>
+      <td class="linecount coveredLine">1158</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">sz</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

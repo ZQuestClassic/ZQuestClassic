@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-10 10:20:36</td>
+      <td>2026-01-17 08:03:16</td>
     </tr>
   </table>
 </div>
@@ -112,11 +112,11 @@
     <tr><td><a href="#l934">dlg_tint_paused() (line 934)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l955">fake_vsync_callback() (line 955)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l714">get_active_dialog(bool) (line 714)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l233">get_backend_a5_col(RGB const&amp;) (line 233)</a></td><td>called 185056854 times, returned 185056854 times</td><td>57.0%</td></tr>
+    <tr><td><a href="#l233">get_backend_a5_col(RGB const&amp;) (line 233)</a></td><td>called 187917910 times, returned 187917910 times</td><td>57.0%</td></tr>
     <tr><td><a href="#l156">get_bitmap_create_flags(bool) (line 156)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l923">get_dlg_tint() (line 923)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l691">get_zqdialog_xy(int&amp;, int&amp;) (line 691)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l262">load_palette(unsigned int*, ALLEGRO_COLOR*, RGB*, int, int) (line 262)</a></td><td>called 722881 times, returned 722881 times</td><td>90.0%</td></tr>
+    <tr><td><a href="#l262">load_palette(unsigned int*, ALLEGRO_COLOR*, RGB*, int, int) (line 262)</a></td><td>called 734057 times, returned 734057 times</td><td>90.0%</td></tr>
     <tr><td><a href="#l706">on_zqdialog_close() (line 706)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l702">on_zqdialog_close(std::function&lt;void ()&gt;&amp;&amp;) (line 702)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l927">pause_dlg_tint(bool) (line 927)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -144,7 +144,7 @@
     <tr><td><a href="#l248">repl_a5_backend_alpha(unsigned int, unsigned char) (line 248)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l166">set_bitmap_create_flags(bool) (line 166)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1035">zc_get_mouse() (line 1035)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l272">zc_set_palette(RGB*) (line 272)</a></td><td>called 722859 times, returned 722859 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l272">zc_set_palette(RGB*) (line 272)</a></td><td>called 734035 times, returned 734035 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l277">zc_set_palette_range(RGB*, int, int, bool) (line 277)</a></td><td>called 22 times, returned 22 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l686">zqdialog_freeze(bool) (line 686)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l676">zqdialog_name(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 676)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1884,7 +1884,7 @@
       <td class="lineno"><a id="l233" href="#l233">233</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">get_backend_a5_col</span><span class="p">(</span><span class="n">RGB</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">c</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1898,7 +1898,7 @@
       <td class="lineno"><a id="l235" href="#l235">235</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1908,14 +1908,14 @@
         <summary class="linebranchSummary">1/5</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 185056854 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 187917910 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">185056854</td>
+      <td class="linecount partialCoveredLine">187917910</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="p">(</span><span class="n">backend_fmt</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1929,14 +1929,14 @@
       <td class="lineno"><a id="l238" href="#l238">238</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_PIXEL_FORMAT_ABGR_8888</span><span class="p">:</span><span class="w"> </span><span class="k">default</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l239" href="#l239">239</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1992,7 +1992,7 @@
       <td class="lineno"><a id="l247" href="#l247">247</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2097,7 +2097,7 @@
       <td class="lineno"><a id="l262" href="#l262">262</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722881</td>
+      <td class="linecount coveredLine">734057</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">load_palette</span><span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">backpal</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">backcols</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">end</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2113,12 +2113,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 722881 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 734057 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">722881</td>
+      <td class="linecount partialCoveredLine">734057</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">start</span><span class="o">&gt;</span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="n">zc_swap</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2127,12 +2127,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 722881 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 185056854 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 734057 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 187917910 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">185779735</td>
+      <td class="linecount coveredLine">188651967</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">end</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2149,11 +2149,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 185056854 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 187917910 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">185056854</td>
+      <td class="linecount partialCoveredLine">187917910</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">backcols</span><span class="p">)</span><span class="w"> </span><span class="n">backcols</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a5color</span><span class="p">(</span><span class="n">pal</span><span class="p">[</span><span class="n">q</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
@@ -2163,25 +2163,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 185056854 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 187917910 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">185056854</td>
+      <td class="linecount partialCoveredLine">187917910</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">backpal</span><span class="p">)</span><span class="w"> </span><span class="n">backpal</span><span class="p">[</span><span class="n">q</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_backend_a5_col</span><span class="p">(</span><span class="n">pal</span><span class="p">[</span><span class="n">q</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l269" href="#l269">269</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">185056854</td>
+      <td class="linecount coveredLine">187917910</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l270" href="#l270">270</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722881</td>
+      <td class="linecount coveredLine">734057</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2195,7 +2195,7 @@
       <td class="lineno"><a id="l272" href="#l272">272</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722859</td>
+      <td class="linecount coveredLine">734035</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_set_palette</span><span class="p">(</span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2209,21 +2209,21 @@
       <td class="lineno"><a id="l274" href="#l274">274</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722859</td>
+      <td class="linecount coveredLine">734035</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">load_palette</span><span class="p">(</span><span class="n">zc_backend_palette</span><span class="p">,</span><span class="w"> </span><span class="n">a5colors</span><span class="p">,</span><span class="w"> </span><span class="n">pal</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l275" href="#l275">275</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722859</td>
+      <td class="linecount coveredLine">734035</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">set_palette</span><span class="p">(</span><span class="n">pal</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l276" href="#l276">276</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">722859</td>
+      <td class="linecount coveredLine">734035</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
