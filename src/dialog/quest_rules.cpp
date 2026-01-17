@@ -1067,7 +1067,11 @@ static GUI::ListData compatRulesList
 	{ "No enemy death event for segmented enemy cores", qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
 		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." },
 	{ "Broken Combo Change + 'Copycat' triggers", qr_BROKEN_COPYCAT_SELF_TRIGGER,
-		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." }
+		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." },
+	{ "Broken Liquid Passive Damage", qr_BROKEN_WATER_PASSIVE_DAMAGE,
+		"If enabled, the passive damage feature of liquid combos will not properly check the item to nullify the damage."
+		"\nIt will also EITHER not emit player damage events OR not use the hit sound properly,"
+		" depending on if the water is shallow or not and if 'New Shallow Water Detection' is enabled or not." },
 };
 
 static GUI::ListData enemiesRulesList

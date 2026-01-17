@@ -465,6 +465,7 @@ public:
 	int getHammerState() const;
 	bool handle_portal_collide(portal* p);
 	void handle_portal_prox(portal* p);
+	void handle_water_passive_damage(combined_handle_t combined_handle, int compat = 0);
 private:
 	void handleSpotlights();
 	void setpit();

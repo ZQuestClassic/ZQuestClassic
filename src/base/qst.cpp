@@ -3576,6 +3576,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES, 1);
 	if (compatrule_version < 100)
 		set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
+	if (compatrule_version < 101)
+		set_qr(qr_BROKEN_WATER_PASSIVE_DAMAGE, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
