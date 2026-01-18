@@ -28624,88 +28624,102 @@ static zfix new_hero_x, new_hero_y;
 static int new_region_offset_x, new_region_offset_y;
 static region_t scrolling_new_region;
 
-void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+void HeroClass::pre_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames)
 {
-	// For rafting (and possibly other esoteric things)
-	// Hero's action should remain unchanged while scrolling,
-	// but for the sake of scripts, here's an eye-watering kludge.
-	actiontype lastaction = action;
-	action=scrolling; FFCore.setHeroAction(scrolling);
-	if(waitdraw)
+	// Old code has an off-by-one error, and doesn't clamp the hero position to the viewport.
+	//
+	// Although this is behind a compat qr, most test replays wouldn't fail. The ones that do are:
+	//
+	// 	nargads: different sfx plays during last frames of scrolling, sometimes
+	// 	crucible: fog is slightly different on last frames of scrolling
+	// 	yuurand: breaks. blocks are not removed when returning to a screen during scroll
+	bool broken_pos = get_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION);
+	
+	if (broken_pos)
 	{
-		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+		switch(scrolldir)
+		{
+		case up:
+			if(y < scrolling_new_region.height - 16) y = scrolling_new_region.height;
+			else if(cx > 0 && !end_frames) y = sy + scrolling_new_region.height - 20;
+			else y = scrolling_new_region.height - 16;
+
+			x = new_hero_x;
+			break;
+			
+		case down:
+			if(y > 0) y = -16;
+			else if(cx > 0 && !end_frames) y = sy - 172;
+			else y = 0;
+
+			x = new_hero_x;
+			break;
+			
+		case left:
+			if(x < scrolling_new_region.width - 16) x = scrolling_new_region.width;
+			else if(cx > 0) x = sx + scrolling_new_region.width - 20;
+			else x = scrolling_new_region.width - 16;
+
+			y = new_hero_y;
+			break;
+			
+		case right:
+			if(x > 0) x = -16;
+			else if(cx > 0)	x = sx - 252;
+			else x = 0;
+
+			y = new_hero_y;
+			break;
+		}
 	}
 	else
 	{
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
-	}
+		switch(scrolldir)
+		{
+		case up:
+			if(y <= scrolling_new_region.height - 16) y = scrolling_new_region.height;
+			else y = scrolling_new_region.height - 16;
 
-	// Also, hero coordinates should remain unchanged.
-	// For compat, this is happening after the generic scripts above...
-	zfix storex = x, storey = y;
+			x = new_hero_x;
+			break;
+			
+		case down:
+			if(y >= 0) y = -16;
+			else y = 0;
 
-	switch(scrolldir)
-	{
-	case up:
-		if(y < scrolling_new_region.height - 16) y = scrolling_new_region.height;
-		else if(cx > 0 && !end_frames) y = sy + scrolling_new_region.height - 20;
-		else y = scrolling_new_region.height - 16;
+			x = new_hero_x;
+			break;
+			
+		case left:
+			if(x <= scrolling_new_region.width - 16) x = scrolling_new_region.width;
+			else x = scrolling_new_region.width - 16;
 
-		x = new_hero_x;
-		break;
-		
-	case down:
-		if(y > 0) y = -16;
-		else if(cx > 0 && !end_frames) y = sy - 172;
-		else y = 0;
+			y = new_hero_y;
+			break;
+			
+		case right:
+			if(x >= 0) x = -16;
+			else x = 0;
 
-		x = new_hero_x;
-		break;
-		
-	case left:
-		if(x < scrolling_new_region.width - 16) x = scrolling_new_region.width;
-		else if(cx > 0) x = sx + scrolling_new_region.width - 20;
-		else x = scrolling_new_region.width - 16;
-
-		y = new_hero_y;
-		break;
-		
-	case right:
-		if(x > 0) x = -16;
-		else if(cx > 0)	x = sx - 252;
-		else x = 0;
-
-		y = new_hero_y;
-		break;
+			y = new_hero_y;
+			break;
+		}
 	}
 
 	viewport.x -= new_region_offset_x;
 	viewport.y -= new_region_offset_y;
-
-	run_scrolling_script_int(waitdraw);
-
-	viewport.x += new_region_offset_x;
-	viewport.y += new_region_offset_y;
-
-	x = storex, y = storey;
-	action=lastaction; FFCore.setHeroAction(lastaction);
+	
+	if(!broken_pos)
+	{
+		if (scrolldir == left || scrolldir == right)
+			x.doClamp(viewport.left(), viewport.right() - 16);
+		if (scrolldir == up || scrolldir == down)
+			y.doClamp(viewport.top(), viewport.bottom() - 16);
+	}
 }
 
 void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
-	if (get_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION))
-	{
-		// Old code has an off-by-one error, and doesn't clamp the hero position to the viewport.
-		//
-		// Although this is behind a compat qr, most test replays wouldn't fail. The ones that do are:
-		//
-		// 	nargads: different sfx plays during last frames of scrolling, sometimes
-		// 	crucible: fog is slightly different on last frames of scrolling
-		// 	yuurand: breaks. blocks are not removed when returning to a screen during scroll
-		run_scrolling_script_old(scrolldir, cx, sx, sy, end_frames, waitdraw);
-		return;
-	}
-
 	// For rafting (and possibly other esoteric things)
 	// Hero's action should remain unchanged while scrolling,
 	// but for the sake of scripts, here's an eye-watering kludge.
@@ -28714,56 +28728,36 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 
 	// Also, hero coordinates should remain unchanged.
 	zfix storex = x, storey = y;
+	
+	pre_scrolling_script(scrolldir, cx, sx, sy, end_frames);
 
 	if(waitdraw)
-	{
 		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
-	}
-	else
-	{
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
-	}
-
-	switch(scrolldir)
-	{
-	case up:
-		if(y <= scrolling_new_region.height - 16) y = scrolling_new_region.height;
-		else y = scrolling_new_region.height - 16;
-
-		x = new_hero_x;
-		break;
-		
-	case down:
-		if(y >= 0) y = -16;
-		else y = 0;
-
-		x = new_hero_x;
-		break;
-		
-	case left:
-		if(x <= scrolling_new_region.width - 16) x = scrolling_new_region.width;
-		else x = scrolling_new_region.width - 16;
-
-		y = new_hero_y;
-		break;
-		
-	case right:
-		if(x >= 0) x = -16;
-		else x = 0;
-
-		y = new_hero_y;
-		break;
-	}
-
-	viewport.x -= new_region_offset_x;
-	viewport.y -= new_region_offset_y;
-
-	if (scrolldir == left || scrolldir == right)
-		x.doClamp(viewport.left(), viewport.right() - 16);
-	if (scrolldir == up || scrolldir == down)
-		y.doClamp(viewport.top(), viewport.bottom() - 16);
-
+	else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
+	
 	run_scrolling_script_int(waitdraw);
+
+	viewport.x += new_region_offset_x;
+	viewport.y += new_region_offset_y;
+	
+	x = storex, y = storey;
+	action=lastaction; FFCore.setHeroAction(lastaction);
+}
+
+void HeroClass::run_scrolling_genscr_timing(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, int32_t timing)
+{
+	// For rafting (and possibly other esoteric things)
+	// Hero's action should remain unchanged while scrolling,
+	// but for the sake of scripts, here's an eye-watering kludge.
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setHeroAction(scrolling);
+
+	// Also, hero coordinates should remain unchanged.
+	zfix storex = x, storey = y;
+	
+	pre_scrolling_script(scrolldir, cx, sx, sy, end_frames);
+	
+	FFCore.runGenericPassiveEngine(timing);
 
 	viewport.x += new_region_offset_x;
 	viewport.y += new_region_offset_y;
@@ -29578,31 +29572,31 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		action=lastaction; FFCore.setHeroAction(lastaction);
 
 		lstep = (lstep + 6) % 12;
-		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_WAITDRAW);
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_GLOBAL_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
@@ -29614,7 +29608,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				}
 			});
 		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_SCREEN_WAITDRAW);
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.ffc->script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.id))
@@ -29624,25 +29618,25 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			}
 		});
 
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_FFC_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_COMBO_WAITDRAW);
 		//Waitdraw for item scripts. 
 		FFCore.itemScriptEngineOnWaitdraw();
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEM_WAITDRAW);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_ITEM_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_NPC_WAITDRAW);
 		
 		//Sprite scripts on Waitdraw
 		FFCore.eweaponScriptEngineOnWaitdraw();
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_EWPN_WAITDRAW);
 		FFCore.itemSpriteScriptEngineOnWaitdraw();
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
 		
 		//This is no longer a do-while, as the first iteration is now slightly different. -Em
 		draw_screen(true,true);
 		
 		rehydratelake(false);
 			
-		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_END_FRAME);
 	}
 	
 	advanceframe(true);
@@ -29685,17 +29679,17 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			if(get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			{
 				script_drawing_commands.Clear();
-				FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+				run_scrolling_genscr_timing(scrolldir, wait_counter, 0, 0, false, SCR_TIMING_START_FRAME);
 				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, false); // Prewaitdraw
 				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, true); // Waitdraw
 			}
-			else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+			else run_scrolling_genscr_timing(scrolldir, wait_counter, 0, 0, false, SCR_TIMING_START_FRAME);
 			draw_screen(true,true);
 			
 			if (wait_counter == scx)
 				rehydratelake(false);
 				
-			FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+			run_scrolling_genscr_timing(scrolldir, wait_counter, 0, 0, false, SCR_TIMING_END_FRAME);
 			advanceframe(true);
 			
 			if(Quit)
@@ -29709,7 +29703,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	}
 
 	script_drawing_commands.Clear();
-	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+	run_scrolling_genscr_timing(scrolldir, 0, 0, 0, false, SCR_TIMING_START_FRAME);
 
 	// Just trying to play the sound.
 	if (original_destscr == -1)
@@ -30187,7 +30181,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		SAVE_HERO_POS;
 		USE_COMPAT_HERO_POS;
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
-		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+		run_scrolling_genscr_timing(scrolldir, scroll_counter, sx, sy, false, SCR_TIMING_PRE_DRAW);
 		RESTORE_HERO_POS;
 
 		clear_bitmap(framebuf);
@@ -30387,8 +30381,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		SAVE_HERO_POS;
 		USE_COMPAT_HERO_POS;
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		run_scrolling_genscr_timing(scrolldir, scroll_counter, sx, sy, false, SCR_TIMING_POST_DRAW);
+		run_scrolling_genscr_timing(scrolldir, scroll_counter, sx, sy, false, SCR_TIMING_END_FRAME);
 
 		RESTORE_HERO_POS;
 		advanceframe(true/*,true,false*/);
@@ -30397,7 +30391,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		//Don't clear the last frame, unless 'fixed'
 		if (scroll_counter > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			script_drawing_commands.Clear();
-		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+		run_scrolling_genscr_timing(scrolldir, scroll_counter, sx, sy, false, SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
@@ -30607,7 +30601,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	{
 		if (old_dmap == new_dmap || (replay_version_check(0, 15)))
 		{
-			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
+			run_scrolling_script_int(false); // not ZScriptVersion::RunScrollingScript; scrolling is over
 		}
 	}
 
