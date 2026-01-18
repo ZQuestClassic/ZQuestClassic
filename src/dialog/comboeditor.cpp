@@ -25,6 +25,7 @@ using std::string;
 using std::to_string;
 
 static size_t cmb_tabs[5] = {0};
+static int32_t cmb_scrolls[1] = {0};
 static bool combo_use_script_data = true;
 static optional<combo_trigger> copied_trigger;
 
@@ -778,6 +779,15 @@ void cflag_help(int32_t id)
 {
 	InfoDialog(ZI.getMapFlagName(id),ZI.getMapFlagHelp(id)).show();
 }
+
+static bool validate_checkbox(std::shared_ptr<GUI::Checkbox> const& cb)
+{
+	return cb->getWidth() - cb->getHeight() - 6 >= text_length(cb->getFont(), cb->getText().c_str());
+}
+static bool validate_label(std::shared_ptr<GUI::Label> const& lbl)
+{
+	return lbl->getWidth() >= text_length(lbl->getFont(), lbl->getText().c_str());
+}
 //Load all the info for the combo type and checked flags
 void ComboEditorDialog::refreshScript()
 {
@@ -807,13 +817,18 @@ void ComboEditorDialog::refreshScript()
 		for(auto q = 0; q < 8; ++q)
 			sw_initd[q] = nswapDEC;
 	}
+	bool is_soft_refresh = runner.isConstructed();
+	bool clean = is_soft_refresh;
 	for(auto q = 0; q < 8; ++q)
 	{
 		ib_initds[q]->setDisabled(h_initd[q].empty());
 		l_initds[q]->setText(l_initd[q]);
+		if (clean && !validate_label(l_initds[q]))
+			clean = false;
 		if(sw_initd[q] > -1)
 			tf_initd[q]->setSwapType(sw_initd[q]);
 	}
+	if (is_soft_refresh && !clean) refresh_dlg();
 }
 void ComboEditorDialog::loadComboType()
 {
@@ -2129,14 +2144,21 @@ void ComboEditorDialog::loadComboType()
 				h_flag[q] = meta.usrflags_help[q];
 		}
 	}
+	bool is_soft_refresh = runner.isConstructed();
+	bool clean = is_soft_refresh;
 	for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 	{
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
+		if (clean && !validate_label(l_attributes[q]))
+			clean = false;
 		if (q > 15) continue;
-		l_flags[q]->setText(l_flag[q]);
 		ib_flags[q]->setDisabled(h_flag[q].empty());
+		l_flags[q]->setText(l_flag[q]);
+		if (clean && !validate_checkbox(l_flags[q]))
+			clean = false;
 	}
+	if (is_soft_refresh && !clean) refresh_dlg();
 	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	updateWarnings();
 	pendDraw();
@@ -2257,30 +2279,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte
 
 #define ANIM_FIELD(member, _min, _max) ANIM_FIELD_IMPL(&local_comboref.member, _min, _max)
 
-std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_FLAG(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px, colSpan=2,
-		ib_flags[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("Flag Info",h_flag[index]).show();
-			}),
-		l_flags[index] = Checkbox(
-			minwidth = FLAGS_WID, hAlign = 0.0,
-			checked = local_comboref.usrflags & (1<<index), fitParent = true,
-			onToggleFunc = [&, index](bool state)
-			{
-				SETFLAG(local_comboref.usrflags,(1<<index),state);
-				loadComboType();
-			}
-		)
-	);
-}
-
 #define IBTN(info) \
 Button( \
 	width = 1.5_em, padding = 0_px, forceFitH = true, \
@@ -2293,61 +2291,13 @@ Button( \
 #define CMB_GEN_FLAG(ind,str,info) \
 IBTN(info), \
 Checkbox(text = str, \
-		minwidth = FLAGS_WID, hAlign = 0.0, \
-		checked = local_comboref.genflags & (1<<ind), fitParent = true, \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_comboref.genflags,(1<<ind),state); \
-		} \
-	)
-
-std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px, colSpan = 3,
-		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_attributes[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("Attribute Info",h_attribute[index]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT,
-			val = local_comboref.c_attributes[index].getZLong(),
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_comboref.c_attributes[index] = zslongToFix(val);
-			})
-	);
-}
-
-std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info",h_initd[index]).show();
-			}),
-		tf_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_comboref.initd[index],
-			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_comboref.initd[index] = val;
-			})
-	);
-}
+	hAlign = 0.0, \
+	checked = local_comboref.genflags & (1<<ind), fitParent = true, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_comboref.genflags,(1<<ind),state); \
+	} \
+)
 
 #define MISCFLAG(member, bit, str) \
 Checkbox( \
@@ -2411,6 +2361,68 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			return true;
 		}
 	);
+	
+	shared_ptr<GUI::Grid> flags_grid = Rows_Columns<2, 8>(
+		topPadding = DEFAULT_PADDING+0.4_em,
+		bottomPadding = DEFAULT_PADDING+1_px,
+		bottomMargin = 1_em
+	);
+	for (size_t q = 0; q < 16; ++q)
+	{
+		flags_grid->add(ib_flags[q] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				InfoDialog("Flag Info",h_flag[q]).show();
+			}));
+		flags_grid->add(l_flags[q] = Checkbox(
+			hAlign = 0.0,
+			checked = local_comboref.usrflags & (1<<q), fitParent = true,
+			onToggleFunc = [&, q](bool state)
+			{
+				SETFLAG(local_comboref.usrflags,(1<<q),state);
+				loadComboType();
+			}
+		));
+	}
+	shared_ptr<GUI::Grid> initd_grid = Rows<3>();
+	for (size_t q = 0; q < 8; ++q)
+	{
+		initd_grid->add(l_initds[q] = Label(hAlign = 1.0, textAlign = 2, fitParent = true));
+		initd_grid->add(ib_initds[q] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				InfoDialog("InitD Info",h_initd[q]).show();
+			}));
+		initd_grid->add(tf_initd[q] = TextField(
+			fitParent = true, width = 9_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_comboref.initd[q],
+			onValChangedFunc = [&, q](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.initd[q] = val;
+			}));
+	}
+	shared_ptr<GUI::Grid> attrib_grid = Rows_Columns<3, 8>(hPadding = 0.5_em);
+	for (size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+	{
+		attrib_grid->add(l_attributes[q] = Label(hAlign = 1.0, textAlign = 2, fitParent = true));
+		attrib_grid->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				InfoDialog("Attribute Info",h_attribute[q]).show();
+			}));
+		attrib_grid->add(TextField(
+			fitParent = true, width = 9_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_comboref.c_attributes[q].getZLong(),
+			onValChangedFunc = [&, q](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.c_attributes[q] = zslongToFix(val);
+			}));
+	}
 	
 	window = Window(
 		use_vsync = true,
@@ -2665,69 +2677,20 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					ptr = &cmb_tabs[2],
 					TabRef(name = "Flags", Column(
 						padding = 0_px,
-						Columns<8>(
-							topPadding = DEFAULT_PADDING+0.4_em,
-							bottomPadding = DEFAULT_PADDING+1_px,
-							bottomMargin = 1_em,
-							CMB_FLAG(0),
-							CMB_FLAG(1),
-							CMB_FLAG(2),
-							CMB_FLAG(3),
-							CMB_FLAG(4),
-							CMB_FLAG(5),
-							CMB_FLAG(6),
-							CMB_FLAG(7),
-							CMB_FLAG(8),
-							CMB_FLAG(9),
-							CMB_FLAG(10),
-							CMB_FLAG(11),
-							CMB_FLAG(12),
-							CMB_FLAG(13),
-							CMB_FLAG(14),
-							CMB_FLAG(15)
-						),
+						flags_grid,
 						Row(
 							Button(text = "Misc Weapon Data",
 								onPressFunc = [&]()
 								{
 									call_weap_data_editor(local_comboref.misc_weap_data, is_misc_lweapon(local_comboref), true);
 								}),
-							IBTN("Usable by some combo types for weapon-related effects.")
+							INFOBTN("Usable by some combo types for weapon-related effects.")
 						)
 					)),
-					TabRef(name = "Attribs 1", Row( // TODO_C_ATTRIBUTES: horizontal scroll panel for this?
-						Rows<3>(framed = true, frameText = "Attribytes",
-							CMB_ATTRIBUTE(8+0),
-							CMB_ATTRIBUTE(8+1),
-							CMB_ATTRIBUTE(8+2),
-							CMB_ATTRIBUTE(8+3),
-							CMB_ATTRIBUTE(8+4),
-							CMB_ATTRIBUTE(8+5),
-							CMB_ATTRIBUTE(8+6),
-							CMB_ATTRIBUTE(8+7)
-						),
-						Rows<3>(framed = true, frameText = "Attrishorts",
-							CMB_ATTRIBUTE(16+0),
-							CMB_ATTRIBUTE(16+1),
-							CMB_ATTRIBUTE(16+2),
-							CMB_ATTRIBUTE(16+3),
-							CMB_ATTRIBUTE(16+4),
-							CMB_ATTRIBUTE(16+5),
-							CMB_ATTRIBUTE(16+6),
-							CMB_ATTRIBUTE(16+7)
-						)
-					)),
-					TabRef(name = "Attribs 2", Column(
-						Rows<3>(framed = true, frameText = "Attributes",
-							CMB_ATTRIBUTE(0),
-							CMB_ATTRIBUTE(1),
-							CMB_ATTRIBUTE(2),
-							CMB_ATTRIBUTE(3),
-							CMB_ATTRIBUTE(4),
-							CMB_ATTRIBUTE(5),
-							CMB_ATTRIBUTE(6),
-							CMB_ATTRIBUTE(7)
-						)
+					TabRef(name = "Attributes", ScrollingPane(
+						ptr_x = &cmb_scrolls[0], forceFitW = true,
+						mode = GUI::ScrollingPane::Mode::SCROLL_H,
+						attrib_grid
 					))
 				)),
 				TabRef(name = "Triggers", Column(
@@ -3372,16 +3335,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)),
 				TabRef(name = "Script", Row(
-					Column(
-						CMB_INITD(0),
-						CMB_INITD(1),
-						CMB_INITD(2),
-						CMB_INITD(3),
-						CMB_INITD(4),
-						CMB_INITD(5),
-						CMB_INITD(6),
-						CMB_INITD(7)
-					),
+					initd_grid,
 					Column(vAlign = 0.0,
 						Row(
 							padding = 0_px,

@@ -15,6 +15,10 @@ public:
 
 	/* Sets the text to display. */
 	void setText(std::string newText);
+	std::string const& getText() const
+	{
+		return text;
+	}
 
 	/* Sets the maximum number of lines the text can be split into. */
 	void setMaxLines(size_t newMax);

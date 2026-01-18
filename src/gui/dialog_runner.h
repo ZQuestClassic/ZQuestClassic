@@ -24,7 +24,8 @@ public:
 				dm.message = static_cast<typename T::message>(msg);
 				dm.argument = arg;
 				dm.sender = snd;
-				this->done = this->done || dlg.handleMessage(dm);
+				if (!this->done && dlg.handleMessage(dm))
+					this->done = true;
 			};
 		
 		std::shared_ptr<Widget> root = dlg.view();
