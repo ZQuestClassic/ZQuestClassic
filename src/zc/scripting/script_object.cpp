@@ -51,18 +51,28 @@ static bool is_reserved_object_id(uint32_t id)
 static uint32_t get_next_script_object_id()
 {
 	const uint32_t ID_FREELIST_FILL_AMOUNT = 1000;
+	// Don't start at 1 because is_reserved_object_id excludes all low values.
+	const uint32_t MIN_ID = 60000;
 
 	if (next_script_object_id_freelist.empty())
 	{
-		// Don't start at 1 because is_reserved_object_id excludes all low values.
-		uint32_t id = 60000;
+		// Remember where we left off.
+		static uint32_t id = MIN_ID;
+		uint32_t items_checked = 0;
+
 		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
 		{
 			if (!script_objects.contains(id) && !is_reserved_object_id(id))
 				next_script_object_id_freelist.push_back(id);
+
 			id++;
+			items_checked++;
 
 			if (unlikely(id == (uint32_t)-1))
+				id = MIN_ID;
+
+			// Prevent an infinite loop if memory is truly full.
+			if (unlikely(items_checked > (uint32_t)-1))
 				break;
 		}
 	}
@@ -72,9 +82,9 @@ static uint32_t get_next_script_object_id()
 	if (next_script_object_id_freelist.empty())
 		Z_error_fatal("Ran out of storage for script objects\n");
 
-	auto id = next_script_object_id_freelist.back();
+	auto ret_id = next_script_object_id_freelist.back();
 	next_script_object_id_freelist.pop_back();
-	return id;
+	return ret_id;
 }
 
 void init_script_objects()
