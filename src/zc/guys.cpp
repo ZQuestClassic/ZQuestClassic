@@ -4357,7 +4357,7 @@ bool enemy::can_drawshadow() const
 			(darkroom))
 		return false;
 	
-	if(z <= 0 && fakez <= 0 && enemycanfall(id, false))
+	if(z <= 0 && fakez <= 0 && !(isflier(id) || isjumper(id) || never_in_air(id)))
 		return false;
 	
 	if(shadow_overpit())
@@ -4369,7 +4369,9 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 {
 	if(!can_drawshadow())
 		return;
-	if(enemycanfall(id, false) && shadowtile == 0)
+	// only set shadowtile here for enemies that can fall
+	// some other enemies will drawshadow, but NOT intend to draw a shadow because the tile isn't set?
+	if(enemycanfall(id) && shadowtile == 0)
 		shadowtile = wpnsbuf[spr_shadow].tile;
 	
 	sprite::drawshadow(dest,translucent);
@@ -17893,60 +17895,20 @@ bool canfall(int32_t id)
 	return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
-bool enemy::enemycanfall(int32_t id, bool checkgrav) const
+bool enemy::enemycanfall(int32_t id) const
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS-1 || id <= 0) 
-	{
 		return false;
-	}
-	//Z_scripterrlog("canfall family is %d:\n", family);
-	//Z_scripterrlog("canfall gravity is %s:\n", moveflags & move_obeys_grav ? "true" : "false");
-	//if ( family == eeFIRE && id >= eSTART ) 
-	//{
-	//	Z_scripterrlog("eeFire\n");
-	//	return moveflags & move_obeys_grav; //'Other' enemy class, used by scripts. -Z
-	//}
-	
-	//In ZQ, eeFIRE is Other(floating) and eeOTHER is 'other'.
 	
 	switch(guysbuf[id&0xFFF].type)
 	{
-	case eeGUY:
-	{
-		if(id < eOCTO1S) //screen guys and fires that aren't real enemies, and never fall
-			return false;
-			
-		switch(guysbuf[id&0xFFF].attributes[9]) //I'm unsure what these specify off-hand. Needs better comments. -Z
-		{
-		case 1:
-		case 2:
-			return true;
-			
-		case 0:
-		case 3:
-		default:
-			return false;
-		}
-		
+		case eeGUY:
 		case eeGHOMA:
 		case eeDIG:
 			return false;
-		}
 	}
 	
-	if(!checkgrav) return true;
 	return (moveflags & move_obeys_grav);
-	
-	// if ( isflier(id) || isjumper(id) || never_in_air(id) )
-	// {
-		// if ( moveflags & move_obeys_grav ) return true;
-		// else return false;
-	// }
-	// else
-	// {
-		// return (moveflags & move_obeys_grav);    
-	// }
-	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
 void addfires()
