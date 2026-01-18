@@ -1,5 +1,6 @@
 #include "zc/scripting/types/savemenu.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/types/musicdata.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
