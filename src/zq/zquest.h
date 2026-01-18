@@ -221,17 +221,15 @@ void set_debug(bool d);
 
 
 // quest data
-extern zquestheader        header;
-extern byte                midi_flags[MIDIFLAGS_SIZE];
-extern byte                music_flags[MUSICFLAGS_SIZE];
-extern int32_t				   msg_strings_size;
-extern zctune              *customtunes;
-extern ZCHEATS             zcheats;
-extern byte                use_cheats;
-extern byte                use_tiles;
-extern char                palnames[MAXLEVELS][17];
+extern zquestheader header;
+extern zctune customtunes[MAXCUSTOMMIDIS];
+extern int32_t msg_strings_size;
+extern ZCHEATS zcheats;
+extern byte use_cheats;
+extern byte use_tiles;
+extern char palnames[MAXLEVELS][17];
 
-extern char   fontsdat_sig[52];
+extern char fontsdat_sig[52];
 
 extern uint8_t console_is_open;
 
@@ -456,7 +454,6 @@ int32_t onScreenScript();
 const char *msgslist(int32_t index, int32_t *list_size);
 
 const char *gotomaplist(int32_t index, int32_t *list_size);
-const char *midilist(int32_t index, int32_t *list_size);
 const char *levelnumlist(int32_t index, int32_t *list_size);
 int32_t onGotoMap();
 int32_t onFlags();

@@ -10,17 +10,19 @@
 using std::string;
 using std::to_string;
 
-extern zctune* customtunes;
+extern zctune customtunes[MAXCUSTOMMIDIS];
 void mark_save_dirty();
 
 bool call_midi_editor(int32_t index)
 {
+	if (unsigned(index) >= MAXCUSTOMMIDIS)
+		return false;
 	MidiEditorDialog(index).show();
 	return true;
 }
 
 MidiEditorDialog::MidiEditorDialog(zctune const& ref, int32_t index) :
-	index(index), local_midiref(ref), midi_name(local_midiref.title)
+	index(index), local_midiref(ref)
 {}
 
 MidiEditorDialog::MidiEditorDialog(int32_t index) :
@@ -80,22 +82,24 @@ std::shared_ptr<GUI::Widget> MidiEditorDialog::view()
 				Label(text = "Time:", rightPadding = 0_px, textAlign = 1.0),
 				Label(text = timestring, rightPadding = 0_px, textAlign = 1.0),
 				Label(text = "Length:", rightPadding = 0_px, textAlign = 1.0),
-				Label(text = to_string(Midi_Info.len_beats), rightPadding = 0_px, textAlign = 1.0),
-				//
+				Label(text = to_string(Midi_Info.len_beats), rightPadding = 0_px, textAlign = 1.0)
+			),
+			Row(
 				Label(text = "Name:", rightPadding = 0_px, textAlign = 1.0),
 				TextField(
-					minwidth = 160_px,
-					colSpan = 3,
+					width = 300_px,
+					height = 4_px+(3*(1_em+2_px)),
 					type = GUI::TextField::type::TEXT,
-					maxLength = 35,
+					maxLength = MIDI_NAME_LENGTH,
 					fitParent = true,
-					text = midi_name,
+					text = local_midiref.song_title,
 					onValChangedFunc = [&](GUI::TextField::type type, std::string_view text, int32_t)
 					{
-						midi_name = text;
+						local_midiref.song_title = text.substr(0, MIDI_NAME_LENGTH);
 					}
-				),
-				//
+				)
+			),
+			Rows<4>(vAlign = 1.0,
 				Label(text = "Volume:", rightPadding = 0_px, textAlign = 1.0),
 				TextField(
 					type = GUI::TextField::type::INT_DECIMAL,
@@ -138,6 +142,7 @@ std::shared_ptr<GUI::Widget> MidiEditorDialog::view()
 						local_midiref.loop_end = val;
 					}
 				),
+				//
 				Checkbox(
 					text = "Disable Saving",
 					colSpan = 2,
@@ -198,16 +203,10 @@ bool MidiEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}
 				else
 				{
-					char* t = get_filename(temppath);
-					int32_t j;
-
-					for (j = 0; j < 35 && t[j] != 0 && t[j] != '.'; j++)
-					{
-						local_midiref.title[j] = t[j];
-					}
-
-					local_midiref.title[j] = 0;
-					midi_name = local_midiref.title;
+					string title = get_filename(temppath);
+					local_midiref.song_title = title.substr(0, title.find_last_of("."));
+					if (local_midiref.song_title.size() > MIDI_NAME_LENGTH)
+						local_midiref.song_title = local_midiref.song_title.substr(0, MIDI_NAME_LENGTH);
 				}
 
 				get_midi_info((MIDI*)local_midiref.data, &Midi_Info);
@@ -300,21 +299,7 @@ bool MidiEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 	case message::OK:
 		{
-			strncpy(customtunes[index].title, midi_name.c_str(), 37);
-			customtunes[index].volume = local_midiref.volume;
-			customtunes[index].loop = local_midiref.loop;
-			customtunes[index].start = local_midiref.start;
-			customtunes[index].loop_start = local_midiref.loop_start;
-			customtunes[index].loop_end = local_midiref.loop_end;
-			customtunes[index].flags = local_midiref.flags;
-
-			if (local_midiref.data != customtunes[index].data)
-			{
-				if (customtunes[index].data)
-					destroy_midi(customtunes[index].data);
-				customtunes[index].data = local_midiref.data;
-			}
-
+			customtunes[index] = std::move(local_midiref);
 			mark_save_dirty();
 		}
 		[[fallthrough]];

@@ -4182,9 +4182,9 @@ void syskeys()
 		}
 	}
 	
-	if(zc_readkey(KEY_COMMA))  jukebox(currmidi-1);
+	if(zc_readkey(KEY_COMMA))  jukebox(wrap(currmidi-1, 0, MAXMIDIS-1));
 	
-	if(zc_readkey(KEY_STOP))   jukebox(currmidi+1);
+	if(zc_readkey(KEY_STOP))   jukebox(wrap(currmidi+1, 0, MAXMIDIS-1));
 	
 	verifyBothWeapons();
 	
@@ -6276,18 +6276,15 @@ void set_zcmusicloop(double start, double end)
 	zcmusic_set_loop(zcmusic, start, end);
 }
 
-void jukebox(int32_t index,int32_t loop)
+void jukebox(int index, int loop)
 {
 	if (is_headless())
 		return;
 
 	music_stop();
 	
-	if(index<0)		 index=MAXMIDIS-1;
-	
-	if(index>=MAXMIDIS) index=0;
-	
-	music_stop();
+	if (index < 0 || index >= MAXMIDIS)
+		return;
 	
 	// Allegro's DIGMID driver (the one normally used on on Linux) gets
 	// stuck notes when a song stops. This fixes it.
@@ -6308,19 +6305,16 @@ void jukebox(int32_t index,int32_t loop)
 	//midi_paused=false;
 }
 
-void jukebox(int32_t index)
+void jukebox(int index)
 {
-	if(index<0)		 index=MAXMIDIS-1;
-	
-	if(index>=MAXMIDIS) index=0;
-	
 	// do nothing if it's already playing
-	if(index==currmidi && midi_pos>=0)
-	{
+	if (index == currmidi && midi_pos >= 0)
 		return;
-	}
+	int loop = 0;
+	if (unsigned(index) < MAXMIDIS)
+		loop = tunes[index].loop;
 	
-	jukebox(index,tunes[index].loop);
+	jukebox(index, loop);
 }
 
 void playLevelMusic()
@@ -6358,7 +6352,7 @@ void master_volume(int32_t dv,int32_t mv)
 	
 	if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
 	
-	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
+	int32_t i = vbound(currmidi, MAXMIDIS-1, 0);
 	int32_t temp_vol = midi_volume;
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
@@ -6382,17 +6376,17 @@ void Z_init_sound()
 		"assets/title.mid",
 		"assets/triforce.mid",
 	};
-	for(int32_t i=0; i<ZC_MIDI_COUNT; i++)
+	for(uint q = 0; q < ZC_MIDI_COUNT; ++q)
 	{
-		tunes[i].data = load_midi(midis[i]);
-		if (!tunes[i].data)
-			Z_error_fatal("Missing required file %s\n", midis[i]);
+		tunes[q].data = load_midi(midis[q]);
+		if (!tunes[q].data)
+			Z_error_fatal("Missing required file %s\n", midis[q]);
 	}
 
-	for(int32_t j=0; j<MAXCUSTOMMIDIS; j++)
-		tunes[ZC_MIDI_COUNT+j].data=NULL;
+	for(uint q = 0; q < MAXCUSTOMMIDIS; ++q)
+		tunes[ZC_MIDI_COUNT + q].data = nullptr;
 		
-	master_volume(digi_volume,midi_volume);
+	master_volume(digi_volume, midi_volume);
 }
 
 // returns number of voices currently allocated

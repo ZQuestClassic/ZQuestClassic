@@ -20,10 +20,10 @@ extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifdef IS_PARSER
 #elif defined(IS_PLAYER)
-#define customtunes tunes
+#define customtunes (tunes + ZC_MIDI_COUNT)
 extern zctune tunes[MAXMIDIS];
 #elif defined(IS_EDITOR)
-extern zctune *customtunes;
+extern zctune customtunes[MAXCUSTOMMIDIS];
 const char *msgslist(int32_t index, int32_t *list_size);
 char *MsgString(int32_t index, bool show_number, bool pad_number);
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
@@ -743,12 +743,12 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	
 	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	
-	for(int32_t i = 1; i <= MAXCUSTOMTUNES; ++i)
+	for(uint i = 1; i <= MAXCUSTOMMIDIS; ++i)
 	{
-		char const* midi_name = customtunes[i-1].title;
-		if(midi_name[0] == ' ' || !midi_name[0])
+		string midi_name = customtunes[i-1].song_title;
+		if (midi_name.empty() || midi_name[0] == ' ')
 			midi_name = "zzUntitled";
-		if(numbered)
+		if (numbered)
 			ls.add(fmt::format("{} ({:03})", midi_name, i), i);
 		else ls.add(midi_name, i);
 	}

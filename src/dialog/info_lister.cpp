@@ -71,6 +71,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			Ctrl+S=message::SAVE,
 			Ctrl+L=message::LOAD,
 			Enter=message::CONFIRM,
+			Del=message::CLEAR,
 		},
 		wcolumn = Column(hPadding = 0_px)
 	);
@@ -226,6 +227,9 @@ bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return true;
 		case message::EXIT:
 			return true;
+		case message::CLEAR:
+			refresh = clear();
+			break;
 		case message::EDIT:
 			edit();
 			refresh = true;
@@ -247,11 +251,8 @@ bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 	}
 	if(refresh)
-	{
 		rerun_dlg = true;
-		return true;
-	}
-	return false;
+	return rerun_dlg;
 }
 
 ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
@@ -354,11 +355,11 @@ void ItemListerDialog::edit()
 void ItemListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
-		{ "&Copy", [&](){copy(); update();} },
-		{ "&Adv. Paste", [&](){if(adv_paste()) refresh_dlg();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
-		{ "&Save", [&](){save(); update();} },
-		{ "&Load", [&](){load(); update();} },
+		{ "&Copy", [&](){copy();} },
+		{ "&Adv. Paste", [&](){adv_paste();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
+		{ "&Save", [&](){save();} },
+		{ "&Load", [&](){load();} },
 	};
 	rcmenu.pop(x, y);
 }
@@ -374,6 +375,7 @@ bool ItemListerDialog::paste()
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -414,6 +416,7 @@ bool ItemListerDialog::adv_paste()
 	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
 	if(pasteflags.get(ITM_ADVP_NAME))
 		strcpy(item_string[selected_val], item_string[copied_item_id]);
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -450,6 +453,7 @@ bool ItemListerDialog::load()
 		InfoDialog("ZItem Error", "Could not load the specified item.").show();
 	}
 	pack_fclose(f);
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -532,10 +536,10 @@ void SpriteListerDialog::edit()
 void SpriteListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
-		{ "&Copy", [&](){copy(); update();} },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_sprite_id < 0 ? MFL_DIS : 0 },
-		{ "&Save", [&](){save(); update();} },
-		{ "&Load", [&](){load(); update();} },
+		{ "&Copy", [&](){copy();} },
+		{ "Paste", "&v", [&](){paste();}, 0, copied_sprite_id < 0 ? MFL_DIS : 0 },
+		{ "&Save", [&](){save();} },
+		{ "&Load", [&](){load();} },
 	};
 	rcmenu.pop(x, y);
 }
@@ -551,6 +555,7 @@ bool SpriteListerDialog::paste()
 	if(copied_sprite_id == selected_val)
 		return false;
 	wpnsbuf[selected_val] = wpnsbuf[copied_sprite_id];
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -587,6 +592,7 @@ bool SpriteListerDialog::load()
 		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
 	}
 	pack_fclose(f);
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -712,11 +718,11 @@ void EnemyListerDialog::edit()
 void EnemyListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu{
-		{ "&Copy", [&]() {copy(); update(); } },
+		{ "&Copy", [&]() {copy(); } },
 		//{ "&Adv. Paste", [&]() {if(adv_paste()) refresh_dlg(); }, 0, copied_enemy_id < 0 ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&]() {if(paste()) refresh_dlg();}, 0, copied_enemy_id < 0 ? MFL_DIS : 0 },
-		{ "&Save", [&]() {save(); update(); } },
-		{ "&Load", [&]() {load(); update(); } },
+		{ "Paste", "&v", [&]() {paste();}, 0, copied_enemy_id < 0 ? MFL_DIS : 0 },
+		{ "&Save", [&]() {save(); } },
+		{ "&Load", [&]() {load(); } },
 	};
 	rcmenu.pop(x, y);
 }
@@ -727,11 +733,12 @@ void EnemyListerDialog::copy()
 }
 bool EnemyListerDialog::paste()
 {
-	if (copied_enemy_id < 0 || selected_val < 0)
+	if (unsigned(copied_enemy_id) >= MAXGUYS || unsigned(selected_val) >= MAXGUYS)
 		return false;
 	if (copied_enemy_id == selected_val)
 		return false;
 	guysbuf[selected_val] = guysbuf[copied_enemy_id];
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -768,6 +775,7 @@ bool EnemyListerDialog::load()
 		InfoDialog("ZNPC Error", "Could not load the specified npc.").show();
 	}
 	pack_fclose(f);
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -790,41 +798,87 @@ void MidiListerDialog::preinit()
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
-	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXCUSTOMMIDIS - 1);
+	selected_val = vbound(selected_val, (selecting ? 0 : 1), MAXCUSTOMMIDIS);
 }
 
 void MidiListerDialog::postinit()
 {
 	size_t len = 36;
-	for (int q = 0; q < MAXCUSTOMMIDIS; ++q)
+	for (uint q = 0; q < MAXCUSTOMMIDIS; ++q)
 	{
-		size_t tlen = text_length(GUI_DEF_FONT, customtunes[q].title);
+		size_t tlen = text_length(GUI_DEF_FONT, customtunes[q].song_title.c_str());
 		if (tlen > len)
 			len = tlen;
 	}
-	widgInfo->minWidth(Size::pixels(len + 8));
+	Size sz = Size::pixels(len + 8);
+	const Size max_sz = 20_em; // Midi titles can be long, want them to wrap instead of widen
+	if (sz > max_sz)
+		sz = max_sz;
+	widgInfo->minWidth(sz);
 	window->setHelp(get_info(selecting, false, false, false));
-	widgInfo->capWidth(10_em); // Midi titles can be long, want them to wrap instead of widen
+	widgInfo->capWidth(max_sz);
 }
+static size_t copied_midi_id = 0;
 void MidiListerDialog::update(bool)
 {
-	if (unsigned(selected_val) < MAXCUSTOMMIDIS)
+	if (unsigned(selected_val-1) < MAXCUSTOMMIDIS)
 	{
 		zctune const& midi = customtunes[selected_val-1]; //vals are 1-indexed, customtunes is 0-indexed
 		widgInfo->setText(fmt::format(
-			"Index: {}\nVolume: {}\nLoop: {}\nStart: {}\nLoop Start: {}\nLoop End: {}\nTitle: {}",
-			selected_val, midi.volume,midi.loop?"On":"Off", midi.start, midi.loop_start, midi.loop_end, midi.title));
+			"Index: {}\nVolume: {}\nLoop: {}\nStart: {}\nLoop Start: {}\nLoop End: {}\nTitle: {}\nCopied: {}",
+			selected_val, midi.volume,midi.loop?"On":"Off", midi.start, midi.loop_start, midi.loop_end, midi.song_title, copied_midi_id));
 	}
-	else
-	{
-		widgInfo->setText(fmt::format(
-			"\n\n\n\n\n\n\n\n\n"));
-	}
+	else widgInfo->setText("\n\n\n\n\n\n\n\n\n\n");
 }
 void MidiListerDialog::edit()
 {
 	call_midi_editor(selected_val-1);
 }
+void MidiListerDialog::rclick(int x, int y)
+{
+	size_t idx = size_t(selected_val-1);
+	bool valid = idx < MAXCUSTOMMIDIS;
+	NewMenu rcmenu {
+		{ "Clear", [&](){clear();}, 0, valid ? 0 : MFL_DIS },
+		{ "&Copy", [&](){copy();}, 0, valid ? 0 : MFL_DIS },
+		{ "Paste", "&v", [&](){paste();}, 0, valid && copied_midi_id > 0 ? 0 : MFL_DIS },
+		// { "&Save", [&](){save(); update();} },
+		// { "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+bool MidiListerDialog::clear()
+{
+	size_t idx = size_t(selected_val-1);
+	if (idx >= MAXCUSTOMMIDIS)
+		return false;
+	if (!alert_confirm(fmt::format("Clear MIDI {}", selected_val),
+		fmt::format("Clear MIDI #{}, '{}'?", selected_val, customtunes[idx].song_title)))
+		return false;
+	customtunes[idx].reset();
+	refresh_dlg();
+	mark_save_dirty();
+	return true;
+}
+void MidiListerDialog::copy()
+{
+	if (unsigned(selected_val-1) >= MAXCUSTOMMIDIS)
+		return;
+	copied_midi_id = selected_val;
+	update();
+}
+bool MidiListerDialog::paste()
+{
+	if (selected_val == copied_midi_id)
+		return false;
+	if (unsigned(selected_val-1) >= MAXCUSTOMMIDIS || unsigned(copied_midi_id-1) >= MAXCUSTOMMIDIS)
+		return false;
+	customtunes[selected_val-1] = customtunes[copied_midi_id-1];
+	refresh_dlg();
+	mark_save_dirty();
+	return true;
+}
+
 
 SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select SFX", "sfxdata", index, selecting)
@@ -1020,13 +1074,25 @@ void FFCListerDialog::rclick(int x, int y)
 {
 	mapscr* curscr = Map.CurrScr();
 	NewMenu rcmenu {
-		{ "Clear", [&](){curscr->ffcs[selected_val].clear(); update();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
-		{ "&Copy", [&](){copy(); update();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, Map.getCopyFFC() < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, Map.getCopyFFC() < 0 ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
 	rcmenu.pop(x, y);
+}
+bool FFCListerDialog::clear()
+{
+	mapscr* curscr = Map.CurrScr();
+	if (unsigned(selected_val) >= curscr->ffcs.size())
+		return false;
+	if (!alert_confirm(fmt::format("Clear FFC {}", selected_val),
+		fmt::format("Clear FFC #{}?", selected_val)))
+		return false;
+	curscr->ffcs[selected_val].clear();
+	update();
+	return true;
 }
 void FFCListerDialog::copy()
 {
@@ -1038,6 +1104,7 @@ bool FFCListerDialog::paste()
 	if (Map.getCopyFFC() < 0 || selected_val < 0)
 		return false;
 	Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), selected_val, Map.getCopyFFCData());
+	update();
 	return true;
 }
 
@@ -1097,16 +1164,29 @@ void SaveMenuListerDialog::edit()
 }
 void SaveMenuListerDialog::rclick(int x, int y)
 {
-	if (!selected_val) return; // no rclick menu on the 'Default' option
+	if (unsigned(selected_val-1) < NUM_SAVE_MENUS)
+		return; // no rclick menu on the 'Default' option
 	SaveMenu& sm = QMisc.save_menus[selected_val-1];
 	NewMenu rcmenu {
-		{ "Clear", [&](){sm.clear(); update();}, 0, sm.is_empty() ? MFL_DIS : 0 },
-		{ "&Copy", [&](){copy(); update();}, 0, sm.is_empty() ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_savemenu_id < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear();}, 0, sm.is_empty() ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, sm.is_empty() ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copied_savemenu_id < 0 ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
 	rcmenu.pop(x, y);
+}
+bool SaveMenuListerDialog::clear()
+{
+	if (unsigned(selected_val-1) < NUM_SAVE_MENUS)
+		return false;
+	SaveMenu& sm = QMisc.save_menus[selected_val-1];
+	if (!alert_confirm(fmt::format("Clear Save Menu {}", selected_val),
+		fmt::format("Clear Save Menu #{}, '{}'?", selected_val, sm.name)))
+		return false;
+	sm.clear();
+	refresh_dlg();
+	return true;
 }
 void SaveMenuListerDialog::copy()
 {
@@ -1119,6 +1199,7 @@ bool SaveMenuListerDialog::paste()
 	if (unsigned(copied_savemenu_id) >= NUM_SAVE_MENUS || unsigned(selected_val-1) >= NUM_SAVE_MENUS)
 		return false;
 	QMisc.save_menus[selected_val-1] = QMisc.save_menus[copied_savemenu_id];
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }
@@ -1149,7 +1230,17 @@ void MusicListerDialog::preinit()
 }
 static bool empty_music(AdvancedMusic const& ref)
 {
-	return ref.enhanced.is_empty() && (!ref.midi || ref.midi > 0 && !customtunes[ref.midi - 1].data);
+	if (!ref.enhanced.is_empty())
+		return false;
+	if (!ref.midi)
+		return true;
+	else if (ref.midi < BUILTIN_MIDI_MIN)
+		return true;
+	else if (ref.midi < 0)
+		return false; // builtin midis
+	else if (ref.midi > MAXCUSTOMMIDIS)
+		return true;
+	return !customtunes[ref.midi - 1].data;
 }
 void MusicListerDialog::postinit()
 {
@@ -1158,6 +1249,7 @@ void MusicListerDialog::postinit()
 	using namespace GUI::Key;
 	window->setHelp(get_info(selecting, false, false));
 	widgInfo->overrideWidth(300_px);
+	widgInfo->minHeight(10_em);
 	bool has_empty = false;
 	for (auto const& amus : quest_music)
 	{
@@ -1183,18 +1275,7 @@ void MusicListerDialog::postinit()
 			}),
 		del_btn = Button(text = "Delete",
 			fitParent = true,
-			onPressFunc = [&]()
-			{
-				string const& name = quest_music[selected_val-1].name;
-				if (!alert_confirm(fmt::format("Delete music '{}'?", name),
-					fmt::format("This will delete music #{}, '{}'."
-					"\nAnything using this entry will be cleared to using '0', the (None) entry.",
-					selected_val, name)))
-					return;
-				
-				delete_quest_music(selected_val);
-				refresh_dlg();
-			}),
+			onClick = message::CLEAR),
 		up_btn = Button(text = "Up",
 			fitParent = true,
 			onPressFunc = [&]()
@@ -1216,27 +1297,25 @@ void MusicListerDialog::postinit()
 static int16_t copied_music_id = -1;
 void MusicListerDialog::update(bool)
 {
-	static const size_t NUM_LINES = 5;
-	static const string nl_str = string(NUM_LINES-1, '\n');
 	string info;
 	if (!selected_val)
-		info = fmt::format("[None]{}", nl_str);
+		info = "[None]\n";
 	else if (unsigned(selected_val-1) < quest_music.size())
 	{
 		auto const& amus = quest_music[selected_val-1]; // vals are 1-indexed
 		if (amus.is_empty())
-			info = fmt::format("[Empty]{}", nl_str);
+			info = "[Empty]\n";
 		else
 		{
 			vector<string> lines;
-			lines.reserve(NUM_LINES);
+			lines.reserve(5);
 			lines.emplace_back(amus.name);
 			
 			if (amus.midi)
 			{
 				string midi_name = "(?ERROR?)";
-				if (unsigned(amus.midi-1) < MAXCUSTOMTUNES)
-					midi_name = customtunes[amus.midi-1].title;
+				if (unsigned(amus.midi-1) < MAXCUSTOMMIDIS)
+					midi_name = customtunes[amus.midi-1].song_title;
 				else if (amus.midi < 0)
 				{
 					int m = amus.get_real_midi();
@@ -1250,7 +1329,6 @@ void MusicListerDialog::update(bool)
 			if (amus.enhanced.is_empty())
 			{
 				lines.emplace_back("[No Enhanced Music]");
-				lines.resize(NUM_LINES);
 			}
 			else
 			{
@@ -1261,8 +1339,10 @@ void MusicListerDialog::update(bool)
 			info = fmt::format("{}", fmt::join(lines, "\n"));
 		}
 	}
-	else info = nl_str;
-	widgInfo->setText(fmt::format("{}\nCopied: {}", info, copied_music_id+1));
+	string copystr = fmt::format("Copied: {}", copied_music_id+1);
+	if (info.empty())
+		widgInfo->setText(copystr);
+	else widgInfo->setText(fmt::format("{}\n{}", info, copystr));
 	up_btn->setDisabled(unsigned(selected_val - 2) >= quest_music.size() - 1);
 	down_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size() - 1);
 	del_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size());
@@ -1277,17 +1357,44 @@ void MusicListerDialog::edit()
 }
 void MusicListerDialog::rclick(int x, int y)
 {
-	if (!selected_val) return; // no rclick menu on the 'None' option
+	if (unsigned(selected_val-1) >= quest_music.size())
+		return; // no rclick menu on the 'None' option
 	bool oob = unsigned(selected_val-1) > quest_music.size();
-	auto& amus = quest_music[selected_val-1];
 	NewMenu rcmenu {
-		{ "Clear", [&](){quest_music[selected_val-1].clear(); refresh_dlg();}, 0,
-			(oob || quest_music[selected_val-1].is_empty()) ? MFL_DIS : 0 },
-		{ "&Copy", [&](){copy(); update();}, 0, oob ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&](){if(paste()) refresh_dlg();}, 0, copied_music_id < 0 ? MFL_DIS : 0 },		// { "&Save", [&](){save(); update();} },
+		{ "Clear", [&](){clear_nondelete();}, 0, (oob || quest_music[selected_val-1].is_empty()) ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copied_music_id < 0 ? MFL_DIS : 0 },
+		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
+		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
 	rcmenu.pop(x, y);
+}
+bool MusicListerDialog::clear_nondelete()
+{
+	if (unsigned(selected_val-1) >= quest_music.size())
+		return false;
+	auto& amus = quest_music[selected_val-1];
+	if (!alert_confirm(fmt::format("Clear Music {}", selected_val),
+		fmt::format("Clear Music #{}, '{}'?\nThis will reset it to default.", selected_val, amus.name)))
+		return false;
+	amus.clear();
+	refresh_dlg();
+	return true;
+}
+bool MusicListerDialog::clear()
+{
+	if (unsigned(selected_val-1) >= quest_music.size())
+		return false;
+	auto& amus = quest_music[selected_val-1];
+	if (!alert_confirm(fmt::format("Delete music '{}'?", amus.name),
+		fmt::format("This will delete music #{}, '{}'."
+		"\nAnything using this entry will be cleared to using '0', the (None) entry.",
+		selected_val, amus.name)))
+		return false;
+	delete_quest_music(selected_val);
+	refresh_dlg();
+	return true;
 }
 void MusicListerDialog::copy()
 {
@@ -1304,6 +1411,7 @@ bool MusicListerDialog::paste()
 		quest_music.emplace_back(quest_music[copied_music_id]);
 	else quest_music[selected_val-1] = quest_music[copied_music_id];
 	quest_music[selected_val-1].id = selected_val;
+	refresh_dlg();
 	mark_save_dirty();
 	return true;
 }

@@ -26,7 +26,6 @@ private:
 	MidiEditorDialog(int32_t index);
 	zctune local_midiref;
 	int32_t index;
-	string midi_name;
 	string timestring;
 	
 	std::shared_ptr<GUI::Window> window;

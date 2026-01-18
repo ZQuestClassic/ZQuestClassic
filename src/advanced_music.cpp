@@ -196,7 +196,11 @@ void AdvancedMusic::play() const
 		jukebox(m);
 #else
 		if (m >= ZC_MIDI_COUNT)
-			zc_play_midi((MIDI*)customtunes[m - ZC_MIDI_COUNT].data, true);
+		{
+			m -= ZC_MIDI_COUNT;
+			if (unsigned(m) < MAXCUSTOMMIDIS)
+				zc_play_midi((MIDI*)customtunes[m].data, true);
+		}
 #endif
 	}
 	engine_music_active = false;

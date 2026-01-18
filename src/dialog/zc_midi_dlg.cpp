@@ -35,22 +35,25 @@ ZCMidiDlg::ZCMidiDlg()
 {
 	list_midis.clear();
 	bool found_tune = false;
-	for(int q = 0; q < MAXMIDIS; ++q)
-		if(tunes[q].data)
+	for(uint q = 0; q < MAXCUSTOMMIDIS; ++q)
+	{
+		uint idx = q + ZC_MIDI_COUNT;
+		if(tunes[idx].data)
 		{
 			if (!found_tune)
 			{
-				tune = q;
+				tune = idx;
 				found_tune = true;
 			}
-			list_midis.add(fmt::format("{} ({:03})", tunes[q].title, q), q);
+			list_midis.add(fmt::format("{} ({:03})", tunes[idx].song_title, q+1), idx);
 		}
+	}
 }
 
 void ZCMidiDlg::refresh_status()
 {
 	static char zmi_text_buffer[4096] = {0};
-	if (tune < 0 || tune >= MAXMIDIS)
+	if (unsigned(tune >= MAXMIDIS))
 	{
 		description->setText("");
 		save_btn->setDisabled(true);
@@ -79,7 +82,7 @@ std::shared_ptr<GUI::Widget> ZCMidiDlg::view()
 		Column(
 			Column(
 				DropDownList(data = list_midis,
-					fitParent = true,
+					fitParent = true, maxwidth = 30_em,
 					selectedValue = tune,
 					onSelectFunc = [&](int32_t val)
 					{
@@ -129,7 +132,7 @@ bool ZCMidiDlg::handleMessage(const GUI::DialogMessage<message>& msg)
 				{ (char *)"MIDI files (*.mid)", (char *)"mid" },
 				{ NULL,								  NULL }
 			};
-			if (auto fname = prompt_for_new_file(fmt::format("Save MIDI: {}", tunes[tune].title),
+			if (auto fname = prompt_for_new_file(fmt::format("Save MIDI: {}", tunes[tune].song_title),
 				"", list, "tune.mid"))
 			{
 				if(exists(fname->c_str()))

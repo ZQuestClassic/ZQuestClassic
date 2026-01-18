@@ -8,6 +8,7 @@
 #include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
+#include "base/qst.h"
 #include "base/md5.h"
 #include <fstream>
 
@@ -1573,3 +1574,103 @@ void guydata::clear()
 	*this = guydata();
 }
 
+MIDI* copy_midi(MIDI* src)
+{
+	if (!src) return nullptr;
+	MIDI* dest = (MIDI*)_AL_MALLOC(sizeof(MIDI));
+	if (!dest) return nullptr;
+	for (uint q = 0; q < MIDI_TRACKS; ++q)
+	{
+		dest->track[q].len = src->track[q].len;
+		dest->track[q].data = nullptr;
+	}
+	dest->divisions = src->divisions;
+	for (uint q = 0; q < MIDI_TRACKS; ++q)
+	{
+		size_t sz = zc_max(0, dest->track[q].len);
+		byte* data = (byte*)_AL_MALLOC(sz);
+		if (!data)
+		{
+			destroy_midi(dest);
+			return nullptr;
+		}
+		memcpy(data, src->track[q].data, sz);
+		dest->track[q].data = data;
+	}
+	LOCK_DATA(dest, sizeof(MIDI));
+	for (uint q = 0; q < MIDI_TRACKS; ++q)
+		if (dest->track[q].data)
+			LOCK_DATA(dest->track[q].data, dest->track[q].len);
+	return dest;
+}
+
+zctune::~zctune()
+{
+	if (data)
+		destroy_midi(data);
+}
+
+zctune::zctune(string const& song_title, int start, int loop_start,
+	int loop_end, int16_t loop, int16_t volume, byte flags, MIDI* data) :
+	song_title(song_title), start(start), loop_start(loop_start),
+	loop_end(loop_end), loop(loop), volume(volume), flags(flags), data(data)
+{}
+
+zctune::zctune(zctune const& other)
+{
+	*this = other;
+}
+
+zctune::zctune(zctune&& other)
+{
+	*this = other;
+}
+
+zctune& zctune::operator=(zctune const& other)
+{
+	start = other.start;
+	loop_start = other.loop_start;
+	loop_end = other.loop_end;
+	loop = other.loop;
+	flags = other.flags;
+	volume = other.volume;
+	song_title = other.song_title;
+	
+	// create a full copy
+	data = copy_midi(other.data);
+	
+	return *this;
+}
+zctune& zctune::operator=(zctune&& other)
+{
+	start = other.start;
+	loop_start = other.loop_start;
+	loop_end = other.loop_end;
+	loop = other.loop;
+	flags = other.flags;
+	volume = other.volume;
+	song_title = other.song_title;
+	
+	// move ownership
+	data = other.data;
+	other.data = nullptr;
+	
+	return *this;
+}
+
+void zctune::clear()
+{
+	song_title.clear();
+	start = loop_start = loop_end = 0;
+	loop = volume = flags = 0;
+	if (data)
+		destroy_midi(data);
+	data = nullptr;
+}
+
+void zctune::reset()
+{
+	if (data)
+		destroy_midi(data);
+	*this = zctune();
+}

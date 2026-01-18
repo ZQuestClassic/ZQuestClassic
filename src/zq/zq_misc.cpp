@@ -657,14 +657,6 @@ const char *short_pattern_string[MAXPATTERNS] =
     "Spawn (C)", "Sides", "Sides (R)", "Ceiling (C)", "Ceiling (R)", "Spawn (R)", "No Spawning"
 };
 
-const char *midi_string[MAXCUSTOMMIDIS_ZQ] =
-{
-    "(None)",
-    "Overworld",
-    "Dungeon",
-    "Level 9",
-};
-
 void domouse();
 
 int32_t PickRuleset();

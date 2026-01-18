@@ -33072,8 +33072,9 @@ void HeroClass::ganon_intro()
     action=none; FFCore.setHeroAction(none);
     dir=up;
 
-    if((!getmapflag(screen, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
-        jukebox(MAXMIDIS-1);
+	// TODO: un-hardcode this music?
+    if((!getmapflag(screen, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && (tunes[258].data))
+        jukebox(258);
     else
         playLevelMusic();
         

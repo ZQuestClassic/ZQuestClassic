@@ -334,8 +334,6 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
     *version=0;
     *build=0;
     byte temp_map_count=map_count;
-    byte temp_midi_flags[MIDIFLAGS_SIZE];
-    memcpy(temp_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     
     zquestheader tempheader{};
     
@@ -352,7 +350,6 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
     }
     
     map_count=temp_map_count;
-    memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
     *version=tempheader.zelda_version;
     *build=tempheader.build;
     return 0;
@@ -1481,7 +1478,6 @@ static const byte* legacy_skip_flags;
   *  Reads MIDI data from a datafile (this is not the same thing as the
   *  standard midi file format).
   */
-
 static MIDI *read_midi(PACKFILE *f)
 {
     MIDI *m;
@@ -1491,10 +1487,7 @@ static MIDI *read_midi(PACKFILE *f)
     
     m = (MIDI*)_AL_MALLOC(sizeof(MIDI));
     
-    if(!m)
-    {
-        return NULL;
-    }
+    if(!m) return NULL;
     
     for(c=0; c<MIDI_TRACKS; c++)
     {
@@ -1555,14 +1548,6 @@ void pack_combos()
         
     for(; di<1024; di++)
         clear_combo(di);
-}
-
-void reset_tunes(zctune *tune)
-{
-    for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-    {
-        tune[i].reset();
-    }
 }
 
 int32_t doortranslations_u[9][4]=
@@ -1934,7 +1919,7 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 		zprint2("Author: %s\n", tempheader.author);
 	zprint2("\n");
 }
-
+static bitstring midi_bitstr;
 int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 {
 	int32_t dummy;
@@ -1942,12 +1927,11 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	tempheader.filename = Header->filename;
 	char dummybuf[80];
 	byte temp_map_count;
-	byte temp_midi_flags[MIDIFLAGS_SIZE];
+	byte temp_midi_flags[32] = {0};
 	word version;
 	char temp_pwd[30], temp_pwd2[30];
 	int16_t temp_pwdkey;
 	cvs_MD5Context ctx;
-	memset(temp_midi_flags, 0, MIDIFLAGS_SIZE);
 	memset(FFCore.quest_format, 0, sizeof(FFCore.quest_format));
 	
 
@@ -2714,7 +2698,8 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	
 	*Header = tempheader;
 	map_count=temp_map_count;
-	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
+	vector<byte> vb{ temp_midi_flags, temp_midi_flags + 32 };
+	midi_bitstr.inner() = vb;
 
 	unpack_qrs();
 
@@ -19746,186 +19731,149 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 int32_t readmidis(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_midis);
-
-	static byte fake_midi_flags[32];
-
-    byte *mf=should_skip ? fake_midi_flags : midi_flags;
-    int32_t dummy;
-    word dummy2;
-    // zcmidi_ temp_midi;
-    int32_t tunes_to_read;
-    int32_t tune_count=0;
-    word section_version=0;
-    zctune temp;
-    
-    if(Header->zelda_version < 0x193)
-    {
-        //    mf=Header->data_flags+ZQ_MIDIS2;
-        if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<178)))
-        {
-            tunes_to_read=MAXCUSTOMMIDIS192b177;
-        }
-        else
-        {
-            tunes_to_read=MAXCUSTOMTUNES;
-        }
-    }
-    else
-    {
-        //section version info
-        if(!p_igetw(&section_version,f))
-        {
-            return qe_invalid;
-        }
+	
+	byte temp_midi_flags[32];
+	
+	int32_t dummy;
+	word dummy2;
+	// zcmidi_ temp_midi;
+	word tunes_to_read;
+	word section_version=0;
+	zctune temp;
+	char old_title[37] = {0};
+	
+	if(Header->zelda_version < 0x193)
+	{
+		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<178)))
+		{
+			tunes_to_read=MAXCUSTOMMIDIS192b177;
+		}
+		else
+		{
+			tunes_to_read=MAXCUSTOMMIDIS;
+		}
+	}
+	else
+	{
+		//section version info
+		if(!p_igetw(&section_version,f))
+		{
+			return qe_invalid;
+		}
 
 		if (section_version > V_MIDIS)
 			return qe_version;
 	
 		if (!should_skip)
 			FFCore.quest_format[vMIDIs] = section_version;
-        
-        if(!p_igetw(&dummy2,f))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f))
-        {
-            return qe_invalid;
-        }
-        
-        //finally...  section data
-        if(!pfread(midi_flags,sizeof(midi_flags),f))
-        {
-            return qe_invalid;
-        }
-        
-        tunes_to_read=MAXCUSTOMTUNES;
-    }
-    
-    for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
-    {
-        if(get_bit(mf, i))
-        {
-            ++tune_count;
-        }
-    }
-    
+		
+		if(!p_igetw(&dummy2,f))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f))
+		{
+			return qe_invalid;
+		}
+		
+		//finally...  section data
+		
+		if (section_version < 5)
+		{
+			if(!pfread(temp_midi_flags,32,f))
+				return qe_invalid;
+			vector<byte> vb{ temp_midi_flags, temp_midi_flags + 32 };
+			midi_bitstr.inner() = vb;
+			tunes_to_read = 252;
+		}
+		else
+		{
+			if (!p_getbitstr(&midi_bitstr, f))
+				return qe_invalid;
+			if (!p_igetw(&tunes_to_read, f))
+				return qe_invalid;
+			if (tunes_to_read > MAXCUSTOMMIDIS)
+				return qe_invalid;
+		}
+	}
+	
 	if (!should_skip)
-		reset_tunes(tunes); //reset_midis(midis);
-    
-    for(int32_t i=0; i<tunes_to_read; i++)
-    {
-        temp.clear(); //memset(&temp_midi,0,sizeof(zcmidi_));
+		for(uint q = 0; q < MAXCUSTOMMIDIS; ++q)
+			tunes[q].reset();
+	
+	for(uint i = 0; i < tunes_to_read; ++i)
+	{
+		auto& temp_tune = should_skip ? temp : tunes[i];
+		if (should_skip) temp.reset();
         
-		if (!should_skip)
-			tunes[i].reset(); // reset_midi(midis+i);
-        
-        if(get_bit(mf,i))
-        {
-            if(section_version < 4)
-            {
-                if(!p_getstr(temp.title,20,f))
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-                if(!p_getstr(temp.title,sizeof(temp.title)-1,f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(!p_igetl(&temp.start,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetl(&temp.loop_start,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetl(&temp.loop_end,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp.loop,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&temp.volume,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(Header->zelda_version < 0x193)
-            {
-                if(!p_igetl(&dummy,f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(section_version >= 3)
-            {
-                if(!pfread(&temp.flags,sizeof(temp.flags),f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-			if (!should_skip)
-				tunes[i].copyfrom(temp); // memcpy(&midis[i], &temp_midi, sizeof(zcmidi_));
-            
-            if(section_version < 2) //= 1 || (Header->zelda_version < 0x211) || (Header->zelda_version == 0x211 && Header->build < 18))
-            {
-				if (should_skip)
-				{
-					if (read_midi(f)==NULL)
-					{
-						return qe_invalid;
-					}
-
-					continue;
-				}
-
-                // old format - a midi is a midi
-                if((tunes[i].data=read_midi(f))==NULL)
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-				byte format;
-                if(!pfread(&format,sizeof(format),f))
-                {
-                    return qe_invalid;
-                }
-
-				// MIDI is the only format saved here.
-				// Never did more than MIDI for a zctune, and no plans to now.
-				if (format != MFORMAT_MIDI)
-				{
-					return qe_invalid;
-				}
-
-				tunes[i].data = read_midi(f);
-                if (!tunes[i].data)
-				{
-					return qe_invalid;
-				}
-            }
-        }
-    }
-    
-    return 0;
+        if (!midi_bitstr.get(i)) continue;
+		
+		if (section_version > 4)
+		{
+			if (!p_getwstr(&temp_tune.song_title, f))
+				return qe_invalid;
+		}
+		else if (section_version == 4)
+		{
+			if (!p_getstr(old_title,36,f))
+				return qe_invalid;
+			temp_tune.song_title = old_title;
+		}
+		else if (section_version < 4)
+		{
+			if (!p_getstr(old_title,20,f))
+				return qe_invalid;
+			temp_tune.song_title = old_title;
+		}
+		
+		if (!p_igetl(&temp_tune.start,f))
+			return qe_invalid;
+		
+		if (!p_igetl(&temp_tune.loop_start,f))
+			return qe_invalid;
+		
+		if (!p_igetl(&temp_tune.loop_end,f))
+			return qe_invalid;
+		
+		if (!p_igetw(&temp_tune.loop,f))
+			return qe_invalid;
+		
+		if (!p_igetw(&temp_tune.volume,f))
+			return qe_invalid;
+		
+		if (Header->zelda_version < 0x193)
+			if(!p_igetl(&dummy,f))
+				return qe_invalid;
+		
+		if (section_version >= 3)
+			if(!pfread(&temp_tune.flags,sizeof(temp_tune.flags),f))
+				return qe_invalid;
+		
+		if (section_version < 2)
+		{
+			if((temp_tune.data=read_midi(f))==NULL)
+				return qe_invalid;
+		}
+		else
+		{
+			byte format;
+			if(!pfread(&format,sizeof(format),f))
+				return qe_invalid;
+			
+			// MIDI is the only format saved here.
+			// Never did more than MIDI for a zctune, and no plans to now.
+			if (format != MFORMAT_MIDI)
+				return qe_invalid;
+			
+			temp_tune.data = read_midi(f);
+			if (!temp_tune.data)
+				return qe_invalid;
+		}
+	}
+	temp.reset();
+	return 0;
 }
 
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
@@ -22239,7 +22187,6 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 static int32_t prev_quest_format[versiontypesLAST];
 static byte prev_quest_rules[QUESTRULES_NEW_SIZE];
 static byte prev_extra_rules[EXTRARULES_SIZE];
-static byte prev_midi_flags[MIDIFLAGS_SIZE];
 static word prev_map_count;
 
 // When skipping any section, we are loading a qst file just to poke at a couple things.
@@ -22251,7 +22198,6 @@ static void store_prev_qstload_global_state()
 {
 	memcpy(prev_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(prev_extra_rules, extra_rules, EXTRARULES_SIZE);
-	memcpy(prev_midi_flags, midi_flags, MIDIFLAGS_SIZE);
 	memcpy(prev_quest_format, FFCore.quest_format, versiontypesLAST);
 	prev_map_count = map_count;
 }
@@ -22261,7 +22207,6 @@ static void restore_prev_qstload_global_state()
 	memcpy(quest_rules, prev_quest_rules, QUESTRULES_NEW_SIZE);
 	memcpy(extra_rules, prev_extra_rules, EXTRARULES_SIZE);
 	unpack_qrs();
-	memcpy(midi_flags, prev_midi_flags, MIDIFLAGS_SIZE);
 	memcpy(FFCore.quest_format, prev_quest_format, versiontypesLAST);
 	map_count = prev_map_count;
 }

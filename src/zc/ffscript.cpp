@@ -23359,7 +23359,7 @@ void FFScript::do_adjustvolume(const bool v)
 				return;
 			}
 		}
-		else if (currmidi > -1)
+		else if (unsigned(currmidi) < MAXMIDIS)
 		{
 			jukebox(currmidi);
 			master_volume(digi_volume, midi_volume);

@@ -738,11 +738,9 @@ size_t cpoolbrush_index = 0;
 
 // quest data
 zquestheader header;
-byte                midi_flags[MIDIFLAGS_SIZE];
-byte                music_flags[MUSICFLAGS_SIZE];
+zctune customtunes[MAXCUSTOMMIDIS];
 byte                *quest_file;
 int32_t					msg_strings_size;
-zctune              *customtunes;
 //emusic            *enhancedMusic;
 ZCHEATS             zcheats;
 byte                use_cheats;
@@ -12847,19 +12845,6 @@ const char *gotomaplist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-const char *midilist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    
-    {
-        bound(index,0,MAXCUSTOMMIDIS_ZQ-1);
-        return midi_string[index];
-    }
-    
-    *list_size=MAXCUSTOMMIDIS_ZQ;
-    return NULL;
-}
-
 const char *levelnumlist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
@@ -20073,20 +20058,6 @@ static void allocate_crap()
 		Z_error_fatal("Error: no memory for file paths!");
 	}
 	
-
-	customtunes = (zctune*)malloc(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ);
-	memset(customtunes, 0, sizeof(zctune)*MAXCUSTOMMIDIS_ZQ);
-
-	for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
-	{
-		customtunes[i].data=NULL;
-	}
-
-	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-	{
-		midi_string[i+4]=customtunes[i].title;
-	}
-	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{
 		if(sfx_string[i]!=NULL) delete sfx_string[i];
@@ -21705,13 +21676,8 @@ void quit_game()
     
     al_trace("Cleaning midis. \n");
     
-    if(customtunes)
-    {
-        for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
-            customtunes[i].reset();
-            
-        free(customtunes);
-    }
+	for(uint q = 0; q < MAXCUSTOMMIDIS; ++q)
+		customtunes[q].reset();
     
     al_trace("Cleaning undotilebuf. \n");
     
@@ -21842,13 +21808,8 @@ void quit_game2()
     
     al_trace("Cleaning midis. \n");
     
-    if(customtunes)
-    {
-        for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
-            customtunes[i].reset();
-            
-        free(customtunes);
-    }
+	for(uint q = 0; q < MAXCUSTOMMIDIS; ++q)
+		customtunes[q].reset();
     
     al_trace("Cleaning undotilebuf. \n");
     
