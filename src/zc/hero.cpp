@@ -8372,6 +8372,7 @@ heroanimate_skip_liftwpn:;
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
+			bool snap_landing_down = false;
 			if(ydiff && !get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
 			{
 				if(ydiff > 0)
@@ -8380,7 +8381,8 @@ heroanimate_skip_liftwpn:;
 					{
 						if(on_sideview_solid_oldpos(this, false, 0, 0, q))
 						{
-							ydiff = q;
+							ydiff = q-1;
+							snap_landing_down = true;
 							break;
 						}
 					}
@@ -8415,6 +8417,8 @@ heroanimate_skip_liftwpn:;
 			{
 				Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=ydiff;
 			}
+			if(snap_landing_down)
+				snap_platform();
 		}
 		else if(IsSideSwim() && action != sidewaterhold1 && action != sidewaterhold2 && action != sideswimcasting && action != sideswimfreeze)
 		{
