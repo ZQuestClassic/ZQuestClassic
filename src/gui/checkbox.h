@@ -16,6 +16,10 @@ public:
 
 	/* Sets the text to appear next to the checkbox. */
 	void setText(std::string newText);
+	std::string const& getText() const
+	{
+		return text;
+	}
 
 	/* Sets whether the checkbox is checked or not. */
 	void setChecked(bool value);

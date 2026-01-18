@@ -88,11 +88,6 @@ private:
 	
 	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
-	std::shared_ptr<GUI::Widget> CMB_INITD(int index);
-	std::shared_ptr<GUI::Widget> CMB_FLAG(int index);
-	std::shared_ptr<GUI::Widget> CMB_ATTRIBYTE(int index);
-	std::shared_ptr<GUI::Widget> CMB_ATTRISHORT(int index);
-	std::shared_ptr<GUI::Widget> CMB_ATTRIBUTE(int index);
 	friend bool call_combo_editor(int32_t index);
 	friend bool call_trigger_editor(ComboEditorDialog& dlg, size_t index);
 	friend class ComboWizardDialog;

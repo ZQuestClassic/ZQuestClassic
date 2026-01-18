@@ -343,6 +343,10 @@ public:
 	{
 		return y;
 	}
+	FONT* getFont() const
+	{
+		return widgFont;
+	}
 
 	/* Sets the widget's width if it hasn't been overridden. */
 	void setPreferredWidth(Size newWidth) noexcept;
