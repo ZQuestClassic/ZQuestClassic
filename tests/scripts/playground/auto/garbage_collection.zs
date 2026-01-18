@@ -915,6 +915,11 @@ generic script garbage_collection
 			check("RefCount(storedVarargs)", RefCount(storedVarargs), 1L);
 		}
 
+		printf("=== Test %d - recursePrint === \n", ++tests);
+		{
+			recursePrint(1001);
+		}
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
@@ -1087,6 +1092,14 @@ generic script garbage_collection
 	int[] makeArray()
 	{
 		return {1, 2, 3};
+	}
+
+	void recursePrint(int x)
+	{
+		char32[] s = "";
+		sprintf(s, "recursePrint: %d\n", x);
+		if (x > 0)
+			recursePrint(x - 1);
 	}
 }
 

@@ -11,8 +11,8 @@
 #  define likely(expr) (__builtin_expect(!!(expr), 1))
 #  define unlikely(expr) (__builtin_expect(!!(expr), 0))
 #else
-#  define likely(expr) (1 == !!(expr))
-#  define unlikely(expr) (0 == !!(expr))
+#  define likely(expr) (!!(expr))
+#  define unlikely(expr) (!!(expr))
 #endif
 
 #ifndef CHECK
