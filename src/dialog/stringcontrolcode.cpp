@@ -201,6 +201,15 @@ DropDownList(data = lister, \
 		v = val; \
 	} \
 )
+#define DDL_MW(v,lister,maxw) \
+DropDownList(data = lister, \
+	fitParent = true, maxwidth = maxw, \
+	selectedValue = v, \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		v = val; \
+	} \
+)
 
 #define TXT(txt) \
 Label(text = txt, hAlign = 1.0)
@@ -882,7 +891,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("MIDI:"),
-					DDL(cur_args[0], list_midi),
+					DDL_MW(cur_args[0], list_midi, 30_em),
 					INFOBTN("MIDI to play")
 				)
 			);

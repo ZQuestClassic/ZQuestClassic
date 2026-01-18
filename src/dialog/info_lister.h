@@ -20,7 +20,7 @@ extern int lister_sel_val;
 class BasicListerDialog: public GUI::Dialog<BasicListerDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, ADV_PASTE, SAVE, LOAD, CONFIRM };
+	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, ADV_PASTE, SAVE, LOAD, CONFIRM, CLEAR };
 	
 	BasicListerDialog(std::string title, std::string cfg_key, int start_val = 0, bool selecting = false) :
 		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_inds(0),
@@ -40,6 +40,7 @@ protected:
 	virtual void update(bool startup = false){};
 	virtual void edit(){};
 	virtual void rclick(int x, int y){};
+	virtual bool clear(){return false;};
 	virtual void copy(){};
 	virtual bool paste(){return false;};
 	virtual bool adv_paste(){return false;};
@@ -157,6 +158,10 @@ protected:
 	void postinit() override;
 	void update(bool startup = false) override;
 	void edit() override;
+	void rclick(int x, int y) override;
+	bool clear() override;
+	void copy() override;
+	bool paste() override;
 };
 
 class DMapListerDialog : public BasicListerDialog
@@ -184,6 +189,7 @@ protected:
 	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
+	bool clear() override;
 	void copy() override;
 	bool paste() override;
 private:
@@ -202,6 +208,7 @@ protected:
 	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
+	bool clear() override;
 	void copy() override;
 	bool paste() override;
 };
@@ -217,6 +224,8 @@ protected:
 	void update(bool startup = false) override;
 	void edit() override;
 	void rclick(int x, int y) override;
+	bool clear_nondelete();
+	bool clear() override;
 	void copy() override;
 	bool paste() override;
 

@@ -430,8 +430,6 @@ extern volatile int32_t framecnt;
 
 // quest file data
 extern zquestheader QHeader;
-extern byte                midi_flags[MIDIFLAGS_SIZE];
-extern byte                music_flags[MUSICFLAGS_SIZE];
 extern int32_t				   msg_strings_size;
 extern byte                *quest_file;
 

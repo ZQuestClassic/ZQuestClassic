@@ -161,7 +161,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        46
 #define V_GUYS            54
-#define V_MIDIS            4
+#define V_MIDIS            5
 #define V_CHEATS           1
 #define V_SAVEGAME        47
 #define V_COMBOALIASES     5
@@ -1853,7 +1853,6 @@ struct zquestheader
     byte  old_rules8[2];
     byte  old_rules9[2];
     byte  old_rules10[2];
-    byte  old_midi_flags[MIDIFLAGS_SIZE];
     byte  old_foo2[18];
     // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
@@ -1915,63 +1914,28 @@ private:
 //tune flags
 #define tfDISABLESAVE    1
 
+MIDI* copy_midi(MIDI* src);
 struct zctune
 {
-    MIDI *data;
-    int32_t start;
-    int32_t loop_start = -1;
-    int32_t loop_end = -1;
-    int16_t loop = 1;
-    int16_t volume = 144;
-    byte flags;
-    char title[37];
+	string song_title;
+	int32_t start = 0;
+	int32_t loop_start = -1;
+	int32_t loop_end = -1;
+	int16_t loop = 1;
+	int16_t volume = 144;
+	byte flags = 0;
+	MIDI *data = nullptr;
 
-    zctune()
-    {
-        data = NULL;
-        reset();
-    }
-    
-    zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume)
-        : data(nullptr), start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), flags(0)
-    {
-        strncpy(title, _title, 36);
-    }
-    
-    void clear()
-    {
-        memset(title,0,36);
-        start = loop_start = loop_end = 0;
-        loop = volume = flags = 0;
-        data = NULL;
-    }
-    
-    void copyfrom(zctune z)
-    {
-        start = z.start;
-        loop_start = z.loop_start;
-        loop_end = z.loop_end;
-        loop = z.loop;
-        flags = z.flags;
-        volume = z.volume;
-        strncpy(title, z.title, 36);
-        data = z.data;
-		z.data = nullptr;
-    }
-    
-    void reset()
-    {
-        title[0]=0;
-        loop=1;
-        volume=144;
-        start=0;
-        loop_start=-1;
-        loop_end=-1;
-        flags=0;
-        if (data)
-            destroy_midi(data);
-        data = NULL;
-    }
+	zctune() = default;
+	zctune(string const& song_title, int start, int loop_start, int loop_end, int16_t loop, int16_t volume, byte flags = 0, MIDI* data = nullptr);
+	~zctune();
+	zctune(zctune const& other);
+	zctune& operator=(zctune const& other);
+	zctune(zctune&& other);
+	zctune& operator=(zctune&& other);
+	
+	void clear();
+	void reset();
 };
 
 #define itype_max_zc250 255 //Last in the 2.50.x lists. 

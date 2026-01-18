@@ -104,14 +104,16 @@ void EditMusicDialog::silenceMusicPreview()
 void EditMusicDialog::midiPreview()
 {
 	silenceMusicPreview();
-	if (local_music.midi > 0)
+	if (local_music.midi < 0)
+		displayinfo("Can't Preview", "This internal MIDI cannot be previewed in the editor at this time.");
+	else if (!local_music.midi)
+		;
+	else if (local_music.midi <= MAXCUSTOMMIDIS)
 	{
 		zc_play_midi((MIDI*)customtunes[local_music.midi - 1].data, true);
 		is_playing = true;
 		update_pause_btn();
 	}
-	else if (local_music.midi < 0)
-		displayinfo("Can't Preview", "This internal MIDI cannot be previewed in the editor at this time.");
 }
 void EditMusicDialog::musicPreview(bool previewloop)
 {
@@ -178,7 +180,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 				Rows<3>(
 					Label(text = "MIDI:"),
 					DropDownList(data = list_midis,
-						fitParent = true,
+						fitParent = true, maxwidth = 30_em,
 						selectedValue = local_music.midi,
 						onSelectFunc = [&](int32_t val)
 						{

@@ -142,12 +142,6 @@ double wrap_float(double x,double low,double high);
 #define MAXFFCS                    128
 #define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
 #define MAXSCREENS                 128
-#define MAXCUSTOMMIDIS192b177      32   // uses bit string for midi flags, so 32 bytes
-#define MAXCUSTOMMIDIS             252  // uses bit string for midi flags, so 32 bytes
-#define MAXCUSTOMMIDIS_ZQ          (4+MAXCUSTOMMIDIS)
-#define MIDIFLAGS_SIZE             ((MAXCUSTOMMIDIS+7)>>3)
-#define MAXCUSTOMTUNES             252
-
 
 #define ZC_MIDI_DUNGEON                  0
 #define ZC_MIDI_ENDING                   1
@@ -158,7 +152,10 @@ double wrap_float(double x,double low,double high);
 #define ZC_MIDI_TRIFORCE                 6
 #define ZC_MIDI_COUNT                    7
 
-#define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
+#define MAXCUSTOMMIDIS192b177  32
+#define MAXCUSTOMMIDIS         512
+#define MAXMIDIS               (ZC_MIDI_COUNT+MAXCUSTOMMIDIS)
+#define MIDI_NAME_LENGTH       300
 //Midi offsets
 //The offset from dmap/mapscr-> midi/screen_midi to currmidi
 #define MIDIOFFSET_DMAP            (ZC_MIDI_COUNT-4)
@@ -167,9 +164,7 @@ double wrap_float(double x,double low,double high);
 #define MIDIOFFSET_ZSCRIPT         (ZC_MIDI_COUNT-1)
 //Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
 
-
-#define MAXMUSIC                   256 // uses bit string for music flags, so 32 bytes
-#define MUSICFLAGS_SIZE            (MAXMUSIC>>3)
+#define MAXMUSIC                   256
 
 #define MAXMAPS                    255 // 4 times the old number
 #define MAPSCRSNORMAL              128

@@ -10787,7 +10787,7 @@ section_id			LONG
 section_version		WORD
 section_cversion	WORD
 section_size		LONG
-midi_flags			32 Byte ? BITFIELD[252]
+midi_flags			bitstring
 
 [
 title		36
@@ -10803,106 +10803,99 @@ midi		 *
 
 int32_t writemidis(PACKFILE *f)
 {
-    dword section_id=ID_MIDIS;
-    dword section_version=V_MIDIS;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!write_deprecated_section_cversion(section_version,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        //finally...  section data
-        if(!pfwrite(midi_flags,sizeof(midi_flags),f))
-        {
-            new_return(5);
-        }
-        
-        for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
-        {
-            if(get_bit(midi_flags,i))
-            {
-                if(!pfwrite(&customtunes[i].title,sizeof(customtunes[0].title)-1,f))
-                {
-                    new_return(6);
-                }
-                
-                if(!p_iputl(customtunes[i].start,f))
-                {
-                    new_return(7);
-                }
-                
-                if(!p_iputl(customtunes[i].loop_start,f))
-                {
-                    new_return(8);
-                }
-                
-                if(!p_iputl(customtunes[i].loop_end,f))
-                {
-                    new_return(9);
-                }
-                
-                if(!p_iputw(customtunes[i].loop,f))
-                {
-                    new_return(10);
-                }
-                
-                if(!p_iputw(customtunes[i].volume,f))
-                {
-                    new_return(11);
-                }
-                
-                if(!pfwrite(&customtunes[i].flags, sizeof(customtunes[i].flags),f))
-                {
-                    new_return(12);
-                }
+	dword section_id=ID_MIDIS;
+	dword section_version=V_MIDIS;
+	dword section_size = 0;
+	bitstring midi_bitstr;
+	word tune_count = 0;
+	for(uint q = 0; q < MAXCUSTOMMIDIS; q++)
+	{
+		if (customtunes[q].data)
+		{
+			tune_count = q+1; // iterating up to this count will include the highest valid tune
+			midi_bitstr.set(q, true);
+		}
+	}
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!write_deprecated_section_cversion(section_version,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		//finally...  section data
+		if (!p_putbitstr(midi_bitstr, f))
+			new_return(5);
+		if (!p_iputw(tune_count, f))
+			new_return(5);
+		
+		for(uint i = 0; i < tune_count; ++i)
+		{
+			if(customtunes[i].data)
+			{
+				if (!p_putwstr(customtunes[i].song_title,f))
+					new_return(6);
+				
+				if(!p_iputl(customtunes[i].start,f))
+					new_return(7);
+				
+				if(!p_iputl(customtunes[i].loop_start,f))
+					new_return(8);
+				
+				if(!p_iputl(customtunes[i].loop_end,f))
+					new_return(9);
+				
+				if(!p_iputw(customtunes[i].loop,f))
+					new_return(10);
+				
+				if(!p_iputw(customtunes[i].volume,f))
+					new_return(11);
+				
+				if(!pfwrite(&customtunes[i].flags, sizeof(customtunes[i].flags),f))
+					new_return(12);
 
 				byte format = MFORMAT_MIDI;
-                if(!pfwrite(&format, sizeof(format),f))
-                {
-                    new_return(13);
-                }
+				if(!pfwrite(&format, sizeof(format),f))
+					new_return(13);
 
-				if (!write_midi(customtunes[i].data, f)) new_return(14);
-            }
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        displayinfo("Error: writemidis()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
-    }
-    
-    new_return(0);
+				if (!write_midi(customtunes[i].data, f))
+					new_return(14);
+			}
+		}
+		
+		if(writecycle==0)
+			section_size=writesize;
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		displayinfo("Error: writemidis()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+	}
+	
+	new_return(0);
 }
 
 int32_t writecheats(PACKFILE *f, zquestheader *Header)
@@ -14447,11 +14440,6 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	header.data_flags[ZQ_TILES] = true;
 	header.data_flags[ZQ_CHEATS2] = 1;
 	header.build=VERSION_BUILD;
-	
-	for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
-	{
-		set_bit(midi_flags,i,int32_t(customtunes[i].data!=NULL));
-	}
 	
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, afname, "zinfo", 2047);
