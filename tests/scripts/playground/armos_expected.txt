@@ -12553,14 +12553,14 @@ STOREV 0 0.0006
 STOREV 0 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
-LOAD D2 0.0011; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0011; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
 POP D0
 POP REFSPRITE
-SETR D2 SPRITE_MISCD; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+SETR D2 SPRITE_MISCD; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0010
 SETR D2 EWPNCOUNT; for() #159 setup
 STORE D2 0.0003

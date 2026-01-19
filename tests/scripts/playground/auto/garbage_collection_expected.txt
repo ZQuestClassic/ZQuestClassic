@@ -111,7 +111,7 @@ stdout:
   ],
   "metadata": {
     "currentFileSymbols": 168,
-    "symbols": 144,
+    "symbols": 140,
     "identifiers": 1412,
     "elided": true
   }
@@ -2018,11 +2018,11 @@ PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.4029; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-LOAD D2 0.0003; InlineFunc[void ResizeArray(Person[], int)] Params Start
+LOAD D2 0.0003; InlineFunc[void ResizeArray(untyped[], int)] Params Start
 PUSHR D2
-SETV D3 0; InlineFunc[void ResizeArray(Person[], int)] Params End
-POP D2; InlineFunc[void ResizeArray(Person[], int)] Body Start
-RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(Person[], int)] Body End
+SETV D3 0; InlineFunc[void ResizeArray(untyped[], int)] Params End
+POP D2; InlineFunc[void ResizeArray(untyped[], int)] Body Start
+RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(untyped[], int)] Body End
 PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.4029; UsrFunc[void checkCountWithGC(int)] Call
@@ -3085,8 +3085,8 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3988; UsrFunc[void check(char32[], int, int)] Call
 PEEK D4
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(int[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4559; UsrFunc[void AssertEqual(int, int)] Call
@@ -3192,8 +3192,8 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3988; UsrFunc[void check(char32[], int, int)] Call
 PEEK D4
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(Person[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(Person[])] Body
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4559; UsrFunc[void AssertEqual(int, int)] Call
@@ -3322,8 +3322,8 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3988; UsrFunc[void check(char32[], int, int)] Call
 PEEK D4
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(char32[][])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(char32[][])] Body
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4559; UsrFunc[void AssertEqual(int, int)] Call
@@ -3386,7 +3386,7 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3988; UsrFunc[void check(char32[], int, int)] Call
 PEEK D4
-ALLOCATEMEMV D2 2 0.0009; InlineFunc[int SizeOfArray(char32[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+ALLOCATEMEMV D2 2 0.0009; InlineFunc[int SizeOfArray(untyped[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 SETR D0 D2
 PUSHR D0
@@ -3401,8 +3401,8 @@ POP D0
 WRITEPODARRAYVR 1 D2 0.0009
 PEEK D2
 POP D0
-READPODARRAYV D2 1; InlineFunc[int SizeOfArray(char32[])] Params End
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(char32[])] Body
+READPODARRAYV D2 1; InlineFunc[int SizeOfArray(untyped[])] Params End
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 6; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4559; UsrFunc[void AssertEqual(int, int)] Call
@@ -3488,8 +3488,8 @@ PUSHR D2
 PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3988; UsrFunc[void check(char32[], int, int)] Call
 PEEK D4
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(char32[][][])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(char32[][][])] Body
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4559; UsrFunc[void AssertEqual(int, int)] Call

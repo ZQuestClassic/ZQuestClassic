@@ -283,8 +283,8 @@ READPODARRAYV D2 5
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
 CALLFUNC 0.1331; UsrFunc[void AssertEqual(sprite, sprite)] Call
 POP D4
-LOAD D2 0.0007; InlineFunc[int SizeOfArray(sprite[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(sprite[])] Body
+LOAD D2 0.0007; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 STORE D2 0.0006
 STOREV 0 0.0005; for() #152 setup
 LOAD D2 0.0005; for() #152 LoopTest

@@ -295,8 +295,8 @@ STOREV 0 0.0001
 STOREV 0 0; for() #3 setup
 LOAD D2 0; for() #3 LoopTest
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
@@ -328,8 +328,8 @@ STOREV 0 0.0001
 STOREV 0 0; for() #4 setup
 LOAD D2 0; for() #4 LoopTest
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
@@ -394,8 +394,8 @@ STOREV 0 0.0001
 STOREV 0 0; for() #7 setup
 LOAD D2 0; for() #7 LoopTest
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
@@ -429,8 +429,8 @@ STOREV 0 0.0001
 STOREV 0 0; for() #8 setup
 LOAD D2 0; for() #8 LoopTest
 PUSHR D2
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<

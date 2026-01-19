@@ -8837,14 +8837,14 @@ STOREV 0 0.0006
 STOREV 0 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
-LOAD D2 0.0011; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0011; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 SETV D2 13
 PUSHR D2
 POP D0
 POP REFSPRITE
-SETR D2 SPRITE_MISCD; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+SETR D2 SPRITE_MISCD; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0010
 SETR D2 EWPNCOUNT; for() #159 setup
 STORE D2 0.0003
@@ -11557,8 +11557,8 @@ POPARGS D5 0.0007; return End
 RETURNFUNC; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #220 setup
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #220 setup
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
 LOAD D2 0; for() #220 LoopTest
@@ -12193,8 +12193,8 @@ POPARGS D5 0.0009; return End
 RETURNFUNC; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #223 setup
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #223 setup
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
 LOAD D2 0; for() #223 LoopTest
@@ -12750,8 +12750,8 @@ POPARGS D5 0.0004
 RETURNFUNC; Func[npc HealthBar_GetNPC(int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #228 setup
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #228 setup
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
 LOAD D2 0; for() #228 LoopTest
@@ -13513,8 +13513,8 @@ POPARGS D5 0.0009; return End
 RETURNFUNC; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #232 setup
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #232 setup
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
 LOAD D2 0; for() #232 LoopTest

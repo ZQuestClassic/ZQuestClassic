@@ -381,7 +381,7 @@ internal void ClearTile(int tile);
 // @zasm
 //   POP D2
 //   ARRAYSIZE D2
-internal int SizeOfArray<T>(T[] arr);
+internal int SizeOfArray(untyped[] arr);
 
 // Resizes the array 'arr' to size 'size'. If 'size' is <1, the array becomes
 // size 1 instead.
@@ -390,14 +390,14 @@ internal int SizeOfArray<T>(T[] arr);
 //   POP D3
 //   POP D2
 //   RESIZEARRAYR D2 D3
-internal void ResizeArray<T>(T[] arr, int size);
+internal void ResizeArray(untyped[] arr, int size);
 
 // Grants ownership of the target array to the currently running script.
 //
 // @zasm
 //   POP D2
 //   OWNARRAYR D2
-internal void OwnArray<T>(T[] arr);
+internal void OwnArray(untyped[] arr);
 
 // If [arr] is a local array, destroys it immediately. Otherwise does nothing.
 //
@@ -405,7 +405,7 @@ internal void OwnArray<T>(T[] arr);
 // @zasm
 //   POP D2
 //   DESTROYARRAYR D2
-internal void DestroyArray<T>(T[] arr);
+internal void DestroyArray(untyped[] arr);
 
 // Takes an Object parameter. Grants ownership of the object to the currently
 // running script.
@@ -440,35 +440,35 @@ internal void OverlayTile(int src, int dest);
 // @zasm
 //   POP D2
 //   FLOOR D2
-internal constexpr T Floor<T>(T val);
+internal constexpr int Floor(int val);
 
 // Returns [val] rounded up to the next higher integer.
 //
 // @zasm
 //   POP D2
 //   CEILING D2
-internal constexpr T Ceiling<T>(T val);
+internal constexpr int Ceiling(int val);
 
 // Truncates [n] to the nearest integer, rounding towards 0.
 //
 // @zasm
 //   POP D2
 //   TRUNCATE D2
-internal constexpr T Truncate<T>(T n);
+internal constexpr int Truncate(int n);
 
 // Truncates [n] to the nearest integer.
 //
 // @zasm
 //   POP D2
 //   ROUND D2
-internal constexpr T Round<T>(T n);
+internal constexpr int Round(int n);
 
 // Truncates [n] to the nearest integer, rounding away from 0.
 //
 // @zasm
 //   POP D2
 //   ROUNDAWAY D2
-internal constexpr T RoundAway<T>(T n);
+internal constexpr int RoundAway(int n);
 
 // Returns information from the real-time clock of the system.
 //
@@ -788,14 +788,14 @@ internal int sprintf(char32[] dest, char32[] format, ...untyped[] values);
 // @zasm
 //   PRINTFA
 //   POPARGS D5 0.0002
-internal void printfa<T>(char32[] format, T[] args);
+internal void printfa(char32[] format, untyped[] args);
 
 // Same as [sprintf], but with the format parameters as an array.
 //
 // @zasm
 //   SPRINTFA
 //   POPARGS D5 0.0003
-internal int sprintfa<T>(char32[] dest, char32[] format, T[] args);
+internal int sprintfa(char32[] dest, char32[] format, untyped[] args);
 
 // Returns the largest parameter.
 //

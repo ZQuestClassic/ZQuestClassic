@@ -221,20 +221,20 @@ MARK_TYPE_STACK 0.0009 0.0005
 REF_INC 0.0005
 MARK_TYPE_STACK 0.0009 0.0004
 REF_INC 0.0004
-LOAD D2 0.0005; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 STORE D2 0.0003
-LOAD D2 0.0005; InlineFunc[void ResizeArray(int[], int)] Params Start
+LOAD D2 0.0005; InlineFunc[void ResizeArray(untyped[], int)] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2
-LOAD D2 0.0004; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0004; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 POP D3
 ADDR D2 D3
-SETR D3 D2; InlineFunc[void ResizeArray(int[], int)] Params End
-POP D2; InlineFunc[void ResizeArray(int[], int)] Body Start
-RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(int[], int)] Body End
+SETR D3 D2; InlineFunc[void ResizeArray(untyped[], int)] Params End
+POP D2; InlineFunc[void ResizeArray(untyped[], int)] Body Start
+RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(untyped[], int)] Body End
 LOAD D2 0.0004; for(each) #2 ArrDecl
 STORE_OBJECT D2 0.0001
 STOREV 0 0.0002; for(each) #2 IndxDecl

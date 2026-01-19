@@ -18,7 +18,7 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 39,
-    "symbols": 70,
+    "symbols": 69,
     "identifiers": 222,
     "elided": true
   }
@@ -384,16 +384,16 @@ ZCLASS_MARK_TYPE {0,0,0.0001,0}
 POP CLASS_THISKEY; ProtoFunc[CarArrays CarArrays::CarArrays()] Default Construct
 STORE_OBJECT D2 0.0007
 PUSHR D4
-LOAD D2 0.0007; InlineFunc[int SizeOfArray(int[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
-ZCLASS_READ D2 0; InlineFunc[int SizeOfArray(int[])] Params End
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0007; InlineFunc[int SizeOfArray(untyped[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+ZCLASS_READ D2 0; InlineFunc[int SizeOfArray(untyped[])] Params End
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 4; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
-LOAD D2 0.0007; InlineFunc[int SizeOfArray(int[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
-ZCLASS_READ D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params End
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0007; InlineFunc[int SizeOfArray(untyped[])] Params Start AND UsrFunc[void AssertEqual(int, int)] Params Start
+ZCLASS_READ D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params End
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
@@ -405,8 +405,8 @@ PUSHR D2
 PUSHV 0; UsrFunc[void AssertEqual(int[], int[])] Params End
 CALLFUNC 0.0800; UsrFunc[void AssertEqual(int[], int[])] Call
 PEEK D4
-LOAD_INTERNAL_ARRAY D2 @BUTTONINPUT; InlineFunc[int SizeOfArray(bool[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(bool[])] Body
+LOAD_INTERNAL_ARRAY D2 @BUTTONINPUT; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 18; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
@@ -414,8 +414,8 @@ POP D4
 LOAD_INTERNAL_ARRAY D2 @BUTTONINPUT
 STORE_OBJECT D2 0.0005
 PUSHR D4
-LOAD D2 0.0005; InlineFunc[int SizeOfArray(bool[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(bool[])] Body
+LOAD D2 0.0005; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 18; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
@@ -471,14 +471,14 @@ PUSHR D2
 PUSHV 102; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-LOAD D2 0.0004; InlineFunc[void ResizeArray(int[], int)] Params Start
+LOAD D2 0.0004; InlineFunc[void ResizeArray(untyped[], int)] Params Start
 PUSHR D2
-SETV D3 12; InlineFunc[void ResizeArray(int[], int)] Params End
-POP D2; InlineFunc[void ResizeArray(int[], int)] Body Start
-RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(int[], int)] Body End
+SETV D3 12; InlineFunc[void ResizeArray(untyped[], int)] Params End
+POP D2; InlineFunc[void ResizeArray(untyped[], int)] Body Start
+RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(untyped[], int)] Body End
 PUSHR D4
-LOAD D2 0.0004; InlineFunc[int SizeOfArray(int[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0004; InlineFunc[int SizeOfArray(untyped[])] Params AND UsrFunc[void AssertEqual(int, int)] Params Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 PUSHV 176; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.0735; UsrFunc[void AssertEqual(int, int)] Call

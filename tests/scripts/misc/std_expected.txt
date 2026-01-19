@@ -1522,8 +1522,8 @@ SETR D2 GD2; InlineFunc[int SizeOfArray(untyped[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 14
 STORE D2 0.0001
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params AND if() #396 Test
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #396 Test
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -1533,8 +1533,8 @@ COMPAREV D2 0
 GOTOCMP 1516 ==; Test 'if'
 PUSHR D4; if() #396 Body Start
 PUSHV 405; UsrFunc[void __Tango_LogError(int, untyped, untyped)] Params Start
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(int[])] Params
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void __Tango_LogError(int, untyped, untyped)] Params End
@@ -6108,8 +6108,8 @@ GOTOCMP 6083 !=; Test 'unless'
 SETV D2 0; return Start AND unless() #350 Body Start
 GOTO 6092; return End
 GOTO 6091; unless() #350 Body End
-LOAD D2 0; InlineFunc[int SizeOfArray(char32[])] Params AND if() #648 Test AND unless() #350 Else Start
-ARRAYSIZE D2; InlineFunc[int SizeOfArray(char32[])] Body
+LOAD D2 0; InlineFunc[int SizeOfArray(untyped[])] Params AND if() #648 Test AND unless() #350 Else Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
