@@ -13730,6 +13730,8 @@ int32_t readsfx(PACKFILE *f, zquestheader *)
 		byte* data = (byte*)al_malloc(buffer_len);
 		if (!data)
 			return qe_nomem;
+		if (!pfread(data, buffer_len, f))
+			return qe_invalid;
 		sound.sample = al_create_sample((void*)data, len, frequency, depth, chan_conf, true);
 		if (!sound.sample)
 		{
