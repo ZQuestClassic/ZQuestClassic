@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-17 08:03:16</td>
+      <td>2026-01-19 09:21:43</td>
     </tr>
   </table>
 </div>
@@ -89,7 +89,7 @@
     <tr><td><a href="#l172">doDarkroomSquare(int, int, unsigned short, BITMAP*, BITMAP*, int, int, int, int, std::optional&lt;unsigned short&gt;, std::optional&lt;unsigned short&gt;) (line 172)</a></td><td>called 915467 times, returned 915467 times</td><td>81.0%</td></tr>
     <tr><td><a href="#l241">do_torch_combo(newcombo const&amp;, int, int, BITMAP*, BITMAP*) (line 241)</a></td><td>called 1546881 times, returned 1546881 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1018">getColors(BITMAP*, int) (line 1018)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l218">handle_lighting(int, int, unsigned char, unsigned short, unsigned char, BITMAP*, BITMAP*, int, int, int, int, std::optional&lt;unsigned short&gt;, std::optional&lt;unsigned short&gt;) (line 218)</a></td><td>called 5308037 times, returned 5308037 times</td><td>90.0%</td></tr>
+    <tr><td><a href="#l218">handle_lighting(int, int, unsigned int, unsigned int, unsigned int, BITMAP*, BITMAP*, int, int, int, int, std::optional&lt;unsigned short&gt;, std::optional&lt;unsigned short&gt;) (line 218)</a></td><td>called 5308037 times, returned 5308037 times</td><td>90.0%</td></tr>
     <tr><td><a href="#l552">lampcone(BITMAP*, int, int, int, int, int) (line 552)</a></td><td>called 228716 times, returned 228716 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l372">mask_blit(BITMAP*, BITMAP*, BITMAP*, bool) (line 372)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l399">mask_blit(BITMAP*, BITMAP*, BITMAP*, bool, int, int) (line 399)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1981,7 +1981,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5308037</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">handle_lighting</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">rad</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">transdest</span><span class="p">,</span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">handle_lighting</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">dword</span><span class="w"> </span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">dword</span><span class="w"> </span><span class="n">rad</span><span class="p">,</span><span class="w"> </span><span class="n">dword</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">transdest</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l219" href="#l219">219</a></td>
@@ -2188,7 +2188,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1546881</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">handle_lighting</span><span class="p">(</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">attribytes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">attribytes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">attribytes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">transdest</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">handle_lighting</span><span class="p">(</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">c_attributes</span><span class="p">[</span><span class="mi">9</span><span class="p">].</span><span class="n">getTrunc</span><span class="p">(),</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">c_attributes</span><span class="p">[</span><span class="mi">8</span><span class="p">].</span><span class="n">getTrunc</span><span class="p">(),</span><span class="w"> </span><span class="n">cmb</span><span class="p">.</span><span class="n">c_attributes</span><span class="p">[</span><span class="mi">10</span><span class="p">].</span><span class="n">getTrunc</span><span class="p">(),</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">transdest</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l245" href="#l245">245</a></td>

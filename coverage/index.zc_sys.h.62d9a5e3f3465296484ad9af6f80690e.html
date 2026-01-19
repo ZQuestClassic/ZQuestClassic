@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-17 08:03:16</td>
+      <td>2026-01-19 09:21:43</td>
     </tr>
   </table>
 </div>
@@ -73,8 +73,8 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l162">sfx(int, int) (line 162)</a></td><td>called 1304801 times, returned 1304801 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l166">sfx_no_repeat(int, int) (line 166)</a></td><td>called 234090 times, returned 234090 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l161">sfx(int, int) (line 161)</a></td><td>called 1296543 times, returned 1296543 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l165">sfx_no_repeat(int, int) (line 165)</a></td><td>called 222168 times, returned 222168 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -1144,280 +1144,280 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">play_DmapMusic</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_pause</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_pause</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_resume</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_resume</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_stop</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">music_stop</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">master_volume</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dv</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mv</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">master_volume</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dv</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mv</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w">  </span><span class="nf">sfx_count</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w">  </span><span class="nf">sfx_count</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">sfx_cleanup</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">sfx_cleanup</span><span class="p">();</span></td>
+      <td class="src "><span class="n">SAMPLE</span><span class="o">*</span><span class="w"> </span><span class="nf">sfx_get_sample</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">SAMPLE</span><span class="o">*</span><span class="w"> </span><span class="nf">sfx_get_sample</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">sfx_init</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">sfx_init</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">loop</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">vol_perc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="n">_zf</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">loop</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">vol_perc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="n">_zf</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">sfx_allocated</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">sfx_allocated</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">1296543</td>
+      <td class="src coveredLine"><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1304801</td>
-      <td class="src coveredLine"><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="linecount coveredLine">1296543</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1304801</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">1296543</td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1304801</td>
-      <td class="src coveredLine"><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l166" href="#l166">166</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">234090</td>
+      <td class="linecount coveredLine">222168</td>
       <td class="src coveredLine"><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">sfx_no_repeat</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l167" href="#l167">167</a></td>
+      <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l168" href="#l168">168</a></td>
+      <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 234090 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 222168 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">234090</td>
+      <td class="linecount partialCoveredLine">222168</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sfx_allocated</span><span class="p">(</span><span class="n">index</span><span class="p">))</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l168" href="#l168">168</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">222168</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">234090</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l170" href="#l170">170</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">234090</td>
+      <td class="linecount coveredLine">222168</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l171" href="#l171">171</a></td>
+      <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="n">sfx_get_default_freq</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="lineno"><a id="l171" href="#l171">171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">sfx_get_length</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="lineno"><a id="l172" href="#l172">172</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">cont_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="lineno"><a id="l173" href="#l173">173</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">stop_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="lineno"><a id="l174" href="#l174">174</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">adjust_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">loop</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="lineno"><a id="l175" href="#l175">175</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">pause_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="lineno"><a id="l176" href="#l176">176</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">resume_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="lineno"><a id="l177" href="#l177">177</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">pause_all_sfx</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">resume_all_sfx</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">stop_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">stop_item_sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">family</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">kill_sfx</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w">  </span><span class="nf">pan</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w">  </span><span class="nf">onSetSnapshotFormat</span><span class="p">(</span><span class="n">SnapshotType</span><span class="w"> </span><span class="n">format</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onSetBottom8Pixels</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">option</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">updateShowBottomPixels</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onKeyboardEntry</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="lineno"><a id="l187" href="#l187">187</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onLetterGridEntry</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onExtLetterGridEntry</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l190" href="#l190">190</a></td>
@@ -1431,119 +1431,119 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer0</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l192" href="#l192">192</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer0</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer1</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l193" href="#l193">193</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer1</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer2</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer2</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer3</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l195" href="#l195">195</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer3</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer4</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l196" href="#l196">196</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer4</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer5</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l197" href="#l197">197</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer5</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer6</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l198" href="#l198">198</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayer6</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerO</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l199" href="#l199">199</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerO</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerP</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l200" href="#l200">200</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerP</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerS</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l201" href="#l201">201</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerS</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerF</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l202" href="#l202">202</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerF</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerW</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l203" href="#l203">203</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerW</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerE</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l204" href="#l204">204</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowLayerE</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowFFScripts</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l205" href="#l205">205</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowFFScripts</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowHitboxes</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l206" href="#l206">206</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowHitboxes</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowInfoOpacity</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l207" href="#l207">207</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onShowInfoOpacity</span><span class="p">();</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l208" href="#l208">208</a></td>
@@ -1557,59 +1557,52 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_LINUX_GP2X</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l210" href="#l210">210</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_LINUX_GP2X</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">midi_strict</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l211" href="#l211">211</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">midi_strict</span><span class="p">;</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l212" href="#l212">212</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l213" href="#l213">213</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">midi_strict</span><span class="p">;</span><span class="w"> </span><span class="c1">//L</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l214" href="#l214">214</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">midi_strict</span><span class="p">;</span><span class="w"> </span><span class="c1">//L</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l215" href="#l215">215</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l216" href="#l216">216</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif                                                      </span><span class="c1">// _ZC_SYS_H_</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l217" href="#l217">217</a></td>
+      <td class="lineno"><a id="l216" href="#l216">216</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

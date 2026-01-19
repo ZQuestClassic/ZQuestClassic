@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-17 08:03:16</td>
+      <td>2026-01-19 09:21:43</td>
     </tr>
   </table>
 </div>
@@ -42,13 +42,13 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>70</td>
+      <td>72</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>0</td>
-      <td>36</td>
+      <td>37</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
@@ -73,11 +73,12 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l419">GUI::DummyWidget::DummyWidget() (line 419)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l416">GUI::DummyWidget::~DummyWidget() (line 416)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l423">GUI::DummyWidget::DummyWidget() (line 423)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l420">GUI::DummyWidget::~DummyWidget() (line 420)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l310">GUI::Widget::getColSpan() const (line 310)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l233">GUI::Widget::getDisabled() const (line 233)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l222">GUI::Widget::getFocused() const (line 222)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l346">GUI::Widget::getFont() const (line 346)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l293">GUI::Widget::getForceFitHei() const (line 293)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l289">GUI::Widget::getForceFitWid() const (line 289)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l175">GUI::Widget::getHeight() const (line 175)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -91,7 +92,7 @@
     <tr><td><a href="#l202">GUI::Widget::getTotalWidth() const (line 202)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l137">GUI::Widget::getVisible() const (line 137)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l172">GUI::Widget::getWidth() const (line 172)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l354">GUI::Widget::getWidthOverridden() const (line 354)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l358">GUI::Widget::getWidthOverridden() const (line 358)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l31">GUI::Widget::isTopLevel() const (line 31)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l78">GUI::Widget::setBottomMargin(GUI::Size) (line 78)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l107">GUI::Widget::setBottomPadding(GUI::Size) (line 107)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -2542,557 +2543,585 @@
       <td class="lineno"><a id="l346" href="#l346">346</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">FONT</span><span class="o">*</span><span class="w"> </span><span class="n">getFont</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l347" href="#l347">347</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Sets the widget&#39;s width if it hasn&#39;t been overridden. */</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l348" href="#l348">348</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">setPreferredWidth</span><span class="p">(</span><span class="n">Size</span><span class="w"> </span><span class="n">newWidth</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">widgFont</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l349" href="#l349">349</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l350" href="#l350">350</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Sets the widget&#39;s width if it hasn&#39;t been overridden. */</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l351" href="#l351">351</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setPreferredHeight</span><span class="p">(</span><span class="n">Size</span><span class="w"> </span><span class="n">newHeight</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Sets the widget&#39;s width if it hasn&#39;t been overridden. */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l352" href="#l352">352</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">setPreferredWidth</span><span class="p">(</span><span class="n">Size</span><span class="w"> </span><span class="n">newWidth</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l353" href="#l353">353</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">protected</span><span class="o">:</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l354" href="#l354">354</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getWidthOverridden</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="o">&amp;</span><span class="n">f_WIDTH_OVERRIDDEN</span><span class="p">;}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Sets the widget&#39;s width if it hasn&#39;t been overridden. */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l355" href="#l355">355</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getHeightOverridden</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="o">&amp;</span><span class="n">f_HEIGHT_OVERRIDDEN</span><span class="p">;}</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setPreferredHeight</span><span class="p">(</span><span class="n">Size</span><span class="w"> </span><span class="n">newHeight</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l356" href="#l356">356</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Use this as the return type of message setters so non-integer types</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l357" href="#l357">357</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">	 * are properly caught.</span></td>
+      <td class="src "><span class="n">protected</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l358" href="#l358">358</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cm">	 */</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getWidthOverridden</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="o">&amp;</span><span class="n">f_WIDTH_OVERRIDDEN</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l359" href="#l359">359</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span></td>
+      <td class="src "><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getHeightOverridden</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="o">&amp;</span><span class="n">f_HEIGHT_OVERRIDDEN</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l360" href="#l360">360</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">using</span><span class="w"> </span><span class="n">RequireMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">enable_if_t</span><span class="o">&lt;</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Use this as the return type of message setters so non-integer types</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l361" href="#l361">361</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">is_enum_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">is_integral_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span></td>
+      <td class="src "><span class="cm">	 * are properly caught.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l362" href="#l362">362</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="o">&gt;</span><span class="p">;</span></td>
+      <td class="src "><span class="cm">	 */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l363" href="#l363">363</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">template</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l364" href="#l364">364</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">using</span><span class="w"> </span><span class="n">RequireMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">enable_if_t</span><span class="o">&lt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l365" href="#l365">365</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">fgColor</span><span class="p">,</span><span class="w"> </span><span class="n">bgColor</span><span class="p">;</span></td>
+      <td class="src "><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">is_enum_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">is_integral_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l366" href="#l366">366</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">leftMargin</span><span class="p">,</span><span class="w"> </span><span class="n">rightMargin</span><span class="p">,</span><span class="w"> </span><span class="n">topMargin</span><span class="p">,</span><span class="w"> </span><span class="n">bottomMargin</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="o">&gt;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l367" href="#l367">367</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">leftPadding</span><span class="p">,</span><span class="w"> </span><span class="n">rightPadding</span><span class="p">,</span><span class="w"> </span><span class="n">topPadding</span><span class="p">,</span><span class="w"> </span><span class="n">bottomPadding</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l368" href="#l368">368</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">float</span><span class="w"> </span><span class="n">hAlign</span><span class="p">,</span><span class="w"> </span><span class="n">vAlign</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l369" href="#l369">369</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">any</span><span class="w"> </span><span class="n">userData</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">fgColor</span><span class="p">,</span><span class="w"> </span><span class="n">bgColor</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l370" href="#l370">370</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">DialogRef</span><span class="w"> </span><span class="n">frameDialog</span><span class="p">,</span><span class="w"> </span><span class="n">frameTextDialog</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">leftMargin</span><span class="p">,</span><span class="w"> </span><span class="n">rightMargin</span><span class="p">,</span><span class="w"> </span><span class="n">topMargin</span><span class="p">,</span><span class="w"> </span><span class="n">bottomMargin</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l371" href="#l371">371</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">frameText</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">leftPadding</span><span class="p">,</span><span class="w"> </span><span class="n">rightPadding</span><span class="p">,</span><span class="w"> </span><span class="n">topPadding</span><span class="p">,</span><span class="w"> </span><span class="n">bottomPadding</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l372" href="#l372">372</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">float</span><span class="w"> </span><span class="n">hAlign</span><span class="p">,</span><span class="w"> </span><span class="n">vAlign</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l373" href="#l373">373</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Returns a set of flags with which the DIALOG should be initialized.</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">any</span><span class="w"> </span><span class="n">userData</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l374" href="#l374">374</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">	 * The widget should add its own</span></td>
+      <td class="src "><span class="w">	</span><span class="n">DialogRef</span><span class="w"> </span><span class="n">frameDialog</span><span class="p">,</span><span class="w"> </span><span class="n">frameTextDialog</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l375" href="#l375">375</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">	 */</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">frameText</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l376" href="#l376">376</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getFlags</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Returns a set of flags with which the DIALOG should be initialized.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l378" href="#l378">378</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">FONT</span><span class="o">*</span><span class="w"> </span><span class="n">widgFont</span><span class="p">;</span></td>
+      <td class="src "><span class="cm">	 * The widget should add its own</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l379" href="#l379">379</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="cm">	 */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l380" href="#l380">380</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Returns true if the dialog is running, and thus draws to the screen are permitted */</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getFlags</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">noexcept</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l381" href="#l381">381</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">allowDraw</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l382" href="#l382">382</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Note that the widget has done something requiring redraw */</span></td>
+      <td class="src "><span class="w">	</span><span class="n">FONT</span><span class="o">*</span><span class="w"> </span><span class="n">widgFont</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l383" href="#l383">383</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">pendDraw</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l384" href="#l384">384</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* Returns true if the entire dialog has been realized */</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Returns true if the dialog is running, and thus draws to the screen are permitted */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l385" href="#l385">385</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isConstructed</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">allowDraw</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l386" href="#l386">386</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Note that the widget has done something requiring redraw */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l387" href="#l387">387</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">protected</span><span class="o">:</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">pendDraw</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l388" href="#l388">388</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">enum</span></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* Returns true if the entire dialog has been realized */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l389" href="#l389">389</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isConstructed</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l390" href="#l390">390</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_WIDTH_OVERRIDDEN</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="mb">0b00000000001</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l391" href="#l391">391</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_HEIGHT_OVERRIDDEN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mb">0b00000000010</span><span class="p">,</span></td>
+      <td class="src "><span class="n">protected</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l392" href="#l392">392</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_INVISIBLE</span><span class="w"> </span><span class="o">=</span><span class="w">         </span><span class="mb">0b00000000100</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="k">enum</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l393" href="#l393">393</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_FOCUSED</span><span class="w"> </span><span class="o">=</span><span class="w">           </span><span class="mb">0b00000001000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l394" href="#l394">394</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_DISABLED</span><span class="w"> </span><span class="o">=</span><span class="w">          </span><span class="mb">0b00000010000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_WIDTH_OVERRIDDEN</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="mb">0b00000000001</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l395" href="#l395">395</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_FRAMED</span><span class="w"> </span><span class="o">=</span><span class="w">            </span><span class="mb">0b00000100000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_HEIGHT_OVERRIDDEN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mb">0b00000000010</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l396" href="#l396">396</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_FIT_PARENT</span><span class="w"> </span><span class="o">=</span><span class="w">        </span><span class="mb">0b00001000000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_INVISIBLE</span><span class="w"> </span><span class="o">=</span><span class="w">         </span><span class="mb">0b00000000100</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l397" href="#l397">397</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_FORCE_FIT_W</span><span class="w"> </span><span class="o">=</span><span class="w">       </span><span class="mb">0b00010000000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_FOCUSED</span><span class="w"> </span><span class="o">=</span><span class="w">           </span><span class="mb">0b00000001000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l398" href="#l398">398</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_FORCE_FIT_H</span><span class="w"> </span><span class="o">=</span><span class="w">       </span><span class="mb">0b00100000000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_DISABLED</span><span class="w"> </span><span class="o">=</span><span class="w">          </span><span class="mb">0b00000010000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l399" href="#l399">399</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_READ_ONLY</span><span class="w"> </span><span class="o">=</span><span class="w">         </span><span class="mb">0b01000000000</span><span class="p">,</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_FRAMED</span><span class="w"> </span><span class="o">=</span><span class="w">            </span><span class="mb">0b00000100000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l400" href="#l400">400</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">f_NO_PAD</span><span class="w"> </span><span class="o">=</span><span class="w">            </span><span class="mb">0b10000000000</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_FIT_PARENT</span><span class="w"> </span><span class="o">=</span><span class="w">        </span><span class="mb">0b00001000000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l401" href="#l401">401</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_FORCE_FIT_W</span><span class="w"> </span><span class="o">=</span><span class="w">       </span><span class="mb">0b00010000000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l402" href="#l402">402</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">f_FORCE_FIT_H</span><span class="w"> </span><span class="o">=</span><span class="w">       </span><span class="mb">0b00100000000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l403" href="#l403">403</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">maxwidth</span><span class="p">,</span><span class="w"> </span><span class="n">maxheight</span><span class="p">,</span><span class="w"> </span><span class="n">minwidth</span><span class="p">,</span><span class="w"> </span><span class="n">minheight</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_READ_ONLY</span><span class="w"> </span><span class="o">=</span><span class="w">         </span><span class="mb">0b01000000000</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l404" href="#l404">404</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">rowSpan</span><span class="p">,</span><span class="w"> </span><span class="n">colSpan</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">f_NO_PAD</span><span class="w"> </span><span class="o">=</span><span class="w">            </span><span class="mb">0b10000000000</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l405" href="#l405">405</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">DialogRunner</span><span class="w"> </span><span class="o">*</span><span class="n">owner</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l406" href="#l406">406</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l407" href="#l407">407</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">maxwidth</span><span class="p">,</span><span class="w"> </span><span class="n">maxheight</span><span class="p">,</span><span class="w"> </span><span class="n">minwidth</span><span class="p">,</span><span class="w"> </span><span class="n">minheight</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l408" href="#l408">408</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="cm">/* The number of containers hiding this widget. Shouldn&#39;t be too many,</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">rowSpan</span><span class="p">,</span><span class="w"> </span><span class="n">colSpan</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l409" href="#l409">409</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">	 * but there might be, say, a switcher in nested tab containers.</span></td>
+      <td class="src "><span class="w">	</span><span class="n">DialogRunner</span><span class="w"> </span><span class="o">*</span><span class="n">owner</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l410" href="#l410">410</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">	 */</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l411" href="#l411">411</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hideCount</span><span class="o">:</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l412" href="#l412">412</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="cm">/* The number of containers hiding this widget. Shouldn&#39;t be too many,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l413" href="#l413">413</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">MAX_HIDE_COUNT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span></td>
+      <td class="src "><span class="cm">	 * but there might be, say, a switcher in nested tab containers.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l414" href="#l414">414</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="cm">	 */</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l415" href="#l415">415</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hideCount</span><span class="o">:</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l416" href="#l416">416</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">DummyWidget</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">Widget</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l417" href="#l417">417</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">MAX_HIDE_COUNT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l418" href="#l418">418</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">public</span><span class="o">:</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l419" href="#l419">419</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">DummyWidget</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l420" href="#l420">420</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">DummyWidget</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">Widget</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l421" href="#l421">421</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l422" href="#l422">422</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="src "><span class="n">public</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l423" href="#l423">423</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">DummyWidget</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l424" href="#l424">424</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l425" href="#l425">425</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l426" href="#l426">426</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l427" href="#l427">427</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l428" href="#l428">428</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l429" href="#l429">429</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
