@@ -10360,7 +10360,7 @@ int32_t writestrings(PACKFILE *f)
 			if(!p_putc(MsgStrings[i].drawlayer,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].sfx,f))
+			if(!p_iputw(MsgStrings[i].sfx,f))
 				return qe_invalid;
 			
 			if(!p_iputw(MsgStrings[i].listpos,f))

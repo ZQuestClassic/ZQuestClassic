@@ -3634,9 +3634,9 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 	word temp_expansion[16];
 	memset(temp_expansion, 0, 16*sizeof(word));
 	char buf[8193] = {0};
+	byte tempbyte;
 	if(Header->zelda_version < 0x193)
 	{
-		byte tempbyte;
 		int32_t strings_to_read=0;
 		if (!should_skip)
 			set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
@@ -3903,8 +3903,17 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 						return qe_invalid;
 				}
 				
-				if(!p_getc(&tempMsgString.sfx,f))
-					return qe_invalid;
+				if (s_version < 12)
+				{
+					if (!p_getc(&tempbyte,f))
+						return qe_invalid;
+					tempMsgString.sfx = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&tempMsgString.sfx,f))
+						return qe_invalid;
+				}
 				
 				if(s_version>3)
 					if(!p_igetw(&tempMsgString.listpos,f))
