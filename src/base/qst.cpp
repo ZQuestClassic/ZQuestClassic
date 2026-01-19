@@ -23,7 +23,7 @@
 #include <vector>
 #include <assert.h>
 #include <fmt/format.h>
-
+#include "zcsfx.h"
 
 #include "fmt/core.h"
 #include "base/zc_alleg.h"
@@ -13478,8 +13478,6 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	return 0;
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern uint8_t customsfxflag[WAV_COUNT>>3];
 extern int32_t sfxdat;
 extern DATAFILE *sfxdata;
 const char *old_sfx_string[Z35] =
@@ -13497,42 +13495,13 @@ const char *old_sfx_string[Z35] =
     "Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
     "Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
 };
-char *sfx_string[WAV_COUNT];
 
-int32_t readsfx(PACKFILE *f, zquestheader *Header)
+int32_t readsfx_old(PACKFILE *f, word s_version)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	Header=Header;
-	
 	int32_t dummy;
-	word s_version=0;
 	//int32_t ret;
-	SAMPLE temp_sample = {};
-	temp_sample.loop_start=0;
-	temp_sample.loop_end=0;
-	temp_sample.param=0;
-	
-	//section version info
-	if(!p_igetw(&s_version,f))
-	{
-		return qe_invalid;
-	}
-
-	if (s_version > V_SFX)
-			return qe_version;
-	
-	FFCore.quest_format[vSFX] = s_version;
-	
-	if(!read_deprecated_section_cversion(f))
-	{
-		return qe_invalid;
-	}
-	
-	//section size
-	if(!p_igetl(&dummy,f))
-	{
-		return qe_invalid;
-	}
+	const size_t WAV_COUNT = 256;
+	SAMPLE samples[WAV_COUNT] = {0};
 	
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),
@@ -13566,15 +13535,15 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 		}
 		
 	}
-		
+	
+	string sfx_string[256];
 	if(s_version>4)
 	{
-		for(int32_t i=1; i<WAV_COUNT; i++)
+		for(int32_t i=1; i<256; i++)
 		{
-			sprintf(sfx_string[i],"s%03d",i);
-			
-			if((i<Z35))
-				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			if(i < Z35)
+				sfx_string[i] = old_sfx_string[i-1];
+			else sfx_string[i] = fmt::format("s{:03}", i);
 			
 			if(i>=wavcount)
 				continue;
@@ -13587,36 +13556,36 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 				}
 				
-				sfx_string[i][0] = '\0';
-				strncat(sfx_string[i], tempname, 36 - 1);
+				sfx_string[i] = tempname;
 			}
 			else
 			{
-				sprintf(sfx_string[i],"s%03d",i);
-				
-				if(i<Z35)
-					strcpy(sfx_string[i], old_sfx_string[i-1]);
-				sfx_string[i][35] = 0; //Force NULL Termination
+				if(i < Z35)
+					sfx_string[i] = old_sfx_string[i-1];
+				else sfx_string[i] = fmt::format("s{:03}", i);
 			}
 		}
 	}
 	else
 	{
-		for(int32_t i=1; i<WAV_COUNT; i++)
+		for(int32_t i=1; i<256; i++)
 		{
-			sprintf(sfx_string[i],"s%03d",i);
-			
-			if(i<Z35)
-				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			if(i < Z35)
+				sfx_string[i] = old_sfx_string[i-1];
+			else sfx_string[i] = fmt::format("s{:03}", i);
 		}
 	}
 	
 	//finally...  section data
 	for(int32_t i=1; i<wavcount; i++)
 	{
+		SAMPLE& temp_sample = samples[i];
+		temp_sample.loop_start = 0;
+		temp_sample.loop_end = 0;
+		temp_sample.param = 0;
+		temp_sample.data = nullptr;
 		if(get_bit(tempflag, i-1))
 		{
-			
 			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
@@ -13715,82 +13684,125 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 		}
 		else continue;
 		
-		if(customsfxdata[i].data!=NULL)
-		{
-			// delete [] customsfxdata[i].data;
-			free(customsfxdata[i].data);
-		}
 		
-		// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-		int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-		customsfxdata[i].data = calloc(len2,1);
-		customsfxdata[i].bits = temp_sample.bits;
-		customsfxdata[i].stereo = temp_sample.stereo;
-		customsfxdata[i].freq = temp_sample.freq;
-		customsfxdata[i].priority = temp_sample.priority;
-		customsfxdata[i].len = temp_sample.len;
-		customsfxdata[i].loop_start = temp_sample.loop_start;
-		customsfxdata[i].loop_end = temp_sample.loop_end;
-		customsfxdata[i].param = temp_sample.param;
-		int32_t cpylen = len2;
-		
-		if(s_version<3)
-		{
-			cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
-			al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
-		}
-		
-		memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
-		
-		free(temp_sample.data);
+		// unsure how to handle this, or if it needs to be handled?
+		// int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+		// samples[i].data = calloc(len2,1);
+		// int32_t cpylen = len2;
+		// if(s_version<3)
+		// {
+			// cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
+			// al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
+		// }
+		// memcpy(samples[i].data,temp_sample.data,cpylen);
+		// free(temp_sample.data);
 	}
 	
-	memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
+	int blanks = 0;
+	for (uint q = 1; q < wavcount; ++q)
+	{
+		if (get_bit(tempflag, q-1))
+		{
+			while (quest_sounds.size() < q)
+				quest_sounds.emplace_back();
+			auto& sound = quest_sounds[q-1];
+			sound = ZCSFX(samples[q]);
+			if (sound.is_invalid())
+				return qe_invalid;
+			sound.sfx_name = sfx_string[q];
+		}
+		else if (q-1 < quest_sounds.size())
+			quest_sounds[q-1].clear();
+		else quest_sounds.emplace_back(); // temporary until sfx are resizable
+	}
 	
-	sfxdat=0;
+	sfxdat = 0;
+	return 0;
+}
+int32_t readsfx(PACKFILE *f, zquestheader *)
+{
+	int32_t dummy;
+	word s_version = 0;
+	
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+
+	if (s_version > V_SFX)
+		return qe_version;
+	
+	FFCore.quest_format[vSFX] = s_version;
+	
+	if(!read_deprecated_section_cversion(f))
+		return qe_invalid;
+	
+	//section size
+	if(!p_igetl(&dummy,f))
+		return qe_invalid;
+	
+	if (s_version < 9)
+		return readsfx_old(f, s_version);
+	
+	word count;
+	if (!p_igetw(&count, f))
+		return qe_invalid;
+	
+	quest_sounds.clear();
+	quest_sounds.reserve(count);
+	for (word q = 0; q < count; ++q)
+	{
+		ZCSFX& sound = quest_sounds.emplace_back();
+		if (!p_getc(&sound.type, f))
+			return qe_invalid;
+		if (!p_getcstr(&sound.sfx_name, f))
+			return qe_invalid;
+		if (sound.type == SMPL_INVALID)
+			continue;
+		if (!p_igetl(&sound.priority, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.loop_start, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.loop_end, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.param, f))
+			return qe_invalid;
+		byte dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		ALLEGRO_AUDIO_DEPTH depth = (ALLEGRO_AUDIO_DEPTH)dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		ALLEGRO_CHANNEL_CONF chan_conf = (ALLEGRO_CHANNEL_CONF)dummy;
+		uint frequency;
+		int len;
+		if (!p_igetl(&frequency, f))
+			return qe_invalid;
+		if (!p_igetl(&len, f))
+			return qe_invalid;
+		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+		byte* data = (byte*)al_malloc(buffer_len);
+		if (!data)
+			return qe_nomem;
+		sound.sample = al_create_sample((void*)data, len, frequency, depth, chan_conf, true);
+		if (!sound.sample)
+		{
+			al_free(data);
+			return qe_invalid;
+		}
+	}
+	
+	sfxdat = 0;
 	return 0;
 }
 
 void setupsfx()
 {
-    for(int32_t i=1; i<WAV_COUNT; i++)
+	quest_sounds.clear();
+	quest_sounds.reserve(Z35-1);
+    for(size_t q = 1; q < Z35; ++q)
     {
-        sprintf(sfx_string[i],"s%03d",i);
-        
-        if(i<Z35)
-        {
-            strcpy(sfx_string[i], old_sfx_string[i-1]);
-        }
-        
-        memset(customsfxflag, 0, WAV_COUNT>>3);
-        
-        int32_t j=i;
-        
-        if(i>Z35)
-        {
-            i=Z35;
-        }
-        
-        SAMPLE *temp_sample = (SAMPLE *)sfxdata[i].dat;
-        
-        if(customsfxdata[j].data!=NULL)
-        {
-//    delete [] customsfxdata[j].data;
-            free(customsfxdata[j].data);
-        }
-        
-//    customsfxdata[j].data = new byte[(temp_sample->bits==8?1:2)*temp_sample->len];
-        customsfxdata[j].data = calloc((temp_sample->bits==8?1:2)*(temp_sample->stereo == 0 ? 1 : 2)*temp_sample->len,1);
-        customsfxdata[j].bits = temp_sample->bits;
-        customsfxdata[j].stereo = temp_sample->stereo;
-        customsfxdata[j].freq = temp_sample->freq;
-        customsfxdata[j].priority = temp_sample->priority;
-        customsfxdata[j].len = temp_sample->len;
-        customsfxdata[j].loop_start = temp_sample->loop_start;
-        customsfxdata[j].loop_end = temp_sample->loop_end;
-        customsfxdata[j].param = temp_sample->param;
-        memcpy(customsfxdata[j].data, (temp_sample->data), (temp_sample->bits==8?1:2)*(temp_sample->stereo==0 ? 1 : 2)*temp_sample->len);
-        i=j;
+		SAMPLE *temp_sample = (SAMPLE *)sfxdata[q].dat;
+		auto& sound = quest_sounds.emplace_back(*temp_sample);
+		sound.sfx_name = old_sfx_string[q-1];
     }
 }
 

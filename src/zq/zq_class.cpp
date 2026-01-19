@@ -13863,135 +13863,102 @@ int32_t write_one_ffscript_old(PACKFILE *f, zquestheader *Header, int32_t i, scr
     new_return(0);
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern uint8_t customsfxflag[WAV_COUNT>>3];
-
-int32_t writesfx(PACKFILE *f, zquestheader *Header)
+int32_t writesfx(PACKFILE *f, zquestheader *)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    dword section_id=ID_SFX;
-    dword section_version=V_SFX;
-    dword section_size=0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!write_deprecated_section_cversion(section_version,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        for(int32_t i=0; i<WAV_COUNT>>3; i++)
-        {
-            if(!p_putc(customsfxflag[i],f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            if(get_bit(customsfxflag, i-1) == 0)
-                continue;
-                
-            if(!pfwrite(sfx_string[i], 36, f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            if(get_bit(customsfxflag, i-1) == 0)
-                continue;
-                
-            if(!p_iputl(customsfxdata[i].bits,f))
-            {
-                new_return(5);
-            }
-            
-            if(!p_iputl(customsfxdata[i].stereo,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_iputl(customsfxdata[i].freq,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_iputl(customsfxdata[i].priority,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_iputl(customsfxdata[i].len,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_iputl(customsfxdata[i].loop_start,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_iputl(customsfxdata[i].loop_end,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_iputl(customsfxdata[i].param,f))
-            {
-                new_return(12);
-            }
-            
-            //de-endianfy the data
-            int32_t wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
-            
-            for(int32_t j=0; j<wordstowrite; j++)
-            {
-                if(!p_iputw(((word *)customsfxdata[i].data)[j],f))
-                {
-                    new_return(13);
-                }
-            }
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
-    }
-    
-    new_return(0);
+	dword section_id=ID_SFX;
+	dword section_version=V_SFX;
+	dword section_size=0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!write_deprecated_section_cversion(section_version,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		size_t count = quest_sounds.size();
+		if (count > NUM_SFX)
+			count = NUM_SFX;
+		for (size_t q = count-1;; --q)
+		{
+			if (quest_sounds[q].sfx_name.empty() && quest_sounds[q].is_invalid())
+			{
+				--count;
+				if (q) // exit condition
+					continue;
+			}
+			break;
+		}
+		if (!p_iputw(word(count), f))
+			new_return(5);
+		
+		for (size_t q = 0; q < count; ++q)
+		{
+			ZCSFX const& sound = quest_sounds[q];
+			SampleType stype = sound.is_invalid() ? SMPL_INVALID : sound.type;
+			if (!p_putc(stype, f))
+				new_return(6);
+			if (!p_putcstr(sound.sfx_name, f))
+				new_return(7);
+			if (stype == SMPL_INVALID)
+				continue;
+			
+			if (!p_iputl(sound.priority, f))
+				new_return(8);
+			if (!p_iputl(sound.loop_start, f))
+				new_return(9);
+			if (!p_iputl(sound.loop_end, f))
+				new_return(10);
+			if (!p_iputl(sound.param, f))
+				new_return(11);
+			if (!p_putc(sound.get_depth(), f))
+				new_return(12);
+			if (!p_putc(sound.get_chan_conf(), f))
+				new_return(13);
+			if (!p_iputl(sound.get_frequency(), f))
+				new_return(14);
+			if (!p_iputl(sound.get_len(), f))
+				new_return(15);
+			byte const* data = sound.get_sample_data();
+			size_t sz = sound.get_buffer_size();
+			if (!pfwrite(data, sz, f))
+				new_return(16);
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+	}
+	
+	new_return(0);
 }
 
 int32_t writeinitdata(PACKFILE *f, zquestheader *)

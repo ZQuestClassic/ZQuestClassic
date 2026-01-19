@@ -12763,7 +12763,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSFX:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,NUM_SFX);
 			}
 			break;
 		case LWPNLIFTLEVEL:
@@ -13331,7 +13331,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSFX:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,NUM_SFX);
 			}
 			break;
 		case EWPNLIFTLEVEL:
@@ -22554,7 +22554,7 @@ void do_sfx_ex(const bool restart)
 	if (BC::checkSFXID(ID) != SH::_NoError)
 		return;
 
-	if (!restart && !sfx_allocated(ID))
+	if (!restart && !sfx_is_allocated(ID))
 		return;
 
 	sfx(ID, pan, loop, restart, vol, freq);
@@ -22563,19 +22563,14 @@ void do_sfx_ex(const bool restart)
 static int get_sfx_completion()
 {
 	int32_t ID = get_register(sarg1) / 10000;
-
-	if (!sfx_allocated(ID))
-	{
+	if (unsigned(ID-1) >= quest_sounds.size())
 		return -10000;
-	}
-
-	int sample_pos = voice_get_position(sfx_voice[ID]);
-	if (sample_pos < 0)
-	{
+	auto& sound = quest_sounds[ID-1];
+	if (!sound.is_playing())
 		return -10000;
-	}
 
-	uint32_t sample_length = sfx_get_length(ID);
+	uint sample_pos = sound.get_pos();
+	uint32_t sample_length = sound.get_len();
 	uint64_t res = ((uint64_t)sample_pos * 10000 * 100) / sample_length;
 	return int32_t(res);
 }

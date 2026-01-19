@@ -216,7 +216,6 @@ extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
-extern SAMPLE   wav_refill;
 extern PALETTE  pal_gui;
 extern byte     *colordata;
 extern itemdata *itemsbuf;
@@ -392,7 +391,6 @@ extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;
 
 // Only used for quests prior to arrays being script objects - ZScriptVersion::gc_arrays()

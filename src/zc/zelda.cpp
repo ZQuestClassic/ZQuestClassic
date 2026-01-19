@@ -276,9 +276,7 @@ bool usebombpal = false;
 int32_t readsize = 0, writesize = 0;
 bool fake_pack_writing=false;
 
-SAMPLE customsfxdata[WAV_COUNT] = {0};
-uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
-int32_t sfxdat=1;
+int32_t sfxdat = 0;
 
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
@@ -904,7 +902,6 @@ bool bad_version(int32_t version)
 
 extern char *weapon_string[];
 extern char *item_string[];
-extern char *sfx_string[];
 extern char *guy_string[];
 
 bool get_debug()
@@ -3943,18 +3940,7 @@ void zc_game_srand(int seed, zc_randgen* rng)
 
 
 static void allocate_crap()
-{	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		customsfxdata[i].data=NULL;
-		sfx_string[i] = new char[36];
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT>>3; i++)
-	{
-		customsfxflag[i] = 0;
-	}
-	
+{
 	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		weapon_string[i] = new char[64];
@@ -4988,17 +4974,6 @@ void quit_game()
 	al_trace("SFX... \n");
 	zcmusic_exit();
 	zcmixer_exit(zcmixer);
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		delete [] sfx_string[i];
-		
-		if(customsfxdata[i].data!=NULL)
-		{
-//      delete [] customsfxdata[i].data;
-			free(customsfxdata[i].data);
-		}
-	}
 	
 	al_trace("Misc... \n");
 	

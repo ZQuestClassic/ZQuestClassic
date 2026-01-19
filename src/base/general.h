@@ -137,8 +137,6 @@ double wrap_float(double x,double low,double high);
 
 #define COMBOS_PER_ROW             20
 
-#define WAV_COUNT                  256
-
 #define MAXFFCS                    128
 #define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
 #define MAXSCREENS                 128
@@ -156,6 +154,8 @@ double wrap_float(double x,double low,double high);
 #define MAXCUSTOMMIDIS         512
 #define MAXMIDIS               (ZC_MIDI_COUNT+MAXCUSTOMMIDIS)
 #define MIDI_NAME_LENGTH       300
+
+#define NUM_SFX                256
 //Midi offsets
 //The offset from dmap/mapscr-> midi/screen_midi to currmidi
 #define MIDIOFFSET_DMAP            (ZC_MIDI_COUNT-4)

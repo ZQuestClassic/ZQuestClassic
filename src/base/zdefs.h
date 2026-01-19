@@ -169,7 +169,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SUBSCREEN        16
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         28
-#define V_SFX              8
+#define V_SFX              9
 #define V_FAVORITES        4
 #define V_ZINFO            5
 #define V_ADVMUSIC         1

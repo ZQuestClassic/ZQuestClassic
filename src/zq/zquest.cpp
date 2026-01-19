@@ -510,9 +510,7 @@ script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 extern string zScript;
 char zScriptBytes[512];
 char zLastVer[512] = { 0 };
-SAMPLE customsfxdata[WAV_COUNT];
-uint8_t customsfxflag[WAV_COUNT>>3];
-int32_t sfxdat=1;
+int32_t sfxdat = 0;
 
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
@@ -3236,25 +3234,35 @@ int32_t onDefault_Tiles()
     return D_O_K;
 }
 
-void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
-
+ZCSFX make_default_sfx(size_t index)
+{
+	ZCSFX ret;
+	ret.sfx_name = fmt::format("s{:03}", index);
+	if (index < 1 || index >= Z35)
+		return ret;
+	SAMPLE *temp_sample = (SAMPLE *)sfxdata[index].dat;
+	ret = ZCSFX(*temp_sample);
+	ret.sfx_name = old_sfx_string[index-1];
+	return ret;
+}
+void default_sfx(size_t index)
+{
+	if (!index || index > quest_sounds.size())
+		return;
+	quest_sounds[index-1].clear();
+	mark_save_dirty();
+	if (index >= Z35)
+		return;
+	quest_sounds[index-1] = make_default_sfx(index);
+}
 int32_t onDefault_SFX()
 {
 	if (alert_confirm("Confirm Reset", "Reset all sound effects?"))
 	{
+		quest_sounds.clear();
 		mark_save_dirty();
-		SAMPLE *temp_sample;
-		
-		for(int32_t i=1; i<WAV_COUNT; i++)
-		{
-			temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
-			change_sfx(&customsfxdata[i], temp_sample);
-			sprintf(sfx_string[i],"s%03d",i);
-			
-			if(i<Z35)
-				strcpy(sfx_string[i], old_sfx_string[i-1]);
-			set_bit(customsfxflag, i<Z35?1:0, i-1);
-		}
+		for(size_t q = 1; q < Z35; ++q)
+			quest_sounds.emplace_back(make_default_sfx(q));
 	}
 	
 	return D_O_K;
@@ -7008,15 +7016,15 @@ void refresh(int32_t flags, bool update)
 			show_screen_error(buf,i++,vc(15));
 		}
 		
-		if(Map.CurrScr()->oceansfx != 0)
+		if (auto sid = Map.CurrScr()->oceansfx; unsigned(sid-1) < quest_sounds.size())
 		{
-			sprintf(buf,"Ambient Sound: %s",sfx_string[Map.CurrScr()->oceansfx]);
+			sprintf(buf,"Ambient Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
-		if(Map.CurrScr()->bosssfx != 0)
+		if (auto sid = Map.CurrScr()->bosssfx; unsigned(sid-1) < quest_sounds.size())
 		{
-			sprintf(buf,"Boss Roar Sound: %s",sfx_string[Map.CurrScr()->bosssfx]);
+			sprintf(buf,"Boss Roar Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -18953,243 +18961,14 @@ void center_zscript_dialogs()
     jwin_center_dialog(clearslots_dlg);
 }
 
-// array of voices, one for each sfx sample in the data file
-// 0+ = voice #
-// -1 = voice not allocated
-int32_t sfx_voice[WAV_COUNT];
-
 void Z_init_sound()
 {
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        sfx_voice[i]=-1;
-        
-//  master_volume(digi_volume,midi_volume);
-}
-
-// returns number of voices currently allocated
-int32_t sfx_count()
-{
-    int32_t c=0;
-    
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            ++c;
-            
-    return c;
-}
-
-// clean up finished samples
-void sfx_cleanup()
-{
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-bool sfx_templist = false;
-SAMPLE templist[WAV_COUNT];
-SAMPLE* sfx_get_sample(int32_t index)
-{
-	// check index
-	if (index<=0 || index>=WAV_COUNT)
-		return nullptr;
-	
-	if (sfx_templist)
-	{
-		if (templist[index].data)
-			return &templist[index];
-		else return nullptr;
-	}
-	else if (sfxdat)
-	{
-		if (index<Z35)
-		{
-			return (SAMPLE*)sfxdata[index].dat;
-		}
-		else
-		{
-			return (SAMPLE*)sfxdata[Z35].dat;
-		}
-	}
-	else
-	{
-		return &customsfxdata[index];
-	}
-
-	return nullptr;
-}
-
-bool sfx_init(int32_t index)
-{
-    // check index
-    if(index<1 || index>=WAV_COUNT)
-        return false;
-	
-    if(sfx_voice[index]==-1)
-    {
-		SAMPLE* sample = sfx_get_sample(index);
-		if (!sample)
-			return false;
-		
-        sfx_voice[index] = allocate_voice(sample);
-    }
-    
-    return sfx_voice[index] != -1;
-}
-
-// plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop,bool restart,zfix vol_perc,int32_t freq)
-{
-    if(!sfx_init(index))
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-    
-    int32_t pos = voice_get_position(sfx_voice[index]);
-    
-	int temp_volume = (128 * (vol_perc / 100)).getFloor();
-	
-    if(restart) voice_set_position(sfx_voice[index],0);
-	voice_set_volume(sfx_voice[index], temp_volume);
-    
-    if(pos<=0)
-        voice_start(sfx_voice[index]);
-}
-
-// start it (in loop mode) if it's not already playing,
-// otherwise just leave it in its current position
-void cont_sfx(int32_t index)
-{
-    if(!sfx_init(index))
-        return;
-        
-    if(voice_get_position(sfx_voice[index])<=0)
-    {
-        voice_set_position(sfx_voice[index],0);
-        voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
-        voice_start(sfx_voice[index]);
-    }
-}
-
-// adjust parameters while playing
-void adjust_sfx(int32_t index,int32_t pan,bool loop)
-{
-    if(index<0 || index>=WAV_COUNT || sfx_voice[index]==-1)
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-}
-
-// pauses a voice
-void pause_sfx(int32_t index)
-{
-    if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_stop(sfx_voice[index]);
-}
-
-// resumes a voice
-void resume_sfx(int32_t index)
-{
-    if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_start(sfx_voice[index]);
-}
-
-// pauses all active voices
-void pause_all_sfx()
-{
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_stop(sfx_voice[i]);
-}
-
-// resumes all paused voices
-void resume_all_sfx()
-{
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_start(sfx_voice[i]);
-}
-
-// stops an sfx and deallocates the voice
-void stop_sfx(int32_t index)
-{
-    if(index<0 || index>=WAV_COUNT)
-        return;
-        
-    if(sfx_voice[index]!=-1)
-    {
-        deallocate_voice(sfx_voice[index]);
-        sfx_voice[index]=-1;
-    }
-}
-
-void kill_sfx()
-{
-    for(int32_t i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
+	// master_volume(digi_volume,midi_volume);
 }
 
 int32_t pan(int32_t x)
 {
 	return 128;
-	/*switch(pan_style)
-	{
-		case 0: return 128;
-		case 1: return vbound((x>>1)+68,0,255);
-		case 2: return vbound(((x*3)>>2)+36,0,255);
-	}
-	return vbound(x,0,255);*/
-}
-
-
-void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
-{
-    sfx1->bits = sfx2->bits;
-    sfx1->stereo = sfx2->stereo;
-    sfx1->freq = sfx2->freq;
-    sfx1->priority = sfx2->priority;
-    sfx1->len = sfx2->len;
-    sfx1->loop_start = sfx2->loop_start;
-    sfx1->loop_end = sfx2->loop_end;
-    sfx1->param = sfx2->param;
-    
-    if(sfx1->data != NULL)
-    {
-        free(sfx1->data);
-    }
-    
-    if(sfx2->data == NULL)
-        sfx1->data = NULL;
-    else
-    {
-        // When quests are saved and loaded, data is written in words.
-        // If the last byte is dropped, it'll cause the sound to end with
-        // a click. It could simply be extended and padded with 0, but
-        // that causes compatibility issues... So we'll cut off
-        // the last byte and decrease the length.
-        
-        int32_t len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
-        
-        while(len%sizeof(word))
-        {
-            // sizeof(word) should be 2, so this doesn't really need
-            // to be a loop, but what the heck.
-            sfx1->len--;
-            len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
-        }
-        
-        sfx1->data = malloc(len);
-        memcpy(sfx1->data, sfx2->data, len);
-    }
 }
 
 int32_t onSelectSFX()
@@ -19198,62 +18977,6 @@ int32_t onSelectSFX()
     refresh(rMAP+rCOMBOS);
     return D_O_K;
 }
-
-bool saveWAV(int32_t slot, const char *filename)
-{
-    if (slot < 1 || slot >= 511 )
-        return false;
-
-    if (customsfxdata[slot].data == NULL)
-	return false;
-    
-    std::ofstream ofs(filename, std::ios::binary);
-    if (!ofs)
-        return false;
-    ofs.write("RIFF",4);
-    uint32_t samplerate = customsfxdata[slot].freq;
-    uint16_t channels = customsfxdata[slot].stereo ? 2 : 1;
-    uint32_t datalen = customsfxdata[slot].len*channels*customsfxdata[slot].bits / 8;
-    uint32_t size = 36 + datalen;
-    ofs.write((char *)&size, 4);
-    ofs.write("WAVE", 4);
-    ofs.write("fmt ", 4);
-    uint32_t fmtlen = 16;
-    ofs.write((char *)&fmtlen, 4);
-    uint16_t type = 1;
-    ofs.write((char *)&type, 2);
-    ofs.write((char *)&channels, 2);
-    ofs.write((char *)&samplerate, 4);
-    uint32_t bytespersec = samplerate*channels*customsfxdata[slot].bits / 8; 
-    ofs.write((char *)&bytespersec, 4);
-    uint16_t blockalign = channels*customsfxdata[slot].bits / 8;
-    ofs.write((char *)&blockalign, 2);
-    uint16_t bitspersample = customsfxdata[slot].bits;
-    ofs.write((char *)&bitspersample, 2);
-    ofs.write("data", 4);
-    ofs.write((char *)&datalen, 4);
-    if (bitspersample == 8)
-    {
-        for (int32_t i = 0; i < (int32_t)customsfxdata[slot].len*channels; i++)
-        {
-            char data = ((char *)customsfxdata[slot].data)[i];
-            data ^= 0x80;
-            ofs.write(&data, 1);
-        }
-    }
-    else if (bitspersample == 16)
-    {
-        for (int32_t i = 0; i < (int32_t)customsfxdata[slot].len*channels; i++)
-        {
-            uint16_t data = ((uint16_t *)customsfxdata[slot].data)[i];
-            data ^= 0x8000;
-            ofs.write((char *)&data, 2);
-        }
-    }
-    else
-        return false;
-    return !!ofs;
-} 
 
 int32_t onMapStyles()
 {
@@ -20056,14 +19779,6 @@ static void allocate_crap()
 	if(!filepath || !datapath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
 		Z_error_fatal("Error: no memory for file paths!");
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		if(sfx_string[i]!=NULL) delete sfx_string[i];
-		customsfxdata[i].data=NULL;
-		sfx_string[i] = new char[36];
-		memset(sfx_string[i], 0, 36);
 	}
 	
 	for(int32_t i=0; i<MAXWPNS; i++)
@@ -21582,19 +21297,8 @@ void quit_game()
     zc_stop_midi();
     
     remove_locked_params_on_exit();
-    
-    al_trace("Cleaning sfx. \n");
-    
-    for(int32_t i=0; i<WAV_COUNT; i++)
-    {
-        if(customsfxdata[i].data!=NULL)
-        {
-//      delete [] customsfxdata[i].data;
-            free(customsfxdata[i].data);
-        }
-        
-        delete [] sfx_string[i];
-    }
+
+	quest_sounds.clear();
     
     for(int32_t i=0; i<MAXWPNS; i++)
     {
@@ -21714,19 +21418,6 @@ void quit_game2()
     zc_stop_midi();
     
     remove_locked_params_on_exit();
-    
-    al_trace("Cleaning sfx. \n");
-    
-    for(int32_t i=0; i<WAV_COUNT; i++)
-    {
-        if(customsfxdata[i].data!=NULL)
-        {
-//      delete [] customsfxdata[i].data;
-            free(customsfxdata[i].data);
-        }
-        
-        delete [] sfx_string[i];
-    }
     
     for(int32_t i=0; i<MAXWPNS; i++)
     {

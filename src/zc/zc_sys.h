@@ -5,6 +5,8 @@
 #include "base/jwinfsel.h"
 #include "base/zsys.h"
 #include "sound/zcmusic.h"
+#include "advanced_music.h"
+#include "zcsfx.h"
 
 extern bool is_sys_pal;
 
@@ -87,7 +89,6 @@ extern char qst_files_path[2048];
 extern bool button_hold[controls::btnLast];
 
 void load_control_state();
-extern int32_t sfx_voice[WAV_COUNT];
 
 bool getInput(int32_t btn, int input_flags = 0);
 
@@ -152,33 +153,8 @@ void music_pause();
 void music_resume();
 void music_stop();
 void master_volume(int32_t dv,int32_t mv);
-int32_t  sfx_count();
-void sfx_cleanup();
-SAMPLE* sfx_get_sample(int32_t index);
-bool sfx_init(int32_t index);
-void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, zfix vol_perc = 100_zf, int32_t freq = -1);
-bool sfx_allocated(int32_t index);
-INLINE void sfx(int32_t index,int32_t pan = 128)
-{
-	sfx(index,vbound(pan, 0, 255) ,false);
-}
-INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
-{
-	if (!sfx_allocated(index))
-		sfx(index, vbound(pan, 0, 255), false, false);
-}
-int32_t sfx_get_default_freq(int32_t index);
-int32_t sfx_get_length(int32_t index);
-void cont_sfx(int32_t index);
-void stop_sfx(int32_t index);
-void adjust_sfx(int32_t index,int32_t pan,bool loop);
-void pause_sfx(int32_t index);
-void resume_sfx(int32_t index);
-void pause_all_sfx();
-void resume_all_sfx();
-void stop_sfx(int32_t index);
+
 void stop_item_sfx(int32_t family);
-void kill_sfx();
 int32_t  pan(int32_t x);
 int32_t  onSetSnapshotFormat(SnapshotType format);
 int32_t onSetBottom8Pixels(int option);

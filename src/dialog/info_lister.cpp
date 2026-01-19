@@ -899,15 +899,15 @@ void SFXListerDialog::preinit()
 		if(selected_val <= 0)
 			selected_val = lister.getValue(0);
 	}
-	selected_val = vbound(selected_val, 1, sfxMAX - 1);
+	selected_val = vbound(selected_val, 1, quest_sounds.size() - 1);
 }
 
 void SFXListerDialog::postinit()
 {
 	size_t len = 36;
-	for (int q = 0; q < sfxMAX; ++q)
+	for (int q = 0; q < quest_sounds.size(); ++q)
 	{
-		size_t tlen = text_length(GUI_DEF_FONT, sfx_string[q]);
+		size_t tlen = text_length(GUI_DEF_FONT, quest_sounds[q].sfx_name.c_str());
 		if (tlen > len)
 			len = tlen;
 	}
