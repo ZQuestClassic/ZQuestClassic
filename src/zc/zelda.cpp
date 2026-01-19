@@ -3086,7 +3086,7 @@ void do_dcounters()
             continue;
         }
         
-		byte sfx_to_use = 0;
+		word sfx_to_use = 0;
         if(frame&1)
         {
             if(game->get_dcounter(i)>0)

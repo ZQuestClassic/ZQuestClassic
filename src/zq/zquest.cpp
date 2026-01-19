@@ -18796,8 +18796,8 @@ auto_do_slots:
 		char buf[256] = {0};
 		sprintf(buf, "ZScripts successfully loaded into script slots"
 			"\nAssign Slots took %d ms", compile_time_ms);
-		auto sfx_id = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
-		auto sfx_vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
+		auto sfx_id = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,quest_sounds.size());
+		auto sfx_vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,quest_sounds.size());
 		if ( sfx_id > 0 && sfx_vol > 0)
 			sfx(sfx_id, 128, false, true, sfx_vol / 1.28_zf);
 		if(!assign_mode)

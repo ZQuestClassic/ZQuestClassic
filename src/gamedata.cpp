@@ -1047,7 +1047,7 @@ int32_t gamedata::fillBottle(byte val, byte replace, byte quant)
 	return -1;
 }
 
-void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite)
+void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, word sfx, int32_t weffect, int16_t psprite)
 {
 	saved_mirror_portal.destdmap = destdmap;
 	saved_mirror_portal.srcdmap = srcdmap;

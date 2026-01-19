@@ -16123,7 +16123,7 @@ void set_register(int32_t arg, int32_t value)
 		case SAVEDPORTALWARPSFX:
 		{
 			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
-				p->sfx = vbound(value/10000,0,255);
+				p->sfx = vbound(value/10000,0,quest_sounds.size());
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
