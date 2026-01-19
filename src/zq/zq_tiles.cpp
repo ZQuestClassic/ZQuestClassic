@@ -12520,10 +12520,9 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 25)
 				{
-					if(!p_getc(&temp_trigger.trigsfx,f))
-					{
+					if(!p_getc(&tempbyte,f))
 						return 0;
-					}
+					temp_trigger.trigsfx = tempbyte;
 				}
 				else
 				{

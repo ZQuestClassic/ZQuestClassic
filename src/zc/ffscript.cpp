@@ -14739,7 +14739,7 @@ void set_register(int32_t arg, int32_t value)
 			if (!checkComboRef()) break;
 
 			if(auto* trig = get_first_combo_trigger())
-				trig->trigsfx = vbound(value/10000,0,255);
+				trig->trigsfx = vbound(value/10000, 0, quest_sounds.size());
 			break;
 		}
 		case COMBODTRIGGERCHANGECMB:
@@ -15043,7 +15043,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, 255);
+			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, quest_sounds.size());
 			break;
 		}
 		case COMBODLIFTBREAKSPRITE:
@@ -15282,7 +15282,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 			{
-				trig->trigsfx = vbound(value/10000, 0, 255);
+				trig->trigsfx = vbound(value/10000, 0, quest_sounds.size());
 			}
 			break;
 		}
@@ -16276,7 +16276,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_left;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
 			}
 			break;
 		}
@@ -16294,7 +16294,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_right;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
 			}
 			break;
 		}
@@ -16545,7 +16545,7 @@ void set_register(int32_t arg, int32_t value)
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = widg->pg_trans;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
 			}
 			break;
 		}

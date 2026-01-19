@@ -9496,7 +9496,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 35;
 	if(!p_iputw(tmp_trig.trigtimer,f))
 		return 36;
-	if(!p_putc(tmp_trig.trigsfx,f))
+	if(!p_iputw(tmp_trig.trigsfx,f))
 		return 37;
 	if(!p_iputl(tmp_trig.trigchange,f))
 		return 38;
@@ -9797,7 +9797,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 62;
 		if(!p_putc(tmp_cmb.liftsprite,f))
 			return 63;
-		if(!p_putc(tmp_cmb.liftsfx,f))
+		if(!p_iputw(tmp_cmb.liftsfx,f))
 			return 64;
 		if(!p_iputw(tmp_cmb.liftbreaksprite,f))
 			return 65;
@@ -9820,15 +9820,15 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 74;
 		if(!p_iputzf(tmp_cmb.speed_add,f))
 			return 75;
-		if(!p_putc(tmp_cmb.sfx_appear,f))
+		if(!p_iputw(tmp_cmb.sfx_appear,f))
 			return 79;
-		if(!p_putc(tmp_cmb.sfx_disappear,f))
+		if(!p_iputw(tmp_cmb.sfx_disappear,f))
 			return 80;
-		if(!p_putc(tmp_cmb.sfx_loop,f))
+		if(!p_iputw(tmp_cmb.sfx_loop,f))
 			return 81;
-		if(!p_putc(tmp_cmb.sfx_walking,f))
+		if(!p_iputw(tmp_cmb.sfx_walking,f))
 			return 82;
-		if(!p_putc(tmp_cmb.sfx_standing,f))
+		if(!p_iputw(tmp_cmb.sfx_standing,f))
 			return 83;
 		if(!p_putc(tmp_cmb.spr_appear,f))
 			return 84;
@@ -9838,9 +9838,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 86;
 		if(!p_putc(tmp_cmb.spr_standing,f))
 			return 87;
-		if(!p_putc(tmp_cmb.sfx_tap,f))
+		if(!p_iputw(tmp_cmb.sfx_tap,f))
 			return 88;
-		if(!p_putc(tmp_cmb.sfx_landing,f))
+		if(!p_iputw(tmp_cmb.sfx_landing,f))
 			return 89;
 		if(!p_putc(tmp_cmb.spr_falling,f))
 			return 90;
@@ -9848,11 +9848,11 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 91;
 		if(!p_putc(tmp_cmb.spr_lava_drowning,f))
 			return 92;
-		if(!p_putc(tmp_cmb.sfx_falling,f))
+		if(!p_iputw(tmp_cmb.sfx_falling,f))
 			return 93;
-		if(!p_putc(tmp_cmb.sfx_drowning,f))
+		if(!p_iputw(tmp_cmb.sfx_drowning,f))
 			return 94;
-		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
+		if(!p_iputw(tmp_cmb.sfx_lava_drowning,f))
 			return 95;
 		if(!p_iputzf(tmp_cmb.z_height,f))
 			return 96;

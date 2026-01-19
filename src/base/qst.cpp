@@ -17896,8 +17896,11 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				temp_trigger.trigtimer = tempbyte;
 			}
 			if(section_version >= 25)
-				if(!p_getc(&temp_trigger.trigsfx,f))
+			{
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
+				temp_trigger.trigsfx = tempbyte;
+			}
 			if(section_version >= 27)
 				if(!p_igetl(&temp_trigger.trigchange,f))
 					return qe_invalid;
@@ -18289,8 +18292,18 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 		temp_trigger.trigtimer = tempbyte;
 	}
-	if(!p_getc(&temp_trigger.trigsfx,f))
-		return qe_invalid;
+	if (s_version < 64)
+	{
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+		temp_trigger.trigsfx = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&temp_trigger.trigsfx,f))
+			return qe_invalid;
+		
+	}
 	if(!p_igetl(&temp_trigger.trigchange,f))
 		return qe_invalid;
 	if(!p_igetw(&temp_trigger.trigprox,f))
@@ -18680,8 +18693,17 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 			if(!p_getc(&temp_combo.liftsprite,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftsfx,f))
-				return qe_invalid;
+			if (s_version < 64)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_combo.liftsfx = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_combo.liftsfx,f))
+					return qe_invalid;
+			}
 			if(!p_igetw(&temp_combo.liftbreaksprite,f))
 				return qe_invalid;
 			if(!p_getc(&temp_combo.liftbreaksfx,f))
@@ -18747,16 +18769,37 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 			if(s_version >= 42)
 			{
-				if(!p_getc(&temp_combo.sfx_appear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_disappear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_loop,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_walking,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_standing,f))
-					return qe_invalid;
+				if (s_version < 64)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_appear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_disappear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_loop = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_walking = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_standing = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.sfx_appear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_disappear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_loop,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_walking,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_standing,f))
+						return qe_invalid;
+				}
 				if(!p_getc(&temp_combo.spr_appear,f))
 					return qe_invalid;
 				if(!p_getc(&temp_combo.spr_disappear,f))
@@ -18766,14 +18809,26 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.spr_standing,f))
 					return qe_invalid;
 			}
-			if(s_version >= 44)
+			if (s_version < 64)
 			{
-				if(!p_getc(&temp_combo.sfx_tap,f))
-					return qe_invalid;
+				if(s_version >= 44)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_tap = tempbyte;
+				}
+				if(s_version >= 49)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_landing = tempbyte;
+				}
 			}
-			if(s_version >= 49)
+			else
 			{
-				if(!p_getc(&temp_combo.sfx_landing,f))
+				if(!p_igetw(&temp_combo.sfx_tap,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.sfx_landing,f))
 					return qe_invalid;
 			}
 			if(s_version >= 50)
@@ -18784,12 +18839,28 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				if(!p_getc(&temp_combo.spr_lava_drowning,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_falling,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_drowning,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_lava_drowning,f))
-					return qe_invalid;
+				
+				if (s_version < 64)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_falling = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_drowning = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_lava_drowning = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.sfx_falling,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_drowning,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_lava_drowning,f))
+						return qe_invalid;
+				}
 			}
 			if(s_version >= 56)
 			{
