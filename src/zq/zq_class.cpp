@@ -5530,7 +5530,7 @@ bool save_msgstrs(const char *path)
         return false;
     }
     
-    if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)==0)
+    if(writestrings(f)==0)
     {
         pack_fclose(f);
         return true;
@@ -10249,208 +10249,136 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
     new_return(0);
 }
 
-int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
+int32_t writestrings(PACKFILE *f)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    version=version;
-    build=build;
-    start_msgstr=start_msgstr;
-    max_msgstrs=max_msgstrs;
-    
-    dword section_id=ID_STRINGS;
-    dword section_version=V_STRINGS;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!write_deprecated_section_cversion(section_version,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        //finally...  section data
-        if(!p_iputw(msg_count,f))
-        {
-            return qe_invalid;
-        }
-        
-        for(int32_t i=0; i<msg_count; i++)
-        {
+	dword section_id=ID_STRINGS;
+	dword section_version=V_STRINGS;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+		new_return(1);
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+		new_return(2);
+	
+	if(!write_deprecated_section_cversion(section_version,f))
+		new_return(3);
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+			new_return(4);
+		
+		writesize=0;
+		
+		//finally...  section data
+		if(!p_iputw(msg_count,f))
+			return qe_invalid;
+		
+		for(int32_t i=0; i<msg_count; i++)
+		{
 			MsgStrings[i].ensureAsciiEncoding();
 			int32_t sz = MsgStrings[i].s.size();
 			if(sz > 8192) sz = 8192;
 			if(!p_iputl(sz, f))
-			{
 				return qe_invalid;
-			}
 			
-            char const* tmpstr = MsgStrings[i].s.c_str();
-            if (sz > 0)
-            {
-                if (!pfwrite((void*)tmpstr,sz, f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(!p_iputw(MsgStrings[i].nextstring,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(MsgStrings[i].tile,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].cset,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].trans?1:0,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].font,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(MsgStrings[i].x,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(MsgStrings[i].y,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(MsgStrings[i].w,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(MsgStrings[i].h,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].hspace,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].vspace,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(MsgStrings[i].stringflags,f))
-            {
-                return qe_invalid;
-            }
+			char const* tmpstr = MsgStrings[i].s.c_str();
+			if (sz > 0)
+				if (!pfwrite((void*)tmpstr,sz, f))
+					return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].nextstring,f))
+				return qe_invalid;
+			
+			if(!p_iputl(MsgStrings[i].tile,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].cset,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].trans?1:0,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].font,f))
+				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].x,f))
+				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].y,f))
+				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].w,f))
+				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].h,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].hspace,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].vspace,f))
+				return qe_invalid;
+			
+			if(!p_putc(MsgStrings[i].stringflags,f))
+				return qe_invalid;
 			
 			for(int32_t q = 0; q < 4; ++q)
-			{
 				if(!p_putc(MsgStrings[i].margins[q],f))
-				{
 					return qe_invalid;
-				}
-			}
 			
 			if(!p_iputl(MsgStrings[i].portrait_tile,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].portrait_cset,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].portrait_x,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].portrait_y,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].portrait_tw,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].portrait_th,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].shadow_type,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].shadow_color,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(!p_putc(MsgStrings[i].drawlayer,f))
-			{
 				return qe_invalid;
-			}
-            
-            if(!p_putc(MsgStrings[i].sfx,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(MsgStrings[i].listpos,f))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        displayinfo("Error: writestrings()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
-    }
-    
-    new_return(0);
+			
+			if(!p_putc(MsgStrings[i].sfx,f))
+				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].listpos,f))
+				return qe_invalid;
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		displayinfo("Error: writestrings()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+	}
+	
+	new_return(0);
 }
 
 int32_t writestrings_text(PACKFILE *f)
@@ -14500,7 +14428,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	
 	box_out("Writing Strings...");
 	
-	if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
+	if(writestrings(f)!=0)
 		return 4;
 	
 	box_out("okay.");
