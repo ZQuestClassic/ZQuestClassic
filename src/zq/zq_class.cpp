@@ -9279,13 +9279,13 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_putc(screen.csensitive,f))
 			return qe_invalid;
-		if(!p_putc(screen.oceansfx,f))
+		if(!p_iputw(screen.oceansfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.bosssfx,f))
+		if(!p_iputw(screen.bosssfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.secretsfx,f))
+		if(!p_iputw(screen.secretsfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.holdupsfx,f))
+		if(!p_iputw(screen.holdupsfx,f))
 			return qe_invalid;
 		if(!p_iputw(screen.timedwarptics,f))
 			return qe_invalid;

@@ -16259,20 +16259,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->oceansfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->oceansfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->bosssfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->bosssfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->secretsfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->secretsfx = tempbyte;
 	}
 	
 	if(version<15) // October 2007: another SFX
@@ -16281,10 +16278,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->holdupsfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->holdupsfx = tempbyte;
 	}
 	
 	
@@ -17009,6 +17005,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 	}
 	else
 	{
+		byte tempbyte;
 		if(!p_getc(&(temp_mapscr->valid),f))
 			return qe_invalid;
 		if(!(temp_mapscr->valid & mVALID))
@@ -17328,14 +17325,32 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->csensitive),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->oceansfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->bosssfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->secretsfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->holdupsfx),f))
-				return qe_invalid;
+			if (version < 38)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->oceansfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->bosssfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->secretsfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->holdupsfx = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&(temp_mapscr->oceansfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->bosssfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->secretsfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->holdupsfx),f))
+					return qe_invalid;
+			}
 			if(!p_igetw(&(temp_mapscr->timedwarptics),f))
 				return qe_invalid;
 			if (version < 37)

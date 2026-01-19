@@ -5970,10 +5970,10 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx); break;	//B
-		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx); break;	//B
-		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx); break;	//B
-		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx); break; //B
+		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_INT16(oceansfx); break;	//B
+		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_INT16(bosssfx); break;	//B
+		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_INT16(secretsfx); break;	//B
+		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_INT16(holdupsfx); break; //B
 		case SCREENDATA_MUSIC:
 		{
 			mapscr* m = get_scr(GET_REF(screenref));
@@ -6448,10 +6448,10 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx); break;	//B
-		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
-		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
-		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_INT16(oceansfx); break;	//B
+		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_INT16(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_INT16(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_INT16(holdupsfx); break; //B
 		case MAPDATA_MUSIC:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
@@ -13596,7 +13596,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case SCREENDATAOCEANSFX:
 		{
-			int32_t v = vbound(value/10000, 0, 255);
+			int32_t v = vbound(value/10000, 0, quest_sounds.size());
 			auto scr = get_scr(GET_REF(screenref));
 			if (scr == hero_scr && scr->oceansfx != v)
 			{
@@ -13606,9 +13606,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
-		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
-		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_INT16(bosssfx, "BossSFX"); break;	//B
+		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_INT16(secretsfx, "SecretSFX"); break;	//B
+		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_INT16(holdupsfx,	"ItemSFX"); break; //B
 		case SCREENDATA_MUSIC:
 		{
 			mapscr* m = get_scr(GET_REF(screenref));
@@ -14073,7 +14073,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				int32_t v = vbound(value/10000, 0, 255);
+				int32_t v = vbound(value/10000, 0, quest_sounds.size());
 				if(m == hero_scr && m->oceansfx != v)
 				{
 					stop_sfx(m->oceansfx);
@@ -14084,9 +14084,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
-		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
-		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_INT16(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_INT16(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_INT16(holdupsfx); break; //B
 		case MAPDATA_MUSIC:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
