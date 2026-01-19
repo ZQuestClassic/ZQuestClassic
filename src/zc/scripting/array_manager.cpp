@@ -306,26 +306,36 @@ void ArrayManager::set(int32_t indx, int32_t val, script_object_type type)
 	if(aptr)
 	{
 		int32_t sz = size();
-		if(BC::checkUserArrayIndex(indx, sz, negAccess) == SH::_NoError)
-		{
-			if(indx < 0)
-				indx += sz; //[-1] becomes [size-1] -Em
+		if (BC::checkUserArrayIndex(indx, sz, negAccess) != SH::_NoError)
+			return;
 
-			bool is_object = type != script_object_type::none;
-			if (is_object || aptr->HoldsObjects())
+		if(indx < 0)
+			indx += sz; //[-1] becomes [size-1] -Em
+
+		// Arrays typed as objects (such as `bitmap[]` or `MyClass[]`) always retain objects.
+		// But `untyped[]` arrays dynamically hold objects, but only if declared as untyped - so
+		// casting to another type is not taken into account here.
+		bool is_typed_obj_array = aptr->HoldsObjects();
+		bool is_untyped_array = aptr->MaybeHoldsObjects();
+		bool is_value_object = type != script_object_type::none;
+
+		// If the array is capable of holding objects, we must manage lifecycles.
+		if (is_typed_obj_array || is_untyped_array)
+		{
+			if (is_typed_obj_array || (is_untyped_array && is_value_object))
 				script_object_ref_inc(val);
 
 			if (holds_object(indx))
 			{
-				int id = (*aptr)[indx];
-				script_object_ref_dec(id);
+				int old_id = (*aptr)[indx];
+				script_object_ref_dec(old_id);
 			}
 
-			(*aptr)[indx] = val;
-
-			if (aptr->MaybeHoldsObjects())
+			if (is_untyped_array)
 				script_array_object->set_type_in_untyped_array(indx, type);
 		}
+
+		(*aptr)[indx] = val;
 	}
 	else //internal special array
 	{

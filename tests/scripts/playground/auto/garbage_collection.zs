@@ -920,6 +920,21 @@ generic script garbage_collection
 			recursePrint(1001);
 		}
 
+		printf("=== Test %d - assignToUntypedArr === \n", ++tests);
+		{
+			// Even if cast to untyped[], only arrays declared as untyped[] retain references.
+			int arr_int[10];
+			assignToUntypedArr(arr_int);
+			yield();
+			checkCountWithGC(0);
+
+			untyped arr_untyped[10];
+			assignToUntypedArr(arr_untyped);
+			yield();
+			checkCountWithGC(1);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
@@ -1100,6 +1115,13 @@ generic script garbage_collection
 		sprintf(s, "recursePrint: %d\n", x);
 		if (x > 0)
 			recursePrint(x - 1);
+	}
+
+	void assignToUntypedArr(untyped[] arr)
+	{
+		arr[0] = 1;
+		arr[1] = new Person();
+		arr[1] = new Person(); // repeat.
 	}
 }
 
