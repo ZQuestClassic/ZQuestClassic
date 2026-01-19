@@ -1943,6 +1943,11 @@ ZCVersionCreated replay_get_zc_version_created()
 	ZCVersionCreated result{};
 	std::string str = replay_get_meta_str("zc_version_created");
 
+	// zc_version_created was first added only after zc_version_updated, so fall back to that if not
+	// present.
+	if (str.empty())
+		str = replay_get_meta_str("zc_version_updated");
+
 	if (str.starts_with("2.55-alpha"))
 	{
 		result = {.well_formed = true, .major = 2, .minor = 55};
