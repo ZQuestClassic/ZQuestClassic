@@ -14457,7 +14457,7 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
-				MsgStrings[ID].sfx = ((byte)vbound((value/10000), 0, 255));
+				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, quest_sounds.size()));
 			break;
 		}	
 		case MESSAGEDATALISTPOS: //WORD
