@@ -6345,7 +6345,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 
-    byte padding;
+    byte padding, tempbyte;
     int32_t  dummy;
     word items_to_read=MAXITEMS;
     itemdata tempitem;
@@ -17438,7 +17438,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		temp_mapscr->ffcs.clear();
 		temp_mapscr->resizeFFC(numffc);
 
-		byte tempbyte;
 		word tempw;
 		static ffcdata nil_ffc;
 		for(word m = 0; m < numffc; ++m)

@@ -151,6 +151,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	itemdata tempitem;
+	byte tempbyte;
    
 	char istring[64]={0};
 	//section version info
