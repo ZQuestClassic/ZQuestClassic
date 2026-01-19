@@ -160,7 +160,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        46
-#define V_GUYS            54
+#define V_GUYS            55
 #define V_MIDIS            5
 #define V_CHEATS           1
 #define V_SAVEGAME        48
@@ -1183,7 +1183,7 @@ struct guydata
 	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
-    byte  hitsfx, deadsfx;
+    word hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
     
@@ -1211,7 +1211,7 @@ struct guydata
     char initD_label[8][65];
     
 	byte spr_shadow, spr_death, spr_spawn;
-	byte specialsfx;
+	word specialsfx;
 	
 	weapon_data weap_data;
 	

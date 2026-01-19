@@ -13725,6 +13725,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     if (should_skip) return 0;
 
     dword dummy;
+	byte tempbyte;
     word guy_cversion;
     word guyversion=0;
     
@@ -14307,15 +14308,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion >= 18)
             {
-                if(!p_getc(&(tempguy.hitsfx),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&(tempguy.deadsfx),f))
-                {
-                    return qe_invalid;
-                }
+				if (guyversion < 55)
+				{
+					if(!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.hitsfx = tempbyte;
+					if(!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.deadsfx = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&(tempguy.hitsfx),f))
+						return qe_invalid;
+					if(!p_igetw(&(tempguy.deadsfx),f))
+						return qe_invalid;
+				}
             }
             
             if(guyversion >= 22)
@@ -15312,8 +15320,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				if (!p_getc(&(tempguy.specialsfx), f))
-					return qe_invalid;
+				if (guyversion < 55)
+				{
+					if (!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.specialsfx = tempbyte;
+				}
+				else
+				{
+					if (!p_igetw(&(tempguy.specialsfx), f))
+						return qe_invalid;
+				}
 			}
 			
 			if(guyversion >= 54)

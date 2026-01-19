@@ -11160,15 +11160,11 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			
 			}
 		
-			if(!p_putc(guysbuf[i].hitsfx,f))
-			{
+			if(!p_iputw(guysbuf[i].hitsfx,f))
 				new_return(47);
-			}
 			
-			if(!p_putc(guysbuf[i].deadsfx,f))
-			{
+			if(!p_iputw(guysbuf[i].deadsfx,f))
 				new_return(48);
-			}
 			
 			if(!p_iputl(guysbuf[i].attributes[10],f))
 			{
@@ -11401,7 +11397,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
-			if (!p_putc(guysbuf[i].specialsfx, f))
+			if (!p_iputw(guysbuf[i].specialsfx, f))
 				new_return(103);
 			if(auto ret = write_weap_data(guysbuf[i].weap_data, f))
 				return ret;

@@ -8409,8 +8409,8 @@ int32_t get_register(int32_t arg)
 		case NPCDATAHUNGER: GET_NPCDATA_VAR_INT16(grumble, "Hunger"); break;
 		case NPCDATADROPSET: GET_NPCDATA_VAR_INT16(item_set, "Dropset"); break;
 		case NPCDATABGSFX: GET_NPCDATA_VAR_INT16(bgsfx, "BGSFX"); break;
-		case NPCDATADEATHSFX: GET_NPCDATA_VAR_BYTE(deadsfx, "DeathSFX"); break;
-		case NPCDATAHITSFX: GET_NPCDATA_VAR_BYTE(hitsfx, "HitSFX"); break;
+		case NPCDATADEATHSFX: GET_NPCDATA_VAR_INT16(deadsfx, "DeathSFX"); break;
+		case NPCDATAHITSFX: GET_NPCDATA_VAR_INT16(hitsfx, "HitSFX"); break;
 		case NPCDATAXOFS: GET_NPCDATA_VAR_INT32(xofs, "DrawXOffset"); break;
 		case NPCDATAYOFS: GET_NPCDATA_VAR_INT32(yofs, "DrawYOffset"); break;
 		case NPCDATAZOFS: GET_NPCDATA_VAR_INT32(zofs, "DrawZOffset"); break;
@@ -15739,7 +15739,7 @@ void set_register(int32_t arg, int32_t value)
 				nd->member = vbound((value / 10000),0,214747); \
 		} \
 		
-		#define	SET_NPCDATA_VAR_DWORD(member, str) \
+		#define	SET_NPCDATA_VAR_WORD(member, str) \
 		{ \
 			if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
 				nd->member = vbound((value / 10000),0,32767); \
@@ -15782,25 +15782,25 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 		case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
-		case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
-		case NPCDATATYPE: SET_NPCDATA_VAR_DWORD(type, "Family"); break;
-		case NPCDATACSET: SET_NPCDATA_VAR_DWORD(cset, "CSet"); break;
-		case NPCDATAANIM: SET_NPCDATA_VAR_DWORD(anim, "Anim"); break;
-		case NPCDATAEANIM: SET_NPCDATA_VAR_DWORD(e_anim, "ExAnim"); break;
-		case NPCDATAFRAMERATE: SET_NPCDATA_VAR_DWORD(frate, "Framerate"); break;
-		case NPCDATAEFRAMERATE: SET_NPCDATA_VAR_DWORD(e_frate, "ExFramerate"); break;
-		case NPCDATATOUCHDAMAGE: SET_NPCDATA_VAR_DWORD(dp, "TouchDamage"); break;
-		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_DWORD(wdp, "WeaponDamage"); break;
-		case NPCDATAWEAPON: SET_NPCDATA_VAR_DWORD(weapon, "Weapon"); break;
-		case NPCDATARANDOM: SET_NPCDATA_VAR_DWORD(rate, "Random"); break;
-		case NPCDATAHALT: SET_NPCDATA_VAR_DWORD(hrate, "Haltrate"); break;
-		case NPCDATASTEP: SET_NPCDATA_VAR_DWORD(step, "Step"); break;
-		case NPCDATAHOMING: SET_NPCDATA_VAR_DWORD(homing, "Homing"); break;
-		case NPCDATAHUNGER: SET_NPCDATA_VAR_DWORD(grumble, "Hunger"); break;
-		case NPCDATADROPSET: SET_NPCDATA_VAR_DWORD(item_set, "Dropset"); break;
-		case NPCDATABGSFX: SET_NPCDATA_VAR_DWORD(bgsfx, "BGSFX"); break;
-		case NPCDATADEATHSFX: SET_NPCDATA_VAR_BYTE(deadsfx, "DeathSFX"); break;
-		case NPCDATAHITSFX: SET_NPCDATA_VAR_BYTE(hitsfx, "HitSFX"); break;
+		case NPCDATAHP: SET_NPCDATA_VAR_WORD(hp, "HP"); break;
+		case NPCDATATYPE: SET_NPCDATA_VAR_WORD(type, "Family"); break;
+		case NPCDATACSET: SET_NPCDATA_VAR_WORD(cset, "CSet"); break;
+		case NPCDATAANIM: SET_NPCDATA_VAR_WORD(anim, "Anim"); break;
+		case NPCDATAEANIM: SET_NPCDATA_VAR_WORD(e_anim, "ExAnim"); break;
+		case NPCDATAFRAMERATE: SET_NPCDATA_VAR_WORD(frate, "Framerate"); break;
+		case NPCDATAEFRAMERATE: SET_NPCDATA_VAR_WORD(e_frate, "ExFramerate"); break;
+		case NPCDATATOUCHDAMAGE: SET_NPCDATA_VAR_WORD(dp, "TouchDamage"); break;
+		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_WORD(wdp, "WeaponDamage"); break;
+		case NPCDATAWEAPON: SET_NPCDATA_VAR_WORD(weapon, "Weapon"); break;
+		case NPCDATARANDOM: SET_NPCDATA_VAR_WORD(rate, "Random"); break;
+		case NPCDATAHALT: SET_NPCDATA_VAR_WORD(hrate, "Haltrate"); break;
+		case NPCDATASTEP: SET_NPCDATA_VAR_WORD(step, "Step"); break;
+		case NPCDATAHOMING: SET_NPCDATA_VAR_WORD(homing, "Homing"); break;
+		case NPCDATAHUNGER: SET_NPCDATA_VAR_WORD(grumble, "Hunger"); break;
+		case NPCDATADROPSET: SET_NPCDATA_VAR_WORD(item_set, "Dropset"); break;
+		case NPCDATABGSFX: SET_NPCDATA_VAR_WORD(bgsfx, "BGSFX"); break;
+		case NPCDATADEATHSFX: SET_NPCDATA_VAR_WORD(deadsfx, "DeathSFX"); break;
+		case NPCDATAHITSFX: SET_NPCDATA_VAR_WORD(hitsfx, "HitSFX"); break;
 		case NPCDATAXOFS: SET_NPCDATA_VAR_INT(xofs, "DrawXOffset"); break;
 		case NPCDATAYOFS: SET_NPCDATA_VAR_INT(yofs, "DrawYOffset"); break;
 		case NPCDATAZOFS: SET_NPCDATA_VAR_INT(zofs, "DrawZOffset"); break;

@@ -1213,6 +1213,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	guydata tempguy;
+	byte tempbyte;
    
 	char npcstring[64]={0}; //guy_string[]
 	//section version info
@@ -1417,15 +1418,22 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	}
-			
-	if(!p_getc(&tempguy.hitsfx,f))
+	
+	if (section_version < 55)
 	{
-	return 0;
+		if(!p_getc(&tempbyte, f))
+			return qe_invalid;
+		tempguy.hitsfx = tempbyte;
+		if(!p_getc(&tempbyte, f))
+			return qe_invalid;
+		tempguy.deadsfx = tempbyte;
 	}
-			
-	if(!p_getc(&tempguy.deadsfx,f))
+	else
 	{
-	return 0;
+		if(!p_igetw(&(tempguy.hitsfx),f))
+			return qe_invalid;
+		if(!p_igetw(&(tempguy.deadsfx),f))
+			return qe_invalid;
 	}
 			
 	if(!p_igetl(&tempguy.attributes[10],f))
@@ -1649,8 +1657,17 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 				if (!p_getc(&tempguy.weap_data.light_rads[q], f))
 					return 0;
 			}
-			if (!p_getc(&tempguy.specialsfx, f))
-				return 0;
+			if (section_version < 55)
+			{
+				if (!p_getc(&tempbyte, f))
+					return 0;
+				tempguy.specialsfx = tempbyte;
+			}
+			else
+			{
+				if (!p_igetw(&tempguy.specialsfx, f))
+					return 0;
+			}
 
 		}
 	}
@@ -1853,15 +1870,11 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		}
 		}
 		
-		if(!p_putc(guysbuf[i].hitsfx,f))
-		{
-		return 0;
-		}
+		if(!p_iputw(guysbuf[i].hitsfx,f))
+			return 0;
 		
-		if(!p_putc(guysbuf[i].deadsfx,f))
-		{
-		return 0;
-		}
+		if(!p_iputw(guysbuf[i].deadsfx,f))
+			return 0;
 		
 		//2.55 starts here
 		for(int32_t j=edefLAST; j < edefLAST255; j++)
@@ -2063,7 +2076,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 			if (!p_putc(guysbuf[i].weap_data.light_rads[q], f))
 				return 0;
 		}
-		if (!p_putc(guysbuf[i].specialsfx, f))
+		if (!p_iputw(guysbuf[i].specialsfx, f))
 			return 0;
 
 	return 1;
