@@ -151,7 +151,7 @@ struct SubscrSelectorInfo
 struct SubscrTransition
 {
 	byte type;
-	byte tr_sfx;
+	word tr_sfx;
 	word flags;
 	int32_t arg[SUBSCR_TRANSITION_MAXARG];
 	

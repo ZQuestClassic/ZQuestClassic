@@ -174,10 +174,10 @@ struct mapscr
 	byte ffTileHeight(size_t ind) const;
 	void ffTileHeight(size_t ind, byte val);
 	
-	byte oceansfx;
-	byte bosssfx;
-	byte secretsfx = 27;
-	byte holdupsfx = 20;
+	word oceansfx;
+	word bosssfx;
+	word secretsfx = 27;
+	word holdupsfx = 20;
 
 	int32_t music = -1;
 	byte lens_layer;

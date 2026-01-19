@@ -23,7 +23,7 @@
 #include <vector>
 #include <assert.h>
 #include <fmt/format.h>
-
+#include "zcsfx.h"
 
 #include "fmt/core.h"
 #include "base/zc_alleg.h"
@@ -3634,9 +3634,9 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 	word temp_expansion[16];
 	memset(temp_expansion, 0, 16*sizeof(word));
 	char buf[8193] = {0};
+	byte tempbyte;
 	if(Header->zelda_version < 0x193)
 	{
-		byte tempbyte;
 		int32_t strings_to_read=0;
 		if (!should_skip)
 			set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
@@ -3903,8 +3903,17 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 						return qe_invalid;
 				}
 				
-				if(!p_getc(&tempMsgString.sfx,f))
-					return qe_invalid;
+				if (s_version < 12)
+				{
+					if (!p_getc(&tempbyte,f))
+						return qe_invalid;
+					tempMsgString.sfx = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&tempMsgString.sfx,f))
+						return qe_invalid;
+				}
 				
 				if(s_version>3)
 					if(!p_igetw(&tempMsgString.listpos,f))
@@ -6149,12 +6158,25 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	if(s_version >= 14)
 	{
-		byte msfx;
-		for(int32_t q = 0; q < sfxMAX; ++q)
+		if (s_version < 19)
 		{
-			if(!p_getc(&msfx,f))
-				return qe_invalid;
-			temp_misc.miscsfx[q] = msfx;
+			byte msfx;
+			for(int32_t q = 0; q < sfxMAX; ++q)
+			{
+				if(!p_getc(&msfx,f))
+					return qe_invalid;
+				temp_misc.miscsfx[q] = msfx;
+			}
+		}
+		else
+		{
+			word msfx;
+			for(int32_t q = 0; q < sfxMAX; ++q)
+			{
+				if(!p_igetw(&msfx,f))
+					return qe_invalid;
+				temp_misc.miscsfx[q] = msfx;
+			}
 		}
 	}
 	else
@@ -6205,11 +6227,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			if (!p_getc(&menu.cursor_cset, f))
 				return qe_invalid;
 			
-			if (!p_getc(&menu.cursor_sfx, f))
-				return qe_invalid;
-			
-			if (!p_getc(&menu.choose_sfx, f))
-				return qe_invalid;
+			if (s_version < 19)
+			{
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				menu.cursor_sfx = tempbyte;
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				menu.choose_sfx = tempbyte;
+			}
+			else
+			{
+				if (!p_igetw(&menu.cursor_sfx, f))
+					return qe_invalid;
+				if (!p_igetw(&menu.choose_sfx, f))
+					return qe_invalid;
+			}
 			
 			if (!p_getc(&menu.bg_color, f))
 				return qe_invalid;
@@ -6312,7 +6345,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 
-    byte padding;
+    byte padding, tempbyte;
     int32_t  dummy;
     word items_to_read=MAXITEMS;
     itemdata tempitem;
@@ -6614,10 +6647,17 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 return qe_invalid;
             }
             
-            if(!p_getc(&tempitem.playsound,f))
-            {
-                return qe_invalid;
-            }
+			if (s_version >= 66)
+			{
+				if(!p_igetw(&tempitem.playsound,f))
+					return qe_invalid;
+			}
+			else
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				tempitem.playsound = tempbyte;
+			}
             
             for(int32_t j=0; j<8; j++)
             {
@@ -6830,20 +6870,27 @@ int32_t readitems(PACKFILE *f, word version, word build)
                         }
                     }
                     
-                    if(!p_getc(&tempitem.usesound,f))
-                    {
-                        return qe_invalid;
-                    }
 					
-					if(s_version >= 49)
+					if (s_version >= 66)
 					{
-						if(!p_getc(&tempitem.usesound2,f))
-						{
+						if(!p_igetw(&tempitem.usesound,f))
 							return qe_invalid;
-						}
+						if(!p_igetw(&tempitem.usesound2,f))
+							return qe_invalid;
 					}
-					else tempitem.usesound2 = 0;
-					
+					else
+					{
+						if(!p_getc(&tempbyte,f))
+							return qe_invalid;
+						tempitem.usesound = tempbyte;
+						if (s_version >= 49)
+						{
+							if(!p_getc(&tempbyte,f))
+								return qe_invalid;
+							tempitem.usesound2 = tempbyte;
+						}
+						else tempitem.usesound2 = 0;
+					}
 					if(s_version < 50 && tempitem.type == itype_mirror)
 					{
 						//Split continue/dmap warp effect/sfx, port for old
@@ -13379,8 +13426,6 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	return 0;
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern uint8_t customsfxflag[WAV_COUNT>>3];
 extern int32_t sfxdat;
 extern DATAFILE *sfxdata;
 const char *old_sfx_string[Z35] =
@@ -13398,42 +13443,13 @@ const char *old_sfx_string[Z35] =
     "Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
     "Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
 };
-char *sfx_string[WAV_COUNT];
 
-int32_t readsfx(PACKFILE *f, zquestheader *Header)
+int32_t readsfx_old(PACKFILE *f, word s_version)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	Header=Header;
-	
 	int32_t dummy;
-	word s_version=0;
 	//int32_t ret;
-	SAMPLE temp_sample = {};
-	temp_sample.loop_start=0;
-	temp_sample.loop_end=0;
-	temp_sample.param=0;
-	
-	//section version info
-	if(!p_igetw(&s_version,f))
-	{
-		return qe_invalid;
-	}
-
-	if (s_version > V_SFX)
-			return qe_version;
-	
-	FFCore.quest_format[vSFX] = s_version;
-	
-	if(!read_deprecated_section_cversion(f))
-	{
-		return qe_invalid;
-	}
-	
-	//section size
-	if(!p_igetl(&dummy,f))
-	{
-		return qe_invalid;
-	}
+	const size_t WAV_COUNT = 256;
+	SAMPLE samples[WAV_COUNT] = {0};
 	
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),
@@ -13467,15 +13483,15 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 		}
 		
 	}
-		
+	
+	string sfx_string[256];
 	if(s_version>4)
 	{
-		for(int32_t i=1; i<WAV_COUNT; i++)
+		for(int32_t i=1; i<256; i++)
 		{
-			sprintf(sfx_string[i],"s%03d",i);
-			
-			if((i<Z35))
-				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			if(i < Z35)
+				sfx_string[i] = old_sfx_string[i-1];
+			else sfx_string[i] = fmt::format("s{:03}", i);
 			
 			if(i>=wavcount)
 				continue;
@@ -13488,36 +13504,36 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 				}
 				
-				sfx_string[i][0] = '\0';
-				strncat(sfx_string[i], tempname, 36 - 1);
+				sfx_string[i] = tempname;
 			}
 			else
 			{
-				sprintf(sfx_string[i],"s%03d",i);
-				
-				if(i<Z35)
-					strcpy(sfx_string[i], old_sfx_string[i-1]);
-				sfx_string[i][35] = 0; //Force NULL Termination
+				if(i < Z35)
+					sfx_string[i] = old_sfx_string[i-1];
+				else sfx_string[i] = fmt::format("s{:03}", i);
 			}
 		}
 	}
 	else
 	{
-		for(int32_t i=1; i<WAV_COUNT; i++)
+		for(int32_t i=1; i<256; i++)
 		{
-			sprintf(sfx_string[i],"s%03d",i);
-			
-			if(i<Z35)
-				strcpy(sfx_string[i], old_sfx_string[i-1]);
+			if(i < Z35)
+				sfx_string[i] = old_sfx_string[i-1];
+			else sfx_string[i] = fmt::format("s{:03}", i);
 		}
 	}
 	
 	//finally...  section data
 	for(int32_t i=1; i<wavcount; i++)
 	{
+		SAMPLE& temp_sample = samples[i];
+		temp_sample.loop_start = 0;
+		temp_sample.loop_end = 0;
+		temp_sample.param = 0;
+		temp_sample.data = nullptr;
 		if(get_bit(tempflag, i-1))
 		{
-			
 			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
@@ -13616,82 +13632,123 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 		}
 		else continue;
 		
-		if(customsfxdata[i].data!=NULL)
-		{
-			// delete [] customsfxdata[i].data;
-			free(customsfxdata[i].data);
-		}
 		
-		// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-		int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-		customsfxdata[i].data = calloc(len2,1);
-		customsfxdata[i].bits = temp_sample.bits;
-		customsfxdata[i].stereo = temp_sample.stereo;
-		customsfxdata[i].freq = temp_sample.freq;
-		customsfxdata[i].priority = temp_sample.priority;
-		customsfxdata[i].len = temp_sample.len;
-		customsfxdata[i].loop_start = temp_sample.loop_start;
-		customsfxdata[i].loop_end = temp_sample.loop_end;
-		customsfxdata[i].param = temp_sample.param;
-		int32_t cpylen = len2;
-		
-		if(s_version<3)
-		{
-			cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
-			al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
-		}
-		
-		memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
-		
-		free(temp_sample.data);
+		// unsure how to handle this, or if it needs to be handled?
+		// int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+		// samples[i].data = calloc(len2,1);
+		// int32_t cpylen = len2;
+		// if(s_version<3)
+		// {
+			// cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
+			// al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
+		// }
+		// memcpy(samples[i].data,temp_sample.data,cpylen);
+		// free(temp_sample.data);
 	}
 	
-	memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
+	int blanks = 0;
+	quest_sounds.reserve(wavcount);
+	for (uint q = 1; q < wavcount; ++q)
+	{
+		if (get_bit(tempflag, q - 1))
+		{
+			while (quest_sounds.size() < q)
+				quest_sounds.emplace_back();
+			auto& sound = quest_sounds[q - 1];
+			sound = ZCSFX(samples[q]);
+			if (sound.is_invalid())
+				return qe_invalid;
+			sound.sfx_name = sfx_string[q];
+		}
+		else if (q - 1 < quest_sounds.size())
+			quest_sounds[q - 1].clear();
+	}
+	quest_sounds.shrink_to_fit();
 	
-	sfxdat=0;
+	sfxdat = 0;
+	return 0;
+}
+int32_t readsfx(PACKFILE *f, zquestheader *)
+{
+	int32_t dummy;
+	word s_version = 0;
+	
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+
+	if (s_version > V_SFX)
+		return qe_version;
+	
+	FFCore.quest_format[vSFX] = s_version;
+	
+	if(!read_deprecated_section_cversion(f))
+		return qe_invalid;
+	
+	//section size
+	if(!p_igetl(&dummy,f))
+		return qe_invalid;
+	
+	if (s_version < 9)
+		return readsfx_old(f, s_version);
+	
+	word count;
+	if (!p_igetw(&count, f))
+		return qe_invalid;
+	
+	quest_sounds.clear();
+	quest_sounds.reserve(count);
+	for (word q = 0; q < count; ++q)
+	{
+		ZCSFX& sound = quest_sounds.emplace_back();
+		if (!p_getc(&sound.sample_type, f))
+			return qe_invalid;
+		if (!p_getcstr(&sound.sfx_name, f))
+			return qe_invalid;
+		if (sound.sample_type == SMPL_INVALID)
+			continue;
+		if (!p_igetl(&sound.priority, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.loop_start, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.loop_end, f))
+			return qe_invalid;
+		if (!p_igetl(&sound.param, f))
+			return qe_invalid;
+		byte dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		ALLEGRO_AUDIO_DEPTH depth = (ALLEGRO_AUDIO_DEPTH)dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		ALLEGRO_CHANNEL_CONF chan_conf = (ALLEGRO_CHANNEL_CONF)dummy;
+		int32_t frequency, len;
+		if (!p_igetl(&frequency, f))
+			return qe_invalid;
+		if (!p_igetl(&len, f))
+			return qe_invalid;
+		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+		byte* data = (byte*)al_malloc(buffer_len);
+		if (!data)
+			return qe_nomem;
+		if (!pfread(data, buffer_len, f))
+			return qe_invalid;
+		
+		sound.load_sample(data, len, frequency, depth, chan_conf);
+	}
+	
+	sfxdat = 0;
 	return 0;
 }
 
 void setupsfx()
 {
-    for(int32_t i=1; i<WAV_COUNT; i++)
+	quest_sounds.clear();
+	quest_sounds.reserve(Z35-1);
+    for(size_t q = 1; q < Z35; ++q)
     {
-        sprintf(sfx_string[i],"s%03d",i);
-        
-        if(i<Z35)
-        {
-            strcpy(sfx_string[i], old_sfx_string[i-1]);
-        }
-        
-        memset(customsfxflag, 0, WAV_COUNT>>3);
-        
-        int32_t j=i;
-        
-        if(i>Z35)
-        {
-            i=Z35;
-        }
-        
-        SAMPLE *temp_sample = (SAMPLE *)sfxdata[i].dat;
-        
-        if(customsfxdata[j].data!=NULL)
-        {
-//    delete [] customsfxdata[j].data;
-            free(customsfxdata[j].data);
-        }
-        
-//    customsfxdata[j].data = new byte[(temp_sample->bits==8?1:2)*temp_sample->len];
-        customsfxdata[j].data = calloc((temp_sample->bits==8?1:2)*(temp_sample->stereo == 0 ? 1 : 2)*temp_sample->len,1);
-        customsfxdata[j].bits = temp_sample->bits;
-        customsfxdata[j].stereo = temp_sample->stereo;
-        customsfxdata[j].freq = temp_sample->freq;
-        customsfxdata[j].priority = temp_sample->priority;
-        customsfxdata[j].len = temp_sample->len;
-        customsfxdata[j].loop_start = temp_sample->loop_start;
-        customsfxdata[j].loop_end = temp_sample->loop_end;
-        customsfxdata[j].param = temp_sample->param;
-        memcpy(customsfxdata[j].data, (temp_sample->data), (temp_sample->bits==8?1:2)*(temp_sample->stereo==0 ? 1 : 2)*temp_sample->len);
-        i=j;
+		SAMPLE *temp_sample = (SAMPLE *)sfxdata[q].dat;
+		auto& sound = quest_sounds.emplace_back(*temp_sample);
+		sound.sfx_name = old_sfx_string[q-1];
     }
 }
 
@@ -13704,6 +13761,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     if (should_skip) return 0;
 
     dword dummy;
+	byte tempbyte;
     word guy_cversion;
     word guyversion=0;
     
@@ -14286,15 +14344,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             if(guyversion >= 18)
             {
-                if(!p_getc(&(tempguy.hitsfx),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&(tempguy.deadsfx),f))
-                {
-                    return qe_invalid;
-                }
+				if (guyversion < 55)
+				{
+					if(!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.hitsfx = tempbyte;
+					if(!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.deadsfx = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&(tempguy.hitsfx),f))
+						return qe_invalid;
+					if(!p_igetw(&(tempguy.deadsfx),f))
+						return qe_invalid;
+				}
             }
             
             if(guyversion >= 22)
@@ -15291,8 +15356,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				if (!p_getc(&(tempguy.specialsfx), f))
-					return qe_invalid;
+				if (guyversion < 55)
+				{
+					if (!p_getc(&tempbyte, f))
+						return qe_invalid;
+					tempguy.specialsfx = tempbyte;
+				}
+				else
+				{
+					if (!p_igetw(&(tempguy.specialsfx), f))
+						return qe_invalid;
+				}
 			}
 			
 			if(guyversion >= 54)
@@ -16221,20 +16295,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->oceansfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->oceansfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->bosssfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->bosssfx = tempbyte;
 		
-		if(!p_getc(&(temp_mapscr->secretsfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->secretsfx = tempbyte;
 	}
 	
 	if(version<15) // October 2007: another SFX
@@ -16243,10 +16314,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->holdupsfx),f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_mapscr->holdupsfx = tempbyte;
 	}
 	
 	
@@ -16971,6 +17041,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 	}
 	else
 	{
+		byte tempbyte;
 		if(!p_getc(&(temp_mapscr->valid),f))
 			return qe_invalid;
 		if(!(temp_mapscr->valid & mVALID))
@@ -17290,14 +17361,32 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->csensitive),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->oceansfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->bosssfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->secretsfx),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->holdupsfx),f))
-				return qe_invalid;
+			if (version < 38)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->oceansfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->bosssfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->secretsfx = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_mapscr->holdupsfx = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&(temp_mapscr->oceansfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->bosssfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->secretsfx),f))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->holdupsfx),f))
+					return qe_invalid;
+			}
 			if(!p_igetw(&(temp_mapscr->timedwarptics),f))
 				return qe_invalid;
 			if (version < 37)
@@ -17347,7 +17436,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		temp_mapscr->ffcs.clear();
 		temp_mapscr->resizeFFC(numffc);
 
-		byte tempbyte;
 		word tempw;
 		static ffcdata nil_ffc;
 		for(word m = 0; m < numffc; ++m)
@@ -17819,8 +17907,11 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				temp_trigger.trigtimer = tempbyte;
 			}
 			if(section_version >= 25)
-				if(!p_getc(&temp_trigger.trigsfx,f))
+			{
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
+				temp_trigger.trigsfx = tempbyte;
+			}
 			if(section_version >= 27)
 				if(!p_igetl(&temp_trigger.trigchange,f))
 					return qe_invalid;
@@ -18212,8 +18303,18 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 		temp_trigger.trigtimer = tempbyte;
 	}
-	if(!p_getc(&temp_trigger.trigsfx,f))
-		return qe_invalid;
+	if (s_version < 64)
+	{
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+		temp_trigger.trigsfx = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&temp_trigger.trigsfx,f))
+			return qe_invalid;
+		
+	}
 	if(!p_igetl(&temp_trigger.trigchange,f))
 		return qe_invalid;
 	if(!p_igetw(&temp_trigger.trigprox,f))
@@ -18603,8 +18704,17 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 			if(!p_getc(&temp_combo.liftsprite,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftsfx,f))
-				return qe_invalid;
+			if (s_version < 64)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_combo.liftsfx = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_combo.liftsfx,f))
+					return qe_invalid;
+			}
 			if(!p_igetw(&temp_combo.liftbreaksprite,f))
 				return qe_invalid;
 			if(!p_getc(&temp_combo.liftbreaksfx,f))
@@ -18670,16 +18780,37 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 			if(s_version >= 42)
 			{
-				if(!p_getc(&temp_combo.sfx_appear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_disappear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_loop,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_walking,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_standing,f))
-					return qe_invalid;
+				if (s_version < 64)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_appear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_disappear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_loop = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_walking = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_standing = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.sfx_appear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_disappear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_loop,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_walking,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_standing,f))
+						return qe_invalid;
+				}
 				if(!p_getc(&temp_combo.spr_appear,f))
 					return qe_invalid;
 				if(!p_getc(&temp_combo.spr_disappear,f))
@@ -18689,14 +18820,26 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.spr_standing,f))
 					return qe_invalid;
 			}
-			if(s_version >= 44)
+			if (s_version < 64)
 			{
-				if(!p_getc(&temp_combo.sfx_tap,f))
-					return qe_invalid;
+				if(s_version >= 44)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_tap = tempbyte;
+				}
+				if(s_version >= 49)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_landing = tempbyte;
+				}
 			}
-			if(s_version >= 49)
+			else
 			{
-				if(!p_getc(&temp_combo.sfx_landing,f))
+				if(!p_igetw(&temp_combo.sfx_tap,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.sfx_landing,f))
 					return qe_invalid;
 			}
 			if(s_version >= 50)
@@ -18707,12 +18850,28 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				if(!p_getc(&temp_combo.spr_lava_drowning,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_falling,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_drowning,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_lava_drowning,f))
-					return qe_invalid;
+				
+				if (s_version < 64)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_falling = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_drowning = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.sfx_lava_drowning = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.sfx_falling,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_drowning,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.sfx_lava_drowning,f))
+						return qe_invalid;
+				}
 			}
 			if(s_version >= 56)
 			{

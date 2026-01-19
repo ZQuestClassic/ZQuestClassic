@@ -74,7 +74,7 @@ struct combo_trigger
 	byte triggerbtn;
 	byte triggeritem;
 	word trigtimer;
-	byte trigsfx;
+	word trigsfx;
 	int32_t trigchange;
 	word trigprox;
 	int16_t trigctr;
@@ -148,7 +148,7 @@ struct newcombo
 	int16_t genflags; // general flags
 	lift_flags liftflags;
 	byte liftlvl;
-	byte liftsfx;
+	word liftsfx;
 	byte liftitm;
 	byte liftgfx;
 	word liftcmb, liftundercmb;
@@ -172,7 +172,7 @@ struct newcombo
 	byte speed_mult = 1;
 	byte speed_div = 1;
 	zfix speed_add;
-	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing, sfx_falling, sfx_drowning, sfx_lava_drowning;
+	word sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing, sfx_falling, sfx_drowning, sfx_lava_drowning;
 	byte spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
 	
 	vector<combo_trigger> triggers;

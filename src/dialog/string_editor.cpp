@@ -50,6 +50,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	list_nextstr(GUI::ZCListData::strings(false)),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
+	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_shtype(createShadowTypesListData())
 {
 	if(ind == msg_count) //new str
@@ -80,9 +81,9 @@ Checkbox( \
 	} \
 )
 
-#define DDL(member, lister) \
+#define DDL(member, lister, maxw) \
 DropDownList(data = lister, \
-	fitParent = true, \
+	fitParent = true, maxwidth = maxw, \
 	selectedValue = tmpMsgStr.member, \
 	onSelectFunc = [&](int32_t val) \
 	{ \
@@ -107,14 +108,6 @@ SelTileSwatch( \
 		tmpMsgStr.memTile = t; \
 		tmpMsgStr.memCSet &= 0xF0; \
 		tmpMsgStr.memCSet |= c&0x0F; \
-	})
-
-#define IBTN(info) \
-Button(forceFitH = true, text = "?", \
-	disabled = !(info)[0], \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Info",info).show(); \
 	})
 //}
 
@@ -263,7 +256,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					})
 			),
 			Rows<2>(
-				font_dd = DDL(font, sorted_fontdd ? list_font : list_font_order),
+				font_dd = DDL(font, sorted_fontdd ? list_font : list_font_order, 500_px),
 				fontsort_cb = Checkbox(
 					text = "Font Sort",
 					checked = sorted_fontdd,
@@ -275,7 +268,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					}
 				),
 				nextstr_dd = DropDownList(data = list_nextstr,
-					fitParent = true,
+					fitParent = true, maxwidth = 500_px,
 					selectedValue = tmpMsgStr.nextstring,
 					onSelectFunc = [&](int32_t val)
 					{
@@ -295,62 +288,77 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			)
 		)),
 		TabRef(name = "Attributes", Column(
-			Columns<4>(
+			Rows_Columns<3, 4>(
 				//Col 1
 				Label(text = "X:", hAlign = 1.0),
-				Label(text = "Y:", hAlign = 1.0),
-				Label(text = "SFX:", hAlign = 1.0),
-				Label(text = "Layer:", hAlign = 1.0),
 				NUM_FIELD(x,-512,512),
+				INFOBTN("The left X position of the textbox"),
+				Label(text = "Y:", hAlign = 1.0),
 				NUM_FIELD(y,-512,512),
-				NUM_FIELD(sfx,0,255),
+				INFOBTN("The top Y position of the textbox"),
+				Label(text = "Layer:", hAlign = 1.0),
 				NUM_FIELD(drawlayer,0,7),
+				INFOBTN("The layer to draw the textbox on"),
+				DummyWidget(),
+				DummyWidget(),
+				DummyWidget(),
 				//Col 2
 				Label(text = "Width:", hAlign = 1.0),
-				Label(text = "Height:", hAlign = 1.0),
-				Label(text = "HSpace:", hAlign = 1.0),
-				Label(text = "VSpace:", hAlign = 1.0),
 				NUM_FIELD(w,8,512),
+				INFOBTN("The width of the textbox in pixels"),
+				Label(text = "Height:", hAlign = 1.0),
 				NUM_FIELD(h,8,512),
+				INFOBTN("The height of the textbox in pixels"),
+				Label(text = "HSpace:", hAlign = 1.0),
 				NUM_FIELD(hspace,0,128),
+				INFOBTN("The extra space between letters, in pixels"),
+				Label(text = "VSpace:", hAlign = 1.0),
 				NUM_FIELD(vspace,0,128),
+				INFOBTN("The extra space between lines, in pixels"),
 				//Col 3
-				Label(text = "T. Margin:", hAlign = 1.0),
-				Label(text = "B. Margin:", hAlign = 1.0),
-				Label(text = "L. Margin:", hAlign = 1.0),
-				Label(text = "R. Margin:", hAlign = 1.0),
+				Label(text = "Top Margin:", hAlign = 1.0),
 				NUM_FIELD(margins[0],0,255),
+				INFOBTN("The extra space between the top of the textbox and the text, in pixels"),
+				Label(text = "Bottom Margin:", hAlign = 1.0),
 				NUM_FIELD(margins[1],0,255),
+				INFOBTN("The extra space between the bottom of the textbox and the text, in pixels"),
+				Label(text = "Left Margin:", hAlign = 1.0),
 				NUM_FIELD(margins[2],0,255),
-				NUM_FIELD(margins[3],0,255)
+				INFOBTN("The extra space between the left of the textbox and the text, in pixels"),
+				Label(text = "Right Margin:", hAlign = 1.0),
+				NUM_FIELD(margins[3],0,255),
+				INFOBTN("The extra space between the right of the textbox and the text, in pixels")
+			),
+			Rows<3>(
+				Label(text = "SFX:", hAlign = 1.0),
+				DDL(sfx, list_sfx, 500_px),
+				INFOBTN("This SFX plays as the message is typed out")
 			),
 			Row(
 				Rows<2>(
-					DummyWidget(),
-					CHECKB(stringflags, STRINGFLAG_CONT,
-						"Is continuation of previous string"),
-					DummyWidget(),
-					CHECKB(stringflags, STRINGFLAG_WRAP,
-						"Text wraps around bounding box"),
-					IBTN("The background tile will use a full rectangle"
+					INFOBTN("This string is typed out in the same textbox as the"
+						" string before it, rather than starting a fresh textbox."),
+					CHECKB(stringflags, STRINGFLAG_CONT, "Is continuation of previous string"),
+					INFOBTN("The text will wrap when it reaches the right margin."),
+					CHECKB(stringflags, STRINGFLAG_WRAP, "Text wraps around bounding box"),
+					INFOBTN("The background tile will use a full rectangle"
 						" instead of a frame if this is checked."),
-					CHECKB(stringflags, STRINGFLAG_FULLTILE,
-						"Full Tiled Background"),
-					DummyWidget(),
-					CHECKB(stringflags, STRINGFLAG_TRANS_BG,
-						"Transparent BG"),
-					DummyWidget(),
-					CHECKB(stringflags, STRINGFLAG_TRANS_FG,
-						"Transparent FG")
+					CHECKB(stringflags, STRINGFLAG_FULLTILE, "Full Tiled Background"),
+					INFOBTN("The background is drawn transparently."),
+					CHECKB(stringflags, STRINGFLAG_TRANS_BG, "Transparent BG"),
+					INFOBTN("The foreground (text) is drawn transparently."),
+					CHECKB(stringflags, STRINGFLAG_TRANS_FG, "Transparent FG")
 				),
 				Rows<3>(
-					DummyWidget(),
+					INFOBTN("Which type of shadow the text will have."
+						"'Shadowed' types have a shadow behind the text,"
+						" while 'Shadow' types replace the text entirely with a shadow."),
 					Label(text = "Shadow Type", hAlign = 1.0),
-					DDL(shadow_type, list_shtype),
-					DummyWidget(),
+					DDL(shadow_type, list_shtype, 200_px),
+					INFOBTN("The color of the shadow."),
 					Label(text = "Shadow Color", hAlign = 1.0),
 					COLOR_FIELD(shadow_color),
-					IBTN("The top-left tile of the background. If 'Full Tiled Background'"
+					INFOBTN("The top-left tile of the background. If 'Full Tiled Background'"
 						" is enabled, a rectangle of tiles the size of the message box is used."
 						" Otherwise, a 2x2 block is treated as a 'frame'."),
 					Label(text = "Background:", hAlign = 1.0),
@@ -359,14 +367,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			)
 		)),
 		TabRef(name = "Portrait", Column(
-			Columns<2>(
+			Rows_Columns<2, 2>(
 				Label(text = "X:", hAlign = 1.0),
-				Label(text = "Y:", hAlign = 1.0),
 				NUM_FIELD(portrait_x,0,255),
+				Label(text = "Y:", hAlign = 1.0),
 				NUM_FIELD(portrait_y,0,255),
 				Label(text = "Tile Width:", hAlign = 1.0),
-				Label(text = "Tile Height:", hAlign = 1.0),
 				NUM_FIELD(portrait_tw,0,16),
+				Label(text = "Tile Height:", hAlign = 1.0),
 				NUM_FIELD(portrait_th,0,14)
 			),
 			Row(

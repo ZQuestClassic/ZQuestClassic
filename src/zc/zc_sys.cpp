@@ -79,13 +79,11 @@
 using namespace std::chrono_literals;
 
 extern bool Playing;
-int32_t sfx_voice[WAV_COUNT];
 
 extern byte monochrome_console;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern std::string loadlast;
-extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;
 int32_t paused_midi_pos = 0;
@@ -404,7 +402,6 @@ void load_game_configs()
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
 	heart_beep = zc_get_config(cfg_sect,"heart_beep",0)!=0;
 	//gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
-	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1); // TODO: sfxdat is always set to 1 for titlescreen... and 0 in readsfx... so this cfg is pointless, remove?
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
@@ -434,7 +431,6 @@ void save_game_configs()
 	}
 	
 	zc_set_config(cfg_sect,"load_last_path",loadlast.c_str());
-	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();
 #ifdef __EMSCRIPTEN__
@@ -660,7 +656,11 @@ void null_quest()
 	set_bit(skip_flags, skip_csets, 0);
 	set_bit(skip_flags, skip_misc, 0); // needed for miscsfx (skip this and `tests/replays/demons_inferno/demons_inferno_1_of_2.zplay` fails).
 	loadquest(title_assets_path.c_str(), &QHeader, &QMisc, tunes+ZC_MIDI_COUNT, false, skip_flags, 0, false);
-	sfxdat = 1;
+	if (!sfxdat)
+	{
+		sfxdat = 1;
+		setupsfx(); // reload default sfx from sfxdat
+	}
 	// TODO: sfx.dat is ~1.2 MB. Could be better to break that up into individual files and load on demand / not at startup.
 	// TODO: can we cache the tiles/colordata so we don't have to read title_gfx.dat more than once?
 	//       colordata is tiny, but tilebuf is huge, so limit that to just what the title screen needs.
@@ -6359,14 +6359,8 @@ void master_volume(int32_t dv,int32_t mv)
 	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
 
-// array of voices, one for each sfx sample in the data file
-// 0+ = voice #
-// -1 = voice not allocated
 void Z_init_sound()
 {
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		sfx_voice[i]=-1;
-
 	const char* midis[ZC_MIDI_COUNT] = {
 		"assets/dungeon.mid",
 		"assets/ending.mid",
@@ -6389,244 +6383,6 @@ void Z_init_sound()
 	master_volume(digi_volume, midi_volume);
 }
 
-// returns number of voices currently allocated
-int32_t sfx_count()
-{
-	int32_t c=0;
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		if(sfx_voice[i]!=-1)
-			++c;
-			
-	return c;
-}
-
-// clean up finished samples
-void sfx_cleanup()
-{
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
-		{
-			deallocate_voice(sfx_voice[i]);
-			sfx_voice[i]=-1;
-		}
-}
-
-SAMPLE* sfx_get_sample(int32_t index)
-{
-	// check index
-	if (index<=0 || index>=WAV_COUNT)
-		return nullptr;
-		
-	if (sfxdat)
-	{
-		if (index<Z35)
-		{
-			return (SAMPLE*)sfxdata[index].dat;
-		}
-		else
-		{
-			return (SAMPLE*)sfxdata[Z35].dat;
-		}
-	}
-	else
-	{
-		return &customsfxdata[index];
-	}
-
-	return nullptr;
-}
-
-// allocates a voice for the sample "wav_index" (index into zelda.dat)
-// if a voice is already allocated (and/or playing), then it just returns true
-// Returns true:  voice is allocated
-//		 false: unsuccessful
-bool sfx_init(int32_t index)
-{
-	// check index
-	if(index<=0 || index>=WAV_COUNT)
-		return false;
-
-	if (sfx_voice[index] == -1)
-	{
-		SAMPLE* sample = sfx_get_sample(index);
-		if (!sample)
-			return false;
-
-		sfx_voice[index] = allocate_voice(sample);
-	}
-
-	return sfx_voice[index] != -1;
-}
-
-int32_t sfx_get_default_freq(int32_t index)
-{
-	if (sfxdat)
-	{
-		if (index < Z35)
-		{
-			return ((SAMPLE*)sfxdata[index].dat)->freq;
-		}
-		else
-		{
-			return ((SAMPLE*)sfxdata[Z35].dat)->freq;
-		}
-	}
-	else
-	{
-		return customsfxdata[index].freq;
-	}
-}
-
-int32_t sfx_get_length(int32_t index)
-{
-	if (sfxdat)
-	{
-		if (index < Z35)
-		{
-			return int32_t(((SAMPLE*)sfxdata[index].dat)->len);
-		}
-		else
-		{
-			return int32_t(((SAMPLE*)sfxdata[Z35].dat)->len);
-		}
-	}
-	else
-	{
-		return int32_t(customsfxdata[index].len);
-	}
-}
-
-// plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop, bool restart, zfix vol_perc, int32_t freq)
-{
-	if(!sfx_init(index))
-		return;
-	if (!is_headless())
-	{
-		voice_set_playmode(sfx_voice[index], loop ? PLAYMODE_LOOP : PLAYMODE_PLAY);
-		voice_set_pan(sfx_voice[index], pan);
-
-		// Only used by ZScript currently
-		if (freq <= -1)
-		{
-			freq = sfx_get_default_freq(index);
-		}
-		voice_set_frequency(sfx_voice[index], freq);
-
-		// Only used by ZScript currently
-		int32_t temp_volume = ((sfx_volume * vol_perc) / 100).getFloor();
-		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
-			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
-		voice_set_volume(sfx_voice[index], temp_volume);
-
-		int32_t pos = voice_get_position(sfx_voice[index]);
-
-		if (restart) voice_set_position(sfx_voice[index], 0);
-
-		if (pos <= 0)
-			voice_start(sfx_voice[index]);
-	}
-
-	if (restart && replay_is_debug())
-	{
-		// TODO(replays): get rid of this bandaid next time replays are mass-updated.
-		const char* sfx_name = sfx_string[index];
-		if (strcmp(sfx_name, "Hero is hit") == 0)
-			sfx_name = "Player is hit";
-		else if (strcmp(sfx_name, "Hero dies") == 0)
-			sfx_name = "Player dies";
-		replay_step_comment(fmt::format("sfx {}", sfx_name));
-	}
-}
-
-// true if sfx is allocated
-bool sfx_allocated(int32_t index)
-{
-	return (index>0 && index<WAV_COUNT && sfx_voice[index]!=-1);
-}
-
-// start it (in loop mode) if it's not already playing,
-// otherwise adjust it to play in loop mode -DD
-void cont_sfx(int32_t index)
-{
-	if (is_headless())
-		return;
-
-	if(!sfx_init(index))
-	{
-		return;
-	}
-	
-	if(voice_get_position(sfx_voice[index])<=0)
-	{
-		voice_set_position(sfx_voice[index],0);
-		voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
-		voice_set_volume(sfx_voice[index], sfx_volume);
-		voice_start(sfx_voice[index]);
-	}
-	else
-	{
-		adjust_sfx(index, 128, true);
-	}
-}
-
-// adjust parameters while playing
-void adjust_sfx(int32_t index,int32_t pan,bool loop)
-{
-	if(index<=0 || index>=WAV_COUNT || sfx_voice[index]==-1)
-		return;
-		
-	voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-	voice_set_pan(sfx_voice[index],pan);
-}
-
-// pauses a voice
-void pause_sfx(int32_t index)
-{
-	if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-		voice_stop(sfx_voice[index]);
-}
-
-// resumes a voice
-void resume_sfx(int32_t index)
-{
-	if (is_headless())
-		return;
-
-	if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-		voice_start(sfx_voice[index]);
-}
-
-// pauses all active voices
-void pause_all_sfx()
-{
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		if(sfx_voice[i]!=-1)
-			voice_stop(sfx_voice[i]);
-}
-
-// resumes all paused voices
-void resume_all_sfx()
-{
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		if(sfx_voice[i]!=-1)
-			voice_start(sfx_voice[i]);
-}
-
-// stops an sfx and deallocates the voice
-void stop_sfx(int32_t index)
-{
-	if(index<=0 || index>=WAV_COUNT)
-		return;
-		
-	if(sfx_voice[index]!=-1)
-	{
-		deallocate_voice(sfx_voice[index]);
-		sfx_voice[index]=-1;
-	}
-}
-
 // Stops SFX played by Hero's item of the given family
 void stop_item_sfx(int32_t family)
 {
@@ -6636,16 +6392,6 @@ void stop_item_sfx(int32_t family)
 		return;
 		
 	stop_sfx(itemsbuf[id].usesound);
-}
-
-void kill_sfx()
-{
-	for(int32_t i=0; i<WAV_COUNT; i++)
-		if(sfx_voice[i]!=-1)
-		{
-			deallocate_voice(sfx_voice[i]);
-			sfx_voice[i]=-1;
-		}
 }
 
 // TODO: when far out of bounds, sounds should dampen. currently we only pan.

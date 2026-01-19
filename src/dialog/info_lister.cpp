@@ -893,31 +893,161 @@ void SFXListerDialog::preinit()
 	if(selecting)
 		frozen_inds = 1; // lock '(None)'
 	else
-	{
 		lister.removeInd(0); // remove '(None)'
-		resort();
-		if(selected_val <= 0)
-			selected_val = lister.getValue(0);
-	}
-	selected_val = vbound(selected_val, 1, sfxMAX - 1);
+	if (quest_sounds.size() < MAX_SFX)
+		lister.add(fmt::format("<New SFX> ({:03})", quest_sounds.size() + 1), quest_sounds.size() + 1);
+	if(selected_val < 0)
+		selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 1, MAX_SFX - 1);
 }
-
+static bool empty_sound(ZCSFX const& ref)
+{
+	return ref.is_invalid();
+}
 void SFXListerDialog::postinit()
 {
-	size_t len = 36;
-	for (int q = 0; q < sfxMAX; ++q)
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	using namespace GUI::Key;
+	window->setHelp(get_info(selecting, false, false));
+	widgInfo->overrideWidth(300_px);
+	widgInfo->minHeight(10_em);
+	bool has_empty = false;
+	for (auto const& sound : quest_sounds)
 	{
-		size_t tlen = text_length(GUI_DEF_FONT, sfx_string[q]);
-		if (tlen > len)
-			len = tlen;
+		if (empty_sound(sound)) // don't show button if nothing to clean up
+		{
+			has_empty = true;
+			break;
+		}
 	}
-	window->setHelp(get_info(selecting, false, false, false));
+	btnrow2 = Column(
+		Columns<2>(
+			Button(text = "Cleanup",
+				fitParent = true,
+				disabled = !has_empty,
+				onPressFunc = [&]()
+				{
+					if (!alert_confirm("Clear empty sounds?",
+						"This will clear any entries that have no playable sound set."
+						"\nThis will offset any entries after empty entries; sfx may need to be updated."))
+						return;
+					
+					delete_quest_sounds(empty_sound);
+					refresh_dlg();
+				}),
+			del_btn = Button(text = "Delete",
+				fitParent = true,
+				onClick = message::CLEAR),
+			up_btn = Button(text = "Up",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					swap_quest_sounds(selected_val, selected_val-1);
+					--selected_val;
+					refresh_dlg();
+				}),
+			down_btn = Button(text = "Down",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					swap_quest_sounds(selected_val, selected_val+1);
+					++selected_val;
+					refresh_dlg();
+				})
+		),
+		Label(fitParent = true, maxwidth = 250_px,
+			text = "WARNING: Re-ordering SFX will NOT update anything that uses them."
+			"\nThis includes the re-ordering that happens when deleting SFX."
+		)
+	);
 }
 
+static int16_t copied_sfx_id = -1;
+string get_sound_info(ZCSFX const& sound);
+void SFXListerDialog::update(bool)
+{
+	string info;
+	if (!selected_val)
+		info = "[None]";
+	else if (unsigned(selected_val-1) < quest_sounds.size())
+	{
+		auto const& sound = quest_sounds[selected_val-1]; // vals are 1-indexed
+		info = get_sound_info(sound);
+	}
+	string copystr = fmt::format("Copied: {}", copied_sfx_id+1);
+	widgInfo->setText(fmt::format("{}\n{}", info, copystr));
+	up_btn->setDisabled(unsigned(selected_val - 2) >= quest_sounds.size() - 1);
+	down_btn->setDisabled(unsigned(selected_val - 1) >= quest_sounds.size() - 1);
+	del_btn->setDisabled(unsigned(selected_val - 1) >= quest_sounds.size());
+}
 void SFXListerDialog::edit()
 {
+	if (unsigned(selected_val-1) > quest_sounds.size())
+		return;
 	call_sfxdata_dialog(selected_val);
+	refresh_dlg();
 }
+void SFXListerDialog::rclick(int x, int y)
+{
+	if (unsigned(selected_val-1) >= quest_sounds.size())
+		return; // no rclick menu on the 'None' option
+	bool oob = unsigned(selected_val-1) > quest_sounds.size();
+	NewMenu rcmenu {
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copied_sfx_id < 0 ? MFL_DIS : 0 },
+		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
+		// { "&Save", [&](){save(); update();} },
+		// { "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+bool SFXListerDialog::clear_nondelete()
+{
+	if (unsigned(selected_val-1) >= quest_sounds.size())
+		return false;
+	auto& sound = quest_sounds[selected_val-1];
+	if (!alert_confirm(fmt::format("Clear SFX {}", selected_val),
+		fmt::format("Clear SFX #{}, '{}'?\nThis will reset it to blank.", selected_val, sound.sfx_name)))
+		return false;
+	sound.clear();
+	refresh_dlg();
+	return true;
+}
+bool SFXListerDialog::clear()
+{
+	if (unsigned(selected_val-1) >= quest_sounds.size())
+		return false;
+	auto& sound = quest_sounds[selected_val-1];
+	if (!alert_confirm(fmt::format("Delete SFX '{}'?", sound.sfx_name),
+		fmt::format("This will delete SFX #{}, '{}'."
+		"\nThis will offset all entries after it; sfx of various things may need to be updated.",
+		selected_val, sound.sfx_name)))
+		return false;
+	delete_quest_sounds(selected_val);
+	refresh_dlg();
+	return true;
+}
+void SFXListerDialog::copy()
+{
+	if (!selected_val) return; // skip none
+	if (selected_val-1 >= quest_sounds.size()) return; // skip <New Music>
+	copied_sfx_id = selected_val-1;
+	update();
+}
+bool SFXListerDialog::paste()
+{
+	if (unsigned(copied_sfx_id) >= quest_sounds.size() || unsigned(selected_val-1) > quest_sounds.size())
+		return false;
+	if (selected_val-1 == quest_sounds.size())
+		quest_sounds.emplace_back(quest_sounds[copied_sfx_id]);
+	else quest_sounds[selected_val-1] = quest_sounds[copied_sfx_id];
+	refresh_dlg();
+	mark_save_dirty();
+	return true;
+}
+
 
 DMapListerDialog::DMapListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select DMap", "dmap", index, selecting)
@@ -1222,7 +1352,8 @@ void MusicListerDialog::preinit()
 		frozen_inds = 1; // lock '(None)'
 	else
 		lister.removeInd(0); // remove '(None)'
-	lister.add(fmt::format("<New Music> ({:03})", quest_music.size() + 1), quest_music.size() + 1);
+	if (quest_music.size() < MAX_QUEST_MUSIC)
+		lister.add(fmt::format("<New Music> ({:03})", quest_music.size() + 1), quest_music.size() + 1);
 	resort();
 	if (selected_val < 0)
 		selected_val = lister.getValue(0);
@@ -1387,8 +1518,8 @@ bool MusicListerDialog::clear()
 	if (unsigned(selected_val-1) >= quest_music.size())
 		return false;
 	auto& amus = quest_music[selected_val-1];
-	if (!alert_confirm(fmt::format("Delete music '{}'?", amus.name),
-		fmt::format("This will delete music #{}, '{}'."
+	if (!alert_confirm(fmt::format("Delete Music '{}'?", amus.name),
+		fmt::format("This will delete Music #{}, '{}'."
 		"\nAnything using this entry will be cleared to using '0', the (None) entry.",
 		selected_val, amus.name)))
 		return false;

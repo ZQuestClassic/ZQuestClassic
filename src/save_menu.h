@@ -45,7 +45,8 @@ struct SaveMenu
 	save_menu_flags flags;
 	int32_t cursor_tile, bg_tile;
 	byte cursor_cset, bg_cset, bg_tw = 1, bg_th = 1;
-	byte bg_color = BLACK, cursor_sfx = WAV_CHINK, choose_sfx = WAV_CHINK;
+	byte bg_color = BLACK;
+	word cursor_sfx = WAV_CHINK, choose_sfx = WAV_CHINK;
 	byte hspace = 6, vspace = 16;
 	byte opt_x = 128, opt_y = 32;
 	byte text_align = ALIGN_LEFT, textbox_align = ALIGN_CENTER;

@@ -146,30 +146,30 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           9
 #define V_RULES           17
-#define V_STRINGS         11
-#define V_MISC            18
+#define V_STRINGS         12
+#define V_MISC            19
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          63
+#define V_COMBOS          64
 #define V_CSETS            6 //palette data
-#define V_MAPS            37
+#define V_MAPS            38
 #define V_DMAPS           25
 #define V_DOORS            1
-#define V_ITEMS           65
+#define V_ITEMS           66
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        46
-#define V_GUYS            54
+#define V_GUYS            55
 #define V_MIDIS            5
 #define V_CHEATS           1
-#define V_SAVEGAME        47
+#define V_SAVEGAME        48
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        16
+#define V_SUBSCREEN        17
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         28
-#define V_SFX              8
+#define V_SFX              9
 #define V_FAVORITES        4
 #define V_ZINFO            5
 #define V_ADVMUSIC         1
@@ -1183,7 +1183,7 @@ struct guydata
 	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
-    byte  hitsfx, deadsfx;
+    word hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
     
@@ -1211,7 +1211,7 @@ struct guydata
     char initD_label[8][65];
     
 	byte spr_shadow, spr_death, spr_spawn;
-	byte specialsfx;
+	word specialsfx;
 	
 	weapon_data weap_data;
 	

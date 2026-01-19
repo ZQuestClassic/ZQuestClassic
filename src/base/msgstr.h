@@ -54,7 +54,7 @@ struct MsgStr
 	int16_t y;
 	uint16_t w;
 	uint16_t h;
-	byte sfx;
+	word sfx;
 	word listpos;
 	byte vspace;
 	byte hspace;
