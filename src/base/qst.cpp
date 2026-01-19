@@ -3650,9 +3650,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			
 			// Some sort of string count corruption seems to be common in old quests
 			if(temp_msg_count>128)
-			{
 				temp_msg_count=128;
-			}
 		}
 		else if((Header->zelda_version == 0x192)&&(Header->build<140))
 		{
@@ -3662,9 +3660,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		else
 		{
 			if(!p_igetw(&temp_msg_count,f))
-			{
 				return qe_invalid;
-			}
 			
 			strings_to_read=temp_msg_count;
 			
@@ -3680,9 +3676,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				MsgStrings = new MsgStr[MAXMSGS];
 				msg_strings_size = MAXMSGS;
 				for(auto q = 0; q < msg_strings_size; ++q)
-				{
 					MsgStrings[q].clear();
-				}
 			}
 		}
 		
@@ -3704,9 +3698,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			tempMsgString.setFromLegacyEncoding(buf);
 				
 			if(!p_getc(&tempbyte,f))
-			{
 				return qe_invalid;
-			}
 			
 			if((Header->zelda_version < 0x192)||
 				((Header->zelda_version == 0x192)&&(Header->build<148)))
@@ -3714,32 +3706,22 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				tempMsgString.nextstring=tempbyte?x+1:0;
 				
 				if(!p_getc(&tempbyte,f))
-				{
 					return qe_invalid;
-				}
 				
 				if(!p_getc(&tempbyte,f))
-				{
 					return qe_invalid;
-				}
 			}
 			else
 			{
 				if(!p_igetw(&tempMsgString.nextstring,f))
-				{
 					return qe_invalid;
-				}
 				
 				if(!pfread(temp_expansion,32,f))
-				{
 					return qe_invalid;
-				}
 			}
 			
 			if (!should_skip)
-			{
 				MsgStrings[x] = tempMsgString;
-			}
 		}
 	}
 	else
@@ -3749,9 +3731,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		
 		//section version info
 		if(!p_igetw(&s_version,f))
-		{
 			return qe_invalid;
-		}
 
 		if (s_version > V_STRINGS)
 			return qe_version;
@@ -3759,21 +3739,15 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		FFCore.quest_format[vStrings] = s_version;
 		
 		if(!read_deprecated_section_cversion(f))
-		{
 			return qe_invalid;
-		}
 		
 		//section size
 		if(!p_igetl(&dummy_int,f))
-		{
 			return qe_invalid;
-		}
 		
 		//finally...  section data
 		if(!p_igetw(&temp_msg_count,f))
-		{
 			return qe_invalid;
-		}
 		
 		if(temp_msg_count >= msg_strings_size && !should_skip)
 		{
@@ -3783,9 +3757,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			MsgStrings = new MsgStr[MAXMSGS];
 			msg_strings_size = MAXMSGS;
 			for(auto q = 0; q < msg_strings_size; ++q)
-			{
 				MsgStrings[q].clear();
-			}
 		}
 		
 		//reset the message strings
@@ -3803,34 +3775,21 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				tempMsgString.encoding_type = MsgStr::EncodingType::Ascii;
 			tempMsgString.listpos = i;
 			if(s_version > 8)
-			{
 				if(!p_igetl(&string_length,f))
-				{
 					return qe_invalid;
-				}
-			}
 
 			if (string_length < 0 || string_length > 8193)
-			{
 				return qe_invalid;
-			}
 
 			if (string_length > 0)
 			{
 				if (!pfread(buf, string_length, f))
-				{
 					return qe_invalid;
-				}
 			}
-			else
-			{
-				buf[0] = 0;
-			}
+			else buf[0] = 0;
 
 			if(!p_igetw(&tempMsgString.nextstring,f))
-			{
 				return qe_invalid;
-			}
 			
 			if(s_version<2)
 			{
@@ -3844,12 +3803,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				if (!should_skip)
 				{
 					if(s_version<3)
-					{
 						for(int32_t j=140; j<144; j++)
-						{
 							buf[j] = '\0';
-						}
-					}
 					if(string_length > 8192) string_length = 8192;
 					buf[string_length]='\0'; //Force-terminate
 					tempMsgString.set(buf, tempMsgString.encoding_type);
@@ -3858,80 +3813,54 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				if ( s_version >= 6 )
 				{
 					if(!p_igetl(&tempMsgString.tile,f))
-					{
 						return qe_invalid;
-					}
 				}
 				else
 				{
 					if(!p_igetw(&tempMsgString.tile,f))
-					{
 						return qe_invalid;
-					}
 				}
 				
 				if(!p_getc(&tempMsgString.cset,f))
-				{
 					return qe_invalid;
-				}
 				
 				byte dummy_char;
 				
 				if(!p_getc(&dummy_char,f)) // trans is stored as a char...
-				{
 					return qe_invalid;
-				}
 				
 				tempMsgString.trans=dummy_char!=0;
 				
 				if(!p_getc(&tempMsgString.font,f))
-				{
 					return qe_invalid;
-				}
 				
 				if(s_version < 5)
 				{
 					if(!p_getc(&tempMsgString.y,f))
-					{
 						return qe_invalid;
-					}
 				}
 				else
 				{
 					if(!p_igetw(&tempMsgString.x,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_igetw(&tempMsgString.y,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_igetw(&tempMsgString.w,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_igetw(&tempMsgString.h,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.hspace,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.vspace,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.stringflags,f))
-					{
 						return qe_invalid;
-					}
 				}
 				
 				if(s_version >= 7)
@@ -3939,81 +3868,53 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 					for(int32_t q = 0; q < 4; ++q)
 					{
 						if(!p_getc(&tempMsgString.margins[q],f))
-						{
 							return qe_invalid;
-						}
 					}
 					
 					if(!p_igetl(&tempMsgString.portrait_tile,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.portrait_cset,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.portrait_x,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.portrait_y,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.portrait_tw,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.portrait_th,f))
-					{
 						return qe_invalid;
-					}
 				}
 				
 				if(s_version >= 8)
 				{
 					if(!p_getc(&tempMsgString.shadow_type,f))
-					{
 						return qe_invalid;
-					}
 					
 					if(!p_getc(&tempMsgString.shadow_color,f))
-					{
 						return qe_invalid;
-					}
 				}
 				
 				if(s_version >= 10)
 				{
 					if(!p_getc(&tempMsgString.drawlayer,f))
-					{
 						return qe_invalid;
-					}
 				}
 				
 				if(!p_getc(&tempMsgString.sfx,f))
-				{
 					return qe_invalid;
-				}
 				
 				if(s_version>3)
-				{
 					if(!p_igetw(&tempMsgString.listpos,f))
-					{
 						return qe_invalid;
-					}
-				}
 			}
 
 			if (!should_skip)
-			{
 				MsgStrings[i].copyAll(tempMsgString);
-			}
 		}
 	}
 	

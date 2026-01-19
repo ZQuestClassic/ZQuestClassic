@@ -520,7 +520,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j);
 bool load_msgstrs(const char *path, int32_t startstring);
 bool save_msgstrs(const char *path);
 bool save_msgstrs_text(const char *path);
-int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs);
+int32_t writestrings(PACKFILE *f);
 int32_t writestrings_text(PACKFILE *f);
 
 bool save_strings_tsv(const char *path);
