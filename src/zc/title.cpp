@@ -1122,7 +1122,11 @@ static void select_game(bool skip = false)
 		}
 		disabledKeys[KEY_ESC] = mode != 0;
 
-		sfxdat=1;
+		if (!sfxdat)
+		{
+			sfxdat = 1;
+			setupsfx(); // reload default sfx from sfxdat
+		}
 		blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		list_saves();
 		draw_cursor(pos,mode);

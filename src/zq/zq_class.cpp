@@ -8174,7 +8174,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		//V_MISC >= 14
 		for(int32_t q = 0; q < sfxMAX; ++q)
 		{
-			if(!p_putc(QMisc.miscsfx[q],f))
+			if(!p_iputw(QMisc.miscsfx[q],f))
 				new_return(27);
 		}
 		
@@ -8208,10 +8208,10 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			if (!p_putc(menu.cursor_cset, f))
 				new_return(33);
 			
-			if (!p_putc(menu.cursor_sfx, f))
+			if (!p_iputw(menu.cursor_sfx, f))
 				new_return(34);
 			
-			if (!p_putc(menu.choose_sfx, f))
+			if (!p_iputw(menu.choose_sfx, f))
 				new_return(35);
 			
 			if (!p_putc(menu.bg_color, f))
@@ -8443,7 +8443,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(22);
             }
             
-            if(!p_putc(itemsbuf[i].playsound,f))
+            if(!p_iputw(itemsbuf[i].playsound,f))
             {
                 new_return(23);
             }
@@ -8577,12 +8577,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(47);
             }
             
-            if(!p_putc(itemsbuf[i].usesound,f))
+            if(!p_iputw(itemsbuf[i].usesound,f))
             {
                 new_return(48);
             }
             
-            if(!p_putc(itemsbuf[i].usesound2,f))
+            if(!p_iputw(itemsbuf[i].usesound2,f))
             {
                 new_return(48);
             }
@@ -9279,13 +9279,13 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 		if(!p_putc(screen.csensitive,f))
 			return qe_invalid;
-		if(!p_putc(screen.oceansfx,f))
+		if(!p_iputw(screen.oceansfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.bosssfx,f))
+		if(!p_iputw(screen.bosssfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.secretsfx,f))
+		if(!p_iputw(screen.secretsfx,f))
 			return qe_invalid;
-		if(!p_putc(screen.holdupsfx,f))
+		if(!p_iputw(screen.holdupsfx,f))
 			return qe_invalid;
 		if(!p_iputw(screen.timedwarptics,f))
 			return qe_invalid;
@@ -9496,7 +9496,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 35;
 	if(!p_iputw(tmp_trig.trigtimer,f))
 		return 36;
-	if(!p_putc(tmp_trig.trigsfx,f))
+	if(!p_iputw(tmp_trig.trigsfx,f))
 		return 37;
 	if(!p_iputl(tmp_trig.trigchange,f))
 		return 38;
@@ -9797,7 +9797,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 62;
 		if(!p_putc(tmp_cmb.liftsprite,f))
 			return 63;
-		if(!p_putc(tmp_cmb.liftsfx,f))
+		if(!p_iputw(tmp_cmb.liftsfx,f))
 			return 64;
 		if(!p_iputw(tmp_cmb.liftbreaksprite,f))
 			return 65;
@@ -9820,15 +9820,15 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 74;
 		if(!p_iputzf(tmp_cmb.speed_add,f))
 			return 75;
-		if(!p_putc(tmp_cmb.sfx_appear,f))
+		if(!p_iputw(tmp_cmb.sfx_appear,f))
 			return 79;
-		if(!p_putc(tmp_cmb.sfx_disappear,f))
+		if(!p_iputw(tmp_cmb.sfx_disappear,f))
 			return 80;
-		if(!p_putc(tmp_cmb.sfx_loop,f))
+		if(!p_iputw(tmp_cmb.sfx_loop,f))
 			return 81;
-		if(!p_putc(tmp_cmb.sfx_walking,f))
+		if(!p_iputw(tmp_cmb.sfx_walking,f))
 			return 82;
-		if(!p_putc(tmp_cmb.sfx_standing,f))
+		if(!p_iputw(tmp_cmb.sfx_standing,f))
 			return 83;
 		if(!p_putc(tmp_cmb.spr_appear,f))
 			return 84;
@@ -9838,9 +9838,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 86;
 		if(!p_putc(tmp_cmb.spr_standing,f))
 			return 87;
-		if(!p_putc(tmp_cmb.sfx_tap,f))
+		if(!p_iputw(tmp_cmb.sfx_tap,f))
 			return 88;
-		if(!p_putc(tmp_cmb.sfx_landing,f))
+		if(!p_iputw(tmp_cmb.sfx_landing,f))
 			return 89;
 		if(!p_putc(tmp_cmb.spr_falling,f))
 			return 90;
@@ -9848,11 +9848,11 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 91;
 		if(!p_putc(tmp_cmb.spr_lava_drowning,f))
 			return 92;
-		if(!p_putc(tmp_cmb.sfx_falling,f))
+		if(!p_iputw(tmp_cmb.sfx_falling,f))
 			return 93;
-		if(!p_putc(tmp_cmb.sfx_drowning,f))
+		if(!p_iputw(tmp_cmb.sfx_drowning,f))
 			return 94;
-		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
+		if(!p_iputw(tmp_cmb.sfx_lava_drowning,f))
 			return 95;
 		if(!p_iputzf(tmp_cmb.z_height,f))
 			return 96;
@@ -10360,7 +10360,7 @@ int32_t writestrings(PACKFILE *f)
 			if(!p_putc(MsgStrings[i].drawlayer,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].sfx,f))
+			if(!p_iputw(MsgStrings[i].sfx,f))
 				return qe_invalid;
 			
 			if(!p_iputw(MsgStrings[i].listpos,f))
@@ -11160,15 +11160,11 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			
 			}
 		
-			if(!p_putc(guysbuf[i].hitsfx,f))
-			{
+			if(!p_iputw(guysbuf[i].hitsfx,f))
 				new_return(47);
-			}
 			
-			if(!p_putc(guysbuf[i].deadsfx,f))
-			{
+			if(!p_iputw(guysbuf[i].deadsfx,f))
 				new_return(48);
-			}
 			
 			if(!p_iputl(guysbuf[i].attributes[10],f))
 			{
@@ -11401,7 +11397,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
-			if (!p_putc(guysbuf[i].specialsfx, f))
+			if (!p_iputw(guysbuf[i].specialsfx, f))
 				new_return(103);
 			if(auto ret = write_weap_data(guysbuf[i].weap_data, f))
 				return ret;
@@ -13791,135 +13787,76 @@ int32_t write_one_ffscript_old(PACKFILE *f, zquestheader *Header, int32_t i, scr
     new_return(0);
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern uint8_t customsfxflag[WAV_COUNT>>3];
-
-int32_t writesfx(PACKFILE *f, zquestheader *Header)
+int32_t writesfx(PACKFILE *f, zquestheader *)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    dword section_id=ID_SFX;
-    dword section_version=V_SFX;
-    dword section_size=0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!write_deprecated_section_cversion(section_version,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        for(int32_t i=0; i<WAV_COUNT>>3; i++)
-        {
-            if(!p_putc(customsfxflag[i],f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            if(get_bit(customsfxflag, i-1) == 0)
-                continue;
-                
-            if(!pfwrite(sfx_string[i], 36, f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=1; i<WAV_COUNT; i++)
-        {
-            if(get_bit(customsfxflag, i-1) == 0)
-                continue;
-                
-            if(!p_iputl(customsfxdata[i].bits,f))
-            {
-                new_return(5);
-            }
-            
-            if(!p_iputl(customsfxdata[i].stereo,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_iputl(customsfxdata[i].freq,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_iputl(customsfxdata[i].priority,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_iputl(customsfxdata[i].len,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_iputl(customsfxdata[i].loop_start,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_iputl(customsfxdata[i].loop_end,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_iputl(customsfxdata[i].param,f))
-            {
-                new_return(12);
-            }
-            
-            //de-endianfy the data
-            int32_t wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
-            
-            for(int32_t j=0; j<wordstowrite; j++)
-            {
-                if(!p_iputw(((word *)customsfxdata[i].data)[j],f))
-                {
-                    new_return(13);
-                }
-            }
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
-    }
-    
-    new_return(0);
+	dword section_id=ID_SFX;
+	dword section_version=V_SFX;
+	dword section_size=0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!write_deprecated_section_cversion(section_version,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		size_t count = quest_sounds.size();
+		if (count > MAX_SFX)
+			count = MAX_SFX;
+		for (size_t q = count-1;; --q)
+		{
+			if (quest_sounds[q].sfx_name.empty() && quest_sounds[q].is_invalid())
+			{
+				--count;
+				if (q) // exit condition
+					continue;
+			}
+			break;
+		}
+		if (!p_iputw(word(count), f))
+			new_return(5);
+		
+		for (size_t q = 0; q < count; ++q)
+		{
+			ZCSFX const& sound = quest_sounds[q];
+			if (auto ret = sound.write(f))
+				return ret;
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+	}
+	
+	new_return(0);
 }
 
 int32_t writeinitdata(PACKFILE *f, zquestheader *)

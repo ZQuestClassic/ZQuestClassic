@@ -12000,7 +12000,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			uint32_t frames_to_wait = 0;
 			if (replay_is_active())
 			{
-				// How long an sfx takes to play (`sfx_allocated`) is not deterministic,
+				// How long an sfx takes to play (`sfx_is_allocated`) is not deterministic,
 				// use a fixed number of frames in replay mode.
 				// This has changed over time.
 				if (replay_version_check(0, 26))
@@ -12013,14 +12013,16 @@ bool HeroClass::startwpn(int32_t itemid)
 				}
 				else
 				{
-					SAMPLE* sample = sfx_get_sample(itm.usesound);
-					if (sample && sample->freq)
-						frames_to_wait = 60 * sample->len / sample->freq;
+					if (unsigned(itm.usesound-1) < quest_sounds.size())
+					{
+						auto& sound = quest_sounds[itm.usesound-1];
+						frames_to_wait = sound.get_len_frames();
+					}
 				}
 			}
 
 			int sfx_count = 0;
-			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_is_active() && sfx_count < frames_to_wait))
+			while ((!replay_is_active() && sfx_is_allocated(itm.usesound)) || (replay_is_active() && sfx_count < frames_to_wait))
 			{
 				sfx_count += 1;
 				advanceframe(true);
@@ -31218,7 +31220,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		if(itemid>=0 && (idat.type == itype_brang || idat.type == itype_divineprotection
 						 || idat.type == itype_hookshot || idat.type == itype_switchhook || idat.type == itype_cbyrna)
-				&& sfx_allocated(itemsbuf[itemid].usesound)
+				&& sfx_is_allocated(itemsbuf[itemid].usesound)
 				&& idat.usesound != itemsbuf[itemid].usesound)
 		{
 			stop_sfx(itemsbuf[itemid].usesound);
@@ -32236,12 +32238,7 @@ bool HeroClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int32_t q = 0; q < WAV_COUNT; q++ )
-				{
-					if ( q == (int32_t)hero_scr->oceansfx ) continue;
-					if ( q == (int32_t)hero_scr->bosssfx ) continue;
-					stop_sfx(q);
-				}
+                kill_sfx_except({ hero_scr->oceansfx, hero_scr->bosssfx });
 				sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;
@@ -32256,12 +32253,7 @@ bool HeroClass::refill()
             {
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int32_t q = 0; q < WAV_COUNT; q++ )
-				{
-					if ( q == (int32_t)hero_scr->oceansfx ) continue;
-					if ( q == (int32_t)hero_scr->bosssfx ) continue;
-					stop_sfx(q);
-				}
+                kill_sfx_except({ hero_scr->oceansfx, hero_scr->bosssfx });
                 sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;
@@ -32278,12 +32270,7 @@ bool HeroClass::refill()
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
-                for ( int32_t q = 0; q < WAV_COUNT; q++ )
-				{
-					if ( q == (int32_t)hero_scr->oceansfx ) continue;
-					if ( q == (int32_t)hero_scr->bosssfx ) continue;
-					stop_sfx(q);
-				}
+				kill_sfx_except({ hero_scr->oceansfx, hero_scr->bosssfx });
                 sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;

@@ -5901,10 +5901,10 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx); break;	//B
-		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx); break;	//B
-		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx); break;	//B
-		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx); break; //B
+		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_INT16(oceansfx); break;	//B
+		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_INT16(bosssfx); break;	//B
+		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_INT16(secretsfx); break;	//B
+		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_INT16(holdupsfx); break; //B
 		case SCREENDATA_MUSIC:
 		{
 			mapscr* m = get_scr(GET_REF(screenref));
@@ -6379,10 +6379,10 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx); break;	//B
-		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
-		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
-		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_INT16(oceansfx); break;	//B
+		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_INT16(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_INT16(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_INT16(holdupsfx); break; //B
 		case MAPDATA_MUSIC:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
@@ -8340,8 +8340,8 @@ int32_t get_register(int32_t arg)
 		case NPCDATAHUNGER: GET_NPCDATA_VAR_INT16(grumble, "Hunger"); break;
 		case NPCDATADROPSET: GET_NPCDATA_VAR_INT16(item_set, "Dropset"); break;
 		case NPCDATABGSFX: GET_NPCDATA_VAR_INT16(bgsfx, "BGSFX"); break;
-		case NPCDATADEATHSFX: GET_NPCDATA_VAR_BYTE(deadsfx, "DeathSFX"); break;
-		case NPCDATAHITSFX: GET_NPCDATA_VAR_BYTE(hitsfx, "HitSFX"); break;
+		case NPCDATADEATHSFX: GET_NPCDATA_VAR_INT16(deadsfx, "DeathSFX"); break;
+		case NPCDATAHITSFX: GET_NPCDATA_VAR_INT16(hitsfx, "HitSFX"); break;
 		case NPCDATAXOFS: GET_NPCDATA_VAR_INT32(xofs, "DrawXOffset"); break;
 		case NPCDATAYOFS: GET_NPCDATA_VAR_INT32(yofs, "DrawYOffset"); break;
 		case NPCDATAZOFS: GET_NPCDATA_VAR_INT32(zofs, "DrawZOffset"); break;
@@ -11854,7 +11854,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, MAX_SFX);
 			break;
 			
 		case IDATAUSESOUND:
@@ -11863,7 +11863,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, MAX_SFX);
 			break;
 			
 		case IDATAUSESOUND2:
@@ -11872,7 +11872,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, MAX_SFX);
 			break;
 		
 		//2.54
@@ -12694,7 +12694,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSFX:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		case LWPNLIFTLEVEL:
@@ -13262,7 +13262,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSFX:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,WAV_COUNT);
+				s->death_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		case EWPNLIFTLEVEL:
@@ -13527,7 +13527,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case SCREENDATAOCEANSFX:
 		{
-			int32_t v = vbound(value/10000, 0, 255);
+			int32_t v = vbound(value/10000, 0, MAX_SFX);
 			auto scr = get_scr(GET_REF(screenref));
 			if (scr == hero_scr && scr->oceansfx != v)
 			{
@@ -13537,9 +13537,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
-		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
-		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_INT16(bosssfx, "BossSFX"); break;	//B
+		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_INT16(secretsfx, "SecretSFX"); break;	//B
+		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_INT16(holdupsfx,	"ItemSFX"); break; //B
 		case SCREENDATA_MUSIC:
 		{
 			mapscr* m = get_scr(GET_REF(screenref));
@@ -14004,7 +14004,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				int32_t v = vbound(value/10000, 0, 255);
+				int32_t v = vbound(value/10000, 0, MAX_SFX);
 				if(m == hero_scr && m->oceansfx != v)
 				{
 					stop_sfx(m->oceansfx);
@@ -14015,9 +14015,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
-		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx); break;	//B
-		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx); break;	//B
-		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx); break; //B
+		case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_INT16(bosssfx); break;	//B
+		case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_INT16(secretsfx); break;	//B
+		case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_INT16(holdupsfx); break; //B
 		case MAPDATA_MUSIC:
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
@@ -14388,7 +14388,7 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
-				MsgStrings[ID].sfx = ((byte)vbound((value/10000), 0, 255));
+				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, MAX_SFX));
 			break;
 		}	
 		case MESSAGEDATALISTPOS: //WORD
@@ -14670,7 +14670,7 @@ void set_register(int32_t arg, int32_t value)
 			if (!checkComboRef()) break;
 
 			if(auto* trig = get_first_combo_trigger())
-				trig->trigsfx = vbound(value/10000,0,255);
+				trig->trigsfx = vbound(value/10000, 0, MAX_SFX);
 			break;
 		}
 		case COMBODTRIGGERCHANGECMB:
@@ -14974,7 +14974,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, 255);
+			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, MAX_SFX);
 			break;
 		}
 		case COMBODLIFTBREAKSPRITE:
@@ -15213,7 +15213,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 			{
-				trig->trigsfx = vbound(value/10000, 0, 255);
+				trig->trigsfx = vbound(value/10000, 0, MAX_SFX);
 			}
 			break;
 		}
@@ -15670,7 +15670,7 @@ void set_register(int32_t arg, int32_t value)
 				nd->member = vbound((value / 10000),0,214747); \
 		} \
 		
-		#define	SET_NPCDATA_VAR_DWORD(member, str) \
+		#define	SET_NPCDATA_VAR_WORD(member, str) \
 		{ \
 			if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
 				nd->member = vbound((value / 10000),0,32767); \
@@ -15713,25 +15713,25 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
 		case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 		case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
-		case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
-		case NPCDATATYPE: SET_NPCDATA_VAR_DWORD(type, "Family"); break;
-		case NPCDATACSET: SET_NPCDATA_VAR_DWORD(cset, "CSet"); break;
-		case NPCDATAANIM: SET_NPCDATA_VAR_DWORD(anim, "Anim"); break;
-		case NPCDATAEANIM: SET_NPCDATA_VAR_DWORD(e_anim, "ExAnim"); break;
-		case NPCDATAFRAMERATE: SET_NPCDATA_VAR_DWORD(frate, "Framerate"); break;
-		case NPCDATAEFRAMERATE: SET_NPCDATA_VAR_DWORD(e_frate, "ExFramerate"); break;
-		case NPCDATATOUCHDAMAGE: SET_NPCDATA_VAR_DWORD(dp, "TouchDamage"); break;
-		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_DWORD(wdp, "WeaponDamage"); break;
-		case NPCDATAWEAPON: SET_NPCDATA_VAR_DWORD(weapon, "Weapon"); break;
-		case NPCDATARANDOM: SET_NPCDATA_VAR_DWORD(rate, "Random"); break;
-		case NPCDATAHALT: SET_NPCDATA_VAR_DWORD(hrate, "Haltrate"); break;
-		case NPCDATASTEP: SET_NPCDATA_VAR_DWORD(step, "Step"); break;
-		case NPCDATAHOMING: SET_NPCDATA_VAR_DWORD(homing, "Homing"); break;
-		case NPCDATAHUNGER: SET_NPCDATA_VAR_DWORD(grumble, "Hunger"); break;
-		case NPCDATADROPSET: SET_NPCDATA_VAR_DWORD(item_set, "Dropset"); break;
-		case NPCDATABGSFX: SET_NPCDATA_VAR_DWORD(bgsfx, "BGSFX"); break;
-		case NPCDATADEATHSFX: SET_NPCDATA_VAR_BYTE(deadsfx, "DeathSFX"); break;
-		case NPCDATAHITSFX: SET_NPCDATA_VAR_BYTE(hitsfx, "HitSFX"); break;
+		case NPCDATAHP: SET_NPCDATA_VAR_WORD(hp, "HP"); break;
+		case NPCDATATYPE: SET_NPCDATA_VAR_WORD(type, "Family"); break;
+		case NPCDATACSET: SET_NPCDATA_VAR_WORD(cset, "CSet"); break;
+		case NPCDATAANIM: SET_NPCDATA_VAR_WORD(anim, "Anim"); break;
+		case NPCDATAEANIM: SET_NPCDATA_VAR_WORD(e_anim, "ExAnim"); break;
+		case NPCDATAFRAMERATE: SET_NPCDATA_VAR_WORD(frate, "Framerate"); break;
+		case NPCDATAEFRAMERATE: SET_NPCDATA_VAR_WORD(e_frate, "ExFramerate"); break;
+		case NPCDATATOUCHDAMAGE: SET_NPCDATA_VAR_WORD(dp, "TouchDamage"); break;
+		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_WORD(wdp, "WeaponDamage"); break;
+		case NPCDATAWEAPON: SET_NPCDATA_VAR_WORD(weapon, "Weapon"); break;
+		case NPCDATARANDOM: SET_NPCDATA_VAR_WORD(rate, "Random"); break;
+		case NPCDATAHALT: SET_NPCDATA_VAR_WORD(hrate, "Haltrate"); break;
+		case NPCDATASTEP: SET_NPCDATA_VAR_WORD(step, "Step"); break;
+		case NPCDATAHOMING: SET_NPCDATA_VAR_WORD(homing, "Homing"); break;
+		case NPCDATAHUNGER: SET_NPCDATA_VAR_WORD(grumble, "Hunger"); break;
+		case NPCDATADROPSET: SET_NPCDATA_VAR_WORD(item_set, "Dropset"); break;
+		case NPCDATABGSFX: SET_NPCDATA_VAR_WORD(bgsfx, "BGSFX"); break;
+		case NPCDATADEATHSFX: SET_NPCDATA_VAR_WORD(deadsfx, "DeathSFX"); break;
+		case NPCDATAHITSFX: SET_NPCDATA_VAR_WORD(hitsfx, "HitSFX"); break;
 		case NPCDATAXOFS: SET_NPCDATA_VAR_INT(xofs, "DrawXOffset"); break;
 		case NPCDATAYOFS: SET_NPCDATA_VAR_INT(yofs, "DrawYOffset"); break;
 		case NPCDATAZOFS: SET_NPCDATA_VAR_INT(zofs, "DrawZOffset"); break;
@@ -16054,7 +16054,7 @@ void set_register(int32_t arg, int32_t value)
 		case SAVEDPORTALWARPSFX:
 		{
 			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
-				p->sfx = vbound(value/10000,0,255);
+				p->sfx = vbound(value/10000,0,MAX_SFX);
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
@@ -16207,7 +16207,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_left;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
@@ -16225,7 +16225,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_right;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
@@ -16476,7 +16476,7 @@ void set_register(int32_t arg, int32_t value)
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = widg->pg_trans;
-				trans.tr_sfx = vbound(value/10000,0,255);
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
@@ -22485,28 +22485,29 @@ void do_sfx_ex(const bool restart)
 	if (BC::checkSFXID(ID) != SH::_NoError)
 		return;
 
-	if (!restart && !sfx_allocated(ID))
+	if (!restart && !sfx_is_allocated(ID))
 		return;
+	
+	if (freq >= 0 && sfx_get_type(ID) == SMPL_OGG)
+	{
+		scripting_log_error_with_context("Can't modify frequency of OGG sound effect");
+		freq = -1;
+	}
 
-	sfx(ID, pan, loop, restart, vol, freq);
+	sfx_ex(ID, pan, loop, restart, vol, freq);
 }
 
 static int get_sfx_completion()
 {
 	int32_t ID = get_register(sarg1) / 10000;
-
-	if (!sfx_allocated(ID))
-	{
+	if (unsigned(ID-1) >= quest_sounds.size())
 		return -10000;
-	}
-
-	int sample_pos = voice_get_position(sfx_voice[ID]);
-	if (sample_pos < 0)
-	{
+	auto& sound = quest_sounds[ID-1];
+	if (!sound.is_playing())
 		return -10000;
-	}
 
-	uint32_t sample_length = sfx_get_length(ID);
+	uint sample_pos = sound.get_pos();
+	uint32_t sample_length = sound.get_len();
 	uint64_t res = ((uint64_t)sample_pos * 10000 * 100) / sample_length;
 	return int32_t(res);
 }

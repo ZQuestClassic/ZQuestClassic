@@ -54,7 +54,6 @@ extern const char *old_weapon_string[wLast];
 extern const char *old_sfx_string[Z35];
 extern char *item_string[MAXITEMS];
 extern char *weapon_string[MAXWPNS];
-extern char *sfx_string[WAV_COUNT];
 extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 extern const char	*old_guy_string[OLDMAXGUYS];

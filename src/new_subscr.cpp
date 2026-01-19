@@ -1252,10 +1252,20 @@ void SubscrTransition::clear()
 }
 int32_t SubscrTransition::read(PACKFILE *f, word s_version)
 {
+	byte tempbyte;
 	if(!p_getc(&type,f))
 		return qe_invalid;
-	if(!p_getc(&tr_sfx,f))
-		return qe_invalid;
+	if (s_version < 17)
+	{
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+		tr_sfx = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&tr_sfx,f))
+			return qe_invalid;
+	}
 	if(!p_igetw(&flags,f))
 		return qe_invalid;
 	byte args = 3;
@@ -1272,7 +1282,7 @@ int32_t SubscrTransition::write(PACKFILE *f) const
 {
 	if(!p_putc(type,f))
 		new_return(1);
-	if(!p_putc(tr_sfx,f))
+	if(!p_iputw(tr_sfx,f))
 		new_return(1);
 	if(!p_iputw(flags,f))
 		new_return(1);

@@ -25,7 +25,7 @@ static const GUI::ListData miscSFXList
 		"\nAlso doesn't play if 'Old Landing SFX' is enabled."+QRHINT({qr_OLD_LANDING_SFX}) },
 };
 
-MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
+MiscSFXDialog::MiscSFXDialog(word* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
 	sfx_list(GUI::ZCListData::sfxnames()), setVals(setVals), vals_per_tab(vals_per_tab)
 {
 	for(auto q = 0; q < sfxMAX; ++q)

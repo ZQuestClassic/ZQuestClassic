@@ -44,6 +44,14 @@ static constexpr inline void zc_swap(T1 &a,T2 &b)
     a = b;
     b = c;
 }
+template <class T>
+static constexpr inline void zc_swap_mv(T &a,T &b)
+{
+    T c = std::move(a);
+    a = std::move(b);
+    b = std::move(c);
+}
+
 int vbound(int val, int low, int high);
 double vbound(double val, double low, double high);
 zfix vbound(zfix val, zfix low, zfix high);
@@ -137,8 +145,6 @@ double wrap_float(double x,double low,double high);
 
 #define COMBOS_PER_ROW             20
 
-#define WAV_COUNT                  256
-
 #define MAXFFCS                    128
 #define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
 #define MAXSCREENS                 128
@@ -156,6 +162,8 @@ double wrap_float(double x,double low,double high);
 #define MAXCUSTOMMIDIS         512
 #define MAXMIDIS               (ZC_MIDI_COUNT+MAXCUSTOMMIDIS)
 #define MIDI_NAME_LENGTH       300
+
+#define MAX_SFX                1024
 //Midi offsets
 //The offset from dmap/mapscr-> midi/screen_midi to currmidi
 #define MIDIOFFSET_DMAP            (ZC_MIDI_COUNT-4)
@@ -163,8 +171,6 @@ double wrap_float(double x,double low,double high);
 //The offset from currmidi to ZScript MIDI values
 #define MIDIOFFSET_ZSCRIPT         (ZC_MIDI_COUNT-1)
 //Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
-
-#define MAXMUSIC                   256
 
 #define MAXMAPS                    255 // 4 times the old number
 #define MAPSCRSNORMAL              128

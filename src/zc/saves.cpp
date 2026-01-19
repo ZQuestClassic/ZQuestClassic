@@ -800,8 +800,17 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 68;
 			if(!p_igetl(&(game.saved_mirror_portal.y), f))
 				return 69;
-			if(!p_getc(&(game.saved_mirror_portal.sfx),f))
-				return 70;
+			if (section_version < 48)
+			{
+				if(!p_getc(&tempbyte,f))
+					return 70;
+				game.saved_mirror_portal.sfx = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&(game.saved_mirror_portal.sfx),f))
+					return 70;
+			}
 			if(!p_igetl(&(game.saved_mirror_portal.warpfx), f))
 				return 71;
 			if(!p_igetw(&(game.saved_mirror_portal.spr), f))
@@ -1018,8 +1027,17 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					return 104;
 				if(!p_igetl(&(p.y), f))
 					return 105;
-				if(!p_getc(&(p.sfx),f))
-					return 106;
+				if (section_version < 48)
+				{
+					if(!p_getc(&tempbyte,f))
+						return 106;
+					p.sfx = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&(p.sfx),f))
+						return 106;
+				}
 				if(!p_igetl(&(p.warpfx), f))
 					return 107;
 				if(!p_igetw(&(p.spr), f))
@@ -1381,7 +1399,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 66;
 	if(!p_iputl(game.saved_mirror_portal.y, f))
 		return 67;
-	if(!p_putc(game.saved_mirror_portal.sfx,f))
+	if(!p_iputw(game.saved_mirror_portal.sfx,f))
 		return 68;
 	if(!p_iputl(game.saved_mirror_portal.warpfx, f))
 		return 69;
@@ -1493,7 +1511,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 			return 104;
 		if(!p_iputl(p.y, f))
 			return 105;
-		if(!p_putc(p.sfx,f))
+		if(!p_iputw(p.sfx,f))
 			return 106;
 		if(!p_iputl(p.warpfx, f))
 			return 107;

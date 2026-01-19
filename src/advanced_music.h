@@ -2,6 +2,7 @@
 
 #include "base/headers.h"
 #include "base/packfile.h"
+#include <set>
 
 #define MAX_QUEST_MUSIC 65535
 
@@ -66,3 +67,4 @@ int32_t find_or_make_dmap_music(int16_t dmap);
 void delete_quest_music(std::function<bool(AdvancedMusic const&)> proc);
 void delete_quest_music(size_t idx);
 void swap_quest_music(size_t idx1, size_t idx2);
+

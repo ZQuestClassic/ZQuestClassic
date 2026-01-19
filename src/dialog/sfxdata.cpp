@@ -12,33 +12,27 @@
 #include <fmt/format.h>
 
 void mark_save_dirty();
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern SAMPLE templist[WAV_COUNT];
-extern bool sfx_templist;
-extern uint8_t customsfxflag[WAV_COUNT >> 3];
-extern char* sfx_string[WAV_COUNT];
 
 bool call_sfxdata_dialog(int32_t index)
 {
-	sfx_templist = true;
+	if (unsigned(index-1) > quest_sounds.size())
+		return false;
 	SFXDataDialog(index).show();
-	sfx_templist = false;
 	return true;
 }
 
-void change_sfx(SAMPLE* sfx1, SAMPLE* sfx2);
-SFXDataDialog::SFXDataDialog(int32_t index) :
-	index(index)
+SFXDataDialog::SFXDataDialog(int32_t index) : index(index),
+	local_ref(ZCSFX())
 {
+	if (unsigned(index-1) < quest_sounds.size())
+		local_ref = quest_sounds[index-1];
+	else
+		index = quest_sounds.size()+1;
+	
+	// Don't know why these are here. . . maybe to clean up if tunes were playing?
 	kill_sfx();
 	zc_stop_midi();
 	zc_set_volume(255, -1);
-	customsfx = get_bit(customsfxflag, index - 1);
-	change_sfx(&templist[index], &customsfxdata[index]);
-
-	char name[36];
-	strcpy(name, sfx_string[index]);
-	sfxname = name;
 }
 
 std::shared_ptr<GUI::Widget> SFXDataDialog::view()
@@ -46,10 +40,65 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-
-	string titlebuf = fmt::format("SFX {}: {}", index, sfxname);
+	
+	shared_ptr<GUI::Grid> left_grid = Rows<4>(vAlign = 1.0);
+	shared_ptr<GUI::Widget> bottom_widg;
+	if (sound_was_installed)
+	{
+		bottom_widg = DummyWidget();
+		// Default doesn't REQUIRE sound, but feels weird without save/load/play options
+		left_grid->add(Button(fitParent = true, minwidth = 90_px,
+			text = "Default", onClick = message::DEFAULT));
+		left_grid->add(INFOBTN("Clears the SFX to default."));
+		left_grid->add(DummyWidget(colSpan = 2));
+		// save/load requires sound
+		left_grid->add(Button(fitParent = true, disabled = local_ref.is_invalid(),
+			text = "Save", minwidth = 90_px, onClick = message::SAVE));
+		left_grid->add(INFOBTN("Save the SFX as a '.wav' / '.ogg' file."
+			"\nCurrently, converting from '.wav' to '.ogg' is not supported."));
+		left_grid->add(Button(fitParent = true, minwidth = 90_px,
+			text = "Load", onClick = message::LOAD));
+		left_grid->add(INFOBTN("Load an SFX from a '.wav' / '.ogg' file."
+			"\n'.ogg' format is recommended, as it is much smaller, and thus loads faster / takes up less space in the quest file."));
+		// playing sound requires sound
+		left_grid->add(Button(fitParent = true, disabled = local_ref.is_invalid(),
+			text = "Play", minwidth = 90_px, onClick = message::PLAY));
+		left_grid->add(INFOBTN("Play a preview of the sound (at '128' volume)."));
+		left_grid->add(btn_stop = Button(colSpan = 2, fitParent = true, disabled = true,
+			text = "Stop", minwidth = 90_px, onClick = message::STOP));
+		//
+		left_grid->add(Button(colSpan = 2, fitParent = true, focused = true,
+			text = "Ok", minwidth = 90_px, onClick = message::OK));
+		left_grid->add(Button(colSpan = 2, fitParent = true, minwidth = 90_px,
+			text = "Cancel", onClick = message::CANCEL));
+	}
+	else
+	{
+		left_grid->add(Label(fitParent = true,
+			text = "Sound cannot be saved/loaded/played\nwhile 'nosound' setting is enabled."
+			"\nRe-launch the editor with\nsound enabled to modify sounds."));
+		bottom_widg = Row(
+			Button(colSpan = 2, fitParent = true, focused = true,
+				text = "Ok", minwidth = 90_px, onClick = message::OK),
+			Button(colSpan = 2, fitParent = true, minwidth = 90_px,
+				text = "Cancel", onClick = message::CANCEL)
+		);
+	}
+	
+	string sfx_info = local_ref.get_sound_info();
+	string titlebuf = fmt::format("SFX {}: {}", index, local_ref.sfx_name);
 	window = Window(
 		use_vsync = true,
+		onTick = [&]()
+		{
+			if (local_ref.is_allocated())
+			{
+				local_ref.cleanup();
+				if (!local_ref.is_allocated())
+					btn_stop->setDisabled(true);
+			}
+			return ONTICK_CONTINUE;
+		},
 		title = titlebuf,
 		info = "Save and Load SFX Data for use in engine.",
 		onClose = message::CANCEL,
@@ -59,172 +108,119 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 					Label(text = "Name", rightPadding = 0_px, textAlign = 1.0), 
 					TextField(
 						type = GUI::TextField::type::TEXT,
-						maxLength = 36,
+						width = 300_px, height = 4_px+(3*(1_em+2_px)),
+						maxLength = 255,
 						fitParent = true,
-						text = sfxname,
+						text = local_ref.sfx_name,
 						onValChangedFunc = [&](GUI::TextField::type type, std::string_view text, int32_t)
 						{
-							sfxname = text;
+							local_ref.sfx_name = text;
 						}
 					)
 				)
 			),
-			Column(
-				Rows<2>(vAlign = 1.0, spacing = 1_em,
-				
-					Button(colSpan = 2,
-						text = "Save",
-						minwidth = 90_px,
-						onClick = message::SAVE
-					),
-					Button(
-						text = "Load",
-						minwidth = 90_px,
-						onClick = message::LOAD
-					),
-					Button(
-						text = "Default",
-						minwidth = 90_px,
-						onClick = message::DEFAULT
-					),
-					Button(
-						text = "Play",
-						minwidth = 90_px,
-						onClick = message::PLAY
-					),
-					Button(
-						text = "Stop",
-						minwidth = 90_px,
-						onClick = message::STOP
-					),
-					Button(
-						focused = true,
-						text = "Ok",
-						minwidth = 90_px,
-						onClick = message::OK
-					),
-					Button(
-						text = "Cancel",
-						minwidth = 90_px,
-						onClick = message::CANCEL
-					)
-				)
-			)
+			Row(
+				left_grid,
+				Label(minwidth = 6_em, fitParent = true, text = sfx_info)
+			),
+			bottom_widg
 		)
 	);
 	return window;
 }
 
-bool saveWAV(int32_t slot, const char* filename);
+ZCSFX make_default_sfx(size_t index);
 bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch (msg.message)
 	{
-	case message::SAVE:
-	{
-		temppath[0] = 0;//memset(temppath, 0, sizeof(temppath));
-		char tempname[36];
-		strcpy(tempname, sfx_string[index]);
-		//change spaces to dashes for f/s safety
-		for (int32_t q = 0; q < 36; ++q)
+		case message::SAVE:
 		{
-			if (tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92) //SPACE, Bslash, Fslash
-				tempname[q] = 45; //becomes hyphen
-		}
-
-		tempname[35] = 0;
-
-		strcpy(temppath, tempname);
-
-		//save
-		if (templist[index].data != NULL)
-		{
-			if (prompt_for_new_file_compat("Save .WAV file", "wav", NULL, temppath, true))
+			temppath[0] = 0;
+			string tempname = local_ref.sfx_name;
+			//change spaces to dashes for f/s safety
+			for (size_t q = 0; q < tempname.size(); ++q)
 			{
-				if (!saveWAV(index, temppath))
-					displayinfo("Error!", fmt::format("Could not write file\n{}", temppath));
-				else
-					displayinfo("Success!", fmt::format("Saved WAV file\n{}", temppath));
+				if (tempname[q] == ' ' || tempname[q] == '\\' || tempname[q] == '/')
+					tempname[q] = '-';
 			}
-		}
-		else displayinfo("Error!", "Cannot save an enpty slot!");
-		break;
-	}
-	case message::LOAD:
-		if (prompt_for_existing_file_compat("Open .WAV file", "wav", NULL, temppath, true))
-		{
-			SAMPLE* temp_sample;
 
-			if ((temp_sample = load_wav(temppath)) == NULL)
-				displayinfo("Error", fmt::format("Could not open file '{}'", temppath));
+			strcpy(temppath, tempname.c_str());
+
+			//save
+			if (local_ref.is_invalid())
+				displayinfo("Error!", "Cannot save an empty slot!");
 			else
 			{
-				char sfxtitle[36];
-				char* t = get_filename(temppath);
-				int32_t j;
-
-				for (j = 0; j < 35 && t[j] != 0 && t[j] != '.'; j++)
+				switch (local_ref.get_sample_type())
 				{
-					sfxtitle[j] = t[j];
+					default:
+					case SMPL_WAV:
+						strcat(temppath, ".wav");
+						break;
+					case SMPL_OGG:
+						strcat(temppath, ".ogg");
+						break;
 				}
-
-				sfxtitle[j] = 0;
-				sfxname = sfxtitle;
-				kill_sfx();
-				change_sfx(&templist[index], temp_sample);
-				destroy_sample(temp_sample);
-				customsfx = 1;
-				rerun_dlg = true;
-				return true;
+				if (prompt_for_new_file_compat("Save SFX file", "wav;ogg", NULL, temppath, true))
+				{
+					try
+					{
+						local_ref.save_sound(temppath);
+						displayinfo("Success!", fmt::format("Saved SFX file\n{}", temppath));
+					}
+					catch (zcsfx_io_exception &e)
+					{
+						displayinfo("Error", e.what());
+					}
+				}
 			}
+			
+			break;
 		}
-		break;
-	case message::DEFAULT:
-		kill_sfx();
-		if (index < WAV_COUNT)
+		case message::LOAD:
 		{
-			SAMPLE* temp_sample = (SAMPLE*)sfxdata[zc_min(index, Z35)].dat;
-			change_sfx(&templist[index], temp_sample);
-			customsfx = 1; //now count as custom sfx
-			string name = fmt::format("s{}", index);
-			if (index < Z35)
+			if (prompt_for_existing_file_compat("Open SFX file", "wav;ogg", NULL, temppath, true))
 			{
-				sfxname = old_sfx_string[index - 1];
+				try
+				{
+					local_ref.load_file(temppath);
+					rerun_dlg = true;
+					return true;
+				}
+				catch (zcsfx_io_exception &e)
+				{
+					displayinfo("Error", e.what());
+				}
+				return false;
 			}
-			else sfxname = name;
+			break;
+		}
+		case message::DEFAULT:
+			if (!alert_confirm("Reset to default?", "Reset this sound to default settings?"))
+				return false;
+			local_ref.stop();
+			local_ref = make_default_sfx(index);
 			rerun_dlg = true;
 			return true;
-		}
-		break;
-	case message::PLAY:
-		kill_sfx();
-		if (templist[index].data != NULL)
-		{
-			sfx(index, 128, false, true);
-		}
-		break;
-	case message::STOP:
-		kill_sfx();
-		break;
-	case message::OK:
-		mark_save_dirty();
-		kill_sfx();
-		change_sfx(&customsfxdata[index], &templist[index]);
-		set_bit(customsfxflag, index - 1, customsfx);
-		strncpy(sfx_string[index], sfxname.c_str(), 36);
-		[[fallthrough]];
-	case message::CANCEL:
-		kill_sfx();
-
-		for (int32_t i = 1; i < WAV_COUNT; i++)
-		{
-			if (templist[i].data != NULL)
-			{
-				free(templist[i].data);
-				templist[i].data = NULL;
-			}
-		}
-		return true;
+		case message::PLAY:
+			local_ref.play(128, false);
+			btn_stop->setDisabled(false);
+			break;
+		case message::STOP:
+			local_ref.stop();
+			btn_stop->setDisabled(true);
+			break;
+		case message::OK:
+			mark_save_dirty();
+			local_ref.stop();
+			if (index == quest_sounds.size() + 1)
+				quest_sounds.emplace_back(std::move(local_ref));
+			else quest_sounds[index-1] = std::move(local_ref);
+			return true;
+		case message::CANCEL:
+			local_ref.cleanup_memory();
+			return true;
 	}
 	return false;
 }

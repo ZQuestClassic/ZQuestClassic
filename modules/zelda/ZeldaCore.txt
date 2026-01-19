@@ -33,6 +33,7 @@ src/zc/zc_ffc.cpp
 src/zc/commands.cpp
 src/music_playback.cpp
 src/advanced_music.cpp
+src/zcsfx.cpp
 src/zc/scripting/arrays.cpp
 src/zc/scripting/array_manager.cpp
 src/zc/scripting/common.cpp

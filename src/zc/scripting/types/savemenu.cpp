@@ -231,13 +231,13 @@ bool savemenu_set_register(int32_t reg, int32_t value)
 		case SAVEMENU_SFX_CURSOR:
 		{
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
-				menu->cursor_sfx = vbound(value / 10000L, 0, 255);
+				menu->cursor_sfx = vbound(value / 10000L, 0, MAX_SFX);
 			break;
 		}
 		case SAVEMENU_SFX_CHOOSE:
 		{
 			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
-				menu->choose_sfx = vbound(value / 10000L, 0, 255);
+				menu->choose_sfx = vbound(value / 10000L, 0, MAX_SFX);
 			break;
 		}
 		case SAVEMENU_HSPACE:

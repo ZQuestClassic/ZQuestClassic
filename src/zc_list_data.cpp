@@ -12,7 +12,6 @@
 #include <fmt/format.h>
 
 extern char *weapon_string[];
-extern char *sfx_string[];
 extern char *item_string[];
 extern const char* old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
@@ -706,12 +705,12 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	
 	GUI::ListData ls;
 	ls.add(numbered ? "(None) (000)" : "(None)", 0);
-	for(int32_t i=1; i<WAV_COUNT; ++i)
+	for(size_t q = 0; q < quest_sounds.size(); ++q)
 	{
-		char const* sfx_name = sfx_string[i];
+		string const& sfx_name = quest_sounds[q].sfx_name;
 		if(numbered)
-			ls.add(fmt::format("{} ({:03})", sfx_name, i), i);
-		else ls.add(sfx_name, i);
+			ls.add(fmt::format("{} ({:03})", sfx_name, q+1), q+1);
+		else ls.add(sfx_name, q+1);
 	}
 	
 	return ls;

@@ -1339,7 +1339,7 @@ public:
 	
 	static INLINE int32_t checkSFXID(const int32_t ID)
 	{
-		return checkBounds(ID, 0, WAV_COUNT-1);
+		return checkBounds(ID, 0, MAX_SFX); // could check `quest_sounds.size()`, but want no error unless value is out of MAX bounds.
 	}
 	
 	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* term = "value")

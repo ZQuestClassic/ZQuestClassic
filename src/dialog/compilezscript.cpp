@@ -39,9 +39,9 @@ static void compile_sfx(bool success)
 	kill_sfx();
 	auto vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
 	if (vol <= 0) return;
-	int sfx_id = vbound(zc_get_config("Compiler",success ? "compile_success_sample" : "compile_error_sample",20),0,255);
+	int sfx_id = vbound(zc_get_config("Compiler",success ? "compile_success_sample" : "compile_error_sample",20),0,MAX_SFX);
 	if (sfx_id > 0)
-		sfx(sfx_id, 128, false, true, vol / 1.28_zf);
+		sfx_ex(sfx_id, 128, false, true, vol / 1.28_zf);
 }
 
 int32_t onCompileScript()

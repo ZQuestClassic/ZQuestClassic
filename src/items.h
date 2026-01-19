@@ -167,7 +167,7 @@ struct itemdata
     word amount;
     int16_t setmax;
     word max;
-    byte playsound = WAV_SCALE;
+    word playsound = WAV_SCALE;
     word collect_script;
 //  byte exp[10];                                             // not used
     int32_t initiald[INITIAL_D];
@@ -193,7 +193,7 @@ struct itemdata
     int32_t misc9;
     int32_t misc10;
 	int16_t cost_amount[2]; // Magic usage!
-    byte usesound, usesound2;
+    word usesound, usesound2;
     
     //To implement next;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z Note: totally unused.

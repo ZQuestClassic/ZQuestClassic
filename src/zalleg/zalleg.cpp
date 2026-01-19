@@ -17,6 +17,7 @@
 #endif
 
 DATAFILE *fontsdata, *sfxdata;
+bool sound_was_installed = false;
 
 void zalleg_setup_allegro(App id, int argc, char **argv)
 {
@@ -116,6 +117,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	if (is_headless() || used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound")) sound = false;
 	if (id == App::zelda && zc_get_config("zeldadx","nosound",0)) sound = false;
 	if (id == App::zquest && zc_get_config("zquest","nosound",0)) sound = false;
+	sound_was_installed = sound;
 	if (!sound)
 	{
 		Z_message("skipped\n");
@@ -126,6 +128,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		{
 			// We can continue even with no audio.
 			Z_error("Failed al_install_audio");
+			sound_was_installed = false;
 		}
 
 		if(!al_init_acodec_addon())

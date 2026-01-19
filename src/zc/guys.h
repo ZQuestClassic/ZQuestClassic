@@ -66,7 +66,7 @@ public:
 	int32_t dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
 	int16_t bgsfx, bosspal;
 	byte defense[edefLAST255];
-	byte hitsfx,deadsfx;
+	word hitsfx,deadsfx;
 	bool submerged;
 	
 	std::optional<combined_handle_t> activated_handle;
@@ -109,7 +109,7 @@ public:
 	
 	weapon_data weap_data;
 	bool aim_hero;
-	byte specialsfx; //weapon specialsfx.
+	word specialsfx; //weapon specialsfx.
 	
 	zfix  getX();
 	zfix  getY();

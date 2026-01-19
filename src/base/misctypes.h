@@ -210,7 +210,7 @@ struct miscQdata
 	SaveMenu save_menus[NUM_SAVE_MENUS];
 	byte savemenu_game_over, savemenu_f6;
 	
-	byte miscsfx[sfxMAX];
+	word miscsfx[sfxMAX];
 };
 
 extern std::array<DoorComboSet, MAXDOORCOMBOSETS> DoorComboSets;

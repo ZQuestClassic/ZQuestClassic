@@ -76,7 +76,7 @@ public:
 	int16_t death_spawndropset;
 	int32_t death_item_pflags;
 	int16_t death_sprite;
-	byte death_sfx;
+	word death_sfx;
 	
 	bool has_shadow;
 	
@@ -132,7 +132,7 @@ public:
 	int16_t pierce_count = -1;
 	
 	int shd_aclk, shd_aframe;
-    byte specialsfx;
+    word specialsfx;
 	
 	
 	void do_death_fx();

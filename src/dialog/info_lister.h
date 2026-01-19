@@ -23,11 +23,11 @@ public:
 	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, ADV_PASTE, SAVE, LOAD, CONFIRM, CLEAR };
 	
 	BasicListerDialog(std::string title, std::string cfg_key, int start_val = 0, bool selecting = false) :
-		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_inds(0),
+		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_start(0), frozen_end(0),
 		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
 		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
 	BasicListerDialog(std::string title, std::string cfg_key, GUI::ListData lister, int start_val = 0, bool selecting = false) :
-		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val), frozen_inds(0),
+		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val), frozen_start(0), frozen_end(0),
 		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
 		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
 	
@@ -60,7 +60,7 @@ protected:
 	std::string titleTxt;
 	GUI::ListData lister;
 	int selected_val, start_val;
-	size_t frozen_inds;
+	size_t frozen_start, frozen_end;
 	bool selecting, use_preview, editable, alphabetized, use_mappreview, use_alpha;
 	
 	std::string cfg_key;
@@ -145,7 +145,16 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
+	void update(bool startup = false) override;
 	void edit() override;
+	void rclick(int x, int y) override;
+	bool clear_nondelete();
+	bool clear() override;
+	void copy() override;
+	bool paste() override;
+
+private:
+	std::shared_ptr<GUI::Button> up_btn, down_btn, del_btn;
 };
 
 class MidiListerDialog : public BasicListerDialog

@@ -100,22 +100,24 @@ ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 	return *this;
 }
 
-ListData& ListData::valsort(size_t frozen)
+ListData& ListData::valsort(size_t frozen_start, size_t frozen_end)
 {
-	vector<ListItem> frozen_items;
-	size_t frozen_ind = 0;
+	vector<ListItem> frozen_start_items, frozen_end_items;
+	size_t ind = 0;
+	size_t sz = listItems.size();
 	map<int32_t,std::vector<ListItem>> list;
 	for(ListItem& li : listItems)
 	{
-		if(frozen_ind < frozen)
-		{
-			frozen_items.push_back(li);
-			++frozen_ind;
-		}
-		else list[li.value].push_back(li);
+		if (ind < frozen_start)
+			frozen_start_items.emplace_back(li);
+		else if (ind >= sz - frozen_end)
+			frozen_end_items.emplace_back(li);
+		else
+			list[li.value].push_back(li);
+		++ind;
 	}
 	listItems.clear();
-	for(auto& li : frozen_items)
+	for(auto& li : frozen_start_items)
 		listItems.push_back(li);
 	for(auto& p : list)
 	{
@@ -123,24 +125,28 @@ ListData& ListData::valsort(size_t frozen)
 		for(auto& li : vec)
 			listItems.push_back(li);
 	}
+	for(auto& li : frozen_end_items)
+		listItems.push_back(li);
 	return *this;
 }
-ListData& ListData::tagsort(size_t frozen)
+ListData& ListData::tagsort(size_t frozen_start, size_t frozen_end)
 {
-	vector<ListItem> frozen_items;
-	size_t frozen_ind = 0;
+	vector<ListItem> frozen_start_items, frozen_end_items;
+	size_t ind = 0;
+	size_t sz = listItems.size();
 	map<int32_t,std::vector<ListItem>> list;
 	for(ListItem& li : listItems)
 	{
-		if(frozen_ind < frozen)
-		{
-			frozen_items.push_back(li);
-			++frozen_ind;
-		}
-		else list[li.tag].push_back(li);
+		if (ind < frozen_start)
+			frozen_start_items.emplace_back(li);
+		else if (ind >= sz - frozen_end)
+			frozen_end_items.emplace_back(li);
+		else
+			list[li.tag].push_back(li);
+		++ind;
 	}
 	listItems.clear();
-	for(auto& li : frozen_items)
+	for(auto& li : frozen_start_items)
 		listItems.push_back(li);
 	for(auto& p : list)
 	{
@@ -148,24 +154,28 @@ ListData& ListData::tagsort(size_t frozen)
 		for(auto& li : vec)
 			listItems.push_back(li);
 	}
+	for(auto& li : frozen_end_items)
+		listItems.push_back(li);
 	return *this;
 }
-ListData& ListData::alphabetize(size_t frozen)
+ListData& ListData::alphabetize(size_t frozen_start, size_t frozen_end)
 {
-	vector<ListItem> frozen_items;
-	size_t frozen_ind = 0;
+	vector<ListItem> frozen_start_items, frozen_end_items;
+	size_t ind = 0;
+	size_t sz = listItems.size();
 	map<string,std::vector<ListItem>> list;
-	for(ListItem& li : listItems)
+	for (ListItem& li : listItems)
 	{
-		if(frozen_ind < frozen)
-		{
-			frozen_items.push_back(li);
-			++frozen_ind;
-		}
-		else list[li.text].push_back(li);
+		if (ind < frozen_start)
+			frozen_start_items.emplace_back(li);
+		else if (ind >= sz - frozen_end)
+			frozen_end_items.emplace_back(li);
+		else
+			list[li.text].emplace_back(li);
+		++ind;
 	}
 	listItems.clear();
-	for(auto& li : frozen_items)
+	for(auto& li : frozen_start_items)
 		listItems.push_back(li);
 	for(auto& p : list)
 	{
@@ -173,6 +183,8 @@ ListData& ListData::alphabetize(size_t frozen)
 		for(auto& li : vec)
 			listItems.push_back(li);
 	}
+	for(auto& li : frozen_end_items)
+		listItems.push_back(li);
 	return *this;
 }
 

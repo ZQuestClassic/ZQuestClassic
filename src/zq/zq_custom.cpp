@@ -151,6 +151,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	itemdata tempitem;
+	byte tempbyte;
    
 	char istring[64]={0};
 	//section version info
@@ -280,9 +281,16 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.playsound,f))
+	if (section_version < 66)
 	{
-		return 0;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.playsound = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&tempitem.playsound,f))
+			return 0;
 	}
 	
 	for(int32_t j=0; j<8; j++)
@@ -437,14 +445,21 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.usesound,f))
+	if (section_version < 66)
 	{
-		return 0;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.usesound = tempbyte;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.usesound2 = tempbyte;
 	}
-	
-	if(!p_getc(&tempitem.usesound2,f))
+	else
 	{
-		return 0;
+		if(!p_igetw(&tempitem.usesound,f))
+			return 0;
+		if(!p_igetw(&tempitem.usesound2,f))
+			return 0;
 	}
 	
 	if ( zversion >= 0x255 )
@@ -794,7 +809,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(22);
 			}
 			
-			if(!p_putc(itemsbuf[i].playsound,f))
+			if(!p_iputw(itemsbuf[i].playsound,f))
 			{
 				new_return(23);
 			}
@@ -928,12 +943,12 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(47);
 			}
 			
-			if(!p_putc(itemsbuf[i].usesound,f))
+			if(!p_iputw(itemsbuf[i].usesound,f))
 			{
 				new_return(48);
 			}
 			
-			if(!p_putc(itemsbuf[i].usesound2,f))
+			if(!p_iputw(itemsbuf[i].usesound2,f))
 			{
 				new_return(48);
 			}
@@ -1213,6 +1228,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	guydata tempguy;
+	byte tempbyte;
    
 	char npcstring[64]={0}; //guy_string[]
 	//section version info
@@ -1417,15 +1433,22 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	}
-			
-	if(!p_getc(&tempguy.hitsfx,f))
+	
+	if (section_version < 55)
 	{
-	return 0;
+		if(!p_getc(&tempbyte, f))
+			return qe_invalid;
+		tempguy.hitsfx = tempbyte;
+		if(!p_getc(&tempbyte, f))
+			return qe_invalid;
+		tempguy.deadsfx = tempbyte;
 	}
-			
-	if(!p_getc(&tempguy.deadsfx,f))
+	else
 	{
-	return 0;
+		if(!p_igetw(&(tempguy.hitsfx),f))
+			return qe_invalid;
+		if(!p_igetw(&(tempguy.deadsfx),f))
+			return qe_invalid;
 	}
 			
 	if(!p_igetl(&tempguy.attributes[10],f))
@@ -1649,8 +1672,17 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 				if (!p_getc(&tempguy.weap_data.light_rads[q], f))
 					return 0;
 			}
-			if (!p_getc(&tempguy.specialsfx, f))
-				return 0;
+			if (section_version < 55)
+			{
+				if (!p_getc(&tempbyte, f))
+					return 0;
+				tempguy.specialsfx = tempbyte;
+			}
+			else
+			{
+				if (!p_igetw(&tempguy.specialsfx, f))
+					return 0;
+			}
 
 		}
 	}
@@ -1853,15 +1885,11 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		}
 		}
 		
-		if(!p_putc(guysbuf[i].hitsfx,f))
-		{
-		return 0;
-		}
+		if(!p_iputw(guysbuf[i].hitsfx,f))
+			return 0;
 		
-		if(!p_putc(guysbuf[i].deadsfx,f))
-		{
-		return 0;
-		}
+		if(!p_iputw(guysbuf[i].deadsfx,f))
+			return 0;
 		
 		//2.55 starts here
 		for(int32_t j=edefLAST; j < edefLAST255; j++)
@@ -2063,7 +2091,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 			if (!p_putc(guysbuf[i].weap_data.light_rads[q], f))
 				return 0;
 		}
-		if (!p_putc(guysbuf[i].specialsfx, f))
+		if (!p_iputw(guysbuf[i].specialsfx, f))
 			return 0;
 
 	return 1;
