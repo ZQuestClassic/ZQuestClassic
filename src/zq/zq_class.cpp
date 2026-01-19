@@ -8174,7 +8174,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		//V_MISC >= 14
 		for(int32_t q = 0; q < sfxMAX; ++q)
 		{
-			if(!p_putc(QMisc.miscsfx[q],f))
+			if(!p_iputw(QMisc.miscsfx[q],f))
 				new_return(27);
 		}
 		
@@ -8208,10 +8208,10 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			if (!p_putc(menu.cursor_cset, f))
 				new_return(33);
 			
-			if (!p_putc(menu.cursor_sfx, f))
+			if (!p_iputw(menu.cursor_sfx, f))
 				new_return(34);
 			
-			if (!p_putc(menu.choose_sfx, f))
+			if (!p_iputw(menu.choose_sfx, f))
 				new_return(35);
 			
 			if (!p_putc(menu.bg_color, f))

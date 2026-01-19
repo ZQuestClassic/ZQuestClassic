@@ -6158,12 +6158,25 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	if(s_version >= 14)
 	{
-		byte msfx;
-		for(int32_t q = 0; q < sfxMAX; ++q)
+		if (s_version < 19)
 		{
-			if(!p_getc(&msfx,f))
-				return qe_invalid;
-			temp_misc.miscsfx[q] = msfx;
+			byte msfx;
+			for(int32_t q = 0; q < sfxMAX; ++q)
+			{
+				if(!p_getc(&msfx,f))
+					return qe_invalid;
+				temp_misc.miscsfx[q] = msfx;
+			}
+		}
+		else
+		{
+			word msfx;
+			for(int32_t q = 0; q < sfxMAX; ++q)
+			{
+				if(!p_igetw(&msfx,f))
+					return qe_invalid;
+				temp_misc.miscsfx[q] = msfx;
+			}
 		}
 	}
 	else
@@ -6214,11 +6227,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			if (!p_getc(&menu.cursor_cset, f))
 				return qe_invalid;
 			
-			if (!p_getc(&menu.cursor_sfx, f))
-				return qe_invalid;
-			
-			if (!p_getc(&menu.choose_sfx, f))
-				return qe_invalid;
+			if (s_version < 19)
+			{
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				menu.cursor_sfx = tempbyte;
+				if (!p_getc(&tempbyte, f))
+					return qe_invalid;
+				menu.choose_sfx = tempbyte;
+			}
+			else
+			{
+				if (!p_igetw(&menu.cursor_sfx, f))
+					return qe_invalid;
+				if (!p_igetw(&menu.choose_sfx, f))
+					return qe_invalid;
+			}
 			
 			if (!p_getc(&menu.bg_color, f))
 				return qe_invalid;
