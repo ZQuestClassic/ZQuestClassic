@@ -7978,6 +7978,9 @@ void HeroClass::handle_water_passive_damage(combined_handle_t combined_handle, i
 	}
 	else damageovertimeclk = 0;
 }
+
+static bool replay_compat_hookshot_snap_player_bug();
+
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -8865,7 +8868,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(hookshot_frozen || switch_hooked)
 	{
-		bool snap_player = hs_fix && replay_version_check(46);
+		bool snap_player = hs_fix && !replay_compat_hookshot_snap_player_bug();
 		if(hookshot_used || switch_hooked)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
@@ -14292,6 +14295,14 @@ static bool replay_compat_held_items_only_held_always_bug()
 		return true;
 
 	return !replay_version_check(44);
+}
+
+static bool replay_compat_hookshot_snap_player_bug()
+{
+	if (replay_compat_check_zc_version_2_55(12))
+		return true;
+
+	return !replay_version_check(46);
 }
 
 static bool replay_compat_old_movement_off_by_one()
