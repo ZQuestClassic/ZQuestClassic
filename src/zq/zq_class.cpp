@@ -8443,7 +8443,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(22);
             }
             
-            if(!p_putc(itemsbuf[i].playsound,f))
+            if(!p_iputw(itemsbuf[i].playsound,f))
             {
                 new_return(23);
             }
@@ -8577,12 +8577,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(47);
             }
             
-            if(!p_putc(itemsbuf[i].usesound,f))
+            if(!p_iputw(itemsbuf[i].usesound,f))
             {
                 new_return(48);
             }
             
-            if(!p_putc(itemsbuf[i].usesound2,f))
+            if(!p_iputw(itemsbuf[i].usesound2,f))
             {
                 new_return(48);
             }

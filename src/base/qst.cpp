@@ -6647,10 +6647,17 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 return qe_invalid;
             }
             
-            if(!p_getc(&tempitem.playsound,f))
-            {
-                return qe_invalid;
-            }
+			if (s_version >= 66)
+			{
+				if(!p_igetw(&tempitem.playsound,f))
+					return qe_invalid;
+			}
+			else
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				tempitem.playsound = tempbyte;
+			}
             
             for(int32_t j=0; j<8; j++)
             {
@@ -6863,20 +6870,27 @@ int32_t readitems(PACKFILE *f, word version, word build)
                         }
                     }
                     
-                    if(!p_getc(&tempitem.usesound,f))
-                    {
-                        return qe_invalid;
-                    }
 					
-					if(s_version >= 49)
+					if (s_version >= 66)
 					{
-						if(!p_getc(&tempitem.usesound2,f))
-						{
+						if(!p_igetw(&tempitem.usesound,f))
 							return qe_invalid;
-						}
+						if(!p_igetw(&tempitem.usesound2,f))
+							return qe_invalid;
 					}
-					else tempitem.usesound2 = 0;
-					
+					else
+					{
+						if(!p_getc(&tempbyte,f))
+							return qe_invalid;
+						tempitem.usesound = tempbyte;
+						if (s_version >= 49)
+						{
+							if(!p_getc(&tempbyte,f))
+								return qe_invalid;
+							tempitem.usesound2 = tempbyte;
+						}
+						else tempitem.usesound2 = 0;
+					}
 					if(s_version < 50 && tempitem.type == itype_mirror)
 					{
 						//Split continue/dmap warp effect/sfx, port for old

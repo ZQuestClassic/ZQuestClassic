@@ -280,9 +280,16 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.playsound,f))
+	if (section_version < 66)
 	{
-		return 0;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.playsound = tempbyte;
+	}
+	else
+	{
+		if(!p_igetw(&tempitem.playsound,f))
+			return 0;
 	}
 	
 	for(int32_t j=0; j<8; j++)
@@ -437,14 +444,21 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.usesound,f))
+	if (section_version < 66)
 	{
-		return 0;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.usesound = tempbyte;
+		if(!p_getc(&tempbyte,f))
+			return 0;
+		tempitem.usesound2 = tempbyte;
 	}
-	
-	if(!p_getc(&tempitem.usesound2,f))
+	else
 	{
-		return 0;
+		if(!p_igetw(&tempitem.usesound,f))
+			return 0;
+		if(!p_igetw(&tempitem.usesound2,f))
+			return 0;
 	}
 	
 	if ( zversion >= 0x255 )
@@ -794,7 +808,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(22);
 			}
 			
-			if(!p_putc(itemsbuf[i].playsound,f))
+			if(!p_iputw(itemsbuf[i].playsound,f))
 			{
 				new_return(23);
 			}
@@ -928,12 +942,12 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(47);
 			}
 			
-			if(!p_putc(itemsbuf[i].usesound,f))
+			if(!p_iputw(itemsbuf[i].usesound,f))
 			{
 				new_return(48);
 			}
 			
-			if(!p_putc(itemsbuf[i].usesound2,f))
+			if(!p_iputw(itemsbuf[i].usesound2,f))
 			{
 				new_return(48);
 			}

@@ -11923,7 +11923,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, quest_sounds.size());
 			break;
 			
 		case IDATAUSESOUND:
@@ -11932,7 +11932,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, quest_sounds.size());
 			break;
 			
 		case IDATAUSESOUND2:
@@ -11941,7 +11941,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, quest_sounds.size());
 			break;
 		
 		//2.54
