@@ -13841,7 +13841,7 @@ int32_t writesfx(PACKFILE *f, zquestheader *)
 		for (size_t q = 0; q < count; ++q)
 		{
 			ZCSFX const& sound = quest_sounds[q];
-			SampleType stype = sound.is_invalid() ? SMPL_INVALID : sound.type;
+			SampleType stype = sound.is_invalid() ? SMPL_INVALID : sound.sample_type;
 			if (!p_putc(stype, f))
 				new_return(6);
 			if (!p_putcstr(sound.sfx_name, f))

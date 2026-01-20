@@ -1,5 +1,6 @@
 #include "zcsfx.h"
 #include <allegro5/internal/aintern_audio.h>
+#include <zalleg/zalleg.h>
 
 #ifdef IS_PLAYER
 #include "base/qrs.h"
@@ -18,7 +19,7 @@ static double calc_gain(double vol_perc)
 {
 #ifdef IS_PLAYER
 	double vol_a4 = sfx_volume * vol_perc / 100.0;
-	if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
+	if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME) && FFCore.usr_sfx_volume != 10000*100)
 		vol_a4 *= FFCore.usr_sfx_volume / 1000000.0;
 #else
 	double vol_a4 = 128 * vol_perc / 100.0;
@@ -48,11 +49,11 @@ ZCSFX::ZCSFX(SAMPLE& s)
 		if (s.bits == 8)
 		{
 			for (uint q = 0; q < frames; ++q)
-				data[q] = (int8_t)(data[q] - 128);
+				((int8_t*)data)[q] = (int8_t)(data[q] - 128);
 		}
 		else
 		{
-			uint16_t *data16 = (uint16_t *)data;
+			int16_t *data16 = (int16_t *)data;
 			for (uint q = 0; q < frames; ++q)
 			{
 #if ENDIAN_BE // swap endianness?
@@ -61,12 +62,12 @@ ZCSFX::ZCSFX(SAMPLE& s)
 				data16[q] = (int16_t)(data16[q] - 32768);
 			}
 		}
-		//memcpy(data, s.data, buffer_len);
-		sample = al_create_sample((void*)data, s.len, s.freq, depth, chan_conf, true);
-		if (!sample)
-			al_free(data);
+		
+		load_sample((void*)data, s.len, s.freq, depth, chan_conf);
 	}
-	type = sample ? SMPL_WAV : SMPL_INVALID;
+	sample_type = SMPL_WAV;
+	if (is_invalid())
+		sample_type = SMPL_INVALID;
 }
 
 ZCSFX::ZCSFX(ZCSFX const& other)
@@ -78,26 +79,24 @@ ZCSFX::ZCSFX(ZCSFX const& other)
 ZCSFX& ZCSFX::operator=(ZCSFX const& other)
 {
 	clear_sample();
-	type = other.type;
+	sample_type = other.sample_type;
 	priority = other.priority;
 	loop_start = other.loop_start;
 	loop_end = other.loop_end;
 	param = other.param;
 	sfx_name = other.sfx_name;
 
-	if (other.sample)
+	if (other.sample || other.databuf)
 	{
 		size_t buffer_len = other.get_buffer_size();
 		uint8_t* data = (uint8_t*)al_malloc(buffer_len);
 		memcpy(data, other.get_sample_data(), buffer_len);
-		sample = al_create_sample((void*)data, other.sample->len,
-			other.sample->frequency, other.sample->depth, other.sample->chan_conf, true);
-		if (!sample)
-			al_free(data);
+		load_sample(data, other.get_len(), other.get_frequency(),
+			other.get_depth(), other.get_chan_conf());
+		// don't copy the 'inst'
 	}
-	// don't copy the 'inst'
-	if (!sample)
-		type = SMPL_INVALID;
+	if (!(sample || databuf))
+		sample_type = SMPL_INVALID;
 	return *this;
 }
 ZCSFX::ZCSFX(ZCSFX&& other)
@@ -109,7 +108,7 @@ ZCSFX::ZCSFX(ZCSFX&& other)
 ZCSFX& ZCSFX::operator=(ZCSFX&& other)
 {
 	clear_sample();
-	type = other.type;
+	sample_type = other.sample_type;
 	priority = other.priority;
 	loop_start = other.loop_start;
 	loop_end = other.loop_end;
@@ -119,9 +118,11 @@ ZCSFX& ZCSFX::operator=(ZCSFX&& other)
 	// Take ownership
 	sample = other.sample;
 	inst = other.inst;
-	other.type = SMPL_INVALID;
+	databuf = other.databuf;
+	other.sample_type = SMPL_INVALID;
 	other.sample = nullptr;
 	other.inst = nullptr;
+	other.databuf.reset();
 	return *this;
 }
 
@@ -130,41 +131,77 @@ ZCSFX::~ZCSFX()
 	clear_sample();
 }
 
+void ZCSFX::load_sample(void* data, int32_t len, int32_t freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+{
+	clear_sample();
+	if (sound_was_installed)
+	{
+		sample = al_create_sample((void*)data, len, freq, depth, chan_conf, true);
+		if (!sample)
+			al_free(data);
+	}
+	else databuf = SampleDataBuffer((void*)data, len, freq, depth, chan_conf);
+}
+void ZCSFX::load_sample(ALLEGRO_SAMPLE* new_sample)
+{
+	if (!sound_was_installed) return;
+	clear_sample();
+	sample = new_sample;
+}
+bool ZCSFX::save_sample(char const* filepath) const
+{
+	if (!sound_was_installed) return false;
+	if (!sample) return false;
+	return al_save_sample(filepath, sample);
+}
+
 bool ZCSFX::is_invalid() const
 {
-	return type == SMPL_INVALID || !sample;
+	return sample_type == SMPL_INVALID || !(sample || databuf);
 }
 
 size_t ZCSFX::get_buffer_size() const
 {
-	if (is_invalid())
-		return 0;
-	return get_al_buffer_size(sample->chan_conf, sample->depth, sample->len);
+	if (sample)
+		return get_al_buffer_size(sample->chan_conf, sample->depth, sample->len);
+	if (databuf)
+		return get_al_buffer_size(databuf->chan_conf, databuf->depth, databuf->len);
+	return 0;
 }
 
 uint8_t const* ZCSFX::get_sample_data() const
 {
-	if (is_invalid())
-		return nullptr;
-	return (uint8_t const*)al_get_sample_data(sample);
+	if (sample)
+		return (uint8_t const*)al_get_sample_data(sample);;
+	if (databuf)
+		return (uint8_t const*)databuf->buf;
+	return nullptr;
 }
 
 void ZCSFX::clear()
 {
 	*this = ZCSFX();
 }
-void ZCSFX::clear_sample()
+void ZCSFX::clear_sample() // clears any 'owned' memory
 {
 	if (inst)
 		al_destroy_sample_instance(inst);
 	if (sample)
 		al_destroy_sample(sample);
+	if (databuf)
+	{
+		if (databuf->buf)
+			al_free(databuf->buf);
+		databuf->buf = nullptr;
+	}
 	inst = nullptr;
 	sample = nullptr;
+	databuf.reset();
 }
 
 bool ZCSFX::play(int pan, bool loop, bool restart, zfix vol_perc, int freq)
 {
+	if (!sound_was_installed) return false;
 	if (is_invalid())
 	{
 		if (inst)
@@ -264,11 +301,9 @@ bool ZCSFX::is_playing() const
 
 size_t ZCSFX::get_len_frames() const
 {
-	if (!sample) return 0;
 	size_t freq = get_frequency();
 	if (!freq) return 0;
-	
-	return 60 * al_get_sample_length(sample) / freq;
+	return 60 * get_len() / freq;
 }
 size_t ZCSFX::get_pos() const
 {
@@ -277,13 +312,19 @@ size_t ZCSFX::get_pos() const
 }
 size_t ZCSFX::get_len() const
 {
-	if (!sample) return 0;
-	return al_get_sample_length(sample);
+	if (sample)
+		return al_get_sample_length(sample);
+	if (databuf)
+		return databuf->len;
+	return 0;
 }
 size_t ZCSFX::get_frequency() const
 {
-	if (!sample) return 0;
-	return al_get_sample_frequency(sample);
+	if (sample)
+		return al_get_sample_frequency(sample);
+	if (databuf)
+		return databuf->frequency;
+	return 0;
 }
 ALLEGRO_CHANNEL_CONF ZCSFX::get_chan_conf() const
 {
@@ -301,6 +342,8 @@ ALLEGRO_AUDIO_DEPTH ZCSFX::get_depth() const
 // returns number of voices currently allocated
 int32_t sfx_count()
 {
+	if (!sound_was_installed)
+		return 0;
 	int32_t c = 0;
 	
 	for (auto& sound : quest_sounds)
@@ -313,6 +356,8 @@ int32_t sfx_count()
 // clean up finished samples
 void sfx_cleanup()
 {
+	if (!sound_was_installed)
+		return;
 	for (auto& sound : quest_sounds)
 		sound.cleanup();
 }
@@ -320,6 +365,8 @@ void sfx_cleanup()
 // plays an sfx sample
 void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int32_t freq)
 {
+	if (!sound_was_installed)
+		return;
 	if (unsigned(index-1) >= quest_sounds.size())
 		return;
 	if (!is_headless())
@@ -345,6 +392,8 @@ void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int
 
 bool sfx_is_allocated(int32_t index)
 {
+	if (!sound_was_installed)
+		return false;
 	if (unsigned(index-1) >= quest_sounds.size())
 		return false;
 	return quest_sounds[index-1].is_allocated();
@@ -353,11 +402,15 @@ bool sfx_is_allocated(int32_t index)
 // play in loop mode
 void cont_sfx(int32_t index)
 {
+	if (!sound_was_installed)
+		return;
 	sfx(index, 128, true, false);
 }
 
 void adjust_sfx(int32_t index,int32_t pan,bool loop)
 {
+	if (!sound_was_installed)
+		return;
 	if (unsigned(index-1) >= quest_sounds.size())
 		return;
 	if (is_headless())
@@ -369,6 +422,8 @@ void adjust_sfx(int32_t index,int32_t pan,bool loop)
 
 void adjust_sfx_vol(int32_t index, optional<zfix> vol_perc)
 {
+	if (!sound_was_installed)
+		return;
 	if (unsigned(index-1) >= quest_sounds.size())
 		return;
 	if (is_headless())
@@ -378,12 +433,16 @@ void adjust_sfx_vol(int32_t index, optional<zfix> vol_perc)
 }
 void adjust_all_sfx_vol(optional<zfix> vol_perc)
 {
+	if (!sound_was_installed)
+		return;
 	for (uint q = 0; q < quest_sounds.size(); ++q)
 		adjust_sfx_vol(q+1, vol_perc);
 }
 
 void pause_sfx(int32_t index)
 {
+	if (!sound_was_installed)
+		return;
 	if (is_headless())
 		return;
 	if (unsigned(index-1) >= quest_sounds.size())
@@ -393,6 +452,8 @@ void pause_sfx(int32_t index)
 
 void resume_sfx(int32_t index)
 {
+	if (!sound_was_installed)
+		return;
 	if (is_headless())
 		return;
 	if (unsigned(index-1) >= quest_sounds.size())
@@ -402,6 +463,8 @@ void resume_sfx(int32_t index)
 
 void stop_sfx(int32_t index)
 {
+	if (!sound_was_installed)
+		return;
 	if (is_headless())
 		return;
 	if (unsigned(index-1) >= quest_sounds.size())
@@ -411,24 +474,32 @@ void stop_sfx(int32_t index)
 
 void pause_all_sfx()
 {
+	if (!sound_was_installed)
+		return;
 	for (auto& sound : quest_sounds)
 		sound.pause();
 }
 
 void resume_all_sfx()
 {
+	if (!sound_was_installed)
+		return;
 	for (auto& sound : quest_sounds)
 		sound.resume();
 }
 
 void kill_sfx()
 {
+	if (!sound_was_installed)
+		return;
 	for (auto& sound : quest_sounds)
 		sound.stop();
 }
 
 void kill_sfx_except(std::set<size_t> const& skip_idxs)
 {
+	if (!sound_was_installed)
+		return;
 	for (size_t idx = 0; idx < quest_sounds.size(); ++idx)
 	{
 		if (skip_idxs.contains(idx))

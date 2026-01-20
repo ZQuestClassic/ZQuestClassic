@@ -13699,11 +13699,11 @@ int32_t readsfx(PACKFILE *f, zquestheader *)
 	for (word q = 0; q < count; ++q)
 	{
 		ZCSFX& sound = quest_sounds.emplace_back();
-		if (!p_getc(&sound.type, f))
+		if (!p_getc(&sound.sample_type, f))
 			return qe_invalid;
 		if (!p_getcstr(&sound.sfx_name, f))
 			return qe_invalid;
-		if (sound.type == SMPL_INVALID)
+		if (sound.sample_type == SMPL_INVALID)
 			continue;
 		if (!p_igetl(&sound.priority, f))
 			return qe_invalid;
@@ -13720,8 +13720,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *)
 		if (!p_getc(&dummy, f))
 			return qe_invalid;
 		ALLEGRO_CHANNEL_CONF chan_conf = (ALLEGRO_CHANNEL_CONF)dummy;
-		uint frequency;
-		int len;
+		int32_t frequency, len;
 		if (!p_igetl(&frequency, f))
 			return qe_invalid;
 		if (!p_igetl(&len, f))
@@ -13732,12 +13731,8 @@ int32_t readsfx(PACKFILE *f, zquestheader *)
 			return qe_nomem;
 		if (!pfread(data, buffer_len, f))
 			return qe_invalid;
-		sound.sample = al_create_sample((void*)data, len, frequency, depth, chan_conf, true);
-		if (!sound.sample)
-		{
-			al_free(data);
-			return qe_invalid;
-		}
+		
+		sound.load_sample(data, len, frequency, depth, chan_conf);
 	}
 	
 	sfxdat = 0;

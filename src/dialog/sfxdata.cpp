@@ -47,7 +47,7 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 	{
 		std::ostringstream oss;
 		oss << "Type: ";
-		switch (local_ref.type)
+		switch (local_ref.sample_type)
 		{
 			case SMPL_WAV:
 				oss << ".wav";
@@ -85,6 +85,49 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 		sfx_info = oss.str();
 	}
 	
+	shared_ptr<GUI::Grid> left_grid = Rows<4>(vAlign = 1.0);
+	shared_ptr<GUI::Widget> bottom_widg;
+	if (sound_was_installed)
+	{
+		bottom_widg = DummyWidget();
+		// Default doesn't REQUIRE sound, but feels weird without save/load/play options
+		left_grid->add(Button(fitParent = true, minwidth = 90_px,
+			text = "Default", onClick = message::DEFAULT));
+		left_grid->add(INFOBTN("Clears the SFX to default."));
+		left_grid->add(DummyWidget(colSpan = 2));
+		// save/load requires sound
+		left_grid->add(Button(fitParent = true, disabled = local_ref.is_invalid(),
+			text = "Save", minwidth = 90_px, onClick = message::SAVE));
+		left_grid->add(INFOBTN("Save the SFX as a '.wav' file."));
+		left_grid->add(Button(fitParent = true, minwidth = 90_px,
+			text = "Load", onClick = message::LOAD));
+		left_grid->add(INFOBTN("Load an SFX from a '.wav' / '.ogg' file."));
+		// playing sound requires sound
+		left_grid->add(Button(fitParent = true, disabled = local_ref.is_invalid(),
+			text = "Play", minwidth = 90_px, onClick = message::PLAY));
+		left_grid->add(INFOBTN("Play a preview of the sound (at '128' volume)."));
+		left_grid->add(btn_stop = Button(colSpan = 2, fitParent = true, disabled = true,
+			text = "Stop", minwidth = 90_px, onClick = message::STOP));
+		//
+		left_grid->add(Button(colSpan = 2, fitParent = true, focused = true,
+			text = "Ok", minwidth = 90_px, onClick = message::OK));
+		left_grid->add(Button(colSpan = 2, fitParent = true, minwidth = 90_px,
+			text = "Cancel", onClick = message::CANCEL));
+	}
+	else
+	{
+		left_grid->add(Label(fitParent = true,
+			text = "Sound cannot be saved/loaded/played\nwhile 'nosound' setting is enabled."
+			"\nRe-launch the editor with\nsound enabled to modify sounds."));
+		bottom_widg = Row(
+			Button(colSpan = 2, fitParent = true, focused = true,
+				text = "Ok", minwidth = 90_px, onClick = message::OK),
+			Button(colSpan = 2, fitParent = true, minwidth = 90_px,
+				text = "Cancel", onClick = message::CANCEL)
+		);
+	}
+	
+	
 	string titlebuf = fmt::format("SFX {}: {}", index, local_ref.sfx_name);
 	window = Window(
 		use_vsync = true,
@@ -119,54 +162,10 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 				)
 			),
 			Row(
-				Rows<4>(vAlign = 1.0,
-					Button(fitParent = true,
-						text = "Default",
-						minwidth = 90_px,
-						onClick = message::DEFAULT
-					),
-					INFOBTN("Clears the SFX to default."),
-					DummyWidget(colSpan = 2),
-					Button(fitParent = true,
-						disabled = local_ref.is_invalid(),
-						text = "Save",
-						minwidth = 90_px,
-						onClick = message::SAVE
-					),
-					INFOBTN("Save the SFX as a '.wav' file."),
-					Button(fitParent = true,
-						text = "Load",
-						minwidth = 90_px,
-						onClick = message::LOAD
-					),
-					INFOBTN("Load an SFX from a '.wav' / '.ogg' file."),
-					Button(fitParent = true,
-						disabled = local_ref.is_invalid(),
-						text = "Play",
-						minwidth = 90_px,
-						onClick = message::PLAY
-					),
-					INFOBTN("Play a preview of the sound (at '128' volume)."),
-					btn_stop = Button(colSpan = 2, fitParent = true,
-						disabled = true,
-						text = "Stop",
-						minwidth = 90_px,
-						onClick = message::STOP
-					),
-					Button(colSpan = 2, fitParent = true,
-						focused = true,
-						text = "Ok",
-						minwidth = 90_px,
-						onClick = message::OK
-					),
-					Button(colSpan = 2, fitParent = true,
-						text = "Cancel",
-						minwidth = 90_px,
-						onClick = message::CANCEL
-					)
-				),
+				left_grid,
 				Label(minwidth = 6_em, fitParent = true, text = sfx_info)
-			)
+			),
+			bottom_widg
 		)
 	);
 	return window;
@@ -191,10 +190,12 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			strcpy(temppath, tempname.c_str());
 
 			//save
-			if (local_ref.sample)
+			if (local_ref.is_invalid())
+				displayinfo("Error!", "Cannot save an empty slot!");
+			else
 			{
 				static const string ext = "wav"; // only wav saving is currently supported
-				switch (local_ref.type)
+				switch (local_ref.sample_type)
 				{
 					default:
 					case SMPL_WAV:
@@ -206,13 +207,13 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}
 				if (prompt_for_new_file_compat("Save SFX file", ext, NULL, temppath, true))
 				{
-					if (!al_save_sample(temppath, local_ref.sample))
+					if (!local_ref.save_sample(temppath))
 						displayinfo("Error!", fmt::format("Could not write file\n{}", temppath));
 					else
 						displayinfo("Success!", fmt::format("Saved SFX file\n{}", temppath));
 				}
 			}
-			else displayinfo("Error!", "Cannot save an empty slot!");
+			
 			break;
 		}
 		case message::LOAD:
@@ -227,14 +228,13 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				{
 					string t = get_filename(temppath);
 					if (t.ends_with(".wav"))
-						local_ref.type = SMPL_WAV;
+						local_ref.sample_type = SMPL_WAV;
 					else if (t.ends_with(".ogg"))
-						local_ref.type = SMPL_OGG;
+						local_ref.sample_type = SMPL_OGG;
 					else ASSERT(false);
 					
 					local_ref.sfx_name = t.substr(0, t.find_first_of("."));
-					local_ref.clear_sample();
-					local_ref.sample = temp_sample;
+					local_ref.load_sample(temp_sample);
 					
 					rerun_dlg = true;
 					return true;

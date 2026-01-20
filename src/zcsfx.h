@@ -14,15 +14,29 @@ enum SampleType : uint8_t
 	SMPL_OGG,
 };
 
+struct SampleDataBuffer
+{
+	void* buf = nullptr;
+	int32_t len, frequency;
+	ALLEGRO_AUDIO_DEPTH depth;
+	ALLEGRO_CHANNEL_CONF chan_conf;
+};
+
 struct ZCSFX
 {
-	ALLEGRO_SAMPLE* sample = nullptr;
-	SampleType type = SMPL_INVALID;
-	int priority, loop_start, loop_end, param; // unused values leftover from A4 samples. Unsure if they were ever used?
+	SampleType sample_type = SMPL_INVALID;
 	string sfx_name;
-	
+	int priority, loop_start, loop_end, param; // unused values leftover from A4 samples. Unsure if they were ever used?
+private:
+	ALLEGRO_SAMPLE* sample = nullptr;
 	ALLEGRO_SAMPLE_INSTANCE* inst = nullptr;
-	zfix base_vol = 100_zf;
+	
+	zfix base_vol = 100_zf; // not saved, only used for internal logic
+	
+	// used only if no_sound is enabled, as ALLEGRO_SAMPLE* can't be created
+	// stores all the data that would otherwise be in `sample`
+	optional<SampleDataBuffer> databuf = nullopt;
+public:
 	
 	ZCSFX() = default;
 	ZCSFX(SAMPLE& s);
@@ -31,6 +45,10 @@ struct ZCSFX
 	ZCSFX(ZCSFX&& other);
 	ZCSFX& operator=(ZCSFX&& other);
 	~ZCSFX();
+	
+	void load_sample(void* data, int32_t len, int32_t freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf);
+	void load_sample(ALLEGRO_SAMPLE* new_sample);
+	bool save_sample(char const* filepath) const;
 	
 	bool is_invalid() const;
 	size_t get_buffer_size() const;
