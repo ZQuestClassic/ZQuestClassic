@@ -11923,7 +11923,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, quest_sounds.size());
+			(itemsbuf[GET_REF(itemdataref)].playsound)=vbound(value/10000, 0, MAX_SFX);
 			break;
 			
 		case IDATAUSESOUND:
@@ -11932,7 +11932,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, quest_sounds.size());
+			(itemsbuf[GET_REF(itemdataref)].usesound)=vbound(value/10000, 0, MAX_SFX);
 			break;
 			
 		case IDATAUSESOUND2:
@@ -11941,7 +11941,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, quest_sounds.size());
+			(itemsbuf[GET_REF(itemdataref)].usesound2)=vbound(value/10000, 0, MAX_SFX);
 			break;
 		
 		//2.54
@@ -12763,7 +12763,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSFX:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,quest_sounds.size());
+				s->death_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		case LWPNLIFTLEVEL:
@@ -13331,7 +13331,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSFX:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,quest_sounds.size());
+				s->death_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		case EWPNLIFTLEVEL:
@@ -13596,7 +13596,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case SCREENDATAOCEANSFX:
 		{
-			int32_t v = vbound(value/10000, 0, quest_sounds.size());
+			int32_t v = vbound(value/10000, 0, MAX_SFX);
 			auto scr = get_scr(GET_REF(screenref));
 			if (scr == hero_scr && scr->oceansfx != v)
 			{
@@ -14073,7 +14073,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				int32_t v = vbound(value/10000, 0, quest_sounds.size());
+				int32_t v = vbound(value/10000, 0, MAX_SFX);
 				if(m == hero_scr && m->oceansfx != v)
 				{
 					stop_sfx(m->oceansfx);
@@ -14457,7 +14457,7 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else 
-				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, quest_sounds.size()));
+				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, MAX_SFX));
 			break;
 		}	
 		case MESSAGEDATALISTPOS: //WORD
@@ -14739,7 +14739,7 @@ void set_register(int32_t arg, int32_t value)
 			if (!checkComboRef()) break;
 
 			if(auto* trig = get_first_combo_trigger())
-				trig->trigsfx = vbound(value/10000, 0, quest_sounds.size());
+				trig->trigsfx = vbound(value/10000, 0, MAX_SFX);
 			break;
 		}
 		case COMBODTRIGGERCHANGECMB:
@@ -15043,7 +15043,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, quest_sounds.size());
+			combobuf[GET_REF(combodataref)].liftsfx = vbound(value/10000, 0, MAX_SFX);
 			break;
 		}
 		case COMBODLIFTBREAKSPRITE:
@@ -15282,7 +15282,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 			{
-				trig->trigsfx = vbound(value/10000, 0, quest_sounds.size());
+				trig->trigsfx = vbound(value/10000, 0, MAX_SFX);
 			}
 			break;
 		}
@@ -16123,7 +16123,7 @@ void set_register(int32_t arg, int32_t value)
 		case SAVEDPORTALWARPSFX:
 		{
 			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
-				p->sfx = vbound(value/10000,0,quest_sounds.size());
+				p->sfx = vbound(value/10000,0,MAX_SFX);
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
@@ -16276,7 +16276,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_left;
-				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
@@ -16294,7 +16294,7 @@ void set_register(int32_t arg, int32_t value)
 			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = sub->trans_right;
-				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
@@ -16545,7 +16545,7 @@ void set_register(int32_t arg, int32_t value)
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref), {sstACTIVE, sstMAP}))
 			{
 				auto& trans = widg->pg_trans;
-				trans.tr_sfx = vbound(value/10000,0,quest_sounds.size());
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
 			}
 			break;
 		}
