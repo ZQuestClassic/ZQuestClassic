@@ -365,11 +365,9 @@ void sfx_cleanup()
 // plays an sfx sample
 void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int32_t freq)
 {
-	if (!sound_was_installed)
-		return;
 	if (unsigned(index-1) >= quest_sounds.size())
 		return;
-	if (!is_headless())
+	if (sound_was_installed)
 	{
 		ZCSFX& s = quest_sounds[index-1];
 		
