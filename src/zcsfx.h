@@ -104,3 +104,7 @@ void resume_all_sfx();
 void stop_sfx(int32_t index);
 void kill_sfx();
 void kill_sfx_except(std::set<size_t> const& skip_idxs);
+
+void delete_quest_sounds(std::function<bool(ZCSFX const&)> proc);
+void delete_quest_sounds(size_t idx);
+void swap_quest_sounds(size_t idx1, size_t idx2);

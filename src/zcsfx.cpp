@@ -508,3 +508,77 @@ void kill_sfx_except(std::set<size_t> const& skip_idxs)
 	}
 }
 
+
+// For deleting / moving quest sounds, updating references to affected sounds
+static void update_quest_sounds(std::map<size_t, size_t> changes)
+{
+	// TODO: This will take a lot of work, and won't help any hardcoded sfx.
+	// For now just going to warn that SFX won't be updated;
+	// can come back to this later when more SFX hardcodes have been removed.
+	// -Em
+	
+	// for (auto it = changes.begin(); it != changes.end();) // trim non-changes
+	// {
+		// if (it->first == it->second)
+			// it = changes.erase(it);
+		// else ++it;
+	// }
+	// if (changes.empty())
+		// return;
+	
+	// mark_save_dirty();
+}
+void delete_quest_sounds(std::function<bool(ZCSFX const&)> proc)
+{
+	size_t del_count = 0;
+	std::map<size_t, size_t> changes;
+	size_t sz = quest_sounds.size();
+	auto it = quest_sounds.begin();
+	for (size_t q = 1; q <= sz; ++q)
+	{
+		if (proc(*it))
+		{
+			it = quest_sounds.erase(it);
+			changes[q] = 0;
+			++del_count;
+		}
+		else
+		{
+			++it;
+			if (del_count)
+				changes[q] = q - del_count;
+		}
+	}
+	update_quest_sounds(changes);
+}
+void delete_quest_sounds(size_t idx)
+{
+	if (idx <= 0) return;
+	std::map<size_t, size_t> changes;
+	size_t sz = quest_sounds.size();
+	auto it = quest_sounds.begin();
+	for (size_t q = 1; q <= sz; ++q)
+	{
+		if (q == idx)
+		{
+			it = quest_sounds.erase(it);
+			changes[q] = 0;
+		}
+		else
+		{
+			++it;
+			if (q > idx)
+				changes[q] = q - 1;
+		}
+	}
+	update_quest_sounds(changes);
+}
+void swap_quest_sounds(size_t idx1, size_t idx2)
+{
+	if (unsigned(idx1-1) > quest_sounds.size() ||
+		unsigned(idx2-1) > quest_sounds.size() ||
+		idx1 == idx2) return;
+	zc_swap_mv(quest_sounds[idx1-1], quest_sounds[idx2-1]);
+	update_quest_sounds({{idx1, idx2},{idx2, idx1}});
+}
+

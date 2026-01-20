@@ -13649,19 +13649,18 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 	int blanks = 0;
 	for (uint q = 1; q < wavcount; ++q)
 	{
-		if (get_bit(tempflag, q-1))
+		if (get_bit(tempflag, q - 1))
 		{
 			while (quest_sounds.size() < q)
 				quest_sounds.emplace_back();
-			auto& sound = quest_sounds[q-1];
+			auto& sound = quest_sounds[q - 1];
 			sound = ZCSFX(samples[q]);
 			if (sound.is_invalid())
 				return qe_invalid;
 			sound.sfx_name = sfx_string[q];
 		}
-		else if (q-1 < quest_sounds.size())
-			quest_sounds[q-1].clear();
-		else quest_sounds.emplace_back(); // temporary until sfx are resizable
+		else if (q - 1 < quest_sounds.size())
+			quest_sounds[q - 1].clear();
 	}
 	
 	sfxdat = 0;

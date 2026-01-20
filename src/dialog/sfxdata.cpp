@@ -15,7 +15,8 @@ void mark_save_dirty();
 
 bool call_sfxdata_dialog(int32_t index)
 {
-	if (!index) return false;
+	if (unsigned(index-1) > quest_sounds.size())
+		return false;
 	SFXDataDialog(index).show();
 	return true;
 }
@@ -28,62 +29,60 @@ SFXDataDialog::SFXDataDialog(int32_t index) : index(index),
 	else
 		index = quest_sounds.size()+1;
 	
+	// Don't know why these are here. . . maybe to clean up if tunes were playing?
 	kill_sfx();
 	zc_stop_midi();
 	zc_set_volume(255, -1);
 }
 
+string get_sound_info(ZCSFX const& sound)
+{
+	if (sound.is_invalid())
+		return "[Empty]";
+	std::ostringstream oss;
+	oss << "Type: ";
+	switch (sound.sample_type)
+	{
+		case SMPL_WAV:
+			oss << ".wav";
+			break;
+		case SMPL_OGG:
+			oss << ".ogg";
+			break;
+	}
+	oss << "\nLen: " << sound.get_len();
+	oss << "\nFreq: " << sound.get_frequency();
+	oss << "\nDuration: " << (zfix(int(sound.get_len())) / int(sound.get_frequency())).str();
+	auto channels = sound.get_chan_conf();
+	oss << "\nChannels: " << int(channels >> 4);
+	if (channels & 0xF)
+		oss << "." << int(channels & 0xF);
+	auto depth = sound.get_depth();
+	oss << "\nDepth: ";
+	if (depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+		oss << "U";
+	switch (depth&0x7)
+	{
+		case ALLEGRO_AUDIO_DEPTH_INT8:
+			oss << "INT8";
+			break;
+		case ALLEGRO_AUDIO_DEPTH_INT16:
+			oss << "INT16";
+			break;
+		case ALLEGRO_AUDIO_DEPTH_INT24:
+			oss << "INT24";
+			break;
+		case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+			oss << "FLOAT32";
+			break;
+	}
+	return oss.str();
+}
 std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
-	string sfx_info;
-	
-	if (local_ref.is_invalid())
-		sfx_info = "Empty SFX";
-	else
-	{
-		std::ostringstream oss;
-		oss << "Type: ";
-		switch (local_ref.sample_type)
-		{
-			case SMPL_WAV:
-				oss << ".wav";
-				break;
-			case SMPL_OGG:
-				oss << ".ogg";
-				break;
-		}
-		oss << "\nLen: " << local_ref.get_len();
-		oss << "\nFreq: " << local_ref.get_frequency();
-		oss << "\nDuration: " << (zfix(int(local_ref.get_len())) / int(local_ref.get_frequency())).str();
-		auto channels = local_ref.get_chan_conf();
-		oss << "\nChannels: " << int(channels >> 4);
-		if (channels & 0xF)
-			oss << "." << int(channels & 0xF);
-		auto depth = local_ref.get_depth();
-		oss << "\nDepth: ";
-		if (depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-			oss << "U";
-		switch (depth&0x7)
-		{
-			case ALLEGRO_AUDIO_DEPTH_INT8:
-				oss << "INT8";
-				break;
-			case ALLEGRO_AUDIO_DEPTH_INT16:
-				oss << "INT16";
-				break;
-			case ALLEGRO_AUDIO_DEPTH_INT24:
-				oss << "INT24";
-				break;
-			case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-				oss << "FLOAT32";
-				break;
-		}
-		sfx_info = oss.str();
-	}
 	
 	shared_ptr<GUI::Grid> left_grid = Rows<4>(vAlign = 1.0);
 	shared_ptr<GUI::Widget> bottom_widg;
@@ -127,7 +126,7 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 		);
 	}
 	
-	
+	string sfx_info = get_sound_info(local_ref);
 	string titlebuf = fmt::format("SFX {}: {}", index, local_ref.sfx_name);
 	window = Window(
 		use_vsync = true,

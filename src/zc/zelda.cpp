@@ -701,8 +701,6 @@ zctune tunes[MAXMIDIS] =
 	{ "Engine - Triforce",    0,  -1,  -1,  0,  168 },
 };
 
-// emusic enhancedMusic[MAXMUSIC];
-
 FONT *setmsgfont()
 {
 	return get_zc_font(MsgStrings[msgstr].font);

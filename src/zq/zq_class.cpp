@@ -13823,8 +13823,8 @@ int32_t writesfx(PACKFILE *f, zquestheader *)
 		writesize=0;
 		
 		size_t count = quest_sounds.size();
-		if (count > NUM_SFX)
-			count = NUM_SFX;
+		if (count > MAX_SFX)
+			count = MAX_SFX;
 		for (size_t q = count-1;; --q)
 		{
 			if (quest_sounds[q].sfx_name.empty() && quest_sounds[q].is_invalid())

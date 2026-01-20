@@ -12763,7 +12763,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSFX:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,NUM_SFX);
+				s->death_sfx = vbound(value/10000,0,quest_sounds.size());
 			}
 			break;
 		case LWPNLIFTLEVEL:
@@ -13331,7 +13331,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSFX:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->death_sfx = vbound(value/10000,0,NUM_SFX);
+				s->death_sfx = vbound(value/10000,0,quest_sounds.size());
 			}
 			break;
 		case EWPNLIFTLEVEL:
