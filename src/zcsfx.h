@@ -14,28 +14,46 @@ enum SampleType : uint8_t
 	SMPL_OGG,
 };
 
-struct SampleDataBuffer
+struct SampleBase
 {
-	void* buf = nullptr;
-	int32_t len, frequency;
-	ALLEGRO_AUDIO_DEPTH depth;
-	ALLEGRO_CHANNEL_CONF chan_conf;
+	~SampleBase();
+	virtual SampleBase* duplicate() const = 0;
+	virtual void cleanup_memory();
+	virtual bool validate() const = 0;
+	virtual SampleType get_sample_type() const = 0;
+	virtual string get_sound_info() const = 0;
+	
+	virtual int read(PACKFILE* f, word s_version) = 0;
+	virtual int write(PACKFILE* f) const = 0;
+	virtual bool save_sample(char const* fpath) const;
+	
+	virtual void update_pan(int pan) = 0;
+	virtual void update_loop(bool loop) = 0;
+	virtual void update_freq(int freq) = 0;
+	virtual void update_gain(double gain) = 0;
+	
+	size_t get_len_frames() const;
+	virtual size_t get_pos() const = 0;
+	virtual size_t get_len() const = 0;
+	virtual size_t get_frequency() const = 0;
+	virtual ALLEGRO_CHANNEL_CONF get_chan_conf() const = 0;
+	virtual ALLEGRO_AUDIO_DEPTH get_depth() const = 0;
+	
+	virtual bool is_allocated() const = 0;
+	virtual bool is_playing() const = 0;
+	
+	virtual bool play(int pan, bool loop, bool restart, double gain, int freq) = 0;
+	virtual void pause() = 0;
+	virtual void resume() = 0;
+	virtual void stop() = 0;
 };
 
 struct ZCSFX
 {
-	SampleType sample_type = SMPL_INVALID;
 	string sfx_name;
-	int priority, loop_start, loop_end, param; // unused values leftover from A4 samples. Unsure if they were ever used?
 private:
-	ALLEGRO_SAMPLE* sample = nullptr;
-	ALLEGRO_SAMPLE_INSTANCE* inst = nullptr;
-	
+	SampleBase* internal = nullptr;
 	zfix base_vol = 100_zf; // not saved, only used for internal logic
-	
-	// used only if no_sound is enabled, as ALLEGRO_SAMPLE* can't be created
-	// stores all the data that would otherwise be in `sample`
-	optional<SampleDataBuffer> databuf = nullopt;
 public:
 	
 	ZCSFX() = default;
@@ -46,15 +64,19 @@ public:
 	ZCSFX& operator=(ZCSFX&& other);
 	~ZCSFX();
 	
-	void load_sample(void* data, int32_t len, int32_t freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf);
+	SampleType get_sample_type() const;
+	
+	int read(PACKFILE* f, word s_version);
+	int write(PACKFILE* f) const;
+	
 	void load_sample(ALLEGRO_SAMPLE* new_sample);
 	bool save_sample(char const* filepath) const;
 	
 	bool is_invalid() const;
-	size_t get_buffer_size() const;
-	uint8_t const* get_sample_data() const;
+	
 	void clear();
-	void clear_sample();
+	void cleanup_memory();
+	
 	bool play(int pan, bool loop, bool restart = true, zfix vol_perc = 100_zf, int freq = -1);
 	void pause();
 	void resume();
@@ -64,17 +86,18 @@ public:
 	void update_pan(int pan);
 	void update_loop(bool loop);
 	void update_freq(int freq);
-	void update_vol_perc(optional<zfix> vol_perc = nullopt);
 	void update_gain(double gain);
+	
+	void update_vol_perc(optional<zfix> vol_perc = nullopt);
 	
 	bool is_allocated() const;
 	bool is_playing() const;
+	
 	size_t get_len_frames() const;
 	size_t get_pos() const;
 	size_t get_len() const;
-	size_t get_frequency() const;
-	ALLEGRO_CHANNEL_CONF get_chan_conf() const;
-	ALLEGRO_AUDIO_DEPTH get_depth() const;
+	
+	string get_sound_info() const;
 };
 
 extern vector<ZCSFX> quest_sounds;

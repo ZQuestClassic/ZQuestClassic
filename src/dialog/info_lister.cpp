@@ -964,7 +964,6 @@ void SFXListerDialog::postinit()
 }
 
 static int16_t copied_sfx_id = -1;
-string get_sound_info(ZCSFX const& sound);
 void SFXListerDialog::update(bool)
 {
 	string info;
@@ -973,7 +972,7 @@ void SFXListerDialog::update(bool)
 	else if (unsigned(selected_val-1) < quest_sounds.size())
 	{
 		auto const& sound = quest_sounds[selected_val-1]; // vals are 1-indexed
-		info = get_sound_info(sound);
+		info = sound.get_sound_info();
 	}
 	string copystr = fmt::format("Copied: {}", copied_sfx_id+1);
 	widgInfo->setText(fmt::format("{}\n{}", info, copystr));

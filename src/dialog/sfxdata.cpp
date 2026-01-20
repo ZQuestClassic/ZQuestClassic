@@ -35,49 +35,6 @@ SFXDataDialog::SFXDataDialog(int32_t index) : index(index),
 	zc_set_volume(255, -1);
 }
 
-string get_sound_info(ZCSFX const& sound)
-{
-	if (sound.is_invalid())
-		return "[Empty]";
-	std::ostringstream oss;
-	oss << "Type: ";
-	switch (sound.sample_type)
-	{
-		case SMPL_WAV:
-			oss << ".wav";
-			break;
-		case SMPL_OGG:
-			oss << ".ogg";
-			break;
-	}
-	oss << "\nLen: " << sound.get_len();
-	oss << "\nFreq: " << sound.get_frequency();
-	oss << "\nDuration: " << (zfix(int(sound.get_len())) / int(sound.get_frequency())).str();
-	auto channels = sound.get_chan_conf();
-	oss << "\nChannels: " << int(channels >> 4);
-	if (channels & 0xF)
-		oss << "." << int(channels & 0xF);
-	auto depth = sound.get_depth();
-	oss << "\nDepth: ";
-	if (depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-		oss << "U";
-	switch (depth&0x7)
-	{
-		case ALLEGRO_AUDIO_DEPTH_INT8:
-			oss << "INT8";
-			break;
-		case ALLEGRO_AUDIO_DEPTH_INT16:
-			oss << "INT16";
-			break;
-		case ALLEGRO_AUDIO_DEPTH_INT24:
-			oss << "INT24";
-			break;
-		case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-			oss << "FLOAT32";
-			break;
-	}
-	return oss.str();
-}
 std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 {
 	using namespace GUI::Builder;
@@ -126,7 +83,7 @@ std::shared_ptr<GUI::Widget> SFXDataDialog::view()
 		);
 	}
 	
-	string sfx_info = get_sound_info(local_ref);
+	string sfx_info = local_ref.get_sound_info();
 	string titlebuf = fmt::format("SFX {}: {}", index, local_ref.sfx_name);
 	window = Window(
 		use_vsync = true,
@@ -194,7 +151,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			else
 			{
 				static const string ext = "wav"; // only wav saving is currently supported
-				switch (local_ref.sample_type)
+				switch (local_ref.get_sample_type())
 				{
 					default:
 					case SMPL_WAV:
@@ -226,11 +183,6 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				else
 				{
 					string t = get_filename(temppath);
-					if (t.ends_with(".wav"))
-						local_ref.sample_type = SMPL_WAV;
-					else if (t.ends_with(".ogg"))
-						local_ref.sample_type = SMPL_OGG;
-					else ASSERT(false);
 					
 					local_ref.sfx_name = t.substr(0, t.find_first_of("."));
 					local_ref.load_sample(temp_sample);
@@ -264,7 +216,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			else quest_sounds[index-1] = std::move(local_ref);
 			return true;
 		case message::CANCEL:
-			local_ref.clear_sample();
+			local_ref.cleanup_memory();
 			return true;
 	}
 	return false;

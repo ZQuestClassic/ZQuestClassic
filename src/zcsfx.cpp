@@ -1,6 +1,8 @@
 #include "zcsfx.h"
 #include <allegro5/internal/aintern_audio.h>
 #include <zalleg/zalleg.h>
+#include "base/qst.h"
+#include "base/packfile.h"
 
 #ifdef IS_PLAYER
 #include "base/qrs.h"
@@ -27,231 +29,678 @@ static double calc_gain(double vol_perc)
 	return vol_a4 / 255.0;
 }
 
-ZCSFX::ZCSFX(SAMPLE& s)
+
+SampleBase::~SampleBase()
 {
-	priority = s.priority;
-	loop_start = s.loop_start;
-	loop_end = s.loop_end;
-	param = s.param;
+	cleanup_memory();
+}
 
-	sample = nullptr;
-	inst = nullptr;
+void SampleBase::cleanup_memory()
+{
+	
+}
 
-	ALLEGRO_CHANNEL_CONF chan_conf = s.stereo ? ALLEGRO_CHANNEL_CONF_2 : ALLEGRO_CHANNEL_CONF_1;
-	ALLEGRO_AUDIO_DEPTH depth = s.bits == 8 ? ALLEGRO_AUDIO_DEPTH_INT8 : ALLEGRO_AUDIO_DEPTH_INT16;
-	size_t buffer_len = get_al_buffer_size(chan_conf, depth, s.len);
-	uint8_t* data = (uint8_t*)al_malloc(buffer_len);
-	if (data)
+bool SampleBase::save_sample(char const* fpath) const
+{
+	return false;
+}
+
+size_t SampleBase::get_len_frames() const
+{
+	size_t freq = get_frequency();
+	if (!freq) return 0;
+	return 60 * get_len() / freq;
+}
+
+namespace // sample implementations
+{
+	///
+	/// OGG Files
+	///
+	
+	// struct SampleOGG : public SampleBase
+	// {
+		// ALLEGRO_AUDIO_STREAM* stream = nullptr;
+		// void* raw_ogg_buf = nullptr;
+		
+		// int read(PACKFILE* f, word s_version) override;
+		// int write(PACKFILE* f) const override;
+		
+		// size_t get_pos() const override;
+		// size_t get_len() const override;
+		// size_t get_frequency() const override;
+		// ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
+		// ALLEGRO_AUDIO_DEPTH get_depth() const override;
+	// };
+	
+	///
+	/// Raw Audio Data, alternate storage
+	/// Used only if nosound is enabled, as ALLEGRO_SAMPLE* can't be created.
+	/// Stores all the data that would otherwise be in the ALLEGRO_SAMPLE*.
+	///
+	
+	struct SampleWAV_NoSound : public SampleBase
 	{
-		uint channels = al_get_channel_count(chan_conf);
-		memcpy(data, s.data, buffer_len);
-		size_t frames = (s.len * channels);
-		if (s.bits == 8)
+		void* buf = nullptr;
+		int32_t len, frequency;
+		ALLEGRO_AUDIO_DEPTH depth;
+		ALLEGRO_CHANNEL_CONF chan_conf;
+		
+		SampleWAV_NoSound() = default;
+		SampleWAV_NoSound(SAMPLE& s);
+		SampleWAV_NoSound(SampleWAV_NoSound const& other);
+		SampleWAV_NoSound& operator=(SampleWAV_NoSound const& other);
+		
+		SampleBase* duplicate() const override;
+		void cleanup_memory() override;
+		bool validate() const override;
+		SampleType get_sample_type() const override;
+		string get_sound_info() const override;
+		
+		int read(PACKFILE* f, word s_version) override;
+		int write(PACKFILE* f) const override;
+		
+		void update_pan(int pan) override;
+		void update_loop(bool loop) override;
+		void update_freq(int freq) override;
+		void update_gain(double gain) override;
+		
+		size_t get_pos() const override;
+		size_t get_len() const override;
+		size_t get_frequency() const override;
+		ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
+		ALLEGRO_AUDIO_DEPTH get_depth() const override;
+		
+		bool is_allocated() const override;
+		bool is_playing() const override;
+		
+		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		void pause() override;
+		void resume() override;
+		void stop() override;
+	};
+	
+	SampleWAV_NoSound::SampleWAV_NoSound(SAMPLE& s)
+	{
+		chan_conf = s.stereo ? ALLEGRO_CHANNEL_CONF_2 : ALLEGRO_CHANNEL_CONF_1;
+		depth = s.bits == 8 ? ALLEGRO_AUDIO_DEPTH_INT8 : ALLEGRO_AUDIO_DEPTH_INT16;
+		len = s.len;
+		frequency = s.freq;
+		
+		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+		uint8_t* data = (uint8_t*)al_malloc(buffer_len);
+		if (data)
 		{
-			for (uint q = 0; q < frames; ++q)
-				((int8_t*)data)[q] = (int8_t)(data[q] - 128);
-		}
-		else
-		{
-			int16_t *data16 = (int16_t *)data;
-			for (uint q = 0; q < frames; ++q)
+			uint channels = al_get_channel_count(chan_conf);
+			memcpy(data, s.data, buffer_len);
+			size_t frames = (len * channels);
+			if (s.bits == 8)
 			{
+				for (uint q = 0; q < frames; ++q)
+					((int8_t*)data)[q] = (int8_t)(data[q] - 128);
+			}
+			else
+			{
+				int16_t *data16 = (int16_t *)data;
+				for (uint q = 0; q < frames; ++q)
+				{
 #if ENDIAN_BE // swap endianness?
-				data16[q] = (data16[q] >> 8 | data16[q] << 8);
+					data16[q] = (data16[q] >> 8 | data16[q] << 8);
 #endif
-				data16[q] = (int16_t)(data16[q] - 32768);
+					data16[q] = (int16_t)(data16[q] - 32768);
+				}
+			}
+			buf = data;
+		}
+	}
+	SampleWAV_NoSound::SampleWAV_NoSound(SampleWAV_NoSound const& other) : SampleWAV_NoSound()
+	{
+		*this = other;
+	}
+	SampleWAV_NoSound& SampleWAV_NoSound::operator=(SampleWAV_NoSound const& other)
+	{
+		cleanup_memory();
+		len = other.len;
+		frequency = other.frequency;
+		depth = other.depth;
+		chan_conf = other.chan_conf;
+		
+		if (other.buf)
+		{
+			size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+			uint8_t* data = (uint8_t*)al_malloc(buffer_len);
+			memcpy(data, other.buf, buffer_len);
+			buf = (void*)data;
+		}
+		return *this;
+	}
+	
+	SampleBase* SampleWAV_NoSound::duplicate() const
+	{
+		return new SampleWAV_NoSound(*this);
+	}
+	void SampleWAV_NoSound::cleanup_memory()
+	{
+		if (buf)
+			al_free(buf);
+		buf = nullptr;
+	}
+	bool SampleWAV_NoSound::validate() const
+	{
+		return bool(buf);
+	}
+	SampleType SampleWAV_NoSound::get_sample_type() const
+	{
+		return SMPL_WAV;
+	}
+	string SampleWAV_NoSound::get_sound_info() const
+	{
+		std::ostringstream oss;
+		oss << "Type: .wav";
+		oss << "\nLen: " << get_len();
+		oss << "\nFreq: " << get_frequency();
+		oss << "\nDuration: " << (zfix(int(get_len())) / int(get_frequency())).str();
+		auto channels = get_chan_conf();
+		oss << "\nChannels: " << int(channels >> 4);
+		if (channels & 0xF)
+			oss << "." << int(channels & 0xF);
+		auto depth = get_depth();
+		oss << "\nDepth: ";
+		if (depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+			oss << "U";
+		switch (depth&0x7)
+		{
+			case ALLEGRO_AUDIO_DEPTH_INT8:
+				oss << "INT8";
+				break;
+			case ALLEGRO_AUDIO_DEPTH_INT16:
+				oss << "INT16";
+				break;
+			case ALLEGRO_AUDIO_DEPTH_INT24:
+				oss << "INT24";
+				break;
+			case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+				oss << "FLOAT32";
+				break;
+		}
+		return oss.str();
+	}
+	
+	int SampleWAV_NoSound::read(PACKFILE* f, word s_version)
+	{
+		byte dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		depth = (ALLEGRO_AUDIO_DEPTH)dummy;
+		if (!p_getc(&dummy, f))
+			return qe_invalid;
+		chan_conf = (ALLEGRO_CHANNEL_CONF)dummy;
+		if (!p_igetl(&frequency, f))
+			return qe_invalid;
+		if (!p_igetl(&len, f))
+			return qe_invalid;
+		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+		byte* data = (byte*)al_malloc(buffer_len);
+		if (!data)
+			return qe_nomem;
+		if (!pfread(data, buffer_len, f))
+		{
+			al_free(data);
+			return qe_invalid;
+		}
+		buf = (void*)data;
+		return 0;
+	}
+	int SampleWAV_NoSound::write(PACKFILE* f) const
+	{
+		if (!p_putc(depth, f))
+			new_return(12);
+		if (!p_putc(chan_conf, f))
+			new_return(13);
+		if (!p_iputl(frequency, f))
+			new_return(14);
+		if (!p_iputl(len, f))
+			new_return(15);
+		byte const* data = (byte const*)buf;
+		size_t sz = get_al_buffer_size(chan_conf, depth, len);
+		if (!pfwrite(data, sz, f))
+			new_return(16);
+		return 0;
+	}
+	
+	void SampleWAV_NoSound::update_pan(int pan) {}
+	void SampleWAV_NoSound::update_loop(bool loop) {}
+	void SampleWAV_NoSound::update_freq(int freq) {}
+	void SampleWAV_NoSound::update_gain(double gain) {}
+	
+	size_t SampleWAV_NoSound::get_pos() const
+	{
+		return 0;
+	}
+	size_t SampleWAV_NoSound::get_len() const
+	{
+		return len;
+	}
+	size_t SampleWAV_NoSound::get_frequency() const
+	{
+		return frequency;
+	}
+	ALLEGRO_CHANNEL_CONF SampleWAV_NoSound::get_chan_conf() const
+	{
+		return chan_conf;
+	}
+	ALLEGRO_AUDIO_DEPTH SampleWAV_NoSound::get_depth() const
+	{
+		return depth;
+	}
+	
+	bool SampleWAV_NoSound::is_allocated() const
+	{
+		return false;
+	}
+	bool SampleWAV_NoSound::is_playing() const
+	{
+		return false;
+	}
+	
+	bool SampleWAV_NoSound::play(int pan, bool loop, bool restart, double gain, int freq)
+	{
+		return false;
+	}
+	void SampleWAV_NoSound::pause() {}
+	void SampleWAV_NoSound::resume() {}
+	void SampleWAV_NoSound::stop() {}
+	
+	///
+	/// Raw Audio Data
+	///
+	
+	struct SampleWAV : public SampleBase
+	{
+		ALLEGRO_SAMPLE* sample = nullptr;
+		ALLEGRO_SAMPLE_INSTANCE* inst = nullptr;
+		
+		SampleWAV() = default;
+		SampleWAV(SAMPLE& s);
+		SampleWAV(SampleWAV const& other);
+		SampleWAV& operator=(SampleWAV const& other);
+		
+		SampleBase* duplicate() const override;
+		void cleanup_memory() override;
+		bool validate() const override;
+		SampleType get_sample_type() const override;
+		string get_sound_info() const override;
+		
+		int read(PACKFILE* f, word s_version) override;
+		int write(PACKFILE* f) const override;
+		bool save_sample(char const* fpath) const override;
+		
+		void update_pan(int pan) override;
+		void update_loop(bool loop) override;
+		void update_freq(int freq) override;
+		void update_gain(double gain) override;
+		
+		size_t get_pos() const override;
+		size_t get_len() const override;
+		size_t get_frequency() const override;
+		ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
+		ALLEGRO_AUDIO_DEPTH get_depth() const override;
+		
+		bool is_allocated() const override;
+		bool is_playing() const override;
+		
+		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		void pause() override;
+		void resume() override;
+		void stop() override;
+	};
+	
+	SampleWAV::SampleWAV(SAMPLE& s)
+	{
+		SampleWAV_NoSound wavns(s); // use the other class here, to reduce code duplication
+		if (wavns.validate())
+		{
+			sample = al_create_sample((void*)(wavns.buf), wavns.len, wavns.frequency,
+				wavns.depth, wavns.chan_conf, true);
+			if (sample)
+				wavns.buf = nullptr; // stop the wavns destructor from freeing the data
+		}
+	}
+	SampleWAV::SampleWAV(SampleWAV const& other) : SampleWAV()
+	{
+		*this = other;
+	}
+	SampleWAV& SampleWAV::operator=(SampleWAV const& other)
+	{
+		cleanup_memory();
+		if (other.sample)
+		{
+			auto chan_conf = other.get_chan_conf();
+			auto depth = other.get_depth();
+			auto len = other.get_len();
+			size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
+			uint8_t* data = (uint8_t*)al_malloc(buffer_len);
+			memcpy(data, al_get_sample_data(other.sample), buffer_len);
+			sample = al_create_sample(data, len, other.get_frequency(), depth, chan_conf, true);
+			// don't copy the 'inst'
+		}
+		return *this;
+	}
+	
+	SampleBase* SampleWAV::duplicate() const
+	{
+		return new SampleWAV(*this);
+	}
+	void SampleWAV::cleanup_memory()
+	{
+		if (inst)
+			al_destroy_sample_instance(inst);
+		if (sample)
+			al_destroy_sample(sample);
+		inst = nullptr;
+		sample = nullptr;
+	}
+	bool SampleWAV::validate() const
+	{
+		return bool(sample);
+	}
+	SampleType SampleWAV::get_sample_type() const
+	{
+		return SMPL_WAV;
+	}
+	string SampleWAV::get_sound_info() const
+	{
+		SampleWAV_NoSound tmp;
+		tmp.chan_conf = get_chan_conf();
+		tmp.depth = get_depth();
+		tmp.len = get_len();
+		tmp.frequency = get_frequency();
+		return tmp.get_sound_info();
+	}
+	
+	int SampleWAV::read(PACKFILE* f, word s_version)
+	{
+		SampleWAV_NoSound tmp;
+		if (auto ret = tmp.read(f, s_version))
+			return ret;
+		
+		sample = al_create_sample((void*)(tmp.buf), tmp.len, tmp.frequency, tmp.depth, tmp.chan_conf, true);
+		if (!sample)
+			return qe_invalid;
+		tmp.buf = nullptr; // take ownership of the buf before tmp is destroyed
+		return 0;
+	}
+	int SampleWAV::write(PACKFILE* f) const
+	{
+		SampleWAV_NoSound tmp;
+		tmp.chan_conf = get_chan_conf();
+		tmp.depth = get_depth();
+		tmp.len = get_len();
+		tmp.frequency = get_frequency();
+		tmp.buf = al_get_sample_data(sample);
+		auto ret = tmp.write(f);
+		tmp.buf = nullptr; // don't let tmp think it owns the buf
+		return ret;
+	}
+	bool SampleWAV::save_sample(char const* fpath) const
+	{
+		if (!sample) return false;
+		return al_save_sample(fpath, sample);
+	}
+	
+	void SampleWAV::update_pan(int pan)
+	{
+		if (inst)
+			al_set_sample_instance_pan(inst, pan / 255.0);
+	}
+	void SampleWAV::update_loop(bool loop)
+	{
+		if (inst)
+			al_set_sample_instance_playmode(inst, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+	}
+	void SampleWAV::update_freq(int freq)
+	{
+		if (inst)
+		{
+			if (freq < 0)
+				freq = al_get_sample_frequency(sample);
+			inst->spl_data.frequency = freq;
+		}
+	}
+	void SampleWAV::update_gain(double gain)
+	{
+		if (inst)
+			al_set_sample_instance_gain(inst, gain);
+	}
+	
+	size_t SampleWAV::get_pos() const
+	{
+		if (!sample || !is_playing()) return 0;
+		return al_get_sample_instance_position(inst);
+	}
+	size_t SampleWAV::get_len() const
+	{
+		return al_get_sample_length(sample);
+	}
+	size_t SampleWAV::get_frequency() const
+	{
+		return al_get_sample_frequency(sample);
+	}
+	ALLEGRO_CHANNEL_CONF SampleWAV::get_chan_conf() const
+	{
+		return al_get_sample_channels(sample);
+	}
+	ALLEGRO_AUDIO_DEPTH SampleWAV::get_depth() const
+	{
+		return al_get_sample_depth(sample);
+	}
+	
+	bool SampleWAV::is_allocated() const
+	{
+		return inst != nullptr;
+	}
+	bool SampleWAV::is_playing() const
+	{
+		return inst && al_get_sample_instance_playing(inst);
+	}
+	
+	bool SampleWAV::play(int pan, bool loop, bool restart, double gain, int freq)
+	{
+		if (inst && restart)
+		{
+			al_destroy_sample_instance(inst);
+			inst = nullptr;
+		}
+		if (!inst)
+		{
+			inst = al_create_sample_instance(sample);
+			if (!inst || !al_attach_sample_instance_to_mixer(inst, al_get_default_mixer()))
+			{
+				stop();
+				return false;
 			}
 		}
 		
-		load_sample((void*)data, s.len, s.freq, depth, chan_conf);
+		update_pan(pan);
+		update_loop(loop);
+		update_freq(freq);
+		update_gain(gain);
+		al_play_sample_instance(inst);
+		return true;
 	}
-	sample_type = SMPL_WAV;
-	if (is_invalid())
-		sample_type = SMPL_INVALID;
+	void SampleWAV::pause()
+	{
+		if (inst)
+			al_stop_sample_instance(inst);
+	}
+	void SampleWAV::resume()
+	{
+		if (inst)
+			al_play_sample_instance(inst);
+	}
+	void SampleWAV::stop()
+	{
+		if (inst)
+		{
+			al_destroy_sample_instance(inst);
+			inst = nullptr;
+		}
+	}
+}
+
+ZCSFX::ZCSFX(SAMPLE& s)
+{
+	if (sound_was_installed)
+		internal = new SampleWAV(s);
+	else
+		internal = new SampleWAV_NoSound(s);
+	if (!internal->validate())
+		cleanup_memory();
 }
 
 ZCSFX::ZCSFX(ZCSFX const& other)
 {
-	sample = nullptr;
-	inst = nullptr;
+	internal = nullptr;
 	*this = other;
 }
 ZCSFX& ZCSFX::operator=(ZCSFX const& other)
 {
-	clear_sample();
-	sample_type = other.sample_type;
-	priority = other.priority;
-	loop_start = other.loop_start;
-	loop_end = other.loop_end;
-	param = other.param;
+	cleanup_memory();
 	sfx_name = other.sfx_name;
+	
+	if (other.internal)
+		internal = other.internal->duplicate();
 
-	if (other.sample || other.databuf)
-	{
-		size_t buffer_len = other.get_buffer_size();
-		uint8_t* data = (uint8_t*)al_malloc(buffer_len);
-		memcpy(data, other.get_sample_data(), buffer_len);
-		load_sample(data, other.get_len(), other.get_frequency(),
-			other.get_depth(), other.get_chan_conf());
-		// don't copy the 'inst'
-	}
-	if (!(sample || databuf))
-		sample_type = SMPL_INVALID;
+	if (internal && !internal->validate())
+		cleanup_memory();
 	return *this;
 }
 ZCSFX::ZCSFX(ZCSFX&& other)
 {
-	sample = nullptr;
-	inst = nullptr;
+	internal = nullptr;
 	*this = other;
 }
 ZCSFX& ZCSFX::operator=(ZCSFX&& other)
 {
-	clear_sample();
-	sample_type = other.sample_type;
-	priority = other.priority;
-	loop_start = other.loop_start;
-	loop_end = other.loop_end;
-	param = other.param;
+	cleanup_memory();
 	sfx_name = other.sfx_name;
 
 	// Take ownership
-	sample = other.sample;
-	inst = other.inst;
-	databuf = other.databuf;
-	other.sample_type = SMPL_INVALID;
-	other.sample = nullptr;
-	other.inst = nullptr;
-	other.databuf.reset();
+	internal = other.internal;
+	other.internal = nullptr;
 	return *this;
 }
 
 ZCSFX::~ZCSFX()
-{
-	clear_sample();
+{	
+	cleanup_memory();
 }
 
-void ZCSFX::load_sample(void* data, int32_t len, int32_t freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+SampleType ZCSFX::get_sample_type() const
 {
-	clear_sample();
-	if (sound_was_installed)
-	{
-		sample = al_create_sample((void*)data, len, freq, depth, chan_conf, true);
-		if (!sample)
-			al_free(data);
-	}
-	else databuf = SampleDataBuffer((void*)data, len, freq, depth, chan_conf);
+	if (internal)
+		return internal->get_sample_type();
+	return SMPL_INVALID;
 }
+
+int ZCSFX::read(PACKFILE* f, word s_version)
+{
+	cleanup_memory();
+	byte sample_type;
+	if (!p_getc(&sample_type, f))
+		return qe_invalid;
+	if (!p_getcstr(&sfx_name, f))
+		return qe_invalid;
+	switch (sample_type)
+	{
+		case SMPL_WAV:
+			if (sound_was_installed)
+				internal = new SampleWAV();
+			else
+				internal = new SampleWAV_NoSound();
+			break;
+		// case SMPL_OGG:
+			// internal = new SampleOGG();
+			// break;
+		default:
+			return 0;
+	}
+	if (auto ret = internal->read(f, s_version))
+	{
+		clear();
+		return ret;
+	}
+	return 0;
+}
+int ZCSFX::write(PACKFILE* f) const
+{
+	auto stype = get_sample_type();
+	if (!p_putc(stype, f))
+		new_return(1);
+	if (!p_putcstr(sfx_name, f))
+		new_return(2);
+	if (internal)
+		if (auto ret = internal->write(f))
+			return ret;
+	return 0;
+}
+
 void ZCSFX::load_sample(ALLEGRO_SAMPLE* new_sample)
 {
 	if (!sound_was_installed) return;
-	clear_sample();
-	sample = new_sample;
+	cleanup_memory();
+	SampleWAV* ptr = new SampleWAV();
+	ptr->sample = new_sample;
+	internal = ptr;
 }
 bool ZCSFX::save_sample(char const* filepath) const
 {
 	if (!sound_was_installed) return false;
-	if (!sample) return false;
-	return al_save_sample(filepath, sample);
+	if (!internal) return false;
+	return internal->save_sample(filepath);
 }
 
 bool ZCSFX::is_invalid() const
 {
-	return sample_type == SMPL_INVALID || !(sample || databuf);
-}
-
-size_t ZCSFX::get_buffer_size() const
-{
-	if (sample)
-		return get_al_buffer_size(sample->chan_conf, sample->depth, sample->len);
-	if (databuf)
-		return get_al_buffer_size(databuf->chan_conf, databuf->depth, databuf->len);
-	return 0;
-}
-
-uint8_t const* ZCSFX::get_sample_data() const
-{
-	if (sample)
-		return (uint8_t const*)al_get_sample_data(sample);;
-	if (databuf)
-		return (uint8_t const*)databuf->buf;
-	return nullptr;
+	return !internal;
 }
 
 void ZCSFX::clear()
 {
+	cleanup_memory();
 	*this = ZCSFX();
 }
-void ZCSFX::clear_sample() // clears any 'owned' memory
+void ZCSFX::cleanup_memory()
 {
-	if (inst)
-		al_destroy_sample_instance(inst);
-	if (sample)
-		al_destroy_sample(sample);
-	if (databuf)
-	{
-		if (databuf->buf)
-			al_free(databuf->buf);
-		databuf->buf = nullptr;
-	}
-	inst = nullptr;
-	sample = nullptr;
-	databuf.reset();
+	if (internal)
+		delete internal;
+	internal = nullptr;
 }
 
 bool ZCSFX::play(int pan, bool loop, bool restart, zfix vol_perc, int freq)
 {
 	if (!sound_was_installed) return false;
-	if (is_invalid())
-	{
-		if (inst)
-			stop();
-		return false;
-	}
-	if (inst)
-	{
-		if (al_get_sample(inst) != sample)
-		{
-			al_destroy_sample_instance(inst);
-			inst = nullptr;
-		}
-		else if (restart)
-			al_set_sample_instance_position(inst, 0); // restart the sound
-	}
-	if (!inst)
-	{
-		inst = al_create_sample_instance(sample);
-		if (!inst || !al_attach_sample_instance_to_mixer(inst, al_get_default_mixer()))
-		{
-			stop();
-			return false;
-		}
-	}
+	if (!internal) return false;
 	
-	update_pan(pan);
-	update_loop(loop);
-	update_freq(freq);
-	update_vol_perc(vol_perc);
-	al_play_sample_instance(inst);
+	base_vol = vol_perc;
+	double gain = calc_gain(vol_perc);
+	internal->play(pan, loop, restart, gain, freq);
 	return true;
 }
 void ZCSFX::pause()
 {
-	if (inst)
-		al_stop_sample_instance(inst);
+	if (internal)
+		internal->pause();
 }
 void ZCSFX::resume()
 {
-	if (inst)
-		al_play_sample_instance(inst);
+	if (internal)
+		internal->resume();
 }
 void ZCSFX::stop()
 {
-	if (inst)
-	{
-		al_destroy_sample_instance(inst);
-		inst = nullptr;
-	}
+	if (internal)
+		internal->stop();
 }
 void ZCSFX::cleanup()
 {
@@ -261,88 +710,58 @@ void ZCSFX::cleanup()
 
 void ZCSFX::update_pan(int pan)
 {
-	if (inst)
-		al_set_sample_instance_pan(inst, pan / 255.0);
+	if (internal)
+		internal->update_pan(pan);
 }
 void ZCSFX::update_loop(bool loop)
 {
-	if (inst)
-		al_set_sample_instance_playmode(inst, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+	if (internal)
+		internal->update_loop(loop);
 }
 void ZCSFX::update_freq(int freq)
 {
-	if (inst)
-	{
-		if (freq < 0)
-			freq = al_get_sample_frequency(sample);
-		inst->spl_data.frequency = freq;
-	}
+	if (internal)
+		internal->update_freq(freq);
 }
+void ZCSFX::update_gain(double gain)
+{
+	if (internal)
+		internal->update_gain(gain);
+}
+
 void ZCSFX::update_vol_perc(optional<zfix> vol_perc)
 {
 	if (vol_perc)
 		base_vol = *vol_perc;
 	update_gain(calc_gain(base_vol));
 }
-void ZCSFX::update_gain(double gain)
-{
-	if (inst)
-		al_set_sample_instance_gain(inst, gain);
-}
 
 bool ZCSFX::is_allocated() const
 {
-	return inst != nullptr;
+	return internal && internal->is_allocated();
 }
 bool ZCSFX::is_playing() const
 {
-	return inst && al_get_sample_instance_playing(inst);
+	return internal && internal->is_playing();
 }
 
 size_t ZCSFX::get_len_frames() const
 {
-	size_t freq = get_frequency();
-	if (!freq) return 0;
-	return 60 * get_len() / freq;
+	return internal ? internal->get_len_frames() : 0;
 }
 size_t ZCSFX::get_pos() const
 {
-	if (!sample || !is_playing()) return 0;
-	return al_get_sample_instance_position(inst);
+	return internal ? internal->get_pos() : 0;
 }
 size_t ZCSFX::get_len() const
 {
-	if (sample)
-		return al_get_sample_length(sample);
-	if (databuf)
-		return databuf->len;
-	return 0;
-}
-size_t ZCSFX::get_frequency() const
-{
-	if (sample)
-		return al_get_sample_frequency(sample);
-	if (databuf)
-		return databuf->frequency;
-	return 0;
-}
-ALLEGRO_CHANNEL_CONF ZCSFX::get_chan_conf() const
-{
-	if (sample)
-		return al_get_sample_channels(sample);
-	if (databuf)
-		return databuf->chan_conf;
-	return (ALLEGRO_CHANNEL_CONF)0;
-}
-ALLEGRO_AUDIO_DEPTH ZCSFX::get_depth() const
-{
-	if (sample)
-		return al_get_sample_depth(sample);
-	if (databuf)
-		return databuf->depth;
-	return (ALLEGRO_AUDIO_DEPTH)0;
+	return internal ? internal->get_len() : 0;
 }
 
+string ZCSFX::get_sound_info() const
+{
+	return internal ? internal->get_sound_info() : "[Empty]";
+}
 
 
 // returns number of voices currently allocated

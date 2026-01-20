@@ -13841,34 +13841,8 @@ int32_t writesfx(PACKFILE *f, zquestheader *)
 		for (size_t q = 0; q < count; ++q)
 		{
 			ZCSFX const& sound = quest_sounds[q];
-			SampleType stype = sound.is_invalid() ? SMPL_INVALID : sound.sample_type;
-			if (!p_putc(stype, f))
-				new_return(6);
-			if (!p_putcstr(sound.sfx_name, f))
-				new_return(7);
-			if (stype == SMPL_INVALID)
-				continue;
-			
-			if (!p_iputl(sound.priority, f))
-				new_return(8);
-			if (!p_iputl(sound.loop_start, f))
-				new_return(9);
-			if (!p_iputl(sound.loop_end, f))
-				new_return(10);
-			if (!p_iputl(sound.param, f))
-				new_return(11);
-			if (!p_putc(sound.get_depth(), f))
-				new_return(12);
-			if (!p_putc(sound.get_chan_conf(), f))
-				new_return(13);
-			if (!p_iputl(sound.get_frequency(), f))
-				new_return(14);
-			if (!p_iputl(sound.get_len(), f))
-				new_return(15);
-			byte const* data = sound.get_sample_data();
-			size_t sz = sound.get_buffer_size();
-			if (!pfwrite(data, sz, f))
-				new_return(16);
+			if (auto ret = sound.write(f))
+				return ret;
 		}
 		
 		if(writecycle==0)

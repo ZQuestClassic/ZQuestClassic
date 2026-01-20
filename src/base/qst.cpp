@@ -13700,40 +13700,8 @@ int32_t readsfx(PACKFILE *f, zquestheader *)
 	for (word q = 0; q < count; ++q)
 	{
 		ZCSFX& sound = quest_sounds.emplace_back();
-		if (!p_getc(&sound.sample_type, f))
-			return qe_invalid;
-		if (!p_getcstr(&sound.sfx_name, f))
-			return qe_invalid;
-		if (sound.sample_type == SMPL_INVALID)
-			continue;
-		if (!p_igetl(&sound.priority, f))
-			return qe_invalid;
-		if (!p_igetl(&sound.loop_start, f))
-			return qe_invalid;
-		if (!p_igetl(&sound.loop_end, f))
-			return qe_invalid;
-		if (!p_igetl(&sound.param, f))
-			return qe_invalid;
-		byte dummy;
-		if (!p_getc(&dummy, f))
-			return qe_invalid;
-		ALLEGRO_AUDIO_DEPTH depth = (ALLEGRO_AUDIO_DEPTH)dummy;
-		if (!p_getc(&dummy, f))
-			return qe_invalid;
-		ALLEGRO_CHANNEL_CONF chan_conf = (ALLEGRO_CHANNEL_CONF)dummy;
-		int32_t frequency, len;
-		if (!p_igetl(&frequency, f))
-			return qe_invalid;
-		if (!p_igetl(&len, f))
-			return qe_invalid;
-		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
-		byte* data = (byte*)al_malloc(buffer_len);
-		if (!data)
-			return qe_nomem;
-		if (!pfread(data, buffer_len, f))
-			return qe_invalid;
-		
-		sound.load_sample(data, len, frequency, depth, chan_conf);
+		if (auto ret = sound.read(f, s_version))
+			return ret;
 	}
 	
 	sfxdat = 0;
