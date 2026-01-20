@@ -4933,6 +4933,8 @@ void quit_game()
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	replay_stop();
 
+	quest_sounds.clear();
+
 	script_drawing_commands.Dispose(); //for allegro bitmaps
 	
 	remove_installed_timers();
