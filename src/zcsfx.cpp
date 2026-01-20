@@ -365,25 +365,19 @@ void sfx_cleanup()
 // plays an sfx sample
 void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int32_t freq)
 {
-	if (unsigned(index-1) < quest_sounds.size())
+	if (unsigned(index-1) >= quest_sounds.size())
+		return;
+	if (sound_was_installed)
 	{
-		if (sound_was_installed)
-		{
-			ZCSFX& s = quest_sounds[index-1];
-			
-			s.play(pan, loop, vol_perc, restart, freq);
-		}
+		ZCSFX& s = quest_sounds[index-1];
+		
+		s.play(pan, loop, vol_perc, restart, freq);
 	}
 	
 #ifdef IS_PLAYER
 	if (restart && replay_is_debug())
 	{
-		string sfx_name;
-		if (unsigned(index-1) < quest_sounds.size())
-			sfx_name = quest_sounds[index-1].sfx_name;
-		else if (index > 0 && index < 256 && replay_version_check(0, 49))
-			sfx_name = fmt::format("s{:03}", index);
-		else return; // no comment for out-of-bounds sfx
+		string sfx_name = quest_sounds[index-1].sfx_name;
 		
 		// TODO(replays): get rid of this bandaid next time replays are mass-updated.
 		if (sfx_name == "Hero is hit")
