@@ -371,7 +371,7 @@ void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int
 	{
 		ZCSFX& s = quest_sounds[index-1];
 		
-		s.play(pan, loop, vol_perc, restart, freq);
+		s.play(pan, loop, restart, vol_perc, freq);
 	}
 	
 #ifdef IS_PLAYER
