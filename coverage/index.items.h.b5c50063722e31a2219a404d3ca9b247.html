@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-19 09:21:43</td>
+      <td>2026-01-20 05:20:45</td>
     </tr>
   </table>
 </div>
@@ -73,15 +73,15 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l295">cooldown_data::cooldown_data() (line 295)</a></td><td>called 42134 times, returned 42134 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l113">item::get_forcegrab() (line 113)</a></td><td>called 3206045 times, returned 3206045 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l96">item::get_scrtype() const (line 96)</a></td><td>called 69575 times, returned 69575 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l99">item::set_forcegrab(bool) (line 99)</a></td><td>called 15157 times, returned 15157 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l152">itemdata::itemdata() (line 152)</a></td><td>called 229909 times, returned 229909 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l295">cooldown_data::cooldown_data() (line 295)</a></td><td>called 42436 times, returned 42436 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l113">item::get_forcegrab() (line 113)</a></td><td>called 3235199 times, returned 3235199 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l96">item::get_scrtype() const (line 96)</a></td><td>called 69953 times, returned 69953 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l99">item::set_forcegrab(bool) (line 99)</a></td><td>called 15322 times, returned 15322 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l152">itemdata::itemdata() (line 152)</a></td><td>called 230237 times, returned 230237 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l152">itemdata::itemdata(itemdata const&amp;) (line 152)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l240">itemdata::misc(unsigned long) const (line 240)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l152">itemdata::operator=(itemdata const&amp;) (line 152)</a></td><td>called 515989 times, returned 515989 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l152">itemdata::operator=(itemdata&amp;&amp;) (line 152)</a></td><td>called 229400 times, returned 229400 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l152">itemdata::operator=(itemdata const&amp;) (line 152)</a></td><td>called 516889 times, returned 516889 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l152">itemdata::operator=(itemdata&amp;&amp;) (line 152)</a></td><td>called 229727 times, returned 229727 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -765,7 +765,7 @@
       <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">69575</td>
+      <td class="linecount coveredLine">69953</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="n">ScriptType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_scrtype</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">ScriptType</span><span class="o">::</span><span class="n">ItemSprite</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
@@ -786,7 +786,7 @@
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15157</td>
+      <td class="linecount coveredLine">15322</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_forcegrab</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">val</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -803,13 +803,13 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 86 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 15071 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 15236 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="takenBranch">&check; Branch 3 taken 86 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">15157</td>
+      <td class="linecount partialCoveredLine">15322</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">force_grab</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">val</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -825,14 +825,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 15071 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 15236 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="takenBranch">&check; Branch 2 taken 86 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 14985 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 15150 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">15071</td>
+      <td class="linecount partialCoveredLine">15236</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">force_grab</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">val</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -846,7 +846,7 @@
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15157</td>
+      <td class="linecount coveredLine">15322</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">force_grab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -855,12 +855,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 15071 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 15236 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 86 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">15157</td>
+      <td class="linecount coveredLine">15322</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -895,7 +895,7 @@
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15157</td>
+      <td class="linecount coveredLine">15322</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -909,7 +909,7 @@
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3206045</td>
+      <td class="linecount coveredLine">3235199</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_forcegrab</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">force_grab</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
@@ -1182,7 +1182,7 @@
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">229909</td>
+      <td class="linecount coveredLine">230237</td>
       <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">itemdata</span></td>
     </tr>
     <tr class="source-line">
@@ -1308,7 +1308,7 @@
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">229909</td>
+      <td class="linecount coveredLine">230237</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">byte</span><span class="w"> </span><span class="n">playsound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAV_SCALE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1735,7 +1735,7 @@
       <td class="lineno"><a id="l231" href="#l231">231</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">229909</td>
+      <td class="linecount coveredLine">230237</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int16_t</span><span class="w"> </span><span class="n">pickup_litem_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1749,7 +1749,7 @@
       <td class="lineno"><a id="l233" href="#l233">233</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">229909</td>
+      <td class="linecount coveredLine">230237</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">move_flags</span><span class="w"> </span><span class="n">moveflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">move_obeys_grav</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">move_can_pitfall</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2183,7 +2183,7 @@
       <td class="lineno"><a id="l295" href="#l295">295</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">42134</td>
+      <td class="linecount coveredLine">42436</td>
       <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">cooldown_data</span></td>
     </tr>
     <tr class="source-line">
@@ -2204,7 +2204,7 @@
       <td class="lineno"><a id="l298" href="#l298">298</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">42134</td>
+      <td class="linecount coveredLine">42436</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">cooldown_ring_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

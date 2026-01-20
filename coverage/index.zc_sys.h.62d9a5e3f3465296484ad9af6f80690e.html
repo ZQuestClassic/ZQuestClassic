@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-19 09:21:43</td>
+      <td>2026-01-20 05:20:45</td>
     </tr>
   </table>
 </div>
@@ -73,8 +73,8 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l161">sfx(int, int) (line 161)</a></td><td>called 1296543 times, returned 1296543 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l165">sfx_no_repeat(int, int) (line 165)</a></td><td>called 222168 times, returned 222168 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l161">sfx(int, int) (line 161)</a></td><td>called 1305372 times, returned 1305372 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l165">sfx_no_repeat(int, int) (line 165)</a></td><td>called 234090 times, returned 234090 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -1213,7 +1213,7 @@
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1296543</td>
+      <td class="linecount coveredLine">1305372</td>
       <td class="src coveredLine"><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">sfx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1227,21 +1227,21 @@
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1296543</td>
+      <td class="linecount coveredLine">1305372</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1296543</td>
+      <td class="linecount coveredLine">1305372</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">222168</td>
+      <td class="linecount coveredLine">234090</td>
       <td class="src coveredLine"><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">sfx_no_repeat</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1258,25 +1258,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 222168 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 234090 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">222168</td>
+      <td class="linecount partialCoveredLine">234090</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sfx_allocated</span><span class="p">(</span><span class="n">index</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">222168</td>
+      <td class="linecount coveredLine">234090</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">sfx</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">222168</td>
+      <td class="linecount coveredLine">234090</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-19 09:21:43</td>
+      <td>2026-01-20 05:20:45</td>
     </tr>
   </table>
 </div>
@@ -97,7 +97,7 @@
     <tr><td><a href="#l102">get_next_keypress(bool) (line 102)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l193">joy_getbtn(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int&amp;, int, bool) (line 193)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l204">joy_getbtn(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int&amp;, int, bool)::$_0::operator()() const (line 204)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l48">joybtn(int, int) (line 48)</a></td><td>called 19035478 times, returned 19035478 times</td><td>66.0%</td></tr>
+    <tr><td><a href="#l48">joybtn(int, int) (line 48)</a></td><td>called 19230534 times, returned 19230534 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l57">joystick(int, int) (line 57)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l296">kb_clear_hotkey(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int&amp;, int&amp;) (line 296)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l304">kb_clear_hotkey(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int&amp;, int&amp;)::$_0::operator()() const (line 304)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -240,7 +240,7 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">441</td>
+      <td class="linecount coveredLine">442</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">held_mod_keys</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -457,7 +457,7 @@
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">19035478</td>
+      <td class="linecount coveredLine">19230534</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">joybtn</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">stick_idx</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -473,12 +473,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 19035478 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 19230534 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">19035478</td>
+      <td class="linecount partialCoveredLine">19230534</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -494,19 +494,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 19035478 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 19230534 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">19035478</td>
+      <td class="linecount partialCoveredLine">19230534</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="mi">-1</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">joy</span><span class="p">[</span><span class="n">stick_idx</span><span class="p">].</span><span class="n">num_buttons</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">19035478</td>
+      <td class="linecount coveredLine">19230534</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -527,7 +527,7 @@
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">19035478</td>
+      <td class="linecount coveredLine">19230534</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

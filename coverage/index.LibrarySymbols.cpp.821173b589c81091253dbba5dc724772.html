@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-19 09:21:43</td>
+      <td>2026-01-20 05:20:45</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>180</td>
+      <td>183</td>
       <td>243</td>
-      <td class="coverage-low">74.1%</td>
+      <td class="coverage-medium">75.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>19</td>
+      <td>20</td>
       <td>27</td>
-      <td class="coverage-low">70.4%</td>
+      <td class="coverage-low">74.1%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>252</td>
+      <td>253</td>
       <td>551</td>
-      <td class="coverage-low">45.7%</td>
+      <td class="coverage-low">45.9%</td>
     </tr>
   </table>
 </div>
@@ -74,7 +74,7 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l262">$_10::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 262)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l271">$_11::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 271)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l271">$_11::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 271)</a></td><td>called 1145 times, returned 1145 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l280">$_12::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 280)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l289">$_13::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 289)</a></td><td>called 1332 times, returned 1332 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l298">$_14::operator()(std::vector&lt;std::optional&lt;int&gt;, std::allocator&lt;std::optional&lt;int&gt; &gt; &gt; const&amp;, ZScript::AST&amp;, ZScript::CompileErrorHandler*, ZScript::Scope*) const (line 298)</a></td><td>called 224 times, returned 224 times</td><td>100.0%</td></tr>
@@ -2800,7 +2800,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">866</td>
+      <td class="linecount partialCoveredLine">2011</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="p">{</span><span class="s">&quot;Round&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CONSTEXPR_CBACK_HEADER</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -2814,15 +2814,22 @@
       <td class="lineno"><a id="l273" href="#l273">273</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">val</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">1145</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l274" href="#l274">274</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1145 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></td>
+      <td class="linecount partialCoveredLine">1145</td>
+      <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l275" href="#l275">275</a></td>
@@ -2835,8 +2842,8 @@
       <td class="lineno"><a id="l276" href="#l276">276</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">val</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">1145</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">val</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l277" href="#l277">277</a></td>
