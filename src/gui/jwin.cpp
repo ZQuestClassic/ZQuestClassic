@@ -5205,6 +5205,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					d->flags &= ~D_INTERNAL;
 					GUI_EVENT(d, geCHANGE_SELECTION);
+					broadcast_dialog_message(MSG_DRAW, 0);
 					should_redraw = true;
 				}
 				d->flags &= ~D_INTERNAL;
@@ -5469,6 +5470,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					{
 						d->flags &= ~D_INTERNAL;
 						GUI_EVENT(d, geCHANGE_SELECTION);
+						broadcast_dialog_message(MSG_DRAW, 0);
 						update_hw_screen();
 					}
 					d->flags &= ~D_INTERNAL;
