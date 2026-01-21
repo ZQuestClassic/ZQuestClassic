@@ -531,7 +531,11 @@ namespace // sample implementations
 	void SampleWAV::pause()
 	{
 		if (inst)
+		{
+			auto pos = get_pos();
 			al_stop_sample_instance(inst);
+			al_set_sample_instance_position(inst, pos);
+		}
 	}
 	void SampleWAV::resume()
 	{
