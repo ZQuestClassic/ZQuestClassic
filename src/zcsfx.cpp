@@ -328,13 +328,19 @@ size_t ZCSFX::get_frequency() const
 }
 ALLEGRO_CHANNEL_CONF ZCSFX::get_chan_conf() const
 {
-	if (!sample) return (ALLEGRO_CHANNEL_CONF)0;
-	return al_get_sample_channels(sample);
+	if (sample)
+		return al_get_sample_channels(sample);
+	if (databuf)
+		return databuf->chan_conf;
+	return (ALLEGRO_CHANNEL_CONF)0;
 }
 ALLEGRO_AUDIO_DEPTH ZCSFX::get_depth() const
 {
-	if (!sample) return (ALLEGRO_AUDIO_DEPTH)0;
-	return al_get_sample_depth(sample);
+	if (sample)
+		return al_get_sample_depth(sample);
+	if (databuf)
+		return databuf->depth;
+	return (ALLEGRO_AUDIO_DEPTH)0;
 }
 
 
