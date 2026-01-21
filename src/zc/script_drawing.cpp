@@ -2232,8 +2232,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     bool mustDestroyBmp = false;
     
-	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
-	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
     
     if(!tex)
     {
@@ -2256,7 +2255,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         col[0]=col[1]=col[2]=col[3]=color;
     }
     
-    if(tile > 0 && tile <= 65519)   // TILE
+    if (tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
     }
