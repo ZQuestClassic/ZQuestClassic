@@ -13647,6 +13647,7 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 	}
 	
 	int blanks = 0;
+	quest_sounds.reserve(wavcount);
 	for (uint q = 1; q < wavcount; ++q)
 	{
 		if (get_bit(tempflag, q - 1))
@@ -13662,6 +13663,7 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 		else if (q - 1 < quest_sounds.size())
 			quest_sounds[q - 1].clear();
 	}
+	quest_sounds.shrink_to_fit();
 	
 	sfxdat = 0;
 	return 0;
