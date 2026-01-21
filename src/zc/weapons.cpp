@@ -3982,7 +3982,7 @@ bool weapon::animate(int32_t index)
 			
 			if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 			{
-				sfx(itemsbuf[parentitem].usesound,pan(x),true,false);
+				cont_sfx(itemsbuf[parentitem].usesound, pan(x));
 			}
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 
@@ -4063,7 +4063,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			else if(get_qr(qr_MORESOUNDS) && dead < 1)
-				sfx(WAV_ZN1WHIRLWIND,pan(x),true,false);
+				cont_sfx(WAV_ZN1WHIRLWIND,pan(x));
 				
 			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & item_flag3))
 			{
@@ -4491,7 +4491,7 @@ bool weapon::animate(int32_t index)
 			if(clk==0)                                            // delay a frame
 			{
 				++clk;
-				sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x),true);
+				sfx_ex(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x),true);
 				return false;
 			}
 			
@@ -4562,7 +4562,7 @@ bool weapon::animate(int32_t index)
 				
 				seekHero();
 			}
-			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x),true,false);
+			cont_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(x));
 			
 			break;
 		}
@@ -4808,7 +4808,7 @@ bool weapon::animate(int32_t index)
 			{
 				++clk;
 				
-				if(misc < 2) sfx(hshot.usesound,pan(x),true);
+				if(misc < 2) sfx_ex(hshot.usesound,pan(x),true);
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				return false;
 			}
@@ -4850,7 +4850,7 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(misc < 2) sfx(hshot.usesound,pan(x),true,false);
+			if(misc < 2) cont_sfx(hshot.usesound,pan(x));
 			
 			if(blocked())
 			{
@@ -5403,7 +5403,7 @@ bool weapon::animate(int32_t index)
 				if(get_qr(qr_MORESOUNDS))
 				{
 					//if (step!=0)
-					sfx(specialsfx, pan(x), true);
+					sfx_ex(specialsfx, pan(x), true);
 					//else
 					;//stop_sfx(WAV_BRANG);
 				}

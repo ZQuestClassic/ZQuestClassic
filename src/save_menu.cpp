@@ -202,7 +202,6 @@ bool SaveMenu::tick(optional<byte>& cursor, word& clk) const
 	byte c = cursor ? *cursor : 0;
 	bool confirm = false;
 	bool cancel = false;
-	const zfix zq_sfx_volume = 50_zf;
 	
 	if (keypressed())
 	{
@@ -218,12 +217,12 @@ bool SaveMenu::tick(optional<byte>& cursor, word& clk) const
 			case KEY_UP:
 				c = c ? c - 1 : options.size() - 1;
 				if (cursor_sfx)
-					sfx(cursor_sfx, 128, false, true, zq_sfx_volume);
+					sfx(cursor_sfx);
 				break;
 			case KEY_DOWN:
 				c = c < options.size() - 1 ? c + 1 : 0;
 				if (cursor_sfx)
-					sfx(cursor_sfx, 128, false, true, zq_sfx_volume);
+					sfx(cursor_sfx);
 				break;
 		}
 		clear_keybuf();
@@ -235,7 +234,7 @@ bool SaveMenu::tick(optional<byte>& cursor, word& clk) const
 	{
 		clk = close_frames; // closing animation
 		if (choose_sfx)
-			sfx(choose_sfx, 128, false, true, zq_sfx_volume);
+			sfx(choose_sfx);
 	}
 	else if (cancel)
 	{

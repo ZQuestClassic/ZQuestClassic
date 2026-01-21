@@ -41,7 +41,7 @@ static void compile_sfx(bool success)
 	if (vol <= 0) return;
 	int sfx_id = vbound(zc_get_config("Compiler",success ? "compile_success_sample" : "compile_error_sample",20),0,quest_sounds.size());
 	if (sfx_id > 0)
-		sfx(sfx_id, 128, false, true, vol / 1.28_zf);
+		sfx_ex(sfx_id, 128, false, true, vol / 1.28_zf);
 }
 
 int32_t onCompileScript()

@@ -150,23 +150,27 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				displayinfo("Error!", "Cannot save an empty slot!");
 			else
 			{
-				static const string ext = "wav"; // only wav saving is currently supported
 				switch (local_ref.get_sample_type())
 				{
 					default:
 					case SMPL_WAV:
 						strcat(temppath, ".wav");
 						break;
-					// case SMPL_OGG:
-						// strcat(temppath, ".ogg");
-						// break;
+					case SMPL_OGG:
+						strcat(temppath, ".ogg");
+						break;
 				}
-				if (prompt_for_new_file_compat("Save SFX file", ext, NULL, temppath, true))
+				if (prompt_for_new_file_compat("Save SFX file", "wav;ogg", NULL, temppath, true))
 				{
-					if (!local_ref.save_sample(temppath))
-						displayinfo("Error!", fmt::format("Could not write file\n{}", temppath));
-					else
+					try
+					{
+						local_ref.save_sound(temppath);
 						displayinfo("Success!", fmt::format("Saved SFX file\n{}", temppath));
+					}
+					catch (zcsfx_io_exception &e)
+					{
+						displayinfo("Error", e.what());
+					}
 				}
 			}
 			
@@ -176,20 +180,17 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			if (prompt_for_existing_file_compat("Open SFX file", "wav;ogg", NULL, temppath, true))
 			{
-				ALLEGRO_SAMPLE* temp_sample;
-
-				if ((temp_sample = al_load_sample(temppath)) == NULL)
-					displayinfo("Error", fmt::format("Could not open file '{}'", temppath));
-				else
+				try
 				{
-					string t = get_filename(temppath);
-					
-					local_ref.sfx_name = t.substr(0, t.find_first_of("."));
-					local_ref.load_sample(temp_sample);
-					
+					local_ref.load_file(temppath);
 					rerun_dlg = true;
 					return true;
 				}
+				catch (zcsfx_io_exception &e)
+				{
+					displayinfo("Error", e.what());
+				}
+				return false;
 			}
 			break;
 		}

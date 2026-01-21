@@ -5,6 +5,30 @@
 #include "base/headers.h"
 #include "base/zapp.h"
 
+class zcsfx_exception : public std::exception
+{
+public:
+	const char * what() const noexcept override
+	{
+		return msg.c_str();
+	}
+	zcsfx_exception(string const& msg);
+private:
+	string msg;
+};
+class zcsfx_io_exception : public std::exception
+{
+public:
+	const char * what() const noexcept override
+	{
+		return msg.c_str();
+	}
+	zcsfx_io_exception(char const* fpath, bool saving);
+	zcsfx_io_exception& add_msg(string const& str);
+private:
+	string msg;
+};
+
 size_t get_al_buffer_size(ALLEGRO_CHANNEL_CONF chan_conf, ALLEGRO_AUDIO_DEPTH depth, size_t len);
 
 enum SampleType : uint8_t
@@ -25,7 +49,7 @@ struct SampleBase
 	
 	virtual int read(PACKFILE* f, word s_version) = 0;
 	virtual int write(PACKFILE* f) const = 0;
-	virtual bool save_sample(char const* fpath) const;
+	virtual void save_sound(char const* fpath) const;
 	
 	virtual void update_pan(int pan) = 0;
 	virtual void update_loop(bool loop) = 0;
@@ -36,8 +60,6 @@ struct SampleBase
 	virtual size_t get_pos() const = 0;
 	virtual size_t get_len() const = 0;
 	virtual size_t get_frequency() const = 0;
-	virtual ALLEGRO_CHANNEL_CONF get_chan_conf() const = 0;
-	virtual ALLEGRO_AUDIO_DEPTH get_depth() const = 0;
 	
 	virtual bool is_allocated() const = 0;
 	virtual bool is_playing() const = 0;
@@ -54,6 +76,8 @@ struct ZCSFX
 private:
 	SampleBase* internal = nullptr;
 	zfix base_vol = 100_zf; // not saved, only used for internal logic
+	
+	void set_internal(SampleBase* new_internal);
 public:
 	
 	ZCSFX() = default;
@@ -69,8 +93,8 @@ public:
 	int read(PACKFILE* f, word s_version);
 	int write(PACKFILE* f) const;
 	
-	void load_sample(ALLEGRO_SAMPLE* new_sample);
-	bool save_sample(char const* filepath) const;
+	void load_file(char const* filepath);
+	void save_sound(char const* filepath) const;
 	
 	bool is_invalid() const;
 	
@@ -102,20 +126,24 @@ public:
 
 extern vector<ZCSFX> quest_sounds;
 
+SampleType sfx_get_type(int32_t index);
 int32_t sfx_count();
 void sfx_cleanup();
-void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, zfix vol_perc = 100_zf, int32_t freq = -1);
+void sfx_ex(int32_t index, int32_t pan, bool loop, bool restart = true, zfix vol_perc = 100_zf, int32_t freq = -1);
 bool sfx_is_allocated(int32_t index);
-INLINE void sfx(int32_t index,int32_t pan = 128)
+INLINE void sfx(int32_t index, int32_t pan = 128, bool loop = false)
 {
-	sfx(index,vbound(pan, 0, 255) ,false);
+	sfx_ex(index, vbound(pan, 0, 255), false);
 }
 INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
 {
 	if (!sfx_is_allocated(index))
-		sfx(index, vbound(pan, 0, 255), false, false);
+		sfx_ex(index, vbound(pan, 0, 255), false, false);
 }
-void cont_sfx(int32_t index);
+INLINE void cont_sfx(int32_t index, int32_t pan = 128)
+{
+	sfx_ex(index, pan, true, false);
+}
 void stop_sfx(int32_t index);
 void adjust_sfx(int32_t index,int32_t pan,bool loop);
 void adjust_sfx_vol(int32_t index, optional<zfix> vol_perc = nullopt);

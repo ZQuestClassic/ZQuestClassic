@@ -22556,8 +22556,14 @@ void do_sfx_ex(const bool restart)
 
 	if (!restart && !sfx_is_allocated(ID))
 		return;
+	
+	if (freq >= 0 && sfx_get_type(ID) == SMPL_OGG)
+	{
+		scripting_log_error_with_context("Can't modify frequency of OGG sound effect");
+		freq = -1;
+	}
 
-	sfx(ID, pan, loop, restart, vol, freq);
+	sfx_ex(ID, pan, loop, restart, vol, freq);
 }
 
 static int get_sfx_completion()

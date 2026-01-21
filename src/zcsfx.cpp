@@ -1,5 +1,6 @@
 #include "zcsfx.h"
 #include <allegro5/internal/aintern_audio.h>
+#include <allegro5/allegro_memfile.h>
 #include <zalleg/zalleg.h>
 #include "base/qst.h"
 #include "base/packfile.h"
@@ -10,6 +11,18 @@
 #endif
 
 vector<ZCSFX> quest_sounds;
+
+zcsfx_exception::zcsfx_exception(string const& msg) :
+	msg(msg)
+{}
+zcsfx_io_exception::zcsfx_io_exception(char const* fpath, bool saving) :
+	msg(fmt::format("Error {} file:\n'{}'", saving ? "saving" : "loading", fpath))
+{}
+zcsfx_io_exception& zcsfx_io_exception::add_msg(string const& str)
+{
+	msg += fmt::format("\n{}", str);
+	return *this;
+}
 
 size_t get_al_buffer_size(ALLEGRO_CHANNEL_CONF chan_conf, ALLEGRO_AUDIO_DEPTH depth, size_t len)
 {
@@ -40,9 +53,9 @@ void SampleBase::cleanup_memory()
 	
 }
 
-bool SampleBase::save_sample(char const* fpath) const
+void SampleBase::save_sound(char const* fpath) const
 {
-	return false;
+	throw zcsfx_io_exception(fpath, true).add_msg("Save code unimplemented for this sound type! Report to devs!");
 }
 
 size_t SampleBase::get_len_frames() const
@@ -58,20 +71,321 @@ namespace // sample implementations
 	/// OGG Files
 	///
 	
-	// struct SampleOGG : public SampleBase
-	// {
-		// ALLEGRO_AUDIO_STREAM* stream = nullptr;
-		// void* raw_ogg_buf = nullptr;
+	struct SampleOGG : public SampleBase
+	{
+		size_t buffer_size = 0;
+		uint frequency, len; // sample size data
+		void* raw_ogg_buf = nullptr;
+		ALLEGRO_FILE* memfile = nullptr;
+		ALLEGRO_AUDIO_STREAM* stream = nullptr;
 		
-		// int read(PACKFILE* f, word s_version) override;
-		// int write(PACKFILE* f) const override;
+		SampleOGG() = default;
+		SampleOGG(char const* filepath);
+		SampleOGG(SampleOGG const& other);
+		SampleOGG& operator=(SampleOGG const& other);
 		
-		// size_t get_pos() const override;
-		// size_t get_len() const override;
-		// size_t get_frequency() const override;
-		// ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
-		// ALLEGRO_AUDIO_DEPTH get_depth() const override;
-	// };
+		SampleBase* duplicate() const override;
+		void cleanup_memory() override;
+		bool validate() const override;
+		SampleType get_sample_type() const override;
+		string get_sound_info() const override;
+		
+		int read(PACKFILE* f, word s_version) override;
+		int write(PACKFILE* f) const override;
+		void save_sound(char const* fpath) const override;
+		
+		void update_pan(int pan) override;
+		void update_loop(bool loop) override;
+		void update_freq(int freq) override;
+		void update_gain(double gain) override;
+		
+		size_t get_pos() const override;
+		size_t get_len() const override;
+		size_t get_frequency() const override;
+		
+		bool is_allocated() const override;
+		bool is_playing() const override;
+		
+		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		void pause() override;
+		void resume() override;
+		void stop() override;
+		
+	private:
+		void cleanup_stream();
+		bool ensure_stream();
+	};
+	SampleOGG::SampleOGG(char const* filepath) : SampleOGG()
+	{
+		zcsfx_io_exception error(filepath, false);
+		ALLEGRO_FILE *f = al_fopen(filepath, "rb");
+		if (!f)
+			throw error.add_msg("Failed to open file for reading!");
+		try
+		{
+			int64_t sz = al_fsize(f);
+			if (sz < 0)
+				throw error.add_msg("Failed determine file size!");
+			if (sz)
+			{
+				raw_ogg_buf = al_malloc(sz);
+				buffer_size = size_t(sz);
+				if (!raw_ogg_buf)
+					throw error.add_msg("Failed to allocate sfx data buffer!");
+				if (sz != al_fread(f, raw_ogg_buf, buffer_size))
+					throw error.add_msg("Failed reading data from file!");
+			}
+			if (!ensure_stream())
+				throw error.add_msg("Failed to parse data as '.ogg' audio stream!");
+			frequency = al_get_audio_stream_frequency(stream);
+			len = uint(al_get_audio_stream_length_secs(stream) * frequency);
+		}
+		catch (zcsfx_io_exception& e)
+		{
+			al_fclose(f);
+			throw e;
+		}
+		al_fclose(f);
+	}
+	SampleOGG::SampleOGG(SampleOGG const& other) : SampleOGG()
+	{
+		*this = other;
+	}
+	SampleOGG& SampleOGG::operator=(SampleOGG const& other)
+	{
+		cleanup_memory();
+		frequency = other.frequency;
+		len = other.len;
+		if (other.raw_ogg_buf)
+		{
+			raw_ogg_buf = al_malloc(other.buffer_size);
+			if (raw_ogg_buf)
+			{
+				buffer_size = other.buffer_size;
+				memcpy(raw_ogg_buf, other.raw_ogg_buf, buffer_size);
+			}
+		}
+		return *this;
+	}
+	
+	SampleBase* SampleOGG::duplicate() const
+	{
+		return new SampleOGG(*this);
+	}
+	void SampleOGG::cleanup_stream()
+	{
+		if (stream)
+			al_destroy_audio_stream(stream);
+		stream = nullptr;
+	}
+	void SampleOGG::cleanup_memory()
+	{
+		cleanup_stream();
+		if (memfile)
+			al_fclose(memfile);
+		memfile = nullptr;
+		if (raw_ogg_buf)
+			al_free(raw_ogg_buf);
+		raw_ogg_buf = nullptr;
+		buffer_size = 0;
+		frequency = 0;
+		len = 0;
+	}
+	bool SampleOGG::validate() const
+	{
+		return raw_ogg_buf && buffer_size;
+	}
+	SampleType SampleOGG::get_sample_type() const
+	{
+		return SMPL_OGG;
+	}
+	string SampleOGG::get_sound_info() const
+	{
+		std::ostringstream oss;
+		oss << "Type: .ogg";
+		oss << "\nLen: " << get_len();
+		oss << "\nFreq: " << get_frequency();
+		oss << "\nDuration: " << (zfix(int(get_len())) / int(get_frequency())).str();
+		return oss.str();
+	}
+	
+	int SampleOGG::read(PACKFILE* f, word s_version)
+	{
+		cleanup_memory();
+		if (!p_igetl(&buffer_size, f))
+			return qe_invalid;
+		if (!p_igetl(&frequency, f))
+			return qe_invalid;
+		if (!p_igetl(&len, f))
+			return qe_invalid;
+		raw_ogg_buf = al_malloc(buffer_size);
+		if (!raw_ogg_buf)
+			return qe_nomem;
+		if (!pfread(raw_ogg_buf, buffer_size, f))
+			return qe_invalid;
+		
+		return 0;
+	}
+	int SampleOGG::write(PACKFILE* f) const
+	{
+		if (!p_iputl(buffer_size, f))
+			new_return(1);
+		if (!p_iputl(frequency, f))
+			new_return(2);
+		if (!p_iputl(len, f))
+			new_return(3);
+		if (!pfwrite(raw_ogg_buf, buffer_size, f))
+			new_return(4);
+		
+		return 0;
+	}
+	void SampleOGG::save_sound(char const* fpath) const
+	{
+		zcsfx_io_exception error(fpath, true);
+		if (!validate())
+			throw error.add_msg("SFX is invalid!");
+		string path = fpath;
+		if (path.ends_with(".ogg"))
+		{
+			ALLEGRO_FILE* f = al_fopen(fpath, "wb");
+			if (!f)
+				throw error.add_msg("Failed to open/create file for writing!");
+			auto sz = al_fwrite(f, raw_ogg_buf, buffer_size);
+			al_fclose(f);
+			if (buffer_size != sz)
+				throw error.add_msg("Failed writing data to file!");
+		}
+		else
+		{
+			ALLEGRO_FILE* f = al_open_memfile(raw_ogg_buf, buffer_size, "rb");
+			if (!f)
+				throw error.add_msg("Failed to load memfile to data buffer");
+			ALLEGRO_SAMPLE* samp = al_load_sample_f(f, ".ogg");
+			try
+			{
+				if (!samp)
+					throw error.add_msg("Failed to parse data as ogg sample");
+				if (!al_save_sample(fpath, samp))
+					throw error.add_msg("Failed to write data as specified output type");
+			}
+			catch (zcsfx_io_exception& e)
+			{
+				al_fclose(f);
+				if (samp)
+					al_destroy_sample(samp);
+				throw e;
+			}
+			al_fclose(f);
+		}
+	}
+	
+	void SampleOGG::update_pan(int pan)
+	{
+		if (stream)
+			al_set_audio_stream_pan(stream, pan / 255.0);
+	}
+	void SampleOGG::update_loop(bool loop)
+	{
+		if (stream)
+			al_set_audio_stream_playmode(stream, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+	}
+	void SampleOGG::update_freq(int freq)
+	{
+		// can't modify frequency of a stream, except via mixer
+		// but, can't connect mixer to mixer of different frequency
+		// so, no way to update frequency for streamed sfx like this
+		// Anywhere that calls `sfx_ex` with freq >= 0 should be prepared to catch this exception.
+		// Currently, that is ONLY one spot in `ffscript.cpp`.
+		if (freq >= 0)
+			throw zcsfx_exception("Updated frequency of invalid SFX type 'SMPL_OGG'");
+	}
+	void SampleOGG::update_gain(double gain)
+	{
+		if (stream)
+			al_set_audio_stream_gain(stream, gain);
+	}
+	
+	size_t SampleOGG::get_pos() const
+	{
+		if (!is_playing())
+			return 0;
+		return size_t(al_get_audio_stream_position_secs(stream) * get_frequency());
+	}
+	size_t SampleOGG::get_len() const
+	{
+		if (stream) return uint(al_get_audio_stream_length_secs(stream) * get_frequency());
+		return len;
+	}
+	size_t SampleOGG::get_frequency() const
+	{
+		if (stream) return al_get_audio_stream_frequency(stream);
+		return frequency;
+	}
+	
+	bool SampleOGG::is_allocated() const
+	{
+		return bool(stream);
+	}
+	bool SampleOGG::is_playing() const
+	{
+		if (!stream) return false;
+		return al_get_audio_stream_playing(stream);
+	}
+	
+	bool SampleOGG::play(int pan, bool loop, bool restart, double gain, int freq)
+	{
+		if (stream && restart)
+			cleanup_stream();
+		if (!ensure_stream())
+			return false;
+		
+		update_pan(pan);
+		update_loop(loop);
+		update_freq(freq);
+		update_gain(gain);
+		resume();
+		return true;
+	}
+	void SampleOGG::pause()
+	{
+		if (stream)
+		{
+			double pos = al_get_audio_stream_position_secs(stream);
+			al_set_audio_stream_playing(stream, false);
+			al_seek_audio_stream_secs(stream, pos);
+		}
+	}
+	void SampleOGG::resume()
+	{
+		if (stream)
+			al_set_audio_stream_playing(stream, true);
+	}
+	void SampleOGG::stop()
+	{
+		if (stream)
+			al_set_audio_stream_playing(stream, false);
+	}
+	bool SampleOGG::ensure_stream()
+	{
+		if (!validate())
+			return false;
+		if (stream)
+			return true;
+		cleanup_stream();
+		bool ret = false;
+		if ((memfile = al_open_memfile(raw_ogg_buf, buffer_size, "rb")))
+		{
+			stream = al_load_audio_stream_f(memfile, ".ogg", 4, 2048);
+			if (stream && al_attach_audio_stream_to_mixer(stream, al_get_default_mixer()))
+			{
+				ret = true;
+				al_set_audio_stream_playing(stream, false); // don't necessarily want to play right now
+			}
+		}
+		if (!ret)
+			cleanup_stream();
+		return ret;
+	}
 	
 	///
 	/// Raw Audio Data, alternate storage
@@ -108,8 +422,8 @@ namespace // sample implementations
 		size_t get_pos() const override;
 		size_t get_len() const override;
 		size_t get_frequency() const override;
-		ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
-		ALLEGRO_AUDIO_DEPTH get_depth() const override;
+		ALLEGRO_CHANNEL_CONF get_chan_conf() const;
+		ALLEGRO_AUDIO_DEPTH get_depth() const;
 		
 		bool is_allocated() const override;
 		bool is_playing() const override;
@@ -240,15 +554,11 @@ namespace // sample implementations
 		if (!p_igetl(&len, f))
 			return qe_invalid;
 		size_t buffer_len = get_al_buffer_size(chan_conf, depth, len);
-		byte* data = (byte*)al_malloc(buffer_len);
-		if (!data)
+		buf = al_malloc(buffer_len);
+		if (!buf)
 			return qe_nomem;
-		if (!pfread(data, buffer_len, f))
-		{
-			al_free(data);
+		if (!pfread(buf, buffer_len, f))
 			return qe_invalid;
-		}
-		buf = (void*)data;
 		return 0;
 	}
 	int SampleWAV_NoSound::write(PACKFILE* f) const
@@ -322,6 +632,7 @@ namespace // sample implementations
 		
 		SampleWAV() = default;
 		SampleWAV(SAMPLE const& s);
+		SampleWAV(char const* filepath);
 		SampleWAV(SampleWAV const& other);
 		SampleWAV& operator=(SampleWAV const& other);
 		
@@ -333,7 +644,7 @@ namespace // sample implementations
 		
 		int read(PACKFILE* f, word s_version) override;
 		int write(PACKFILE* f) const override;
-		bool save_sample(char const* fpath) const override;
+		void save_sound(char const* fpath) const override;
 		
 		void update_pan(int pan) override;
 		void update_loop(bool loop) override;
@@ -343,8 +654,8 @@ namespace // sample implementations
 		size_t get_pos() const override;
 		size_t get_len() const override;
 		size_t get_frequency() const override;
-		ALLEGRO_CHANNEL_CONF get_chan_conf() const override;
-		ALLEGRO_AUDIO_DEPTH get_depth() const override;
+		ALLEGRO_CHANNEL_CONF get_chan_conf() const;
+		ALLEGRO_AUDIO_DEPTH get_depth() const;
 		
 		bool is_allocated() const override;
 		bool is_playing() const override;
@@ -355,7 +666,7 @@ namespace // sample implementations
 		void stop() override;
 	};
 	
-	SampleWAV::SampleWAV(SAMPLE const& s)
+	SampleWAV::SampleWAV(SAMPLE const& s) : SampleWAV()
 	{
 		SampleWAV_NoSound wavns(s); // use the other class here, to reduce code duplication
 		if (wavns.validate())
@@ -365,6 +676,13 @@ namespace // sample implementations
 			if (sample)
 				wavns.buf = nullptr; // stop the wavns destructor from freeing the data
 		}
+	}
+	SampleWAV::SampleWAV(char const* filepath) : SampleWAV()
+	{
+		if (ALLEGRO_SAMPLE* s = al_load_sample(filepath))
+			sample = s;
+		else
+			throw zcsfx_io_exception(filepath, false);
 	}
 	SampleWAV::SampleWAV(SampleWAV const& other) : SampleWAV()
 	{
@@ -442,10 +760,22 @@ namespace // sample implementations
 		tmp.buf = nullptr; // don't let tmp think it owns the buf
 		return ret;
 	}
-	bool SampleWAV::save_sample(char const* fpath) const
+	void SampleWAV::save_sound(char const* fpath) const
 	{
-		if (!sample) return false;
-		return al_save_sample(fpath, sample);
+		zcsfx_io_exception error(fpath, true);
+		if (!sample)
+			throw error.add_msg("Empty sound sample!");
+		string path = fpath;
+		if (path.ends_with(".wav"))
+		{
+			if (!al_save_sample(fpath, sample))
+				throw error.add_msg("Failed to save file!");
+		}
+		else
+		{
+			if (!al_save_sample(fpath, sample))
+				throw error.add_msg("Failed to save file as specified output type!");
+		}
 	}
 	
 	void SampleWAV::update_pan(int pan)
@@ -598,6 +928,11 @@ ZCSFX::~ZCSFX()
 	cleanup_memory();
 }
 
+void ZCSFX::set_internal(SampleBase* new_internal)
+{
+	cleanup_memory();
+	internal = new_internal;
+}
 SampleType ZCSFX::get_sample_type() const
 {
 	if (internal)
@@ -621,9 +956,9 @@ int ZCSFX::read(PACKFILE* f, word s_version)
 			else
 				internal = new SampleWAV_NoSound();
 			break;
-		// case SMPL_OGG:
-			// internal = new SampleOGG();
-			// break;
+		case SMPL_OGG:
+			internal = new SampleOGG();
+			break;
 		default:
 			return 0;
 	}
@@ -647,19 +982,28 @@ int ZCSFX::write(PACKFILE* f) const
 	return 0;
 }
 
-void ZCSFX::load_sample(ALLEGRO_SAMPLE* new_sample)
+// either succeeds or throws 'zcsfx_io_exception'
+void ZCSFX::load_file(char const* filepath)
 {
-	if (!sound_was_installed) return;
-	cleanup_memory();
-	SampleWAV* ptr = new SampleWAV();
-	ptr->sample = new_sample;
-	internal = ptr;
+	if (!sound_was_installed)
+		throw zcsfx_io_exception(filepath, false).add_msg("Sound is disabled, cannot load sound files!");
+	string t = get_filename(filepath);
+	
+	if (t.ends_with(".wav"))
+		set_internal(new SampleWAV(filepath));
+	else if (t.ends_with(".ogg"))
+		set_internal(new SampleOGG(filepath));
+	else
+		throw zcsfx_io_exception(filepath, false).add_msg("Unrecognized extension!");
+	sfx_name = t.substr(0, t.find_first_of("."));
 }
-bool ZCSFX::save_sample(char const* filepath) const
+void ZCSFX::save_sound(char const* filepath) const
 {
-	if (!sound_was_installed) return false;
-	if (!internal) return false;
-	return internal->save_sample(filepath);
+	if (!sound_was_installed)
+		throw zcsfx_io_exception(filepath, true).add_msg("Sound is disabled, cannot save sound files!");
+	if (!internal)
+		throw zcsfx_io_exception(filepath, true).add_msg("Can't save an empty sound!");
+	internal->save_sound(filepath);
 }
 
 bool ZCSFX::is_invalid() const
@@ -765,6 +1109,13 @@ string ZCSFX::get_sound_info() const
 	return internal ? internal->get_sound_info() : "[Empty]";
 }
 
+SampleType sfx_get_type(int32_t index)
+{
+	if (unsigned(index-1) >= quest_sounds.size())
+		return SMPL_INVALID;
+	ZCSFX const& s = quest_sounds[index-1];
+	return s.get_sample_type();
+}
 
 // returns number of voices currently allocated
 int32_t sfx_count()
@@ -789,23 +1140,11 @@ void sfx_cleanup()
 		sound.cleanup();
 }
 
-// plays an sfx sample
-void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int32_t freq)
+static void sfx_replay_comment(string sfx_name)
 {
-	if (unsigned(index-1) >= quest_sounds.size())
-		return;
-	if (sound_was_installed)
-	{
-		ZCSFX& s = quest_sounds[index-1];
-		
-		s.play(pan, loop, restart, vol_perc, freq);
-	}
-	
 #ifdef IS_PLAYER
-	if (restart && replay_is_debug())
+	if (replay_is_debug())
 	{
-		string sfx_name = quest_sounds[index-1].sfx_name;
-		
 		// TODO(replays): get rid of this bandaid next time replays are mass-updated.
 		if (sfx_name == "Hero is hit")
 			sfx_name = "Player is hit";
@@ -816,6 +1155,18 @@ void sfx(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int
 #endif
 }
 
+// plays an sfx sample, with specified settings
+void sfx_ex(int32_t index, int32_t pan, bool loop, bool restart, zfix vol_perc, int32_t freq)
+{
+	if (unsigned(index-1) >= quest_sounds.size())
+		return;
+	ZCSFX& sound = quest_sounds[index-1];
+	if (sound_was_installed)
+		sound.play(pan, loop, restart, vol_perc, freq);
+	if (restart)
+		sfx_replay_comment(sound.sfx_name);
+}
+
 bool sfx_is_allocated(int32_t index)
 {
 	if (!sound_was_installed)
@@ -823,14 +1174,6 @@ bool sfx_is_allocated(int32_t index)
 	if (unsigned(index-1) >= quest_sounds.size())
 		return false;
 	return quest_sounds[index-1].is_allocated();
-}
-
-// play in loop mode
-void cont_sfx(int32_t index)
-{
-	if (!sound_was_installed)
-		return;
-	sfx(index, 128, true, false);
 }
 
 void adjust_sfx(int32_t index,int32_t pan,bool loop)

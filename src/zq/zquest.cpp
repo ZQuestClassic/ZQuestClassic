@@ -18799,7 +18799,7 @@ auto_do_slots:
 		auto sfx_id = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,quest_sounds.size());
 		auto sfx_vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,quest_sounds.size());
 		if ( sfx_id > 0 && sfx_vol > 0)
-			sfx(sfx_id, 128, false, true, sfx_vol / 1.28_zf);
+			sfx_ex(sfx_id, 128, false, true, sfx_vol / 1.28_zf);
 		if(!assign_mode)
 			InfoDialog("Slots Assigned",buf).show();
 		kill_sfx();
