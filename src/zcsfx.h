@@ -57,7 +57,7 @@ private:
 public:
 	
 	ZCSFX() = default;
-	ZCSFX(SAMPLE& s);
+	ZCSFX(SAMPLE const& s);
 	ZCSFX(ZCSFX const& other);
 	ZCSFX& operator=(ZCSFX const& other);
 	ZCSFX(ZCSFX&& other);

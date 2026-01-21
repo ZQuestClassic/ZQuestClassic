@@ -87,7 +87,7 @@ namespace // sample implementations
 		ALLEGRO_CHANNEL_CONF chan_conf;
 		
 		SampleWAV_NoSound() = default;
-		SampleWAV_NoSound(SAMPLE& s);
+		SampleWAV_NoSound(SAMPLE const& s);
 		SampleWAV_NoSound(SampleWAV_NoSound const& other);
 		SampleWAV_NoSound& operator=(SampleWAV_NoSound const& other);
 		
@@ -120,7 +120,7 @@ namespace // sample implementations
 		void stop() override;
 	};
 	
-	SampleWAV_NoSound::SampleWAV_NoSound(SAMPLE& s)
+	SampleWAV_NoSound::SampleWAV_NoSound(SAMPLE const& s) : SampleWAV_NoSound()
 	{
 		chan_conf = s.stereo ? ALLEGRO_CHANNEL_CONF_2 : ALLEGRO_CHANNEL_CONF_1;
 		depth = s.bits == 8 ? ALLEGRO_AUDIO_DEPTH_INT8 : ALLEGRO_AUDIO_DEPTH_INT16;
@@ -321,7 +321,7 @@ namespace // sample implementations
 		ALLEGRO_SAMPLE_INSTANCE* inst = nullptr;
 		
 		SampleWAV() = default;
-		SampleWAV(SAMPLE& s);
+		SampleWAV(SAMPLE const& s);
 		SampleWAV(SampleWAV const& other);
 		SampleWAV& operator=(SampleWAV const& other);
 		
@@ -355,7 +355,7 @@ namespace // sample implementations
 		void stop() override;
 	};
 	
-	SampleWAV::SampleWAV(SAMPLE& s)
+	SampleWAV::SampleWAV(SAMPLE const& s)
 	{
 		SampleWAV_NoSound wavns(s); // use the other class here, to reduce code duplication
 		if (wavns.validate())
@@ -552,7 +552,7 @@ namespace // sample implementations
 	}
 }
 
-ZCSFX::ZCSFX(SAMPLE& s)
+ZCSFX::ZCSFX(SAMPLE const& s) : ZCSFX()
 {
 	if (sound_was_installed)
 		internal = new SampleWAV(s);
@@ -562,9 +562,8 @@ ZCSFX::ZCSFX(SAMPLE& s)
 		cleanup_memory();
 }
 
-ZCSFX::ZCSFX(ZCSFX const& other)
+ZCSFX::ZCSFX(ZCSFX const& other) : ZCSFX()
 {
-	internal = nullptr;
 	*this = other;
 }
 ZCSFX& ZCSFX::operator=(ZCSFX const& other)
@@ -579,9 +578,8 @@ ZCSFX& ZCSFX::operator=(ZCSFX const& other)
 		cleanup_memory();
 	return *this;
 }
-ZCSFX::ZCSFX(ZCSFX&& other)
+ZCSFX::ZCSFX(ZCSFX&& other) : ZCSFX()
 {
-	internal = nullptr;
 	*this = other;
 }
 ZCSFX& ZCSFX::operator=(ZCSFX&& other)
