@@ -25715,7 +25715,7 @@ RaftingStuff:
 					amusic = DMaps[tdm].music;
 				if (unsigned(amusic - 1) < quest_music.size())
 				{
-					if (quest_music[amusic-1].is_playing())
+					if (!quest_music[amusic-1].is_playing())
 						music_stop();
 				}
 			}
