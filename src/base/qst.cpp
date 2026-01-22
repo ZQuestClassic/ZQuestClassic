@@ -22243,7 +22243,6 @@ static void restore_prev_qstload_global_state()
 // TODO: refactor to never mutate global state, to make loading partial qst files easier and less error prone. huge project.
 static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
 {
-    DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;

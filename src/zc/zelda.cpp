@@ -91,7 +91,6 @@ extern bool epilepsyFlashReduction;
 #endif
 extern char runningItemScripts[256];
 
-int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0;
 bool zqtesting_mode = false;
 bool test_mode_auto_restart = false;

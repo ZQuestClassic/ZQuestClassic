@@ -634,7 +634,6 @@ int32_t OnlyCheckNewTilesForDuplicates = 0;
 int32_t try_recovering_missing_scripts = 0;
 
 uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0;
-int32_t DMapEditorLastMaptileUsed = 0;
 
 /*
   , HorizontalDuplicateAction;

@@ -115,8 +115,6 @@ void setClock(bool state);
 void CatchBrang();;
 int32_t HeroAction();
 
-extern int32_t DMapEditorLastMaptileUsed;
-
 void do_dcounters();
 void game_loop();
 
