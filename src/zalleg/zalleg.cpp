@@ -11,6 +11,8 @@
 #include "zinfo.h"
 #include <al5_img.h>
 #include <loadpng.h>
+#include <allegro5/allegro_physfs.h>
+#include <physfs.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -146,6 +148,11 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 			Z_message("OK\n");
 		}
 	}
+	
+	Z_message("Initializing physfs...");
+	if (PHYSFS_init(argv[0]))
+		Z_message("OK\n");
+	else Z_error_fatal("Failed to init physfs!");
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));
 	set_always_use_native_file_dialog(zc_get_config("gui","native_file_dialog",0));

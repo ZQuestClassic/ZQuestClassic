@@ -346,6 +346,37 @@ int32_t onNew()
 	return call_tileset_wizard() ? D_O_K : D_CLOSE;
 }
 
+int32_t onSaveNewQST()
+{
+	static EXT_LIST list[] =
+	{
+		{ "New Quest Files (*.quest)", "quest" },
+		{ NULL, NULL }
+	};
+	std::string path;
+	if (auto result = prompt_for_new_file("Save New Quest (WIP) (.quest)", "quest", list, filepath, true); !result)
+		return D_O_K;
+	else path = *result;
+	
+	strcpy(temppath, path.c_str());
+	
+	if(exists(temppath))
+	{
+		if(OverwriteProtection)
+		{
+			displayinfo("ZQuest","Overwriting quests is disabled. This can be changed in the options dialog.");
+			return D_O_K;
+		}
+		
+		if(!alert_confirm("Confirm Overwrite",fmt::format("{} already exists. Write over existing file?", temppath)))
+			return D_O_K;
+	}
+	
+	if (!save_new_quest(temppath, &header, nullptr, nullptr, true))
+		displayinfo("Fail", "Failed saving new quest");
+	refresh(rMENU);
+	return D_O_K;
+}
 int32_t onSave()
 {
     restore_mouse();

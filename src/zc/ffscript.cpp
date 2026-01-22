@@ -90,8 +90,6 @@
 #include "base/qst.h"
 
 using namespace util;
-
-using namespace util;
 using std::ostringstream;
 
 void playLevelMusic();

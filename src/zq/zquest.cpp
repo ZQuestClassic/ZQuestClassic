@@ -14,6 +14,7 @@
 #include <vector>
 #include <filesystem>
 #include <base/new_menu.h>
+#include <physfs.h>
 
 #include "dialog/info_lister.h"
 #include "zq/commands.h"
@@ -1087,6 +1088,7 @@ enum
 	MENUID_FILE_REVERT,
 };
 
+int32_t onSaveNewQST();
 static NewMenu file_menu
 {
 	{ "&New", do_NewQuest },
@@ -1096,6 +1098,7 @@ static NewMenu file_menu
 	{ "&Save", onSave, MENUID_FILE_SAVE },
 	{ "Save &as...", onSaveAs, MENUID_FILE_SAVEAS },
 	{ "&Revert", onRevert, MENUID_FILE_REVERT },
+	{ "New Save Test", onSaveNewQST, MENUID_FILE_REVERT },
 	{},
 	{ "&Import", &import_menu },
 	{ "&Export", &export_menu },
@@ -21407,6 +21410,8 @@ void quit_game()
     if(last_timed_save) free(last_timed_save);
     
     destroy_bitmaps_on_exit();
+	
+	PHYSFS_deinit();
 }
 
 void center_zquest_dialogs()

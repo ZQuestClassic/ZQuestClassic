@@ -159,6 +159,19 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
+FetchContent_Declare(
+	physfs
+	GIT_REPOSITORY https://github.com/icculus/physfs.git
+	GIT_TAG        release-3.2.0
+)
+set(PHYSFS_BUILD_STATIC OFF CACHE BOOL "" FORCE)
+set(PHYSFS_BUILD_SHARED ON CACHE BOOL "" FORCE)
+set(PHYSFS_BUILD_TEST OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(physfs)
+set(PHYSFS_INCLUDE_DIR ${physfs_SOURCE_DIR}/src CACHE PATH "" FORCE)
+set(PHYSFS_LIBRARY ${physfs_BINARY_DIR}/$<CONFIG>/physfs.lib CACHE FILEPATH "" FORCE)
+
 if (NOT EMSCRIPTEN)
 	FetchContent_Declare(
 		stduuid
@@ -247,6 +260,7 @@ set(WANT_DUMB ON CACHE BOOL "" FORCE)
 set(WANT_FLAC OFF CACHE BOOL "" FORCE)
 set(WANT_VIDEO OFF CACHE BOOL "" FORCE)
 set(WANT_MEMFILE ON CACHE BOOL "" FORCE)
+set(WANT_PHYSFS ON CACHE BOOL "" FORCE)
 set(WANT_ALLOW_SSE "sse3" CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(allegro5)
 # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
@@ -290,7 +304,7 @@ target_include_directories(allegro_headers INTERFACE
 target_link_libraries(allegro-legacy PRIVATE allegro_headers)
 
 add_library(allegro_with_legacy INTERFACE)
-target_link_libraries(allegro_with_legacy INTERFACE allegro_headers allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_memfile allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro_headers allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_memfile allegro_physfs allegro_main)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
@@ -542,6 +556,7 @@ set(zcbase_sources
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/qst.cpp
+	src/base/qst/new_qst.cpp
 	src/base/random.cpp
 	src/base/render.cpp
 	src/base/scc.cpp
@@ -562,7 +577,7 @@ if (EMSCRIPTEN)
 	list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
-target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
+target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt physfs)
 target_include_directories(zcbase PUBLIC src third_party/nonstd/include)
 if(CURL_FOUND)
 	target_sources(zcbase PRIVATE src/base/http.cpp)
@@ -1244,7 +1259,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zalleg zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_memfile allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_memfile allegro_physfs allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)

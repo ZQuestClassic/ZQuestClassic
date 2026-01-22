@@ -10,6 +10,8 @@
 #include <vector>
 #include <sstream>
 
+#include <allegro5/allegro_physfs.h>
+#include <physfs.h>
 #include "allegro/file.h"
 #include "base/pal_tables.h"
 #include "subscr.h"
@@ -5064,6 +5066,8 @@ void quit_game()
 	if(qstpath) free(qstpath);
 
 	FFCore.shutdown();
+	
+	PHYSFS_deinit();
 
 #ifdef HAS_CURL
 	replay_upload_auto();

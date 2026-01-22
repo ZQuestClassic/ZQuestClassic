@@ -4,6 +4,7 @@
 #include "base/zdefs.h"
 #include "items.h"
 #include "new_subscr.h"
+#include "base/qst/new_qst.h"
 
 struct miscQdata;
 struct MsgStr;
