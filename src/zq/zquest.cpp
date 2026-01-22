@@ -1089,6 +1089,7 @@ enum
 };
 
 int32_t onSaveNewQST();
+int32_t onLoadNewQST();
 static NewMenu file_menu
 {
 	{ "&New", do_NewQuest },
@@ -1098,7 +1099,9 @@ static NewMenu file_menu
 	{ "&Save", onSave, MENUID_FILE_SAVE },
 	{ "Save &as...", onSaveAs, MENUID_FILE_SAVEAS },
 	{ "&Revert", onRevert, MENUID_FILE_REVERT },
-	{ "New Save Test", onSaveNewQST, MENUID_FILE_REVERT },
+	{},
+	{ "New Save (WIP)", onSaveNewQST },
+	{ "New Load (WIP)", onLoadNewQST },
 	{},
 	{ "&Import", &import_menu },
 	{ "&Export", &export_menu },

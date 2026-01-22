@@ -2,13 +2,18 @@
 #include "new_packfile.h"
 #include "base/util.h"
 #include <allegro5/allegro_physfs.h>
+#include <allegro5/allegro_memfile.h>
 #include <physfs.h>
 #include "zc/ffscript.h"
 #include "base/version.h"
+#include <miniz.h>
 
 using namespace util;
+using namespace NewQuest;
 
 #define FP state.fp
+
+size_t new_write_size = 0;
 
 class quest_io_exception : std::exception
 {
@@ -40,31 +45,69 @@ public:
 private:
 	string msg;
 };
-
 static const quest_io_exception QUEST_INVALID("Error!");
 
-struct AutoCleanup
-{
-	AutoCleanup(std::function<void()> proc) : proc(proc) {}
-	~AutoCleanup()
-	{
-		proc();
-	}
-private:
-	std::function<void()> proc;
-};
-
-void QuestSectionState::clear()
-{
-	*this = QuestSectionState();
-}
-void QuestSectionState::load(QuestSection const& sec)
-{
-	section_name = sec.name;
-	fname = fmt::format("{}.section", section_name);
-}
-
 std::map<string, QuestSection*> sections;
+
+void QuestReadState::enter_section(QuestSection const& sec)
+{
+	exit_section();
+	section_name = sec.name;
+	fname = fmt::format("{}.section", sec.name);
+	fp = al_fopen(fname.c_str(), "rb");
+	if (!fp)
+		throw quest_io_exception("Section not found, or could not be opened for reading!");
+}
+void QuestReadState::exit_section()
+{
+	if (fp)
+		al_fclose(fp);
+	fp = nullptr;
+	s_version = 0;
+	section_name.clear();
+	fname.clear();
+}
+void QuestWriteState::enter_section(QuestSection const& sec)
+{
+	exit_section();
+	section_name = sec.name;
+	fname = fmt::format("{}.section", sec.name);
+	s_version = sec.cur_version;
+	
+	new_write_size = 0;
+}
+void QuestWriteState::allocate_section()
+{
+	buffer_size = new_write_size;
+	new_write_size = 0;
+	buffer = al_malloc(buffer_size);
+	if (!buffer)
+		throw quest_io_exception("Out of memory; failed to allocate buffer!");
+	fp = al_open_memfile(buffer, buffer_size, "wb");
+	if (!fp)
+		throw quest_io_exception("Failed to target memory buffer for writing!");
+}
+void QuestWriteState::exit_section()
+{
+	if (fp)
+		al_fclose(fp);
+	fp = nullptr;
+	if (buffer)
+		al_free(buffer);
+	buffer = nullptr;
+	buffer_size = 0;
+	s_version = 0;
+	section_name.clear();
+	fname.clear();
+}
+void QuestWriteState::write_zip()
+{
+	al_fclose(fp);
+	fp = nullptr;
+	if (!mz_zip_writer_add_mem(&zip, fname.c_str(), buffer, buffer_size, MZ_BEST_COMPRESSION))
+		throw quest_io_exception("Failed to write buffered data to zip output!");
+	exit_section();
+}
 
 QuestSection::QuestSection(string const& name, word cur_version,
 	std::function<void(QuestReadState&)> reader,
@@ -79,22 +122,10 @@ QuestSection::QuestSection(string const& name, word cur_version,
 void QuestSection::read(QuestReadState& state)
 {
 	box_out(fmt::format("Reading '{}'", name).c_str());
-	auto& s_state = state.sec_state;
-	s_state.load(*this);
-	
-	FP = al_fopen(s_state.fname.c_str(), "rb");
-	
-	if (!FP)
-		throw quest_io_exception("Section '{}' not found, or could not be opened for reading!", s_state.fname);
-	
-	AutoCleanup _cleanup([&]()
-	{
-		al_fclose(FP);
-		FP = nullptr;
-	});
-	
 	try
 	{
+		state.enter_section(*this);
+		
 		string read_name;
 		if (!new_getcstr(read_name, FP))
 			throw quest_io_exception("Failed to read section header!");
@@ -102,21 +133,23 @@ void QuestSection::read(QuestReadState& state)
 		if (read_name != name)
 			throw quest_io_exception("Found mismatched section header! Found '{}', expected '{}'!", read_name, name);
 		
-		if (!new_getw(s_state.s_version, FP))
+		if (!new_getw(state.s_version, FP))
 			throw quest_io_exception("Failed to read section version!");
 		
-		if (s_state.s_version > cur_version)
+		if (state.s_version > cur_version)
 			throw quest_io_exception("Version error; {} version {} is too new, expected {}",
-				name, s_state.s_version, cur_version);
+				name, state.s_version, cur_version);
 		
-		box_out(fmt::format(" v{}...", s_state.s_version).c_str());
+		box_out(fmt::format(" v{}...", state.s_version).c_str());
 		
 		reader(state);
 	}
 	catch (quest_io_exception& e)
 	{
+		state.exit_section();
 		throw e.add("In section '{}'...", name);
 	}
+	state.exit_section();
 	box_out(" OK.");
 	box_eol();
 }
@@ -130,41 +163,41 @@ void QuestSection::write(QuestWriteState& state)
 	}
 	box_out(fmt::format("Writing '{}' v{}...", name, cur_version).c_str());
 	
-	auto& s_state = state.sec_state;
-	s_state.load(*this);
-	s_state.s_version = cur_version;
-	FP = al_fopen(s_state.fname.c_str(), "wb");
-	
-	if (!FP)
-		throw quest_io_exception("Section '{}' could not be opened for writing!", s_state.fname);
-	
-	AutoCleanup _cleanup([&]()
-	{
-		al_fclose(FP);
-		FP = nullptr;
-	});
-	
 	try
 	{
-		if (!new_putcstr(name, FP))
-			throw quest_io_exception("Failed to write section header!");
+		state.enter_section(*this);
 		
-		if (!new_putw(cur_version, FP))
-			throw quest_io_exception("Failed to write section version!");
-	
-		writer(state);
+		for (auto q = 0; q <= 1; ++q)
+		{
+			if (q == 1) // we have the write size, allocate the buffer and open the memfile
+				state.allocate_section();
+			
+			if (!new_putcstr(name, FP))
+				throw quest_io_exception("Failed to write section header!");
+			
+			if (!new_putw(cur_version, FP))
+				throw quest_io_exception("Failed to write section version!");
+		
+			writer(state);
+		}
+		if (state.buffer_size != new_write_size) // confirm same size on both passes
+			throw quest_io_exception("Section size mismatch; {} != {}", state.buffer_size, new_write_size);
+		
+		state.write_zip();
 	}
 	catch (quest_io_exception& e)
 	{
+		state.exit_section();
 		throw e.add("In section '{}'...", name);
 	}
+	
 	box_out(" OK.");
 	box_eol();
 }
 
 static void read_header(QuestReadState& state)
 {
-	auto s_version = state.sec_state.s_version;
+	auto s_version = state.s_version;
 	FFCore.quest_format[vHeader] = s_version;
 	
 	auto* header = state.header;
@@ -366,36 +399,51 @@ QuestSection header(SEC_HEADER, NV_HEADER, read_header, write_header);
 
 static void _load_new_quest_int(QuestReadState& state)
 {
-	header.read(state); // ensure the header reads first
+	al_set_physfs_file_interface();
+	if (!PHYSFS_mount(state.quest_path, "", 0))
+		throw quest_io_exception("Failed to mount file {}", state.quest_path);
 	
-	if (state.flags & qstload_print_meta)
-		print_quest_metadata(*state.header, state.quest_path, 0xFF);
-	
-	//{ Version Warning
-	if (state.flags & qstload_versionwarn)
+	try
 	{
-		int32_t vercmp = state.header->compareVer();
-		int32_t astatecmp = compare(int32_t(state.header->getAlphaState()), getAlphaState());
-		int32_t avercmp = compare(state.header->getAlphaVer(), 0);
-		if(vercmp > 0 || (!vercmp && (astatecmp > 0 || (!astatecmp && avercmp > 0))))
+		header.read(state); // ensure the header reads first
+		
+		if (state.flags & qstload_print_meta)
+			print_quest_metadata(*state.header, state.quest_path, 0xFF);
+		
+		//{ Version Warning
+		if (state.flags & qstload_versionwarn)
 		{
-			enter_sys_pal();
-			bool r = alert_confirm("Quest saved in newer version",
-				"This quest was last saved in a newer version of ZQuest."
-				" Attempting to load this quest may not work correctly; to"
-				" avoid issues, try loading this quest in at least '" + std::string(state.header->getVerStr()) + "'"
-				"\n\nWould you like to continue loading anyway? (Not recommended)");
-			exit_sys_pal();
-			if(!r)
-				throw quest_io_exception("Version too new; user chose to cancel");
+			int32_t vercmp = state.header->compareVer();
+			int32_t astatecmp = compare(int32_t(state.header->getAlphaState()), getAlphaState());
+			int32_t avercmp = compare(state.header->getAlphaVer(), 0);
+			if(vercmp > 0 || (!vercmp && (astatecmp > 0 || (!astatecmp && avercmp > 0))))
+			{
+				enter_sys_pal();
+				bool r = alert_confirm("Quest saved in newer version",
+					"This quest was last saved in a newer version of ZQuest."
+					" Attempting to load this quest may not work correctly; to"
+					" avoid issues, try loading this quest in at least '" + std::string(state.header->getVerStr()) + "'"
+					"\n\nWould you like to continue loading anyway? (Not recommended)");
+				exit_sys_pal();
+				if(!r)
+					throw quest_io_exception("Version too new; user chose to cancel");
+			}
+		}
+		
+		for (auto [secname, ptr] : sections)
+		{
+			if (ptr == &header) continue;
+			ptr->read(state);
 		}
 	}
-	
-	for (auto [secname, ptr] : sections)
+	catch(quest_io_exception& e)
 	{
-		if (ptr == &header) continue;
-		ptr->read(state);
+		if (!PHYSFS_unmount(state.quest_path))
+			e.add("[UNMOUNT FAILURE]");
+		throw e;
 	}
+	if (!PHYSFS_unmount(state.quest_path))
+		throw quest_io_exception("[UNMOUNT FAILURE]");
 }
 bool load_new_quest(const char *filename, zquestheader *header, miscQdata *misc,
 	zctune *tune_list, quest_load_flags flags, dword tileset_flags)
@@ -419,6 +467,11 @@ bool load_new_quest(const char *filename, zquestheader *header, miscQdata *misc,
 	char const* quest_name = get_filename(filename);
 	zapp_reporting_add_breadcrumb("load_new_quest", quest_name);
 	zapp_reporting_set_tag("qst.filename", quest_name);
+	
+	box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
+	box_out("Loading Quest...");
+	box_eol();
+	box_eol();
 	
 	string err_str;
 	bool err = false;
@@ -515,30 +568,45 @@ static void _save_new_quest_int(QuestWriteState& state)
 	box_eol();
 	box_eol();
 	
-	std::string tmp_filename = util::create_temp_file_path(state.quest_path) + ".zip";
-	al_set_physfs_file_interface();
-	PHYSFS_setWriteDir(".");
-	if (!al_make_directory(tmp_filename.c_str()))
-		throw quest_io_exception("Failed to create file!");
-	if (!PHYSFS_mount(tmp_filename.c_str(), "", 0) || !PHYSFS_setWriteDir(tmp_filename.c_str()))
-		throw quest_io_exception("Failed to create ZIP file format for writing!");
-	
-	header.write(state); // ensure the header outputs first
-	for (auto [secname, ptr] : sections)
+	string tmp_filename = util::create_temp_file_path(state.quest_path);
+	string abs_tmp_filename = derelativize_path(tmp_filename);
+	try
 	{
-		if (ptr == &header) continue;
-		ptr->write(state);
+		PHYSFS_setWriteDir(".");
+		
+		memset(&state.zip, 0, sizeof(mz_zip_archive));
+		
+		if (!mz_zip_writer_init_file(&state.zip, tmp_filename.c_str(), 0))
+			throw quest_io_exception("Failed to create file!");
+		
+		// Data will be written out to memory buffers via `al_open_memfile`
+		header.write(state); // ensure the header outputs first
+		for (auto [secname, ptr] : sections)
+		{
+			if (ptr == &header) continue;
+			ptr->write(state);
+		}
+		
+		if (!mz_zip_writer_finalize_archive(&state.zip))
+			throw quest_io_exception("Failed to finalize zip archive!");
+		if (!mz_zip_writer_end(&state.zip))
+			throw quest_io_exception("Failed to end zip writer!");
+		
+		write_keyfiles(state);
+		
+		// Move file to destination at end, to avoid issues with file being unavailable to test mode.
+		std::error_code ec;
+		fs::rename(abs_tmp_filename, state.quest_abs_path, ec);
+		if (ec)
+			throw quest_io_exception("File rename error: ", std::strerror(ec.value()));
+	}
+	catch (quest_io_exception& e)
+	{
+		std::error_code ec;
+		fs::remove(abs_tmp_filename, ec);
+		throw e;
 	}
 	
-	write_keyfiles(state);
-	
-	// Move file to destination at end, to avoid issues with file being unavailable to test mode.
-	std::error_code ec;
-	string abs_tmp_filename = derelativize_path(tmp_filename);
-	fs::rename(abs_tmp_filename, state.quest_abs_path, ec);
-	if (ec)
-		throw quest_io_exception("File rename error: ", std::strerror(ec.value()));
-
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
 #endif

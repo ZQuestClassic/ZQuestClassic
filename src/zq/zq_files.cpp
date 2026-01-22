@@ -377,6 +377,25 @@ int32_t onSaveNewQST()
 	refresh(rMENU);
 	return D_O_K;
 }
+int32_t onLoadNewQST()
+{
+	static EXT_LIST list[] =
+	{
+		{ "New Quest Files (*.quest)", "quest" },
+		{ NULL, NULL }
+	};
+	std::string path;
+	if (auto result = prompt_for_new_file("Load New Quest (WIP) (.quest)", "quest", list, filepath, true); !result)
+		return D_O_K;
+	else path = *result;
+	strcpy(temppath, path.c_str());
+	
+	if (!load_new_quest(temppath, &header, nullptr, nullptr, qstload_show_progress))
+		displayinfo("Fail", "Failed loading new quest");
+	refresh(rMENU);
+	return D_O_K;
+}
+
 int32_t onSave()
 {
     restore_mouse();

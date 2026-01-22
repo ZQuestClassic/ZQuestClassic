@@ -167,10 +167,32 @@ FetchContent_Declare(
 set(PHYSFS_BUILD_STATIC OFF CACHE BOOL "" FORCE)
 set(PHYSFS_BUILD_SHARED ON CACHE BOOL "" FORCE)
 set(PHYSFS_BUILD_TEST OFF CACHE BOOL "" FORCE)
+
+set(BUILD_SHARED_LIBS_PREV ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(physfs)
+set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
+
 set(PHYSFS_INCLUDE_DIR ${physfs_SOURCE_DIR}/src CACHE PATH "" FORCE)
 set(PHYSFS_LIBRARY ${physfs_BINARY_DIR}/$<CONFIG>/physfs.lib CACHE FILEPATH "" FORCE)
+
+FetchContent_Declare(
+	miniz
+	GIT_REPOSITORY
+		https://github.com/richgel999/miniz.git
+	GIT_TAG
+		9ae305f6e109f8f1fbd2130458f1ee6197269b3b
+	EXCLUDE_FROM_ALL
+)
+set(BUILD_SHARED_LIBS_PREV ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF)
+FetchContent_MakeAvailable(miniz)
+set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
+
+target_include_directories(miniz PUBLIC ${miniz_SOURCE_DIR})
+target_compile_definitions(miniz PUBLIC MINIZ_USE_ZLIB=1)
+target_link_libraries(miniz PUBLIC zlib)
+
 
 if (NOT EMSCRIPTEN)
 	FetchContent_Declare(
@@ -577,7 +599,7 @@ if (EMSCRIPTEN)
 	list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
-target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt physfs)
+target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt physfs miniz)
 target_include_directories(zcbase PUBLIC src third_party/nonstd/include)
 if(CURL_FOUND)
 	target_sources(zcbase PRIVATE src/base/http.cpp)
@@ -1005,19 +1027,6 @@ if(CURL_FOUND AND WIN32)
 	message(STATUS "Using curl for zupdater")
 
 	target_link_libraries(zupdater PRIVATE CURL::libcurl nlohmann_json::nlohmann_json)
-
-	FetchContent_Declare(
-		miniz
-		GIT_REPOSITORY
-			https://github.com/richgel999/miniz.git
-		GIT_TAG
-			9ae305f6e109f8f1fbd2130458f1ee6197269b3b
-		EXCLUDE_FROM_ALL
-	)
-	set(BUILD_SHARED_LIBS_PREV ${BUILD_SHARED_LIBS})
-	set(BUILD_SHARED_LIBS OFF)
-	FetchContent_MakeAvailable(miniz)
-	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 	target_link_libraries(zupdater PRIVATE miniz)
 else()
 	message(WARNING "Using Python for zupdater")

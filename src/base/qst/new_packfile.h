@@ -1,11 +1,15 @@
 #pragma once
 
+extern size_t new_write_size;
+
 bool new_fread(void* ptr, size_t size, ALLEGRO_FILE* fp)
 {
 	return al_fread(fp, ptr, size) == size;
 }
 bool new_fwrite(void const* ptr, size_t size, ALLEGRO_FILE* fp)
 {
+	new_write_size += size;
+	if (!fp) return true; // fake writing to calculate size
 	return al_fwrite(fp, ptr, size);
 }
 
