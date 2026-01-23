@@ -26,14 +26,14 @@ static ArrayRegistrar DMAPDATAGRID_registrar(DMAPDATAGRID, []{
 static ArrayRegistrar DMAPDATAMAPINITD_registrar(DMAPDATAMAPINITD, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::onmap_initD> impl;
 	impl.compatSetDefaultValue(-10000);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	return &impl;
 }());
 
 static ArrayRegistrar DMAPDATASUBINITD_registrar(DMAPDATASUBINITD, []{
 	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::sub_initD> impl;
 	impl.compatSetDefaultValue(-10000);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	return &impl;
 }());
 
