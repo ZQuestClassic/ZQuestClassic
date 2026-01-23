@@ -3771,6 +3771,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATALOOPEND:
 		case DMAPDATALOOPSTART:
 		case DMAPDATAMAP:
+		case DMAPINITD:
 		case DMAPDATAMAPINITD:
 		case DMAPDATAMAPSCRIPT:
 		case DMAPDATAMIDI:
