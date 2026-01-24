@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-20 05:20:45</td>
+      <td>2026-01-24 00:14:48</td>
     </tr>
   </table>
 </div>
@@ -75,17 +75,17 @@
     </tr>
     <tr><td><a href="#l180">ArrayRegistrar::ArrayRegistrar(int, IScriptingArray*) (line 180)</a></td><td>called 142330 times, returned 142330 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l121">ZasmArrayManager::getAll(int, int) const (line 121)</a></td><td>called 240 times, returned 240 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l113">ZasmArrayManager::getElement(int, int, int) const (line 113)</a></td><td>called 461408017 times, returned 461408017 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l113">ZasmArrayManager::getElement(int, int, int) const (line 113)</a></td><td>called 488847866 times, returned 488847866 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l105">ZasmArrayManager::getSize(int, int) const (line 105)</a></td><td>called 1420 times, returned 1420 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l100">ZasmArrayManager::isRegistered(int) (line 100)</a></td><td>called 812956628 times, returned 812956628 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l100">ZasmArrayManager::isRegistered(int) (line 100)</a></td><td>called 840396477 times, returned 840396477 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l94">ZasmArrayManager::registerArray(int, IScriptingArray*) (line 94)</a></td><td>called 147490 times, returned 147490 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l129">ZasmArrayManager::setElement(int, int, int, int, script_object_type) (line 129)</a></td><td>called 18558144 times, returned 18558144 times</td><td>61.0%</td></tr>
-    <tr><td><a href="#l190">zasm_array_get(int, int, int) (line 190)</a></td><td>called 461408017 times, returned 461408017 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l190">zasm_array_get(int, int, int) (line 190)</a></td><td>called 488847866 times, returned 488847866 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l195">zasm_array_get_all(int, int) (line 195)</a></td><td>called 240 times, returned 240 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l210">zasm_array_register(int, IScriptingArray*) (line 210)</a></td><td>called 5160 times, returned 5160 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l200">zasm_array_set(int, int, int, int, script_object_type) (line 200)</a></td><td>called 18558144 times, returned 18558144 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l185">zasm_array_size(int, int) (line 185)</a></td><td>called 1420 times, returned 1420 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l205">zasm_array_supports(int) (line 205)</a></td><td>called 812956628 times, returned 812956628 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l205">zasm_array_supports(int) (line 205)</a></td><td>called 840396477 times, returned 840396477 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -797,7 +797,7 @@
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">812956628</td>
+      <td class="linecount coveredLine">840396477</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">isRegistered</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -811,7 +811,7 @@
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">812956628</td>
+      <td class="linecount coveredLine">840396477</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">m_arrays</span><span class="p">[</span><span class="n">zasm_var</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -895,7 +895,7 @@
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">461408017</td>
+      <td class="linecount coveredLine">488847866</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">getElement</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -911,19 +911,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 461408017 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 488847866 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">461408017</td>
+      <td class="linecount partialCoveredLine">488847866</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_arrays</span><span class="p">[</span><span class="n">zasm_var</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">461408017</td>
+      <td class="linecount coveredLine">488847866</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">impl</span><span class="o">-&gt;</span><span class="n">getElement</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -944,7 +944,7 @@
       <td class="lineno"><a id="l119" href="#l119">119</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">461408017</td>
+      <td class="linecount coveredLine">488847866</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1492,7 +1492,7 @@
       <td class="lineno"><a id="l190" href="#l190">190</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">461408017</td>
+      <td class="linecount coveredLine">488847866</td>
       <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="n">zasm_array_get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1506,7 +1506,7 @@
       <td class="lineno"><a id="l192" href="#l192">192</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">461408017</td>
+      <td class="linecount coveredLine">488847866</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">g_arrayManager</span><span class="p">.</span><span class="n">getElement</span><span class="p">(</span><span class="n">zasm_var</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1597,7 +1597,7 @@
       <td class="lineno"><a id="l205" href="#l205">205</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">812956628</td>
+      <td class="linecount coveredLine">840396477</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">zasm_array_supports</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">zasm_var</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1611,7 +1611,7 @@
       <td class="lineno"><a id="l207" href="#l207">207</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">812956628</td>
+      <td class="linecount coveredLine">840396477</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">g_arrayManager</span><span class="p">.</span><span class="n">isRegistered</span><span class="p">(</span><span class="n">zasm_var</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
