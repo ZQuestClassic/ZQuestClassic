@@ -271,6 +271,8 @@ ffcdata& mapscr::getFFC(size_t ind)
 	for (size_t i = prev; i < ffcs.size(); i++)
 	{
 		ffcs[i].screen_spawned = screen;
+		ffcs[i].current_screen = screen;
+		ffcs[i].update_current_screen(); // TODO ! upstream
 		ffcs[i].index = i;
 		ffcs[i].setLoaded(true);
 	}
