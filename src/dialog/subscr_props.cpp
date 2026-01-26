@@ -2043,7 +2043,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								)
 							)
 						),
-						Frame(title = "DMap Level", info = "Requires that the current dmap level number matches one of the listed numb30.",
+						Frame(title = "DMap Level", info = "Requires that the current dmap level number matches one of the listed numbers.",
 							Column(
 								req_level_list = List(prefheight = 6_em,
 									forceFitW = true,
@@ -2103,7 +2103,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								)
 							)
 						),
-						Frame(title = "DMap ID", info = "Requires that the current dmap number matches one of the listed numb30.",
+						Frame(title = "DMap ID", info = "Requires that the current dmap number matches one of the listed numbers.",
 							Column(
 								req_dmap_list = List(prefheight = 6_em,
 									forceFitW = true,
