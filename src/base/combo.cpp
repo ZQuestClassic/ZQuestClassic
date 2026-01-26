@@ -6,11 +6,11 @@
 #include "qst.h"
 #include "zc_list_data.h"
 #include "advanced_music.h"
+#include "zcsfx.h"
 
 extern const char* icounter_str2[-(sscMIN + 1)];
 extern char *item_string[MAXITEMS];
 extern char* guy_string[eMAXGUYS];
-extern char* sfx_string[WAV_COUNT];
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 extern std::map<int32_t, script_slot_data > genericmap;
 
@@ -749,7 +749,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		if (trigcschange)
 			effects << indent << "Change cset by " << int(trigcschange) << "\n";
 		if (trigsfx)
-			effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, sfx_string[trigsfx]);
+			effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
 		if (trig_genscr)
 			effects << indent << fmt::format("Run generic script {} ({}) in frozen mode\n", trig_genscr, genericmap[trig_genscr].scriptname);
 		if (trig_msgstr)

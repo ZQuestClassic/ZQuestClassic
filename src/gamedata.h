@@ -22,7 +22,7 @@ struct savedportal
 	byte destscr;
 	int32_t x;
 	int32_t y;
-	byte sfx;
+	word sfx;
 	int32_t warpfx;
 	int16_t spr;
 	bool deleting;
@@ -392,7 +392,7 @@ public:
 	bool hasBottle(byte type, byte quant = 1) const;
 	int32_t fillBottle(byte val, byte replace = 0, byte quant = 1);
 	
-	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
+	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, word sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
 	void clear_portal(int32_t);
 	

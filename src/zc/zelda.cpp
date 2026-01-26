@@ -276,9 +276,7 @@ bool usebombpal = false;
 int32_t readsize = 0, writesize = 0;
 bool fake_pack_writing=false;
 
-SAMPLE customsfxdata[WAV_COUNT] = {0};
-uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
-int32_t sfxdat=1;
+int32_t sfxdat = 0;
 
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
@@ -703,8 +701,6 @@ zctune tunes[MAXMIDIS] =
 	{ "Engine - Triforce",    0,  -1,  -1,  0,  168 },
 };
 
-// emusic enhancedMusic[MAXMUSIC];
-
 FONT *setmsgfont()
 {
 	return get_zc_font(MsgStrings[msgstr].font);
@@ -904,7 +900,6 @@ bool bad_version(int32_t version)
 
 extern char *weapon_string[];
 extern char *item_string[];
-extern char *sfx_string[];
 extern char *guy_string[];
 
 bool get_debug()
@@ -3089,7 +3084,7 @@ void do_dcounters()
             continue;
         }
         
-		byte sfx_to_use = 0;
+		word sfx_to_use = 0;
         if(frame&1)
         {
             if(game->get_dcounter(i)>0)
@@ -3943,18 +3938,7 @@ void zc_game_srand(int seed, zc_randgen* rng)
 
 
 static void allocate_crap()
-{	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		customsfxdata[i].data=NULL;
-		sfx_string[i] = new char[36];
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT>>3; i++)
-	{
-		customsfxflag[i] = 0;
-	}
-	
+{
 	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		weapon_string[i] = new char[64];
@@ -4949,6 +4933,8 @@ void quit_game()
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	replay_stop();
 
+	quest_sounds.clear();
+
 	script_drawing_commands.Dispose(); //for allegro bitmaps
 	
 	remove_installed_timers();
@@ -4988,17 +4974,6 @@ void quit_game()
 	al_trace("SFX... \n");
 	zcmusic_exit();
 	zcmixer_exit(zcmixer);
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		delete [] sfx_string[i];
-		
-		if(customsfxdata[i].data!=NULL)
-		{
-//      delete [] customsfxdata[i].data;
-			free(customsfxdata[i].data);
-		}
-	}
 	
 	al_trace("Misc... \n");
 	

@@ -145,7 +145,16 @@ public:
 protected:
 	void preinit() override;
 	void postinit() override;
+	void update(bool startup = false) override;
 	void edit() override;
+	void rclick(int x, int y) override;
+	bool clear_nondelete();
+	bool clear() override;
+	void copy() override;
+	bool paste() override;
+
+private:
+	std::shared_ptr<GUI::Button> up_btn, down_btn, del_btn;
 };
 
 class MidiListerDialog : public BasicListerDialog

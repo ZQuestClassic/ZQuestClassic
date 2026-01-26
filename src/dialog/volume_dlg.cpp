@@ -16,14 +16,7 @@ static void apply_volume()
 	if (zcmusic)
 		zcmusic_set_volume(zcmusic, emusic_volume);
 	
-	auto temp_volume = sfx_volume;
-	if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
-		temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
-	for(int i = 0; i < WAV_COUNT; ++i)
-	{
-		if(sfx_voice[i] >= 0)
-			voice_set_volume(sfx_voice[i], temp_volume);
-	}
+	adjust_all_sfx_vol();
 	has_applied_volume = true;
 }
 

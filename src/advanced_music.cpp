@@ -30,6 +30,10 @@ int get_emusic_volume()
 
 #endif
 
+vector<AdvancedMusic> quest_music;
+bool engine_music_active = false;
+size_t active_music_index = 0;
+
 void music_stop()
 {
 	zcmusic_stop(zcmusic);
@@ -241,11 +245,6 @@ int32_t AdvancedMusic::write(PACKFILE *f) const
 		new_return(2);
 	return 0;
 }
-
-
-vector<AdvancedMusic> quest_music;
-bool engine_music_active = false;
-size_t active_music_index = 0;
 
 void clear_current_music_data()
 {

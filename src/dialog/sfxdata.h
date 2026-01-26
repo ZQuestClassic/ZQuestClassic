@@ -8,6 +8,7 @@
 #include <gui/window.h>
 #include <functional>
 #include <string_view>
+#include "zcsfx.h"
 
 bool call_sfxdata_dialog(int32_t index);
 
@@ -26,9 +27,9 @@ private:
 	SFXDataDialog(int32_t index);
 
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::Button> btn_stop;
 	int32_t index;
-	string sfxname;
-	uint8_t customsfx;
+	ZCSFX local_ref;
 
 	friend bool call_sfxdata_dialog(int32_t index);
 };
