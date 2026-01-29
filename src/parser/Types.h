@@ -474,6 +474,10 @@ namespace ZScript
 		int unique_type_id() const { return 6; }
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
+
+		virtual script_object_type getScriptObjectTypeId() const {
+			return getMutType()->getScriptObjectTypeId();
+		}
 		
 		virtual bool isConstant() const {return true;}
 		virtual DataType const* getConstType() const {return this;}
