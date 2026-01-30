@@ -2838,7 +2838,7 @@ void HeroClass::draw(BITMAP* dest)
 
 			if (get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
 			{
-				if (jumping && fall)
+				if (jumping)
 					jumping_frame = (jumping / 6) % 3;
 			}
 			else
