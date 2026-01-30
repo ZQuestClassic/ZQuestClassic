@@ -714,8 +714,10 @@ bool game_set_register(int32_t reg, int32_t value)
 				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
 				break;
 			}
-				
-			combobuf[TheMaps[screen].data[pos]].flag=value/10000;
+			
+			int cid = TheMaps[screen].data[pos];
+			combobuf[cid].flag=value/10000;
+			screen_combo_modify_post(cid);
 		}
 		break;
 		
@@ -738,8 +740,11 @@ bool game_set_register(int32_t reg, int32_t value)
 				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", screen);
 				break;
 			}
-			combobuf[TheMaps[screen].data[pos]].walk &= ~0x0F;
-			combobuf[TheMaps[screen].data[pos]].walk |= (value/10000)&15;	    
+			auto cid = TheMaps[screen].data[pos];
+			auto& cmb = combobuf[cid];
+			cmb.walk &= ~0x0F;
+			cmb.walk |= (value/10000)&15;
+			screen_combo_modify_post(cid);
 		}
 		break;
 
