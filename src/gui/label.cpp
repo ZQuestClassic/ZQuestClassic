@@ -157,6 +157,12 @@ void Label::fitText()
 	}
 }
 
+void Label::calculateSize()
+{
+	fitText();
+	Widget::calculateSize();
+}
+
 void Label::arrange(int32_t cx, int32_t cy, int32_t cw, int32_t ch)
 {
 	// Hang on to these in case the text is changed and

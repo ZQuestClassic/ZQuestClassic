@@ -82,7 +82,7 @@ std::shared_ptr<GUI::Widget> ControlSchemeDialog::view()
 					Label(text = "Global Control Scheme:"),
 					scheme_global,
 					Label(text = "Quest Control Scheme:"),
-					Label(text = quest_str),
+					Label(text = quest_str, maxwidth = 300_px),
 					scheme_quest
 				),
 				Columns<3>(
