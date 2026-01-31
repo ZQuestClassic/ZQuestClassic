@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-24 00:14:48</td>
+      <td>2026-01-31 07:21:43</td>
     </tr>
   </table>
 </div>
@@ -88,9 +88,9 @@
     <tr><td><a href="#l21">ZScript::BuildOpcodes::~BuildOpcodes() (line 21)</a></td><td>called 1249036 times, returned 1249036 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l285">ZScript::CleanupVisitor::CleanupVisitor(ZScript::Program&amp;, ZScript::Scope*) (line 285)</a></td><td>called 590144 times, returned 590144 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l278">ZScript::CleanupVisitor::~CleanupVisitor() (line 278)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l297">ZScript::GetLabels::GetLabels(std::set&lt;int, std::less&lt;int&gt;, std::allocator&lt;int&gt; &gt;&amp;) (line 297)</a></td><td>called 31633 times, returned 31633 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l302">ZScript::GetLabels::caseLabel(ZScript::LabelArgument&amp;, void*) (line 302)</a></td><td>called 495227 times, returned 495227 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l294">ZScript::GetLabels::~GetLabels() (line 294)</a></td><td>called 31633 times, returned 31633 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l297">ZScript::GetLabels::GetLabels(std::set&lt;int, std::less&lt;int&gt;, std::allocator&lt;int&gt; &gt;&amp;) (line 297)</a></td><td>called 31848 times, returned 31848 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l302">ZScript::GetLabels::caseLabel(ZScript::LabelArgument&amp;, void*) (line 302)</a></td><td>called 495454 times, returned 495454 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l294">ZScript::GetLabels::~GetLabels() (line 294)</a></td><td>called 31848 times, returned 31848 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l264">ZScript::LValBOHelper::getResult() (line 264)</a></td><td>called 970224 times, returned 970224 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l254">ZScript::LValBOHelper::~LValBOHelper() (line 254)</a></td><td>called 970224 times, returned 970224 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l339">ZScript::MergeLabels::MergeLabels(int, std::vector&lt;int, std::allocator&lt;int&gt; &gt; const&amp;) (line 339)</a></td><td>called 86555 times, returned 86555 times</td><td>50.0%</td></tr>
@@ -98,8 +98,8 @@
     <tr><td><a href="#l351">ZScript::MergeLabels::merge(int, std::vector&lt;int, std::allocator&lt;int&gt; &gt; const&amp;, std::__cxx11::list&lt;std::shared_ptr&lt;ZScript::Opcode&gt;, std::allocator&lt;std::shared_ptr&lt;ZScript::Opcode&gt; &gt; &gt; const&amp;, void*, std::vector&lt;std::vector&lt;int*, std::allocator&lt;int*&gt; &gt;, std::allocator&lt;std::vector&lt;int*, std::allocator&lt;int*&gt; &gt; &gt; &gt;*) (line 351)</a></td><td>called 86555 times, returned 86555 times</td><td>72.0%</td></tr>
     <tr><td><a href="#l335">ZScript::MergeLabels::~MergeLabels() (line 335)</a></td><td>called 86555 times, returned 86555 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l311">ZScript::SetLabels::SetLabels() (line 311)</a></td><td>called 701 times, returned 701 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l315">ZScript::SetLabels::caseLabel(ZScript::LabelArgument&amp;, void*) (line 315)</a></td><td>called 443767 times, returned 443767 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l319">ZScript::SetLabels::check(int, std::map&lt;int, int, std::less&lt;int&gt;, std::allocator&lt;std::pair&lt;int const, int&gt; &gt; &gt; const&amp;, bool*) (line 319)</a></td><td>called 450109 times, returned 450109 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l315">ZScript::SetLabels::caseLabel(ZScript::LabelArgument&amp;, void*) (line 315)</a></td><td>called 443994 times, returned 443994 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l319">ZScript::SetLabels::check(int, std::map&lt;int, int, std::less&lt;int&gt;, std::allocator&lt;std::pair&lt;int const, int&gt; &gt; &gt; const&amp;, bool*) (line 319)</a></td><td>called 450336 times, returned 450336 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l311">ZScript::SetLabels::~SetLabels() (line 311)</a></td><td>called 701 times, returned 701 times</td><td>100.0%</td></tr>
   </table>
 </details>
@@ -2322,7 +2322,7 @@
       <td class="lineno"><a id="l297" href="#l297">297</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">31633</td>
+      <td class="linecount coveredLine">31848</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">GetLabels</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">usedLabels</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">usedLabels</span><span class="p">(</span><span class="n">usedLabels</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
@@ -2357,7 +2357,7 @@
       <td class="lineno"><a id="l302" href="#l302">302</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">495227</td>
+      <td class="linecount coveredLine">495454</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseLabel</span><span class="p">(</span><span class="n">LabelArgument</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2371,7 +2371,7 @@
       <td class="lineno"><a id="l304" href="#l304">304</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">495227</td>
+      <td class="linecount coveredLine">495454</td>
       <td class="src coveredLine"><span class="w">			</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host</span><span class="p">.</span><span class="n">getID</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -2380,33 +2380,33 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 144479 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 350748 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 144491 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 350963 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">495227</td>
+      <td class="linecount coveredLine">495454</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">find</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">usedLabels</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l306" href="#l306">306</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">350748</td>
+      <td class="linecount coveredLine">350963</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">usedLabels</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l307" href="#l307">307</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">350748</td>
+      <td class="linecount coveredLine">350963</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">newLabels</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l308" href="#l308">308</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">495227</td>
+      <td class="linecount coveredLine">495454</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2455,7 +2455,7 @@
       <td class="lineno"><a id="l315" href="#l315">315</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">443767</td>
+      <td class="linecount coveredLine">443994</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseLabel</span><span class="p">(</span><span class="n">LabelArgument</span><span class="w"> </span><span class="o">&amp;</span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2469,21 +2469,21 @@
       <td class="lineno"><a id="l317" href="#l317">317</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">443767</td>
+      <td class="linecount coveredLine">443994</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">host</span><span class="p">.</span><span class="n">setLineNo</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">host</span><span class="p">.</span><span class="n">getID</span><span class="p">(),</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">param</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l318" href="#l318">318</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">443767</td>
+      <td class="linecount coveredLine">443994</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l319" href="#l319">319</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">450109</td>
+      <td class="linecount coveredLine">450336</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">lbl</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">labels</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">*</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2497,7 +2497,7 @@
       <td class="lineno"><a id="l321" href="#l321">321</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">450109</td>
+      <td class="linecount coveredLine">450336</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">labels</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">lbl</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2514,11 +2514,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 450109 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 450336 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">450109</td>
+      <td class="linecount partialCoveredLine">450336</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">labels</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -2574,14 +2574,14 @@
       <td class="lineno"><a id="l331" href="#l331">331</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">450109</td>
+      <td class="linecount coveredLine">450336</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l332" href="#l332">332</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">450109</td>
+      <td class="linecount coveredLine">450336</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

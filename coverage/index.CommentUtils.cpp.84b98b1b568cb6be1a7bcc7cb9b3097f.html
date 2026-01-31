@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-24 00:14:48</td>
+      <td>2026-01-31 07:21:43</td>
     </tr>
   </table>
 </div>
@@ -77,7 +77,7 @@
     <tr><td><a href="#l98">ParsedComment::contains_tag(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 98)</a></td><td>called 2652420 times, returned 2652420 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l112">ParsedComment::get_multi_tag(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 112)</a></td><td>called 3205137 times, returned 3205137 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l105">ParsedComment::get_tag(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 105)</a></td><td>called 5055275 times, returned 5055275 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l123">getSymbolId(ZScript::AST const*) (line 123)</a></td><td>called 10822 times, returned 10822 times</td><td>88.0%</td></tr>
+    <tr><td><a href="#l123">getSymbolId(ZScript::AST const*) (line 123)</a></td><td>called 10823 times, returned 10823 times</td><td>88.0%</td></tr>
     <tr><td><a href="#l135">parseExprIdentifier(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 135)</a></td><td>called 2734 times, returned 2734 times</td><td>69.0%</td></tr>
     <tr><td><a href="#l165">parseForSymbolLinks(ZScript::Scope*, ZScript::AST const*, bool, std::vector&lt;CommentSymbolParseResult, std::allocator&lt;CommentSymbolParseResult&gt; &gt;&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;, int, int) (line 165)</a></td><td>called 9095 times, returned 9095 times</td><td>81.0%</td></tr>
     <tr><td><a href="#l402">parseForSymbolLinks(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, ZScript::AST const*, bool) (line 402)</a></td><td>called 8590 times, returned 8590 times</td><td>81.0%</td></tr>
@@ -1226,7 +1226,7 @@
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10822</td>
+      <td class="linecount coveredLine">10823</td>
       <td class="src coveredLine"><span class="kt">uint16_t</span><span class="w"> </span><span class="nf">getSymbolId</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">AST</span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1243,13 +1243,13 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 10822 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 10823 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 303 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 10519 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 10520 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">10822</td>
+      <td class="linecount partialCoveredLine">10823</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">ASTCustomDataTypeDef</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">node</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -1270,7 +1270,7 @@
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10519</td>
+      <td class="linecount coveredLine">10520</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">symbolMap</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">node</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1280,11 +1280,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 1684 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 8835 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 8836 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">10519</td>
+      <td class="linecount coveredLine">10520</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">symbolMap</span><span class="p">.</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -1305,14 +1305,14 @@
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8835</td>
+      <td class="linecount coveredLine">8836</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">symbolMap</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nextSymbolId</span><span class="o">++</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10822</td>
+      <td class="linecount coveredLine">10823</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
