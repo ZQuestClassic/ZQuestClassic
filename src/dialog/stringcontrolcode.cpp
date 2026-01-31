@@ -19,7 +19,6 @@ static std::string retstr;
 static MsgStr const* refstr = nullptr;
 static MsgStr def_refstr;
 
-const char *msgslist(int32_t index, int32_t *list_size);
 int32_t msg_code_operands(byte cc);
 bool is_msgc(byte cc);
 std::string run_scc_dlg(MsgStr const* ref)
@@ -162,14 +161,13 @@ SCCDialog::SCCDialog() :
 	list_screenstate(GUI::ZCListData::screenstate()),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
-	list_genscr(GUI::ZCListData::generic_script())
+	list_genscr(GUI::ZCListData::generic_script()),
+	list_strings(GUI::ZCListData::strings())
 {
 	memset(args, 0, sizeof(args));
 	default_args();
 	curscc = MSGC_COLOUR;
 	cur_args = nullptr;
-	::ListData msgs_list(msgslist, &font);
-	list_strings = GUI::ListData(msgs_list, 0);
 	if(!refstr)
 	{
 		refstr = &def_refstr;
