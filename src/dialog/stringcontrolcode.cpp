@@ -20,7 +20,6 @@ static MsgStr const* refstr = nullptr;
 static int command_index = -1;
 static MsgStr def_refstr;
 
-const char *msgslist(int32_t index, int32_t *list_size);
 int32_t msg_code_operands(byte cc);
 bool is_msgc(byte cc);
 std::string run_scc_dlg(MsgStr const* ref, int current_scc_index)
@@ -229,7 +228,8 @@ SCCDialog::SCCDialog() :
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	list_bottletypes(GUI::ZCListData::bottletype())
+	list_bottletypes(GUI::ZCListData::bottletype()),
+	list_strings(GUI::ZCListData::strings())
 {
 	memset(args, 0, sizeof(args));
 
@@ -246,8 +246,6 @@ SCCDialog::SCCDialog() :
 	}
 
 	cur_args = nullptr;
-	::ListData msgs_list(msgslist, &font);
-	list_strings = GUI::ListData(msgs_list, 0);
 	if(!refstr)
 	{
 		refstr = &def_refstr;
