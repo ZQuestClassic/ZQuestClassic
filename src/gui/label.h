@@ -25,6 +25,8 @@ public:
 	{
 		nohline = noHLine;
 	}
+	
+	void calculateSize() override;
 
 private:
 	std::string text;
