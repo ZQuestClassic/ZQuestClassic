@@ -654,6 +654,7 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX, "qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX" },
 		{ qr_BROKEN_COPYCAT_SELF_TRIGGER, "qr_BROKEN_COPYCAT_SELF_TRIGGER" },
 		{ qr_BROKEN_WATER_PASSIVE_DAMAGE, "qr_BROKEN_WATER_PASSIVE_DAMAGE" },
+		{ qr_BROKEN_SELF_TRIGGERING_TRIGGERS, "qr_BROKEN_SELF_TRIGGERING_TRIGGERS" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}

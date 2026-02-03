@@ -1068,6 +1068,9 @@ static GUI::ListData compatRulesList
 		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." },
 	{ "Broken Combo Change + 'Copycat' triggers", qr_BROKEN_COPYCAT_SELF_TRIGGER,
 		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." },
+	{ "Broken Combo Trigger Self-Triggering", qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
+		"If enabled, some combo trigger effects may cause the same trigger to trigger again."
+		" This may have negative effects, such as double-charging a cost, or toggling a state on and back off instead of just on." },
 	{ "Broken Liquid Passive Damage", qr_BROKEN_WATER_PASSIVE_DAMAGE,
 		"If enabled, the passive damage feature of liquid combos will not properly check the item to nullify the damage."
 		"\nIt will also EITHER not emit player damage events OR not use the hit sound properly,"

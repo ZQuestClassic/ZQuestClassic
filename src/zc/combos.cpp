@@ -2463,8 +2463,47 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 	}
 }
 
-// Triggers a combo at a given position (including ffcs)
-bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
+
+// Tried to use a set<combined_handle_t, size_t>, but it kept returning true for `.contains()` if the set was non-empty regardless the input.
+// Instead, we use a struct that minimally uniquely identifies a trigger.
+struct active_trigger_data
+{
+	bool is_rpos;
+	size_t id;
+	int layer; // only used by rpos_handle_t
+	size_t idx;
+	
+	active_trigger_data(combined_handle_t const& handle, size_t idx)
+	{
+		if (handle.is_rpos())
+		{
+			is_rpos = true;
+			id = handle.id();
+			layer = handle.get_rpos().layer;
+		}
+		else
+		{
+			is_rpos = false;
+			id = handle.id();
+			layer = -1;
+		}
+	}
+	
+	bool operator<(active_trigger_data const& other) const
+	{
+		if (is_rpos != other.is_rpos)
+			return is_rpos; // rpos_handle_t < ffc_handle_t
+		if (layer < other.layer)
+			return true;
+		if (id < other.id)
+			return true;
+		return idx < other.idx;
+	}
+	bool operator==(active_trigger_data const& other) const = default;
+};
+static std::set<active_trigger_data> active_triggers;
+
+static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
 {
 	if (handle.is_ffc() && get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	auto& cmb = handle.combo();
@@ -2684,6 +2723,20 @@ bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t speci
 		trigger_string(trig, true);
 	}
 	return true;
+}
+// Triggers a combo at a given position (including ffcs)
+bool do_trigger_combo(const combined_handle_t& handle, size_t idx, int32_t special, weapon* w)
+{
+	if (get_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS))
+		return _do_trigger_combo(handle, idx, special, w);
+	
+	// Don't let a trigger trigger itself via it's own effects
+	active_trigger_data data(handle, idx);
+	if (active_triggers.contains(data)) return false;
+	active_triggers.emplace(data);
+	auto ret = _do_trigger_combo(handle, idx, special, w);
+	active_triggers.erase(data);
+	return ret;
 }
 
 static bool _ctype_causes_trig_cond(combo_trigger const& trig)

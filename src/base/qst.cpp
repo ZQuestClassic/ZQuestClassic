@@ -3563,6 +3563,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
 	if (compatrule_version < 101)
 		set_qr(qr_BROKEN_WATER_PASSIVE_DAMAGE, 1);
+	if (compatrule_version < 102)
+		set_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
