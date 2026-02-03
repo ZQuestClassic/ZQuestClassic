@@ -2492,8 +2492,29 @@ void do_weapon_fx(weapon* w, newcombo const& cmb)
 		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
 }
 
+// using layer == -1 for ffcs
+// ref 3.0 commit 725a5ad988a8
+struct active_trigger_data
+{
+	int layer;
+	size_t id;
+	
+	active_trigger_data(int layer, size_t id)
+		: layer(layer), id(id)
+	{}
+	
+	bool operator<(active_trigger_data const& other) const
+	{
+		if (unsigned(layer) < unsigned(other.layer))
+			return true;
+		return id < other.id;
+	}
+	bool operator==(active_trigger_data const& other) const = default;
+};
+static std::set<active_trigger_data> active_triggers;
+
 //Triggers a combo at a given position
-bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+bool _do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
@@ -2898,7 +2919,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	return true;
 }
 
-bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
+bool _do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 {
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
@@ -3303,6 +3324,33 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if(dorun && cmb.trig_genscr)
 		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
+}
+
+bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+{
+	if (get_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS))
+		return _do_trigger_combo(lyr, pos, special, w);
+	
+	// Don't let a trigger trigger itself via it's own effects
+	active_trigger_data data(lyr, pos);
+	if (active_triggers.contains(data)) return false;
+	active_triggers.emplace(data);
+	auto ret = _do_trigger_combo(lyr, pos, special, w);
+	active_triggers.erase(data);
+	return ret;
+}
+bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
+{
+	if (get_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS))
+		return _do_trigger_combo_ffc(pos, special, w);
+	
+	// Don't let a trigger trigger itself via it's own effects
+	active_trigger_data data(-1, pos);
+	if (active_triggers.contains(data)) return false;
+	active_triggers.emplace(data);
+	auto ret = _do_trigger_combo_ffc(pos, special, w);
+	active_triggers.erase(data);
+	return ret;
 }
 
 

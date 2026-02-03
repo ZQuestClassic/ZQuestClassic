@@ -997,7 +997,10 @@ static GUI::ListData compatRulesList
 	{ "No enemy death event for segmented enemy cores", qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
 		"If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts." },
 	{ "Broken Combo Change + 'Copycat' triggers", qr_BROKEN_COPYCAT_SELF_TRIGGER,
-		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." }
+		"If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the same copycat effect." },
+	{ "Broken Combo Trigger Self-Triggering", qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
+		"If enabled, some combo trigger effects may cause the same trigger to trigger again."
+		" This may have negative effects, such as double-charging a cost, or toggling a state on and back off instead of just on." },
 };
 
 static GUI::ListData enemiesRulesList
