@@ -10703,6 +10703,10 @@ void domouse()
 									{
 										open_combo_pages(ffc.data);
 									} },
+								{ "Open Tile Page", [&]()
+									{
+										onGotoTiles(combobuf[ffc.data].o_tile);
+									} },
 								{ "Edit Combo", [&]()
 									{
 										edit_combo(ffc.data,true,ffc.cset);
@@ -10757,6 +10761,10 @@ void domouse()
 							{
 								open_combo_pages(draw_mapscr->data[c]);
 							}, nullopt, !draw_mapscr },
+						{ "Open Tile Page", [&]()
+							{
+								onGotoTiles(combobuf[draw_mapscr->data[c]].o_tile);
+							} },
 						{ "Edit Combo", [&]()
 							{
 								edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
