@@ -86,6 +86,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 					alphabetized = state;
 					set_config("alphabetized", state);
 					resort();
+					update();
 				})
 		));
 	
@@ -961,7 +962,8 @@ void SFXListerDialog::postinit()
 				})
 		),
 		Label(fitParent = true, maxwidth = 250_px,
-			text = "WARNING: Re-ordering SFX will NOT update anything that uses them."
+			text = "SFX cannot be re-ordered while the list is alphabetized."
+			"\nWARNING: Re-ordering SFX will NOT update anything that uses them."
 			"\nThis includes the re-ordering that happens when deleting SFX."
 		)
 	);
@@ -980,8 +982,8 @@ void SFXListerDialog::update(bool)
 	}
 	string copystr = fmt::format("Copied: {}", copied_sfx_id+1);
 	widgInfo->setText(fmt::format("{}\n{}", info, copystr));
-	up_btn->setDisabled(unsigned(selected_val - 2) >= quest_sounds.size() - 1);
-	down_btn->setDisabled(unsigned(selected_val - 1) >= quest_sounds.size() - 1);
+	up_btn->setDisabled(alphabetized || unsigned(selected_val - 2) >= quest_sounds.size() - 1);
+	down_btn->setDisabled(alphabetized || unsigned(selected_val - 1) >= quest_sounds.size() - 1);
 	del_btn->setDisabled(unsigned(selected_val - 1) >= quest_sounds.size());
 }
 void SFXListerDialog::edit()
@@ -1397,39 +1399,44 @@ void MusicListerDialog::postinit()
 			break;
 		}
 	}
-	btnrow2 = Columns<2>(
-		Button(text = "Cleanup",
-			fitParent = true,
-			disabled = !has_empty,
-			onPressFunc = [&]()
-			{
-				if (!alert_confirm("Clear empty musics?",
-					"This will clear any entries that have no playable music set."
-					"\nAnything using these entries will be cleared to using '0', the (None) entry."))
-					return;
-				
-				delete_quest_music(empty_music);
-				refresh_dlg();
-			}),
-		del_btn = Button(text = "Delete",
-			fitParent = true,
-			onClick = message::CLEAR),
-		up_btn = Button(text = "Up",
-			fitParent = true,
-			onPressFunc = [&]()
-			{
-				swap_quest_music(selected_val, selected_val-1);
-				--selected_val;
-				refresh_dlg();
-			}),
-		down_btn = Button(text = "Down",
-			fitParent = true,
-			onPressFunc = [&]()
-			{
-				swap_quest_music(selected_val, selected_val+1);
-				++selected_val;
-				refresh_dlg();
-			})
+	btnrow2 = Column(
+		Columns<2>(
+			Button(text = "Cleanup",
+				fitParent = true,
+				disabled = !has_empty,
+				onPressFunc = [&]()
+				{
+					if (!alert_confirm("Clear empty musics?",
+						"This will clear any entries that have no playable music set."
+						"\nAnything using these entries will be cleared to using '0', the (None) entry."))
+						return;
+					
+					delete_quest_music(empty_music);
+					refresh_dlg();
+				}),
+			del_btn = Button(text = "Delete",
+				fitParent = true,
+				onClick = message::CLEAR),
+			up_btn = Button(text = "Up",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					swap_quest_music(selected_val, selected_val-1);
+					--selected_val;
+					refresh_dlg();
+				}),
+			down_btn = Button(text = "Down",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					swap_quest_music(selected_val, selected_val+1);
+					++selected_val;
+					refresh_dlg();
+				})
+		),
+		Label(fitParent = true, maxwidth = 250_px,
+			text = "Music cannot be re-ordered while the list is alphabetized."
+		)
 	);
 }
 static int16_t copied_music_id = -1;
@@ -1481,8 +1488,8 @@ void MusicListerDialog::update(bool)
 	if (info.empty())
 		widgInfo->setText(copystr);
 	else widgInfo->setText(fmt::format("{}\n{}", info, copystr));
-	up_btn->setDisabled(unsigned(selected_val - 2) >= quest_music.size() - 1);
-	down_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size() - 1);
+	up_btn->setDisabled(alphabetized || unsigned(selected_val - 2) >= quest_music.size() - 1);
+	down_btn->setDisabled(alphabetized || unsigned(selected_val - 1) >= quest_music.size() - 1);
 	del_btn->setDisabled(unsigned(selected_val - 1) >= quest_music.size());
 }
 void call_edit_music_dialog(size_t idx);
