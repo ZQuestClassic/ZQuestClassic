@@ -10181,13 +10181,13 @@ heroanimate_skip_liftwpn:;
 		}
 		if (awarp)
 		{
-			if (rpos_handle.scr->flags5 & fDIRECTAWARP)
+			if (rpos_handle.base_scr->flags5 & fDIRECTAWARP)
 			{
 				setpit();
 			}
 			
 			sdir = dir;
-			dowarp(rpos_handle.scr, 1, ind);
+			dowarp(rpos_handle.base_scr, 1, ind);
 			return false;
 		}
 
