@@ -68,9 +68,10 @@ void update_quest_control_path(string const& path)
 		quest_control_path = fmt::format("{}{}", quest_control_prefix, qst_cfg_header_from_path(path));
 		
 		const char* ptr = zc_get_config(ctrl_sect, quest_control_path.c_str(), nullptr);
-		if (ptr)
+		if (zc_cfg_defaulted || !ptr || !ptr[0])
+			quest_control_scheme_name = nullopt;
+		else
 			quest_control_scheme_name = string(ptr);
-		else quest_control_scheme_name = nullopt;
 	}
 	refresh_control_scheme();
 }
