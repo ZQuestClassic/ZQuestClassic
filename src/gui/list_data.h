@@ -199,6 +199,7 @@ public:
 		return other;
 	}
 	
+	void for_all_items(std::function<void(ListItem const&)>);
 	//Modifies the listdata, and returns a self-reference
 	ListData& filter(std::function<bool(ListItem&)>);
 	ListData& valsort(size_t frozen = 0);

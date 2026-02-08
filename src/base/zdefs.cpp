@@ -684,7 +684,6 @@ bool load_qr_hexstr(string hexstr, byte* dest_ptr)
 	}
 	if(dest_ptr == quest_rules)
 		unpack_qrs();
-	InfoDialog("QRs Loaded", "Quest Rules have been loaded from the clipboard").show();
 	return true;
 }
 bool load_qr_hexstr_clipboard(byte* dest_ptr)

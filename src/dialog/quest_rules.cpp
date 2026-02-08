@@ -2119,7 +2119,10 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 									fitParent = true,
 									onClick = message::SEARCH
 								),
-								DummyWidget(),
+								Button(
+									text = "Compare QR String",
+									fitParent = true,
+									onClick = message::QRSTR_COMPARE),
 								//
 								Button(
 									text = "Copy QR String",
@@ -2333,17 +2336,68 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			call_cheats_dlg();
 			return false;
 		case message::QRSTR_CPY:
-			al_set_clipboard_text(all_get_display(), get_qr_hexstr(local_qrs, true).c_str());
-			InfoDialog("Copied", "QR String copied to clipboard!").show();
+			set_al_clipboard(get_qr_hexstr(local_qrs, true));
+			displayinfo("Copied", "QR String copied to clipboard!");
 			return false;
+		case message::QRSTR_COMPARE:
+		{
+			byte cmp_rules[QUESTRULES_NEW_SIZE] = {0};
+			if (!load_qr_hexstr_clipboard(cmp_rules))
+			{
+				displayinfo("Error", "No QR String could be loaded from the clipboard."
+					"\nCopy a QR string from another quest to your clipboard and then click this button to compare those QRs with this quest.");
+				return false;
+			}
+			std::ostringstream oss;
+			
+			GUI::ListData enabled_list = (combinedQRList() + combinedZSRList()).filter(
+				[&](GUI::ListItem& itm)
+				{
+					return get_bit(local_qrs, itm.value) && !get_bit(cmp_rules, itm.value);
+				});
+			GUI::ListData disabled_list = (combinedQRList() + combinedZSRList()).filter(
+				[&](GUI::ListItem& itm)
+				{
+					return !get_bit(local_qrs, itm.value) && get_bit(cmp_rules, itm.value);
+				});
+			
+			if (enabled_list.empty() && disabled_list.empty())
+				oss << "All QRs match!";
+			else
+			{
+				if (!enabled_list.empty())
+				{
+					oss << "Quest has differing enabled qrs:\n\n";
+					enabled_list.for_all_items([&](GUI::ListItem const& itm)
+						{
+							oss << itm.text << "\n";
+						});
+				}
+				if (!disabled_list.empty())
+				{
+					if (!enabled_list.empty())
+						oss << "\n----------\n\n"; // extra padding
+					oss << "Quest has differing disabled qrs:\n\n";
+					disabled_list.for_all_items([&](GUI::ListItem const& itm)
+						{
+							oss << itm.text << "\n";
+						});
+				}
+			}
+			
+			displayinfo("QR Compare Report", oss.str());
+			return false;
+		}
 		case message::QRSTR_LOAD:
 			if(load_qr_hexstr_clipboard(local_qrs))
 			{
+				displayinfo("QRs Loaded", "Quest Rules have been loaded from the clipboard");
 				popup_bugfix_dlg("dsa_compatrule2", local_qrs);
 				rerun_dlg = true;
 				return true;
 			}
-			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
+			displayinfo("Error", "No QR String could be loaded from the clipboard."
+				"\nCopy a QR string from another quest to your clipboard and then click this button to paste those QRs to this quest.");
 			return false;
 		case message::RERUN:
 			while(gui_mouse_b()) rest(1); //wait for mouseup

@@ -88,6 +88,12 @@ ListData& ListData::operator+=(ListData const& other)
 	return *this;
 }
 
+void ListData::for_all_items(std::function<void(ListItem const&)> proc)
+{
+	for (ListItem const& itm : listItems)
+		proc(itm);
+}
+
 ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 {
 	for(auto it = listItems.begin(); it != listItems.end();)
