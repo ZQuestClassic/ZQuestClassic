@@ -206,7 +206,11 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			Button(
 				text = "Cancel",
 				topPadding = 0.5_em,
-				onClick = message::CANCEL)
+				onClick = message::CANCEL),
+			Button(
+				text = "Copy Info",
+				topPadding = 0.5_em,
+				onClick = message::COPY_INFO)
 		);
 	}
 	else
@@ -216,7 +220,11 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 				text = "&Close",
 				topPadding = 0.5_em,
 				onClick = message::CANCEL,
-				focused = true)
+				focused = true),
+			Button(
+				text = "Copy Info",
+				topPadding = 0.5_em,
+				onClick = message::COPY_INFO)
 		);
 	}
 	
@@ -268,6 +276,9 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::COPY_INFO:
+			set_al_clipboard(d_text);
+			return false;
 		case message::TOGGLE_QR:
 			toggle_bit(local_qrs, msg.argument);
 			return false;

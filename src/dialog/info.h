@@ -17,7 +17,7 @@
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN };
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN, COPY_INFO };
 
 	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt, byte* dest_qrs = nullptr, int text_align = 1);
 	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt, byte* dest_qrs = nullptr, int text_align = 1);
