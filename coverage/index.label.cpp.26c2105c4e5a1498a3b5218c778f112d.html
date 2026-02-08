@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-31 07:21:43</td>
+      <td>2026-02-08 08:46:10</td>
     </tr>
   </table>
 </div>
@@ -42,13 +42,13 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>124</td>
+      <td>128</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>0</td>
-      <td>10</td>
+      <td>11</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
@@ -77,9 +77,10 @@
     <tr><td><a href="#l47">GUI::Label::applyDisabled(bool) (line 47)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l53">GUI::Label::applyFont(FONT*) (line 53)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l41">GUI::Label::applyVisibility(bool) (line 41)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l160">GUI::Label::arrange(int, int, int, int) (line 160)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l166">GUI::Label::arrange(int, int, int, int) (line 166)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l160">GUI::Label::calculateSize() (line 160)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l63">GUI::Label::fitText() (line 63)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l173">GUI::Label::realize(GUI::DialogRunner&amp;) (line 173)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l179">GUI::Label::realize(GUI::DialogRunner&amp;) (line 179)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l32">GUI::Label::setAlign(int) (line 32)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l27">GUI::Label::setMaxLines(unsigned long) (line 27)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l20">GUI::Label::setText(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 20)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -1215,7 +1216,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Label</span><span class="o">::</span><span class="n">arrange</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cw</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ch</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Label</span><span class="o">::</span><span class="n">calculateSize</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
@@ -1228,186 +1229,228 @@
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Hang on to these in case the text is changed and</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fitText</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// the label needs repositioned.</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">Widget</span><span class="o">::</span><span class="n">calculateSize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cx</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cy</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cw</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Label</span><span class="o">::</span><span class="n">arrange</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cw</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ch</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l168" href="#l168">168</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">capWidth</span><span class="p">(</span><span class="n">Size</span><span class="o">::</span><span class="n">pixels</span><span class="p">(</span><span class="n">contW</span><span class="o">-</span><span class="p">(</span><span class="n">leftMargin</span><span class="o">+</span><span class="n">rightMargin</span><span class="o">+</span><span class="n">leftPadding</span><span class="o">+</span><span class="n">rightPadding</span><span class="p">)));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l169" href="#l169">169</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fitText</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l170" href="#l170">170</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">Widget</span><span class="o">::</span><span class="n">arrange</span><span class="p">(</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">cw</span><span class="p">,</span><span class="w"> </span><span class="n">ch</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l171" href="#l171">171</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l172" href="#l172">172</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l173" href="#l173">173</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Label</span><span class="o">::</span><span class="n">realize</span><span class="p">(</span><span class="n">DialogRunner</span><span class="o">&amp;</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l174" href="#l174">174</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l168" href="#l168">168</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Hang on to these in case the text is changed and</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l169" href="#l169">169</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// the label needs repositioned.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l170" href="#l170">170</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cx</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l171" href="#l171">171</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cy</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cw</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">contH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">capWidth</span><span class="p">(</span><span class="n">Size</span><span class="o">::</span><span class="n">pixels</span><span class="p">(</span><span class="n">contW</span><span class="o">-</span><span class="p">(</span><span class="n">leftMargin</span><span class="o">+</span><span class="n">rightMargin</span><span class="o">+</span><span class="n">leftPadding</span><span class="o">+</span><span class="n">rightPadding</span><span class="p">)));</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l175" href="#l175">175</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">Widget</span><span class="o">::</span><span class="n">realize</span><span class="p">(</span><span class="n">runner</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fitText</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l176" href="#l176">176</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">alDialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runner</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">(),</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="p">{</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">Widget</span><span class="o">::</span><span class="n">arrange</span><span class="p">(</span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">cy</span><span class="p">,</span><span class="w"> </span><span class="n">cw</span><span class="p">,</span><span class="w"> </span><span class="n">ch</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l177" href="#l177">177</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">newGUIProc</span><span class="o">&lt;</span><span class="n">new_text_proc</span><span class="o">&gt;</span><span class="p">,</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l178" href="#l178">178</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">getWidth</span><span class="p">(),</span><span class="w"> </span><span class="n">getHeight</span><span class="p">(),</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l179" href="#l179">179</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fgColor</span><span class="p">,</span><span class="w"> </span><span class="n">bgColor</span><span class="p">,</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l180" href="#l180">180</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// key</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l181" href="#l181">181</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">getFlags</span><span class="p">(),</span><span class="w"> </span><span class="c1">// flags</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l182" href="#l182">182</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">textAlign</span><span class="p">,</span><span class="w"> </span><span class="n">nohline</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// d1, d2</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l183" href="#l183">183</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">text_fit</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">widgFont</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="c1">// dp, dp2, dp3</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l184" href="#l184">184</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">});</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l185" href="#l185">185</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Label</span><span class="o">::</span><span class="n">realize</span><span class="p">(</span><span class="n">DialogRunner</span><span class="o">&amp;</span><span class="w"> </span><span class="n">runner</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">Widget</span><span class="o">::</span><span class="n">realize</span><span class="p">(</span><span class="n">runner</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">alDialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runner</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">shared_from_this</span><span class="p">(),</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="n">newGUIProc</span><span class="o">&lt;</span><span class="n">new_text_proc</span><span class="o">&gt;</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">getWidth</span><span class="p">(),</span><span class="w"> </span><span class="n">getHeight</span><span class="p">(),</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">fgColor</span><span class="p">,</span><span class="w"> </span><span class="n">bgColor</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// key</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">getFlags</span><span class="p">(),</span><span class="w"> </span><span class="c1">// flags</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">textAlign</span><span class="p">,</span><span class="w"> </span><span class="n">nohline</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="c1">// d1, d2</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">text_fit</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">widgFont</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="c1">// dp, dp2, dp3</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">});</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l193" href="#l193">193</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

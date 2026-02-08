@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-01-31 07:21:43</td>
+      <td>2026-02-08 08:46:10</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>9</td>
-      <td>12</td>
-      <td class="coverage-medium">75.0%</td>
+      <td>10</td>
+      <td>13</td>
+      <td class="coverage-medium">76.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -77,7 +77,7 @@
     <tr><td><a href="#l42">SaveMenu::SaveMenu(SaveMenu const&amp;) (line 42)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l42">SaveMenu::operator=(SaveMenu const&amp;) (line 42)</a></td><td>called 155936 times, returned 155936 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l42">SaveMenu::operator=(SaveMenu&amp;&amp;) (line 42)</a></td><td>called 26624 times, returned 26624 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l63">SaveMenu::operator==(SaveMenu const&amp;) const (line 63)</a></td><td>called 576 times, returned 576 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l64">SaveMenu::operator==(SaveMenu const&amp;) const (line 64)</a></td><td>called 576 times, returned 576 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l42">SaveMenu::~SaveMenu() (line 42)</a></td><td>called 121152 times, returned 121152 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l28">SaveMenuOption::SaveMenuOption() (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l28">SaveMenuOption::SaveMenuOption(SaveMenuOption const&amp;) (line 28)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -434,108 +434,115 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">bg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BLACK</span><span class="p">,</span><span class="w"> </span><span class="n">cursor_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAV_CHINK</span><span class="p">,</span><span class="w"> </span><span class="n">choose_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAV_CHINK</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">bg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BLACK</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">vspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">cursor_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAV_CHINK</span><span class="p">,</span><span class="w"> </span><span class="n">choose_sfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAV_CHINK</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">opt_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="n">opt_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">vspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">text_align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ALIGN_LEFT</span><span class="p">,</span><span class="w"> </span><span class="n">textbox_align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ALIGN_CENTER</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">opt_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="n">opt_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">close_frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">text_align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ALIGN_LEFT</span><span class="p">,</span><span class="w"> </span><span class="n">textbox_align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ALIGN_CENTER</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">121152</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">close_flash_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">close_frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">music</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">121152</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">close_flash_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SaveMenuOption</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">music</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SaveMenuOption</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cursor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullopt</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">tick</span><span class="p">(</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">cursor</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cursor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullopt</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cursor</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">tick</span><span class="p">(</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">cursor</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cursor</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">20/40</summary>
@@ -587,14 +594,14 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">operator</span><span class="o">==</span><span class="p">(</span><span class="n">SaveMenu</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
