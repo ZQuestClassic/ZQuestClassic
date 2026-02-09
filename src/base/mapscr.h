@@ -80,7 +80,7 @@ struct mapscr
 	word roomflags;
 	word str;
 	byte room;
-	byte item;
+	word item;
 	byte hasitem;
 	byte tilewarptype[4];
 	byte tilewarpoverlayflags;

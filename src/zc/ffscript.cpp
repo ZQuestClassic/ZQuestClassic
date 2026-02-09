@@ -13431,7 +13431,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 		case SCREENDATAITEM:
 		{
-			auto v = vbound((value / 10000),-1,255);
+			auto v = vbound((value / 10000),-1,MAXITEMS-1);
 			auto scr = get_scr(GET_REF(screenref));
 			if(v > -1)
 				scr->item = v;
@@ -13874,7 +13874,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
 			{
-				auto v = vbound((value / 10000),-1,255);
+				auto v = vbound((value / 10000),-1,MAXITEMS-1);
 				if(v > -1)
 					m->item = v;
 				m->hasitem = v > -1;

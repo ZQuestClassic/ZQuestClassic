@@ -15749,10 +15749,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->item),f))
-	{
+	if(!p_getc(&tempbyte,f))
 		return qe_invalid;
-	}
+	temp_mapscr->item = tempbyte;
 	
 	if(Header->zelda_version < 0x211 || (Header->zelda_version == 0x211 && Header->build < 14))
 	{
@@ -17163,8 +17162,17 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 		if(scr_has_flags & SCRHAS_ITEM)
 		{
-			if(!p_getc(&(temp_mapscr->item),f))
-				return qe_invalid;
+			if (version < 39)
+			{
+				if(!p_getc(&tempbyte, f))
+					return qe_invalid;
+				temp_mapscr->item = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_mapscr->item,f))
+					return qe_invalid;
+			}
 			if(!p_getc(&(temp_mapscr->hasitem),f))
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->itemx),f))

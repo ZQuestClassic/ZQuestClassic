@@ -8842,7 +8842,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	}
 	if(scr_has_flags & SCRHAS_ITEM)
 	{
-		if(!p_putc(screen.item,f))
+		if(!p_iputw(screen.item,f))
 			return qe_invalid;
 		if(!p_putc(screen.hasitem,f))
 			return qe_invalid;

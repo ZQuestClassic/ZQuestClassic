@@ -18118,7 +18118,7 @@ void loadguys()
 void loaditem(mapscr* scr, int offx, int offy)
 {
 	int screen = scr->screen;
-	byte Item = 0;
+	int32_t Item = 0;
 	
 	if(screen<128)
 	{
