@@ -202,9 +202,10 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 
     case Bombs:
     {
-        for (int32_t i = 0; i < itemsbuf.capacity(); i++)
+        for (size_t i = 0; i < itemsbuf.capacity(); i++)
         {
-            if (itemsbuf[i].type == itype_bomb || itemsbuf[i].type == itype_sbomb)
+			auto const& itm = itemsbuf[i];
+            if (itm.type == itype_bomb || itm.type == itype_sbomb)
                 getitem(i, true);
         }
 

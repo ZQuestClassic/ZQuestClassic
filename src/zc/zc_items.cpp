@@ -50,31 +50,20 @@ int32_t select_dropitem(int32_t item_set)
         if(k>0)
         {
             int32_t current_item=item_drop_sets[item_set].item[k-1];
+			auto const& itm = get_item_data(current_item);
             
-            if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].type == itype_magic))
-            {
+            if((!get_qr(qr_ENABLEMAGIC) || game->get_maxmagic() <= 0) && itm.type == itype_magic)
                 current_chance=0;
-            }
             
-            if((!get_qr(qr_TRUEARROWS))&&(itemsbuf[current_item].type == itype_arrowammo))
-            {
+            if(!get_qr(qr_TRUEARROWS) && itm.type == itype_arrowammo)
                 current_chance=0;
-            }
 			
 			if(get_qr(qr_SMARTDROPS))
-			{
-				if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
-				{
+				if(itm.amount > 0 && game->get_maxcounter(itm.count) == 0)
 					current_chance = 0;
-				}
-			}
 			if(get_qr(qr_SMARTER_DROPS))
-			{
-				if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
-				{
+				if(itm.amount > 0 && game->get_counter(itm.count) >= game->get_maxcounter(itm.count))
 					current_chance = 0;
-				}
-			}
         }
         
         total_chance+=current_chance;
@@ -92,41 +81,30 @@ int32_t select_dropitem(int32_t item_set)
     
         int32_t current_chance=item_drop_sets[item_set].chance[k];
         int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
+		auto const& itm = get_item_data(current_item);
         
-        if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].type == itype_magic))
-        {
+        if((!get_qr(qr_ENABLEMAGIC) || game->get_maxmagic() <= 0) && itm.type == itype_magic)
             current_chance=0;
-        }
         
-        if((!get_qr(qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].type == itype_arrowammo))
-        {
+        if(!get_qr(qr_TRUEARROWS) && itm.type == itype_arrowammo)
             current_chance=0;
-        }
         
 		if(get_qr(qr_SMARTDROPS))
-		{
-			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
-			{
+			if(itm.amount > 0 && game->get_maxcounter(itm.count) == 0)
 				current_chance = 0;
-			}
-		}
 		
-		if(get_qr(qr_SMARTER_DROPS)) //OH SHIT EMILY
-		{											//DEEDEE 'BOUT TO DAB ON YOU
-			if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
-			{
-				current_chance = 0;	//Item droprate being set to 0 faster than I can chug an entire coffee (read: fast)
-			}
-		}
+		if(get_qr(qr_SMARTER_DROPS))
+			if(itm.amount > 0 && game->get_counter(itm.count) >= game->get_maxcounter(itm.count))
+				current_chance = 0;
 		
-        if(current_chance>0&&item_chance<=current_chance)
+        if(current_chance > 0 && item_chance <= current_chance)
         {
-            drop_item=current_item;
+            drop_item = current_item;
             break;
         }
         else
         {
-            item_chance-=current_chance;
+            item_chance -= current_chance;
         }
     }
     
@@ -136,7 +114,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(drop_item>=0 && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
+    if(unsigned(drop_item) < MAXITEMS && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {

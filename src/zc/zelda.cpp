@@ -2617,8 +2617,9 @@ void do_magic_casting()
     }
 
     // TODO(crash): check that .add succeeds.
+	auto const& magic_item = get_item_data(magicitem);
     
-    switch(itemsbuf[magicitem].type)
+    switch(magic_item.type)
     {
     case itype_divinefire:
     {
@@ -2667,19 +2668,19 @@ void do_magic_casting()
             }
             
             if(get_qr(qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
+                sfx(magic_item.usesound,pan(int32_t(Hero.getX())));
                 
-            int32_t flamemax=itemsbuf[magicitem].misc1;
+            int32_t flamemax=magic_item.misc1;
             
             for(int32_t flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
 		    //divine fire level fix to go here
-                //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].level,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
+                //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,magic_item.power*game->get_hero_dmgmult(),
+                Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,magic_item.level,magic_item.power*game->get_hero_dmgmult(),
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		w->fakez = HeroFakeZ();
-                w->step=(itemsbuf[magicitem].misc2/100.0);
+                w->step=(magic_item.misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
             }
@@ -2740,7 +2741,7 @@ void do_magic_casting()
         if(magiccastclk==96)
         {
             if(get_qr(qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
+                sfx(magic_item.usesound,pan(int32_t(Hero.getX())));
                 
             if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(1); }
             
@@ -2750,14 +2751,14 @@ void do_magic_casting()
                 {
                     if(herotilebuf[i*16+j])
                     {
-                        if(itemsbuf[magicitem].misc1==1)  // Twilight
+                        if(magic_item.misc1==1)  // Twilight
                         {
                             particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
-                        else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
+                        else if(magic_item.misc1==2)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 6, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
@@ -2788,7 +2789,7 @@ void do_magic_casting()
         
         if((magiccastclk++)>=226)
         {
-			if(itemsbuf[magicitem].flags & item_flag1) //Act as F6->Continue
+			if(magic_item.flags & item_flag1) //Act as F6->Continue
 			{
 				Quit = qCONT;
 				skipcont = 1;
@@ -2872,17 +2873,18 @@ void do_magic_casting()
                 Hero.tile+=Hero.getTileModifier();
             }
             
-            Hero.setDivineProtectionShieldClk(itemsbuf[magicitem].misc1);
+            Hero.setDivineProtectionShieldClk(magic_item.misc1);
             
             if(get_qr(qr_MORESOUNDS))
             {
-                if(div_prot_item != -1)
+                if (unsigned(div_prot_item) < MAXITEMS)
                 {
-                    stop_sfx(itemsbuf[div_prot_item].usesound+1);
-                    stop_sfx(itemsbuf[div_prot_item].usesound);
+					auto const& itm = itemsbuf[div_prot_item];
+                    stop_sfx(itm.usesound+1);
+                    stop_sfx(itm.usesound);
                 }
                 
-                cont_sfx(itemsbuf[magicitem].usesound);
+                cont_sfx(magic_item.usesound);
             }
             
             castnext=false;
@@ -2933,6 +2935,7 @@ void update_hookshot()
     {
 		weapon* hookweap = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
         int32_t parentitem = hookweap->parentitem;
+		auto const& prnt_itm = get_item_data(parentitem);
         hs_x=hookweap->x;
         hs_y=hookweap->y;
         hs_z=hookweap->z;
@@ -2942,7 +2945,7 @@ void update_hookshot()
         //extending
         if(hookweap->misc==0)
         {
-            int32_t maxchainlinks=itemsbuf[parentitem].misc2;
+            int32_t maxchainlinks = prnt_itm.misc2;
             
             if(chainlinks.Count()<maxchainlinks)           //extending chain
             {
@@ -3527,53 +3530,57 @@ void game_loop()
 			if(!freezemsg && current_item(itype_heartring))
 			{
 				int32_t itemid = current_item_id(itype_heartring);
-				int32_t fskip = itemsbuf[itemid].misc2;
+				auto const& itm = get_item_data(itemid);
+				int32_t fskip = itm.misc2;
 				
 				if(fskip == 0 || frame % fskip == 0)
-					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
+					game->set_life(zc_min(game->get_life() + itm.misc1, game->get_maxlife()));
 			}
 			if(!freezemsg && current_item(itype_magicring))
 			{
 				int32_t itemid = current_item_id(itype_magicring);
-				int32_t fskip = itemsbuf[itemid].misc2;
+				auto const& itm = get_item_data(itemid);
+				int32_t fskip = itm.misc2;
 				
 				if(fskip == 0 || frame % fskip == 0)
 				{
-					game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
+					game->set_magic(zc_min(game->get_magic() + itm.misc1, game->get_maxmagic()));
 				}
 			}
 			if(!freezemsg && current_item(itype_wallet))
 			{
 				int32_t itemid = current_item_id(itype_wallet);
-				int32_t fskip = itemsbuf[itemid].misc2;
+				auto const& itm = get_item_data(itemid);
+				int32_t fskip = itm.misc2;
 				
 				if(fskip == 0 || frame % fskip == 0)
 				{
-					game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
+					game->set_rupies(zc_min(game->get_rupies() + itm.misc1, game->get_maxcounter(1)));
 				}
 			}
 			if(!freezemsg && current_item(itype_bombbag))
 			{
 				int32_t itemid = current_item_id(itype_bombbag);
+				auto const& itm = get_item_data(itemid);
 				
-				if(itemsbuf[itemid].misc1)
+				if (itm.misc1)
 				{
-					int32_t fskip = itemsbuf[itemid].misc2;
+					int32_t fskip = itm.misc2;
 					
 					if(fskip == 0 || frame % fskip == 0)
 					{
-						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
+						game->set_bombs(zc_min(game->get_bombs() + itm.misc1, game->get_maxbombs()));
 					}
 					
-					if((itemsbuf[itemid].flags & item_flag1) && zinit.bomb_ratio)
+					if((itm.flags & item_flag1) && zinit.bomb_ratio)
 					{
 						int32_t ratio = zinit.bomb_ratio;
 						
-						fskip = itemsbuf[itemid].misc2 * ratio;
+						fskip = itm.misc2 * ratio;
 						
 						if(fskip == 0 || frame % fskip == 0)
 						{
-							game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
+							game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itm.misc1 / ratio, 1), game->get_maxbombs() / ratio));
 						}
 					}
 				}
@@ -3581,11 +3588,12 @@ void game_loop()
 			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
 			{
 				int32_t itemid = current_item_id(itype_quiver);
-				int32_t fskip = itemsbuf[itemid].misc2;
+				auto const& itm = get_item_data(itemid);
+				int32_t fskip = itm.misc2;
 				
-				if(fskip == 0 || frame % fskip == 0)
+				if (fskip == 0 || frame % fskip == 0)
 				{
-					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
+					game->set_arrows(zc_min(game->get_arrows() + itm.misc1, game->get_maxarrows()));
 				}
 			}
 
@@ -5112,8 +5120,8 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		}
 		case crSBOMBS:
 		{
-			if(current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
+			auto const& itm = get_item_data(current_item_id(itype_bombbag));
+			if(itm.power && (itm.flags & item_flag1))
 				return true;
 			break;
 		}
@@ -5122,10 +5130,8 @@ bool checkCost(int32_t ctr, int32_t amnt)
 }
 bool checkmagiccost(int32_t itemid, bool checkTime)
 {
-	if(itemid < 0)
-	{
+	if (unsigned(itemid) >= MAXITEMS)
 		return false;
-	}
 	itemdata const& id = itemsbuf[itemid];
 	bool ret = true;
 	if(!checkTime || !id.magiccosttimer[0] || !(frame%id.magiccosttimer[0]))
@@ -5180,9 +5186,12 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 		}
 		case crSBOMBS:
 		{
-			if(cost && current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
-				return;
+			if (cost)
+			{
+				itemdata const& itm = get_item_data(current_item_id(itype_bombbag));
+				if (itm.power && (itm.flags & item_flag1))
+					return;
+			}
 			break;
 		}
 	}
@@ -5190,10 +5199,8 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 }
 void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
-	if(itemid < 0)
-	{
+	if (unsigned(itemid) >= MAXITEMS)
 		return;
-	}
 	itemdata const& id = itemsbuf[itemid];
 	if(!(id.flags&item_validate_only) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);

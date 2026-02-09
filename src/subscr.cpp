@@ -2981,12 +2981,13 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         bool magickey = false;
         int32_t itemid = current_item_id(itype_magickey);
         
-        if(itemid>-1)
+        if(unsigned(itemid) < MAXITEMS)
         {
-            if(itemsbuf[itemid].flags&item_flag1)
-                magickey = itemsbuf[itemid].power>=get_dlevel();
+			auto const& itm = itemsbuf[itemid];
+            if(itm.flags & item_flag1)
+                magickey = itm.power >= get_dlevel();
             else
-                magickey = itemsbuf[itemid].power==get_dlevel();
+                magickey = itm.power == get_dlevel();
         }
         
         putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,current_item_power(itype_wallet)>0,idigit);
@@ -3000,8 +3001,8 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         
         if(game)
         {
-            int32_t itemid = current_item_id(itype_bombbag);
-            bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & item_flag1);
+			auto const& itm = get_item_data(current_item_id(itype_bombbag));
+            bool superbomb = itm.power > 0 && (itm.flags & item_flag1);
             
             putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,superbomb,idigit);
         }

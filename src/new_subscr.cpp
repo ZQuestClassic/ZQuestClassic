@@ -201,6 +201,8 @@ void kill_subscr_items()
 
 bool is_counter_item(int32_t itmid, int32_t ctr)
 {
+	if (unsigned(itmid) >= MAXITEMS)
+		return false;
 	itemdata const& itm = itemsbuf[itmid];
 	if(ctr == crNONE) return false;
 	if(ctr == itm.cost_counter[0] ||
@@ -242,49 +244,49 @@ static int simplify_counter(int ctr)
 	{
 		case sscBTNCTRA_0:
 		{
-			itemdata const& itm = itemsbuf[Awpn.id];
+			itemdata const& itm = get_item_data(Awpn.id);
 			if(!itm.cost_amount[0]) return crNONE;
 			return itm.cost_counter[0];
 		}
 		case sscBTNCTRA_1:
 		{
-			itemdata const& itm = itemsbuf[Awpn.id];
+			itemdata const& itm = get_item_data(Awpn.id);
 			if(!itm.cost_amount[1]) return crNONE;
 			return itm.cost_counter[1];
 		}
 		case sscBTNCTRB_0:
 		{
-			itemdata const& itm = itemsbuf[Bwpn.id];
+			itemdata const& itm = get_item_data(Bwpn.id);
 			if(!itm.cost_amount[0]) return crNONE;
 			return itm.cost_counter[0];
 		}
 		case sscBTNCTRB_1:
 		{
-			itemdata const& itm = itemsbuf[Bwpn.id];
+			itemdata const& itm = get_item_data(Bwpn.id);
 			if(!itm.cost_amount[1]) return crNONE;
 			return itm.cost_counter[1];
 		}
 		case sscBTNCTRX_0:
 		{
-			itemdata const& itm = itemsbuf[Xwpn.id];
+			itemdata const& itm = get_item_data(Xwpn.id);
 			if(!itm.cost_amount[0]) return crNONE;
 			return itm.cost_counter[0];
 		}
 		case sscBTNCTRX_1:
 		{
-			itemdata const& itm = itemsbuf[Xwpn.id];
+			itemdata const& itm = get_item_data(Xwpn.id);
 			if(!itm.cost_amount[1]) return crNONE;
 			return itm.cost_counter[1];
 		}
 		case sscBTNCTRY_0:
 		{
-			itemdata const& itm = itemsbuf[Ywpn.id];
+			itemdata const& itm = get_item_data(Ywpn.id);
 			if(!itm.cost_amount[0]) return crNONE;
 			return itm.cost_counter[0];
 		}
 		case sscBTNCTRY_1:
 		{
-			itemdata const& itm = itemsbuf[Ywpn.id];
+			itemdata const& itm = get_item_data(Ywpn.id);
 			if(!itm.cost_amount[1]) return crNONE;
 			return itm.cost_counter[1];
 		}
@@ -356,7 +358,10 @@ word get_ssc_ctr(int ctr, bool* infptr)
 		case crSBOMBS:
 		{
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
-			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & item_flag1)
+			if (unsigned(itemid) >= MAXITEMS)
+				break;
+			auto const& itm = itemsbuf[itemid];
+			if (itm.power > 0 && (itm.flags & item_flag1))
 				inf = true;
 			break;
 		}
@@ -386,12 +391,13 @@ word get_ssc_ctr(int ctr, bool* infptr)
 		case sscANYKEYMAGIC:
 		{
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
-			if(itemid>-1)
+			if (unsigned(itemid) < MAXITEMS)
 			{
-				if(itemsbuf[itemid].flags&item_flag1)
-					inf = itemsbuf[itemid].power>=get_dlevel();
+				auto const& itm = itemsbuf[itemid];
+				if(itm.flags & item_flag1)
+					inf = itm.power >= get_dlevel();
 				else
-					inf = itemsbuf[itemid].power==get_dlevel();
+					inf = itm.power == get_dlevel();
 			}
 		}
 		[[fallthrough]];
@@ -435,7 +441,10 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 		case crSBOMBS:
 		{
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
-			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & item_flag1)
+			if (unsigned(itemid) >= MAXITEMS)
+				break;
+			auto const& itm = itemsbuf[itemid];
+			if(itm.power > 0 && (itm.flags & item_flag1))
 				inf = true;
 			break;
 		}
@@ -465,12 +474,13 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 		case sscANYKEYMAGIC:
 		{
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
-			if(itemid>-1)
+			if (unsigned(itemid) < MAXITEMS)
 			{
-				if(itemsbuf[itemid].flags&item_flag1)
-					inf = itemsbuf[itemid].power>=get_dlevel();
+				auto const& itm = itemsbuf[itemid];
+				if(itm.flags & item_flag1)
+					inf = itm.power>=get_dlevel();
 				else
-					inf = itemsbuf[itemid].power==get_dlevel();
+					inf = itm.power==get_dlevel();
 			}
 		}
 		[[fallthrough]];
@@ -2530,7 +2540,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	
-	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
+	bool invis_0 = get_qr(qr_ITM_0_INVIS_ON_BTNS);
 #ifdef IS_PLAYER
 	if(replay_version_check(19))
 		verifyBothWeapons();
@@ -2542,10 +2552,11 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		btnitem_ids[btn] = data;
 		btnitem_clks[btn] = 0;
 	}
-	if(btnitem_ids[btn].id > nullval)
+	auto id = btnitem_ids[btn].id;
+	if (unsigned(id) < MAXITEMS && (id || !invis_0))
 	{
 		bool dodraw = true;
-		switch(itemsbuf[btnitem_ids[btn].id].type)
+		switch(itemsbuf[id].type)
 		{
 			case itype_arrow:
 				if(btnitem_ids[btn].bow_arrow)
@@ -2556,14 +2567,14 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 						if(replay_version_check(0,19))
 							putitem3(dest,x+xofs,y+yofs,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
-							&& !checkmagiccost(btnitem_ids[btn].id))
+							&& !checkmagiccost(id))
 							dodraw = false;
 					}
 				}
 				break;
 		}
 		if(dodraw)
-			putitem3(dest,x+xofs,y+yofs,btnitem_ids[btn].id,btnitem_clks[btn]);
+			putitem3(dest,x+xofs,y+yofs,id,btnitem_clks[btn]);
 	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
@@ -3063,7 +3074,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 {
 	int32_t counter;
 	ButtonItemData data = get_button_data(btn);
-	if(data.id > -1)
+	if (unsigned(data.id) < MAXITEMS)
 	{
 		itemdata const& itm = itemsbuf[data.id];
 		int costs[2];
@@ -3840,7 +3851,7 @@ static bool check_bomb(optional<int> iid = nullopt)
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_bombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_bomb,true) > -1))
 		return true;
 	auto bombid = iid ? *iid : get_subscr_item_id(itype_bomb, true);
-	if(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+	if(unsigned(bombid) < MAXITEMS && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3853,12 +3864,16 @@ static bool check_sbomb(optional<int> iid = nullopt)
 	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 		return true;
 	auto bombbagid = get_subscr_item_id(itype_bombbag, true);
-	if(bombbagid > -1 && itemsbuf[bombbagid].power && (itemsbuf[bombbagid].flags & item_flag1))
-		return true;
+	if(unsigned(bombbagid) < MAXITEMS)
+	{
+		auto const& itm = itemsbuf[bombbagid];
+		if (itm.power && (itm.flags & item_flag1))
+			return true;
+	}
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
 		return true;
 	auto sbombid = iid ? *iid : get_subscr_item_id(itype_sbomb);
-	if(sbombid >- 1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
+	if(unsigned(sbombid) < MAXITEMS && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3868,10 +3883,11 @@ static bool check_sbomb(optional<int> iid = nullopt)
 ButtonItemData SW_ItemSlot::getItemVal() const
 {
 #ifdef IS_PLAYER
-	if(iid > -1)
+	if(unsigned(iid) < MAXITEMS)
 	{
+		auto const& itm = itemsbuf[iid];
 		bool select = false;
-		switch(itemsbuf[iid].type)
+		switch(itm.type)
 		{
 			case itype_bomb:
 				if(check_bomb(iid))
@@ -3897,7 +3913,7 @@ ButtonItemData SW_ItemSlot::getItemVal() const
 				break;
 		}
 		if (select && !item_disabled(iid) && game->get_item(iid))
-			return {iid, itemsbuf[iid].type == itype_arrow};
+			return {iid, itm.type == itype_arrow};
 		else
 			return {};
 	}
@@ -3941,7 +3957,7 @@ ButtonItemData SW_ItemSlot::getItemVal() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(iid > -1) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(unsigned(iid) < MAXITEMS) return {iid, itemsbuf[iid].type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -3972,10 +3988,11 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 {
 	bool nosp = flags&SUBSCR_CURITM_IGNR_SP_DISPLAY;
 #ifdef IS_PLAYER
-	if(iid > -1)
+	if (unsigned(iid) < MAXITEMS)
 	{
+		auto const& itm = itemsbuf[iid];
 		bool select = false;
-		switch(itemsbuf[iid].type)
+		switch(itm.type)
 		{
 			case itype_bomb:
 				if(check_bomb(iid))
@@ -4013,7 +4030,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 		}
 		
 		if (select && !item_disabled(iid) && game->get_item(iid))
-			return {iid, itemsbuf[iid].type == itype_arrow};
+			return {iid, itm.type == itype_arrow};
 		else
 			return {};
 	}
@@ -4067,7 +4084,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(iid > -1) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(unsigned(iid) < MAXITEMS) return {iid, itemsbuf[iid].type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -4623,7 +4640,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	tempsel.xofs = tempsel.yofs = 0;
 	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
 	int32_t id = widg->getItemVal().id;
-	itemdata const& tmpitm = itemsbuf[id];
+	itemdata const& tmpitm = get_item_data(id);
 	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
 	if(!oldsel) big_sel = false;
 	int sw, sh, dw, dh;
@@ -5817,7 +5834,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 	else
 	{
 		auto data = widg->getDisplayItem();
-		if(data.id > -1)
+		if (unsigned(data.id) < MAXITEMS)
 		{
 			#if IS_PLAYER
 			if(replay_version_check(0,19) && !game->get_item(data.id))

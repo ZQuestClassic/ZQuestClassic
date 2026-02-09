@@ -517,7 +517,7 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 		ft[1][3][2]=1;
 	}
 	
-	wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
+	wpnid = get_item_data(current_item_id(itype_hammer)).wpn2;
 }
 
 bool dHammerSmack::animate(int32_t)
@@ -667,7 +667,7 @@ dHover::dHover(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoratio
 {
 	id=Id;
 	clk=Clk;
-	wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
+	wpnid = get_item_data(current_item_id(itype_hoverboots)).wpn;
 }
 
 void dHover::draw(BITMAP *dest)
@@ -709,18 +709,19 @@ void dDivineProtectionShield::realdraw(BITMAP *dest, int32_t draw_what)
 		return;
 	}
 	
+	auto const& divine_prot = get_item_data(current_item_id(itype_divineprotection));
 	int32_t fb=(misc==0?
-	        (itemsbuf[current_item_id(itype_divineprotection)].wpn5 ?
-	         itemsbuf[current_item_id(itype_divineprotection)].wpn5 : (byte) iwDivineProtectionShieldFront) :
-	            (itemsbuf[current_item_id(itype_divineprotection)].wpn10 ?
-	             itemsbuf[current_item_id(itype_divineprotection)].wpn10 : (byte) iwDivineProtectionShieldBack));
+	        (divine_prot.wpn5 ?
+	         divine_prot.wpn5 : (byte) iwDivineProtectionShieldFront) :
+	            (divine_prot.wpn10 ?
+	             divine_prot.wpn10 : (byte) iwDivineProtectionShieldBack));
 	int32_t t=wpnsbuf[fb].tile;
 	int32_t fr=wpnsbuf[fb].frames;
 	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
-	bool flickering = (itemsbuf[current_item_id(itype_divineprotection)].flags & item_flag4) != 0;
-	bool translucent = (itemsbuf[current_item_id(itype_divineprotection)].flags & item_flag3) != 0;
+	bool flickering = (divine_prot.flags & item_flag4) != 0;
+	bool translucent = (divine_prot.flags & item_flag3) != 0;
 	
 	if(((HeroDivineProtectionShieldClk()&0x20)||(HeroDivineProtectionShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 	{

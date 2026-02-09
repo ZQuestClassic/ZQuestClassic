@@ -150,7 +150,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 				thedropset = id;
 			}
 		}
-		if( it != -1 )
+		if( unsigned(it) < MAXITEMS )
 		{
 			item* itm = (new item(x, y,0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
@@ -158,7 +158,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && unsigned(scr->catchall) < MAXITEMS)
 		{
 			items.add(new item(x, y, 0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
@@ -277,7 +277,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				thedropset = id;
 			}
 		}
-		if( it != -1 )
+		if( unsigned(it) < MAXITEMS )
 		{
 			item* itm = (new item(ffc->x, ffc->y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
@@ -285,7 +285,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && unsigned(scr->catchall) < MAXITEMS)
 		{
 			items.add(new item(ffc->x, ffc->y,(zfix)0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
@@ -895,19 +895,19 @@ bool trigger_chest(const combined_handle_t& handle)
 				return false;
 			}
 			// Run Boss Key Script
-			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 			{
-				if ( itemsbuf[q].type == itype_bosskey )
+				auto const& itm = itemsbuf[q];
+				if ( itm.type == itype_bosskey )
 				{
-					key_item = q; break;
+					if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					{
+						FFCore.reset_script_engine_data(ScriptType::Item, q);
+						ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+						FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
+					}
+					break;
 				}
-			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-			{
-				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1011,19 +1011,19 @@ bool trigger_lockblock(const combined_handle_t& handle)
 				return false;
 			}
 			// Run Boss Key Script
-			int32_t key_item = 0;
 			for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 			{
-				if (itemsbuf[q].type == itype_bosskey)
+				auto const& itm = itemsbuf[q];
+				if (itm.type == itype_bosskey)
 				{
-					key_item = q; break;
+					if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+					{
+						FFCore.reset_script_engine_data(ScriptType::Item, q);
+						ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+						FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
+					}
+					break;
 				}
-			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
-			{
-				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1299,8 +1299,8 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 		dmg = -cmb.c_attributes[0].getTrunc();
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
-	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
-	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & item_flag1));
+	bool global_defring = get_item_data(current_item_id(itype_ring)).flags & item_flag1;
+	bool global_perilring = get_item_data(current_item_id(itype_perilring)).flags & item_flag1;
 
 	bool current_ring = (scr->flags6&fTOGGLERINGDAMAGE) != 0;
 	if(current_ring)
@@ -1310,13 +1310,14 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 	}
 	
 	int32_t itemid = current_item_id(itype_boots);
+	auto const& itm = get_item_data(itemid);
 	
-	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & item_flag1);
-	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & item_flag3);
+	bool bootsnosolid = itm.flags & item_flag1;
+	bool ignoreBoots = itm.flags & item_flag3;
 	if(dmg < 0)
 	{
 		if(itemid < 0 || ignoreBoots || (scr->flags5&fDAMAGEWITHBOOTS)
-			|| (4<<current_item_power(itype_boots)<(abs(dmg)))
+			|| ((4 << itm.power) < abs(dmg))
 			|| ((force_solid||(cmb.walk&0xF)) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
@@ -1393,9 +1394,9 @@ bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
 		int32_t damg = cmb.c_attributes[0].getTrunc();
 		if(damg < 1) damg = 4;
 		int parentitem = cmb.c_attributes[12].getTrunc();
-		if (parentitem <= 0)
+		if (!parentitem || unsigned(parentitem) >= MAXITEMS)
 			parentitem = -1;
-		auto wlvl = parentitem>-1 ? itemsbuf[parentitem].level : 0;
+		auto wlvl = parentitem > -1 ? itemsbuf[parentitem].level : 0;
 		switch(wpn)
 		{
 			//eweapons
@@ -1572,7 +1573,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	if(lw)
 	{
 		int pitem = cmb.c_attributes[14].getTrunc();
-		if (pitem <= 0)
+		if (!pitem || unsigned(pitem) >= MAXITEMS)
 			pitem = -1;
 		int plvl = pitem > -1 ? itemsbuf[pitem].level : 0;
 		
@@ -1928,7 +1929,7 @@ int32_t get_cmb_trigctrcost(combo_trigger const& trig)
 	if(trig.trigger_flags.get(TRIGFLAG_COUNTERDISCOUNT))
 	{
 		auto wmedal_id = current_item_id(itype_wealthmedal);
-		if(wmedal_id > -1)
+		if(unsigned(wmedal_id) < MAXITEMS)
 		{
 			itemdata const& wmedal = itemsbuf[wmedal_id];
 			if(wmedal.flags & item_flag1)
@@ -2756,6 +2757,7 @@ bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx)
 
 bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 {
+	if (unsigned(gloveid) >= MAXITEMS) return false;
 	if(!Hero.can_lift(gloveid)) return false;
 	if(Hero.lift_wpn) return false;
 
@@ -2800,9 +2802,9 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	}
 	
 	weapon* w = nullptr;
-	byte prntid = cmb.lift_parent_item;
+	word prntid = cmb.lift_parent_item;
 	int wlvl = 0, wtype = wThrown;
-	if(prntid)
+	if (prntid && unsigned(prntid) < MAXITEMS)
 	{
 		itemdata const& prntitm = itemsbuf[prntid];
 		switch(prntitm.type)

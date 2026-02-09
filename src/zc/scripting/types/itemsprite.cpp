@@ -98,8 +98,8 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			if (auto s = checkItem(GET_REF(itemref)))
 			{
 				zfix x;
-				bool is_fairy = itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3;
-				if (is_fairy)
+				auto const& fairy_item = itemsbuf[s->id];
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					x = fairy ? fairy->x : s->x;
@@ -123,8 +123,8 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			if (auto s = checkItem(GET_REF(itemref)))
 			{
 				zfix y;
-				bool is_fairy = itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3;
-				if (is_fairy)
+				auto const& fairy_item = itemsbuf[s->id];
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					y = fairy ? fairy->y : s->y;
@@ -593,7 +593,8 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
-				if(itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3)
+				auto const& fairy_item = itemsbuf[s->id];
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)
@@ -608,7 +609,8 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
-				if(itemsbuf[s->id].type==itype_fairy && itemsbuf[s->id].misc3)
+				auto const& fairy_item = itemsbuf[s->id];
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
 				{
 					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)

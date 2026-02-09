@@ -8040,7 +8040,7 @@ bool HeroClass::animate(int32_t)
 		
 		if(lift_wpn->dead==0)
 		{
-			if(lift_wpn->death_spawnitem > -1)
+			if(unsigned(lift_wpn->death_spawnitem) < MAXITEMS)
 			{
 				item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, lift_wpn->death_spawnitem, lift_wpn->death_item_pflags, 0));
 				itm->fakez = lift_wpn->fakez;
@@ -8049,7 +8049,7 @@ bool HeroClass::animate(int32_t)
 			if(lift_wpn->death_spawndropset > -1)
 			{
 				auto itid = select_dropitem(lift_wpn->death_spawndropset);
-				if(itid > -1)
+				if(unsigned(itid) < MAXITEMS)
 				{
 					item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, itid, lift_wpn->death_item_pflags, 0));
 					itm->fakez = lift_wpn->fakez;
@@ -22325,7 +22325,7 @@ void HeroClass::oldcheckchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag(found_screen_index, (found_screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
+	if(itemflag && !getmapflag(found_screen_index, (found_screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) && unsigned(scr->catchall) < MAXITEMS)
 	{
 		add_item_for_screen(found_screen_index, new item(x, y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
@@ -24322,7 +24322,7 @@ void HeroClass::checkspecial()
 				{
 					int32_t Item=scr->item;
 
-					if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+					if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
 					{
 						if (state.item_state == ScreenItemState::WhenKillEnemies)
 							sfx(WAV_CLEARED);
@@ -24429,7 +24429,7 @@ void HeroClass::checkspecial()
 		{
 			int32_t Item=scr->item;
 			
-			if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+			if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
 			{
 				auto [x, y] = translate_screen_coordinates_to_world(screen, scr->itemx, (scr->flags7&fITEMFALLS && isSideViewHero()) ? -170 : scr->itemy+1);
 				add_item_for_screen(screen, new item(x, y,

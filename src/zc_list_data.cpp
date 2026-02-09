@@ -240,10 +240,10 @@ GUI::ListData GUI::ZCListData::efamilies(bool numbered)
 
 GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
-	map<std::string, int32_t> ids;
+	map<std::string, word> ids;
 	std::set<std::string> names;
 	
-	for(int32_t q=0; q < itemsbuf.capacity(); ++q)
+	for(word q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		std::string name = itemsbuf[q].name;
 		if(numbered)
@@ -853,7 +853,7 @@ GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered, bool incl_no
 GUI::ListData GUI::ZCListData::disabled_items(bitstring const& disabledarray)
 {
 	GUI::ListData ls;
-	for (int q = 0; q < itemsbuf.capacity(); ++q)
+	for (word q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		if (disabledarray.get(q))
 			ls.add(itemsbuf[q].name, q);

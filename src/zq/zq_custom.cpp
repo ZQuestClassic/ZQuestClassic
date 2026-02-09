@@ -145,7 +145,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-int32_t readoneitem(PACKFILE *f, int32_t index)
+int32_t readoneitem(PACKFILE *f, word index)
 {
 	dword section_version = 0;
 	int32_t zversion = 0;
@@ -205,7 +205,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	return 1;
 }
 
-int32_t writeoneitem(PACKFILE *f, int32_t i)
+int32_t writeoneitem(PACKFILE *f, word i)
 {
 	dword section_version = V_ITEMS;
 	int32_t zversion = ZELDA_VERSION;

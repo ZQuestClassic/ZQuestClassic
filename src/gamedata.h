@@ -372,7 +372,7 @@ public:
 	void set_item_no_flush(int32_t id, bool value);
 	inline bool get_item(int32_t id) const
 	{
-		if ( ((unsigned)id) >= MAXITEMS )
+		if (unsigned(id) >= MAXITEMS)
 			return false;
 		return items_owned.get(id);
 	}

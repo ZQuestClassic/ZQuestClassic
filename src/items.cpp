@@ -1360,3 +1360,12 @@ int ButtonItemData::get_family() const
 	return itemsbuf[id].type;
 }
 
+// returns an `itemdata` from `itemsbuf`
+// If an invalid ID is given, a reference to a blank `itemdata` is given instead.
+itemdata const& get_item_data(int id)
+{
+	if (unsigned(id) >= MAXITEMS)
+		return nil_item;
+	return itemsbuf[id];
+}
+

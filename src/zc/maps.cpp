@@ -2072,7 +2072,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
 						|| (hero && current_item(itype_flippers) < cmb.c_attributes[8])
-						|| (hero && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))))
+						|| (hero && ((cmb.usrflags&cflag1) && !(get_item_data(current_item_id(itype_flippers)).flags & item_flag3)))))
 					{
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
@@ -5289,8 +5289,11 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	
 	// Draw the Moving Fairy above layer 3
 	for(int32_t i=0; i<items.Count(); i++)
-		if(itemsbuf[items.spr(i)->id].type == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
+	{
+		auto const& itm = get_item_data(items.spr(i)->id);
+		if(itm.type == itype_fairy && itm.misc3)
 			items.spr(i)->draw(dest);
+	}
 	do_primitives(dest, SPLAYER_FAIRYITEM_DRAW);
 	
 	// Draw some layers onto dest

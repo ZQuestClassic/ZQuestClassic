@@ -772,13 +772,15 @@ void integrityCheckSideWarpDest()
                 // Checks both combos and secret combos.
                 int32_t ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
+				auto const& screen_item = get_item_data(ts->item);
                 // Check Triforce items as well.
-                bool triforce = (itemsbuf[ts->item].type==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
+                bool triforce = (screen_item.type==itype_triforcepiece && (screen_item.flags & item_flag1));
                 
-                if(ts->room==rSP_ITEM && !triforce)
-                {
-                    triforce = (itemsbuf[ts->item].type==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
-                }
+                if (ts->room==rSP_ITEM && !triforce)
+				{
+					auto const& catchall_item = get_item_data(ts->catchall);
+                    triforce = (catchall_item.type==itype_triforcepiece && (catchall_item.flags & item_flag1));
+				}
                 
                 if(ctype==cAWARPA || triforce)
                 {
@@ -1805,6 +1807,7 @@ void itemLocationReport()
     for (size_t idx = 0; idx < list.size(); ++idx)
     {
 		auto i = list.getValue(idx);
+		if (unsigned(i) >= MAXITEMS) continue;
         item_found=false;
         
         //check each item location type (room item, special item, shop item, choose any item, etc.)

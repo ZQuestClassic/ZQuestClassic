@@ -4984,7 +4984,7 @@ void drawpanel()
 		if(itemsqr_pos.x > -1)
 		{
 			draw_sqr_frame(itemsqr_pos);
-			if(scr->hasitem)
+			if(scr->hasitem && unsigned(scr->item) < MAXITEMS)
 			{
 				rectfill(screen,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
 				overtile16_scale(screen, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
@@ -7048,9 +7048,14 @@ void refresh(int32_t flags, bool update)
 		switch(Map.CurrScr()->room)
 		{
 			case rSP_ITEM:
-				sprintf(buf,"Special Item is %s",itemsbuf[Map.CurrScr()->catchall].name.c_str());
+			{
+				int id = Map.CurrScr()->catchall;
+				if (unsigned(id) < MAXITEMS)
+					sprintf(buf,"Special Item is %s",itemsbuf[id].name.c_str());
+				else sprintf(buf, "Invalid Special Item '%d'", id);
 				show_screen_error(buf,i++, vc(15));
 				break;
+			}
 				
 			case rINFO:
 			{
@@ -13315,8 +13320,9 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_CLICK:
 		{
 			int id = bii_list.getValue(d->d1);
-			int32_t tile = id >= 0 ? itemsbuf[id].tile : 0;
-			int32_t cset = id >= 0 ? itemsbuf[id].csets&15 : 0;
+			auto const& itm = get_item_data(id);
+			int32_t tile = itm.tile;
+			int32_t cset = itm.csets&15;
 			int32_t x = d->x + d->w + 4;
 			int32_t y = d->y - 8;
 			int32_t w = 32;
@@ -19632,7 +19638,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
     }
     
 	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
-	return id > -1 ? itemsbuf[id].level : 0;
+	return unsigned(id) < MAXITEMS ? itemsbuf[id].level : 0;
 }
 
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
@@ -19640,7 +19646,7 @@ int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool chec
 	if (game)
 	{
 		int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
-		return (result<0) ? 0 : itemsbuf[result].power;
+		return get_item_data(result).power;
 	}
     return 1;
 }
@@ -19655,23 +19661,24 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 		int32_t result = -1;
 		int32_t highestlevel = -1;
 		
-		for (int32_t i = 0; i < sz; i++)
+		for (size_t q = 0; q < sz; ++q)
 		{
-			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].type == itemtype)
+			auto const& itm = itemsbuf[q];
+			if ((zq_ignore_item_ownership || game->get_item(q)) && itm.type == itemtype)
 			{
-				if (itemsbuf[i].level >= highestlevel)
+				if (itm.level >= highestlevel)
 				{
-					highestlevel = itemsbuf[i].level;
-					result = i;
+					highestlevel = itm.level;
+					result = q;
 				}
 			}
 		}
 		return result;
 	}
-    for(int32_t i=0; i<sz; i++)
+    for(size_t q = 0; q < sz; ++q)
     {
-        if(itemsbuf[i].type==itemtype)
-            return i;
+        if(itemsbuf[q].type == itemtype)
+            return q;
     }
     
     return -1;
@@ -22399,7 +22406,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		case crSBOMBS:
 		{
 			if(current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
+				&& get_item_data(current_item_id(itype_bombbag)).flags & item_flag1)
 				return true;
 			break;
 		}
@@ -22408,10 +22415,8 @@ bool checkCost(int32_t ctr, int32_t amnt)
 }
 bool checkmagiccost(int32_t itemid, bool checkTime)
 {
-	if(itemid < 0)
-	{
+	if(unsigned(itemid) >= MAXITEMS)
 		return false;
-	}
 	itemdata const& id = itemsbuf[itemid];
 	return checkCost(id.cost_counter[0], id.cost_amount[0])
 		&& checkCost(id.cost_counter[1], id.cost_amount[1]);

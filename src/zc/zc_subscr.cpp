@@ -92,10 +92,10 @@ void dosubscr()
 	pause_sfx(WAV_BRANG);
 	
 	if(current_item_id(itype_brang)>=0)
-		pause_sfx(itemsbuf[current_item_id(itype_brang)].usesound);
+		pause_sfx(get_item_data(current_item_id(itype_brang)).usesound);
 		
 	if(current_item_id(itype_hookshot)>=0)
-		pause_sfx(itemsbuf[current_item_id(itype_hookshot)].usesound);
+		pause_sfx(get_item_data(current_item_id(itype_hookshot)).usesound);
 		
 	adjust_sfx(QMisc.miscsfx[sfxLOWHEART],128,false);
 	adjust_sfx(QMisc.miscsfx[sfxREFILL],128,false);

@@ -316,4 +316,6 @@ struct ButtonItemData
 	bool operator==(ButtonItemData const& other) const = default;
 };
 
+itemdata const& get_item_data(int id);
+
 #endif

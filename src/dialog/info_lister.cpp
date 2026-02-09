@@ -280,10 +280,11 @@ void ItemListerDialog::postinit()
 	size_t len = 16;
 	for(int q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		size_t tlen = text_length(GUI_DEF_FONT,itemsbuf[q].get_name(true).c_str());
+		auto const& itm = itemsbuf[q];
+		size_t tlen = text_length(GUI_DEF_FONT,itm.get_name(true).c_str());
 		if(tlen > len)
 			len = tlen;
-		tlen = text_length(GUI_DEF_FONT,itemsbuf[q].name.c_str());
+		tlen = text_length(GUI_DEF_FONT,itm.name.c_str());
 		if(tlen > len)
 			len = tlen;
 	}
@@ -297,7 +298,7 @@ void ItemListerDialog::update(bool)
 	if(unsigned(copied_item_id) < MAXITEMS)
 	{
 		itemdata const& copied_itm = itemsbuf[copied_item_id];
-		copied_name = fmt::format("{}\n{}",itemsbuf[copied_item_id].name,
+		copied_name = fmt::format("{}\n{}", copied_itm.name,
 			copied_itm.display_name.empty() ? "[No Display Name]" : copied_itm.get_name(true));
 	}
 	if(unsigned(selected_val) < MAXITEMS)
@@ -310,7 +311,7 @@ void ItemListerDialog::update(bool)
 			"{}\n{}\n#{}\nPower: {}\nLevel: {}"
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
-			itemsbuf[selected_val].name, display_name, selected_val, itm.power, itm.level,
+			itm.name, display_name, selected_val, itm.power, itm.level,
 			itm.type, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weap_data.script,
 			copied_name));
 		widgPrev->setDisabled(false);
@@ -370,7 +371,7 @@ void ItemListerDialog::copy()
 }
 bool ItemListerDialog::paste()
 {
-	if(copied_item_id < 0 || selected_val < 0)
+	if(unsigned(copied_item_id) >= MAXITEMS || unsigned(selected_val) >= MAXITEMS)
 		return false;
 	if(copied_item_id == selected_val)
 		return false;
@@ -381,7 +382,7 @@ bool ItemListerDialog::paste()
 }
 bool ItemListerDialog::adv_paste()
 {
-	if(copied_item_id < 0 || selected_val < 0)
+	if(unsigned(copied_item_id) >= MAXITEMS || unsigned(selected_val) >= MAXITEMS)
 		return false;
 	if(copied_item_id == selected_val)
 		return false;
@@ -418,11 +419,11 @@ bool ItemListerDialog::adv_paste()
 	mark_save_dirty();
 	return true;
 }
-int32_t readoneitem(PACKFILE *f, int32_t id);
-int32_t writeoneitem(PACKFILE *f, int32_t id);
+int32_t readoneitem(PACKFILE *f, word id);
+int32_t writeoneitem(PACKFILE *f, word id);
 void ItemListerDialog::save()
 {
-	if(selected_val < 0)
+	if(unsigned(selected_val) >= MAXITEMS)
 		return;
 	if(!prompt_for_new_file_compat(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return;
@@ -438,7 +439,7 @@ void ItemListerDialog::save()
 }
 bool ItemListerDialog::load()
 {
-	if(selected_val < 0)
+	if(unsigned(selected_val) >= MAXITEMS)
 		return false;
 	if(!prompt_for_existing_file_compat(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return false;

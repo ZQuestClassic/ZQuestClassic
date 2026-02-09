@@ -1690,7 +1690,7 @@ void enemy::leave_item()
 		drop_item = select_dropitem(thedropset,x,y);
 	}
 	
-	if(drop_item>=0&&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	if(unsigned(drop_item) < MAXITEMS &&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -16628,12 +16628,14 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* pare
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
+	if (unsigned(id) >= MAXITEMS) return;
 	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), 0_zf, id, pickup, 0);
 	items.add(i);
 }
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 {
+	if (unsigned(id) >= MAXITEMS) return;
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,clk);
 	items.add(i);
 }
@@ -18124,7 +18126,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 	{
 		Item=scr->item;
 		
-		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
 		{
 			if(scr->flags8&fSECRETITEM)
 				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
@@ -18152,7 +18154,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 		{
 			Item = special_warp_return_scr->catchall;
 			
-			if(Item)
+			if(Item && unsigned(Item) < MAXITEMS)
 			{
 				int x = scr->itemx;
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
