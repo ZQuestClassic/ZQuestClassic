@@ -75,7 +75,7 @@ int subscr_item_clk = 0, subscr_pg_clk = 0;
 byte subscr_pg_from, subscr_pg_to;
 static ZCSubscreen *subscr_anim_from = nullptr, *subscr_anim_to = nullptr;
 
-int subscr_override_clkoffsets[MAXITEMS];
+map<int, int> subscr_override_clkoffsets;
 bool subscr_itemless = false, subscr_pg_animating = false, subscr_anim_map = false;
 int btnitem_clks[4] = {0};
 ButtonItemData btnitem_ids[4];
@@ -196,10 +196,7 @@ void refresh_subscr_items()
 void kill_subscr_items()
 {
 	subscr_itemless = true;
-	for(int q = 0; q < MAXITEMS; ++q)
-	{
-		subscr_override_clkoffsets[q] = -1;
-	}
+	subscr_override_clkoffsets.clear();
 }
 
 bool is_counter_item(int32_t itmid, int32_t ctr)
@@ -4101,7 +4098,7 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			auto clk = subscr_item_clk;
 			if(iid > -1 && replay_version_check(0,19))
 			{
-				if(subscr_override_clkoffsets[data.id] < 0)
+				if(!subscr_override_clkoffsets.contains(data.id))
 					subscr_override_clkoffsets[data.id] = subscr_item_clk;
 				clk -= subscr_override_clkoffsets[data.id];
 			}
