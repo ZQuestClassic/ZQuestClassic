@@ -7091,19 +7091,25 @@ void refresh(int32_t flags, bool update)
 			case rP_SHOP:
 			case rSHOP:
 			{
-				int32_t shop = Map.CurrScr()->catchall;
+				int shop_id = Map.CurrScr()->catchall;
+				if (unsigned(shop_id) >= NUM_SHOPS)
+					break;
+				auto const& shop = QMisc.shop[shop_id];
 				sprintf(buf,"%sShop: ",
-						Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
+					Map.CurrScr()->room == rP_SHOP ? "Potion " : "");
 						
-				for(int32_t j=0; j<3; j++) if(QMisc.shop[shop].item[j]>0)  // Print the 3 items and prices
+				for(int32_t j=0; j<3; j++)
 				{
-					strcat(buf,itemsbuf[QMisc.shop[shop].item[j]].name.c_str());
-					strcat(buf,":");
-					char pricebuf[8];
-					sprintf(pricebuf,"%d",QMisc.shop[shop].price[j]);
-					strcat(buf,pricebuf);
-					
-					if(j<2 && QMisc.shop[shop].item[j+1]>0) strcat(buf,", ");
+					if(shop.hasitem[j])
+					{
+						strcat(buf, itemsbuf[shop.item[j]].name.c_str());
+						strcat(buf, ":");
+						char pricebuf[8];
+						sprintf(pricebuf, "%d", shop.price[j]);
+						strcat(buf, pricebuf);
+						
+						if(j<2 && shop.hasitem[j+1]) strcat(buf,", ");
+					}
 				}
 					
 				show_screen_error(buf,i++, vc(15));
@@ -7132,11 +7138,14 @@ void refresh(int32_t flags, bool update)
 			
 			case rTAKEONE:
 			{
-				int32_t shop = Map.CurrScr()->catchall;
+				int shop_id = Map.CurrScr()->catchall;
+				if (unsigned(shop_id) >= NUM_SHOPS)
+					break;
+				auto const& shop = QMisc.shop[shop_id];
 				sprintf(buf,"Take Only One: %s%s%s%s%s",
-						QMisc.shop[shop].item[0]<1?"":itemsbuf[QMisc.shop[shop].item[0]].name.c_str(),QMisc.shop[shop].item[0]>0?", ":"",
-						QMisc.shop[shop].item[1]<1?"":itemsbuf[QMisc.shop[shop].item[1]].name.c_str(),(QMisc.shop[shop].item[1]>0&&QMisc.shop[shop].item[2]>0)?", ":"",
-						QMisc.shop[shop].item[2]<1?"":itemsbuf[QMisc.shop[shop].item[2]].name.c_str());
+					shop.item[0] < 1 ? "" : itemsbuf[shop.item[0]].name.c_str(), shop.item[0] > 0 ? ", " : "",
+					shop.item[1] < 1 ? "" : itemsbuf[shop.item[1]].name.c_str(), (shop.item[1] > 0 && shop.item[2] > 0) ? ", " : "",
+					shop.item[2] < 1 ? "" : itemsbuf[shop.item[2]].name.c_str());
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -15033,103 +15042,98 @@ static DIALOG editshop_dlg[] =
 void EditShopType(int32_t index)
 {
 	bii_list = GUI::ZCListData::items(false, true);
-    char ps1[6],ps2[6],ps3[6];
+	char ps1[6],ps2[6],ps3[6];
 	char info1[6],info2[6],info3[6];
-    char shopname[32];
-    char caption[40];
-    
-    sprintf(caption,"Shop Data %d",index);
-    editshop_dlg[0].dp = caption;
-    editshop_dlg[0].dp2=get_zc_font(font_lfont);
-    
-    sprintf(ps1,"%d",QMisc.shop[index].price[0]);
-    sprintf(ps2,"%d",QMisc.shop[index].price[1]);
-    sprintf(ps3,"%d",QMisc.shop[index].price[2]);
+	char shopname[32];
+	char caption[40];
+	auto& shop = QMisc.shop[index];
 	
-    sprintf(info1,"%d",QMisc.shop[index].str[0]);
-    sprintf(info2,"%d",QMisc.shop[index].str[1]);
-    sprintf(info3,"%d",QMisc.shop[index].str[2]);
+	sprintf(caption,"Shop Data %d",index);
+	editshop_dlg[0].dp = caption;
+	editshop_dlg[0].dp2=get_zc_font(font_lfont);
 	
-    sprintf(shopname,"%s",QMisc.shop[index].name);
-    editshop_dlg[8].dp  = ps1;
-    editshop_dlg[10].dp = ps2;
-    editshop_dlg[12].dp = ps3;
-    editshop_dlg[15].dp = shopname;
-    
-    editshop_dlg[21].dp  = info1;
-    editshop_dlg[22].dp = info2;
-    editshop_dlg[23].dp = info3;
-    
+	sprintf(ps1,"%d",shop.price[0]);
+	sprintf(ps2,"%d",shop.price[1]);
+	sprintf(ps3,"%d",shop.price[2]);
+	
+	sprintf(info1,"%d",shop.str[0]);
+	sprintf(info2,"%d",shop.str[1]);
+	sprintf(info3,"%d",shop.str[2]);
+	
+	sprintf(shopname,"%s",shop.name);
+	editshop_dlg[8].dp  = ps1;
+	editshop_dlg[10].dp = ps2;
+	editshop_dlg[12].dp = ps3;
+	editshop_dlg[15].dp = shopname;
+	
+	editshop_dlg[21].dp  = info1;
+	editshop_dlg[22].dp = info2;
+	editshop_dlg[23].dp = info3;
+	
 	auto ld = GUI::ZCListData::items(true, false);
-    ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
-    
-    editshop_dlg[9].dp  = (void *) &item_list;
-    editshop_dlg[11].dp  = (void *) &item_list;
-    editshop_dlg[13].dp  = (void *) &item_list;
-    
+	ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
+	
+	editshop_dlg[9].dp  = (void *) &item_list;
+	editshop_dlg[11].dp  = (void *) &item_list;
+	editshop_dlg[13].dp  = (void *) &item_list;
+	
 	for(int32_t i=0; i<3; ++i)
 	{
 		auto id = -1;
-		if(QMisc.shop[index].hasitem[i])
-			id = QMisc.shop[index].item[i];
+		if(shop.hasitem[i])
+			id = shop.item[i];
 		editshop_dlg[9+(i<<1)].d1 = bii_list.findIndex(id).value_or(0);
 	}
-    
-    large_dialog(editshop_dlg);
-        
-    int32_t ret = do_zqdialog(editshop_dlg,-1);
-    
-    if(ret==16)
-    {
-        mark_save_dirty();
-        QMisc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        QMisc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        QMisc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
-	    
-	QMisc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
-        QMisc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
-        QMisc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
-	    
-        snprintf(QMisc.shop[index].name, 32, "%s",shopname);
-        
-        for(int32_t i=0; i<3; ++i)
-        {
+	
+	large_dialog(editshop_dlg);
+	
+	int32_t ret = do_zqdialog(editshop_dlg,-1);
+	
+	if(ret==16)
+	{
+		mark_save_dirty();
+		shop.price[0] = vbound(atoi(ps1), 0, 65535);
+		shop.price[1] = vbound(atoi(ps2), 0, 65535);
+		shop.price[2] = vbound(atoi(ps3), 0, 65535);
+		
+		shop.str[0] = vbound(atoi(info1), 0, 65535);
+		shop.str[1] = vbound(atoi(info2), 0, 65535);
+		shop.str[2] = vbound(atoi(info3), 0, 65535);
+		
+		snprintf(shop.name, 32, "%s",shopname);
+		
+		for(int32_t i=0; i<3; ++i)
+		{
 			auto val = bii_list.getValue(editshop_dlg[9+(i<<1)].d1);
-            if(val < 0)
-            {
-                QMisc.shop[index].hasitem[i] = 0;
-                QMisc.shop[index].item[i] = 0;
-                QMisc.shop[index].price[i] = 0;
-            }
-            else
-            {
-                QMisc.shop[index].hasitem[i] = 1;
-                QMisc.shop[index].item[i] = val;
-            }
-        }
-        
-        //filter all the 0 items to the end (yeah, bubble sort; sue me)
-        word swaptmp;
-        
-        for(int32_t j=0; j<3-1; j++)
-        {
-            for(int32_t k=0; k<2-j; k++)
-            {
-                if(QMisc.shop[index].hasitem[k]==0)
-                {
-                    swaptmp = QMisc.shop[index].item[k];
-                    QMisc.shop[index].item[k] = QMisc.shop[index].item[k+1];
-                    QMisc.shop[index].item[k+1] = swaptmp;
-                    swaptmp = QMisc.shop[index].price[k];
-                    QMisc.shop[index].price[k] = QMisc.shop[index].price[k+1];
-                    QMisc.shop[index].price[k+1] = swaptmp;
-                    swaptmp = QMisc.shop[index].hasitem[k];
-                    QMisc.shop[index].hasitem[k] = QMisc.shop[index].item[k+1];
-                    QMisc.shop[index].hasitem[k+1] = swaptmp;
-                }
-            }
-        }
-    }
+			if(val < 0)
+			{
+				shop.hasitem[i] = 0;
+				shop.item[i] = 0;
+				shop.price[i] = 0;
+			}
+			else
+			{
+				shop.hasitem[i] = 1;
+				shop.item[i] = val;
+			}
+		}
+		
+		//filter all the 0 items to the end (yeah, bubble sort; sue me)
+		word swaptmp;
+		
+		for(int32_t j=0; j<3-1; j++)
+		{
+			for(int32_t k=0; k<2-j; k++)
+			{
+				if(!shop.hasitem[k])
+				{
+					zc_swap(shop.item[k], shop.item[k+1]);
+					zc_swap(shop.price[k], shop.price[k+1]);
+					zc_swap(shop.hasitem[k], shop.hasitem[k+1]);
+				}
+			}
+		}
+	}
 }
 
 int32_t onShopTypes()

@@ -42,7 +42,7 @@ struct DoorComboSet
 struct shoptype
 {
 	char name[33];
-	byte item[3];
+	word item[3];
 	byte hasitem[3];
 	word price[3];
 	word str[3];  //item info string
@@ -104,17 +104,6 @@ struct bottletype
 		}
 		return true;
 	}
-};
-
-struct pondtype
-{
-	byte olditem[3];
-	byte newitem[3];
-	byte fairytile;
-	byte aframes;
-	byte aspeed;
-	word msg[15];
-	byte foo[32];
 };
 
 struct infotype

@@ -1763,35 +1763,39 @@ void itemLocationReport()
             }
             
             
-            if(ts->room==rSHOP||ts->room==rP_SHOP||ts->room==rTAKEONE)
-            {
-                for(int32_t si=0; si<3; ++si)
-                {
-                    if(QMisc.shop[ts->catchall].item[si]>0)
-                    {
-                        //start at the special item in the item location grid
-                        tempnode=&(item_location_grid[QMisc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
-                        
-                        //loop to the end of the list
-                        while(tempnode->next!=NULL)
-                        {
-                            tempnode=tempnode->next;
-                        }
-                        
-                        //make a new node
-                        newnode=(item_location_node*)malloc(sizeof(item_location_node));
-                        //insert the map and screen data
-                        newnode->map=m+1;
-                        newnode->screen=s;
-                        newnode->extra1=ts->catchall;
-                        newnode->extra2=QMisc.shop[ts->catchall].price[si];
-                        newnode->enemy=-1;
-                        newnode->pal=ts->color;
-                        newnode->next=NULL;
-                        tempnode->next=newnode;
-                    }
-                }
-            }
+			if (ts->room==rSHOP || ts->room==rP_SHOP || ts->room==rTAKEONE)
+			{
+				if (auto shop_id = ts->catchall; unsigned(shop_id) < NUM_SHOPS)
+				{
+					auto const& shop = QMisc.shop[shop_id];
+					for(int32_t si=0; si<3; ++si)
+					{
+						if(shop.hasitem[si])
+						{
+							//start at the special item in the item location grid
+							tempnode=&(item_location_grid[shop.item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
+							
+							//loop to the end of the list
+							while(tempnode->next!=NULL)
+							{
+								tempnode=tempnode->next;
+							}
+							
+							//make a new node
+							newnode=(item_location_node*)malloc(sizeof(item_location_node));
+							//insert the map and screen data
+							newnode->map=m+1;
+							newnode->screen=s;
+							newnode->extra1=ts->catchall;
+							newnode->extra2=shop.price[si];
+							newnode->enemy=-1;
+							newnode->pal=ts->color;
+							newnode->next=NULL;
+							tempnode->next=newnode;
+						}
+					}
+				}
+			}
         }
     }
     

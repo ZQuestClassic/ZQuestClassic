@@ -7987,28 +7987,16 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 			}
 			
 			for(int32_t j=0; j<3; j++)
-			{
-				if(!p_putc(QMisc.shop[i].item[j],f))
-				{
+				if(!p_iputw(QMisc.shop[i].item[j],f))
 					new_return(7);
-				}
-			}
 			
 			for(int32_t j=0; j<3; j++)
-			{
 				if(!p_iputw(QMisc.shop[i].price[j],f))
-				{
 					new_return(8);
-				}
-			}
 			
 			for(int32_t j=0; j<3; j++)
-			{
 				if(!p_putc(QMisc.shop[i].hasitem[j],f))
-				{
 					new_return(9);
-				}
-			}
 		}
 		
 		//infos

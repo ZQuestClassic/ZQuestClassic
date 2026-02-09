@@ -5300,7 +5300,14 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		for(int32_t j=0; j<3; j++)
 		{
-			if(!p_getc(&temp_misc.shop[i].item[j],f))
+			if (s_version >= 20)
+			{
+				if(!p_igetw(&temp_misc.shop[i].item[j], f))
+				{
+					return qe_invalid;
+				}
+			}
+			else if(!p_getc(&temp_misc.shop[i].item[j], f))
 			{
 				return qe_invalid;
 			}
@@ -5327,7 +5334,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			}
 		}
 		
-		if(s_version > 3)
+		if (s_version > 3)
 		{
 			for(int32_t j=0; j<3; j++)
 			{
@@ -5350,21 +5357,16 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//filter all the 0 items to the end (yeah, bubble sort; sue me)
 	for(int32_t i=0; i<maxshops; ++i)
 	{
+		auto& shop = temp_misc.shop[i];
 		for(int32_t j=0; j<3-1; j++)
 		{
 			for(int32_t k=0; k<2-j; k++)
 			{
-				if(temp_misc.shop[i].hasitem[k]==0)
+				if(!shop.hasitem[k])
 				{
-					swaptmp = temp_misc.shop[i].item[k];
-					temp_misc.shop[i].item[k] = temp_misc.shop[i].item[k+1];
-					temp_misc.shop[i].item[k+1] = swaptmp;
-					swaptmp = temp_misc.shop[i].price[k];
-					temp_misc.shop[i].price[k] = temp_misc.shop[i].price[k+1];
-					temp_misc.shop[i].price[k+1] = swaptmp;
-					swaptmp = temp_misc.shop[i].hasitem[k];
-					temp_misc.shop[i].hasitem[k] = temp_misc.shop[i].hasitem[k+1];
-					temp_misc.shop[i].hasitem[k+1] = swaptmp;
+					zc_swap(shop.item[k], shop.item[k+1]);
+					zc_swap(shop.price[k], shop.price[k+1]);
+					zc_swap(shop.hasitem[k], shop.hasitem[k+1]);
 				}
 			}
 		}

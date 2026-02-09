@@ -61,7 +61,7 @@ static ArrayRegistrar SHOPDATAITEM_registrar(SHOPDATAITEM, []{
 	);
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundByte);
+	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
 }());
 
