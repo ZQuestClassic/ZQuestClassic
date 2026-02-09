@@ -639,8 +639,9 @@ class hero {
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
 
-	// Hero->Equipment is now read-write, and needs testing.
+	// The current A and B button items (combined bitwise). Doesn't work for item IDs > 255.
 	//
+	// @deprecated Use [Hero->ItemA] / [Hero->ItemB] instead!
 	// @zasm_var LINKEQUIP
 	internal int Equipment;
 

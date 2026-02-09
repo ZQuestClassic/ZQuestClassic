@@ -279,7 +279,6 @@ struct itemdata
 };
 
 //some methods for dealing with items
-int32_t getItemFamily(int32_t id);
 void removeItemsOfFamily(int32_t family);
 void removeLowerLevelItemsOfFamily(int32_t family, int32_t level);
 int32_t getHighestLevelOfFamily(zinitdata *source, int32_t family);
@@ -299,4 +298,19 @@ struct cooldown_data
 	int cooldown_ring_id = -1;
 };
 cooldown_data calc_item_cooldown(int item_id);
+
+struct ButtonItemData
+{
+	int id = -1;
+	bool bow_arrow = false;
+	
+	ButtonItemData(int id = -1, bool bow_arrow = false) :
+		id(id), bow_arrow(bow_arrow)
+	{}
+	
+	int get_family() const;
+	
+	bool operator==(ButtonItemData const& other) const = default;
+};
+
 #endif

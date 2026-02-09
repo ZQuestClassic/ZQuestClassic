@@ -261,11 +261,11 @@ void dosubscr()
 			{
 				bool can_interact = true, can_equip = true,
 					must_equip = false, can_unequip = noverify;
-				auto eqwpn = widg->getItemVal();
+				auto data = widg->getItemVal();
 				if(widg->getType() == widgITEMSLOT)
 				{
 					if((widg->flags & SUBSCR_CURITM_NO_INTER_WO_ITEM)
-						&& widg->getDisplayItem() < 0)
+						&& widg->getDisplayItem().id < 0)
 						can_interact = false;
 					if(widg->flags & SUBSCR_CURITM_NONEQP)
 						can_equip = false;
@@ -273,7 +273,7 @@ void dosubscr()
 						can_unequip = false;
 					must_equip = !b_only && (widg->flags & SUBSCR_CURITM_NO_INTER_WO_EQUIP);
 				}
-				if(must_equip && (!can_equip || eqwpn < 0))
+				if(must_equip && (!can_equip || data.id < 0))
 					can_interact = false;
 				
 				if(can_interact)
@@ -281,34 +281,34 @@ void dosubscr()
 					auto bpress = btn_press;
 					if(must_equip)
 					{
-						bpress &= ((!can_unequip || Bwpn!=eqwpn) ? INT_BTN_B : 0)
-							| ((use_a && (!can_unequip || Awpn!=eqwpn)) ? INT_BTN_A : 0)
-							| ((use_x && (!can_unequip || Xwpn!=eqwpn)) ? INT_BTN_X : 0)
-							| ((use_y && (!can_unequip || Ywpn!=eqwpn)) ? INT_BTN_Y : 0);
+						bpress &= ((!can_unequip || Bwpn != data) ? INT_BTN_B : 0)
+							| ((use_a && (!can_unequip || Awpn != data)) ? INT_BTN_A : 0)
+							| ((use_x && (!can_unequip || Xwpn != data)) ? INT_BTN_X : 0)
+							| ((use_y && (!can_unequip || Ywpn != data)) ? INT_BTN_Y : 0);
 					}
 					if(widg->generic_script && (bpress&widg->gen_script_btns))
 					{
 						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
-						eqwpn = widg->getItemVal(); //update incase script changed
-						if(must_equip) //update values depending on eqwpn
+						data = widg->getItemVal(); //update incase script changed
+						if(must_equip) //update values depending on data.id
 						{
 							bpress = btn_press;
-							bpress &= (Bwpn!=eqwpn ? INT_BTN_B : 0)
-								| ((use_a && Awpn!=eqwpn) ? INT_BTN_A : 0)
-								| ((use_x && Xwpn!=eqwpn) ? INT_BTN_X : 0)
-								| ((use_y && Ywpn!=eqwpn) ? INT_BTN_Y : 0);
+							bpress &= (Bwpn != data ? INT_BTN_B : 0)
+								| ((use_a && Awpn != data) ? INT_BTN_A : 0)
+								| ((use_x && Xwpn != data) ? INT_BTN_X : 0)
+								| ((use_y && Ywpn != data) ? INT_BTN_Y : 0);
 						}
 					}
 					
 					if(can_equip)
 					{
-						if(eqwpn > -1)
+						if(data.id > -1)
 						{
 							if(b_only || (btn_press&INT_BTN_B))
 							{
-								if(can_unequip && !b_only && eqwpn == Bwpn)
+								if(can_unequip && !b_only && data == Bwpn)
 								{
-									Bwpn = -1;
+									Bwpn = {-1};
 									game->forced_bwpn = -1;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									
@@ -317,37 +317,37 @@ void dosubscr()
 								}
 								else
 								{
-									if(use_a && eqwpn == Awpn)
+									if(use_a && data == Awpn)
 									{
 										Awpn = Bwpn;
 										game->awpn = game->bwpn;
 										directItemA = directItemB;
 									}
-									else if(use_x && eqwpn == Xwpn)
+									else if(use_x && data == Xwpn)
 									{
 										Xwpn = Bwpn;
 										game->xwpn = game->bwpn;
 										directItemX = directItemB;
 									}
-									else if(use_y && eqwpn == Ywpn)
+									else if(use_y && data == Ywpn)
 									{
 										Ywpn = Bwpn;
 										game->ywpn = game->bwpn;
 										directItemY = directItemB;
 									}
 									
-									Bwpn = eqwpn;
+									Bwpn = data;
 									game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
 									if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->bwpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
-									directItemB = NEG_OR_MASK(eqwpn,0xFF);
+									directItemB = data.id;
 								}
 							}
 							else if(use_a && (btn_press&INT_BTN_A))
 							{
-								if(can_unequip && eqwpn == Awpn)
+								if(can_unequip && data == Awpn)
 								{
-									Awpn = -1;
+									Awpn = {-1};
 									game->forced_awpn = -1;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									
@@ -356,37 +356,37 @@ void dosubscr()
 								}
 								else
 								{
-									if(eqwpn == Bwpn)
+									if(data == Bwpn)
 									{
 										Bwpn = Awpn;
 										game->bwpn = game->awpn;
 										directItemB = directItemA;
 									}
-									else if(use_x && eqwpn == Xwpn)
+									else if(use_x && data == Xwpn)
 									{
 										Xwpn = Awpn;
 										game->xwpn = game->awpn;
 										directItemX = directItemA;
 									}
-									else if(use_y && eqwpn == Ywpn)
+									else if(use_y && data == Ywpn)
 									{
 										Ywpn = Awpn;
 										game->ywpn = game->awpn;
 										directItemY = directItemA;
 									}
 									
-									Awpn = eqwpn;
+									Awpn = data;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->awpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemA = NEG_OR_MASK(eqwpn,0xFF);
+									directItemA = data.id;
 								}
 							}
 							else if(use_x && (btn_press&INT_BTN_EX1))
 							{
-								if(can_unequip && eqwpn == Xwpn)
+								if(can_unequip && data == Xwpn)
 								{
-									Xwpn = -1;
+									Xwpn = {-1};
 									game->forced_xwpn = -1;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									
@@ -395,37 +395,37 @@ void dosubscr()
 								}
 								else
 								{
-									if(eqwpn == Bwpn)
+									if(data == Bwpn)
 									{
 										Bwpn = Xwpn;
 										game->bwpn = game->xwpn;
 										directItemB = directItemX;
 									}
-									else if(use_a && eqwpn == Awpn)
+									else if(use_a && data == Awpn)
 									{
 										Awpn = Xwpn;
 										game->awpn = game->xwpn;
 										directItemA = directItemX;
 									}
-									else if(use_y && eqwpn == Ywpn)
+									else if(use_y && data == Ywpn)
 									{
 										Ywpn = Xwpn;
 										game->ywpn = game->xwpn;
 										directItemY = directItemX;
 									}
 									
-									Xwpn = eqwpn;
+									Xwpn = data;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->xwpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemX = NEG_OR_MASK(eqwpn,0xFF);
+									directItemX = data.id;
 								}
 							}
 							else if(use_y && (btn_press&INT_BTN_EX2))
 							{
-								if(can_unequip && eqwpn == Ywpn)
+								if(can_unequip && data == Ywpn)
 								{
-									Ywpn = -1;
+									Ywpn = {-1};
 									game->forced_ywpn = -1;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									
@@ -434,35 +434,35 @@ void dosubscr()
 								}
 								else
 								{
-									if(eqwpn == Bwpn)
+									if(data == Bwpn)
 									{
 										Bwpn = Ywpn;
 										game->bwpn = game->ywpn;
 										directItemB = directItemY;
 									}
-									else if(use_a && eqwpn == Awpn)
+									else if(use_a && data == Awpn)
 									{
 										Awpn = Ywpn;
 										game->awpn = game->ywpn;
 										directItemA = directItemY;
 									}
-									else if(use_x && eqwpn == Xwpn)
+									else if(use_x && data == Xwpn)
 									{
 										Xwpn = Ywpn;
 										game->xwpn = game->ywpn;
 										directItemX = directItemY;
 									}
 									
-									Ywpn = eqwpn;
+									Ywpn = data;
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->ywpn = ((pg.cursor_pos)<<8) | CURRENT_ACTIVE_SUBSCREEN->curpage;
 									game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemY = NEG_OR_MASK(eqwpn,0xFF);
+									directItemY = data.id;
 								}
 							}
 						}
 					}
-					if(!must_equip || eqwpn > -1)
+					if(!must_equip || data.id > -1)
 						widg->check_btns(bpress,*CURRENT_ACTIVE_SUBSCREEN);
 				}
 			}

@@ -799,13 +799,6 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 	temp.draw(dest);
 }
 
-//some methods for dealing with items
-int32_t getItemFamily(int32_t id)
-{
-	if(id < 0) return -1;
-	return itemsbuf[id].type;
-}
-
 void removeItemsOfFamily(int32_t family)
 {
 	size_t sz = MAXITEMS;
@@ -1336,5 +1329,12 @@ cooldown_data calc_item_cooldown(int item_id)
 	data.cooldown = data.max_cooldown - (subscr_item_clk % (data.max_cooldown+1));
 #endif
 	return data;
+}
+
+
+int ButtonItemData::get_family() const
+{
+	if (unsigned(id) >= MAXITEMS) return -1;
+	return itemsbuf[id].type;
 }
 

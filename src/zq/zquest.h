@@ -18,6 +18,7 @@
 #include "base/cpool.h"
 #include "base/misctypes.h"
 #include "zq/zq_class.h"
+#include "items.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -592,7 +593,7 @@ int32_t get_bmaps(int32_t si);
 
 bool no_subscreen();
 
-extern int32_t Awpn, Bwpn, Xwpn, Ywpn;
+extern ButtonItemData Awpn, Bwpn, Xwpn, Ywpn;
 
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);

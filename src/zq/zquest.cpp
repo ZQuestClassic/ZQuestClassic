@@ -19832,7 +19832,7 @@ static void handle_sentry_tags()
 	sentry_first_time = false;
 }
 
-int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
+ButtonItemData Awpn, Bwpn, Xwpn, Ywpn;
 sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 

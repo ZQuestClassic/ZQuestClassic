@@ -3183,7 +3183,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case LINKEQUIP:
-			ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
+			ret = ((Awpn.id&0xFF)|((Bwpn.id&0xFF)<<8))*10000;
 			break;
 			
 		case LINKINVIS:
@@ -3354,23 +3354,19 @@ int32_t get_register(int32_t arg)
 			
 			
 		case LINKITEMB:
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			ret = Bwpn*10000;
+			ret = Bwpn.id * 10000;
 			break;
 		
 		case LINKITEMA:
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			ret = Awpn *10000;
+			ret = Awpn.id * 10000;
 			break;
 		
 		case LINKITEMX:
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			ret = Xwpn *10000;
+			ret = Xwpn.id * 10000;
 			break;
 		
 		case LINKITEMY:
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			ret = Ywpn *10000;
+			ret = Ywpn.id * 10000;
 			break;
 		
 		case LINKTILEMOD:
@@ -9062,7 +9058,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 			{
-				ret = 10000*widg->getDisplayItem();
+				ret = 10000*widg->getDisplayItem().id;
 			}
 			break;
 		}
@@ -9070,7 +9066,7 @@ int32_t get_register(int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
 			{
-				ret = 10000*widg->getItemVal();
+				ret = 10000*widg->getItemVal().id;
 			}
 			break;
 		}
@@ -10637,13 +10633,13 @@ void set_register(int32_t arg, int32_t value)
 			seta = vbound(seta,-1,255);
 			setb = vbound(setb,-1,255);
 				
-			Awpn = seta;
+			Awpn = {seta};
 			game->awpn = 255;
 			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			directItemA = seta;
 			
-			Bwpn = setb;
+			Bwpn = {setb};
 			game->bwpn = 255;
 			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
@@ -10657,7 +10653,7 @@ void set_register(int32_t arg, int32_t value)
 			//value = third arg
 			//int32_t item, int32_t slot, int32_t force
 			int32_t itm = GET_D(rINDEX)/10000;
-			itm = vbound(itm, -1, 255);
+			itm = vbound(itm, -1, MAXITEMS-1);
 			
 			int32_t slot = GET_D(rINDEX2)/10000;
 			int32_t force = GET_D(rEXP1)/10000;
@@ -10677,7 +10673,7 @@ void set_register(int32_t arg, int32_t value)
 				switch(slot)
 				{
 					case 0: //b
-						Bwpn = itm;
+						Bwpn = {itm};
 						game->items_off[itm] = 0;
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
@@ -10685,7 +10681,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					
 					case 1: //a
-						Awpn = itm;
+						Awpn = {itm};
 						game->items_off[itm] = 0;
 						game->awpn = 255;
 						game->forced_awpn = itm;
@@ -10693,7 +10689,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					
 					case 2: //x
-						Xwpn = itm;
+						Xwpn = {itm};
 						game->items_off[itm] = 0;
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
@@ -10701,7 +10697,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					
 					case 3: //y
-						Ywpn = itm;
+						Ywpn = {itm};
 						game->items_off[itm] = 0;
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
@@ -10716,7 +10712,7 @@ void set_register(int32_t arg, int32_t value)
 					switch(slot)
 					{
 						case 0: //b
-							Bwpn = itm;
+							Bwpn = {itm};
 							game->items_off[itm] = 0;
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
@@ -10724,7 +10720,7 @@ void set_register(int32_t arg, int32_t value)
 							break;
 						
 						case 1: //a
-							Awpn = itm;
+							Awpn = {itm};
 							game->items_off[itm] = 0;
 							game->awpn = 255;
 							game->forced_awpn = itm;
@@ -10732,7 +10728,7 @@ void set_register(int32_t arg, int32_t value)
 							break;
 						
 						case 2: //x
-							Xwpn = itm;
+							Xwpn = {itm};
 							game->items_off[itm] = 0;
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
@@ -10740,7 +10736,7 @@ void set_register(int32_t arg, int32_t value)
 							break;
 						
 						case 3: //y
-							Ywpn = itm;
+							Ywpn = {itm};
 							game->items_off[itm] = 0;
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
@@ -10754,7 +10750,7 @@ void set_register(int32_t arg, int32_t value)
 				switch(slot)
 				{
 					case 0: //b
-						Bwpn = itm;
+						Bwpn = {itm};
 						game->items_off[itm] = 0;
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
@@ -10764,7 +10760,7 @@ void set_register(int32_t arg, int32_t value)
 					case 1: //a
 						if (get_qr(qr_SELECTAWPN))
 						{
-							Awpn = itm;
+							Awpn = {itm};
 							game->items_off[itm] = 0;
 							game->awpn = 255;
 							game->forced_awpn = itm;
@@ -10773,7 +10769,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					
 					case 2:  //x
-						Xwpn = itm;
+						Xwpn = {itm};
 						game->items_off[itm] = 0;
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
@@ -10781,7 +10777,7 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					
 					case 3: //y
-						Ywpn = itm;
+						Ywpn = {itm};
 						game->items_off[itm] = 0;
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
@@ -10796,7 +10792,7 @@ void set_register(int32_t arg, int32_t value)
 					switch(slot)
 					{
 						case 0: //b
-							Bwpn = itm;
+							Bwpn = {itm};
 							game->items_off[itm] = 0;
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
@@ -10806,7 +10802,7 @@ void set_register(int32_t arg, int32_t value)
 						case 1: //a
 							if (get_qr(qr_SELECTAWPN))
 							{
-								Awpn = itm;
+								Awpn = {itm};
 								game->items_off[itm] = 0;
 								game->awpn = 255;
 								game->forced_awpn = itm;
@@ -10815,7 +10811,7 @@ void set_register(int32_t arg, int32_t value)
 							break;
 						
 						case 2: //x
-							Xwpn = itm;
+							Xwpn = {itm};
 							game->items_off[itm] = 0;
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
@@ -10823,7 +10819,7 @@ void set_register(int32_t arg, int32_t value)
 							break;
 						
 						case 3: //y
-							Ywpn = itm;
+							Ywpn = {itm};
 							game->items_off[itm] = 0;
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
@@ -10966,9 +10962,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
-			if (Bwpn != (value/10000))
+			if (Bwpn.id != (value/10000))
 			{
-				Bwpn = value/10000;
+				Bwpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
 				game->forced_bwpn = value/10000;
@@ -10992,9 +10988,9 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Awpn != (value/10000))
+			if (Awpn.id != (value/10000))
 			{
-				Awpn = value/10000;
+				Awpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Awpn, game->awpn);
 				game->items_off[value/10000] = 0;
@@ -11017,9 +11013,9 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Xwpn != (value/10000))
+			if (Xwpn.id != (value/10000))
 			{
-				Xwpn = value/10000;
+				Xwpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Xwpn, game->xwpn);
 				game->items_off[value/10000] = 0;
@@ -11041,9 +11037,9 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Ywpn != (value/10000))
+			if (Ywpn.id != (value/10000))
 			{
-				Ywpn = value/10000;
+				Ywpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Ywpn, game->ywpn);
 				game->items_off[value/10000] = 0;
