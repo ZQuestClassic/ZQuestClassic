@@ -194,7 +194,6 @@ extern ZCMIXER* zcmixer;
 extern int32_t colordepth;
 extern int32_t db;
 extern int32_t detail_int[10];                                  //temporary holder for things you want to detail
-extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int32_t strike_hint_counter;
 extern int32_t strike_hint_timer;

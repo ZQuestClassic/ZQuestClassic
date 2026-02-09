@@ -119,8 +119,11 @@ private:
 
 // easy way to draw an item
 void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id);
-void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash);
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk);
+
+void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash);
+void reset_lens_hint_items();
+
 void dummyitem_animate(item* dummy, int32_t clk);
 
 enum

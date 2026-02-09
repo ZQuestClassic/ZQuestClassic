@@ -460,7 +460,6 @@ int32_t showxypos_cursor_color;
 bool showxypos_dummy = false;
 
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
-int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
 int32_t tempmode=GFX_AUTODETECT;
@@ -20312,11 +20311,7 @@ int32_t main(int32_t argc,char **argv)
 		zq_exit(0);
 	}
 
-	for(int32_t x=0; x<MAXITEMS; x++)
-	{
-		lens_hint_item[x][0]=0;
-		lens_hint_item[x][1]=0;
-	}
+	reset_lens_hint_items();
 	
 	for(int32_t x=0; x<MAXWPNS; x++)
 	{

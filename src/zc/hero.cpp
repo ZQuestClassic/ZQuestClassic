@@ -3261,7 +3261,7 @@ void HeroClass::draw(BITMAP* dest)
 				int hy = y+yofs-16-(get_qr(qr_NOITEMOFFSET))-fakez-z;
 				if(get_qr(qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					draw_lens_hint_item(dest,hx,hy,holditem, 0);
 				}
 				else
 				{
@@ -3277,7 +3277,7 @@ void HeroClass::draw(BITMAP* dest)
 				int hy = y+yofs-12-(get_qr(qr_NOITEMOFFSET))-fakez-z;
 				if(get_qr(qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					draw_lens_hint_item(dest,hx,hy,holditem, 0);
 				}
 				else
 				{
@@ -3293,7 +3293,7 @@ void HeroClass::draw(BITMAP* dest)
 				int hy = y+yofs-16-(get_qr(qr_NOITEMOFFSET))-fakez-z;
 				if(get_qr(qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					draw_lens_hint_item(dest,hx,hy,holditem, 0);
 				}
 				else
 				{

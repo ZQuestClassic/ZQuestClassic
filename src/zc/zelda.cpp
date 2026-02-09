@@ -141,7 +141,6 @@ ZCMIXER *zcmixer = NULL;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
-int32_t lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
 int32_t strike_hint_counter=0;
 int32_t strike_hint_timer=0;
@@ -1663,11 +1662,7 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_life=true;
 	msgscr=nullptr;
 	maps_init_game_vars();
-	for(int32_t x = 0; x < MAXITEMS; x++)
-	{
-		lens_hint_item[x][0]=0;
-		lens_hint_item[x][1]=0;
-	}
+	reset_lens_hint_items();
 	for(int32_t x = 0; x < MAXWPNS; x++)
 	{
 		lens_hint_weapon[x][0]=0;

@@ -2472,7 +2472,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 									tempitemx=x, tempitemy=y;
 									
 									if(tempitem>-1)
-										putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+										draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 										
 									break;
 									
@@ -2482,7 +2482,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 									tempitemx=x, tempitemy=y;
 									
 									if(tempitem>-1)
-										putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+										draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 										
 									break;
 								}
@@ -2505,7 +2505,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2527,7 +2527,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2550,7 +2550,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2573,7 +2573,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2604,7 +2604,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							}
 							
 							putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2627,7 +2627,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2650,7 +2650,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2673,7 +2673,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2696,7 +2696,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2774,7 +2774,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2797,7 +2797,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2820,7 +2820,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2857,7 +2857,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							}
 							
 							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2906,7 +2906,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								}
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
 						}
 						
@@ -2950,7 +2950,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								}
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 							putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
 						}
 						
@@ -2974,7 +2974,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -2997,7 +2997,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3020,7 +3020,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3043,7 +3043,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3066,7 +3066,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 1);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 1);
 						}
 						
 						break;
@@ -3089,7 +3089,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 2);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 2);
 						}
 						
 						break;
@@ -3112,7 +3112,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 3);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 3);
 						}
 						
 						break;
@@ -3135,7 +3135,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 4);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 4);
 						}
 						
 						break;
@@ -3158,7 +3158,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3181,7 +3181,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3204,7 +3204,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 							}
 							
-							putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
 						break;
@@ -3215,7 +3215,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						int flag = (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM;
 						if((!getmapflag(scr, flag) || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
 						{
-							putitem2(dest,x,y,scr->catchall, lens_hint_item[scr->catchall][0], lens_hint_item[scr->catchall][1], 0);
+							draw_lens_hint_item(dest,x,y,scr->catchall, 0);
 						}
 						break;
 					}
@@ -3338,7 +3338,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							tempitemy=scr->stairy+offy;
 						}
 						
-						putitem2(dest, tempitemx, tempitemy, tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						draw_lens_hint_item(dest, tempitemx, tempitemy, tempitem, 0);
 					}
 				}
 			}

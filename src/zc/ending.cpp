@@ -105,8 +105,8 @@ void put_triforce()
 {
 	if(get_qr(qr_HOLDITEMANIMATION))
 	{
-		putitem2(framebuf,120,113-(get_qr(qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
-		putitem2(framebuf,136,113-(get_qr(qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
+		draw_lens_hint_item(framebuf,120,113-(get_qr(qr_NOITEMOFFSET)),iTriforce, 0);
+		draw_lens_hint_item(framebuf,136,113-(get_qr(qr_NOITEMOFFSET)),iTriforce, 0);
 	}
 	else
 	{

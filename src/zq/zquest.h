@@ -130,7 +130,6 @@ extern BITMAP* asset_arrows_bmp;
 extern MIDI* asset_tunes_midi;
 extern PALETTE asset_pal;
 
-extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern RGB_MAP* zq_rgb_table;
 extern MIDI *song;

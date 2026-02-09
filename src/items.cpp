@@ -715,12 +715,25 @@ bool itembundle_safe(int32_t itmid, bool skipError)
 	return true;
 }
 
-void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
+struct LensHintItemData
 {
+	int aclk;
+	int aframe;
+	bool empty() const
+	{
+		return aclk || aframe;
+	}
+	bool operator==(LensHintItemData const& other) const = default;
+};
+
+bounded_map<int, LensHintItemData> lens_hint_item {MAXITEMS, {}};
+void draw_lens_hint_item(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t flash)
+{
+	LensHintItemData data = lens_hint_item[item_id];
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.yofs=0;
-	temp.aclk=aclk;
-	temp.aframe=aframe;
+	temp.aclk = data.aclk;
+	temp.aframe = data.aframe;
 	temp.hide_hitbox = true;
 	
 	if(flash)
@@ -742,8 +755,17 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	
 	temp.animate(0);
 	temp.draw(dest);
-	aclk=temp.aclk;
-	aframe=temp.aframe;
+	data.aclk = temp.aclk;
+	data.aframe = temp.aframe;
+	
+	if (data.empty())
+		lens_hint_item.erase(item_id);
+	else
+		lens_hint_item[item_id] = data;
+}
+void reset_lens_hint_items()
+{
+	lens_hint_item.clear();
 }
 
 void dummyitem_animate(item* dummy, int32_t clk)
