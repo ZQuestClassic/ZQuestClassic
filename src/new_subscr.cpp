@@ -5028,6 +5028,7 @@ bool SW_GaugePiece::copy_prop(SubscrWidget const* src, bool all)
 }
 int32_t SW_GaugePiece::read(PACKFILE* f, word s_version)
 {
+	word tempword;
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
 	for(auto q = 0; q < 4; ++q)
@@ -5072,8 +5073,17 @@ int32_t SW_GaugePiece::read(PACKFILE* f, word s_version)
 	}
 	if(!infcond)
 	{
-		if(!p_igetw(&inf_item, f))
-			return qe_invalid;
+		if (s_version < 18)
+		{
+			if(!p_igetw(&tempword, f))
+				return qe_invalid;
+			inf_item = int16_t(tempword);
+		}
+		else
+		{
+			if(!p_igetl(&inf_item, f))
+				return qe_invalid;
+		}
 	}
 	return 0;
 }
@@ -5123,7 +5133,7 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 	}
 	if(!infcond)
 	{
-		if(!p_iputw(inf_item, f))
+		if(!p_iputl(inf_item, f))
 			new_return(1);
 	}
 	return 0;

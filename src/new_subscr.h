@@ -971,7 +971,7 @@ struct SW_GaugePiece : public SubscrWidget
 	int8_t hspace, vspace;
 	int16_t grid_xoff, grid_yoff;
 	word anim_val;
-	int16_t inf_item = -1;
+	int32_t inf_item = -1;
 	
 	SW_GaugePiece() = default;
 	virtual ~SW_GaugePiece() = default;
