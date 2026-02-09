@@ -1489,6 +1489,8 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 }
 int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 {
+	byte tempbyte;
+	word tempword;
 	//Intentionally offset by one byte ('getType()') from ::write() -Em
 	if(!p_getc(&type,f))
 		return qe_invalid;
@@ -1555,24 +1557,47 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 	{
 		word count;
 		byte bcount;
-		byte iid;
 		if(!p_igetw(&count,f))
 			return qe_invalid;
 		req_owned_items.clear();
-		for(word q = 0; q < count; ++q)
+		if (s_version < 18)
 		{
-			if(!p_getc(&iid,f))
-				return qe_invalid;
-			req_owned_items.insert(iid);
+			for(word q = 0; q < count; ++q)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				req_owned_items.insert(tempbyte);
+			}
+		}
+		else
+		{
+			for(word q = 0; q < count; ++q)
+			{
+				if(!p_igetw(&tempword,f))
+					return qe_invalid;
+				req_owned_items.insert(tempword);
+			}
 		}
 		if(!p_igetw(&count,f))
 			return qe_invalid;
 		req_unowned_items.clear();
-		for(word q = 0; q < count; ++q)
+		if (s_version < 18)
 		{
-			if(!p_getc(&iid,f))
-				return qe_invalid;
-			req_unowned_items.insert(iid);
+			for(word q = 0; q < count; ++q)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				req_unowned_items.insert(tempbyte);
+			}
+		}
+		else
+		{
+			for(word q = 0; q < count; ++q)
+			{
+				if(!p_igetw(&tempword,f))
+					return qe_invalid;
+				req_unowned_items.insert(tempword);
+			}
 		}
 		if(!p_igetw(&req_counter,f))
 			return qe_invalid;
@@ -1699,13 +1724,13 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	}
 	if(!p_iputw(req_owned_items.size(),f))
 		new_return(1);
-	for(byte iid : req_owned_items)
-		if(!p_putc(iid,f))
+	for(word iid : req_owned_items)
+		if(!p_iputw(iid,f))
 			new_return(1);
 	if(!p_iputw(req_unowned_items.size(),f))
 		new_return(1);
-	for(byte iid : req_unowned_items)
-		if(!p_putc(iid,f))
+	for(word iid : req_unowned_items)
+		if(!p_iputw(iid,f))
 			new_return(1);
 	if(!p_iputw(req_counter,f))
 		new_return(1);
