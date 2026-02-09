@@ -189,7 +189,7 @@ TestResults test_saves(bool verbose)
 	SAVE_TEST_FIELD(xwpn);
 	SAVE_TEST_FIELD(ywpn);
 	SAVE_TEST_VECTOR(lvlswitches);
-	SAVE_TEST_ARRAY(item_messages_played);
+	SAVE_TEST_BITSTRING(item_messages_played);
 	SAVE_TEST_ARRAY(bottleSlots);
 
 	game->saved_mirror_portal.clearUID();

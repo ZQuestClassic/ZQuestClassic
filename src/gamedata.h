@@ -86,7 +86,7 @@ struct gamedata
 	bounded_vec<dword,byte> bmaps {MAX_MI, 0}; // the dungeon progress maps
 	bounded_vec<dword,uint32_t> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
-	bool item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+	bitstring item_messages_played;
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
 	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
 	script_object_type global_d_types[MAX_SCRIPT_REGISTERS];

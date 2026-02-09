@@ -767,15 +767,25 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					return 62;
 		}
 		
-		if(section_version >= 21)
+		if(section_version >= 49)
 		{
+			if (!p_getbitstr(&game.item_messages_played, f))
+				return 63;
+		}
+		else if(section_version >= 21)
+		{
+			game.item_messages_played.clear();
 			for(int32_t j=0; j<MAXITEMS; ++j)
-				if(!p_getc(&(game.item_messages_played[j]),f))
+			{
+				if(!p_getc(&tempbyte, f))
 					return 63;
+				game.item_messages_played.set(j, tempbyte);
+			}
+			game.item_messages_played.normalize();
 		}
 		else 
 		{
-			std::fill(game.item_messages_played, game.item_messages_played+MAXITEMS, 0);
+			game.item_messages_played.clear();
 		}
 		if(section_version >= 22)
 		{
@@ -1385,7 +1395,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 59;
 	if(!p_putbvec(game.lvlswitches,f))
 		return 60;
-	if(!pfwrite(game.item_messages_played,MAXITEMS*sizeof(bool),f))
+	if(!p_putbitstr(game.item_messages_played,f))
 		return 61;
 	if(!pfwrite(game.bottleSlots,NUM_BOTTLE_SLOTS*sizeof(byte),f))
 		return 62;

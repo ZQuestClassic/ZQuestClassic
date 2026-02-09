@@ -28777,11 +28777,11 @@ void FFScript::FFChangeSubscreenText()
 
 void FFScript::SetItemMessagePlayed(int32_t itm)
 {
-	game->item_messages_played[itm] = 1;
+	game->item_messages_played.set(itm, true);
 }
 bool FFScript::GetItemMessagePlayed(int32_t itm)
 {
-	return ((game->item_messages_played[itm] ) ? true : false);
+	return game->item_messages_played.get(itm);
 }
 
 int32_t FFScript::getQRBit(int32_t rule)
