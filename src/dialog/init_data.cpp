@@ -15,8 +15,6 @@ using std::map;
 using std::vector;
 
 void mark_save_dirty();
-extern itemdata *itemsbuf;
-extern char *item_string[];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
 static bool life_in_hearts;
@@ -252,10 +250,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_05(int val)
 std::string item_name(int id)
 {
 	if(unsigned(id) < MAXITEMS)
-	{
 		return itemsbuf[id].get_name(true);
-		//return item_string[id];
-	}
 	return "";
 }
 
@@ -272,7 +267,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
 	
-	for(int32_t q = 0; q < MAXITEMS; ++q)
+	for(int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		int32_t family = itemsbuf[q].type;
 		

@@ -554,6 +554,7 @@ bool save_zqt(const char *path);
 
 void center_zq_class_dialogs();
 
+int32_t write_single_item(PACKFILE *f, word index);
 int32_t writeitems(PACKFILE *f, zquestheader *Header);
 int32_t writeweapons(PACKFILE *f, zquestheader *Header);
 int32_t writemisccolors(PACKFILE *f, zquestheader *Header);

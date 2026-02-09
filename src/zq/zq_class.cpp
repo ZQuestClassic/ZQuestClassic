@@ -8303,6 +8303,227 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 	new_return(0);
 }
 
+int32_t write_single_item(PACKFILE *f, word index)
+{
+	itemdata const& item_ref = itemsbuf[index];
+	if (!p_putcstr(item_ref.name, f))
+		new_return(5);
+	
+	if(!p_iputl(item_ref.tile,f))
+		new_return(6);
+	
+	if(!p_putc(item_ref.misc_flags,f))
+		new_return(7);
+	
+	if(!p_putc(item_ref.csets,f))
+		new_return(8);
+	
+	if(!p_putc(item_ref.frames,f))
+		new_return(9);
+	
+	if(!p_putc(item_ref.speed,f))
+		new_return(10);
+	
+	if(!p_putc(item_ref.delay,f))
+		new_return(11);
+	
+	if(!p_iputl(item_ref.ltm,f))
+		new_return(12);
+	
+	if(!p_iputl(item_ref.type,f))
+		new_return(13);
+	
+	if(!p_putc(item_ref.level,f))
+		new_return(14);
+	
+	if(!p_iputl(item_ref.power,f))
+		new_return(14);
+	
+	if(!p_iputl(item_ref.flags,f))
+		new_return(15);
+	
+	if(!p_iputw(item_ref.script,f))
+		new_return(16);
+	
+	if(!p_putc(item_ref.count,f))
+		new_return(17);
+	
+	if(!p_iputw(item_ref.amount,f))
+		new_return(18);
+	
+	if(!p_iputw(item_ref.collect_script,f))
+		new_return(19);
+	
+	if(!p_iputw(item_ref.setmax,f))
+		new_return(21);
+	
+	if(!p_iputw(item_ref.max,f))
+		new_return(22);
+	
+	if(!p_iputw(item_ref.playsound,f))
+		new_return(23);
+	
+	for(int32_t j=0; j<8; j++)
+		if(!p_iputl(item_ref.initiald[j],f))
+			new_return(24);
+	
+	if(!p_putc(item_ref.wpn,f))
+		new_return(26);
+	
+	if(!p_putc(item_ref.wpn2,f))
+		new_return(27);
+	
+	if(!p_putc(item_ref.wpn3,f))
+		new_return(28);
+	
+	if(!p_putc(item_ref.wpn4,f))
+		new_return(29);
+	
+	if(!p_putc(item_ref.wpn5,f))
+		new_return(30);
+	
+	if(!p_putc(item_ref.wpn6,f))
+		new_return(31);
+	
+	if(!p_putc(item_ref.wpn7,f))
+		new_return(32);
+	
+	if(!p_putc(item_ref.wpn8,f))
+		new_return(33);
+	
+	if(!p_putc(item_ref.wpn9,f))
+		new_return(34);
+	
+	if(!p_putc(item_ref.wpn10,f))
+		new_return(35);
+	
+	if(!p_putc(item_ref.pickup_hearts,f))
+		new_return(36);
+	
+	if(!p_iputl(item_ref.misc1,f))
+		new_return(37);
+	
+	if(!p_iputl(item_ref.misc2,f))
+		new_return(38);
+	
+	for(auto q = 0; q < 2; ++q)
+		if(!p_iputw(item_ref.cost_amount[q],f))
+			new_return(39);
+	
+	if(!p_iputl(item_ref.misc3,f))
+		new_return(40);
+	
+	if(!p_iputl(item_ref.misc4,f))
+		new_return(41);
+	
+	if(!p_iputl(item_ref.misc5,f))
+		new_return(42);
+	
+	if(!p_iputl(item_ref.misc6,f))
+		new_return(43);
+	
+	if(!p_iputl(item_ref.misc7,f))
+		new_return(44);
+	
+	if(!p_iputl(item_ref.misc8,f))
+		new_return(45);
+	
+	if(!p_iputl(item_ref.misc9,f))
+		new_return(46);
+	
+	if(!p_iputl(item_ref.misc10,f))
+		new_return(47);
+	
+	if(!p_iputw(item_ref.usesound,f))
+		new_return(48);
+	
+	if(!p_iputw(item_ref.usesound2,f))
+		new_return(48);
+	
+	//New itemdata vars -Z
+	//! version 27
+	
+	if(!p_iputl(item_ref.weaprange,f))
+		new_return(51);
+	if(!p_iputl(item_ref.weapduration,f))
+		new_return(52);
+	for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )
+		if(!p_iputl(item_ref.weap_pattern[q],f))
+			new_return(53);
+	//version 28
+	if(!p_iputl(item_ref.duplicates,f))
+		new_return(54);
+
+	if(!p_putc(item_ref.drawlayer,f))
+		new_return(57);
+
+	if(!p_iputl(item_ref.hxofs,f))
+		new_return(58);
+	if(!p_iputl(item_ref.hyofs,f))
+		new_return(59);
+	if(!p_iputl(item_ref.hxsz,f))
+		new_return(60);
+	if(!p_iputl(item_ref.hysz,f))
+		new_return(61);
+	if(!p_iputl(item_ref.hzsz,f))
+		new_return(62);
+	if(!p_iputl(item_ref.xofs,f))
+		new_return(63);
+	if(!p_iputl(item_ref.yofs,f))
+		new_return(64);
+	if(!p_iputl(item_ref.wpnsprite,f))
+		new_return(73);
+	for(auto q = 0; q < 2; ++q)
+		if(!p_iputl(item_ref.magiccosttimer[q],f))
+			new_return(74);
+	if(!p_iputl(item_ref.overrideFLAGS,f))
+		new_return(75);
+	if(!p_iputl(item_ref.tilew,f))
+		new_return(76);
+	if(!p_iputl(item_ref.tileh,f))
+		new_return(77);
+	if(!p_iputl(item_ref.pickup,f))
+		new_return(81);
+	if(!p_iputw(item_ref.pstring,f))
+		new_return(82);
+	if(!p_iputw(item_ref.pickup_string_flags,f))
+		new_return(83);
+	
+	for(auto q = 0; q < 2; ++q)
+		if(!p_putc(item_ref.cost_counter[q],f))
+			new_return(84);
+	
+	//InitD[] labels
+	for ( int32_t q = 0; q < 8; q++ )
+	{
+		for ( int32_t w = 0; w < 65; w++ )
+			if(!p_putc(item_ref.initD_label[q][w],f))
+				new_return(85);
+		for ( int32_t w = 0; w < 65; w++ )
+			if(!p_putc(item_ref.sprite_initD_label[q][w],f))
+				new_return(87);
+		if(!p_iputl(item_ref.sprite_initiald[q],f))
+			new_return(88);
+	}
+	if(!p_iputw(item_ref.sprite_script,f))
+		new_return(90);
+	if(!p_putc(item_ref.pickupflag,f))
+		new_return(91);
+	if(!p_putcstr(item_ref.display_name,f))
+		new_return(92);
+	if(!p_iputw(item_ref.pickup_litems, f))
+		new_return(95);
+	if(!p_iputw(item_ref.pickup_litem_level, f))
+		new_return(96);
+	if (!p_iputl(item_ref.moveflags, f))
+		new_return(97);
+	if(auto ret = write_weap_data(item_ref.weap_data, f))
+		return ret;
+	if (!p_iputl(item_ref.cooldown, f))
+		new_return(98);
+	return 0;
+}
+
 int32_t writeitems(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -8342,411 +8563,13 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        //finally...  section data
-        if(!p_iputw(MAXITEMS,f))
-        {
+        word item_count = itemsbuf.capacity();
+        if(!p_iputw(item_count,f))
             new_return(5);
-        }
         
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            if(!pfwrite(item_string[i], 64, f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            if(!p_iputl(itemsbuf[i].tile,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_putc(itemsbuf[i].misc_flags,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(itemsbuf[i].csets,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(itemsbuf[i].frames,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(itemsbuf[i].speed,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(itemsbuf[i].delay,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_iputl(itemsbuf[i].ltm,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_iputl(itemsbuf[i].type,f))
-            {
-                new_return(13);
-            }
-            
-            if(!p_putc(itemsbuf[i].level,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_iputl(itemsbuf[i].power,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_iputl(itemsbuf[i].flags,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_iputw(itemsbuf[i].script,f))
-            {
-                new_return(16);
-            }
-            
-            if(!p_putc(itemsbuf[i].count,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputw(itemsbuf[i].amount,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_iputw(itemsbuf[i].collect_script,f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputw(itemsbuf[i].setmax,f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputw(itemsbuf[i].max,f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_iputw(itemsbuf[i].playsound,f))
-            {
-                new_return(23);
-            }
-            
-            for(int32_t j=0; j<8; j++)
-            {
-                if(!p_iputl(itemsbuf[i].initiald[j],f))
-                {
-                    new_return(24);
-                }
-            }
-            
-            for(int32_t j=0; j<2; j++)
-            {
-                if(!p_putc(0,f))
-                {
-                    new_return(25);
-                }
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn2,f))
-            {
-                new_return(27);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn3,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn4,f))
-            {
-                new_return(29);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn5,f))
-            {
-                new_return(30);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn6,f))
-            {
-                new_return(31);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn7,f))
-            {
-                new_return(32);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn8,f))
-            {
-                new_return(33);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn9,f))
-            {
-                new_return(34);
-            }
-            
-            if(!p_putc(itemsbuf[i].wpn10,f))
-            {
-                new_return(35);
-            }
-            
-            if(!p_putc(itemsbuf[i].pickup_hearts,f))
-            {
-                new_return(36);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc1,f))
-            {
-                new_return(37);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc2,f))
-            {
-                new_return(38);
-            }
-            
-			for(auto q = 0; q < 2; ++q)
-			{
-				if(!p_iputw(itemsbuf[i].cost_amount[q],f))
-				{
-					new_return(39);
-				}
-			}
-            
-            if(!p_iputl(itemsbuf[i].misc3,f))
-            {
-                new_return(40);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc4,f))
-            {
-                new_return(41);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc5,f))
-            {
-                new_return(42);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc6,f))
-            {
-                new_return(43);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc7,f))
-            {
-                new_return(44);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc8,f))
-            {
-                new_return(45);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc9,f))
-            {
-                new_return(46);
-            }
-            
-            if(!p_iputl(itemsbuf[i].misc10,f))
-            {
-                new_return(47);
-            }
-            
-            if(!p_iputw(itemsbuf[i].usesound,f))
-            {
-                new_return(48);
-            }
-            
-            if(!p_iputw(itemsbuf[i].usesound2,f))
-            {
-                new_return(48);
-            }
-			
-			//New itemdata vars -Z
-			//! version 27
-			
-			if(!p_iputl(itemsbuf[i].weaprange,f))
-			{
-				new_return(51);
-			}
-			if(!p_iputl(itemsbuf[i].weapduration,f))
-			{
-				new_return(52);
-			}
-			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-				if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
-				{
-					new_return(53);
-				}
-			}
-			//version 28
-			if(!p_iputl(itemsbuf[i].duplicates,f))
-			{
-				new_return(54);
-			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_putc(0,f))
-				{
-					new_return(56);
-				}
-			}
-
-			if(!p_putc(itemsbuf[i].drawlayer,f))
-			{
-				new_return(57);
-			}
-
-
-			if(!p_iputl(itemsbuf[i].hxofs,f))
-			{
-				new_return(58);
-			}
-			if(!p_iputl(itemsbuf[i].hyofs,f))
-			{
-				new_return(59);
-			}
-			if(!p_iputl(itemsbuf[i].hxsz,f))
-			{
-				new_return(60);
-			}
-			if(!p_iputl(itemsbuf[i].hysz,f))
-			{
-				new_return(61);
-			}
-			if(!p_iputl(itemsbuf[i].hzsz,f))
-			{
-				new_return(62);
-			}
-			if(!p_iputl(itemsbuf[i].xofs,f))
-			{
-				new_return(63);
-			}
-			if(!p_iputl(itemsbuf[i].yofs,f))
-			{
-				new_return(64);
-			}
-			if(!p_iputl(itemsbuf[i].wpnsprite,f))
-			{
-				new_return(73);
-			}
-			for(auto q = 0; q < 2; ++q)
-			{
-				if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
-				{
-					new_return(74);
-				}
-			}
-			if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
-			{
-				new_return(75);
-			}
-			if(!p_iputl(itemsbuf[i].tilew,f))
-			{
-				new_return(76);
-			}
-			if(!p_iputl(itemsbuf[i].tileh,f))
-			{
-				new_return(77);
-			}
-			if(!p_iputl(itemsbuf[i].pickup,f))
-			{
-				new_return(81);
-			}
-			if(!p_iputw(itemsbuf[i].pstring,f))
-			{
-				new_return(82);
-			}
-			if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
-			{
-				new_return(83);
-			}
-			
-			for(auto q = 0; q < 2; ++q)
-			{
-				if(!p_putc(itemsbuf[i].cost_counter[q],f))
-				{
-					new_return(84);
-				}
-			}
-			
-			//InitD[] labels
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_putc(itemsbuf[i].initD_label[q][w],f))
-					{
-						new_return(85);
-					} 
-				}
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
-					{
-						new_return(87);
-					} 
-				}
-				if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
-				{
-					new_return(88);
-				} 
-			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_putc(0,f))
-				{
-					new_return(89);
-				} 
-				
-			}
-			if(!p_iputw(itemsbuf[i].sprite_script,f))
-			{
-				new_return(90);
-			}
-			if(!p_putc(itemsbuf[i].pickupflag,f))
-			{
-				new_return(91);
-			}
-			std::string dispname(itemsbuf[i].display_name);
-			if(!p_putcstr(dispname,f))
-				new_return(92);
-			if(!p_iputw(itemsbuf[i].pickup_litems, f))
-				new_return(95);
-			if(!p_iputw(itemsbuf[i].pickup_litem_level, f))
-				new_return(96);
-			if (!p_iputl(itemsbuf[i].moveflags, f))
-				new_return(97);
-			if(auto ret = write_weap_data(itemsbuf[i].weap_data, f))
+        for(word q = 0; q < item_count; ++q)
+			if (auto ret = write_single_item(f, q))
 				return ret;
-			if (!p_iputl(itemsbuf[i].cooldown, f))
-				new_return(98);
-        }
         
         if(writecycle==0)
         {

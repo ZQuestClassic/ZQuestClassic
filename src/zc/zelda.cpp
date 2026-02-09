@@ -223,8 +223,6 @@ BITMAP* framebuf_no_passive_subscreen;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
-//byte       *tilebuf;
-itemdata   *itemsbuf;
 wpndata    *wpnsbuf;
 comboclass *combo_class_buf;
 guydata    *guysbuf;
@@ -899,7 +897,6 @@ bool bad_version(int32_t version)
 }
 
 extern char *weapon_string[];
-extern char *item_string[];
 extern char *guy_string[];
 
 bool get_debug()
@@ -3944,11 +3941,6 @@ static void allocate_crap()
 		weapon_string[i] = new char[64];
 	}
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		item_string[i] = new char[64];
-	}
-	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{
 		guy_string[i] = new char[64];
@@ -4980,11 +4972,6 @@ void quit_game()
 	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		delete [] weapon_string[i];
-	}
-	
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		delete [] item_string[i];
 	}
 	
 	for(int32_t i=0; i<eMAXGUYS; i++)

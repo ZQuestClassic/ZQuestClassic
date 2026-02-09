@@ -12,7 +12,6 @@ struct list_data_struct
     int32_t i;
 };
 
-void test_item(itemdata test);
 int32_t onCustomItems();
 
 enum { ws_2_frame, ws_3_frame, ws_max };

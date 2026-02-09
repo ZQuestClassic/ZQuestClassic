@@ -15,7 +15,6 @@
 
 void mark_save_dirty();
 extern guydata* guysbuf;
-extern itemdata* itemsbuf;
 extern int32_t CSet;
 extern char* guy_string[eMAXGUYS];
 extern const char* old_guy_string[OLDMAXGUYS];

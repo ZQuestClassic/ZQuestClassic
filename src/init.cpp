@@ -19,8 +19,6 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-extern itemdata *itemsbuf;
-
 void getitem(int32_t id, bool nosound, bool doRunPassive);
 
 //InitData

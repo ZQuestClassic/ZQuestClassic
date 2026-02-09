@@ -21186,13 +21186,11 @@ void item_display_name(const bool setter)
 	int32_t arrayptr = get_register(sarg1);
 	if(setter)
 	{
-		std::string str;
-		ArrayH::getString(arrayptr, str, 255);
-		strcpy(itemsbuf[ID].display_name, str.c_str());
+		ArrayH::getString(arrayptr, itemsbuf[ID].display_name, 255);
 	}
 	else
 	{
-		if(ArrayH::setArray(arrayptr, string(itemsbuf[ID].display_name)) == SH::_Overflow)
+		if(ArrayH::setArray(arrayptr, itemsbuf[ID].display_name) == SH::_Overflow)
 			Z_scripterrlog("Array supplied to 'itemdata->GetDisplayName()' not large enough\n");
 	}
 }
@@ -21650,12 +21648,12 @@ void do_createitem(const bool v)
 		sprite* item = items.spr(items.Count() - 1);
 		item->screen_spawned = ri->screenref;
 		ri->itemref = item->getUID();
-		Z_eventlog("Script created item \"%s\" with UID = %u\n", item_string[ID], ri->itemref);
+		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf[ID].name.c_str(), ri->itemref);
 	}
 	else
 	{
 		ri->itemref = 0;
-		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
+		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", itemsbuf[ID].name.c_str());
 	}
 }
 
@@ -23597,7 +23595,7 @@ void do_getitemname()
 		return;
 	}
 	
-	if(ArrayH::setArray(arrayptr, item_string[GET_REF(itemdataref)]) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, itemsbuf[GET_REF(itemdataref)].name) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
 }
 
@@ -27121,7 +27119,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case RUNITEMSCRIPT:
 			{
 				int32_t itemid = GET_REF(itemdataref);
-				if(unsigned(itemid) > MAXITEMS) break;
+				if(unsigned(itemid) > itemsbuf.capacity()) break;
 				int32_t mode = get_register(sarg1) / 10000;
 				auto& data = get_script_engine_data(ScriptType::Item, itemid);
 				switch(mode)
@@ -29522,7 +29520,7 @@ void FFScript::runOnSaveEngine()
 bool FFScript::itemScriptEngine()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	for ( int32_t q = 0; q < MAXITEMS; q++ )
+	for ( int32_t q = 0; q < itemsbuf.capacity(); q++ )
 	{
 		
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
@@ -29604,7 +29602,7 @@ bool FFScript::itemScriptEngine()
 bool FFScript::itemScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	for ( int32_t q = 0; q < MAXITEMS; q++ )
+	for ( int32_t q = 0; q < itemsbuf.capacity(); q++ )
 	{
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
@@ -29940,11 +29938,11 @@ void FFScript::do_getitembyname()
 	int32_t arrayptr = get_register(sarg1);
 	string the_string;
 	int32_t num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	ArrayH::getString(arrayptr, the_string, 512);
 	
-	for(int32_t q = 0; q < MAXITEMS; q++)
+	for(int32_t q = 0; q < itemsbuf.capacity(); q++)
 	{
-		if(!(strcmp(the_string.c_str(), item_string[q])))
+		if(the_string == itemsbuf[q].name)
 		{
 			num = q;
 			break;

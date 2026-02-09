@@ -18,7 +18,6 @@
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
-extern itemdata *itemsbuf;
 
 static bool dlg_retval = false;
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
@@ -1965,7 +1964,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						fitParent = true, rowSpan = 3,
 						data = list_items_no_none.filter([&](GUI::ListItem& itm)
 							{
-								if(itm.value < 0 || itm.value >= MAXITEMS)
+								if(unsigned(itm.value) >= MAXITEMS)
 									return false;
 								itemdata const& idata = itemsbuf[itm.value];
 								return bool(idata.flags & item_gamedata); // only ownable items are usable

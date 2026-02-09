@@ -995,7 +995,7 @@ void gamedata::set_item(int32_t id, bool value)
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
     if(value != item[id])
-        Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, item_string[id]);
+        Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, itemsbuf[id].name.c_str());
         
     item[id]=value;
 }
@@ -1003,7 +1003,7 @@ void gamedata::set_item_no_flush(int32_t id, bool value)
 void gamedata::check_bottle_slots(std::set<dword>& slots) const
 {
 	slots.clear();
-	for(size_t q = 0; q < MAXITEMS; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		if(get_item(q) && itemsbuf[q].type == itype_bottle)
 		{

@@ -9,7 +9,6 @@
 #include "zcsfx.h"
 
 extern const char* icounter_str2[-(sscMIN + 1)];
-extern char *item_string[MAXITEMS];
 extern char* guy_string[eMAXGUYS];
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 extern std::map<int32_t, script_slot_data > genericmap;
@@ -852,7 +851,7 @@ if (var > -2) \
 		{
 			effects << indent;
 			if (spawnitem > 0)
-				effects << fmt::format("Spawn item #{} ({})", spawnitem, item_string[spawnitem]);
+				effects << fmt::format("Spawn item #{} ({})", spawnitem, itemsbuf[spawnitem].name);
 			else effects << fmt::format("Spawn item from dropset #{} ({})", -spawnitem, item_drop_sets[-spawnitem].name);
 			if (specitem)
 				effects << " (using room's 'Special Item' state)";
@@ -905,7 +904,7 @@ if (var > -2) \
 		}
 
 		if (triggeritem && trigger_flags.get(TRIGFLAG_CONSUMEITEM))
-			effects << indent << fmt::format("Consume item {} '{}'\n", triggeritem, item_string[triggeritem]);
+			effects << indent << fmt::format("Consume item {} '{}'\n", triggeritem, itemsbuf[triggeritem].name);
 			if (trigctramnt && ctr_consume)
 			{
 				effects << indent << "Consume " << ctr_str;

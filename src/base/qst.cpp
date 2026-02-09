@@ -79,7 +79,6 @@ extern int32_t                 hero_animation_speed; //lower is faster animation
 extern byte                *colordata;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
-extern itemdata            *itemsbuf;
 extern wpndata             *wpnsbuf;
 extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
@@ -502,151 +501,10 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
 
 bool valid_zqt(PACKFILE *f)
 {
-
-    //word tiles_used;
-    //word combos_used;
-    //open the file
-    //PACKFILE *f = pack_fopen(path, F_READ_PACKED);
     if(!f)
         return false;
-        
     //for now, everything else is valid
     return true;
-    
-    /*int16_t version;
-    byte build;
-    
-    //read the version and make sure it worked
-    if(!p_igetw(&version,f))
-    {
-      goto error;
-    }
-    
-    //read the build and make sure it worked
-    if(!p_getc(&build,f))
-      goto error;
-    
-    //read the tile info and make sure it worked
-    if(!p_igetw(&tiles_used,f))
-    {
-      goto error;
-    }
-    
-    for (int32_t i=0; i<tiles_used; i++)
-    {
-      if(!pfread(trashbuf,tilesize(tf4Bit),f))
-      {
-        goto error;
-      }
-    }
-    
-    //read the combo info and make sure it worked
-    if(!p_igetw(&combos_used,f))
-    {
-      goto error;
-    }
-    for (int32_t i=0; i<combos_used; i++)
-    {
-      if(!pfread(trashbuf,sizeof(newcombo),f))
-      {
-        goto error;
-      }
-    }
-    
-    //read the palette info and make sure it worked
-    for (int32_t i=0; i<48; i++)
-    {
-      if(!pfread(trashbuf,newpdTOTAL,f))
-      {
-        goto error;
-      }
-    }
-    if(!pfread(trashbuf,sizeof(palcycle)*256*3,f))
-    {
-      goto error;
-    }
-    for (int32_t i=0; i<MAXLEVELS; i++)
-    {
-      if(!pfread(trashbuf,PALNAMESIZE,f))
-      {
-        goto error;
-      }
-    }
-    
-    //read the sprite info and make sure it worked
-    for (int32_t i=0; i<MAXITEMS; i++)
-    {
-      if(!pfread(trashbuf,sizeof(itemdata),f))
-      {
-        goto error;
-      }
-    }
-    
-    for (int32_t i=0; i<MAXWPNS; i++)
-    {
-      if(!pfread(trashbuf,sizeof(wpndata),f))
-      {
-        goto error;
-      }
-    }
-    
-    //read the triforce pieces info and make sure it worked
-    for (int32_t i=0; i<8; ++i)
-    {
-      if(!p_getc(&trashbuf,f))
-      {
-        goto error;
-      }
-    }
-    
-    
-    
-    //read the game icons info and make sure it worked
-    for (int32_t i=0; i<4; ++i)
-    {
-      if(!p_igetw(&trashbuf,f))
-      {
-        goto error;
-      }
-    }
-    
-    //read the misc colors info and map styles info and make sure it worked
-    if(!pfread(trashbuf,sizeof(zcolors),f))
-    {
-      goto error;
-    }
-    
-    //read the template screens and make sure it worked
-    byte num_maps;
-    if(!p_getc(&num_maps,f))
-    {
-      goto error;
-    }
-    for (int32_t i=0; i<TEMPLATES; i++)
-    {
-      if(!pfread(trashbuf,sizeof(mapscr),f))
-      {
-        goto error;
-      }
-    }
-    if (num_maps>1)                                           //dungeon templates
-    {
-      for (int32_t i=0; i<TEMPLATES; i++)
-      {
-        if(!pfread(trashbuf,sizeof(mapscr),f))
-        {
-          goto error;
-        }
-      }
-    }
-    
-    //yay!  it worked!  close the file and say everything was ok.
-    pack_fclose(f);
-    return true;
-    
-    error:
-    pack_fclose(f);
-    return false;*/
 }
 
 bool valid_zqt(const char *filename)
@@ -1151,7 +1009,7 @@ bool reset_items(bool validate, zquestheader *Header)
     if (get_app_id() == App::zquest)
         ret = init_section(Header, ID_ITEMS, NULL, NULL, validate, "modules/classic/default.qst");
     
-    for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
+    for(int32_t i=0; i<256; i++) reset_itemname(i);
     
     return ret;
 }
@@ -1327,18 +1185,8 @@ int32_t get_qst_buffers()
     
     if((trashbuf=(byte*)malloc(100000))==NULL)
         return 0;
-        
-    // Big, ugly band-aid here. Perhaps the most common cause of random crashes
-    // has been inadvertently accessing itemsbuf[-1]. All such crashes should be
-    // fixed by ensuring there's actually itemdata there.
-    // If you change this, be sure to update del_qst_buffers, too.
     
-    if((itemsbuf=(itemdata*)malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
-        return 0;
-	
-	for(size_t q = 0; q < MAXITEMS+1; ++q)
-		itemsbuf[q].clear();
-	itemsbuf++;
+	itemsbuf.clear();
     
     if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
         return 0;
@@ -1401,12 +1249,7 @@ void del_qst_buffers()
     
     if(trashbuf) free(trashbuf);
     
-    // See get_qst_buffers
-    if(itemsbuf)
-    {
-        itemsbuf--;
-        free(itemsbuf);
-    }
+    itemsbuf.clear();
     
     if(wpnsbuf) free(wpnsbuf);
     
@@ -6338,953 +6181,21 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	return 0;
 }
 
-extern char *item_string[MAXITEMS];
 extern const char *old_item_string[iLast];
 extern char *weapon_string[MAXWPNS];
 extern const char *old_weapon_string[wLast];
 
-int32_t readitems(PACKFILE *f, word version, word build)
+void update_old_item(word s_version, word index)
 {
-	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
-
-    byte padding, tempbyte;
-    int32_t  dummy;
-    word items_to_read=MAXITEMS;
-    itemdata tempitem;
-    word s_version=0;
-    word dummy_word;
-    
-    if(version < 0x186)
-    {
-        items_to_read=64;
-    }
-    
-    if(version > 0x192)
-    {
-        items_to_read=0;
-        
-        //section version info
-        if(!p_igetw(&s_version,f))
-        {
-            return qe_invalid;
-        }
-
-		if (s_version > V_ITEMS)
-			return qe_version;
+	itemdata& tempitem = itemsbuf[i];
 	
-	FFCore.quest_format[vItems] = s_version;
-        
-        if(!read_deprecated_section_cversion(f))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f))
-        {
-            return qe_invalid;
-        }
-        
-        //finally...  section data
-        if(!p_igetw(&items_to_read,f))
-        {
-            return qe_invalid;
-        }
-
-        if (items_to_read > MAXITEMS)
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(s_version>1)
-    {
-        for(int32_t i=0; i<items_to_read; i++)
-        {
-            char tempname[64];
-            
-            if(!pfread(tempname, 64, f))
-            {
-                return qe_invalid;
-            }
-            
-			item_string[i][0] = '\0';
-			strncat(item_string[i], tempname, 64 - 1);
-        }
-    }
-    else if (!should_skip)
-    {
-		for(int32_t i=0; i<MAXITEMS; i++)
-		{
-			reset_itemname(i);
-		}
-    }
-    
-	if (!should_skip)
-	for(int32_t i=0; i<MAXITEMS; i++)
+	if (s_version < 67)
 	{
-		itemdata& id = itemsbuf[i];
-		memset(&id, 0, sizeof(itemdata));
-		id.count=-1;
-		id.playsound=WAV_SCALE;
-		reset_itembuf(&id,i);
-	}
-    
-    for(int32_t i=0; i<items_to_read; i++)
-    {
-		tempitem = itemdata();
-		reset_itembuf(&tempitem,i);
-		
-		if ( s_version > 35 ) //expanded tiles	
-		{    
-			if(!p_igetl(&tempitem.tile,f))
-			{
-				return qe_invalid;
-			}
-		}
-		else
-		{
-			if(!p_igetw(&tempitem.tile,f))
-			{
-				return qe_invalid;
-			}
-		}
-		
-        if(!p_getc(&tempitem.misc_flags,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.csets,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.frames,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.speed,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.delay,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(version < 0x193)
-        {
-            if(!p_getc(&padding,f))
-            {
-                return qe_invalid;
-            }
-            
-            if((version < 0x192)||((version == 0x192)&&(build<186)))
-            {
-				if (should_skip)
-					continue;
-
-                switch(i)
-                {
-                case iShield:
-                    tempitem.ltm=get_qr(qr_BSZELDA)?-12:10;
-                    break;
-                    
-                case iMShield:
-                    tempitem.ltm=get_qr(qr_BSZELDA)?-6:-10;
-                    break;
-                    
-                default:
-                    tempitem.ltm=0;
-                    break;
-                }
-                
-                tempitem.count=-1;
-				tempitem.flags=item_none;
-                tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
-                                                tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
-                tempitem.type=0xFF;
-                tempitem.playsound=WAV_SCALE;
-                reset_itembuf(&tempitem,i);
-                
-				itemsbuf[i] = tempitem;
-                
-                continue;
-            }
-        }
-        
-        if(!p_igetl(&tempitem.ltm,f))
-        {
-            return qe_invalid;
-        }
-        
-        if(version < 0x193)
-        {
-            for(int32_t q=0; q<12; q++)
-            {
-                if(!p_getc(&padding,f))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if(s_version>1)
-        {
-			if ( s_version >= 31 )
-			{
-				if(!p_igetl(&tempitem.type,f))
-				{
-					return qe_invalid;
-				}    
-			}
-            else
-			{		    
-				if(!p_getc(&tempitem.type,f))
-				{
-					return qe_invalid;
-				}
-            }
-            if(s_version < 16)
-                if(tempitem.type == 0xFF)
-                    tempitem.type = itype_misc;
-                    
-            if(!p_getc(&tempitem.level,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version>5)
-            {
-				if(s_version>=31)
-				{
-					if(!p_igetl(&tempitem.power,f))
-					{
-						return qe_invalid;
-					}
-				}
-				else
-				{
-					if(!p_getc(&tempitem.power,f))
-					{
-					return qe_invalid;
-					}
-				}
-						
-				//converted flags from 16b to 32b -Z
-				if ( s_version < 41 )
-				{
-					if(!p_igetw(&tempitem.flags,f))
-					{
-						return qe_invalid;
-					}
-				}
-				else
-				{
-					if(!p_igetl(&tempitem.flags,f))
-					{
-						return qe_invalid;
-					}
-				}
-            }
-            else
-            {
-                //tempitem.power = tempitem.fam_type;
-                char tempchar;
-                
-                if(!p_getc(&tempchar,f))
-                {
-                    return qe_invalid;
-                }
-                
-                if (tempchar) tempitem.flags |= item_gamedata;
-            }
-            
-            if(!p_igetw(&tempitem.script,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version<=3)
-            {
-                if(tempitem.script > NUMSCRIPTITEM)
-                {
-                    tempitem.script = 0;
-                }
-            }
-            
-            if(!p_getc(&tempitem.count,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&tempitem.amount,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&tempitem.collect_script,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version<=3)
-            {
-                if(tempitem.collect_script > NUMSCRIPTITEM)
-                {
-                    tempitem.collect_script = 0;
-                }
-            }
-            
-            if(!p_igetw(&tempitem.setmax,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&tempitem.max,f))
-            {
-                return qe_invalid;
-            }
-            
-			if (s_version >= 66)
-			{
-				if(!p_igetw(&tempitem.playsound,f))
-					return qe_invalid;
-			}
-			else
-			{
-				if(!p_getc(&tempbyte,f))
-					return qe_invalid;
-				tempitem.playsound = tempbyte;
-			}
-            
-            for(int32_t j=0; j<8; j++)
-            {
-                if(!p_igetl(&tempitem.initiald[j],f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            for(int32_t j=0; j<2; j++)
-            {
-				byte temp;
-                if(!p_getc(&temp,f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(s_version>4)
-            {
-                if(s_version>5)
-                {
-                    if(!p_getc(&tempitem.wpn,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn2,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn3,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn4,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(s_version>=15)
-                    {
-                        if(!p_getc(&tempitem.wpn5,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn6,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn7,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn8,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn9,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn10,f))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                    
-                    if(!p_getc(&tempitem.pickup_hearts,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(s_version<15)
-                    {
-                        if(!p_igetw(&dummy_word,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc1=dummy_word;
-                        
-                        if(!p_igetw(&dummy_word,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc2=dummy_word;
-                    }
-                    else
-                    {
-                        if(!p_igetl(&tempitem.misc1,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc2,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        // Version 24: sh_ice -> sh_script; previously, all shields could block script weapons
-                        if(s_version<24)
-                        {
-                            if(tempitem.type==itype_shield)
-                            {
-                                tempitem.misc1|=sh_script;
-                            }
-                        }
-                    }
-                    
-					if(s_version < 53)
-					{
-						byte tempbyte;
-						if(!p_getc(&tempbyte,f))
-						{
-							return qe_invalid;
-						}
-						tempitem.cost_amount[0] = tempbyte;
-					}
-					else
-					{
-						for(auto q = 0; q < 2; ++q)
-						{
-							if(!p_igetw(&tempitem.cost_amount[q],f))
-							{
-								return qe_invalid;
-							}
-						}
-					}
-                }
-                else
-                {
-                    char tempchar;
-                    
-                    if(!p_getc(&tempchar,f))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if (tempchar) tempitem.flags |= item_edible;
-                }
-                
-                // June 2007: more misc. attributes
-                if(s_version>=12)
-                {
-                    if(s_version<15)
-                    {
-                        if(!p_igetw(&dummy_word,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc3=dummy_word;
-                        
-                        if(!p_igetw(&dummy_word,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc4=dummy_word;
-                    }
-                    else
-                    {
-                        if(!p_igetl(&tempitem.misc3,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc4,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc5,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc6,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc7,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc8,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc9,f))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc10,f))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                    
-					
-					if (s_version >= 66)
-					{
-						if(!p_igetw(&tempitem.usesound,f))
-							return qe_invalid;
-						if(!p_igetw(&tempitem.usesound2,f))
-							return qe_invalid;
-					}
-					else
-					{
-						if(!p_getc(&tempbyte,f))
-							return qe_invalid;
-						tempitem.usesound = tempbyte;
-						if (s_version >= 49)
-						{
-							if(!p_getc(&tempbyte,f))
-								return qe_invalid;
-							tempitem.usesound2 = tempbyte;
-						}
-						else tempitem.usesound2 = 0;
-					}
-					if(s_version < 50 && tempitem.type == itype_mirror)
-					{
-						//Split continue/dmap warp effect/sfx, port for old
-						tempitem.misc2 = tempitem.misc1;
-						tempitem.usesound2 = tempitem.usesound;
-					}
-                }
-            }
-	    
-			if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
-			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-				if(s_version < 63)
-				{
-					if(!p_getc(&tempitem.weap_data.imitate_weapon,f))
-					{
-						return qe_invalid;
-					}
-					if(!p_getc(&tempitem.weap_data.default_defense,f))
-					{
-						return qe_invalid;
-					}
-				}
-				if(!p_igetl(&tempitem.weaprange,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.weapduration,f))
-				{
-					return qe_invalid;
-				}
-				for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )
-				{
-					if(!p_igetl(&tempitem.weap_pattern[q],f))
-					{
-						return qe_invalid;
-					}
-				}
-			}
-			
-			if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
-			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-				if(!p_igetl(&tempitem.duplicates,f))
-				{
-					return qe_invalid;
-				}
-				if(s_version < 63)
-					for ( int32_t q = 0; q < INITIAL_D; q++ )
-						if(!p_igetl(&tempitem.weap_data.initd[q],f))
-							return qe_invalid;
-				for ( int32_t q = 0; q < 2; q++ )
-				{
-					byte temp;
-					if(!p_getc(&temp,f))
-					{
-						return qe_invalid;
-					}
-				}
-				
-				if(!p_getc(&tempitem.drawlayer,f))
-				{
-					return qe_invalid;
-				}
-				
-				
-				if(!p_igetl(&tempitem.hxofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.hyofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.hxsz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.hysz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.hzsz,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.xofs,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.yofs,f))
-				{
-					return qe_invalid;
-				}
-				if(s_version < 63)
-				{
-					if(!p_igetl(&tempitem.weap_data.hxofs,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.hyofs,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.hxsz,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.hysz,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.hzsz,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.xofs,f))
-						return qe_invalid;
-					if(!p_igetl(&tempitem.weap_data.yofs,f))
-						return qe_invalid;
-				}
-				if(s_version < 63)
-					if(!p_igetw(&tempitem.weap_data.script,f))
-						return qe_invalid;
-				if(!p_igetl(&tempitem.wpnsprite,f))
-				{
-					return qe_invalid;
-				}
-				auto num_cost_tmr = (s_version > 52 ? 2 : 1);
-				for(auto q = 0; q < num_cost_tmr; ++q)
-				{
-					if(!p_igetl(&tempitem.magiccosttimer[q],f))
-					{
-						return qe_invalid;
-					}
-				}
-				for(auto q = num_cost_tmr; q < 2; ++q)
-					tempitem.magiccosttimer[q] = 0;
-			}
-			if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
-			{
-				//Item Size FLags, TileWidth, TileHeight
-				if(!p_igetl(&tempitem.overrideFLAGS,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.tilew,f))
-				{
-					return qe_invalid;
-				}
-				if(!p_igetl(&tempitem.tileh,f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 29 && s_version < 63)  //! More new vars. 
-			{
-				if(!p_igetl(&tempitem.weap_data.override_flags,f))
-					return qe_invalid;
-				if(!p_igetl(&tempitem.weap_data.tilew,f))
-					return qe_invalid;
-				if(!p_igetl(&tempitem.weap_data.tileh,f))
-					return qe_invalid;
-			}
-			if ( s_version >= 30 )  //! More new vars. 
-			{
-				//Pickup Type
-				if(!p_igetl(&tempitem.pickup,f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 32 )  //! More new vars. 
-			{
-				//Pickup Type
-				if(!p_igetw(&tempitem.pstring,f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 33 )  //! More new vars. 
-			{
-				//Pickup Type
-				if(!p_igetw(&tempitem.pickup_string_flags,f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 34 )  //! cost counter
-			{
-				if(s_version < 53)
-				{
-					if(!p_getc(&tempitem.cost_counter[0],f))
-					{
-						return qe_invalid;
-					}
-				}
-				else
-				{
-					for(auto q = 0; q < 2; ++q)
-					{
-						if(!p_getc(&tempitem.cost_counter[q],f))
-						{
-							return qe_invalid;
-						}
-					}
-				}
-			}
-			if ( s_version >= 44 )  //! sprite scripts
-			{
-				for ( int32_t q = 0; q < 8; q++ )
-				{
-					for ( int32_t w = 0; w < 65; w++ )
-					{
-						if(!p_getc(&(tempitem.initD_label[q][w]),f))
-						{
-							return qe_invalid;
-						} 
-					}
-					if(s_version < 63)
-						for ( int32_t w = 0; w < 65; w++ )
-							if(!p_getc(&padding,f))
-								return qe_invalid;
-					for ( int32_t w = 0; w < 65; w++ )
-					{
-						if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f))
-						{
-							return qe_invalid;
-						} 
-					}
-					if(!p_igetl(&(tempitem.sprite_initiald[q]),f))
-					{
-						return qe_invalid;
-					}
-					
-				}
-				for ( int32_t q = 0; q < 2; q++ )
-				{
-					byte temp;
-					if(!p_getc(&temp,f))
-					{
-						return qe_invalid;
-					}
-				}
-				//Pickup Type
-				if(!p_igetw(&tempitem.sprite_script,f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 48 )  //! pickup flags
-			{
-				if(!p_getc(&(tempitem.pickupflag),f))
-				{
-					return qe_invalid;
-				}
-			}
-			if ( s_version >= 57 )
-			{
-				std::string str;
-				if(!p_getcstr(&str,f))
-					return qe_invalid;
-				strncpy(tempitem.display_name,str.c_str(),255);
-			}
-        }
-        else
-        {
-            tempitem.count=-1;
-            tempitem.type=itype_misc;
-			tempitem.flags=item_none;
-            tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
-            tempitem.playsound=WAV_SCALE;
-            reset_itembuf(&tempitem,i);
-        }
-		
-		if(s_version >= 58 && s_version < 63)
-		{
-			for(int q = 0; q < WPNSPR_MAX; ++q)
-			{
-				if(!p_getc(&tempitem.weap_data.burnsprs[q],f))
-					return qe_invalid;
-				if(s_version >= 59)
-					if(!p_getc(&tempitem.weap_data.light_rads[q],f))
-						return qe_invalid;
-			}
-		}
-		
-		if ( s_version >= 60 )
-		{
-			if ( s_version >= 65 )
-			{
-				if(!p_igetw(&tempitem.pickup_litems,f))
-					return qe_invalid;
-			}
-			else
-			{
-				if(!p_getc(&padding,f))
-					return qe_invalid;
-				tempitem.pickup_litems = word(padding);
-			}
-			if(!p_igetw(&tempitem.pickup_litem_level,f))
-				return qe_invalid;
-		}
-		
-		if ( s_version >= 62 )
-		{
-			if (!p_igetl(&tempitem.moveflags, f))
-				return qe_invalid;
-			if(s_version < 63)
-				if (!p_igetl(&tempitem.weap_data.moveflags, f))
-					return qe_invalid;
-		}
-		else
-		{
-			tempitem.moveflags = (move_obeys_grav | move_can_pitfall);
-			switch(tempitem.type)
-			{
-				case itype_divinefire:
-					if(!(tempitem.flags & item_flag3))
-						break;
-				[[fallthrough]];
-				case itype_bomb: case itype_sbomb:
-				case itype_bait: case itype_liftglove:
-				case itype_candle: case itype_book:
-					tempitem.weap_data.moveflags = (move_obeys_grav | move_can_pitfall);
-					break;
-				default:
-					tempitem.weap_data.moveflags = move_none;
-					break;
-			}
-		}
-		
-		if(s_version >= 63)
-		{
-			if(auto ret = read_weap_data(tempitem.weap_data, f))
-				return ret;
-		}
-		else
-		{
-			SETFLAG(tempitem.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempitem.flags & item_burning_sprites);
-			switch(tempitem.type)
-			{
-				case itype_liftglove:
-					tempitem.weap_data.wflags = WFLAG_BREAK_WHEN_LANDING;
-					break;
-				case itype_bomb: case itype_sbomb:
-					// Moving these over and removing them from itemdata
-					if(tempitem.flags & item_flag3)
-						tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_LANDING;
-					if(tempitem.flags & item_flag5)
-						tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
-					tempitem.flags &= ~(item_flag3|item_flag5);
-					if(tempitem.misc4)
-					{
-						tempitem.weap_data.lift_level = tempitem.misc4;
-						tempitem.weap_data.lift_time = tempitem.misc5;
-						tempitem.weap_data.lift_height = tempitem.misc6;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-					}
-					break;
-			}
-		}
-		
-		if (s_version >= 64)
-		{
-			if (!p_igetl(&tempitem.cooldown, f))
-				return qe_invalid;
-		}
-        
-		if (!should_skip)
-		{
-			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
-			{
-				tempitem.script = 0;
-				tempitem.weap_data.script = 0;
-				for(int q = 0; q < 8; ++q)
-				{
-					tempitem.initiald[q] = 0;
-					tempitem.weap_data.initd[q] = 0;
-				}
-			}
-			itemsbuf[i] = tempitem;
-		}
-    }
-
-	if (should_skip)
-		return 0;
-    
-    //////////////////////////////////////////////////////
-    // Now do any updates because of new item additions
-    // (These can't be done above because items_to_read
-    // might be too low.)
-    //////////////////////////////////////////////////////
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		tempitem = itemsbuf[i];
-		
 		//Account for older quests that didn't have an actual item for the used letter
 		if(s_version < 2 && i==iLetterUsed)
 		{
 			reset_itembuf(&tempitem, iLetterUsed);
-			strcpy(item_string[i],old_item_string[i]);
+			tempitem.name = old_item_string[i];
 			tempitem.tile = itemsbuf[iLetter].tile;
 			tempitem.csets = itemsbuf[iLetter].csets;
 			tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
@@ -7320,14 +6231,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iL2WealthMedal:
 				case iL3WealthMedal:
 					reset_itembuf(&tempitem, i);
-					strcpy(item_string[i],old_item_string[i]);
+					tempitem.name = old_item_string[i];
 					break;
 					
 				case iSShield:
 					reset_itembuf(&tempitem, i);
-					strcpy(item_string[i],old_item_string[i]);
-					strcpy(item_string[iShield],old_item_string[iShield]);
-					strcpy(item_string[iMShield],old_item_string[iMShield]);
+					tempitem.name = old_item_string[i];
 					break;
 			}
 		}
@@ -7344,7 +6253,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iL3MagicRing:
 				case iL4MagicRing:
 					reset_itembuf(&tempitem, i);
-					strcpy(item_string[i],old_item_string[i]);
+					tempitem.name = old_item_string[i];
 					break;
 			}
 		}
@@ -7654,7 +6563,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iWhimsicalRing:
 				{
 					reset_itembuf(&tempitem, i);
-					strcpy(item_string[i],old_item_string[i]);
+					tempitem.name = old_item_string[i];
 					break;
 				}
 			}
@@ -9641,14 +8550,1197 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 			}
 		}
-
 		
-		if(tempitem.level==0)  // Always do this
-			tempitem.level=1;
-			
-		itemsbuf[i] = tempitem;
 	}
+	
+	if(tempitem.level == 0)  // Always do this
+		tempitem.level = 1;
+}
+int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word version, word build)
+{
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
+	itemdata tempitem;
+	reset_itembuf(&tempitem, index);
+	tempitem.name = itemsbuf[index].name;
+	
+	if ( s_version > 35 ) //expanded tiles	
+	{    
+		if(!p_igetl(&tempitem.tile,f))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&tempitem.tile,f))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	if(!p_getc(&tempitem.misc_flags,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&tempitem.csets,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&tempitem.frames,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&tempitem.speed,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(!p_getc(&tempitem.delay,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(version < 0x193)
+	{
+		if(!p_getc(&padding,f))
+		{
+			return qe_invalid;
+		}
+		
+		if((version < 0x192)||((version == 0x192)&&(build<186)))
+		{
+			if (should_skip)
+				continue;
 
+			switch(index)
+			{
+			case iShield:
+				tempitem.ltm=get_qr(qr_BSZELDA)?-12:10;
+				break;
+				
+			case iMShield:
+				tempitem.ltm=get_qr(qr_BSZELDA)?-6:-10;
+				break;
+				
+			default:
+				tempitem.ltm=0;
+				break;
+			}
+			
+			tempitem.count=-1;
+			tempitem.flags=item_none;
+			tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
+											tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+			tempitem.type=0xFF;
+			tempitem.playsound=WAV_SCALE;
+			reset_itembuf(&tempitem,index);
+			
+			itemsbuf[index] = tempitem;
+			
+			continue;
+		}
+	}
+	
+	if(!p_igetl(&tempitem.ltm,f))
+	{
+		return qe_invalid;
+	}
+	
+	if(version < 0x193)
+	{
+		for(int32_t q=0; q<12; q++)
+		{
+			if(!p_getc(&padding,f))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	
+	if(s_version>1)
+	{
+		if ( s_version >= 31 )
+		{
+			if(!p_igetl(&tempitem.type,f))
+			{
+				return qe_invalid;
+			}    
+		}
+		else
+		{		    
+			if(!p_getc(&tempitem.type,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if(s_version < 16)
+			if(tempitem.type == 0xFF)
+				tempitem.type = itype_misc;
+				
+		if(!p_getc(&tempitem.level,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version>5)
+		{
+			if(s_version>=31)
+			{
+				if(!p_igetl(&tempitem.power,f))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				if(!p_getc(&tempitem.power,f))
+				{
+				return qe_invalid;
+				}
+			}
+					
+			//converted flags from 16b to 32b -Z
+			if ( s_version < 41 )
+			{
+				if(!p_igetw(&tempitem.flags,f))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				if(!p_igetl(&tempitem.flags,f))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		else
+		{
+			//tempitem.power = tempitem.fam_type;
+			char tempchar;
+			
+			if(!p_getc(&tempchar,f))
+			{
+				return qe_invalid;
+			}
+			
+			if (tempchar) tempitem.flags |= item_gamedata;
+		}
+		
+		if(!p_igetw(&tempitem.script,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version<=3)
+		{
+			if(tempitem.script > NUMSCRIPTITEM)
+			{
+				tempitem.script = 0;
+			}
+		}
+		
+		if(!p_getc(&tempitem.count,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&tempitem.amount,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&tempitem.collect_script,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version<=3)
+		{
+			if(tempitem.collect_script > NUMSCRIPTITEM)
+			{
+				tempitem.collect_script = 0;
+			}
+		}
+		
+		if(!p_igetw(&tempitem.setmax,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&tempitem.max,f))
+		{
+			return qe_invalid;
+		}
+		
+		if (s_version >= 66)
+		{
+			if(!p_igetw(&tempitem.playsound,f))
+				return qe_invalid;
+		}
+		else
+		{
+			if(!p_getc(&tempbyte,f))
+				return qe_invalid;
+			tempitem.playsound = tempbyte;
+		}
+		
+		for(int32_t j=0; j<8; j++)
+		{
+			if(!p_igetl(&tempitem.initiald[j],f))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t j=0; j<2; j++)
+		{
+			byte temp;
+			if(!p_getc(&temp,f))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version>4)
+		{
+			if(s_version>5)
+			{
+				if(!p_getc(&tempitem.wpn,f))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&tempitem.wpn2,f))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&tempitem.wpn3,f))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&tempitem.wpn4,f))
+				{
+					return qe_invalid;
+				}
+				
+				if(s_version>=15)
+				{
+					if(!p_getc(&tempitem.wpn5,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempitem.wpn6,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempitem.wpn7,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempitem.wpn8,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempitem.wpn9,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempitem.wpn10,f))
+					{
+						return qe_invalid;
+					}
+				}
+				
+				if(!p_getc(&tempitem.pickup_hearts,f))
+				{
+					return qe_invalid;
+				}
+				
+				if(s_version<15)
+				{
+					if(!p_igetw(&dummy_word,f))
+					{
+						return qe_invalid;
+					}
+					
+					tempitem.misc1=dummy_word;
+					
+					if(!p_igetw(&dummy_word,f))
+					{
+						return qe_invalid;
+					}
+					
+					tempitem.misc2=dummy_word;
+				}
+				else
+				{
+					if(!p_igetl(&tempitem.misc1,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc2,f))
+					{
+						return qe_invalid;
+					}
+					
+					// Version 24: sh_ice -> sh_script; previously, all shields could block script weapons
+					if(s_version<24)
+					{
+						if(tempitem.type==itype_shield)
+						{
+							tempitem.misc1|=sh_script;
+						}
+					}
+				}
+				
+				if(s_version < 53)
+				{
+					byte tempbyte;
+					if(!p_getc(&tempbyte,f))
+					{
+						return qe_invalid;
+					}
+					tempitem.cost_amount[0] = tempbyte;
+				}
+				else
+				{
+					for(auto q = 0; q < 2; ++q)
+					{
+						if(!p_igetw(&tempitem.cost_amount[q],f))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+			}
+			else
+			{
+				char tempchar;
+				
+				if(!p_getc(&tempchar,f))
+				{
+					return qe_invalid;
+				}
+				
+				if (tempchar) tempitem.flags |= item_edible;
+			}
+			
+			// June 2007: more misc. attributes
+			if(s_version>=12)
+			{
+				if(s_version<15)
+				{
+					if(!p_igetw(&dummy_word,f))
+					{
+						return qe_invalid;
+					}
+					
+					tempitem.misc3=dummy_word;
+					
+					if(!p_igetw(&dummy_word,f))
+					{
+						return qe_invalid;
+					}
+					
+					tempitem.misc4=dummy_word;
+				}
+				else
+				{
+					if(!p_igetl(&tempitem.misc3,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc4,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc5,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc6,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc7,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc8,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc9,f))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetl(&tempitem.misc10,f))
+					{
+						return qe_invalid;
+					}
+				}
+				
+				
+				if (s_version >= 66)
+				{
+					if(!p_igetw(&tempitem.usesound,f))
+						return qe_invalid;
+					if(!p_igetw(&tempitem.usesound2,f))
+						return qe_invalid;
+				}
+				else
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					tempitem.usesound = tempbyte;
+					if (s_version >= 49)
+					{
+						if(!p_getc(&tempbyte,f))
+							return qe_invalid;
+						tempitem.usesound2 = tempbyte;
+					}
+					else tempitem.usesound2 = 0;
+				}
+				if(s_version < 50 && tempitem.type == itype_mirror)
+				{
+					//Split continue/dmap warp effect/sfx, port for old
+					tempitem.misc2 = tempitem.misc1;
+					tempitem.usesound2 = tempitem.usesound;
+				}
+			}
+		}
+	
+		if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
+		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+			if(s_version < 63)
+			{
+				if(!p_getc(&tempitem.weap_data.imitate_weapon,f))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&tempitem.weap_data.default_defense,f))
+				{
+					return qe_invalid;
+				}
+			}
+			if(!p_igetl(&tempitem.weaprange,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.weapduration,f))
+			{
+				return qe_invalid;
+			}
+			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )
+			{
+				if(!p_igetl(&tempitem.weap_pattern[q],f))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
+		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+			if(!p_igetl(&tempitem.duplicates,f))
+			{
+				return qe_invalid;
+			}
+			if(s_version < 63)
+				for ( int32_t q = 0; q < INITIAL_D; q++ )
+					if(!p_igetl(&tempitem.weap_data.initd[q],f))
+						return qe_invalid;
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				byte temp;
+				if(!p_getc(&temp,f))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_getc(&tempitem.drawlayer,f))
+			{
+				return qe_invalid;
+			}
+			
+			
+			if(!p_igetl(&tempitem.hxofs,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.hyofs,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.hxsz,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.hysz,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.hzsz,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.xofs,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.yofs,f))
+			{
+				return qe_invalid;
+			}
+			if(s_version < 63)
+			{
+				if(!p_igetl(&tempitem.weap_data.hxofs,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.hyofs,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.hxsz,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.hysz,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.hzsz,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.xofs,f))
+					return qe_invalid;
+				if(!p_igetl(&tempitem.weap_data.yofs,f))
+					return qe_invalid;
+			}
+			if(s_version < 63)
+				if(!p_igetw(&tempitem.weap_data.script,f))
+					return qe_invalid;
+			if(!p_igetl(&tempitem.wpnsprite,f))
+			{
+				return qe_invalid;
+			}
+			auto num_cost_tmr = (s_version > 52 ? 2 : 1);
+			for(auto q = 0; q < num_cost_tmr; ++q)
+			{
+				if(!p_igetl(&tempitem.magiccosttimer[q],f))
+				{
+					return qe_invalid;
+				}
+			}
+			for(auto q = num_cost_tmr; q < 2; ++q)
+				tempitem.magiccosttimer[q] = 0;
+		}
+		if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
+		{
+			//Item Size FLags, TileWidth, TileHeight
+			if(!p_igetl(&tempitem.overrideFLAGS,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.tilew,f))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempitem.tileh,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 29 && s_version < 63)  //! More new vars. 
+		{
+			if(!p_igetl(&tempitem.weap_data.override_flags,f))
+				return qe_invalid;
+			if(!p_igetl(&tempitem.weap_data.tilew,f))
+				return qe_invalid;
+			if(!p_igetl(&tempitem.weap_data.tileh,f))
+				return qe_invalid;
+		}
+		if ( s_version >= 30 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetl(&tempitem.pickup,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 32 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetw(&tempitem.pstring,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 33 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetw(&tempitem.pickup_string_flags,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 34 )  //! cost counter
+		{
+			if(s_version < 53)
+			{
+				if(!p_getc(&tempitem.cost_counter[0],f))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				for(auto q = 0; q < 2; ++q)
+				{
+					if(!p_getc(&tempitem.cost_counter[q],f))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+		}
+		if ( s_version >= 44 )  //! sprite scripts
+		{
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.initD_label[q][w]),f))
+					{
+						return qe_invalid;
+					} 
+				}
+				if(s_version < 63)
+					for ( int32_t w = 0; w < 65; w++ )
+						if(!p_getc(&padding,f))
+							return qe_invalid;
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f))
+					{
+						return qe_invalid;
+					} 
+				}
+				if(!p_igetl(&(tempitem.sprite_initiald[q]),f))
+				{
+					return qe_invalid;
+				}
+				
+			}
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				byte temp;
+				if(!p_getc(&temp,f))
+				{
+					return qe_invalid;
+				}
+			}
+			//Pickup Type
+			if(!p_igetw(&tempitem.sprite_script,f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 48 )  //! pickup flags
+		{
+			if(!p_getc(&(tempitem.pickupflag),f))
+			{
+				return qe_invalid;
+			}
+		}
+		if ( s_version >= 57 )
+		{
+			if(!p_getcstr(&tempitem.display_name,f))
+				return qe_invalid;
+		}
+	}
+	else
+	{
+		tempitem.count=-1;
+		tempitem.type=itype_misc;
+		tempitem.flags=item_none;
+		tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+		tempitem.playsound=WAV_SCALE;
+		reset_itembuf(&tempitem,index);
+	}
+	
+	if(s_version >= 58 && s_version < 63)
+	{
+		for(int q = 0; q < WPNSPR_MAX; ++q)
+		{
+			if(!p_getc(&tempitem.weap_data.burnsprs[q],f))
+				return qe_invalid;
+			if(s_version >= 59)
+				if(!p_getc(&tempitem.weap_data.light_rads[q],f))
+					return qe_invalid;
+		}
+	}
+	
+	if ( s_version >= 60 )
+	{
+		if ( s_version >= 65 )
+		{
+			if(!p_igetw(&tempitem.pickup_litems,f))
+				return qe_invalid;
+		}
+		else
+		{
+			if(!p_getc(&padding,f))
+				return qe_invalid;
+			tempitem.pickup_litems = word(padding);
+		}
+		if(!p_igetw(&tempitem.pickup_litem_level,f))
+			return qe_invalid;
+	}
+	
+	if ( s_version >= 62 )
+	{
+		if (!p_igetl(&tempitem.moveflags, f))
+			return qe_invalid;
+		if(s_version < 63)
+			if (!p_igetl(&tempitem.weap_data.moveflags, f))
+				return qe_invalid;
+	}
+	else
+	{
+		tempitem.moveflags = (move_obeys_grav | move_can_pitfall);
+		switch(tempitem.type)
+		{
+			case itype_divinefire:
+				if(!(tempitem.flags & item_flag3))
+					break;
+			[[fallthrough]];
+			case itype_bomb: case itype_sbomb:
+			case itype_bait: case itype_liftglove:
+			case itype_candle: case itype_book:
+				tempitem.weap_data.moveflags = (move_obeys_grav | move_can_pitfall);
+				break;
+			default:
+				tempitem.weap_data.moveflags = move_none;
+				break;
+		}
+	}
+	
+	if(s_version >= 63)
+	{
+		if(auto ret = read_weap_data(tempitem.weap_data, f))
+			return ret;
+	}
+	else
+	{
+		SETFLAG(tempitem.weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, tempitem.flags & item_burning_sprites);
+		switch(tempitem.type)
+		{
+			case itype_liftglove:
+				tempitem.weap_data.wflags = WFLAG_BREAK_WHEN_LANDING;
+				break;
+			case itype_bomb: case itype_sbomb:
+				// Moving these over and removing them from itemdata
+				if(tempitem.flags & item_flag3)
+					tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_LANDING;
+				if(tempitem.flags & item_flag5)
+					tempitem.weap_data.wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
+				tempitem.flags &= ~(item_flag3|item_flag5);
+				if(tempitem.misc4)
+				{
+					tempitem.weap_data.lift_level = tempitem.misc4;
+					tempitem.weap_data.lift_time = tempitem.misc5;
+					tempitem.weap_data.lift_height = tempitem.misc6;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+				}
+				break;
+		}
+	}
+	
+	if (s_version >= 64)
+	{
+		if (!p_igetl(&tempitem.cooldown, f))
+			return qe_invalid;
+	}
+	
+	if (!should_skip)
+	{
+		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+		{
+			tempitem.script = 0;
+			tempitem.weap_data.script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				tempitem.initiald[q] = 0;
+				tempitem.weap_data.initd[q] = 0;
+			}
+		}
+		itemsbuf[index] = tempitem;
+		update_old_item(s_version, index);
+	}
+}
+int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, word build)
+{
+	if (s_version < 67)
+		return read_single_item_old(f, s_version, index, version, build);
+	static itemdata _nil_item;
+	
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
+	itemdata& item_ref = should_skip ? _nil_item : itemsbuf[index];
+	item_ref = itemdata();
+	reset_itembuf(&item_ref, index);
+	
+	if (!p_getcstr(&item_ref.name, f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.tile,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.misc_flags,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.csets,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.frames,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.speed,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.delay,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.ltm,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.type,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.level,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.power,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.flags,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.script,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.count,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.amount,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.collect_script,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.setmax,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.max,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.playsound,f))
+		return qe_invalid;
+	
+	for (size_t q = 0; q < 8; ++q)
+		if(!p_igetl(&item_ref.initiald[q], f))
+			return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn2,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn3,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn4,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn5,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn6,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn7,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn8,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn9,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.wpn10,f))
+		return qe_invalid;
+	
+	if(!p_getc(&item_ref.pickup_hearts,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc1,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc2,f))
+		return qe_invalid;
+	
+	for(size_t q = 0; q < 2; ++q)
+		if(!p_igetw(&item_ref.cost_amount[q],f))
+			return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc3,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc4,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc5,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc6,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc7,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc8,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc9,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.misc10,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.usesound,f))
+		return qe_invalid;
+	if(!p_igetw(&item_ref.usesound2,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.weaprange,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.weapduration,f))
+		return qe_invalid;
+	for (size_t q = 0; q < ITEM_MOVEMENT_PATTERNS; ++q)
+		if(!p_igetl(&item_ref.weap_pattern[q],f))
+			return qe_invalid;
+	
+	if(!p_igetl(&item_ref.duplicates,f))
+		return qe_invalid;
+	if(!p_getc(&item_ref.drawlayer,f))
+		return qe_invalid;
+	
+	if(!p_igetl(&item_ref.hxofs,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.hyofs,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.hxsz,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.hysz,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.hzsz,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.xofs,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.yofs,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.wpnsprite,f))
+		return qe_invalid;
+	for(size_t q = 0; q < 2; ++q)
+		if(!p_igetl(&item_ref.magiccosttimer[q],f))
+			return qe_invalid;
+	
+	if(!p_igetl(&item_ref.overrideFLAGS,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.tilew,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.tileh,f))
+		return qe_invalid;
+	if(!p_igetl(&item_ref.pickup,f))
+		return qe_invalid;
+	if(!p_igetw(&item_ref.pstring,f))
+		return qe_invalid;
+	if(!p_igetw(&item_ref.pickup_string_flags,f))
+		return qe_invalid;
+	for(size_t q = 0; q < 2; ++q)
+		if(!p_getc(&item_ref.cost_counter[q],f))
+			return qe_invalid;
+		
+	for ( int32_t q = 0; q < 8; q++ )
+	{
+		for ( int32_t w = 0; w < 65; w++ )
+			if(!p_getc(&(item_ref.initD_label[q][w]),f))
+				return qe_invalid;
+		for ( int32_t w = 0; w < 65; w++ )
+			if(!p_getc(&(item_ref.sprite_initD_label[q][w]),f))
+				return qe_invalid;
+		if(!p_igetl(&(item_ref.sprite_initiald[q]),f))
+			return qe_invalid;
+	}
+	if(!p_igetw(&item_ref.sprite_script,f))
+		return qe_invalid;
+	
+	if(!p_getc(&(item_ref.pickupflag),f))
+		return qe_invalid;
+	if(!p_getcstr(&item_ref.display_name,f))
+		return qe_invalid;
+	
+	if(!p_igetw(&item_ref.pickup_litems,f))
+		return qe_invalid;
+	if(!p_igetw(&item_ref.pickup_litem_level,f))
+		return qe_invalid;
+	
+	if (!p_igetl(&item_ref.moveflags, f))
+		return qe_invalid;
+	
+	if(auto ret = read_weap_data(item_ref.weap_data, f))
+		return ret;
+	
+	if (!p_igetl(&item_ref.cooldown, f))
+		return qe_invalid;
+
+	if (!should_skip)
+	{
+		update_old_item(s_version, index);
+		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+		{
+			item_ref.script = 0;
+			item_ref.weap_data.script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				item_ref.initiald[q] = 0;
+				item_ref.weap_data.initd[q] = 0;
+			}
+		}
+	}
+	return 0;
+}
+
+int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
+{
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
+
+    byte padding, tempbyte;
+    int32_t dummy;
+    word items_to_read = 256;
+    word dummy_word;
+    
+    if(version < 0x186)
+    {
+        items_to_read=64;
+    }
+    
+    if(version > 0x192)
+    {
+        items_to_read=0;
+		
+        //finally...  section data
+        if(!p_igetw(&items_to_read,f))
+        {
+            return qe_invalid;
+        }
+
+        if (items_to_read > MAXITEMS)
+        {
+            return qe_invalid;
+        }
+    }
+    
+    
+	if (!should_skip)
+	{
+		itemsbuf.clear();
+		for (int q = items_to_read; q < iLast; ++q)
+		{
+			itemdata& id = itemsbuf[q];
+			reset_itembuf(&id, q);
+		}
+	}
+    if(s_version>1)
+    {
+        for(int32_t i=0; i<items_to_read; i++)
+        {
+            char tempname[64];
+            
+            if(!pfread(tempname, 64, f))
+                return qe_invalid;
+            
+			tempname[63] = 0;
+			itemsbuf[i].name = tempname;
+        }
+    }
+    else if (!should_skip)
+    {
+		for(int32_t i=0; i<256; i++)
+			reset_itemname(i);
+    }
+    
+    for (int32_t i=0; i<items_to_read; i++)
+		if (auto ret = read_single_item_old(f, s_version, i, version, build))
+			return ret;
+
+	if (!should_skip)
+		for(word i = items_to_read; i < itemsbuf.capacity(); ++i)
+			update_old_item(s_version, i);
+	
+	return 0;
+}
+
+int32_t readitems(PACKFILE *f, word version, word build)
+{
+	if (version <= 0x192)
+		return read_items_old(f, 0, version, build);
+	
+	word s_version;
+	int32_t dummy;
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+	if (s_version > V_ITEMS)
+		return qe_version;
+	
+	FFCore.quest_format[vItems] = s_version;
+		
+	if(!read_deprecated_section_cversion(f))
+		return qe_invalid;
+	
+	//section size
+	if(!p_igetl(&dummy,f))
+		return qe_invalid;
+	
+	if (s_version < 67)
+		return read_items_old(f, s_version, version, build);
+	
+	word items_to_read = 0;
+	if (!p_igetw(&items_to_read, f))
+		return qe_invalid;
+	if (items_to_read > MAXITEMS)
+		return qe_invalid;
+	
+	for (word q = 0; q < items_to_read; ++q)
+		if (auto ret = read_single_item(f, s_version, q, version, build))
+			return ret;
+	
 	return 0;
 }
 
@@ -9686,10 +9778,10 @@ void reset_itembuf(itemdata *item, int32_t id)
 
 void reset_itemname(int32_t id)
 {
-    sprintf(item_string[id],"zz%03d",id);
-    
-    if(id < iLast)
-        strcpy(item_string[id],old_item_string[id]);
+	if(id < iLast)
+		itemsbuf[id].name = old_item_string[id];
+	else
+		itemsbuf[id].name = fmt::format("zz{:03}", id);
 }
 
 int32_t readweapons(PACKFILE *f, zquestheader *Header)
@@ -20141,15 +20233,15 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 			//rings start at level 2... wtf
 			//account for this -DD
 			tempring <<= 1;
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_ring, tempring);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_sword, tempsword);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_shield, tempshield);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, tempwallet);
+			addOldStyleFamily(&temp_zinit, itype_ring, tempring);
+			addOldStyleFamily(&temp_zinit, itype_sword, tempsword);
+			addOldStyleFamily(&temp_zinit, itype_shield, tempshield);
+			addOldStyleFamily(&temp_zinit, itype_wallet, tempwallet);
 			//bracelet ALSO starts at level 2 :-( -DD
 			tempbracelet<<=1;
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_bracelet, tempbracelet);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_amulet, tempamulet);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_bow, tempbow);
+			addOldStyleFamily(&temp_zinit, itype_bracelet, tempbracelet);
+			addOldStyleFamily(&temp_zinit, itype_amulet, tempamulet);
+			addOldStyleFamily(&temp_zinit, itype_bow, tempbow);
 			
 			//new only
 			if((Header->zelda_version == 0x192)&&(Header->build>173))
@@ -20185,7 +20277,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 				return qe_invalid;
 			}
 			
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_potion, temp);
+			addOldStyleFamily(&temp_zinit, itype_potion, temp);
 			
 			if(!p_getc(&tempwhistle,f))
 			{
@@ -20201,10 +20293,10 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 				tempwhistle=(tempwhistle)?(1<<(tempwhistle-1)):0;
 			}
 			
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_candle, tempcandle);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_brang, tempboomerang);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_arrow, temparrow);
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_whistle, tempwhistle);
+			addOldStyleFamily(&temp_zinit, itype_candle, tempcandle);
+			addOldStyleFamily(&temp_zinit, itype_brang, tempboomerang);
+			addOldStyleFamily(&temp_zinit, itype_arrow, temparrow);
+			addOldStyleFamily(&temp_zinit, itype_whistle, tempwhistle);
 			//What about the potion...?
 			
 		}
@@ -20234,63 +20326,63 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_wand, temp);
+				addOldStyleFamily(&temp_zinit, itype_wand, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_letter, temp);
+				addOldStyleFamily(&temp_zinit, itype_letter, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_lens, temp);
+				addOldStyleFamily(&temp_zinit, itype_lens, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hookshot, temp);
+				addOldStyleFamily(&temp_zinit, itype_hookshot, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_bait, temp);
+				addOldStyleFamily(&temp_zinit, itype_bait, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hammer, temp);
+				addOldStyleFamily(&temp_zinit, itype_hammer, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divinefire, temp);
+				addOldStyleFamily(&temp_zinit, itype_divinefire, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineescape, temp);
+				addOldStyleFamily(&temp_zinit, itype_divineescape, temp);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineprotection, temp);
+				addOldStyleFamily(&temp_zinit, itype_divineprotection, temp);
 				
 				if(!p_getc(&temp,f))
 				{
@@ -20734,7 +20826,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 				return qe_invalid;
 			}
 			
-			addOldStyleFamily(&temp_zinit, itemsbuf, itype_quiver, temp);
+			addOldStyleFamily(&temp_zinit, itype_quiver, temp);
 		}
 		
 		if(s_version>6 && s_version<15)
@@ -20968,7 +21060,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 	if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<15)))
 	{
 		//temp_zinit.shield=i_smallshield;
-		int32_t sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
+		int32_t sshieldid = getItemID(itype_shield, i_smallshield);
 		
 		if(sshieldid != -1)
 			temp_zinit.set_item(sshieldid, true);
@@ -21030,80 +21122,56 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 	
 	// Okay,  let's put these legacy values into itemsbuf.
 	if(s_version < 15)
-		for(int32_t i=0; i<MAXITEMS; i++)
-		{
-			switch(i)
-			{
-				case iFairyStill:
-					itemsbuf[i].misc1 = stationary_fairy_hearts;
-					itemsbuf[i].misc2 = stationary_fairy_magic;
-					itemsbuf[i].misc3 = 0;
-					if (stationary_fairy_heart_percent) itemsbuf[i].flags |= item_flag1;
-					if (stationary_fairy_magic_percent) itemsbuf[i].flags |= item_flag2;
-					break;
-					
-				case iFairyMoving:
-					itemsbuf[i].misc1 = moving_fairy_hearts;
-					itemsbuf[i].misc2 = moving_fairy_magic;
-					itemsbuf[i].misc3 = 50;
-					if (moving_fairy_heart_percent) itemsbuf[i].flags |= item_flag1;
-					if (moving_fairy_magic_percent) itemsbuf[i].flags |= item_flag2;
-					break;
-					
-				case iRPotion:
-					itemsbuf[i].misc1 = red_potion_hearts;
-					itemsbuf[i].misc2 = red_potion_magic;
-					if (red_potion_heart_percent) itemsbuf[i].flags |= item_flag1;
-					if (red_potion_magic_percent) itemsbuf[i].flags |= item_flag2;
-					break;
-					
-				case iBPotion:
-					itemsbuf[i].misc1 = blue_potion_hearts;
-					itemsbuf[i].misc2 = blue_potion_magic;
-					if (blue_potion_heart_percent) itemsbuf[i].flags |= item_flag1;
-					if (blue_potion_magic_percent) itemsbuf[i].flags |= item_flag2;
-					break;
-					
-				case iSword:
-					itemsbuf[i].pickup_hearts = sword_hearts[0];
-					itemsbuf[i].misc1 = beam_hearts[0];
-					itemsbuf[i].misc2 = beam_power[0];
-					// It seems that item_flag1 was already added by reset_itembuf()...
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~item_flag1 : ~item_none;
-					break;
-					
-				case iWSword:
-					itemsbuf[i].pickup_hearts = sword_hearts[1];
-					itemsbuf[i].misc1 = beam_hearts[1];
-					itemsbuf[i].misc2 = beam_power[1];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~item_flag1 : ~item_none;
-					break;
-					
-				case iMSword:
-					itemsbuf[i].pickup_hearts = sword_hearts[2];
-					itemsbuf[i].misc1 = beam_hearts[2];
-					itemsbuf[i].misc2 = beam_power[2];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~item_flag1 : ~item_none;
-					break;
-					
-				case iXSword:
-					itemsbuf[i].pickup_hearts = sword_hearts[3];
-					itemsbuf[i].misc1 = beam_hearts[3];
-					itemsbuf[i].misc2 = beam_power[3];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~item_flag1 : ~item_none;
-					break;
-					
-				case iHookshot:
-					itemsbuf[i].misc1 = hookshot_length;
-					itemsbuf[i].misc2 = hookshot_links;
-					break;
-					
-				case iLongshot:
-					itemsbuf[i].misc1 = longshot_length;
-					itemsbuf[i].misc2 = longshot_links;
-					break;
-			}
-		}
+	{
+		itemsbuf[iFairyStill].misc1 = stationary_fairy_hearts;
+		itemsbuf[iFairyStill].misc2 = stationary_fairy_magic;
+		itemsbuf[iFairyStill].misc3 = 0;
+		if (stationary_fairy_heart_percent) itemsbuf[iFairyStill].flags |= item_flag1;
+		if (stationary_fairy_magic_percent) itemsbuf[iFairyStill].flags |= item_flag2;
+		
+		itemsbuf[iFairyMoving].misc1 = moving_fairy_hearts;
+		itemsbuf[iFairyMoving].misc2 = moving_fairy_magic;
+		itemsbuf[iFairyMoving].misc3 = 50;
+		if (moving_fairy_heart_percent) itemsbuf[iFairyMoving].flags |= item_flag1;
+		if (moving_fairy_magic_percent) itemsbuf[iFairyMoving].flags |= item_flag2;
+		
+		itemsbuf[iRPotion].misc1 = red_potion_hearts;
+		itemsbuf[iRPotion].misc2 = red_potion_magic;
+		if (red_potion_heart_percent) itemsbuf[iRPotion].flags |= item_flag1;
+		if (red_potion_magic_percent) itemsbuf[iRPotion].flags |= item_flag2;
+		
+		itemsbuf[iBPotion].misc1 = blue_potion_hearts;
+		itemsbuf[iBPotion].misc2 = blue_potion_magic;
+		if (blue_potion_heart_percent) itemsbuf[iBPotion].flags |= item_flag1;
+		if (blue_potion_magic_percent) itemsbuf[iBPotion].flags |= item_flag2;
+		
+		itemsbuf[iSword].pickup_hearts = sword_hearts[0];
+		itemsbuf[iSword].misc1 = beam_hearts[0];
+		itemsbuf[iSword].misc2 = beam_power[0];
+		// It seems that item_flag1 was already added by reset_itembuf()...
+		itemsbuf[iSword].flags &= (!get_bit(&beam_percent,0)) ? ~item_flag1 : ~item_none;
+		
+		itemsbuf[iWSword].pickup_hearts = sword_hearts[1];
+		itemsbuf[iWSword].misc1 = beam_hearts[1];
+		itemsbuf[iWSword].misc2 = beam_power[1];
+		itemsbuf[iWSword].flags &= (!get_bit(&beam_percent,1)) ? ~item_flag1 : ~item_none;
+		
+		itemsbuf[iMSword].pickup_hearts = sword_hearts[2];
+		itemsbuf[iMSword].misc1 = beam_hearts[2];
+		itemsbuf[iMSword].misc2 = beam_power[2];
+		itemsbuf[iMSword].flags &= (!get_bit(&beam_percent,2)) ? ~item_flag1 : ~item_none;
+		
+		itemsbuf[iXSword].pickup_hearts = sword_hearts[3];
+		itemsbuf[iXSword].misc1 = beam_hearts[3];
+		itemsbuf[iXSword].misc2 = beam_power[3];
+		itemsbuf[iXSword].flags &= (!get_bit(&beam_percent,3)) ? ~item_flag1 : ~item_none;
+		
+		itemsbuf[iHookshot].misc1 = hookshot_length;
+		itemsbuf[iHookshot].misc2 = hookshot_links;
+		
+		itemsbuf[iLongshot].misc1 = longshot_length;
+		itemsbuf[iLongshot].misc2 = longshot_links;
+	}
 		
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<168)))
 	{
@@ -21124,7 +21192,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zini
 	
 	if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
 	{
-		//addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
+		//addOldStyleFamily(&temp_zinit, itype_wallet, 4);   //is this needed?
 		temp_zinit.mcounter[crMONEY]=999;
 		//temp_zinit.counter[crMONEY]=999; //This rule only gave you an invisible max wallet; it did not give you max rupies.
 	}
@@ -22020,42 +22088,6 @@ const char *skip_text[skip_max]=
     "skip_sfx", "skip_midis", "skip_cheats", "skip_itemdropsets",
     "skip_favorites", "skip_zinfo", "skip_adv_music"
 };
-
-
-void port250QuestRules(){
-	
-	portCandleRules(); //Candle
-	portBombRules();
-
-}
-
-void portCandleRules()
-{
-	bool hurtshero = get_qr(qr_FIREPROOFHERO);
-	//itemdata itemsbuf;
-	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
-	{
-		if ( itemsbuf[q].type == itype_candle )
-		{
-			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
-			else itemsbuf[q].flags &= ~ item_flag2;
-		}
-	}
-}
-
-void portBombRules()
-{
-	bool hurtshero = get_qr(qr_OUCHBOMBS);
-	//itemdata itemsbuf;
-	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
-	{
-		if ( itemsbuf[q].type == itype_bomb )
-		{
-			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
-			else itemsbuf[q].flags &= ~ item_flag2;
-		}
-	}
-}
 
 static int section_id_to_enum(int id)
 {

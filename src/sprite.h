@@ -13,7 +13,6 @@ struct itemdata;
 struct newcombo;
 using std::map;
 
-extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern bool     freeze_guys;
 extern int32_t fadeclk;

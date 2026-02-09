@@ -145,10 +145,6 @@ int32_t count_infos(miscQdata *Misc);
 int32_t count_warprings(miscQdata *Misc);
 int32_t count_palcycles(miscQdata *Misc);
 
-void port250QuestRules();
-void portCandleRules();
-void portBombRules();
-
 std::string get_last_loaded_qstpath();
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
@@ -195,6 +191,8 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, w
 int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+void update_old_item(word s_version, word index);
+int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, word build);
 int32_t readitems(PACKFILE *f, word version, word build);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);
 int32_t readguys(PACKFILE *f, zquestheader *Header);

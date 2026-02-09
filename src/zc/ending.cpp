@@ -663,8 +663,8 @@ void ending_scripted()
 	blit(framebuf,scrollbuf_old,0,0,0,0,framebuf->w,framebuf->h);
 	endingpal();
     
-        removeItemsOfFamily(game, itemsbuf, itype_ring);
-        int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+        removeItemsOfFamily(itype_ring);
+        int32_t maxring = getHighestLevelOfFamily(&zinit,itype_ring);
         
         if(maxring != -1)
         {

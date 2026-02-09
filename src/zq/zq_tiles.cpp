@@ -6410,10 +6410,8 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			? "The tiles used by the following items will be partially cleared by the move."
 			: "The tiles used by the following items will be partially or completely overwritten by this process."
 			));
-		build_bii_list(false);
-		for(int32_t u=0; u<MAXITEMS; u++)
+		for(word id = 0; id < itemsbuf.capacity(); ++id)
 		{
-			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
 			if(itm.type == itype_bottle)
 			{

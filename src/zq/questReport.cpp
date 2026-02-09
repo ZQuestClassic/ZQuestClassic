@@ -1794,12 +1794,12 @@ void itemLocationReport()
         }
     }
     
-    build_bii_list(false);
+    auto list = GUI::ZCListData::items(false, false);
     
     //for each item
-    for(int32_t i2=0; i2<MAXITEMS; ++i2)
+    for (size_t idx = 0; idx < list.size(); ++idx)
     {
-        int32_t i=bii[i2].i;
+		auto i = list.getValue(idx);
         item_found=false;
         
         //check each item location type (room item, special item, shop item, choose any item, etc.)
@@ -1816,7 +1816,7 @@ void itemLocationReport()
                 if(!item_found)
                 {
                     buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", item_string[i]);
+                    sprintf(buf, "\n--- %s ---\n", itemsbuf[i].name.c_str());
                     quest_report_str+=buf;
                 }
                 

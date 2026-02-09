@@ -12,7 +12,6 @@
 
 extern int32_t dmap_list_size;
 extern bool dmap_list_zero;
-extern char *item_string[];
 
 extern int32_t doInit(zinitdata *zinit);
 

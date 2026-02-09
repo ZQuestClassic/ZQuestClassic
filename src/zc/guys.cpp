@@ -10706,7 +10706,7 @@ bool eStalfos::animate(int32_t index)
 			{
 			case e7tEATITEMS:
 			{
-				for(int32_t i=0; i<MAXITEMS; i++)
+				for(int32_t i=0; i<itemsbuf.capacity(); i++)
 				{
 					if(itemsbuf[i].flags&item_edible)
 						game->set_item(i, false);

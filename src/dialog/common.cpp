@@ -11,12 +11,12 @@
 GUI::ListData getItemListData(bool includeNone)
 {
 	std::vector<GUI::ListItem> listItems;
-	listItems.reserve(MAXITEMS+(includeNone ? 1 : 0));
+	listItems.reserve(itemsbuf.capacity()+(includeNone ? 1 : 0));
 
 	if(includeNone)
 		listItems.emplace_back("(None)", -1);
-	for(int32_t i = 0; i < MAXITEMS; ++i)
-		listItems.emplace_back(item_string[i], i);
+	for(word q = 0; q < itemsbuf.capacity(); ++q)
+		listItems.emplace_back(itemsbuf[q].name, q);
 
 	auto sortBegin = listItems.begin();
 	if(includeNone)

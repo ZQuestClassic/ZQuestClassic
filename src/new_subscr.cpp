@@ -528,7 +528,7 @@ bool can_inf(int ctr, int infitm = -1)
 		case sscANYKEYMAGIC:
 			return true;
 	}
-	return infitm > -1 && infitm < MAXITEMS;
+	return unsigned(infitm) < MAXITEMS;
 }
 
 int32_t to_real_font(int32_t ss_font)

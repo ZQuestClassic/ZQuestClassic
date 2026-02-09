@@ -896,7 +896,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			}
 			// Run Boss Key Script
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-			for ( int32_t q = 0; q < MAXITEMS; ++q )
+			for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 			{
 				if ( itemsbuf[q].type == itype_bosskey )
 				{
@@ -1012,7 +1012,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 			}
 			// Run Boss Key Script
 			int32_t key_item = 0;
-			for (int32_t q = 0; q < MAXITEMS; ++q)
+			for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 			{
 				if (itemsbuf[q].type == itype_bosskey)
 				{

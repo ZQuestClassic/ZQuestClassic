@@ -13,7 +13,6 @@
 #include "zc/maps.h"
 #include "items.h"
 
-extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
 tiledata *newtilebuf, *grabtilebuf;
 int32_t animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile

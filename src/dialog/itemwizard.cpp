@@ -16,7 +16,6 @@
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
-extern itemdata *itemsbuf;
 
 char *ordinal(int32_t num);
 using std::string;

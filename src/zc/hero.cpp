@@ -7813,7 +7813,7 @@ static void do_death_refill_waitframe()
 static size_t find_bottle_for_slot(size_t slot, bool unowned=false)
 {
 	int32_t found_unowned = -1;
-	for(int q = 0; q < MAXITEMS; ++q)
+	for(int q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		if(itemsbuf[q].type == itype_bottle && itemsbuf[q].misc1 == slot)
 		{
@@ -10648,25 +10648,25 @@ static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN
 void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].type == itype_bomb || itemsbuf[game->forced_bwpn].type == itype_bomb || itemsbuf[game->forced_xwpn].type == itype_bomb || itemsbuf[game->forced_ywpn].type == itype_bomb) return;
-    if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+    if(getItemFamily(Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
 		deselectbombsWPN(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
     }
-    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    else if (getItemFamily(Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
         deselectbombsWPN(game->xwpn, Xwpn, directItemX, COND_AWPN, COND_BWPN, COND_YWPN);
     }
-    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    else if (getItemFamily(Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
         deselectbombsWPN(game->ywpn, Ywpn, directItemY, COND_AWPN, COND_XWPN, COND_BWPN);
     }
-    else if (getItemFamily(itemsbuf,Awpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Awpn==directWpn))
+    else if (getItemFamily(Awpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Awpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
@@ -10965,7 +10965,7 @@ void HeroClass::land_on_ground()
 
 bool HeroClass::run_item_action_script(int itemid, bool paid_magic)
 {
-	if (unsigned(itemid) > MAXITEMS)
+	if (unsigned(itemid) > itemsbuf.capacity())
 		return false;
 	itemdata const& itm = itemsbuf[itemid];
 	if (!itm.script)
@@ -11964,7 +11964,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					checkbunny(itemid)
 				)
 			{
-				int32_t usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
+				int32_t usedid = getItemID(itype_letter,i_letter+1);
 				
 				if(usedid != -1)
 					getitem(usedid, true, true);
@@ -12421,7 +12421,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 				if(!(itm.flags & item_flag3)) //"Don't remove when feeding" flag
 				{
-					removeItemsOfFamily(game,itemsbuf,itype_bait);
+					removeItemsOfFamily(itype_bait);
 					verifyBothWeapons();
 				}
 				sfx(hero_scr->secretsfx);
@@ -12953,12 +12953,12 @@ bool HeroClass::can_be_used(int itmid)
 
 bool HeroClass::on_cooldown(int32_t itemid)
 {
-	if (itemid < 0 || itemid >= MAXITEMS) return false;
+	if (unsigned(itemid) >= MAXITEMS) return false;
 	return item_cooldown[itemid];
 }
 void HeroClass::start_cooldown(int32_t itemid)
 {
-	if (itemid < 0 || itemid >= MAXITEMS) return;
+	if (unsigned(itemid) >= MAXITEMS) return;
 	if (item_cooldown[itemid] < 0) return; // set to perma-cooldown (via script, presumably)
 	auto cd_data = calc_item_cooldown(itemid);
 	if(cd_data.max_cooldown <= 0) return;
@@ -14762,25 +14762,25 @@ void HeroClass::moveheroOld()
 	{
 		if (getInput(btnB, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn);
+			btnwpn=getItemFamily(Bwpn);
 			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if (getInput(btnA, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn);
+			btnwpn=getItemFamily(Awpn);
 			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if (get_qr(qr_SET_XBUTTON_ITEMS) && getInput(btnEx1, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn);
+			btnwpn=getItemFamily(Xwpn);
 			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if (get_qr(qr_SET_YBUTTON_ITEMS) && getInput(btnEx2, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn);
+			btnwpn=getItemFamily(Ywpn);
 			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
@@ -19182,25 +19182,25 @@ bool HeroClass::premove()
 	{
 		if (getInput(btnB, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn);
+			btnwpn=getItemFamily(Bwpn);
 			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if (getInput(btnA, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn);
+			btnwpn=getItemFamily(Awpn);
 			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if (get_qr(qr_SET_XBUTTON_ITEMS) && getInput(btnEx1, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn);
+			btnwpn=getItemFamily(Xwpn);
 			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if (get_qr(qr_SET_YBUTTON_ITEMS) && getInput(btnEx2, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn);
+			btnwpn=getItemFamily(Ywpn);
 			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
@@ -21762,7 +21762,7 @@ bool usekey()
 			game->lvlkeys[dlevel]--;
 			//run script for level key item
 			int32_t key_item = 0; //current_item_id(itype_lkey); //not possible
-			for ( int32_t q = 0; q < MAXITEMS; ++q )
+			for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 			{
 				if ( itemsbuf[q].type == itype_lkey )
 				{
@@ -21789,7 +21789,7 @@ bool usekey()
 			{
 				//run script for key item
 				int32_t key_item = 0; //current_item_id(itype_key); //not possible
-				for ( int32_t q = 0; q < MAXITEMS; ++q )
+				for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 				{
 					if ( itemsbuf[q].type == itype_key )
 					{
@@ -22140,7 +22140,7 @@ void HeroClass::oldcheckbosslockblock()
 	
 	// Run Boss Key Script
 	int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-	for ( int32_t q = 0; q < MAXITEMS; ++q )
+	for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 	{
 		if ( itemsbuf[q].type == itype_bosskey )
 		{
@@ -22280,7 +22280,7 @@ void HeroClass::oldcheckchest(int32_t type)
 			if(!(game->lvlitems[dlevel]&(1 << li_boss_key))) return;
 			// Run Boss Key Script
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-			for ( int32_t q = 0; q < MAXITEMS; ++q )
+			for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 			{
 				if ( itemsbuf[q].type == itype_bosskey )
 				{
@@ -23001,7 +23001,7 @@ void HeroClass::checklocked()
 				}
 
 				// Run Boss Key Script
-				for ( int32_t q = 0; q < MAXITEMS; ++q )
+				for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 					if ( itemsbuf[q].type == itype_bosskey )
 					{
 						if (itemsbuf[q].script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
@@ -25888,7 +25888,7 @@ void kill_enemy_sfx()
 
 bool HeroClass::HasHeavyBoots()
 {
-	for ( int32_t q = 0; q < MAXITEMS; ++q )
+	for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 	{
 		if ( game->item[q] && ( itemsbuf[q].type == itype_boots ) && /*iron*/ (itemsbuf[q].flags&item_flag2) ) return true;
 	}
@@ -30790,19 +30790,19 @@ void HeroClass::cleanupByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int32_t itype)
 {
-	if ((itype == getItemFamily(itemsbuf, Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
-	if ((itype == getItemFamily(itemsbuf, Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
-	if ((itype == getItemFamily(itemsbuf, Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
-	if ((itype == getItemFamily(itemsbuf, Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
+	if ((itype == getItemFamily(Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
+	if ((itype == getItemFamily(Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
+	if ((itype == getItemFamily(Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
+	if ((itype == getItemFamily(Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION)) return true;
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-	if ((itype == getItemFamily(itemsbuf, Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION)) return Bwpn & 0xFFF;
-	if ((itype == getItemFamily(itemsbuf, Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION)) return Awpn & 0xFFF;
-	if ((itype == getItemFamily(itemsbuf, Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION)) return Xwpn & 0xFFF;
-	if ((itype == getItemFamily(itemsbuf, Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION)) return Ywpn & 0xFFF;
+	if ((itype == getItemFamily(Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION)) return Bwpn & 0xFFF;
+	if ((itype == getItemFamily(Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION)) return Awpn & 0xFFF;
+	if ((itype == getItemFamily(Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION)) return Xwpn & 0xFFF;
+	if ((itype == getItemFamily(Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION)) return Ywpn & 0xFFF;
     
     return -1;
 }
@@ -30822,13 +30822,13 @@ int32_t getRocsPressed()
 			return jumpid; //not pressed
 	}
 
-	if ((itype_rocs == getItemFamily(itemsbuf, Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION))
+	if ((itype_rocs == getItemFamily(Bwpn)) && getInput(btnB, INPUT_DRUNK | INPUT_HERO_ACTION))
 		return Bwpn;
-	if ((itype_rocs == getItemFamily(itemsbuf, Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION))
+	if ((itype_rocs == getItemFamily(Awpn)) && getInput(btnA, INPUT_DRUNK | INPUT_HERO_ACTION))
 		return Awpn;
-	if ((itype_rocs == getItemFamily(itemsbuf, Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION))
+	if ((itype_rocs == getItemFamily(Xwpn)) && getInput(btnEx1, INPUT_DRUNK | INPUT_HERO_ACTION))
 		return Xwpn;
-	if ((itype_rocs == getItemFamily(itemsbuf, Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION))
+	if ((itype_rocs == getItemFamily(Ywpn)) && getInput(btnEx2, INPUT_DRUNK | INPUT_HERO_ACTION))
 		return Ywpn;
 
 	return -1;
@@ -31093,7 +31093,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
         }
         
         //also give Hero an actual Bomb item
-        for(int32_t i=0; i<MAXITEMS; i++)
+        for(int32_t i=0; i<itemsbuf.capacity(); i++)
         {
             if(itemsbuf[i].type == itype_bomb && itemsbuf[i].level == 1)
                 getitem(i, true, true);
@@ -31176,7 +31176,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		return;
 
 	if (replay_is_active())
-		replay_step_comment(fmt::format("getitem {}", item_string[id]));
+		replay_step_comment(fmt::format("getitem {}", itemsbuf[id].name));
 	
 	if(get_qr(qr_SCC_ITEM_COMBINES_ITEMS))
 	{
@@ -31187,8 +31187,8 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			if((itemsbuf[id].flags & item_combine) && game->get_item(id))
 				// Item upgrade routine.
 			{
-				
-				for(int32_t i=0; i<MAXITEMS; i++)
+				size_t sz = itemsbuf[i].type ? itemsbuf.capacity() : MAXITEMS;
+				for(int32_t i=0; i<sz; i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
 					if(itemsbuf[i].type==itemsbuf[id].type && itemsbuf[i].level>itemsbuf[id].level
@@ -31240,7 +31240,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		{
 			if(!get_qr(qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.type)<idat.level)
 			{
-				removeLowerLevelItemsOfFamily(game,itemsbuf,idat.type, idat.level);
+				removeLowerLevelItemsOfFamily(idat.type, idat.level);
 			}
 		}
 		
@@ -31316,7 +31316,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	{
 		for(int32_t i=idat.level-1; i>0; i--)
 		{
-			int32_t potid = getItemID(itemsbuf, idat.type, i);
+			int32_t potid = getItemID(idat.type, i);
 			
 			if(potid != -1)
 			{
@@ -31750,8 +31750,8 @@ bool HeroClass::checkitems(int32_t index)
 			if((itemsbuf[id2].flags & item_combine) && game->get_item(id2))
 				// Item upgrade routine.
 			{
-				
-				for(int32_t i=0; i<MAXITEMS; i++)
+				size_t sz = itemsbuf[i].type ? itemsbuf.capacity() : MAXITEMS;
+				for(int32_t i=0; i<sz; i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
 					if(itemsbuf[i].type==itemsbuf[id2].type && itemsbuf[i].level>itemsbuf[id2].level
@@ -32950,9 +32950,7 @@ void HeroClass::ganon_intro()
 	fakez = 0;
     }
     action=landhold2; FFCore.setHeroAction(landhold2);
-    holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
-    //not good, as this only returns the highest level that Hero possesses. -DD
-    //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
+    holditem=getItemID(itype_triforcepiece, 1);
     
     for(int32_t f=0; f<271 && !Quit; f++)
     {
@@ -32999,7 +32997,7 @@ void HeroClass::ganon_intro()
         
         if(f==256)
         {
-            holditem=getItemID(itemsbuf,itype_triforcepiece,1);
+            holditem=getItemID(itype_triforcepiece,1);
         }
         
         draw_screen();

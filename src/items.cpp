@@ -9,7 +9,8 @@
 #include "base/misctypes.h"
 #include "zc/zelda.h"
 
-char *item_string[MAXITEMS];
+bounded_vec<word, itemdata> itemsbuf = {MAXITEMS};
+const itemdata nil_item = itemdata();
 
 int32_t fairy_cnt=0;
 
@@ -344,13 +345,13 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	force_grab=false;
 	noSound=false;
 	noHoldSound=false;
-	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
 	pickupexstate = -1;
 	
 	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
-		 
+	itemdata const& itm = itemsbuf[id];
+	
 	o_tile = itm.tile;
 	tile = itm.tile;
 	cs = itm.csets&15;
@@ -799,108 +800,79 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 }
 
 //some methods for dealing with items
-int32_t getItemFamily(itemdata* items, int32_t item)
+int32_t getItemFamily(int32_t id)
 {
-	if(item < 0) return -1;
-	return items[item&0xFF].type;
+	if(id < 0) return -1;
+	return itemsbuf[id].type;
 }
 
-void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)
+void removeItemsOfFamily(int32_t family)
 {
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family)
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family)
 		{
-			g->set_item_no_flush(i,false);
-			if ( game->forced_bwpn == i ) 
-			{
+			game->set_item_no_flush(q, false);
+			
+			if (game->forced_bwpn == q)
 				game->forced_bwpn = -1;
-			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
-			{
+			if (game->forced_awpn == q)
 				game->forced_awpn = -1;
-			}
-			if ( game->forced_xwpn == i ) 
-			{
+			if (game->forced_xwpn == q)
 				game->forced_xwpn = -1;
-			}
-			if ( game->forced_ywpn == i ) 
-			{
+			if (game->forced_ywpn == q)
 				game->forced_ywpn = -1;
-			}
 		}
 	}
 	flushItemCache();
 }
 
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level)
+void removeLowerLevelItemsOfFamily(int32_t family, int32_t level)
 {
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && items[i].level < level)
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && itm.level < level)
 		{
-			g->set_item_no_flush(i, false);
-			if ( game->forced_bwpn == i ) 
-			{
+			game->set_item_no_flush(q, false);
+			
+			if (game->forced_bwpn == q)
 				game->forced_bwpn = -1;
-			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
-			{
+			if (game->forced_awpn == q)
 				game->forced_awpn = -1;
-			}
-			if ( game->forced_xwpn == i ) 
-			{
+			if (game->forced_xwpn == q)
 				game->forced_xwpn = -1;
-			}
-			if ( game->forced_ywpn == i ) 
-			{
+			if (game->forced_ywpn == q)
 				game->forced_ywpn = -1;
-			}
 		}
 	}
 	flushItemCache();
 }
 
-void removeItemsOfFamily(zinitdata *z, itemdata *items, int32_t family)
-{
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		if(items[i].type == family)
-		{
-			z->set_item(i,false);
-			if ( game->forced_bwpn == i ) 
-			{
-				game->forced_bwpn = -1;
-			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
-			{
-				game->forced_awpn = -1;
-			}
-			if ( game->forced_xwpn == i ) 
-			{
-				game->forced_xwpn = -1;
-			}
-			if ( game->forced_ywpn == i ) 
-			{
-				game->forced_ywpn = -1;
-			}
-		}
-	}
-}
-
-int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t family)
+int32_t getHighestLevelOfFamily(zinitdata *source, int32_t family)
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && source->get_item(i))
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && source->get_item(q))
 		{
-			if(items[i].level >= highestlevel)
+			if(itm.level >= highestlevel)
 			{
-				highestlevel = items[i].level;
-				result=i;
+				highestlevel = itm.level;
+				result = q;
 			}
 		}
 	}
@@ -908,19 +880,23 @@ int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t fami
 	return result;
 }
 
-int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t family, bool checkenabled)
+int32_t getHighestLevelOfFamily(gamedata *source, int32_t family)
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && source->get_item(i) && (checkenabled?(!(source->items_off[i])):1))
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && source->get_item(q))
 		{
-			if(items[i].level >= highestlevel)
+			if(itm.level >= highestlevel)
 			{
-				highestlevel = items[i].level;
-				result=i;
+				highestlevel = itm.level;
+				result = q;
 			}
 		}
 	}
@@ -928,19 +904,23 @@ int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t famil
 	return result;
 }
 
-int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
+int32_t getHighestLevelEvenUnowned(int32_t family)
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family)
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family)
 		{
-			if(items[i].level >= highestlevel)
+			if(itm.level >= highestlevel)
 			{
-				highestlevel = items[i].level;
-				result=i;
+				highestlevel = itm.level;
+				result = q;
 			}
 		}
 	}
@@ -948,41 +928,54 @@ int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
 	return result;
 }
 
-int32_t getItemID(itemdata *items, int32_t family, int32_t level)
+int32_t getItemID(int32_t family, int32_t level)
 {
-	if(level<0) return getCanonicalItemID(items, family);
+	if(level < 0)
+		return getCanonicalItemID(family);
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && items[i].level == level)
-			return i;
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && itm.level == level)
+			return q;
 	}
 	
 	return -1;
 }
 
-int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power)
+int32_t getItemIDPower(int32_t family, int32_t power)
 {
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && items[i].power == power)
-			return i;
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && itm.power == power)
+			return q;
 	}
 	
 	return -1;
 }
 
 /* Retrieves the canonical item of a given item family, the item with least non-0 level */
-int32_t getCanonicalItemID(itemdata *items, int32_t family)
+int32_t getCanonicalItemID(int32_t family)
 {
 	int32_t lowestid = -1;
 	int32_t lowestlevel = -1;
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (family != 0) // optimization; skip blank items at the end
+		sz = itemsbuf.capacity();
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(items[i].type == family && (items[i].level < lowestlevel || lowestlevel == -1))
+		auto const& itm = itemsbuf[q];
+		if(itm.type == family && (itm.level < lowestlevel || lowestlevel < 0))
 		{
-			lowestlevel = items[i].level;
+			lowestlevel = itm.level;
 			lowestid = i;
 		}
 	}
@@ -990,16 +983,16 @@ int32_t getCanonicalItemID(itemdata *items, int32_t family)
 	return lowestid;
 }
 
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char levels)
+void addOldStyleFamily(zinitdata *dest, int32_t family, char levels)
 {
 	for(int32_t i=0; i<8; i++)
 	{
 		if(levels & (1<<i))
 		{
-			int32_t id = getItemID(items, family, i+1);
+			int32_t id = getItemID(family, i+1);
 			
 			if(id != -1)
-				dest->set_item(id,true);
+				dest->set_item(id, true);
 		}
 	}
 }
@@ -1066,11 +1059,11 @@ ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 
 std::string itemdata::get_name(bool init, bool plain) const
 {
-	std::string name;
+	std::string ret;
 	if(display_name[0])
 	{
-		name = display_name;
-		size_t repl_pos = name.find("%s");
+		ret = display_name;
+		size_t repl_pos = ret.find("%s");
 		if(repl_pos != std::string::npos)
 		{
 			std::string arg;
@@ -1093,24 +1086,15 @@ std::string itemdata::get_name(bool init, bool plain) const
 					}
 					break;
 			}
-			name.replace(repl_pos,2,arg);
+			ret.replace(repl_pos,2,arg);
 			//Anything with 2 args?
-			//repl_pos = name.find("%s");
-			replstr(name,"%s",""); //Clear any spare '%s'
+			//repl_pos = ret.find("%s");
+			replstr(ret,"%s",""); //Clear any spare '%s'
 		}
 	}
 	else
 	{
-		int id = -1;
-		for(int q = 0; q < MAXITEMS; ++q)
-		{
-			if((itemsbuf+q) == this)
-			{
-				id = q;
-				break;
-			}
-		}
-		name = id > -1 ? item_string[id] : "";
+		ret = name;
 		if(!plain)
 		{
 			std::string overname;
@@ -1119,6 +1103,15 @@ std::string itemdata::get_name(bool init, bool plain) const
 				case itype_arrow:
 				{
 					auto bowid = current_item_id(itype_bow,false);
+					int id = -1;
+					for (int q = 0; q < itemsbuf.capacity(); ++q)
+					{
+						if(&itemsbuf[q] == this)
+						{
+							id = q;
+							break;
+						}
+					}
 					if(bowid>-1 && checkmagiccost(id))
 						overname = itemsbuf[bowid].get_name() + " & " + name;
 					break;
@@ -1133,7 +1126,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 				return overname;
 		}
 	}
-	return name;
+	return ret;
 }
 
 void itemdata::clear()
@@ -1142,8 +1135,10 @@ void itemdata::clear()
 }
 void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 {
+	if(pasteflags.get(ITM_ADVP_NAME))
+		name = other.name;
 	if(pasteflags.get(ITM_ADVP_DISP_NAME))
-		strcpy(display_name, other.display_name);
+		display_name = other.display_name;
 	if(pasteflags.get(ITM_ADVP_ITMCLASS))
 		type = other.type;
 	if(pasteflags.get(ITM_ADVP_EQUIPMENTITM))

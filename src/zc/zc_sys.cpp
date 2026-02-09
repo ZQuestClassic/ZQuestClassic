@@ -1607,7 +1607,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		case itype_bomb:
 		case itype_sbomb:
 		{
-			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			int32_t itemid = getItemID(item_type, it);
 			
 			if(itemid == -1)
 				return false;
@@ -1617,7 +1617,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		
 		case itype_clock:
 		{
-			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			int32_t itemid = getItemID(item_type, it);
 			
 			if(itemid != -1 && (itemsbuf[itemid].flags & item_flag1)) //Active clock
 				return (game->get_item(itemid));
@@ -1756,7 +1756,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		}
 		
 		default:
-			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			int32_t itemid = getItemID(item_type, it);
 			
 			if(itemid == -1)
 				return false;
@@ -1902,7 +1902,10 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	int result = -1;
 	int highestlevel = -1;
 	
-	for(int i=0; i<MAXITEMS; i++)
+	size_t sz = MAXITEMS;
+	if (itemtype != 0)
+		sz = itemsbuf.capacity();
+	for(int i=0; i<sz; i++)
 	{
 		if(game->get_item(i) && itemsbuf[i].type==itemtype && !item_disabled(i))
 		{
@@ -1990,7 +1993,7 @@ int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool chec
 
 int32_t heart_container_id()
 {
-	for(int32_t i=0; i<MAXITEMS; i++)
+	for(int32_t i=0; i<itemsbuf.capacity(); i++)
 	{
 		if(itemsbuf[i].type == itype_heartcontainer)
 		{
@@ -2049,7 +2052,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iClock
-				: getHighestLevelEvenUnowned(itemsbuf, itype_clock);
+				: getHighestLevelEvenUnowned(itype_clock);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2059,7 +2062,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iKey
-				: getHighestLevelEvenUnowned(itemsbuf, itype_key);
+				: getHighestLevelEvenUnowned(itype_key);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2069,7 +2072,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iLevelKey
-				: getHighestLevelEvenUnowned(itemsbuf, itype_lkey);
+				: getHighestLevelEvenUnowned(itype_lkey);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2079,7 +2082,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMap
-				: getHighestLevelEvenUnowned(itemsbuf, itype_map);
+				: getHighestLevelEvenUnowned(itype_map);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2089,7 +2092,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iCompass
-				: getHighestLevelEvenUnowned(itemsbuf, itype_compass);
+				: getHighestLevelEvenUnowned(itype_compass);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2099,7 +2102,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iBossKey
-				: getHighestLevelEvenUnowned(itemsbuf, itype_bosskey);
+				: getHighestLevelEvenUnowned(itype_bosskey);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2109,7 +2112,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMagicC
-				: getHighestLevelEvenUnowned(itemsbuf, itype_magiccontainer);
+				: getHighestLevelEvenUnowned(itype_magiccontainer);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2119,7 +2122,7 @@ int32_t item_tile_mod()
 		int32_t itemid =
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iTriforce
-				: getHighestLevelEvenUnowned(itemsbuf, itype_triforcepiece);
+				: getHighestLevelEvenUnowned(itype_triforcepiece);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2465,7 +2468,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								{
 								case cPUSH_HEAVY:
 								case cPUSH_HW:
-									tempitem=getItemIDPower(itemsbuf,itype_bracelet,1);
+									tempitem=getItemIDPower(itype_bracelet,1);
 									tempitemx=x, tempitemy=y;
 									
 									if(tempitem>-1)
@@ -2475,7 +2478,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 									
 								case cPUSH_HEAVY2:
 								case cPUSH_HW2:
-									tempitem=getItemIDPower(itemsbuf,itype_bracelet,2);
+									tempitem=getItemIDPower(itype_bracelet,2);
 									tempitemx=x, tempitemy=y;
 									
 									if(tempitem>-1)
@@ -2491,7 +2494,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWHISTLE:
 						if(hints)
 						{
-							tempitem=getItemID(itemsbuf,itype_whistle,1);
+							tempitem=getItemID(itype_whistle,1);
 							
 							if(tempitem<0) break;
 							
@@ -2513,7 +2516,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfALLFAIRY:
 						if(hints)
 						{
-							tempitem=getItemID(itemsbuf, itype_fairy,1);//iFairyMoving;
+							tempitem=getItemID(itype_fairy,1);//iFairyMoving;
 							
 							if(tempitem < 0) break;
 							
@@ -2536,7 +2539,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_candle,1);
+							tempitem=getItemID(itype_candle,1);
 							
 							if(tempitem<0) break;
 							
@@ -2559,7 +2562,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_candle,2);
+							tempitem=getItemID(itype_candle,2);
 							
 							if(tempitem<0) break;
 							
@@ -2582,7 +2585,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_wand,1);
+							tempitem=getItemID(itype_wand,1);
 							
 							if(tempitem<0) break;
 							
@@ -2613,7 +2616,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_divinefire,1);
+							tempitem=getItemID(itype_divinefire,1);
 							
 							if(tempitem<0) break;
 							
@@ -2636,7 +2639,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_arrow,1);
+							tempitem=getItemID(itype_arrow,1);
 							
 							if(tempitem<0) break;
 							
@@ -2659,7 +2662,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_arrow,2);
+							tempitem=getItemID(itype_arrow,2);
 							
 							if(tempitem<0) break;
 							
@@ -2682,7 +2685,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_arrow,3);
+							tempitem=getItemID(itype_arrow,3);
 							
 							if(tempitem<0) break;
 							
@@ -2705,7 +2708,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							//tempitem=getItemID(itemsbuf,itype_bomb,1);
+							//tempitem=getItemID(itype_bomb,1);
 							tempweapon = wLitBomb;
 							
 							//if (tempitem<0) break;
@@ -2728,7 +2731,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							//tempitem=getItemID(itemsbuf,itype_sbomb,1);
+							//tempitem=getItemID(itype_sbomb,1);
 							//if (tempitem<0) break;
 							tempweapon = wLitSBomb;
 							
@@ -2760,7 +2763,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_brang,1);
+							tempitem=getItemID(itype_brang,1);
 							
 							if(tempitem<0) break;
 							
@@ -2783,7 +2786,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_brang,2);
+							tempitem=getItemID(itype_brang,2);
 							
 							if(tempitem<0) break;
 							
@@ -2806,7 +2809,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_brang,3);
+							tempitem=getItemID(itype_brang,3);
 							
 							if(tempitem<0) break;
 							
@@ -2829,7 +2832,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_wand,1);
+							tempitem=getItemID(itype_wand,1);
 							
 							if(tempitem<0) break;
 							
@@ -2866,7 +2869,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_shield,3);
+							tempitem=getItemID(itype_shield,3);
 							
 							if(tempitem<0) break;
 							
@@ -2916,7 +2919,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_shield,3);
+							tempitem=getItemID(itype_shield,3);
 							
 							if(tempitem<0) break;
 							
@@ -2960,7 +2963,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,1);
+							tempitem=getItemID(itype_sword,1);
 							
 							if(tempitem<0) break;
 							
@@ -2983,7 +2986,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,2);
+							tempitem=getItemID(itype_sword,2);
 							
 							if(tempitem<0) break;
 							
@@ -3006,7 +3009,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,3);
+							tempitem=getItemID(itype_sword,3);
 							
 							if(tempitem<0) break;
 							
@@ -3029,7 +3032,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,4);
+							tempitem=getItemID(itype_sword,4);
 							
 							if(tempitem<0) break;
 							
@@ -3052,7 +3055,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,1);
+							tempitem=getItemID(itype_sword,1);
 							
 							if(tempitem<0) break;
 							
@@ -3075,7 +3078,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,2);
+							tempitem=getItemID(itype_sword,2);
 							
 							if(tempitem<0) break;
 							
@@ -3098,7 +3101,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,3);
+							tempitem=getItemID(itype_sword,3);
 							
 							if(tempitem<0) break;
 							
@@ -3121,7 +3124,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_sword,4);
+							tempitem=getItemID(itype_sword,4);
 							
 							if(tempitem<0) break;
 							
@@ -3144,7 +3147,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_hookshot,1);
+							tempitem=getItemID(itype_hookshot,1);
 							
 							if(tempitem<0) break;
 							
@@ -3167,7 +3170,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_wand,1);
+							tempitem=getItemID(itype_wand,1);
 							
 							if(tempitem<0) break;
 							
@@ -3190,7 +3193,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_hammer,1);
+							tempitem=getItemID(itype_hammer,1);
 							
 							if(tempitem<0) break;
 							
@@ -3324,7 +3327,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				{
 					if(scr->flags&fWHISTLE)
 					{
-						tempitem=getItemID(itemsbuf,itype_whistle,1);
+						tempitem=getItemID(itype_whistle,1);
 						int32_t tempitemx=-16+offx;
 						int32_t tempitemy=-16+offy-playing_field_offset;
 						

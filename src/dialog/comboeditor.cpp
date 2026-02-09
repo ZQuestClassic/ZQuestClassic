@@ -16,7 +16,6 @@
 #include "weap_data_editor.h"
 
 void mark_save_dirty();
-extern itemdata *itemsbuf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];

@@ -1099,7 +1099,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	shd_aclk = shd_aframe = 0;
 	
 	int32_t itemid = parentitem;
-	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
+	itemdata const& parent = unsigned(parentitem) < MAXITEMS ? itemsbuf[parentitem] : nil_item;
 	
 	if(id>wEnemyWeapons)
 	{
@@ -1312,7 +1312,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			hs_switcher = family_class == itype_switchhook;
 			
 			if(isDummy || itemid < 0)
-				itemid = getCanonicalItemID(itemsbuf, family_class);
+				itemid = getCanonicalItemID(family_class);
 			
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
 			step = 4;
@@ -1380,7 +1380,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			step = 0;
 			if(isDummy || itemid < 0)
-				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+				itemid = getCanonicalItemID(itype_hookshot);
 			
 			switch(dir)
 			{
@@ -1443,7 +1443,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wHSChain:
 		{
 			if(isDummy || itemid < 0)
-				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+				itemid = getCanonicalItemID(itype_hookshot);
 			step = 0;
 			switch(dir)
 			{
@@ -1848,7 +1848,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 {
 	optional<byte> ret;
 	if(force) ret = 0;
-	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
+	itemdata const& parent = unsigned(parentitem) < MAXITEMS ? itemsbuf[parentitem] : nil_item;
 	auto tmp_dir = dir;
 	if(autorotate && get_qr(qr_BETTER_ENGINE_AUTOROTATE))
 		tmp_dir = right;
@@ -1923,7 +1923,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_sword);
+					itemid = getCanonicalItemID(itype_sword);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else ret = wSWORD;
@@ -1939,7 +1939,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_wand);
+					itemid = getCanonicalItemID(itype_wand);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else ret = wWAND;
@@ -1955,7 +1955,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_hammer);
+					itemid = getCanonicalItemID(itype_hammer);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else ret = wHAMMER;
@@ -1971,7 +1971,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_cbyrna);
+					itemid = getCanonicalItemID(itype_cbyrna);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn3;
 				else ret = wCBYRNA;
@@ -1987,7 +1987,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_whistle);
+					itemid = getCanonicalItemID(itype_whistle);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else ret = wWIND;
@@ -2003,7 +2003,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_whistle);
+					itemid = getCanonicalItemID(itype_whistle);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn3;
 				else ret = ewSWORD;
@@ -2038,7 +2038,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_arrow);
+					itemid = getCanonicalItemID(itype_arrow);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else ret = wARROW;
@@ -2118,7 +2118,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_bomb);
+					itemid = getCanonicalItemID(itype_bomb);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else
@@ -2136,7 +2136,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
+					itemid = getCanonicalItemID(itype_sbomb);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else
@@ -2153,7 +2153,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_bait);
+					itemid = getCanonicalItemID(itype_bait);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn;
 				else
@@ -2179,7 +2179,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				
 				if(isDummy || itemid < 0)
 				{
-					itemid = getCanonicalItemID(itemsbuf, itype_wand);
+					itemid = getCanonicalItemID(itype_wand);
 					book = false;
 				}
 				
@@ -2215,7 +2215,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_brang);
+					itemid = getCanonicalItemID(itype_brang);
 				if(itemid >-1)
 					ret = itemsbuf[itemid].wpn;
 				else
@@ -2232,7 +2232,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, family_class);
+					itemid = getCanonicalItemID(family_class);
 				if(itemid >-1)
 				{
 					if(dir > 3 && dir < 8)
@@ -2294,7 +2294,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, family_class);
+					itemid = getCanonicalItemID(family_class);
 				if(itemid >-1)
 				{
 					if(dir > 3 && dir < 8)
@@ -2357,7 +2357,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, family_class);
+					itemid = getCanonicalItemID(family_class);
 				if(itemid >-1)
 				{
 					if(dir > 3 && dir < 8)

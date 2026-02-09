@@ -58,8 +58,6 @@ enum
     fade_blue_poof
 };
 
-void port250QuestRules();
-
 bool get_debug();
 void set_debug(bool d);
 
@@ -218,7 +216,6 @@ extern bool lightbeam_present;
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern PALETTE  pal_gui;
 extern byte     *colordata;
-extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern comboclass *combo_class_buf;
 extern guydata  *guysbuf;

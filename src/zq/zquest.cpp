@@ -469,7 +469,6 @@ MIDI *song=NULL;
 BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
-itemdata *itemsbuf;
 wpndata  *wpnsbuf;
 comboclass *combo_class_buf;
 guydata  *guysbuf;
@@ -7050,7 +7049,7 @@ void refresh(int32_t flags, bool update)
 		switch(Map.CurrScr()->room)
 		{
 			case rSP_ITEM:
-				sprintf(buf,"Special Item is %s",item_string[Map.CurrScr()->catchall]);
+				sprintf(buf,"Special Item is %s",itemsbuf[Map.CurrScr()->catchall].name.c_str());
 				show_screen_error(buf,i++, vc(15));
 				break;
 				
@@ -7078,7 +7077,7 @@ void refresh(int32_t flags, bool update)
 				break;
 				
 			case rRP_HC:
-				sprintf(buf,"Take %s or %s", item_string[iRPotion], item_string[iHeartC]);
+				sprintf(buf,"Take %s or %s", itemsbuf[iRPotion].name.c_str(), itemsbuf[iHeartC].name.c_str());
 				show_screen_error(buf,i++, vc(15));
 				break;
 				
@@ -7099,7 +7098,7 @@ void refresh(int32_t flags, bool update)
 						
 				for(int32_t j=0; j<3; j++) if(QMisc.shop[shop].item[j]>0)  // Print the 3 items and prices
 				{
-					strcat(buf,item_string[QMisc.shop[shop].item[j]]);
+					strcat(buf,itemsbuf[QMisc.shop[shop].item[j]].name.c_str());
 					strcat(buf,":");
 					char pricebuf[8];
 					sprintf(pricebuf,"%d",QMisc.shop[shop].price[j]);
@@ -7136,9 +7135,9 @@ void refresh(int32_t flags, bool update)
 			{
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Take Only One: %s%s%s%s%s",
-						QMisc.shop[shop].item[0]<1?"":item_string[QMisc.shop[shop].item[0]],QMisc.shop[shop].item[0]>0?", ":"",
-						QMisc.shop[shop].item[1]<1?"":item_string[QMisc.shop[shop].item[1]],(QMisc.shop[shop].item[1]>0&&QMisc.shop[shop].item[2]>0)?", ":"",
-						QMisc.shop[shop].item[2]<1?"":item_string[QMisc.shop[shop].item[2]]);
+						QMisc.shop[shop].item[0]<1?"":itemsbuf[QMisc.shop[shop].item[0]].name.c_str(),QMisc.shop[shop].item[0]>0?", ":"",
+						QMisc.shop[shop].item[1]<1?"":itemsbuf[QMisc.shop[shop].item[1]].name.c_str(),(QMisc.shop[shop].item[1]>0&&QMisc.shop[shop].item[2]>0)?", ":"",
+						QMisc.shop[shop].item[2]<1?"":itemsbuf[QMisc.shop[shop].item[2]].name.c_str());
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -12448,59 +12447,6 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-/*
-  typedef struct item_struct {
-  char *s;
-  int32_t i;
-  } item_struct;
-  */
-item_struct bii[MAXITEMS+1];
-int32_t bii_cnt=-1;
-
-void build_bii_list(bool usenone)
-{
-	int32_t start=bii_cnt=0;
-    
-    if(usenone)
-    {
-        bii[0].s = (char *)"(None)";
-        bii[0].i = -2;
-        bii_cnt=start=1;
-    }
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        bii[bii_cnt].s = item_string[i];
-        bii[bii_cnt].i = i;
-        ++bii_cnt;
-    }
-    
-    for(int32_t i=start; i<bii_cnt-1; i++)
-    {
-        for(int32_t j=i+1; j<bii_cnt; j++)
-        {
-            if(stricmp(bii[i].s,bii[j].s)>0 && strcmp(bii[j].s,""))
-            {
-                zc_swap(bii[i],bii[j]);
-            }
-        }
-    }
-}
-
-const char *itemlist_num(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bii_cnt;
-        return NULL;
-    }
-	static char biin_buf[64+6];
-	if(bii[index].i < 0)
-		return bii[index].s;
-    sprintf(biin_buf, "%s (%03d)", bii[index].s, bii[index].i);
-    return biin_buf;
-}
-
 weapon_struct biw[MAXWPNS];
 int32_t biw_cnt=-1;
 
@@ -13349,42 +13295,45 @@ int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
+static GUI::ListData bii_list;
 int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t ret = jwin_droplist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        int32_t tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
-        int32_t cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
-        int32_t x = d->x + d->w + 4;
-        int32_t y = d->y - 8;
-        int32_t w = 32;
-        int32_t h = 32;
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        
-    }
-    
-    return ret;
+	int32_t ret = jwin_droplist_proc(msg,d,c);
+	
+	switch(msg)
+	{
+		case MSG_DRAW:
+		case MSG_CHAR:
+		case MSG_CLICK:
+		{
+			int id = bii_list.getValue(d->d1);
+			int32_t tile = id >= 0 ? itemsbuf[id].tile : 0;
+			int32_t cset = id >= 0 ? itemsbuf[id].csets&15 : 0;
+			int32_t x = d->x + d->w + 4;
+			int32_t y = d->y - 8;
+			int32_t w = 32;
+			int32_t h = 32;
+			
+			BITMAP *buf = create_bitmap_ex(8,16,16);
+			BITMAP *bigbmp = create_bitmap_ex(8,w,h);
+			
+			if(buf && bigbmp)
+			{
+				clear_bitmap(buf);
+				
+				if(tile)
+					overtile16(buf, tile,0,0,cset,0);
+					
+				stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
+				destroy_bitmap(buf);
+				jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
+				blit(bigbmp,screen,0,0,x+2,y+2,w,h);
+				destroy_bitmap(bigbmp);
+			}
+		}
+	}
+	
+	return ret;
 }
 
 int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -13393,10 +13342,10 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     
     switch(msg)
     {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
+		case MSG_DRAW:
+		case MSG_CHAR:
+		case MSG_CLICK:
+			textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii_list.getValue(d->d1));
     }
     
     return ret;
@@ -15084,8 +15033,7 @@ static DIALOG editshop_dlg[] =
 
 void EditShopType(int32_t index)
 {
-
-    build_bii_list(true);
+	bii_list = GUI::ZCListData::items(false, true);
     char ps1[6],ps2[6],ps3[6];
 	char info1[6],info2[6],info3[6];
     char shopname[32];
@@ -15113,29 +15061,20 @@ void EditShopType(int32_t index)
     editshop_dlg[22].dp = info2;
     editshop_dlg[23].dp = info3;
     
-    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
+	auto ld = GUI::ZCListData::items(true, false)
+    ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
     
     editshop_dlg[9].dp  = (void *) &item_list;
     editshop_dlg[11].dp  = (void *) &item_list;
     editshop_dlg[13].dp  = (void *) &item_list;
     
-    for(int32_t i=0; i<3; ++i)
-    {
-        if(QMisc.shop[index].hasitem[i])
-        {
-            for(int32_t j=0; j<bii_cnt; j++)
-            {
-                if(bii[j].i == QMisc.shop[index].item[i])
-                {
-                    editshop_dlg[9+(i<<1)].d1  = j;
-                }
-            }
-        }
-        else
-        {
-            editshop_dlg[9+(i<<1)].d1 = -2;
-        }
-    }
+	for(int32_t i=0; i<3; ++i)
+	{
+		auto id = -1;
+		if(QMisc.shop[index].hasitem[i])
+			id = QMisc.shop[index].item[i];
+		editshop_dlg[9+(i<<1)].d1 = bii_list.findIndex(id).value_or(0);
+	}
     
     large_dialog(editshop_dlg);
         
@@ -15156,7 +15095,8 @@ void EditShopType(int32_t index)
         
         for(int32_t i=0; i<3; ++i)
         {
-            if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
+			auto val = bii_list.getValue(editshop_dlg[9+(i<<1)].d1].i);
+            if(val < 0)
             {
                 QMisc.shop[index].hasitem[i] = 0;
                 QMisc.shop[index].item[i] = 0;
@@ -15165,7 +15105,7 @@ void EditShopType(int32_t index)
             else
             {
                 QMisc.shop[index].hasitem[i] = 1;
-                QMisc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
+                QMisc.shop[index].item[i] = val;
             }
         }
         
@@ -15377,7 +15317,7 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
 
 void EditItemDropSet(int32_t index)
 {
-    build_bii_list(true);
+	bii_list = GUI::ZCListData::items(false, true);
     char chance[11][10];
     char itemdropsetname[64];
     char caption[40];
@@ -15393,33 +15333,25 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
+	auto ld = GUI::ZCListData::items(true, false)
+    ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
+	
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
-    for(int32_t i=0; i<10; ++i)
-    {
-        sprintf(chance[i+1],"%d",item_drop_sets[index].chance[i+1]);
-        edititemdropset_dlg[14+(i*3)].dp  = chance[i+1];
-        edititemdropset_dlg[15+(i*3)].dp  = (void *) &item_list;
-        sprintf(percent_str[i+1],"    ");
-        edititemdropset_dlg[16+(i*3)].dp  = percent_str[i+1];
-        
-        if(item_drop_sets[index].chance[i+1]==0)
-        {
-            edititemdropset_dlg[15+(i*3)].d1  = -2;
-        }
-        else
-        {
-            for(int32_t j=0; j<bii_cnt; j++)
-            {
-                if(bii[j].i == item_drop_sets[index].item[i])
-                {
-                    edititemdropset_dlg[15+(i*3)].d1  = j;
-                }
-            }
-        }
-    }
+	for(int32_t i=0; i<10; ++i)
+	{
+		sprintf(chance[i+1],"%d",item_drop_sets[index].chance[i+1]);
+		edititemdropset_dlg[14+(i*3)].dp  = chance[i+1];
+		edititemdropset_dlg[15+(i*3)].dp  = (void *) &item_list;
+		sprintf(percent_str[i+1],"    ");
+		edititemdropset_dlg[16+(i*3)].dp  = percent_str[i+1];
+		
+		auto id = -1;
+		if(item_drop_sets[index].chance[i+1] > 0)
+			id = item_drop_sets[index].item[i];
+		edititemdropset_dlg[15+(i*3)].d1 = bii_list.findIndex(id).value_or(0);
+	}
     
     large_dialog(edititemdropset_dlg);
         
@@ -15433,24 +15365,20 @@ void EditItemDropSet(int32_t index)
         
         item_drop_sets[index].chance[0]=atoi(chance[0]);
         
-        for(int32_t i=0; i<10; ++i)
-        {
-            item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
-            
-            if(bii[edititemdropset_dlg[15+(i*3)].d1].i == -2)
-            {
-                item_drop_sets[index].chance[i+1]=0;
-            }
-            else
-            {
-                item_drop_sets[index].item[i] = bii[edititemdropset_dlg[15+(i*3)].d1].i;
-            }
-            
-            if(item_drop_sets[index].chance[i+1]==0)
-            {
-                item_drop_sets[index].item[i] = 0;
-            }
-        }
+		for(int32_t i=0; i<10; ++i)
+		{
+			item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
+			
+			auto val = bii_list.getValue(edititemdropset_dlg[15+(i*3)].d1);
+			
+			if (val < 0)
+				item_drop_sets[index].chance[i+1]=0;
+			else
+				item_drop_sets[index].item[i] = val;
+			
+			if(item_drop_sets[index].chance[i+1] <= 0)
+				item_drop_sets[index].item[i] = 0;
+		}
     }
 }
 
@@ -19716,12 +19644,15 @@ int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool chec
 
 int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 {
+	size_t sz = MAXITEMS;
+	if (itemtype != 0)
+		sz = itemsbuf.capacity();
 	if (game)
 	{
 		int32_t result = -1;
 		int32_t highestlevel = -1;
-
-		for (int32_t i = 0; i < MAXITEMS; i++)
+		
+		for (int32_t i = 0; i < sz; i++)
 		{
 			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].type == itemtype)
 			{
@@ -19734,7 +19665,7 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 		}
 		return result;
 	}
-    for(int32_t i=0; i<MAXITEMS; i++)
+    for(int32_t i=0; i<sz; i++)
     {
         if(itemsbuf[i].type==itemtype)
             return i;
@@ -19794,13 +19725,6 @@ static void allocate_crap()
 		if(weapon_string[i]!=NULL) delete weapon_string[i];
 		weapon_string[i] = new char[64];
 		memset(weapon_string[i], 0, 64);
-	}
-	
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		if(item_string[i]!=NULL) delete item_string[i];
-		item_string[i] = new char[64];
-		memset(item_string[i], 0, 64);
 	}
 	
 	for(int32_t i=0; i<eMAXGUYS; i++)
@@ -21311,11 +21235,6 @@ void quit_game()
     for(int32_t i=0; i<MAXWPNS; i++)
     {
         delete [] weapon_string[i];
-    }
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        delete [] item_string[i];
     }
     
     for(int32_t i=0; i<eMAXGUYS; i++)

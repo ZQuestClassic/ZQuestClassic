@@ -24,7 +24,6 @@
 #include <sstream>
 #include "advanced_music.h"
 
-extern char *item_string[];
 extern char *weapon_string[];
 
 static string get_info(bool sel, bool advpaste, bool saveload = true, bool copypaste = true)
@@ -279,12 +278,12 @@ void ItemListerDialog::preinit()
 void ItemListerDialog::postinit()
 {
 	size_t len = 16;
-	for(int q = 0; q < MAXITEMS; ++q)
+	for(int q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		size_t tlen = text_length(GUI_DEF_FONT,itemsbuf[q].get_name(true).c_str());
 		if(tlen > len)
 			len = tlen;
-		tlen = text_length(GUI_DEF_FONT,item_string[q]);
+		tlen = text_length(GUI_DEF_FONT,itemsbuf[q].name.c_str());
 		if(tlen > len)
 			len = tlen;
 	}
@@ -298,20 +297,20 @@ void ItemListerDialog::update(bool)
 	if(unsigned(copied_item_id) < MAXITEMS)
 	{
 		itemdata const& copied_itm = itemsbuf[copied_item_id];
-		copied_name = fmt::format("{}\n{}",item_string[copied_item_id],
-			copied_itm.display_name[0] ? copied_itm.get_name(true) : "[No Display Name]");
+		copied_name = fmt::format("{}\n{}",itemsbuf[copied_item_id].name,
+			copied_itm.display_name.empty() ? "[No Display Name]" : copied_itm.get_name(true));
 	}
 	if(unsigned(selected_val) < MAXITEMS)
 	{
 		itemdata const& itm = itemsbuf[selected_val];
-		std::string display_name = itm.display_name[0]
-			? itm.get_name(true)
-			: "[No Display Name]";
+		std::string display_name = itm.display_name.empty()
+			? "[No Display Name]"
+			: itm.get_name(true);
 		widgInfo->setText(fmt::format(
 			"{}\n{}\n#{}\nPower: {}\nLevel: {}"
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
-			item_string[selected_val], display_name, selected_val, itm.power, itm.level,
+			itemsbuf[selected_val].name, display_name, selected_val, itm.power, itm.level,
 			itm.type, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weap_data.script,
 			copied_name));
 		widgPrev->setDisabled(false);
@@ -415,8 +414,6 @@ bool ItemListerDialog::adv_paste()
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
 	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
-	if(pasteflags.get(ITM_ADVP_NAME))
-		strcpy(item_string[selected_val], item_string[copied_item_id]);
 	refresh_dlg();
 	mark_save_dirty();
 	return true;

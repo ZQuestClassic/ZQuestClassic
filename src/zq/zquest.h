@@ -421,15 +421,6 @@ int32_t onUnderCombo();
 int32_t onCompileScript();
 int32_t onSlotPreview();
 
-
-typedef struct item_struct
-{
-    char *s;
-    int32_t i;
-} item_struct;
-
-extern item_struct bii[MAXITEMS+1];
-
 typedef struct weapon_struct
 {
     char *s;
@@ -441,9 +432,6 @@ extern weapon_struct biw[MAXWPNS];
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size);
-
-void build_bii_list(bool usenone);
-const char *itemlist_num(int32_t index, int32_t *list_size);
 
 void build_biw_list();
 

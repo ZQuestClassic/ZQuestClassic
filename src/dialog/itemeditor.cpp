@@ -12,8 +12,6 @@ void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
 extern zquestheader header;
 void mark_save_dirty();
-extern char *item_string[];
-extern itemdata *itemsbuf;
 static bool _reset_default, _reload_editor;
 static itemdata static_ref;
 static std::string reset_name;
@@ -1055,8 +1053,8 @@ char const* get_ic_help(size_t q)
 	return buf.c_str();
 }
 
-ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
-	itemname(str), index(index), local_itemref(ref),
+ItemEditorDialog::ItemEditorDialog(itemdata const& ref, int32_t index):
+	index(index), local_itemref(ref),
 	list_items(GUI::ZCListData::itemclass(true)),
 	list_counters(GUI::ZCListData::counters(true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
@@ -1069,7 +1067,7 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 {}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):
-	ItemEditorDialog(itemsbuf[index], item_string[index], index)
+	ItemEditorDialog(itemsbuf[index], index)
 {}
 
 //{ Macros
@@ -1256,12 +1254,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	char titlebuf[256];
-	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
 	std::shared_ptr<GUI::Grid> litem_grid;
 	window = Window(
 		use_vsync = true,
-		title = titlebuf,
+		title = fmt::format("Item Editor ({}): {}", index, local_itemref.name),
 		onClose = message::CANCEL,
 		Column(
 			Row(
@@ -1271,13 +1267,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						fitParent = true,
 						maxwidth = 400_px,
 						maxLength = 63,
-						text = itemname,
+						text = local_itemref.name,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
-							itemname = str;
-							char buf[256];
-							sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
-							window->setTitle(buf);
+							local_itemref.name = str;
+							window->setTitle(fmt::format("Item Editor ({}): {}", index, local_itemref.name));
 						}
 					),
 					_d,
@@ -1300,8 +1294,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						text = local_itemref.display_name,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
-							std::string s(str);
-							strncpy(local_itemref.display_name,s.c_str(),255);
+							local_itemref.display_name.assign(str);
 						}
 					),
 					INFOBTN("If this field is not blank, this text will display as the 'Selected Item Name' on the subscreen for this item."
@@ -2542,7 +2535,6 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return false;
 			_reset_default = true;
 			static_ref = local_itemref;
-			reset_name = itemname;
 			return true;
 		}
 		
@@ -2559,14 +2551,12 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			_reload_editor = true;
 			static_ref = local_itemref;
-			reset_name = itemname;
 			return true;
 		}
 
 		case message::OK:
 			mark_save_dirty();
 			itemsbuf[index] = local_itemref;
-			strcpy(item_string[index], itemname.c_str());
 			return true;
 
 		case message::CANCEL:
