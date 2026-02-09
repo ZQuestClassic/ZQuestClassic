@@ -69,8 +69,8 @@ struct gamedata
 
 	gamedata_header header;
 	byte _cheat;
-	bool item[MAXITEMS];
-	byte items_off[MAXITEMS];
+	bitstring items_owned;
+	bitstring items_off;
 	word _maxcounter[MAX_COUNTERS];
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
@@ -372,8 +372,9 @@ public:
 	void set_item_no_flush(int32_t id, bool value);
 	inline bool get_item(int32_t id) const
 	{
-		if ( ((unsigned)id) >= MAXITEMS ) return false;
-			return item[id];
+		if ( ((unsigned)id) >= MAXITEMS )
+			return false;
+		return items_owned.get(id);
 	}
 	
 	byte get_bottle_slot(dword slot)

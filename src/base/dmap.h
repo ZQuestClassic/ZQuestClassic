@@ -3,6 +3,7 @@
 
 #include "base/general.h"
 #include "base/ints.h"
+#include "base/containers.h"
 #include <string>
 
 struct dmap
@@ -29,7 +30,7 @@ struct dmap
 	byte passive_subscreen;
 	byte overlay_subscreen;
 	int16_t map_subscreen = -1;
-	byte disableditems[MAXITEMS];
+	bitstring disabled_items;
 	int32_t flags;
 	char sideview;
 	word script;

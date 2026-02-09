@@ -30,7 +30,7 @@ enum
 };
 struct zinitdata
 {
-	byte items[MAXITEMS/8];
+	bitstring items;
 	
 	word litems[MAXLEVELS] = {0};
 	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
@@ -98,8 +98,8 @@ struct zinitdata
 	byte bottle_slot[NUM_BOTTLE_SLOTS];
 	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
 	
-	bool get_item(size_t ind) const {return get_bit(items,ind);}
-	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	bool get_item(size_t ind) const {return items.get(ind);}
+	void set_item(size_t ind, bool st) {items.set(ind,st);}
 	
 	void normalize()
 	{

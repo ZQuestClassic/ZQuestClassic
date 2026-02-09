@@ -988,16 +988,17 @@ void gamedata::set_item_flicker_speed(byte val)
 
 void gamedata::set_item(int32_t id, bool value)
 {
-    set_item_no_flush(id, value);
-    flushItemCache();
+	set_item_no_flush(id, value);
+	flushItemCache();
 }
 
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
-    if(value != item[id])
-        Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, itemsbuf[id].name.c_str());
-        
-    item[id]=value;
+	if(value != items_owned.get(id))
+	{
+		Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, itemsbuf[id].name.c_str());
+		items_owned.set(id, value);
+	}
 }
 
 void gamedata::check_bottle_slots(std::set<dword>& slots) const

@@ -1558,11 +1558,7 @@ std::string create_replay_path_for_save(const gamedata_header& header)
 void init_dmap()
 {
     // readjust disabled items; could also do dmap-specific scripts here
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        game->items_off[i] &= (~1); // disable last bit - this one is set by dmap
-        game->items_off[i] |= DMaps[cur_dmap].disableditems[i]; // and reset if required
-    }
+	game->items_off = DMaps[cur_dmap].disabled_items;
     
     flushItemCache();
     // also update subscreens
@@ -1904,8 +1900,7 @@ int32_t init_game()
 		// Seems like the `game` field should be in a known, zero'd out state, but on the original
 		// playthrough it isn't. I guess it's related to whatever happened to be in saves[currgame] which
 		// was copied above.
-		for (int i = 0; i < MAXITEMS; i++)
-			game->item[i] = false;
+		game->items_owned.clear();
 
 		if (!use_testingst_start)
 			game->set_continue_dmap(zinit.start_dmap);

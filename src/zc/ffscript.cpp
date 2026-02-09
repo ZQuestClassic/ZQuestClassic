@@ -1989,14 +1989,14 @@ void FFScript::initZScriptHeroScripts()
 
 void FFScript::initZScriptItemScripts()
 {
-	for ( int32_t q = 0; q < 256; q++ )
+	for ( int32_t q = 0; q < MAXITEMS; q++ )
 	{
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 		data.reset();
-		data.doscript = (itemsbuf[q].flags&item_passive_script) && game->item[q];
+		data.doscript = (itemsbuf[q].flags&item_passive_script) && game->get_item(q);
 	}
 
-	for ( int32_t q = -256; q < 0; q++ )
+	for ( int32_t q = -MAXITEMS; q < 0; q++ )
 	{
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 		data.reset();
@@ -10636,13 +10636,13 @@ void set_register(int32_t arg, int32_t value)
 			Awpn = {seta};
 			game->awpn = 255;
 			game->forced_awpn = seta;
-			game->items_off[seta] = 0;
+			game->items_off.set(seta, false);
 			directItemA = seta;
 			
 			Bwpn = {setb};
 			game->bwpn = 255;
 			game->forced_bwpn = setb;
-			game->items_off[setb] = 0;
+			game->items_off.set(setb, false);
 			directItemB = setb;
 			break;
 		}
@@ -10674,7 +10674,7 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0: //b
 						Bwpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
@@ -10682,7 +10682,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 1: //a
 						Awpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->awpn = 255;
 						game->forced_awpn = itm;
 						directItemA = itm;
@@ -10690,7 +10690,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 2: //x
 						Xwpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
@@ -10698,7 +10698,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 3: //y
 						Ywpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemX = itm;
@@ -10707,13 +10707,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else if ( force == 1 )
 			{
-				if (game->item[itm])
+				if (game->get_item(itm))
 				{
 					switch(slot)
 					{
 						case 0: //b
 							Bwpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
@@ -10721,7 +10721,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 1: //a
 							Awpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
@@ -10729,7 +10729,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 2: //x
 							Xwpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
@@ -10737,7 +10737,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 3: //y
 							Ywpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
@@ -10751,7 +10751,7 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0: //b
 						Bwpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
@@ -10761,7 +10761,7 @@ void set_register(int32_t arg, int32_t value)
 						if (get_qr(qr_SELECTAWPN))
 						{
 							Awpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
@@ -10770,7 +10770,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 2:  //x
 						Xwpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
@@ -10778,7 +10778,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 3: //y
 						Ywpn = {itm};
-						game->items_off[itm] = 0;
+						game->items_off.set(itm, false);
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemY = itm;
@@ -10787,13 +10787,13 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else if ( force == 3 ) //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
 			{
-				if ( game->item[itm] )
+				if ( game->get_item(itm) )
 				{
 					switch(slot)
 					{
 						case 0: //b
 							Bwpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
@@ -10803,7 +10803,7 @@ void set_register(int32_t arg, int32_t value)
 							if (get_qr(qr_SELECTAWPN))
 							{
 								Awpn = {itm};
-								game->items_off[itm] = 0;
+								game->items_off.set(itm, false);
 								game->awpn = 255;
 								game->forced_awpn = itm;
 								directItemA = itm;
@@ -10812,7 +10812,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 2: //x
 							Xwpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
@@ -10820,7 +10820,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 3: //y
 							Ywpn = {itm};
-							game->items_off[itm] = 0;
+							game->items_off.set(itm, false);
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
@@ -10968,7 +10968,7 @@ void set_register(int32_t arg, int32_t value)
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
 				game->forced_bwpn = value/10000;
-				game->items_off[value/10000] = 0;
+				game->items_off.set(value/10000, false);
 			}
 			directItemB = value/10000;
 			break;
@@ -10993,7 +10993,7 @@ void set_register(int32_t arg, int32_t value)
 				Awpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Awpn, game->awpn);
-				game->items_off[value/10000] = 0;
+				game->items_off.set(value/10000, false);
 				game->forced_awpn = value/10000;
 			}
 			directItemA = value/10000;
@@ -11018,7 +11018,7 @@ void set_register(int32_t arg, int32_t value)
 				Xwpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Xwpn, game->xwpn);
-				game->items_off[value/10000] = 0;
+				game->items_off.set(value/10000, false);
 				game->forced_xwpn = value/10000;
 			}
 			directItemX = value/10000;
@@ -11042,7 +11042,7 @@ void set_register(int32_t arg, int32_t value)
 				Ywpn = {value/10000};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Ywpn, game->ywpn);
-				game->items_off[value/10000] = 0;
+				game->items_off.set(value/10000, false);
 				game->forced_ywpn = value/10000;
 			}
 			directItemY = value/10000;
@@ -23977,7 +23977,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			auto& data = get_script_engine_data(type, i);
 			if ( !collect )
 			{
-				if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				if ( (itemsbuf[i].flags&item_passive_script) && game->get_item(i) ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 			}
 			data.doscript = 0;
 			data.clear_ref();
@@ -29527,7 +29527,7 @@ bool FFScript::itemScriptEngine()
 		//Passive items
 		if (((itemsbuf[q].flags&item_passive_script)))
 		{
-			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(game->get_item(q) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)
@@ -29620,7 +29620,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//Passive items
 		if ((itemsbuf[q].flags&item_passive_script))
 		{
-			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(game->get_item(q) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)

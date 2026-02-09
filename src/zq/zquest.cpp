@@ -19675,29 +19675,18 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 }
 
 
-bool can_use_item(int32_t item_type, int32_t item)
+bool can_use_item(int32_t, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    item_type=item_type;
-    item=item;
-    
     return true;
 }
 
-bool has_item(int32_t item_type, int32_t it)
+bool has_item(int32_t, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    item_type=item_type;
-    it=it;
-    
     return true;
 }
 
-int32_t get_bmaps(int32_t si)
+int32_t get_bmaps(int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    si=si;
-    
     return 255;
 }
 

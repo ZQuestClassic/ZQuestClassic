@@ -4551,17 +4551,19 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			}
 		}
 		
-		if(s_version>2)
+		if (s_version >= 26)
+		{
+			if (!p_getbitstr(&tempDMap.disabled_items, f))
+				return qe_invalid;
+		}
+		else if (s_version > 2)
 		{
 			byte di[32];
 			
 			if(!pfread(&di, 32, f)) return qe_invalid;
 			
-			for(int32_t j=0; j<MAXITEMS; j++)
-			{
-				if(di[j/8] & (1 << (j%8))) tempDMap.disableditems[j]=1;
-				else tempDMap.disableditems[j]=0;
-			}
+			for(int32_t j=0; j<256; j++)
+				tempDMap.disabled_items.set(j, di[j/8] & (1 << (j%8)));
 		}
 		
 		if(s_version >= 6)
@@ -21477,9 +21479,20 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	else
 	{
 		subscr_mode = ssdtMAX;
-		for(int q = 0; q < MAXITEMS/8; ++q)
-			if(!p_getc(&temp_zinit.items[q], f))
+		if (s_version >= 47)
+		{
+			if (!p_getbitstr(&temp_zinit.items, f))
 				return qe_invalid;
+		}
+		else
+		{
+			for(int q = 0; q < MAXITEMS/8; ++q)
+			{
+				if(!p_getc(&padding, f))
+					return qe_invalid;
+				temp_zinit.items.inner()[q] = padding;
+			}
+		}
 		if(s_version >= 42)
 		{
 			for(int q = 0; q < MAXLEVELS; ++q)

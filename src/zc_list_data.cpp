@@ -850,12 +850,12 @@ GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered, bool incl_no
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
+GUI::ListData GUI::ZCListData::disabled_items(bitstring const& disabledarray)
 {
 	GUI::ListData ls;
 	for (int q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		if (disabledarray[q] & 1)
+		if (disabledarray.get(q))
 			ls.add(itemsbuf[q].name, q);
 	}
 	if (ls.size() == 0)

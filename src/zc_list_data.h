@@ -34,7 +34,7 @@ namespace GUI::ZCListData
 	GUI::ListData savemenus(bool numbered = false, bool incl_def = true, bool only_valid = false);
 	GUI::ListData lpals();
 	GUI::ListData subscreens(byte type, bool numbered = false, bool incl_none = false);
-	GUI::ListData disableditems(byte* disabledarray);
+	GUI::ListData disabled_items(bitstring const& disabledarray);
 	GUI::ListData dirs(int count, bool none);
 	GUI::ListData doorsets();
 	//Scripts

@@ -276,15 +276,18 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if (section_version < 24) tempbyte = (tempbyte ? DIDCHEAT_BIT : 0);
 		game._cheat = tempbyte;
 		
-		char temp;
-		
-		for(int32_t j=0; j<MAXITEMS; j++)
+		if (section_version < 49)
 		{
-			if(!p_getc(&temp, f))
-				return 18;
-				
-			game.set_item_no_flush(j, (temp != 0));
+			for(int32_t j=0; j<MAXITEMS; j++)
+			{
+				if(!p_getc(&tempbyte, f))
+					return 18;
+					
+				game.set_item_no_flush(j, (tempbyte != 0));
+			}
 		}
+		else if (!p_getbitstr(&game.items_owned, f))
+			return 18;
 		
 		size_t versz = section_version<31 ? 9 : 16;
 		if(!p_getstr(game.version,versz,f))
@@ -1247,9 +1250,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_putc(game._cheat,f))
 		return 17;
 	
-	for(int32_t j=0; j<MAXITEMS; j++)
-		if(!p_putc(game.get_item(j) ? 1 : 0,f))
-			return 18;
+	if(!p_putbitstr(game.items_owned, f))
+		return 18;
 	
 	if(!pfwrite(game.version,16,f))
 		return 20;

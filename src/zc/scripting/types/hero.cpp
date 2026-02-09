@@ -40,7 +40,7 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int) { return MAXITEMS; },
 		[](int, int index) {
-			return game->item[index];
+			return game->get_item(index);
 		},
 		[](int, int index, bool value) {
 			int itemID = index;
@@ -70,7 +70,7 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 			}
 			
 			//Sanity check to prevent setting the item if the value would be the same. -Z
-			if ( game->item[itemID] != value ) 
+			if ( game->get_item(itemID) != value )
 			{
 				game->set_item(itemID, value);
 			}

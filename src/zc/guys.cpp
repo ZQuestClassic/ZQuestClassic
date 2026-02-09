@@ -4016,7 +4016,7 @@ void enemy::draw(BITMAP *dest)
 		if (editorflags & ENEMY_FLAG4) canSee = DRAW_CLOAKED;
 		if (dmisc13 >= 0 && (editorflags & ENEMY_FLAG2))
 		{
-			if (game->item[dmisc13])
+			if (game->get_item(dmisc13))
 			{
 				canSee = DRAW_NORMAL;
 			}
@@ -13397,7 +13397,7 @@ void eGanon::draw(BITMAP *dest)
 			break;
 		
 		}
-		else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
+		else if ( (editorflags & ENEMY_FLAG2) && (game->get_item(dmisc13)) )
 		{
 			if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
 			{
@@ -20492,7 +20492,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t it = args[0];
 			
-			if(unsigned(it)<MAXITEMS && game->item[it])
+			if(unsigned(it)<MAXITEMS && game->get_item(it))
 			{
 				last_arg = 1;
 				goto switched;

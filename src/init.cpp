@@ -50,27 +50,27 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 		game2->set_maxcounter(zinit2->mcounter[q+crCUSTOM1], q+crCUSTOM1);
 	
 	//set up the items
-	for(int32_t i=0; i<MAXITEMS; i++)
+	game2->items_off.clear();
+	game2->items_owned.normalize();
+	size_t sz = zc_max(zinit2->items.length(), game2->items_owned.length());
+	for(size_t q = 0; q < sz; ++q)
 	{
-		if(zinit2->get_item(i) && (itemsbuf[i].flags & item_gamedata))
+		if(zinit2->get_item(q) && (itemsbuf[q].flags & item_gamedata))
 		{
 #ifndef IS_EDITOR
-			if (!game2->get_item(i))
-				getitem(i,true,false);
+			if (!game2->get_item(q))
+				getitem(q,true,false);
 #else
-			game2->set_item_no_flush(i, true);
+			game2->set_item_no_flush(q, true);
 #endif
 		}
 		else
-			game2->set_item_no_flush(i,false);
-			
-		game2->items_off[i] = 0;
-		
-		// Fix them DMap items
-		// Since resetItems() gets called before AND after init_dmap()...
-		if(get_currdmap() > -1)
-			game2->items_off[i] |= DMaps[get_currdmap()].disableditems[i];
+			game2->set_item_no_flush(q,false);
 	}
+	// Fix them DMap items
+	// Since resetItems() gets called before AND after init_dmap()...
+	if (get_currdmap() > -1)
+		game2->items_off = DMaps[get_currdmap()].disabled_items;
 	
 	flushItemCache();
 	
@@ -224,7 +224,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	VEC_PROP(gen_reloadState) \
 	VEC_PROP_2D(gen_initd) \
 	VEC_PROP_2D(gen_data) \
-	ARRAY_PROP(items) \
+	BITSTR_PROP(items) \
 	VEC_PROP(level_keys) \
 	VEC_PROP(lvlswitches) \
 	ARRAY_PROP(litems) \
@@ -372,7 +372,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 					}
 					if (key == "gen_doscript")
 					{
-						FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
+						FAIL_IF(index[0] >= NUMSCRIPTSGENERIC, fmt::format("invalid token '{}': integer too big", token));
 						result->gen_doscript.set(index[0], as_int);
 						continue;
 					}

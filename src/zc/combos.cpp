@@ -633,7 +633,7 @@ bool trigger_step(const combined_handle_t& handle)
 {
 	auto& cmb = handle.combo();	
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
-	if(cmb.c_attributes[9].getTrunc() < MAXITEMS && !game->item[cmb.c_attributes[9].getTrunc()])
+	if(cmb.c_attributes[9].getTrunc() < MAXITEMS && !game->get_item(cmb.c_attributes[9].getTrunc()))
 		return false; //lacking required item
 	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
 		return false;
@@ -689,7 +689,7 @@ bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	int32_t itemonly = cmb.usrflags&cflag2;
 	int32_t thecounter = cmb.c_attributes[9].getTrunc();
 	int32_t ctr_amount = cmb.c_attributes[0].getTrunc();
-	if( requireditem && game->item[requireditem]) 
+	if( requireditem && game->get_item(requireditem))
 	{
 		return true;
 	}
@@ -722,7 +722,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	int32_t itemonly = cmb.usrflags&cflag2;
 	int32_t thecounter = cmb.c_attributes[9].getTrunc();
 	int32_t ctr_amount = cmb.c_attributes[0].getTrunc();
-	if( requireditem && game->item[requireditem]) 
+	if( requireditem && game->get_item(requireditem))
 	{
 		if ((cmb.usrflags&cflag5)) 
 		{

@@ -25383,7 +25383,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			uint req_item_id = combobuf[cid].c_attributes[9].getTrunc();
 			int step_sfx_id = cmb.c_attributes[8].getTrunc();
 			
-			if (req_item_id && req_item_id < MAXITEMS && !game->item[req_item_id])
+			if (req_item_id && req_item_id < MAXITEMS && !game->get_item(req_item_id))
 				; // missing req item
 			else if ((cmb.usrflags&cflag1) && !Hero.HasHeavyBoots())
 				; // missing heavy boots
@@ -25889,7 +25889,7 @@ bool HeroClass::HasHeavyBoots()
 {
 	for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
 	{
-		if ( game->item[q] && ( itemsbuf[q].type == itype_boots ) && /*iron*/ (itemsbuf[q].flags&item_flag2) ) return true;
+		if ( game->get_item(q) && ( itemsbuf[q].type == itype_boots ) && /*iron*/ (itemsbuf[q].flags&item_flag2) ) return true;
 	}
 	return false;
 }
@@ -31206,7 +31206,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		} while(nextitem > -1);
 	}
 	
-	itemdata const& idat = itemsbuf[id&0xFF];
+	itemdata const& idat = itemsbuf[id];
 	
 	bool equipment = idat.flags &
 		((idat.type == itype_triforcepiece) ? item_flag8 : item_gamedata);

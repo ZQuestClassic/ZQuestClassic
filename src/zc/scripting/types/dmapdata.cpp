@@ -10,7 +10,7 @@ static ArrayRegistrar DMAPINITD_registrar(DMAPINITD, []{
 }());
 
 static ArrayRegistrar DMAPDATADISABLEDITEMS_registrar(DMAPDATADISABLEDITEMS, []{
-	static ScriptingArray_ObjectMemberCArray<dmap, &dmap::disableditems> impl;
+	static ScriptingArray_ObjectMemberBitstring<dmap, &dmap::disabled_items, MAXITEMS> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
 	return &impl;

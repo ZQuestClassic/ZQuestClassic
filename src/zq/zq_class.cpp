@@ -7548,21 +7548,8 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 		new_return(27);
 	}
 	
-	byte disabled[32];
-	memset(disabled,0,32);
-	
-	for(int32_t j=0; j<MAXITEMS; j++)
-	{
-		if(DMaps[index].disableditems[j])
-		{
-			disabled[j/8] |= (1 << (j%8));
-		}
-	}
-	
-	if(!pfwrite(disabled,32,f))
-	{
+	if (!p_putbitstr(DMaps[index].disabled_items, f))
 		new_return(28);
-	}
 	
 	if(!p_iputl(DMaps[index].flags,f))
 		new_return(29);
@@ -13721,9 +13708,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		
 		writesize=0;
 		
-		for(int q = 0; q < MAXITEMS/8; ++q)
-			if(!p_putc(zinit.items[q], f))
-				new_return(5);
+		if(!p_putbitstr(zinit.items, f))
+			new_return(5);
 		for(int q = 0; q < MAXLEVELS; ++q)
 		{
 			if(!p_iputw(zinit.litems[q], f))

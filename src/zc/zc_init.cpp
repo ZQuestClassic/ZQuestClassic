@@ -118,10 +118,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->flags.set(INIT_FL_CONTPERCENT,gdata->get_cont_percent());
 	
 	//now set up the items!
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		zinit2->set_item(i, gdata->get_item(i));
-	}
+	zinit2->items = gdata->items_owned;
 	
 	zinit2->hero_swim_mult = gdata->swim_mult;
 	zinit2->hero_swim_div = gdata->swim_div;

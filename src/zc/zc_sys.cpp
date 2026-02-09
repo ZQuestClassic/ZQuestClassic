@@ -1585,9 +1585,9 @@ void black_fade(int32_t fadeamnt)
 
 //----------------------------------------------------------------
 
-bool item_disabled(int32_t item)				 //is this item disabled?
+bool item_disabled(int32_t id)				 //is this item disabled?
 {
-	return (unsigned(item) < MAXITEMS && game->items_off[item] != 0);
+	return (unsigned(id) < MAXITEMS && game->items_off.get(id));
 }
 
 bool can_use_item(int32_t item_type, int32_t item)				  //can Hero use this item?
@@ -1905,7 +1905,7 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	size_t sz = MAXITEMS;
 	if (itemtype != 0)
 		sz = itemsbuf.capacity();
-	for(int i=0; i<sz; i++)
+	for(size_t i=0; i<sz; i++)
 	{
 		if(game->get_item(i) && itemsbuf[i].type==itemtype && !item_disabled(i))
 		{

@@ -1240,10 +1240,10 @@ static ArrayRegistrar DISABLEDITEM_registrar(DISABLEDITEM, []{
 	static ScriptingArray_GlobalComputed<bool> impl(
 		[](int){ return MAXITEMS; },
 		[](int, int index) -> bool {
-			return game->items_off[index];
+			return game->items_off.get(index);
 		},
 		[](int, int index, bool value){
-			game->items_off[index] = value;
+			game->items_off.set(index, value);
 			removeFromItemCache(itemsbuf[index].type);
 			return true;
 		}
