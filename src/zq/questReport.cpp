@@ -20,6 +20,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
+#include "zc_list_data.h"
 
 extern int32_t bie_cnt;
 

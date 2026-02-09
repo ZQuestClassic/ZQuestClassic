@@ -6185,17 +6185,17 @@ extern const char *old_item_string[iLast];
 extern char *weapon_string[MAXWPNS];
 extern const char *old_weapon_string[wLast];
 
-void update_old_item(word s_version, word index)
+void update_old_item(word s_version, word index, word version)
 {
-	itemdata& tempitem = itemsbuf[i];
+	itemdata& tempitem = itemsbuf[index];
 	
 	if (s_version < 67)
 	{
 		//Account for older quests that didn't have an actual item for the used letter
-		if(s_version < 2 && i==iLetterUsed)
+		if(s_version < 2 && index==iLetterUsed)
 		{
 			reset_itembuf(&tempitem, iLetterUsed);
-			tempitem.name = old_item_string[i];
+			tempitem.name = old_item_string[index];
 			tempitem.tile = itemsbuf[iLetter].tile;
 			tempitem.csets = itemsbuf[iLetter].csets;
 			tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
@@ -6206,7 +6206,7 @@ void update_old_item(word s_version, word index)
 		
 		if(s_version < 3)
 		{
-			switch(i)
+			switch(index)
 			{
 				case iRocsFeather:
 				case iHoverBoots:
@@ -6230,20 +6230,20 @@ void update_old_item(word s_version, word index)
 				case iWealthMedal:
 				case iL2WealthMedal:
 				case iL3WealthMedal:
-					reset_itembuf(&tempitem, i);
-					tempitem.name = old_item_string[i];
+					reset_itembuf(&tempitem, index);
+					tempitem.name = old_item_string[index];
 					break;
 					
 				case iSShield:
-					reset_itembuf(&tempitem, i);
-					tempitem.name = old_item_string[i];
+					reset_itembuf(&tempitem, index);
+					tempitem.name = old_item_string[index];
 					break;
 			}
 		}
 		
 		if(s_version < 5)
 		{
-			switch(i)
+			switch(index)
 			{
 				case iHeartRing:
 				case iL2HeartRing:
@@ -6252,18 +6252,18 @@ void update_old_item(word s_version, word index)
 				case iL2MagicRing:
 				case iL3MagicRing:
 				case iL4MagicRing:
-					reset_itembuf(&tempitem, i);
-					tempitem.name = old_item_string[i];
+					reset_itembuf(&tempitem, index);
+					tempitem.name = old_item_string[index];
 					break;
 			}
 		}
 		
 		if(s_version < 6)  // April 2007: Advanced item editing capabilities.
 		{
-			if(i!=iBPotion && i!=iRPotion)
+			if(index !=iBPotion && index !=iRPotion)
 				if (get_bit(deprecated_rules,32)) tempitem.flags |= item_keep_old;
 				
-			switch(i)
+			switch(index)
 			{
 				case iTriforce:
 					tempitem.level=1;
@@ -6555,15 +6555,15 @@ void update_old_item(word s_version, word index)
 		
 		if(s_version < 7)
 		{
-			switch(i)
+			switch(index)
 			{
 				case iStoneAgony:
 				case iStompBoots:
 				case iPerilRing:
 				case iWhimsicalRing:
 				{
-					reset_itembuf(&tempitem, i);
-					tempitem.name = old_item_string[i];
+					reset_itembuf(&tempitem, index);
+					tempitem.name = old_item_string[index];
 					break;
 				}
 			}
@@ -6571,7 +6571,7 @@ void update_old_item(word s_version, word index)
 		
 		if(s_version < 8) // May 2007: Some corrections.
 		{
-			switch(i)
+			switch(index)
 			{
 				case iMShield:
 					tempitem.misc1|=sh_flame;
@@ -6617,7 +6617,7 @@ void update_old_item(word s_version, word index)
 			}
 		}
 		
-		if(s_version < 9 && i==iClock)
+		if(s_version < 9 && index ==iClock)
 		{
 			tempitem.misc1 = get_bit(deprecated_rules, qr_TEMPCLOCKS_DEP) ? 256 : 0;
 		}
@@ -6636,7 +6636,7 @@ void update_old_item(word s_version, word index)
 		
 		if(s_version < 12) // June 2007: More Misc. attributes.
 		{
-			switch(i)
+			switch(index)
 			{
 			case iFBrang:
 				tempitem.misc4 |= sh_fireball|sh_sword|sh_magic;
@@ -8558,6 +8558,10 @@ void update_old_item(word s_version, word index)
 }
 int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word version, word build)
 {
+    byte padding, tempbyte;
+    int32_t dummy;
+    word dummy_word;
+	
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 	itemdata tempitem;
 	reset_itembuf(&tempitem, index);
@@ -8613,7 +8617,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 		if((version < 0x192)||((version == 0x192)&&(build<186)))
 		{
 			if (should_skip)
-				continue;
+				return 0;
 
 			switch(index)
 			{
@@ -8640,7 +8644,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			
 			itemsbuf[index] = tempitem;
 			
-			continue;
+			return 0;
 		}
 	}
 	
@@ -9391,8 +9395,9 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			}
 		}
 		itemsbuf[index] = tempitem;
-		update_old_item(s_version, index);
+		update_old_item(s_version, index, version);
 	}
+	return 0;
 }
 int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, word build)
 {
@@ -9622,7 +9627,7 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 
 	if (!should_skip)
 	{
-		update_old_item(s_version, index);
+		update_old_item(s_version, index, version);
 		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 		{
 			item_ref.script = 0;
@@ -9641,10 +9646,7 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 
-    byte padding, tempbyte;
-    int32_t dummy;
     word items_to_read = 256;
-    word dummy_word;
     
     if(version < 0x186)
     {
@@ -9702,7 +9704,7 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 
 	if (!should_skip)
 		for(word i = items_to_read; i < itemsbuf.capacity(); ++i)
-			update_old_item(s_version, i);
+			update_old_item(s_version, i, version);
 	
 	return 0;
 }
@@ -9971,8 +9973,8 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	
 	if(Header->zelda_version < 0x176)
 	{
-		wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
-		wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
+		wpnsbuf[iwSpawn].load_item(itemsbuf[iMisc1]);
+		wpnsbuf[iwDeath].load_item(itemsbuf[iMisc2]);
 		itemsbuf[iMisc1].clear();
 		itemsbuf[iMisc2].clear();
 	}

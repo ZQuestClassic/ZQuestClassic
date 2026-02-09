@@ -2,6 +2,7 @@
 #include "zq/zq_misc.h"
 #include "base/msgstr.h"
 #include "base/misctypes.h"
+#include "items.h"
 #include "zq/zquest.h"
 #include <fmt/format.h>
 #include <algorithm>

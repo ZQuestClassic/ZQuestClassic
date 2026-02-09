@@ -15061,7 +15061,7 @@ void EditShopType(int32_t index)
     editshop_dlg[22].dp = info2;
     editshop_dlg[23].dp = info3;
     
-	auto ld = GUI::ZCListData::items(true, false)
+	auto ld = GUI::ZCListData::items(true, false);
     ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
     
     editshop_dlg[9].dp  = (void *) &item_list;
@@ -15095,7 +15095,7 @@ void EditShopType(int32_t index)
         
         for(int32_t i=0; i<3; ++i)
         {
-			auto val = bii_list.getValue(editshop_dlg[9+(i<<1)].d1].i);
+			auto val = bii_list.getValue(editshop_dlg[9+(i<<1)].d1);
             if(val < 0)
             {
                 QMisc.shop[index].hasitem[i] = 0;
@@ -15333,7 +15333,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-	auto ld = GUI::ZCListData::items(true, false)
+	auto ld = GUI::ZCListData::items(true, false);
     ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
 	
     sprintf(percent_str[0],"    ");

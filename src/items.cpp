@@ -976,7 +976,7 @@ int32_t getCanonicalItemID(int32_t family)
 		if(itm.type == family && (itm.level < lowestlevel || lowestlevel < 0))
 		{
 			lowestlevel = itm.level;
-			lowestid = i;
+			lowestid = q;
 		}
 	}
 	

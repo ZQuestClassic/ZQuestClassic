@@ -14,7 +14,6 @@ extern zquestheader header;
 void mark_save_dirty();
 static bool _reset_default, _reload_editor;
 static itemdata static_ref;
-static std::string reset_name;
 static int32_t item_use_script_data = 3;
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -38,7 +37,7 @@ void call_item_editor(int32_t index)
 			reset_itembuf(&static_ref, index);
 		}
 		_reload_editor = false;
-		ItemEditorDialog(static_ref, reset_name.c_str(), index).show();
+		ItemEditorDialog(static_ref, index).show();
 	}
 }
 

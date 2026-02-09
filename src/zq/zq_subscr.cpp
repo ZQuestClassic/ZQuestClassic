@@ -59,8 +59,6 @@ int dragx, dragy;
 #define ssmflDRAG      0x02
 #define ssmflRCLICK    0x04
 
-static ListData item_list(itemlist_num, &font);
-
 int32_t sso_properties(SubscrWidget* widg, int32_t obj_ind)
 {
     return call_subscrprop_dialog(widg,obj_ind) ? 0 : -1;

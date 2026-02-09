@@ -197,10 +197,10 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		itemsbuf[index].name = buf;
 	}
 	
-	if (read_single_item(f, section_version, index))
+	if (read_single_item(f, section_version, index, zversion, zbuild))
 		return 0;
 	
-	update_old_item(section_version, index);
+	update_old_item(section_version, index, zversion);
 	
 	return 1;
 }

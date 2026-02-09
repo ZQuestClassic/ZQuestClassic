@@ -191,7 +191,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, w
 int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
-void update_old_item(word s_version, word index);
+void update_old_item(word s_version, word index, word version);
 int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, word build);
 int32_t readitems(PACKFILE *f, word version, word build);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);

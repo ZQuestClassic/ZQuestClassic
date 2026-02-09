@@ -152,8 +152,6 @@ enum
 
 struct itemdata
 {
-	std::string name;
-	std::string display_name;
     int32_t tile;
     byte misc_flags;      // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;           // ffffcccc (f:flash cset, c:cset)
@@ -162,7 +160,7 @@ struct itemdata
     byte delay;           // extra delay factor (-1) for first frame
     int32_t ltm;          // Hero Tile Modifier
     int32_t type;         // What family the item is in
-    byte level;           // What type in this family the item is
+    byte level = 1;       // What type in this family the item is
     int32_t power;        // Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;
     word script;          // Which script the item is using
@@ -227,6 +225,9 @@ struct itemdata
     int32_t sprite_initiald[INITIAL_D];
     word sprite_script;
 	
+	std::string name;
+	std::string display_name;
+	
 	word pickup_litems;
 	int16_t pickup_litem_level = -1;
 	
@@ -274,6 +275,7 @@ struct itemdata
 	//
 	void clear();
 	void advpaste(itemdata const& other, bitstring const& pasteflags);
+	bool operator==(itemdata const& other) const = default;
 };
 
 //some methods for dealing with items

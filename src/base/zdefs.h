@@ -1112,6 +1112,7 @@ enum
 	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
 };
 
+struct itemdata;
 struct wpndata
 {
 	int32_t tile;
@@ -1130,6 +1131,7 @@ struct wpndata
 	{
 		return csets & 0xF;
 	}
+	void load_item(itemdata const& itm);
 };
 
 #define WF_AUTOFLASH  0x01

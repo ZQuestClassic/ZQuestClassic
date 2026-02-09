@@ -31187,8 +31187,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			if((itemsbuf[id].flags & item_combine) && game->get_item(id))
 				// Item upgrade routine.
 			{
-				size_t sz = itemsbuf[i].type ? itemsbuf.capacity() : MAXITEMS;
-				for(int32_t i=0; i<sz; i++)
+				for(int32_t i = 0; i< itemsbuf.capacity(); i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
 					if(itemsbuf[i].type==itemsbuf[id].type && itemsbuf[i].level>itemsbuf[id].level
@@ -31750,8 +31749,7 @@ bool HeroClass::checkitems(int32_t index)
 			if((itemsbuf[id2].flags & item_combine) && game->get_item(id2))
 				// Item upgrade routine.
 			{
-				size_t sz = itemsbuf[i].type ? itemsbuf.capacity() : MAXITEMS;
-				for(int32_t i=0; i<sz; i++)
+				for(int32_t i=0; i< itemsbuf.capacity(); i++)
 				{
 					// Find the item which is as close to this item's fam_type as possible.
 					if(itemsbuf[i].type==itemsbuf[id2].type && itemsbuf[i].level>itemsbuf[id2].level
