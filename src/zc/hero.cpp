@@ -830,7 +830,7 @@ void HeroClass::resetflags(bool all)
     inwallm=false;
     inlikelike=blowcnt=whirlwind=specialcave=hclk=fairyclk=refill_why=didstuff=0;
 	usecounts.clear();
-	item_cooldown.fill(0);
+	item_cooldown.clear();
     
 	if(swordclk>0 || all)
 	{
@@ -1753,7 +1753,7 @@ void HeroClass::init()
 {
 	cache_tile_mod_clear();
 	usecounts.clear();
-	item_cooldown.fill(0);
+	item_cooldown.clear();
 	scale = 0;
 	rotation = 0;
 	do_animation = true;
@@ -7980,6 +7980,18 @@ void HeroClass::handle_water_passive_damage(combined_handle_t combined_handle, i
 	else damageovertimeclk = 0;
 }
 
+static void dec_cooldowns(bounded_map<int, int>& cd)
+{
+	auto& cont = cd.mut_inner();
+	for (auto it = cont.begin(); it != cont.end();)
+	{
+		if (it->second > 1) // tick down one per frame
+			--it->second;
+		else if (it->second >= 0) // ticked down to nothing, remove from map
+			it = cont.erase(it);
+	}
+}
+
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -8770,9 +8782,7 @@ heroanimate_skip_liftwpn:;
 	if (used_grav_or_termv && last_grav_boots_id > -1) // if the gravity boots affected the player's falling, charge their cost
 		paymagiccost(last_grav_boots_id);
 	
-	for (int q = 0; q < MAXITEMS; ++q)
-		if (item_cooldown[q] > 0)
-			--item_cooldown[q];
+	dec_cooldowns(item_cooldown);
 	
 	if(drunkclk)
 	{
