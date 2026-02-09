@@ -1212,7 +1212,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							fitParent = true,
 							vPadding = 0_px,
 							type = GUI::TextField::type::INT_DECIMAL,
-							low = -255, high = 255, val = local_ref.spawnitem,
+							low = -(MAXITEMDROPSETS-1), high = MAXITEMS, val = local_ref.spawnitem,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								local_ref.spawnitem = val;

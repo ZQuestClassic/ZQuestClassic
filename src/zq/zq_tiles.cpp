@@ -12508,10 +12508,9 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 24)
 				{
-					if(!p_getc(&temp_trigger.triggeritem,f))
-					{
+					if(!p_getc(&tempbyte,f))
 						return 0;
-					}
+					temp_trigger.triggeritem = tempbyte;
 					if(!p_getc(&tempbyte, f))
 						return 0;
 					temp_trigger.trigtimer = tempbyte;
@@ -12591,10 +12590,11 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 					{
 						return qe_invalid;
 					}
-					if(!p_igetw(&temp_trigger.spawnitem,f))
-					{
+					
+					if(!p_igetw(&tempword,f))
 						return qe_invalid;
-					}
+					temp_trigger.spawnitem = int16_t(tempword);
+					
 					if(!p_igetw(&temp_trigger.spawnenemy,f))
 					{
 						return qe_invalid;

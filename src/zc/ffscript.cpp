@@ -14648,7 +14648,7 @@ void set_register(int32_t arg, int32_t value)
 			if (!checkComboRef()) break;
 
 			if(auto* trig = get_first_combo_trigger())
-				trig->triggeritem = vbound(value/10000,0,255);
+				trig->triggeritem = vbound(value/10000, 0, MAXITEMS-1);
 			break;
 		}
 		case COMBODTRIGGERTIMER:
@@ -14772,7 +14772,7 @@ void set_register(int32_t arg, int32_t value)
 			if (!checkComboRef()) break;
 
 			if(auto* trig = get_first_combo_trigger())
-				trig->spawnitem = vbound(value/10000, -255, 255);
+				trig->spawnitem = vbound(value/10000, -(MAXITEMDROPSETS-1), MAXITEMS-1);
 			break;
 		}
 		case COMBODTRIGCSETCHANGE:
@@ -15322,7 +15322,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 			{
-				trig->spawnitem = vbound(value/10000, -255, 255);
+				trig->spawnitem = vbound(value/10000, -(MAXITEMDROPSETS-1), MAXITEMS-1);
 			}
 			break;
 		}

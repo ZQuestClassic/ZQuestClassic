@@ -9290,7 +9290,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 23;
 	if(!p_putc(tmp_trig.triggerbtn,f))
 		return 34;
-	if(!p_putc(tmp_trig.triggeritem,f))
+	if(!p_iputw(tmp_trig.triggeritem,f))
 		return 35;
 	if(!p_iputw(tmp_trig.trigtimer,f))
 		return 36;
@@ -9308,7 +9308,7 @@ int32_t writecombo_triggers_loop(PACKFILE *f, word section_version, combo_trigge
 		return 42;
 	if(!p_putc(tmp_trig.trigcschange,f))
 		return 43;
-	if(!p_iputw(tmp_trig.spawnitem,f))
+	if(!p_iputl(tmp_trig.spawnitem,f))
 		return 44;
 	if(!p_iputw(tmp_trig.spawnenemy,f))
 		return 45;
