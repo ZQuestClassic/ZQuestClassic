@@ -28825,10 +28825,12 @@ void FFScript::FFChangeSubscreenText()
 
 void FFScript::SetItemMessagePlayed(int32_t itm)
 {
+	if (unsigned(itm) >= MAXITEMS) return;
 	game->item_messages_played.set(itm, true);
 }
 bool FFScript::GetItemMessagePlayed(int32_t itm)
 {
+	if (unsigned(itm) >= MAXITEMS) return false;
 	return game->item_messages_played.get(itm);
 }
 
