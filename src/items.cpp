@@ -34,7 +34,7 @@ bool item::animate(int32_t)
 	
 	itemdata const& base_item = get_item_data(id);
 	itemdata const* disp_item = &base_item;
-	if (disp_item->type == itype_progressive_itm)
+	if (base_item.type == itype_progressive_itm)
 	{
 		int32_t id2 = get_progressive_item(id);
 		if(unsigned(id2) >= MAXITEMS)
@@ -724,7 +724,7 @@ struct LensHintItemData
 	int aframe;
 	bool empty() const
 	{
-		return aclk || aframe;
+		return !(aclk || aframe);
 	}
 	bool operator==(LensHintItemData const& other) const = default;
 };
