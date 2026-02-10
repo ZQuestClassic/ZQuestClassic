@@ -8567,7 +8567,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
     word dummy_word;
 	
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
-	itemdata tempitem;
+	itemdata tempitem = itemdata();
 	reset_itembuf(&tempitem, index);
 	tempitem.name = itemsbuf[index].name;
 	
