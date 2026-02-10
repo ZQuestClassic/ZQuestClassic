@@ -11003,8 +11003,8 @@ void set_register(int32_t arg, int32_t value)
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
 				if (val > -1)
-					game->forced_bwpn = val;
-				game->items_off.set(val, false);
+					game->items_off.set(val, false);
+				game->forced_bwpn = val;
 			}
 			directItemB = val;
 			break;
