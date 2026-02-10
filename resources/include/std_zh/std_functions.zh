@@ -2222,6 +2222,7 @@ void SetDMapFlag(int dmap, int flag, bool state)
 // @deprecated Use [Hero->ItemA] / [Hero->ItemB] instead!
 void SetEquipment(int a, int b)
 {
+	#option WARN_DEPRECATED off
 	Hero->Equipment = (((a&0xFF)|((b&0xFF)<<8)));
 }
 
