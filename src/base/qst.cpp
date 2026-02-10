@@ -9977,10 +9977,12 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	
 	if(Header->zelda_version < 0x176)
 	{
-		wpnsbuf[iwSpawn].load_item(itemsbuf[iMisc1]);
-		wpnsbuf[iwDeath].load_item(itemsbuf[iMisc2]);
-		itemsbuf[iMisc1].clear();
-		itemsbuf[iMisc2].clear();
+		auto& spawn_item = itemsbuf[iMisc1];
+		auto& death_item = itemsbuf[iMisc2];
+		wpnsbuf[iwSpawn].load_item(spawn_item);
+		wpnsbuf[iwDeath].load_item(death_item);
+		spawn_item.clear();
+		death_item.clear();
 	}
 	
 	if((Header->zelda_version < 0x192)||
@@ -18843,7 +18845,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			}
 			else
 			{
-				auto const& pitm = itemsbuf[temp_combo.lift_parent_item];
+				auto const& pitm = get_item_data(temp_combo.lift_parent_item);
 				auto weap_glow = weap_data.light_rads[WPNSPR_BASE];
 				switch(pitm.type)
 				{

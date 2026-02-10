@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 #include "base/misctypes.h"
 #include "zc/zelda.h"
+#include "zscriptversion.h"
 
 bounded_vec<word, itemdata> itemsbuf = {MAXITEMS};
 const itemdata nil_item = itemdata();
@@ -20,7 +21,8 @@ item::~item()
 		return;
 
 #ifndef IS_EDITOR
-	if(itemsbuf[id].type==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && (!get_qr(qr_OLD_FAIRY_LIMIT) || replay_version_check(28)))
+	auto const& itm = get_item_data(id);
+	if(itm.type == itype_fairy && itm.misc3 > 0 && misc > 0 && (!get_qr(qr_OLD_FAIRY_LIMIT) || replay_version_check(28)))
 		killfairynew(*this);
 	FFCore.destroySprite(this);
 #endif
@@ -29,6 +31,24 @@ item::~item()
 bool item::animate(int32_t)
 {
 	update_current_screen();
+	
+	itemdata const& base_item = get_item_data(id);
+	itemdata const* disp_item = &base_item;
+	if (disp_item->type == itype_progressive_itm)
+	{
+		int32_t id2 = get_progressive_item(id);
+		if(unsigned(id2) >= MAXITEMS)
+			id2 = id;
+		else if (id2 != id)
+			disp_item = &itemsbuf[id2];
+		
+		if(id2 != linked_parent) //Update item
+		{
+			linked_parent = id2;
+			load_gfx(*disp_item);
+		}
+	}
+	
 	if(switch_hooked)
 	{
 		solid_update(false);
@@ -154,7 +174,7 @@ bool item::animate(int32_t)
 			}
 		}
 		if (!subscreenItem) handle_termv();
-		if (!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].type != itype_fairy)
+		if (!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && base_item.type != itype_fairy)
 		{
 			if (!isSideViewGravity())
 				if (moveflags & move_can_pitfall)
@@ -179,23 +199,6 @@ bool item::animate(int32_t)
 		clk=0x7000;
 	}
 	
-	itemdata const* itm = &itemsbuf[id];
-	if(itm->type == itype_progressive_itm)
-	{
-		int32_t id2 = get_progressive_item(id);
-		if(unsigned(id2) >= MAXITEMS)
-			id2 = -1;
-		if(id2 != linked_parent) //Update item
-		{
-			linked_parent = id2;
-			if(id2 < 0)
-				load_gfx(*itm);
-			else load_gfx(itemsbuf[id2]);
-		}
-		if(id2 > -1)
-			itm = &itemsbuf[id2];
-	}
-	
 	if(flash)
 	{
 		cs = o_cset;
@@ -210,7 +213,7 @@ bool item::animate(int32_t)
 		}
 	}
 	
-	if(do_animation && ((get_qr(qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || itm->type==itype_bottle))
+	if(do_animation && ((get_qr(qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || disp_item->type==itype_bottle))
 	{
 		int32_t spd = o_speed;
 		
@@ -241,9 +244,9 @@ bool item::animate(int32_t)
 			tile = o_tile + aframe;
 #ifndef IS_EDITOR
 		//Bottles offset based on their slot's fill
-		if(itm->type == itype_bottle)
+		if(disp_item->type == itype_bottle)
 		{
-			int32_t slot = itm->misc1;
+			int32_t slot = disp_item->misc1;
 			size_t btype = game->get_bottle_slot(slot);
 			int32_t offset = (frames ? frames : 1) * btype;
 			if(extend > 2)
@@ -259,10 +262,8 @@ bool item::animate(int32_t)
 	}
 	
 #ifndef IS_EDITOR
-	if(itemsbuf[id].type == itype_fairy && itemsbuf[id].misc3)
-	{
+	if(base_item.type == itype_fairy && base_item.misc3)
 		movefairynew(x,y,*this);
-	}
 #endif
 	
 	if ((z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && !get_qr(qr_CLASSIC_DRAWING_ORDER))
@@ -297,7 +298,7 @@ void item::draw(BITMAP *dest)
 #ifdef IS_PLAYER
 		if (clk2 % (game->get_item_flicker_speed() * 2) >= game->get_item_flicker_speed())
 		{
-			if (clk2 <= game->get_item_spawn_flicker() && itemsbuf[id].type != itype_fairy)
+			if (clk2 <= game->get_item_spawn_flicker() && get_item_data(id).type != itype_fairy)
 				return; // flicker for items spawning in
 			if ((pickup & ipTIMER) && clk2 >= (game->get_item_timeout_dur() - game->get_item_timeout_flicker()))
 				return; // flicker for timeout items before vanishing
@@ -348,7 +349,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	from_dropset = -1;
 	pickupexstate = -1;
 	
-	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
+	if (unsigned(id) > MAXITEMS)
 		return;
 	itemdata const& itm = itemsbuf[id];
 	
@@ -453,17 +454,19 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 	temp.yofs=0;
 	temp.hide_hitbox = true;
 	
-	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
-		temp.extend = 3; 
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+	auto const& itm = get_item_data(item_id);
+	if ( itm.overrideFLAGS > 0 )
+	{
+		temp.extend = 3;
+		if (itm.overrideFLAGS & OVERRIDE_TILE_WIDTH)    temp.txsz = itm.tilew;
+		if (itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)   temp.tysz = itm.tileh;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_WIDTH)     temp.hit_width = itm.hxsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_HEIGHT)    temp.hit_height = itm.hysz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Z_HEIGHT)  temp.hzsz = itm.hzsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET)  temp.hxofs = itm.hxofs;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET)  temp.hyofs = itm.hyofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_X_OFFSET) temp.xofs = itm.xofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_Y_OFFSET) temp.yofs = itm.yofs;
 	}
 
 	temp.animate(0);
@@ -638,7 +641,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		if(targItem.type == itype_heartpiece)
 		{
 			int32_t hcid = heart_container_id();
-			if(hcid < 0) continue;
+			if(unsigned(hcid) >= MAXITEMS) continue;
 			itemdata const& hcitem = itemsbuf[hcid];
 			if(hcitem.setmax > 0)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
@@ -740,18 +743,20 @@ void draw_lens_hint_item(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32
 	{
 		temp.flash=(flash != 0);
 	}
-	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
+	auto const& itm = get_item_data(item_id);
+	if ( itm.overrideFLAGS > 0 )
+	{
 		temp.extend = 3;
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
-	}	    
+		if (itm.overrideFLAGS & OVERRIDE_TILE_WIDTH)    temp.txsz = itm.tilew;
+		if (itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)   temp.tysz = itm.tileh;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_WIDTH)     temp.hit_width = itm.hxsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_HEIGHT)    temp.hit_height = itm.hysz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Z_HEIGHT)  temp.hzsz = itm.hzsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET)  temp.hxofs = itm.hxofs;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET)  temp.hyofs = itm.hyofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_X_OFFSET) temp.xofs = itm.xofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_Y_OFFSET) temp.yofs = itm.yofs;
+	}
 	
 	temp.animate(0);
 	temp.draw(dest);
@@ -783,19 +788,20 @@ void dummyitem_animate(item* dummy, int32_t clk)
 	dummy->aclk=dummy->aframe ? (clk-del*spd)%spd : clk;
 	
 	auto item_id = dummy->id;
-	if ( itemsbuf[item_id].overrideFLAGS > 0 )
+	auto const& itm = get_item_data(item_id);
+	if ( itm.overrideFLAGS > 0 )
 	{
 		dummy->extend = 3;
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) {dummy->txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ) {dummy->tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) {dummy->hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {dummy->hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {dummy->hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {dummy->hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {dummy->hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {dummy->xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {dummy->yofs = itemsbuf[item_id].yofs;}
-	}	    
+		if (itm.overrideFLAGS & OVERRIDE_TILE_WIDTH)    dummy->txsz = itm.tilew;
+		if (itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)   dummy->tysz = itm.tileh;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_WIDTH)     dummy->hit_width = itm.hxsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_HEIGHT)    dummy->hit_height = itm.hysz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Z_HEIGHT)  dummy->hzsz = itm.hzsz;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET)  dummy->hxofs = itm.hxofs;
+		if (itm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET)  dummy->hyofs = itm.hyofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_X_OFFSET) dummy->xofs = itm.xofs;
+		if (itm.overrideFLAGS & OVERRIDE_DRAW_Y_OFFSET) dummy->yofs = itm.yofs;
+	}
 	
 	dummy->animate(0);
 }
@@ -1127,7 +1133,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 							break;
 						}
 					}
-					if(bowid>-1 && checkmagiccost(id))
+					if(unsigned(bowid) < MAXITEMS && checkmagiccost(id))
 						overname = itemsbuf[bowid].get_name() + " & " + name;
 					break;
 				}
@@ -1353,10 +1359,10 @@ cooldown_data calc_item_cooldown(int item_id)
 	return data;
 }
 
-
 int ButtonItemData::get_family() const
 {
-	if (unsigned(id) >= MAXITEMS) return -1;
+	if (unsigned(id) >= MAXITEMS)
+		return -1;
 	return itemsbuf[id].type;
 }
 
@@ -1367,5 +1373,26 @@ itemdata const& get_item_data(int id)
 	if (unsigned(id) >= MAXITEMS)
 		return nil_item;
 	return itemsbuf[id];
+}
+
+
+void run_first_script_of_type(int itype)
+{
+#ifdef IS_PLAYER
+	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
+	{
+		auto const& itm = itemsbuf[q];
+		if (itm.type == itype)
+		{
+			if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			{
+				FFCore.reset_script_engine_data(ScriptType::Item, q);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
+			}
+			break;
+		}
+	}
+#endif
 }
 

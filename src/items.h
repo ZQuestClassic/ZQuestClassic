@@ -318,4 +318,6 @@ struct ButtonItemData
 
 itemdata const& get_item_data(int id);
 
+void run_first_script_of_type(int itype);
+
 #endif

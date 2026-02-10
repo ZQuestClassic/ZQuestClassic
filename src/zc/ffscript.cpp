@@ -1469,7 +1469,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
+				memcpy(ri->d, itemsbuf[new_i].initiald, 8 * sizeof(int32_t));
 				data.initialized = true;
 			}			
 			ri->itemdataref = ( collect ) ? new_i : i; //'this' pointer
@@ -1989,6 +1989,7 @@ void FFScript::initZScriptHeroScripts()
 
 void FFScript::initZScriptItemScripts()
 {
+	// using MAXITEMS rather than itemsbuf.capacity() as scripts can easily 'create' new items up to MAXITEMS.
 	for ( int32_t q = 0; q < MAXITEMS; q++ )
 	{
 		auto& data = get_script_engine_data(ScriptType::Item, q);
@@ -2559,7 +2560,7 @@ item* checkItem(int32_t ref)
 
 itemdata* checkItemData(int32_t ref)
 {
-	if (ref >= 0 && ref < MAXITEMS)
+	if (unsigned(ref) < MAXITEMS)
 		return &itemsbuf[ref];
 
 	scripting_log_error_with_context("Invalid {} using UID = {}", "itemdata", ref);
@@ -11772,8 +11773,9 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t v = vbound(value/10000, -9999, 16383);
-			itemsbuf[GET_REF(itemdataref)].amount &= 0x8000;
-			itemsbuf[GET_REF(itemdataref)].amount |= (abs(v)&0x3FFF)|(v<0?0x4000:0);
+			auto& itm = itemsbuf[GET_REF(itemdataref)];
+			itm.amount &= 0x8000;
+			itm.amount |= (abs(v)&0x3FFF)|(v<0?0x4000:0);
 			break;
 		}
 		case IDATAGRADUAL:
@@ -11938,9 +11940,10 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			auto new_value = value/10000;
-			if (new_value != itemsbuf[GET_REF(itemdataref)].ltm)
+			auto& itm = itemsbuf[GET_REF(itemdataref)];
+			if (new_value != itm.ltm)
 				cache_tile_mod_clear();
-			itemsbuf[GET_REF(itemdataref)].ltm = new_value;
+			itm.ltm = new_value;
 			break;
 		}
 		//Pickup script
@@ -23585,13 +23588,14 @@ void do_toshort()
 void do_getitemname()
 {
 	int32_t arrayptr = get_register(sarg1);
-	if(unsigned(GET_REF(itemdataref)) >= MAXITEMS)
+	auto itmid = GET_REF(itemdataref);
+	if(unsigned(itmid) >= MAXITEMS)
 	{
-		scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
+		scripting_log_error_with_context("Invalid itemdata access: {}", itmid);
 		return;
 	}
 	
-	if(ArrayH::setArray(arrayptr, itemsbuf[GET_REF(itemdataref)].name) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, itemsbuf[itmid].name) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
 }
 
@@ -23977,7 +23981,9 @@ static void script_exit_cleanup(bool no_dealloc)
 			auto& data = get_script_engine_data(type, i);
 			if ( !collect )
 			{
-				if ( (itemsbuf[i].flags&item_passive_script) && game->get_item(i) ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				auto& itm = itemsbuf[i];
+				if ((itm.flags & item_passive_script) && game->get_item(i))
+					itm.script = 0; //Quit perpetual scripts, too.
 			}
 			data.doscript = 0;
 			data.clear_ref();
@@ -27116,6 +27122,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				int32_t itemid = GET_REF(itemdataref);
 				if(unsigned(itemid) > itemsbuf.capacity()) break;
+				auto const& itm = itemsbuf[itemid];
 				int32_t mode = get_register(sarg1) / 10000;
 				auto& data = get_script_engine_data(ScriptType::Item, itemid);
 				switch(mode)
@@ -27127,13 +27134,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					}
 					case 1:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
+						if ( itm.script != 0 )
 						{
 							if ( !data.doscript ) 
 							{
 								data.clear_ref();
 								data.doscript = 1;
-								//ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[itemid].script, itemid);
 							}
 							else
 							{
@@ -27145,31 +27151,13 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					case 2:
 					default:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
+						if (itm.script != 0)
 						{
-							if (data.doscript != 2 )data.doscript = 2;
+							if (data.doscript != 2)
+								data.doscript = 2;
 						}
 						break;
 					}
-					/*
-					case 0:
-					{
-						data.doscript = 0;
-						break;
-					}
-					default:
-					{
-					
-						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
-						{
-							//itemScriptData[itemid].Clear();
-							//for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-							//ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[itemid].script, itemid & 0xFFF);
-							data.doscript = 2;
-						}
-						break;
-					}
-					*/
 				}
 				break;
 			}
@@ -29516,23 +29504,23 @@ void FFScript::runOnSaveEngine()
 bool FFScript::itemScriptEngine()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	for ( int32_t q = 0; q < itemsbuf.capacity(); q++ )
+	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		
-		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		auto const& itm = itemsbuf[q];
+		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 		if ( data.doscript < 1 ) continue;
 		
 		//Passive items
-		if (((itemsbuf[q].flags&item_passive_script)))
+		if (((itm.flags&item_passive_script)))
 		{
 			if(game->get_item(q) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)
+					&& current_item(itm.type) > itm.level)
 					data.doscript = 0;
-				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				else ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
 					data.clear_ref();
@@ -29566,7 +29554,7 @@ bool FFScript::itemScriptEngine()
 			}
 			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
@@ -29576,7 +29564,7 @@ bool FFScript::itemScriptEngine()
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q & 0xFFF);
+					ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 					data.doscript = 0;
 				}
 			}
@@ -29598,9 +29586,10 @@ bool FFScript::itemScriptEngine()
 bool FFScript::itemScriptEngineOnWaitdraw()
 {
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
-	for ( int32_t q = 0; q < itemsbuf.capacity(); q++ )
+	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		auto const& itm = itemsbuf[q];
+		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 
@@ -29618,14 +29607,14 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ((itemsbuf[q].flags&item_passive_script))
+		if ((itm.flags&item_passive_script))
 		{
 			if(game->get_item(q) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
-					&& current_item(itemsbuf[q].type) > itemsbuf[q].level)
+					&& current_item(itm.type) > itm.level)
 					data.doscript = 0;
-				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				else ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
 					data.clear_ref();
@@ -29647,7 +29636,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			}
 			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
@@ -29657,7 +29646,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q & 0xFFF);
+					ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
 					data.doscript = 0;
 				}
 			}
@@ -29936,9 +29925,9 @@ void FFScript::do_getitembyname()
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 512);
 	
-	for(int32_t q = 0; q < itemsbuf.capacity(); q++)
+	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		if(the_string == itemsbuf[q].name)
+		if (the_string == itemsbuf[q].name)
 		{
 			num = q;
 			break;

@@ -3593,9 +3593,9 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	int32_t power = w->power;
 	int32_t wpnx = w->x;
 	int32_t wpny = w->y;
-	int32_t enemyHitWeapon = w->parentitem;
-	int32_t wpnDir;
 	int32_t parent_item = w->parentitem;
+	int32_t wpnDir;
+	auto const& wpn_item = get_item_data(parent_item);
 	
 	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
 	{
@@ -3747,13 +3747,14 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	case wWhistle: //No longer completely ignore whistle weapons! -Z
 	{
 		
-		if ( ((itemsbuf[parent_item].flags & item_flag2) == 0) ||  ( parent_item == -1 )  )  //if the flag is set, or the weapon is scripted
+		if (!(wpn_item.flags & item_flag2) || unsigned(parent_item) >= MAXITEMS)
 		{
+			//if the flag is set, or the weapon is scripted
 			return 0; break;
 		}
 		else 
 		{
-			w->power = power = itemsbuf[parent_item].misc5;
+			w->power = power = wpn_item.misc5;
 			goto takehit_default;
 		}
 		break;
@@ -3773,10 +3774,10 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 		// Only take sparkle damage if the sparkle's parent item is not
 		// defended against.
-		if(enemyHitWeapon > -1)
+		if (unsigned(parent_item) < MAXITEMS)
 		{
 			int32_t p = 0;
-			int32_t f = itemsbuf[enemyHitWeapon].type;
+			int32_t f = wpn_item.type;
 			
 			switch(f)
 			{
@@ -3806,6 +3807,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		
 	case wBrang:
 	{
+		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_brang));
 		//int32_t def = defendNew(wpnId, &power, edefBRANG, w);
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		//preventing stunlock might be best, here. -Z
@@ -3817,9 +3819,9 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		{
 			stunclk=160;
 			
-			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
+			if(itm.power)
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*game->get_hero_dmgmult();
+				hp -= itm.power * game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
@@ -3827,15 +3829,16 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		}
 		
 		if(!power)
-			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].level : current_item(itype_brang))*game->get_hero_dmgmult();
+			hp -= itm.level * game->get_hero_dmgmult();
 		else
-			hp-=power;
+			hp -= power;
 			
 		goto hitclock;
 	}
 	
 	case wHookshot:
 	{
+		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_hookshot));
 		//int32_t def = defendNew(wpnId, &power, edefHOOKSHOT,w);
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		
@@ -3848,18 +3851,19 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			if(!swgrab)
 				stunclk=160;
 			
-			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
+			if (itm.power)
 			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*game->get_hero_dmgmult();
+				hp -= itm.power * game->get_hero_dmgmult();
 				goto hitclock;
 			}
 			
 			break;
 		}
 		
-		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].level : current_item(itype_hookshot))*game->get_hero_dmgmult();
+		if(!power)
+			hp -= itm.level * game->get_hero_dmgmult();
 		else
-			hp-=power;
+			hp -= power;
 			
 		goto hitclock;
 	}
@@ -3867,11 +3871,12 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 	case wHSHandle:
 	{
-		if(itemsbuf[enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)].flags & item_flag1)
+		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_hookshot));
+		if(itm.flags & item_flag1)
 			return 0;
 			
 		bool ignorehookshot = ((defense[edefHOOKSHOT] == edIGNORE) || ((defense[edefHOOKSHOT] == edIGNOREL1 || defense[edefHOOKSHOT] == edSTUNORIGNORE)
-							   && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot)) <= 0));
+							   && itm.power <= 0));
 							   
 		// Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
 		if(!(type==eePEAHAT || type==eeAQUA || type==eeMANHAN || (type==eeWIZZ && !ignorehookshot)
@@ -3948,30 +3953,21 @@ hitclock:
 	// Penetrating weapons
 	if((wpnId==wArrow || wpnId==wBeam) && !cannotpenetrate())
 	{
-		int32_t item=enemyHitWeapon;
-		
 		if(wpnId==wArrow)
 		{
 			//If we use an arrow type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&item_flag1) && (itemsbuf[parent_item].type == itype_arrow))
+			if((wpn_item.flags & item_flag1) && get_item_data(parent_item).type == itype_arrow)
 				return 0;
-			else if(get_qr(qr_ARROWS_ALWAYS_PENETRATE)) return 0;
-			//if(item<0)
-			else
-				item=current_item_id(itype_arrow);	
+			else if(get_qr(qr_ARROWS_ALWAYS_PENETRATE))
+				return 0;
 		}
-		
 		else
 		{
-
 			//If we use an swordbeam type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&item_flag3) && (itemsbuf[parent_item].type == itype_sword))
+			if((wpn_item.flags & item_flag3) && get_item_data(parent_item).type == itype_sword)
 				return 0;
-			
-			else if(get_qr(qr_SWORDBEAMS_ALWAYS_PENETRATE)) return 0;
-			else
-			//if(item<0)
-				item=current_item_id(itype_sword);
+			else if(get_qr(qr_SWORDBEAMS_ALWAYS_PENETRATE))
+				return 0;
 		}
 	}
 	
@@ -4036,7 +4032,7 @@ void enemy::draw(BITMAP *dest)
 	if (scr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
-		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && type!=eeGANON) canSee = DRAW_CLOAKED;
+		!((get_item_data(Hero.getLastLensID()).flags & item_flag5) && lensclk) && type!=eeGANON) canSee = DRAW_CLOAKED;
 	}
 	//Lens check
 	if (lensclk)
@@ -5173,7 +5169,7 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 							ndir = (by<y) ? up : down;
 						}
 					}
-					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
+					if (grumble < 0 || (get_item_data(((weapon*)Lwpns.spr(i))->parentitem).flags & item_flag1)) ndir = oppositeDir[ndir];
 					if(canmove(ndir,special,false))
 					{
 						dir=ndir;
@@ -5737,7 +5733,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 				if(abs(int32_t(y)-by)>14)
 				{
 					ndir = (by<y) ? up : down;
-					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
+					if (grumble < 0 || (get_item_data(((weapon*)Lwpns.spr(i))->parentitem).flags & item_flag1)) ndir = oppositeDir[ndir];
 					if(canmove(ndir,special,false))
 					{
 						dir=ndir;
@@ -5746,7 +5742,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 				}
 				
 				ndir = (bx<x) ? left : right;
-				if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
+				if (grumble < 0 || (get_item_data(((weapon*)Lwpns.spr(i))->parentitem).flags & item_flag1)) ndir = oppositeDir[ndir];
 				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
@@ -8748,14 +8744,14 @@ void ePeahat::draw(BITMAP *dest)
 int32_t ePeahat::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
-	int32_t enemyHitWeapon = w->parentitem;
+	int32_t parent_item = w->parentitem;
 	
 	if(dying || clk<0 || hclk>0)
 		return 0;
 		
 	if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
 			// fire boomerang, for nailing peahats
-			&& !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
+			&& !(wpnId==wBrang && (unsigned(parent_item) < MAXITEMS ? itemsbuf[parent_item].power : current_item_power(itype_brang))>0))
 		return 0;
 		
 	// Time for a kludge...
@@ -10708,7 +10704,7 @@ bool eStalfos::animate(int32_t index)
 			{
 				for(int32_t i=0; i<itemsbuf.capacity(); i++)
 				{
-					if(itemsbuf[i].flags&item_edible)
+					if (itemsbuf[i].flags & item_edible)
 						game->set_item(i, false);
 				}
 				
@@ -13330,7 +13326,7 @@ int32_t eGanon::takehit(weapon *w, weapon* realweap)
 	//these are here to bypass compiler warnings about unused arguments
 	int32_t wpnId = w->id;
 	int32_t power = w->power;
-	int32_t enemyHitWeapon = w->parentitem;
+	int32_t parent_item = w->parentitem;
 	
 	switch(misc)
 	{
@@ -13360,7 +13356,7 @@ int32_t eGanon::takehit(weapon *w, weapon* realweap)
 		return 1;
 		
 	case 2:
-		if(wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4)
+		if(wpnId!=wArrow || (unsigned(parent_item) < MAXITEMS ? itemsbuf[parent_item].power : current_item_power(itype_arrow))<4)
 			return 0;
 			
 		misc=3;
@@ -13479,10 +13475,11 @@ void getBigTri(mapscr* scr, int32_t id2)
 	  200 top SHUTTER opens
 	  209 bottom SHUTTER opens
 	  */
-	sfx(itemsbuf[id2].playsound);
+	auto const& itm = get_item_data(id2);
+	sfx(itm.playsound);
 	guys.clear();
 	
-	if(itemsbuf[id2].flags & item_gamedata)
+	if(itm.flags & item_gamedata)
 	{
 		game->lvlitems[dlevel]|=(1 << li_mcguffin);
 	}
@@ -13530,7 +13527,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 	
 	playLevelMusic();
 	
-	if(itemsbuf[id2].flags & item_flag1 && cur_screen < 128)
+	if(itm.flags & item_flag1 && cur_screen < 128)
 	{
 		Hero.dowarp(hero_scr, 1, 0); //side warp
 	}
@@ -16597,10 +16594,10 @@ void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power
 	if (fakez > 0) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 }
 
-int32_t hit_enemy(int32_t index, int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap)
+int32_t hit_enemy(int32_t index, int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t parent_item, weapon* realweap)
 {
 	// Kludge
-	weapon *w = new weapon((zfix)wpnx,(zfix)wpny,(zfix)0,wpnId,0,power,dir,enemyHitWeapon,-1,false);
+	weapon *w = new weapon((zfix)wpnx,(zfix)wpny,(zfix)0,wpnId,0,power,dir,parent_item,-1,false);
 	int32_t ret = ((enemy*)guys.spr(index))->takehit(w,realweap);
 	delete w;
 	return ret;
@@ -19514,12 +19511,13 @@ void setupscreen()
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
 				
-				if(itemid>=0 && prices[i]!=100000)
+				if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
 				{
-					if(itemsbuf[itemid].flags & item_flag1)
-						prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+					auto const& itm = itemsbuf[itemid];
+					if (itm.flags & item_flag1)
+						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
-						prices[i]-=itemsbuf[itemid].misc1;
+						prices[i] -= itm.misc1;
 					prices[i]=vbound(prices[i], -99999, 0);
 					if(prices[i]==0)
 						prices[i]=100000;
@@ -19623,12 +19621,13 @@ void setupscreen()
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
 				
-				if(itemid>=0 && prices[i]!=100000)
+				if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
 				{
-					if(itemsbuf[itemid].flags & item_flag1)
-						prices[i]=((prices[i]*itemsbuf[itemid].misc1) / 100);
+					auto const& itm = itemsbuf[itemid];
+					if (itm.flags & item_flag1)
+						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
-						prices[i]+=itemsbuf[itemid].misc1;
+						prices[i] += itm.misc1;
 					prices[i]=vbound(prices[i], 0, 99999);
 					if(prices[i]==0)
 						prices[i]=100000;
@@ -19710,12 +19709,13 @@ void setupscreen()
 				prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 			int32_t itemid = current_item_id(itype_wealthmedal);
 			
-			if(itemid>=0 && prices[i]!=100000)
+			if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
 			{
-				if(itemsbuf[itemid].flags & item_flag1)
-					prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+				auto const& itm = itemsbuf[itemid];
+				if(itm.flags & item_flag1)
+					prices[i] = ((prices[i] * itm.misc1) / 100);
 				else
-					prices[i]+=itemsbuf[itemid].misc1;
+					prices[i] += itm.misc1;
 				prices[i]=vbound(prices[i], 0, 99999);
 				if(prices[i]==0)
 					prices[i]=100000;
@@ -19756,16 +19756,17 @@ void setupscreen()
 		int32_t i = (base_scr->room == rSWINDLE ? 1 : 0);
 		int32_t itemid = current_item_id(itype_wealthmedal);
 		
-		if(itemid >= 0)
+		if(unsigned(itemid) < MAXITEMS)
 		{
-			if(itemsbuf[itemid].flags & item_flag1)
-				prices[i]*=(itemsbuf[itemid].misc1 /100.0);
+			auto const& itm = itemsbuf[itemid];
+			if(itm.flags & item_flag1)
+				prices[i] *= (itm.misc1 / 100.0);
 			else
-				prices[i]+=itemsbuf[itemid].misc1;
+				prices[i] += itm.misc1;
 		}
 		
-		if(base_scr->catchall>1 && prices[i]>-1)
-			prices[i]=-1;
+		if(base_scr->catchall > 1 && prices[i] > -1)
+			prices[i] = -1;
 	}
 	
 	putprices(false);
@@ -19993,11 +19994,14 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t itemID = args[0];
 			
-			getitem(itemID, true);
-			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
+			if (unsigned(itemID) < MAXITEMS)
 			{
-				FFCore.reset_script_engine_data(ScriptType::Item, itemID);
-				FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&item_passive_script) > 0;
+				getitem(itemID, true);
+				if (!FFCore.doscript(ScriptType::Item, itemID))
+				{
+					FFCore.reset_script_engine_data(ScriptType::Item, itemID);
+					FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&item_passive_script) > 0;
+				}
 			}
 			return true;
 		}
@@ -21222,7 +21226,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
 					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
+					if (unsigned(w->parentitem) < MAXITEMS) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
@@ -21261,7 +21265,8 @@ void check_enemy_lweapon_collision(weapon *w)
 					break;
 			}
 			if(pitem < 0) pitem = current_item_id(itype);
-			if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & item_flag9))
+			auto const& prnt_itm = get_item_data(pitem);
+			if(w->id == wHookshot && w->family_class == itype_switchhook && (prnt_itm.flags & item_flag9))
 			{ //Swap with item
 				for(int32_t j=0; j<items.Count(); j++)
 				{
@@ -21269,9 +21274,10 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
+						auto const& itm = itemsbuf[theItem->id];
+						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
-							|| (((itemsbuf[w->parentitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(!Hero.switchhookclk)
 							{
@@ -21290,7 +21296,8 @@ void check_enemy_lweapon_collision(weapon *w)
 					}
 				}
 			}
-			else if((w->id==wArrow&&itemsbuf[pitem].flags & item_flag2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & item_flag5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			else if((w->id == wArrow && (prnt_itm.flags & item_flag2)) || (w->id != wArrow && !(prnt_itm.flags & item_flag5)))
 			{
 				for(int32_t j=0; j<items.Count(); j++)
 				{
@@ -21298,13 +21305,14 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
+						auto const& itm = itemsbuf[theItem->id];
+						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
-							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey))&& !priced)))
+							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey))&& !priced)))
 						{
-							if(itemsbuf[theItem->id].collect_script)
+							if(itm.collect_script)
 							{
-								ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+								ZScriptVersion::RunScript(ScriptType::Item, itm.collect_script, theItem->id & 0xFFF);
 							}
 							
 							Hero.checkitems(j);
@@ -21320,9 +21328,10 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].type==itype_key||itemsbuf[theItem->id].type==itype_lkey;
+						auto const& itm = itemsbuf[theItem->id];
+						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
-							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							int32_t pickup = theItem->pickup;
 							int32_t id2 = theItem->id;
@@ -21374,9 +21383,10 @@ void dragging_item()
 	{
 		weapon *w = (weapon*)Lwpns.spr(i);
 		
-		if((w->id == wBrang || w->id==wHookshot)&&itemsbuf[w->parentitem].flags & item_flag5)//item_flag5 is a port for qr_Z3BRANG_HSHOT
+		//item_flag5 is a port for qr_Z3BRANG_HSHOT
+		if ((w->id == wBrang || w->id == wHookshot) && (get_item_data(w->parentitem).flags & item_flag5))
 		{
-			if(w->dragging>=0 && w->dragging<items.Count())
+			if(w->dragging >= 0 && w->dragging < items.Count())
 			{
 				item* dragItem = (item*)items.spr(w->dragging);
 				dragItem->x=w->x;
@@ -21384,8 +21394,8 @@ void dragging_item()
 				
 				// Drag the Fairy enemy as well as the Fairy item
 				int32_t id = dragItem->id;
-				
-				if(itemsbuf[id].type ==itype_fairy && itemsbuf[id].misc3)
+				auto const& itm = itemsbuf[id];
+				if(itm.type == itype_fairy && itm.misc3)
 				{
 					movefairynew2(w->x,w->y,*dragItem);
 				}
@@ -21457,7 +21467,7 @@ static void roaming_item(mapscr* scr)
 
 		state.item_state = ScreenItemState::None;
 
-		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE

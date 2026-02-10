@@ -894,21 +894,7 @@ bool trigger_chest(const combined_handle_t& handle)
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
-			// Run Boss Key Script
-			for ( int32_t q = 0; q < itemsbuf.capacity(); ++q )
-			{
-				auto const& itm = itemsbuf[q];
-				if ( itm.type == itype_bosskey )
-				{
-					if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-					{
-						FFCore.reset_script_engine_data(ScriptType::Item, q);
-						ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
-					}
-					break;
-				}
-			}
+			run_first_script_of_type(itype_bosskey);
 			
 			if(cmb.usrflags&cflag16)
 			{
@@ -1010,21 +996,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
 			}
-			// Run Boss Key Script
-			for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
-			{
-				auto const& itm = itemsbuf[q];
-				if (itm.type == itype_bosskey)
-				{
-					if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
-					{
-						FFCore.reset_script_engine_data(ScriptType::Item, q);
-						ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
-					}
-					break;
-				}
-			}
+			run_first_script_of_type(itype_bosskey);
 			
 			if(cmb.usrflags&cflag16)
 			{
