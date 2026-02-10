@@ -1992,7 +1992,7 @@ void FFScript::initZScriptItemScripts()
 {
 	for (int32_t q = 0; q < MAXITEMS; ++q)
 	{
-		int c = q ? COLLECT_SCRIPT_ITEM_ZERO : -q;
+		int c = q ? -q : COLLECT_SCRIPT_ITEM_ZERO;
 		
 		// Clear all the allocated memory for item scripts
 		clear_script_engine_data(ScriptType::Item, q);
@@ -2012,7 +2012,7 @@ void FFScript::initZScriptItemScripts()
 			}
 			if (itm.collect_script)
 			{
-				auto& cdata = get_script_engine_data(ScriptType::Item, q);
+				auto& cdata = get_script_engine_data(ScriptType::Item, c);
 				cdata.reset();
 				cdata.doscript = 0;
 			}
