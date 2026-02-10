@@ -2218,7 +2218,8 @@ void SetDMapFlag(int dmap, int flag, bool state)
 	dm->Flags = AdjustBitflags(dm->Flags, flag, state);
 }
 
-//Writes items to both the A and the b item slots.
+// Writes items to both the A and the b item slots.
+// @deprecated Use [Hero->ItemA] / [Hero->ItemB] instead!
 void SetEquipment(int a, int b)
 {
 	Hero->Equipment = (((a&0xFF)|((b&0xFF)<<8)));
