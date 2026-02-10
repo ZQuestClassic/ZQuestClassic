@@ -10652,13 +10652,15 @@ void set_register(int32_t arg, int32_t value)
 			Awpn = {seta};
 			game->awpn = 255;
 			game->forced_awpn = seta;
-			game->items_off.set(seta, false);
+			if (seta > -1)
+				game->items_off.set(seta, false);
 			directItemA = seta;
 			
 			Bwpn = {setb};
 			game->bwpn = 255;
 			game->forced_bwpn = setb;
-			game->items_off.set(setb, false);
+			if (setb > -1)
+				game->items_off.set(setb, false);
 			directItemB = setb;
 			break;
 		}
@@ -10690,7 +10692,8 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0: //b
 						Bwpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
@@ -10698,7 +10701,8 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 1: //a
 						Awpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->awpn = 255;
 						game->forced_awpn = itm;
 						directItemA = itm;
@@ -10706,7 +10710,8 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 2: //x
 						Xwpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
@@ -10714,7 +10719,8 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 3: //y
 						Ywpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemX = itm;
@@ -10729,7 +10735,8 @@ void set_register(int32_t arg, int32_t value)
 					{
 						case 0: //b
 							Bwpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
@@ -10737,7 +10744,8 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 1: //a
 							Awpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
@@ -10745,7 +10753,8 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 2: //x
 							Xwpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
@@ -10753,7 +10762,8 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 3: //y
 							Ywpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
@@ -10767,7 +10777,8 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0: //b
 						Bwpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
@@ -10777,7 +10788,8 @@ void set_register(int32_t arg, int32_t value)
 						if (get_qr(qr_SELECTAWPN))
 						{
 							Awpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
@@ -10786,7 +10798,8 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 2:  //x
 						Xwpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
@@ -10794,7 +10807,8 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 3: //y
 						Ywpn = {itm};
-						game->items_off.set(itm, false);
+						if (itm > -1)
+							game->items_off.set(itm, false);
 						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemY = itm;
@@ -10809,7 +10823,8 @@ void set_register(int32_t arg, int32_t value)
 					{
 						case 0: //b
 							Bwpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
@@ -10819,7 +10834,8 @@ void set_register(int32_t arg, int32_t value)
 							if (get_qr(qr_SELECTAWPN))
 							{
 								Awpn = {itm};
-								game->items_off.set(itm, false);
+								if (itm > -1)
+									game->items_off.set(itm, false);
 								game->awpn = 255;
 								game->forced_awpn = itm;
 								directItemA = itm;
@@ -10828,7 +10844,8 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 2: //x
 							Xwpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
@@ -10836,7 +10853,8 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 3: //y
 							Ywpn = {itm};
-							game->items_off.set(itm, false);
+							if (itm > -1)
+								game->items_off.set(itm, false);
 							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
@@ -10966,102 +10984,110 @@ void set_register(int32_t arg, int32_t value)
 		
 		case LINKITEMB:
 		{
-			if ( value/10000 < -1 ) 
+			auto val = value / 10000;
+			if ( val < -1 )
 			{
-				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",val);
 				break;
 			}		
-			if ( value/10000 > MAXITEMS-1 ) 
+			if ( val > MAXITEMS-1 )
 			{
-				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",val);
 				break;
 			}
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((val),0,(MAXITEMS-1)));
 			
-			if (Bwpn.id != (value/10000))
+			if (Bwpn.id != (val))
 			{
-				Bwpn = {value/10000};
+				Bwpn = {val};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
-				game->forced_bwpn = value/10000;
-				game->items_off.set(value/10000, false);
+				if (val > -1)
+					game->forced_bwpn = val;
+				game->items_off.set(val, false);
 			}
-			directItemB = value/10000;
+			directItemB = val;
 			break;
 		}
 		
 		
 		case LINKITEMA:
 		{
-			if ( value/10000 < -1 ) 
+			auto val = value / 10000;
+			if ( val < -1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",val);
 				break;
 			}		
-			if ( value/10000 > MAXITEMS-1 ) 
+			if ( val > MAXITEMS-1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",val);
 				break;
 			}		
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Awpn.id != (value/10000))
+			//Hero->setBButtonItem(vbound((val),0,(MAXITEMS-1)));
+			if (Awpn.id != (val))
 			{
-				Awpn = {value/10000};
+				Awpn = {val};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Awpn, game->awpn);
-				game->items_off.set(value/10000, false);
-				game->forced_awpn = value/10000;
+				if (val > -1)
+					game->items_off.set(val, false);
+				game->forced_awpn = val;
 			}
-			directItemA = value/10000;
+			directItemA = val;
 			break;
 		}
 		
 		case LINKITEMX:
 		{
-			if ( value/10000 < -1 ) 
+			auto val = value / 10000;
+			if ( val < -1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",val);
 				break;
 			}		
-			if ( value/10000 > MAXITEMS-1 ) 
+			if ( val > MAXITEMS-1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",val);
 				break;
 			}		
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Xwpn.id != (value/10000))
+			//Hero->setBButtonItem(vbound((val),0,(MAXITEMS-1)));
+			if (Xwpn.id != (val))
 			{
-				Xwpn = {value/10000};
+				Xwpn = {val};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Xwpn, game->xwpn);
-				game->items_off.set(value/10000, false);
-				game->forced_xwpn = value/10000;
+				if (val > -1)
+					game->items_off.set(val, false);
+				game->forced_xwpn = val;
 			}
-			directItemX = value/10000;
+			directItemX = val;
 			break;
 		}
 		case LINKITEMY:
 		{
-			if ( value/10000 < -1 ) 
+			auto val = value / 10000;
+			if ( val < -1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",val);
 				break;
 			}		
-			if ( value/10000 > MAXITEMS-1 ) 
+			if ( val > MAXITEMS-1 )
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",val);
 				break;
 			}		
-			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			if (Ywpn.id != (value/10000))
+			//Hero->setBButtonItem(vbound((val),0,(MAXITEMS-1)));
+			if (Ywpn.id != (val))
 			{
-				Ywpn = {value/10000};
+				Ywpn = {val};
 				if(new_subscreen_active)
 					new_subscreen_active->get_page_pos(Ywpn, game->ywpn);
-				game->items_off.set(value/10000, false);
-				game->forced_ywpn = value/10000;
+				if (val > -1)
+					game->items_off.set(val, false);
+				game->forced_ywpn = val;
 			}
-			directItemY = value/10000;
+			directItemY = val;
 			break;
 		}
 
