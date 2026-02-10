@@ -14642,7 +14642,9 @@ void HeroClass::moveheroOld()
 			directWpn = directItemY;
 		}
 		
-		auto itmid = unsigned(directWpn) < MAXITEMS ? directWpn : current_item_id(btnwpn);
+		auto itmid = unsigned(directWpn) < MAXITEMS ? directWpn
+			: (unsigned(dowpn) < MAXITEMS ? dowpn
+			: current_item_id(btnwpn));
 		if (!can_be_used(itmid))
 		{
 			directWpn = olddirectwpn;
@@ -19062,7 +19064,9 @@ bool HeroClass::premove()
 			directWpn = directItemY;
 		}
 		
-		auto itmid = unsigned(directWpn) < MAXITEMS ? directWpn : current_item_id(btnwpn);
+		auto itmid = unsigned(directWpn) < MAXITEMS ? directWpn
+			: (unsigned(dowpn) < MAXITEMS ? dowpn
+			: current_item_id(btnwpn));
 		if (!can_be_used(itmid))
 		{
 			directWpn = olddirectwpn;
