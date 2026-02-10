@@ -8645,7 +8645,6 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			tempitem.type=0xFF;
 			tempitem.playsound=WAV_SCALE;
 			reset_itembuf(&tempitem,index);
-			tempitem.name = itemsbuf[index].name;
 			
 			itemsbuf[index] = tempitem;
 			
@@ -9772,7 +9771,9 @@ void reset_itembuf(itemdata *item, int32_t id)
 		byte miscs = item->misc_flags, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
 		int32_t ltm = item->ltm;
 		
+		auto name = item->name;
 		*item = default_items[id];
+		item->name = name;
 		item->tile = tile;
 		item->misc_flags = miscs;
 		item->csets = cset;
