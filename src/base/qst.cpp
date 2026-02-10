@@ -8645,6 +8645,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			tempitem.type=0xFF;
 			tempitem.playsound=WAV_SCALE;
 			reset_itembuf(&tempitem,index);
+			tempitem.name = itemsbuf[index].name;
 			
 			itemsbuf[index] = tempitem;
 			
