@@ -638,7 +638,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								onPressFunc = [&]()
 								{
 									int32_t val = disabled_list->getSelectedValue();
-									if (val >= 0)
+									if (unsigned(val) < MAXITEMS)
 									{
 										local_dmap.disabled_items.set(val, false);
 										list_disabled_items = GUI::ZCListData::disabled_items(local_dmap.disabled_items);
@@ -653,7 +653,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								onPressFunc = [&]()
 								{
 									int32_t val = item_list->getSelectedValue();
-									if (val >= 0)
+									if (unsigned(val) < MAXITEMS)
 									{
 										local_dmap.disabled_items.set(val, true);
 										list_disabled_items = GUI::ZCListData::disabled_items(local_dmap.disabled_items);
