@@ -9399,7 +9399,6 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			}
 		}
 		itemsbuf[index] = tempitem;
-		update_old_item(s_version, index, version);
 	}
 	return 0;
 }
@@ -9631,7 +9630,6 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 
 	if (!should_skip)
 	{
-		update_old_item(s_version, index, version);
 		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 		{
 			item_ref.script = 0;
@@ -9707,7 +9705,7 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 			return ret;
 
 	if (!should_skip)
-		for(word i = items_to_read; i < itemsbuf.capacity(); ++i)
+		for(word i = 0; i < itemsbuf.capacity(); ++i)
 			update_old_item(s_version, i, version);
 	
 	return 0;
@@ -9742,10 +9740,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		return qe_invalid;
 	if (items_to_read > MAXITEMS)
 		return qe_invalid;
-	
+
 	for (word q = 0; q < items_to_read; ++q)
 		if (auto ret = read_single_item(f, s_version, q, version, build))
 			return ret;
+	for (word q = 0; q < items_to_read; ++q)
+		update_old_item(s_version, q, version);
 	
 	return 0;
 }
