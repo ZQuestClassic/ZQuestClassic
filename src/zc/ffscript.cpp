@@ -1987,21 +1987,36 @@ void FFScript::initZScriptHeroScripts()
 	scriptEngineDatas[{ScriptType::Hero, 0}] = ScriptEngineData();
 }
 
+
 void FFScript::initZScriptItemScripts()
 {
-	// using MAXITEMS rather than itemsbuf.capacity() as scripts can easily 'create' new items up to MAXITEMS.
-	for ( int32_t q = 0; q < MAXITEMS; q++ )
+	for (int32_t q = 0; q < MAXITEMS; ++q)
 	{
-		auto& data = get_script_engine_data(ScriptType::Item, q);
-		data.reset();
-		data.doscript = (itemsbuf[q].flags&item_passive_script) && game->get_item(q);
-	}
-
-	for ( int32_t q = -MAXITEMS; q < 0; q++ )
-	{
-		auto& data = get_script_engine_data(ScriptType::Item, q);
-		data.reset();
-		data.doscript = 0;
+		int c = q ? COLLECT_SCRIPT_ITEM_ZERO : -q;
+		
+		// Clear all the allocated memory for item scripts
+		clear_script_engine_data(ScriptType::Item, q);
+		clear_script_engine_data(ScriptType::Item, c);
+		
+		// only re-allocate memory for items this quest uses
+		// IDATASCRIPT and IDATAPSCRIPT setters handle initializing these later,
+		//     if scripts make previously unused items now used.
+		if (q < itemsbuf.capacity())
+		{
+			auto const& itm = itemsbuf[q];
+			if (itm.script)
+			{
+				auto& data = get_script_engine_data(ScriptType::Item, q);
+				data.reset();
+				data.doscript = ((itemsbuf[q].flags&item_passive_script) && game->get_item(q)) ? 1 : 0;
+			}
+			if (itm.collect_script)
+			{
+				auto& cdata = get_script_engine_data(ScriptType::Item, q);
+				cdata.reset();
+				cdata.doscript = 0;
+			}
+		}
 	}
 }
 
@@ -11914,21 +11929,31 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		//Set the action script
 		case IDATASCRIPT:
-			if(unsigned(GET_REF(itemdataref)) >= MAXITEMS)
+		{
+			auto id = GET_REF(itemdataref);
+			if(unsigned(id) >= MAXITEMS)
 			{
-				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
+				scripting_log_error_with_context("Invalid itemdata access: {}", id);
 				break;
 			}
-			FFScript::deallocateAllScriptOwned(ScriptType::Item, ri->itemdataref);
-			itemsbuf[GET_REF(itemdataref)].script=vbound(value/10000,0,255);
+			FFScript::deallocateAllScriptOwned(ScriptType::Item, id);
+			auto& itm = itemsbuf[id];
+			itm.script = vbound(value/10000, 0, NUMSCRIPTITEM);
+			if (itm.script && !script_engine_data_exists(ScriptType::Item, id))
+			{
+				auto& data = get_script_engine_data(ScriptType::Item, id);
+				data.reset();
+				data.doscript = ((itm.flags & item_passive_script) && game->get_item(id)) ? 1 : 0;
+			}
 			break;
+		}
 		case IDATASPRSCRIPT:
 			if(unsigned(GET_REF(itemdataref)) >= MAXITEMS)
 			{
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			itemsbuf[GET_REF(itemdataref)].sprite_script=vbound(value/10000,0,255);
+			itemsbuf[GET_REF(itemdataref)].sprite_script=vbound(value/10000,0,NUMSCRIPTSITEMSPRITE);
 			break;
 
 		//Hero tile modifier. 
@@ -11949,15 +11974,24 @@ void set_register(int32_t arg, int32_t value)
 		//Pickup script
 		case IDATAPSCRIPT:
 		{
-			if(unsigned(GET_REF(itemdataref)) >= MAXITEMS)
+			auto id = GET_REF(itemdataref);
+			if(unsigned(id) >= MAXITEMS)
 			{
-				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
+				scripting_log_error_with_context("Invalid itemdata access: {}", id);
 				break;
 			}
 			//Need to get collect script ref, not standard idata ref!
-			const int32_t new_ref = ri->itemdataref!=0 ? -(GET_REF(itemdataref)) : COLLECT_SCRIPT_ITEM_ZERO;
-			FFScript::deallocateAllScriptOwned(ScriptType::Item,new_ref);
-			itemsbuf[GET_REF(itemdataref)].collect_script=vbound(value/10000, 0, 255);
+			const int32_t new_ref = id != 0 ? -id : COLLECT_SCRIPT_ITEM_ZERO;
+			FFScript::deallocateAllScriptOwned(ScriptType::Item, new_ref);
+			
+			auto& itm = itemsbuf[id];
+			itm.collect_script = vbound(value/10000, 0, NUMSCRIPTITEM);
+			if (itm.collect_script && !script_engine_data_exists(ScriptType::Item, new_ref))
+			{
+				auto& data = get_script_engine_data(ScriptType::Item, new_ref);
+				data.reset();
+				data.doscript = 0;
+			}
 			break;
 		}
 		//pickup string
