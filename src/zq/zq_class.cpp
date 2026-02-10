@@ -9605,7 +9605,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 67;
 		if(!p_putc(tmp_cmb.lifttime,f))
 			return 68;
-		if(!p_putc(tmp_cmb.lift_parent_item,f))
+		if(!p_iputw(tmp_cmb.lift_parent_item,f))
 			return 78;
 		if(auto ret = write_weap_data(tmp_cmb.lift_weap_data, f))
 			return ret;

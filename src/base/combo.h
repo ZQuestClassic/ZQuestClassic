@@ -159,7 +159,7 @@ struct newcombo
 	byte liftbreaksfx;
 	byte lifthei = 8;
 	byte lifttime = 16;
-	byte lift_parent_item;
+	word lift_parent_item;
 	// TODO: reduce size.
 	weapon_data lift_weap_data {weapon_data::def_lifting_data};
 	weapon_data misc_weap_data {weapon_data::def_data};

@@ -15022,7 +15022,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].lift_parent_item = vbound(value/10000, 0, 255);
+			combobuf[GET_REF(combodataref)].lift_parent_item = vbound(value/10000, 0, MAXITEMS-1);
 			break;
 		}
 		case COMBODTRIGGERLSTATE:

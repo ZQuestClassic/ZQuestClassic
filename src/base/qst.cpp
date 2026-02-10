@@ -18824,10 +18824,16 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.lifttime,f))
 					return qe_invalid;
 			}
-			if(s_version >= 39)
+			if (s_version >= 65)
 			{
-				if(!p_getc(&temp_combo.lift_parent_item,f))
+				if(!p_igetw(&temp_combo.lift_parent_item,f))
 					return qe_invalid;
+			}
+			else if(s_version >= 39)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_combo.lift_parent_item = tempbyte;
 			}
 			auto& weap_data = temp_combo.lift_weap_data;
 			if(s_version >= 51 && s_version < 55)
