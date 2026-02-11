@@ -189,7 +189,7 @@ double wrap_float(double x,double low,double high);
 #define MAXLEVELS                  512 //this should be the same number (was 32)
 #define OLDMAXLEVELS               256
 #define OLDMAXDMAPS                256
-#define MAXITEMS                   256
+#define MAXITEMS                   1024
 #define MAXWPNS                    256
 #define OLDBETAMAXGUYS             256 //max 2.5 guys through beta 20
 #define MAXGUYS                    512
