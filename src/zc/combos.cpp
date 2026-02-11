@@ -633,7 +633,7 @@ bool trigger_step(const combined_handle_t& handle)
 {
 	auto& cmb = handle.combo();	
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
-	if(cmb.c_attributes[9].getTrunc() < MAXITEMS && !game->get_item(cmb.c_attributes[9].getTrunc()))
+	if(unsigned(cmb.c_attributes[9].getTrunc()) < MAXITEMS && !game->get_item(cmb.c_attributes[9].getTrunc()))
 		return false; //lacking required item
 	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
 		return false;

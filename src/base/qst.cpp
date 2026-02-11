@@ -9747,6 +9747,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	for (word q = 0; q < items_to_read; ++q)
 		update_old_item(s_version, q, version);
 	
+	itemsbuf.normalize();
+	
 	return 0;
 }
 
@@ -21526,7 +21528,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		}
 		else
 		{
-			for(int q = 0; q < MAXITEMS/8; ++q)
+			for(int q = 0; q < 256/8; ++q)
 			{
 				if(!p_getc(&padding, f))
 					return qe_invalid;

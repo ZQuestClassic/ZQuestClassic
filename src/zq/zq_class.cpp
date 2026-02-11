@@ -8499,11 +8499,8 @@ int32_t write_single_item(PACKFILE *f, word index)
 	return 0;
 }
 
-int32_t writeitems(PACKFILE *f, zquestheader *Header)
+int32_t writeitems(PACKFILE *f, zquestheader *)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
     dword section_id=ID_ITEMS;
     dword section_version=V_ITEMS;
     //  dword section_size=0;
@@ -8526,6 +8523,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
+	itemsbuf.normalize();
     for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);

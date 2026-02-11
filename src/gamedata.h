@@ -404,6 +404,8 @@ public:
 	
 	void normalize()
 	{
+		items_owned.normalize();
+		items_off.normalize();
 		lvlitems.normalize();
 		lvlkeys.normalize();
 		lvlswitches.normalize();
@@ -411,6 +413,7 @@ public:
 		bmaps.normalize();
 		maps.normalize();
 		guys.normalize();
+		item_messages_played.normalize();
 		screen_d.normalize();
 		gen_doscript.normalize();
 		gen_exitState.normalize();

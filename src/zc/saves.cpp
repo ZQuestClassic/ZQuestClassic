@@ -278,12 +278,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		
 		if (section_version < 49)
 		{
-			for(int32_t j=0; j<MAXITEMS; j++)
+			game.items_owned.clear();
+			for(int32_t j=0; j<256; j++)
 			{
 				if(!p_getc(&tempbyte, f))
 					return 18;
-					
-				game.set_item_no_flush(j, (tempbyte != 0));
+				
+				if (tempbyte)
+					game.set_item_no_flush(j, true);
 			}
 		}
 		else if (!p_getbitstr(&game.items_owned, f))
@@ -775,13 +777,13 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		else if(section_version >= 21)
 		{
 			game.item_messages_played.clear();
-			for(int32_t j=0; j<MAXITEMS; ++j)
+			for(int32_t j=0; j<256; ++j)
 			{
 				if(!p_getc(&tempbyte, f))
 					return 63;
-				game.item_messages_played.set(j, tempbyte);
+				if (tempbyte)
+					game.item_messages_played.set(j, true);
 			}
-			game.item_messages_played.normalize();
 		}
 		else 
 		{
