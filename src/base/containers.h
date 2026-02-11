@@ -219,6 +219,10 @@ public:
 		}
 		throw std::out_of_range("Bad bounded_map access");
 	}
+	value_type const& get(size_type ind) const
+	{
+		return at(ind);
+	}
 
 	value_type& operator[](size_type ind)
 	{
@@ -353,6 +357,10 @@ public:
 		}
 		throw std::out_of_range("Bad bounded_vec access");
 	}
+	value_type const& get(size_type ind) const
+	{
+		return at(ind);
+	}
 
 	value_type& operator[](size_type ind)
 	{
@@ -384,6 +392,7 @@ public:
 	}
 	
 	cont_t const& inner() const {return cont;}
+	cont_t& mut_inner() {return cont;}
 	value_type& front() {return cont.front();}
 	value_type const& front() const {return cont.front();}
 	value_type& back() {return cont.at(this->true_sz-1);}

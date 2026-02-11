@@ -10,6 +10,7 @@
 #include "zc/ffscript.h"
 #endif
 
+void mark_save_dirty();
 vector<ZCSFX> quest_sounds;
 
 zcsfx_exception::zcsfx_exception(string const& msg) :
@@ -1298,16 +1299,16 @@ static void update_quest_sounds(std::map<size_t, size_t> changes)
 	// can come back to this later when more SFX hardcodes have been removed.
 	// -Em
 	
-	// for (auto it = changes.begin(); it != changes.end();) // trim non-changes
-	// {
-		// if (it->first == it->second)
-			// it = changes.erase(it);
-		// else ++it;
-	// }
-	// if (changes.empty())
-		// return;
+	for (auto it = changes.begin(); it != changes.end();) // trim non-changes
+	{
+		if (it->first == it->second)
+			it = changes.erase(it);
+		else ++it;
+	}
+	if (changes.empty())
+		return;
 	
-	// mark_save_dirty();
+	mark_save_dirty();
 }
 void delete_quest_sounds(std::function<bool(ZCSFX const&)> proc)
 {

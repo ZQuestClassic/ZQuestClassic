@@ -156,18 +156,18 @@ enum
 struct itemdata
 {
     int32_t tile;
-    byte misc_flags;      // 0000vhtf (vh:flipping, t:two hands, f:flash)
-    byte csets;           // ffffcccc (f:flash cset, c:cset)
-    byte frames;          // animation frame count
-    byte speed;           // animation speed
-    byte delay;           // extra delay factor (-1) for first frame
-    int32_t ltm;          // Hero Tile Modifier
-    int32_t type;         // What family the item is in
-    byte level = 1;       // What type in this family the item is
-    int32_t power;        // Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
+    byte misc_flags;           // 0000vhtf (vh:flipping, t:two hands, f:flash)
+    byte csets;                // ffffcccc (f:flash cset, c:cset)
+    byte frames;               // animation frame count
+    byte speed;                // animation speed
+    byte delay;                // extra delay factor (-1) for first frame
+    int32_t ltm;               // Hero Tile Modifier
+    int32_t type = itype_misc; // What family the item is in
+    byte level = 1;            // What type in this family the item is
+    int32_t power;             // Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;
-    word script;          // Which script the item is using
-    char count = crNONE;  // which counter is gained on picking up the item
+    word script;
+    char count = crNONE;       // which counter is gained on picking up the item
     word amount;
     int16_t setmax;
     word max;
@@ -319,5 +319,9 @@ struct ButtonItemData
 itemdata const& get_item_data(int id);
 
 void run_first_script_of_type(int itype);
+
+void delete_quest_items(std::function<bool(itemdata const&)> proc);
+void delete_quest_items(size_t idx);
+void swap_quest_items(size_t idx1, size_t idx2);
 
 #endif

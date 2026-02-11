@@ -52,6 +52,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	widgList.reset(); // make sure calling `resort` from `preinit` is safe
 	btnrow2.reset();
 	
+	frozen_start = frozen_end = 0; // expected to be re-set by preinit as needed
+	
 	preinit();
 	
 	std::shared_ptr<GUI::Grid> g, wcolumn;
@@ -263,20 +265,29 @@ ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
 }
 void ItemListerDialog::preinit()
 {
+	itemsbuf.normalize();
 	lister = GUI::ZCListData::items(true);
 	if(selecting)
 		frozen_start = 1; // lock '(None)'
 	else
 	{
 		lister.removeInd(0); // remove '(None)'
+		if (itemsbuf.capacity() < MAXITEMS)
+		{
+			frozen_end = 1;
+			lister.add(fmt::format("<New Item> ({:03})", itemsbuf.capacity()), itemsbuf.capacity());
+		}
 		resort();
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
-	selected_val = vbound(selected_val, (selecting?-1:0), MAXITEMS-1);
+	selected_val = vbound(selected_val, (selecting?-1:0), itemsbuf.capacity() + (selecting?-1:0));
 }
 void ItemListerDialog::postinit()
 {
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	using namespace GUI::Key;
 	size_t len = 16;
 	for(int q = 0; q < itemsbuf.capacity(); ++q)
 	{
@@ -290,18 +301,48 @@ void ItemListerDialog::postinit()
 	}
 	widgInfo->minWidth(Size::pixels(len+8));
 	window->setHelp(get_info(selecting, true));
+	
+	btnrow2 = Column(
+		Columns<2>(
+			DummyWidget(),
+			del_btn = Button(text = "Delete",
+				fitParent = true,
+				onClick = message::CLEAR),
+			up_btn = Button(text = "Up",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					zc_swap(itemsbuf[selected_val], itemsbuf[selected_val-1]);
+					--selected_val;
+					refresh_dlg();
+				}),
+			down_btn = Button(text = "Down",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					zc_swap(itemsbuf[selected_val], itemsbuf[selected_val+1]);
+					++selected_val;
+					refresh_dlg();
+				})
+		),
+		Label(fitParent = true, maxwidth = 250_px,
+			text = "Items cannot be re-ordered while the list is alphabetized."
+			"\nWARNING: Re-ordering Items will NOT update anything that uses them."
+			"\nThis includes the re-ordering that happens when deleting Items."
+		)
+	);
 }
 static int copied_item_id = -1;
 void ItemListerDialog::update(bool)
 {
 	std::string copied_name = "(None)\n";
-	if(unsigned(copied_item_id) < MAXITEMS)
+	if(unsigned(copied_item_id) < itemsbuf.capacity())
 	{
 		itemdata const& copied_itm = itemsbuf[copied_item_id];
 		copied_name = fmt::format("{}\n{}", copied_itm.name,
 			copied_itm.display_name.empty() ? "[No Display Name]" : copied_itm.get_name(true));
 	}
-	if(unsigned(selected_val) < MAXITEMS)
+	if(unsigned(selected_val) < itemsbuf.capacity())
 	{
 		itemdata const& itm = itemsbuf[selected_val];
 		std::string display_name = itm.display_name.empty()
@@ -348,6 +389,9 @@ void ItemListerDialog::update(bool)
 	widgPrev->overrideWidth(Size::pixels(16 * 3 + 4));
 	widgPrev->overrideHeight(Size::pixels(16 * 3 + 4));
 	widgPrev->resetAnim();
+	up_btn->setDisabled(alphabetized || (selected_val - 1) < 0);
+	down_btn->setDisabled(alphabetized || unsigned(selected_val + 1) >= itemsbuf.capacity());
+	del_btn->setDisabled(unsigned(selected_val) >= itemsbuf.capacity());
 }
 void ItemListerDialog::edit()
 {
@@ -355,14 +399,48 @@ void ItemListerDialog::edit()
 }
 void ItemListerDialog::rclick(int x, int y)
 {
+	bool oob = unsigned(selected_val) >= itemsbuf.capacity();
+	bool paste_oob = oob && (selected_val != itemsbuf.capacity());
+	bool copy_oob = unsigned(copied_item_id) >= itemsbuf.capacity();
 	NewMenu rcmenu {
-		{ "&Copy", [&](){copy();} },
-		{ "&Adv. Paste", [&](){adv_paste();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
-		{ "Paste", "&v", [&](){paste();}, 0, copied_item_id < 0 ? MFL_DIS : 0 },
-		{ "&Save", [&](){save();} },
-		{ "&Load", [&](){load();} },
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Adv. Paste", [&](){adv_paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
+		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Save", [&](){save();}, oob ? MFL_DIS : 0 },
+		{ "&Load", [&](){load();}, paste_oob ? MFL_DIS : 0 },
 	};
 	rcmenu.pop(x, y);
+}
+bool ItemListerDialog::clear_nondelete()
+{
+	if (unsigned(selected_val) >= itemsbuf.capacity())
+		return false;
+	auto& itm = itemsbuf[selected_val];
+	if (!alert_confirm(fmt::format("Clear Item {}", selected_val),
+		fmt::format("Clear Item #{}, '{}'?\nThis will reset it to blank.", selected_val, itm.name)))
+		return false;
+	itm.clear();
+	itm.name = fmt::format("zz{:03}", selected_val);
+	refresh_dlg();
+	return true;
+}
+bool ItemListerDialog::clear()
+{
+	if (unsigned(selected_val) >= itemsbuf.capacity())
+		return false;
+	auto& itm = itemsbuf[selected_val];
+	if (!alert_confirm(fmt::format("Delete Item '{}'?", itm.name),
+		fmt::format("This will delete Item #{}, '{}'."
+		"\nThis will offset all entries after it; item IDs of various things may need to be updated.",
+		selected_val, itm.name)))
+		return false;
+	delete_quest_items(selected_val);
+	if (selected_val >= itemsbuf.capacity())
+		--selected_val;
+	refresh_dlg();
+	return true;
 }
 void ItemListerDialog::copy()
 {
@@ -371,8 +449,9 @@ void ItemListerDialog::copy()
 }
 bool ItemListerDialog::paste()
 {
-	if(unsigned(copied_item_id) >= MAXITEMS || unsigned(selected_val) >= MAXITEMS)
+	if (unsigned(copied_item_id) >= itemsbuf.capacity())
 		return false;
+	if (unsigned(selected_val) >= zc_min(MAXITEMS, itemsbuf.capacity() + 1))
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
@@ -898,7 +977,6 @@ void SFXListerDialog::preinit()
 		lister.add(fmt::format("<New SFX> ({:03})", quest_sounds.size() + 1), quest_sounds.size() + 1);
 		frozen_end = 1;
 	}
-	else frozen_end = 0;
 	if(selected_val < 0)
 		selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, 1, MAX_SFX);
@@ -1360,7 +1438,6 @@ void MusicListerDialog::preinit()
 		lister.add(fmt::format("<New Music> ({:03})", quest_music.size() + 1), quest_music.size() + 1);
 		frozen_end = 1;
 	}
-	else frozen_end = 0;
 	resort();
 	if (selected_val < 0)
 		selected_val = lister.getValue(0);

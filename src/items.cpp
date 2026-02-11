@@ -10,6 +10,7 @@
 #include "zc/zelda.h"
 #include "zscriptversion.h"
 
+void mark_save_dirty();
 bounded_vec<word, itemdata> itemsbuf = {MAXITEMS};
 const itemdata nil_item = itemdata();
 
@@ -1372,7 +1373,7 @@ itemdata const& get_item_data(int id)
 {
 	if (unsigned(id) >= MAXITEMS)
 		return nil_item;
-	return itemsbuf[id];
+	return itemsbuf.get(id);
 }
 
 
@@ -1394,5 +1395,81 @@ void run_first_script_of_type(int itype)
 		}
 	}
 #endif
+}
+
+
+// For deleting / moving quest items, updating references to affected items
+static void update_quest_items(std::map<size_t, size_t> changes)
+{
+	// TODO: This will take a lot of work, and won't help any hardcoded item IDs.
+	// For now just going to warn that Items won't be updated;
+	// can come back to this later when more Item hardcodes have been removed.
+	// -Em
+	
+	for (auto it = changes.begin(); it != changes.end();) // trim non-changes
+	{
+		if (it->first == it->second)
+			it = changes.erase(it);
+		else ++it;
+	}
+	if (changes.empty())
+		return;
+	
+	mark_save_dirty();
+}
+void delete_quest_items(std::function<bool(itemdata const&)> proc)
+{
+	size_t del_count = 0;
+	std::map<size_t, size_t> changes;
+	auto& cont = itemsbuf.mut_inner();
+	size_t sz = cont.size();
+	auto it = cont.begin();
+	for (size_t q = 0; q < sz; ++q)
+	{
+		if (proc(*it))
+		{
+			it = cont.erase(it);
+			changes[q] = -1;
+			++del_count;
+		}
+		else
+		{
+			++it;
+			if (del_count)
+				changes[q] = q - del_count;
+		}
+	}
+	update_quest_items(changes);
+}
+void delete_quest_items(size_t idx)
+{
+	if (unsigned(idx) >= itemsbuf.capacity()) return;
+	std::map<size_t, size_t> changes;
+	auto& cont = itemsbuf.mut_inner();
+	size_t sz = cont.size();
+	auto it = cont.begin();
+	for (size_t q = 0; q < sz; ++q)
+	{
+		if (q == idx)
+		{
+			it = cont.erase(it);
+			changes[q] = -1;
+		}
+		else
+		{
+			++it;
+			if (q > idx)
+				changes[q] = q - 1;
+		}
+	}
+	update_quest_items(changes);
+}
+void swap_quest_items(size_t idx1, size_t idx2)
+{
+	if (unsigned(idx1) >= MAXITEMS ||
+		unsigned(idx2) >= MAXITEMS ||
+		idx1 == idx2) return;
+	zc_swap_mv(itemsbuf[idx1], itemsbuf[idx2]);
+	update_quest_items({{idx1, idx2},{idx2, idx1}});
 }
 

@@ -1063,10 +1063,13 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, int32_t index):
 	list_bottletypes(GUI::ZCListData::bottletype()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_strings(GUI::ZCListData::strings())
-{}
+{
+	if (index >= itemsbuf.capacity() && index < MAXITEMS)
+		local_itemref.name = fmt::format("zz{:03}", index);
+}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):
-	ItemEditorDialog(itemsbuf[index], index)
+	ItemEditorDialog(itemsbuf.get(index), index)
 {}
 
 //{ Macros
