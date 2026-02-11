@@ -1608,307 +1608,175 @@ int32_t onIntegrityCheckAll()
     return D_O_K;
 }
 
-typedef struct item_location_node
-{
-    int32_t map;
-    int32_t screen;
-    int32_t extra1;
-    int32_t extra2;
-    int32_t enemy;
-    int32_t pal;
-    item_location_node* next;
-} item_location_node;
-
 void itemLocationReport()
 {
-	quest_report_str += "WARNING: This report does not account"
-		" for items obtained in indirect methods, such as SCCs,"
-		" Scripts, Progressive Items and Item Bundles.\n\n";
+	struct item_location_node
+	{
+		int32_t map = -1;
+		int32_t screen = -1;
+		int32_t extra1 = -1;
+		int32_t extra2 = -1;
+		int32_t enemy = -1;
+		int32_t pal = 0;
+	};
+	quest_report_str += "WARNING:\nThis report only accounts for items obtained via"
+		" being the Screen Item, or via a room type (ex. Shop items, Special items)."
+		"\nItems obtained via other methods (ex. combo triggers, item bundles, scripts, sccs)"
+		" are not included.\n\n";
 	
-    mapscr *ts=NULL;
-    int32_t sc=0;
-    int32_t location_types=6;
-    char buf[255];
-    
-    item_location_node **item_location_grid;
-    
-    item_location_grid = new item_location_node*[MAXITEMS];
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        item_location_grid[i] = new item_location_node[location_types];
-    }
-    
-    item_location_node *tempnode=NULL;
-    item_location_node *tempnode2=NULL;
-    item_location_node *newnode=NULL;
-    
-    for(int32_t i=0; i<MAXITEMS; ++i)
-    {
-        for(int32_t j=0; j<location_types; ++j)
-        {
-            item_location_grid[i][j].map=-1;
-            item_location_grid[i][j].screen=-1;
-            item_location_grid[i][j].extra1=-1;
-            item_location_grid[i][j].extra2=-1;
-            item_location_grid[i][j].enemy=-1;
-            item_location_grid[i][j].pal=0;
-            item_location_grid[i][j].next=NULL;
-        }
-    }
-    
-    bool type_found=false;
-    bool item_found=false;
-    quest_report_str+="The following items have been found in the quest at the following locations. This may not include items placed with or given by scripts:\n";
-    
-    //check all the screens on all the maps
-    for(int32_t m=0; m<Map.getMapCount(); ++m)
-    {
-        for(int32_t s=0; s<MAPSCRS; ++s)
-        {
-            sc=m*MAPSCRS+s;
-            ts=&TheMaps[sc];
-            
-            //if the room item is set
-            if(ts->hasitem)
-            {
-                //start at the room item in the item location grid
-                tempnode=&(item_location_grid[ts->item][0]);
-                //loop to the end of the list
-                int32_t count=0;
-                
-                while(tempnode->next!=NULL)
-                {
-                    ++count;
-                    tempnode=tempnode->next;
-                }
-                
-                //make a new node
-                newnode=(item_location_node*)malloc(sizeof(item_location_node));
-                //insert the map and screen data
-                newnode->map=m+1;
-                newnode->screen=s;
-                newnode->extra1=-1;
-                newnode->extra2=-1;
-                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->flags11&efCARRYITEM) ? ts->enemy[0] : 0);
-                newnode->pal=ts->color;
-                newnode->next=NULL;
-                tempnode->next=newnode;
-            }
-            
-            if(ts->room==rSP_ITEM)
-            {
-                //start at the special item in the item location grid
-                tempnode=&(item_location_grid[ts->catchall][1]);
-                
-                //loop to the end of the list
-                while(tempnode->next!=NULL)
-                {
-                    tempnode=tempnode->next;
-                }
-                
-                //make a new node
-                newnode=(item_location_node*)malloc(sizeof(item_location_node));
-                //insert the map and screen data
-                newnode->map=m+1;
-                newnode->screen=s;
-                newnode->extra1=-1;
-                newnode->extra2=-1;
-                newnode->enemy=-1;
-                newnode->pal=ts->color;
-                newnode->next=NULL;
-                tempnode->next=newnode;
-            }
-            
-            if(ts->room==rRP_HC)
-            {
-                //start at the hc/rp room item in the item location grid
-                tempnode=&(item_location_grid[iRPotion][2]);
-                
-                //loop to the end of the list
-                while(tempnode->next!=NULL)
-                {
-                    tempnode=tempnode->next;
-                }
-                
-                //make a new node
-                newnode=(item_location_node*)malloc(sizeof(item_location_node));
-                //insert the map and screen data
-                newnode->map=m+1;
-                newnode->screen=s;
-                newnode->extra1=-1;
-                newnode->extra2=-1;
-                newnode->enemy=-1;
-                newnode->pal=ts->color;
-                newnode->next=NULL;
-                tempnode->next=newnode;
-                
-                tempnode=&(item_location_grid[iHeartC][2]);
-                
-                //loop to the end of the list
-                while(tempnode->next!=NULL)
-                {
-                    tempnode=tempnode->next;
-                }
-                
-                //make a new node
-                newnode=(item_location_node*)malloc(sizeof(item_location_node));
-                //insert the map and screen data
-                newnode->map=m+1;
-                newnode->screen=s;
-                newnode->extra1=-1;
-                newnode->extra2=-1;
-                newnode->enemy=-1;
-                newnode->pal=ts->color;
-                newnode->next=NULL;
-                tempnode->next=newnode;
-            }
-            
-            
-			if (ts->room==rSHOP || ts->room==rP_SHOP || ts->room==rTAKEONE)
+	enum ItemLocType
+	{
+		loc_type_screenitem,
+		loc_type_specialitem,
+		loc_type_rp_hc,
+		loc_type_shop,
+		loc_type_pshop,
+		loc_type_takeone,
+		location_types
+	};
+	map<int, map<ItemLocType, vector<item_location_node>>> item_location_map;
+	
+	bool item_found = false;
+	
+	//check all the screens on all the maps
+	for(int m = 0; m < Map.getMapCount(); ++m)
+	{
+		for(int s = 0; s < MAPSCRS; ++s)
+		{
+			auto sc = m * MAPSCRS + s;
+			auto const& ts = TheMaps[sc];
+			
+			if (ts.hasitem && unsigned(ts.item) < MAXITEMS) // if the room item is set
 			{
-				if (auto shop_id = ts->catchall; unsigned(shop_id) < NUM_SHOPS)
+				auto& vec = item_location_map[ts.item][loc_type_screenitem];
+				
+				auto& node = vec.emplace_back();
+				
+				node.map = m + 1;
+				node.screen = s;
+				node.enemy = (ts.flags&fITEM ? -1 : (ts.flags11 & efCARRYITEM) ? ts.enemy[0] : 0);
+				node.pal = ts.color;
+			}
+			
+			if(ts.room == rSP_ITEM && unsigned(ts.catchall) < MAXITEMS)
+			{
+				auto& vec = item_location_map[ts.catchall][loc_type_specialitem];
+				
+				auto& node = vec.emplace_back();
+				
+				node.map = m + 1;
+				node.screen = s;
+				node.pal = ts.color;
+			}
+			
+			if(ts.room == rRP_HC)
+			{
+				for (int itm : {iRPotion, iHeartC})
+				{
+					auto& vec = item_location_map[itm][loc_type_rp_hc];
+					
+					auto& node = vec.emplace_back();
+					
+					node.map = m + 1;
+					node.screen = s;
+					node.pal = ts.color;
+				}
+			}
+			
+			if (ts.room == rSHOP || ts.room == rP_SHOP || ts.room == rTAKEONE)
+			{
+				if (auto shop_id = ts.catchall; unsigned(shop_id) < NUM_SHOPS)
 				{
 					auto const& shop = QMisc.shop[shop_id];
-					for(int32_t si=0; si<3; ++si)
+					for(int si = 0; si < 3; ++si)
 					{
-						if(shop.hasitem[si])
+						if (shop.hasitem[si] && unsigned(shop.item[si]) < MAXITEMS)
 						{
-							//start at the special item in the item location grid
-							tempnode=&(item_location_grid[shop.item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
+							ItemLocType loc_type = ItemLocType(si + loc_type_shop);
 							
-							//loop to the end of the list
-							while(tempnode->next!=NULL)
-							{
-								tempnode=tempnode->next;
-							}
+							auto& vec = item_location_map[shop.item[si]][loc_type];
 							
-							//make a new node
-							newnode=(item_location_node*)malloc(sizeof(item_location_node));
-							//insert the map and screen data
-							newnode->map=m+1;
-							newnode->screen=s;
-							newnode->extra1=ts->catchall;
-							newnode->extra2=shop.price[si];
-							newnode->enemy=-1;
-							newnode->pal=ts->color;
-							newnode->next=NULL;
-							tempnode->next=newnode;
+							auto& node = vec.emplace_back();
+							
+							node.map = m + 1;
+							node.screen = s;
+							node.extra1 = ts.catchall;
+							node.extra2 = shop.price[si];
+							node.pal = ts.color;
 						}
 					}
 				}
 			}
-        }
-    }
-    
-    auto list = GUI::ZCListData::items(false, false);
-    
-    //for each item
-    for (size_t idx = 0; idx < list.size(); ++idx)
-    {
+		}
+	}
+	
+	if (item_location_map.empty())
+	{
+		quest_report_str += "No items were found at any searched location.\n\n";
+		return;
+	}
+	
+	quest_report_str += "The following items have been found in the quest at the following locations:\n";
+	auto list = GUI::ZCListData::items(false, false);
+	
+	//for each item, in alphabetical order
+	for (size_t idx = 0; idx < list.size(); ++idx)
+	{
 		auto i = list.getValue(idx);
 		if (unsigned(i) >= MAXITEMS) continue;
-        item_found=false;
-        
-        //check each item location type (room item, special item, shop item, choose any item, etc.)
-        for(int32_t type=0; type<location_types; ++type)
-        {
-            //set the tempnode at the start
-            tempnode=&(item_location_grid[i][type]);
-            
-            //if there is item location data
-            if(tempnode->next!=NULL)
-            {
-                type_found=true;
-                
-                if(!item_found)
-                {
-                    buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", itemsbuf[i].name.c_str());
-                    quest_report_str+=buf;
-                }
-                
-                item_found=true;
-                
-                //loop through each item location for this item/type
-                do
-                {
-                    tempnode=tempnode->next;
-                    //add it to the list
-                    buf[0]=0;
-                    
-                    switch(type)
-                    {
-                    case 1:
-                        sprintf(buf, "%s %3d:%02X (special item)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 2:
-                        sprintf(buf, "%s %3d:%02X (Heart Container / Red Potion room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 3:
-                        sprintf(buf, "%s %3d:%02X (shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
-                        break;
-                        
-                    case 4:
-                        sprintf(buf, "%s %3d:%02X (potion shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
-                        break;
-                        
-                    case 5:
-                        sprintf(buf, "%s %3d:%02X (take one item room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 0:
-                    default:
-                        sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
-                                tempnode->enemy==-1 ? ", enemies -> item" : tempnode->enemy ? ", carried by " : "",
-                                tempnode->enemy>0 ? guy_string[tempnode->enemy] : "");
-                        break;
-                    }
-                    
-                    quest_report_str+=buf;
-                }
-                while(tempnode->next!=NULL);
-            }
-        }
-    }
-    
-    for(int32_t i=0; i<MAXITEMS; ++i)
-    {
-        for(int32_t type=0; type<location_types; ++type)
-        {
-            if(item_location_grid[i][type].next!=NULL)
-            {
-                tempnode=&(item_location_grid[i][type]);
-                tempnode=tempnode->next;
-                
-                while(tempnode!=NULL)
-                {
-                    tempnode2=tempnode->next;
-                    free(tempnode);
-                    tempnode=tempnode2;
-                }
-            }
-        }
-        
-        //don't forget to free this too -DD
-        delete[] item_location_grid[i];
-    }
-    
-    if(!type_found)
-    {
-        buf[0]=0;
-        sprintf(buf, "None\n\n");
-        quest_report_str+=buf;
-    }
-    else
-    {
-        quest_report_str += '\n';
-    }
-    
-    //and this -DD
-    delete[] item_location_grid;
+		item_found = false;
+		
+		if (!item_location_map.contains(i))
+			continue; // not found
+		
+		//check each item location type
+		for (auto& [loc_type, vec] : item_location_map[i])
+		{
+			if (vec.empty())
+				continue;
+			
+			if (!item_found)
+			{
+				quest_report_str += fmt::format("\n--- {} ---\n", itemsbuf[i].name);
+				item_found = true;
+			}
+			
+			for (auto& node : vec)
+			{
+				switch (loc_type)
+				{
+					case loc_type_screenitem:
+					default:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (room item{}{})\n", palname_spaced(node.pal), node.map, node.screen,
+							node.enemy==-1 ? ", enemies -> item" : node.enemy ? ", carried by " : "",
+							node.enemy>0 ? guy_string[node.enemy] : "");
+						break;
+					
+					case loc_type_specialitem:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (special item)\n", palname_spaced(node.pal), node.map, node.screen);
+						break;
+						
+					case loc_type_rp_hc:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (Heart Container / Red Potion room)\n", palname_spaced(node.pal), node.map, node.screen);
+						break;
+						
+					case loc_type_shop:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (shop {} @ {} rupees)\n", palname_spaced(node.pal), node.map, node.screen, node.extra1, node.extra2);
+						break;
+						
+					case loc_type_pshop:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (potion shop {} @ {} rupees)\n", palname_spaced(node.pal), node.map, node.screen, node.extra1, node.extra2);
+						break;
+						
+					case loc_type_takeone:
+						quest_report_str += fmt::format("{} {:3}:{:02X} (take one item room)\n", palname_spaced(node.pal), node.map, node.screen);
+						break;
+				}
+			}
+		}
+	}
+	
+	quest_report_str += '\n';
 }
 
 int32_t onItemLocationReport()
