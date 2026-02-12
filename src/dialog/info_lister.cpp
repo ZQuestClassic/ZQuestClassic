@@ -452,6 +452,7 @@ bool ItemListerDialog::paste()
 	if (unsigned(copied_item_id) >= itemsbuf.capacity())
 		return false;
 	if (unsigned(selected_val) >= zc_min(MAXITEMS, itemsbuf.capacity() + 1))
+		return false;
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
