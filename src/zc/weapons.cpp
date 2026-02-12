@@ -1294,7 +1294,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(isDummy || itemid < 0)
 				itemid = getCanonicalItemID(family_class);
 			
-			itemdata const& hshot = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(family_class)];
+			itemdata const& hshot = get_item_data(unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(family_class));
 			step = 4;
 			clk2=256;
 			
