@@ -886,6 +886,7 @@ int32_t getHighestLevelOfFamily(zinitdata *source, int32_t family)
 	size_t sz = MAXITEMS;
 	if (family != 0) // optimization; skip blank items at the end
 		sz = itemsbuf.capacity();
+	sz = zc_min(sz, source->items.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
 		auto const& itm = itemsbuf[q];
@@ -910,6 +911,7 @@ int32_t getHighestLevelOfFamily(gamedata *source, int32_t family)
 	size_t sz = MAXITEMS;
 	if (family != 0) // optimization; skip blank items at the end
 		sz = itemsbuf.capacity();
+	sz = zc_min(sz, source->items_owned.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
 		auto const& itm = itemsbuf[q];

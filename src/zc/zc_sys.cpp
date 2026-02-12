@@ -1911,6 +1911,7 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	size_t sz = MAXITEMS;
 	if (itemtype != 0)
 		sz = itemsbuf.capacity();
+	sz = zc_min(sz, game->items_owned.length());
 	for(size_t i=0; i<sz; i++)
 	{
 		auto const& itm = itemsbuf[i];

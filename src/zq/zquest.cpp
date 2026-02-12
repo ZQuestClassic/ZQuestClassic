@@ -19658,6 +19658,8 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 		sz = itemsbuf.capacity();
 	if (game)
 	{
+		if (!zq_ignore_item_ownership)
+			sz = zc_min(sz, game->items_owned.length());
 		int32_t result = -1;
 		int32_t highestlevel = -1;
 		
