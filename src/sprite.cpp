@@ -2957,7 +2957,7 @@ bool breakable::animate(int32_t)
 				case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
 			}
 			if(breaksfx) sfx(breaksfx,pan(x));
-			if(unsigned(dropitem) < MAXITEMS)
+			if(valid_item_id(dropitem))
 			{
 				item* itm = (new item(x, y, z, dropitem, ipBIGRANGE + ipTIMER, 0));
 				itm->from_dropset = fromdropset;

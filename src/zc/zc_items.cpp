@@ -114,7 +114,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(unsigned(drop_item) < MAXITEMS && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
+    if(valid_item_id(drop_item) && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {

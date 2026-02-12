@@ -1690,7 +1690,7 @@ void enemy::leave_item()
 		drop_item = select_dropitem(thedropset,x,y);
 	}
 	
-	if(unsigned(drop_item) < MAXITEMS &&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	if(valid_item_id(drop_item) &&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -3747,7 +3747,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	case wWhistle: //No longer completely ignore whistle weapons! -Z
 	{
 		
-		if (!(wpn_item.flags & item_flag2) || unsigned(parent_item) >= MAXITEMS)
+		if (!(wpn_item.flags & item_flag2) || invalid_item_id(parent_item))
 		{
 			//if the flag is set, or the weapon is scripted
 			return 0; break;
@@ -3774,7 +3774,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 		// Only take sparkle damage if the sparkle's parent item is not
 		// defended against.
-		if (unsigned(parent_item) < MAXITEMS)
+		if (valid_item_id(parent_item))
 		{
 			int32_t p = 0;
 			int32_t f = wpn_item.type;
@@ -3807,7 +3807,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		
 	case wBrang:
 	{
-		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_brang));
+		auto const& itm = get_item_data(valid_item_id(parent_item) ? parent_item : current_item_id(itype_brang));
 		//int32_t def = defendNew(wpnId, &power, edefBRANG, w);
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		//preventing stunlock might be best, here. -Z
@@ -3838,7 +3838,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 	case wHookshot:
 	{
-		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_hookshot));
+		auto const& itm = get_item_data(valid_item_id(parent_item) ? parent_item : current_item_id(itype_hookshot));
 		//int32_t def = defendNew(wpnId, &power, edefHOOKSHOT,w);
 		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		
@@ -3871,7 +3871,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 	case wHSHandle:
 	{
-		auto const& itm = get_item_data(unsigned(parent_item) < MAXITEMS ? parent_item : current_item_id(itype_hookshot));
+		auto const& itm = get_item_data(valid_item_id(parent_item) ? parent_item : current_item_id(itype_hookshot));
 		if(itm.flags & item_flag1)
 			return 0;
 			
@@ -8751,7 +8751,7 @@ int32_t ePeahat::takehit(weapon *w, weapon* realweap)
 		
 	if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
 			// fire boomerang, for nailing peahats
-			&& !(wpnId==wBrang && (unsigned(parent_item) < MAXITEMS ? itemsbuf[parent_item].power : current_item_power(itype_brang))>0))
+			&& !(wpnId==wBrang && (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_brang))>0))
 		return 0;
 		
 	// Time for a kludge...
@@ -13356,7 +13356,7 @@ int32_t eGanon::takehit(weapon *w, weapon* realweap)
 		return 1;
 		
 	case 2:
-		if(wpnId!=wArrow || (unsigned(parent_item) < MAXITEMS ? itemsbuf[parent_item].power : current_item_power(itype_arrow))<4)
+		if(wpnId!=wArrow || (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_arrow))<4)
 			return 0;
 			
 		misc=3;
@@ -16625,14 +16625,14 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* pare
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
-	if (unsigned(id) >= MAXITEMS) return;
+	if (invalid_item_id(id)) return;
 	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), 0_zf, id, pickup, 0);
 	items.add(i);
 }
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 {
-	if (unsigned(id) >= MAXITEMS) return;
+	if (invalid_item_id(id)) return;
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,clk);
 	items.add(i);
 }
@@ -18123,7 +18123,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 	{
 		Item=scr->item;
 		
-		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && valid_item_id(Item))
 		{
 			if(scr->flags8&fSECRETITEM)
 				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
@@ -18151,7 +18151,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 		{
 			Item = special_warp_return_scr->catchall;
 			
-			if(Item && unsigned(Item) < MAXITEMS)
+			if(Item && valid_item_id(Item))
 			{
 				int x = scr->itemx;
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
@@ -19511,7 +19511,7 @@ void setupscreen()
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
 				
-				if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
+				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
 					auto const& itm = itemsbuf[itemid];
 					if (itm.flags & item_flag1)
@@ -19621,7 +19621,7 @@ void setupscreen()
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
 				
-				if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
+				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
 					auto const& itm = itemsbuf[itemid];
 					if (itm.flags & item_flag1)
@@ -19709,7 +19709,7 @@ void setupscreen()
 				prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 			int32_t itemid = current_item_id(itype_wealthmedal);
 			
-			if(unsigned(itemid) < MAXITEMS && prices[i]!=100000)
+			if(valid_item_id(itemid) && prices[i]!=100000)
 			{
 				auto const& itm = itemsbuf[itemid];
 				if(itm.flags & item_flag1)
@@ -19756,7 +19756,7 @@ void setupscreen()
 		int32_t i = (base_scr->room == rSWINDLE ? 1 : 0);
 		int32_t itemid = current_item_id(itype_wealthmedal);
 		
-		if(unsigned(itemid) < MAXITEMS)
+		if(valid_item_id(itemid))
 		{
 			auto const& itm = itemsbuf[itemid];
 			if(itm.flags & item_flag1)
@@ -19994,7 +19994,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t itemID = args[0];
 			
-			if (unsigned(itemID) < MAXITEMS)
+			if (valid_item_id(itemID))
 			{
 				getitem(itemID, true);
 				if (!FFCore.doscript(ScriptType::Item, itemID))
@@ -20498,7 +20498,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t it = args[0];
 			
-			if(unsigned(it)<MAXITEMS && game->get_item(it))
+			if(valid_item_id(it) && game->get_item(it))
 			{
 				last_arg = 1;
 				goto switched;
@@ -21226,7 +21226,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
 					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-					if (unsigned(w->parentitem) < MAXITEMS) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
+					if (valid_item_id(w->parentitem)) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
@@ -21467,7 +21467,7 @@ static void roaming_item(mapscr* scr)
 
 		state.item_state = ScreenItemState::None;
 
-		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && unsigned(Item) < MAXITEMS)
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0) && valid_item_id(Item))
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE

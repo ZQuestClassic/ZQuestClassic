@@ -1964,7 +1964,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						fitParent = true, rowSpan = 3,
 						data = list_items_no_none.filter([&](GUI::ListItem& itm)
 							{
-								if(unsigned(itm.value) >= MAXITEMS)
+								if(invalid_item_id(itm.value))
 									return false;
 								itemdata const& idata = itemsbuf[itm.value];
 								return bool(idata.flags & item_gamedata); // only ownable items are usable

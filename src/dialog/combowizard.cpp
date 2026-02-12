@@ -3324,7 +3324,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			auto radmode1 = 0;
 			auto spitem_def = contains_item;
 			auto normitem_def = 0;
-			if(uint(contains_item) < MAXITEMS)
+			if(valid_item_id(contains_item))
 			{
 				radmode1 = 1;
 				spitem_def = -1;
@@ -3392,7 +3392,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
-					if(unsigned(itm.value) >= MAXITEMS) return false;
+					if(invalid_item_id(itm.value)) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
 			windowRow->add(Column(
@@ -3850,7 +3850,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
-					if(unsigned(itm.value) >= MAXITEMS) return false;
+					if(invalid_item_id(itm.value)) return false;
 					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
 			windowRow->add(Column(

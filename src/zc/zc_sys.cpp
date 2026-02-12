@@ -1587,7 +1587,7 @@ void black_fade(int32_t fadeamnt)
 
 bool item_disabled(int32_t id)				 //is this item disabled?
 {
-	return (unsigned(id) < MAXITEMS && game->items_off.get(id));
+	return (valid_item_id(id) && game->items_off.get(id));
 }
 
 bool can_use_item(int32_t item_type, int32_t item)				  //can Hero use this item?
@@ -1619,7 +1619,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		{
 			int32_t itemid = getItemID(item_type, it);
 			
-			if(unsigned(itemid) < MAXITEMS)
+			if(valid_item_id(itemid))
 				if (itemsbuf[itemid].flags & item_flag1) //Active clock
 					return (game->get_item(itemid));
 			
@@ -1775,7 +1775,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		{
 			int maxid = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
 			
-			if(unsigned(maxid) < MAXITEMS)
+			if(valid_item_id(maxid))
 			{
 				auto const& itm = itemsbuf[maxid];
 				if (itm.flags & item_flag1) //Active clock
@@ -1845,7 +1845,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		default:
 			int maxid = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
 			
-			if(unsigned(maxid) >= MAXITEMS)
+			if(invalid_item_id(maxid))
 				return 0;
 				
 			return itemsbuf[maxid].level;
@@ -1958,7 +1958,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 	if(game->OverrideItems[itype] > -2)
 	{
 		auto ovid = game->OverrideItems[itype];
-		if(unsigned(ovid) >= MAXITEMS)
+		if(invalid_item_id(ovid))
 			return -1;
 		if(itemsbuf[ovid].type == itype)
 		{
@@ -1996,7 +1996,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
-	return unsigned(result) >= MAXITEMS ? 0 : itemsbuf[result].power;
+	return invalid_item_id(result) ? 0 : itemsbuf[result].power;
 }
 
 int32_t heart_container_id()
@@ -2040,14 +2040,14 @@ int32_t item_tile_mod()
 	if(check_bombcost || game->get_bombs())
 	{
 		int32_t itemid = current_item_id(itype_bomb,check_bombcost);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
 	if(check_bombcost || game->get_sbombs())
 	{
 		int32_t itemid = current_item_id(itype_sbomb,check_bombcost);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2057,7 +2057,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iClock
 				: getHighestLevelEvenUnowned(itype_clock);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2067,7 +2067,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iKey
 				: getHighestLevelEvenUnowned(itype_key);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2077,7 +2077,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iLevelKey
 				: getHighestLevelEvenUnowned(itype_lkey);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2087,7 +2087,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMap
 				: getHighestLevelEvenUnowned(itype_map);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2097,7 +2097,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iCompass
 				: getHighestLevelEvenUnowned(itype_compass);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2107,7 +2107,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iBossKey
 				: getHighestLevelEvenUnowned(itype_bosskey);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2117,7 +2117,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMagicC
 				: getHighestLevelEvenUnowned(itype_magiccontainer);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2127,7 +2127,7 @@ int32_t item_tile_mod()
 			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iTriforce
 				: getHighestLevelEvenUnowned(itype_triforcepiece);
-		if (unsigned(itemid) < MAXITEMS && checkbunny(itemid))
+		if (valid_item_id(itemid) && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
@@ -2154,7 +2154,7 @@ int32_t item_tile_mod()
 		if(i == itype_shield)
 			itemid = getCurrentShield(false);
 		
-		if(unsigned(itemid) >= MAXITEMS || !checkbunny(itemid))
+		if(invalid_item_id(itemid) || !checkbunny(itemid))
 			continue;
 		
 		itemdata const& itm = itemsbuf[itemid];
@@ -6397,7 +6397,7 @@ void stop_item_sfx(int32_t family)
 {
 	int32_t id = current_item_id(family);
 	
-	if(unsigned(id) >= MAXITEMS)
+	if(invalid_item_id(id))
 		return;
 		
 	stop_sfx(itemsbuf[id].usesound);

@@ -167,7 +167,7 @@ void ringcolor(bool forceDefault)
 {
     int32_t itemid = current_item_id(itype_ring);
     
-    if(!forceDefault && unsigned(itemid) < MAXITEMS)
+    if(!forceDefault && valid_item_id(itemid))
     {
 		auto const& itm = itemsbuf[itemid];
         loadpalset(6,itm.misc1 ? pSprite(zc_min((pdSPRITE-1),itm.misc1)):6);

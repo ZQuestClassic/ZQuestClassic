@@ -201,7 +201,7 @@ void kill_subscr_items()
 
 bool is_counter_item(int32_t itmid, int32_t ctr)
 {
-	if (unsigned(itmid) >= MAXITEMS)
+	if (invalid_item_id(itmid))
 		return false;
 	itemdata const& itm = itemsbuf[itmid];
 	if(ctr == crNONE) return false;
@@ -358,7 +358,7 @@ word get_ssc_ctr(int ctr, bool* infptr)
 		case crSBOMBS:
 		{
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
-			if (unsigned(itemid) >= MAXITEMS)
+			if (invalid_item_id(itemid))
 				break;
 			auto const& itm = itemsbuf[itemid];
 			if (itm.power > 0 && (itm.flags & item_flag1))
@@ -391,7 +391,7 @@ word get_ssc_ctr(int ctr, bool* infptr)
 		case sscANYKEYMAGIC:
 		{
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
-			if (unsigned(itemid) < MAXITEMS)
+			if (valid_item_id(itemid))
 			{
 				auto const& itm = itemsbuf[itemid];
 				if(itm.flags & item_flag1)
@@ -441,7 +441,7 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 		case crSBOMBS:
 		{
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
-			if (unsigned(itemid) >= MAXITEMS)
+			if (invalid_item_id(itemid))
 				break;
 			auto const& itm = itemsbuf[itemid];
 			if(itm.power > 0 && (itm.flags & item_flag1))
@@ -474,7 +474,7 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 		case sscANYKEYMAGIC:
 		{
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
-			if (unsigned(itemid) < MAXITEMS)
+			if (valid_item_id(itemid))
 			{
 				auto const& itm = itemsbuf[itemid];
 				if(itm.flags & item_flag1)
@@ -545,7 +545,7 @@ bool can_inf(int ctr, int infitm = -1)
 		case sscANYKEYMAGIC:
 			return true;
 	}
-	return unsigned(infitm) < MAXITEMS;
+	return valid_item_id(infitm);
 }
 
 int32_t to_real_font(int32_t ss_font)
@@ -691,7 +691,7 @@ int shadow_h(int shadow)
 
 int wrap_iid(int iid)
 {
-	if(unsigned(iid) >= MAXITEMS)
+	if(invalid_item_id(iid))
 		return -1;
 	return iid;
 }
@@ -2553,7 +2553,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		btnitem_clks[btn] = 0;
 	}
 	auto id = btnitem_ids[btn].id;
-	if (unsigned(id) < MAXITEMS && (id || !invis_0))
+	if (valid_item_id(id) && (id || !invis_0))
 	{
 		bool dodraw = true;
 		switch(itemsbuf[id].type)
@@ -3074,7 +3074,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 {
 	int32_t counter;
 	ButtonItemData data = get_button_data(btn);
-	if (unsigned(data.id) < MAXITEMS)
+	if (valid_item_id(data.id))
 	{
 		itemdata const& itm = itemsbuf[data.id];
 		int costs[2];
@@ -3851,7 +3851,7 @@ static bool check_bomb(optional<int> iid = nullopt)
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_bombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_bomb,true) > -1))
 		return true;
 	auto bombid = iid ? *iid : get_subscr_item_id(itype_bomb, true);
-	if(unsigned(bombid) < MAXITEMS && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+	if(valid_item_id(bombid) && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3864,7 +3864,7 @@ static bool check_sbomb(optional<int> iid = nullopt)
 	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 		return true;
 	auto bombbagid = get_subscr_item_id(itype_bombbag, true);
-	if(unsigned(bombbagid) < MAXITEMS)
+	if(valid_item_id(bombbagid))
 	{
 		auto const& itm = itemsbuf[bombbagid];
 		if (itm.power && (itm.flags & item_flag1))
@@ -3873,7 +3873,7 @@ static bool check_sbomb(optional<int> iid = nullopt)
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
 		return true;
 	auto sbombid = iid ? *iid : get_subscr_item_id(itype_sbomb);
-	if(unsigned(sbombid) < MAXITEMS && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
+	if(valid_item_id(sbombid) && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3883,7 +3883,7 @@ static bool check_sbomb(optional<int> iid = nullopt)
 ButtonItemData SW_ItemSlot::getItemVal() const
 {
 #ifdef IS_PLAYER
-	if(unsigned(iid) < MAXITEMS)
+	if(valid_item_id(iid))
 	{
 		auto const& itm = itemsbuf[iid];
 		bool select = false;
@@ -3957,7 +3957,7 @@ ButtonItemData SW_ItemSlot::getItemVal() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(unsigned(iid) < MAXITEMS) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(valid_item_id(iid)) return {iid, itemsbuf[iid].type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -3988,7 +3988,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 {
 	bool nosp = flags&SUBSCR_CURITM_IGNR_SP_DISPLAY;
 #ifdef IS_PLAYER
-	if (unsigned(iid) < MAXITEMS)
+	if (valid_item_id(iid))
 	{
 		auto const& itm = itemsbuf[iid];
 		bool select = false;
@@ -4084,7 +4084,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(unsigned(iid) < MAXITEMS) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(valid_item_id(iid)) return {iid, itemsbuf[iid].type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -5462,7 +5462,7 @@ byte SW_ItemCooldownGauge::getType() const
 dword SW_ItemCooldownGauge::get_ctr() const
 {
 	int item_id = calc_item_from_class_id_button(specific_item_id, button_id, item_class);
-	if (unsigned(item_id) >= MAXITEMS)
+	if (invalid_item_id(item_id))
 		return 0;
 	
 	auto b = zq_ignore_item_ownership;
@@ -5605,7 +5605,7 @@ string SW_ItemCooldownText::format_text(int cd) const
 string SW_ItemCooldownText::get_text() const
 {
 	int item_id = calc_item_from_class_id_button(specific_item_id, button_id, item_class);
-	if (unsigned(item_id) >= MAXITEMS)
+	if (invalid_item_id(item_id))
 		return "";
 	
 	auto b = zq_ignore_item_ownership;
@@ -5834,7 +5834,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 	else
 	{
 		auto data = widg->getDisplayItem();
-		if (unsigned(data.id) < MAXITEMS)
+		if (valid_item_id(data.id))
 		{
 			#if IS_PLAYER
 			if(replay_version_check(0,19) && !game->get_item(data.id))

@@ -41,7 +41,6 @@
 #include "metadata/metadata.h"
 #include "base/about.h"
 #include "base/zc_alleg.h"
-#include "gamedata.h"
 #include "base/random.h"
 #include "base/util.h"
 #include "base/render.h"

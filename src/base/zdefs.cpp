@@ -12,6 +12,7 @@
 #include "base/qst.h"
 #include "base/md5.h"
 #include <fstream>
+#include "gamedata.h"
 
 using std::string;
 using std::ostringstream;

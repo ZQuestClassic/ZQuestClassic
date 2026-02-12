@@ -249,7 +249,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_05(int val)
 
 std::string item_name(int id)
 {
-	if(unsigned(id) < MAXITEMS)
+	if(valid_item_id(id))
 		return itemsbuf[id].get_name(true);
 	return "";
 }

@@ -1646,7 +1646,7 @@ void itemLocationReport()
 			auto sc = m * MAPSCRS + s;
 			auto const& ts = TheMaps[sc];
 			
-			if (ts.hasitem && unsigned(ts.item) < MAXITEMS) // if the room item is set
+			if (ts.hasitem && valid_item_id(ts.item)) // if the room item is set
 			{
 				auto& vec = item_location_map[ts.item][loc_type_screenitem];
 				
@@ -1658,7 +1658,7 @@ void itemLocationReport()
 				node.pal = ts.color;
 			}
 			
-			if(ts.room == rSP_ITEM && unsigned(ts.catchall) < MAXITEMS)
+			if(ts.room == rSP_ITEM && valid_item_id(ts.catchall))
 			{
 				auto& vec = item_location_map[ts.catchall][loc_type_specialitem];
 				
@@ -1690,7 +1690,7 @@ void itemLocationReport()
 					auto const& shop = QMisc.shop[shop_id];
 					for(int si = 0; si < 3; ++si)
 					{
-						if (shop.hasitem[si] && unsigned(shop.item[si]) < MAXITEMS)
+						if (shop.hasitem[si] && valid_item_id(shop.item[si]))
 						{
 							ItemLocType loc_type = ItemLocType(si + loc_type_shop);
 							
@@ -1723,7 +1723,7 @@ void itemLocationReport()
 	for (size_t idx = 0; idx < list.size(); ++idx)
 	{
 		auto i = list.getValue(idx);
-		if (unsigned(i) >= MAXITEMS) continue;
+		if (invalid_item_id(i)) continue;
 		item_found = false;
 		
 		if (!item_location_map.contains(i))

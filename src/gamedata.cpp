@@ -988,14 +988,14 @@ void gamedata::set_item_flicker_speed(byte val)
 
 void gamedata::set_item(int32_t id, bool value)
 {
-	if (unsigned(id) >= MAXITEMS) return;
+	if (invalid_item_id(id)) return;
 	set_item_no_flush(id, value);
 	flushItemCache();
 }
 
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
-	if (unsigned(id) >= MAXITEMS) return;
+	if (invalid_item_id(id)) return;
 	if(value != items_owned.get(id))
 	{
 		Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, itemsbuf[id].name.c_str());

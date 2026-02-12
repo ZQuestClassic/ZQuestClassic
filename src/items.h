@@ -8,6 +8,8 @@
 #include "sfx.h"
 #include "sprite.h"
 
+struct gamedata;
+
 namespace flags {
 // TODO: these generically named flags need to be renamed / documented.
 enum item_flags : uint32_t
@@ -323,5 +325,14 @@ void run_first_script_of_type(int itype);
 void delete_quest_items(std::function<bool(itemdata const&)> proc);
 void delete_quest_items(size_t idx);
 void swap_quest_items(size_t idx1, size_t idx2);
+
+inline constexpr bool valid_item_id(int iid)
+{
+	return unsigned(iid) < MAXITEMS;
+}
+inline constexpr bool invalid_item_id(int iid)
+{
+	return !valid_item_id(iid);
+}
 
 #endif

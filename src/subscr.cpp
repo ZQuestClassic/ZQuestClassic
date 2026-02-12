@@ -2981,7 +2981,7 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         bool magickey = false;
         int32_t itemid = current_item_id(itype_magickey);
         
-        if(unsigned(itemid) < MAXITEMS)
+        if(valid_item_id(itemid))
         {
 			auto const& itm = itemsbuf[itemid];
             if(itm.flags & item_flag1)

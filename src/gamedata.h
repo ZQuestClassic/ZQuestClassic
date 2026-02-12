@@ -6,10 +6,9 @@
 #include "base/zc_array.h"
 #include "base/containers.h"
 #include "user_object.h"
+#include "items.h"
 
 #define DIDCHEAT_BIT 0x80
-#define NUM_GSWITCHES 256
-#define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
 
 #define MAX_SAVED_PORTALS 10000
 struct savedportal
@@ -372,7 +371,7 @@ public:
 	void set_item_no_flush(int32_t id, bool value);
 	inline bool get_item(int32_t id) const
 	{
-		if (unsigned(id) >= MAXITEMS)
+		if (invalid_item_id(id))
 			return false;
 		return items_owned.get(id);
 	}

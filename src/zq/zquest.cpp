@@ -4984,7 +4984,7 @@ void drawpanel()
 		if(itemsqr_pos.x > -1)
 		{
 			draw_sqr_frame(itemsqr_pos);
-			if(scr->hasitem && unsigned(scr->item) < MAXITEMS)
+			if(scr->hasitem && valid_item_id(scr->item))
 			{
 				rectfill(screen,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
 				overtile16_scale(screen, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
@@ -7050,7 +7050,7 @@ void refresh(int32_t flags, bool update)
 			case rSP_ITEM:
 			{
 				int id = Map.CurrScr()->catchall;
-				if (unsigned(id) < MAXITEMS)
+				if (valid_item_id(id))
 					sprintf(buf,"Special Item is %s",itemsbuf[id].name.c_str());
 				else sprintf(buf, "Invalid Special Item '%d'", id);
 				show_screen_error(buf,i++, vc(15));
@@ -19638,7 +19638,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
     }
     
 	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
-	return unsigned(id) < MAXITEMS ? itemsbuf[id].level : 0;
+	return valid_item_id(id) ? itemsbuf[id].level : 0;
 }
 
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
@@ -22417,7 +22417,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 }
 bool checkmagiccost(int32_t itemid, bool checkTime)
 {
-	if(unsigned(itemid) >= MAXITEMS)
+	if(invalid_item_id(itemid))
 		return false;
 	itemdata const& id = itemsbuf[itemid];
 	return checkCost(id.cost_counter[0], id.cost_amount[0])

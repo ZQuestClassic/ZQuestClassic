@@ -2,6 +2,7 @@
 #define ZC_SCRIPTING_USER_OBJECT_H_
 
 #include "base/ints.h"
+#include <user_object.h>
 
 #include <optional>
 #include <vector>

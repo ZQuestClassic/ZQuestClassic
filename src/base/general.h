@@ -233,6 +233,9 @@ double wrap_float(double x,double low,double high);
 
 #define QSTPWD_LEN                 256
 
+#define NUM_GSWITCHES 256
+#define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
+
 // Args for 'getInput()'
 #define INPUT_PRESS                0x01
 #define INPUT_DRUNK                0x02

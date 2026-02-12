@@ -462,7 +462,7 @@ bool ItemListerDialog::paste()
 }
 bool ItemListerDialog::adv_paste()
 {
-	if(unsigned(copied_item_id) >= MAXITEMS || unsigned(selected_val) >= MAXITEMS)
+	if(invalid_item_id(copied_item_id) || invalid_item_id(selected_val))
 		return false;
 	if(copied_item_id == selected_val)
 		return false;
@@ -503,7 +503,7 @@ int32_t readoneitem(PACKFILE *f, word id);
 int32_t writeoneitem(PACKFILE *f, word id);
 void ItemListerDialog::save()
 {
-	if(unsigned(selected_val) >= MAXITEMS)
+	if(invalid_item_id(selected_val))
 		return;
 	if(!prompt_for_new_file_compat(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return;
@@ -519,7 +519,7 @@ void ItemListerDialog::save()
 }
 bool ItemListerDialog::load()
 {
-	if(unsigned(selected_val) >= MAXITEMS)
+	if(invalid_item_id(selected_val))
 		return false;
 	if(!prompt_for_existing_file_compat(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return false;

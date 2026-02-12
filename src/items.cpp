@@ -38,7 +38,7 @@ bool item::animate(int32_t)
 	if (base_item.type == itype_progressive_itm)
 	{
 		int32_t id2 = get_progressive_item(id);
-		if(unsigned(id2) >= MAXITEMS)
+		if(invalid_item_id(id2))
 			id2 = id;
 		else if (id2 != id)
 			disp_item = &itemsbuf[id2];
@@ -350,7 +350,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	from_dropset = -1;
 	pickupexstate = -1;
 	
-	if (unsigned(id) > MAXITEMS)
+	if (invalid_item_id(id))
 		return;
 	itemdata const& itm = itemsbuf[id];
 	
@@ -554,7 +554,7 @@ static void _check_itembundle_recursive(int32_t itmid, prog_item_data& data)
 #ifdef IS_EDITOR
 	return;
 #else
-	if(unsigned(itmid) >= MAXITEMS)
+	if(invalid_item_id(itmid))
 	{
 		assert(false); // This should have been validated before the call
 		return;
@@ -575,7 +575,7 @@ static void _check_itembundle_recursive(int32_t itmid, prog_item_data& data)
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 	for(auto id : arr)
 	{
-		if(unsigned(id) >= MAXITEMS)
+		if(invalid_item_id(id))
 			continue;
 		itemdata const& targItem = itemsbuf[id];
 		if(targItem.type == itype_itmbundle)
@@ -611,7 +611,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 #ifdef IS_EDITOR
 	return;
 #else
-	if(unsigned(itmid) >= MAXITEMS)
+	if(invalid_item_id(itmid))
 	{
 		assert(false); // This should have been validated before the call
 		return;
@@ -627,7 +627,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 	for(auto id : arr)
 	{
-		if(unsigned(id) >= MAXITEMS)
+		if(invalid_item_id(id))
 			continue;
 		data.last_id = id;
 		
@@ -642,7 +642,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		if(targItem.type == itype_heartpiece)
 		{
 			int32_t hcid = heart_container_id();
-			if(unsigned(hcid) >= MAXITEMS) continue;
+			if(invalid_item_id(hcid)) continue;
 			itemdata const& hcitem = itemsbuf[hcid];
 			if(hcitem.setmax > 0)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
@@ -689,7 +689,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 // Gets the target item of the specified progressive item, while also checking for safety from infinite loops
 int32_t get_progressive_item(int32_t itmid, bool lastOwned)
 {
-	if(unsigned(itmid) >= MAXITEMS)
+	if(invalid_item_id(itmid))
 		return -1; // skip everything
 	std::set<int32_t> visited;
 	prog_item_data data(visited);
@@ -705,7 +705,7 @@ int32_t get_progressive_item(int32_t itmid, bool lastOwned)
 // Checks if the bundle is 'safe', i.e. has no infinite loops
 bool itembundle_safe(int32_t itmid, bool skipError)
 {
-	if(unsigned(itmid) >= MAXITEMS)
+	if(invalid_item_id(itmid))
 		return false; // skip everything
 	std::set<int32_t> visited;
 	prog_item_data data(visited);
@@ -1136,7 +1136,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 							break;
 						}
 					}
-					if(unsigned(bowid) < MAXITEMS && checkmagiccost(id))
+					if(valid_item_id(bowid) && checkmagiccost(id))
 						overname = itemsbuf[bowid].get_name() + " & " + name;
 					break;
 				}
@@ -1318,7 +1318,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 static void apply_cooldown_ring(cooldown_data& data)
 {
 	auto cooldown_ring_id = current_item_id(itype_cooldown_ring, true);
-	if (unsigned(cooldown_ring_id) >= MAXITEMS)
+	if (invalid_item_id(cooldown_ring_id))
 		return;
 	if (!checkmagiccost(cooldown_ring_id) || !checkbunny(cooldown_ring_id))
 		return;
@@ -1347,7 +1347,7 @@ static void apply_cooldown_ring(cooldown_data& data)
 }
 cooldown_data calc_item_cooldown(int item_id)
 {
-	if (unsigned(item_id) >= MAXITEMS)
+	if (invalid_item_id(item_id))
 		return {};
 	cooldown_data data;
 	
@@ -1364,7 +1364,7 @@ cooldown_data calc_item_cooldown(int item_id)
 
 int ButtonItemData::get_family() const
 {
-	if (unsigned(id) >= MAXITEMS)
+	if (invalid_item_id(id))
 		return -1;
 	return itemsbuf[id].type;
 }
@@ -1373,7 +1373,7 @@ int ButtonItemData::get_family() const
 // If an invalid ID is given, a reference to a blank `itemdata` is given instead.
 itemdata const& get_item_data(int id)
 {
-	if (unsigned(id) >= MAXITEMS)
+	if (invalid_item_id(id))
 		return nil_item;
 	return itemsbuf.get(id);
 }
@@ -1468,8 +1468,8 @@ void delete_quest_items(size_t idx)
 }
 void swap_quest_items(size_t idx1, size_t idx2)
 {
-	if (unsigned(idx1) >= MAXITEMS ||
-		unsigned(idx2) >= MAXITEMS ||
+	if (invalid_item_id(idx1) ||
+		invalid_item_id(idx2) ||
 		idx1 == idx2) return;
 	zc_swap_mv(itemsbuf[idx1], itemsbuf[idx2]);
 	update_quest_items({{idx1, idx2},{idx2, idx1}});

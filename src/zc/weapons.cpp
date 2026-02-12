@@ -59,7 +59,7 @@ bool weapon::no_triggers() const
 	{
 		case wHammer: //Hammers don't trigger anything while in the air if item_flag1 is set!
 		{
-			if(unsigned(parentitem) >= MAXITEMS) break;
+			if(invalid_item_id(parentitem)) break;
 			itemdata const& itm = itemsbuf[parentitem];
 			if(itm.type == itype_hammer && (itm.flags & item_flag1) && Hero.getHammerState() < 3)
 				return true;
@@ -244,7 +244,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 				thedropset = id;
 			}
 		}
-		if( unsigned(it) < MAXITEMS )
+		if( valid_item_id(it) )
 		{
 			item* itm = (new item(x, y, 0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
@@ -252,7 +252,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && unsigned(scr->catchall) < MAXITEMS)
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && valid_item_id(scr->catchall))
 		{
 			items.add(new item(x, y, 0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
@@ -373,7 +373,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				thedropset = id;
 			}
 		}
-		if( unsigned(it) < MAXITEMS )
+		if( valid_item_id(it) )
 		{
 			item* itm = (new item(ffc->x, ffc->y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
@@ -381,7 +381,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(ffc_handle.scr, mSPECIALITEM) && unsigned(ffc_handle.scr->catchall) < MAXITEMS)
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(ffc_handle.scr, mSPECIALITEM) && valid_item_id(ffc_handle.scr->catchall))
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
@@ -874,14 +874,14 @@ void weapon::cleanup_sfx()
 			break;
 		case wSSparkle:
 		case wFSparkle:
-			if(unsigned(parentitem) < MAXITEMS && itemsbuf[parentitem].type==itype_cbyrna)
+			if(valid_item_id(parentitem) && itemsbuf[parentitem].type==itype_cbyrna)
 				break;
 			return;
 		default: return; //No repeating sfx
     }
     // First, check for the existence of weapons that don't have parentitems
     // but make looping sounds anyway.
-    if(unsigned(parentitem) >= MAXITEMS && get_qr(qr_MORESOUNDS))
+    if(invalid_item_id(parentitem) && get_qr(qr_MORESOUNDS))
     {
         //I am reasonably confident that I fixed these expressions. ~pkmnfrk
 			//No, you didn't. Now I have. -V
@@ -895,7 +895,7 @@ void weapon::cleanup_sfx()
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
 	int32_t use_sfx = 0;
 	auto const& itm = get_item_data(parentitem);
-	if (unsigned(parentitem) < MAXITEMS &&
+	if (valid_item_id(parentitem) &&
 		(itm.type != itype_whistle || id != wWind))
 	{
 		use_sfx = itm.usesound;
@@ -931,7 +931,7 @@ void weapon::cleanup_sfx()
             
             int32_t wparent = w->parentitem;
             
-            if (unsigned(wparent) < MAXITEMS)
+            if (valid_item_id(wparent))
 			{
 				auto const& itm = itemsbuf[wparent];
 				if (itm.type == itype_brang || itm.type == itype_divineprotection
@@ -1030,7 +1030,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	lift_height = 8;
 	death_item_pflags = 0;
 	has_shadow = true;
-	if ( unsigned(Parentitem) < MAXITEMS )
+	if ( valid_item_id(Parentitem) )
 	{
 		quantity_iterator = level; //wCByrna uses this for positioning.
 		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
@@ -1119,14 +1119,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		case wCByrna: // The Cane's beam
 		{
-			int32_t speed = unsigned(parentitem) < MAXITEMS ? zc_max(parent.misc1,1) : 1;
-			int32_t qty = unsigned(parentitem) < MAXITEMS ? zc_max(parent.misc3,1) : 1;
+			int32_t speed = valid_item_id(parentitem) ? zc_max(parent.misc1,1) : 1;
+			int32_t qty = valid_item_id(parentitem) ? zc_max(parent.misc3,1) : 1;
 			clk = (int32_t)((((2*quantity_iterator*PI)/qty)
 						 // Appear on top of the cane's hook
 						 + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
 			quantity_iterator = 0;
 			
-			if (unsigned(parentitem) < MAXITEMS)
+			if (valid_item_id(parentitem))
 				cont_sfx(parent.usesound);
 			
 			break;
@@ -1138,7 +1138,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			hit_width=hit_height=255;                                        // hit the whole screen
 			//Port Item Editor Weapon Size Values
 			
-			if (unsigned(parentitem) < MAXITEMS)
+			if (valid_item_id(parentitem))
 			{
 				//Whistle damage
 				if ((parent.flags & item_flag2)!=0 ) //Flags[1]
@@ -1182,7 +1182,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wRefArrow:
 		{
 			step = id == wRefArrow ? 2 : 3;
-			if (unsigned(parentitem) < MAXITEMS)
+			if (valid_item_id(parentitem))
 				misc = parent.misc1;
 			if ( do_animation ) 
 			{
@@ -1215,7 +1215,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wFire: case wRefFire: case wRefFire2:
 		{
 			glowRad = game->get_light_rad(); //Default light radius for fires
-			if (unsigned(parentitem) < MAXITEMS)
+			if (valid_item_id(parentitem))
 			{
 				switch(parent.type)
 				{
@@ -1250,7 +1250,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			hxofs=hyofs=4;
 			hit_width=hit_height=8;
-			misc = ((id==wBomb || id == wSBomb) ? 1 : (unsigned(parentitem) < MAXITEMS ? parent.misc1 : 50));
+			misc = ((id==wBomb || id == wSBomb) ? 1 : (valid_item_id(parentitem) ? parent.misc1 : 50));
 			break;
 		}
 		case wBait:
@@ -1294,7 +1294,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(isDummy || itemid < 0)
 				itemid = getCanonicalItemID(family_class);
 			
-			itemdata const& hshot = get_item_data(unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(family_class));
+			itemdata const& hshot = get_item_data(valid_item_id(parentitem) ? parentitem : current_item_id(family_class));
 			step = 4;
 			clk2=256;
 			
@@ -1781,11 +1781,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wMagic:
 		{
 			auto itemid = current_item_id(itype_book);
-			if (unsigned(itemid) >= MAXITEMS)
+			if (invalid_item_id(itemid))
 				itemid = parentitem;
-			if (unsigned(itemid) >= MAXITEMS)
+			if (invalid_item_id(itemid))
 				itemid = directWpn > -1 ? directWpn : current_item_id(itype_wand);
-			if (unsigned(itemid) < MAXITEMS)
+			if (valid_item_id(itemid))
 				wdata = &itemsbuf[itemid].weap_data;
 			break;
 		}
@@ -1794,7 +1794,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				break;
 		[[fallthrough]];
 		default:
-			if (unsigned(parentitem) < MAXITEMS) //weapons created by items
+			if (valid_item_id(parentitem)) //weapons created by items
 				wdata = &parent.weap_data;
 			else if (e && !isLWeapon) //weapons created by enemies
 				wdata = &e->weap_data;
@@ -1850,10 +1850,10 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				if(spr)
 					ret = *spr;
-				else if (unsigned(parentitem) < MAXITEMS)
+				else if (valid_item_id(parentitem))
 					ret = parent.wpn;
 				LOADGFX(*ret);
-				if (unsigned(parentitem) < MAXITEMS)
+				if (valid_item_id(parentitem))
 				{
 					if(!(parent.flags & item_flag1))
 					{
@@ -1904,7 +1904,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sword);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else ret = wSWORD;
 			}
@@ -1920,7 +1920,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_wand);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else ret = wWAND;
 			}
@@ -1936,7 +1936,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_hammer);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else ret = wHAMMER;
 			}
@@ -1952,7 +1952,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_cbyrna);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn3;
 				else ret = wCBYRNA;
 			}
@@ -1968,7 +1968,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else ret = wWIND;
 			}
@@ -1984,7 +1984,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn3;
 				else ret = ewSWORD;
 			}
@@ -2019,7 +2019,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_arrow);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else ret = wARROW;
 			}
@@ -2065,12 +2065,12 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 		{
 			if(spr)
 				ret = *spr;
-			else if (unsigned(parentitem) < MAXITEMS)
+			else if (valid_item_id(parentitem))
 			{
 				switch(parent.type)
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
-						if (unsigned(magicitem) < MAXITEMS && !isDummy)
+						if (valid_item_id(magicitem) && !isDummy)
 							ret = itemsbuf[magicitem].wpn5;
 						else ret = wFIRE;
 						break;
@@ -2099,7 +2099,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bomb);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else
 					ret = wBOMB;
@@ -2117,7 +2117,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sbomb);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else
 					ret = wSBOMB;
@@ -2134,7 +2134,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bait);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else
 					ret = wBAIT;
@@ -2163,7 +2163,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					book = false;
 				}
 				
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 				{
 					auto const& itm = itemsbuf[itemid];
 					// Book Magic sprite is wpn, Wand Magic sprite is wpn3.
@@ -2199,7 +2199,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_brang);
-				if (unsigned(itemid) < MAXITEMS)
+				if (valid_item_id(itemid))
 					ret = itemsbuf[itemid].wpn;
 				else
 					ret = wBRANG;
@@ -2216,7 +2216,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(family_class);
-				if(unsigned(itemid) < MAXITEMS)
+				if(valid_item_id(itemid))
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
@@ -2280,7 +2280,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(family_class);
-				if(unsigned(itemid) < MAXITEMS)
+				if(valid_item_id(itemid))
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
@@ -2344,7 +2344,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(family_class);
-				if(unsigned(itemid) < MAXITEMS)
+				if(valid_item_id(itemid))
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
@@ -3102,7 +3102,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
 	    //Add lw->Level check here. -Z
-        if(unsigned(parentitem) >= MAXITEMS ||
+        if(invalid_item_id(parentitem) ||
 			(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl
 				>= itemsbuf[parentitem].level))
         {
@@ -3132,7 +3132,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
     if(get_bit(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon,id)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
-        if(unsigned(parentitem) >= MAXITEMS ||
+        if(invalid_item_id(parentitem) ||
 			(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl
 				>= itemsbuf[parentitem].level))
         {
@@ -3157,7 +3157,7 @@ std::set<rpos_t> weapon::getBombPositions()
 	std::set<rpos_t> rposes;
 	#define CHECKED_INSERT(rpos) if (rpos != rpos_t::None) rposes.insert(rpos);
 	itemdata const& itm = get_item_data(parentitem);
-	if(unsigned(parentitem) >= MAXITEMS || itm.misc7 < 1) //standard pattern
+	if(invalid_item_id(parentitem) || itm.misc7 < 1) //standard pattern
 	{
 		bool sbomb = id == wSBomb || id == ewSBomb;
 		for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
@@ -3224,7 +3224,7 @@ void weapon::limited_animate()
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
-				id = unsigned(parentitem) < MAXITEMS ? ((itemsbuf[parentitem].type==itype_sbomb) ? wSBomb:wBomb)
+				id = valid_item_id(parentitem) ? ((itemsbuf[parentitem].type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
 				hxofs=2000;
@@ -3241,7 +3241,7 @@ void weapon::limited_animate()
 			
 			if(clk==(misc-1) && canboom)
 			{
-				sfx(unsigned(parentitem) >= MAXITEMS ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(x));
+				sfx(invalid_item_id(parentitem) ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(x));
 				
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -3902,7 +3902,7 @@ bool weapon::animate(int32_t index)
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
 			if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
-			if ( unsigned(parentitem) < MAXITEMS || (isLWeapon && ScriptGenerated) )
+			if ( valid_item_id(parentitem) || (isLWeapon && ScriptGenerated) )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
@@ -3937,7 +3937,7 @@ bool weapon::animate(int32_t index)
 				dead=0;
 			}
 			
-			bool valid_parent = unsigned(parentitem) < MAXITEMS;
+			bool valid_parent = valid_item_id(parentitem);
 			auto const& prnt_itm = get_item_data(parentitem);
 			
 			int32_t speed = valid_parent ? zc_max(prnt_itm.misc1,1) : 1;
@@ -4002,7 +4002,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			bool mirrors = get_qr(qr_SWORDMIRROR);
-			if (id != ewSword && unsigned(parentitem) < MAXITEMS)
+			if (id != ewSword && valid_item_id(parentitem))
 				mirrors = itemsbuf[parentitem].flags & item_flag9;
 			if(mirrors)
 				if(do_mirror())
@@ -4060,7 +4060,7 @@ bool weapon::animate(int32_t index)
 				cont_sfx(WAV_ZN1WHIRLWIND,pan(x));
 			
 			bool mirrors = get_qr(qr_WHIRLWINDMIRROR);
-			if (unsigned(parentitem) < MAXITEMS)
+			if (valid_item_id(parentitem))
 				mirrors = itemsbuf[parentitem].flags & item_flag3;
 			if(mirrors)
 			{
@@ -4085,7 +4085,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			itemdata const& parent = get_item_data(parentitem);
-			bool valid_parent = unsigned(parentitem) < MAXITEMS;
+			bool valid_parent = valid_item_id(parentitem);
 			if(id != wFire)
 			{
 				if(clk==32)
@@ -4371,7 +4371,7 @@ bool weapon::animate(int32_t index)
 				goto skip_second_bait_script;
 			}
 			
-			if(unsigned(parentitem) < MAXITEMS && clk >= itemsbuf[parentitem].misc1)
+			if(valid_item_id(parentitem) && clk >= itemsbuf[parentitem].misc1)
 			{
 				dead=1;
 			}
@@ -4382,7 +4382,7 @@ bool weapon::animate(int32_t index)
 		
 		case wBrang:
 		{
-			auto brang_id = unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(itype_brang);
+			auto brang_id = valid_item_id(parentitem) ? parentitem : current_item_id(itype_brang);
 			//run first? brang scripts were being killed on WDS_BOUNCE, so this may fix that.
 			if(dead==0)  // Set by ZScript
 			{
@@ -4400,7 +4400,7 @@ bool weapon::animate(int32_t index)
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
-			brang_id = unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(itype_brang);
+			brang_id = valid_item_id(parentitem) ? parentitem : current_item_id(itype_brang);
 			itemdata const& brangitm = get_item_data(brang_id);
 			
 			int32_t deadval=(brangitm.flags & item_flag3)?-2:1;
@@ -4570,7 +4570,7 @@ bool weapon::animate(int32_t index)
 			}
 			//Diagonal Hookshot (8)
 			auto id = parentitem;
-			if (unsigned(id) >= MAXITEMS)
+			if (invalid_item_id(id))
 				id = current_item_id(family_class);
 			itemdata const& hshot = get_item_data(id);
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0;
@@ -4830,7 +4830,7 @@ bool weapon::animate(int32_t index)
 					chainlinks.clear();
 					CatchBrang();
 					
-					if (unsigned(parentitem) < MAXITEMS)
+					if (valid_item_id(parentitem))
 						stop_sfx(itemsbuf[parentitem].usesound);
 					
 					if(dragging!=-1)
@@ -4866,7 +4866,7 @@ bool weapon::animate(int32_t index)
 			}
 			//Diagonal Hookshot Handle
 			auto id = parentitem;
-			if (unsigned(id) >= MAXITEMS)
+			if (invalid_item_id(id))
 				id = current_item_id(itype_hookshot);
 			itemdata const& hshot = get_item_data(id);
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
@@ -4984,7 +4984,7 @@ bool weapon::animate(int32_t index)
 			
 			//Diagonal Hookshot Handle
 			auto id = parentitem;
-			if (unsigned(id) >= MAXITEMS)
+			if (invalid_item_id(id))
 				id = current_item_id(itype_hookshot);
 			itemdata const& hshot = get_item_data(id);
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
@@ -5195,7 +5195,7 @@ bool weapon::animate(int32_t index)
 		case wRefMagic:
 		case wMagic:
 		{
-			if (isLWeapon && linkedItem && unsigned(linkedItem) < MAXITEMS)
+			if (isLWeapon && linkedItem && valid_item_id(linkedItem))
 			{
 				itemdata const& book = itemsbuf[linkedItem];
 				if(book.flags&item_flag6)
@@ -5211,7 +5211,7 @@ bool weapon::animate(int32_t index)
 			bool brokebook = get_qr(qr_BROKENBOOKCOST);
 			auto id = linkedItem;
 			if (brokebook)
-				id = unsigned(parentitem) < MAXITEMS ? parentitem : current_item_id(itype_book);
+				id = valid_item_id(parentitem) ? parentitem : current_item_id(itype_book);
 			itemdata const& book = get_item_data(id);
 			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.type == itype_book)) &&
 				book.flags&item_flag1) && get_qr(qr_INSTABURNFLAGS))
@@ -5776,7 +5776,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, int
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		{
-			if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1))
+			if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
 			{
 				switch(w->dir)
 				{
@@ -5902,7 +5902,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -5994,7 +5994,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6089,7 +6089,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6211,7 +6211,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6426,7 +6426,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 
 void weapon::do_death_fx()
 {
-	if(unsigned(death_spawnitem) < MAXITEMS)
+	if(valid_item_id(death_spawnitem))
 	{
 		item* itm = (new item(x, y, z, death_spawnitem, death_item_pflags, 0));
 		itm->fakez = fakez;
@@ -6435,7 +6435,7 @@ void weapon::do_death_fx()
 	if(death_spawndropset > -1)
 	{
 		auto itid = select_dropitem(death_spawndropset);
-		if(unsigned(itid) < MAXITEMS)
+		if(valid_item_id(itid))
 		{
 			item* itm = (new item(x, y, z, itid, death_item_pflags, 0));
 			itm->fakez = fakez;
@@ -6690,7 +6690,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
     if ( get_qr(qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) return;
 	
 	auto const& prnt_itm = get_item_data(parentitem);
-	bool valid_parent = unsigned(parentitem) < MAXITEMS;
+	bool valid_parent = valid_item_id(parentitem);
 	
     switch(id)
     {
@@ -6973,7 +6973,7 @@ bool weapon::hit(sprite *s)
 		if(z+zofs >= s->z+s->zofs+s->hzsz || z+zofs+hzsz < s->z+s->zofs)
 			return false;
 		auto radius = 0;
-		if (unsigned(parentitem) < MAXITEMS)
+		if (valid_item_id(parentitem))
 			radius = itemsbuf[parentitem].misc7;
 		if(radius < 1)
 		{
@@ -7003,7 +7003,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2
 		if(z+zofs >= tz2+tzsz2 || z+zofs+hzsz < tz2)
 			return false;
 		auto radius = 0;
-		if (unsigned(parentitem) < MAXITEMS)
+		if (valid_item_id(parentitem))
 			radius = itemsbuf[parentitem].misc7;
 		if(radius < 1)
 		{
@@ -7032,7 +7032,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t txsz2,int32_t tysz2)
     if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		auto radius = 0;
-		if (unsigned(parentitem) < MAXITEMS)
+		if (valid_item_id(parentitem))
 			radius = itemsbuf[parentitem].misc7;
 		if(radius < 1)
 		{
@@ -7157,7 +7157,7 @@ void weapon::animate_graphics()
 	}
 	
 	auto const& prnt_itm = get_item_data(parentitem);
-	bool valid_parent = unsigned(parentitem) < MAXITEMS;
+	bool valid_parent = valid_item_id(parentitem);
 	// do special case stuff
 	switch(id)
 	{
@@ -7460,7 +7460,7 @@ void weapon::draw(BITMAP *dest)
 				case pDIVINEPROTECTIONROCKETRETURN2:
 				case pDIVINEPROTECTIONROCKETTRAIL2:
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-					if (unsigned(parentitem) < MAXITEMS && (itemsbuf[parentitem].flags & item_flag1 ? 1 : 0)&&!(frame&1))
+					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1 ? 1 : 0)&&!(frame&1))
 						return;
 					break;
 			}
@@ -7583,7 +7583,7 @@ void weapon::draw_hitbox()
 #ifndef IS_EDITOR
 		start_info_bmp();
 		auto radius = 0;
-		if (unsigned(parentitem) < MAXITEMS)
+		if (valid_item_id(parentitem))
 			radius = itemsbuf[parentitem].misc7;
 		if (radius < 1)
 		{

@@ -148,7 +148,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 				return false;
 			if(itm.value == -1) //Change the none value to 0
 				itm.value = 0;
-			else if (unsigned(itm.value) >= MAXITEMS)
+			else if (invalid_item_id(itm.value))
 				return false; // shouldn't be possible, but sanity check
 			else switch(itemsbuf[itm.value].type) //Limit valid item types
 			{

@@ -2877,7 +2877,7 @@ void do_magic_casting()
             
             if(get_qr(qr_MORESOUNDS))
             {
-                if (unsigned(div_prot_item) < MAXITEMS)
+                if (valid_item_id(div_prot_item))
                 {
 					auto const& itm = itemsbuf[div_prot_item];
                     stop_sfx(itm.usesound+1);
@@ -5130,7 +5130,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 }
 bool checkmagiccost(int32_t itemid, bool checkTime)
 {
-	if (unsigned(itemid) >= MAXITEMS)
+	if (invalid_item_id(itemid))
 		return false;
 	itemdata const& id = itemsbuf[itemid];
 	bool ret = true;
@@ -5199,7 +5199,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 }
 void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
-	if (unsigned(itemid) >= MAXITEMS)
+	if (invalid_item_id(itemid))
 		return;
 	itemdata const& id = itemsbuf[itemid];
 	if(!(id.flags&item_validate_only) && (!onlyTimer || id.magiccosttimer[0]))
