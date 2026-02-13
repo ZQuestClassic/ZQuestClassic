@@ -6538,7 +6538,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				break;
 			}
 			
-			movelist->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
+			movelist->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)*m,
 				1, fmt::format("{} {}", biw[u].s, id));
 			
 			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
