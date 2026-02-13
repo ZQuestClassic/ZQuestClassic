@@ -6200,12 +6200,13 @@ void update_old_item(word s_version, word index, word version)
 		{
 			reset_itembuf(&tempitem, iLetterUsed);
 			tempitem.name = old_item_string[index];
-			tempitem.tile = itemsbuf[iLetter].tile;
-			tempitem.csets = itemsbuf[iLetter].csets;
-			tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
-			tempitem.frames = itemsbuf[iLetter].frames;
-			tempitem.speed = itemsbuf[iLetter].speed;
-			tempitem.ltm = itemsbuf[iLetter].ltm;
+			auto const& letter = get_item_data(iLetter);
+			tempitem.tile = letter.tile;
+			tempitem.csets = letter.csets;
+			tempitem.misc_flags = letter.misc_flags;
+			tempitem.frames = letter.frames;
+			tempitem.speed = letter.speed;
+			tempitem.ltm = letter.ltm;
 		}
 		
 		if(s_version < 3)

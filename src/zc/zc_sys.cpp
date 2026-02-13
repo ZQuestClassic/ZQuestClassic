@@ -1620,7 +1620,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			int32_t itemid = getItemID(item_type, it);
 			
 			if(valid_item_id(itemid))
-				if (itemsbuf[itemid].flags & item_flag1) //Active clock
+				if (get_item_data(itemid).flags & item_flag1) //Active clock
 					return (game->get_item(itemid));
 			
 			return Hero.getClock()?1:0;
@@ -1848,7 +1848,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			if(invalid_item_id(maxid))
 				return 0;
 				
-			return itemsbuf[maxid].level;
+			return get_item_data(maxid).level;
 	}
 }
 
@@ -1960,7 +1960,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 		auto ovid = game->OverrideItems[itype];
 		if(invalid_item_id(ovid))
 			return -1;
-		if(itemsbuf[ovid].type == itype)
+		if(get_item_data(ovid).type == itype)
 		{
 			if(itype == itype_magicring)
 				checkmagic = false;
@@ -1996,13 +1996,13 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
-	return invalid_item_id(result) ? 0 : itemsbuf[result].power;
+	return invalid_item_id(result) ? 0 : get_item_data(result).power;
 }
 
 int32_t heart_container_id()
 {
 	for(int32_t i=0; i<itemsbuf.capacity(); i++)
-		if(itemsbuf[i].type == itype_heartcontainer)
+		if(get_item_data(i).type == itype_heartcontainer)
 			return i;
 	return -1;
 }
@@ -2041,14 +2041,14 @@ int32_t item_tile_mod()
 	{
 		int32_t itemid = current_item_id(itype_bomb,check_bombcost);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(check_bombcost || game->get_sbombs())
 	{
 		int32_t itemid = current_item_id(itype_sbomb,check_bombcost);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_clock))
@@ -2058,7 +2058,7 @@ int32_t item_tile_mod()
 				? iClock
 				: getHighestLevelEvenUnowned(itype_clock);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_key))
@@ -2068,7 +2068,7 @@ int32_t item_tile_mod()
 				? iKey
 				: getHighestLevelEvenUnowned(itype_key);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_lkey))
@@ -2078,7 +2078,7 @@ int32_t item_tile_mod()
 				? iLevelKey
 				: getHighestLevelEvenUnowned(itype_lkey);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_map))
@@ -2088,7 +2088,7 @@ int32_t item_tile_mod()
 				? iMap
 				: getHighestLevelEvenUnowned(itype_map);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_compass))
@@ -2098,7 +2098,7 @@ int32_t item_tile_mod()
 				? iCompass
 				: getHighestLevelEvenUnowned(itype_compass);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_bosskey))
@@ -2108,7 +2108,7 @@ int32_t item_tile_mod()
 				? iBossKey
 				: getHighestLevelEvenUnowned(itype_bosskey);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_magiccontainer))
@@ -2118,7 +2118,7 @@ int32_t item_tile_mod()
 				? iMagicC
 				: getHighestLevelEvenUnowned(itype_magiccontainer);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	if(current_item(itype_triforcepiece))
@@ -2128,7 +2128,7 @@ int32_t item_tile_mod()
 				? iTriforce
 				: getHighestLevelEvenUnowned(itype_triforcepiece);
 		if (valid_item_id(itemid) && checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+			tile+=get_item_data(itemid).ltm;
 	}
 	
 	for(int32_t i=0; i<itype_max; i++)
@@ -2842,7 +2842,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=itemsbuf[tempitem].wpn3;
+							tempweapon=get_item_data(tempitem).wpn3;
 							
 							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
 									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
@@ -6400,7 +6400,7 @@ void stop_item_sfx(int32_t family)
 	if(invalid_item_id(id))
 		return;
 		
-	stop_sfx(itemsbuf[id].usesound);
+	stop_sfx(get_item_data(id).usesound);
 }
 
 // TODO: when far out of bounds, sounds should dampen. currently we only pan.

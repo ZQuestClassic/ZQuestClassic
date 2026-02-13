@@ -2367,8 +2367,7 @@ bool isstepable(int32_t combo)                                  //can use ladder
 	{
 		if(combobuf[combo].usrflags&cflag4)
 		{
-			int32_t ldrid = current_item_id(itype_ladder);
-			return (ldrid > -1 && itemsbuf[ldrid].flags & item_flag1);
+			return get_item_data(current_item_id(itype_ladder)).flags & item_flag1;
 		}
 	}
 	return false;

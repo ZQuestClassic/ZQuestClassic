@@ -269,15 +269,16 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	
 	for(int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		int32_t family = itemsbuf[q].type;
+		auto& itm = get_item_data(q);
+		int32_t family = itm.type;
 		
-		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & item_gamedata))
+		if(family == 0x200 || family == itype_triforcepiece || !(itm.flags & item_gamedata))
 			continue;
 		
 		if(families.find(family) == families.end())
 			families[family] = map<int32_t, vector<int32_t> >();
 		
-		int32_t level = zc_max(1, itemsbuf[q].level);
+		int32_t level = zc_max(1, itm.level);
 		
 		if(families[family].find(level) == families[family].end())
 			families[family][level] = vector<int32_t>();

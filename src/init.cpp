@@ -55,7 +55,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	size_t sz = zc_max(zinit2->items.length(), game2->items_owned.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
-		if(zinit2->get_item(q) && (itemsbuf[q].flags & item_gamedata))
+		if(zinit2->get_item(q) && (get_item_data(q).flags & item_gamedata))
 		{
 #ifndef IS_EDITOR
 			if (!game2->get_item(q))

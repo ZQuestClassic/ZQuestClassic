@@ -830,10 +830,7 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 
 void removeItemsOfFamily(int32_t family)
 {
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family)
@@ -855,10 +852,7 @@ void removeItemsOfFamily(int32_t family)
 
 void removeLowerLevelItemsOfFamily(int32_t family, int32_t level)
 {
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family && itm.level < level)
@@ -883,10 +877,7 @@ int32_t getHighestLevelOfFamily(zinitdata *source, int32_t family)
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	sz = zc_min(sz, source->items.length());
+	size_t sz = zc_min(itemsbuf.capacity(), source->items.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
 		auto const& itm = itemsbuf[q];
@@ -908,10 +899,7 @@ int32_t getHighestLevelOfFamily(gamedata *source, int32_t family)
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	sz = zc_min(sz, source->items_owned.length());
+	size_t sz = zc_min(itemsbuf.capacity(), source->items_owned.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
 		auto const& itm = itemsbuf[q];
@@ -933,10 +921,7 @@ int32_t getHighestLevelEvenUnowned(int32_t family)
 	int32_t result = -1;
 	int32_t highestlevel = -1;
 	
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family)
@@ -957,10 +942,7 @@ int32_t getItemID(int32_t family, int32_t level)
 	if(level < 0)
 		return getCanonicalItemID(family);
 	
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family && itm.level == level)
@@ -972,10 +954,7 @@ int32_t getItemID(int32_t family, int32_t level)
 
 int32_t getItemIDPower(int32_t family, int32_t power)
 {
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family && itm.power == power)
@@ -991,10 +970,7 @@ int32_t getCanonicalItemID(int32_t family)
 	int32_t lowestid = -1;
 	int32_t lowestlevel = -1;
 	
-	size_t sz = MAXITEMS;
-	if (family != 0) // optimization; skip blank items at the end
-		sz = itemsbuf.capacity();
-	for(size_t q = 0; q < sz; ++q)
+	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf[q];
 		if(itm.type == family && (itm.level < lowestlevel || lowestlevel < 0))
@@ -1137,7 +1113,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 						}
 					}
 					if(valid_item_id(bowid) && checkmagiccost(id))
-						overname = itemsbuf[bowid].get_name() + " & " + name;
+						overname = get_item_data(bowid).get_name() + " & " + name;
 					break;
 				}
 				case itype_bottle:
@@ -1351,7 +1327,7 @@ cooldown_data calc_item_cooldown(int item_id)
 		return {};
 	cooldown_data data;
 	
-	data.max_cooldown = data.base_cooldown = itemsbuf[item_id].cooldown;
+	data.max_cooldown = data.base_cooldown = get_item_data(item_id).cooldown;
 	apply_cooldown_ring(data);
 	
 #ifdef IS_PLAYER
@@ -1366,7 +1342,7 @@ int ButtonItemData::get_family() const
 {
 	if (invalid_item_id(id))
 		return -1;
-	return itemsbuf[id].type;
+	return get_item_data(id).type;
 }
 
 // returns an `itemdata` from `itemsbuf`

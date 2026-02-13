@@ -3392,8 +3392,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
-					if(invalid_item_id(itm.value)) return false;
-					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
+					return (get_item_data(itm.value).flags & item_gamedata) != 0;
 				});
 			windowRow->add(Column(
 				Row(
@@ -3850,8 +3849,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			lists[1] = parent.list_items.copy().filter(
 				[](GUI::ListItem& itm)
 				{
-					if(invalid_item_id(itm.value)) return false;
-					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
+					return (get_item_data(itm.value).flags & item_gamedata) != 0;
 				});
 			windowRow->add(Column(
 				Row(

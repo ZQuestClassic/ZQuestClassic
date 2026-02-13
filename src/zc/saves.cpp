@@ -2097,8 +2097,8 @@ static void update_icon(save_t* save)
 	flushItemCache();
 	int32_t maxringid = getHighestLevelOfFamily(save->game, itype_ring);
 	int32_t ring = 0;
-	if (maxringid > -1)
-		ring = itemsbuf[maxringid].level;
+	if (valid_item_id(maxringid))
+		ring = get_item_data(maxringid).level;
 	if (ring > 0) --ring;
 	int32_t i = ring;
 

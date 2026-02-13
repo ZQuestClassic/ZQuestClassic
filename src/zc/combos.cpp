@@ -161,7 +161,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && valid_item_id(scr->catchall))
 		{
 			items.add(new item(x, y, 0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((get_item_data(scr->catchall).type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -288,7 +288,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && valid_item_id(scr->catchall))
 		{
 			items.add(new item(ffc->x, ffc->y,(zfix)0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((get_item_data(scr->catchall).type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
