@@ -495,7 +495,7 @@ float CrossProduct( float x1, float y1, float x2, float y2 )
 void DCounterAdd(int counter, int amount)
 {
 	if ( amount + Game->DCounter[counter] > DCOUNTER_MAX ) Game->DCounter[counter] = DCOUNTER_MAX;
-	else Game->MCounter[counter] += amount;
+	else Game->DCounter[counter] += amount;
 }
 
 //Reduce a drain counter without rollvoer.
