@@ -133,7 +133,7 @@ void sfx_ex(int32_t index, int32_t pan, bool loop, bool restart = true, zfix vol
 bool sfx_is_allocated(int32_t index);
 INLINE void sfx(int32_t index, int32_t pan = 128, bool loop = false)
 {
-	sfx_ex(index, vbound(pan, 0, 255), false);
+	sfx_ex(index, vbound(pan, 0, 255), loop);
 }
 INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
 {
