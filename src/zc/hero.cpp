@@ -32138,7 +32138,7 @@ void HeroClass::StartRefill(int32_t refillWhat)
 	{
 		refillclk=21;
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-		sfx(WAV_REFILL,128,true);
+		sfx(QMisc.miscsfx[sfxREFILL],128,true);
 		refilling=refillWhat;
 
 		if(refill_why>=0) // Item index
@@ -32171,7 +32171,7 @@ void HeroClass::Start250Refill(int32_t refillWhat)
 	{
 		refillclk=21;
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-		sfx(WAV_REFILL,128,true);
+		sfx(QMisc.miscsfx[sfxREFILL],128,true);
 		refilling=refillWhat;
 
 		// For ~2 years <2.55 quests were broken, never restoring anything on fairies.
