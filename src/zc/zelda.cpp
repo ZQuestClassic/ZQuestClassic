@@ -3077,7 +3077,7 @@ void update_hookshot()
 
 void do_dcounters()
 {
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAX_COUNTERS; i++)
     {
         if(game->get_dcounter(i)==0)
         {
