@@ -1009,8 +1009,6 @@ bool reset_items(bool validate, zquestheader *Header)
     if (get_app_id() == App::zquest)
         ret = init_section(Header, ID_ITEMS, NULL, NULL, validate, "modules/classic/default.qst");
     
-    for(int32_t i=0; i<256; i++) reset_itemname(i);
-    
     return ret;
 }
 
@@ -9676,8 +9674,11 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 	if (!should_skip)
 	{
 		itemsbuf.clear();
+		// default any items that might be needed for hardcoded behavior,
+		// which will be missed in the reading code (>= items_to_read).
+		itemsbuf.reserve(zc_max(items_to_read, iLast));
 		for (int q = items_to_read; q < iLast; ++q)
-		{
+		{ // likely only runs version < 0x186?
 			itemdata& id = itemsbuf[q];
 			reset_itembuf(&id, q);
 		}
@@ -9692,7 +9693,8 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
                 return qe_invalid;
             
 			tempname[63] = 0;
-			itemsbuf[i].name = tempname;
+			if (!should_skip)
+				itemsbuf[i].name = tempname;
         }
     }
     else if (!should_skip)
@@ -9741,6 +9743,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		return qe_invalid;
 	if (items_to_read > MAXITEMS)
 		return qe_invalid;
+	itemsbuf.clear();
+	itemsbuf.reserve(items_to_read);
 
 	for (word q = 0; q < items_to_read; ++q)
 		if (auto ret = read_single_item(f, s_version, q, version, build))
