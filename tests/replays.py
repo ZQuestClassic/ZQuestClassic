@@ -130,6 +130,9 @@ class ReplayTestResults:
         return json.dumps(as_dict, indent=indent)
 
     def print_failures(self, directory: Path):
+        print(self.failures_to_string(directory))
+
+    def failures_to_string(self, directory: Path):
         failing_strs = []
 
         for run in self.runs[-1]:
@@ -150,7 +153,7 @@ class ReplayTestResults:
                 failing_str += '\n'
                 failing_strs.append(failing_str)
 
-            print('\n'.join(failing_strs))
+        return '\n'.join(failing_strs)
 
 
 class ReplayResultUpdatedHandler(FileSystemEventHandler):

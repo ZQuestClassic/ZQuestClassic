@@ -98,6 +98,9 @@ class TestZEditor(unittest.TestCase):
 
         failing_str = '\n'.join(failing_strs)
         if failing_str:
+            failing_str += '\n\nDetails:\n\n' + results.failures_to_string(
+                test_results_path.parent
+            )
             self.fail(failing_str)
 
         self.assertEqual(output.returncode, 0)
