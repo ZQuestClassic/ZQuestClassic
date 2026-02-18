@@ -2322,7 +2322,9 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 				Hero.setShieldClk(trig.trig_shieldjinxtime);
 			if (trig.trig_stuntime > -2)
 				Hero.setStunClock(trig.trig_stuntime);
-			if (trig.trig_bunnytime > -2)
+			if (trig.trig_bunnytime == -1)
+				Hero.setBunnyClock(-2); // '-1' is normally used for the dmap bunny effect
+			else if (trig.trig_bunnytime > -2)
 				Hero.setBunnyClock(trig.trig_bunnytime);
 		}
 		
