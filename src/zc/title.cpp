@@ -776,9 +776,11 @@ static bool register_name()
 		new_game->set_timevalid(1);
 		game->header.qstpath.clear();
 
+		// Gives away ownership of `new_game`. If it fails, `save_t::unload` deletes for us.
 		if (auto r = saves_create_slot(new_game); !r)
 		{
-			cancel = true;
+			done = false;
+			new_game = nullptr;
 			ringcolor(false);
 
 			// Could have been canceled in the file dialog, in which case there is no error message.
@@ -790,7 +792,8 @@ static bool register_name()
 			}
 		}
 	}
-	else
+
+	if (!done)
 	{
 		delete new_game;
 		new_game = nullptr;
