@@ -444,9 +444,9 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 	}
 	
 	btnheader = Column(padding = 0_px);
-	if (!read_only && !num_gamepads)
+	if (!num_gamepads)
 	{
-		btnheader->add(Label(text = "No gamepad connected! Connect a gamepad to bind gamepad controls."));
+		btnheader->add(Label(text = fmt::format("No gamepad connected! Connect a gamepad to {} gamepad controls.", read_only ? "properly display" : "bind")));
 	}
 	else
 	{
