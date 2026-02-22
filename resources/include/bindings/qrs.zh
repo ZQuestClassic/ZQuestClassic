@@ -857,7 +857,7 @@ enum QR
 	// 'Reduced Flashing (Epilepsy Protection)'
 	//
 	// If enabled, certain features in the game are limited visually to make things more epilepsy-friendly for players. This includes capping the
-	// intensity of wavy effects, reducing the triforce flashes, and more. Note that players can turn on this rule themselves in the Hero; if you
+	// intensity of wavy effects, reducing the triforce flashes, and more. Note that players can turn on this rule themselves in the Player; if you
 	// desire consistency, you should turn this quest rule on and design around it.
 	qr_EPILEPSY,
 
@@ -1396,11 +1396,7 @@ enum QR
 	//
 	// Granting an item via an Item Bundle or SCC will handle the 'Upgrade When Collected Twice' behavior.
 	qr_SCC_ITEM_COMBINES_ITEMS,
-
-	// 'Scrolling Cancels Charge'
-	//
-	// If enabled, scrolling screens while charging (i.e. spin attack) will not keep the charge on the new screen.
-	qr_SCROLLING_KILLS_CHARGE,
+	qr_SCROLLING_KILLS_CHARGE, // @deprecated
 
 	// 'Custom Weapon / Ice Rod Bugged Cost'
 	//
@@ -1972,7 +1968,7 @@ enum QR
 
 	// 'Old Shallow Water SFX Attribute'
 	//
-	// If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for its splash sound.
+	// If enabled, Shallow Water will use attributes[8] instead of attributes[13] for its splash sound.
 	qr_OLD_SHALLOW_SFX,
 
 	// 'Bugged Layered Flags'
@@ -2381,7 +2377,40 @@ enum QR
 	//
 	// If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero, will not run their Action Script.
 	qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
-	qr_SCRIPTS_6_BIT_COLOR = 60 * 8, // 'Scripts use 6-bit color (0-63) instead of 8-bit (0-255)'
+
+	// 'Map Button Closes Subscreen'
+	//
+	// If enabled, the Map button will close the active subscreen.
+	qr_MAP_BUTTON_CLOSES_SUBSCREEN,
+
+	// 'Only 'Visit' Screens On Mappable DMaps'
+	//
+	// If enabled, screens only have their 'Visited' state set if the current dmap has the flag to allow viewing the map checked.
+	qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE,
+
+	// 'Active/Map Subscreens Always 168 Tall'
+	//
+	// If enabled, Active/Map subscrens will be 168 pixels tall, regardless of the 'Hide Bottom 8 Pixels' rule. The extra space will be filled with
+	// black.
+	//
+	// Otherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting.
+	qr_ACTIVE_SUB_IGNORE_8PX,
+
+	// 'Mirror/Prism Combos Work On FFCs'
+	//
+	// Mirror and Prism combos work on FFCs. NOTE: This DOES NOT work for Light Beams, only weapons.
+	qr_MIRROR_PRISM_FFCS,
+
+	// 'Weapons Better Screen Edge Hitbox'
+	//
+	// If enabled, will not die from hitting the screen edge until they are actually offscreen fully.
+	qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX,
+
+	// ''DrawCombo' ignores the 'frame' parameter'
+	//
+	// If checked, the 'DrawCombo' function will always treat the value of 'frame' as '-1'.
+	qr_DRAWCOMBO_IGNORES_FRAME,
+	qr_SCRIPTS_6_BIT_COLOR, // 'Scripts use 6-bit color (0-63) instead of 8-bit (0-255)'
 
 	// 'Broken Hero Position Exposed To Scripts When Scrolling'
 	//
@@ -2457,6 +2486,43 @@ enum QR
 	//
 	// If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview and cannot be made to jump off via script.
 	qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
+
+	// ''DrawTile' tall draws wrap poorly'
+	//
+	// If checked, 'DrawTile' draws taller than 1 tile will wrap each tile to the next row, instead of wrapping the entire block to the row after
+	// the block.
+	qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY,
+
+	// 'Buggy Wind w/ multiple on-screen'
+	//
+	// If multiple wind lweapons are on screen and the player is in one, the player will lose track of which wind they are in, and teleport between
+	// them.
+	qr_BUGGY_MULTIPLE_WIND,
+
+	// 'No enemy death event for segmented enemy cores'
+	//
+	// If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts.
+	qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
+
+	// 'Broken Combo Change + 'Copycat' triggers'
+	//
+	// If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the
+	// same copycat effect.
+	qr_BROKEN_COPYCAT_SELF_TRIGGER,
+
+	// 'Broken Liquid Passive Damage'
+	//
+	// If enabled, the passive damage feature of liquid combos will not properly check the item to nullify the damage.
+	//
+	// It will also EITHER not emit player damage events OR not use the hit sound properly, depending on if the water is shallow or not and if 'New
+	// Shallow Water Detection' is enabled or not.
+	qr_BROKEN_WATER_PASSIVE_DAMAGE,
+
+	// 'Broken Combo Trigger Self-Triggering'
+	//
+	// If enabled, some combo trigger effects may cause the same trigger to trigger again. This may have negative effects, such as double-charging
+	// a cost, or toggling a state on and back off instead of just on.
+	qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
 
 	// '2.50 Division Truncation'
 	//
