@@ -22705,12 +22705,14 @@ void doWarpEffect(int32_t warpEffect, bool out)
 		case warpEffectInstant:
 			if(out) blackscr(30,true);
 			break;
-		case warpEffectMozaic:
-			//!TODO Unimplemented
-			break;
 		case warpEffectOpen:
 			if(out) closescreen();
 			else openscreen();
+			break;
+
+		// Why two? See https://discord.com/channels/876899628556091432/1356867212224368640
+		case warpEffectNONE:
+		case warpEffectNONE2:
 			break;
 	}
 }

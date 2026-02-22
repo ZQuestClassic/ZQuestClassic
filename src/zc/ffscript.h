@@ -79,7 +79,7 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 
 
 //Visual Warp Effect Types for Hero->WarpEx()
-enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectNONE2 };
 void doWarpEffect(int32_t warpEffect, bool out);
 
 void apply_qr_rule(int qr_id);

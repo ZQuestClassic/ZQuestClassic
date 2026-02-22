@@ -1300,7 +1300,7 @@ static const GUI::ListData warp_effects
 	{ "None", 0 },
 	{ "Zap", 1 },
 	{ "Wave", 2 },
-	{ "Instant", 3 },
+	{ "Instant with Blackout", 3 },
 	{ "Open", 4 }
 };
 
