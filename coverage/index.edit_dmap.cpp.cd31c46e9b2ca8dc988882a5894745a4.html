@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-02-08 08:46:10</td>
+      <td>2026-02-22 21:20:45</td>
     </tr>
   </table>
 </div>
@@ -227,7 +227,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/files.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zalleg/files.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
@@ -297,7 +297,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;base/qrs.h&gt;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;core/qrs.h&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
@@ -607,7 +607,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">list_disableditems</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disableditems</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disableditems</span><span class="p">)),</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">list_disabled_items</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disabled_items</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disabled_items</span><span class="p">)),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -4674,7 +4674,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list_disableditems</span><span class="p">,</span><span class="w"> </span><span class="n">isABC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list_disabled_items</span><span class="p">,</span><span class="w"> </span><span class="n">isABC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l635" href="#l635">635</a></td>
@@ -4723,7 +4723,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">									</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">									</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_item_id</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l642" href="#l642">642</a></td>
@@ -4737,28 +4737,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disableditems</span><span class="p">[</span><span class="n">val</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="mi">1</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disabled_items</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l644" href="#l644">644</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="n">list_disableditems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disableditems</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disableditems</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="n">list_disabled_items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disabled_items</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disabled_items</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l645" href="#l645">645</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">setListData</span><span class="p">(</span><span class="n">list_disableditems</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">setListData</span><span class="p">(</span><span class="n">list_disabled_items</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l646" href="#l646">646</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">getSelectedIndex</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">list_disableditems</span><span class="p">.</span><span class="n">size</span><span class="p">())</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">getSelectedIndex</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">list_disabled_items</span><span class="p">.</span><span class="n">size</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l647" href="#l647">647</a></td>
@@ -4772,7 +4772,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">											</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">setSelectedIndex</span><span class="p">(</span><span class="n">list_disableditems</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">											</span><span class="n">disabled_list</span><span class="o">-&gt;</span><span class="n">setSelectedIndex</span><span class="p">(</span><span class="n">list_disabled_items</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l649" href="#l649">649</a></td>
@@ -4828,7 +4828,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">									</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">									</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_item_id</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l657" href="#l657">657</a></td>
@@ -4842,14 +4842,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disableditems</span><span class="p">[</span><span class="n">val</span><span class="p">]</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disabled_items</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l659" href="#l659">659</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">										</span><span class="n">list_disableditems</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disableditems</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disableditems</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">										</span><span class="n">list_disabled_items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GUI</span><span class="o">::</span><span class="n">ZCListData</span><span class="o">::</span><span class="n">disabled_items</span><span class="p">(</span><span class="n">local_dmap</span><span class="p">.</span><span class="n">disabled_items</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l660" href="#l660">660</a></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-02-08 08:46:10</td>
+      <td>2026-02-22 21:20:45</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l22">run_tests(TestResults (*)(bool), char const*, bool) (line 22)</a></td><td>called 3 times, returned 3 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l22">run_tests(TestResults (*)(bool), char const*, bool) (line 22)</a></td><td>called 5 times, returned 5 times</td><td>75.0%</td></tr>
   </table>
 </details>
 
@@ -239,7 +239,7 @@
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">run_tests</span><span class="p">(</span><span class="n">TestResults</span><span class="w"> </span><span class="n">fn</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">),</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -253,21 +253,21 @@
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;========================================&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;                {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;========================================&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -281,7 +281,7 @@
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">tr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fn</span><span class="p">(</span><span class="n">verbose</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -291,11 +291,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 3 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">3</td>
+      <td class="linecount partialCoveredLine">5</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tr</span><span class="p">.</span><span class="n">failed</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -344,14 +344,14 @@
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[{}{}{}] All {} tests passed.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">GREEN</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">RESET</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">.</span><span class="n">total</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -365,7 +365,7 @@
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3</td>
+      <td class="linecount coveredLine">5</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

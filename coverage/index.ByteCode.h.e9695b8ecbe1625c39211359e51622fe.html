@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-02-08 08:46:10</td>
+      <td>2026-02-22 21:20:45</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>6</td>
+      <td>7</td>
       <td>8</td>
-      <td class="coverage-medium">75.0%</td>
+      <td class="coverage-medium">87.5%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>4</td>
       <td>5</td>
-      <td class="coverage-medium">80.0%</td>
+      <td>5</td>
+      <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
       <td>2</td>
-      <td>6</td>
-      <td class="coverage-low">33.3%</td>
+      <td>4</td>
+      <td class="coverage-low">50.0%</td>
     </tr>
   </table>
 </div>
@@ -73,11 +73,11 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l30">ZScript::ONoOp::ONoOp() (line 30)</a></td><td>called 3153214 times, returned 3153214 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l31">ZScript::ONoOp::ONoOp(int) (line 31)</a></td><td>called 3153180 times, returned 3153180 times</td><td>50.0%</td></tr>
-    <tr><td><a href="#l36">ZScript::ONoOp::clone() const (line 36)</a></td><td>called 34 times, returned 34 times</td><td>50.0%</td></tr>
-    <tr><td><a href="#l35">ZScript::ONoOp::toString[abi:cxx11]() const (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l27">ZScript::ONoOp::~ONoOp() (line 27)</a></td><td>called 6306370 times, returned 6306370 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l30">ZScript::ONoOp::ONoOp() (line 30)</a></td><td>called 3235443 times, returned 3235443 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l31">ZScript::ONoOp::ONoOp(int) (line 31)</a></td><td>called 3099867 times, returned 3099867 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l36">ZScript::ONoOp::clone() const (line 36)</a></td><td>called 135576 times, returned 135576 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l35">ZScript::ONoOp::toString[abi:cxx11]() const (line 35)</a></td><td>called 3792 times, returned 3792 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l27">ZScript::ONoOp::~ONoOp() (line 27)</a></td><td>called 6468806 times, returned 6468806 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -118,7 +118,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zasm/defines.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;components/zasm/defines.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
@@ -299,14 +299,14 @@
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3153214</td>
+      <td class="linecount coveredLine">3235443</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">ONoOp</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3153180</td>
+      <td class="linecount coveredLine">3099867</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">ONoOp</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">lbl</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ONoOp</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -319,36 +319,36 @@
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 3153180 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">3153180</td>
-      <td class="src partialCoveredLine"><span class="w">			</span><span class="n">setLabel</span><span class="p">(</span><span class="n">lbl</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">3099867</td>
+      <td class="src coveredLine"><span class="w">			</span><span class="n">setLabel</span><span class="p">(</span><span class="n">lbl</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3153180</td>
+      <td class="linecount coveredLine">3099867</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 3792 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">toString</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;NOP&quot;</span><span class="p">;}</span></td>
+      <td class="linecount partialCoveredLine">3792</td>
+      <td class="src partialCoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">toString</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;NOP&quot;</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">34</td>
+      <td class="linecount coveredLine">135576</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">Opcode</span><span class="o">*</span><span class="w"> </span><span class="n">clone</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -364,12 +364,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 34 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 135576 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">34</td>
+      <td class="linecount partialCoveredLine">135576</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="nf">ONoOp</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">

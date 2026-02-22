@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-02-08 08:46:10</td>
+      <td>2026-02-22 21:20:45</td>
     </tr>
   </table>
 </div>
@@ -153,14 +153,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/zdefs.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/mapscr.h&quot;</span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;core/mapscr.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
@@ -4042,108 +4042,115 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeitems</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_single_item</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l558" href="#l558">558</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeweapons</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeitems</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l559" href="#l559">559</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writemisccolors</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeweapons</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l560" href="#l560">560</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writegameicons</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writemisccolors</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l561" href="#l561">561</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writedoorcombosets</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writegameicons</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l562" href="#l562">562</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_subscreen</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writedoorcombosets</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l563" href="#l563">563</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeffscript</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_subscreen</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeffscript_old</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeffscript</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l565" href="#l565">565</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_quest_zasm</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeffscript_old</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l566" href="#l566">566</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_ffscript</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">script_data</span><span class="w"> </span><span class="o">*</span><span class="n">script</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_quest_zasm</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l567" href="#l567">567</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_ffscript_old</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">script_data</span><span class="w"> </span><span class="o">*</span><span class="n">script</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_ffscript</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">script_data</span><span class="w"> </span><span class="o">*</span><span class="n">script</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l568" href="#l568">568</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeitemdropsets</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">write_one_ffscript_old</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">script_data</span><span class="w"> </span><span class="o">*</span><span class="n">script</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l569" href="#l569">569</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writefavorites</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writeitemdropsets</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l570" href="#l570">570</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">writefavorites</span><span class="p">(</span><span class="n">PACKFILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="o">*</span><span class="n">Header</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l571" href="#l571">571</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l572" href="#l572">572</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l573" href="#l573">573</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
