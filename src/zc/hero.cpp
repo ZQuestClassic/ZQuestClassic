@@ -14172,6 +14172,11 @@ static bool replay_compat_old_movement_off_by_one()
 	return replay_compat_check_zc_version_2_55(12);
 }
 
+static bool replay_compat_charging_during_scroll_bug()
+{
+	return replay_compat_check_zc_version_2_55(13);
+}
+
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
@@ -28607,7 +28612,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	actiontype lastaction = action;
 	ALLOFF(false, false);
 	// for now, restore Hero's previous action
-	if(!get_qr(qr_SCROLLING_KILLS_CHARGE))
+	if (replay_compat_charging_during_scroll_bug() && !get_qr(qr_SCROLLING_KILLS_CHARGE))
 		charging = lastcharging;
 	if (replay_version_check(0, 28))
 	{
