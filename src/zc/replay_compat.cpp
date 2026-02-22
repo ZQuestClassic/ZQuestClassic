@@ -55,3 +55,11 @@ bool replay_compat_old_movement_off_by_one_bug()
 
 	return !replay_version_check(48);
 }
+
+bool replay_compat_charging_during_scroll_bug()
+{
+	if (check_2_55(13))
+		return true;
+
+	return !replay_version_check(50);
+}

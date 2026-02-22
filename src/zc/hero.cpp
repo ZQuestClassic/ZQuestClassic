@@ -29298,8 +29298,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	actiontype lastaction = action;
 	{
 		ALLOFF(false, false);
-		// for now, restore Hero's previous action
-		if(!get_qr(qr_SCROLLING_KILLS_CHARGE))
+		if (replay_compat_charging_during_scroll_bug() && !get_qr(qr_SCROLLING_KILLS_CHARGE))
 			charging = lastcharging;
 		if (replay_version_check(0, 28))
 		{

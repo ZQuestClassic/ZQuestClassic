@@ -851,9 +851,6 @@ static GUI::ListData compatRulesList
 		"\nIf disabled, these functions will not break if a layer exists on the source screen. Note that only"
 		" DrawScreenSolid works properly with layers; the other functions will otherwise only take Layer 0"
 		" of the source screen."},
-	{ "Scrolling Cancels Charge", qr_SCROLLING_KILLS_CHARGE,
-		"If enabled, scrolling screens while charging (i.e. spin attack)"
-		" will not keep the charge on the new screen." },
 	{ "Broken Enemy Item Carrying", qr_BROKEN_ITEM_CARRYING,
 		"If enabled, enemies will use the topleft corner of their tile as their item carry position when carrying an item,"
 		" which might look off with large enemies. They will also not pass their Z value onto the item."

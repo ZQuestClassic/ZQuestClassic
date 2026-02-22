@@ -3162,7 +3162,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		//Broken DrawScreen Derivative Functions
 		set_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
-		//Scrolling Cancels Charge
+		//Scrolling Doesn't Cancel Charge
 		set_qr(qr_SCROLLING_KILLS_CHARGE,1);
 	}
 	
