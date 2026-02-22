@@ -63,7 +63,7 @@
 
 
 //Visual Warp Effect Types for Hero->WarpEx()
-enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectNONE2 };
 void doWarpEffect(int32_t warpEffect, bool out);
 
 #define svALL 		0
