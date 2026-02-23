@@ -60,7 +60,7 @@ class Revision:
                 print(e)
                 return None
         else:
-            dir = _download(self, release_platform)
+            dir = download(self.tag, release_platform)
 
         return create_binary_paths(dir, release_platform)
 

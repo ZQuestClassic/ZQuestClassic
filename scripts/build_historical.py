@@ -320,7 +320,7 @@ def build_locally(revision: Revision, release_platform: str):
             most_recent_rev = get_most_recent_rev(revision, release_platform)
             if not most_recent_rev:
                 raise Exception('could not find recent build to steal files from')
-            rls_dir = archives.download(most_recent_rev, release_platform)
+            rls_dir = archives.download(most_recent_rev.tag, release_platform)
             shutil.copyfile(rls_dir / need, package_dir / need)
 
         # Modules require tons of handholding to get right. Oh, and at some point the files needed to run the program were no longer
@@ -445,7 +445,7 @@ def build_locally(revision: Revision, release_platform: str):
         ):
             most_recent_rev = get_most_recent_rev(revision, release_platform)
             if most_recent_rev:
-                rls_dir = archives.download(most_recent_rev, release_platform)
+                rls_dir = archives.download(most_recent_rev.tag, release_platform)
                 for path in (rls_dir / 'modules/classic').glob('*.*'):
                     shutil.copyfile(
                         path, package_dir / path.name.replace('classic_', '')
