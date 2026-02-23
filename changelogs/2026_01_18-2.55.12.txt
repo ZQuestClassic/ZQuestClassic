@@ -1,0 +1,174 @@
+https://zquestclassic.com/releases/2.55.12
+
+# Features
+
+
+zc: multiple control schemes
+  You can now configure different schemes for keyboard/gamepad controls,
+  and configure quests to use a specific scheme.
+  
+  The dialog for binding controls has also been improved.
+
+zq: new boxes to enter timed warp time in minutes/seconds
+zq: improve map view with mouse zoom/drag
+zq: added 'Combo Pools' / 'Auto Combos' to 'Quest->Graphics' menu
+zq: add 'Open Combo Page' to screen right-click menu
+zq: subscreen editor option for "Duplicate In-Place"
+  If enabled, duplicating a widget will place the new one at the same x,y
+  as the original, instead of shifting it down-right by 1 grid unit.
+
+zq: right-click the map/screen bookmarks to clear
+std_zh: add a few functions
+  * `GetLayerComboE`: green effect square
+  * `DrainedCounter`: counter's current value, accounting for DCounter
+  * `InputToDir` / `PressToDir`: get direction based on held/pressed inputs
+  * `DirToInput` / `DirToPress`: sets input based on a direction
+
+
+# Bug Fixes
+
+scrolling ui panes sometimes blanking out contents
+
+[win] correctly position drive selector in file dialog
+  When the tileset dialog wizard opens the file dialog, it could sometimes
+  incorrectly position some elements, mostly the drive selector.
+
+build with PulseAudio support; fixes sound in many Linux distros
+improve keyboard driver
+missing 8 pixels in active subscreen
+  compat qr for old behavior
+
+allegro5 render layers having uninitialized transforms
+zc: prevent drowning when walk-through-walls cheat is enabled
+zc: lift glove action script clearing owned script objects after first frame
+zc: hookshot wedging the player into walls sometimes
+  This bug has apparently been present since 2.50.2, and already HAD a fix
+  implemented, the fix was just very slightly broken.
+
+zc: only force grab one held-up item at a time
+  If the player collects multiple items at or around the same time, and
+  those items run the "hold up" animation, only the first item would show
+  the holding animation while the others would silently be collected.
+  
+  Now, the items are collected and held up one at a time. Note that this
+  only applies to "force grabbed" items (ex: settable in scripts via
+  `itemsprite::ForceGrab`, or as the result of some triggers).
+
+zc: draw transparency correctly during death
+  During the death animation, the first frame of the redshift did not
+  correctly update the transparency table, so transparent colors appeared
+  darker than they should.
+
+zc: getting stuck on solid FFCs w/ new movement disabled
+zc: "respawning" to another screen using wrong dmap's xoffset
+zc: properly load files saved as .QST
+  The qst file selector when creating a save was always making the file
+  extension lowercased. On Windows and Mac that doesn't matter because the
+  filesystem is case insensitive, but on Linux / web it prevents loading
+  files saved as .QST rather than .qst
+
+zc: Active shields and Passive Button Roc Items not running scripts
+  Active shields (either standard or set on a passive button), and Roc
+  Items (set on a passive button) were not running their Action Script
+  when used.
+
+zc: prevent exploding bombs falling into pits not near them
+  This was caused by bombs having a large hit offset when exploding, and a
+  check was bounding the coordinates back into the valid screen area. This
+  caused the bomb to fall into pits along the right edge of the screen.
+
+zc: prevent player getting hit by some sources during pitfalls
+zc: Whistle defense not respecting 'Ignore' behavior
+zc: 'Menu' gamepad button not activating the menu
+zc: use configured `Halt Duration`, `Acceleration Factor` for peahats
+zq: don't incorrectly show '-->' in the String list
+  Now it appears when it is the 'Next String' of the string visibly above
+  it in the list, regardless of the base index number.
+
+zq: quest report `Save` button not working
+zq: enemy defense list missing 'Switch w/ Player'
+zq: correctly show cset/combo type for selected layer
+  The "Show CSets/Types" feature is meant to only show the currently
+  selected layer, but instead it was showing the highest layer (except for
+  when "Show Flags" was also enabled, which prevented the bug).
+
+zq: prevent rare crash in subscreen Counter Block wizard
+  If the "Inf Char" field was empty when the dialog closes, the program
+  could possibly crash.
+
+zq: improve usability of number input fields
+  Some number input fields limit the number of characters based on the max
+  value; but these required deleting the "0" before it would allow typing
+  the full value, which was clunky.
+  
+  Now these fields have an additional character space to account for the
+  leading 0.
+
+zq: remove frame of lag when opening tiles dialog
+zq: lag in tile/combo/alias/etc pages dialogs
+zq: skip timed autosave when there are no changes
+  Autosave no longer saves if there are no changes since the last save,
+  just like normal saves. This prevents the window from popping up
+  repeatedly when the editor is idle.
+
+zq: dmap import/export
+std_zh: update ghost.zh to use 128 ffcs instead of 32
+zscript: using `[]` on some types crashing the parser
+zscript: support changing BS-Zelda animation, many scrolling related QRs
+zscript: prevent crash in `Game->GetItem()`
+zscript: prevent crash when using empty string with some file functions
+zscript: for x64 jit, check CPU supports SSE4.1
+  This prevents a crash when the jit is enabled on CPUs that don't support
+  SSE4.1 (~2007 for Intel, ~2013 for AMD).
+
+zscript: printf/sprintf '%f' improperly ending in `.` instead of `.0` for integers
+web: resolve issues with non-US standard keyboard layouts
+
+# Build
+
+
+improve packaging, lean on CMake more
+  The `cmake --install` command should now work on all platforms to
+  install ZC locally.
+  
+  * Updated docs/building.md
+  * Use CMake's install and cpack features to coordinate what resources
+    and shared libraries are needed at runtime, and for creating
+    distributable packages. This replaces package.py and package_mac.sh
+  * On Linux, follow conventions: shared libraries go into lib/, binaries
+    go into bin/, and resources go into share/zquestclassic
+  * For the generated Mac .dmg, add custom background saying "Take this!"
+  * For Mac app bundles, .dylib files now go into Contents/Frameworks
+    instead of Contents/libs
+
+vendor libdumb and link statically
+switch to libjpeg_turbo
+upgrade allegro
+  https://github.com/connorjclark/allegro5/compare/my-fork-13...my-fork-14
+
+vendor zlib
+vendor libpng
+update nativefiledialog
+  This fixes an issue where on Windows the native file dialog always
+  opened at the most recently viewed folder, instead of using whatever
+  folder ZC requested to open.
+
+
+# Refactors
+
+speed up bitmap rendering by removing branch
+speed up draw_tile16_unified
+simplify overtile16
+speed up puttile16
+speed up drawtile16_cs2
+speed up overtile8
+cache bitmap used in overtile16_scale
+
+use vsnprintf instead of uvszprintf for text rendering
+  The Unicode-aware allegro function makes text rendering ~40% slower, but
+  we don't need Unicode here.
+
+log error reason when failing to open file
+log all al_trace output to stdout (except on Windows)
+zc: stop printing include paths in zplayer
+zq: upgrade Under Combo dialog to new gui
