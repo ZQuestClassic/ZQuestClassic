@@ -25,7 +25,6 @@
 #include "zc/zelda.h"
 #include "zq/zq_class.h"
 #include "zq/render.h"
-#include "zq/render_map_view.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "core/qst.h"
@@ -2971,19 +2970,72 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-	int32_t dark = basescr->flags&cDARK;
-	
-	if(dark && !(flags&cNODARK)
-		&& !((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM)))
+	bool dark = isDark(screen);
+	if (dark)
 	{
-        int col = vc(blackout_color);
-        for(int32_t j=0; j<80; j++) {
-            // Logic: ((i^j)&1)==0 means parity matches
-            int start = (j&1); 
-            for(int32_t i=start; i<(80)-j; i+=2) {
-                putpixel(dest,x+i,y+j,col);
-            }
-        }
+		if((flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM))
+		{
+			int w = dest->w;
+			int h = dest->h;
+			BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
+			BITMAP* tmpDarkTrans = create_bitmap_ex(8,16*16,16*11);
+			BITMAP* tmpbuf = create_bitmap_ex(8, w, h);
+			BITMAP* tmpbuf2 = create_bitmap_ex(8, w, h);
+			int32_t darkCol = zinit.darkcol;
+			switch(darkCol) //special cases
+			{
+				case BLACK:
+					darkCol = vc(0);
+					break;
+				case WHITE:
+					darkCol = vc(15);
+					break;
+			}
+			clear_to_color(tmpDark, darkCol);
+			clear_to_color(tmpDarkTrans, darkCol);
+			clear_bitmap(tmpbuf);
+			clear_bitmap(tmpbuf2);
+			//Handle torch combos
+			color_map = trans_table2;
+			Map.draw_darkness(tmpDark, tmpDarkTrans);
+
+			if(basescr->flags9 & fDARK_DITHER)
+			{
+				ditherblit(tmpDark, tmpDark, 0, zinit.dither_type, zinit.dither_arg);
+				ditherblit(tmpDarkTrans, tmpDarkTrans, 0, zinit.dither_type, zinit.dither_arg);
+			}
+
+			blit(tmpDark, tmpbuf, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
+			blit(tmpDarkTrans, tmpbuf2, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
+
+			if(basescr->flags9 & fDARK_TRANS)
+			{
+				draw_trans_sprite(dest, tmpbuf, 0, 0);
+			}
+			else
+			{
+				masked_blit(tmpbuf,dest,0,0,0,0,tmpbuf->w,tmpbuf->h);
+			}
+			draw_trans_sprite(dest, tmpbuf2, 0, 0);
+			color_map = trans_table;
+			//
+			destroy_bitmap(tmpDark);
+			destroy_bitmap(tmpDarkTrans);
+			destroy_bitmap(tmpbuf);
+			destroy_bitmap(tmpbuf2);
+		}
+		else if(!(flags&cNODARK))
+		{
+			// Draw criss-cross triangle pattern in top-left of screen.
+			int col = vc(blackout_color);
+			for(int32_t j=0; j<80; j++) {
+				// Logic: ((i^j)&1)==0 means parity matches
+				int start = (j&1); 
+				for(int32_t i=start; i<(80)-j; i+=2) {
+					putpixel(dest,x+i,y+j,col);
+				}
+			}
+		}
 	}
 	
 	if(ShowMisalignments)
