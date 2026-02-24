@@ -33,6 +33,25 @@ That's it! This script can now be assigned to any FFC in the editor.
 	update any previously-assigned scripts of the same name for you, and ``Smart Compile`` will do that plus assign new scripts
 	to the next available open slot.
 
+Include paths
+-------------
+
+To compile additional files, you must use the ``#include`` compiler directive. For example:
+
+.. zscript::
+
+	#include "std.zh"
+
+The compiler needs to know what folders to search in to find the given file. There are a few folders that it looks in by default:
+"include", "headers", and "scripts" (all relative to ZC's install folder). Therefore, ZScript libraries that are packaged with the program
+can be included without any extra configuration (like for std.zh in the above example).
+
+The list of directories to search is configurable via the ``ZScript > Compile Settings`` dialog (each folder is separated by a semicolon).
+
+.. versionadded:: 2.55.13
+
+	By default, ``<.qst directory>/scripts`` is included for you. So if you place all your scripts inside a folder named "scripts" next to your ``.qst`` file, you won't ever need to modify the include paths.
+
 .. tip::
 
 	While you can directly edit the script buffer to write scripts, it is recommended to instead place just this single line in the
@@ -40,10 +59,21 @@ That's it! This script can now be assigned to any FFC in the editor.
 
 	.. zscript::
 
-		#include "entry.zh"
+		#include "entry.zs"
 
-	where ``entry.zh`` is a text file that contains all the code for your quest. Then, you simply edit that file in any text editor,
-	and use ``ZScript > Compile Script > Compile`` to recompile.
+	where ``entry.zs`` is a text file that includes all the code needed for your quest. For example, your ``entry.zs`` may look like:
+
+	.. zscript::
+
+		#include "std.zh"
+		#include "MyCoolScript.zs"
+		#include "bosses/AncientMage.zs"
+
+	Place ``entry.zs`` (and any additional scripts you need) in a folder called ``scripts`` next to your ``.qst`` file. If you are using
+	2.55.13 or above, this should compile without needing to configure include paths. Otherwise, you'll need to add the path to your
+	scripts folder.
+
+	Now you may edit that file in any text editor and use ``ZScript > Compile Script > Compile`` to recompile the scripts in your quest.
 
 Examples
 --------

@@ -5,6 +5,7 @@
 #include "base/zapp.h"
 #include "dialog/compilezscript.h"
 #include "dialog/quest_rules.h"
+#include "zc/ffscript.h"
 #include "zq/package.h"
 #include "zq/zq_class.h"
 #include "zq/zquest.h"
@@ -772,6 +773,7 @@ static void do_compile_command(std::string path, int mode)
 {
 	is_zq_replay_test = true;
 	set_headless_mode();
+	FFCore.initIncludePaths();
 
 	int load_ret = load_quest(path.c_str(), false);
 	bool success = load_ret == qe_OK;

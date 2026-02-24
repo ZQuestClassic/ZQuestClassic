@@ -11,9 +11,11 @@
 #include "zscrdata.h"
 #include "info.h"
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "core/misctypes.h"
 #include "dialog/view_script_slots.h"
 #include <chrono>
+
 using std::string;
 
 #ifdef __EMSCRIPTEN__
@@ -105,11 +107,15 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	int32_t code = -9999;
 	parser_console.kill();
 
+	auto include_paths = FFCore.includePaths;
+	include_paths.push_back((fs::path(header.filename).parent_path() / "scripts").string());
+
 	std::vector<std::string> args = {
 		"-input", tmpfilename,
 		"-console", consolefilename,
 		"-qr", quest_rules_hex.c_str(),
 		"-linked",
+		"-include", fmt::format("{}", fmt::join(include_paths, ";")),
 	};
 	if(noquick_compile && zc_get_config("Compiler","noclose_compile_console",0))
 		args.push_back("-noclose");
