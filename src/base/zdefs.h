@@ -2207,6 +2207,7 @@ struct ZCHEATS
 
 struct zquestheader
 {
+	std::string filename;
     char  id_str[31];
     int16_t zelda_version;
     word  internal;

@@ -21377,8 +21377,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		reset_scripts();
 	}
 	
-    zquestheader tempheader;
-    memset(&tempheader, 0, sizeof(zquestheader));
+    zquestheader tempheader{};
+	tempheader.filename = filename;
 	zinfo tempzi;
 	tempzi.clear();
 	load_tmp_zi = &tempzi;

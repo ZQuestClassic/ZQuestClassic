@@ -26029,6 +26029,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		is_zq_replay_test = true;
 		set_headless_mode();
+		FFCore.initIncludePaths();
 
 		int load_ret = load_quest(argv[quick_assign_arg + 1], false);
 		bool success = load_ret == qe_OK;
@@ -26060,6 +26061,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		is_zq_replay_test = true;
 		set_headless_mode();
+		FFCore.initIncludePaths();
 
 		int load_ret = load_quest(argv[smart_assign_arg + 1], false);
 		bool success = load_ret == qe_OK;
