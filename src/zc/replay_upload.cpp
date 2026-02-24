@@ -156,6 +156,35 @@ namespace api_client
 
 static std::optional<api_client::quests_result> quests;
 
+static bool init_api_and_quests()
+{
+	api_client::api_endpoint = zc_get_config("zeldadx", "api_endpoint", "");
+
+	if (std::getenv("TEST_ZC_API_SERVER") != nullptr)
+		api_client::api_endpoint = std::getenv("TEST_ZC_API_SERVER");
+
+	if (api_client::api_endpoint.empty())
+	{
+		Z_message("api_endpoint not set\n");
+		return false;
+	}
+
+	if (!quests)
+	{
+		auto r = api_client::quests();
+
+		if (!r)
+		{
+			Z_message("Error fetching quests: %s\n", r.error().message.c_str());
+			return false;
+		}
+
+		quests = std::move(r->data);
+	}
+
+	return true;
+}
+
 static fs::path get_state_path()
 {
 	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
@@ -263,7 +292,7 @@ static bool process_replay(status_entry_t& status_entry, fs::path path, std::str
 	if (!known_qst)
 	{
 		status_entry.try_later(now_time + TIME_ONE_WEEK * 2);
-		status_entry.error = "qst is not in database";
+		status_entry.error = "qst is not in database. We currently only accept uploading replays for quests that are in our database.";
 		return false;
 	}
 
@@ -286,36 +315,20 @@ static int replay_upload_impl(replay_upload_state& state)
 {
 	Z_message("Checking for replays to upload ...\n");
 
-	api_client::api_endpoint = zc_get_config("zeldadx", "api_endpoint", "");
-	// TODO: get rid if we ever improve our config story.
-	if (std::getenv("TEST_ZC_API_SERVER") != nullptr)
-		api_client::api_endpoint = std::getenv("TEST_ZC_API_SERVER");
-	if (api_client::api_endpoint.empty())
+	if (!init_api_and_quests())
 	{
-		Z_message("api_endpoint not set\n");
+		Z_message("API initialization failed\n");
 		return 0;
 	}
 
 	Z_message("api_endpoint set: %s\n", api_client::api_endpoint.c_str());
 
 	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+
 	if (!fs::exists(replay_file_dir))
 	{
 		Z_message("No replays found\n");
 		return 0;
-	}
-
-	if (!quests)
-	{
-		if (auto r = api_client::quests(); !r)
-		{
-			Z_message("Error fetching quests: %s\n", r.error().message.c_str());
-			return 0;
-		}
-		else
-		{
-			quests = std::move(r->data);
-		}
 	}
 
 	int replays_uploaded = 0;
@@ -330,6 +343,7 @@ static int replay_upload_impl(replay_upload_state& state)
 
 		std::string rel_fname = fs::relative(entry.path(), replay_file_dir).make_preferred().string();
 		auto& status_entry = state.entries[rel_fname];
+
 		if (!should_process_replay(status_entry, entry.path(), now_time))
 			continue;
 
@@ -357,6 +371,35 @@ int replay_upload()
 {
 	auto state = load_state();
 	return replay_upload_impl(state);
+}
+
+std::optional<std::string> replay_upload(std::string file_path)
+{
+	if (!init_api_and_quests())
+		return "Failed to initialize API or fetch quests";
+
+	if (!fs::exists(file_path))
+		return "File does not exist";
+
+	auto state = load_state();
+	int64_t now_time = std::chrono::duration_cast<std::chrono::seconds>(
+		std::chrono::system_clock::now().time_since_epoch()).count();
+
+	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+	std::string rel_fname = fs::relative(file_path, replay_file_dir).make_preferred().string();
+	auto& status_entry = state.entries[rel_fname];
+
+	bool success = process_replay(status_entry, file_path, rel_fname, now_time);
+
+	fs::path state_path = get_state_path();
+	std::ofstream out(state_path, std::ios::binary);
+	json j = state;
+	out << j.dump(2);
+
+	if (!success)
+		return status_entry.error.empty() ? "Unknown error" : status_entry.error;
+
+	return std::nullopt;
 }
 
 int replay_upload_auto()

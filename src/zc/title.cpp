@@ -1222,8 +1222,7 @@ static int32_t game_details(save_t* save)
 	return 0;
 }
 
-// The save slot that the title screen cursor is currently on.
-static int32_t saveslot = -1;
+int32_t saveslot = -1;
 
 save_t* get_unset_save_slot()
 {

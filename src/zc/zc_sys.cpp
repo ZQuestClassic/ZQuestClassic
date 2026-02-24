@@ -4957,8 +4957,7 @@ int32_t onToggleAutoUploadReplays()
 	else
 	{
 		zc_set_config("zeldadx", "replay_upload", true);
-		displayinfo("Replays", "Replays will be automatically uploaded. This helps development by"
-			" preventing bugs and simplifying bug reports."
+		displayinfo("Replays", "Replays will be automatically uploaded. This helps keep ZQuest Classic stable and prevent regressions."
 			"\nUpload will happen no more than once a week when closing ZC");
 
 		if (!zc_get_config("zeldadx", "replay_new_saves", false))
@@ -4975,6 +4974,40 @@ int32_t onUploadReplays()
 		int num_uploaded = replay_upload();
 		displayinfo("Upload replays", fmt::format("Uploaded {} replays", num_uploaded));
 	}
+	return D_O_K;
+}
+
+int32_t onUploadSingleReplay()
+{
+	if (Playing || saveslot == -1)
+	{
+		displayinfo("Upload replay", "Must be on the title screen.");
+		return D_O_K;
+	}
+
+	std::string replay_path;
+	// Need to load the full save to get the replay path field.
+	if (auto r = saves_get_slot(saveslot, true); !r || r.value()->header->replay_file.empty())
+	{
+		displayinfo("Upload replay", "The selected save slot does not have a replay.");
+		return D_O_K;
+	}
+	else
+	{
+		replay_path = r.value()->header->replay_file;
+	}
+
+	if (!alert_confirm("Upload replay", "Would you like to upload the replay for the selected save file? This helps keep ZQuest Classic stable and prevent regressions."))
+		return D_O_K;
+
+	if (auto error = replay_upload(replay_path))
+	{
+		displayinfo("Upload replay", fmt::format("Error: {}", error.value()));
+		return D_O_K;
+	}
+
+	displayinfo("Upload replay", "Successfully uploaded replay file. Thanks!");
+
 	return D_O_K;
 }
 
@@ -5123,6 +5156,7 @@ enum
 	MENUID_REPLAY_SNAP_ALL,
 	MENUID_REPLAY_AUTOUPLOAD,
 	MENUID_REPLAY_UPLOAD,
+	MENUID_REPLAY_UPLOAD_SINGLE,
 	MENUID_REPLAY_CLEARUPLOADCACHE,
 };
 static NewMenu replay_menu
@@ -5139,6 +5173,7 @@ static NewMenu replay_menu
 	{},
 	{ "Auto upload replays", onToggleAutoUploadReplays, MENUID_REPLAY_AUTOUPLOAD },
 	{ "Upload replays", onUploadReplays, MENUID_REPLAY_UPLOAD },
+	{ "Upload single replay", onUploadSingleReplay, MENUID_REPLAY_UPLOAD_SINGLE },
 	{ "Clear upload cache", onClearUploadCache, MENUID_REPLAY_CLEARUPLOADCACHE },
 #endif
 };
@@ -6142,7 +6177,8 @@ void System()
 			replay_menu.disable_uid(MENUID_REPLAY_STOP, !replay_is_active());
 			replay_menu.disable_uid(MENUID_REPLAY_SAVE, replay_get_mode() != ReplayMode::Record);
 			replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
-			
+			replay_menu.disable_uid(MENUID_REPLAY_UPLOAD_SINGLE, Playing || saveslot == -1);
+
 			snapshot_format_menu.select_only_index(SnapshotFormat);
 			bottom_8_pixels_menu.select_only_index(ShowBottomPixels);
 		}
