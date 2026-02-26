@@ -115,7 +115,7 @@ GOTOCMP 89 ==; Test 'while'                                                     
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body                | 86 tests/scripts/playground/auto/test_runner.zs:104
 GOTO 81; while() #3 End                                                         | 87 tests/scripts/playground/auto/test_runner.zs:102
 CALLFUNC 0.2505; UsrFunc[void End()] Call AND [Opt:NeverRet]                    | 88 tests/scripts/playground/auto/test_runner.zs:107
-REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End                       | 89 tests/scripts/playground/auto/test_runner.zs:89
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End                       | 89 tests/scripts/playground/auto/test_runner.zs:88
 PUSHR REFGENERICDATA; void run() Body Start                                     | 90 tests/scripts/playground/auto/global_objects.zs:30
 PUSHARGSV 0 0.0002                                                              | 91 tests/scripts/playground/auto/global_objects.zs:30
 SETR D4 SP2                                                                     | 92 tests/scripts/playground/auto/global_objects.zs:30
@@ -653,7 +653,7 @@ SAVE; InlineFunc[void Game::Save()] Body AND if() #442 Body Start               
 GAMERELOAD; InlineFunc[void Game::Reload()] Body AND if() #442 Body End         | 624 tests/scripts/playground/auto/global_objects.zs:123
 NOP                                                                             | 625 tests/scripts/playground/auto/global_objects.zs:119
 CALLFUNC 0.2505; UsrFunc[void End()] Call AND [Opt:NeverRet]                    | 626 tests/scripts/playground/auto/global_objects.zs:126
-REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End                            | 627 tests/scripts/playground/auto/global_objects.zs:32
+REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End                            | 627 tests/scripts/playground/auto/global_objects.zs:31
 PUSHR REFGENERICDATA; void run() Body Start                                     | 628 tests/scripts/playground/auto/scopes.zs:358
 SETR D4 SP2                                                                     | 629 tests/scripts/playground/auto/scopes.zs:358
 PUSHR D4                                                                        | 630 tests/scripts/playground/auto/scopes.zs:360
@@ -1095,8 +1095,8 @@ LOAD D2 0.0001; UsrFunc[void Assert(CL)] Params Start                           
 PUSHR D2; UsrFunc[void Assert(CL)] Params End                                   | 1066 tests/scripts/playground/auto/scopes.zs:98
 CALLFUNC 0.2714; UsrFunc[void Assert(CL)] Call                                  | 1067 tests/scripts/playground/auto/scopes.zs:98
 POP D4                                                                          | 1068 tests/scripts/playground/auto/scopes.zs:98
-REF_REMOVE 0                                                                    | 1069 tests/scripts/playground/auto/scopes.zs:87
-REF_REMOVE 0.0001                                                               | 1070 tests/scripts/playground/auto/scopes.zs:87
+REF_REMOVE 0                                                                    | 1069 tests/scripts/playground/auto/scopes.zs:86
+REF_REMOVE 0.0001                                                               | 1070 tests/scripts/playground/auto/scopes.zs:86
 POPARGS D5 0.0002                                                               | 1071 tests/scripts/playground/auto/scopes.zs:98
 REF_AUTORELEASE CLASS_THISKEY                                                   | 1072 tests/scripts/playground/auto/scopes.zs:98
 REF_DEC -0.0001                                                                 | 1073 tests/scripts/playground/auto/scopes.zs:98
@@ -1177,7 +1177,7 @@ POP D2                                                                          
 STORE_OBJECT D2 0                                                               | 1148 tests/scripts/playground/auto/scopes.zs:153
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 1149 tests/scripts/playground/auto/scopes.zs:154
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 1150 tests/scripts/playground/auto/scopes.zs:154
-REF_REMOVE 0                                                                    | 1151 tests/scripts/playground/auto/scopes.zs:151
+REF_REMOVE 0                                                                    | 1151 tests/scripts/playground/auto/scopes.zs:150
 POPARGS D5 0.0003                                                               | 1152 tests/scripts/playground/auto/scopes.zs:154
 RETURNFUNC; Func[void template_fn(int, int)] Body End                           | 1153 tests/scripts/playground/auto/scopes.zs:154
 PUSHV 0; Func[void template_fn(char32[], int)] Body Start                       | 1154 tests/scripts/playground/auto/scopes.zs:149
@@ -1207,7 +1207,7 @@ POP D2                                                                          
 STORE_OBJECT D2 0                                                               | 1178 tests/scripts/playground/auto/scopes.zs:153
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 1179 tests/scripts/playground/auto/scopes.zs:154
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 1180 tests/scripts/playground/auto/scopes.zs:154
-REF_REMOVE 0                                                                    | 1181 tests/scripts/playground/auto/scopes.zs:151
+REF_REMOVE 0                                                                    | 1181 tests/scripts/playground/auto/scopes.zs:150
 REF_REMOVE 0.0002                                                               | 1182 tests/scripts/playground/auto/scopes.zs:154
 POPARGS D5 0.0003                                                               | 1183 tests/scripts/playground/auto/scopes.zs:154
 RETURNFUNC; Func[void template_fn(char32[], int)] Body End                      | 1184 tests/scripts/playground/auto/scopes.zs:154
@@ -1327,7 +1327,7 @@ TRACE3; InlineFunc[void Trace(char32[])] Body End                               
 LOAD D2 0.0003; InlineFunc[void Trace(untyped)] Params                          | 1298 tests/scripts/playground/auto/scopes.zs:232
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Else End       | 1299 tests/scripts/playground/auto/scopes.zs:232
 NOP                                                                             | 1300 tests/scripts/playground/auto/scopes.zs:222
-REF_REMOVE 0.0004                                                               | 1301 tests/scripts/playground/auto/scopes.zs:221
+REF_REMOVE 0.0004                                                               | 1301 tests/scripts/playground/auto/scopes.zs:220
 POPARGS D5 0.0005                                                               | 1302 tests/scripts/playground/auto/scopes.zs:233
 RETURNFUNC; Func[void range_loop_fn()] Body End                                 | 1303 tests/scripts/playground/auto/scopes.zs:233
 SETR D4 SP2; Func[int DebugAdd(int)] Body Start                                 | 1304 tests/scripts/playground/auto/scopes.zs:236
@@ -1448,14 +1448,14 @@ LOAD D2 0.0001; InlineFunc[void Trace(untyped)] Params                          
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 1419 tests/scripts/playground/auto/scopes.zs:276
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 1420 tests/scripts/playground/auto/scopes.zs:277
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 1421 tests/scripts/playground/auto/scopes.zs:277
-REF_REMOVE 0.0006                                                               | 1422 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0005                                                               | 1423 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0004                                                               | 1424 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0003                                                               | 1425 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0002                                                               | 1426 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0001                                                               | 1427 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0                                                                    | 1428 tests/scripts/playground/auto/scopes.zs:263
-REF_REMOVE 0.0007                                                               | 1429 tests/scripts/playground/auto/scopes.zs:263
+REF_REMOVE 0.0006                                                               | 1422 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0005                                                               | 1423 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0004                                                               | 1424 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0003                                                               | 1425 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0002                                                               | 1426 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0001                                                               | 1427 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0                                                                    | 1428 tests/scripts/playground/auto/scopes.zs:262
+REF_REMOVE 0.0007                                                               | 1429 tests/scripts/playground/auto/scopes.zs:262
 POPARGS D5 0.0008                                                               | 1430 tests/scripts/playground/auto/scopes.zs:277
 RETURNFUNC; Func[void DebugArrays()] Body End                                   | 1431 tests/scripts/playground/auto/scopes.zs:277
 PUSHARGSV 0 0.0003; Func[void DebugInternalObjects()] Body Start                | 1432 tests/scripts/playground/auto/scopes.zs:280
@@ -1529,7 +1529,7 @@ LOAD D2 0; UsrFunc[void Assert(bitmap)] Params Start                            
 PUSHR D2; UsrFunc[void Assert(bitmap)] Params End                               | 1500 tests/scripts/playground/auto/scopes.zs:292
 CALLFUNC 0.2686; UsrFunc[void Assert(bitmap)] Call                              | 1501 tests/scripts/playground/auto/scopes.zs:292
 POP D4                                                                          | 1502 tests/scripts/playground/auto/scopes.zs:292
-REF_REMOVE 0                                                                    | 1503 tests/scripts/playground/auto/scopes.zs:282
+REF_REMOVE 0                                                                    | 1503 tests/scripts/playground/auto/scopes.zs:281
 POPARGS D5 0.0003                                                               | 1504 tests/scripts/playground/auto/scopes.zs:292
 RETURNFUNC; Func[void DebugInternalObjects()] Body End                          | 1505 tests/scripts/playground/auto/scopes.zs:292
 PUSHARGSV 0 0.0002; Func[int DebugFrames1(int, int)] Body Start                 | 1506 tests/scripts/playground/auto/scopes.zs:295
@@ -1638,8 +1638,8 @@ ZCLASS_READ D2 0                                                                
 PUSHR D2; UsrFunc[void Assert(int)] Params End                                  | 1609 tests/scripts/playground/auto/scopes.zs:340
 CALLFUNC 0.2653; UsrFunc[void Assert(int)] Call                                 | 1610 tests/scripts/playground/auto/scopes.zs:340
 POP D4                                                                          | 1611 tests/scripts/playground/auto/scopes.zs:340
-REF_REMOVE 0                                                                    | 1612 tests/scripts/playground/auto/scopes.zs:334
-REF_REMOVE 0.0001                                                               | 1613 tests/scripts/playground/auto/scopes.zs:334
+REF_REMOVE 0                                                                    | 1612 tests/scripts/playground/auto/scopes.zs:333
+REF_REMOVE 0.0001                                                               | 1613 tests/scripts/playground/auto/scopes.zs:333
 POPARGS D5 0.0002                                                               | 1614 tests/scripts/playground/auto/scopes.zs:340
 RETURNFUNC; Func[void DebugFunctionDefaultCtor1()] Body End                     | 1615 tests/scripts/playground/auto/scopes.zs:340
 SETR D4 SP2; Func[void DebugFunctionDefaultCtor2(untyped[])] Body Start         | 1616 tests/scripts/playground/auto/scopes.zs:343

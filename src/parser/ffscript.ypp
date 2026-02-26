@@ -1476,8 +1476,16 @@ Statement_NoSemicolon:
 	;
 
 Statement_Block :
-	LBRACE Statement_Block_List RBRACE {$$ = $2;}
-	| LBRACE RBRACE {$$ = new ASTBlock(@$);}
+	LBRACE Statement_Block_List RBRACE
+	{
+		ASTBlock* block = (ASTBlock*)$2;
+		block->location = @$;
+		$$ = block;
+	}
+	| LBRACE RBRACE
+	{
+		$$ = new ASTBlock(@$);
+	}
 	;
 
 Statement_Block_List :

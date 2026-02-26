@@ -13,26 +13,24 @@ import {
 	HoverParams,
 	Hover,
 	DocumentSymbolParams,
-	DocumentSymbol,
 	MarkupKind,
 	DefinitionParams,
 	Position,
 	Location,
+	SignatureHelpParams,
+	SignatureHelp,
 	WorkspaceFolder,
 } from 'vscode-languageserver/node';
 import { URI } from 'vscode-uri';
 import {
-	Range,
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import * as childProcess from 'child_process';
-import { promisify } from 'util';
-import * as os from 'os';
 import * as fs from 'fs';
 import path = require('path');
 import * as glob from 'glob';
-
-const execFile = promisify(childProcess.execFile);
+import { checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, globalTmpDir, JobResult, runCompiler, Settings } from './helpers.js';
+import { cachedGlobalCompletionItems, globalClasses, globalVariables, onCompletion, updateCompletionItems } from './completion.js';
+import { onSignatureHelp } from './signature-help.js';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -41,27 +39,7 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-interface SymbolPos {
-	line: number;
-	character: number;
-	length: number;
-}
-
-interface DocumentMetaData {
-	currentFileSymbols: DocumentSymbol[];
-	symbols: Record<number, { doc?: string, loc: { range: Range, uri: string } }>;
-	identifiers: Array<{
-		loc: SymbolPos,
-		symbol: number,
-	}>;
-}
-
-interface JobResult {
-	diagnostics: Diagnostic[];
-	metadata?: DocumentMetaData;
-}
-
-const docJobResults = new Map<string, JobResult>();
+let configUpdateController: AbortController | null = null;
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -110,7 +88,11 @@ connection.onInitialize(async (params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				resolveProvider: true
+				resolveProvider: true,
+				triggerCharacters: ['>'],
+			},
+			signatureHelpProvider: {
+				triggerCharacters: ['(', ','],
 			},
 			hoverProvider: true,
 			definitionProvider: true,
@@ -148,15 +130,6 @@ connection.onInitialized(async () => {
 	}
 });
 
-// The example settings
-interface Settings {
-	installationFolder?: string;
-	printCompilerOutput?: boolean;
-	defaultIncludeFiles?: Array<string>;
-	defaultIncludePaths?: Array<string>;
-	ignoreConstAssert?: boolean;
-}
-
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
@@ -167,8 +140,17 @@ let globalSettings: Settings = defaultSettings;
 const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration(async (change) => {
+	if (configUpdateController) {
+		configUpdateController.abort();
+	}
+	configUpdateController = new AbortController();
+	const signal = configUpdateController.signal;
+
 	[...activeJobs.keys()].forEach(abandonJob);
 	docJobResults.clear();
+	cachedGlobalCompletionItems.length = 0;
+	globalClasses.clear();
+	globalVariables.clear();
 
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
@@ -181,7 +163,9 @@ connection.onDidChangeConfiguration(async (change) => {
 
 	// Revalidate all open text documents
 	const jobs = documents.all().map(doc => createJob(doc));
-	await Promise.all(jobs.map(job => job.wait()));
+	const jobPromises = jobs.map(job => job.wait());
+	const settings = await getDocumentSettings('');
+	await Promise.all([...jobPromises, updateCompletionItems(settings, connection, signal)]);
 });
 
 connection.onDidChangeWatchedFiles(e => {
@@ -216,8 +200,6 @@ documents.onDidClose(e => {
 // TODO: this fires (then closes instantly) when doing ctrl+hover on a symbol.
 //       Need to wait for next version of LSP server to fix: https://github.com/microsoft/vscode-languageserver-node/issues/848#issuecomment-2503444503
 documents.onDidChangeContent(e => {
-	docJobResults.delete(e.document.uri);
-
 	const job = activeJobs.get(e.document);
 	if (job) {
 		job.restart();
@@ -226,33 +208,15 @@ documents.onDidChangeContent(e => {
 	}
 });
 
-// TODO: this should not be necessary. Get path in better OS-agnostic way.
-function cleanupFile(fname: string) {
-	if (os.platform() !== 'win32')
-		return fname.trim();
-	return fname.replace(/\//g, '\\').trim();
-}
-function cleanupFile2(fname: string) {
-	if (os.platform() !== 'win32')
-		return fname.trim();
-
-	fname = URI.parse(fname).fsPath;
-	if (fname.match(/[a-z]:\\.*/)) {
-		// capitalize drive letters
-		fname = fname[0].toUpperCase() + fname.slice(1);
-	}
-	return fname.replace(/\//g, '\\').trim();
-}
-function fileMatches(f1: string, f2: string) {
-	return cleanupFile(f1) == cleanupFile(f2);
-}
-
 function parseOutput(settings: Settings, stdout: string, stderr: string): JobResult {
 	if (stdout.startsWith('{')) {
-		if (settings.printCompilerOutput) {
-			console.log(stderr);
-		}
 		const result = JSON.parse(stdout) as JobResult;
+		if (settings.printCompilerOutput) {
+			console.log(result);
+			if (stderr) {
+				console.log('stderr:', stderr);
+			}
+		}
 		return result;
 	}
 
@@ -403,33 +367,6 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): JobRes
 	return { diagnostics, metadata };
 }
 
-const pathInZCRepoCache = new Map<string, string | null>();
-function checkIfInZCRepo(file: string): string | null {
-	if (process.env.TEST_ZSCRIPT) return null;
-
-	let result = pathInZCRepoCache.get(file);
-	if (result !== undefined) return result;
-
-	result = null;
-
-	const parts = file.split(path.sep);
-	for (let i = parts.length - 1; i >= 0; i--) {
-		const dir = parts.slice(0, i).join(path.sep);
-		try {
-			if (!fs.existsSync(`${dir}/.git`)) continue;
-		} catch {
-			break;
-		}
-
-		if (fs.existsSync(`${dir}/resources/include/std.zh`)) result = path.join(dir, 'resources');
-		break;
-	}
-
-	pathInZCRepoCache.set(file, result);
-	return result;
-}
-
-const globalTmpDir = os.tmpdir();
 const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
 const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 
@@ -446,37 +383,6 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 					end: { line: 0, character: 0 },
 				},
 				message: 'Must set zscript.installationFolder setting',
-				source: 'zscript'
-			}]
-		});
-		return null;
-	}
-
-	const installFolder = settings.installationFolder;
-
-	let binFolder = installFolder;
-	let resourcesFolder = installFolder;
-	if (installFolder.endsWith('.app')) {
-		resourcesFolder = path.join(installFolder, 'Contents/Resources');
-		binFolder = resourcesFolder;
-	} else if (fs.existsSync(path.join(installFolder, 'bin'))) {
-		binFolder = path.join(installFolder, 'bin');
-	}
-
-	if (path.basename(binFolder) === 'bin') {
-		resourcesFolder = path.join(binFolder, '../share/zquestclassic');
-	}
-
-	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
-	if (!fs.existsSync(`${binFolder}/${exe}`)) {
-		connection.sendDiagnostics({
-			uri, diagnostics: [{
-				severity: DiagnosticSeverity.Error,
-				range: {
-					start: { line: 0, character: 0 },
-					end: { line: 0, character: 0 },
-				},
-				message: 'Did not find zscript compiler - check setting zscript.installationFolder',
 				source: 'zscript'
 			}]
 		});
@@ -523,19 +429,21 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
-		if (settings.printCompilerOutput) {
-			console.log([exe, ...args].join(' '));
+
+		const { resourcesFolder } = getBinAndResourcesFolders(settings);
+		const cwd = checkIfInZCRepo(originPath) ?? resourcesFolder;
+		const cp = await runCompiler({
+			settings,
+			connection,
+			uri,
+			cwd,
+			args,
+		});
+
+		if (!cp) {
+			return null;
 		}
 
-		// If in a checkout of the ZC repo, use the resources folder as cwd.
-		const cwd = checkIfInZCRepo(originPath) ?? resourcesFolder;
-
-		const cp = await execFile(`${binFolder}/${exe}`, args, {
-			cwd,
-			maxBuffer: 20_000_000,
-			signal,
-			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1', ZC_DISABLE_CHDIR: '1' },
-		});
 		success = true;
 		stdout = cp.stdout;
 		stderr = cp.stderr;
@@ -592,6 +500,14 @@ function createJob(doc: TextDocument) {
 				.then(r => {
 					if (r) {
 						result = r;
+
+						// Fallback: If the new script is syntactically invalid and returns no metadata,
+						// carry over the last known good metadata so autocomplete/hover keep working.
+						const oldResult = docJobResults.get(doc.uri);
+						if (!result.metadata && oldResult && oldResult.metadata) {
+							result.metadata = oldResult.metadata;
+						}
+
 						docJobResults.set(doc.uri, result);
 					}
 				})
@@ -682,38 +598,38 @@ connection.onDidChangeWatchedFiles(_change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
-	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-		return [];
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
-		// return [
-		// 	{
-		// 		label: 'TypeScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 1
-		// 	},
-		// 	{
-		// 		label: 'JavaScript',
-		// 		kind: CompletionItemKind.Text,
-		// 		data: 2
-		// 	}
-		// ];
+	async (p: TextDocumentPositionParams): Promise<CompletionItem[]> => {
+		const doc = documents.get(p.textDocument.uri);
+		if (!doc) {
+			return cachedGlobalCompletionItems;
+		}
+
+		const metadata = await getOrWaitForScriptMetadata(doc);
+		if (!metadata || !metadata.currentFileSymbols) {
+			return cachedGlobalCompletionItems;
+		}
+
+		return onCompletion({ document: doc, metadata, params: p });
 	}
 );
 
 // This handler resolves additional information for the item selected in
-// the completion list.
+// the completion list (currently no extra data is given).
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		// if (item.data === 1) {
-		// 	item.detail = 'TypeScript details';
-		// 	item.documentation = 'TypeScript documentation';
-		// } else if (item.data === 2) {
-		// 	item.detail = 'JavaScript details';
-		// 	item.documentation = 'JavaScript documentation';
-		// }
 		return item;
+	}
+);
+
+connection.onSignatureHelp(
+	async (params: SignatureHelpParams): Promise<SignatureHelp | null> => {
+		const doc = documents.get(params.textDocument.uri);
+		if (!doc) return null;
+
+		return onSignatureHelp({
+			document: doc,
+			params,
+		})
 	}
 );
 

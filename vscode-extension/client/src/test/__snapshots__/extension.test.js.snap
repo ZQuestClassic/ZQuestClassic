@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ZScript extension Autocomplete global constants latest 1`] = `
+[
+  {
+    "detail": "int",
+    "documentation": undefined,
+    "kind": 19,
+    "label": "DIR_UP",
+  },
+  {
+    "detail": "int",
+    "documentation": undefined,
+    "kind": 5,
+    "label": "Ghost_Dir",
+  },
+  {
+    "detail": "const int",
+    "documentation": undefined,
+    "kind": 5,
+    "label": "PI",
+  },
+  {
+    "detail": "void Trace(untyped val)",
+    "documentation": "Prints the passed value to the output console. Includes a newline character
+after the value.",
+    "kind": 2,
+    "label": "Trace",
+  },
+]
+`;
+
 exports[`ZScript extension Document symbol outline 3-no-json 1`] = `
 [
   {

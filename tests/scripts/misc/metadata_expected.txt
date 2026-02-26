@@ -379,8 +379,8 @@ stdout:
             "character": 15
           },
           "end": {
-            "line": 60,
-            "character": 42
+            "line": 64,
+            "character": 1
           }
         },
         "selectionRange": {
@@ -404,8 +404,8 @@ stdout:
             "character": 4
           },
           "end": {
-            "line": 66,
-            "character": 14
+            "line": 70,
+            "character": 1
           }
         },
         "selectionRange": {
@@ -455,8 +455,8 @@ stdout:
             "character": 5
           },
           "end": {
-            "line": 113,
-            "character": 8
+            "line": 115,
+            "character": 1
           }
         },
         "selectionRange": {
@@ -480,8 +480,8 @@ stdout:
             "character": 5
           },
           "end": {
-            "line": 117,
-            "character": 9
+            "line": 121,
+            "character": 1
           }
         },
         "selectionRange": {
@@ -580,8 +580,8 @@ stdout:
                 "character": 9
               },
               "end": {
-                "line": 106,
-                "character": 18
+                "line": 108,
+                "character": 5
               }
             },
             "selectionRange": {
@@ -631,8 +631,8 @@ stdout:
                 "character": 9
               },
               "end": {
-                "line": 76,
-                "character": 71
+                "line": 100,
+                "character": 5
               }
             },
             "selectionRange": {
@@ -958,8 +958,8 @@ stdout:
                 "character": 9
               },
               "end": {
-                "line": 32,
-                "character": 16
+                "line": 34,
+                "character": 5
               }
             },
             "selectionRange": {
@@ -983,8 +983,8 @@ stdout:
                 "character": 9
               },
               "end": {
-                "line": 36,
-                "character": 17
+                "line": 38,
+                "character": 5
               }
             },
             "selectionRange": {
@@ -1008,8 +1008,8 @@ stdout:
                 "character": 4
               },
               "end": {
-                "line": 27,
-                "character": 18
+                "line": 29,
+                "character": 5
               }
             },
             "selectionRange": {
@@ -1232,7 +1232,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "THIS COMMENT USED #1"
+        "doc": "THIS COMMENT USED #1",
+        "name": "postfix",
+        "type": "int"
       },
       "metadata.zs-postfix2": {
         "loc": {
@@ -1248,7 +1250,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "THIS COMMENT USED #2"
+        "doc": "THIS COMMENT USED #2",
+        "name": "postfix2",
+        "type": "int"
       },
       "metadata.zs-x": {
         "loc": {
@@ -1264,7 +1268,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\n\nline two\nline two still\n\nline three\n\n\n- list item 1\n  still list item 1\n- list item 2\n- list item 3"
+        "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\n\nline two\nline two still\n\nline three\n\n\n- list item 1\n  still list item 1\n- list item 2\n- list item 3",
+        "name": "x",
+        "type": "int"
       },
       "metadata.zs-y": {
         "loc": {
@@ -1280,7 +1286,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "hello world"
+        "doc": "hello world",
+        "name": "y",
+        "type": "int"
       },
       "metadata.zs-z": {
         "loc": {
@@ -1296,7 +1304,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "hello world"
+        "doc": "hello world",
+        "name": "z",
+        "type": "int"
       },
       "do_filter": {
         "loc": {
@@ -1389,7 +1399,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "A car, duh"
+        "doc": "A car, duh",
+        "name": "c2",
+        "type": "Car"
       },
       "c": {
         "loc": {
@@ -1404,7 +1416,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "c",
+        "type": "Car"
       },
       "T": {
         "loc": {
@@ -1449,7 +1463,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "b",
+        "type": "Brand"
       },
       "utils-hmm": {
         "loc": {
@@ -1465,7 +1481,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D)"
+        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D)",
+        "name": "hmm",
+        "type": "int"
       },
       "fn": {
         "loc": {
@@ -1590,7 +1608,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "d",
+        "type": "IhaveAdefCtor"
       },
       "d": {
         "loc": {
@@ -1605,7 +1625,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "d",
+        "type": "IhaveAdefCtor"
       },
       "ctor-IhaveAdefCtor": {
         "loc": {
@@ -1635,7 +1657,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "c2",
+        "type": "Car"
       },
       "e": {
         "loc": {
@@ -1651,7 +1675,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "equal to [`c->speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D)"
+        "doc": "equal to [`c->speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D)",
+        "name": "e",
+        "type": "int"
       },
       "WrapDeg": {
         "loc": {
@@ -1683,7 +1709,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "an array"
+        "doc": "an array",
+        "name": "arr",
+        "type": "int[]"
       },
       "v": {
         "loc": {
@@ -1698,7 +1726,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "v",
+        "type": "int"
       },
       "__LOOP_ITER": {
         "loc": {
@@ -1713,7 +1743,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "__LOOP_ITER",
+        "type": "int"
       },
       "__LOOP_ARR": {
         "loc": {
@@ -1728,7 +1760,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "__LOOP_ARR",
+        "type": "int[]"
       },
       "ahhh": {
         "loc": {
@@ -1743,7 +1777,9 @@ stdout:
             }
           },
           "uri": "URI"
-        }
+        },
+        "name": "ahhh",
+        "type": "int"
       },
       "Brand": {
         "loc": {
@@ -1759,7 +1795,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "how fancy something looks"
+        "doc": "how fancy something looks",
+        "name": "b",
+        "type": "Brand"
       },
       "Car-speed": {
         "loc": {
@@ -1775,7 +1813,9 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A101%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A101%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A3%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A3%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A13%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A13%2C%22character%22%3A25%7D%7D%7D)"
+        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A101%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A101%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A3%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A3%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A13%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A13%2C%22character%22%3A25%7D%7D%7D)",
+        "name": "speed",
+        "type": "int"
       },
       "vroom": {
         "loc": {
@@ -2692,10 +2732,10 @@ TRACER D2; InlineFunc[void Trace(untyped)] Body                                 
 STOREV 0 0.0002                                                                 | 105 tests/scripts/misc/metadata.zs:99
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 106 tests/scripts/misc/metadata.zs:100
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 107 tests/scripts/misc/metadata.zs:100
-REF_REMOVE 0.0003                                                               | 108 tests/scripts/misc/metadata.zs:78
-REF_REMOVE 0.0007                                                               | 109 tests/scripts/misc/metadata.zs:78
-REF_REMOVE 0.0005                                                               | 110 tests/scripts/misc/metadata.zs:78
-REF_REMOVE 0.0006                                                               | 111 tests/scripts/misc/metadata.zs:78
+REF_REMOVE 0.0003                                                               | 108 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0007                                                               | 109 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0005                                                               | 110 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0006                                                               | 111 tests/scripts/misc/metadata.zs:77
 POPARGS D5 0.0014                                                               | 112 tests/scripts/misc/metadata.zs:100
 QUIT; void run(int, int, int, int, int) Body End                                | 113 tests/scripts/misc/metadata.zs:100
 SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 114 tests/scripts/misc/metadata.zs:28

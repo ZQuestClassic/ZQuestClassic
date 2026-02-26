@@ -156,6 +156,52 @@ static std::string getName(const ASTFile& node)
 }
 
 template <typename T>
+static LocationData getRange(const T& node)
+{
+	return node.location;
+}
+
+static LocationData getRange(const ASTFuncDecl& node)
+{
+	if (!node.block)
+		return node.location;
+
+	LocationData loc = node.location;
+	loc.last_line = node.block->location.last_line;
+	loc.last_column = node.block->location.last_column;
+	return loc;
+}
+
+static LocationData getRange(const ASTScript& node)
+{
+	LocationData loc = node.location;
+
+	int maxline = node.location.last_line;
+	int maxcol = node.location.last_column;
+	for (auto fn : node.functions)
+	{
+		if (fn->location.last_line > maxline)
+		{
+			maxline = fn->location.last_line;
+			maxcol = fn->location.last_column;
+		}
+	}
+	for (auto var : node.variables)
+	{
+		if (var->location.last_line > maxline)
+		{
+			maxline = var->location.last_line;
+			maxcol = var->location.last_column;
+		}
+	}
+
+	loc.last_line = maxline;
+	loc.last_column = maxcol;
+
+	return loc;
+}
+
+template <typename T>
 static LocationData getSelectionRange(const T& node)
 {
 	if (auto loc = node.getIdentifierLocation())
@@ -169,7 +215,7 @@ static void appendDocSymbol(SymbolKind kind, const T& node)
 	(*active).push_back({
 		{"name", getName(node)},
 		{"kind", kind},
-		{"range", LocationData_json(node.location)},
+		{"range", LocationData_json(getRange(node))},
 		{"selectionRange", LocationData_json(getSelectionRange(node))},
 		{"children", json::array()},
 	});
@@ -392,6 +438,8 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		// for some reason.
 		std::string symbol_id = getSymbolId(user_class->getType());
 		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
+		root["symbols"][symbol_id]["name"] = host.getName();
+		root["symbols"][symbol_id]["type"] = host.resolvedType->getName();
 	}
 	else if (host.resolvedType && host.list)
 	{
@@ -402,6 +450,8 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		{
 			std::string symbol_id = getSymbolId(custom_type);
 			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*host.list->baseType));
+			root["symbols"][symbol_id]["name"] = host.getName();
+			root["symbols"][symbol_id]["type"] = host.resolvedType->getName();
 		}
 	}
 
@@ -409,6 +459,8 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	{
 		std::string symbol_id = getSymbolId(host.manager);
 		appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
+		root["symbols"][symbol_id]["name"] = host.getName();
+		root["symbols"][symbol_id]["type"] = host.resolvedType->getName();
 	}
 
 	auto prev_active = active;

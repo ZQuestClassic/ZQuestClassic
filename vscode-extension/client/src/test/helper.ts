@@ -55,3 +55,7 @@ export async function executeDocumentSymbolProvider(uri: vscode.Uri): Promise<vs
 export async function executeHoverProvider(uri: vscode.Uri, pos: vscode.Position): Promise<vscode.Hover[]> {
 	return vscode.commands.executeCommand('vscode.executeHoverProvider', uri, pos);
 }
+
+export async function executeCompletionItemProvider(uri: vscode.Uri, pos: vscode.Position): Promise<vscode.CompletionList> {
+	return vscode.commands.executeCommand('vscode.executeCompletionItemProvider', uri, pos);
+}
