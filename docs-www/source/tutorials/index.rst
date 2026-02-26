@@ -3,21 +3,15 @@ Tutorials
 
 More tutorials coming, soon\* :)
 
-General
--------
-
-.. toctree::
-   :maxdepth: 1
-
-   /tutorials/z3_user_guide
-
 Editor
 ------
 
 .. toctree::
    :maxdepth: 1
 
+   /tutorials/using_a_tileset
    /tutorials/message_strings
+   /tutorials/z3_user_guide
 
 .. note::
    We currently have few recent tutorials for how to use the editor, but there are many old ones. Many features have been added since these were written; UI would have changed, and perhaps better approaches for some things exist now. If you need more recent advice, `just reach out <https://zquestclassic.com/community/>`_!

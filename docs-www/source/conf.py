@@ -18,7 +18,7 @@ project = "ZQuest Classic"
 copyright = f"{datetime.datetime.now().year}, ZQuest Classic Foundation"
 author = "ZQuest Classic Developers"
 
-extensions = ['zscript', 'sphinx_design']
+extensions = ['zscript', 'sphinx_design', 'myst_parser']
 
 templates_path = ["_templates"]
 exclude_patterns = ['tutorials/rst_example.rst']

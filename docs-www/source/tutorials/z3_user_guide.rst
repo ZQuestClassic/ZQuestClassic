@@ -1,4 +1,4 @@
-Z3 User Guide
+Z3 user guide
 =============
 
 This is written for experienced users of ZC, and describes the major changes related to the new "z3" scrolling regions feature.
