@@ -87,6 +87,7 @@ void ScriptParser::initialize(bool has_qrs)
 }
 
 extern std::string input_script_filename;
+extern std::string actual_input_script_filename;
 extern std::string metadata_tmp_path;
 extern uint32_t zscript_failcode;
 extern std::vector<Diagnostic>* current_diagnostics;
@@ -108,6 +109,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 	using namespace ZScript;
 
 	input_script_filename = metadata_tmp_path.empty() ? filename : metadata_tmp_path;
+	actual_input_script_filename = filename;
 	zscript_failcode = 0;
 	zscript_error_out = false;
 	if(ignore_asserts) delay_asserts = true;

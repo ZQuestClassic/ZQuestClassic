@@ -27,6 +27,7 @@ using std::setfill;
 using std::setw;
 
 extern std::string input_script_filename;
+extern std::string actual_input_script_filename;
 
 XTableHelper XH;
 
@@ -277,11 +278,15 @@ bool CompileError::isForInputScript() const
 
 	if (AST const* source = pimpl_->getSource())
 	{
-		LocationData location;
-		if (auto loc = source->getIdentifierLocation())
-			return loc->fname == input_script_filename;
-		else
-			return source->location.fname == input_script_filename;
+		auto loc = source->getIdentifierLocation();
+		std::string_view name = loc ? loc->fname : source->location.fname;
+
+		if (name == input_script_filename)
+			return true;
+
+		// Lying here, so that we can surface errors for bad includes in vscode zscript.defaultIncludeFiles.
+		if (name == actual_input_script_filename && getId() == Id::idCantOpenImport)
+			return true;
 	}
 
 	return false;
@@ -359,8 +364,17 @@ Diagnostic CompileError::toDiagnostic(std::string const* inf) const
 			location = loc.value();
 		else
 			location = source->location;
-		diagnostic.range.start = {location.first_line - 1, location.first_column - 1};
-		diagnostic.range.end = {location.last_line - 1, location.last_column - 1};
+
+		if (location.fname == input_script_filename)
+		{
+			diagnostic.range.start = {location.first_line - 1, location.first_column - 1};
+			diagnostic.range.end = {location.last_line - 1, location.last_column - 1};
+		}
+		else
+		{
+			diagnostic.range.start = {0, 0};
+			diagnostic.range.end = {0, 9999999};
+		}
 	}
 
 	return diagnostic;

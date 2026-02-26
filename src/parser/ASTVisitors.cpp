@@ -20,6 +20,7 @@ void* const RecursiveVisitor::paramWrite = new tag();
 void* const RecursiveVisitor::paramReadWrite = new tag();
 
 std::string input_script_filename;
+std::string actual_input_script_filename;
 uint32_t zscript_failcode = 0;
 std::vector<Diagnostic>* current_diagnostics;
 bool zscript_error_out = false;
