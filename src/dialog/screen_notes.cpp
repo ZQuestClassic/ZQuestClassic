@@ -122,7 +122,7 @@ std::shared_ptr<GUI::Widget> BrowseNotesDialog::view()
 		Column(
 			hPadding = 0_px, 
 			Row(
-				widgList = List(data = lister, isABC = true,
+				widgList = List(data = lister, isABC = false,
 					selectedValue = selected_val,
 					fitParent = true,
 					onSelectFunc = [&](int32_t val)
@@ -145,9 +145,11 @@ std::shared_ptr<GUI::Widget> BrowseNotesDialog::view()
 						}
 					},
 					onDClick = message::EDIT),
-				prevlbl = Label(text = "",
-					width = 30_em, minheight = 30_em,
-					fitParent = true)
+				ScrollingPane(targHeight = 400_px,
+					prevlbl = Label(text = "",
+						width = 30_em, minheight = 30_em,
+						fitParent = true)
+				)
 			),
 			Row(padding = 0_px,
 				Row(padding = 0_px,
