@@ -2674,123 +2674,130 @@ ADDV D2 2                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 27 tests/scripts/misc/metadata.zs:78
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 28 tests/scripts/misc/metadata.zs:78
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 29 tests/scripts/misc/metadata.zs:78
-PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:80
-PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 31 tests/scripts/misc/metadata.zs:80
-CALLFUNC 0.0145; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 32 tests/scripts/misc/metadata.zs:80
-POP D4                                                                          | 33 tests/scripts/misc/metadata.zs:80
-PUSHR CLASS_THISKEY                                                             | 34 tests/scripts/misc/metadata.zs:83
-PUSHR D4                                                                        | 35 tests/scripts/misc/metadata.zs:83
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 36 tests/scripts/misc/metadata.zs:83
-CALLFUNC 0.0115; ClassFunc[Car Car::Car(int)] Constructor Call                  | 37 tests/scripts/misc/metadata.zs:83
-POP D4                                                                          | 38 tests/scripts/misc/metadata.zs:83
-POP CLASS_THISKEY                                                               | 39 tests/scripts/misc/metadata.zs:83
-STORE_OBJECT D2 0.0007                                                          | 40 tests/scripts/misc/metadata.zs:83
-ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 41 tests/scripts/misc/metadata.zs:84
-WRITEPODSTRING D2 "%d %d %d\n"                                                  | 42 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 43 tests/scripts/misc/metadata.zs:84
-LOAD D2 0.0007                                                                  | 44 tests/scripts/misc/metadata.zs:84
-ZCLASS_READ D2 0                                                                | 45 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2                                                                    | 46 tests/scripts/misc/metadata.zs:84
-LOAD D2 0.0013                                                                  | 47 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2                                                                    | 48 tests/scripts/misc/metadata.zs:84
-SETR D2 GD6                                                                     | 49 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 50 tests/scripts/misc/metadata.zs:84
-SETR D2 GD4                                                                     | 51 tests/scripts/misc/metadata.zs:84
-POP D3                                                                          | 52 tests/scripts/misc/metadata.zs:84
-ADDR D2 D3                                                                      | 53 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 54 tests/scripts/misc/metadata.zs:84
-SETR D2 GD5                                                                     | 55 tests/scripts/misc/metadata.zs:84
-POP D3                                                                          | 56 tests/scripts/misc/metadata.zs:84
-ADDR D2 D3                                                                      | 57 tests/scripts/misc/metadata.zs:84
-ADDV D2 1                                                                       | 58 tests/scripts/misc/metadata.zs:84
-ADDV D2 2                                                                       | 59 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 60 tests/scripts/misc/metadata.zs:84
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 61 tests/scripts/misc/metadata.zs:84
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 62 tests/scripts/misc/metadata.zs:84
-PUSHR CLASS_THISKEY                                                             | 63 tests/scripts/misc/metadata.zs:85
-PUSHR D4                                                                        | 64 tests/scripts/misc/metadata.zs:85
-CALLFUNC 0.0133; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 65 tests/scripts/misc/metadata.zs:85
-POP D4                                                                          | 66 tests/scripts/misc/metadata.zs:85
-POP CLASS_THISKEY                                                               | 67 tests/scripts/misc/metadata.zs:85
-STORE_OBJECT D2 0.0006                                                          | 68 tests/scripts/misc/metadata.zs:85
-PUSHR CLASS_THISKEY                                                             | 69 tests/scripts/misc/metadata.zs:86
-PUSHR D4                                                                        | 70 tests/scripts/misc/metadata.zs:86
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 71 tests/scripts/misc/metadata.zs:86
-CALLFUNC 0.0115; ClassFunc[Car Car::Car(int)] Constructor Call                  | 72 tests/scripts/misc/metadata.zs:86
-POP D4                                                                          | 73 tests/scripts/misc/metadata.zs:86
-POP CLASS_THISKEY                                                               | 74 tests/scripts/misc/metadata.zs:86
-STORE_OBJECT D2 0.0005                                                          | 75 tests/scripts/misc/metadata.zs:86
-LOAD D2 0.0007                                                                  | 76 tests/scripts/misc/metadata.zs:88
-ZCLASS_READ D2 0                                                                | 77 tests/scripts/misc/metadata.zs:88
-STORE D2 0.0004                                                                 | 78 tests/scripts/misc/metadata.zs:88
-LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 79 tests/scripts/misc/metadata.zs:89
-WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 80 tests/scripts/misc/metadata.zs:89
-ALLOCATEMEMV D2 3 0                                                             | 81 tests/scripts/misc/metadata.zs:91
-PUSHR D2                                                                        | 82 tests/scripts/misc/metadata.zs:91
-WRITEPODARRAY D2 {1,2,3}                                                        | 83 tests/scripts/misc/metadata.zs:91
-POP D2                                                                          | 84 tests/scripts/misc/metadata.zs:91
-STORE_OBJECT D2 0.0003                                                          | 85 tests/scripts/misc/metadata.zs:91
-LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 86 tests/scripts/misc/metadata.zs:92
-STORE_OBJECT D2 0.0001                                                          | 87 tests/scripts/misc/metadata.zs:92
-STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 88 tests/scripts/misc/metadata.zs:92
-STOREV 0 0; for(each) #1 ValDecl                                                | 89 tests/scripts/misc/metadata.zs:92
-LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 90 tests/scripts/misc/metadata.zs:92
-ARRAYSIZE D0                                                                    | 91 tests/scripts/misc/metadata.zs:92
-LOAD D3 0.0002                                                                  | 92 tests/scripts/misc/metadata.zs:92
-COMPARER D3 D2                                                                  | 93 tests/scripts/misc/metadata.zs:92
-GOTOCMP 103 >=; for(each) #1 to Else                                            | 94 tests/scripts/misc/metadata.zs:92
-READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 95 tests/scripts/misc/metadata.zs:92
-STORE D2 0                                                                      | 96 tests/scripts/misc/metadata.zs:92
-ADDV D3 1                                                                       | 97 tests/scripts/misc/metadata.zs:92
-STORE D3 0.0002                                                                 | 98 tests/scripts/misc/metadata.zs:92
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 99 tests/scripts/misc/metadata.zs:93
-TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 100 tests/scripts/misc/metadata.zs:93
-GOTO 91; for(each) #1 End                                                       | 101 tests/scripts/misc/metadata.zs:92
-STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 102 tests/scripts/misc/metadata.zs:95
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 103 tests/scripts/misc/metadata.zs:97
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 104 tests/scripts/misc/metadata.zs:97
-STOREV 0 0.0002                                                                 | 105 tests/scripts/misc/metadata.zs:99
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 106 tests/scripts/misc/metadata.zs:100
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 107 tests/scripts/misc/metadata.zs:100
-REF_REMOVE 0.0003                                                               | 108 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0007                                                               | 109 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0005                                                               | 110 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0006                                                               | 111 tests/scripts/misc/metadata.zs:77
-POPARGS D5 0.0014                                                               | 112 tests/scripts/misc/metadata.zs:100
-QUIT; void run(int, int, int, int, int) Body End                                | 113 tests/scripts/misc/metadata.zs:100
-SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 114 tests/scripts/misc/metadata.zs:28
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 115 tests/scripts/misc/metadata.zs:28
-ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 116 tests/scripts/misc/metadata.zs:28
-REF_INC -0.0001                                                                 | 117 tests/scripts/misc/metadata.zs:28
-SETR D4 SP2                                                                     | 118 tests/scripts/misc/metadata.zs:28
-PUSHR CLASS_THISKEY2                                                            | 119 tests/scripts/misc/metadata.zs:28
-LOAD D2 0                                                                       | 120 tests/scripts/misc/metadata.zs:29
-PUSHR D2                                                                        | 121 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 122 tests/scripts/misc/metadata.zs:29
-SETR D3 D2                                                                      | 123 tests/scripts/misc/metadata.zs:29
-POP D2                                                                          | 124 tests/scripts/misc/metadata.zs:29
-ZCLASS_WRITE D3 0                                                               | 125 tests/scripts/misc/metadata.zs:29
-POP D5                                                                          | 126 tests/scripts/misc/metadata.zs:29
-REF_AUTORELEASE CLASS_THISKEY                                                   | 127 tests/scripts/misc/metadata.zs:29
-REF_DEC -0.0001                                                                 | 128 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 129 tests/scripts/misc/metadata.zs:29
-POP CLASS_THISKEY                                                               | 130 tests/scripts/misc/metadata.zs:29
-RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 131 tests/scripts/misc/metadata.zs:29
-SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 132 tests/scripts/misc/metadata.zs:42
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 133 tests/scripts/misc/metadata.zs:42
-ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 134 tests/scripts/misc/metadata.zs:42
-REF_INC -0.0001                                                                 | 135 tests/scripts/misc/metadata.zs:42
-SETR D4 SP2                                                                     | 136 tests/scripts/misc/metadata.zs:42
-PUSHR CLASS_THISKEY2                                                            | 137 tests/scripts/misc/metadata.zs:42
+PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:79
+PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 31 tests/scripts/misc/metadata.zs:79
+CALLFUNC 0.0154; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:79
+PEEK D4
+PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 34 tests/scripts/misc/metadata.zs:80
+CALLFUNC 0.0148; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:80
+POP D4                                                                          | 36 tests/scripts/misc/metadata.zs:80
+PUSHR CLASS_THISKEY                                                             | 37 tests/scripts/misc/metadata.zs:83
+PUSHR D4                                                                        | 38 tests/scripts/misc/metadata.zs:83
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 39 tests/scripts/misc/metadata.zs:83
+CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:83
+POP D4                                                                          | 41 tests/scripts/misc/metadata.zs:83
+POP CLASS_THISKEY                                                               | 42 tests/scripts/misc/metadata.zs:83
+STORE_OBJECT D2 0.0007                                                          | 43 tests/scripts/misc/metadata.zs:83
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 44 tests/scripts/misc/metadata.zs:84
+WRITEPODSTRING D2 "%d %d %d\n"                                                  | 45 tests/scripts/misc/metadata.zs:84
+PUSHR D2                                                                        | 46 tests/scripts/misc/metadata.zs:84
+LOAD D2 0.0007                                                                  | 47 tests/scripts/misc/metadata.zs:84
+ZCLASS_READ D2 0                                                                | 48 tests/scripts/misc/metadata.zs:84
+PUSHVARGR D2                                                                    | 49 tests/scripts/misc/metadata.zs:84
+LOAD D2 0.0013                                                                  | 50 tests/scripts/misc/metadata.zs:84
+PUSHVARGR D2                                                                    | 51 tests/scripts/misc/metadata.zs:84
+SETR D2 GD6                                                                     | 52 tests/scripts/misc/metadata.zs:84
+PUSHR D2                                                                        | 53 tests/scripts/misc/metadata.zs:84
+SETR D2 GD4                                                                     | 54 tests/scripts/misc/metadata.zs:84
+POP D3                                                                          | 55 tests/scripts/misc/metadata.zs:84
+ADDR D2 D3                                                                      | 56 tests/scripts/misc/metadata.zs:84
+PUSHR D2                                                                        | 57 tests/scripts/misc/metadata.zs:84
+SETR D2 GD5                                                                     | 58 tests/scripts/misc/metadata.zs:84
+POP D3                                                                          | 59 tests/scripts/misc/metadata.zs:84
+ADDR D2 D3                                                                      | 60 tests/scripts/misc/metadata.zs:84
+ADDV D2 1                                                                       | 61 tests/scripts/misc/metadata.zs:84
+ADDV D2 2                                                                       | 62 tests/scripts/misc/metadata.zs:84
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 63 tests/scripts/misc/metadata.zs:84
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 64 tests/scripts/misc/metadata.zs:84
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 65 tests/scripts/misc/metadata.zs:84
+PUSHR CLASS_THISKEY                                                             | 66 tests/scripts/misc/metadata.zs:85
+PUSHR D4                                                                        | 67 tests/scripts/misc/metadata.zs:85
+CALLFUNC 0.0136; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:85
+POP D4                                                                          | 69 tests/scripts/misc/metadata.zs:85
+POP CLASS_THISKEY                                                               | 70 tests/scripts/misc/metadata.zs:85
+STORE_OBJECT D2 0.0006                                                          | 71 tests/scripts/misc/metadata.zs:85
+PUSHR CLASS_THISKEY                                                             | 72 tests/scripts/misc/metadata.zs:86
+PUSHR D4                                                                        | 73 tests/scripts/misc/metadata.zs:86
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 74 tests/scripts/misc/metadata.zs:86
+CALLFUNC 0.0118; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:86
+POP D4                                                                          | 76 tests/scripts/misc/metadata.zs:86
+POP CLASS_THISKEY                                                               | 77 tests/scripts/misc/metadata.zs:86
+STORE_OBJECT D2 0.0005                                                          | 78 tests/scripts/misc/metadata.zs:86
+LOAD D2 0.0007                                                                  | 79 tests/scripts/misc/metadata.zs:88
+ZCLASS_READ D2 0                                                                | 80 tests/scripts/misc/metadata.zs:88
+STORE D2 0.0004                                                                 | 81 tests/scripts/misc/metadata.zs:88
+LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 82 tests/scripts/misc/metadata.zs:89
+WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 83 tests/scripts/misc/metadata.zs:89
+ALLOCATEMEMV D2 3 0                                                             | 84 tests/scripts/misc/metadata.zs:91
+PUSHR D2                                                                        | 85 tests/scripts/misc/metadata.zs:91
+WRITEPODARRAY D2 {1,2,3}                                                        | 86 tests/scripts/misc/metadata.zs:91
+POP D2                                                                          | 87 tests/scripts/misc/metadata.zs:91
+STORE_OBJECT D2 0.0003                                                          | 88 tests/scripts/misc/metadata.zs:91
+LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 89 tests/scripts/misc/metadata.zs:92
+STORE_OBJECT D2 0.0001                                                          | 90 tests/scripts/misc/metadata.zs:92
+STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 91 tests/scripts/misc/metadata.zs:92
+STOREV 0 0; for(each) #1 ValDecl                                                | 92 tests/scripts/misc/metadata.zs:92
+LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 93 tests/scripts/misc/metadata.zs:92
+ARRAYSIZE D0                                                                    | 94 tests/scripts/misc/metadata.zs:92
+LOAD D3 0.0002                                                                  | 95 tests/scripts/misc/metadata.zs:92
+COMPARER D3 D2                                                                  | 96 tests/scripts/misc/metadata.zs:92
+GOTOCMP 106 >=; for(each) #1 to Else                                            | 97 tests/scripts/misc/metadata.zs:92
+READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 98 tests/scripts/misc/metadata.zs:92
+STORE D2 0                                                                      | 99 tests/scripts/misc/metadata.zs:92
+ADDV D3 1                                                                       | 100 tests/scripts/misc/metadata.zs:92
+STORE D3 0.0002                                                                 | 101 tests/scripts/misc/metadata.zs:92
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 102 tests/scripts/misc/metadata.zs:93
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 103 tests/scripts/misc/metadata.zs:93
+GOTO 94; for(each) #1 End                                                       | 104 tests/scripts/misc/metadata.zs:92
+STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 105 tests/scripts/misc/metadata.zs:95
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 106 tests/scripts/misc/metadata.zs:97
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 107 tests/scripts/misc/metadata.zs:97
+STOREV 0 0.0002                                                                 | 108 tests/scripts/misc/metadata.zs:99
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 109 tests/scripts/misc/metadata.zs:100
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 110 tests/scripts/misc/metadata.zs:100
+REF_REMOVE 0.0003                                                               | 111 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0007                                                               | 112 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0005                                                               | 113 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0006                                                               | 114 tests/scripts/misc/metadata.zs:77
+POPARGS D5 0.0014                                                               | 115 tests/scripts/misc/metadata.zs:100
+QUIT; void run(int, int, int, int, int) Body End                                | 116 tests/scripts/misc/metadata.zs:100
+SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 117 tests/scripts/misc/metadata.zs:28
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 118 tests/scripts/misc/metadata.zs:28
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 119 tests/scripts/misc/metadata.zs:28
+REF_INC -0.0001                                                                 | 120 tests/scripts/misc/metadata.zs:28
+SETR D4 SP2                                                                     | 121 tests/scripts/misc/metadata.zs:28
+PUSHR CLASS_THISKEY2                                                            | 122 tests/scripts/misc/metadata.zs:28
+LOAD D2 0                                                                       | 123 tests/scripts/misc/metadata.zs:29
+PUSHR D2                                                                        | 124 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 125 tests/scripts/misc/metadata.zs:29
+SETR D3 D2                                                                      | 126 tests/scripts/misc/metadata.zs:29
+POP D2                                                                          | 127 tests/scripts/misc/metadata.zs:29
+ZCLASS_WRITE D3 0                                                               | 128 tests/scripts/misc/metadata.zs:29
+POP D5                                                                          | 129 tests/scripts/misc/metadata.zs:29
+REF_AUTORELEASE CLASS_THISKEY                                                   | 130 tests/scripts/misc/metadata.zs:29
+REF_DEC -0.0001                                                                 | 131 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 132 tests/scripts/misc/metadata.zs:29
+POP CLASS_THISKEY                                                               | 133 tests/scripts/misc/metadata.zs:29
+RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 134 tests/scripts/misc/metadata.zs:29
+SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 135 tests/scripts/misc/metadata.zs:42
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 136 tests/scripts/misc/metadata.zs:42
+ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 137 tests/scripts/misc/metadata.zs:42
+REF_INC -0.0001                                                                 | 138 tests/scripts/misc/metadata.zs:42
+SETR D4 SP2                                                                     | 139 tests/scripts/misc/metadata.zs:42
+PUSHR CLASS_THISKEY2                                                            | 140 tests/scripts/misc/metadata.zs:42
 NOP
 REF_AUTORELEASE CLASS_THISKEY
 REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body End
-SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 144 tests/scripts/misc/metadata.zs:61
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 145 tests/scripts/misc/metadata.zs:63
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 146 tests/scripts/misc/metadata.zs:63
-LOAD D2 0; return Start                                                         | 147 tests/scripts/misc/metadata.zs:64
-POP D5; return End                                                              | 148 tests/scripts/misc/metadata.zs:64
-RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 149 tests/scripts/misc/metadata.zs:64
+SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 147 tests/scripts/misc/metadata.zs:61
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 148 tests/scripts/misc/metadata.zs:63
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 149 tests/scripts/misc/metadata.zs:63
+LOAD D2 0; return Start                                                         | 150 tests/scripts/misc/metadata.zs:64
+POP D5; return End                                                              | 151 tests/scripts/misc/metadata.zs:64
+RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 152 tests/scripts/misc/metadata.zs:64
+SETR D4 SP2; Func[void fn(int)] Body Start                                      | 153 tests/scripts/misc/metadata.zs:107
+NOP
+POP D5
+RETURNFUNC; Func[void fn(int)] Body End

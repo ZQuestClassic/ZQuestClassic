@@ -149,9 +149,8 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 		markReachable(*block);
 		failure_temp = failure_halt = false;
 		bool no_ret = false;
-		if(stmts.empty()) //Function is completely empty; optimize
+		if(stmts.empty())
 		{
-			function.setFlag(FUNCFLAG_NIL);
 			no_ret = true; //still a missing return error if not void/constructor
 		}
 		else
