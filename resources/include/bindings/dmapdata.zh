@@ -134,7 +134,6 @@ class dmapdata {
 	internal int Continue;
 
 	// @value [enum DMapType]
-
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
 
@@ -277,7 +276,6 @@ class dmapdata {
 	//
 	// @deprecated_future Use [Flagset] instead!
 	// @value [enum DMapBitflags]
-
 	// @zasm_var DMAPDATAFLAGS
 	internal int Flags;
 

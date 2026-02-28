@@ -48,7 +48,6 @@ class messagedata {
 	// The font to display the message in.
 	//
 	// @value [enum Font]
-
 	// @zasm_var MESSAGEDATAFONT
 	internal int Font;
 

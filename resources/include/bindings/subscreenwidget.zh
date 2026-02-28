@@ -32,7 +32,6 @@ class subscreenwidget {
 	// The widget's type.
 	//
 	// @value [enum SubscreenWidgetType]
-
 	// @zasm_var SUBWIDGTYPE
 	internal const int Type;
 
@@ -517,7 +516,6 @@ class subscreenwidget {
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum Font]
-
 	// @zasm_var SUBWIDGTY_FONT
 	internal int Font;
 
@@ -533,7 +531,6 @@ class subscreenwidget {
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum TextAlignment]
-
 	// @zasm_var SUBWIDGTY_ALIGN
 	internal int Align;
 
@@ -550,7 +547,6 @@ class subscreenwidget {
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum ShadowType]
-
 	// @zasm_var SUBWIDGTY_SHADOWTY
 	internal int ShadowType;
 
@@ -651,7 +647,6 @@ class subscreenwidget {
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
 	// @value [enum SubscreenItemButton]
-
 	// @zasm_var SUBWIDGTY_BUTTON
 	internal int Button;
 
@@ -659,7 +654,6 @@ class subscreenwidget {
 	//
 	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value, [SUBWIDG_COUNTERPERCBAR] - 1 value
 	// @value [enum CounterIndex]
-
 	// @zasm_var SUBWIDGTY_COUNTERS
 	internal int Counter[];
 

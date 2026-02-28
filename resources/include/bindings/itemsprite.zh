@@ -68,7 +68,6 @@ class itemsprite {
 	// The item pickup bitflags.
 	//
 	// @value [enum ItemPickupBitflags]
-
 	// @zasm_var ITEMPICKUP
 	internal int Pickup;
 
@@ -102,7 +101,6 @@ class itemsprite {
 	// The bitflags associated with the pickup string.
 	//
 	// @value [enum PickupStringBitflags]
-
 	// @zasm_var ITEMPSTRINGFLAGS
 	internal int PickupStringFlags;
 

@@ -478,7 +478,6 @@ class itemdata {
 	// The bitflags associated with the pickup string.
 	//
 	// @value [enum PickupStringBitflags]
-
 	// @zasm_var IDATAPFLAGS
 	internal int PickupStringFlags;
 
@@ -520,7 +519,6 @@ class itemdata {
 	// Misc bitflags for the item graphics.
 	//
 	// @value [enum ItemMiscBitflags]
-
 	// @zasm_var IDATAMISC
 	internal int MiscFlags;
 

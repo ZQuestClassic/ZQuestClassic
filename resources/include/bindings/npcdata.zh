@@ -304,7 +304,6 @@ class npcdata {
 	// The weapon type used by the npc.
 	//
 	// @value [enum NPCWeapon]
-
 	// @zasm_var NPCDATAWEAPON
 	internal int Weapon;
 
@@ -442,7 +441,6 @@ class npcdata {
 	//
 	// @index [enum NPCDefenseIndex]
 	// @value [enum NPCDefenseType]
-
 	// @zasm_var NPCDATADEFENSE
 	internal int Defense[];
 
@@ -450,7 +448,6 @@ class npcdata {
 	// tab are rendered by the engine.
 	//
 	// @value [enum SizeOverrideBitflags]
-
 	// @zasm_var NPCDATASIZEFLAG
 	internal bool SizeFlags;
 

@@ -101,6 +101,9 @@ class Audio {
 	// @zasm_var AUDIOPAN
 	internal int PanStyle;
 
+	// The ID of the currently playing MIDI track. Returns 0 if no MIDI is
+	// playing, otherwise returns the MIDI number.
+	//
 	// @zasm_var GETMIDI
 	internal const int MIDI;
 	
@@ -127,7 +130,6 @@ class Audio {
 	// changing screens.
 	//
 	// @value [enum MusicRefreshMode]
-
 	// @zasm_var MUSICUPDATECOND
 	internal int MusicRefresh;
 
