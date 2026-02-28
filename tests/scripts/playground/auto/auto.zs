@@ -2,6 +2,7 @@
 
 #include "auto/arrays.zs"
 #include "auto/bitmap_load_rt_screen.zs"
+#include "auto/bug_convert_rgb.zs"
 #include "auto/bug_empty_constructor.zs"
 #include "auto/bug_nested_class_constructors.zs"
 #include "auto/bug_object_deleted_during_constructor.zs"

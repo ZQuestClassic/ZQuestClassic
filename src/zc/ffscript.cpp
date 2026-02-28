@@ -19865,7 +19865,7 @@ void FFScript::do_create_rgb()
 
 void FFScript::do_convert_from_rgb()
 {
-	int32_t buf = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t buf = SH::read_stack(ri->sp + 2);
 	int32_t clri = SH::read_stack(ri->sp + 1);
 	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
 
@@ -19903,7 +19903,7 @@ void FFScript::do_convert_from_rgb()
 
 void FFScript::do_convert_to_rgb()
 {
-	int32_t buf = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t buf = SH::read_stack(ri->sp + 1);
 	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
 	
 	ArrayManager am(buf);
@@ -27481,8 +27481,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			//Module
 			case MODULEGETIC:
 			{
-				
-				int32_t buf_pointer = SH::get_arg(sarg1, false) / 10000;
+				int32_t buf_pointer = SH::get_arg(sarg1, false);
 				int32_t element = SH::get_arg(sarg2, false) / 10000;
 				
 				if ( ((unsigned)element) > 511 )
@@ -27883,7 +27882,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if(checkComboRef())
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					string name;
 					ArrayH::getString(aptr, name, 256);
 					newcombo const& cmb = combobuf[GET_REF(combodataref)];
@@ -27905,7 +27904,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if(auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					if(ArrayH::setArray(aptr, trig->label, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'combotrigger->GetLabel()' not large enough,"
 							" and couldn't be resized!\n");
@@ -27916,7 +27915,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if (auto* trig = get_combo_trigger(GET_REF(combotriggerref)))
 				{
-					auto aptr = get_register(sarg1) / 10000;
+					auto aptr = get_register(sarg1);
 					ArrayH::getString(aptr, trig->label);
 				}
 				break;
