@@ -176,15 +176,34 @@ def validate(tests: list[Test]):
     failed_verification = False
     for test in tests:
         content = test.replay_path.read_text()
-        test_lines = [l for l in content.splitlines() if '[Test]' in l]
-        failed_lines = [l for l in test_lines if '[Test] failed' in l]
+        lines = content.splitlines()
 
         errors = []
-        if not any(l for l in test_lines if '[Test] started' in l):
+        has_started = False
+        has_done = False
+
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+
+            if '[Test] started' in line:
+                has_started = True
+            elif '[Test] done' in line:
+                has_done = True
+            elif '[Test] failed' in line:
+                errors.append(line)
+                i += 1
+                # Capture the subsequent stack trace lines.
+                while i < len(lines) and '  at ' in lines[i]:
+                    errors.append(lines[i])
+                    i += 1
+                continue
+
+            i += 1
+
+        if not has_started:
             errors.append('missing call to Test::Init()')
-        for line in failed_lines:
-            errors.append(line)
-        if not any(l for l in test_lines if '[Test] done' in l):
+        if not has_done:
             errors.append('test ended abnormally')
 
         if errors:
