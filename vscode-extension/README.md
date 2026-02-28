@@ -14,6 +14,8 @@ Setup:
 * "Go to Definition" support for variables/functions/other symbols (`Ctrl/CMD + click` or right-click)
 * Document outline for all the symbols in a script
 * Hover tooltips to show code documentation
+* Contextual autocomplete
+* Function signature help (`Cmd/ctrl + shift + space`)
 * Some support for autoformatting
 
 
