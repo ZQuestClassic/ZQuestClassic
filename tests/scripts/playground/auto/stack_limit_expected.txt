@@ -18,7 +18,7 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 8,
-    "symbols": 14,
+    "symbols": 15,
     "identifiers": 31,
     "elided": true
   }

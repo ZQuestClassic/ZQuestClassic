@@ -43,7 +43,12 @@ async function main() {
 		extensionTestsEnv.TEST_ZSCRIPT = '1';
 
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath, extensionTestsEnv });
+		await runTests({
+			extensionDevelopmentPath,
+			extensionTestsPath,
+			extensionTestsEnv,
+			launchArgs: ['--disable-crash-reporter'],
+		});
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);

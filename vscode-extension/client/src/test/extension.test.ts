@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as assert from 'assert';
-import { getDocUri, activate, setTestContent, executeDocumentSymbolProvider, executeHoverProvider, sleep, executeCompletionItemProvider } from './helper.js';
+import { getDocUri, activate, setTestContent, executeDocumentSymbolProvider, executeHoverProvider, sleep, executeCompletionItemProvider, executeDocumentHighlights } from './helper.js';
 import { before } from 'mocha';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
@@ -11,15 +11,32 @@ function range(sLine: number, sChar: number, eLine: number, eChar: number) {
 }
 
 async function testDiagnostics(uri: vscode.Uri, expectedDiagnostics: vscode.Diagnostic[]) {
-	// Diagnostics are a push-model, so lets give the server a moment to process the script.
-	await sleep(2000);
-	const actualDiagnostics = vscode.languages.getDiagnostics(uri)
-		.map(({ message, range, severity }) => ({ message, range, severity }));
-	for (const diag of actualDiagnostics) {
-		if (diag.message.startsWith('Error in temp file')) {
-			diag.message = 'Error in temp file';
+	let actualDiagnostics: any[] = [];
+
+	// Poll every 500ms for up to 5 seconds (10 attempts).
+	for (let i = 0; i < 10; i++) {
+		await sleep(500);
+
+		actualDiagnostics = vscode.languages.getDiagnostics(uri)
+			.map(({ message, range, severity }) => ({ message, range, severity }));
+
+		for (const diag of actualDiagnostics) {
+			if (diag.message.startsWith('Error in temp file')) {
+				diag.message = 'Error in temp file';
+			}
+		}
+
+		try {
+			// If they match, the compiler finished and we are good to go!
+			assert.deepStrictEqual(actualDiagnostics, expectedDiagnostics);
+			return;
+		} catch (e) {
+			// If they don't match yet, ignore the error and wait for the next loop.
 		}
 	}
+
+	// If we exhaust all 10 loops, run it one last time to explicitly throw the 
+	// AssertionError so Mocha reports the nice diff output.
 	assert.deepStrictEqual(actualDiagnostics, expectedDiagnostics);
 }
 
@@ -31,6 +48,9 @@ suite('ZScript extension', function () {
 		if (!process.env.CI) {
 			this.snapshotStateOptions = { updateSnapshot: 'all' };
 		}
+
+		const uri = getDocUri('empty.zs');
+		await setTestContent(uri, '');
 	});
 
 	suite('Diagnoses errors and warnings', () => {
@@ -63,26 +83,27 @@ suite('ZScript extension', function () {
 	suite('Diagnoses errors and warnings - unsaved changes', () => {
 		const uri = getDocUri('empty.zs');
 
-		before(async () => {
+		async function setup(version: string): Promise<void> {
+			await activate(version, uri);
 			await setTestContent(uri, '#option WARN_DEPRECATED warn\n\nimport "std.zh"\n\nvoid fn() {\n\tScreen->HasItem;\n}\n');
-		});
+		}
 
 		test('2.55', async () => {
-			await activate('2.55', uri);
+			await setup('2.55');
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'Screen->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
 			]);
 		});
 
 		test('3-no-json', async () => {
-			await activate('3-no-json', uri);
+			await setup('3-no-json');
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'screendata->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
 			]);
 		});
 
 		test('latest', async () => {
-			await activate('latest', uri);
+			await setup('latest');
 			await testDiagnostics(uri, [
 				{ message: `S094: Variable 'screendata->HasItem' is deprecated, and should not be used.\nCheck \`->Item > -1\` instead!`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
 			]);
@@ -209,6 +230,35 @@ suite('ZScript extension', function () {
 			await activate('latest', uri);
 			expect(await getSymbols()).toMatchSnapshot();
 		});
+	});
+
+	test('Document highlights', async () => {
+		const uri = getDocUri('empty.zs');
+		const code = [
+			'void fn() {',
+			'	int myVar = 1;',
+			'	myVar++;',
+			'}',
+			'void fn2() {',
+			'	int myVar = 2;',
+			'	myVar++;',
+			'}'
+		].join('\n');
+
+		await setTestContent(uri, code);
+
+		await activate('latest', uri);
+
+		// Trigger highlight on `myVar` inside `fn` (Line 2).
+		const highlights = await executeDocumentHighlights(uri, new vscode.Position(2, 2));
+
+		// It should only find the 2 instances in `fn`, ignoring the 2 identically named ones in `fn2`.
+		expect(highlights).toBeDefined();
+		expect(highlights.length).toBe(2);
+
+		// Verify it highlighted line 1 (declaration) and line 2 (usage).
+		expect(highlights.some(h => h.range.start.line === 1)).toBe(true);
+		expect(highlights.some(h => h.range.start.line === 2)).toBe(true);
 	});
 
 	suite('Autocomplete global constants', () => {

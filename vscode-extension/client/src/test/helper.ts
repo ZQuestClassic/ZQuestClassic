@@ -56,6 +56,10 @@ export async function executeHoverProvider(uri: vscode.Uri, pos: vscode.Position
 	return vscode.commands.executeCommand('vscode.executeHoverProvider', uri, pos);
 }
 
+export async function executeDocumentHighlights(uri: vscode.Uri, pos: vscode.Position): Promise<vscode.DocumentHighlight[]> {
+	return vscode.commands.executeCommand('vscode.executeDocumentHighlights', uri, pos);
+}
+
 export async function executeCompletionItemProvider(uri: vscode.Uri, pos: vscode.Position): Promise<vscode.CompletionList> {
 	return vscode.commands.executeCommand('vscode.executeCompletionItemProvider', uri, pos);
 }

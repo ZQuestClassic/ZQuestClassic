@@ -286,10 +286,6 @@ static std::string getSymbolId(const DataType* type)
 {
 	if (auto t = dynamic_cast<const DataTypeCustom*>(type))
 	{
-		// For tests, use an id that is more stable (but not guaranteed to be unique).
-		if (is_test())
-			return type->getName();
-
 		return fmt::format("custom.{}", t->getCustomId());
 	}
 
@@ -300,39 +296,11 @@ static std::string getSymbolId(const DataType* type)
 
 static std::string getSymbolId(const Datum* datum)
 {
-	// For tests, use an id that is more stable (but not guaranteed to be unique).
-	if (is_test())
-	{
-		std::string name = datum->getName().value();
-		if (datum->scope.getName())
-			return fmt::format("{}-{}", fs::path(datum->scope.getName().value()).filename().string(), name);
-		return name;
-	}
-
 	return std::to_string(datum->id);
 }
 
 static std::string getSymbolId(const Function* fn)
 {
-	// For tests, use an id that is more stable (but not guaranteed to be unique).
-	if (is_test())
-	{
-		if (fn->getFlag(FUNCFLAG_CONSTRUCTOR))
-			return fmt::format("ctor-{}", fn->name);
-		if (fn->getFlag(FUNCFLAG_DESTRUCTOR))
-			return fmt::format("dtor-{}", fn->name);
-		if (fn->templ_bound_ts.size())
-		{
-			std::string name;
-			for (const auto& type : fn->templ_bound_ts)
-				name += type->getName() + "-";
-			name += fn->name;
-			return name;
-		}
-
-		return fn->name;
-	}
-
 	return fmt::format("fn.{}", fn->id);
 }
 

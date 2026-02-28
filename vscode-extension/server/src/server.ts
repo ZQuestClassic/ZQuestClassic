@@ -20,17 +20,21 @@ import {
 	SignatureHelpParams,
 	SignatureHelp,
 	WorkspaceFolder,
+	DocumentHighlightParams,
+	DocumentHighlight,
 } from 'vscode-languageserver/node';
 import { URI } from 'vscode-uri';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import path = require('path');
 import * as glob from 'glob';
 import { checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, globalTmpDir, JobResult, runCompiler, Settings } from './helpers.js';
 import { cachedGlobalCompletionItems, globalClasses, globalVariables, onCompletion, updateCompletionItems } from './completion.js';
 import { onSignatureHelp } from './signature-help.js';
+import { onDocumentHighlight } from './document-highlight.js';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -94,6 +98,7 @@ connection.onInitialize(async (params: InitializeParams) => {
 			signatureHelpProvider: {
 				triggerCharacters: ['(', ','],
 			},
+			documentHighlightProvider: true,
 			hoverProvider: true,
 			definitionProvider: true,
 			documentSymbolProvider: {
@@ -146,7 +151,10 @@ connection.onDidChangeConfiguration(async (change) => {
 	configUpdateController = new AbortController();
 	const signal = configUpdateController.signal;
 
-	[...activeJobs.keys()].forEach(abandonJob);
+	[...activeJobs.keys()].forEach(doc => {
+		abandonJob(doc);
+		connection.sendDiagnostics({ uri: doc.uri, diagnostics: [] });
+	});
 	docJobResults.clear();
 	cachedGlobalCompletionItems.length = 0;
 	globalClasses.clear();
@@ -208,7 +216,7 @@ documents.onDidChangeContent(e => {
 	}
 });
 
-function parseOutput(settings: Settings, stdout: string, stderr: string): JobResult {
+function parseOutput(settings: Settings, stdout: string, stderr: string, tmpScript: string, tmpInput: string): JobResult {
 	if (stdout.startsWith('{')) {
 		const result = JSON.parse(stdout) as JobResult;
 		if (settings.printCompilerOutput) {
@@ -367,10 +375,24 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): JobRes
 	return { diagnostics, metadata };
 }
 
-const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
-const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
+function getTmpScriptPath(uri: string): string {
+	const uriHash = crypto.createHash('md5').update(uri).digest('hex');
+	const folder = `${globalTmpDir}/${uriHash}`;
+	fs.mkdirSync(folder, { recursive: true });
+	return cleanupFile(`${folder}/tmp.zs`);
+}
+
+function getTmpInputPath(uri: string): string {
+	const uriHash = crypto.createHash('md5').update(uri).digest('hex');
+	const folder = `${globalTmpDir}/${uriHash}`;
+	fs.mkdirSync(folder, { recursive: true });
+	return cleanupFile(`${folder}/tmp2.zs`);
+}
 
 async function processScript(uri: string, content: string, signal: AbortSignal): Promise<JobResult | null> {
+	const tmpScript = getTmpScriptPath(uri);
+	const tmpInput = getTmpInputPath(uri);
+
 	const settings = await getDocumentSettings(uri);
 	let includeText = "#option NO_ERROR_HALT on\n";
 
@@ -455,7 +477,7 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		stdout = e.stdout || e.toString();
 	}
 
-	const { diagnostics, metadata } = parseOutput(settings, stdout, stderr);
+	const { diagnostics, metadata } = parseOutput(settings, stdout, stderr, tmpScript, tmpInput);
 
 	// Fallback, incase compiling failed but we failed to parse out an error.
 	if (!success && diagnostics.length === 0) {
@@ -633,6 +655,21 @@ connection.onSignatureHelp(
 	}
 );
 
+connection.onDocumentHighlight(
+	async (params: DocumentHighlightParams): Promise<DocumentHighlight[] | null> => {
+		const doc = documents.get(params.textDocument.uri);
+		if (!doc) return null;
+
+		const metadata = await getOrWaitForScriptMetadata(doc);
+		if (!metadata) return null;
+
+		return onDocumentHighlight({
+			document: doc,
+			metadata,
+			params,
+		});
+	});
+
 async function resolvePosition(doc: TextDocument, pos: Position) {
 	const result = docJobResults.get(doc.uri);
 	if (!result)
@@ -692,7 +729,8 @@ connection.onDefinition(async (p: DefinitionParams) => {
 
 	const { metadata, identifier } = result;
 	const symbol = metadata.symbols[identifier.symbol];
-	if (cleanupFile2(symbol.loc.uri) === tmpScript || symbol.loc.uri === 'file://' + tmpScript)
+	const tmpScriptPath = getTmpScriptPath(symbol.loc.uri);
+	if (cleanupFile2(symbol.loc.uri) === tmpScriptPath || symbol.loc.uri === 'file://' + tmpScriptPath)
 		symbol.loc.uri = p.textDocument.uri;
 	return symbol.loc;
 });

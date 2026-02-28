@@ -7432,7 +7432,7 @@ stdout:
   ],
   "metadata": {
     "currentFileSymbols": 392,
-    "symbols": 813,
+    "symbols": 929,
     "identifiers": 10361,
     "elided": true
   }
