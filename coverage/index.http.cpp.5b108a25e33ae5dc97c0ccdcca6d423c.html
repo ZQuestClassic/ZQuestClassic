@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-02-23 02:24:59</td>
+      <td>2026-02-28 23:16:37</td>
     </tr>
   </table>
 </div>
@@ -73,9 +73,9 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l18">http::_write_callback(char*, unsigned long, unsigned long, void*) (line 18)</a></td><td>called 2 times, returned 2 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l26">http::get(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 26)</a></td><td>called 1 time, returned 1 time</td><td>47.0%</td></tr>
-    <tr><td><a href="#l13">http::http_response::success() const (line 13)</a></td><td>called 2 times, returned 2 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l18">http::_write_callback(char*, unsigned long, unsigned long, void*) (line 18)</a></td><td>called 785 times, returned 785 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l26">http::get(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 26)</a></td><td>called 262 times, returned 262 times</td><td>47.0%</td></tr>
+    <tr><td><a href="#l13">http::http_response::success() const (line 13)</a></td><td>called 263 times, returned 263 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l50">http::upload(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, std::filesystem::__cxx11::path) (line 50)</a></td><td>called 1 time, returned 1 time</td><td>48.0%</td></tr>
   </table>
 </details>
@@ -165,7 +165,7 @@
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">432</td>
+      <td class="linecount coveredLine">436</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">UA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;ZQuestClassic/{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">getVersionString</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -179,7 +179,7 @@
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">263</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">http_response::success</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -196,11 +196,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 263 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">2</td>
+      <td class="linecount partialCoveredLine">263</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">status_code</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">status_code</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">300</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -221,7 +221,7 @@
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">785</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">_write_callback</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">contents</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">nmemb</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">userp</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -235,28 +235,28 @@
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">785</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">size_t</span><span class="w"> </span><span class="n">total_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nmemb</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">785</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">)</span><span class="n">userp</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">785</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">str</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">str</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">contents</span><span class="p">,</span><span class="w"> </span><span class="n">contents</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">total_size</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
+      <td class="linecount coveredLine">785</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">total_size</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -277,7 +277,7 @@
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
+      <td class="linecount coveredLine">262</td>
       <td class="src coveredLine"><span class="n">expected</span><span class="o">&lt;</span><span class="n">http_response</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">url</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -291,7 +291,7 @@
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
+      <td class="linecount coveredLine">262</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">http_response</span><span class="w"> </span><span class="n">response</span><span class="p">{};</span></td>
     </tr>
     <tr class="source-line">
@@ -307,12 +307,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">CURL</span><span class="w"> </span><span class="o">*</span><span class="n">curl_handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curl_easy_init</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -321,12 +321,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">,</span><span class="w"> </span><span class="n">CURLOPT_URL</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -335,12 +335,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">,</span><span class="w"> </span><span class="n">CURLOPT_WRITEFUNCTION</span><span class="p">,</span><span class="w"> </span><span class="n">_write_callback</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -349,12 +349,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">,</span><span class="w"> </span><span class="n">CURLOPT_WRITEDATA</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">.</span><span class="n">body</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -363,12 +363,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">,</span><span class="w"> </span><span class="n">CURLOPT_USERAGENT</span><span class="p">,</span><span class="w"> </span><span class="n">UA</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -377,12 +377,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">CURLcode</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curl_easy_perform</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -399,11 +399,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 262 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">res</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CURLE_OK</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -454,12 +454,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_getinfo</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">,</span><span class="w"> </span><span class="n">CURLINFO_RESPONSE_CODE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -468,12 +468,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 262 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1</td>
+      <td class="linecount partialCoveredLine">262</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">curl_easy_cleanup</span><span class="p">(</span><span class="n">curl_handle</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -487,14 +487,14 @@
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
+      <td class="linecount coveredLine">262</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1</td>
+      <td class="linecount coveredLine">262</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
