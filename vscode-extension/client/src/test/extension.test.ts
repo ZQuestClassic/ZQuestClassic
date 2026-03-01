@@ -320,7 +320,7 @@ suite('ZScript extension', function () {
 			await vscode.window.showTextDocument(doc2);
 
 			// Set the content for the multi-file test ahead of time
-			await setTestContent(uri2, 'int GLOBAL_VAR = 1;');
+			await setTestContent(uri2, 'int GLOBAL_VAR = 1;\nenum Brand { Fancy };');
 
 			// Switch focus back to uri1
 			const doc1 = await vscode.workspace.openTextDocument(uri1);
@@ -428,9 +428,24 @@ suite('ZScript extension', function () {
 
 			// Filter out VS Code's default text/word suggestions just in case it grabs the literal text
 			const hasGlobalVar = list.items.some(i =>
-				i.label === 'GLOBAL_VAR' && i.kind !== vscode.CompletionItemKind.Text
+				i.label === 'GLOBAL_VAR' && i.kind === vscode.CompletionItemKind.Variable
 			);
 			expect(hasGlobalVar).toBe(true);
+		});
+
+		test('Cross-file global enums', async () => {
+			// `autocomplete_2.zs` was already compiled in the `before` block with `Fancy`.
+			// We just need to check if typing in uri1 can see it.
+			await setTestContent(uri1, 'void fn() {\n\tFan\n}');
+			await sleep(500);
+
+			const list = await executeCompletionItemProvider(uri1, new vscode.Position(1, 4));
+
+			// Filter out VS Code's default text/word suggestions just in case it grabs the literal text
+			const hasEnumMember = list.items.some(i =>
+				i.label === 'Fancy' && i.kind === vscode.CompletionItemKind.EnumMember
+			);
+			expect(hasEnumMember).toBe(true);
 		});
 	});
 });

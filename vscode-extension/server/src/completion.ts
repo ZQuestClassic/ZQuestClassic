@@ -236,6 +236,26 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 					inheritanceDepth++;
 				}
 
+				// If it wasn't a standard global class, check the user's workspace files!
+				if (!foundMemberType) {
+					const workspaceData = getWorkspaceClass(baseTypeName);
+					if (workspaceData && workspaceData.cls.children) {
+						const member = workspaceData.cls.children.find(c => c.name === chain[i]);
+						if (member) {
+							// Look up the rich type in the metadata symbols map
+							const ident = workspaceData.metadata.identifiers.find(id =>
+								id.loc.line === member.selectionRange.start.line &&
+								member.selectionRange.start.character >= id.loc.character &&
+								member.selectionRange.start.character <= id.loc.character + id.loc.length
+							);
+							if (ident) {
+								const metaSym = workspaceData.metadata.symbols[ident.symbol];
+								foundMemberType = metaSym?.type;
+							}
+						}
+					}
+				}
+
 				currentType = foundMemberType;
 			}
 
@@ -258,6 +278,43 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 					inheritanceDepth++;
 				}
 
+				const workspaceData = getWorkspaceClass(baseType);
+				if (workspaceData && workspaceData.cls.children) {
+					for (const child of workspaceData.cls.children) {
+						const ident = workspaceData.metadata.identifiers.find(id =>
+							id.loc.line === child.selectionRange.start.line &&
+							child.selectionRange.start.character >= id.loc.character &&
+							child.selectionRange.start.character <= id.loc.character + id.loc.length
+						);
+
+						let metaSym;
+						if (ident) metaSym = workspaceData.metadata.symbols[ident.symbol];
+
+						let insertText = child.name;
+						let insertTextFormat = InsertTextFormat.PlainText;
+						let command;
+
+						// If it's a function, generate the snippet with parameters!
+						// TODO: can't actually do this right now, b/c metadata doesn't have the info.
+						// if (child.kind === SymbolKind.Function || child.kind === SymbolKind.Method) {
+						// 	const params = metaSym?.parameters || [];
+						// 	const snippetParams = params.map((p: any, idx: number) => `\${${idx + 1}:${p.name}}`);
+						// 	insertText = `${child.name}(${snippetParams.join(', ')})`;
+						// 	insertTextFormat = InsertTextFormat.Snippet;
+						// 	command = { title: 'Trigger Parameter Hints', command: 'editor.action.triggerParameterHints' };
+						// }
+
+						members.push({
+							label: child.name,
+							kind: getCompletionItemKind(child.kind),
+							insertText,
+							insertTextFormat,
+							command,
+							detail: metaSym?.type,
+						});
+					}
+				}
+
 				return members;
 			}
 		}
@@ -267,6 +324,16 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 	}
 
 	const localItems: CompletionItem[] = [];
+
+	function getWorkspaceClass(className: string) {
+		for (const [uri, result] of docJobResults.entries()) {
+			if (result.metadata && result.metadata.currentFileSymbols) {
+				const cls = result.metadata.currentFileSymbols.find(sym => sym.name === className && sym.kind === SymbolKind.Class);
+				if (cls) return { cls, metadata: result.metadata };
+			}
+		}
+		return undefined;
+	}
 
 	// Recursively extract symbols, honoring strict scopes and namespace qualifiers
 	function extractLocalSymbols(symbols: DocumentSymbol[], prefix: string = '', isInsideParent: boolean = true, isCurrentDoc: boolean = true) {
@@ -285,14 +352,18 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 
 			if (sym.children && sym.children.length > 0) {
 				if (isInsideThis) {
-					// We are inside this block (like a function). Its local variables are directly accessible.
+					// We are inside this block. Its local variables are directly accessible.
 					extractLocalSymbols(sym.children, '', true, isCurrentDoc);
-				} else if (sym.kind === SymbolKind.Namespace) {
+				} else if (sym.kind === SymbolKind.Namespace || sym.kind === SymbolKind.Class) {
 					// We are outside, but it's a namespace. We can access members using a qualifier.
 					extractLocalSymbols(sym.children, prefix + sym.name + '::', false, isCurrentDoc);
+				} else if (sym.kind === SymbolKind.Enum) {
+					// Enum members leak into the surrounding scope, so they should be
+					// visible anytime the Enum itself is visible.
+					extractLocalSymbols(sym.children, prefix, isInsideParent, isCurrentDoc);
 				}
-				// Note: If it's a function/method and `isInsideThis` is false, do not recurse.
-				// This keeps its local variables completely hidden.
+				// Note: If it's a function/method/class and `isInsideThis` is false, we DO NOT recurse. 
+				// This keeps local variables and class properties completely hidden.
 			}
 		}
 	}
@@ -305,5 +376,6 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 		}
 	}
 
-	return [...cachedGlobalCompletionItems, ...localItems];
+	const filteredLocalItems = localItems.filter(item => !cachedGlobalCompletionItems.some(g => g.label === item.data));
+	return [...cachedGlobalCompletionItems, ...filteredLocalItems];
 }
