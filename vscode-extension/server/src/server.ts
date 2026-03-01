@@ -133,6 +133,13 @@ connection.onInitialized(async () => {
 
 		// await initWorkspace();
 	}
+	try {
+		const settings = await getDocumentSettings('');
+		configUpdateController = new AbortController();
+		void updateCompletionItems(settings, connection, configUpdateController.signal);
+	} catch (e) {
+		connection.console.error(`Failed to build code completion initial cache: ${e}`);
+	}
 });
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
