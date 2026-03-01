@@ -130,7 +130,6 @@ class combodata {
 	// The solidity bitmask of the combo (same as [Screen->ComboS]).
 	//
 	// @value [enum ComboSolidityBitflags]
-
 	// @zasm_var COMBODWALK
 	internal int Walk;
 
@@ -140,7 +139,6 @@ class combodata {
 	internal int Effect;
 
 	// @value [enum ComboType]
-
 	// @zasm_var COMBODTYPE
 	internal int Type;
 
@@ -180,7 +178,6 @@ class combodata {
 	// The inherent flag of the combo.
 	//
 	// @value [enum ComboFlag]
-
 	// @zasm_var COMBODFLAG
 	internal int Flag;
 
@@ -198,7 +195,6 @@ class combodata {
 	// The combo's animation flags.
 	//
 	// @value [enum AnimationBitflags]
-
 	// @zasm_var COMBODANIMFLAGS
 	internal int AnimFlags;
 

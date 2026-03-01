@@ -302,19 +302,33 @@ class npc {
 	// The death effect for the npc.
 	//
 	// @value [enum NPCFade]
-
 	// @zasm_var NPCFADING
 	internal int Fading;
 
+	// The rate at which the npc changes direction, in frames. Lower values
+	// mean more frequent direction changes.
+	//
+	// For reference, the "Octorok (Magic)" enemy has a rate of 16.
+	//
 	// @zasm_var NPCRATE
 	internal int Rate;
 
+	// The homing value of the npc. Higher values cause the npc to more
+	// aggressively move toward the Hero.
+	//
 	// @zasm_var NPCHOMING
 	internal int Homing;
 
+	// The movement speed of the npc, in 100ths of a pixel per frame.
+	// A step of 100 moves the npc 1 pixel per frame.
+	//
+	// For reference, the "Octorok (Magic)" enemy has a step of 200.
+	//
 	// @zasm_var NPCSTEP
 	internal int Step;
 
+	// The npc's animation frame rate, in screen frames.
+	//
 	// @zasm_var NPCFRAMERATE
 	internal int ASpeed;
 
@@ -329,6 +343,11 @@ class npc {
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 
+	// The rate at which the npc halts. Controls how much the npc stands still
+	// while moving around the screen.
+	//
+	// As a point of reference, the Zols and Gels have a haltrate of 16.
+	//
 	// @zasm_var NPCHALTRATE
 	internal int Haltrate;
 
@@ -337,15 +356,27 @@ class npc {
 	// @zasm_var NPCRANDOM
 	internal int Random;
 
+	// The npc's current hit points. By default, a weapon with a Power of 1 removes 2 hitpoints, but
+	// this is configurable in Init Data.
+	//
 	// @zasm_var NPCHP
 	internal int HP;
 
+	// The amount of damage dealt to the Hero on contact with this npc. By default, the amount of
+	// hitpoints removed is this value multiplied by 4 (this is configurable in Init Data).
+	//
 	// @zasm_var NPCDP
 	internal int Damage;
 
+	// The damage dealt to the Hero by this npc's weapon. By default, a value of
+	// 1 deals 4 HP of damage (equivalent to one quarter-heart at the default
+	// 16 HP-per-heart ratio), but both multipliers are configurable in Init Data.
+	//
 	// @zasm_var NPCWDP
 	internal int WeaponDamage;
 
+	// The original base tile for the npc, as set in the enemy editor.
+	//
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
@@ -368,11 +399,17 @@ class npc {
 	// @zasm_var NPCITEMSET
 	internal int Dropset;
 
+	// The boss palette override for this npc.
+	//
+	// This pallete is only used if CSet is 14 (the reserved boss cset).
+	//
 	// @value [enum BossPal]
-
 	// @zasm_var NPCBOSSPAL
 	internal int BossPal;
 
+	// The background sound effect played by the npc. 0 means no sound.
+	//
+	// @value [enum SoundEffect]
 	// @zasm_var NPCBGSFX
 	internal int SFX;
 
@@ -401,6 +438,8 @@ class npc {
 	// @zasm_var NPCFLAGS
 	internal bool Flags[];
 
+	// If true, collision detection is enabled for the npc.
+	//
 	// @zasm_var NPCCOLLDET
 	internal bool CollDetection;
 
@@ -458,6 +497,10 @@ class npc {
 	// @zasm_var NPCHITBY
 	internal untyped HitBy[];
 
+	// How likely the npc is to move towards bait. Higher values make it more
+	// likely that the npc is attracted to Bait. Only relevant for walking
+	// type enemies.
+	//
 	// @zasm_var NPCHUNGER
 	internal int Hunger;
 
@@ -473,6 +516,8 @@ class npc {
 	// @zasm_var NPCFIRESFX
 	internal int WeaponSFX;
 
+	// @index [enum NPCDefenseIndex]
+	// @value [enum NPCDefenseType]
 	// @zasm_var NPCSCRDEFENSED
 	internal int ScriptDefense[];
 
@@ -504,12 +549,15 @@ class npc {
 	// @zasm_var NPCSHIELD
 	internal bool Shield[];
 
+	// The behavior flags for the npc, corresponding to the 'Editor Flags'
+	// in the Enemy Editor. Each index corresponds to a specific behavior flag.
+	//
 	// @zasm_var NPCBEHAVIOUR
 	internal bool BFlags[];
 
 	// Returns a direction constant if the npc is being knocked back.
 	//
-	// Returns -1 if the npc is not being knockd back.
+	// Returns -1 if the npc is not being knocked back.
 	//
 	// Writing to this has no effect, and is ignored.
 	//
@@ -580,12 +628,19 @@ class npc {
 	// @zasm_var NPCFLASHINGCSET
 	internal const int FlashingCSet;
 
+	// The number of frames the npc remains frozen. If 0, the npc is not frozen.
+	// When frozen, the npc is immobilized and drawn using [FrozenTile] and [FrozenCSet].
+	//
 	// @zasm_var NPCFROZEN
 	internal int Frozen;
 
+	// The tile used to draw the npc when it is frozen.
+	//
 	// @zasm_var NPCFROZENTILE
 	internal int FrozenTile;
 
+	// The CSet used to draw the npc when it is frozen.
+	//
 	// @zasm_var NPCFROZENCSET
 	internal int FrozenCSet;
 
@@ -663,7 +718,7 @@ class npc {
 	//
 	// This is automatically called for most engine npc types
 	//
-	// Calling this from npc types such as 'Other' will allow them to recieve
+	// Calling this from npc types such as 'Other' will allow them to receive
 	// knockback
 	//
 	// This is called as a part of scripted walking functions, such as

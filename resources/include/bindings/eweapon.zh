@@ -44,7 +44,7 @@ class eweapon {
 	// @zasm_var EWPNTYPE
 	internal int Type;
 
-	// For lweapons, the level of the weapon.
+	// For eweapons, the level of the weapon.
 	//
 	// @zasm_var EWPNLEVEL
 	internal int Level;
@@ -103,7 +103,6 @@ class eweapon {
 	internal int FlashCSet;
 
 	// @value [enum WeaponDeadState]
-
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
 
@@ -164,7 +163,6 @@ class eweapon {
 	// Unblockable bitflags.
 	//
 	// @value [enum UnblockableBitflags]
-
 	// @zasm_var EWPNUNBL
 	internal int Unblockable;
 

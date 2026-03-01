@@ -115,7 +115,6 @@ class sprite {
 	// to determine movement, shield deflection and such.
 	//
 	// @value [enum Direction]
-
 	// @zasm_var SPRITE_DIR
 	internal int Dir;
 
@@ -146,7 +145,7 @@ class sprite {
 
 	// The width of the sprite's graphic, in tiles. Visual only. The upper-left corner is the first tile.
 	//
-	// Must set [Extend] to 3 to use (except for [fcc]).
+	// Must set [Extend] to 3 to use (except for [ffc]).
 	//
 	// Max value is 20.
 	//
@@ -157,7 +156,7 @@ class sprite {
 
 	// The height of the sprite's graphic, in tiles. Visual only. The upper-left corner is the first tile.
 	//
-	// Must set [Extend] to 3 to use (except for [fcc]).
+	// Must set [Extend] to 3 to use (except for [ffc]).
 	//
 	// Max value is 20.
 	//
@@ -188,7 +187,6 @@ class sprite {
 	// The drawing style to use.
 	//
 	// @value [enum DrawStyle]
-
 	// @zasm_var SPRITE_DRAW_STYLE
 	internal int DrawStyle;
 

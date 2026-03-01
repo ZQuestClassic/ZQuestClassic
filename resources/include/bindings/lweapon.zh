@@ -125,7 +125,6 @@ class lweapon {
 	internal int FlashCSet;
 
 	// @value [enum WeaponDeadState]
-
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
 
@@ -210,7 +209,6 @@ class lweapon {
 	// Unblockable bitflags.
 	//
 	// @value [enum UnblockableBitflags]
-
 	// @zasm_var LWPNUNBL
 	internal int Unblockable;
 

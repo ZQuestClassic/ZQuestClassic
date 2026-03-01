@@ -49,9 +49,9 @@ enum ScrollingIndex
 	SCROLL_NEW_VIEWPORT_WIDTH, SCROLL_NEW_VIEWPORT_HEIGHT,
 	// The initial viewport size.
 	SCROLL_OLD_VIEWPORT_WIDTH, SCROLL_OLD_VIEWPORT_HEIGHT,
-	// The final viewport position, in the new region coorindate system.
+	// The final viewport position, in the new region coordinate system.
 	SCROLL_NEW_VIEWPORT_X, SCROLL_NEW_VIEWPORT_Y,
-	// The initial viewport position, in the old region coorindate system.
+	// The initial viewport position, in the old region coordinate system.
 	SCROLL_OLD_VIEWPORT_X, SCROLL_OLD_VIEWPORT_Y
 };
 
@@ -479,7 +479,6 @@ class Game {
 	// Contains a bitflags of the "Level Items".
 	//
 	// @value [enum LevelItemBitflags]
-
 	// @zasm_var GAMELITEMSD
 	internal int LItems[];
 
@@ -678,7 +677,6 @@ class Game {
 	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
 	//
 	// @value [enum MouseCursor]
-
 	// @zasm_var GAMEMOUSECURSOR
 	internal int MouseCursor;
 

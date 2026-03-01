@@ -279,7 +279,6 @@ class combotrigger {
 	// Only these bitflags are used: [IP_HOLDUP], [IP_TIMEOUT], [IP_TRIGGERSECRETS], and [IP_ALWAYSGRAB].
 	//
 	// @value [enum ItemPickupBitflags]
-
 	// @zasm_var CMBTRIGITEMPICKUP
 	internal int SpawnItemPickup;
 

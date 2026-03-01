@@ -126,29 +126,52 @@ class hero {
 	// @delete
 	internal hero();
 
+	// The direction the Hero should bounce in when hit. This is mostly useful for simulating
+	// getting hit.
+	//
+	// This value does nothing if [Action] does not equal [LA_GOTHURTLAND] or [LA_GOTHURTWATER].
+	//
+	// Forcing this value to -1 prevents the Hero from being knocked back when injured, or when
+	// touching any enemy.
+	//
 	// @zasm_var LINKHITDIR
 	internal int HitDir;
 
+	// The number of frames until the Hero regains use of the sword. If -1, the jinx is permanent.
+	//
 	// @zasm_var LINKSWORDJINX
 	internal int SwordJinx;
 
+	// The number of frames until the Hero regains use of items. If -1, the jinx is permanent.
+	//
 	// @zasm_var LINKITEMJINX
 	internal int ItemJinx;
 
+	// The Hero's current hit points. By default, a heart consists of 16 HP, but this is
+	// configurable in Init Data.
+	//
 	// @zasm_var LINKHP
 	internal int HP;
 
+	// The Hero's current magic points. By default, a magic block consists of 32 MP, but this is
+	// configurable in Init Data.
+	//
 	// @zasm_var LINKMP
 	internal int MP;
 
+	// The Hero's maximum hit points.
+	//
 	// @zasm_var LINKMAXHP
 	internal int MaxHP;
 
+	// The Hero's maximum magic points.
+	//
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
 
+	// The Hero's current action state.
+	//
 	// @value [enum HeroAction]
-
 	// @zasm_var LINKACTION
 	internal int Action;
 
@@ -157,6 +180,12 @@ class hero {
 	// @zasm_var LINKTILEMOD
 	internal const int TileMod;
 
+	// The item the Hero is currently holding overhead. This is the item shown
+	// when an item's Pickup flags include IP_PICKUP, or when
+	// [Action] is LA_HOLD1 or LA_HOLD2.
+	//
+	// This value is undefined if the Hero is not holding up an item. Use -1 to show no item.
+	//
 	// @zasm_var LINKHELD
 	internal int HeldItem;
 	
@@ -211,6 +240,12 @@ class hero {
 	// @zasm_var HEROSHOVEOFFSET
 	internal int ShoveOffset;
 
+	// The duration of the drunk effect, in frames. When positive, the Hero's
+	// inputs are randomized to simulate drunkenness. As the value approaches 0,
+	// the intensity of the effect decreases.
+	//
+	// NOTE: Setting this to a negative value is not supported.
+	//
 	// @zasm_var LINKDRUNK
 	internal int Drunk;
 
@@ -226,6 +261,8 @@ class hero {
 	// @zasm_var HEROHEALTHBEEP
 	internal int HealthBeep;
 
+	// If true, the Hero is not drawn on screen.
+	//
 	// @zasm_var LINKINVIS
 	internal bool Invisible;
 
@@ -239,6 +276,8 @@ class hero {
 	// @zasm_var HERONOSTEPFORWARD
 	internal bool NoStepForward;
 
+	// If true, collision detection (with eweapons and npcs) is enabled for the Hero.
+	//
 	// @zasm_var LINKINVINC
 	internal bool CollDetection;
 
@@ -253,9 +292,13 @@ class hero {
 	// @zasm_var LINKHITBY
 	internal const untyped HitBy[];
 
+	// The X position of the placed ladder tile, or 0 if no ladder is placed.
+	//
 	// @zasm_var LINKLADDERX
 	internal const int LadderX;
 
+	// The Y position of the placed ladder tile, or 0 if no ladder is placed.
+	//
 	// @zasm_var LINKLADDERY
 	internal const int LadderY;
 
@@ -276,23 +319,23 @@ class hero {
 	// @zasm_var LINKHURTSFX
 	internal int HurtSound;
 
-	// Contains the item IDs of what is currently equiped to the Hero's B button.
+	// Contains the item IDs of what is currently equipped to the Hero's B button.
 	//
 	// @zasm_var LINKITEMB
 	internal int ItemB;
 
-	// Contains the item IDs of what is currently equiped to the Hero's A button.
+	// Contains the item IDs of what is currently equipped to the Hero's A button.
 	//
 	// @zasm_var LINKITEMA
 	internal int ItemA;
 
-	// Contains the item IDs of what is currently equiped to the Hero's X (Ex1)
+	// Contains the item IDs of what is currently equipped to the Hero's X (Ex1)
 	// button.
 	//
 	// @zasm_var LINKITEMX
 	internal int ItemX;
 
-	// Contains the item IDs of what is currently equiped to the Hero's Y (Ex2)
+	// Contains the item IDs of what is currently equipped to the Hero's Y (Ex2)
 	// button.
 	//
 	// @zasm_var LINKITEMY
@@ -338,6 +381,10 @@ class hero {
 	// @zasm_var LINKPUSH
 	internal int Pushing;
 
+	// A script-controlled CSet override. When set to a value in the range
+	// 0-15, overrides the Hero's CSet with the given value. Set to -1 to
+	// remove the override.
+	//
 	// @zasm_var HEROSCRIPTCSET
 	internal int ScriptCSet;
 
@@ -573,8 +620,9 @@ class hero {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
+	// The current sliding state of the Hero.
+	//
 	// @value [enum HeroSliding]
-
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
@@ -1023,7 +1071,6 @@ class hero {
 
 	// @deprecated_future Use [Input->Mouse] instead!
 	// @value [enum MouseButtonBitflags]
-
 	// @zasm_var INPUTMOUSEB
 	internal int InputMouseB;
 

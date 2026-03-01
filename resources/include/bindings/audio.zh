@@ -101,6 +101,11 @@ class Audio {
 	// @zasm_var AUDIOPAN
 	internal int PanStyle;
 
+	// The current playing MIDI.
+	//
+	// Positive numbers are custom MIDIs, and negative values are the built-in game MIDIs. If no
+	// MIDI is playing, this should equal -7.
+	//
 	// @zasm_var GETMIDI
 	internal const int MIDI;
 	
@@ -127,7 +132,6 @@ class Audio {
 	// changing screens.
 	//
 	// @value [enum MusicRefreshMode]
-
 	// @zasm_var MUSICUPDATECOND
 	internal int MusicRefresh;
 
