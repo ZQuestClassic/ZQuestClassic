@@ -19,7 +19,6 @@ import {
 	Location,
 	SignatureHelpParams,
 	SignatureHelp,
-	WorkspaceFolder,
 	DocumentHighlightParams,
 	DocumentHighlight,
 } from 'vscode-languageserver/node';
@@ -29,9 +28,7 @@ import {
 } from 'vscode-languageserver-textdocument';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import path = require('path');
-import * as glob from 'glob';
-import { checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, globalTmpDir, JobResult, runCompiler, Settings } from './helpers.js';
+import { checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, getZScriptFilesInWorkspace, globalTmpDir, JobResult, runCompiler, Settings } from './helpers.js';
 import { cachedGlobalCompletionItems, globalClasses, globalVariables, onCompletion, updateCompletionItems } from './completion.js';
 import { onSignatureHelp } from './signature-help.js';
 import { onDocumentHighlight } from './document-highlight.js';
@@ -49,24 +46,55 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
-let workspaceFolders: WorkspaceFolder[] | null | undefined;
+let isScanning = false;
+let scanAbortController: AbortController | null = null;
 
-// TODO: not yet used.
-async function initWorkspace() {
-	docJobResults.clear();
-
-	const uris: URI[] = [];
-	for (const workspaceFolder of workspaceFolders || []) {
-		const uri = URI.parse(workspaceFolder.uri);
-		const files = glob.sync('**/*.{zs,zh,z}', { root: uri.fsPath });
-		for (const file of files) {
-			uris.push(URI.file(path.join(uri.fsPath, file)));
-		}
+async function scanWorkspace() {
+	// Cancel any in-progress scan if a new one is requested (e.g. settings changed).
+	if (isScanning) {
+		scanAbortController?.abort();
 	}
 
+	isScanning = true;
+	scanAbortController = new AbortController();
+	const signal = scanAbortController.signal;
 
-	for (const uri of uris) {
-		// await processScript(uri.toString(), fs.readFileSync(uri.fsPath, 'utf8'));
+	try {
+		const folders = await connection.workspace.getWorkspaceFolders();
+		if (!folders) return;
+
+		for (const folder of folders) {
+			const folderPath = URI.parse(folder.uri).fsPath;
+			const files = await getZScriptFilesInWorkspace(folderPath);
+
+			for (const file of files) {
+				if (signal.aborted) return;
+
+				const uri = URI.file(file).toString();
+
+				// Don't process it if the user currently has it open (documents manager handles that)
+				// or if we already cached it.
+				if (docJobResults.has(uri) || documents.get(uri)) continue;
+
+				try {
+					const content = await fs.promises.readFile(file, 'utf8');
+					const result = await processScript(uri, content, signal);
+
+					if (result && result.metadata && !signal.aborted) {
+						// Only save the metadata. We intentionally discard the diagnostics array 
+						// here so we don't clutter the user's Problems panel with errors 
+						// for files they aren't actively editing.
+						docJobResults.set(uri, { diagnostics: [], metadata: result.metadata });
+					}
+				} catch (e) {
+					// Silently ignore unreadable or uncompilable files
+				}
+			}
+		}
+	} finally {
+		if (!signal.aborted) {
+			isScanning = false;
+		}
 	}
 }
 
@@ -115,8 +143,6 @@ connection.onInitialize(async (params: InitializeParams) => {
 		};
 	}
 
-	workspaceFolders = params.workspaceFolders;
-
 	return result;
 });
 
@@ -126,20 +152,29 @@ connection.onInitialized(async () => {
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
 	if (hasWorkspaceFolderCapability) {
-		// TODO: doesn't really work well yet.
-		// connection.workspace.onDidChangeWorkspaceFolders(async () => {
-		// 	await initWorkspace();
-		// });
+		connection.workspace.onDidChangeWorkspaceFolders(event => {
+			connection.console.log('Workspace folders changed. Rescanning...');
 
-		// await initWorkspace();
+			for (const removed of event.removed) {
+				const removedPath = URI.parse(removed.uri).fsPath;
+				for (const [uri, _] of docJobResults.entries()) {
+					if (URI.parse(uri).fsPath.startsWith(removedPath)) {
+						docJobResults.delete(uri);
+					}
+				}
+			}
+
+			void scanWorkspace();
+		});
 	}
-	try {
-		const settings = await getDocumentSettings('');
-		configUpdateController = new AbortController();
-		void updateCompletionItems(settings, connection, configUpdateController.signal);
-	} catch (e) {
-		connection.console.error(`Failed to build code completion initial cache: ${e}`);
-	}
+
+	const settings = await getDocumentSettings('');
+	configUpdateController = new AbortController();
+	void updateCompletionItems(settings, connection, configUpdateController.signal).then(() => {
+		return scanWorkspace();
+	}).catch(e => {
+		connection.console.error(`Failed to build initial cache: ${e}`);
+	});
 });
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
@@ -181,6 +216,7 @@ connection.onDidChangeConfiguration(async (change) => {
 	const jobPromises = jobs.map(job => job.wait());
 	const settings = await getDocumentSettings('');
 	await Promise.all([...jobPromises, updateCompletionItems(settings, connection, signal)]);
+	await scanWorkspace();
 });
 
 connection.onDidChangeWatchedFiles(e => {
@@ -499,8 +535,6 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		});
 	}
 
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: uri, diagnostics });
 	return { diagnostics, metadata };
 }
 
@@ -529,6 +563,8 @@ function createJob(doc: TextDocument) {
 				.then(r => {
 					if (r) {
 						result = r;
+
+						connection.sendDiagnostics({ uri: doc.uri, diagnostics: r.diagnostics });
 
 						// Fallback: If the new script is syntactically invalid and returns no metadata,
 						// carry over the last known good metadata so autocomplete/hover keep working.

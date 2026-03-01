@@ -95,6 +95,29 @@ export function cleanupFile2(fname: string) {
 	return fname.replace(/\//g, '\\').trim();
 }
 
+export async function getZScriptFilesInWorkspace(dir: string): Promise<string[]> {
+	const files: string[] = [];
+	async function walk(currentDir: string) {
+		try {
+			const entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
+			for (const entry of entries) {
+				const fullPath = path.join(currentDir, entry.name);
+				if (entry.isDirectory()) {
+					if (['node_modules', '.git', 'build', 'out', '.tmp', 'resources'].includes(entry.name)) continue;
+					if (entry.name.startsWith('build_')) continue;
+					await walk(fullPath);
+				} else if (entry.isFile() && (entry.name.endsWith('.zs') || entry.name.endsWith('.zh') || entry.name.endsWith('.z'))) {
+					files.push(fullPath);
+				}
+			}
+		} catch (e) {
+			// Silently ignore folders we don't have permission to read.
+		}
+	}
+	await walk(dir);
+	return files;
+}
+
 export function fileMatches(f1: string, f2: string) {
 	return cleanupFile(f1) == cleanupFile(f2);
 }
