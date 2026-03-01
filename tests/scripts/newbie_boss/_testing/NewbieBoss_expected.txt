@@ -2771,8 +2771,6 @@ NewbieBoss.z Line 4048 @ Columns 10-30 - Warning S108: Arrays should be explicit
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
-Debug: could not resolve symbol "fcc"
-Debug: could not resolve symbol "fcc"
 Success!
 Compile finished with exit code '0' (success)
 
