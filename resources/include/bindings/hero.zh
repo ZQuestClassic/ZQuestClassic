@@ -240,10 +240,13 @@ class hero {
 	// @zasm_var HEROSHOVEOFFSET
 	internal int ShoveOffset;
 
-	// The duration of the drunk effect, in frames.
+	// The duration of the drunk effect, in frames. When positive, the Hero's
+	// inputs are randomized to simulate drunkenness. As the value approaches 0,
+	// the intensity of the effect decreases.
 	//
-	// When nonzero, the Hero's inputs are randomized to simulate drunkenness. As the value of Drunk
-	// approaches 0, the intensity of the effect decreases.
+	// NOTE: Setting this to a negative value is not supported. The engine will
+	// continue decrementing it each frame, and once it underflows it becomes a
+	// very large positive value, causing a very long drunk effect.
 	//
 	// @zasm_var LINKDRUNK
 	internal int Drunk;

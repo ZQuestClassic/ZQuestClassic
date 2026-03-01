@@ -368,8 +368,9 @@ class npc {
 	// @zasm_var NPCDP
 	internal int Damage;
 
-	// The amount of damage dealt to the Hero by this npc's weapon, in
-	// quarter-hearts (this is configurable in Init Data).
+	// The damage dealt to the Hero by this npc's weapon. By default, a value of
+	// 1 deals 4 HP of damage (equivalent to one quarter-heart at the default
+	// 16 HP-per-heart ratio), but both multipliers are configurable in Init Data.
 	//
 	// @zasm_var NPCWDP
 	internal int WeaponDamage;
