@@ -466,7 +466,7 @@ void ComboWizardDialog::endUpdate()
 					angle_dir = -2;
 					break;
 				case 4:
-					angle_dir = -3*10000;
+					angle_dir = -3;
 					break;
 			}
 			//Rate stuff
@@ -4249,7 +4249,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSIGNPOST:
 		{
-			int32_t& messagestr = local_ref.c_attributes[0].val;
+			zfix& messagestr = local_ref.c_attributes[0];
 			
 			zfix& openbtn = local_ref.c_attributes[10];
 			zfix& prompt_combo = local_ref.c_attributes[9];
@@ -4279,10 +4279,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					TabRef(name = "String", Rows<3>(
 						Label(text = "String:", hAlign = 1.0),
 						ddls[1] = DropDownList(data = parent.list_strings,
-							fitParent = true, selectedValue = messagestr/10000,
+							fitParent = true, selectedValue = messagestr,
 							onSelectFunc = [&](int32_t val)
 							{
-								messagestr = val*10000;
+								messagestr = val;
 							}),
 						INFOBTN("The string to play. Negative values are special, reading the string number from somewhere else.")
 					)),
