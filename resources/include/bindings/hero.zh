@@ -244,9 +244,7 @@ class hero {
 	// inputs are randomized to simulate drunkenness. As the value approaches 0,
 	// the intensity of the effect decreases.
 	//
-	// NOTE: Setting this to a negative value is not supported. The engine will
-	// continue decrementing it each frame, and once it underflows it becomes a
-	// very large positive value, causing a very long drunk effect.
+	// NOTE: Setting this to a negative value is not supported.
 	//
 	// @zasm_var LINKDRUNK
 	internal int Drunk;

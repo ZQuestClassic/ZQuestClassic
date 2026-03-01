@@ -362,8 +362,8 @@ class npc {
 	// @zasm_var NPCHP
 	internal int HP;
 
-	// The amount of damage dealt to the Hero on contact with this npc, in
-	// quarter-hearts (this is configurable in Init Data).
+	// The amount of damage dealt to the Hero on contact with this npc. By default, the amount of
+	// hitpoints removed is this value multiplied by 4 (this is configurable in Init Data).
 	//
 	// @zasm_var NPCDP
 	internal int Damage;
