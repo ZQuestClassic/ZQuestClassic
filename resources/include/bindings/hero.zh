@@ -184,8 +184,7 @@ class hero {
 	// when an item's Pickup flags include IP_PICKUP, or when
 	// [Action] is LA_HOLD1 or LA_HOLD2.
 	//
-	// Reading or setting this value is undefined if the Hero is not holding
-	// up an item. Use -1 to show no item.
+	// This value is undefined if the Hero is not holding up an item. Use -1 to show no item.
 	//
 	// @zasm_var LINKHELD
 	internal int HeldItem;
