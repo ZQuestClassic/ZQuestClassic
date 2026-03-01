@@ -270,8 +270,6 @@ class npc {
 	// @delete
 	internal npc();
 
-	// The engine ID of this npc, corresponding to its entry in the Enemy Editor.
-	//
 	// @value [enum NPCID]
 	// @zasm_var NPCID
 	internal const int ID;
@@ -310,6 +308,8 @@ class npc {
 	// The rate at which the npc changes direction, in frames. Lower values
 	// mean more frequent direction changes.
 	//
+	// For reference, the "Octorok (Magic)" enemy has a rate of 16.
+	//
 	// @zasm_var NPCRATE
 	internal int Rate;
 
@@ -322,12 +322,11 @@ class npc {
 	// The movement speed of the npc, in 100ths of a pixel per frame.
 	// A step of 100 moves the npc 1 pixel per frame.
 	//
+	// For reference, the "Octorok (Magic)" enemy has a step of 200.
+	//
 	// @zasm_var NPCSTEP
 	internal int Step;
 
-	// The animation speed of the npc, in frames per tile. Lower values
-	// produce faster animation.
-	//
 	// @zasm_var NPCFRAMERATE
 	internal int ASpeed;
 
@@ -394,12 +393,15 @@ class npc {
 
 	// The boss palette override for this npc.
 	//
+	// This pallete is only used if CSet is 14 (the reserved boss cset).
+	//
 	// @value [enum BossPal]
 	// @zasm_var NPCBOSSPAL
 	internal int BossPal;
 
 	// The background sound effect played by the npc. 0 means no sound.
 	//
+	// @value [enum SoundEffect]
 	// @zasm_var NPCBGSFX
 	internal int SFX;
 
@@ -487,9 +489,6 @@ class npc {
 	// @zasm_var NPCHITBY
 	internal untyped HitBy[];
 
-	// The npc's appetite (hunger). Range 0-4: 0 = no hunger, 4 = strongest
-	// appetite. Used by enemies that consume items.
-	//
 	// @zasm_var NPCHUNGER
 	internal int Hunger;
 
@@ -505,9 +504,6 @@ class npc {
 	// @zasm_var NPCFIRESFX
 	internal int WeaponSFX;
 
-	// Script-accessible defense values that take priority over the normal
-	// engine defense values. Set to -1 to fall back to engine defaults.
-	//
 	// @index [enum NPCDefenseIndex]
 	// @value [enum NPCDefenseType]
 	// @zasm_var NPCSCRDEFENSED

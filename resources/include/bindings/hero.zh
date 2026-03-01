@@ -126,19 +126,25 @@ class hero {
 	// @delete
 	internal hero();
 
-	// The direction the Hero was last hit from.
+	// The direction the Hero should bounce in when hit. This is mostly useful for simulating
+	// getting hit.
+	//
+	// This value does nothing if [Action] does not equal [LA_GOTHURTLAND] or [LA_GOTHURTWATER].
+	//
+	// Forcing this value to -1 prevents the Hero from being knocked back when injured, or when
+	// touching any enemy.
 	//
 	// @zasm_var LINKHITDIR
 	internal int HitDir;
 
-	// The number of frames the Hero's sword is jinxed for. If > 0, the
-	// Hero cannot use their sword.
+	// The number of frames until the Hero regains use of the sword. If -1, the jinx is permanent
+	// (caused by a Red Bubble).
 	//
 	// @zasm_var LINKSWORDJINX
 	internal int SwordJinx;
 
-	// The number of frames the Hero's items are jinxed for. If > 0, the
-	// Hero cannot use their items.
+	// The number of frames until the Hero regains use of items. If -1, the jinx is permanent
+	// (caused by a Red Bubble).
 	//
 	// @zasm_var LINKITEMJINX
 	internal int ItemJinx;
@@ -230,8 +236,10 @@ class hero {
 	// @zasm_var HEROSHOVEOFFSET
 	internal int ShoveOffset;
 
-	// The duration of the drunk effect, in frames. When nonzero, the Hero's
-	// inputs are randomized to simulate drunkenness.
+	// The duration of the drunk effect, in frames.
+	//
+	// When nonzero, the Hero's inputs are randomized to simulate drunkenness. As the value of Drunk
+	// approaches 0, the intensity of the effect decreases.
 	//
 	// @zasm_var LINKDRUNK
 	internal int Drunk;
@@ -263,7 +271,7 @@ class hero {
 	// @zasm_var HERONOSTEPFORWARD
 	internal bool NoStepForward;
 
-	// If true, collision detection is enabled for the Hero.
+	// If true, collision detection (with eweapons and npcs) is enabled for the Hero.
 	//
 	// @zasm_var LINKINVINC
 	internal bool CollDetection;
@@ -279,12 +287,12 @@ class hero {
 	// @zasm_var LINKHITBY
 	internal const untyped HitBy[];
 
-	// The X position of the placed ladder tile, or -1 if no ladder is placed.
+	// The X position of the placed ladder tile, or 0 if no ladder is placed.
 	//
 	// @zasm_var LINKLADDERX
 	internal const int LadderX;
 
-	// The Y position of the placed ladder tile, or -1 if no ladder is placed.
+	// The Y position of the placed ladder tile, or 0 if no ladder is placed.
 	//
 	// @zasm_var LINKLADDERY
 	internal const int LadderY;

@@ -123,13 +123,9 @@ class ffc {
 	// @zasm_var FFINITDD
 	internal untyped InitD[];
 
-	// The X position of the last changer combo the FFC interacted with.
-	//
 	// @zasm_var FFCLASTCHANGERX
 	internal int LastChangerX;
 
-	// The Y position of the last changer combo the FFC interacted with.
-	//
 	// @zasm_var FFCLASTCHANGERY
 	internal int LastChangerY;
 }
