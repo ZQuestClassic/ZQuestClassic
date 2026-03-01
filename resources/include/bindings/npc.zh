@@ -327,6 +327,8 @@ class npc {
 	// @zasm_var NPCSTEP
 	internal int Step;
 
+	// The npc's animation frame rate, in screen frames.
+	//
 	// @zasm_var NPCFRAMERATE
 	internal int ASpeed;
 
@@ -341,8 +343,10 @@ class npc {
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 
-	// The rate at which the npc halts. Controls how frequently the npc
-	// pauses during movement.
+	// The rate at which the npc halts. Controls how much the npc stands still
+	// while moving around the screen.
+	//
+	// As a point of reference, the Zols and Gels have a haltrate of 16.
 	//
 	// @zasm_var NPCHALTRATE
 	internal int Haltrate;
@@ -352,17 +356,20 @@ class npc {
 	// @zasm_var NPCRANDOM
 	internal int Random;
 
-	// The npc's current hit points.
+	// The npc's current hit points. A weapon with a Power of 1 removes 2
+	// hitpoints.
 	//
 	// @zasm_var NPCHP
 	internal int HP;
 
-	// The damage dealt to the Hero on contact with this npc.
+	// The amount of damage dealt to the Hero on contact with this npc, in
+	// quarter-hearts.
 	//
 	// @zasm_var NPCDP
 	internal int Damage;
 
-	// The damage dealt to the Hero when this npc fires its weapon.
+	// The amount of damage dealt to the Hero by this npc's weapon, in
+	// quarter-hearts.
 	//
 	// @zasm_var NPCWDP
 	internal int WeaponDamage;
@@ -489,6 +496,10 @@ class npc {
 	// @zasm_var NPCHITBY
 	internal untyped HitBy[];
 
+	// How likely the npc is to move towards bait. Higher values make it more
+	// likely that the npc is attracted to Bait. Only relevant for walking
+	// type enemies.
+	//
 	// @zasm_var NPCHUNGER
 	internal int Hunger;
 

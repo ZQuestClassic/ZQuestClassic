@@ -149,22 +149,22 @@ class hero {
 	// @zasm_var LINKITEMJINX
 	internal int ItemJinx;
 
-	// The Hero's current hit points. Each heart is worth 16 HP.
+	// The Hero's current hit points, in 16ths of a heart.
 	//
 	// @zasm_var LINKHP
 	internal int HP;
 
-	// The Hero's current magic points. Each magic block is worth 32 MP.
+	// The Hero's current magic points, in 32nds of a magic block.
 	//
 	// @zasm_var LINKMP
 	internal int MP;
 
-	// The Hero's maximum hit points.
+	// The Hero's maximum hit points, in 16ths of a heart.
 	//
 	// @zasm_var LINKMAXHP
 	internal int MaxHP;
 
-	// The Hero's maximum magic points.
+	// The Hero's maximum magic points, in 32nds of a magic block.
 	//
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
@@ -180,7 +180,12 @@ class hero {
 	// @zasm_var LINKTILEMOD
 	internal const int TileMod;
 
-	// The item the Hero is currently holding overhead.
+	// The item the Hero is currently holding overhead. This is the item shown
+	// when an item's Pickup flags include IP_PICKUP, or when
+	// [Action] is LA_HOLD1 or LA_HOLD2.
+	//
+	// Reading or setting this value is undefined if the Hero is not holding
+	// up an item. Use -1 to show no item.
 	//
 	// @zasm_var LINKHELD
 	internal int HeldItem;
