@@ -1,4 +1,5 @@
 import {
+	CompletionItem,
 	CompletionItemKind,
 	createConnection,
 	Diagnostic,
@@ -19,6 +20,10 @@ import * as path from 'path';
 import { promisify } from 'util';
 
 const execFile = promisify(childProcess.execFile);
+
+export const cachedGlobalCompletionItems: CompletionItem[] = [];
+export const globalClasses = new Map<string, DocSymbol>();
+export const globalVariables = new Map<string, DocSymbol>();
 
 export type Connection = ReturnType<typeof createConnection>;
 
@@ -317,4 +322,126 @@ export function getMemberChain(text: string): string[] {
 	}
 	if (current) tokens.unshift(current.trim());
 	return tokens;
+}
+
+export class SymbolResolver {
+	/**
+	 * Searches both the global built-ins and the dynamic workspace files
+	 * to find a class definition.
+	 */
+	static getClass(className: string) {
+		// Check built-in bindings and packaged libraries (-doc).
+		const builtIn = globalClasses.get(className);
+		if (builtIn) {
+			return { classSymbol: builtIn, isBuiltIn: true };
+		}
+
+		// Check dynamic workspace files (-metadata).
+		for (const [uri, result] of docJobResults.entries()) {
+			if (result.metadata && result.metadata.currentFileSymbols) {
+				const cls = result.metadata.currentFileSymbols.find(sym =>
+					sym.name === className && sym.kind === SymbolKind.Class
+				);
+				if (cls) {
+					return { classSymbol: cls, metadata: result.metadata, isBuiltIn: false };
+				}
+			}
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * Resolves the type of a variable, regardless of whether it's a global 
+	 * constant or a local workspace variable.
+	 */
+	static getVariableType(varName: string, doc: TextDocument, pos: Position, metadata: DocumentMetaData|null): string | undefined {
+		if (metadata) {
+			const localType = this.findLocalType(metadata.currentFileSymbols, varName, doc, pos, metadata);
+			if (localType) return localType;
+		}
+
+        const globalVar = globalVariables.get(varName);
+        if (globalVar) return globalVar.type;
+
+        return undefined;
+	}
+
+	/**
+     * Recursive helper to find a local variable's type based on cursor scope.
+     */
+    private static findLocalType(symbols: DocumentSymbol[], targetName: string, doc: TextDocument, pos: Position, metadata: DocumentMetaData): string | undefined {
+        for (const sym of symbols) {
+            if (sym.name === targetName) {
+                const ident = metadata.identifiers.find(id =>
+                    id.loc.line === sym.selectionRange.start.line &&
+                    sym.selectionRange.start.character >= id.loc.character &&
+                    sym.selectionRange.start.character <= id.loc.character + id.loc.length
+                );
+                if (ident) {
+                    const metaSym = metadata.symbols[ident.symbol];
+                    if (metaSym && metaSym.type) return metaSym.type;
+                }
+            }
+            if (sym.children && sym.children.length > 0 && isPositionInScope(doc, pos, sym)) {
+                const found = this.findLocalType(sym.children, targetName, doc, pos, metadata);
+                if (found) return found;
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Locates a class definition inside the user's workspace files.
+     */
+    static getWorkspaceClass(className: string) {
+        for (const [uri, result] of docJobResults.entries()) {
+            if (result.metadata && result.metadata.currentFileSymbols) {
+                const cls = result.metadata.currentFileSymbols.find(sym => sym.name === className && sym.kind === SymbolKind.Class);
+                if (cls) return { cls, metadata: result.metadata };
+            }
+        }
+        return undefined;
+    }
+
+	/**
+     * Finds the return type of a specific class member, checking both built-ins and user files.
+     */
+    static getMemberType(className: string, memberName: string): string | undefined {
+        let currentClass = className;
+        let depth = 0;
+
+        while (currentClass && depth < 10) {
+            // Check global built-ins.
+            const builtIn = globalClasses.get(currentClass);
+            if (builtIn && builtIn.children) {
+                const member = builtIn.children.find(c => c.name === memberName);
+                if (member && (member.type || member.returnType)) return member.type || member.returnType;
+            }
+
+            // Check workspace files.
+            const wsClass = this.getWorkspaceClass(currentClass);
+            if (wsClass && wsClass.cls.children) {
+                const member = wsClass.cls.children.find(c => c.name === memberName);
+                if (member) {
+                    const ident = wsClass.metadata.identifiers.find(id =>
+                        id.loc.line === member.selectionRange.start.line &&
+                        member.selectionRange.start.character >= id.loc.character &&
+                        member.selectionRange.start.character <= id.loc.character + id.loc.length
+                    );
+                    if (ident) {
+                        const metaSym = wsClass.metadata.symbols[ident.symbol];
+                        if (metaSym && (metaSym.type)) return metaSym.type;
+                    }
+                }
+            }
+
+            // Move up inheritance chain.
+            currentClass = builtIn?.parent || "";
+            depth++;
+        }
+
+        return undefined;
+    }
 }

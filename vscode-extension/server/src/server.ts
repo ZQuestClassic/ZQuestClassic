@@ -28,8 +28,8 @@ import {
 } from 'vscode-languageserver-textdocument';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
-import { checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, getZScriptFilesInWorkspace, globalTmpDir, JobResult, runCompiler, Settings } from './helpers.js';
-import { cachedGlobalCompletionItems, globalClasses, globalVariables, onCompletion, updateCompletionItems } from './completion.js';
+import { cachedGlobalCompletionItems, checkIfInZCRepo, cleanupFile, cleanupFile2, docJobResults, DocumentMetaData, fileMatches, getBinAndResourcesFolders, getZScriptFilesInWorkspace, globalClasses, globalTmpDir, globalVariables, JobResult, runCompiler, Settings } from './helpers.js';
+import { onCompletion, updateCompletionItems } from './completion.js';
 import { onSignatureHelp } from './signature-help.js';
 import { onDocumentHighlight } from './document-highlight.js';
 

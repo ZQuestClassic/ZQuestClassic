@@ -10,7 +10,7 @@ import {
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import { cleanDocString, cleanupFile, Connection, docJobResults, DocSymbol, DocumentMetaData, getBinAndResourcesFolders, getCompletionItemKind, getMemberChain, globalTmpDir, isPositionInScope, runCompiler, Settings } from './helpers.js';
+import { cachedGlobalCompletionItems, cleanDocString, cleanupFile, Connection, docJobResults, DocSymbol, DocumentMetaData, getBinAndResourcesFolders, getCompletionItemKind, getMemberChain, globalClasses, globalTmpDir, globalVariables, isPositionInScope, runCompiler, Settings, SymbolResolver } from './helpers.js';
 import * as fs from 'fs';
 
 interface OnCompletionOpts {
@@ -18,10 +18,6 @@ interface OnCompletionOpts {
 	metadata: DocumentMetaData;
 	params: TextDocumentPositionParams;
 }
-
-export const cachedGlobalCompletionItems: CompletionItem[] = [];
-export const globalClasses = new Map<string, DocSymbol>();
-export const globalVariables = new Map<string, DocSymbol>();
 
 function createCompletionItem(symbol: DocSymbol): CompletionItem {
 	const deprecated = symbol.comment?.tags.some(t => t[0] === 'deprecated');
@@ -149,14 +145,62 @@ export async function updateCompletionItems(settings: Settings, connection: Conn
 	}
 }
 
+/**
+ * Gathers all autocomplete completion items for a specific class.
+ */
+function getClassMembers(className: string): CompletionItem[] {
+	const members: CompletionItem[] = [];
+	const seen = new Set<string>();
+
+	let currentClass = className;
+	let depth = 0;
+
+	while (currentClass && depth < 10) {
+		const builtIn = globalClasses.get(currentClass);
+		if (builtIn && builtIn.children) {
+			for (const child of builtIn.children) {
+				if (!seen.has(child.name)) {
+					seen.add(child.name);
+					members.push(createCompletionItem(child));
+				}
+			}
+		}
+
+		const wsClass = SymbolResolver.getWorkspaceClass(currentClass);
+		if (wsClass && wsClass.cls.children) {
+			for (const child of wsClass.cls.children) {
+				if (!seen.has(child.name)) {
+					seen.add(child.name);
+					const ident = wsClass.metadata.identifiers.find(id =>
+						id.loc.line === child.selectionRange.start.line &&
+						child.selectionRange.start.character >= id.loc.character &&
+						child.selectionRange.start.character <= id.loc.character + id.loc.length
+					);
+					let metaSym;
+					if (ident) metaSym = wsClass.metadata.symbols[ident.symbol];
+
+					members.push({
+						label: child.name,
+						kind: getCompletionItemKind(child.kind),
+						insertText: child.name,
+						insertTextFormat: InsertTextFormat.PlainText,
+						detail: metaSym?.type,
+					});
+				}
+			}
+		}
+
+		currentClass = builtIn?.parent || "";
+		depth++;
+	}
+
+	return members;
+}
+
 export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionItem[]> {
 	const p = opts.params;
 	const doc = opts.document;
-	if (!doc) {
-		return cachedGlobalCompletionItems;
-	}
-
-	if (!opts.metadata.currentFileSymbols) {
+	if (!doc || !opts.metadata.currentFileSymbols) {
 		return cachedGlobalCompletionItems;
 	}
 
@@ -178,164 +222,28 @@ export async function onCompletion(opts: OnCompletionOpts): Promise<CompletionIt
 		const chain = getMemberChain(baseExpression);
 
 		if (chain.length > 0) {
-			const rootName = chain[0];
-			let currentType: string | undefined;
-
-			// Safe variable lookup for the root of the chain (e.g., "Game").
-			function findLocalType(symbols: DocumentSymbol[], targetName: string): string | undefined {
-				for (const sym of symbols) {
-					if (sym.name === targetName) {
-						// Look up the exact symbol ID using the AST's coordinate mapping.
-						const ident = opts.metadata.identifiers.find(id =>
-							id.loc.line === sym.selectionRange.start.line &&
-							sym.selectionRange.start.character >= id.loc.character &&
-							sym.selectionRange.start.character <= id.loc.character + id.loc.length
-						);
-
-						if (ident) {
-							const metaSym = opts.metadata.symbols[ident.symbol];
-							if (metaSym && metaSym.type) return metaSym.type;
-						}
-					}
-					if (sym.children && sym.children.length > 0 && isPositionInScope(doc!, p.position, sym)) {
-						const found = findLocalType(sym.children, targetName);
-						if (found) return found;
-					}
-				}
-
-				return undefined;
-			}
-
-			currentType = findLocalType(opts.metadata.currentFileSymbols, rootName);
-
-			if (!currentType) {
-				const globalVar = globalVariables.get(rootName);
-				if (globalVar) {
-					currentType = globalVar.type;
-				}
-			}
+			// Get the base variable type.
+			let currentType = SymbolResolver.getVariableType(chain[0], doc, p.position, opts.metadata);
 
 			// Resolve the rest of the chain (e.g., step into "CreateBitmap").
 			for (let i = 1; i < chain.length; i++) {
 				if (!currentType) break;
 
 				const baseTypeName = currentType.replace(/const\s+/, '').replace(/\[\]/g, '').trim().split(' ')[0];
-				let currentClass = globalClasses.get(baseTypeName);
-				let foundMemberType: string | undefined;
-
-				let inheritanceDepth = 0;
-				while (currentClass && inheritanceDepth < 10) {
-					if (currentClass.children) {
-						const member = currentClass.children.find(c => c.name === chain[i]);
-						if (member && (member.type || member.returnType)) {
-							foundMemberType = member.type || member.returnType; // E.g., The return type of CreateBitmap
-							break;
-						}
-					}
-					currentClass = currentClass.parent ? globalClasses.get(currentClass.parent) : undefined;
-					inheritanceDepth++;
-				}
-
-				// If it wasn't a standard global class, check the user's workspace files!
-				if (!foundMemberType) {
-					const workspaceData = getWorkspaceClass(baseTypeName);
-					if (workspaceData && workspaceData.cls.children) {
-						const member = workspaceData.cls.children.find(c => c.name === chain[i]);
-						if (member) {
-							// Look up the rich type in the metadata symbols map
-							const ident = workspaceData.metadata.identifiers.find(id =>
-								id.loc.line === member.selectionRange.start.line &&
-								member.selectionRange.start.character >= id.loc.character &&
-								member.selectionRange.start.character <= id.loc.character + id.loc.length
-							);
-							if (ident) {
-								const metaSym = workspaceData.metadata.symbols[ident.symbol];
-								foundMemberType = metaSym?.type;
-							}
-						}
-					}
-				}
-
-				currentType = foundMemberType;
+				currentType = SymbolResolver.getMemberType(baseTypeName, chain[i]);
 			}
 
-			// Return the members of whatever type we ended up with.
+			// 3. Return the class members of the final resolved type
 			if (currentType) {
 				const baseType = currentType.replace(/const\s+/, '').replace(/\[\]/g, '').trim().split(' ')[0];
-
-				const members: CompletionItem[] = [];
-				let currentClass = globalClasses.get(baseType);
-				let inheritanceDepth = 0;
-
-				while (currentClass && inheritanceDepth < 10) {
-					if (currentClass.children) {
-						for (const child of currentClass.children) {
-							members.push(createCompletionItem(child));
-						}
-					}
-
-					currentClass = currentClass.parent ? globalClasses.get(currentClass.parent) : undefined;
-					inheritanceDepth++;
-				}
-
-				const workspaceData = getWorkspaceClass(baseType);
-				if (workspaceData && workspaceData.cls.children) {
-					for (const child of workspaceData.cls.children) {
-						const ident = workspaceData.metadata.identifiers.find(id =>
-							id.loc.line === child.selectionRange.start.line &&
-							child.selectionRange.start.character >= id.loc.character &&
-							child.selectionRange.start.character <= id.loc.character + id.loc.length
-						);
-
-						let metaSym;
-						if (ident) metaSym = workspaceData.metadata.symbols[ident.symbol];
-
-						let insertText = child.name;
-						let insertTextFormat = InsertTextFormat.PlainText;
-						let command;
-
-						// If it's a function, generate the snippet with parameters!
-						// TODO: can't actually do this right now, b/c metadata doesn't have the info.
-						// if (child.kind === SymbolKind.Function || child.kind === SymbolKind.Method) {
-						// 	const params = metaSym?.parameters || [];
-						// 	const snippetParams = params.map((p: any, idx: number) => `\${${idx + 1}:${p.name}}`);
-						// 	insertText = `${child.name}(${snippetParams.join(', ')})`;
-						// 	insertTextFormat = InsertTextFormat.Snippet;
-						// 	command = { title: 'Trigger Parameter Hints', command: 'editor.action.triggerParameterHints' };
-						// }
-
-						members.push({
-							label: child.name,
-							kind: getCompletionItemKind(child.kind),
-							insertText,
-							insertTextFormat,
-							command,
-							detail: metaSym?.type,
-						});
-					}
-				}
-
-				return members;
+				return getClassMembers(baseType);
 			}
 		}
 
-		// If we couldn't resolve the chain, return nothing.
 		return [];
 	}
 
 	const localItems: CompletionItem[] = [];
-
-	function getWorkspaceClass(className: string) {
-		for (const [uri, result] of docJobResults.entries()) {
-			if (result.metadata && result.metadata.currentFileSymbols) {
-				const cls = result.metadata.currentFileSymbols.find(sym => sym.name === className && sym.kind === SymbolKind.Class);
-				if (cls) return { cls, metadata: result.metadata };
-			}
-		}
-		return undefined;
-	}
-
-	// Recursively extract symbols, honoring strict scopes and namespace qualifiers
 	function extractLocalSymbols(symbols: DocumentSymbol[], prefix: string = '', isInsideParent: boolean = true, isCurrentDoc: boolean = true) {
 		for (const sym of symbols) {
 			// Are we physically inside this specific block?

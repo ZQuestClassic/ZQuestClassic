@@ -8,8 +8,7 @@ import {
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import { cleanDocString, DocSymbol, getMemberChain } from './helpers';
-import { globalClasses, globalVariables } from './completion';
+import { cleanDocString, docJobResults, DocSymbol, getMemberChain, globalClasses, globalVariables, SymbolResolver } from './helpers.js';
 
 interface SignatureHelpOpts {
 	document: TextDocument;
@@ -36,10 +35,15 @@ function createSignatureInfo(symbol: DocSymbol): SignatureInformation {
 // since the data comes from the cached `-doc` execution done in `updateCompletionItems`.
 export async function onSignatureHelp(opts: SignatureHelpOpts): Promise<SignatureHelp | null> {
 	const params = opts.params;
+	const doc = opts.document;
+
+	// Grab the active metadata so the SymbolResolver can check local scopes.
+	const result = docJobResults.get(doc.uri);
+	const metadata = result?.metadata ?? null;
 
 	// Grab text preceding the cursor.
 	const startLine = Math.max(0, params.position.line - 5);
-	const text = opts.document.getText({
+	const text = doc.getText({
 		start: { line: startLine, character: 0 },
 		end: params.position
 	});
@@ -74,7 +78,7 @@ export async function onSignatureHelp(opts: SignatureHelpOpts): Promise<Signatur
 	const targetFuncName = chain[chain.length - 1];
 	const signatures: SignatureInformation[] = [];
 
-	// Look up the function (simplified: checks globals and class methods)
+	// Look up the function.
 	if (chain.length === 1) {
 		// It's a global/local function call (e.g., `Trace(`)
 		for (const sym of globalVariables.values()) {
@@ -83,14 +87,37 @@ export async function onSignatureHelp(opts: SignatureHelpOpts): Promise<Signatur
 			}
 		}
 	} else {
-		// It's a member access call (e.g., `Game->CreateBitmap(`)
-		for (const cls of globalClasses.values()) {
-			if (cls.children) {
-				for (const child of cls.children) {
-					if (child.name === targetFuncName && (child.kind === SymbolKind.Function || child.kind === SymbolKind.Method)) {
-						signatures.push(createSignatureInfo(child));
+		// It's a member access call (e.g., `Game->CreateBitmap(`).
+		// Resolve the type of the object we are calling the method on.
+		let currentType = SymbolResolver.getVariableType(chain[0], doc, params.position, metadata);
+
+		// Resolve any intermediate chain links (e.g. `Game->GetScreen()->`).
+		for (let i = 1; i < chain.length - 1; i++) {
+			if (!currentType) break;
+
+			const baseTypeName = currentType.replace(/const\s+/, '').replace(/\[\]/g, '').trim().split(' ')[0];
+			currentType = SymbolResolver.getMemberType(baseTypeName, chain[i]);
+		}
+
+		// Now that we know the exact class type, look up the method!
+		if (currentType) {
+			const baseType = currentType.replace(/const\s+/, '').replace(/\[\]/g, '').trim().split(' ')[0];
+
+			let currentClass = globalClasses.get(baseType);
+			let inheritanceDepth = 0;
+
+			// Follow the inheritance chain to find the target method.
+			while (currentClass && inheritanceDepth < 10) {
+				if (currentClass.children) {
+					for (const child of currentClass.children) {
+						if (child.name === targetFuncName && (child.kind === SymbolKind.Function || child.kind === SymbolKind.Method)) {
+							signatures.push(createSignatureInfo(child));
+						}
 					}
 				}
+
+				currentClass = currentClass.parent ? globalClasses.get(currentClass.parent) : undefined;
+				inheritanceDepth++;
 			}
 		}
 	}
