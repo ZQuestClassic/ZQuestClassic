@@ -36,7 +36,7 @@ std::optional<int32_t> musicdata_get_register(int32_t reg)
 			if (ref == 0)
 				ret = 0;
 			else if (auto* amus = checkMusic(ref))
-				ret = amus->is_playing() ? 10000 : 0; // intentionally lacks checks; valid to call on NULL pointers and special pointers
+				ret = amus->is_playing(false) ? 10000 : 0; // intentionally lacks checks; valid to call on NULL pointers and special pointers
 			break;
 		}
 		case MUSICDATA_MIDI:
@@ -114,7 +114,7 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 				if (amus->midi != v)
 				{
 					amus->midi = v;
-					if (amus->is_playing() && !zcmusic) // changing currently-playing midi
+					if (amus->is_playing(false) && !zcmusic) // changing currently-playing midi
 					{
 						bool ema = engine_music_active;
 						amus->play();
@@ -132,7 +132,7 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 				if (amus->enhanced.track != v)
 				{
 					amus->enhanced.track = v;
-					if (amus->is_playing() && zcmusic) // changing currently-playing track
+					if (amus->is_playing(false) && zcmusic) // changing currently-playing track
 					{
 						bool ema = engine_music_active;
 						amus->play();
@@ -149,7 +149,7 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 				if (amus->enhanced.loop_start != value)
 				{
 					amus->enhanced.loop_start = value;
-					if (amus->is_playing() && zcmusic) // changing currently-playing loop
+					if (amus->is_playing(false) && zcmusic) // changing currently-playing loop
 						zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 				}
 			}
@@ -162,7 +162,7 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 				if (amus->enhanced.loop_end != value)
 				{
 					amus->enhanced.loop_end = value;
-					if (amus->is_playing() && zcmusic) // changing currently-playing loop
+					if (amus->is_playing(false) && zcmusic) // changing currently-playing loop
 						zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 				}
 			}
@@ -182,7 +182,7 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 				if (amus->enhanced.xfade_out != v)
 				{
 					amus->enhanced.xfade_out = v;
-					if (amus->is_playing() && zcmusic) // changing currently-playing fadeout
+					if (amus->is_playing(false) && zcmusic) // changing currently-playing fadeout
 						zcmusic->fadeoutframes = v;
 				}
 			}
@@ -242,7 +242,7 @@ std::optional<int32_t> musicdata_run_command(word command)
 				if (newpath != amus->enhanced.path)
 				{
 					amus->enhanced.path = newpath;
-					if (amus->is_playing() && (zcmusic || !newpath.empty())) // changing enhanced music of currently playing music
+					if (amus->is_playing(false) && (zcmusic || !newpath.empty())) // changing enhanced music of currently playing music
 					{
 						bool ema = engine_music_active;
 						amus->play();

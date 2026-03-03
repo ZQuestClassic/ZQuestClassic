@@ -219,8 +219,17 @@ int AdvancedMusic::get_real_midi() const
 	return vbound(midi + MIDIOFFSET_ZSCRIPT, MAXMIDIS-1, 0);
 }
 
-bool AdvancedMusic::is_playing() const
+bool AdvancedMusic::is_playing(bool same_song) const
 {
+	if (same_song)
+	{
+		if (enhanced.is_playing())
+			return true;
+#ifdef IS_PLAYER
+		if (get_real_midi() == currmidi)
+			return true;
+#endif
+	}
 	return active_music_index == id;
 }
 
