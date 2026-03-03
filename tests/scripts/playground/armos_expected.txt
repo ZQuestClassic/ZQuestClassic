@@ -98,7 +98,7 @@ POP D2
 WRITEPODARRAYVR 6 D2 0; if() #447 Else End
 NOP
 POPARGS D5 0.0002
-QUIT; void run(int) Body End
+RETURNFUNC; void run(int) Body End
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0003

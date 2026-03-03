@@ -201,7 +201,7 @@ REF_REMOVE 0.0006
 REF_REMOVE 0.0009
 REF_REMOVE 0.0008
 POPARGS D5 0.0014
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHARGSV 0 0.0004; Func[void arraycat(int[], int[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0005

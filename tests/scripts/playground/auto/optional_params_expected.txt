@@ -287,7 +287,7 @@ POP D4
 REF_REMOVE 0.0001
 REF_REMOVE 0
 POPARGS D5 0.0003
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 SETR D4 SP2; Func[int fn1(int, int)] Body Start
 LOAD D2 0; return Start
 POPARGS D5 0.0002; return End

@@ -24226,6 +24226,11 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 					result = RUNSCRIPT_OK;
 				}
 			}
+			else if (result == RUNSCRIPT_JIT_QUIT)
+			{
+				script_exit_cleanup(false);
+				result = RUNSCRIPT_STOPPED;
+			}
 		}
 	}
 	else

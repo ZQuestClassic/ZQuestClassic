@@ -73,4 +73,4 @@ POP D2
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End

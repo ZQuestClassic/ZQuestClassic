@@ -107,7 +107,7 @@ SETR LINKHP D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn]
 GOTO 79; while() #2 End
 POP D5
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"

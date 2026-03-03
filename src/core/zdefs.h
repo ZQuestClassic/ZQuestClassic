@@ -2050,6 +2050,7 @@ extern void removeFromItemCache(int32_t itemclass);
 #define RUNSCRIPT_INFINITE_LOOP	5
 #define RUNSCRIPT_JIT_STACK_OVERFLOW 6
 #define RUNSCRIPT_JIT_CALL_LIMIT 7
+#define RUNSCRIPT_JIT_QUIT 8
 
 bool runscript_do_earlyret(int runscript_val);
 

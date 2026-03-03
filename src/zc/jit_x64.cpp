@@ -2580,7 +2580,17 @@ static bool exec_script(JittedExecutionContext* ctx)
 	else if (exec_result == EXEC_RESULT_RETURN)
 	{
 		std::optional<int32_t> retstack_pop(void);
-		ctx->pc = *retstack_pop();
+		if (auto pc = retstack_pop())
+		{
+			ctx->pc = *pc;
+			return true;
+		}
+		else
+		{
+			ctx->ret_code = RUNSCRIPT_JIT_QUIT;
+			return false;
+		}
+
 		return true;
 	}
 	else if (exec_result == EXEC_RESULT_EXIT)

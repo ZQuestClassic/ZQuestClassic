@@ -198,7 +198,7 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
 GOTO 68; while() #3 End
 NOP
 POPARGS D5 0.0004
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 SETR D4 SP2; Func[int Angle(int, int, int, int)] Body Start
 LOAD D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int RadtoDeg(int)] Params Start AND return Start
 PUSHR D2

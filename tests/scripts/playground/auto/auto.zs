@@ -12,6 +12,7 @@
 #include "auto/ffc_script_runner.zs"
 #include "auto/garbage_collection.zs"
 #include "auto/global_objects.zs"
+#include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
 #include "auto/optional_params.zs"
 #include "auto/scc.zs"

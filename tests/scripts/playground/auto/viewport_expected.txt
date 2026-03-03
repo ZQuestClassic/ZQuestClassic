@@ -375,7 +375,7 @@ LOAD D2 0.0004; InlineFunc[void lweapon::Remove()] Params Start
 SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
 LWPNDEL; InlineFunc[void lweapon::Remove()] Body
 POPARGS D5 0.0005
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0006
 SETR D4 SP2

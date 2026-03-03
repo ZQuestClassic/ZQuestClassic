@@ -1025,11 +1025,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				
 				// Pop off everything.
 				addOpcode2PopArgs(funccode, stackSize);
-				
-				//if it's a main script, quit.
-				if (isRun)
-					addOpcode2(funccode, new OQuit()); //exit the script
-				else addOpcode2(funccode, new OReturnFunc());
+
+				addOpcode2(funccode, new OReturnFunc());
 			}
 
 			if (funccode[prologue_end_index]->getLabel())

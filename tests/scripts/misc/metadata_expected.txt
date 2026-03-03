@@ -2760,7 +2760,7 @@ REF_REMOVE 0.0007                                                               
 REF_REMOVE 0.0005                                                               | 113 tests/scripts/misc/metadata.zs:77
 REF_REMOVE 0.0006                                                               | 114 tests/scripts/misc/metadata.zs:77
 POPARGS D5 0.0014                                                               | 115 tests/scripts/misc/metadata.zs:100
-QUIT; void run(int, int, int, int, int) Body End                                | 116 tests/scripts/misc/metadata.zs:100
+RETURNFUNC; void run(int, int, int, int, int) Body End                          | 116 tests/scripts/misc/metadata.zs:100
 SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 117 tests/scripts/misc/metadata.zs:28
 SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 118 tests/scripts/misc/metadata.zs:28
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 119 tests/scripts/misc/metadata.zs:28

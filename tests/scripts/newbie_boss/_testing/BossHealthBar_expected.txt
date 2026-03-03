@@ -455,7 +455,7 @@ POP D2
 WRITEPODARRAYVR 6 D2 0; if() #447 Else End
 NOP
 POPARGS D5 0.0002
-QUIT; void run(int) Body End
+RETURNFUNC; void run(int) Body End
 PUSHR D0; void run(int, int, int, int) Params
 PUSHR D1
 PUSHR D2
@@ -834,7 +834,7 @@ GOTO 409; for() #227 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0016
-QUIT; void run(int, int, int, int) Body End
+RETURNFUNC; void run(int, int, int, int) Body End
 PUSHR D0; void run(int, int, int, int, int, int, int, int) Params
 PUSHR D1
 PUSHR D2
@@ -1126,7 +1126,7 @@ GOTO 708; for() #222 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0018
-QUIT; void run(int, int, int, int, int, int, int, int) Body End
+RETURNFUNC; void run(int, int, int, int, int, int, int, int) Body End
 PUSHR D0; void run(int, int, int, int) Params
 PUSHR D1
 PUSHR D2
@@ -1505,7 +1505,7 @@ GOTO 1080; for() #237 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0016
-QUIT; void run(int, int, int, int) Body End
+RETURNFUNC; void run(int, int, int, int) Body End
 PUSHR D0; void run(int, int, int, int, int, int, int, int) Params
 PUSHR D1
 PUSHR D2
@@ -1797,7 +1797,7 @@ GOTO 1379; for() #231 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0018
-QUIT; void run(int, int, int, int, int, int, int, int) Body End
+RETURNFUNC; void run(int, int, int, int, int, int, int, int) Body End
 SETR D4 SP2; Func[int __NormalizeDir(int)] Body Start
 LOAD D2 0; if() #678 Test
 COMPAREV D2 0

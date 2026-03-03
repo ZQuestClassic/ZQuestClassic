@@ -419,7 +419,7 @@ NOP
 REF_REMOVE 0.0003
 REF_REMOVE 0.0002
 POPARGS D5 0.0005
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"

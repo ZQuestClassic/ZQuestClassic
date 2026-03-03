@@ -218,4 +218,4 @@ GOTO 20; while() #2 End
 NOP
 REF_REMOVE 0.0005
 POPARGS D5 0.0007
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End

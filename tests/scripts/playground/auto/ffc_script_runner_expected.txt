@@ -198,7 +198,7 @@ TRACE3; InlineFunc[void Trace(char32[])] Body End
 SETV D2 1
 SETR GD3 D2
 POPARGS D5 0.0002
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHV 0
 SETR D4 SP2
@@ -232,7 +232,7 @@ TRACE3; InlineFunc[void Trace(char32[])] Body End
 SETV D2 1
 SETR GD3 D2
 POPARGS D5 0.0002
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 7 0; InlineFunc[void Trace(char32[])] Params Start
@@ -242,7 +242,7 @@ TRACE3; InlineFunc[void Trace(char32[])] Body End
 SETV D2 1
 SETR GD4 D2
 POP D5
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 22 0; InlineFunc[void Trace(char32[])] Params Start
@@ -259,7 +259,7 @@ POP D4
 SETV D2 1
 SETR GD5 D2
 POP D5
-QUIT; void run() Body End
+RETURNFUNC; void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHV 0
 SETR D4 SP2
