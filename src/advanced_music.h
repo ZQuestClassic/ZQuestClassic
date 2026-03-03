@@ -47,7 +47,7 @@ struct AdvancedMusic
 	
 	int get_real_midi() const;
 	
-	bool is_playing() const;
+	bool is_playing(bool same_song) const;
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;

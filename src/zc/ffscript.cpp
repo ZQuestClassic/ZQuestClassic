@@ -14284,7 +14284,7 @@ void set_register(int32_t arg, int32_t value)
 			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
 				amus->enhanced.loop_start = value; 
-				if (ri->dmapdataref == cur_dmap && amus->is_playing() && zcmusic)
+				if (ri->dmapdataref == cur_dmap && amus->is_playing(false) && zcmusic)
 					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
@@ -14294,7 +14294,7 @@ void set_register(int32_t arg, int32_t value)
 			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
 				amus->enhanced.loop_end = value; 
-				if (ri->dmapdataref == cur_dmap && amus->is_playing() && zcmusic)
+				if (ri->dmapdataref == cur_dmap && amus->is_playing(false) && zcmusic)
 					zcmusic_set_loop(zcmusic, (amus->enhanced.loop_start / 10000.0), (amus->enhanced.loop_end / 10000.0));
 			}
 			break;
@@ -14310,7 +14310,7 @@ void set_register(int32_t arg, int32_t value)
 			if (auto* amus = checkMusic(find_or_make_dmap_music(GET_REF(dmapdataref))))
 			{
 				amus->enhanced.xfade_out = (value / 10000);
-				if (amus->is_playing() && zcmusic)
+				if (amus->is_playing(false) && zcmusic)
 					zcmusic->fadeoutframes = (value / 10000);
 			}
 			break;

@@ -6412,11 +6412,7 @@ void playLevelMusic()
 	[[fallthrough]];
 	default:
 		if (m > 0 && m <= quest_music.size())
-		{
-			auto& amus = quest_music[m-1];
-			if (!amus.is_playing()) // avoid resetting the song
-				amus.play();
-		}
+			quest_music[m-1].play();
 		else
 			music_stop();
 	}
