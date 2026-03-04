@@ -2770,6 +2770,7 @@ movingblock::movingblock() : sprite(), blockLayer(0), step(0.5)
 
 void movingblock::draw(BITMAP *dest)
 {
+	handle_sprlighting();
 	if(fallclk)
 	{
 		int32_t old_cs = cs;
