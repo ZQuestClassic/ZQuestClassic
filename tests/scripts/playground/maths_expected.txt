@@ -105,12 +105,7 @@ WRITEPODSTRING D2 "10 / i = %d\n"
 PUSHR D2
 LOAD D2 0
 DIVV2 10 D2
-SETV D2 10
-PUSHR D2
-LOAD D2 0
-POP D3
-DIVR D3 D2
-PUSHR D3; UsrFunc[void maybePrint(bool, char32[], int)] Params End
+PUSHR D2; UsrFunc[void maybePrint(bool, char32[], int)] Params End
 CALLFUNC 0.0043; UsrFunc[void maybePrint(bool, char32[], int)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void maybePrint(bool, char32[], int)] Params Start
@@ -120,12 +115,7 @@ WRITEPODSTRING D2 "10 %% i = %d\n"
 PUSHR D2
 LOAD D2 0
 MODV2 10 D2
-SETV D2 10
-PUSHR D2
-LOAD D2 0
-POP D3
-MODR D3 D2
-PUSHR D3; UsrFunc[void maybePrint(bool, char32[], int)] Params End
+PUSHR D2; UsrFunc[void maybePrint(bool, char32[], int)] Params End
 CALLFUNC 0.0043; UsrFunc[void maybePrint(bool, char32[], int)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void maybePrint(bool, char32[], int)] Params Start

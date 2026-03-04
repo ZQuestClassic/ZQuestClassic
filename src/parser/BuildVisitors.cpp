@@ -3288,7 +3288,7 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 		visit(host.right.get(), param);
 		addOpcode(new ODivImmediate2(new LiteralArgument(*lval), new VarArgument(EXP1)));
 	}
-	if(rval)
+	else if(rval)
 	{
 		visit(host.left.get(), param);
 		if((*rval)==10000L) // x / 1? Just do x!
@@ -3327,7 +3327,7 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 		visit(host.right.get(), param);
 		addOpcode(new OModuloImmediate2(new LiteralArgument(*lval), new VarArgument(EXP1)));
 	}
-	if(rval)
+	else if(rval)
 	{
 		visit(host.left.get(), param);
 		if((*rval)==0) //Mod by 0! Warn
