@@ -78,24 +78,24 @@ GOTO 41; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 PUSHR D0; void run(int) Params
 PUSHR REFITEMDATA; void run(int) Body Start
 SETR D4 SP2
-LOAD D2 0.0001; if() #447 Test
+LOAD D2 0.0001; if() #446 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 65 ==; Test 'if'
-SETV D2 -1; if() #447 Body Start
+SETV D2 -1; if() #446 Body Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 6 D2 0
-GOTO 71; if() #447 Body End
-LOAD D2 0.0001; if() #447 Else Start
+GOTO 71; if() #446 Body End
+LOAD D2 0.0001; if() #446 Else Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 6 D2 0; if() #447 Else End
+WRITEPODARRAYVR 6 D2 0; if() #446 Else End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; void run(int) Body End
@@ -153,7 +153,7 @@ POP D0
 POP REFNPC
 SETR D2 NPCDD
 STORE D2 0
-SETR D2 GD3; if() #834 Test AND while(true) #9 Body [Opt:AlwaysOn] Start
+SETR D2 GD3; if() #824 Test AND while(true) #9 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 GOTOCMP 136 !=
 SETR D2 GD5
@@ -164,10 +164,10 @@ GOTO 137
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 143 ==; Test 'if'
-SETV D2 1.5000; if() #834 Body Start
+SETV D2 1.5000; if() #824 Body Start
 SETR GD5 D2
 LOAD D2 0; InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #834 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #824 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params Start
@@ -15909,13 +15909,13 @@ POP D2
 CASTBOOLI D2
 POP REFNPC
 SETR NPCCOLLDET D2
-STOREV 0 0; for() #220 setup
-LOAD D2 0; for() #220 LoopTest
+STOREV 0 0; for() #204 setup
+LOAD D2 0; for() #204 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 15994 ==; for() #220 TestFail?
-SETV D2 0; for() #220 Body Start
+GOTOCMP 15994 ==; for() #204 TestFail?
+SETV D2 0; for() #204 Body Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
@@ -15977,12 +15977,12 @@ LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Params End
 CALLFUNC 0.8311; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Call
 POP D4
-LOAD D2 0; if() #833 Test
+LOAD D2 0; if() #823 Test
 COMPAREV D2 29
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 15989 ==; Test 'if'
-SETR D2 UNDERCOMBO; if() #833 Body Start
+SETR D2 UNDERCOMBO; if() #823 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int ComboAt(int, int)] Params Start
 PUSHR D2
@@ -16013,12 +16013,12 @@ COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 PUSHR D2
 POP D0
 POP D2
-SETR COMBOCD D2; if() #833 Body End
-NOP; for() #220 Body End
-LOAD D2 0; for() #220 LoopIncrement
+SETR COMBOCD D2; if() #823 Body End
+NOP; for() #204 Body End
+LOAD D2 0; for() #204 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 15885; for() #220 End
+GOTO 15885; for() #204 End
 NOP
 LOAD D2 0.0003
 PUSHR D2

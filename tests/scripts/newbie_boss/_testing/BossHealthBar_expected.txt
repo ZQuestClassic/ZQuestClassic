@@ -435,24 +435,24 @@ GOTO 41; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 PUSHR D0; void run(int) Params
 PUSHR REFITEMDATA; void run(int) Body Start
 SETR D4 SP2
-LOAD D2 0.0001; if() #447 Test
+LOAD D2 0.0001; if() #446 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 65 ==; Test 'if'
-SETV D2 -1; if() #447 Body Start
+SETV D2 -1; if() #446 Body Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 6 D2 0
-GOTO 71; if() #447 Body End
-LOAD D2 0.0001; if() #447 Else Start
+GOTO 71; if() #446 Body End
+LOAD D2 0.0001; if() #446 Else Start
 PUSHR D2
 SETR D2 GD26
 SETR D0 D2
 POP D2
-WRITEPODARRAYVR 6 D2 0; if() #447 Else End
+WRITEPODARRAYVR 6 D2 0; if() #446 Else End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; void run(int) Body End
@@ -473,11 +473,11 @@ PUSHR D2; UsrFunc[npc HealthBar_GetNPC(int, int)] Params End
 CALLFUNC 0.6603; UsrFunc[npc HealthBar_GetNPC(int, int)] Call
 POP D4
 STORE D2 0.0010
-LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND unless() #872 Test
+LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND unless() #862 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 96 !=; Test 'unless'
-QUIT; InlineFunc[void Quit()] Body AND unless() #872 Body
+QUIT; InlineFunc[void Quit()] Body AND unless() #862 Body
 NOP
 PUSHR D4
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -512,16 +512,16 @@ STORE D2 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
-STOREV 1 0.0001; for() #226 setup
-LOAD D2 0.0001; for() #226 LoopTest
+STOREV 1 0.0001; for() #210 setup
+LOAD D2 0.0001; for() #210 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 172 ==; for() #226 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #226 Body Start
+GOTOCMP 172 ==; for() #210 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #210 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
-LOAD D2 0; if() #873 Test
+LOAD D2 0; if() #863 Test
 PUSHR D2
 POP REFFFC
 SETR D2 FFSCRIPT
@@ -535,7 +535,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 167 ==; Test 'if'
-LOAD D2 0; if() #451 Test AND if() #873 Body Start
+LOAD D2 0; if() #450 Test AND if() #863 Body Start
 PUSHR D2
 LOAD D2 0.0011
 POP D3
@@ -543,36 +543,36 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 163 ==; Test 'if'
-GOTO 172; break 1; AND if() #451 Body Start
-GOTO 166; if() #451 Body End
-LOAD D2 0.0002; if() #451 Else Start
+GOTO 172; break 1; AND if() #450 Body Start
+GOTO 166; if() #450 Body End
+LOAD D2 0.0002; if() #450 Else Start
 ADDV D2 1
-STORE D2 0.0002; if() #451 Else End
-NOP; if() #873 Body End
-NOP; for() #226 Body End
-LOAD D2 0.0001; for() #226 LoopIncrement
+STORE D2 0.0002; if() #450 Else End
+NOP; if() #863 Body End
+NOP; for() #210 Body End
+LOAD D2 0.0001; for() #210 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 131; for() #226 End
+GOTO 131; for() #210 End
 NOP
 ALLOCATEMEMV D2 256 0
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0014; if() #452 Test
+LOAD D2 0.0014; if() #451 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 186 ==; Test 'if'
-LOAD D2 0.0014; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #452 Body Start
+LOAD D2 0.0014; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #451 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void Game::GetMessage(int, char32[])] Params End
 POP D3; InlineFunc[void Game::GetMessage(int, char32[])] Body Start
 GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End
-GOTO 191; if() #452 Body End
-LOAD D2 0.0010; InlineFunc[void npc::GetName(char32[])] Params Start AND if() #452 Else Start
+GOTO 191; if() #451 Body End
+LOAD D2 0.0010; InlineFunc[void npc::GetName(char32[])] Params Start AND if() #451 Else Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void npc::GetName(char32[])] Params End
 POP REFNPC; InlineFunc[void npc::GetName(char32[])] Body Start
-NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End AND if() #452 Else End
+NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End AND if() #451 Else End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_CapString(int)] Params Start
@@ -596,11 +596,11 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 352 ==; Test 'while'
-LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #453 Test AND while() #11 Body Start
+LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #452 Test AND while() #11 Body Start
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 228 ==; Test 'if'
-PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #453 Body Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #452 Body Start
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.6546; UsrFunc[int HealthBar_GetHP(npc)] Call
@@ -609,20 +609,20 @@ PUSHVARGR D2
 PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0009
-GOTO 230; if() #453 Body End
-SETV D2 0; if() #453 Else Start
-STORE D2 0.0009; if() #453 Else End
+GOTO 230; if() #452 Body End
+SETV D2 0; if() #452 Else Start
+STORE D2 0.0009; if() #452 Else End
 NOP
-LOAD D2 0.0003; if() #874 Test
+LOAD D2 0.0003; if() #864 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 239 ==; Test 'if'
-LOAD D2 0.0003; if() #874 Body Start
+LOAD D2 0.0003; if() #864 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #874 Body End
+STORE D2 0.0003; if() #864 Body End
 NOP
-LOAD D2 0.0009; if() #875 Test
+LOAD D2 0.0009; if() #865 Test
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -630,7 +630,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 288 ==; Test 'if'
-LOAD D2 0.0009; if() #876 Test AND if() #875 Body Start
+LOAD D2 0.0009; if() #866 Test AND if() #865 Body Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -638,12 +638,12 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 283 ==; Test 'if'
-LOAD D2 0.0003; if() #454 Test AND if() #876 Body Start
+LOAD D2 0.0003; if() #453 Test AND if() #866 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 273 ==; Test 'if'
-LOAD D2 0.0004; if() #454 Body Start
+LOAD D2 0.0004; if() #453 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -654,24 +654,24 @@ SETR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0004
-GOTO 280; if() #454 Body End
-LOAD D2 0.0007; if() #454 Else Start
+GOTO 280; if() #453 Body End
+LOAD D2 0.0007; if() #453 Else Start
 PUSHR D2
 LOAD D2 0.0009
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0004; if() #454 Else End
+STORE D2 0.0004; if() #453 Else End
 NOP
 SETV D2 96
-STORE D2 0.0003; if() #876 Body End
+STORE D2 0.0003; if() #866 Body End
 NOP
 LOAD D2 0.0007
 STORE D2 0.0005
 LOAD D2 0.0009
-STORE D2 0.0007; if() #875 Body End
+STORE D2 0.0007; if() #865 Body End
 NOP
-LOAD D2 0.0006; if() #877 Test
+LOAD D2 0.0006; if() #867 Test
 PUSHR D2
 LOAD D2 0.0009
 POP D3
@@ -679,7 +679,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 326 ==; Test 'if'
-LOAD D2 0.0006; if() #455 Test AND if() #877 Body Start
+LOAD D2 0.0006; if() #454 Test AND if() #867 Body Start
 PUSHR D2
 LOAD D2 0.0009
 POP D3
@@ -687,7 +687,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 323 ==; Test 'if'
-LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #455 Body Start
+LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #454 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -704,10 +704,10 @@ LOAD D2 0.0009
 PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0006
-GOTO 325; if() #455 Body End
-LOAD D2 0.0009; if() #455 Else Start
-STORE D2 0.0006; if() #455 Else End
-NOP; if() #877 Body End
+GOTO 325; if() #454 Body End
+LOAD D2 0.0009; if() #454 Else Start
+STORE D2 0.0006; if() #454 Else End
+NOP; if() #867 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -746,14 +746,14 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFINITDD D2
-LOAD D2 0.0003; if() #878 Test AND while(true) #12 Body [Opt:AlwaysOn] Start
+LOAD D2 0.0003; if() #868 Test AND while(true) #12 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 372 ==; Test 'if'
-LOAD D2 0.0003; if() #878 Body Start
+LOAD D2 0.0003; if() #868 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #878 Body End
+STORE D2 0.0003; if() #868 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -776,34 +776,34 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.6882; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-LOAD D2 0.0012; if() #879 Test
+LOAD D2 0.0012; if() #869 Test
 COMPAREV D2 0
 GOTOCMP 405 ==; Test 'if'
-PUSHR D4; if() #880 Test AND if() #879 Body Start
+PUSHR D4; if() #870 Test AND if() #869 Body Start
 LOAD D2 0.0011; UsrFunc[bool HealthBar_CheckDone(ffc)] Params Start
 PUSHR D2; UsrFunc[bool HealthBar_CheckDone(ffc)] Params End
 CALLFUNC 0.6555; UsrFunc[bool HealthBar_CheckDone(ffc)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 408 !=; Test 'if' AND break 1; AND if() #880 Body
-NOP; if() #879 Body End
+GOTOCMP 408 !=; Test 'if' AND break 1; AND if() #870 Body
+NOP; if() #869 Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #12 Body [Opt:AlwaysOn] End
 GOTO 364; while() #12 End
-STOREV 0 0; for() #227 setup
-LOAD D2 0; for() #227 LoopTest
+STOREV 0 0; for() #211 setup
+LOAD D2 0; for() #211 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 449 ==; for() #227 TestFail?
-LOAD D2 0.0003; if() #881 Test AND for() #227 Body Start
+GOTOCMP 449 ==; for() #211 TestFail?
+LOAD D2 0.0003; if() #871 Test AND for() #211 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 422 ==; Test 'if'
-LOAD D2 0.0003; if() #881 Body Start
+LOAD D2 0.0003; if() #871 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #881 Body End
+STORE D2 0.0003; if() #871 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -826,11 +826,11 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.6882; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #227 Body End
-LOAD D2 0; for() #227 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #211 Body End
+LOAD D2 0; for() #211 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 409; for() #227 End
+GOTO 409; for() #211 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0016
@@ -848,7 +848,7 @@ PUSHARGSV 0 0.0009
 SETR D4 SP2
 SETV D2 4; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
-PUSHR D4; if() #849 Test
+PUSHR D4; if() #839 Test
 LOAD D2 0.0017; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0016
@@ -867,7 +867,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 486 ==; Test 'if'
-QUIT; InlineFunc[void Quit()] Body AND if() #849 Body
+QUIT; InlineFunc[void Quit()] Body AND if() #839 Body
 NOP
 PUSHR D4
 LOAD D2 0.0017; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params Start
@@ -897,16 +897,16 @@ STOREV 0 0.0003
 STOREV 0 0.0002
 ALLOCATEMEMV D2 256 0
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0011; if() #850 Test
+LOAD D2 0.0011; if() #840 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 525 ==; Test 'if'
-LOAD D2 0.0011; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #850 Body Start
+LOAD D2 0.0011; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #840 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void Game::GetMessage(int, char32[])] Params End
 POP D3; InlineFunc[void Game::GetMessage(int, char32[])] Body Start
-GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End AND if() #850 Body End
+GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End AND if() #840 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_CapString(int)] Params Start
@@ -934,7 +934,7 @@ PUSHR D2; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params
 CALLFUNC 0.7128; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Call
 POP D4
 STORE D2 0.0008
-LOAD D2 0.0007; if() #851 Test
+LOAD D2 0.0007; if() #841 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -942,19 +942,19 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 562 ==; Test 'if'
-LOAD D2 0.0008; if() #851 Body Start
-STORE D2 0.0007; if() #851 Body End
+LOAD D2 0.0008; if() #841 Body Start
+STORE D2 0.0007; if() #841 Body End
 NOP
-LOAD D2 0.0002; if() #852 Test
+LOAD D2 0.0002; if() #842 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 571 ==; Test 'if'
-LOAD D2 0.0002; if() #852 Body Start
+LOAD D2 0.0002; if() #842 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #852 Body End
+STORE D2 0.0002; if() #842 Body End
 NOP
-LOAD D2 0.0008; if() #853 Test
+LOAD D2 0.0008; if() #843 Test
 PUSHR D2
 LOAD D2 0.0006
 POP D3
@@ -962,7 +962,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 620 ==; Test 'if'
-LOAD D2 0.0008; if() #854 Test AND if() #853 Body Start
+LOAD D2 0.0008; if() #844 Test AND if() #843 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
@@ -970,12 +970,12 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 615 ==; Test 'if'
-LOAD D2 0.0002; if() #448 Test AND if() #854 Body Start
+LOAD D2 0.0002; if() #447 Test AND if() #844 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 605 ==; Test 'if'
-LOAD D2 0.0003; if() #448 Body Start
+LOAD D2 0.0003; if() #447 Body Start
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
@@ -986,24 +986,24 @@ SETR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 612; if() #448 Body End
-LOAD D2 0.0006; if() #448 Else Start
+GOTO 612; if() #447 Body End
+LOAD D2 0.0006; if() #447 Else Start
 PUSHR D2
 LOAD D2 0.0008
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0003; if() #448 Else End
+STORE D2 0.0003; if() #447 Else End
 NOP
 SETV D2 96
-STORE D2 0.0002; if() #854 Body End
+STORE D2 0.0002; if() #844 Body End
 NOP
 LOAD D2 0.0006
 STORE D2 0.0004
 LOAD D2 0.0008
-STORE D2 0.0006; if() #853 Body End
+STORE D2 0.0006; if() #843 Body End
 NOP
-LOAD D2 0.0005; if() #855 Test
+LOAD D2 0.0005; if() #845 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -1011,7 +1011,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 658 ==; Test 'if'
-LOAD D2 0.0005; if() #449 Test AND if() #855 Body Start
+LOAD D2 0.0005; if() #448 Test AND if() #845 Body Start
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -1019,7 +1019,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 655 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #449 Body Start
+LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #448 Body Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1036,10 +1036,10 @@ LOAD D2 0.0008
 PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0005
-GOTO 657; if() #449 Body End
-LOAD D2 0.0008; if() #449 Else Start
-STORE D2 0.0005; if() #449 Else End
-NOP; if() #855 Body End
+GOTO 657; if() #448 Body End
+LOAD D2 0.0008; if() #448 Else Start
+STORE D2 0.0005; if() #448 Else End
+NOP; if() #845 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1059,18 +1059,18 @@ CALLFUNC 0.7535; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)]
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #9 Body End
 GOTO 531; while() #9 End
-LOAD D2 0.0010; unless() #856 Test
+LOAD D2 0.0010; unless() #846 Test
 COMPAREV D2 0
 GOTOCMP 706 !=; Test 'unless'
-NOP; unless() #856 Body Start
-LOAD D2 0.0002; if() #857 Test AND while(true) #10 Body [Opt:AlwaysOn] Start
+NOP; unless() #846 Body Start
+LOAD D2 0.0002; if() #847 Test AND while(true) #10 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 689 ==; Test 'if'
-LOAD D2 0.0002; if() #857 Body Start
+LOAD D2 0.0002; if() #847 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #857 Body End
+STORE D2 0.0002; if() #847 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1087,22 +1087,22 @@ PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params 
 CALLFUNC 0.7535; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #10 Body [Opt:AlwaysOn] End
-GOTO 680; while() #10 End AND unless() #856 Body End
+GOTO 680; while() #10 End AND unless() #846 Body End
 NOP
-STOREV 0 0; for() #222 setup
-LOAD D2 0; for() #222 LoopTest
+STOREV 0 0; for() #206 setup
+LOAD D2 0; for() #206 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 741 ==; for() #222 TestFail?
-LOAD D2 0.0002; if() #858 Test AND for() #222 Body Start
+GOTOCMP 741 ==; for() #206 TestFail?
+LOAD D2 0.0002; if() #848 Test AND for() #206 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 721 ==; Test 'if'
-LOAD D2 0.0002; if() #858 Body Start
+LOAD D2 0.0002; if() #848 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #858 Body End
+STORE D2 0.0002; if() #848 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1118,11 +1118,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.7535; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #222 Body End
-LOAD D2 0; for() #222 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #206 Body End
+LOAD D2 0; for() #206 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 708; for() #222 End
+GOTO 708; for() #206 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0018
@@ -1144,11 +1144,11 @@ PUSHR D2; UsrFunc[npc HealthBar_GetNPC(int, int)] Params End
 CALLFUNC 0.7829; UsrFunc[npc HealthBar_GetNPC(int, int)] Call
 POP D4
 STORE D2 0.0010
-LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND unless() #927 Test
+LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND unless() #917 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 767 !=; Test 'unless'
-QUIT; InlineFunc[void Quit()] Body AND unless() #927 Body
+QUIT; InlineFunc[void Quit()] Body AND unless() #917 Body
 NOP
 PUSHR D4
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -1183,16 +1183,16 @@ STORE D2 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
-STOREV 1 0.0001; for() #236 setup
-LOAD D2 0.0001; for() #236 LoopTest
+STOREV 1 0.0001; for() #220 setup
+LOAD D2 0.0001; for() #220 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 843 ==; for() #236 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #236 Body Start
+GOTOCMP 843 ==; for() #220 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #220 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
-LOAD D2 0; if() #928 Test
+LOAD D2 0; if() #918 Test
 PUSHR D2
 POP REFFFC
 SETR D2 FFSCRIPT
@@ -1206,7 +1206,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 838 ==; Test 'if'
-LOAD D2 0; if() #471 Test AND if() #928 Body Start
+LOAD D2 0; if() #470 Test AND if() #918 Body Start
 PUSHR D2
 LOAD D2 0.0011
 POP D3
@@ -1214,36 +1214,36 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 834 ==; Test 'if'
-GOTO 843; break 1; AND if() #471 Body Start
-GOTO 837; if() #471 Body End
-LOAD D2 0.0002; if() #471 Else Start
+GOTO 843; break 1; AND if() #470 Body Start
+GOTO 837; if() #470 Body End
+LOAD D2 0.0002; if() #470 Else Start
 ADDV D2 1
-STORE D2 0.0002; if() #471 Else End
-NOP; if() #928 Body End
-NOP; for() #236 Body End
-LOAD D2 0.0001; for() #236 LoopIncrement
+STORE D2 0.0002; if() #470 Else End
+NOP; if() #918 Body End
+NOP; for() #220 Body End
+LOAD D2 0.0001; for() #220 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 802; for() #236 End
+GOTO 802; for() #220 End
 NOP
 ALLOCATEMEMV D2 256 0
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0014; if() #472 Test
+LOAD D2 0.0014; if() #471 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 857 ==; Test 'if'
-LOAD D2 0.0014; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #472 Body Start
+LOAD D2 0.0014; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #471 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void Game::GetMessage(int, char32[])] Params End
 POP D3; InlineFunc[void Game::GetMessage(int, char32[])] Body Start
 GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End
-GOTO 862; if() #472 Body End
-LOAD D2 0.0010; InlineFunc[void npc::GetName(char32[])] Params Start AND if() #472 Else Start
+GOTO 862; if() #471 Body End
+LOAD D2 0.0010; InlineFunc[void npc::GetName(char32[])] Params Start AND if() #471 Else Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void npc::GetName(char32[])] Params End
 POP REFNPC; InlineFunc[void npc::GetName(char32[])] Body Start
-NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End AND if() #472 Else End
+NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End AND if() #471 Else End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_CapString(int)] Params Start
@@ -1267,11 +1267,11 @@ COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1023 ==; Test 'while'
-LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #473 Test AND while() #15 Body Start
+LOAD D2 0.0010; InlineFunc[bool npc::isValid()] Params AND if() #472 Test AND while() #15 Body Start
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 899 ==; Test 'if'
-PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #473 Body Start
+PUSHR D4; InlineFunc[int Max(...int[])] Params Start AND if() #472 Body Start
 LOAD D2 0.0010; UsrFunc[int HealthBar_GetHP(npc)] Params Start
 PUSHR D2; UsrFunc[int HealthBar_GetHP(npc)] Params End
 CALLFUNC 0.6546; UsrFunc[int HealthBar_GetHP(npc)] Call
@@ -1280,20 +1280,20 @@ PUSHVARGR D2
 PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0009
-GOTO 901; if() #473 Body End
-SETV D2 0; if() #473 Else Start
-STORE D2 0.0009; if() #473 Else End
+GOTO 901; if() #472 Body End
+SETV D2 0; if() #472 Else Start
+STORE D2 0.0009; if() #472 Else End
 NOP
-LOAD D2 0.0003; if() #929 Test
+LOAD D2 0.0003; if() #919 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 910 ==; Test 'if'
-LOAD D2 0.0003; if() #929 Body Start
+LOAD D2 0.0003; if() #919 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #929 Body End
+STORE D2 0.0003; if() #919 Body End
 NOP
-LOAD D2 0.0009; if() #930 Test
+LOAD D2 0.0009; if() #920 Test
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -1301,7 +1301,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 959 ==; Test 'if'
-LOAD D2 0.0009; if() #931 Test AND if() #930 Body Start
+LOAD D2 0.0009; if() #921 Test AND if() #920 Body Start
 PUSHR D2
 LOAD D2 0.0007
 POP D3
@@ -1309,12 +1309,12 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 954 ==; Test 'if'
-LOAD D2 0.0003; if() #474 Test AND if() #931 Body Start
+LOAD D2 0.0003; if() #473 Test AND if() #921 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 944 ==; Test 'if'
-LOAD D2 0.0004; if() #474 Body Start
+LOAD D2 0.0004; if() #473 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -1325,24 +1325,24 @@ SETR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0004
-GOTO 951; if() #474 Body End
-LOAD D2 0.0007; if() #474 Else Start
+GOTO 951; if() #473 Body End
+LOAD D2 0.0007; if() #473 Else Start
 PUSHR D2
 LOAD D2 0.0009
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0004; if() #474 Else End
+STORE D2 0.0004; if() #473 Else End
 NOP
 SETV D2 96
-STORE D2 0.0003; if() #931 Body End
+STORE D2 0.0003; if() #921 Body End
 NOP
 LOAD D2 0.0007
 STORE D2 0.0005
 LOAD D2 0.0009
-STORE D2 0.0007; if() #930 Body End
+STORE D2 0.0007; if() #920 Body End
 NOP
-LOAD D2 0.0006; if() #932 Test
+LOAD D2 0.0006; if() #922 Test
 PUSHR D2
 LOAD D2 0.0009
 POP D3
@@ -1350,7 +1350,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 997 ==; Test 'if'
-LOAD D2 0.0006; if() #475 Test AND if() #932 Body Start
+LOAD D2 0.0006; if() #474 Test AND if() #922 Body Start
 PUSHR D2
 LOAD D2 0.0009
 POP D3
@@ -1358,7 +1358,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 994 ==; Test 'if'
-LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #475 Body Start
+LOAD D2 0.0006; InlineFunc[int Max(...int[])] Params Start AND if() #474 Body Start
 PUSHR D2
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1375,10 +1375,10 @@ LOAD D2 0.0009
 PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0006
-GOTO 996; if() #475 Body End
-LOAD D2 0.0009; if() #475 Else Start
-STORE D2 0.0006; if() #475 Else End
-NOP; if() #932 Body End
+GOTO 996; if() #474 Body End
+LOAD D2 0.0009; if() #474 Else Start
+STORE D2 0.0006; if() #474 Else End
+NOP; if() #922 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1417,14 +1417,14 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFINITDD D2
-LOAD D2 0.0003; if() #933 Test AND while(true) #16 Body [Opt:AlwaysOn] Start
+LOAD D2 0.0003; if() #923 Test AND while(true) #16 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1043 ==; Test 'if'
-LOAD D2 0.0003; if() #933 Body Start
+LOAD D2 0.0003; if() #923 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #933 Body End
+STORE D2 0.0003; if() #923 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1447,34 +1447,34 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8344; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-LOAD D2 0.0012; if() #934 Test
+LOAD D2 0.0012; if() #924 Test
 COMPAREV D2 0
 GOTOCMP 1076 ==; Test 'if'
-PUSHR D4; if() #935 Test AND if() #934 Body Start
+PUSHR D4; if() #925 Test AND if() #924 Body Start
 LOAD D2 0.0011; UsrFunc[bool HealthBar_CheckDone(ffc)] Params Start
 PUSHR D2; UsrFunc[bool HealthBar_CheckDone(ffc)] Params End
 CALLFUNC 0.7781; UsrFunc[bool HealthBar_CheckDone(ffc)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 1079 !=; Test 'if' AND break 1; AND if() #935 Body
-NOP; if() #934 Body End
+GOTOCMP 1079 !=; Test 'if' AND break 1; AND if() #925 Body
+NOP; if() #924 Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #16 Body [Opt:AlwaysOn] End
 GOTO 1035; while() #16 End
-STOREV 0 0; for() #237 setup
-LOAD D2 0; for() #237 LoopTest
+STOREV 0 0; for() #221 setup
+LOAD D2 0; for() #221 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 1120 ==; for() #237 TestFail?
-LOAD D2 0.0003; if() #936 Test AND for() #237 Body Start
+GOTOCMP 1120 ==; for() #221 TestFail?
+LOAD D2 0.0003; if() #926 Test AND for() #221 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1093 ==; Test 'if'
-LOAD D2 0.0003; if() #936 Body Start
+LOAD D2 0.0003; if() #926 Body Start
 SUBV D2 1
-STORE D2 0.0003; if() #936 Body End
+STORE D2 0.0003; if() #926 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1497,11 +1497,11 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8344; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #237 Body End
-LOAD D2 0; for() #237 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #221 Body End
+LOAD D2 0; for() #221 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 1080; for() #237 End
+GOTO 1080; for() #221 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0016
@@ -1519,7 +1519,7 @@ PUSHARGSV 0 0.0009
 SETR D4 SP2
 SETV D2 4; InlineFunc[void Waitframes(int)] Params
 WAITFRAMESR D2; InlineFunc[void Waitframes(int)] Body
-PUSHR D4; if() #901 Test
+PUSHR D4; if() #891 Test
 LOAD D2 0.0017; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0016
@@ -1538,7 +1538,7 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1157 ==; Test 'if'
-QUIT; InlineFunc[void Quit()] Body AND if() #901 Body
+QUIT; InlineFunc[void Quit()] Body AND if() #891 Body
 NOP
 PUSHR D4
 LOAD D2 0.0017; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params Start
@@ -1568,16 +1568,16 @@ STOREV 0 0.0003
 STOREV 0 0.0002
 ALLOCATEMEMV D2 256 0
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0011; if() #902 Test
+LOAD D2 0.0011; if() #892 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1196 ==; Test 'if'
-LOAD D2 0.0011; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #902 Body Start
+LOAD D2 0.0011; InlineFunc[void Game::GetMessage(int, char32[])] Params Start AND if() #892 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void Game::GetMessage(int, char32[])] Params End
 POP D3; InlineFunc[void Game::GetMessage(int, char32[])] Body Start
-GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End AND if() #902 Body End
+GETMESSAGE D3 D2; InlineFunc[void Game::GetMessage(int, char32[])] Body End AND if() #892 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_CapString(int)] Params Start
@@ -1605,7 +1605,7 @@ PUSHR D2; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Params
 CALLFUNC 0.8485; UsrFunc[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Call
 POP D4
 STORE D2 0.0008
-LOAD D2 0.0007; if() #903 Test
+LOAD D2 0.0007; if() #893 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -1613,19 +1613,19 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1233 ==; Test 'if'
-LOAD D2 0.0008; if() #903 Body Start
-STORE D2 0.0007; if() #903 Body End
+LOAD D2 0.0008; if() #893 Body Start
+STORE D2 0.0007; if() #893 Body End
 NOP
-LOAD D2 0.0002; if() #904 Test
+LOAD D2 0.0002; if() #894 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1242 ==; Test 'if'
-LOAD D2 0.0002; if() #904 Body Start
+LOAD D2 0.0002; if() #894 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #904 Body End
+STORE D2 0.0002; if() #894 Body End
 NOP
-LOAD D2 0.0008; if() #905 Test
+LOAD D2 0.0008; if() #895 Test
 PUSHR D2
 LOAD D2 0.0006
 POP D3
@@ -1633,7 +1633,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 1291 ==; Test 'if'
-LOAD D2 0.0008; if() #906 Test AND if() #905 Body Start
+LOAD D2 0.0008; if() #896 Test AND if() #895 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
@@ -1641,12 +1641,12 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1286 ==; Test 'if'
-LOAD D2 0.0002; if() #462 Test AND if() #906 Body Start
+LOAD D2 0.0002; if() #461 Test AND if() #896 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1276 ==; Test 'if'
-LOAD D2 0.0003; if() #462 Body Start
+LOAD D2 0.0003; if() #461 Body Start
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
@@ -1657,24 +1657,24 @@ SETR D2 D3
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 1283; if() #462 Body End
-LOAD D2 0.0006; if() #462 Else Start
+GOTO 1283; if() #461 Body End
+LOAD D2 0.0006; if() #461 Else Start
 PUSHR D2
 LOAD D2 0.0008
 POP D3
 SUBR D3 D2
 SETR D2 D3
-STORE D2 0.0003; if() #462 Else End
+STORE D2 0.0003; if() #461 Else End
 NOP
 SETV D2 96
-STORE D2 0.0002; if() #906 Body End
+STORE D2 0.0002; if() #896 Body End
 NOP
 LOAD D2 0.0006
 STORE D2 0.0004
 LOAD D2 0.0008
-STORE D2 0.0006; if() #905 Body End
+STORE D2 0.0006; if() #895 Body End
 NOP
-LOAD D2 0.0005; if() #907 Test
+LOAD D2 0.0005; if() #897 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -1682,7 +1682,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 1329 ==; Test 'if'
-LOAD D2 0.0005; if() #463 Test AND if() #907 Body Start
+LOAD D2 0.0005; if() #462 Test AND if() #897 Body Start
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -1690,7 +1690,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1326 ==; Test 'if'
-LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #463 Body Start
+LOAD D2 0.0005; InlineFunc[int Max(...int[])] Params Start AND if() #462 Body Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[int Abs(int)] Params Start
 PUSHR D2
@@ -1707,10 +1707,10 @@ LOAD D2 0.0008
 PUSHVARGR D2; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 STORE D2 0.0005
-GOTO 1328; if() #463 Body End
-LOAD D2 0.0008; if() #463 Else Start
-STORE D2 0.0005; if() #463 Else End
-NOP; if() #907 Body End
+GOTO 1328; if() #462 Body End
+LOAD D2 0.0008; if() #462 Else Start
+STORE D2 0.0005; if() #462 Else End
+NOP; if() #897 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1730,18 +1730,18 @@ CALLFUNC 0.9128; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)]
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #13 Body End
 GOTO 1202; while() #13 End
-LOAD D2 0.0010; unless() #908 Test
+LOAD D2 0.0010; unless() #898 Test
 COMPAREV D2 0
 GOTOCMP 1377 !=; Test 'unless'
-NOP; unless() #908 Body Start
-LOAD D2 0.0002; if() #909 Test AND while(true) #14 Body [Opt:AlwaysOn] Start
+NOP; unless() #898 Body Start
+LOAD D2 0.0002; if() #899 Test AND while(true) #14 Body [Opt:AlwaysOn] Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1360 ==; Test 'if'
-LOAD D2 0.0002; if() #909 Body Start
+LOAD D2 0.0002; if() #899 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #909 Body End
+STORE D2 0.0002; if() #899 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1758,22 +1758,22 @@ PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params 
 CALLFUNC 0.9128; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #14 Body [Opt:AlwaysOn] End
-GOTO 1351; while() #14 End AND unless() #908 Body End
+GOTO 1351; while() #14 End AND unless() #898 Body End
 NOP
-STOREV 0 0; for() #231 setup
-LOAD D2 0; for() #231 LoopTest
+STOREV 0 0; for() #215 setup
+LOAD D2 0; for() #215 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 1412 ==; for() #231 TestFail?
-LOAD D2 0.0002; if() #910 Test AND for() #231 Body Start
+GOTOCMP 1412 ==; for() #215 TestFail?
+LOAD D2 0.0002; if() #900 Test AND for() #215 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 1392 ==; Test 'if'
-LOAD D2 0.0002; if() #910 Body Start
+LOAD D2 0.0002; if() #900 Body Start
 SUBV D2 1
-STORE D2 0.0002; if() #910 Body End
+STORE D2 0.0002; if() #900 Body End
 NOP
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params Start
@@ -1789,11 +1789,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.9128; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #231 Body End
-LOAD D2 0; for() #231 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #215 Body End
+LOAD D2 0; for() #215 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 1379; for() #231 End
+GOTO 1379; for() #215 End
 NOP
 REF_REMOVE 0.0001
 POPARGS D5 0.0018
@@ -6939,16 +6939,16 @@ POP D5; return End
 RETURNFUNC; Func[int HealthBar_GetHP(npc)] Body End
 PUSHARGSV 0 0.0002; Func[bool HealthBar_CheckDone(ffc)] Body Start
 SETR D4 SP2
-STOREV 1 0.0001; for() #224 setup
-LOAD D2 0.0001; for() #224 LoopTest
+STOREV 1 0.0001; for() #208 setup
+LOAD D2 0.0001; for() #208 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 6599 ==; for() #224 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #224 Body Start
+GOTOCMP 6599 ==; for() #208 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #208 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
-LOAD D2 0; if() #860 Test
+LOAD D2 0; if() #850 Test
 PUSHR D2
 POP REFFFC
 SETR D2 FFSCRIPT
@@ -6962,7 +6962,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6594 ==; Test 'if'
-LOAD D2 0; if() #861 Test AND if() #860 Body Start
+LOAD D2 0; if() #851 Test AND if() #850 Body Start
 PUSHR D2
 SETV D2 0
 PUSHR D2
@@ -6973,33 +6973,33 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6593 ==; Test 'if'
-SETV D2 0; return Start AND if() #861 Body Start
-GOTO 6601; return End AND if() #861 Body End
-NOP; if() #860 Body End
-NOP; for() #224 Body End
-LOAD D2 0.0001; for() #224 LoopIncrement
+SETV D2 0; return Start AND if() #851 Body Start
+GOTO 6601; return End AND if() #851 Body End
+NOP; if() #850 Body End
+NOP; for() #208 Body End
+LOAD D2 0.0001; for() #208 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 6558; for() #224 End
+GOTO 6558; for() #208 End
 NOP
 SETV D2 1; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[bool HealthBar_CheckDone(ffc)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #225 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #209 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #225 LoopTest
+LOAD D2 0.0001; for() #209 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 6645 ==; for() #225 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #225 Body Start
+GOTOCMP 6645 ==; for() #209 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #209 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
 STORE D2 0
-LOAD D2 0; if() #871 Test
+LOAD D2 0; if() #861 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7010,23 +7010,23 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6640 ==; Test 'if'
-LOAD D2 0.0002; if() #450 Test AND if() #871 Body Start
+LOAD D2 0.0002; if() #449 Test AND if() #861 Body Start
 COMPAREV D2 1
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 6636 ==; Test 'if'
-LOAD D2 0; return Start AND if() #450 Body Start
+LOAD D2 0; return Start AND if() #449 Body Start
 GOTO 6646; return End
-GOTO 6639; if() #450 Body End
-LOAD D2 0.0002; if() #450 Else Start
+GOTO 6639; if() #449 Body End
+LOAD D2 0.0002; if() #449 Else Start
 SUBV D2 1
-STORE D2 0.0002; if() #450 Else End
-NOP; if() #871 Body End
-NOP; for() #225 Body End
-LOAD D2 0.0001; for() #225 LoopIncrement
+STORE D2 0.0002; if() #449 Else End
+NOP; if() #861 Body End
+NOP; for() #209 Body End
+LOAD D2 0.0001; for() #209 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 6607; for() #225 End
+GOTO 6607; for() #209 End
 NOP
 POPARGS D5 0.0004
 RETURNFUNC; Func[npc HealthBar_GetNPC(int, int)] Body End
@@ -7132,12 +7132,12 @@ SETR D4 SP2
 ALLOCATEMEMV D2 8 0
 STORE_OBJECT D2 0.0001
 STOREV 0 0
-LOAD D2 0.0002; if() #867 Test
+LOAD D2 0.0002; if() #857 Test
 COMPAREV D2 10000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6771 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #867 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #857 Body Start
 DIVV D2 10000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7152,14 +7152,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #867 Body End
+STORE D2 0; if() #857 Body End
 NOP
-LOAD D2 0.0002; if() #868 Test
+LOAD D2 0.0002; if() #858 Test
 COMPAREV D2 1000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6793 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #868 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #858 Body Start
 DIVV D2 1000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7174,14 +7174,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #868 Body End
+STORE D2 0; if() #858 Body End
 NOP
-LOAD D2 0.0002; if() #869 Test
+LOAD D2 0.0002; if() #859 Test
 COMPAREV D2 100
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6815 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #869 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #859 Body Start
 DIVV D2 100; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7196,14 +7196,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #869 Body End
+STORE D2 0; if() #859 Body End
 NOP
-LOAD D2 0.0002; if() #870 Test
+LOAD D2 0.0002; if() #860 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 6837 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #870 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #860 Body Start
 DIVV D2 10; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7218,7 +7218,7 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #870 Body End
+STORE D2 0; if() #860 Body End
 NOP
 LOAD D2 0.0002
 MODV D2 10
@@ -7324,7 +7324,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2 0.0009; if() #862 Test
+LOAD D2 0.0009; if() #852 Test
 COMPAREV D2 0
 GOTOCMP 6947 <=
 SETV D2 1
@@ -7332,7 +7332,7 @@ GOTO 6948
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 6987 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #862 Body Start
+PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #852 Body Start
 LOAD D2 0.0005
 ADDV D2 1
 PUSHR D2
@@ -7368,14 +7368,14 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #862 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #852 Body End
 NOP
-LOAD D2 0.0011; if() #863 Test
+LOAD D2 0.0011; if() #853 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7030 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #863 Body Start
+PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #853 Body Start
 LOAD D2 0.0005
 ADDV D2 1
 PUSHR D2
@@ -7411,7 +7411,7 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #863 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #853 Body End
 NOP
 PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0005
@@ -7428,12 +7428,12 @@ PUSHARGSV 0 0.0004
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2 0.0012; if() #864 Test
+LOAD D2 0.0012; if() #854 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7066 ==; Test 'if'
-PUSHR D4; if() #864 Body Start
+PUSHR D4; if() #854 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0005
 PUSHR D2
@@ -7447,14 +7447,14 @@ PUSHV 0
 LOAD D2 0.0012
 PUSHR D2; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.6648; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Call
-POP D4; if() #864 Body End
+POP D4; if() #854 Body End
 NOP
-LOAD D2 0.0007; if() #866 Test AND if(true) #865 [Opt:AlwaysOn]
+LOAD D2 0.0007; if() #856 Test AND if(true) #855 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7086 ==; Test 'if'
-PUSHR D4; if() #866 Body Start
+PUSHR D4; if() #856 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0003
 PUSHR D2
@@ -7467,22 +7467,22 @@ PUSHV 8
 LOAD D2 0.0008
 PUSHR D2; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.6745; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Call
-POP D4; if() #866 Body End
+POP D4; if() #856 Body End
 NOP
 POPARGS D5 0.0013
 RETURNFUNC; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #223 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #207 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #223 LoopTest
+LOAD D2 0; for() #207 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 7125 ==; for() #223 TestFail?
-LOAD D2 0.0001; if() #859 Test AND for() #223 Body Start
+GOTOCMP 7125 ==; for() #207 TestFail?
+LOAD D2 0.0001; if() #849 Test AND for() #207 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -7491,7 +7491,7 @@ COMPAREV D2 32
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7120 ==; Test 'if'
-SETV D2 0; if() #859 Body Start
+SETV D2 0; if() #849 Body Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -7501,31 +7501,31 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
-GOTO 7126; return (Void) AND if() #859 Body End
-NOP; for() #223 Body End
-LOAD D2 0; for() #223 LoopIncrement
+GOTO 7126; return (Void) AND if() #849 Body End
+NOP; for() #207 Body End
+LOAD D2 0; for() #207 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 7095; for() #223 End
+GOTO 7095; for() #207 End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #221 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #205 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #221 LoopTest
+LOAD D2 0.0001; for() #205 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 7297 ==; for() #221 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #221 Body Start
+GOTOCMP 7297 ==; for() #205 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #205 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
 STORE D2 0
-LOAD D2 0; if() #843 Test
+LOAD D2 0; if() #833 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7536,7 +7536,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7167 ==; Test 'if'
-LOAD D2 0.0002; if() #843 Body Start
+LOAD D2 0.0002; if() #833 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7548,9 +7548,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #843 Body End
+STORE D2 0.0002; if() #833 Body End
 NOP
-LOAD D2 0; if() #844 Test
+LOAD D2 0; if() #834 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7561,7 +7561,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7192 ==; Test 'if'
-LOAD D2 0.0002; if() #844 Body Start
+LOAD D2 0.0002; if() #834 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7573,9 +7573,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #844 Body End
+STORE D2 0.0002; if() #834 Body End
 NOP
-LOAD D2 0; if() #845 Test
+LOAD D2 0; if() #835 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7586,7 +7586,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7217 ==; Test 'if'
-LOAD D2 0.0002; if() #845 Body Start
+LOAD D2 0.0002; if() #835 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7598,9 +7598,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #845 Body End
+STORE D2 0.0002; if() #835 Body End
 NOP
-LOAD D2 0; if() #846 Test
+LOAD D2 0; if() #836 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7611,7 +7611,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7242 ==; Test 'if'
-LOAD D2 0.0002; if() #846 Body Start
+LOAD D2 0.0002; if() #836 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7623,9 +7623,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #846 Body End
+STORE D2 0.0002; if() #836 Body End
 NOP
-LOAD D2 0; if() #847 Test
+LOAD D2 0; if() #837 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7636,7 +7636,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7267 ==; Test 'if'
-LOAD D2 0.0002; if() #847 Body Start
+LOAD D2 0.0002; if() #837 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7648,9 +7648,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #847 Body End
+STORE D2 0.0002; if() #837 Body End
 NOP
-LOAD D2 0; if() #848 Test
+LOAD D2 0; if() #838 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -7661,7 +7661,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7292 ==; Test 'if'
-LOAD D2 0.0002; if() #848 Body Start
+LOAD D2 0.0002; if() #838 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -7673,12 +7673,12 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #848 Body End
-NOP; for() #221 Body End
-LOAD D2 0.0001; for() #221 LoopIncrement
+STORE D2 0.0002; if() #838 Body End
+NOP; for() #205 Body End
+LOAD D2 0.0001; for() #205 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 7133; for() #221 End
+GOTO 7133; for() #205 End
 NOP
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0009; return End
@@ -7785,12 +7785,12 @@ SETR D4 SP2
 ALLOCATEMEMV D2 8 0
 STORE_OBJECT D2 0.0001
 STOREV 0 0
-LOAD D2 0.0002; if() #839 Test
+LOAD D2 0.0002; if() #829 Test
 COMPAREV D2 10000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7424 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #839 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #829 Body Start
 DIVV D2 10000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7805,14 +7805,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #839 Body End
+STORE D2 0; if() #829 Body End
 NOP
-LOAD D2 0.0002; if() #840 Test
+LOAD D2 0.0002; if() #830 Test
 COMPAREV D2 1000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7446 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #840 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #830 Body Start
 DIVV D2 1000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7827,14 +7827,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #840 Body End
+STORE D2 0; if() #830 Body End
 NOP
-LOAD D2 0.0002; if() #841 Test
+LOAD D2 0.0002; if() #831 Test
 COMPAREV D2 100
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7468 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #841 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #831 Body Start
 DIVV D2 100; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7849,14 +7849,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #841 Body End
+STORE D2 0; if() #831 Body End
 NOP
-LOAD D2 0.0002; if() #842 Test
+LOAD D2 0.0002; if() #832 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7490 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #842 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #832 Body Start
 DIVV D2 10; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -7871,7 +7871,7 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #842 Body End
+STORE D2 0; if() #832 Body End
 NOP
 LOAD D2 0.0002
 MODV D2 10
@@ -7977,7 +7977,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2 0.0009; if() #834 Test
+LOAD D2 0.0009; if() #824 Test
 COMPAREV D2 0
 GOTOCMP 7600 <=
 SETV D2 1
@@ -7985,7 +7985,7 @@ GOTO 7601
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 7640 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #834 Body Start
+PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #824 Body Start
 LOAD D2 0.0005
 ADDV D2 1
 PUSHR D2
@@ -8021,14 +8021,14 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #834 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #824 Body End
 NOP
-LOAD D2 0.0011; if() #835 Test
+LOAD D2 0.0011; if() #825 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7683 ==; Test 'if'
-PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #835 Body Start
+PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #825 Body Start
 LOAD D2 0.0005
 ADDV D2 1
 PUSHR D2
@@ -8064,7 +8064,7 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #835 Body End
+POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #825 Body End
 NOP
 PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0005
@@ -8081,12 +8081,12 @@ PUSHARGSV 0 0.0004
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2 0.0012; if() #836 Test
+LOAD D2 0.0012; if() #826 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7719 ==; Test 'if'
-PUSHR D4; if() #836 Body Start
+PUSHR D4; if() #826 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0005
 PUSHR D2
@@ -8100,14 +8100,14 @@ PUSHV 0
 LOAD D2 0.0012
 PUSHR D2; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.7301; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Call
-POP D4; if() #836 Body End
+POP D4; if() #826 Body End
 NOP
-LOAD D2 0.0007; if() #838 Test AND if(true) #837 [Opt:AlwaysOn]
+LOAD D2 0.0007; if() #828 Test AND if(true) #827 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7739 ==; Test 'if'
-PUSHR D4; if() #838 Body Start
+PUSHR D4; if() #828 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0003
 PUSHR D2
@@ -8120,22 +8120,22 @@ PUSHV 8
 LOAD D2 0.0008
 PUSHR D2; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.7398; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Call
-POP D4; if() #838 Body End
+POP D4; if() #828 Body End
 NOP
 POPARGS D5 0.0013
 RETURNFUNC; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #220 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #204 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #220 LoopTest
+LOAD D2 0; for() #204 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 7778 ==; for() #220 TestFail?
-LOAD D2 0.0001; if() #833 Test AND for() #220 Body Start
+GOTOCMP 7778 ==; for() #204 TestFail?
+LOAD D2 0.0001; if() #823 Test AND for() #204 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -8144,7 +8144,7 @@ COMPAREV D2 32
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 7773 ==; Test 'if'
-SETV D2 0; if() #833 Body Start
+SETV D2 0; if() #823 Body Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -8154,27 +8154,27 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
-GOTO 7779; return (Void) AND if() #833 Body End
-NOP; for() #220 Body End
-LOAD D2 0; for() #220 LoopIncrement
+GOTO 7779; return (Void) AND if() #823 Body End
+NOP; for() #204 Body End
+LOAD D2 0; for() #204 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 7748; for() #220 End
+GOTO 7748; for() #204 End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0002; Func[bool HealthBar_CheckDone(ffc)] Body Start
 SETR D4 SP2
-STOREV 1 0.0001; for() #233 setup
-LOAD D2 0.0001; for() #233 LoopTest
+STOREV 1 0.0001; for() #217 setup
+LOAD D2 0.0001; for() #217 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 7825 ==; for() #233 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #233 Body Start
+GOTOCMP 7825 ==; for() #217 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #217 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
-LOAD D2 0; if() #912 Test
+LOAD D2 0; if() #902 Test
 PUSHR D2
 POP REFFFC
 SETR D2 FFSCRIPT
@@ -8188,7 +8188,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7820 ==; Test 'if'
-LOAD D2 0; if() #913 Test AND if() #912 Body Start
+LOAD D2 0; if() #903 Test AND if() #902 Body Start
 PUSHR D2
 SETV D2 0
 PUSHR D2
@@ -8199,33 +8199,33 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7819 ==; Test 'if'
-SETV D2 0; return Start AND if() #913 Body Start
-GOTO 7827; return End AND if() #913 Body End
-NOP; if() #912 Body End
-NOP; for() #233 Body End
-LOAD D2 0.0001; for() #233 LoopIncrement
+SETV D2 0; return Start AND if() #903 Body Start
+GOTO 7827; return End AND if() #903 Body End
+NOP; if() #902 Body End
+NOP; for() #217 Body End
+LOAD D2 0.0001; for() #217 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 7784; for() #233 End
+GOTO 7784; for() #217 End
 NOP
 SETV D2 1; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[bool HealthBar_CheckDone(ffc)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #235 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #219 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #235 LoopTest
+LOAD D2 0.0001; for() #219 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 7871 ==; for() #235 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #235 Body Start
+GOTOCMP 7871 ==; for() #219 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #219 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
 STORE D2 0
-LOAD D2 0; if() #926 Test
+LOAD D2 0; if() #916 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8236,23 +8236,23 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7866 ==; Test 'if'
-LOAD D2 0.0002; if() #470 Test AND if() #926 Body Start
+LOAD D2 0.0002; if() #469 Test AND if() #916 Body Start
 COMPAREV D2 1
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 7862 ==; Test 'if'
-LOAD D2 0; return Start AND if() #470 Body Start
+LOAD D2 0; return Start AND if() #469 Body Start
 GOTO 7872; return End
-GOTO 7865; if() #470 Body End
-LOAD D2 0.0002; if() #470 Else Start
+GOTO 7865; if() #469 Body End
+LOAD D2 0.0002; if() #469 Else Start
 SUBV D2 1
-STORE D2 0.0002; if() #470 Else End
-NOP; if() #926 Body End
-NOP; for() #235 Body End
-LOAD D2 0.0001; for() #235 LoopIncrement
+STORE D2 0.0002; if() #469 Else End
+NOP; if() #916 Body End
+NOP; for() #219 Body End
+LOAD D2 0.0001; for() #219 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 7833; for() #235 End
+GOTO 7833; for() #219 End
 NOP
 POPARGS D5 0.0004
 RETURNFUNC; Func[npc HealthBar_GetNPC(int, int)] Body End
@@ -8358,12 +8358,12 @@ SETR D4 SP2
 ALLOCATEMEMV D2 8 0
 STORE_OBJECT D2 0.0001
 STOREV 0 0
-LOAD D2 0.0002; if() #919 Test
+LOAD D2 0.0002; if() #909 Test
 COMPAREV D2 10000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 7997 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #919 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #909 Body Start
 DIVV D2 10000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -8378,14 +8378,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #919 Body End
+STORE D2 0; if() #909 Body End
 NOP
-LOAD D2 0.0002; if() #920 Test
+LOAD D2 0.0002; if() #910 Test
 COMPAREV D2 1000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8019 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #920 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #910 Body Start
 DIVV D2 1000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -8400,14 +8400,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #920 Body End
+STORE D2 0; if() #910 Body End
 NOP
-LOAD D2 0.0002; if() #921 Test
+LOAD D2 0.0002; if() #911 Test
 COMPAREV D2 100
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8041 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #921 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #911 Body Start
 DIVV D2 100; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -8422,14 +8422,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #921 Body End
+STORE D2 0; if() #911 Body End
 NOP
-LOAD D2 0.0002; if() #922 Test
+LOAD D2 0.0002; if() #912 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8063 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #922 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #912 Body Start
 DIVV D2 10; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -8444,7 +8444,7 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #922 Body End
+STORE D2 0; if() #912 Body End
 NOP
 LOAD D2 0.0002
 MODV D2 10
@@ -8538,7 +8538,7 @@ PUSHV 16; UsrFunc[int Clamp(int, int, int)] Params End
 CALLFUNC 0.1796; UsrFunc[int Clamp(int, int, int)] Call
 POP D4
 STORE D2 0.0001
-LOAD D2 0.0001; if() #923 Test
+LOAD D2 0.0001; if() #913 Test
 COMPAREV D2 16
 GOTOCMP 8167 !=
 LOAD D2 0.0009
@@ -8552,20 +8552,20 @@ GOTO 8168
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 8172 ==; Test 'if'
-SETV D2 15; if() #923 Body Start
-STORE D2 0.0001; if() #923 Body End
+SETV D2 15; if() #913 Body Start
+STORE D2 0.0001; if() #913 Body End
 NOP
-STOREV 0 0; for() #234 setup
-LOAD D2 0; for() #234 LoopTest
+STOREV 0 0; for() #218 setup
+LOAD D2 0; for() #218 LoopTest
 COMPAREV D2 14
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 8266 ==; for() #234 TestFail?
-LOAD D2 0.0017; for() #234 Body Start
+GOTOCMP 8266 ==; for() #218 TestFail?
+LOAD D2 0.0017; for() #218 Body Start
 STORE D2 0.0007
 LOAD D2 0.0016
 STORE D2 0.0006
-LOAD D2 0.0007; if(false) #464 [Opt:AlwaysOff]
+LOAD D2 0.0007; if(false) #463 [Opt:AlwaysOff]
 PUSHR D2
 LOAD D2 0
 MULTV D2 16
@@ -8579,7 +8579,7 @@ ADDR D2 D3
 STORE D2 0.0007
 LOAD D2 0.0013
 STORE D2 0.0005
-LOAD D2 0; if() #465 Test
+LOAD D2 0; if() #464 Test
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -8587,7 +8587,7 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8219 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #465 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #464 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -8600,8 +8600,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 8261; if() #465 Body End
-LOAD D2 0; if() #466 Test AND if() #465 Else Start
+GOTO 8261; if() #464 Body End
+LOAD D2 0; if() #465 Test AND if() #464 Else Start
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -8609,7 +8609,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8245 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #466 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #465 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -8626,8 +8626,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 8260; if() #466 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #466 Else Start
+GOTO 8260; if() #465 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #465 Else Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -8641,20 +8641,20 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #466 Else End
-NOP; if() #465 Else End
-NOP; for() #234 Body End
-LOAD D2 0; for() #234 LoopIncrement
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #465 Else End
+NOP; if() #464 Else End
+NOP; for() #218 Body End
+LOAD D2 0; for() #218 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 8174; for() #234 End
+GOTO 8174; for() #218 End
 NOP
-LOAD D2 0.0009; if() #468 Test AND if(false) #467 [Opt:AlwaysOff] AND if(true) #925 [Opt:AlwaysOn]
+LOAD D2 0.0009; if() #467 Test AND if(false) #466 [Opt:AlwaysOff] AND if(true) #915 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 8287 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #468 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #467 Body Start
 PUSHR D2
 LOAD D2 0.0017
 SUBV D2 16
@@ -8668,8 +8668,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 8302; if() #468 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #468 Else Start
+GOTO 8302; if() #467 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #467 Else Start
 PUSHR D2
 LOAD D2 0.0017
 SUBV D2 16
@@ -8683,9 +8683,9 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #468 Else End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #467 Else End
 NOP
-LOAD D2 0.0009; if() #469 Test
+LOAD D2 0.0009; if() #468 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -8693,7 +8693,7 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 8327 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #469 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #468 Body Start
 PUSHR D2
 LOAD D2 0.0017
 ADDV D2 224
@@ -8708,8 +8708,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 8341; if() #469 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #469 Else Start
+GOTO 8341; if() #468 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #468 Else Start
 PUSHR D2
 LOAD D2 0.0017
 ADDV D2 224
@@ -8722,7 +8722,7 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #469 Else End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #468 Else End
 NOP
 POPARGS D5 0.0019
 RETURNFUNC; Func[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Body End
@@ -8734,7 +8734,7 @@ LOAD D2 0.0002
 ADDV D2 224
 SUBV D2 1
 STORE D2 0
-PUSHR D4; if(true) #914 [Opt:AlwaysOn]
+PUSHR D4; if(true) #904 [Opt:AlwaysOn]
 PUSHV 6; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2
@@ -8777,12 +8777,12 @@ LOAD D2 0.0007
 PUSHR D2; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8108; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Call
 POP D4
-LOAD D2 0.0009; if() #916 Test AND unless(false) #915 [Opt:AlwaysOn]
+LOAD D2 0.0009; if() #906 Test AND unless(false) #905 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 8419 ==; Test 'if'
-PUSHR D4; if() #916 Body Start
+PUSHR D4; if() #906 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2
@@ -8800,14 +8800,14 @@ PUSHV 0
 LOAD D2 0.0009
 PUSHR D2; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.7874; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Call
-POP D4; if() #916 Body End
+POP D4; if() #906 Body End
 NOP
-LOAD D2 0.0004; if() #918 Test AND if(true) #917 [Opt:AlwaysOn]
+LOAD D2 0.0004; if() #908 Test AND if(true) #907 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 8443 ==; Test 'if'
-PUSHR D4; if() #918 Body Start
+PUSHR D4; if() #908 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params Start
 LOAD D2 0
 PUSHR D2
@@ -8824,22 +8824,22 @@ PUSHV 8
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.7971; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Call
-POP D4; if() #918 Body End
+POP D4; if() #908 Body End
 NOP
 POPARGS D5 0.0010
 RETURNFUNC; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #232 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #216 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #232 LoopTest
+LOAD D2 0; for() #216 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 8482 ==; for() #232 TestFail?
-LOAD D2 0.0001; if() #911 Test AND for() #232 Body Start
+GOTOCMP 8482 ==; for() #216 TestFail?
+LOAD D2 0.0001; if() #901 Test AND for() #216 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -8848,7 +8848,7 @@ COMPAREV D2 32
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 8477 ==; Test 'if'
-SETV D2 0; if() #911 Body Start
+SETV D2 0; if() #901 Body Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -8858,31 +8858,31 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
-GOTO 8483; return (Void) AND if() #911 Body End
-NOP; for() #232 Body End
-LOAD D2 0; for() #232 LoopIncrement
+GOTO 8483; return (Void) AND if() #901 Body End
+NOP; for() #216 Body End
+LOAD D2 0; for() #216 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 8452; for() #232 End
+GOTO 8452; for() #216 End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #230 setup
+SETR D2 NPCCOUNT; InlineFunc[const int screendata::NumNPCs()] Body AND for() #214 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #230 LoopTest
+LOAD D2 0.0001; for() #214 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 8654 ==; for() #230 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #230 Body Start
+GOTOCMP 8654 ==; for() #214 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #214 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
 STORE D2 0
-LOAD D2 0; if() #895 Test
+LOAD D2 0; if() #885 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8893,7 +8893,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8524 ==; Test 'if'
-LOAD D2 0.0002; if() #895 Body Start
+LOAD D2 0.0002; if() #885 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -8905,9 +8905,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #895 Body End
+STORE D2 0.0002; if() #885 Body End
 NOP
-LOAD D2 0; if() #896 Test
+LOAD D2 0; if() #886 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8918,7 +8918,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8549 ==; Test 'if'
-LOAD D2 0.0002; if() #896 Body Start
+LOAD D2 0.0002; if() #886 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -8930,9 +8930,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #896 Body End
+STORE D2 0.0002; if() #886 Body End
 NOP
-LOAD D2 0; if() #897 Test
+LOAD D2 0; if() #887 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8943,7 +8943,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8574 ==; Test 'if'
-LOAD D2 0.0002; if() #897 Body Start
+LOAD D2 0.0002; if() #887 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -8955,9 +8955,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #897 Body End
+STORE D2 0.0002; if() #887 Body End
 NOP
-LOAD D2 0; if() #898 Test
+LOAD D2 0; if() #888 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8968,7 +8968,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8599 ==; Test 'if'
-LOAD D2 0.0002; if() #898 Body Start
+LOAD D2 0.0002; if() #888 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -8980,9 +8980,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #898 Body End
+STORE D2 0.0002; if() #888 Body End
 NOP
-LOAD D2 0; if() #899 Test
+LOAD D2 0; if() #889 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -8993,7 +8993,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8624 ==; Test 'if'
-LOAD D2 0.0002; if() #899 Body Start
+LOAD D2 0.0002; if() #889 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -9005,9 +9005,9 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #899 Body End
+STORE D2 0.0002; if() #889 Body End
 NOP
-LOAD D2 0; if() #900 Test
+LOAD D2 0; if() #890 Test
 PUSHR D2
 POP REFNPC
 SETR D2 NPCID
@@ -9018,7 +9018,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8649 ==; Test 'if'
-LOAD D2 0.0002; if() #900 Body Start
+LOAD D2 0.0002; if() #890 Body Start
 PUSHR D2
 PUSHR D4; InlineFunc[int Max(...int[])] Params Start
 LOAD D2 0; UsrFunc[int HealthBar_GetHP(npc)] Params Start
@@ -9030,12 +9030,12 @@ PUSHVARGV 0; InlineFunc[int Max(...int[])] Params End
 MAXVARG; InlineFunc[int Max(...int[])] Body
 POP D3
 ADDR D2 D3
-STORE D2 0.0002; if() #900 Body End
-NOP; for() #230 Body End
-LOAD D2 0.0001; for() #230 LoopIncrement
+STORE D2 0.0002; if() #890 Body End
+NOP; for() #214 Body End
+LOAD D2 0.0001; for() #214 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 8490; for() #230 End
+GOTO 8490; for() #214 End
 NOP
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0009; return End
@@ -9142,12 +9142,12 @@ SETR D4 SP2
 ALLOCATEMEMV D2 8 0
 STORE_OBJECT D2 0.0001
 STOREV 0 0
-LOAD D2 0.0002; if() #888 Test
+LOAD D2 0.0002; if() #878 Test
 COMPAREV D2 10000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8781 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #888 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #878 Body Start
 DIVV D2 10000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -9162,14 +9162,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #888 Body End
+STORE D2 0; if() #878 Body End
 NOP
-LOAD D2 0.0002; if() #889 Test
+LOAD D2 0.0002; if() #879 Test
 COMPAREV D2 1000
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8803 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #889 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #879 Body Start
 DIVV D2 1000; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -9184,14 +9184,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #889 Body End
+STORE D2 0; if() #879 Body End
 NOP
-LOAD D2 0.0002; if() #890 Test
+LOAD D2 0.0002; if() #880 Test
 COMPAREV D2 100
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8825 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #890 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #880 Body Start
 DIVV D2 100; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -9206,14 +9206,14 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #890 Body End
+STORE D2 0; if() #880 Body End
 NOP
-LOAD D2 0.0002; if() #891 Test
+LOAD D2 0.0002; if() #881 Test
 COMPAREV D2 10
 SETCMP D2 I>=
 COMPAREV D2 0
 GOTOCMP 8847 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #891 Body Start
+LOAD D2 0.0002; InlineFunc[int Floor(int)] Params Start AND if() #881 Body Start
 DIVV D2 10; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MODV D2 10
@@ -9228,7 +9228,7 @@ POP D2
 WRITEPODARRAYRR D3 D2 0
 LOAD D2 0
 ADDV D2 1
-STORE D2 0; if() #891 Body End
+STORE D2 0; if() #881 Body End
 NOP
 LOAD D2 0.0002
 MODV D2 10
@@ -9322,7 +9322,7 @@ PUSHV 16; UsrFunc[int Clamp(int, int, int)] Params End
 CALLFUNC 0.1796; UsrFunc[int Clamp(int, int, int)] Call
 POP D4
 STORE D2 0.0001
-LOAD D2 0.0001; if() #892 Test
+LOAD D2 0.0001; if() #882 Test
 COMPAREV D2 16
 GOTOCMP 8951 !=
 LOAD D2 0.0009
@@ -9336,20 +9336,20 @@ GOTO 8952
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 8956 ==; Test 'if'
-SETV D2 15; if() #892 Body Start
-STORE D2 0.0001; if() #892 Body End
+SETV D2 15; if() #882 Body Start
+STORE D2 0.0001; if() #882 Body End
 NOP
-STOREV 0 0; for() #229 setup
-LOAD D2 0; for() #229 LoopTest
+STOREV 0 0; for() #213 setup
+LOAD D2 0; for() #213 LoopTest
 COMPAREV D2 14
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 9050 ==; for() #229 TestFail?
-LOAD D2 0.0017; for() #229 Body Start
+GOTOCMP 9050 ==; for() #213 TestFail?
+LOAD D2 0.0017; for() #213 Body Start
 STORE D2 0.0007
 LOAD D2 0.0016
 STORE D2 0.0006
-LOAD D2 0.0007; if(false) #456 [Opt:AlwaysOff]
+LOAD D2 0.0007; if(false) #455 [Opt:AlwaysOff]
 PUSHR D2
 LOAD D2 0
 MULTV D2 16
@@ -9363,7 +9363,7 @@ ADDR D2 D3
 STORE D2 0.0007
 LOAD D2 0.0013
 STORE D2 0.0005
-LOAD D2 0; if() #457 Test
+LOAD D2 0; if() #456 Test
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -9371,7 +9371,7 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 9003 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #457 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #456 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -9384,8 +9384,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 9045; if() #457 Body End
-LOAD D2 0; if() #458 Test AND if() #457 Else Start
+GOTO 9045; if() #456 Body End
+LOAD D2 0; if() #457 Test AND if() #456 Else Start
 PUSHR D2
 LOAD D2 0.0003
 POP D3
@@ -9393,7 +9393,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 9029 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #458 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #457 Body Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -9410,8 +9410,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 9044; if() #458 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #458 Else Start
+GOTO 9044; if() #457 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #457 Else Start
 PUSHR D2
 LOAD D2 0.0007
 PUSHR D2
@@ -9425,20 +9425,20 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #458 Else End
-NOP; if() #457 Else End
-NOP; for() #229 Body End
-LOAD D2 0; for() #229 LoopIncrement
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #457 Else End
+NOP; if() #456 Else End
+NOP; for() #213 Body End
+LOAD D2 0; for() #213 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 8958; for() #229 End
+GOTO 8958; for() #213 End
 NOP
-LOAD D2 0.0009; if() #460 Test AND if(false) #459 [Opt:AlwaysOff] AND if(true) #894 [Opt:AlwaysOn]
+LOAD D2 0.0009; if() #459 Test AND if(false) #458 [Opt:AlwaysOff] AND if(true) #884 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9071 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #460 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #459 Body Start
 PUSHR D2
 LOAD D2 0.0017
 SUBV D2 16
@@ -9452,8 +9452,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 9086; if() #460 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #460 Else Start
+GOTO 9086; if() #459 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #459 Else Start
 PUSHR D2
 LOAD D2 0.0017
 SUBV D2 16
@@ -9467,9 +9467,9 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #460 Else End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #459 Else End
 NOP
-LOAD D2 0.0009; if() #461 Test
+LOAD D2 0.0009; if() #460 Test
 PUSHR D2
 LOAD D2 0.0008
 POP D3
@@ -9477,7 +9477,7 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 9111 ==; Test 'if'
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #461 Body Start
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #460 Body Start
 PUSHR D2
 LOAD D2 0.0017
 ADDV D2 224
@@ -9492,8 +9492,8 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
-GOTO 9125; if() #461 Body End
-LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #461 Else Start
+GOTO 9125; if() #460 Body End
+LOAD D2 0.0018; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #460 Else Start
 PUSHR D2
 LOAD D2 0.0017
 ADDV D2 224
@@ -9506,7 +9506,7 @@ LOAD D2 0.0015
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #461 Else End
+POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #460 Else End
 NOP
 POPARGS D5 0.0019
 RETURNFUNC; Func[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Body End
@@ -9518,7 +9518,7 @@ LOAD D2 0.0002
 ADDV D2 224
 SUBV D2 1
 STORE D2 0
-PUSHR D4; if(true) #883 [Opt:AlwaysOn]
+PUSHR D4; if(true) #873 [Opt:AlwaysOn]
 PUSHV 6; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2
@@ -9561,12 +9561,12 @@ LOAD D2 0.0007
 PUSHR D2; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8892; UsrFunc[void HealthBar_DrawTiledHealthBar(int, int, int, int, int, int, int, int, int, int, int)] Call
 POP D4
-LOAD D2 0.0009; if() #885 Test AND unless(false) #884 [Opt:AlwaysOn]
+LOAD D2 0.0009; if() #875 Test AND unless(false) #874 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9203 ==; Test 'if'
-PUSHR D4; if() #885 Body Start
+PUSHR D4; if() #875 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2
@@ -9584,14 +9584,14 @@ PUSHV 0
 LOAD D2 0.0009
 PUSHR D2; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8658; UsrFunc[void HealthBar_DrawString(int, int, int, int, int, int, int, int)] Call
-POP D4; if() #885 Body End
+POP D4; if() #875 Body End
 NOP
-LOAD D2 0.0004; if() #887 Test AND if(true) #886 [Opt:AlwaysOn]
+LOAD D2 0.0004; if() #877 Test AND if(true) #876 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9227 ==; Test 'if'
-PUSHR D4; if() #887 Body Start
+PUSHR D4; if() #877 Body Start
 PUSHV 6; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params Start
 LOAD D2 0
 PUSHR D2
@@ -9608,22 +9608,22 @@ PUSHV 8
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.8755; UsrFunc[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Call
-POP D4; if() #887 Body End
+POP D4; if() #877 Body End
 NOP
 POPARGS D5 0.0010
 RETURNFUNC; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #228 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #212 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #228 LoopTest
+LOAD D2 0; for() #212 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 9266 ==; for() #228 TestFail?
-LOAD D2 0.0001; if() #882 Test AND for() #228 Body Start
+GOTOCMP 9266 ==; for() #212 TestFail?
+LOAD D2 0.0001; if() #872 Test AND for() #212 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -9632,7 +9632,7 @@ COMPAREV D2 32
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 9261 ==; Test 'if'
-SETV D2 0; if() #882 Body Start
+SETV D2 0; if() #872 Body Start
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
@@ -9642,12 +9642,12 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0
-GOTO 9267; return (Void) AND if() #882 Body End
-NOP; for() #228 Body End
-LOAD D2 0; for() #228 LoopIncrement
+GOTO 9267; return (Void) AND if() #872 Body End
+NOP; for() #212 Body End
+LOAD D2 0; for() #212 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 9236; for() #228 End
+GOTO 9236; for() #212 End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End

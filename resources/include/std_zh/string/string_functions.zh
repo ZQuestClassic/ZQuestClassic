@@ -224,16 +224,6 @@ void arrayset(untyped[] a, ...untyped[] args){
 }
 
 
-//String Manipulation
-//String Copy
-//Copys string 'src' into string 'dest' without checking for overflow in 'dest'
-void strcpy(int[] dest, int dpos, int[] src, int spos)
-{
-	for(int i = 0; src[spos + i] != 0; ++i)
-		dest[dpos + i] = src[spos + i];
-}
-
-
 //As strcpy, but only takes the first 'n' characters from src
 void strncpy(int[] dest, int dpos, int[] src, int spos, int n)
 {
@@ -268,20 +258,6 @@ void remnchr(char32[] ptr, int pos, int n)
 		ptr[pos + i] = (temp + i < l) ? ptr[temp + i] : 0;
 }
 
-
-
-//String Concatenate
-//Appends string 'src' onto string 'dest' (assuming dest has enough extra memory
-//allocated to allow the operation)
-void strcat(int[] dest, int[] src, int spos)
-{
-	int i;
-	int l = strlen(dest);
-	for(i = 0; src[spos + i] != 0; ++i)
-		dest[l + i] = src[spos + i];
-	dest[l + i] = 0;
-}
-
 //strcat up to 'n' characters in src
 void strncat(int[] dest, int[] src, int spos, int n)
 {
@@ -295,104 +271,6 @@ void strncat(int[] dest, int[] src, int n)
 {
 	strncat(dest, src, 0, n);
 }
-
-
-//String Searching
-//String Character
-//Returns the position of the first occurence of 'character' in 'string',
-//or -1 if none are found
-int strchr(char32[] ptr, int pos, char32 chr)
-{
-	for(int i = 0; ptr[pos + i] != 0; ++i)
-		if(ptr[pos + i] == chr)
-			return pos + i;
-	return -1;
-}
-
-
-//String Reverse Character
-//Returns the position of the last occurence of 'character' in 'string'
-//starting from the end, or -1 if none are found
-int strrchr(char32[] ptr, int pos, char32 chr)
-{
-	for(int i = strlen(ptr) - pos; i > 0; --i)
-		if(ptr[i] == chr)
-			return i;
-	return -1;
-}
-
-
-
-//String Sub-String
-//Returns the position of the first occurence of sub-string 'sub' in 'string',
-//or -1 if sub is not found
-int strstr(char32[] ptr, int pos, char32[] sub)
-{
-	int l = strlen(sub) - 1;
-	for(int i = 0; ptr[pos + i] != 0; ++i)
-		for(int j = 0; sub[j] != 0 && ptr[pos + i + j] != 0 && ptr[pos + i + j] == sub[j]; ++j)
-			if(j == l)
-				return pos + i;
-	return -1;
-}
-
-
-//String Span
-//Returns the length of characters in 'ptr' before a character not contained in
-//'keys' is found
-int strspn(char32[] ptr, int pos, char32[] keys)
-{
-	int i;
-	bool found;
-	for(i = 0; ptr[pos + i] != 0; ++i)
-	{
-		found = false;
-		for(int j = 0; keys[j] != 0; ++j)
-			if(ptr[pos + i] == keys[j])
-				found = true;
-		unless(found)
-			return pos + i;
-	}
-	return pos + i;
-}
-
-//String Complement Span
-//Returns the length of characters in 'ptr' before a character contained in
-//'keys' is found
-int strcspn(char32[] ptr, int pos, char32[] keys)
-{
-	int i;
-	for(i = 0; ptr[pos + i] != 0; ++i)
-		for(int j = 0; keys[j] != 0; ++j)
-			if(ptr[pos + i] == keys[j])
-				return pos + i;
-	return pos + i;
-}
-
-
-//String Comparison
-//String Compare
-//Iterates through ptr1 and ptr2 until a character is found which is not the same in
-//both strings, and then returns > 0 if the character is larger in ptr1, and < 0 if it is
-//larger in ptr2. Returns 0 if the strings are equal
-int strcmp(char32[] ptr1, int pos1, char32[] ptr2, int pos2)
-{
-	int i;
-	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i]; ++i);
-	return ptr1[pos1 + i] - ptr2[pos2 + i];
-}
-
-//strcmp up to 'n' characters
-int strncmp(char32[] ptr1, int pos1, char32[] ptr2, int pos2, int n)
-{
-	int i;
-	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i] && i < n; ++i);
-	if(i == n)
-		i--;
-	return ptr1[pos1 + i] - ptr2[pos2 + i];
-}
-
-
 
 //Converting between variables and strings
 //ASCII to Integer
@@ -420,17 +298,6 @@ int ilen(char32[] ptr, int pos)
 	if(ptr[pos] == '-')
 		ret++;
 	for(; isNumber(ptr[pos + ret]); ++ret);
-	return ret;
-}
-
-
-//Hexadecimal ASCII to Integer
-//Returns the (positive) hexadecimal integer pointed by 'string'
-int xtoi(char32[] ptr, int pos)
-{
-	int ret = 0;
-	for(int i = 0; isHex(ptr[pos + i]); ++i)
-		ret = ret*0x10 + (isNumber(ptr[pos + i]) ? ptr[pos + i] - '0' : LowerToUpper(ptr[pos + i]) - 'A' + 0xA);
 	return ret;
 }
 
@@ -821,29 +688,6 @@ void strncatf(int[] dest, untyped arg, int format, int n)
 
 }
 
-//Used by sprintf
-bool sprintf_isMFCode(char32 chr)
-{
-	return sprintf_MFCodeToInt(chr) != -1;
-}
-int sprintf_MFCodeToInt(char32 chr)
-{
-	switch(chr)
-	{
-		case 'n': return MF_NONE;
-		
-		case 'i': return MF_INT;
-		case 'f': return MF_FLOAT;
-		case 'd': return MF_NUM;
-		case 's': return MF_STRING;
-		case 'p': return MF_PTR;
-		case 'c': return MF_CHAR;
-		case 'x': return MF_HEXLOWER;
-		case 'X': return MF_HEXUPPER;
-		default: return -1;
-	}
-}
-
 int ReturnStringCharPos(char32[] ptr, char32 chr)
 {
 	for ( int q = 0; ptr[q]!=0; ++q ) {
@@ -898,142 +742,4 @@ void ScreenPrint(char32[] s, untyped v, int[] args)
 	char32 main_buf[2048];
 	sprintf(main_buf, s, v);
 	Screen->DrawString(args[0], args[1], args[2], args[3], args[4], args[5], args[6], main_buf, args[7]);
-}
-
-namespace std
-{
-	namespace string
-	{
-
-		//Now an internal function. -Z ( 15th May, 2019 )
-		int strcmp(char32[] ptr1, char32[] ptr2)
-		{
-			return strcmp(ptr1, 0, ptr2, 0);
-		}
-
-		//Now an internal function. -Z ( 15th May, 2019 )
-		int strncmp(char32[] ptr1, char32[] ptr2, int n)
-		{
-			return strncmp(ptr1, 0, ptr2, 0 , n);
-		}
-
-		//Internal as of 2.55 Alpha 23, 15th may, 2019 
-		//String Length
-		//Returns the length of string 'string'
-		int strlen(char32[] ptr)
-		{
-			int l;
-			for(l = 0; ptr[l] != 0; ++l);
-			return l;
-		}
-
-		void strcpy(char32[] dest, char32[] src)
-		{
-			strcpy(dest, 0, src, 0);
-		}
-		int atoi(char32[] ptr)
-		{
-			return atoi(ptr, 0);
-		}
-		void strcat(char32[] dest, char32[] src)
-		{
-			strcat(dest, src, 0);
-		}
-		int strchr(char32[] ptr, char32 chr)
-		{
-			return strchr(ptr, 0, chr);
-		}
-		int strrchr(char32[] ptr, char32 chr)
-		{
-			return strrchr(ptr, 0, chr);
-		}
-		int strspn(char32[] ptr, char32[] keys)
-		{
-			return strspn(ptr, 0, keys);
-		}
-		int strcspn(char32[] ptr, char32[] keys)
-		{
-			return strcspn(ptr, 0, keys);
-		}
-		int strstr(char32[] ptr, char32[] sub)
-		{
-			return strstr(ptr, 0, sub);
-		}
-		int ilen(char32[] ptr)
-		{
-			return ilen(ptr, 0);
-		}
-		int xtoi(char32[] ptr)
-		{
-			return xtoi(ptr, 0);
-		}
-		
-		int itoa(char32[] ptr, int num)
-		{
-			return itoa(ptr, 0, num);
-		}
-		
-		int xtoa(char32[] ptr, int num)
-		{
-			return xtoa(ptr, 0, num, true);
-		}
-		
-		// Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
-		// Maximum 16 arguments
-		//
-		// @deprecated Use the internal [sprintf] instead.
-		int sprintf(char32[] ret, char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
-										  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
-		{
-			int pos = 0;
-			int currentarg = 0;
-			int a[0x10];
-			arrayset(a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
-
-			for(int i = 0; formatstr[i] != 0; ++i)
-			{
-				char32 chr = formatstr[i];
-				if(chr == '\\') //Control code
-				{
-					char32 nextchr = formatstr[i + 1];
-					if(nextchr == 'n')
-					{
-						ret[pos] = MSGC_LINEFEED;
-						++pos;
-						++i;
-						continue;
-					}
-				}
-				else if(chr == '%') //Format argument
-				{
-					char32 nextchr = formatstr[i + 1];
-					if(sprintf_isMFCode(nextchr))
-					{
-						strcatf(ret, a[currentarg], sprintf_MFCodeToInt(nextchr));
-						for(; ret[pos] != 0; ++pos);
-						++currentarg;
-						++i;
-						continue;
-					}
-				}
-
-				ret[pos] = chr;
-				++pos;
-			}
-
-			return pos;
-		}
-
-		// Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
-		//
-		// @deprecated Use the internal [printf] instead.
-		void printf(char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
-								  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
-		{
-			#option WARN_DEPRECATED off
-			char32 buffer[0x200]; //Max Trace length is 512
-			sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
-			TraceS(buffer);
-		}
-	}
 }

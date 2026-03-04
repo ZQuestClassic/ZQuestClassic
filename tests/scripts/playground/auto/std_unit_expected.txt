@@ -44,17 +44,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #438 Test
+LOAD D2 0.0001; if() #428 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #438 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #428 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #438 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #428 Body End
 NOP
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -712,16 +712,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-LOAD D2 0; if() #437 Test
+LOAD D2 0; if() #427 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 697 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #437 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #427 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #437 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #427 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
@@ -733,7 +733,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #439 Test
+LOAD D2 0; if() #429 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -741,7 +741,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 726 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #439 Body Start
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #429 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
@@ -750,7 +750,7 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #439 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #429 Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
@@ -763,25 +763,25 @@ PUSHR D2
 POP REFDMAPDATA
 SETR D2 DMAPDATAMAP
 STORE D2 0.0003
-STOREV 0 0.0002; for() #150 setup
-LOAD D2 0.0002; for() #150 LoopTest
+STOREV 0 0.0002; for() #134 setup
+LOAD D2 0.0002; for() #134 LoopTest
 PUSHR D2
 LOAD D2 0.0004
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 799 ==; for() #150 TestFail?
-STOREV 0 0.0001; for() #151 setup AND for() #150 Body Start
-LOAD D2 0.0001; for() #151 LoopTest
+GOTOCMP 799 ==; for() #134 TestFail?
+STOREV 0 0.0001; for() #135 setup AND for() #134 Body Start
+LOAD D2 0.0001; for() #135 LoopTest
 PUSHR D2
 LOAD D2 0.0004
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 794 ==; for() #151 TestFail?
-LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #151 Body Start
+GOTOCMP 794 ==; for() #135 TestFail?
+LOAD D2 0.0003; InlineFunc[mapdata Game::LoadMapData(int, int)] Params Start AND for() #135 Body Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2
@@ -814,16 +814,16 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFMAPDATA
-SETR MAPDATAREGIONID D2; for() #151 Body End
-LOAD D2 0.0001; for() #151 LoopIncrement
+SETR MAPDATAREGIONID D2; for() #135 Body End
+LOAD D2 0.0001; for() #135 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 748; for() #151 End
-NOP; for() #150 Body End
-LOAD D2 0.0002; for() #150 LoopIncrement
+GOTO 748; for() #135 End
+NOP; for() #134 Body End
+LOAD D2 0.0002; for() #134 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 739; for() #150 End
+GOTO 739; for() #134 End
 NOP
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start
 LOAD D2 0.0005; InlineFunc[void hero::Warp(int, int)] Params End

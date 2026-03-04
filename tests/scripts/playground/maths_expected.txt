@@ -32,13 +32,13 @@ PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
 STOREV 1 0.0001
-STOREV -10 0; for() #150 setup AND while(true) #2 Body [Opt:AlwaysOn] Start
-LOAD D2 0; for() #150 LoopTest
+STOREV -10 0; for() #134 setup AND while(true) #2 Body [Opt:AlwaysOn] Start
+LOAD D2 0; for() #134 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 38 ==; for() #150 TestFail?
-PUSHR D4; for() #150 Body Start
+GOTOCMP 38 ==; for() #134 TestFail?
+PUSHR D4; for() #134 Body Start
 LOAD D2 0.0001; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -58,11 +58,11 @@ LOAD D2 0
 MULTV D2 100000
 PUSHR D2; UsrFunc[void doMaths(bool, int)] Params End
 CALLFUNC 0.0062; UsrFunc[void doMaths(bool, int)] Call
-POP D4; for() #150 Body End
-LOAD D2 0; for() #150 LoopIncrement
+POP D4; for() #134 Body End
+LOAD D2 0; for() #134 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 8; for() #150 End
+GOTO 8; for() #134 End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV D2 0
@@ -72,17 +72,17 @@ PUSHV 0; Func[void maybePrint(bool, char32[], int)] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
-LOAD D2 0.0003; if() #437 Test
+LOAD D2 0.0003; if() #427 Test
 COMPAREV D2 0
 GOTOCMP 58 ==; Test 'if'
-LOAD D2 0.0001; if() #437 Body Start
+LOAD D2 0.0001; if() #427 Body Start
 STORE D2 0
 LOAD D2 0.0002; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #437 Body End
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #427 Body End
 NOP
 REF_REMOVE 0.0002
 POPARGS D5 0.0004
