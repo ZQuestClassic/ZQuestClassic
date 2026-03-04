@@ -13250,6 +13250,33 @@ statusEffects.zs Line 85 - Error S009: Variable sz has not been declared.
                              ^~
 
 
+statusEffects.zs Line 201 - Warning S094: Function 'QuitNoKill()' is deprecated, and should not be used.
+
+199    {
+200        Status::set_ew_status(this, Status::ONFIRE, 60*seconds);
+201        QuitNoKill();
+           ^~~~~~~~~~
+
+
+INFO: Since 3.0, no longer necessary because of the garbage collector.
+statusEffects.zs Line 212 - Warning S094: Function 'QuitNoKill()' is deprecated, and should not be used.
+
+210    {
+211        Status::set_ew_status(this, Status::SLOW, 60*seconds);
+212        QuitNoKill();
+           ^~~~~~~~~~
+
+
+INFO: Since 3.0, no longer necessary because of the garbage collector.
+statusEffects.zs Line 223 - Warning S094: Function 'QuitNoKill()' is deprecated, and should not be used.
+
+221    {
+222        Status::set_ew_status(this, Status::BUNNY, 60*seconds);
+223        QuitNoKill();
+           ^~~~~~~~~~
+
+
+INFO: Since 3.0, no longer necessary because of the garbage collector.
 statusEffects.zs Line 158 - Warning S108: Array mismatch for types int[] and int
 
 156    {
