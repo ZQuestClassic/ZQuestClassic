@@ -16,6 +16,10 @@ void sprite::check_conveyor()
 {
     return;
 }
+void movingblock::handle_sprlighting()
+{
+	return;
+}
 
 void movingblock::push(zfix,zfix,int32_t,int32_t)
 {
