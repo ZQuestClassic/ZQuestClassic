@@ -5,13 +5,16 @@
 
 #include "components/sound/zcmusic.h"
 
+#include "allegro/unicode.h"
 #include "zalleg/zsys.h"
 
 #include <gme.h>
 #include <allegro5/allegro_audio.h>
+#include <cctype>
 #include <cstring>
 #include <filesystem>
 #include <stdlib.h>
+#include <string>
 
 #ifdef _MSC_VER
     #define strcasecmp _stricmp
@@ -40,9 +43,40 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
 
-char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
+namespace {
 
-ALLEGRO_MUTEX* playlistmutex = NULL;
+ALLEGRO_MUTEX* playlistmutex;
+
+std::filesystem::path resolve_case_insensitive(const std::filesystem::path& base, const std::string& target)
+{
+	std::filesystem::path exact_path = base / target;
+
+	if (std::filesystem::exists(exact_path))
+		return exact_path;
+
+	std::string target_lower = target;
+	ustrlwr(target_lower.data());
+
+	if (std::filesystem::exists(base) && std::filesystem::is_directory(base))
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(base))
+		{
+			std::string entry_lower = entry.path().filename().string();
+
+			for (char& c : entry_lower)
+				c = std::tolower(static_cast<unsigned char>(c));
+
+			if (entry_lower == target_lower)
+				return entry.path();
+		}
+	}
+
+	return exact_path;
+}
+
+} // end namespace
+
+char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
 pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path)
 {
@@ -68,24 +102,24 @@ pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char
         }
         else if (i == 2)
         {
-            dir = exe_dir / std::filesystem::path(quest_path).filename();
-            dir += "_music";
+            std::string folder_name = std::filesystem::path(quest_path).filename().string() + "_music";
+            dir = resolve_case_insensitive(exe_dir, folder_name);
         }
         else if (i == 3)
         {
-            dir = exe_dir / "music";
+            dir = resolve_case_insensitive(exe_dir, "music");
         }
         else if (i == 4)
         {
-            dir = quest_dir / std::filesystem::path(quest_path).filename();
-            dir += "_music";
+            std::string folder_name = std::filesystem::path(quest_path).filename().string() + "_music";
+            dir = resolve_case_insensitive(quest_dir, folder_name);
         }
         else if (i == 5)
         {
-            dir = quest_dir / "music";
+            dir = resolve_case_insensitive(quest_dir, "music");
         }
 
-        auto path = dir / filename;
+        auto path = resolve_case_insensitive(dir, filename);
         if (!std::filesystem::exists(path))
             continue;
 		
