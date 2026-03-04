@@ -286,33 +286,34 @@ public:
 class movingblock : public sprite
 {
 public:
-    int32_t bcombo;
-    int32_t oldflag;
-    int32_t oldcset;
-    int32_t endx, endy;
-    bool trigger, bhole;
-    byte undercset;
+	int32_t bcombo;
+	int32_t oldflag;
+	int32_t oldcset;
+	int32_t endx, endy;
+	bool trigger, bhole;
+	byte undercset;
 	byte blockLayer;
 	zfix step;
 	bool force_many;
 	bool no_icy;
 	bool new_block;
 	bool grav_falling;
-    
+	
 	cpos_info blockinfo;
 	
-    movingblock();
+	movingblock();
 	void clear();
+	void handle_sprlighting() override;
 	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl);
-    void push(zfix bx,zfix by,int32_t d,int32_t f);
-    void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
+	void push(zfix bx,zfix by,int32_t d,int32_t f);
+	void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
 	bool check_hole() const;
 	bool check_trig() const;
 	bool check_side_fall(bool antigrav) const;
 	bool active() const;
-    virtual bool animate(int32_t index);
-    virtual void draw(BITMAP *dest);
-    bool draw(BITMAP *dest, int layer);
+	virtual bool animate(int32_t index) override;
+	virtual void draw(BITMAP *dest) override;
+	bool draw(BITMAP *dest, int layer);
 };
 
 class portal : public sprite

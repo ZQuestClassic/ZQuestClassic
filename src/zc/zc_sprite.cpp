@@ -12,14 +12,14 @@
 
 void sprite::handle_sprlighting()
 {
-	if(!get_qr(qr_NEW_DARKROOM)) return;
-	if(!is_any_room_dark) return;
+	if (!get_qr(qr_NEW_DARKROOM)) return;
+	if (!is_any_room_dark) return;
+	if (!glowRad) return;
 
-	int x0 = x.getInt()+(hit_width/2);
-	int y0 = y.getInt()+(hit_height/2);
-	//if(!(get_scr_for_world_xy(x0, y0)->flags & fDARK)) return;
+	int x0 = x.getInt() + (hit_width / 2);
+	int y0 = y.getInt() + (hit_height / 2);
 
-	handle_lighting(x0, y0 + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp);
+	handle_lighting(x0, y0 + playing_field_offset, glowShape, glowRad, dir, darkscr_bmp);
 }
 
 bool is_conveyor(int32_t type)
@@ -124,6 +124,28 @@ void sprite::check_conveyor()
             }
         }
     }
+}
+
+void movingblock::handle_sprlighting()
+{
+	if (!get_qr(qr_NEW_DARKROOM)) return;
+	if (!is_any_room_dark) return;
+	
+	if (!active()) return;
+	
+	sprite::handle_sprlighting();
+
+	if (unsigned(bcombo) < MAXCOMBOS)
+	{
+		auto const& cmb = combobuf[bcombo];
+		if (cmb.type == cTORCH)
+		{
+			int x0 = x.getInt() + (hit_width / 2);
+			int y0 = y.getInt() + (hit_height / 2);
+
+			do_torch_combo(cmb, x0, y0 + playing_field_offset, darkscr_bmp);
+		}
+	}
 }
 
 void movingblock::clear()
