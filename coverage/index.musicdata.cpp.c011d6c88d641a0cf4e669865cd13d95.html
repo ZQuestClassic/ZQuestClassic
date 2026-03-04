@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-03 09:22:08</td>
+      <td>2026-03-04 06:18:26</td>
     </tr>
   </table>
 </div>
@@ -369,7 +369,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">10000</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// intentionally lacks checks; valid to call on NULL pointers and special pointers</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">10000</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// intentionally lacks checks; valid to call on NULL pointers and special pointers</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
@@ -915,7 +915,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing midi</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing midi</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
@@ -1041,7 +1041,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing track</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing track</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
@@ -1160,7 +1160,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing loop</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing loop</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
@@ -1251,7 +1251,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing loop</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing loop</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
@@ -1391,7 +1391,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing fadeout</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zcmusic</span><span class="p">)</span><span class="w"> </span><span class="c1">// changing currently-playing fadeout</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l186" href="#l186">186</a></td>
@@ -1811,7 +1811,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">zcmusic</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">newpath</span><span class="p">.</span><span class="n">empty</span><span class="p">()))</span><span class="w"> </span><span class="c1">// changing enhanced music of currently playing music</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amus</span><span class="o">-&gt;</span><span class="n">is_playing</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">zcmusic</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">newpath</span><span class="p">.</span><span class="n">empty</span><span class="p">()))</span><span class="w"> </span><span class="c1">// changing enhanced music of currently playing music</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l246" href="#l246">246</a></td>
