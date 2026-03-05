@@ -6695,7 +6695,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			font = get_zc_font(font_lfont_l);
 			if(commands_txt.x > 0)
 			{
-				gui_textout_ln(screen, get_zc_font(font_lfont_l), (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
+				gui_textout_ln(screen, get_zc_font(font_lfont_l), "Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
 			}
 			
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
@@ -14271,7 +14271,7 @@ int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
     case MSG_START:
-        d->w=gui_textout_ln(dummy, font, (uint8_t *)d->dp, 0, 0, jwin_pal[jcMEDDARK], -1, 0)+4;
+        d->w=gui_textout_ln(dummy, font, (char *)d->dp, 0, 0, jwin_pal[jcMEDDARK], -1, 0)+4;
         d->h=text_height(font)+5;
         break;
         
@@ -17148,12 +17148,12 @@ int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disable
 {
 	if(disabled)
 	{
-		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcMEDDARK], -1, 0);
+		gui_textout_ln(dest, font, txt, x+1, y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+		return gui_textout_ln(dest, font, txt, x, y, scheme[jcMEDDARK], -1, 0);
 	}
 	else
 	{
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcBOXFG], scheme[jcBOX], 0);
+		return gui_textout_ln(dest, font, txt, x, y, scheme[jcBOXFG], scheme[jcBOX], 0);
 	}
 }
 
@@ -21805,7 +21805,7 @@ void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char co
 		
 		temp = tmpstr[t];
 		tmpstr[t]=0;
-		gui_textout_ln(outbmp, font, (ucc*)tmpstr, ax, (line*txbox.yscale), fg, -1, align);
+		gui_textout_ln(outbmp, font, tmpstr, ax, (line*txbox.yscale), fg, -1, align);
 		tmpstr[t]=temp;
 		++line;
 		

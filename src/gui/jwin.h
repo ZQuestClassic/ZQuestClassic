@@ -246,8 +246,9 @@ void wipe_abc_keypresses();
 /* other GUI procedures */
 void jwin_set_dialog_color(DIALOG *dialog);
 
-int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, int32_t y, int32_t color, int32_t bg, int32_t pos);
+int32_t gui_textout_ln(BITMAP *bmp, FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t bg, int32_t pos);
 int32_t gui_text_width(FONT *f, const char *s);
+int32_t gui_text_height(FONT* f, const char* s);
 
 int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
 
