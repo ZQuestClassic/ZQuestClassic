@@ -1388,7 +1388,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 				ty -= ref_til.h + 8;
 			int y = ty;
 			int rx = color_info.x+color_info.xscale;
-			gui_textout_ln(screen2,font,(unsigned char*)"Colors:",
+			gui_textout_ln(screen2,font,"Colors:",
 				rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
 			auto str = get_tile_colornames(tile,cs);
 			size_t pos = 0;
@@ -1434,7 +1434,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 					strcat(buf,"..");
 					strcat(buf,cbuf);
 				}
-				gui_textout_ln(screen2,font,(unsigned char const*)buf,
+				gui_textout_ln(screen2,font,buf,
 					rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
 				++color_info.h;
 			}
@@ -1516,22 +1516,22 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 	draw_text_button(screen2,cancel_button.x,cancel_button.y,cancel_button.w,cancel_button.h,"Cancel",vc(1),vc(14),0,true);
 	draw_text_button(screen2,edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal",vc(1),vc(14),0,true);
 	draw_checkbox(screen2,hlcbox.x, hlcbox.y, hlcbox.w, hlcbox.h, tthighlight);
-	gui_textout_ln(screen2,font,(unsigned char*)"Highlight Hover",hlcbox.x+hlcbox.w+2,hlcbox.y+hlcbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	gui_textout_ln(screen2,font,"Highlight Hover",hlcbox.x+hlcbox.w+2,hlcbox.y+hlcbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
 	draw_checkbox(screen2,quartgrid_cbox.x, quartgrid_cbox.y, quartgrid_cbox.w, quartgrid_cbox.h, show_quartgrid);
-	gui_textout_ln(screen2,font,(unsigned char*)"Quarter Grid",quartgrid_cbox.x+quartgrid_cbox.w+2,quartgrid_cbox.y+quartgrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	gui_textout_ln(screen2,font,"Quarter Grid",quartgrid_cbox.x+quartgrid_cbox.w+2,quartgrid_cbox.y+quartgrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
 	draw_checkbox(screen2,hidegrid_cbox.x, hidegrid_cbox.y, hidegrid_cbox.w, hidegrid_cbox.h, hide_grid);
-	gui_textout_ln(screen2,font,(unsigned char*)"Hide Grid",hidegrid_cbox.x+hidegrid_cbox.w+2,hidegrid_cbox.y+hidegrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	gui_textout_ln(screen2,font,"Hide Grid",hidegrid_cbox.x+hidegrid_cbox.w+2,hidegrid_cbox.y+hidegrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
 	bool qgrd = show_quartgrid && qgrid_tool(tool);
-	gui_textout_ln(screen2,font,(unsigned char*)"Quarter-Grid Draw Modes", reflbtn_grid.x, reflbtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],qgrd?0:D_DISABLED);
+	gui_textout_ln(screen2,font,"Quarter-Grid Draw Modes", reflbtn_grid.x, reflbtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],qgrd?0:D_DISABLED);
 	for(int q = 0; q < REFL_MAX; ++q)
 	{
 		auto& sqr = reflbtn_grid.subsquare(q);
 		draw_text_button(screen2,sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[q],vc(1),vc(14),qgrd ? ((refl_flags&(1<<q)) ? D_SELECTED : 0) : D_DISABLED,true);
 	}
-	gui_textout_ln(screen2,font,(unsigned char*)"Transparent Mode", xmodebtn_grid.x, xmodebtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	gui_textout_ln(screen2,font,"Transparent Mode", xmodebtn_grid.x, xmodebtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	for(int q = 0; q < XMODE_MAX; ++q)
 	{
 		auto& sqr = xmodebtn_grid.subsquare(q);
@@ -1613,13 +1613,13 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 			}
 			
 			sprintf(buf, "%02d %02d %02d %c(0x%02X %d)",c.r,c.g,c.b,separator,realcol,color);
-			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(2*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(2*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			strcpy(buf, get_color_name(realcol, is8b).c_str());
-			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r,tpal[realcol].g,tpal[realcol].b);
-			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			rect(screen2, hov_prev.x, hov_prev.y, hov_prev.x+hov_prev.w-1, hov_prev.y+hov_prev.h-1, jwin_pal[jcTEXTFG]);
 			rectfill(screen2, hov_prev.x+1, hov_prev.y+1, hov_prev.x+hov_prev.w-2, hov_prev.y+hov_prev.h-2, jwin_pal[jcTEXTBG]);
@@ -10129,7 +10129,7 @@ REDRAW:
 			{
 				char cbuf[16];
 				sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-				gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+				gui_textout_ln(screen, get_zc_font(font_lfont_l), cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			}
 		}
 		anim_hw_screen();

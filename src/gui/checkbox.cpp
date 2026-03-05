@@ -16,7 +16,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 	ASSERT(d);
 	
 	FONT *oldfont = font;
-	unsigned char const* str = (unsigned char const*)d->dp;
+	char const* str = (char const*)d->dp;
 	bool has_text = str && str[0];
 	if(d->dp2)
 	{
@@ -39,7 +39,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 				txt_x = tmp->w - (box_sz + box_spacing); //right-alignment
 				if(has_text)
 				{
-					txt_wid = gui_text_width(font, (const char*)str);
+					txt_wid = gui_text_width(font, str);
 					txt_x -= txt_wid + box_spacing; //handle right-alignment for text
 					if(d->flags & D_DISABLED)
 					{
