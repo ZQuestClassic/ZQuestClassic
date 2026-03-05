@@ -582,7 +582,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	if(!(moveflags & move_ignore_screenedge)
 		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
-			|| ((input_x+hit_width-1) >= (world_w-16+nb)) || ((input_y+hit_height-1) >= (world_h-16+nb))))
+			|| (input_x >= (world_w-16+nb)) || (input_y >= (world_h-16+nb))))
 		return true;
 	
 	if(!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall) || !kb)) //Don't walk into pits, unless being knocked back
