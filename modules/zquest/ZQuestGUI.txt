@@ -110,6 +110,7 @@ src/dialog/layer_dialog.cpp
 src/dialog/undercombo_dlg.cpp
 src/dialog/subscr_grid_dlg.cpp
 src/dialog/edit_music.cpp
+src/dialog/editor_help.cpp
 
 ## End of ZQuest GUI module
 )

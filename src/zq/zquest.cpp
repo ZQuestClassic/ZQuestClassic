@@ -758,6 +758,8 @@ zfix HeroModifiedY()
 	return gui_mouse_y() - 7;
 }
 
+int onOldHelp();
+
 static NewMenu import_250_menu
 {
 	{ "&DMaps", onImport_DMaps },
@@ -807,6 +809,7 @@ static NewMenu export_250_menu
 static NewMenu zq_help_menu
 {
 	{ "&Editor Help", onHelp },
+	{ "&Old Help (Outdated)", onOldHelp },
 	{ "&Strings Help", onZstringshelp },
 };
 
@@ -1359,7 +1362,7 @@ static NewMenu fixtools_menu
 static NewMenu tool_menu
 {
 	{ "Combo &Flags", onFlags, nullopt, MFL_EXIT_PRE_PROC },
-	{ "Fix &Tools ", &fixtools_menu },
+	{ "Fi&x Tools ", &fixtools_menu },
 	{ "&NES Dungeon Template", onTemplate },
 	{ "&Apply Template to All", onReTemplate },
 	{},
@@ -19136,16 +19139,16 @@ void cycle_palette()
     }
 }
 
-
-static void doHelp()
+void call_help_dialog();
+int onHelp()
 {
-	do_box_edit(helpstr, "ZQuest Help", true, true);
+	call_help_dialog();
+	return D_O_K;
 }
-
-int32_t onHelp()
+int onOldHelp()
 {
     restore_mouse();
-    doHelp();
+    do_box_edit(helpstr, "ZQuest Help", true, true);
     return D_O_K;
 }
 
