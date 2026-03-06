@@ -1158,6 +1158,16 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			aw *= 3;
 			ah = aw*2-1;
 			break;
+		case BTNICON_ARROW_UP2:
+		case BTNICON_ARROW_DOWN2:
+			ah *= 2;
+			aw = ah*2-1;
+			break;
+		case BTNICON_ARROW_UP3:
+		case BTNICON_ARROW_DOWN3:
+			ah *= 3;
+			aw = ah*2-1;
+			break;
 		case BTNICON_ARROW_UP:
 		case BTNICON_ARROW_DOWN:
 		case BTNICON_CONTRACT_VERT:
@@ -1254,6 +1264,24 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			draw_arrow_horz(dest, col, cx, y, w2, false, center);
 			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
 			draw_arrow_horz(dest, col, cx+w2*2, y, w2, false, center);
+			break;
+		case BTNICON_ARROW_UP2:
+			draw_arrow(dest, col, x, cy, h2, true, center);
+			draw_arrow(dest, col, x, cy+h2, h2, true, center);
+			break;
+		case BTNICON_ARROW_UP3:
+			draw_arrow(dest, col, x, cy, h2, true, center);
+			draw_arrow(dest, col, x, cy+h2, h2, true, center);
+			draw_arrow(dest, col, x, cy+h2*2, h2, true, center);
+			break;
+		case BTNICON_ARROW_DOWN2:
+			draw_arrow(dest, col, x, cy, h2, false, center);
+			draw_arrow(dest, col, x, cy+h2, h2, false, center);
+			break;
+		case BTNICON_ARROW_DOWN3:
+			draw_arrow(dest, col, x, cy, h2, false, center);
+			draw_arrow(dest, col, x, cy+h2, h2, false, center);
+			draw_arrow(dest, col, x, cy+h2*2, h2, false, center);
 			break;
 		case BTNICON_STOPSQUARE:
 			rectfill(dest, cx, cy, cx+aw-1, cy+ah-1, col);
