@@ -9,7 +9,7 @@
 #include "zq/render.h"
 #include "zc_list_data.h"
 
-static std::vector<int> old_qrs = {
+static std::vector<int> qrs_must_be_off = {
 	// This is a snapshot of all the compat QRs as of Feb 17, 2025.
 	// qr_OLD_STRING_EDITOR_MARGINS, // TODO QRHINT doesnt know about needing to do what onStrFix does
 	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT, // TODO QRHINT doesnt know about needing to do what onStrFix does
@@ -143,7 +143,9 @@ static std::vector<int> old_qrs = {
 	qr_WARPS_RESTART_DMAPSCRIPT,
 	qr_WIZZROBES_DONT_OBEY_STUN,
 	qr_WRONG_BRANG_TRAIL_DIR,
+};
 
+static std::vector<int> qrs_must_be_on = {
 	// In scrolling regions w/ extended height viewport, this should be on otherwise sprites and
 	// overhead combos are drawn over the subscreen.
 	qr_SUBSCREENOVERSPRITES,
@@ -151,13 +153,13 @@ static std::vector<int> old_qrs = {
 
 // To reduce the amount of old features that need to be upgraded for region support, we suggest
 // disabling these QRs.
-static std::vector<int> get_problematic_qrs()
+static std::vector<int> get_problematic_qrs(const std::vector<int>& qrs, bool expected)
 {
 	std::vector<int> result;
 
-	for (auto qr : old_qrs)
+	for (auto qr : qrs)
 	{
-		if (get_bit(quest_rules, qr))
+		if (bool(get_bit(quest_rules, qr)) != expected)
 			result.push_back(qr);
 	}
 
@@ -228,7 +230,8 @@ std::shared_ptr<GUI::Widget> EditMapSettingsDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 
-	auto problematic_qrs = get_problematic_qrs();
+	auto problematic_qrs_should_be_off = get_problematic_qrs(qrs_must_be_off, false);
+	auto problematic_qrs_should_be_on = get_problematic_qrs(qrs_must_be_on, true);
 
 	char titlebuf[256];
 	sprintf(titlebuf, "Edit Map Settings (%d)", mapslot + 1);
@@ -327,7 +330,7 @@ std::shared_ptr<GUI::Widget> EditMapSettingsDialog::view()
 				z3_guide_btn,
 				Button(text = "Problematic QRs",
 					onClick = message::QRS,
-					disabled = problematic_qrs.empty())
+					disabled = problematic_qrs_should_be_off.empty() && problematic_qrs_should_be_on.empty())
 			));
 	}
 	else
@@ -354,11 +357,24 @@ bool EditMapSettingsDialog::handleMessage(const GUI::DialogMessage<message>& msg
 	{
 		case message::QRS:
 		{
-			InfoDialog("Problematic QRs",
-				"Compat QRs use less tested portions of the ZC engine, and so may create issues\n"
-				"when enabled while using the Regions feature.\n"
-				"You should disable as many of these as you can." + QRHINT(get_problematic_qrs())
-			).show();
+			auto problematic_qrs_should_be_off = get_problematic_qrs(qrs_must_be_off, false);
+			if (!problematic_qrs_should_be_off.empty())
+			{
+				InfoDialog("Problematic QRs",
+					"Compat QRs use less tested portions of the ZC engine, and so may create issues\n"
+					"when enabled while using the Regions feature.\n"
+					"You should disable as many of these as you can." + QRHINT(problematic_qrs_should_be_off)
+				).show();
+			}
+			auto problematic_qrs_should_be_on = get_problematic_qrs(qrs_must_be_on, true);
+			if (!problematic_qrs_should_be_on.empty())
+			{
+				InfoDialog("Problematic QRs",
+					"These QRs need to be enabled, otherwise they may create issues\n"
+					"when while using the Regions feature.\n"
+					"You should enable as many of these as you can." + QRHINT(problematic_qrs_should_be_on)
+				).show();
+			}
 			break;
 		}
 		case message::OK:
