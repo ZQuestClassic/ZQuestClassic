@@ -17,7 +17,7 @@ static const string ctrl_cmd = "Cmd";
 
 enum class help_page
 {
-	main,
+	homepage,
 	tile_combo_swatches,
 	corner_swatches,
 	terms,
@@ -455,7 +455,7 @@ std::shared_ptr<GUI::Widget> EditorHelpDialog::view()
 	string page_prefix = "";
 	switch (cur_help)
 	{
-		case help_page::main:
+		case help_page::homepage:
 		{
 			dlg_title = "Editor Help";
 			page_count = 3;
@@ -855,10 +855,10 @@ std::shared_ptr<GUI::Widget> EditorHelpDialog::view()
 					Button(fitParent = true,
 						padding = 1_px,
 						text = "Back",
-						disabled = cur_help == help_page::main,
+						disabled = cur_help == help_page::homepage,
 						onPressFunc = [&]()
 						{
-							cur_help = help_page::main;
+							cur_help = help_page::homepage;
 							refresh_dlg();
 						}
 					),
