@@ -17,8 +17,7 @@ static ArrayRegistrar MOUSEARR_registrar(MOUSEARR, []{
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-					int32_t topOffset= (112-tempoffset);
-					return (get_mouse_state(1)-topOffset) * 10000;
+					return (get_mouse_state(1)-tempoffset) * 10000;
 				}
 				case 2: //MouseZ
 					return get_mouse_state(2) * 10000;
