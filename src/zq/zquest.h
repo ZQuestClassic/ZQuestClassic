@@ -472,7 +472,6 @@ int32_t onToggleHighlightLayer();
 
 int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 int32_t onTriPieces();
 

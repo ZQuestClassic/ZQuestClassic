@@ -13244,21 +13244,6 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	return ret;
 }
 
-int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    int32_t ret = d_idroplist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-		case MSG_DRAW:
-		case MSG_CHAR:
-		case MSG_CLICK:
-			textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii_list.getValue(d->d1));
-    }
-    
-    return ret;
-}
-
 // Triforce pieces
 static byte triframe_points[9*4] =
 {
@@ -14916,11 +14901,11 @@ static DIALOG editshop_dlg[] =
     { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
     // 8
     { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { d_idroplist_proc,   56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { d_idroplist_proc,   56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { d_idroplist_proc,   56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
     { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
     
@@ -14941,7 +14926,7 @@ static DIALOG editshop_dlg[] =
 
 void EditShopType(int32_t index)
 {
-	bii_list = GUI::ZCListData::items(false, true);
+	bii_list = GUI::ZCListData::items(true);
 	char ps1[6],ps2[6],ps3[6];
 	char info1[6],info2[6],info3[6];
 	char shopname[32];
@@ -14970,8 +14955,7 @@ void EditShopType(int32_t index)
 	editshop_dlg[22].dp = info2;
 	editshop_dlg[23].dp = info3;
 	
-	auto ld = GUI::ZCListData::items(true, false);
-	ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
+	ListData item_list = bii_list.getJWin(&a4fonts[font_lfont_l]);
 	
 	editshop_dlg[9].dp  = (void *) &item_list;
 	editshop_dlg[11].dp  = (void *) &item_list;
@@ -15220,7 +15204,7 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
 
 void EditItemDropSet(int32_t index)
 {
-	bii_list = GUI::ZCListData::items(false, true);
+	bii_list = GUI::ZCListData::items(true);
     char chance[11][10];
     char itemdropsetname[64];
     char caption[40];
@@ -15236,8 +15220,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-	auto ld = GUI::ZCListData::items(true, false);
-    ListData item_list = ld.getJWin(&a4fonts[font_lfont_l]);
+    ListData item_list = bii_list.getJWin(&a4fonts[font_lfont_l]);
 	
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
