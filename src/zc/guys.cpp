@@ -1225,7 +1225,7 @@ bool enemy::animate(int32_t index)
 					int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT)?hit_height:16;
 					for(int32_t nx = x+4; nx < x+usewid; nx+=16)
 					{
-						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
+						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(nx,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
 						{
 							willHitSVPlatform = true;
 							break;
@@ -1842,7 +1842,7 @@ void enemy::FireWeapon()
 	 */
 	
 	if (wpn < 1) return;
-	if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 && wpn > wScript10) )  // Summoning doesn't require weapons
+	if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 || wpn > wScript10) )  // Summoning doesn't require weapons
 		return;
 		
 	if(wpn==ewFireTrail && dmisc1>=e1t3SHOTS && dmisc1<=e1t8SHOTS)
