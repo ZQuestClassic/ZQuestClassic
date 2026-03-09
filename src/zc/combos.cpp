@@ -2449,6 +2449,7 @@ struct active_trigger_data
 	size_t idx;
 	
 	active_trigger_data(combined_handle_t const& handle, size_t idx)
+		: idx(idx)
 	{
 		if (handle.is_rpos())
 		{
