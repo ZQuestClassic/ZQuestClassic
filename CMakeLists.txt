@@ -1090,7 +1090,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 # Without this, the ASAN config on Windows won't place libcurl/zlib dlls in the right place.
-if(WIN32 AND (DEFINED VCPKG_TOOLCHAIN_FILE OR DEFINED VCPKG_TARGET_TRIPLET))
+if(CURL_FOUND AND WIN32 AND (DEFINED VCPKG_TOOLCHAIN_FILE OR DEFINED VCPKG_TARGET_TRIPLET))
 	# Figure out where vcpkg put the debug dlls.
 	get_target_property(CURL_DEBUG_DLL CURL::libcurl IMPORTED_LOCATION_DEBUG)
 
