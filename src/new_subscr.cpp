@@ -3508,9 +3508,9 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 				{
 					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
 				}
-				else if (c.overworld_map_tile || c.overworld_map_tile)
+				else if (c.overworld_map_tile)
 				{
-					draw_block(dest, tx, ty, (c.overworld_map_tile != 0 ? c.overworld_map_tile : c.overworld_map_tile), c.overworld_map_cset, 5, 3);
+					draw_block(dest, tx, ty, c.overworld_map_tile, c.overworld_map_cset, 5, 3);
 				}
 				else
 				{
@@ -3534,9 +3534,9 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 				{
 					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
 				}
-				else if (c.dungeon_map_tile || c.dungeon_map_tile)
+				else if (c.dungeon_map_tile)
 				{
-					draw_block(dest, tx, ty, (c.dungeon_map_tile != 0 ? c.dungeon_map_tile : c.dungeon_map_tile), c.dungeon_map_cset, 5, 3);
+					draw_block(dest, tx, ty, c.dungeon_map_tile, c.dungeon_map_cset, 5, 3);
 				}
 				else
 				{
