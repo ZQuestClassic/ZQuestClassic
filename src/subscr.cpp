@@ -2296,11 +2296,13 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
         for (int32_t x2 = 0; x2 <= 7; ++x2)
         {
             int scrx = x2 + thedmap.xoff;
+            if (scrx < 0x0 || scrx > 0xF)
+                continue;
             int scrid = scrx + y2 * 0x10;
 
             int x_1 = x2 * 8, x_2 = x_1 + 6;
             int y_1 = y2 * 4, y_2 = y_1 + 2;
-            if (scrx >= 0 && reg.get_region_id(scrid) != 0)
+            if (reg.get_region_id(scrid) != 0)
             {
                 //bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid - 0x10);
                 bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid + 0x10);
