@@ -2326,10 +2326,8 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
                 x_1 += 2;
                 x_2 -= 2;
             }
-            if ((dl & 0x80) && fg_color > -1)
+            if ((dl & (0x80 >> x2)) && fg_color > -1)
                 rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, fg_color);
-
-            dl <<= 1;
         }
 
         ++si;
