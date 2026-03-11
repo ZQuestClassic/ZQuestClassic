@@ -4746,6 +4746,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGTY_BUTTON:
 		case SUBWIDGTY_COLOR_BG:
 		case SUBWIDGTY_COLOR_BG2:
+		case SUBWIDGTY_COLOR_VISITED:
 		case SUBWIDGTY_COLOR_CMPBLNK:
 		case SUBWIDGTY_COLOR_CMPOFF:
 		case SUBWIDGTY_COLOR_FILL:
