@@ -41,7 +41,7 @@ static ArrayRegistrar IDATABURNINGSPR_registrar(IDATABURNINGSPR, []{
 	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::burnsprs> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundByte);
+	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
 }());
 
@@ -142,46 +142,10 @@ static ArrayRegistrar IDATAATTRIB_L_registrar(IDATAATTRIB_L, []{
 }());
 
 static ArrayRegistrar IDATASPRITE_registrar(IDATASPRITE, []{
-	static ScriptingArray_ObjectComputed<itemdata, int> impl(
-		[](itemdata* item){
-			return 10;
-		},
-		[](itemdata* item, int index) -> int {
-			switch(index)
-			{
-				case 0: return (item->wpn);
-				case 1: return (item->wpn2);
-				case 2: return (item->wpn3);
-				case 3: return (item->wpn4);
-				case 4: return (item->wpn5);
-				case 5: return (item->wpn6);
-				case 6: return (item->wpn7);
-				case 7: return (item->wpn8);
-				case 8: return (item->wpn9);
-				case 9: return (item->wpn10);
-				default: NOTREACHED();
-			}
-		},
-		[](itemdata* item, int index, int value){
-			switch(index)
-			{
-				case 0: item->wpn = value; break;
-				case 1: item->wpn2 = value; break;
-				case 2: item->wpn3 = value; break;
-				case 3: item->wpn4 = value; break;
-				case 4: item->wpn5 = value; break;
-				case 5: item->wpn6 = value; break;
-				case 6: item->wpn7 = value; break;
-				case 7: item->wpn8 = value; break;
-				case 8: item->wpn9 = value; break;
-				case 9: item->wpn10 = value; break;
-				default: NOTREACHED();
-			}
-		}
-	);
+	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::wpn_sprites> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundByte);
+	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
 }());
 

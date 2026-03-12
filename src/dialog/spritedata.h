@@ -10,6 +10,7 @@
 #include <zq/gui/seltile_swatch.h>
 #include <gui/window.h>
 #include <functional>
+#include "sprite_data.h"
 
 void call_sprite_dlg(int32_t index);
 
@@ -32,9 +33,7 @@ private:
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::Checkbox> hflipcb, vflipcb;
 	int32_t index;
-	char localName[65];
-	wpndata& sourceSprite;
-	wpndata tempSprite;
+	sprite_data tempSprite;
 	void updateAnimation();
 };
 

@@ -28,13 +28,13 @@ private:
 	int32_t minX, maxX, minY, maxY;
 	friend void setScreenLimits(weapon&);
     
-	optional<byte> _handle_loadsprite(optional<byte> spr, bool isDummy = false, bool force = false);
-	optional<byte> _ewpn_sprite(int parentid) const;
+	optional<word> _handle_loadsprite(optional<word> spr, bool isDummy = false, bool force = false);
+	optional<word> _ewpn_sprite(int parentid) const;
 	
 	bool _prism_dupe(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, int tdir);
 	bool _mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, newcombo const& mirror_cmb);
 public:
-	void load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr = nullptr);
+	void load_weap_data(weapon_data const& data, optional<word>* out_wpnspr = nullptr);
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
     int32_t power,dead,clk2,misc2;
@@ -61,7 +61,7 @@ public:
 	byte unblockable;
 	
     weapon_flags misc_wflags;
-	byte misc_wsprites[WPNSPR_MAX];
+	word misc_wsprites[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte last_burnstate;
 	byte get_burnstate() const;
@@ -186,7 +186,5 @@ void killgenwpn(weapon* w);
 void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, bool single16);
 void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
-void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe,
-               int32_t parentid);
 	       
 #endif

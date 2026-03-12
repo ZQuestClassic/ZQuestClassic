@@ -1773,7 +1773,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		light_rads[q] = 0;
 	}
 	
-	optional<byte> wpnspr;
+	optional<word> wpnspr;
 	
 	weapon_data const* wdata = nullptr;
 	switch(id)
@@ -1815,7 +1815,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		else wpnspr = _handle_loadsprite(nullopt, isDummy, true);
 	}
 }
-optional<byte> weapon::_ewpn_sprite(int parentid) const
+optional<word> weapon::_ewpn_sprite(int parentid) const
 {
 	if(parentid > -1 && !isLWeapon)
 		if(enemy *e = (enemy*)guys.getByUID(parentid))
@@ -1824,9 +1824,9 @@ optional<byte> weapon::_ewpn_sprite(int parentid) const
 	return nullopt;
 }
 
-optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool force)
+optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool force)
 {
-	optional<byte> ret;
+	optional<word> ret;
 	if(force) ret = 0;
 	itemdata const& parent = get_item_data(parentitem);
 	auto tmp_dir = dir;
@@ -1838,7 +1838,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 		{
 			if(spr)
 				ret = *spr;
-			else ret = parent.wpn;
+			else ret = parent.wpn_sprites[0];
 			LOADGFX(*ret);
 			break;
 		}
@@ -1851,7 +1851,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(spr)
 					ret = *spr;
 				else if (valid_item_id(parentitem))
-					ret = parent.wpn;
+					ret = parent.wpn_sprites[0];
 				LOADGFX(*ret);
 				if (valid_item_id(parentitem))
 				{
@@ -1905,7 +1905,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sword);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else ret = wSWORD;
 			}
 			LOADGFX(*ret);
@@ -1921,7 +1921,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_wand);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else ret = wWAND;
 			}
 			LOADGFX(*ret);
@@ -1937,7 +1937,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_hammer);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else ret = wHAMMER;
 			}
 			LOADGFX(*ret);
@@ -1953,7 +1953,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_cbyrna);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn3;
+					ret = itemsbuf[itemid].wpn_sprites[2];
 				else ret = wCBYRNA;
 			}
 			LOADGFX(*ret);
@@ -1969,7 +1969,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else ret = wWIND;
 			}
 			LOADGFX(*ret);
@@ -1985,7 +1985,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn3;
+					ret = itemsbuf[itemid].wpn_sprites[2];
 				else ret = ewSWORD;
 			}
 			LOADGFX(*ret);
@@ -2020,7 +2020,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_arrow);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else ret = wARROW;
 			}
 			LOADGFX(*ret);
@@ -2071,16 +2071,16 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						if (valid_item_id(magicitem) && !isDummy)
-							ret = itemsbuf[magicitem].wpn5;
+							ret = itemsbuf[magicitem].wpn_sprites[4];
 						else ret = wFIRE;
 						break;
 						
 					case itype_book:
-						ret = isDummy ? wFIRE : parent.wpn2;
+						ret = isDummy ? wFIRE : parent.wpn_sprites[1];
 						break;
 						
 					case itype_candle:
-						ret = (parentid > -1 && !isDummy) ? parent.wpn3 : wFIRE;
+						ret = (parentid > -1 && !isDummy) ? parent.wpn_sprites[2] : wFIRE;
 						break;
 				}
 			}
@@ -2100,7 +2100,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bomb);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else
 					ret = wBOMB;
 			}
@@ -2118,7 +2118,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sbomb);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else
 					ret = wSBOMB;
 			}
@@ -2135,7 +2135,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bait);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else
 					ret = wBAIT;
 			}
@@ -2166,8 +2166,8 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if (valid_item_id(itemid))
 				{
 					auto const& itm = itemsbuf[itemid];
-					// Book Magic sprite is wpn, Wand Magic sprite is wpn3.
-					ret = book ? itm.wpn : itm.wpn3;
+					// Book Magic sprite is wpn_sprites[0], Wand Magic sprite is wpn_sprites[2].
+					ret = itm.wpn_sprites[book ? 0 : 2];
 				}
 				else
 					ret = wMAGIC;
@@ -2200,7 +2200,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_brang);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn;
+					ret = itemsbuf[itemid].wpn_sprites[0];
 				else
 					ret = wBRANG;
 			}
@@ -2220,9 +2220,9 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
-						ret = itm.wpn5; //diagonal
+						ret = itm.wpn_sprites[4]; //diagonal
 					else
-						ret = itm.wpn;
+						ret = itm.wpn_sprites[0];
 				}
 				else
 					ret = wHSHEAD;
@@ -2284,8 +2284,8 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
-						ret = itm.wpn6; //diagonal
-					else ret = itm.wpn4;
+						ret = itm.wpn_sprites[5]; //diagonal
+					else ret = itm.wpn_sprites[3];
 				}
 				else
 					ret = wHSHANDLE;
@@ -2348,11 +2348,11 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					auto const& itm = itemsbuf[itemid];
 					if(dir > 3 && dir < 8)
-						ret = itm.wpn7; //diagonal
+						ret = itm.wpn_sprites[6]; //diagonal
 					else if(dir < left)
-						ret = itm.wpn3;
+						ret = itm.wpn_sprites[2];
 					else
-						ret = itm.wpn2;
+						ret = itm.wpn_sprites[1];
 				}
 				else
 					ret = dir < left ? wHSCHAIN_V : wHSCHAIN_H;
@@ -2657,22 +2657,22 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				{
 					case pDIVINEFIREROCKET:
 					case pDIVINEPROTECTIONROCKET1:
-						ret = parent.wpn;
+						ret = parent.wpn_sprites[0];
 						break;
 						
 					case pDIVINEFIREROCKETRETURN:
 					case pDIVINEPROTECTIONROCKETRETURN1:
-						ret = parent.wpn2;
+						ret = parent.wpn_sprites[1];
 						break;
 						
 					case pDIVINEFIREROCKETTRAIL:
 					case pDIVINEPROTECTIONROCKETTRAIL1:
-						ret = parent.wpn3;
+						ret = parent.wpn_sprites[2];
 						break;
 						
 					case pDIVINEFIREROCKETTRAILRETURN:
 					case pDIVINEPROTECTIONROCKETTRAILRETURN1:
-						ret = parent.wpn4;
+						ret = parent.wpn_sprites[3];
 						break;
 						
 					case pMESSAGEMORE:
@@ -2680,19 +2680,19 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 						break;
 						
 					case pDIVINEPROTECTIONROCKET2:
-						ret = parent.wpn6;
+						ret = parent.wpn_sprites[5];
 						break;
 						
 					case pDIVINEPROTECTIONROCKETRETURN2:
-						ret = parent.wpn7;
+						ret = parent.wpn_sprites[6];
 						break;
 						
 					case pDIVINEPROTECTIONROCKETTRAIL2:
-						ret = parent.wpn8;
+						ret = parent.wpn_sprites[7];
 						break;
 						
 					case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-						ret = parent.wpn9;
+						ret = parent.wpn_sprites[8];
 						break;
 						
 					default:
@@ -2715,7 +2715,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 	return ret;
 }
 
-void weapon::load_weap_data(weapon_data const& data, optional<byte>* out_wpnspr)
+void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 {
 	switch(id)
 	{
@@ -2914,23 +2914,24 @@ bool weapon::isHeroMelee()
 
 void weapon::LOADGFX(int32_t wpn)
 {
-    if(wpn<0)
-        return;
-        
-    wid = wpn;
-    flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].tile;
-    cs = wpnsbuf[wid].csets&15;
-    o_tile = wpnsbuf[wid].tile;
-    tile = o_tile;
-    ref_o_tile = o_tile;
-    o_cset = wpnsbuf[wid].csets;
-    o_flip=(wpnsbuf[wid].misc>>2)&3;
-    o_speed = wpnsbuf[wid].speed;
-    o_type = wpnsbuf[wid].type;
-    frames = wpnsbuf[wid].frames;
-    temp1 = wpnsbuf[wFIRE].tile;
-    behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
+	if(wpn<0)
+		return;
+	
+	wid = wpn;
+	auto const& wspr = sprite_data_buf.get(wid);
+	flash = wspr.misc&3;
+	tile  = wspr.tile;
+	cs = wspr.cs();
+	o_tile = wspr.tile;
+	tile = o_tile;
+	ref_o_tile = o_tile;
+	o_cset = wspr.csets;
+	o_flip = wspr.flip();
+	o_speed = wspr.speed;
+	o_type = wspr.type;
+	frames = wspr.frames;
+	temp1 = sprite_data_buf.get(wFIRE).tile;
+	behind = (wspr.misc&WF_BEHIND)!=0;
 }
 void weapon::LOADGFX_CMB(int32_t cid, int32_t cset)
 {
@@ -3423,7 +3424,7 @@ bool weapon::animate(int32_t index)
 			return true;
 		}
 		
-		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[sprFALL]);
 		cs = spr.csets & 0xF;
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
@@ -3462,7 +3463,7 @@ bool weapon::animate(int32_t index)
 		}
 		
 		bool lava = (drownCombo && combobuf[drownCombo].usrflags&cflag1);
-		wpndata &spr = wpnsbuf[QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]];
+		sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]);
 		cs = spr.csets & 0xF;
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
@@ -4330,7 +4331,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			
-			if(clk>=frames*o_speed-1) //(((wpnsbuf[wSSPARKLE].frames) * (wpnsbuf[wSSPARKLE].speed))-1))
+			if(clk>=frames*o_speed-1)
 			{
 				dead=1;
 			}
@@ -4350,7 +4351,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			
-			if(clk>=frames*o_speed-1) //(((wpnsbuf[wFSPARKLE].frames) * (wpnsbuf[wFSPARKLE].speed))-1))
+			if(clk>=frames*o_speed-1)
 			{
 				dead=1;
 			}
@@ -4582,9 +4583,9 @@ bool weapon::animate(int32_t index)
 				return false;
 			}
 			//Diagonal Hookshot (10)
-			//Sprites wpn5: Head, diagonal
-			//	  wpn6: handle, diagonal
-			//	  wpn7: chainlink, diagonal
+			//Sprites wpn_sprites[4]: Head, diagonal
+			//	  wpn_sprites[5]: handle, diagonal
+			//	  wpn_sprites[6]: chainlink, diagonal
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
@@ -4592,7 +4593,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn5);
+						LOADGFX(hshot.wpn_sprites[4]);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4613,7 +4614,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn5);
+						LOADGFX(hshot.wpn_sprites[4]);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4641,7 +4642,7 @@ bool weapon::animate(int32_t index)
 					
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn5);
+						LOADGFX(hshot.wpn_sprites[4]);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4662,7 +4663,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn5);
+						LOADGFX(hshot.wpn_sprites[4]);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4884,7 +4885,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn6);
+						LOADGFX(hshot.wpn_sprites[5]);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4905,7 +4906,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn6);
+						LOADGFX(hshot.wpn_sprites[5]);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4934,7 +4935,7 @@ bool weapon::animate(int32_t index)
 					
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn6);
+						LOADGFX(hshot.wpn_sprites[5]);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4955,7 +4956,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn6);
+						LOADGFX(hshot.wpn_sprites[5]);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5002,7 +5003,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn7);
+						LOADGFX(hshot.wpn_sprites[6]);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5023,7 +5024,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn7);
+						LOADGFX(hshot.wpn_sprites[6]);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5052,7 +5053,7 @@ bool weapon::animate(int32_t index)
 					
 					if(getInput(btnLeft, INPUT_HERO_ACTION) )  
 					{
-						LOADGFX(hshot.wpn7);
+						LOADGFX(hshot.wpn_sprites[6]);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5073,7 +5074,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(getInput(btnRight, INPUT_HERO_ACTION) ) 
 					{
-						LOADGFX(hshot.wpn7);
+						LOADGFX(hshot.wpn_sprites[6]);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5117,7 +5118,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEFIREROCKETTRAIL:                                             //Divine Fire Rocket trail
-					if(clk>=(((wpnsbuf[wDIVINEFIRES1A].frames) * (wpnsbuf[wDIVINEFIRES1A].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEFIRES1A).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -5125,7 +5126,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEFIREROCKETTRAILRETURN:                                             //Divine Fire Rocket return trail
-					if(clk>=(((wpnsbuf[wDIVINEFIRES1B].frames) * (wpnsbuf[wDIVINEFIRES1B].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEFIRES1B).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -5142,7 +5143,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL1:                                             //Divine Protection Rocket trail
-					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS1A].frames) * (wpnsbuf[wDIVINEPROTECTIONS1A].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEPROTECTIONS1A).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -5150,7 +5151,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN1:                                             //Divine Protection Rocket return trail
-					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS1B].frames) * (wpnsbuf[wDIVINEPROTECTIONS1B].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEPROTECTIONS1B).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -5167,7 +5168,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL2:                                             //Divine Protection Rocket trail
-					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS2A].frames) * (wpnsbuf[wDIVINEPROTECTIONS2A].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEPROTECTIONS2A).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -5175,7 +5176,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:                                             //Divine Protection Rocket return trail
-					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS2B].frames) * (wpnsbuf[wDIVINEPROTECTIONS2B].speed))-1))
+					if(clk>=(sprite_data_buf.get(wDIVINEPROTECTIONS2B).total_duration(false))-1)
 					{
 						dead=0;
 					}
@@ -7194,7 +7195,7 @@ void weapon::animate_graphics()
 					id2=wBOOM;
 					
 					if (valid_parent)
-						id2 = prnt_itm.wpn2;
+						id2 = prnt_itm.wpn_sprites[1];
 					
 					break;
 				}
@@ -7204,7 +7205,7 @@ void weapon::animate_graphics()
 					id2=wSBOOM;
 					
 					if(valid_parent)
-						id2 = prnt_itm.wpn2;
+						id2 = prnt_itm.wpn_sprites[1];
 					
 					break;
 				}
@@ -7218,9 +7219,10 @@ void weapon::animate_graphics()
 					break;
 				}
 				
-				tile = wpnsbuf[id2].tile;
-				cs = wpnsbuf[id2].csets&15;
-				boomframes = wpnsbuf[id2].frames;
+				auto const& sprdata = sprite_data_buf.get(id2);
+				tile = sprdata.tile;
+				cs = sprdata.cs();
+				boomframes = sprdata.frames;
 				
 				if(boomframes != 0)
 				{
@@ -7340,7 +7342,7 @@ void weapon::animate_graphics()
 					flip ^= o_flip;
 					
 				if(Dead() && !BSZ && do_animation)
-					tile = temp1;//wpnsbuf[wFIRE].tile;
+					tile = temp1;
 			}
 			break;
 		}
@@ -7348,7 +7350,7 @@ void weapon::animate_graphics()
 	
 	if (can_drawshadow())
 	{
-		wpndata const& spr = wpnsbuf[spr_shadow];
+		sprite_data const& spr = sprite_data_buf.get(spr_shadow);
 		if(!suspt)
 		{
 			if(++shd_aclk >= zc_max(spr.speed,1))
@@ -7479,21 +7481,6 @@ void weapon::drawshadow(BITMAP* dest, bool translucent)
 	if(get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING) || !can_drawshadow())
 		return;
 	sprite::drawshadow(dest, translucent);
-}
-
-void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe, int32_t parentid)
-{
-    weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
-    temp.ignoreHero=true;
-    temp.fake_weapon = true;
-    temp.yofs=0;
-    temp.clk2=aclk;
-    temp.aframe=aframe;
-    temp.script = 0; //Can not have script data.
-    temp.animate(0); //Scripts run in this function. Call after forcing script data to 0.
-    temp.draw(dest);
-    aclk=temp.clk2;
-    aframe=temp.aframe;
 }
 
 void weapon::findcombotriggers()

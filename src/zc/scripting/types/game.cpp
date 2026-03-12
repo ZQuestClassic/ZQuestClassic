@@ -1087,7 +1087,7 @@ static ArrayRegistrar GAMEMISCSFX_registrar(GAMEMISCSFX, []{
 static ArrayRegistrar GAMEMISCSPR_registrar(GAMEMISCSPR, []{
 	static ScriptingArray_GlobalCArray impl(QMisc.sprites, comptime_array_size(QMisc.sprites));
 	impl.compatSetDefaultValue(-10000);
-	impl.setValueTransform(transforms::vboundByte);
+	impl.setValueTransform(transforms::vboundWord);
 	impl.setMul10000(true);
 	return &impl;
 }());

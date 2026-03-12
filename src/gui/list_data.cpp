@@ -70,12 +70,10 @@ ListData ListData::numbers(bool none, int32_t start, uint32_t count, std::functi
 	return ls;
 }
 
-void ListData::add(set<string> names, map<string, int32_t> vals)
+void ListData::add(map<string, int32_t> const& vals)
 {
-	for(set<string>::iterator it = names.begin(); it != names.end(); ++it)
-	{
-		add(*it, vals[*it]);
-	}
+	for(auto& [name, val] : vals)
+		add(name, val);
 }
 
 ListData ListData::operator+(ListData const& other) const

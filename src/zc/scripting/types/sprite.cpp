@@ -775,7 +775,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 		case SPRITE_SHADOW_SPR:
 		{
 			if (auto s = get_sprite(GET_REF(spriteref)))
-				s->spr_shadow = vbound(value / 10000, 0, 255);
+				s->spr_shadow = vbound(value / 10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case SPRITE_DROWN_CLK:

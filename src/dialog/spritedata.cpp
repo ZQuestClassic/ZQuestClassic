@@ -5,20 +5,18 @@
 #include "zc_list_data.h"
 
 void mark_save_dirty();
-extern wpndata *wpnsbuf;
-extern char *weapon_string[];
 
 void call_sprite_dlg(int32_t index)
 {
-	if(unsigned(index) > 255) return;
+	if(unsigned(index) >= MAXSPRITES) return;
 	SpriteDataDialog(index).show();
 }
 
 SpriteDataDialog::SpriteDataDialog(int32_t index):
-	index(index), sourceSprite(wpnsbuf[index]),
-	tempSprite(wpnsbuf[index])
+	index(index), tempSprite(sprite_data_buf.get(index))
 {
-	sprintf(localName, "%s", weapon_string[index]);
+	if (index >= sprite_data_buf.capacity() && index < MAXSPRITES)
+		tempSprite.name = fmt::format("zz{:03}", index);
 }
 
 #define NUM_FIELD(member,_min,_max) \
@@ -59,12 +57,9 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	
-	
-	char titlebuf[256];
-	sprintf(titlebuf, "Sprite %d: %s", index, localName);
 	window = Window(
 		use_vsync = true,
-		title = titlebuf,
+		title = fmt::format("Sprite {}: {}", index, tempSprite.name),
 		minwidth = 30_em,
 		info = "Sprite Data is used as misc animation data for other objects.",
 		onClose = message::CANCEL,
@@ -74,15 +69,11 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 				TextField(
 					maxwidth = 15_em,
 					maxLength = 64,
-					text = localName,
+					text = tempSprite.name,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 					{
-						std::string name(str);
-						strncpy(localName, name.c_str(), 64);
-						localName[64] = 0;
-						char buf[256];
-						sprintf(buf, "Sprite %d: %s", index, localName);
-						window->setTitle(buf);
+						tempSprite.name = str;
+						window->setTitle(fmt::format("Sprite {}: {}", index, tempSprite.name));
 					}
 				)
 			),
@@ -210,8 +201,7 @@ bool SpriteDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::OK:
-			memcpy(&sourceSprite, &tempSprite, sizeof(tempSprite));
-			strcpy(weapon_string[index], localName);
+			sprite_data_buf[index] = tempSprite;
 			mark_save_dirty();
 			return true;
 

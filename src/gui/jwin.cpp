@@ -6860,17 +6860,18 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				//Find a different indexing type in the strings?
 				if(!foundmatch)
 				{
-					char buf[16];
-					if(num < 0) sprintf(buf, "(%04d)", num);
-					else sprintf(buf, "(%03d)", num);
-					std::string cmp = buf;
 					for(int32_t listpos = 0; listpos < max; ++listpos)
 					{
 						std::string str((data->listFunc(listpos,&dummy)));
-						size_t trimpos = str.find_last_not_of("-(0123456789)");
-						if(trimpos != std::string::npos) ++trimpos;
-						str.erase(0, trimpos);
-						if(cmp == str)
+						if (auto trimpos = str.find_last_not_of("-(0123456789)"); trimpos != std::string::npos)
+							str.erase(0, trimpos + 1);
+						if (!(str.size() > 2 && str.front() == '(' && str.back() == ')'))
+							continue;
+						str = str.substr(1, str.size()-2); // trim ()
+						if (auto negpos = str.find_last_of("-"); negpos != string::npos && negpos > 0)
+							continue; // extraneous '-' not at the start of string
+						
+						if(atoi(str.c_str()) == num)
 						{
 							d->d1 = listpos;
 							d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);

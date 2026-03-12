@@ -1389,8 +1389,9 @@ void sprite::draw(BITMAP* dest)
 		isspawning = true;
 		if(e!=3) //if extend != 3 
 		{
-			int32_t t  = wpnsbuf[spr_spawn].tile;
-			int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
+			auto const& spawnspr = sprite_data_buf.get(spr_spawn);
+			int32_t t  = spawnspr.tile;
+			int32_t cs2 = spawnspr.cs();
             
 			if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 			{
@@ -1402,8 +1403,8 @@ void sprite::draw(BITMAP* dest)
 				if(clk==-1 && spr_spawn_anim_clk>-1)
 				{
 					--clk;
-					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
-					if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
+					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(spawnspr.speed,1));
+					if(++spr_spawn_anim_clk >= spawnspr.total_duration())
 					{
 						spr_spawn_anim_clk=-1;
 						clk=-1;
@@ -1428,7 +1429,8 @@ void sprite::draw(BITMAP* dest)
 		}
 		else //extend == 3?
 		{
-			sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+			auto const& extendspr = sprite_data_buf.get(extend);
+			sprite w((zfix)sx,(zfix)sy,extendspr.tile,extendspr.cs(),0,0,0);
 			w.xofs = xofs;
 			w.yofs = yofs;
 			w.zofs = zofs;
@@ -1796,8 +1798,9 @@ void sprite::drawzcboss(BITMAP* dest)
 	{
 		if(e!=3)
 		{
-			int32_t t  = wpnsbuf[spr_spawn].tile;
-			int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
+			auto const& spawnspr = sprite_data_buf.get(spr_spawn);
+			int32_t t  = spawnspr.tile;
+			int32_t cs2 = spawnspr.cs();
             
 			if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 			{
@@ -1809,8 +1812,8 @@ void sprite::drawzcboss(BITMAP* dest)
 				if(clk==-1 && spr_spawn_anim_clk>-1)
 				{
 					--clk;
-					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
-					if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
+					spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(spawnspr.speed,1));
+					if(++spr_spawn_anim_clk >= spawnspr.total_duration())
 					{
 						spr_spawn_anim_clk=-1;
 						clk=-1;
@@ -1835,7 +1838,8 @@ void sprite::drawzcboss(BITMAP* dest)
 		}
 		else
 		{
-			sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+			auto const& extendspr = sprite_data_buf.get(extend);
+			sprite w((zfix)sx,(zfix)sy,extendspr.tile,extendspr.cs(),0,0,0);
 			w.xofs = xofs;
 			w.yofs = yofs;
 			w.zofs = zofs;
@@ -1953,8 +1957,9 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     else
     {
-        int32_t t  = wpnsbuf[spr_spawn].tile;
-        int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
+		auto const& spawnspr = sprite_data_buf.get(spr_spawn);
+        int32_t t  = spawnspr.tile;
+        int32_t cs2 = spawnspr.cs();
         
 		if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 		{
@@ -1966,8 +1971,8 @@ void sprite::drawcloaked(BITMAP* dest)
 			if(clk==-1 && spr_spawn_anim_clk>-1)
 			{
 				--clk;
-				spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(wpnsbuf[spr_spawn].speed,1));
-				if(++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed,1) * zc_max(wpnsbuf[spr_spawn].frames,1)))
+				spr_spawn_anim_frm=(spr_spawn_anim_clk/zc_max(spawnspr.speed,1));
+				if(++spr_spawn_anim_clk >= spawnspr.total_duration())
 				{
 					spr_spawn_anim_clk=-1;
 					clk=-1;
@@ -2016,8 +2021,9 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
-	int32_t shadowcs = wpnsbuf[spr_shadow].csets & 0xFFFF;
-	int32_t shadowflip = wpnsbuf[spr_shadow].misc & 0xFF;
+	auto const& shadowspr = sprite_data_buf.get(spr_shadow);
+	int32_t shadowcs = shadowspr.cs();
+	int32_t shadowflip = shadowspr.flip();
 	//if ( !ispitfall(sx,sy+4) && !ispitfall(sx+8,sy+4) )
 	{
 		if(clk>=0)
@@ -2797,9 +2803,9 @@ void movingblock::draw(BITMAP *dest)
 		newcombo const& cmb = combobuf[bcombo];
 		if(cmb.spr_falling)
 			sprid = cmb.spr_falling;
-		if(unsigned(sprid) < MAXWPNS)
+		if(unsigned(sprid) < MAXSPRITES)
 		{
-			wpndata& spr = wpnsbuf[sprid];
+			sprite_data const& spr = sprite_data_buf.get(sprid);
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
@@ -2821,9 +2827,9 @@ void movingblock::draw(BITMAP *dest)
 		newcombo const& cmb = combobuf[bcombo];
 		if(int cspr = lava ? cmb.spr_lava_drowning : cmb.spr_drowning)
 			sprid = cspr;
-		if(unsigned(sprid) < MAXWPNS)
+		if(unsigned(sprid) < MAXSPRITES)
 		{
-			wpndata &spr = wpnsbuf[sprid];
+			sprite_data const& spr = sprite_data_buf.get(sprid);
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
@@ -2871,7 +2877,7 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 }
 void portal::LOADGFX(int32_t spr)
 {
-	wpndata const& portalsprite = wpnsbuf[spr];
+	sprite_data const& portalsprite = sprite_data_buf.get(spr);
 	o_tile = portalsprite.tile;
 	aspd = portalsprite.speed ? portalsprite.speed : 1;
 	frames = portalsprite.frames ? portalsprite.frames : 1;

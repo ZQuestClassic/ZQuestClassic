@@ -124,7 +124,9 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id);
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk);
 
 void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash);
-void reset_lens_hint_items();
+void update_lens_hint_weapon(int weapon_id);
+void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, bool peek = false, int weapon_id = -1);
+void reset_lens_hints();
 
 void dummyitem_animate(item* dummy, int32_t clk);
 
@@ -176,16 +178,7 @@ struct itemdata
     word playsound = WAV_SCALE;
     word collect_script;
     int32_t initiald[INITIAL_D];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
+	word wpn_sprites[10];
     byte pickup_hearts;
     int32_t misc1;
     int32_t misc2;

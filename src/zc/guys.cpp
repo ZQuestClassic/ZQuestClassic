@@ -1013,7 +1013,7 @@ bool enemy::do_falling(int32_t index)
 			}
 		}
 		
-		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+		sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[sprFALL]);
 		cs = spr.csets & 0xF;
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
@@ -1054,7 +1054,7 @@ bool enemy::do_drowning(int32_t index)
 		}
 		
 		bool lava = (drownCombo && combobuf[drownCombo].usrflags&cflag1);
-		wpndata &spr = wpnsbuf[QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]];
+		sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]);
 		cs = spr.csets & 0xF;
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
@@ -1819,9 +1819,9 @@ void enemy::FireBreath(bool seekhero)
 		ew->angle=fire_angle;
 	}
 	
-	if(wpn==ewFlame && wpnsbuf[ewFLAME].frames>1)
+	if(wpn==ewFlame && sprite_data_buf.get(ewFLAME).frames>1)
 	{
-		ew->aframe=zc_oldrand()%wpnsbuf[ewFLAME].frames;
+		ew->aframe=zc_oldrand()%sprite_data_buf.get(ewFLAME).frames;
 		if ( ew->do_animation ) ew->tile+=ew->aframe;
 	}
 	
@@ -4087,7 +4087,8 @@ void enemy::draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[spr_death].tile;
+		auto const& deathspr = sprite_data_buf.get(spr_death);
+		tile = deathspr.tile;
 		if ( do_animation ) 
 		{
 			int32_t offs = 0;
@@ -4103,11 +4104,11 @@ void enemy::draw(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(deathspr.speed,1));
 					spr_death_anim_frm *= zc_max(1,txsz);
 					int32_t rows = TILEROW(tile+spr_death_anim_frm)-TILEROW(tile);
 					spr_death_anim_frm += TILES_PER_ROW*(zc_min(0,tysz-1)*rows);
-					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					if(++spr_death_anim_clk >= deathspr.total_duration())
 					{
 						spr_death_anim_clk=-1;
 						clk2=1;
@@ -4134,7 +4135,7 @@ void enemy::draw(BITMAP *dest)
 		}
 		
 		if(!get_qr(qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[spr_death].csets&15;
+			cs = deathspr.csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -4192,7 +4193,8 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[spr_death].tile;
+		auto const& deathspr = sprite_data_buf.get(spr_death);
+		tile = deathspr.tile;
 		
 		if ( do_animation ) 
 		{
@@ -4208,11 +4210,11 @@ void enemy::drawzcboss(BITMAP *dest)
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
 					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
+					spr_death_anim_frm=(spr_death_anim_clk/zc_max(deathspr.speed,1));
 					spr_death_anim_frm *= zc_max(1,txsz);
 					int32_t rows = TILEROW(tile+spr_death_anim_frm)-TILEROW(tile);
 					spr_death_anim_frm += TILES_PER_ROW*(zc_min(0,tysz-1)*rows);
-					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
+					if(++spr_death_anim_clk >= deathspr.total_duration())
 					{
 						spr_death_anim_clk=-1;
 						clk2=1;
@@ -4227,7 +4229,7 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		if(!get_qr(qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[spr_death].csets&15;
+			cs = deathspr.csets&15;
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
@@ -4366,7 +4368,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	if(!can_drawshadow())
 		return;
 	if(enemycanfall(id, false) && shadowtile == 0)
-		shadowtile = wpnsbuf[spr_shadow].tile;
+		shadowtile = sprite_data_buf.get(spr_shadow).tile;
 	
 	sprite::drawshadow(dest,translucent);
 }
@@ -8581,7 +8583,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	int32_t f2=get_qr(qr_NEWENEMYTILES)?
 		   efrate:((clk>=(frate>>1))?1:0);
 	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].tile;
+	shadowtile = sprite_data_buf.get(spr_shadow).tile;
 	
 	if(get_qr(qr_NEWENEMYTILES))
 	{
@@ -8724,7 +8726,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 	if(!can_drawshadow())
 		return;
 	int32_t tempy=yofs;
-	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
+	shadowtile = sprite_data_buf.get(spr_shadow).tile+posframe;
 	
 	if(!get_qr(qr_ENEMIESZAXIS))
 	{
@@ -9833,7 +9835,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 	int32_t efrate = fdiv == 0 ? 0 : clk/fdiv;
 	int32_t f2=get_qr(qr_NEWENEMYTILES)?
 		   efrate:((clk>=(frate>>1))?1:0);
-	shadowtile = wpnsbuf[spr_shadow].tile+f2;
+	shadowtile = sprite_data_buf.get(spr_shadow).tile+f2;
 	
 	yofs+=8;
 	yofs+=zc_max(0,zc_min(29-clk3,clk3));
@@ -9956,7 +9958,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 	int32_t tempy=yofs;
 	flip = 0;
 	int32_t f2=((clk<<2)/frate)<<1;
-	shadowtile = wpnsbuf[spr_shadow].tile+f2;
+	shadowtile = sprite_data_buf.get(spr_shadow).tile+f2;
 	yofs+=zc_max(0,zc_min(29-clk3,clk3));
 	
 	yofs+=8;
@@ -10151,7 +10153,7 @@ void eTrigger::death_sfx()
 
 eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-	o_tile+=wpnsbuf[iwNPCs].tile;
+	o_tile+=sprite_data_buf.get(iwNPCs).tile;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	SIZEflags = d->SIZEflags;
 	if (SIZEflags != 0) init_size_flags();;
@@ -10339,7 +10341,7 @@ void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 	flip = 0;
 	if(!can_drawshadow())
 		return;
-	shadowtile = wpnsbuf[spr_shadow].tile+(clk%4);
+	shadowtile = sprite_data_buf.get(spr_shadow).tile+(clk%4);
 	yofs+=4;
 	enemy::drawshadow(dest, translucent);
 	yofs-=4;
@@ -10984,9 +10986,9 @@ bool eStalfos::animate(int32_t index)
 		int32_t i=Ewpns.Count()-1;
 		weapon *ew = (weapon*)(Ewpns.spr(i));
 		
-		if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
+		if(wpn==ewFIRETRAIL && sprite_data_buf.get(ewFIRETRAIL).frames>1)
 		{
-			ew->aframe=zc_oldrand()%wpnsbuf[ewFIRETRAIL].frames;
+			ew->aframe=zc_oldrand()%sprite_data_buf.get(ewFIRETRAIL).frames;
 			if ( ew->do_animation ) ew->tile+=ew->aframe;
 		}
 	}
@@ -11173,7 +11175,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int32_t f2=get_qr(qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].tile;
+		shadowtile = sprite_data_buf.get(spr_shadow).tile;
 		
 		if(get_qr(qr_NEWENEMYTILES))
 		{
@@ -11195,7 +11197,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int32_t f2=get_qr(qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].tile;
+		shadowtile = sprite_data_buf.get(spr_shadow).tile;
 		
 		if(get_qr(qr_NEWENEMYTILES))
 		{
@@ -11563,7 +11565,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 	if(!can_drawshadow())
 		return;
 	int32_t tempy=yofs;
-	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
+	shadowtile = sprite_data_buf.get(spr_shadow).tile+posframe;
 	
 	yofs+=zc_min(int32_t(step/zslongToFix(dstep*10)), 8);
 	if(!get_qr(qr_ENEMIESZAXIS))
@@ -21546,7 +21548,7 @@ int32_t enemy::getFlashingCSet()
 	if(dying)
 	{
 		if (!get_qr(qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading == fade_blue_poof)
-			return wpnsbuf[spr_death].csets & 15;
+			return sprite_data_buf.get(spr_death).csets & 15;
 		else
 			return (((clk2 + 5) >> 1) & 3) + 6;
 	}

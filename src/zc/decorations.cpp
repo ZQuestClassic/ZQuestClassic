@@ -6,6 +6,7 @@
 #include "zc/maps.h"
 #include "zalleg/zsys.h"
 #include "zc/hero.h"
+#include "sprite_data.h"
 
 decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : sprite()
 {
@@ -17,7 +18,7 @@ decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : s
 	misc = 0;
 	yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	if(get_qr(qr_DECO_2_YOFFSET)) yofs -= 2;
-	the_deco_sprite = vbound(wpnSpr,0,255);
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
 }
 
 decoration::~decoration() {}
@@ -33,7 +34,7 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	the_deco_sprite = vbound(wpnSpr,0,255);
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -154,18 +155,9 @@ void dBushLeaves::draw(BITMAP *dest)
 		return;
 	}
 	int32_t t=0;
-	if ( the_deco_sprite )
-	{
-		t=wpnsbuf[the_deco_sprite].tile;
-		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
-	}
-	else
-	{
-		t=wpnsbuf[iwBushLeaves].tile;
-		cs=wpnsbuf[iwBushLeaves].csets&15;
-		
-	}
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite ? the_deco_sprite : iwBushLeaves);
+	t = wspr.tile;
+	cs = wspr.cs();
 	
 	for(int32_t i=0; i<4; ++i)
 	{
@@ -184,15 +176,16 @@ comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 	id=Id;
 	clk=Clk;
 	
-	the_deco_sprite = vbound(wpnSpr,0,255);
-	tframes = wpnsbuf[the_deco_sprite].frames;
-	spd = wpnsbuf[the_deco_sprite].speed;
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite);
+	tframes = wspr.frames;
+	spd = wspr.speed;
 }
 
 bool comboSprite::animate(int32_t)
 {
-	int32_t dur = zc_max(1,wpnsbuf[the_deco_sprite].frames) * zc_max(1,wpnsbuf[the_deco_sprite].speed);
-	return (clk++>=dur);
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite);
+	return (clk++ >= wspr.total_duration());
 }
 
 void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
@@ -200,11 +193,11 @@ void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 	if(misc!=draw_what || the_deco_sprite < 0)
 		return;
 	
-	int32_t fb=the_deco_sprite;
-	int32_t t=wpnsbuf[fb].tile;
-	int32_t fr=zc_max(1,wpnsbuf[fb].frames);
-	int32_t spd=zc_max(1,wpnsbuf[fb].speed);
-	cs=wpnsbuf[fb].csets&15;
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite);
+	int32_t t = wspr.tile;
+	int32_t fr = zc_max(1,wspr.frames);
+	int32_t spd = zc_max(1,wspr.speed);
+	cs = wspr.csets&15;
 	flip=0;
 	
 	tile = t+(((clk-1)/spd)%fr);
@@ -228,7 +221,7 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	the_deco_sprite = vbound(wpnSpr,0,255);
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -351,19 +344,9 @@ void dFlowerClippings::draw(BITMAP *dest)
 	
 	int32_t t=0;
 	
-	if ( the_deco_sprite )
-	{
-		t=wpnsbuf[the_deco_sprite].tile;
-		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
-	}
-	else
-	{
-		t=wpnsbuf[iwFlowerClippings].tile;
-		cs=wpnsbuf[iwFlowerClippings].csets&15;
-		
-	}
-	
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite ? the_deco_sprite : iwFlowerClippings);
+	t = wspr.tile;
+	cs = wspr.cs();
 	
 	for(int32_t i=0; i<4; ++i)
 	{
@@ -381,7 +364,7 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t w
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	the_deco_sprite = vbound(wpnSpr,0,255);
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -455,18 +438,9 @@ void dGrassClippings::draw(BITMAP *dest)
 	
 	int32_t t=0;
 	
-	if ( the_deco_sprite )
-	{
-		t=wpnsbuf[the_deco_sprite].tile;
-		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
-	}
-	else
-	{
-		t=wpnsbuf[iwGrassClippings].tile;
-		cs=wpnsbuf[iwGrassClippings].csets&15;
-		
-	}
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite ? the_deco_sprite : iwGrassClippings);
+	t = wspr.tile;
+	cs = wspr.cs();
 	
 	for(int32_t i=0; i<3; ++i)
 	{
@@ -484,7 +458,7 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 	oy=Y;
 	id=Id;
 	clk=Clk;
-	the_deco_sprite = vbound(wpnSpr,0,255);
+	the_deco_sprite = vbound(wpnSpr,0,MAXSPRITES-1);
 	static bool initialized=false;
 	if(!initialized)
 	{
@@ -517,7 +491,7 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 		ft[1][3][2]=1;
 	}
 	
-	wpnid = get_item_data(current_item_id(itype_hammer)).wpn2;
+	wpnid = get_item_data(current_item_id(itype_hammer)).wpn_sprites[1];
 }
 
 bool dHammerSmack::animate(int32_t)
@@ -533,8 +507,9 @@ void dHammerSmack::draw(BITMAP *dest)
 		return;
 	}
 	
-	int32_t t=wpnsbuf[wpnid].tile;
-	cs=wpnsbuf[wpnid].csets&15;
+	auto const& wspr = sprite_data_buf.get(wpnid);
+	int32_t t = wspr.tile;
+	cs = wspr.cs();
 	flip=0;
 	
 	for(int32_t i=0; i<2; ++i)
@@ -570,16 +545,9 @@ void dTallGrass::draw(BITMAP *dest)
 		return;
 		
 	int32_t t=0;
-	if ( the_deco_sprite )
-	{
-		t=wpnsbuf[the_deco_sprite].tile*4;
-		cs=wpnsbuf[the_deco_sprite].csets&15;
-	}
-	else
-	{
-		t=wpnsbuf[iwTallGrass].tile*4;
-		cs=wpnsbuf[iwTallGrass].csets&15;
-	}
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite ? the_deco_sprite : iwTallGrass);
+	t = wspr.tile*4;
+	cs = wspr.cs();
 	
 	flip=0;
 	x=HeroX();
@@ -642,16 +610,9 @@ void dRipples::draw(BITMAP *dest)
 	
 	int32_t t=0;
 	
-	if ( the_deco_sprite )
-	{
-		t=wpnsbuf[the_deco_sprite].tile*4;
-		cs=wpnsbuf[the_deco_sprite].csets&15;
-	}
-	else
-	{
-		t=wpnsbuf[iwRipples].tile*4;
-		cs=wpnsbuf[iwRipples].csets&15;
-	}
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite ? the_deco_sprite : iwRipples);
+	t = wspr.tile*4;
+	cs = wspr.cs();
 	
 	flip=0;
 	x=HeroX();
@@ -667,13 +628,14 @@ dHover::dHover(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoratio
 {
 	id=Id;
 	clk=Clk;
-	wpnid = get_item_data(current_item_id(itype_hoverboots)).wpn;
+	wpnid = get_item_data(current_item_id(itype_hoverboots)).wpn_sprites[0];
 }
 
 void dHover::draw(BITMAP *dest)
 {
-	int32_t t=wpnsbuf[wpnid].tile*4;
-	cs=wpnsbuf[wpnid].csets&15;
+	auto const& wspr = sprite_data_buf.get(wpnid);
+	int32_t t = wspr.tile*4;
+	cs = wspr.cs();
 	flip=0;
 	x=HeroX();
 	y=HeroY()+10-HeroZ()-HeroFakeZ();
@@ -710,15 +672,21 @@ void dDivineProtectionShield::realdraw(BITMAP *dest, int32_t draw_what)
 	}
 	
 	auto const& divine_prot = get_item_data(current_item_id(itype_divineprotection));
-	int32_t fb=(misc==0?
-	        (divine_prot.wpn5 ?
-	         divine_prot.wpn5 : (byte) iwDivineProtectionShieldFront) :
-	            (divine_prot.wpn10 ?
-	             divine_prot.wpn10 : (byte) iwDivineProtectionShieldBack));
-	int32_t t=wpnsbuf[fb].tile;
-	int32_t fr=wpnsbuf[fb].frames;
-	int32_t spd=wpnsbuf[fb].speed;
-	cs=wpnsbuf[fb].csets&15;
+	int32_t fb;
+	if (misc == 0)
+	{
+		if (auto v = divine_prot.wpn_sprites[4])
+			fb = v;
+		else fb = iwDivineProtectionShieldFront;
+	}
+	else if (auto v = divine_prot.wpn_sprites[9])
+		fb = v;
+	else fb = iwDivineProtectionShieldBack;
+	auto const& wspr = sprite_data_buf.get(fb);
+	int32_t t = wspr.tile;
+	int32_t fr = wspr.frames;
+	int32_t spd = wspr.speed;
+	cs = wspr.cs();
 	flip=0;
 	bool flickering = (divine_prot.flags & item_flag4) != 0;
 	bool translucent = (divine_prot.flags & item_flag3) != 0;
@@ -772,9 +740,8 @@ bool customWalkSprite::animate(int32_t)
 	else return true;
 	if(!(bits & 0b10))
 		return false;
-	auto const& wspr = wpnsbuf[the_deco_sprite];
-	int32_t dur = zc_max(1,wspr.frames) * zc_max(1,wspr.speed);
-	clk = (clk+1)%dur;
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite);
+	clk = (clk+1) % wspr.total_duration();
 	return false;
 }
 
@@ -784,7 +751,7 @@ void customWalkSprite::realdraw(BITMAP *dest, int32_t draw_what)
 		return;
 	bits |= 0b10;
 	
-	auto const& wspr = wpnsbuf[the_deco_sprite];
+	auto const& wspr = sprite_data_buf.get(the_deco_sprite);
 	int32_t t=wspr.tile;
 	int32_t fr=zc_max(1,wspr.frames);
 	int32_t spd=zc_max(1,wspr.speed);

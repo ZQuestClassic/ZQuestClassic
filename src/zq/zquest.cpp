@@ -457,7 +457,6 @@ int32_t showxypos_cursor_color;
 bool showxypos_dummy = false;
 
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
-int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
 int32_t tempmode=GFX_AUTODETECT;
 RGB_MAP* zq_rgb_table;
@@ -465,7 +464,6 @@ MIDI *song=NULL;
 BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
-wpndata  *wpnsbuf;
 comboclass *combo_class_buf;
 guydata  *guysbuf;
 item_drop_object item_drop_sets[MAXITEMDROPSETS];
@@ -12354,35 +12352,12 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-weapon_struct biw[MAXWPNS];
-int32_t biw_cnt=-1;
-
-void build_biw_list()
-{
-    int32_t start=biw_cnt=0;
-    
-    for(int32_t i=start; i<MAXWPNS; i++)
-    {
-        biw[biw_cnt].s = (char *)weapon_string[i];
-        biw[biw_cnt].i = i;
-        ++biw_cnt;
-    }
-    
-    for(int32_t i=start; i<biw_cnt-1; i++)
-    {
-        for(int32_t j=i+1; j<biw_cnt; j++)
-            if(stricmp(biw[i].s,biw[j].s)>0 && strcmp(biw[j].s,""))
-                zc_swap(biw[i],biw[j]);
-    }
-}
-
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
     dword section_version=V_WEAPONS;
     int32_t zversion = ZELDA_VERSION;
     int32_t zbuild = VERSION_BUILD;
-    int32_t iid = biw[index].i;
-    al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
+    al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", index);
   
     //section version info
     if(!p_iputl(zversion,f))
@@ -12403,48 +12378,8 @@ int32_t writeoneweapon(PACKFILE *f, int32_t index)
 	    return 0;
     }
     
-    //weapon string
-	
-    if(!pfwrite((char *)weapon_string[iid], 64, f))
-    {
-        return 0;
-    }
-            
-    if(!p_putc(wpnsbuf[iid].misc,f))
-    {
-        return 0;
-    }
-            
-    if(!p_putc(wpnsbuf[iid].csets,f))
-    {
-        return 0;
-    }
-            
-    if(!p_putc(wpnsbuf[iid].frames,f))
-    {
-        return 0;
-    }
-            
-    if(!p_putc(wpnsbuf[iid].speed,f))
-    {
-        return 0;
-    }
-            
-    if(!p_putc(wpnsbuf[iid].type,f))
-    {
-        return 0;
-    }
-	    
-    if(!p_iputw(wpnsbuf[iid].script,f))
-    {
-        return 0;
-    }
-	    
-    //2.55 starts here
-    if(!p_iputl(wpnsbuf[iid].tile,f))
-    {
-        return 0;
-    }
+	if (write_single_spritedata(f, index))
+		return 0;
 
     return 1;
 }
@@ -12455,11 +12390,7 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 	dword section_version = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	wpndata tempwpnspr;
-	memset(&tempwpnspr, 0, sizeof(wpndata));
-     
-   
-	//char dmapstring[64]={0};
+    
 	//section version info
 	if(!p_igetl(&zversion,f))
 	{
@@ -12496,66 +12427,14 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 		al_trace("Reading a .zwpnspr packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	char tmp_wpn_name[64];
-	memset(tmp_wpn_name,0,64);
-	if(!pfread(&tmp_wpn_name, 64, f))
-	{
+	char tmp_wpn_name[65] = {0};
+	if (section_version < 9)
+		if(!pfread(&tmp_wpn_name, 64, f))
+			return 0;
+	if (read_single_spritedata(f, &header, section_version, index))
 		return 0;
-	}
-	
-    word oldtile = 0;
-    if(section_version < 8)
-	    if(!p_igetw(&oldtile,f))
-            return 0;
-            
-    if(!p_getc(&tempwpnspr.misc,f))
-    {
-        return 0;
-    }
-            
-    if(!p_getc(&tempwpnspr.csets,f))
-    {
-        return 0;
-    }
-            
-    if(!p_getc(&tempwpnspr.frames,f))
-    {
-        return 0;
-    }
-            
-    if(!p_getc(&tempwpnspr.speed,f))
-    {
-        return 0;
-    }
-    
-    if(!p_getc(&tempwpnspr.type,f))
-    {
-        return 0;
-    }
-	
-	if(!p_igetw(&tempwpnspr.script,f))
-    {
-        return 0;
-    }
-
-	//2.55 starts here
-	if ( zversion >= 0x255 )
-	{
-		if  ( section_version >= 7 )
-		{
-			if(!p_igetl(&tempwpnspr.tile,f))
-			{
-				return 0;
-			}
-		}
-	}
-	if ( zversion < 0x255 ) 
-	{
-		tempwpnspr.tile = oldtile;
-	}
-	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
-	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
-       
+	if (section_version < 9)
+		sprite_data_buf[index].name = tmp_wpn_name;
 	return 1;
 }
 
@@ -19600,13 +19479,6 @@ static void allocate_crap()
 		Z_error_fatal("Error: no memory for file paths!");
 	}
 	
-	for(int32_t i=0; i<MAXWPNS; i++)
-	{
-		if(weapon_string[i]!=NULL) delete weapon_string[i];
-		weapon_string[i] = new char[64];
-		memset(weapon_string[i], 0, 64);
-	}
-	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{
 		if(guy_string[i]!=NULL) delete guy_string[i];
@@ -20198,13 +20070,7 @@ int32_t main(int32_t argc,char **argv)
 		zq_exit(0);
 	}
 
-	reset_lens_hint_items();
-	
-	for(int32_t x=0; x<MAXWPNS; x++)
-	{
-		lens_hint_weapon[x][0]=0;
-		lens_hint_weapon[x][1]=0;
-	}
+	reset_lens_hints();
 	
 	load_selections();
 	load_arrows();
@@ -21086,11 +20952,6 @@ void quit_game()
     remove_locked_params_on_exit();
 
 	quest_sounds.clear();
-    
-    for(int32_t i=0; i<MAXWPNS; i++)
-    {
-        delete [] weapon_string[i];
-    }
     
     for(int32_t i=0; i<eMAXGUYS; i++)
     {

@@ -49,6 +49,6 @@ static WeaponArrayRegistrar WPNSPRITES_registrar(LWPNSPRITES, EWPNSPRITES, []{
 	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::misc_wsprites> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(true);
-	impl.setValueTransform(transforms::vboundByte);
+	impl.setValueTransform(transforms::vboundWord);
 	return &impl;
 }());

@@ -138,20 +138,20 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           9
 #define V_RULES           17
 #define V_STRINGS         12
-#define V_MISC            20
+#define V_MISC            21
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          65
+#define V_COMBOS          66
 #define V_CSETS            6 //palette data
 #define V_MAPS            39
 #define V_DMAPS           26
 #define V_DOORS            1
-#define V_ITEMS           67
-#define V_WEAPONS          8
+#define V_ITEMS           68
+#define V_WEAPONS          9
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        47
-#define V_GUYS            55
+#define V_GUYS            56
 #define V_MIDIS            5
 #define V_CHEATS           1
 #define V_SAVEGAME        49
@@ -167,7 +167,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 // not 'real' sections, just separate version numbers
 #define V_COMPATRULE       102
-#define V_WEAP_DATA        0
+#define V_WEAP_DATA        1
 
 //= V_SHOPS is under V_MISC
 
@@ -1103,28 +1103,6 @@ enum
 	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
 };
 
-struct itemdata;
-struct wpndata
-{
-	int32_t tile;
-	byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
-	byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-	byte frames;                                              // animation frame count
-	byte speed;                                               // animation speed
-	byte type;                                                // used by certain weapons
-	word script;
-	
-	byte flip() const
-	{
-		return (misc >> 2) & 0b11;
-	}
-	byte cs() const
-	{
-		return csets & 0xF;
-	}
-	void load_item(itemdata const& itm);
-};
-
 #define WF_AUTOFLASH  0x01
 #define WF_2PFLASH    0x02
 #define WF_HFLIP      0x04
@@ -1203,7 +1181,7 @@ struct guydata
     
     char initD_label[8][65];
     
-	byte spr_shadow, spr_death, spr_spawn;
+	word spr_shadow, spr_death, spr_spawn;
 	word specialsfx;
 	
 	weapon_data weap_data;

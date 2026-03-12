@@ -82,7 +82,6 @@ extern int32_t                 hero_animation_speed; //lower is faster animation
 extern byte                *colordata;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
-extern wpndata             *wpnsbuf;
 extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
@@ -1028,9 +1027,6 @@ bool reset_wpns(bool validate, zquestheader *Header)
     if (get_app_id() == App::zquest)
         ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate, "modules/classic/default.qst");
     
-    for(int32_t i=0; i<MAXWPNS; i++)
-        reset_weaponname(i);
-        
     return ret;
 }
 
@@ -1053,6 +1049,8 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
 
 int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 {
+	byte tempbyte;
+	
 	word v_weapon_data;
 	if(!p_igetw(&v_weapon_data,f))
 		return qe_invalid;
@@ -1068,7 +1066,13 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 	
 	for (int32_t q = 0; q < WPNSPR_MAX; ++q)
 	{
-		if (!p_getc(&(data.burnsprs[q]), f))
+		if (v_weapon_data < 1)
+		{
+			if (!p_getc(&tempbyte, f))
+				return qe_invalid;
+			data.burnsprs[q] = tempbyte;
+		}
+		else if (!p_igetw(&(data.burnsprs[q]), f))
 			return qe_invalid;
 		if (!p_getc(&(data.light_rads[q]), f))
 			return qe_invalid;
@@ -1188,11 +1192,7 @@ int32_t get_qst_buffers()
         return 0;
     
 	itemsbuf.clear();
-    
-    if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
-        return 0;
-        
-    memset(wpnsbuf,0,sizeof(wpndata)*MAXWPNS);
+	sprite_data_buf.clear();
     
     if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
         return 0;
@@ -1251,8 +1251,7 @@ void del_qst_buffers()
     if(trashbuf) free(trashbuf);
     
     itemsbuf.clear();
-    
-    if(wpnsbuf) free(wpnsbuf);
+	sprite_data_buf.clear();
     
     if(guysbuf) free(guysbuf);
     
@@ -5943,7 +5942,15 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
 	
-	if(s_version >= 12)
+	if(s_version >= 21)
+	{
+		for(int32_t q = 0; q < sprMAX; ++q)
+		{
+			if(!p_igetw(&temp_misc.sprites[q],f))
+				return qe_invalid;
+		}
+	}
+	else if(s_version >= 12)
 	{
 		byte spr;
 		for(int32_t q = 0; q < sprMAX; ++q)
@@ -6187,7 +6194,6 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 }
 
 extern const char *old_item_string[iLast];
-extern char *weapon_string[MAXWPNS];
 extern const char *old_weapon_string[wLast];
 
 void update_old_item(word s_version, word index, word version)
@@ -6282,8 +6288,8 @@ void update_old_item(word s_version, word index, word version)
 				case iBombs:
 					tempitem.level=i_bomb;
 					tempitem.power=4;
-					tempitem.wpn=wBOMB;
-					tempitem.wpn2=wBOOM;
+					tempitem.wpn_sprites[0]=wBOMB;
+					tempitem.wpn_sprites[1]=wBOOM;
 					tempitem.misc1 = 50;
 					
 					if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 200;
@@ -6293,8 +6299,8 @@ void update_old_item(word s_version, word index, word version)
 				case iSBomb:
 					tempitem.level=i_sbomb;
 					tempitem.power=16;
-					tempitem.wpn=wSBOMB;
-					tempitem.wpn2=wSBOOM;
+					tempitem.wpn_sprites[0]=wSBOMB;
+					tempitem.wpn_sprites[1]=wSBOOM;
 					tempitem.misc1 = 50;
 					
 					if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 400;
@@ -6303,40 +6309,40 @@ void update_old_item(word s_version, word index, word version)
 					
 				case iBook:
 					if(get_bit(deprecated_rules, qr_FIREMAGICSPRITE_DEP))
-						tempitem.wpn = wFIREMAGIC;
+						tempitem.wpn_sprites[0] = wFIREMAGIC;
 						
 					break;
 					
 				case iSArrow:
-					tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
+					tempitem.wpn_sprites[1] = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
 					tempitem.power=4;
 					tempitem.flags|=item_gamedata;
-					tempitem.wpn=wSARROW;
+					tempitem.wpn_sprites[0]=wSARROW;
 					break;
 					
 				case iGArrow:
-					tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
+					tempitem.wpn_sprites[1] = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
 					tempitem.power=8;
 					tempitem.flags|=(item_gamedata|item_flag1);
-					tempitem.wpn=wGARROW;
+					tempitem.wpn_sprites[0]=wGARROW;
 					break;
 					
 				case iBrang:
 					tempitem.power=0;
-					tempitem.wpn=wBRANG;
+					tempitem.wpn_sprites[0]=wBRANG;
 					tempitem.misc1=36;
 					break;
 					
 				case iMBrang:
-					tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
+					tempitem.wpn_sprites[1] = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
 					tempitem.power=0;
-					tempitem.wpn=wMBRANG;
+					tempitem.wpn_sprites[0]=wMBRANG;
 					break;
 					
 				case iFBrang:
-					tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
+					tempitem.wpn_sprites[2] = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
 					tempitem.power=2;
-					tempitem.wpn=wFBRANG;
+					tempitem.wpn_sprites[0]=wFBRANG;
 					break;
 					
 				case iBoots:
@@ -6347,64 +6353,64 @@ void update_old_item(word s_version, word index, word version)
 				case iWand:
 					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICWAND_DEP) ? 8 : 0;
 					tempitem.power=2;
-					tempitem.wpn=wWAND;
-					tempitem.wpn3=wMAGIC;
+					tempitem.wpn_sprites[0]=wWAND;
+					tempitem.wpn_sprites[2]=wMAGIC;
 					break;
 					
 				case iBCandle:
 					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
 					tempitem.power=1;
 					tempitem.flags|=(item_gamedata|item_flag1);
-					tempitem.wpn3=wFIRE;
+					tempitem.wpn_sprites[2]=wFIRE;
 					break;
 					
 				case iRCandle:
 					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
 					tempitem.power=1;
-					tempitem.wpn3=wFIRE;
+					tempitem.wpn_sprites[2]=wFIRE;
 					break;
 					
 				case iSword:
 					tempitem.power=1;
 					tempitem.flags|= item_flag4 |item_flag2;
-					tempitem.wpn=tempitem.wpn3=wSWORD;
-					tempitem.wpn2=wSWORDSLASH;
+					tempitem.wpn_sprites[0]=tempitem.wpn_sprites[2]=wSWORD;
+					tempitem.wpn_sprites[1]=wSWORDSLASH;
 					break;
 					
 				case iWSword:
 					tempitem.power=2;
 					tempitem.flags|= item_flag4 |item_flag2;
-					tempitem.wpn=tempitem.wpn3=wWSWORD;
-					tempitem.wpn2=wWSWORDSLASH;
+					tempitem.wpn_sprites[0]=tempitem.wpn_sprites[2]=wWSWORD;
+					tempitem.wpn_sprites[1]=wWSWORDSLASH;
 					break;
 					
 				case iMSword:
 					tempitem.power=4;
 					tempitem.flags|= item_flag4 |item_flag2;
-					tempitem.wpn=tempitem.wpn3=wMSWORD;
-					tempitem.wpn2=wMSWORDSLASH;
+					tempitem.wpn_sprites[0]=tempitem.wpn_sprites[2]=wMSWORD;
+					tempitem.wpn_sprites[1]=wMSWORDSLASH;
 					break;
 					
 				case iXSword:
 					tempitem.power=8;
 					tempitem.flags|= item_flag4 |item_flag2;
-					tempitem.wpn=tempitem.wpn3=wXSWORD;
-					tempitem.wpn2=wXSWORDSLASH;
+					tempitem.wpn_sprites[0]=tempitem.wpn_sprites[2]=wXSWORD;
+					tempitem.wpn_sprites[1]=wXSWORDSLASH;
 					break;
 					
 				case iDivineProtection:
 					tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? item_flag1 : item_none;
 					tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? item_flag2 : item_none;
-					tempitem.wpn=wDIVINEPROTECTION1A;
-					tempitem.wpn2=wDIVINEPROTECTION1B;
-					tempitem.wpn3=wDIVINEPROTECTIONS1A;
-					tempitem.wpn4=wDIVINEPROTECTIONS1B;
-					tempitem.wpn6=wDIVINEPROTECTION2A;
-					tempitem.wpn7=wDIVINEPROTECTION2B;
-					tempitem.wpn8=wDIVINEPROTECTIONS2A;
-					tempitem.wpn9=wDIVINEPROTECTIONS2B;
-					tempitem.wpn5 = iwDivineProtectionShieldFront;
-					tempitem.wpn10 = iwDivineProtectionShieldBack;
+					tempitem.wpn_sprites[0]=wDIVINEPROTECTION1A;
+					tempitem.wpn_sprites[1]=wDIVINEPROTECTION1B;
+					tempitem.wpn_sprites[2]=wDIVINEPROTECTIONS1A;
+					tempitem.wpn_sprites[3]=wDIVINEPROTECTIONS1B;
+					tempitem.wpn_sprites[5]=wDIVINEPROTECTION2A;
+					tempitem.wpn_sprites[6]=wDIVINEPROTECTION2B;
+					tempitem.wpn_sprites[7]=wDIVINEPROTECTIONS2A;
+					tempitem.wpn_sprites[8]=wDIVINEPROTECTIONS2B;
+					tempitem.wpn_sprites[4] = iwDivineProtectionShieldFront;
+					tempitem.wpn_sprites[9] = iwDivineProtectionShieldBack;
 					tempitem.misc1=512;
 					tempitem.cost_amount[0]=64;
 					break;
@@ -6417,20 +6423,20 @@ void update_old_item(word s_version, word index, word version)
 					
 				case iArrow:
 					tempitem.power=2;
-					tempitem.wpn=wARROW;
+					tempitem.wpn_sprites[0]=wARROW;
 					break;
 					
 				case iHoverBoots:
 					tempitem.misc1=45;
-					tempitem.wpn=iwHover;
+					tempitem.wpn_sprites[0]=iwHover;
 					break;
 					
 				case iDivineFire:
 					tempitem.power=8;
-					tempitem.wpn=wDIVINEFIRE1A;
-					tempitem.wpn2=wDIVINEFIRE1B;
-					tempitem.wpn3=wDIVINEFIRES1A;
-					tempitem.wpn4=wDIVINEFIRES1B;
+					tempitem.wpn_sprites[0]=wDIVINEFIRE1A;
+					tempitem.wpn_sprites[1]=wDIVINEFIRE1B;
+					tempitem.wpn_sprites[2]=wDIVINEFIRES1A;
+					tempitem.wpn_sprites[3]=wDIVINEFIRES1B;
 					tempitem.misc1 = 32;
 					tempitem.misc2 = 200;
 					tempitem.cost_amount[0]=32;
@@ -6443,10 +6449,10 @@ void update_old_item(word s_version, word index, word version)
 				case iHookshot:
 					tempitem.power=0;
 					tempitem.flags&=~item_flag1;
-					tempitem.wpn=wHSHEAD;
-					tempitem.wpn2=wHSCHAIN_H;
-					tempitem.wpn4=wHSHANDLE;
-					tempitem.wpn3=wHSCHAIN_V;
+					tempitem.wpn_sprites[0]=wHSHEAD;
+					tempitem.wpn_sprites[1]=wHSCHAIN_H;
+					tempitem.wpn_sprites[3]=wHSHANDLE;
+					tempitem.wpn_sprites[2]=wHSCHAIN_V;
 					tempitem.misc1=50;
 					tempitem.misc2=100;
 					break;
@@ -6454,25 +6460,25 @@ void update_old_item(word s_version, word index, word version)
 				case iLongshot:
 					tempitem.power=0;
 					tempitem.flags&=~item_flag1;
-					tempitem.wpn=wLSHEAD;
-					tempitem.wpn2=wLSCHAIN_H;
-					tempitem.wpn4=wLSHANDLE;
-					tempitem.wpn3=wLSCHAIN_V;
+					tempitem.wpn_sprites[0]=wLSHEAD;
+					tempitem.wpn_sprites[1]=wLSCHAIN_H;
+					tempitem.wpn_sprites[3]=wLSHANDLE;
+					tempitem.wpn_sprites[2]=wLSCHAIN_V;
 					tempitem.misc1=99;
 					tempitem.misc2=100;
 					break;
 					
 				case iHammer:
 					tempitem.power=4;
-					tempitem.wpn=wHAMMER;
-					tempitem.wpn2=iwHammerSmack;
+					tempitem.wpn_sprites[0]=wHAMMER;
+					tempitem.wpn_sprites[1]=iwHammerSmack;
 					break;
 					
 				case iCByrna:
 					tempitem.power=1;
-					tempitem.wpn=wCBYRNA;
-					tempitem.wpn2=wCBYRNASLASH;
-					tempitem.wpn3=wCBYRNAORB;
+					tempitem.wpn_sprites[0]=wCBYRNA;
+					tempitem.wpn_sprites[1]=wCBYRNASLASH;
+					tempitem.wpn_sprites[2]=wCBYRNAORB;
 					tempitem.misc1=4;
 					tempitem.misc2=16;
 					tempitem.misc3=1;
@@ -6480,7 +6486,7 @@ void update_old_item(word s_version, word index, word version)
 					break;
 					
 				case iWhistle:
-					tempitem.wpn=wWIND;
+					tempitem.wpn_sprites[0]=wWIND;
 					tempitem.misc1=3;
 					tempitem.flags|=item_flag1;
 					break;
@@ -6764,9 +6770,9 @@ void update_old_item(word s_version, word index, word version)
 		
 		if(s_version < 17) // November 2007
 		{
-			if(tempitem.type == itype_candle && !tempitem.wpn3)
+			if(tempitem.type == itype_candle && !tempitem.wpn_sprites[2])
 			{
-				tempitem.wpn3 = wFIRE;
+				tempitem.wpn_sprites[2] = wFIRE;
 			}
 			else if(tempitem.type == itype_arrow && tempitem.power>4)
 			{
@@ -6803,12 +6809,12 @@ void update_old_item(word s_version, word index, word version)
 		{
 			if(tempitem.type == itype_divineprotection)
 			{
-				tempitem.wpn6=wDIVINEPROTECTION2A;
-				tempitem.wpn7=wDIVINEPROTECTION2B;
-				tempitem.wpn8=wDIVINEPROTECTIONS2A;
-				tempitem.wpn9=wDIVINEPROTECTIONS2B;
-				tempitem.wpn5 = iwDivineProtectionShieldFront;
-				tempitem.wpn10 = iwDivineProtectionShieldBack;
+				tempitem.wpn_sprites[5]=wDIVINEPROTECTION2A;
+				tempitem.wpn_sprites[6]=wDIVINEPROTECTION2B;
+				tempitem.wpn_sprites[7]=wDIVINEPROTECTIONS2A;
+				tempitem.wpn_sprites[8]=wDIVINEPROTECTIONS2B;
+				tempitem.wpn_sprites[4] = iwDivineProtectionShieldFront;
+				tempitem.wpn_sprites[9] = iwDivineProtectionShieldBack;
 			}
 		}
 		
@@ -6839,9 +6845,9 @@ void update_old_item(word s_version, word index, word version)
 		if(s_version < 23)    // March 2011
 		{
 			if(tempitem.type == itype_divinefire)
-				tempitem.wpn5 = wFIRE;
+				tempitem.wpn_sprites[4] = wFIRE;
 			else if(tempitem.type == itype_book)
-				tempitem.wpn2 = wFIRE;
+				tempitem.wpn_sprites[1] = wFIRE;
 		}
 		
 		// Version 25: Bomb bags were acting as though "super bombs also" was checked
@@ -6871,13 +6877,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 3; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_brang:
@@ -6890,13 +6891,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 3; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_arrow:
@@ -6911,13 +6907,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 3; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_candle:
@@ -6933,13 +6924,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 3; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_whistle:
@@ -6953,15 +6939,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 1; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_bait:
@@ -6976,15 +6955,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 1; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_letter:
@@ -7000,16 +6972,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_potion:
@@ -7023,16 +6987,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_wand:
@@ -7048,13 +7004,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 3; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_ring:
@@ -7069,16 +7020,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_wallet:
@@ -7092,16 +7035,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_amulet:
@@ -7117,16 +7052,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_shield:
@@ -7140,16 +7067,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_bow:
@@ -7165,16 +7084,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_raft:
@@ -7190,16 +7101,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_ladder:
@@ -7215,16 +7118,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_book:
@@ -7240,14 +7135,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 2; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_magickey:
@@ -7263,16 +7152,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_bracelet:
@@ -7288,16 +7169,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_flippers:
@@ -7313,16 +7186,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_boots:
@@ -7338,16 +7203,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_hookshot:
@@ -7359,12 +7216,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 4; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_lens:
@@ -7379,16 +7232,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_hammer:
@@ -7404,14 +7249,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 2; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_divinefire:
@@ -7425,11 +7264,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 5; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_divineescape:
@@ -7444,16 +7280,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_divineprotection:
@@ -7480,14 +7308,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 2; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_sbomb:
@@ -7500,14 +7322,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 2; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_clock:
@@ -7522,16 +7338,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_key:
@@ -7547,16 +7355,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_magiccontainer:
@@ -7572,16 +7372,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_triforcepiece:
@@ -7595,16 +7387,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_map:	case itype_compass:	case itype_bosskey:
@@ -7620,16 +7404,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_quiver:
@@ -7643,16 +7419,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_lkey:
@@ -7668,16 +7436,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_cbyrna:
@@ -7690,11 +7450,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 5; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_rupee: case itype_arrowammo:
@@ -7710,16 +7467,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_fairy:
@@ -7732,16 +7481,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
@@ -7757,16 +7498,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_bombbag:
@@ -7780,16 +7513,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_rocs:
@@ -7805,16 +7530,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_hoverboots:
@@ -7829,15 +7546,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 1; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_spinscroll:
@@ -7852,16 +7562,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_crossscroll:
@@ -7877,16 +7579,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_quakescroll:
@@ -7900,16 +7594,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_whispring:
@@ -7924,16 +7610,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_chargering:
@@ -7947,16 +7625,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_perilscroll:
@@ -7971,16 +7641,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_wealthmedal:
@@ -7995,16 +7657,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_heartring:
@@ -8018,16 +7672,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_magicring:
@@ -8041,16 +7687,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_spinscroll2:
@@ -8065,16 +7703,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_quakescroll2:
@@ -8088,16 +7718,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_agony:
@@ -8112,16 +7734,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_stompboots:
@@ -8137,16 +7751,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_whimsicalring:
@@ -8161,16 +7767,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_perilring:
@@ -8185,16 +7783,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 				case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
@@ -8214,16 +7804,8 @@ void update_old_item(word s_version, word index, word version)
 					tempitem.misc8 = 0;
 					tempitem.misc9 = 0;
 					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
+					for(int q = 0; q < 10; ++q)
+						tempitem.wpn_sprites[q] = 0;
 					break;
 				}
 			}
@@ -8642,7 +8224,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			
 			tempitem.count=-1;
 			tempitem.flags=item_none;
-			tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
+			tempitem.wpn_sprites[0]=tempitem.wpn_sprites[1]=tempitem.wpn_sprites[2]=tempitem.wpn_sprites[2]=tempitem.pickup_hearts=
 											tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
 			tempitem.type=0xFF;
 			tempitem.playsound=WAV_SCALE;
@@ -8820,57 +8402,12 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 		{
 			if(s_version>5)
 			{
-				if(!p_getc(&tempitem.wpn,f))
+				int count = s_version >= 15 ? 10 : 4;
+				for (int q = 0; q < count; ++q)
 				{
-					return qe_invalid;
-				}
-				
-				if(!p_getc(&tempitem.wpn2,f))
-				{
-					return qe_invalid;
-				}
-				
-				if(!p_getc(&tempitem.wpn3,f))
-				{
-					return qe_invalid;
-				}
-				
-				if(!p_getc(&tempitem.wpn4,f))
-				{
-					return qe_invalid;
-				}
-				
-				if(s_version>=15)
-				{
-					if(!p_getc(&tempitem.wpn5,f))
-					{
+					if(!p_getc(&tempbyte,f))
 						return qe_invalid;
-					}
-					
-					if(!p_getc(&tempitem.wpn6,f))
-					{
-						return qe_invalid;
-					}
-					
-					if(!p_getc(&tempitem.wpn7,f))
-					{
-						return qe_invalid;
-					}
-					
-					if(!p_getc(&tempitem.wpn8,f))
-					{
-						return qe_invalid;
-					}
-					
-					if(!p_getc(&tempitem.wpn9,f))
-					{
-						return qe_invalid;
-					}
-					
-					if(!p_getc(&tempitem.wpn10,f))
-					{
-						return qe_invalid;
-					}
+					tempitem.wpn_sprites[q] = tempbyte;
 				}
 				
 				if(!p_getc(&tempitem.pickup_hearts,f))
@@ -9287,7 +8824,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 		tempitem.count=-1;
 		tempitem.type=itype_misc;
 		tempitem.flags=item_none;
-		tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+		tempitem.wpn_sprites[0]=tempitem.wpn_sprites[1]=tempitem.wpn_sprites[2]=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
 		tempitem.playsound=WAV_SCALE;
 		reset_itembuf(&tempitem,index);
 	}
@@ -9296,8 +8833,9 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 	{
 		for(int q = 0; q < WPNSPR_MAX; ++q)
 		{
-			if(!p_getc(&tempitem.weap_data.burnsprs[q],f))
+			if(!p_getc(&tempbyte,f))
 				return qe_invalid;
+			tempitem.weap_data.burnsprs[q] = tempbyte;
 			if(s_version >= 59)
 				if(!p_getc(&tempitem.weap_data.light_rads[q],f))
 					return qe_invalid;
@@ -9410,6 +8948,7 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 		return read_single_item_old(f, s_version, index, version, build);
 	static itemdata _nil_item;
 	
+	byte tempbyte;
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 	itemdata& item_ref = should_skip ? _nil_item : itemsbuf[index];
 	item_ref = itemdata();
@@ -9476,35 +9015,21 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 		if(!p_igetl(&item_ref.initiald[q], f))
 			return qe_invalid;
 	
-	if(!p_getc(&item_ref.wpn,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn2,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn3,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn4,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn5,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn6,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn7,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn8,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn9,f))
-		return qe_invalid;
-	
-	if(!p_getc(&item_ref.wpn10,f))
-		return qe_invalid;
+	if (s_version < 68)
+	{
+		for (int q = 0; q < 10; ++q)
+		{
+			if(!p_getc(&tempbyte,f))
+				return qe_invalid;
+			item_ref.wpn_sprites[q] = tempbyte;
+		}
+	}
+	else
+	{
+		for (int q = 0; q < 10; ++q)
+			if(!p_igetw(&item_ref.wpn_sprites[q],f))
+				return qe_invalid;
+	}
 	
 	if(!p_getc(&item_ref.pickup_hearts,f))
 		return qe_invalid;
@@ -9802,14 +9327,70 @@ void reset_itemname(int32_t id)
 		itemsbuf[id].name = fmt::format("zz{:03}", id);
 }
 
+int32_t read_single_spritedata(PACKFILE *f, zquestheader *Header, word s_version, word index)
+{
+	static sprite_data _nil_sprite;
+	
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_weapons);
+	sprite_data& sprite_ref = should_skip ? _nil_sprite : sprite_data_buf[index];
+	string oldname = sprite_ref.name;
+	sprite_ref = sprite_data();
+	
+	byte tempbyte;
+	word tempword;
+	if (s_version >= 9)
+	{
+		if (!p_getcstr(&sprite_ref.name, f))
+			return qe_invalid;
+	}
+	else sprite_ref.name = oldname;
+	
+	if (s_version < 8)
+	{
+		if (!p_igetw(&tempword, f))
+			return qe_invalid;
+		if (s_version < 7)
+			sprite_ref.tile = tempword;
+	}
+
+	if(!p_getc(&sprite_ref.misc,f))
+		return qe_invalid;
+	
+	if(!p_getc(&sprite_ref.csets,f))
+		return qe_invalid;
+	
+	if(!p_getc(&sprite_ref.frames,f))
+		return qe_invalid;
+	
+	if(!p_getc(&sprite_ref.speed,f))
+		return qe_invalid;
+	
+	if(!p_getc(&sprite_ref.type,f))
+		return qe_invalid;
+
+	if ( s_version >= 7 )
+	{
+		if(!p_igetw(&sprite_ref.script,f))
+			return qe_invalid;
+		if(!p_igetl(&sprite_ref.tile,f))
+			return qe_invalid;
+	}
+	
+	if(Header->zelda_version < 0x193)
+		if(!p_getc(&tempbyte,f))
+			return qe_invalid;
+	
+	if(s_version < 6)
+		SETFLAG(sprite_ref.misc, WF_BEHIND, index == ewFIRETRAIL);
+	return 0;
+}
 int32_t readweapons(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_weapons);
 
-    word weapons_to_read=MAXWPNS;
+    word weapons_to_read=256;
     int32_t dummy;
     byte padding;
-    wpndata tempweapon;
     word s_version=0;
     
     
@@ -9855,122 +9436,57 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
             return qe_invalid;
         }
 
-        if (weapons_to_read > MAXWPNS)
+        if (weapons_to_read > MAXSPRITES)
         {
             return qe_invalid;
         }
     }
     
-    if(s_version>2)
+	if (!should_skip)
+	{
+		sprite_data_buf.clear();
+		sprite_data_buf.reserve(weapons_to_read);
+	}
+	if (s_version <= 2)
+	{
+		if (!should_skip)
+			for(int32_t i=0; i<256; i++)
+				reset_weaponname(i);
+	}
+    else if(s_version < 9)
     {
         for(int32_t i=0; i<weapons_to_read; i++)
         {
-            char tempname[64];
+            char tempname[65] = {0};
             
             if(!pfread(tempname, 64, f))
             {
                 return qe_invalid;
             }
             
-			weapon_string[i][0] = '\0';
-			strncat(weapon_string[i], tempname, 64 - 1);
+			if (!should_skip)
+				sprite_data_buf[i].name = tempname;
         }
         
-        if(s_version<4)
-        {
-			strcpy(weapon_string[iwHover],old_weapon_string[iwHover]);
-			strcpy(weapon_string[wFIREMAGIC],old_weapon_string[wFIREMAGIC]);
+		if (!should_skip)
+		{
+			if(s_version<4)
+			{
+				sprite_data_buf[iwHover].name = old_weapon_string[iwHover];
+				sprite_data_buf[wFIREMAGIC].name = old_weapon_string[wFIREMAGIC];
+			}
+			
+			if(s_version<5)
+			{
+				sprite_data_buf[iwQuarterHearts].name = old_weapon_string[iwQuarterHearts];
+			}
         }
-        
-        if(s_version<5)
-        {
-            strcpy(weapon_string[iwQuarterHearts],old_weapon_string[iwQuarterHearts]);
-        }
-        
-        /*
-            if (s_version<6)
-            {
-              strcpy(weapon_string[iwSideRaft],old_weapon_string[iwSideRaft]);
-              strcpy(weapon_string[iwSideLadder],old_weapon_string[iwSideLadder]);
-            }
-        */
-    }
-    else if (!should_skip)
-    {
-		for(int32_t i=0; i<MAXWPNS; i++)
-			reset_weaponname(i);
     }
     
 	for(int32_t i=0; i<weapons_to_read; i++)
 	{
-		word oldtile = 0;
-		if (s_version < 8)
-		{
-			if (!p_igetw(&oldtile, f))
-				return qe_invalid;
-		}
-
-		if(!p_getc(&tempweapon.misc,f))
-		{
-			return qe_invalid;
-		}
-        
-		if(!p_getc(&tempweapon.csets,f))
-		{
-			return qe_invalid;
-		}
-        
-		if(!p_getc(&tempweapon.frames,f))
-		{
-			return qe_invalid;
-		}
-        
-		if(!p_getc(&tempweapon.speed,f))
-		{
-			return qe_invalid;
-		}
-        
-		if(!p_getc(&tempweapon.type,f))
-		{
-			return qe_invalid;
-		}
-	
-		if ( s_version >= 7 )
-		{
-			if(!p_igetw(&tempweapon.script,f))
-			{
-				return qe_invalid;
-			}
-			if(!p_igetl(&tempweapon.tile,f))
-			{
-				return qe_invalid;
-			}	    
-		}
-		if ( s_version < 7 ) 
-		{
-			tempweapon.tile = oldtile;
-		}
-        
-		if(Header->zelda_version < 0x193)
-		{
-			if(!p_getc(&padding,f))
-			{
-				return qe_invalid;
-			}
-		}
-        
-		if(s_version < 6)
-		{
-			if(i==ewFIRETRAIL)
-			{
-				tempweapon.misc |= WF_BEHIND;
-			}
-			else
-				tempweapon.misc &= ~WF_BEHIND;
-		}
-        
-		if (!should_skip)
-			memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
+		if (auto ret = read_single_spritedata(f, Header, s_version, i))
+			return ret;
 	}
 
 	if (should_skip)
@@ -9978,21 +9494,21 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
     
 	if(s_version<2)
 	{
-		wpnsbuf[wSBOOM]=wpnsbuf[wBOOM];
+		sprite_data_buf[wSBOOM] = sprite_data_buf.get(wBOOM);
 	}
 	
 	if(s_version<5)
 	{
-		wpnsbuf[iwQuarterHearts].tile=1;
-		wpnsbuf[iwQuarterHearts].csets=1;
+		sprite_data_buf[iwQuarterHearts].tile = 1;
+		sprite_data_buf[iwQuarterHearts].csets = 1;
 	}
 	
 	if(Header->zelda_version < 0x176)
 	{
 		auto& spawn_item = itemsbuf[iMisc1];
 		auto& death_item = itemsbuf[iMisc2];
-		wpnsbuf[iwSpawn].load_item(spawn_item);
-		wpnsbuf[iwDeath].load_item(death_item);
+		sprite_data_buf[iwSpawn].load_item(spawn_item);
+		sprite_data_buf[iwDeath].load_item(death_item);
 		spawn_item.clear();
 		death_item.clear();
 	}
@@ -10000,16 +9516,18 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<129)))
 	{
-		wpnsbuf[wHSCHAIN_V] = wpnsbuf[wHSCHAIN_H];
+		sprite_data_buf[wHSCHAIN_V] = sprite_data_buf.get(wHSCHAIN_H);
 	}
 	
 	if((Header->zelda_version < 0x210))
 	{
-		wpnsbuf[wLSHEAD] = wpnsbuf[wHSHEAD];
-		wpnsbuf[wLSCHAIN_H] = wpnsbuf[wHSCHAIN_H];
-		wpnsbuf[wLSHANDLE] = wpnsbuf[wHSHANDLE];
-		wpnsbuf[wLSCHAIN_V] = wpnsbuf[wHSCHAIN_V];
+		sprite_data_buf[wLSHEAD] = sprite_data_buf.get(wHSHEAD);
+		sprite_data_buf[wLSCHAIN_H] = sprite_data_buf.get(wHSCHAIN_H);
+		sprite_data_buf[wLSHANDLE] = sprite_data_buf.get(wHSHANDLE);
+		sprite_data_buf[wLSCHAIN_V] = sprite_data_buf.get(wHSCHAIN_V);
 	}
+	
+	sprite_data_buf.normalize();
     
     return 0;
 }
@@ -10261,12 +9779,9 @@ void init_guys(int32_t guyversion)
 
 void reset_weaponname(int32_t i)
 {
-    if(i<wLast)
-    {
-        strcpy(weapon_string[i],old_weapon_string[i]);
-    }
-    else
-        sprintf(weapon_string[i],"zz%03d",i);
+	sprite_data_buf[i].name = i < wLast
+		? old_weapon_string[i]
+		: fmt::format("zz{:03}", i);
 }
 
 void init_item_drop_sets()
@@ -13860,6 +13375,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 
     dword dummy;
 	byte tempbyte;
+	word tempword;
     word guy_cversion;
     word guyversion=0;
     
@@ -15342,20 +14858,26 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					tempguy.flags |= guy_fade_instant;
 				}
 			}
-			if (guyversion > 44)
+			if (guyversion > 55)
 			{
-				if(!p_getc(&(tempguy.spr_shadow),f))
-				{
+				if(!p_igetw(&(tempguy.spr_shadow),f))
 					return qe_invalid;
-				}
-				if(!p_getc(&(tempguy.spr_death),f))
-				{
+				if(!p_igetw(&(tempguy.spr_death),f))
 					return qe_invalid;
-				}
-				if(!p_getc(&(tempguy.spr_spawn),f))
-				{
+				if(!p_igetw(&(tempguy.spr_spawn),f))
 					return qe_invalid;
-				}
+			}
+			else if (guyversion > 44)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				tempguy.spr_shadow = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				tempguy.spr_death = tempbyte;
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				tempguy.spr_spawn = tempbyte;
 			}
 			else
 			{
@@ -15442,10 +14964,11 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				tempguy.weap_data.step = zslongToFix(temp_step*100);
 				for (int32_t q = 0; q < WPNSPR_MAX; ++q)
 				{
-					if (!p_igetw(&(tempguy.weap_data.burnsprs[q]), f))
+					if (!p_igetw(&tempguy.weap_data.burnsprs[q], f))
 						return qe_invalid;
-					if (!p_igetw(&(tempguy.weap_data.light_rads[q]), f))
+					if (!p_igetw(&tempword, f))
 						return qe_invalid;
+					tempguy.weap_data.light_rads[q] = (byte)tempword;
 				}
 			}
 			if (guyversion < 53)
@@ -18828,8 +18351,17 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 			if(!p_getc(&temp_combo.liftgfx,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftsprite,f))
-				return qe_invalid;
+			if (s_version < 66)
+			{
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+				temp_combo.liftsprite = tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_combo.liftsprite,f))
+					return qe_invalid;
+			}
 			if (s_version < 64)
 			{
 				if(!p_getc(&tempbyte,f))
@@ -18943,14 +18475,32 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					if(!p_igetw(&temp_combo.sfx_standing,f))
 						return qe_invalid;
 				}
-				if(!p_getc(&temp_combo.spr_appear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_disappear,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_walking,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_standing,f))
-					return qe_invalid;
+				if (s_version < 66)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_appear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_disappear = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_walking = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_standing = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.spr_appear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.spr_disappear,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.spr_walking,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.spr_standing,f))
+						return qe_invalid;
+				}
 			}
 			if (s_version < 64)
 			{
@@ -18976,12 +18526,27 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			}
 			if(s_version >= 50)
 			{
-				if(!p_getc(&temp_combo.spr_falling,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_drowning,f))
-					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_lava_drowning,f))
-					return qe_invalid;
+				if (s_version < 66)
+				{
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_falling = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_drowning = tempbyte;
+					if(!p_getc(&tempbyte,f))
+						return qe_invalid;
+					temp_combo.spr_lava_drowning = tempbyte;
+				}
+				else
+				{
+					if(!p_igetw(&temp_combo.spr_falling,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.spr_drowning,f))
+						return qe_invalid;
+					if(!p_igetw(&temp_combo.spr_lava_drowning,f))
+						return qe_invalid;
+				}
 				
 				if (s_version < 64)
 				{
@@ -19872,7 +19437,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 		if(get_qr(qr_BSZELDA))   //
 		{
 			byte tempbyte;
-			int32_t floattile=wpnsbuf[iwSwim].tile;
+			int32_t floattile = sprite_data_buf.get(iwSwim).tile;
 			
 			for(int32_t i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
 			{

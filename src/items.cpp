@@ -62,7 +62,7 @@ bool item::animate(int32_t)
 			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].c_attributes[8].getTrunc(), pan(x));
 			if(!--fallclk) return true;
 			
-			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
+			sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[sprFALL]);
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
@@ -79,7 +79,7 @@ bool item::animate(int32_t)
 			if(!--drownclk) return true;
 			
 			bool lava = (drownCombo && combobuf[drownCombo].usrflags&cflag1);
-			wpndata &spr = wpnsbuf[QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]];
+			sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]);
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
@@ -268,7 +268,7 @@ bool item::animate(int32_t)
 #endif
 	
 	if ((z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && !get_qr(qr_CLASSIC_DRAWING_ORDER))
-		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
+		shadowtile = sprite_data_buf.get(spr_shadow).tile+aframe;
 	if(fadeclk==0 && !subscreenItem)
 	{
 		return true;
@@ -288,7 +288,7 @@ void item::draw(BITMAP *dest)
 	
 	if ( (z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && get_qr(qr_CLASSIC_DRAWING_ORDER))
 	{
-		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
+		shadowtile = sprite_data_buf.get(spr_shadow).tile+aframe;
 		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
 	}
 	bool ignore_flicker = fallclk || drownclk;
@@ -719,7 +719,7 @@ bool itembundle_safe(int32_t itmid, bool skipError)
 	return true;
 }
 
-struct LensHintItemData
+struct LensHintData
 {
 	int aclk;
 	int aframe;
@@ -727,13 +727,24 @@ struct LensHintItemData
 	{
 		return !(aclk || aframe);
 	}
-	bool operator==(LensHintItemData const& other) const = default;
+	bool operator==(LensHintData const& other) const = default;
+};
+struct LensOffsetData
+{
+	int dir, x, y;
+	bool empty() const
+	{
+		return !(dir || x || y);
+	}
+	bool operator==(LensOffsetData const& other) const = default;
 };
 
-bounded_map<int, LensHintItemData> lens_hint_item {MAXITEMS, {}};
-void draw_lens_hint_item(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t flash)
+bounded_map<int, LensHintData> lens_hint_item {MAXITEMS, {}};
+bounded_map<int, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
+bounded_map<int, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
+void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash)
 {
-	LensHintItemData data = lens_hint_item[item_id];
+	LensHintData data = lens_hint_item.get(item_id);
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.yofs=0;
 	temp.aclk = data.aclk;
@@ -769,9 +780,105 @@ void draw_lens_hint_item(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32
 	else
 		lens_hint_item[item_id] = data;
 }
-void reset_lens_hint_items()
+void update_lens_hint_weapon(int weapon_id)
+{
+	// Some weapons when drawing their hint sprite would use additional data, but
+	// this data was indexed by weapon id rather than sprite id.
+	// I've split this data into a *separate* set of data which should only need
+	// to exist for the 3 hardcoded weapon types that use this.
+	switch (weapon_id) // filter out weapons that don't use this hardcode
+	{
+		case wMagic:
+		case ewMagic:
+		case ewFireball:
+			break;
+		default:
+			return;
+	}
+	auto& offset = lens_hint_weapon_offsets[weapon_id];
+	switch (weapon_id)
+	{
+		case wMagic:
+		{
+			--offset.y;
+			if(offset.y < -8)
+				offset.y = 8;
+			break;
+		}
+		case ewMagic:
+		{
+			if(offset.dir == up)
+				--offset.y;
+			else
+				++offset.y;
+			
+			if(offset.y > 8)
+				offset.dir = up;
+			
+			if(offset.y <= 0)
+				offset.dir = down;
+			break;
+		}
+		case ewFireball:
+		{
+			++offset.x;
+			
+			if(offset.x > 8)
+			{
+				offset.x = -8;
+				offset.y = 8;
+			}
+			
+			if(offset.x > 0)
+				++offset.y;
+			else
+				--offset.y;
+			break;
+		}
+	}
+}
+void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, bool peek, int weapon_id)
+{
+#ifdef IS_PLAYER
+	// In all honesty, these look buggy AF if more than one of the same
+	// is on-screen, because each one is one frame advanced in the animation
+	// from the previous. Should ideally overhaul these hints to update animation
+	// globally instead of during each draw, so the animations don't do this.
+	// Out of scope for current changes, so leaving for future fixing. -Em
+	LensHintData data = lens_hint_sprite.get(sprite_id);
+	if (weapon_id > -1)
+	{
+		auto const& offset = lens_hint_weapon_offsets.get(weapon_id);
+		if (weapon_id == ewMagic)
+			dir = offset.dir;
+		x += offset.x;
+		y += offset.y;
+	}
+	weapon temp((zfix)x,(zfix)y,(zfix)0,sprite_id,type,0,dir,-1,parentid,true);
+	temp.ignoreHero = true;
+	temp.fake_weapon = true;
+	temp.yofs = 0;
+	temp.clk2 = data.aclk;
+	temp.aframe = data.aframe;
+	temp.script = 0; // ensure no scripts
+	temp.animate(0);
+	temp.draw(dest);
+	
+	if (peek) return;
+	data.aclk = temp.clk2;
+	data.aframe = temp.aframe;
+	
+	if (data.empty())
+		lens_hint_sprite.erase(sprite_id);
+	else
+		lens_hint_sprite[sprite_id] = data;
+#endif
+}
+void reset_lens_hints()
 {
 	lens_hint_item.clear();
+	lens_hint_sprite.clear();
+	lens_hint_weapon_offsets.clear();
 }
 
 void dummyitem_animate(item* dummy, int32_t clk)
@@ -1050,8 +1157,6 @@ const char *old_weapon_string[wLast] =
 	"Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy) <Unused>", "Ice Magic (Enemy) <Unused>", "MISC: Hover Boots Glow", "Magic (Fire)", "MISC: Quarter Hearts", "Cane of Byrna (Beam)" /*, "MISC: Sideview Ladder", "MISC: Sideview Raft"*/
 };
 
-char *weapon_string[MAXWPNS];
-
 ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(0,255,255,opacity);
@@ -1226,16 +1331,8 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		ltm = other.ltm;
 	if(pasteflags.get(ITM_ADVP_SPRITES))
 	{
-		wpn = other.wpn;
-		wpn2 = other.wpn2;
-		wpn3 = other.wpn3;
-		wpn4 = other.wpn4;
-		wpn5 = other.wpn5;
-		wpn6 = other.wpn6;
-		wpn7 = other.wpn7;
-		wpn8 = other.wpn8;
-		wpn9 = other.wpn9;
-		wpn10 = other.wpn10;
+		for (int q = 0; q < 10; ++q)
+			wpn_sprites[q] = other.wpn_sprites[q];
 		CPYFLAG(weap_data.wflags, WFLAG_UPDATE_IGNITE_SPRITE, other.weap_data.wflags);
 		CPYFLAG(weap_data.flags, wdata_glow_rad, other.weap_data.flags);
 		for(int q = 0; q < WPNSPR_MAX; ++q)

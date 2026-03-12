@@ -25,7 +25,7 @@ struct cpos_info
 	byte pushes[4];
 	bool crumbling, appeared;
 	
-	byte sfx_onchange, spr_onchange;
+	word sfx_onchange, spr_onchange;
 	
 	bounded_vec<byte,cpos_trig_info> trig_data = {255};
 	

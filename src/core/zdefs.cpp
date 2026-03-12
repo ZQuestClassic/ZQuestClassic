@@ -1676,13 +1676,3 @@ void zctune::reset()
 	*this = zctune();
 }
 
-void wpndata::load_item(itemdata const& itm)
-{
-	tile = itm.tile;
-	misc = itm.misc_flags;
-	csets = itm.csets;
-	frames = itm.frames;
-	speed = itm.speed;
-	type = itm.delay;
-}
-

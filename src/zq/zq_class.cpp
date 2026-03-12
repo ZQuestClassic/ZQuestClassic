@@ -6754,7 +6754,7 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 	
 	for (int32_t q = 0; q < WPNSPR_MAX; ++q)
 	{
-		if (!p_putc(data.burnsprs[q], f))
+		if (!p_iputw(data.burnsprs[q], f))
 			new_return(5);
 		if (!p_putc(data.light_rads[q], f))
 			new_return(6);
@@ -8157,7 +8157,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		//V_MISC >= 12
 		for(int32_t q = 0; q < sprMAX; ++q)
 		{
-			if(!p_putc(QMisc.sprites[q],f))
+			if(!p_iputw(QMisc.sprites[q],f))
 				new_return(24);
 		}
 		
@@ -8395,35 +8395,9 @@ int32_t write_single_item(PACKFILE *f, word index)
 		if(!p_iputl(item_ref.initiald[j],f))
 			new_return(24);
 	
-	if(!p_putc(item_ref.wpn,f))
-		new_return(26);
-	
-	if(!p_putc(item_ref.wpn2,f))
-		new_return(27);
-	
-	if(!p_putc(item_ref.wpn3,f))
-		new_return(28);
-	
-	if(!p_putc(item_ref.wpn4,f))
-		new_return(29);
-	
-	if(!p_putc(item_ref.wpn5,f))
-		new_return(30);
-	
-	if(!p_putc(item_ref.wpn6,f))
-		new_return(31);
-	
-	if(!p_putc(item_ref.wpn7,f))
-		new_return(32);
-	
-	if(!p_putc(item_ref.wpn8,f))
-		new_return(33);
-	
-	if(!p_putc(item_ref.wpn9,f))
-		new_return(34);
-	
-	if(!p_putc(item_ref.wpn10,f))
-		new_return(35);
+	for (int q = 0; q < 10; ++q)
+		if(!p_iputw(item_ref.wpn_sprites[q],f))
+			new_return(26);
 	
 	if(!p_putc(item_ref.pickup_hearts,f))
 		new_return(36);
@@ -8611,11 +8585,29 @@ int32_t writeitems(PACKFILE *f, zquestheader *)
     new_return(0);
 }
 
-int32_t writeweapons(PACKFILE *f, zquestheader *Header)
+int32_t write_single_spritedata(PACKFILE* f, word index)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
+	sprite_data const& wpnspr = sprite_data_buf.get(index);
+	if (!p_putcstr(wpnspr.name, f))
+		new_return(6);
+	if(!p_putc(wpnspr.misc, f))
+		new_return(7);
+	if(!p_putc(wpnspr.csets, f))
+		new_return(8);
+	if(!p_putc(wpnspr.frames, f))
+		new_return(9);
+	if(!p_putc(wpnspr.speed, f))
+		new_return(10);
+	if(!p_putc(wpnspr.type, f))
+		new_return(11);
+	if(!p_iputw(wpnspr.script, f))
+		new_return(12);
+	if(!p_iputl(wpnspr.tile, f))
+		new_return(13);
+	return 0;
+}
+int32_t writeweapons(PACKFILE *f, zquestheader*)
+{
     dword section_id=ID_WEAPONS;
     dword section_version=V_WEAPONS;
     dword section_size = 0;
@@ -8637,6 +8629,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
+	sprite_data_buf.normalize();
     for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
         fake_pack_writing=(writecycle==0);
@@ -8650,61 +8643,20 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!p_iputw(MAXWPNS,f))
+		word sprite_count = sprite_data_buf.capacity();
+        if(!p_iputw(sprite_count,f))
         {
             new_return(5);
         }
-        
-        for(int32_t i=0; i<MAXWPNS; i++)
+		
+        for(word i=0; i < sprite_count; i++)
         {
-            if(!pfwrite((char *)weapon_string[i], 64, f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(int32_t i=0; i<MAXWPNS; i++)
-        {            
-            if(!p_putc(wpnsbuf[i].misc,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(wpnsbuf[i].csets,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(wpnsbuf[i].frames,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(wpnsbuf[i].speed,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(wpnsbuf[i].type,f))
-            {
-                new_return(11);
-            }
-	    
-	        if(!p_iputw(wpnsbuf[i].script,f))
-            {
-                new_return(12);
-            }
-	    
-	        if(!p_iputl(wpnsbuf[i].tile,f))
-            {
-                new_return(12);
-            }
+			if (auto ret = write_single_spritedata(f, i))
+				return ret;          
         }
         
         if(writecycle==0)
-        {
             section_size=writesize;
-        }
     }
     
     if(writesize!=int32_t(section_size) && save_warn)
@@ -9644,7 +9596,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 61;
 		if(!p_putc(tmp_cmb.liftgfx,f))
 			return 62;
-		if(!p_putc(tmp_cmb.liftsprite,f))
+		if(!p_iputw(tmp_cmb.liftsprite,f))
 			return 63;
 		if(!p_iputw(tmp_cmb.liftsfx,f))
 			return 64;
@@ -9679,23 +9631,23 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 82;
 		if(!p_iputw(tmp_cmb.sfx_standing,f))
 			return 83;
-		if(!p_putc(tmp_cmb.spr_appear,f))
+		if(!p_iputw(tmp_cmb.spr_appear,f))
 			return 84;
-		if(!p_putc(tmp_cmb.spr_disappear,f))
+		if(!p_iputw(tmp_cmb.spr_disappear,f))
 			return 85;
-		if(!p_putc(tmp_cmb.spr_walking,f))
+		if(!p_iputw(tmp_cmb.spr_walking,f))
 			return 86;
-		if(!p_putc(tmp_cmb.spr_standing,f))
+		if(!p_iputw(tmp_cmb.spr_standing,f))
 			return 87;
 		if(!p_iputw(tmp_cmb.sfx_tap,f))
 			return 88;
 		if(!p_iputw(tmp_cmb.sfx_landing,f))
 			return 89;
-		if(!p_putc(tmp_cmb.spr_falling,f))
+		if(!p_iputw(tmp_cmb.spr_falling,f))
 			return 90;
-		if(!p_putc(tmp_cmb.spr_drowning,f))
+		if(!p_iputw(tmp_cmb.spr_drowning,f))
 			return 91;
-		if(!p_putc(tmp_cmb.spr_lava_drowning,f))
+		if(!p_iputw(tmp_cmb.spr_lava_drowning,f))
 			return 92;
 		if(!p_iputw(tmp_cmb.sfx_falling,f))
 			return 93;
@@ -11238,11 +11190,11 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			}
 			if(!p_iputl(guysbuf[i].moveflags,f))
 				new_return(99);
-			if(!p_putc(guysbuf[i].spr_shadow,f))
+			if(!p_iputw(guysbuf[i].spr_shadow,f))
 				new_return(100);
-			if(!p_putc(guysbuf[i].spr_death,f))
+			if(!p_iputw(guysbuf[i].spr_death,f))
 				new_return(101);
-			if(!p_putc(guysbuf[i].spr_spawn,f))
+			if(!p_iputw(guysbuf[i].spr_spawn,f))
 				new_return(102);
 			if (!p_iputw(guysbuf[i].specialsfx, f))
 				new_return(103);

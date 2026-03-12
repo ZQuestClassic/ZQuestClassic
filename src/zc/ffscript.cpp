@@ -2671,10 +2671,10 @@ item_drop_object *checkDropSetData(int32_t ref)
 	return NULL;
 }
 
-wpndata *checkSpriteData(int32_t ref)
+sprite_data *checkSpriteData(int32_t ref)
 {
-	if(ref > 0 && ref < MAXWPNS)
-		return &wpnsbuf[ref];
+	if(ref > 0 && ref < MAXSPRITES)
+		return &sprite_data_buf[ref];
 
 	scripting_log_error_with_context("Invalid {} using UID = {}", "spritedata", ref);
 	return NULL;
@@ -2997,13 +2997,13 @@ int32_t get_register(int32_t arg)
 
 	#define GET_SPRITEDATA_VAR_INT(member) \
 	{ \
-		if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) )    \
+		if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) )    \
 		{ \
 			ret = -10000; \
 			scripting_log_error_with_context("Invalid Sprite ID: {}", GET_REF(spritedataref)*10000); \
 		} \
 		else \
-			ret = (wpnsbuf[GET_REF(spritedataref)].member * 10000); \
+			ret = (sprite_data_buf.get(GET_REF(spritedataref)).member * 10000); \
 	}
 
 	current_zasm_register = arg;
@@ -6202,7 +6202,7 @@ int32_t get_register(int32_t arg)
 		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type) break;
 		case SPRITEDATAID:
 		{
-			if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) )
+			if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) )
 			{
 				ret = -10000;
 				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", GET_REF(spritedataref));
@@ -10397,25 +10397,25 @@ void set_register(int32_t arg, int32_t value)
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) ) \
+		if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) ) \
 		{ \
 			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, GET_REF(spritedataref)); \
 		} \
 		else \
 		{ \
-			wpnsbuf[GET_REF(spritedataref)].member = vbound((value / 10000),0,214747); \
+			sprite_data_buf[GET_REF(spritedataref)].member = vbound((value / 10000),0,214747); \
 		} \
 	} \
 
 	#define	SET_SPRITEDATA_VAR_BYTE(member, str) \
 	{ \
-		if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) ) \
+		if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) ) \
 		{ \
 			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, GET_REF(spritedataref)); \
 		} \
 		else \
 		{ \
-			wpnsbuf[GET_REF(spritedataref)].member = vbound((value / 10000),0,255); \
+			sprite_data_buf[GET_REF(spritedataref)].member = vbound((value / 10000),0,255); \
 		} \
 	} \
 
@@ -12739,7 +12739,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSHADOWSPR:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->spr_shadow = vbound(value/10000, 0, 255);
+				s->spr_shadow = vbound(value/10000, 0, MAXSPRITES-1);
 			}
 			break;
 		case LWSWHOOKED:
@@ -12771,7 +12771,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSPRITE:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
-				s->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
+				s->death_sprite = vbound(value/10000,-255,MAXSPRITES-1);
 			}
 			break;
 		case LWPNDEATHSFX:
@@ -13308,7 +13308,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSHADOWSPR:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->spr_shadow = vbound(value/10000, 0, 255);
+				s->spr_shadow = vbound(value/10000, 0, MAXSPRITES-1);
 			}
 			break;
 		case EWSWHOOKED:
@@ -13339,7 +13339,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSPRITE:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
-				s->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
+				s->death_sprite = vbound(value/10000,-255,MAXSPRITES-1);
 			}
 			break;
 		case EWPNDEATHSFX:
@@ -13783,27 +13783,27 @@ void set_register(int32_t arg, int32_t value)
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 		case SPRITEDATACSETS:
 		{
-			if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) )
+			if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) )
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", GET_REF(spritedataref));
 			}
 			else
 			{
-				wpnsbuf[GET_REF(spritedataref)].csets &= 0xF0;
-				wpnsbuf[GET_REF(spritedataref)].csets |= vbound((value / 10000),0,15);
+				sprite_data_buf[GET_REF(spritedataref)].csets &= 0xF0;
+				sprite_data_buf[GET_REF(spritedataref)].csets |= vbound((value / 10000),0,15);
 			}
 			break;
 		}
 		case SPRITEDATAFLCSET:
 		{
-			if(unsigned(GET_REF(spritedataref)) > (MAXWPNS-1) )
+			if(unsigned(GET_REF(spritedataref)) > (MAXSPRITES-1) )
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to spritedata->FlashCSet: %d\n", GET_REF(spritedataref));
 			}
 			else
 			{
-				wpnsbuf[GET_REF(spritedataref)].csets &= 0x0F;
-				wpnsbuf[GET_REF(spritedataref)].csets |= vbound((value / 10000),0,15)<<4;
+				sprite_data_buf[GET_REF(spritedataref)].csets &= 0x0F;
+				sprite_data_buf[GET_REF(spritedataref)].csets |= vbound((value / 10000),0,15)<<4;
 			}
 			break;
 		}
@@ -15050,7 +15050,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftsprite = vbound(value/10000, 0, 255);
+			combobuf[GET_REF(combodataref)].liftsprite = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case COMBODLIFTSFX:
@@ -15064,7 +15064,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if (!checkComboRef()) break;
 
-			combobuf[GET_REF(combodataref)].liftbreaksprite = vbound(value/10000, -4, 255);
+			combobuf[GET_REF(combodataref)].liftbreaksprite = vbound(value/10000, -4, MAXSPRITES-1);
 			break;
 		}
 		case COMBODLIFTBREAKSFX:
@@ -15841,19 +15841,19 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDSHADOWSPR:
 		{
 			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_shadow = vbound(value/10000, 0, 255);
+				guysbuf[GET_REF(npcdataref)].spr_shadow = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case NPCDSPAWNSPR:
 		{
 			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_spawn = vbound(value/10000, 0, 255);
+				guysbuf[GET_REF(npcdataref)].spr_spawn = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case NPCDDEATHSPR:
 		{
 			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_death = vbound(value/10000, 0, 255);
+				guysbuf[GET_REF(npcdataref)].spr_death = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 
@@ -21654,7 +21654,7 @@ void FFScript::do_loadspritedata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if ( (unsigned)ID > (MAXWPNS-1) )
+	if ( (unsigned)ID > (MAXSPRITES-1) )
 	{
 		Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
 		ri->spritedataref = 0; 

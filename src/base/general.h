@@ -190,7 +190,7 @@ double wrap_float(double x,double low,double high);
 #define OLDMAXLEVELS               256
 #define OLDMAXDMAPS                256
 #define MAXITEMS                   1024
-#define MAXWPNS                    256
+#define MAXSPRITES                 8192
 #define OLDBETAMAXGUYS             256 //max 2.5 guys through beta 20
 #define MAXGUYS                    512
 #define MAXITEMDROPSETS            256

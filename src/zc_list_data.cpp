@@ -10,8 +10,8 @@
 #include "core/misctypes.h"
 #include "core/autocombo.h"
 #include <fmt/format.h>
+#include "sprite_data.h"
 
-extern char *weapon_string[];
 extern const char* old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
@@ -62,7 +62,6 @@ static bool skipchar(char c)
 GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 {
 	map<std::string, int32_t> ids;
-	std::set<std::string> names;
 	std::vector<std::string> strings;
 	if(ss_fonts)
 	{
@@ -77,7 +76,6 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 			if(sorted)
 			{
 				ids[name] = q;
-				names.insert(name);
 			}
 			else strings.push_back(name);
 		}
@@ -93,7 +91,6 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 		if(sorted)
 		{
 			ids[name] = q;
-			names.insert(name);
 		}
 		else strings.push_back(name);
 	}
@@ -101,10 +98,8 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 		return GUI::ListData(strings);
 	
 	GUI::ListData ls;
-	for(auto it = names.begin(); it != names.end(); ++it)
-	{
-		ls.add(*it, ids[*it]);
-	}
+	for(auto& [name, val] : ids)
+		ls.add(name, val);
 	return ls;
 }
 
@@ -190,7 +185,6 @@ GUI::ListData GUI::ZCListData::shadow_types()
 GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 {
 	map<std::string, int32_t> ids;
-	std::set<std::string> names;
 	
 	for(int32_t q=1; q < eMAXGUYS; ++q)
 	{
@@ -208,15 +202,12 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 		else name = npcname;
 		
 		ids[name] = q;
-		names.insert(name);
 	}
 	
 	GUI::ListData ls;
 	ls.add(numbered ? "(None) (000)" : "(None)", 0);
-	for(auto it = names.begin(); it != names.end(); ++it)
-	{
-		ls.add(*it, ids[*it]);
-	}
+	for(auto& [name, val] : ids)
+		ls.add(name, val);
 	return ls;
 }
 
@@ -241,32 +232,31 @@ GUI::ListData GUI::ZCListData::efamilies(bool numbered)
 GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
 	map<std::string, word> ids;
-	std::set<std::string> names;
 	
 	for(word q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		std::string name = itemsbuf[q].name;
 		if(numbered)
-			name = fmt::format("{} ({:03})", name, q);
+			name = fmt::format("{} ({:04})", name, q);
 		
 		ids[name] = q;
-		names.insert(name);
 	}
 	
 	GUI::ListData ls;
 	if(none)
-		ls.add("(None)", -1);
-	for(auto it = names.begin(); it != names.end(); ++it)
 	{
-		ls.add(*it, ids[*it]);
+		if(numbered)
+			ls.add("(None) (-0001)", -1);
+		else ls.add("(None)", -1);
 	}
+	for(auto& [name, val] : ids)
+		ls.add(name, val);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 {
 	map<std::string, int32_t> ids;
-	std::set<std::string> names;
 	
 	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
 	{
@@ -281,23 +271,19 @@ GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 		else name = dropname;
 		
 		ids[name] = q;
-		names.insert(name);
 	}
 	
 	GUI::ListData ls;
 	if(none)
 		ls.add("(None)", -1);
-	for(auto it = names.begin(); it != names.end(); ++it)
-	{
-		ls.add(*it, ids[*it]);
-	}
+	for(auto& [name, val] : ids)
+		ls.add(name, val);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 {
 	map<std::string, int32_t> fams;
-	std::set<std::string> famnames;
 	
 	for(int32_t i=zero_none?1:0; i<itype_max; ++i)
 	{
@@ -312,7 +298,6 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 			else name = itname;
 			
 			fams[name] = i;
-			famnames.insert(name);
 		}
 		else 
 		{
@@ -322,17 +307,14 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 			else name = fmt::format("zz{:03}",i);
 			
 			fams[name] = i;
-			famnames.insert(name);
 		}
 	}
 	
 	GUI::ListData ls;
 	if(zero_none)
 		ls.add(numbered ? "(None) (000)" : "(None)", 0);
-	for(auto it = famnames.begin(); it != famnames.end(); ++it)
-	{
-		ls.add(*it, fams[*it]);
-	}
+	for(auto& [name, val] : fams)
+		ls.add(name, val);
 	return ls;
 }
 
@@ -368,7 +350,6 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 {
 	GUI::ListData ls;
 	map<std::string, int32_t> types;
-	std::set<std::string> typenames;
 
 	if(!skipNone) ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t i=1; i<cMAX; ++i)
@@ -384,7 +365,6 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 			else name = module_str;
 			
 			types[name] = i;
-			typenames.insert(name);
 		}
 		else 
 		{
@@ -394,14 +374,11 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 			else name = fmt::format("zz{:03}",i);
 			
 			types[name] = i;
-			typenames.insert(name);
 		}
 	}
 
-	for(auto it = typenames.begin(); it != typenames.end(); ++it)
-	{
-		ls.add(*it, types[*it]);
-	}
+	for(auto& [name, val] : types)
+		ls.add(name, val);
 	return ls;
 }
 
@@ -409,7 +386,6 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 {
 	GUI::ListData ls;
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
 	if(!skipNone) ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t q = 1; q < mfMAX; ++q)
@@ -425,17 +401,12 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 		if (numericalFlags)
 			ls.add(name, q);
 		else
-		{
 			vals[name] = q;
-			names.insert(name);
-		}
 	}
 	if (!numericalFlags)
 	{
-		for(auto it = names.begin(); it != names.end(); ++it)
-		{
-			ls.add(*it, vals[*it]);
-		}
+		for(auto& [name, val] : vals)
+			ls.add(name, val);
 	}
 	
 	return ls;
@@ -459,8 +430,6 @@ GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 {
 	GUI::ListData ls;
-	// std::map<std::string, int32_t> vals;
-	// std::set<std::string> names;
 	
 	if(!skipNone) ls.add("(None)", crNONE);
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
@@ -473,15 +442,8 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 			sname = fmt::format("{} ({:03})", module_str, q);
 		else sname = module_str;
 		
-		// vals[sname] = q;
-		// names.insert(sname);
 		ls.add(sname, q);
 	}
-	
-	// for(auto it = names.begin(); it != names.end(); ++it)
-	// {
-		// ls.add(*it, vals[*it]);
-	// }
 	
 	return ls;
 }
@@ -489,17 +451,16 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals, bool numbered)
 {
 	std::map<std::string, int32_t> ids;
-	std::set<std::string> sprnames;
 	
-	for(int32_t i=0; i<MAXWPNS; ++i)
+	for(int32_t i=0; i<sprite_data_buf.capacity(); ++i)
 	{
 		std::string name;
+		auto const& spr = sprite_data_buf.get(i);
 		if(numbered)
-			name = fmt::format("{} ({:03})", weapon_string[i], i);
-		else name = weapon_string[i];
+			name = fmt::format("{} ({:04})", spr.name, i);
+		else name = spr.name;
 		
 		ids[name] = i;
-		sprnames.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -507,9 +468,9 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	{
 		if(numbered)
 		{
-			ls.add("Grass Clippings (-004)", -4);
-			ls.add("Flower Clippings (-003)", -3);
-			ls.add("Bush Leaves (-002)", -2);
+			ls.add("Grass Clippings (-0004)", -4);
+			ls.add("Flower Clippings (-0003)", -3);
+			ls.add("Bush Leaves (-0002)", -2);
 		}
 		else
 		{
@@ -519,11 +480,13 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 		}
 	}
 	if(!skipNone)
-		ls.add("(None)", -1);
-	for(auto it = sprnames.begin(); it != sprnames.end(); ++it)
 	{
-		ls.add(*it, ids[*it]);
+		if(numbered)
+			ls.add("(None) (-0001)", -1);
+		else ls.add("(None)", -1);
 	}
+	for(auto& [name, val] : ids)
+		ls.add(name, val);
 	return ls;
 }
 
@@ -701,12 +664,12 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
-	ls.add(numbered ? "(None) (000)" : "(None)", 0);
+	ls.add(numbered ? "(None) (00000)" : "(None)", 0);
 	for(size_t q = 0; q < quest_sounds.size(); ++q)
 	{
 		string const& sfx_name = quest_sounds[q].sfx_name;
 		if(numbered)
-			ls.add(fmt::format("{} ({:03})", sfx_name, q+1), q+1);
+			ls.add(fmt::format("{} ({:05})", sfx_name, q+1), q+1);
 		else ls.add(sfx_name, q+1);
 	}
 	
@@ -772,9 +735,9 @@ GUI::ListData GUI::ZCListData::music_names(bool numbered, bool incl_override)
 		if(numbered)
 		{
 			if(amus.name.empty())
-				ls.add(fmt::format("zz{:02} ({:03})",q+1,q+1),q+1);
+				ls.add(fmt::format("zz{:02} ({:05})",q+1,q+1),q+1);
 			else
-				ls.add(fmt::format("{} ({:03})",amus.name,q+1),q+1);
+				ls.add(fmt::format("{} ({:05})",amus.name,q+1),q+1);
 		}
 		else if(amus.name.empty())
 			ls.add(fmt::format("zz{:02}", q+1), q+1);
@@ -884,7 +847,7 @@ GUI::ListData GUI::ZCListData::doorsets()
 	return ls;
 }
 //SCRIPTS
-static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
+static void load_scriptnames(std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
 {
 	for(int32_t i = 0; i < count; ++i)
@@ -895,7 +858,6 @@ static void load_scriptnames(std::set<std::string> &names, std::map<std::string,
 		sname += " (" + std::to_string(i+1) + ")";
 		
 		vals[sname] = i+1;
-		names.insert(sname);
 	}
 }
 
@@ -907,7 +869,6 @@ extern std::string player_slotnames[NUMSCRIPTHERO - 1];
 static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> scrmap, int32_t count, std::string* slotnames, bool alphabetize, bool skipempty)
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	vector<std::pair<string, int>> empties;
 
 	GUI::ListData ls;
@@ -936,7 +897,6 @@ static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> 
 			else
 			{
 				vals[sname] = i + 1;
-				names.insert(sname);
 			}
 		}
 		else
@@ -944,11 +904,9 @@ static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> 
 	}
 	if (alphabetize)
 	{
-		ls.add(names, vals);
+		ls.add(vals);
 		for (auto [name, index] : empties)
-		{
 			ls.add(name, index);
-		}
 	}
 	if (ls.empty())
 		ls.add("[No Scripts Found]", 0);
@@ -959,143 +917,132 @@ static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> 
 GUI::ListData GUI::ZCListData::itemdata_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,itemmap,NUMSCRIPTITEM-1);
+	load_scriptnames(vals,itemmap,NUMSCRIPTITEM-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::itemsprite_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,itemspritemap,NUMSCRIPTSITEMSPRITE-1);
+	load_scriptnames(vals,itemspritemap,NUMSCRIPTSITEMSPRITE-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::ffc_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,ffcmap,NUMSCRIPTFFC-1);
+	load_scriptnames(vals,ffcmap,NUMSCRIPTFFC-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::npc_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 
-	load_scriptnames(names, vals, npcmap, NUMSCRIPTGUYS - 1);
+	load_scriptnames(vals, npcmap, NUMSCRIPTGUYS - 1);
 
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names, vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::dmap_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 
-	load_scriptnames(names, vals, dmapmap, NUMSCRIPTSDMAP - 1);
+	load_scriptnames(vals, dmapmap, NUMSCRIPTSDMAP - 1);
 
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names, vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::screen_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,screenmap,NUMSCRIPTSCREEN-1);
+	load_scriptnames(vals,screenmap,NUMSCRIPTSCREEN-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::lweapon_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
+	load_scriptnames(vals,lwpnmap,NUMSCRIPTWEAPONS-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::eweapon_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,ewpnmap,NUMSCRIPTWEAPONS-1);
+	load_scriptnames(vals,ewpnmap,NUMSCRIPTWEAPONS-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::combodata_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
+	load_scriptnames(vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::generic_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,genericmap,NUMSCRIPTSGENERIC-1);
+	load_scriptnames(vals,genericmap,NUMSCRIPTSGENERIC-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::subscreen_script()
 {
 	std::map<std::string, int32_t> vals;
-	std::set<std::string> names;
 	
-	load_scriptnames(names,vals,subscreenmap,NUMSCRIPTSSUBSCREEN-1);
+	load_scriptnames(vals,subscreenmap,NUMSCRIPTSSUBSCREEN-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
-	ls.add(names,vals);
+	ls.add(vals);
 	return ls;
 }
 

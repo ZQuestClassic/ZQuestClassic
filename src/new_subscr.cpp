@@ -978,7 +978,7 @@ int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 					break;
 					
 				case sscsSSVINECSET:
-					ret=wpnsbuf[iwSubscreenVine].csets&15;
+					ret=sprite_data_buf.get(iwSubscreenVine).csets&15;
 					break;
 					
 				default:
@@ -4490,9 +4490,9 @@ int32_t SW_MiniTile::get_tile() const
 		switch(special_tile)
 		{
 			case ssmstSSVINETILE:
-				return wpnsbuf[iwSubscreenVine].tile;
+				return sprite_data_buf.get(iwSubscreenVine).tile;
 			case ssmstMAGICMETER:
-				return wpnsbuf[iwMMeter].tile;
+				return sprite_data_buf.get(iwMMeter).tile;
 			default:
 				return (zc_oldrand()*100000)%32767;
 		}

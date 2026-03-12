@@ -32,8 +32,6 @@
 extern int32_t ex;
 extern void reset_itembuf(itemdata *item, int32_t id);
 
-extern int32_t biw_cnt;
-
 void large_dialog(DIALOG *d)
 {
 	large_dialog(d, 1.5f);
@@ -250,7 +248,7 @@ int32_t onMiscSprites()
 	{
 		mark_save_dirty();
 		for(auto q = 0; q < sprMAX; ++q)
-			QMisc.sprites[q] = byte(newsprs[q]);
+			QMisc.sprites[q] = word(newsprs[q]);
 	}).show();
 	return D_O_K;
 }
@@ -696,12 +694,15 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			}
 
 			//was missing for some reason has been added
-			if (!p_getc(&tempguy.spr_shadow, f))
+			if (!p_getc(&tempbyte, f))
 				return 0;
-			if (!p_getc(&tempguy.spr_death, f))
+			tempguy.spr_shadow = tempbyte;
+			if (!p_getc(&tempbyte, f))
 				return 0;
-			if (!p_getc(&tempguy.spr_spawn, f))
+			tempguy.spr_death = tempbyte;
+			if (!p_getc(&tempbyte, f))
 				return 0;
+			tempguy.spr_spawn = tempbyte;
 			if (!p_igetl(&tempguy.moveflags, f))
 				return 0;
 			
@@ -736,8 +737,9 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			tempguy.weap_data.step = zslongToFix(temp_step*100);
 			for (int q=0; q < WPNSPR_MAX; ++q)
 			{
-				if (!p_getc(&tempguy.weap_data.burnsprs[q], f))
+				if (!p_getc(&tempbyte, f))
 					return 0;
+				tempguy.weap_data.burnsprs[q] = tempbyte;
 				if (!p_getc(&tempguy.weap_data.light_rads[q], f))
 					return 0;
 			}

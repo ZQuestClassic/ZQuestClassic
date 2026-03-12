@@ -1,7 +1,7 @@
 #include "hero_tiles.h"
 #include "core/zdefs.h"
+#include "sprite_data.h"
 
-extern wpndata    *wpnsbuf;
 int32_t hero_animation_speed = 1;
 int32_t liftspeed = 4;
 
@@ -633,8 +633,8 @@ void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 
 void setupherotiles(int32_t style)
 {
-    old_floatspr = wpnsbuf[iwSwim].tile;
-    old_slashspr = wpnsbuf[iwHeroSlash].tile;
+    old_floatspr = sprite_data_buf.get(iwSwim).tile;
+    old_slashspr = sprite_data_buf.get(iwHeroSlash).tile;
     herospr = 4;
     
     switch(style)

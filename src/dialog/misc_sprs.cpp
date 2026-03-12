@@ -15,13 +15,11 @@ static const GUI::ListData miscSprsList
 	{ "Switch Poof:", sprSWITCHPOOF, "Shown when 'switching' objects with the poof switch style." }
 };
 
-MiscSprsDialog::MiscSprsDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
+MiscSprsDialog::MiscSprsDialog(word* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
 	sprs_list(GUI::ZCListData::miscsprites()), setVals(setVals), vals_per_tab(vals_per_tab)
 {
 	for(auto q = 0; q < sprMAX; ++q)
-	{
 		local_sprs[q] = vals[q];
-	}
 }
 
 std::shared_ptr<GUI::Widget> MiscSprsDialog::view()

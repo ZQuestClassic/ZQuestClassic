@@ -2611,7 +2611,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempweapony=y;
 							}
 							
-							putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
@@ -2727,7 +2727,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempweapony=y;
 							}
 							
-							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
 						}
 						
 						break;
@@ -2750,7 +2750,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempweapony=y;
 							}
 							
-							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
 						}
 						
 						break;
@@ -2844,7 +2844,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=get_item_data(tempitem).wpn3;
+							tempweapon=get_item_data(tempitem).wpn_sprites[2];
 							
 							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
 									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
@@ -2856,15 +2856,10 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							{
 								tempweaponx=x;
 								tempweapony=y;
-								--lens_hint_weapon[wMagic][4];
-								
-								if(lens_hint_weapon[wMagic][4]<-8)
-								{
-									lens_hint_weapon[wMagic][4]=8;
-								}
+								update_lens_hint_weapon(wMagic);
 							}
 							
-							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, wMagic);
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
 						}
 						
@@ -2893,29 +2888,11 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							{
 								tempweaponx=x;
 								tempweapony=y;
-								
-								if(lens_hint_weapon[ewMagic][2]==up)
-								{
-									--lens_hint_weapon[ewMagic][4];
-								}
-								else
-								{
-									++lens_hint_weapon[ewMagic][4];
-								}
-								
-								if(lens_hint_weapon[ewMagic][4]>8)
-								{
-									lens_hint_weapon[ewMagic][2]=up;
-								}
-								
-								if(lens_hint_weapon[ewMagic][4]<=0)
-								{
-									lens_hint_weapon[ewMagic][2]=down;
-								}
+								update_lens_hint_weapon(ewMagic);
 							}
 							
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
-							putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, ewMagic);
 						}
 						
 						break;
@@ -2940,26 +2917,11 @@ void draw_lens_under(BITMAP *dest, bool layer)
 								tempitemy=y;
 								tempweaponx=x;
 								tempweapony=y;
-								++lens_hint_weapon[ewFireball][3];
-								
-								if(lens_hint_weapon[ewFireball][3]>8)
-								{
-									lens_hint_weapon[ewFireball][3]=-8;
-									lens_hint_weapon[ewFireball][4]=8;
-								}
-								
-								if(lens_hint_weapon[ewFireball][3]>0)
-								{
-									++lens_hint_weapon[ewFireball][4];
-								}
-								else
-								{
-									--lens_hint_weapon[ewFireball][4];
-								}
+								update_lens_hint_weapon(ewFireball);
 							}
 							
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
-							putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, ewFireball);
 						}
 						
 						break;

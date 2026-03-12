@@ -25,7 +25,7 @@ struct weapon_data
 	
 	weapon_flags wflags = WFLAG_NONE;
 	
-	byte burnsprs[WPNSPR_MAX];
+	word burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte glow_shape;
 	

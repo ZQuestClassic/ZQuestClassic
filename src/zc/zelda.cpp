@@ -130,7 +130,6 @@ ZCMIXER *zcmixer = NULL;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
-int32_t lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
 int32_t strike_hint_counter=0;
 int32_t strike_hint_timer=0;
 int32_t strike_hint = 0;
@@ -211,7 +210,6 @@ BITMAP* framebuf_no_passive_subscreen;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
-wpndata    *wpnsbuf;
 comboclass *combo_class_buf;
 guydata    *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
@@ -898,7 +896,6 @@ bool bad_version(int32_t version)
     return false;
 }
 
-extern char *weapon_string[];
 extern char *guy_string[];
 
 bool get_debug()
@@ -1654,12 +1651,7 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_life=true;
 	msgscr=nullptr;
 	maps_init_game_vars();
-	reset_lens_hint_items();
-	for(int32_t x = 0; x < MAXWPNS; x++)
-	{
-		lens_hint_weapon[x][0]=0;
-		lens_hint_weapon[x][1]=0;
-	}
+	reset_lens_hints();
 	for(int32_t i=0; i<6; i++)
 	{
 		visited[i]=-1;
@@ -3460,22 +3452,17 @@ void game_loop()
 
 		if(linkedmsgclk==1 && !do_end_str)
 		{
-			if(wpnsbuf[iwMore].tile!=0)
+			if(sprite_data_buf.get(iwMore).tile!=0)
 			{
 				if (drawPassiveSubscreenSeparate)
 				{
-					// Need to draw to two bitmaps.
-					int aclk_before = lens_hint_weapon[wPhantom][0];
-					int aframe_before = lens_hint_weapon[wPhantom][1];
-					// This will modify the two local variables.
-					putweapon(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, aclk_before, aframe_before, -1);
-					// This will modify the lens_hint_weapon animation data.
-					putweapon(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
-					// Result is one clk/frame step, not two.
+					// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
+					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1, true);
+					draw_lens_hint_sprite(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1);
 				}
 				else
 				{
-					putweapon(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1);
 				}
 			}
 		}
@@ -3930,11 +3917,6 @@ void zc_game_srand(int seed, zc_randgen* rng)
 
 static void allocate_crap()
 {
-	for(int32_t i=0; i<MAXWPNS; i++)
-	{
-		weapon_string[i] = new char[64];
-	}
-	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{
 		guy_string[i] = new char[64];
@@ -4940,11 +4922,6 @@ void quit_game()
 	zcmixer_exit(zcmixer);
 	
 	al_trace("Misc... \n");
-	
-	for(int32_t i=0; i<MAXWPNS; i++)
-	{
-		delete [] weapon_string[i];
-	}
 	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{

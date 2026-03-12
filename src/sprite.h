@@ -8,12 +8,12 @@
 #include <map>
 #include "solidobject.h"
 #include "core/cpos_info.h"
+#include "base/containers.h"
 
 struct itemdata;
 struct newcombo;
 using std::map;
 
-extern wpndata  *wpnsbuf;
 extern bool     freeze_guys;
 extern int32_t fadeclk;
 extern int32_t frame;
@@ -130,7 +130,7 @@ public:
 	bool hide_hitbox;
     bool behind;
 	
-	byte spr_shadow, spr_death, spr_spawn;
+	word spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	

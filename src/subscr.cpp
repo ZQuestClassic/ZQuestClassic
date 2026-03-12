@@ -2559,7 +2559,7 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 		y+=24;
 	}
 	int32_t tile = 0;
-	const int32_t basetile = wpnsbuf[iwQuarterHearts].tile;
+	const int32_t basetile = sprite_data_buf.get(iwQuarterHearts).tile;
 	const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
 	const int32_t inc = (game != NULL ? game->get_hp_per_heart() : 16);
 	
@@ -2677,8 +2677,9 @@ void magicmeter(BITMAP *dest,int32_t x,int32_t y)
     if(game->get_maxmagic()==0) return;
     
     int32_t tile;
-    int32_t mmtile=wpnsbuf[iwMMeter].tile;
-    int32_t mmcset=wpnsbuf[iwMMeter].csets&15;
+	auto const& mmspr = sprite_data_buf.get(iwMMeter);
+    int32_t mmtile = mmspr.tile;
+    int32_t mmcset = mmspr.csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
     if(game->get_magicdrainrate()==1)
@@ -2930,7 +2931,7 @@ int32_t subscreen_cset(int32_t c1, int32_t c2)
             break;
             
         case sscsSSVINECSET:
-            ret=wpnsbuf[iwSubscreenVine].csets&15;
+            ret = sprite_data_buf.get(iwSubscreenVine).csets&15;
             break;
             
         default:

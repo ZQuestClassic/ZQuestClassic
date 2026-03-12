@@ -168,7 +168,7 @@ static T* resolveScriptingObject(int ref)
 		return checkBottleShopData(ref);
 	else if constexpr (std::is_same<T, item_drop_object>::value)
 		return checkDropSetData(ref);
-	else if constexpr (std::is_same<T, wpndata>::value)
+	else if constexpr (std::is_same<T, sprite_data>::value)
 		return checkSpriteData(ref);
 	else if constexpr (std::is_same<T, MsgStr>::value)
 		return checkMessageData(ref);

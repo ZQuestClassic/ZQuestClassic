@@ -24,8 +24,6 @@
 #include <sstream>
 #include "advanced_music.h"
 
-extern char *weapon_string[];
-
 static string get_info(bool sel, bool advpaste, bool saveload = true, bool copypaste = true)
 {
 	std::ostringstream oss;
@@ -275,7 +273,7 @@ void ItemListerDialog::preinit()
 		if (itemsbuf.capacity() < MAXITEMS)
 		{
 			frozen_end = 1;
-			lister.add(fmt::format("<New Item> ({:03})", itemsbuf.capacity()), itemsbuf.capacity());
+			lister.add(fmt::format("<New Item> ({:04})", itemsbuf.capacity()), itemsbuf.capacity());
 		}
 		resort();
 		if(selected_val < 0)
@@ -422,7 +420,7 @@ bool ItemListerDialog::clear_nondelete()
 		fmt::format("Clear Item #{}, '{}'?\nThis will reset it to blank.", selected_val, itm.name)))
 		return false;
 	itm.clear();
-	itm.name = fmt::format("zz{:03}", selected_val);
+	itm.name = fmt::format("zz{:04}", selected_val);
 	refresh_dlg();
 	return true;
 }
@@ -545,43 +543,82 @@ SpriteListerDialog::SpriteListerDialog(int spriteid, bool selecting):
 }
 void SpriteListerDialog::preinit()
 {
+	sprite_data_buf.normalize();
 	lister = GUI::ZCListData::miscsprites(!selecting, false, true);
 	if(selecting)
 		frozen_start = 1; // lock '(None)'
 	else
 	{
 		resort();
+		if (sprite_data_buf.capacity() < MAXSPRITES)
+		{
+			frozen_end = 1;
+			lister.add(fmt::format("<New Sprite> ({:04})", sprite_data_buf.capacity()), sprite_data_buf.capacity());
+		}
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
-	selected_val = vbound(selected_val, (selecting?-1:0), MAXWPNS-1);
+	selected_val = vbound(selected_val, (selecting?-1:0), sprite_data_buf.capacity() + (selecting?-1:0));
 }
 void SpriteListerDialog::postinit()
 {
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	using namespace GUI::Key;
 	size_t len = 16;
-	for(int q = 0; q < MAXWPNS; ++q)
+	for(int q = 0; q < sprite_data_buf.capacity(); ++q)
 	{
-		size_t tlen = text_length(GUI_DEF_FONT,weapon_string[q]);
+		size_t tlen = text_length(GUI_DEF_FONT,sprite_data_buf.get(q).name.c_str());
 		if(tlen > len)
 			len = tlen;
 	}
 	widgInfo->minWidth(Size::pixels(len+8));
 	widgList->minHeight(Size::pixels(320));
 	window->setHelp(get_info(selecting, true));
+	
+	btnrow2 = Column(
+		Columns<2>(
+			DummyWidget(),
+			del_btn = Button(text = "Delete",
+				fitParent = true,
+				onClick = message::CLEAR),
+			up_btn = Button(text = "Up",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					zc_swap(sprite_data_buf[selected_val], sprite_data_buf[selected_val-1]);
+					--selected_val;
+					refresh_dlg();
+				}),
+			down_btn = Button(text = "Down",
+				fitParent = true,
+				onPressFunc = [&]()
+				{
+					zc_swap(sprite_data_buf[selected_val], sprite_data_buf[selected_val+1]);
+					++selected_val;
+					refresh_dlg();
+				})
+		),
+		Label(fitParent = true, maxwidth = 250_px,
+			text = "Sprites cannot be re-ordered while the list is alphabetized."
+			"\nWARNING: Re-ordering Sprites will NOT update anything that uses them."
+			"\nThis includes the re-ordering that happens when deleting Sprites."
+		)
+	);
 }
 static int copied_sprite_id = -1;
 void SpriteListerDialog::update(bool)
 {
-	std::string copied_name = "(None)\n";
-	if(unsigned(copied_sprite_id) < MAXWPNS)
-		copied_name = weapon_string[copied_sprite_id];
-	if(unsigned(selected_val) < MAXWPNS)
+	std::string copied_name = "(None)";
+	if(unsigned(copied_sprite_id) < sprite_data_buf.capacity())
+		copied_name = sprite_data_buf.get(copied_sprite_id).name;
+	if(unsigned(selected_val) < sprite_data_buf.capacity())
 	{
-		wpndata const& spr = wpnsbuf[selected_val];
+		sprite_data const& spr = sprite_data_buf.get(selected_val);
 		widgInfo->setText(fmt::format(
 			"{}\nCSet: {}\nFlip: {}\nFrames: {}\nSpeed: {}"
 			"\n\nCopied:\n{}",
-			weapon_string[selected_val], spr.cs(), spr.flip(), spr.frames, spr.speed,
+			spr.name, spr.cs(), spr.flip(), spr.frames, spr.speed,
 			copied_name));
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(spr.tile);
@@ -614,13 +651,48 @@ void SpriteListerDialog::edit()
 }
 void SpriteListerDialog::rclick(int x, int y)
 {
+	bool oob = unsigned(selected_val) >= sprite_data_buf.capacity();
+	bool paste_oob = oob && (selected_val != sprite_data_buf.capacity());
+	bool copy_oob = unsigned(copied_sprite_id) >= sprite_data_buf.capacity();
 	NewMenu rcmenu {
-		{ "&Copy", [&](){copy();} },
-		{ "Paste", "&v", [&](){paste();}, 0, copied_sprite_id < 0 ? MFL_DIS : 0 },
-		{ "&Save", [&](){save();} },
-		{ "&Load", [&](){load();} },
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
+		{ "Paste", "&v", [&](){paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
+		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Save", [&](){save();}, 0, oob ? MFL_DIS : 0 },
+		{ "&Load", [&](){load();}, 0, paste_oob ? MFL_DIS : 0 },
 	};
 	rcmenu.pop(x, y);
+}
+bool SpriteListerDialog::clear_nondelete()
+{
+	if (unsigned(selected_val) >= sprite_data_buf.capacity())
+		return false;
+	auto name = sprite_data_buf.get(selected_val).name;
+	if (!alert_confirm(fmt::format("Clear Sprite {}", selected_val),
+		fmt::format("Clear Sprite #{}, '{}'?\nThis will reset it to blank.", selected_val, name)))
+		return false;
+	auto& spr = sprite_data_buf[selected_val];
+	spr.clear();
+	spr.name = fmt::format("zz{:04}", selected_val);
+	refresh_dlg();
+	return true;
+}
+bool SpriteListerDialog::clear()
+{
+	if (unsigned(selected_val) >= sprite_data_buf.capacity())
+		return false;
+	auto& spr = sprite_data_buf.get(selected_val);
+	if (!alert_confirm(fmt::format("Delete Sprite '{}'?", spr.name),
+		fmt::format("This will delete Sprite #{}, '{}'."
+		"\nThis will offset all entries after it; sprite IDs of various things may need to be updated.",
+		selected_val, spr.name)))
+		return false;
+	delete_quest_sprites(selected_val);
+	if (selected_val >= sprite_data_buf.capacity())
+		--selected_val;
+	refresh_dlg();
+	return true;
 }
 void SpriteListerDialog::copy()
 {
@@ -629,11 +701,13 @@ void SpriteListerDialog::copy()
 }
 bool SpriteListerDialog::paste()
 {
-	if(copied_sprite_id < 0 || selected_val < 0)
+	if (unsigned(copied_sprite_id) >= sprite_data_buf.capacity())
+		return false;
+	if (unsigned(selected_val) >= zc_min(MAXSPRITES, sprite_data_buf.capacity() + 1))
 		return false;
 	if(copied_sprite_id == selected_val)
 		return false;
-	wpnsbuf[selected_val] = wpnsbuf[copied_sprite_id];
+	sprite_data_buf[selected_val] = sprite_data_buf.get(copied_sprite_id);
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
@@ -644,7 +718,7 @@ void SpriteListerDialog::save()
 {
 	if(selected_val < 0)
 		return;
-	if(!prompt_for_new_file_compat(fmt::format("Save Sprite '{}' #{} (.zwpnspr)",weapon_string[selected_val],selected_val).c_str(),"zwpnspr",NULL,datapath,false))
+	if(!prompt_for_new_file_compat(fmt::format("Save Sprite '{}' #{} (.zwpnspr)",sprite_data_buf.get(selected_val).name,selected_val).c_str(),"zwpnspr",NULL,datapath,false))
 		return;
 	
 	PACKFILE *f=zalleg_pack_fopen_password(temppath,F_WRITE,"");
@@ -660,12 +734,12 @@ bool SpriteListerDialog::load()
 {
 	if(selected_val < 0)
 		return false;
-	if(!prompt_for_existing_file_compat(fmt::format("Load Sprite (replacing '{}' #{}) (.zwpnspr)",weapon_string[selected_val],selected_val).c_str(),"zwpnspr",NULL,datapath,false))
+	if(!prompt_for_existing_file_compat(fmt::format("Load Sprite (replacing '{}' #{}) (.zwpnspr)",sprite_data_buf.get(selected_val).name,selected_val).c_str(),"zwpnspr",NULL,datapath,false))
 		return false;
 	
 	PACKFILE *f=zalleg_pack_fopen_password(temppath,F_READ,"");
 	if(!f) return false;
-	if (!readoneweapon(f,selected_val))
+	if (!readoneweapon(f, selected_val))
 	{
 		Z_error("Could not read from .zwpnspr packfile %s\n", temppath);
 		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
@@ -975,7 +1049,7 @@ void SFXListerDialog::preinit()
 		lister.removeInd(0); // remove '(None)'
 	if (quest_sounds.size() < MAX_SFX)
 	{
-		lister.add(fmt::format("<New SFX> ({:03})", quest_sounds.size() + 1), quest_sounds.size() + 1);
+		lister.add(fmt::format("<New SFX> ({:04})", quest_sounds.size() + 1), quest_sounds.size() + 1);
 		frozen_end = 1;
 	}
 	if(selected_val < 0)
@@ -1436,7 +1510,7 @@ void MusicListerDialog::preinit()
 		lister.removeInd(0); // remove '(None)'
 	if (quest_music.size() < MAX_QUEST_MUSIC)
 	{
-		lister.add(fmt::format("<New Music> ({:03})", quest_music.size() + 1), quest_music.size() + 1);
+		lister.add(fmt::format("<New Music> ({:05})", quest_music.size() + 1), quest_music.size() + 1);
 		frozen_end = 1;
 	}
 	resort();

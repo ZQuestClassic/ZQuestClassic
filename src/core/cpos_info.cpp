@@ -37,7 +37,7 @@ void cpos_info::updateData(int32_t newdata)
 {
 	if(data != newdata)
 	{
-		byte csfx = sfx_onchange, cspr = spr_onchange;
+		word csfx = sfx_onchange, cspr = spr_onchange;
 		if (appeared)
 		{
 			newcombo const& cmb = combobuf[data];

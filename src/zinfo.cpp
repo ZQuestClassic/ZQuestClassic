@@ -1083,7 +1083,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_wpns;
 		if(!p_igetw(&num_wpns,f))
 			return qe_invalid;
-		if (num_wpns > MAXWPNS)
+		if (num_wpns > MAXSPRITES)
 			return qe_invalid;
 		for(auto q = 0; q < num_wpns; ++q)
 		{

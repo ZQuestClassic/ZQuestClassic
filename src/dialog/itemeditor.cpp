@@ -2084,16 +2084,16 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					TabRef(name = "Sprites", TabPanel(
 						ptr = &itmtabs[4],
 						TabRef(name = "Basic", Columns<5>(
-							SPRITE_DROP(0,wpn),
-							SPRITE_DROP(1,wpn2),
-							SPRITE_DROP(2,wpn3),
-							SPRITE_DROP(3,wpn4),
-							SPRITE_DROP(4,wpn5),
-							SPRITE_DROP(5,wpn6),
-							SPRITE_DROP(6,wpn7),
-							SPRITE_DROP(7,wpn8),
-							SPRITE_DROP(8,wpn9),
-							SPRITE_DROP(9,wpn10)
+							SPRITE_DROP(0, wpn_sprites[0]),
+							SPRITE_DROP(1, wpn_sprites[1]),
+							SPRITE_DROP(2, wpn_sprites[2]),
+							SPRITE_DROP(3, wpn_sprites[3]),
+							SPRITE_DROP(4, wpn_sprites[4]),
+							SPRITE_DROP(5, wpn_sprites[5]),
+							SPRITE_DROP(6, wpn_sprites[6]),
+							SPRITE_DROP(7, wpn_sprites[7]),
+							SPRITE_DROP(8, wpn_sprites[8]),
+							SPRITE_DROP(9, wpn_sprites[9])
 						))
 					)),
 					TabRef(name = "Size", Row(

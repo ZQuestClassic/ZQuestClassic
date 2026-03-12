@@ -130,14 +130,12 @@ extern BITMAP* asset_arrows_bmp;
 extern MIDI* asset_tunes_midi;
 extern PALETTE asset_pal;
 
-extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern RGB_MAP* zq_rgb_table;
 extern MIDI *song;
 extern BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;
 extern byte *colordata, *trashbuf;
 extern comboclass *combo_class_buf;
-extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern midi_info Midi_Info;
@@ -421,19 +419,9 @@ int32_t onUnderCombo();
 int32_t onCompileScript();
 int32_t onSlotPreview();
 
-typedef struct weapon_struct
-{
-    char *s;
-    int32_t i;
-} weapon_struct;
-
-extern weapon_struct biw[MAXWPNS];
-
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size);
-
-void build_biw_list();
 
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onDoors();

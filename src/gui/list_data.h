@@ -191,7 +191,7 @@ public:
 	void add(ListItem item) {listItems.push_back(item);}
 	void add(std::string name, int32_t val) {listItems.emplace_back(name, val);};
 	void add(std::string name, int32_t val, std::string desc) {listItems.emplace_back(name, val,desc);};
-	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
+	void add(std::map<std::string, int32_t> const& vals);
 	
 	ListData copy() const
 	{

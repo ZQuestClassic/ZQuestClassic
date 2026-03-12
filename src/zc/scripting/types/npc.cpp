@@ -1739,7 +1739,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			int32_t weapon = value / 10000;
 			
 			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkBounds(weapon, 0, MAXWPNS-1) == SH::_NoError)
+					BC::checkBounds(weapon, 0, wMax-1) == SH::_NoError)
 			{
 				GuyH::getNPC()->wpn = weapon;
 			
@@ -1882,19 +1882,19 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCSHADOWSPR:
 			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
 			{
-				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,255);
+				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCSPAWNSPR:
 			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
 			{
-				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,255);
+				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCDEATHSPR:
 			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
 			{
-				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
+				GuyH::getNPC()->spr_death = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCSWHOOKED:

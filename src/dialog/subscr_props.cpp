@@ -15,6 +15,7 @@
 #include "subscr_macros.h"
 #include "items.h"
 #include "zinfo.h"
+#include "sprite_data.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
@@ -1309,12 +1310,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					switch(w->special_tile)
 					{
 						case ssmstSSVINETILE:
-							tl = wpnsbuf[iwSubscreenVine].tile;
+							tl = sprite_data_buf.get(iwSubscreenVine).tile;
 							tw = 3;
 							crn = w->crn;
 							break;
 						case ssmstMAGICMETER:
-							tl = wpnsbuf[iwMMeter].tile;
+							tl = sprite_data_buf.get(iwMMeter).tile;
 							tw = 9;
 							crn = w->crn;
 							break;
@@ -1377,13 +1378,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								case 0:
 									tswatches[0]->setTileWid(3);
 									tswatches[0]->setMiniOnly(true);
-									newtile = wpnsbuf[iwSubscreenVine].tile;
+									newtile = sprite_data_buf.get(iwSubscreenVine).tile;
 									w->tile = newtile;
 									break;
 								case 1:
 									tswatches[0]->setTileWid(9);
 									tswatches[0]->setMiniOnly(true);
-									newtile = wpnsbuf[iwMMeter].tile;
+									newtile = sprite_data_buf.get(iwMMeter).tile;
 									w->tile = newtile;
 									break;
 							}

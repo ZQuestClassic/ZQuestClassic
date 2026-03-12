@@ -1970,7 +1970,7 @@ void HeroClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int32_t tempy=yofs;
     yofs+=8;
-    shadowtile = wpnsbuf[spr_shadow].tile;
+    shadowtile = sprite_data_buf.get(spr_shadow).tile;
     sprite::drawshadow(dest,translucent);
     yofs=tempy;
 }
@@ -2324,9 +2324,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     
     if(game->get_canslash() && itm.flags & item_flag4 && attackclk<11)
     {
-        int32_t wpn2=itm.wpn2;
-        wpn2=vbound(wpn2, 0, MAXWPNS);
-        
+		auto const& spr2 = sprite_data_buf.get(itm.wpn_sprites[1]);
         //slashing tiles
         switch(dir)
         {
@@ -2340,8 +2338,8 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wy-=9;
                 wx-=3;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = spr2.tile;
+                cs2 = spr2.csets&15;
                 f=0;
             }
             
@@ -2357,8 +2355,8 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wy+=15;
                 wx+=2;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = spr2.tile;
+                cs2 = spr2.csets&15;
                 ++t;
                 f=0;
             }
@@ -2376,8 +2374,8 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wx-=15;
                 wy+=3;
                 slashxofs-=1;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = spr2.tile;
+                cs2 = spr2.csets&15;
                 t+=2;
                 f=0;
             }
@@ -2404,8 +2402,8 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wx+=15;
                 slashxofs+=1;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = spr2.tile;
+                cs2 = spr2.csets&15;
                 
                 if(spins>0 || (itm.flags & item_flag8))
                 {
@@ -2554,7 +2552,7 @@ void HeroClass::draw(BITMAP* dest)
 					}
 					positionNet(w, itemid);
 				}
-				else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itm.wpn)) && wpnsbuf[itm.wpn].tile)
+				else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itm.wpn_sprites[0])) && sprite_data_buf.get(itm.wpn_sprites[0]).tile)
 				{
 					// Create a sword weapon at the right spot.
 					weapon *w=find_first_wtype(attack==wSword ? wSword : wWand);
@@ -7508,8 +7506,8 @@ void HeroClass::addsparkle(int32_t wpn)
     if(itemtype!=itype_cbyrna && frame%4)
         return;
         
-    int32_t wpn2 = (itemtype==itype_cbyrna) ? itm.wpn4 : itm.wpn2;
-    int32_t wpn3 = (itemtype==itype_cbyrna) ? itm.wpn5 : itm.wpn3;
+    int32_t wpn2 = itm.wpn_sprites[(itemtype==itype_cbyrna) ? 3 : 1];
+    int32_t wpn3 = itm.wpn_sprites[(itemtype==itype_cbyrna) ? 4 : 2];
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
     int32_t sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (zc_oldrand()&1 ? wpn2 : wpn3)));
     int32_t direction=w->dir;
@@ -8055,8 +8053,8 @@ heroanimate_skip_liftwpn:;
 		for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 			{
 				auto& cmb = handle.combo();
-				byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
-				byte cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
+				word csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
+				word cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
 				if(csfx)
 					sfx_no_repeat(csfx, pan(x));
 				auto indx = decorations.idFirst(dCUSTOMWALK);
@@ -10707,7 +10705,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		else if(mirror.flags & item_flag1) //Place portal!
 		{
 			//Place the portal
-			game->set_portal(sourcedmap, destdmap, offscr, x.getZLong(), y.getZLong(), mirror.usesound, mirror.misc1, mirror.wpn);
+			game->set_portal(sourcedmap, destdmap, offscr, x.getZLong(), y.getZLong(), mirror.usesound, mirror.misc1, mirror.wpn_sprites[0]);
 			//Since it was placed after loading this screen, load the portal object now
 			game->load_portal();
 			//Don't immediately trigger the warp back
@@ -11507,8 +11505,8 @@ void HeroClass::doSwitchHook(byte style)
 	{
 		default: case swPOOF:
 		{
-			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
-			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
+			sprite_data const& spr = sprite_data_buf.get(QMisc.sprites[sprSWITCHPOOF]);
+			switchhookmaxtime = switchhookclk = spr.total_duration();
 			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			if(hooked_comborpos != rpos_t::None)
 			{
@@ -12853,8 +12851,8 @@ bool HeroClass::doattack()
 	// * a cane thrust
 	// In which case it should continue.
 	if((attack==wCatching && attackclk>4)||(attack!=wWand && attack!=wSword && attack!=wHammer
-											&& (attack!=wFire || (valid_item_id(candleid) && !(itemsbuf[candleid].wpn)))
-											&& (attack!=wCByrna || (valid_item_id(byrnaid) && !(itemsbuf[byrnaid].wpn)))
+											&& (attack!=wFire || (valid_item_id(candleid) && !(itemsbuf[candleid].wpn_sprites[0])))
+											&& (attack!=wCByrna || (valid_item_id(byrnaid) && !(itemsbuf[byrnaid].wpn_sprites[0])))
 											&& (attack != wBugNet) && attackclk>7))
 	{
 		if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION))
@@ -12943,7 +12941,7 @@ bool HeroClass::doattack()
 	}
 	else if(attack==wCByrna && valid_item_id(byrnaid))
 	{
-		if(!(itemsbuf[byrnaid].wpn))
+		if(!(itemsbuf[byrnaid].wpn_sprites[0]))
 		{
 			attack = wNone;
 			return startwpn(attackid); // Beam if the Byrna stab animation WASN'T used.
@@ -13073,7 +13071,7 @@ bool HeroClass::doattack()
 			tapping = false;
 	}
 	
-	if(attackclk==1 && attack==wFire && valid_item_id(candleid) && !(itemsbuf[candleid].wpn))
+	if(attackclk==1 && attack==wFire && valid_item_id(candleid) && !(itemsbuf[candleid].wpn_sprites[0]))
 	{
 		return startwpn(attackid); // Flame if the Candle stab animation WASN'T used.
 	}
@@ -13128,10 +13126,10 @@ bool HeroClass::doattack()
 		if(attack==wWand)
 			startwpn(attackid); // Flame if the Wand stab animation WAS used (it always is).
 			
-		if(attack==wFire && valid_item_id(candleid) && itemsbuf[candleid].wpn) // Flame if the Candle stab animation WAS used.
+		if(attack==wFire && valid_item_id(candleid) && itemsbuf[candleid].wpn_sprites[0]) // Flame if the Candle stab animation WAS used.
 			startwpn(attackid);
 			
-		if(attack==wCByrna && valid_item_id(byrnaid) && itemsbuf[byrnaid].wpn) // Beam if the Byrna stab animation WAS used.
+		if(attack==wCByrna && valid_item_id(byrnaid) && itemsbuf[byrnaid].wpn_sprites[0]) // Beam if the Byrna stab animation WAS used.
 			startwpn(attackid);
 	}
 	
@@ -13867,7 +13865,7 @@ bool HeroClass::try_hover()
 		
 		sfx(itm.usesound,pan(x));
 	}
-	if (itm.wpn)
+	if (itm.wpn_sprites[0])
 		decorations.add(new dHover(x, y, dHOVER, 0));
 	return true;
 }
@@ -31077,7 +31075,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				
 				if(w->id==wBrang)
 				{
-					w->LOADGFX(idat.wpn);
+					w->LOADGFX(idat.wpn_sprites[0]);
 				}
 			}
 	}
@@ -31315,7 +31313,7 @@ void takeitem(int32_t id)
 		case itype_brang:
 			if (auto brang_id = current_item_id(itype_brang); valid_item_id(brang_id))
 			{
-				auto wpn = get_item_data(brang_id).wpn;
+				auto wpn = get_item_data(brang_id).wpn_sprites[0];
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					weapon *w = ((weapon*)Lwpns.spr(i));
@@ -32508,16 +32506,17 @@ void HeroClass::heroDeathAnimation()
 				}
                     
 				extend = 0;
-				cs = wpnsbuf[spr_death].csets&15;
-				tile = wpnsbuf[spr_death].tile;
+				auto const& dyingspr = sprite_data_buf.get(spr_death);
+				cs = dyingspr.csets&15;
+				tile = dyingspr.tile;
 				if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 				{
 					tile += deathfrm;
 					f = 206;
-					if(++deathclk >= wpnsbuf[spr_death].speed)
+					if(++deathclk >= dyingspr.speed)
 					{
 						deathclk=0;
-						if(++deathfrm >= wpnsbuf[spr_death].frames)
+						if(++deathfrm >= dyingspr.frames)
 						{
 							f = 208;
 							deathfrm = 0;

@@ -3,7 +3,7 @@
 // spritedata arrays.
 
 static ArrayRegistrar SPRITEDATAFLAGS_registrar(SPRITEDATAFLAGS, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<wpndata, &wpndata::misc, 4> impl;
+	static ScriptingArray_ObjectMemberBitwiseFlags<sprite_data, &sprite_data::misc, 4> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());

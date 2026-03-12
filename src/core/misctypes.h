@@ -192,7 +192,7 @@ struct miscQdata
 	// This has been deprecated, but kept around to keep a funny quest working (alarm clocks).
 	int32_t questmisc[32]; //Misc init values for the user. Used by scripts.
 	int32_t zscript_last_compiled_version;
-	byte sprites[sprMAX];
+	word sprites[sprMAX];
 	
 	bottletype bottle_types[NUM_BOTTLE_TYPES];
 	bottleshoptype bottle_shop_types[NUM_BOTTLE_SHOPS];

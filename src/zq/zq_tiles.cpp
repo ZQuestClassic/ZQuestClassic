@@ -38,6 +38,8 @@
 #include <fmt/format.h>
 #include <functional>
 #include "zq/moveinfo.h"
+#include "zc_list_data.h"
+#include "sprite_data.h"
 using std::set;
 
 
@@ -6436,23 +6438,23 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			? "The tiles used by the following weapons will be partially cleared by the move."
 			: "The tiles used by the following weapons will be partially or completely overwritten by this process."
 			));
-		build_biw_list();
+		GUI::ListData biw_list = GUI::ZCListData::miscsprites(true, false, true);
 		
-		for(int32_t u=0; u<MAXWPNS; u++)
+		for(int32_t u=0; u<sprite_data_buf.capacity(); u++)
 		{
 			bool ignore_frames=false;
 			int32_t m=0;
 			
-			auto id = biw[u].i;
-			auto& wpn = wpnsbuf[id];
+			auto id = biw_list.getValue(u);
+			auto& wpn = sprite_data_buf[id];
 			
-			switch(biw[u].i)
+			switch(id)
 			{
 			case wSWORD:
 			case wWSWORD:
 			case wMSWORD:
 			case wXSWORD:
-				m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
+				m=3+((wpn.type==3)?1:0);
 				break;
 				
 			case wSWORDSLASH:
@@ -6533,7 +6535,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			}
 			
 			movelist->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)*m,
-				1, fmt::format("{} {}", biw[u].s, id));
+				1, fmt::format("{} {}", wpn.name, id));
 			
 			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
 			//...these can't be updated by a move.

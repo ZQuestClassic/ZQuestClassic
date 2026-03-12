@@ -1110,7 +1110,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 		case ITEMSHADOWSPR:
 			if (auto s = checkItem(GET_REF(itemref)))
 			{
-				s->spr_shadow=vbound(value/10000,0,255);
+				s->spr_shadow=vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case ITEMDROPPEDBY:

@@ -153,7 +153,7 @@ struct newcombo
 	byte liftgfx;
 	word liftcmb, liftundercmb;
 	byte liftcs, liftundercs;
-	byte liftsprite;
+	word liftsprite;
 	byte liftdmg;
 	int16_t liftbreaksprite = -1;
 	byte liftbreaksfx;
@@ -173,7 +173,7 @@ struct newcombo
 	byte speed_div = 1;
 	zfix speed_add;
 	word sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing, sfx_falling, sfx_drowning, sfx_lava_drowning;
-	byte spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
+	word spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
 	
 	vector<combo_trigger> triggers;
 	byte only_gentrig;

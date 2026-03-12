@@ -18,6 +18,7 @@
 #include "zc/jit.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"
+#include "sprite_data.h"
 
 extern std::string current_zasm_context;
 extern std::string current_zasm_extra_context;
@@ -616,7 +617,7 @@ weapon* checkEWpn(int32_t uid);
 bottletype* checkBottleData(int32_t ref, bool skipError = false);
 bottleshoptype *checkBottleShopData(int32_t ref, bool skipError = false);
 item_drop_object *checkDropSetData(int32_t ref);
-wpndata *checkSpriteData(int32_t ref);
+sprite_data *checkSpriteData(int32_t ref);
 MsgStr *checkMessageData(int32_t ref);
 user_genscript *checkGenericScr(int32_t ref);
 SubscrWidget *checkSubWidg(int32_t ref, std::set<int> const& req_sub_tys = {}, int req_widg_ty = -1);
@@ -1361,7 +1362,7 @@ public:
 	
 	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID)
 	{
-		return checkBounds(ID, 0, MAXWPNS-1);
+		return checkBounds(ID, 0, MAXSPRITES-1);
 	}
 	
 	static INLINE int32_t checkSFXID(const int32_t ID)
