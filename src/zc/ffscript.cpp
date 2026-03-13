@@ -965,7 +965,7 @@ public:
 	
 	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
 	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
+		return checkBounds(ID, 0, wMax-1, str);
 	}
 	
 	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
@@ -33136,7 +33136,7 @@ void do_createlweapon(const bool v)
 
 void do_createeweapon(const bool v)
 {
-	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
 		return;
