@@ -1356,7 +1356,7 @@ public:
 	
 	static INLINE int32_t checkWeaponID(const int32_t ID)
 	{
-		return checkBounds(ID, 0, MAXWPNS-1);
+		return checkBounds(ID, 0, wMax-1);
 	}
 	
 	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID)

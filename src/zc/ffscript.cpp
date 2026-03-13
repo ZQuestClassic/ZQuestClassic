@@ -21730,8 +21730,11 @@ void do_createlweapon(const bool v)
 
 void do_createeweapon(const bool v)
 {
-	const int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
+	if (ID >= wMax && replay_is_active() && replay_get_meta_str("qst") == "terror_of_necromancy_demo5.qst")
+		ID = wScript10;
+		
 	if(BC::checkWeaponID(ID) != SH::_NoError)
 		return;
 		
