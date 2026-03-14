@@ -668,7 +668,7 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 		Sz writecnt_v = cont.capacity();
 		Sz writecnt_m = 0;
 		for(Sz q = 0; q < writecnt_v; ++q)
-			if(cont[q] != dt)
+			if(cont.get(q) != dt)
 				++writecnt_m;
 		bool pairs = (writecnt_m * (sizeof(T)+sizeof(Sz))) <= writecnt_v * sizeof(T);
 		if(!p_putc(pairs ? 1 : 0, f))
@@ -679,7 +679,7 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 		{
 			for(Sz q = 0; q < writecnt_v; ++q)
 			{
-				if(cont[q] == dt) continue;
+				if(cont.get(q) == dt) continue;
 				if(!p_putvar(q, f))
 					return false;
 				if(!p_putvar(cont[q], f))
@@ -689,7 +689,7 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 		else
 		{
 			for(Sz q = 0; q < writecnt_v; ++q)
-				if(!p_putvar(cont[q], f))
+				if(!p_putvar(cont.get(q), f))
 					return false;
 		}
 	}
@@ -772,7 +772,7 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 		else
 		{
 			for(Sz q = 0; q < writecnt_v; ++q)
-				if(!p_putvar(cont[q], f))
+				if(!p_putvar(cont.get(q), f))
 					return false;
 		}
 	}

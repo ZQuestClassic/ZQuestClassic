@@ -159,6 +159,7 @@ public:
 	
 	virtual value_type& at(size_type ind) = 0;
 	virtual value_type const& at(size_type ind) const = 0;
+	virtual value_type const& get(size_type ind) const {return at(ind);}
 	virtual value_type& operator[](size_type ind) = 0;
 	virtual value_type const& operator[](size_type ind) const = 0;
 	virtual void clear() = 0;
@@ -218,10 +219,6 @@ public:
 			return this->default_val;
 		}
 		throw std::out_of_range("Bad bounded_map access");
-	}
-	value_type const& get(size_type ind) const
-	{
-		return at(ind);
 	}
 
 	value_type& operator[](size_type ind)
@@ -288,13 +285,13 @@ public:
 			return false;
 		if(other.default_val != this->default_val)
 			return false;
-		map<size_type,bool> keys;
-		for(auto [k,v] : cont)
-			keys[k] = true;
+		std::set<size_type> keys;
+		for(auto [k,v] : this->cont)
+			keys.insert(k);
 		for(auto [k,v] : other.cont)
-			keys[k] = true;
-		for(auto [k,b] : keys)
-			if(other[k] != (*this)[k])
+			keys.insert(k);
+		for(auto k : keys)
+			if(other.get(k) != this->get(k))
 				return false;
 		return true;
 	}
@@ -357,10 +354,6 @@ public:
 		}
 		throw std::out_of_range("Bad bounded_vec access");
 	}
-	value_type const& get(size_type ind) const
-	{
-		return at(ind);
-	}
 
 	value_type& operator[](size_type ind)
 	{
@@ -421,7 +414,7 @@ public:
 			return false;
 		size_t cap = std::max(other.capacity(), this->capacity());
 		for(size_t q = 0; q < cap; ++q)
-			if(other[q] != (*this)[q])
+			if(other.get(q) != this->get(q))
 				return false;
 		return true;
 	}
@@ -445,7 +438,7 @@ public:
 	
 	bool get(index_t ind) const
 	{
-		return cont[ind/8] & (1 << ind%8);
+		return cont.get(ind/8) & (1 << ind%8);
 	}
 	void set(index_t ind, bool state)
 	{
@@ -503,7 +496,7 @@ public:
 	
 	bool get(index_t ind) const
 	{
-		return cont[ind/8] & (1 << ind%8);
+		return cont.get(ind/8) & (1 << ind%8);
 	}
 	void set(index_t ind, bool state)
 	{
