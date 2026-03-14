@@ -7,6 +7,7 @@
 #include "zc/zscriptversion.h"
 #include <stdio.h>
 #include "core/misctypes.h"
+#include "zinfo.h"
 
 extern sprite_list  guys;
 extern sprite_list  items;
@@ -158,6 +159,54 @@ int32_t item::run_script(int32_t mode)
     return ret;
 }
 
+bool handle_ambush_item(int id, int screen, zfix x, zfix y)
+{
+	itemdata const* data = &get_item_data(id);
+	if (data->type == itype_progressive_itm)
+	{
+		int32_t id2 = get_progressive_item(id);
+		if (valid_item_id(id2) && id2 != id)
+		{
+			data = &get_item_data(id2);
+			id = id2;
+		}
+	}
+	if (data->type != itype_enemy_ambush)
+		return false;
+	
+	int count = data->misc1;
+	vector<int> choices = {
+		data->misc6, data->misc7, data->misc8,
+		data->misc9, data->misc10
+	};
+	for (auto it = choices.begin(); it != choices.end();)
+	{
+		if (!*it || unsigned(*it) >= MAXGUYS)
+			it = choices.erase(it);
+		else ++it;
+	}
+	string s = fmt::format("{} item '{}' ({})", ZI.getItemClassName(itype_enemy_ambush), id, data->name);
+	if (count <= 0)
+		Z_error("%s had invalid enemy count!", s.c_str());
+	else if (choices.empty())
+		Z_error("%s had no valid enemies to spawn!", s.c_str());
+	else
+	{
+		int actual_count = 0;
+		for(int q = 0; q < count; ++q)
+		{
+			int choice;
+			if (data->flags & item_flag2)
+				choice = q % choices.size();
+			else
+				choice = zc_rand(choices.size()-1);
+			if (addenemy(screen, x, y, choices[choice], -10))
+				++actual_count;
+		}
+		Z_eventlog("%s spawned %d enemies!\n", s.c_str(), actual_count);
+	}
+	return true;
+}
 
 std::string bottle_name(size_t type)
 {

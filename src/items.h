@@ -132,6 +132,7 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 void reset_lens_hints();
 
 void dummyitem_animate(item* dummy, int32_t clk);
+bool handle_ambush_item(int id, int screen, zfix x, zfix y);
 
 enum
 {

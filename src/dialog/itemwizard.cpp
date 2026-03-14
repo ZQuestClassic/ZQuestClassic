@@ -28,6 +28,7 @@ bool hasItemWizard(int32_t type)
 		case itype_shield:
 		case itype_note:
 		case itype_lantern:
+		case itype_enemy_ambush:
 			return true;
 	}
 	return false;
@@ -85,6 +86,7 @@ void ItemWizardDialog::update([[maybe_unused]] bool first)
 		}
 		case itype_note:
 		case itype_lantern:
+		case itype_enemy_ambush:
 			break;
 	}
 	disable(-1, true); //always disabled
@@ -135,6 +137,7 @@ void ItemWizardDialog::endUpdate()
 		}
 		case itype_note:
 		case itype_lantern:
+		case itype_enemy_ambush:
 			break;
 	}
 }
@@ -176,6 +179,9 @@ void item_default(itemdata& ref)
 		case itype_lantern:
 			ref.misc1 = 1; // Cone
 			ref.misc2 = 40; // Range
+			break;
+		case itype_enemy_ambush:
+			ref.misc1 = 1;
 			break;
 	}
 }
@@ -473,6 +479,68 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 						" negative offsets are in the opposite direction.")
 				)
 			);
+			break;
+		}
+		case itype_enemy_ambush:
+		{
+			auto& count = local_ref.misc1;
+			if (count < 1) count = 1;
+			int* ptrs[] = {
+				&local_ref.misc6, &local_ref.misc7, &local_ref.misc8,
+				&local_ref.misc9, &local_ref.misc10
+			};
+			std::shared_ptr<GUI::Grid> enemy_col;
+			
+			lists[0] = GUI::ZCListData::enemies(true, true);
+			windowRow->add(Column(
+				Rows<3>(
+					Label(text = "Count:", hAlign = 1.0),
+					TextField(type = GUI::TextField::type::INT_DECIMAL,
+						fitParent = true, val = count,
+						low = 1, high = 214748,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							count = val;
+						}),
+					INFOBTN("How many enemies to spawn.")
+				),
+				Rows<2>(
+					Checkbox(
+						checked = (local_ref.flags & item_flag1),
+						text = "On Pickup", _EX_RBOX,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.flags,item_flag1,state);
+						}),
+					INFOBTN("If checked, waits until being picked up to spawn the enemies."
+						" Otherwise, enemies are spawned immediately when the item exists."),
+					Checkbox(
+						checked = (local_ref.flags & item_flag2),
+						text = "No Randomness", _EX_RBOX,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.flags,item_flag2,state);
+						}),
+					INFOBTN("If checked, spawns enemies starting at the top of the list, in order."
+						" Otherwise, spawns enemies picked randomly from the list.")
+				),
+				Frame(title = "Enemies",
+					info = "Enemy IDs to pick from (either sequentially, or randomly,"
+						" depending on 'No Randomness' flag). Invalid entries are skipped.",
+					enemy_col = Column()
+				)
+			));
+			
+			for (int q = 0; q < 5; ++q)
+			{
+				auto ptr = ptrs[q];
+				enemy_col->add(DropDownList(data = lists[0],
+					fitParent = true, selectedValue = *ptr,
+					onSelectFunc = [&, ptr](int32_t val)
+					{
+						*ptr = val;
+					}));
+			}
 			break;
 		}
 		default: //Should be unreachable

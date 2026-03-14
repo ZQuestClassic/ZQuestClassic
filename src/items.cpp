@@ -41,6 +41,7 @@ bool item::animate(int32_t)
 	update_current_screen();
 	
 	itemdata const& base_item = get_item_data(id);
+	int dispid = id;
 	itemdata const* disp_item = &base_item;
 	if (base_item.type == itype_progressive_itm)
 	{
@@ -48,7 +49,10 @@ bool item::animate(int32_t)
 		if(invalid_item_id(id2))
 			id2 = id;
 		else if (id2 != id)
+		{
 			disp_item = &itemsbuf.get(id2);
+			dispid = id2;
+		}
 		
 		if(id2 != linked_parent) //Update item
 		{
@@ -64,6 +68,22 @@ bool item::animate(int32_t)
 		{
 			solid_update(false);
 			return false;
+		}
+		if (disp_item->type == itype_enemy_ambush && !(disp_item->flags & item_flag1))
+		{
+			zfix tx = x, ty = y;
+			int scr = current_screen;
+			if (force_grab)
+			{
+				tx = Hero.getX();
+				ty = Hero.getY();
+				scr = Hero.current_screen;
+			}
+			if (handle_ambush_item(dispid, scr, tx, ty))
+			{
+				ignore_delete = 0; // delete regardless of anything
+				return true;
+			}
 		}
 		if(fallclk > 0)
 		{

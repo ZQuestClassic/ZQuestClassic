@@ -262,15 +262,27 @@ enum ItemType {
 	IC_NOTE                    = 277,
 	IC_REFILL                  = 278,
 	IC_LIFTGLOVE               = 279,
+	// Modifies the player's gravity
+	// @versionadded 3.0
 	IC_GRAVITY_BOOTS           = 280,
+	// Modifies the player's gravity while holding Up in Sideview
+	// @versionadded 3.0
 	IC_GRAVITY_UP_BOOTS        = 281,
+	// Modifies the player's gravity while holding Down in Sideview
+	// @versionadded 3.0
 	IC_GRAVITY_DOWN_BOOTS      = 282,
+	// Modifies item cooldowns of other items
+	// @versionadded 3.0
 	IC_COOLDOWN_RING           = 283,
+	// Items of this type will immediately transform into one or more
+	// specified enemies.
+	// @versionadded 3.0
+	IC_ENEMY_AMBUSH            = 284,
 
 	//Itemclasses not less than this are reserved for future engine itemclasses
-	IC_MAXUSABLE               = 284,
+	IC_MAXUSABLE               = 285,
 
-	IC_MAX                     = 512 //Last of enum. All itemclassesare < this.
+	IC_MAX                     = 512 //Last of enum. All itemclasses are < this.
 };
 
 // Item pickup bitflags. Used with [item::Pickup].
