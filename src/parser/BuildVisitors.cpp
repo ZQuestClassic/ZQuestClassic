@@ -3576,7 +3576,7 @@ void BuildOpcodes::caseExprCoalesce(ASTExprCoalesce& host, void* param)
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	if(lval)
 	{
-		if(*lval)
+		if(!*lval)
 			visit(host.right.get(), param);
 		else DCHECK(false); // should've exited via getCompileTimeValue()
 	}

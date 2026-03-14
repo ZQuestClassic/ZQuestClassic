@@ -215,7 +215,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	| 15       | | `||`           | | *expr* \|\| *expr*        | Boolean Or. Returns **true** if at least one expression is **true**.          |
 	|          | | `or`           | | *expr* or *expr*          |                                                                               |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
-	| 16       | :zs_op:`??`      | *expr* ?? *expr*            | Null-Coalescing. If the first expression is `== NULL`, returns the second     |
+	| 16       | :zs_op:`?:`      | *expr* ?: *expr*            | Falsy-Coalescing. If the first expression is `== 0`, returns the second       |
 	|          |                  |                             | expression. Otherwise returns the first expression.                           |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 17       | `?` :zs_op:`:`   | *boolean* ? *expr* : *expr* | Ternary Expression. If the boolean is **true**, returns the first             |
@@ -258,7 +258,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 19       | `||=`            | *var* \|\|= *expr*          | Same as '*var* = *var* \|\| *expr*'                                           |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
-	| 19       | :zs_op:`??=`     | *var* ??= *expr*            | | Null-Coalescing assignment. If the variable `== NULL`, does '*var* =        |
+	| 19       | :zs_op:`?:=`     | *var* ?:= *expr*            | | Falsy-Coalescing assignment. If the variable `== 0`, does '*var* =          |
 	|          |                  |                             |   *expr*'; otherwise does nothing (**not even evaluate the expr**, meaning if |
 	|          |                  |                             |   it is a function call, the function won't be called.)                       |
 	|          |                  |                             | | Effectively the same as '*unless(var) var = expr*'                          |

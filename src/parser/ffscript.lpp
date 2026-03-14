@@ -162,8 +162,8 @@ rgb			TOKEN( ZRGB );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
 "?"		TOKEN( QMARK ); //for ternary
-"??"		TOKEN( COALESCE );
-"??="		TOKEN( COALESCEASSIGN );
+"?:"		TOKEN( COALESCE );
+"?:="		TOKEN( COALESCEASSIGN );
 
 "#"		{
 		BEGIN( HASH ); //Handle the string following 'import' specially
