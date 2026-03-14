@@ -1442,7 +1442,7 @@ cooldown_data calc_item_cooldown(int item_id)
 	apply_cooldown_ring(data);
 	
 #ifdef IS_PLAYER
-	data.cooldown = Hero.item_cooldown[item_id];
+	data.cooldown = Hero.item_cooldown.get(item_id);
 #else
 	data.cooldown = data.max_cooldown - (subscr_item_clk % (data.max_cooldown+1));
 #endif

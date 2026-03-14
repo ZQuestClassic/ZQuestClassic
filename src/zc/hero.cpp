@@ -12791,20 +12791,20 @@ bool HeroClass::can_be_used(int itmid)
 bool HeroClass::on_cooldown(int32_t itemid)
 {
 	if (invalid_item_id(itemid)) return false;
-	return item_cooldown[itemid];
+	return item_cooldown.get(itemid);
 }
 void HeroClass::start_cooldown(int32_t itemid)
 {
 	if (invalid_item_id(itemid)) return;
-	if (item_cooldown[itemid] < 0) return; // set to perma-cooldown (via script, presumably)
+	if (item_cooldown.get(itemid) < 0) return; // set to perma-cooldown (via script, presumably)
 	auto cd_data = calc_item_cooldown(itemid);
 	if(cd_data.max_cooldown <= 0) return;
-	if(cd_data.max_cooldown > item_cooldown[itemid])
+	if(cd_data.max_cooldown > item_cooldown.get(itemid))
 	{
 		item_cooldown[itemid] = cd_data.max_cooldown;
 		paymagiccost(cd_data.cooldown_ring_id);
 	}
-	else if(cd_data.base_cooldown > item_cooldown[itemid]) // cd ring still *did something*, so still pay
+	else if(cd_data.base_cooldown > item_cooldown.get(itemid)) // cd ring still *did something*, so still pay
 		paymagiccost(cd_data.cooldown_ring_id);
 }
 
