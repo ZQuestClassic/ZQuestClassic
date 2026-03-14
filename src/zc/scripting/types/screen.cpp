@@ -559,7 +559,7 @@ static ArrayRegistrar SCREENEXSTATED_registrar(SCREENEXSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->xstates[mi] >> index) & 1;
+			return (game->xstates.get(mi) >> index) & 1;
 		},
 		[](screendata* scr, int index, bool value){
 			int mi = mapind(cur_map, scr->screen);

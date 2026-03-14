@@ -6014,7 +6014,7 @@ int32_t get_register(int32_t arg)
 			else
 			{
 				int bit = 1<<ind;
-				ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+				ret = (game->xdoors.get(mi)[dir]&bit) ? 10000 : 0;
 			}
 			break;
 		}
@@ -6546,7 +6546,7 @@ int32_t get_register(int32_t arg)
 				else
 				{
 					int bit = 1<<ind;
-					ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+					ret = (game->xdoors.get(mi)[dir]&bit) ? 10000 : 0;
 				}
 			}
 			break;

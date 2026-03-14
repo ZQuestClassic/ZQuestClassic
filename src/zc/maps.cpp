@@ -1446,13 +1446,13 @@ void eventlog_mapflags()
 		}
 		oss << "]";
 	}
-	if(game->xstates[mi]) // ExStates
+	if(game->xstates.get(mi)) // ExStates
 	{
 		oss << " Ex[";
 		bool comma = false;
 		for(byte fl = 0; fl < 32; ++fl)
 		{
-			if(game->xstates[mi] & (1<<fl))
+			if(game->xstates.get(mi) & (1<<fl))
 			{
 				if(comma)
 					oss << ", ";
@@ -1466,7 +1466,7 @@ void eventlog_mapflags()
 		for(int q = 0; q < 4; ++q)
 		{
 			bool comma = false;
-			if(auto v = game->xdoors[mi][q])
+			if(auto v = game->xdoors.get(mi)[q])
 			{
 				if(comma)
 					oss << ",";
@@ -1661,7 +1661,7 @@ void setxmapflag(int32_t screen, uint32_t flag)
 }
 void setxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(game->xstates[mi] & flag) return;
+	if(game->xstates.get(mi) & flag) return;
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
 
@@ -1714,7 +1714,7 @@ void unsetxmapflag(int32_t screen, uint32_t flag)
 }
 void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(!(game->xstates[mi] & flag)) return;
+	if(!(game->xstates.get(mi) & flag)) return;
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
 	byte temp=(byte)log2((double)flag);
@@ -1768,14 +1768,14 @@ bool getxmapflag(mapscr* scr, uint32_t flag)
 }
 bool getxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	return (game->xstates[mi] & flag) != 0;
+	return (game->xstates.get(mi) & flag) != 0;
 }
 
 void setxdoor_mi(uint mi, uint dir, uint ind, bool state)
 {
 	if(mi > game->xdoors.size() || dir > 3 || ind > 8)
 		return;
-	if(!(game->xdoors[mi][dir] & (1<<ind)) == !state)
+	if(!(game->xdoors.get(mi)[dir] & (1<<ind)) == !state)
 		return;
 
 	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
@@ -1791,7 +1791,7 @@ bool getxdoor_mi(uint mi, uint dir, uint ind)
 {
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return false;
-	return (game->xdoors[mi][dir] & (1<<ind));
+	return (game->xdoors.get(mi)[dir] & (1<<ind));
 }
 bool getxdoor(int32_t screen, uint dir, uint ind)
 {

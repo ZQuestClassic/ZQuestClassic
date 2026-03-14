@@ -342,7 +342,7 @@ static ArrayRegistrar MAPDATAEXSTATED_registrar(MAPDATAEXSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->xstates[mi] >> index) & 1;
+			return (game->xstates.get(mi) >> index) & 1;
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);
