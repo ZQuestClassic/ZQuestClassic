@@ -72,7 +72,7 @@ public:
     int32_t pickup,clk2;
     int32_t aclk,aframe;
     char PriceIndex;
-    bool flash,twohand,anim, subscreenItem;
+    bool flash,twohand,anim;
     bool dummy;
     int32_t o_speed, o_delay, frames;
     int32_t fairyUID;

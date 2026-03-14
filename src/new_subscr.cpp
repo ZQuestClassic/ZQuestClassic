@@ -4656,7 +4656,6 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	bool use_item_hitbox = get_qr(qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX);
 	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
-	tempsel.subscreenItem=true;
 	tempsel.hide_hitbox = true;
 	tempsel.xofs = tempsel.yofs = 0;
 	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
