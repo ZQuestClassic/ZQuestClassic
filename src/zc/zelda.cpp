@@ -3651,7 +3651,7 @@ int32_t get_homescr()
 
 int32_t get_bmaps(int32_t si)
 {
-    return game->bmaps[si];
+    return game->bmaps.get(si);
 }
 
 bool no_subscreen()

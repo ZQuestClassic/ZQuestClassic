@@ -83,7 +83,7 @@ static ArrayRegistrar DMAPDATACHARTED_registrar(DMAPDATACHARTED, []{
 					return -1; //Out-of-bounds; don't attempt read!
 	
 				int32_t di = (ref << 7) + (screen & 0x7F);
-				return game->bmaps[di];
+				return game->bmaps.get(di);
 			}
 
 			return -1;
