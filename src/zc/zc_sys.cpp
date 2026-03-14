@@ -1957,9 +1957,9 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if(itype < 0 || itype >= itype_max) return -1;
-	if(game->OverrideItems[itype] > -2)
+	if(game->OverrideItems.get(itype) > -2)
 	{
-		auto ovid = game->OverrideItems[itype];
+		auto ovid = game->OverrideItems.get(itype);
 		if(invalid_item_id(ovid))
 			return -1;
 		if(get_item_data(ovid).type == itype)
