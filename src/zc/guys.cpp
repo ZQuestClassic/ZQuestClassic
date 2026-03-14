@@ -2273,7 +2273,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			sclk = 0;
 			if ( dmisc16 > 0 ) new_id = dmisc16;
 			else new_id = id+1; 
-			if ( new_id > 511 ) new_id = id; //Sanity bound to legal enemy IDs.
+			if (new_id < 0 || new_id >= MAXGUYS) new_id = id; //Sanity bound to legal enemy IDs.
 			if ( dmisc17 > 0 ) delay_timer = dmisc17;
 			//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
 			
@@ -4570,8 +4570,8 @@ void enemy::fix_coords(bool bound)
 	{
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
-		x=vbound(x, 0_zf, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
-		y=vbound(y, 0_zf,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
+		x=vbound(x, 0_zf, (( SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
+		y=vbound(y, 0_zf,(( SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
 		}
 		else
 		{
@@ -18113,7 +18113,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
 	//zprint2("addenemy id is: %d\n", (id&0xFFF));
 	int32_t realid = id&0xFFF;
-	if( realid > MAXGUYS ) 
+	if( realid >= MAXGUYS )
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "addenemy()"); 
 		return 0;
