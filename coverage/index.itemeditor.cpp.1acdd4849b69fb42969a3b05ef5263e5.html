@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-11 20:07:32</td>
+      <td>2026-03-14 05:17:30</td>
     </tr>
   </table>
 </div>
@@ -200,9 +200,9 @@
     <tr><td><a href="#l1040">get_ic_help(unsigned long) (line 1040)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l2373">load_meta(ItemNameInfo&amp;, zasm_meta const&amp;) (line 2373)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l106">loadinfo(ItemNameInfo*, itemdata const&amp;) (line 106)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1165">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned char&gt;(unsigned char*, int) (line 1165)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1182">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned char&gt;(unsigned char*, int)::&#39;lambda&#39;()::operator()() const (line 1182)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1176">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned char&gt;(unsigned char*, int)::&#39;lambda&#39;(int)::operator()(int) const (line 1176)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1165">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned short&gt;(unsigned short*, int) (line 1165)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1182">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned short&gt;(unsigned short*, int)::&#39;lambda&#39;()::operator()() const (line 1182)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1176">std::shared_ptr&lt;GUI::Widget&gt; ItemEditorDialog::SPRITE_DROP_IMPL&lt;unsigned short&gt;(unsigned short*, int)::&#39;lambda&#39;(int)::operator()(int) const (line 1176)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
 
@@ -15026,70 +15026,70 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">wpn</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2088" href="#l2088">2088</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">wpn2</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2089" href="#l2089">2089</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">wpn3</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2090" href="#l2090">2090</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">wpn4</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2091" href="#l2091">2091</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">wpn5</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2092" href="#l2092">2092</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="n">wpn6</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2093" href="#l2093">2093</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="n">wpn7</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2094" href="#l2094">2094</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="n">wpn8</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">7</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2095" href="#l2095">2095</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="n">wpn9</span><span class="p">),</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">8</span><span class="p">]),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2096" href="#l2096">2096</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="n">wpn10</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">							</span><span class="n">SPRITE_DROP</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">wpn_sprites</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2097" href="#l2097">2097</a></td>
