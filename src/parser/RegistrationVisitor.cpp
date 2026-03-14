@@ -1695,6 +1695,19 @@ void RegistrationVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 	analyzeBinaryExpr(host);
 }
 
+void RegistrationVisitor::caseExprCoalesce(ASTExprCoalesce& host, void* param)
+{
+	visit(host.left.get());
+	if (breakRecursion(host)) return;
+	visit(host.right.get());
+	if (breakRecursion(host)) return;
+	if(registered(host.left.get()) && registered(host.right.get())) doRegister(host);
+}
+void RegistrationVisitor::caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param)
+{
+	caseExprCoalesce(host, param);
+}
+
 void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
 	visit(host.left.get());

@@ -1976,6 +1976,73 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
+void SemanticAnalyzer::caseExprCoalesce(ASTExprCoalesce& host, void*)
+{
+	visit(host.left.get(), paramRead);
+	if (breakRecursion(host)) return;
+	
+	visit(host.right.get(), paramRead);
+	if (breakRecursion(host)) return;
+	
+    DataType const* rtype = host.right->getReadType(scope, this);
+    DataType const* ltype = host.left->getReadType(scope, this);
+	if (!rtype)
+	{
+		handleError(
+			CompileError::NoReadType(
+				host.right.get(), host.right->asString()));
+	}
+	if (!ltype)
+	{
+		handleError(
+			CompileError::NoReadType(
+				host.left.get(), host.left->asString()));
+	}
+	if (breakRecursion(host)) return;
+	
+	checkCast(*rtype, *ltype, &host);
+	if (breakRecursion(host)) return;
+}
+
+void SemanticAnalyzer::caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void*)
+{
+	visit(host.left.get(), paramReadWrite);
+	if (breakRecursion(host)) return;
+	
+	visit(host.right.get(), paramRead);
+	if (breakRecursion(host)) return;
+	
+    DataType const* rtype = host.right->getReadType(scope, this);
+	if (!rtype)
+	{
+		handleError(
+			CompileError::NoReadType(
+				host.right.get(), host.right->asString()));
+	}
+	if (!host.left->getReadType(scope, this))
+	{
+		handleError(
+			CompileError::NoReadType(
+				host.left.get(), host.left->asString()));
+	}
+    
+	DataType const* ltype = host.left->getWriteType(scope, this);
+	if (!ltype)
+	{
+		handleError(
+			CompileError::NoWriteType(
+				host.left.get(), host.left->asString()));
+	}
+	if (breakRecursion(host)) return;	
+	
+	checkCast(*rtype, *ltype, &host);
+	if (breakRecursion(host)) return;	
+
+	if (ltype->isConstant())
+		handleError(CompileError::LValConst(&host, host.left->asString()));
+	if (breakRecursion(host)) return;	
+}
+
 void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 {
 	visit(host.left.get());
@@ -1987,9 +2054,11 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.middle->getReadType(scope, this), *host.right->getReadType(scope, this), &host);
+	auto mtype = host.middle->getReadType(scope, this);
+	auto rtype = host.right->getReadType(scope, this);
+	checkCast(*mtype, *rtype, &host);
 	if (breakRecursion(host)) return;
-	checkCast(*host.right->getReadType(scope, this), *host.middle->getReadType(scope, this), &host);
+	checkCast(*rtype, *mtype, &host);
 	if (breakRecursion(host)) return;
 }
 

@@ -79,6 +79,8 @@ namespace ZScript
 		void caseExprBitXor(ASTExprBitXor& host, void* param = NULL);
 		void caseExprLShift(ASTExprLShift& host, void* param = NULL);
 		void caseExprRShift(ASTExprRShift& host, void* param = NULL);
+		void caseExprCoalesce(ASTExprCoalesce& host, void* param = NULL);
+		void caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param = NULL);
 		void caseExprTernary(ASTTernaryExpr& host, void* param = NULL);
 		//Types
 		void caseScriptType(ASTScriptType& host, void* param = NULL);

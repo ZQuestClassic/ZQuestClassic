@@ -248,6 +248,8 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token LBRACE
 %token RBRACE
 %token QMARK
+%token COALESCE
+%token COALESCEASSIGN
 
  // Operators
 %token ARROW
@@ -2277,8 +2279,17 @@ Expr_15 : Expr_14 {$$ = $1;}
 	;
 
 Expr_16 : Expr_15 {$$ = $1;}
+	| Expr_15 COALESCE Expr_16
+	{
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprCoalesce(left, right, @$);
+	}
+	;
+
+Expr_17 : Expr_16 {$$ = $1;}
 	//Ternary
-	| Expr_15 QMARK Expr_16 COLON Expr_16
+	| Expr_16 QMARK Expr_17 COLON Expr_17
 	{
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* middle = (ASTExpr*)$3;
@@ -2287,87 +2298,92 @@ Expr_16 : Expr_15 {$$ = $1;}
 	}
 	;
 
-Expr_17 : Expr_16 {$$ = $1;}
-	| DELETE Expr_17 {
+Expr_18 : Expr_17 {$$ = $1;}
+	| DELETE Expr_18 {
 		ASTExprDelete* del = new ASTExprDelete(@$);
 		ASTExpr* operand = (ASTExpr*)$2;
 		del->operand = operand;
 		$$ = del;}
 	;
 
-Expr_18 : Expr_17 {$$ = $1;}
+Expr_19 : Expr_18 {$$ = $1;}
 	// Assignment
-	| Expr_17 ASSIGN Expr_18 {$$ = new ASTExprAssign((ASTExpr*)$1, (ASTExpr*)$3, @$);}
+	| Expr_18 ASSIGN Expr_19 {$$ = new ASTExprAssign((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Addition Assignment
-	| Expr_17 PLUSASSIGN Expr_18 {
+	| Expr_18 PLUSASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprPlus(left->clone(), right, @3), @$);}
 	// Subtraction Assignment
-	| Expr_17 MINUSASSIGN Expr_18 {
+	| Expr_18 MINUSASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprMinus(left->clone(), right, @3), @$);}
 	// Multiplication Assignment
-	| Expr_17 TIMESASSIGN Expr_18 {
+	| Expr_18 TIMESASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprTimes(left->clone(), right, @3), @$);}
 	// Division Assignment
-	| Expr_17 DIVIDEASSIGN Expr_18 {
+	| Expr_18 DIVIDEASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprDivide(left->clone(), right, @3), @$);}
 	// Modulus Assignment
-	| Expr_17 MODULOASSIGN Expr_18 {
+	| Expr_18 MODULOASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprModulo(left->clone(), right, @3), @$);}
 	// Left Shift Assignment
-	| Expr_17 LSHIFTASSIGN Expr_18 {
+	| Expr_18 LSHIFTASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprLShift(left->clone(), right, @3), @$);}
 	// Right Shift Assignment
-	| Expr_17 RSHIFTASSIGN Expr_18 {
+	| Expr_18 RSHIFTASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprRShift(left->clone(), right, @3), @$);}
 	// Bitwise And Assignment
-	| Expr_17 BITANDASSIGN Expr_18 {
+	| Expr_18 BITANDASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprBitAnd(left->clone(), right, @3), @$);}
 	// BitNot Assignment
 	// `a ~= b` == `a &= ~b` == `a = a & ~b`
-	| Expr_17 BITNOTASSIGN Expr_18 {
+	| Expr_18 BITNOTASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), new ASTExprBitNot(right, @$), @3);
 		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
-	| Expr_17 BITXORASSIGN Expr_18 {
+	| Expr_18 BITXORASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprBitXor(left->clone(), right, @3), @$);}
 	// Bitwise Or Assignment
-	| Expr_17 BITORASSIGN Expr_18 {
+	| Expr_18 BITORASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprBitOr(left->clone(), right, @3), @$);}
 	// Logical And Assignment
-	| Expr_17 ANDASSIGN Expr_18 {
+	| Expr_18 ANDASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprAnd(left->clone(), right, @3), @$);}
 	// Logical Or Assignment
-	| Expr_17 ORASSIGN Expr_18 {
+	| Expr_18 ORASSIGN Expr_19 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		$$ = new ASTExprAssign(left, new ASTExprOr(left->clone(), right, @3), @$);}
+	// Logical Or Assignment
+	| Expr_18 COALESCEASSIGN Expr_19 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprCoalesceAssign(left, right, @$);}
 		 ;
 
-Expression : Expr_18 {$$ = $1;};
+Expression : Expr_19 {$$ = $1;};
 
 Statement_Expression :
 	Expression {

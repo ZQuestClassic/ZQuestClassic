@@ -178,6 +178,10 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprRShift(ASTExprRShift& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprCoalesce(ASTExprCoalesce& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprTernary(ASTTernaryExpr& host, void* param = NULL) {
 			caseDefault(host, param);}
 		// Literals
@@ -358,6 +362,8 @@ namespace ZScript
 		virtual void caseExprBitXor(ASTExprBitXor& host, void* param = NULL);
 		virtual void caseExprLShift(ASTExprLShift& host, void* param = NULL);
 		virtual void caseExprRShift(ASTExprRShift& host, void* param = NULL);
+		virtual void caseExprCoalesce(ASTExprCoalesce& host, void* param = NULL);
+		virtual void caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param = NULL);
 		virtual void caseExprTernary(ASTTernaryExpr& host, void* param = NULL);
 		// Literals
 		virtual void caseNumberLiteral(

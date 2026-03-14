@@ -3566,6 +3566,61 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 	addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
+void BuildOpcodes::caseExprCoalesce(ASTExprCoalesce& host, void* param)
+{
+	if (auto v = host.getCompileTimeValue(this, scope))
+	{
+		CONST_VAL(*v);
+		return;
+	}
+	auto lval = host.left->getCompileTimeValue(this, scope);
+	if(lval)
+	{
+		if(*lval)
+			visit(host.right.get(), param);
+		else DCHECK(false); // should've exited via getCompileTimeValue()
+	}
+	else
+	{
+		auto rval = host.right->getCompileTimeValue(this, scope);
+		
+		VISIT_USEVAL(host.left.get(), param);
+		int32_t skiplabel = ScriptParser::getUniqueLabelID();
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(skiplabel))); // skip rval if lval is non-zero
+		//Use right section
+		if(rval)
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
+		else
+			visit(host.right.get(), param);
+		addOpcode(new ONoOp(skiplabel)); // skip rval if lval is non-zero
+	}
+}
+
+void BuildOpcodes::caseExprCoalesceAssign(ASTExprCoalesceAssign& host, void* param)
+{
+	VISIT_USEVAL(host.left.get(), param);
+	
+	int32_t skiplabel = ScriptParser::getUniqueLabelID();
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	addOpcode(new OGotoFalseImmediate(new LabelArgument(skiplabel)));
+	
+	VISIT_USEVAL(host.right.get(), param);
+
+	const DataType* setting_type = &DataType::ZVOID;
+	if (auto type = host.right->getReadType(scope, nullptr); type && !type->isUntyped())
+		setting_type = type;
+
+	//and store it
+	LValBOHelper helper(program, this);
+	helper.parsing_user_class = parsing_user_class;
+	helper.setting_type = setting_type;
+	host.left->execute(helper, param);
+	addOpcodes(helper.getResult());
+	
+	addOpcode(new ONoOp(skiplabel)); // skip assigning if lval is non-zero
+}
+
 void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
 	if (auto v = host.getCompileTimeValue(this, scope))

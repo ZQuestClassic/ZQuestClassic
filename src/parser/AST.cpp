@@ -2672,6 +2672,54 @@ std::optional<int32_t> ASTExprRShift::getCompileTimeValue(
 	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
 
+// ASTExprCoalesce
+
+ASTExprCoalesce::ASTExprCoalesce(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExpr(location), left(left), right(right)
+{}
+
+bool ASTExprCoalesce::isConstant() const
+{
+	if (left && !left->isConstant()) return false;
+	if (right && !right->isConstant()) return false;
+	return true;
+}
+
+void ASTExprCoalesce::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCoalesce(*this, param);
+}
+
+std::optional<int32_t> ASTExprCoalesce::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+{
+	if (!left) return std::nullopt;
+	std::optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	if (!leftValue) return std::nullopt;
+	if (*leftValue) return leftValue;
+	if (!right) return std::nullopt;
+	return right->getCompileTimeValue(errorHandler, scope);
+}
+
+// ASTExprCoalesceAssign
+
+ASTExprCoalesceAssign::ASTExprCoalesceAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExprCoalesce(left, right, location)
+{}
+
+void ASTExprCoalesceAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCoalesceAssign(*this, param);
+}
+
+std::optional<int32_t> ASTExprCoalesceAssign::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+{
+	return std::nullopt;
+}
+
 // ASTTernaryExpr
 
 ASTTernaryExpr::ASTTernaryExpr(ASTExpr* left, ASTExpr* middle, ASTExpr* right,
@@ -2704,12 +2752,12 @@ std::optional<int32_t> ASTTernaryExpr::getCompileTimeValue(
 	if(*leftValue)
 	{
 		if(!middleValue) return std::nullopt;
-		return *middleValue;
+		return middleValue;
 	}
 	else
 	{
 		if (!rightValue) return std::nullopt;
-		return *rightValue;
+		return rightValue;
 	}
 }
 

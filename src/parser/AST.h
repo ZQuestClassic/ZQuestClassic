@@ -128,6 +128,8 @@ namespace ZScript
 	class ASTShiftExpr; // virtual
 	class ASTExprLShift;
 	class ASTExprRShift;
+	class ASTExprCoalesce;
+	class ASTExprCoalesceAssign;
 	class ASTTernaryExpr;
 	// Literals
 	class ASTLiteral; // virtual
@@ -2086,6 +2088,40 @@ namespace ZScript
 		ASTExprRShift(ASTExpr* left = NULL, ASTExpr* right = NULL,
 		              LocationData const& location = LOC_NONE);
 		ASTExprRShift* clone() const {return new ASTExprRShift(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<int32_t> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope);
+	};
+	
+	class ASTExprCoalesce : public ASTExpr
+	{
+	public:
+		ASTExprCoalesce(ASTExpr* left = NULL, ASTExpr* right = NULL,
+		              LocationData const& location = LOC_NONE);
+		ASTExprCoalesce* clone() const {return new ASTExprCoalesce(*this);};
+
+		bool isConstant() const;
+		bool isLiteral() const {return left && left->isLiteral() && right && right->isLiteral();}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<int32_t> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope);
+
+		owning_ptr<ASTExpr> left;
+		owning_ptr<ASTExpr> right;
+
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return left->getReadType(scope, errorHandler);}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	class ASTExprCoalesceAssign : public ASTExprCoalesce
+	{
+	public:
+		ASTExprCoalesceAssign(ASTExpr* left = NULL, ASTExpr* right = NULL,
+		              LocationData const& location = LOC_NONE);
+		ASTExprCoalesceAssign* clone() const {return new ASTExprCoalesceAssign(*this);};
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
