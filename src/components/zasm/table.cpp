@@ -883,6 +883,7 @@ static constexpr script_command command_list[]=
 	{ "MUSICDATA_SETNAME", MUSICDATA_SETNAME, 1, { REG_R }, 0, 0 },
 	{ "PLAY_MUSIC", PLAY_MUSIC, 1, { REG_R }, 0, 0 },
 	{ "LOADMUSICDATA", LOADMUSICDATA, 1, { REG_R }, 0, 0 },
+	{ "GETMUSICDATABYNAME", GETMUSICDATABYNAME, 1, { REG_RW }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

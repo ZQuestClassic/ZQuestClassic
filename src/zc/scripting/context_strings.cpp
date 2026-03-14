@@ -1583,6 +1583,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case CONTINUESFX: return "Audio->ContinueSound()";
 		case ENHCROSSFADE: return "Audio->CrossfadeEnhancedMusic()";
 		case ENDSOUNDR: return "Audio->EndSound()";
+		case GETMUSICDATABYNAME: return "Audio->GetMusicData()";
 		case GETENHMUSICLEN: return "Audio->GetMusicLength()";
 		case GETENHMUSICPOS: return "Audio->GetMusicPos()";
 		case GETSFXCOMPLETION: return "Audio->GetSoundCompletion()";

@@ -740,6 +740,7 @@ void do_getsubscreenscript();
 void do_getnpcbyname();
 void do_getitembyname();
 void do_getcombobyname();
+void do_getmusicdatabyname();
 void do_getdmapbyname();
 
 int32_t getHeroOTile(int32_t index1, int32_t index2);

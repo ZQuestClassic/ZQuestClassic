@@ -219,6 +219,14 @@ class Audio {
 	//   LOADMUSICDATA D2
 	internal musicdata LoadMusicData(int music_index);
 
+	// Gets the musicdata whose name exactly matches `name`.
+	// If no such object exists, returns `NULL`.
+	//
+	// @zasm
+	//   POP D2
+	//   GETMUSICDATABYNAME D2
+	internal musicdata GetMusicData(char32[] name);
+
 	// Plays the MIDI [midi]. See [MusicRefresh] for details on when the engine will change the music back.
 	//
 	// @zasm

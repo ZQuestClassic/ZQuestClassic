@@ -1091,7 +1091,7 @@ class Game {
 	//   GETSPRITESCRIPT D2
 	internal int GetItemSpriteScript(char32[] name);
 
-	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
+	// Gets the ID of the npc whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
 	//
 	// @zasm
@@ -1099,7 +1099,7 @@ class Game {
 	//   GETNPCBYNAME D2
 	internal int GetNPC(char32[] name);
 
-	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
+	// Gets the ID of the item whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
 	//
 	// @zasm
@@ -1107,7 +1107,7 @@ class Game {
 	//   GETITEMBYNAME D2
 	internal int GetItem(char32[] name);
 
-	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
+	// Gets the ID of the combo whose label exactly matches `name`.
 	// If no such object exists, returns `-1`.
 	//
 	// @zasm
@@ -1115,7 +1115,7 @@ class Game {
 	//   GETCOMBOBYNAME D2
 	internal int GetCombo(char32[] name);
 
-	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
+	// Gets the ID of the dmap whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
 	//
 	// @zasm

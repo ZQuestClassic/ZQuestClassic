@@ -25294,6 +25294,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case GETNPCBYNAME:	FFCore.do_getnpcbyname(); break;
 			case GETITEMBYNAME:	FFCore.do_getitembyname(); break;
 			case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
+			case GETMUSICDATABYNAME:	FFCore.do_getmusicdatabyname(); break;
 			case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
 				
 			case ABS:
@@ -30132,6 +30133,26 @@ void FFScript::do_getcombobyname()
 		}
 	}
 	set_register(sarg1, (num * 10000));
+}
+void FFScript::do_getmusicdatabyname()
+{
+	int32_t arrayptr = get_register(sarg1);
+	string the_string;
+	int32_t num = -1;
+	ArrayH::getString(arrayptr, the_string, 512);
+	
+	if (!the_string.empty())
+	{
+		for (word q = 0; q < quest_music.size(); ++q)
+		{
+			if (the_string == quest_music[q].name)
+			{
+				num = q;
+				break;
+			}
+		}
+	}
+	set_register(sarg1, num+1);
 }
 void FFScript::do_getdmapbyname()
 {

@@ -1358,7 +1358,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "fn.4154": {
+      "fn.4155": {
         "loc": {
           "range": {
             "start": {
@@ -1635,7 +1635,7 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "fn.4155": {
+      "fn.4156": {
         "loc": {
           "range": {
             "start": {
@@ -1853,7 +1853,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7373": {
+      "7375": {
         "loc": {
           "range": {
             "start": {
@@ -2036,7 +2036,7 @@ stdout:
           "character": 4,
           "length": 8
         },
-        "symbol": "fn.4154"
+        "symbol": "fn.4155"
       },
       {
         "loc": {
@@ -2332,7 +2332,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "fn.4155"
+        "symbol": "fn.4156"
       },
       {
         "loc": {
@@ -2612,7 +2612,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7373"
+        "symbol": "7375"
       },
       {
         "loc": {
@@ -2628,7 +2628,7 @@ stdout:
           "character": 6,
           "length": 13
         },
-        "symbol": "fn.4155"
+        "symbol": "fn.4156"
       },
       {
         "loc": {
