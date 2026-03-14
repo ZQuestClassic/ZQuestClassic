@@ -9,6 +9,7 @@
 #include "auto/call_limit.zs"
 #include "auto/classes.zs"
 #include "auto/compat_qrs.zs"
+#include "auto/falsy_coalescing.zs"
 #include "auto/ffc_script_runner.zs"
 #include "auto/garbage_collection.zs"
 #include "auto/global_objects.zs"
