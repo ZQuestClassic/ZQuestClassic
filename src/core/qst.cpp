@@ -18783,6 +18783,8 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
             
 			combo_aliases[j].csets[k] = tempcset;
         }
+		combo_aliases[j].combos.normalize();
+		combo_aliases[j].csets.normalize();
     }
     
 	//Combo pools!

@@ -6424,8 +6424,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			int32_t cid = Combo; int8_t cs = CSet;
 			if(draw_mode == dm_alias)
 			{
-				cid = combo_aliases[combo_apos].combos[0];
-				cs = wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 13);
+				cid = combo_aliases[combo_apos].combos.get(0);
+				cs = wrap(combo_aliases[combo_apos].csets.get(0)+alias_cset_mod, 0, 13);
 			}
 			else if(draw_mode == dm_cpool)
 			{
@@ -7580,15 +7580,15 @@ void update_combobrush()
                 {
                     int32_t position = ((y*(combo_aliases[combo_apos].width+1))+x)+((combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height+1)*z);
                     
-                    if(combo_aliases[combo_apos].combos[position])
+                    if(combo_aliases[combo_apos].combos.get(position))
                     {
                         if(z==0)
                         {
-                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
+                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos.get(position),wrap(combo_aliases[combo_apos].csets.get(position)+alias_cset_mod, 0, 13));
                         }
                         else
                         {
-                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
+                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos.get(position),wrap(combo_aliases[combo_apos].csets.get(position)+alias_cset_mod, 0, 13));
                         }
                     }
                 }
@@ -8081,10 +8081,10 @@ void draw(bool justcset)
 								{
 									int32_t p=(cy*(combo->width+1))+cx;
 									
-									if(combo->combos[p])
+									if(combo->combos.get(p))
 									{
 										auto pos = combo_start + ComboPosition{cx - ox, cy - oy};
-										Map.DoSetComboCommand(pos, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
+										Map.DoSetComboCommand(pos, combo->combos.get(p), wrap(combo->csets.get(p)+alias_cset_mod, 0, 13));
 									}
 								}
 							}
@@ -15637,8 +15637,8 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
             return D_REDRAW;
         }
         
-        co=combo->combos[position];
-        cs=combo->csets[position];
+        co=combo->combos.get(position);
+        cs=combo->csets.get(position);
         
         if((co==0)||(key[KEY_ZC_LCONTROL]))
         {
@@ -15688,17 +15688,17 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
                     {
                         int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y/16)*(combo->width+1))+(x/16));
                         
-                        if(combo->combos[cpos])
+                        if(combo->combos.get(cpos))
                         {
                             if(!((d-1)->flags&D_SELECTED)||(cur_layer==layer_cnt))
                             {
                                 if(z==0)
                                 {
-                                    puttile16(buf,combobuf[combo->combos[cpos]].tile,x,y,combo->csets[cpos],combobuf[combo->combos[cpos]].flip);
+                                    puttile16(buf,combobuf[combo->combos.get(cpos)].tile,x,y,combo->csets.get(cpos),combobuf[combo->combos.get(cpos)].flip);
                                 }
                                 else
                                 {
-                                    overtile16(buf,combobuf[combo->combos[cpos]].tile,x,y,combo->csets[cpos],combobuf[combo->combos[cpos]].flip);
+                                    overtile16(buf,combobuf[combo->combos.get(cpos)].tile,x,y,combo->csets.get(cpos),combobuf[combo->combos.get(cpos)].flip);
                                 }
                             }
                         }
@@ -16039,8 +16039,8 @@ int32_t onNewComboAlias()
     
     for(int32_t i=0; i<old_count; i++)
     {
-        temp_csets[i] = combo->csets[i];
-        temp_combos[i] = combo->combos[i];
+        temp_csets[i] = combo->csets.get(i);
+        temp_combos[i] = combo->combos.get(i);
     }
     
     newcomboa_dlg[0].dp2 = get_zc_font(font_lfont);

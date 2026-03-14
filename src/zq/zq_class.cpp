@@ -9817,7 +9817,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
             
             for(int32_t k=0; k<count; k++)
             {
-                if(!p_iputw(combo_aliases[j].combos[k],f))
+                if(!p_iputw(combo_aliases[j].combos.get(k),f))
                 {
                     new_return(10);
                 }
@@ -9825,7 +9825,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
             
             for(int32_t k=0; k<count; k++)
             {
-                if(!p_putc(combo_aliases[j].csets[k],f))
+                if(!p_putc(combo_aliases[j].csets.get(k),f))
                 {
                     new_return(11);
                 }

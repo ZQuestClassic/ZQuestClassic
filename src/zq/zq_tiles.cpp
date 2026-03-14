@@ -13157,7 +13157,7 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 			
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
+				if(!p_iputw(combo_aliases[index+(tilect)].combos.get(k),f))
 				{
 					return 0;
 				}
@@ -13165,7 +13165,7 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 			
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
+				if(!p_putc(combo_aliases[index+(tilect)].csets.get(k),f))
 				{
 					return 0;
 				}
