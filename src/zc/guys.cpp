@@ -20207,7 +20207,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->gswitch_timers[index] != 0;
+			bool state = game->gswitch_timers.get(index) != 0;
 
 			if (state == value)
 			{
@@ -20229,7 +20229,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			if (bool(game->gswitch_timers[index]) != bool(value))
+			if (bool(game->gswitch_timers.get(index)) != bool(value))
 				toggle_gswitches(index, false);
 			game->gswitch_timers[index] = value;
 

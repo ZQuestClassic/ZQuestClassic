@@ -372,18 +372,18 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 	if(cmb.usrflags & cflag11) //global state
 	{
 		int32_t tmr = cmb.c_attributes[2].getTrunc();
-		bool oldstate = game->gswitch_timers[pair];
+		bool oldstate = game->gswitch_timers.get(pair);
 		if(tmr > 0)
 		{
 			game->gswitch_timers[pair] = tmr;
 		}
 		else
 		{
-			if(game->gswitch_timers[pair])
+			if(game->gswitch_timers.get(pair))
 				game->gswitch_timers[pair] = 0;
 			else game->gswitch_timers[pair] = -1;
 		}
-		if(oldstate != (game->gswitch_timers[pair] != 0))
+		if(oldstate != (game->gswitch_timers.get(pair) != 0))
 		{
 			toggle_gswitches(pair, false);
 		}
@@ -2087,9 +2087,9 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 			return false; // has at least 1 un-required state
 		for(int q = 0; q < 256; ++q)
 		{
-			if(trig.req_global_state.get(q) && !game->gswitch_timers[q])
+			if(trig.req_global_state.get(q) && !game->gswitch_timers.get(q))
 				return false;
-			if(trig.unreq_global_state.get(q) && game->gswitch_timers[q])
+			if(trig.unreq_global_state.get(q) && game->gswitch_timers.get(q))
 				return false;
 		}
 	}
@@ -2175,18 +2175,18 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			if (!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
 			{
 				int tmr = trig.trig_statetime, pair = trig.trig_gstate;
-				bool oldstate = game->gswitch_timers[pair] != 0;
+				bool oldstate = game->gswitch_timers.get(pair) != 0;
 				if (tmr > 0)
 				{
 					game->gswitch_timers[pair] = tmr;
 				}
 				else
 				{
-					if (game->gswitch_timers[pair])
+					if (game->gswitch_timers.get(pair))
 						game->gswitch_timers[pair] = 0;
 					else game->gswitch_timers[pair] = -1;
 				}
-				if (oldstate != (game->gswitch_timers[pair] != 0))
+				if (oldstate != (game->gswitch_timers.get(pair) != 0))
 				{
 					triggering_generic_switchstate = true;
 					toggle_gswitches(pair, false);

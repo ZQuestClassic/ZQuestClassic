@@ -7801,10 +7801,10 @@ void toggle_gswitches(bool* states, bool entry, const screen_handles_t& screen_h
 }
 void toggle_gswitches_load(const screen_handles_t& screen_handles)
 {
-	bool states[256];
-	for(auto q = 0; q < 256; ++q)
+	bool states[NUM_GSWITCHES];
+	for(auto q = 0; q < NUM_GSWITCHES; ++q)
 	{
-		states[q] = game->gswitch_timers[q] != 0;
+		states[q] = game->gswitch_timers.get(q) != 0;
 	}
 	toggle_gswitches(states, true, screen_handles);
 }
@@ -7829,10 +7829,12 @@ void run_gswitch_timers()
 }
 void onload_gswitch_timers() //Reset all timers that were counting down, no trigger necessary
 {
-	for(auto q = 0; q < 256; ++q)
+	auto& m = game->gswitch_timers.mut_inner();
+	for(auto it = m.begin(); it != m.end();)
 	{
-		if(game->gswitch_timers[q] > 0)
-			game->gswitch_timers[q] = 0;
+		if (it->second > 0)
+			it = m.erase(it);
+		else ++it;
 	}
 }
 

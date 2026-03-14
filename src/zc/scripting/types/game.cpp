@@ -977,10 +977,10 @@ static ArrayRegistrar GAMEGSWITCH_registrar(GAMEGSWITCH, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int) { return NUM_GSWITCHES; },
 		[](int, int index) -> int {
-			return game->gswitch_timers[index];
+			return game->gswitch_timers.get(index);
 		},
 		[](int, int index, int value) {
-			bool old = game->gswitch_timers[index];
+			bool old = game->gswitch_timers.get(index);
 			game->gswitch_timers[index] = value;
 			if (old != bool(value) && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
 				toggle_gswitches(index, false);
