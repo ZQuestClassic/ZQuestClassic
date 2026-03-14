@@ -31070,6 +31070,12 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	
 	switch(idat.type)
 	{
+		case itype_enemy_ambush:
+		{
+			if (idat.flags & item_flag1)
+				handle_ambush_item(id, Hero.current_screen, Hero.getX(), Hero.getY());
+		}
+		break;
 		case itype_itmbundle:
 		{
 			if(!itembundle_safe(id & 0xFF))
@@ -31429,6 +31435,11 @@ bool HeroClass::checkitems(int32_t index)
 		}
 	}
 	
+	if (itm->type == itype_enemy_ambush)
+	{
+		if (!(itm->flags & item_flag1))
+			return false; // not collectable!
+	}
 	bool bottledummy = (pickup&ipCHECK) && item_scr->room == rBOTTLESHOP;
 	
 	if(bottledummy) //Dummy bullshit! 

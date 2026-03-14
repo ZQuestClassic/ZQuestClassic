@@ -151,6 +151,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"Modifies the player's gravity when holding 'Up' in sideview.", // Gravity Up Boots
 	"Modifies the player's gravity when holding 'Down' in sideview.", // Gravity Down Boots
 	"Modifies the cooldown of all items with cooldowns.", // Cooldown Ring
+	"When this item spawns, instead replaces it with a number of enemies.", // Enemy Ambush
 };
 const char default_ctype_strings[cMAX][255] = 
 {
@@ -328,7 +329,7 @@ const char default_itype_strings[itype_max][255] =
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
 	"SwitchHooks", "Item Bundle", "Progressive Item", "Note", "Refiller",
 	"Lift Glove", "Gravity Boots", "Gravity Up Boots", "Gravity Down Boots",
-	"Cooldown Ring"
+	"Cooldown Ring", "Enemy Ambush"
 };
 const char counter_default_names[MAX_COUNTERS][255] =
 {

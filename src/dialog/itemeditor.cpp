@@ -1022,6 +1022,17 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(misc[0], "Key Level", "The level to grant a key for");
 			break;
 		}
+		case itype_enemy_ambush:
+		{
+			_SET(flag[0], "On Pickup", "If checked, waits until being picked up to spawn the enemies."
+				" Otherwise, enemies are spawned immediately when the item exists.");
+			_SET(flag[1], "No Randomness", "If checked, spawns enemies starting at the top of the list, in order."
+				" Otherwise, spawns enemies picked randomly from the list.");
+			_SET(misc[0], "Count", "How many enemies to spawn.");
+			for (int q = 0; q < 5; ++q)
+				_SET(misc[q+5], fmt::format("Enemy {}", q+1), "An enemy ID to spawn. Skipped if invalid.");
+			break;
+		}
 	}
 	#undef _SET
 	#undef FLAG
