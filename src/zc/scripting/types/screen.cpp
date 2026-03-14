@@ -614,7 +614,7 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 			int mapindex = map_screen_index(cur_map, ref);
 			if (mapindex < 0) return 0;
 
-			return game->screen_data[mapindex][index];
+			return game->screen_data.get(mapindex).get(index);
 		},
 		[](int ref, int index, int value){
 			int mapindex = map_screen_index(cur_map, ref);

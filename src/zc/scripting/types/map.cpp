@@ -397,7 +397,7 @@ static ArrayRegistrar MAPDATASCRDATA_registrar(MAPDATASCRDATA, []{
 			int mapindex = get_ref_map_index(ref);
 			if (mapindex < 0) return 0;
 
-			return game->screen_data[mapindex][index];
+			return game->screen_data.get(mapindex).get(index);
 		},
 		[](int ref, int index, int value){
 			int mapindex = get_ref_map_index(ref);

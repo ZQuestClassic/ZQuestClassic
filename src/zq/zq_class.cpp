@@ -4727,7 +4727,7 @@ void zmap::Copy(int scr)
         can_paste=true;
         copymap=cursor.map;
         copyscr=scr;
-		copyscrdata = zinit.screen_data[cursor.map*MAPSCRS+scr];
+		copyscrdata = zinit.screen_data.get(cursor.map*MAPSCRS+scr);
         copyffc = -1;
     }
 }
