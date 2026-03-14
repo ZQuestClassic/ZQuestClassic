@@ -22687,7 +22687,7 @@ endsigns:
 	did_trigger = trig_each_combo_trigger(comb_handle, [&](combo_trigger const& trig, size_t idx){
 		if(!trig.trigger_flags.get(dir_trigflag)) return false;
 		found_a_trigger_dir = true;
-		auto& trig_data = cpos.trig_data[idx];
+		auto& trig_data = cpos.trig_data.get(idx);
 		if(fx != -1 && fy != -1 && trig_data.cooldown) return false;
 		return trig.triggerbtn && (getIntBtnInput(trig.triggerbtn, INPUT_PRESS | INPUT_DRUNK) || checkIntBtnVal(trig.triggerbtn, signInput));
 	});
@@ -22702,7 +22702,7 @@ endsigns:
 	}
 	else for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 	{
-		auto& trig_data = cpos.trig_data[idx];
+		auto& trig_data = cpos.trig_data.get(idx);
 		if(fx != -1 && fy != -1 && trig_data.cooldown) continue;
 		auto& trig = cmb.triggers[idx];
 		bool cond = check_trig_conditions(comb_handle, idx);

@@ -2558,7 +2558,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? handle.info() : null_info;
 
-	bool dorun = !timer.trig_data[idx].cooldown;
+	bool dorun = !timer.trig_data.get(idx).cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
