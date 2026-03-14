@@ -57,13 +57,14 @@ bool item::animate(int32_t)
 		}
 	}
 	
-	if(switch_hooked)
+#ifndef IS_EDITOR
+	if(!screenIsScrolling() && !dummy) // Because subscreen items are items, too. :p
 	{
-		solid_update(false);
-		return false;
-	}
-	if(!screenIsScrolling()) // Because subscreen items are items, too. :p
-	{
+		if(switch_hooked)
+		{
+			solid_update(false);
+			return false;
+		}
 		if(fallclk > 0)
 		{
 			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].c_attributes[8].getTrunc(), pan(x));
@@ -96,9 +97,8 @@ bool item::animate(int32_t)
 			solid_update(false);
 			return false;
 		}
-#ifndef IS_EDITOR
-		if (!subscreenItem) handle_termv();
-		if(isSideViewGravity() && !subscreenItem)
+		handle_termv();
+		if(isSideViewGravity())
 		{
 			if((
 					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(this)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
@@ -188,8 +188,8 @@ bool item::animate(int32_t)
 				}
 			}
 		}
-		if (!subscreenItem) handle_termv();
-		if (!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && base_item.type != itype_fairy)
+		handle_termv();
+		if (!force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && base_item.type != itype_fairy)
 		{
 			if (!isSideViewGravity())
 				if (moveflags & move_can_pitfall)
@@ -198,14 +198,13 @@ bool item::animate(int32_t)
 				if (moveflags & move_can_waterdrown)
 					drownCombo = check_water();
 		}
-#endif
-	}
-	
-#ifndef IS_EDITOR
-	// Maybe it fell off the bottom in sideview, or was moved by a script.
-	if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
-	{
-		return true;
+		// Maybe it fell off the bottom in sideview, or was moved by a script.
+		if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
+		{
+			return true;
+		}
+		if(base_item.type == itype_fairy && base_item.misc3)
+			movefairynew(x,y,*this);
 	}
 #endif
 	
@@ -276,20 +275,13 @@ bool item::animate(int32_t)
 #endif
 	}
 	
-#ifndef IS_EDITOR
-	if(base_item.type == itype_fairy && base_item.misc3)
-		movefairynew(x,y,*this);
-#endif
-	
 	if ((z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) && !get_qr(qr_CLASSIC_DRAWING_ORDER))
 		shadowtile = sprite_data_buf.get(spr_shadow).tile+aframe;
-	if(fadeclk==0 && !subscreenItem)
-	{
+	if (fadeclk==0 && !dummy)
 		return true;
-	}
 	
-	if(pickup&ipTIMER)
-		if(++clk2 == game->get_item_timeout_dur())
+	if (pickup&ipTIMER)
+		if (++clk2 == game->get_item_timeout_dur())
 			return true;
 	
 	return false;
@@ -339,7 +331,7 @@ void item::drawshadow(BITMAP* dest, bool translucent)
 
 void item::draw_hitbox()
 {
-	if(subscreenItem) return;
+	if(dummy) return;
 	sprite::draw_hitbox();
 }
 
@@ -355,7 +347,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	dummy=isDummy;
 	misc=clk2=0;
 	aframe=aclk=0;
-	anim=flash=twohand=subscreenItem=false;
+	anim=flash=twohand=false;
 	dummy_int[0]=PriceIndex=-1;
 	is_dragged=false;
 	force_grab=false;
@@ -437,7 +429,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		hit_height=12;
 	}
 	
-	if(!isDummy && itm.type == itype_fairy && itm.misc3)
+	if(!dummy && itm.type == itype_fairy && itm.misc3)
 	{
 		misc = ++fairy_cnt;
 #ifndef IS_EDITOR
@@ -445,7 +437,6 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 			sfx(itm.usesound);
 #endif
 	}
-	
 
 	if ( itm.overrideFLAGS > 0 ) {
 		extend = 3; 
@@ -962,7 +953,6 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.xofs=temp.yofs=0;
 	temp.hide_hitbox = true;
-	temp.subscreenItem = true;
 	
 	dummyitem_animate(&temp, clk);
 	temp.draw(dest);

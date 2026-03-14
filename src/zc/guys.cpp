@@ -16679,12 +16679,6 @@ void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 	items.add(i);
 }
 
-void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
-{
-	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
-	items.add(i);
-}
-
 void add_item_for_screen(int32_t screen, item* item)
 {
 	item->screen_spawned = screen;
@@ -19714,7 +19708,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			adddummyitem(dx+(i<<step)+base, dy+89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
+			additem(dx+(i<<step)+base, dy+89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
 			//{ Setup dummy item
 			item* curItem = ((item*)items.spr(items.Count()-1));
 			curItem->PriceIndex = i;
