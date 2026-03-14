@@ -20283,7 +20283,7 @@ static bool parsemsgcode(const StringCommand& command)
 			}
 
 			int mi = mapind(map, screen);
-			bool state = (game->maps[mi] & (1<<flag)) != 0;
+			bool state = (game->maps.get(mi) & (1<<flag)) != 0;
 			if (state == value)
 			{
 				last_arg = 4;

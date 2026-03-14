@@ -503,7 +503,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t flag = GET_D(rINDEX2) / 10000;
 
 			if(BC::checkMapID(mi>>7) == SH::_NoError)
-				ret=(game->maps[mi] >> flag & 1) ? 10000 : 0;
+				ret=(game->maps.get(mi) >> flag & 1) ? 10000 : 0;
 			else
 				ret=0;
 				

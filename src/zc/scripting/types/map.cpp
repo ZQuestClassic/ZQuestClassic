@@ -320,7 +320,7 @@ static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->maps[mi] >> index) & 1;
+			return (game->maps.get(mi) >> index) & 1;
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);

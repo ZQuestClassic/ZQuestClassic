@@ -1887,7 +1887,7 @@ bool SubscrWidget::check_conditions() const
 			bool invert = (genflags&SUBSCRFLAG_REQ_INVERT_SCRSTATE);
 			bool any_state = (genflags&SUBSCRFLAG_REQ_ANY_SCRSTATE);
 			auto mi = mapind(m-1, s);
-			auto sstate = game->maps[mi] & req_scrstate;
+			auto sstate = game->maps.get(mi) & req_scrstate;
 			auto exstate = game->xstates[mi] & req_exstate;
 			if (any_state)
 			{
