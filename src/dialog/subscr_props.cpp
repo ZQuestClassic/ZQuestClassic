@@ -1971,7 +1971,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							{
 								if(invalid_item_id(itm.value))
 									return false;
-								itemdata const& idata = itemsbuf[itm.value];
+								itemdata const& idata = itemsbuf.get(itm.value);
 								return bool(idata.flags & item_gamedata); // only ownable items are usable
 							}),
 						isABC = true,

@@ -1369,7 +1369,7 @@ bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
 		int parentitem = cmb.c_attributes[12].getTrunc();
 		if (!parentitem || invalid_item_id(parentitem))
 			parentitem = -1;
-		auto wlvl = parentitem > -1 ? itemsbuf[parentitem].level : 0;
+		auto wlvl = parentitem > -1 ? itemsbuf.get(parentitem).level : 0;
 		switch(wpn)
 		{
 			//eweapons
@@ -1548,7 +1548,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 		int pitem = cmb.c_attributes[14].getTrunc();
 		if (!pitem || invalid_item_id(pitem))
 			pitem = -1;
-		int plvl = pitem > -1 ? itemsbuf[pitem].level : 0;
+		int plvl = pitem > -1 ? itemsbuf.get(pitem).level : 0;
 		
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr,autorot);
 		if (!Lwpns.add(wpn)) return nullptr;
@@ -1904,7 +1904,7 @@ int32_t get_cmb_trigctrcost(combo_trigger const& trig)
 		auto wmedal_id = current_item_id(itype_wealthmedal);
 		if(valid_item_id(wmedal_id))
 		{
-			itemdata const& wmedal = itemsbuf[wmedal_id];
+			itemdata const& wmedal = itemsbuf.get(wmedal_id);
 			if(wmedal.flags & item_flag1)
 				ctrcost = (ctrcost * wmedal.misc1) / 100;
 			else
@@ -2740,7 +2740,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	int32_t cid = rpos_handle.data();
 	int32_t cset = rpos_handle.cset();
 	auto& cmb = rpos_handle.combo();
-	itemdata const& glove = itemsbuf[gloveid];
+	itemdata const& glove = itemsbuf.get(gloveid);
 
 	if(cmb.liftlvl > glove.level) return false;
 
@@ -2782,7 +2782,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	int wlvl = 0, wtype = wThrown;
 	if (prntid && valid_item_id(prntid))
 	{
-		itemdata const& prntitm = itemsbuf[prntid];
+		itemdata const& prntitm = itemsbuf.get(prntid);
 		switch(prntitm.type)
 		{
 			case itype_bomb:

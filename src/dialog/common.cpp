@@ -17,7 +17,7 @@ GUI::ListData getItemListData(bool includeNone)
 	if(includeNone)
 		listItems.emplace_back("(None)", -1);
 	for(word q = 0; q < itemsbuf.capacity(); ++q)
-		listItems.emplace_back(itemsbuf[q].name, q);
+		listItems.emplace_back(itemsbuf.get(q).name, q);
 
 	auto sortBegin = listItems.begin();
 	if(includeNone)

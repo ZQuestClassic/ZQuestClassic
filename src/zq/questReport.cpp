@@ -1732,7 +1732,7 @@ void itemLocationReport()
 			
 			if (!item_found)
 			{
-				quest_report_str += fmt::format("\n--- {} ---\n", itemsbuf[i].name);
+				quest_report_str += fmt::format("\n--- {} ---\n", itemsbuf.get(i).name);
 				item_found = true;
 			}
 			

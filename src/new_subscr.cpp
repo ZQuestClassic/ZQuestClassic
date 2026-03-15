@@ -203,7 +203,7 @@ bool is_counter_item(int32_t itmid, int32_t ctr)
 {
 	if (invalid_item_id(itmid))
 		return false;
-	itemdata const& itm = itemsbuf[itmid];
+	itemdata const& itm = itemsbuf.get(itmid);
 	if(ctr == crNONE) return false;
 	if(ctr == itm.cost_counter[0] ||
 		ctr == itm.cost_counter[1])
@@ -360,7 +360,7 @@ word get_ssc_ctr(int ctr, bool* infptr)
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
 			if (invalid_item_id(itemid))
 				break;
-			auto const& itm = itemsbuf[itemid];
+			auto const& itm = itemsbuf.get(itemid);
 			if (itm.power > 0 && (itm.flags & item_flag1))
 				inf = true;
 			break;
@@ -393,7 +393,7 @@ word get_ssc_ctr(int ctr, bool* infptr)
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
 			if (valid_item_id(itemid))
 			{
-				auto const& itm = itemsbuf[itemid];
+				auto const& itm = itemsbuf.get(itemid);
 				if(itm.flags & item_flag1)
 					inf = itm.power >= get_dlevel();
 				else
@@ -443,7 +443,7 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
 			if (invalid_item_id(itemid))
 				break;
-			auto const& itm = itemsbuf[itemid];
+			auto const& itm = itemsbuf.get(itemid);
 			if(itm.power > 0 && (itm.flags & item_flag1))
 				inf = true;
 			break;
@@ -476,7 +476,7 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
 			if (valid_item_id(itemid))
 			{
-				auto const& itm = itemsbuf[itemid];
+				auto const& itm = itemsbuf.get(itemid);
 				if(itm.flags & item_flag1)
 					inf = itm.power>=get_dlevel();
 				else
@@ -2556,7 +2556,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unuse
 	if (valid_item_id(id) && (id || !invis_0))
 	{
 		bool dodraw = true;
-		switch(itemsbuf[id].type)
+		switch(itemsbuf.get(id).type)
 		{
 			case itype_arrow:
 				if(btnitem_ids[btn].bow_arrow)
@@ -3076,7 +3076,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unuse
 	ButtonItemData data = get_button_data(btn);
 	if (valid_item_id(data.id))
 	{
-		itemdata const& itm = itemsbuf[data.id];
+		itemdata const& itm = itemsbuf.get(data.id);
 		int costs[2];
 		for(int q = 0; q < 2; ++q)
 		{
@@ -3857,7 +3857,7 @@ static bool check_bomb(optional<int> iid = nullopt)
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_bombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_bomb,true) > -1))
 		return true;
 	auto bombid = iid ? *iid : get_subscr_item_id(itype_bomb, true);
-	if(valid_item_id(bombid) && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+	if(valid_item_id(bombid) && itemsbuf.get(bombid).misc1==0 && Lwpns.idCount(wLitBomb)>0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3873,14 +3873,14 @@ static bool check_sbomb(optional<int> iid = nullopt)
 	auto bombbagid = get_subscr_item_id(itype_bombbag, true);
 	if(valid_item_id(bombbagid))
 	{
-		auto const& itm = itemsbuf[bombbagid];
+		auto const& itm = itemsbuf.get(bombbagid);
 		if (itm.power && (itm.flags & item_flag1))
 			return true;
 	}
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
 		return true;
 	auto sbombid = iid ? *iid : get_subscr_item_id(itype_sbomb);
-	if(valid_item_id(sbombid) && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
+	if(valid_item_id(sbombid) && itemsbuf.get(sbombid).misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
 #else
@@ -3893,7 +3893,7 @@ ButtonItemData SW_ItemSlot::getItemVal() const
 #ifdef IS_PLAYER
 	if(valid_item_id(iid))
 	{
-		auto const& itm = itemsbuf[iid];
+		auto const& itm = itemsbuf.get(iid);
 		bool select = false;
 		switch(itm.type)
 		{
@@ -3965,7 +3965,7 @@ ButtonItemData SW_ItemSlot::getItemVal() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(valid_item_id(iid)) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(valid_item_id(iid)) return {iid, itemsbuf.get(iid).type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -3998,7 +3998,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 #ifdef IS_PLAYER
 	if (valid_item_id(iid))
 	{
-		auto const& itm = itemsbuf[iid];
+		auto const& itm = itemsbuf.get(iid);
 		bool select = false;
 		switch(itm.type)
 		{
@@ -4092,7 +4092,7 @@ ButtonItemData SW_ItemSlot::getDisplayItem() const
 		return {};
 	return {itemid, iclass == itype_bowandarrow};
 #else
-	if(valid_item_id(iid)) return {iid, itemsbuf[iid].type == itype_arrow};
+	if(valid_item_id(iid)) return {iid, itemsbuf.get(iid).type == itype_arrow};
 	int fam = iclass;
 	switch(fam)
 	{
@@ -4770,7 +4770,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		
 		if(!big_sel)
 			break;
-		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
+		tempsel.tile+=zc_max(itemsbuf.get(tempsel.id).frames,1);
 	}
 	destroy_bitmap(tmpbmp);
 }
@@ -5849,7 +5849,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 				return;
 			#endif
 			
-			itemdata const& itm = itemsbuf[data.id];
+			itemdata const& itm = itemsbuf.get(data.id);
 			str = itm.get_name(false,itm.type==itype_arrow && !data.bow_arrow);
 			if(widg->getType() == widgITEMSLOT && (widg->flags&SUBSCR_CURITM_IGNR_SP_SELTEXT))
 			{

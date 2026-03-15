@@ -4978,7 +4978,7 @@ void drawpanel()
 			if(scr->hasitem && valid_item_id(scr->item))
 			{
 				rectfill(screen,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
-				overtile16_scale(screen, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
+				overtile16_scale(screen, itemsbuf.get(scr->item).tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf.get(scr->item).csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
 			}
 			else draw_sqr_icon(itemsqr_pos, icon_bmp[0][coord_frame]);
 			draw_sqr_nums(itemsqr_pos, sqr_text_font, panel_align == 1, scr->itemx, scr->itemy);
@@ -6957,7 +6957,7 @@ void refresh(int32_t flags, bool update)
 			{
 				int id = Map.CurrScr()->catchall;
 				if (valid_item_id(id))
-					sprintf(buf,"Special Item is %s",itemsbuf[id].name.c_str());
+					sprintf(buf,"Special Item is %s",itemsbuf.get(id).name.c_str());
 				else sprintf(buf, "Invalid Special Item '%d'", id);
 				show_screen_error(buf,i++, vc(15));
 				break;
@@ -6987,7 +6987,7 @@ void refresh(int32_t flags, bool update)
 				break;
 				
 			case rRP_HC:
-				sprintf(buf,"Take %s or %s", itemsbuf[iRPotion].name.c_str(), itemsbuf[iHeartC].name.c_str());
+				sprintf(buf,"Take %s or %s", itemsbuf.get(iRPotion).name.c_str(), itemsbuf.get(iHeartC).name.c_str());
 				show_screen_error(buf,i++, vc(15));
 				break;
 				
@@ -7013,7 +7013,7 @@ void refresh(int32_t flags, bool update)
 				{
 					if(shop.hasitem[j])
 					{
-						strcat(buf, itemsbuf[shop.item[j]].name.c_str());
+						strcat(buf, itemsbuf.get(shop.item[j]).name.c_str());
 						strcat(buf, ":");
 						char pricebuf[8];
 						sprintf(pricebuf, "%d", shop.price[j]);
@@ -7054,9 +7054,9 @@ void refresh(int32_t flags, bool update)
 					break;
 				auto const& shop = QMisc.shop[shop_id];
 				sprintf(buf,"Take Only One: %s%s%s%s%s",
-					shop.item[0] < 1 ? "" : itemsbuf[shop.item[0]].name.c_str(), shop.item[0] > 0 ? ", " : "",
-					shop.item[1] < 1 ? "" : itemsbuf[shop.item[1]].name.c_str(), (shop.item[1] > 0 && shop.item[2] > 0) ? ", " : "",
-					shop.item[2] < 1 ? "" : itemsbuf[shop.item[2]].name.c_str());
+					shop.item[0] < 1 ? "" : itemsbuf.get(shop.item[0]).name.c_str(), shop.item[0] > 0 ? ", " : "",
+					shop.item[1] < 1 ? "" : itemsbuf.get(shop.item[1]).name.c_str(), (shop.item[1] > 0 && shop.item[2] > 0) ? ", " : "",
+					shop.item[2] < 1 ? "" : itemsbuf.get(shop.item[2]).name.c_str());
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -19396,7 +19396,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
     }
     
 	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
-	return valid_item_id(id) ? itemsbuf[id].level : 0;
+	return valid_item_id(id) ? itemsbuf.get(id).level : 0;
 }
 
 int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
@@ -19423,7 +19423,7 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 		
 		for (size_t q = 0; q < sz; ++q)
 		{
-			auto const& itm = itemsbuf[q];
+			auto const& itm = itemsbuf.get(q);
 			if ((zq_ignore_item_ownership || game->get_item(q)) && itm.type == itemtype)
 			{
 				if (itm.level >= highestlevel)
@@ -19437,7 +19437,7 @@ int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 	}
     for(size_t q = 0; q < sz; ++q)
     {
-        if(itemsbuf[q].type == itemtype)
+        if(itemsbuf.get(q).type == itemtype)
             return q;
     }
     
@@ -22135,7 +22135,7 @@ bool checkmagiccost(int32_t itemid, [[maybe_unused]] bool checkTime)
 {
 	if(invalid_item_id(itemid))
 		return false;
-	itemdata const& id = itemsbuf[itemid];
+	itemdata const& id = itemsbuf.get(itemid);
 	return checkCost(id.cost_counter[0], id.cost_amount[0])
 		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
 }

@@ -60,7 +60,7 @@ bool weapon::no_triggers() const
 		case wHammer: //Hammers don't trigger anything while in the air if item_flag1 is set!
 		{
 			if(invalid_item_id(parentitem)) break;
-			itemdata const& itm = itemsbuf[parentitem];
+			itemdata const& itm = itemsbuf.get(parentitem);
 			if(itm.type == itype_hammer && (itm.flags & item_flag1) && Hero.getHammerState() < 3)
 				return true;
 			break;
@@ -255,7 +255,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, [[maybe_unuse
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM) && valid_item_id(scr->catchall))
 		{
 			items.add(new item(x, y, 0,
-				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].type==itype_triforcepiece ||
+				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf.get(scr->catchall).type==itype_triforcepiece ||
 				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -385,7 +385,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
-				ffc_handle.scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.scr->catchall].type==itype_triforcepiece ||
+				ffc_handle.scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf.get(ffc_handle.scr->catchall).type==itype_triforcepiece ||
 				(ffc_handle.scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((ffc_handle.scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -874,7 +874,7 @@ void weapon::cleanup_sfx()
 			break;
 		case wSSparkle:
 		case wFSparkle:
-			if(valid_item_id(parentitem) && itemsbuf[parentitem].type==itype_cbyrna)
+			if(valid_item_id(parentitem) && itemsbuf.get(parentitem).type==itype_cbyrna)
 				break;
 			return;
 		default: return; //No repeating sfx
@@ -933,7 +933,7 @@ void weapon::cleanup_sfx()
             
             if (valid_item_id(wparent))
 			{
-				auto const& itm = itemsbuf[wparent];
+				auto const& itm = itemsbuf.get(wparent);
 				if (itm.type == itype_brang || itm.type == itype_divineprotection
 					|| itm.type == itype_hookshot || itm.type == itype_cbyrna)
 				{
@@ -1034,7 +1034,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		quantity_iterator = level; //wCByrna uses this for positioning.
 		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
-			level = itemsbuf[Parentitem].level; //the weapon level for real lweapons.
+			level = itemsbuf.get(Parentitem).level; //the weapon level for real lweapons.
 			//Note: eweapons use this for boss weapon block flags
 			// Note: wInd uses type for special properties.
 			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
@@ -1786,7 +1786,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if (invalid_item_id(itemid))
 				itemid = directWpn > -1 ? directWpn : current_item_id(itype_wand);
 			if (valid_item_id(itemid))
-				wdata = &itemsbuf[itemid].weap_data;
+				wdata = &itemsbuf.get(itemid).weap_data;
 			break;
 		}
 		case wSSparkle: case wFSparkle:
@@ -1905,7 +1905,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sword);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else ret = wSWORD;
 			}
 			LOADGFX(*ret);
@@ -1921,7 +1921,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_wand);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else ret = wWAND;
 			}
 			LOADGFX(*ret);
@@ -1937,7 +1937,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_hammer);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else ret = wHAMMER;
 			}
 			LOADGFX(*ret);
@@ -1953,7 +1953,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_cbyrna);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[2];
+					ret = itemsbuf.get(itemid).wpn_sprites[2];
 				else ret = wCBYRNA;
 			}
 			LOADGFX(*ret);
@@ -1969,7 +1969,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else ret = wWIND;
 			}
 			LOADGFX(*ret);
@@ -1985,7 +1985,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_whistle);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[2];
+					ret = itemsbuf.get(itemid).wpn_sprites[2];
 				else ret = ewSWORD;
 			}
 			LOADGFX(*ret);
@@ -2020,7 +2020,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_arrow);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else ret = wARROW;
 			}
 			LOADGFX(*ret);
@@ -2071,7 +2071,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						if (valid_item_id(magicitem) && !isDummy)
-							ret = itemsbuf[magicitem].wpn_sprites[4];
+							ret = itemsbuf.get(magicitem).wpn_sprites[4];
 						else ret = wFIRE;
 						break;
 						
@@ -2100,7 +2100,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bomb);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else
 					ret = wBOMB;
 			}
@@ -2118,7 +2118,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_sbomb);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else
 					ret = wSBOMB;
 			}
@@ -2135,7 +2135,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_bait);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else
 					ret = wBAIT;
 			}
@@ -2165,7 +2165,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				
 				if (valid_item_id(itemid))
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					// Book Magic sprite is wpn_sprites[0], Wand Magic sprite is wpn_sprites[2].
 					ret = itm.wpn_sprites[book ? 0 : 2];
 				}
@@ -2200,7 +2200,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 				if(isDummy || itemid < 0)
 					itemid = getCanonicalItemID(itype_brang);
 				if (valid_item_id(itemid))
-					ret = itemsbuf[itemid].wpn_sprites[0];
+					ret = itemsbuf.get(itemid).wpn_sprites[0];
 				else
 					ret = wBRANG;
 			}
@@ -2218,7 +2218,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 					itemid = getCanonicalItemID(family_class);
 				if(valid_item_id(itemid))
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if(dir > 3 && dir < 8)
 						ret = itm.wpn_sprites[4]; //diagonal
 					else
@@ -2282,7 +2282,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 					itemid = getCanonicalItemID(family_class);
 				if(valid_item_id(itemid))
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if(dir > 3 && dir < 8)
 						ret = itm.wpn_sprites[5]; //diagonal
 					else ret = itm.wpn_sprites[3];
@@ -2346,7 +2346,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 					itemid = getCanonicalItemID(family_class);
 				if(valid_item_id(itemid))
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if(dir > 3 && dir < 8)
 						ret = itm.wpn_sprites[6]; //diagonal
 					else if(dir < left)
@@ -3105,7 +3105,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
 	    //Add lw->Level check here. -Z
         if(invalid_item_id(parentitem) ||
 			(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl
-				>= itemsbuf[parentitem].level))
+				>= itemsbuf.get(parentitem).level))
         {
             return true;
         }
@@ -3135,7 +3135,7 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
     {
         if(invalid_item_id(parentitem) ||
 			(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl
-				>= itemsbuf[parentitem].level))
+				>= itemsbuf.get(parentitem).level))
         {
             return true;
         }
@@ -3225,7 +3225,7 @@ void weapon::limited_animate()
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
-				id = valid_item_id(parentitem) ? ((itemsbuf[parentitem].type==itype_sbomb) ? wSBomb:wBomb)
+				id = valid_item_id(parentitem) ? ((itemsbuf.get(parentitem).type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
 				hxofs=2000;
@@ -3242,7 +3242,7 @@ void weapon::limited_animate()
 			
 			if(clk==(misc-1) && canboom)
 			{
-				sfx(invalid_item_id(parentitem) ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(x));
+				sfx(invalid_item_id(parentitem) ? WAV_BOMB : itemsbuf.get(parentitem).usesound,pan(x));
 				
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -3497,7 +3497,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		{
 			item* ptr = (item*)items.spr(j);
 			
-			if((itemsbuf[ptr->id].type == itype_bottlefill) && !game->hasBottle(0))
+			if((itemsbuf.get(ptr->id).type == itype_bottlefill) && !game->hasBottle(0))
 				continue; //No picking these up unless you have a bottle to fill!
 			int32_t pickup = ptr->pickup;
 			if((pickup & ipCANGRAB) || (pickup & ipTIMER))
@@ -4004,7 +4004,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			
 			bool mirrors = get_qr(qr_SWORDMIRROR);
 			if (id != ewSword && valid_item_id(parentitem))
-				mirrors = itemsbuf[parentitem].flags & item_flag9;
+				mirrors = itemsbuf.get(parentitem).flags & item_flag9;
 			if(mirrors)
 				if(do_mirror())
 					break;
@@ -4062,7 +4062,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			
 			bool mirrors = get_qr(qr_WHIRLWINDMIRROR);
 			if (valid_item_id(parentitem))
-				mirrors = itemsbuf[parentitem].flags & item_flag3;
+				mirrors = itemsbuf.get(parentitem).flags & item_flag3;
 			if(mirrors)
 			{
 				do_mirror();
@@ -4372,7 +4372,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 				goto skip_second_bait_script;
 			}
 			
-			if(valid_item_id(parentitem) && clk >= itemsbuf[parentitem].misc1)
+			if(valid_item_id(parentitem) && clk >= itemsbuf.get(parentitem).misc1)
 			{
 				dead=1;
 			}
@@ -4832,7 +4832,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 					CatchBrang();
 					
 					if (valid_item_id(parentitem))
-						stop_sfx(itemsbuf[parentitem].usesound);
+						stop_sfx(itemsbuf.get(parentitem).usesound);
 					
 					if(dragging!=-1)
 					{
@@ -5198,7 +5198,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		{
 			if (isLWeapon && linkedItem && valid_item_id(linkedItem))
 			{
-				itemdata const& book = itemsbuf[linkedItem];
+				itemdata const& book = itemsbuf.get(linkedItem);
 				if(book.flags&item_flag6)
 					step = zslongToFix(book.misc3*100);
 			}
@@ -5777,7 +5777,7 @@ bool weapon::_prism_dupe(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, int
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		{
-			if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
+			if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1))
 			{
 				switch(w->dir)
 				{
@@ -5903,7 +5903,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -5995,7 +5995,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6090,7 +6090,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6212,7 +6212,7 @@ bool weapon::_mirror_refl(zfix newx, zfix newy, rpos_t cpos, ffc_id_t ffcpos, ne
 				case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 				case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 				{
-					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1))
 					{
 						switch(w->dir)
 						{
@@ -6975,7 +6975,7 @@ bool weapon::hit(sprite *s)
 			return false;
 		auto radius = 0;
 		if (valid_item_id(parentitem))
-			radius = itemsbuf[parentitem].misc7;
+			radius = itemsbuf.get(parentitem).misc7;
 		if(radius < 1)
 		{
 			bool sbomb = id == wSBomb;
@@ -7005,7 +7005,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2
 			return false;
 		auto radius = 0;
 		if (valid_item_id(parentitem))
-			radius = itemsbuf[parentitem].misc7;
+			radius = itemsbuf.get(parentitem).misc7;
 		if(radius < 1)
 		{
 			bool sbomb = id == wSBomb;
@@ -7034,7 +7034,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t txsz2,int32_t tysz2)
 	{
 		auto radius = 0;
 		if (valid_item_id(parentitem))
-			radius = itemsbuf[parentitem].misc7;
+			radius = itemsbuf.get(parentitem).misc7;
 		if(radius < 1)
 		{
 			bool sbomb = id == wSBomb;
@@ -7462,7 +7462,7 @@ void weapon::draw(BITMAP *dest)
 				case pDIVINEPROTECTIONROCKETRETURN2:
 				case pDIVINEPROTECTIONROCKETTRAIL2:
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-					if (valid_item_id(parentitem) && (itemsbuf[parentitem].flags & item_flag1 ? 1 : 0)&&!(frame&1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1 ? 1 : 0)&&!(frame&1))
 						return;
 					break;
 			}
@@ -7571,7 +7571,7 @@ void weapon::draw_hitbox()
 		start_info_bmp();
 		auto radius = 0;
 		if (valid_item_id(parentitem))
-			radius = itemsbuf[parentitem].misc7;
+			radius = itemsbuf.get(parentitem).misc7;
 		if (radius < 1)
 		{
 			bool sbomb = id == wSBomb || id == ewSBomb;

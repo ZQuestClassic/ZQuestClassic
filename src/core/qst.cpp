@@ -8153,7 +8153,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 	itemdata tempitem = itemdata();
 	reset_itembuf(&tempitem, index);
-	tempitem.name = itemsbuf[index].name;
+	tempitem.name = itemsbuf.get(index).name;
 	
 	if ( s_version > 35 ) //expanded tiles	
 	{    
@@ -9801,18 +9801,18 @@ void init_item_drop_sets()
         {
             int32_t it = item_drop_sets[i].item[j];
             
-            if((itemsbuf[it].type == itype_rupee && ((itemsbuf[it].amount)&0xFFF) == 10)
+            if((itemsbuf.get(it).type == itype_rupee && ((itemsbuf.get(it).amount)&0xFFF) == 10)
                     && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
-            else if(itemsbuf[it].type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+            else if(itemsbuf.get(it).type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
             
             // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-            if(itemsbuf[it].type == itype_misc)
+            if(itemsbuf.get(it).type == itype_misc)
             {
                 // If a non-gameplay item was selected, then item drop was aborted.
                 // Reflect this by increasing the 'Nothing' chance accordingly.
@@ -21493,19 +21493,19 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version)
                 {
                     int32_t it = tempitemdrop.item[j];
                     
-                    if((itemsbuf[it].type == itype_rupee
-                            && ((itemsbuf[it].amount)&0xFFF) == 10)
+                    if((itemsbuf.get(it).type == itype_rupee
+                            && ((itemsbuf.get(it).amount)&0xFFF) == 10)
                             && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
-                    else if(itemsbuf[it].type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+                    else if(itemsbuf.get(it).type == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
                     
                     // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-                    if(itemsbuf[it].type == itype_misc)
+                    if(itemsbuf.get(it).type == itype_misc)
                     {
                         // If a non-gameplay item was selected, then item drop was aborted.
                         // Reflect this by increasing the 'Nothing' chance accordingly.

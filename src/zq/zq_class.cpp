@@ -8335,7 +8335,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 
 int32_t write_single_item(PACKFILE *f, word index)
 {
-	itemdata const& item_ref = itemsbuf[index];
+	itemdata const& item_ref = itemsbuf.get(index);
 	if (!p_putcstr(item_ref.name, f))
 		new_return(5);
 	

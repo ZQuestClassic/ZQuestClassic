@@ -1690,7 +1690,7 @@ void enemy::leave_item()
 		drop_item = select_dropitem(thedropset,x,y);
 	}
 	
-	if(valid_item_id(drop_item) &&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	if(valid_item_id(drop_item) &&((itemsbuf.get(drop_item).type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -8753,7 +8753,7 @@ int32_t ePeahat::takehit(weapon *w, weapon* realweap)
 		
 	if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
 			// fire boomerang, for nailing peahats
-			&& !(wpnId==wBrang && (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_brang))>0))
+			&& !(wpnId==wBrang && (valid_item_id(parent_item) ? itemsbuf.get(parent_item).power : current_item_power(itype_brang))>0))
 		return 0;
 		
 	// Time for a kludge...
@@ -10706,7 +10706,7 @@ bool eStalfos::animate(int32_t index)
 			{
 				for(int32_t i=0; i<itemsbuf.capacity(); i++)
 				{
-					if (itemsbuf[i].flags & item_edible)
+					if (itemsbuf.get(i).flags & item_edible)
 						game->set_item(i, false);
 				}
 				
@@ -13358,7 +13358,7 @@ int32_t eGanon::takehit(weapon *w, [[maybe_unused]] weapon* realweap)
 		return 1;
 		
 	case 2:
-		if(wpnId!=wArrow || (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_arrow))<4)
+		if(wpnId!=wArrow || (valid_item_id(parent_item) ? itemsbuf.get(parent_item).power : current_item_power(itype_arrow))<4)
 			return 0;
 			
 		misc=3;
@@ -18141,7 +18141,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
 				add_item_for_screen(screen, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].type==itype_triforcepiece ||
+								   Item,ipONETIME|ipBIGRANGE|((itemsbuf.get(Item).type==itype_triforcepiece ||
 										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
 		}
@@ -19515,7 +19515,7 @@ void setupscreen()
 				
 				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if (itm.flags & item_flag1)
 						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
@@ -19625,7 +19625,7 @@ void setupscreen()
 				
 				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if (itm.flags & item_flag1)
 						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
@@ -19713,7 +19713,7 @@ void setupscreen()
 			
 			if(valid_item_id(itemid) && prices[i]!=100000)
 			{
-				auto const& itm = itemsbuf[itemid];
+				auto const& itm = itemsbuf.get(itemid);
 				if(itm.flags & item_flag1)
 					prices[i] = ((prices[i] * itm.misc1) / 100);
 				else
@@ -19760,7 +19760,7 @@ void setupscreen()
 		
 		if(valid_item_id(itemid))
 		{
-			auto const& itm = itemsbuf[itemid];
+			auto const& itm = itemsbuf.get(itemid);
 			if(itm.flags & item_flag1)
 				prices[i] *= (itm.misc1 / 100.0);
 			else
@@ -20002,7 +20002,7 @@ static bool parsemsgcode(const StringCommand& command)
 				if (!FFCore.doscript(ScriptType::Item, itemID))
 				{
 					FFCore.reset_script_engine_data(ScriptType::Item, itemID);
-					FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&item_passive_script) > 0;
+					FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf.get(itemID).flags&item_passive_script) > 0;
 				}
 			}
 			return true;
@@ -21228,7 +21228,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
 					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-					if (valid_item_id(w->parentitem)) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
+					if (valid_item_id(w->parentitem)) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf.get(w->parentitem).type; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
@@ -21276,7 +21276,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
@@ -21307,7 +21307,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey))&& !priced)))
@@ -21330,7 +21330,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
@@ -21396,7 +21396,7 @@ void dragging_item()
 				
 				// Drag the Fairy enemy as well as the Fairy item
 				int32_t id = dragItem->id;
-				auto const& itm = itemsbuf[id];
+				auto const& itm = itemsbuf.get(id);
 				if(itm.type == itype_fairy && itm.misc3)
 				{
 					movefairynew2(w->x,w->y,*dragItem);
@@ -21473,7 +21473,7 @@ static void roaming_item(mapscr* scr)
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].type==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((scr->flags3&fHOLDITEM) || (itemsbuf.get(Item).type==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
 			state.item_state = ScreenItemState::CarriedByEnemy;

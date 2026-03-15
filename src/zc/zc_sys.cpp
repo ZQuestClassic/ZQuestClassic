@@ -1779,7 +1779,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			
 			if(valid_item_id(maxid))
 			{
-				auto const& itm = itemsbuf[maxid];
+				auto const& itm = itemsbuf.get(maxid);
 				if (itm.flags & item_flag1) //Active clock
 					return itm.level;
 			}
@@ -1916,7 +1916,7 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	sz = zc_min(sz, game->items_owned.length());
 	for(size_t i=0; i<sz; i++)
 	{
-		auto const& itm = itemsbuf[i];
+		auto const& itm = itemsbuf.get(i);
 		if(game->get_item(i) && itm.type==itemtype && !item_disabled(i))
 		{
 			if(checkmagic && itemtype != itype_magicring)
@@ -2159,7 +2159,7 @@ int32_t item_tile_mod()
 		if(invalid_item_id(itemid) || !checkbunny(itemid))
 			continue;
 		
-		itemdata const& itm = itemsbuf[itemid];
+		itemdata const& itm = itemsbuf.get(itemid);
 		
 		switch(itm.type)
 		{
