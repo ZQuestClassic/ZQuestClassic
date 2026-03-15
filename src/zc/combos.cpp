@@ -890,7 +890,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&(1 << li_boss_key)))
+			if(!(game->lvlitems.get(dlevel)&(1 << li_boss_key)))
 			{
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
@@ -992,7 +992,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 			
 		case cBOSSLOCKBLOCK:
 		{
-			if (!(game->lvlitems[dlevel] & (1 << li_boss_key)))
+			if (!(game->lvlitems.get(dlevel) & (1 << li_boss_key)))
 			{
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
@@ -2076,10 +2076,10 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_COND))
-			if((trig.trig_levelitems & game->lvlitems[dmap_level]) != trig.trig_levelitems)
+			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) != trig.trig_levelitems)
 				return false;
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_REVCOND))
-			if((trig.trig_levelitems & game->lvlitems[dmap_level]) == trig.trig_levelitems)
+			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) == trig.trig_levelitems)
 				return false;
 		if((trig.req_level_state & game->lvlswitches[dmap_level]) != trig.req_level_state)
 			return false; // missing at least 1 required state

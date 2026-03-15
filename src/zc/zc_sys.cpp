@@ -1640,9 +1640,9 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			{
 				case -2:
 				{
-					for(int32_t i=0; i<MAXLEVELS; i++)
+					for(int32_t i=0; i<game->lvlitems.capacity(); i++)
 					{
-						if(game->lvlitems[i]&(1 << li_mcguffin))
+						if(game->lvlitems.get(i)&(1 << li_mcguffin))
 						{
 							return true;
 						}
@@ -1652,12 +1652,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&(1 << li_mcguffin));
+					return (game->lvlitems.get(dlevel)&(1 << li_mcguffin));
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&(1 << li_mcguffin));
+						return (game->lvlitems.get(it)&(1 << li_mcguffin));
 					}
 					
 					break;
@@ -1672,9 +1672,9 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			{
 				case -2:
 				{
-					for(int32_t i=0; i<MAXLEVELS; i++)
+					for(int32_t i=0; i<game->lvlitems.capacity(); i++)
 					{
-						if(game->lvlitems[i]&(1 << li_map))
+						if(game->lvlitems.get(i)&(1 << li_map))
 						{
 							return true;
 						}
@@ -1684,12 +1684,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&(1 << li_map))!=0;
+					return (game->lvlitems.get(dlevel)&(1 << li_map))!=0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&(1 << li_map))!=0;
+						return (game->lvlitems.get(it)&(1 << li_map))!=0;
 					}
 					
 					break;
@@ -1704,9 +1704,9 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			{
 				case -2:
 				{
-					for(int32_t i=0; i<MAXLEVELS; i++)
+					for(int32_t i=0; i<game->lvlitems.capacity(); i++)
 					{
-						if(game->lvlitems[i]&(1 << li_compass))
+						if(game->lvlitems.get(i)&(1 << li_compass))
 						{
 							return true;
 						}
@@ -1716,12 +1716,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&(1 << li_compass))!=0;
+					return (game->lvlitems.get(dlevel)&(1 << li_compass))!=0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&(1 << li_compass))!=0;
+						return (game->lvlitems.get(it)&(1 << li_compass))!=0;
 					}
 					
 					break;
@@ -1735,9 +1735,9 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			{
 				case -2:
 				{
-					for(int32_t i=0; i<MAXLEVELS; i++)
+					for(int32_t i=0; i<game->lvlitems.capacity(); i++)
 					{
-						if(game->lvlitems[i]&(1 << li_boss_key))
+						if(game->lvlitems.get(i)&(1 << li_boss_key))
 						{
 							return true;
 						}
@@ -1747,12 +1747,12 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 				}
 				
 				case -1:
-					return (game->lvlitems[dlevel]&(1 << li_boss_key))?1:0;
+					return (game->lvlitems.get(dlevel)&(1 << li_boss_key))?1:0;
 					
 				default:
 					if(it>=0&&it<MAXLEVELS)
 					{
-						return (game->lvlitems[it]&(1 << li_boss_key))?1:0;
+						return (game->lvlitems.get(it)&(1 << li_boss_key))?1:0;
 					}
 					break;
 			}
@@ -1800,9 +1800,9 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		{
 			int count=0;
 			
-			for(int i=0; i<MAXLEVELS; i++)
+			for(int i=0; i < game->lvlitems.capacity(); i++)
 			{
-				count+=(game->lvlitems[i]&(1 << li_mcguffin))?1:0;
+				count+=(game->lvlitems.get(i)&(1 << li_mcguffin))?1:0;
 			}
 			
 			return count;
@@ -1812,9 +1812,9 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		{
 			int count=0;
 			
-			for(int i=0; i<MAXLEVELS; i++)
+			for(int i=0; i < game->lvlitems.capacity(); i++)
 			{
-				count+=(game->lvlitems[i]&(1 << li_map))?1:0;
+				count+=(game->lvlitems.get(i)&(1 << li_map))?1:0;
 			}
 			
 			return count;
@@ -1824,9 +1824,9 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		{
 			int count=0;
 			
-			for(int i=0; i<MAXLEVELS; i++)
+			for(int i=0; i < game->lvlitems.capacity(); i++)
 			{
-				count+=(game->lvlitems[i]&(1 << li_compass))?1:0;
+				count+=(game->lvlitems.get(i)&(1 << li_compass))?1:0;
 			}
 			
 			return count;
@@ -1836,9 +1836,9 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 		{
 			int count=0;
 			
-			for(int i=0; i<MAXLEVELS; i++)
+			for(int i=0; i < game->lvlitems.capacity(); i++)
 			{
-				count+=(game->lvlitems[i]&(1 << li_boss_key))?1:0;
+				count+=(game->lvlitems.get(i)&(1 << li_boss_key))?1:0;
 			}
 			
 			return count;
@@ -4695,7 +4695,7 @@ int32_t TriforceCount()
 	int32_t c=0;
 	
 	for(int32_t i=1; i<=8; i++)
-		if(game->lvlitems[i]&(1 << li_mcguffin))
+		if(game->lvlitems.get(i)&(1 << li_mcguffin))
 			++c;
 			
 	return c;

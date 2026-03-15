@@ -1868,7 +1868,7 @@ bool SubscrWidget::check_conditions() const
 		if(!(target_lvl < 0 || target_lvl >= MAXLEVELS))
 		{
 			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LITEM;
-			auto litems = game->lvlitems[target_lvl]&req_litems;
+			auto litems = game->lvlitems.get(target_lvl)&req_litems;
 			if (genflags&SUBSCRFLAG_REQ_ANY_LITEM) // require at least one
 			{
 				if(inverted ? litems == req_litems : litems == 0)
@@ -3564,7 +3564,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unused]] Su
 
 				if(frame&16)
 				{
-					if((game->lvlitems[get_dlevel()] & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
+					if((game->lvlitems.get(get_dlevel()) & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
 						c2 = c_cmp_blink.get_color();
 				}
 

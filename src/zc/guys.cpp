@@ -19336,7 +19336,7 @@ void loadenemies()
 		state.loaded_enemies = true;
 
 		// check if it's the dungeon boss and it has been beaten before
-		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&(1 << li_boss_killed))
+		if (scr->flags11&efBOSS && game->lvlitems.get(dlevel)&(1 << li_boss_killed))
 			return;
 
 		int32_t loadcnt = 10;
@@ -20435,7 +20435,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->lvlitems[level] & (1<<flag);
+			bool state = game->lvlitems.get(level) & (1<<flag);
 			if (state == value)
 			{
 				last_arg = 3;
@@ -20549,7 +20549,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t lev = args[0];
 			
-			if(lev<MAXLEVELS && game->lvlitems[lev]&(1 << li_mcguffin))
+			if(unsigned(lev)<MAXLEVELS && game->lvlitems.get(lev)&(1 << li_mcguffin))
 			{
 				last_arg = 1;
 				goto switched;

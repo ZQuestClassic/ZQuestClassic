@@ -1214,6 +1214,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			game.set_item_timeout_flicker(zinit.item_timeout_flicker);
 			game.set_item_flicker_speed(zinit.item_flicker_speed);
 		}
+		
+		game.normalize();
 	}
 	
 	return 0;

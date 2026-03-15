@@ -21970,7 +21970,7 @@ void HeroClass::oldcheckbosslockblock()
 	}
 	int32_t cid = found1 ? cid1 : cid2;
 	
-	if(!(game->lvlitems[dlevel]&(1 << li_boss_key))) return;
+	if(!(game->lvlitems.get(dlevel)&(1 << li_boss_key))) return;
 	
 	run_first_script_of_type(itype_bosskey);
 	
@@ -22096,7 +22096,7 @@ void HeroClass::oldcheckchest(int32_t type)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&(1 << li_boss_key))) return;
+			if(!(game->lvlitems.get(dlevel)&(1 << li_boss_key))) return;
 			run_first_script_of_type(itype_bosskey);
 			setmapflag(scr, mBOSSCHEST);
 			break;
@@ -22330,7 +22330,7 @@ void HeroClass::checkchest(int32_t type)
 			int altcmb = cmb->c_attributes[2].getTrunc();
 			prompt_combo = cmb->c_attributes[1].getTrunc();
 			if(altcmb && ((islocked && !can_locked_combo(*cmb))
-				|| (isbosslocked && !(game->lvlitems[dlevel]&(1 << li_boss_key)))))
+				|| (isbosslocked && !(game->lvlitems.get(dlevel)&(1 << li_boss_key)))))
 				prompt_combo = altcmb;
 			prompt_cset = cmb->c_attributes[12].getTrunc();
 			prompt_x = cmb->c_attributes[16].getTrunc();
@@ -22785,7 +22785,7 @@ void HeroClass::checklocked()
 		}
 		else if(hero_scr->door[d]==dBOSS)
 		{
-			if(game->lvlitems[dlevel]&(1 << li_boss_key))
+			if(game->lvlitems.get(dlevel)&(1 << li_boss_key))
 			{
 				putdoor(hero_scr, scrollbuf, d, dOPENBOSS);
 				hero_scr->door[d]=dOPENBOSS;
@@ -25655,14 +25655,14 @@ int32_t selectWlevel(int32_t d)
     
     do
     {
-        if(d==0 && (game->lvlitems[l+1] & (1 << li_mcguffin)))
+        if(d==0 && (game->lvlitems.get(l+1) & (1 << li_mcguffin)))
             break;
         else if(d<0)
             l = (l==0) ? 7 : l-1;
         else
             l = (l==7) ? 0 : l+1;
     }
-    while(!(game->lvlitems[l+1] & (1 << li_mcguffin)));
+    while(!(game->lvlitems.get(l+1) & (1 << li_mcguffin)));
     
     game->set_wlevel(l);
     return l;
@@ -32772,7 +32772,7 @@ void HeroClass::ganon_intro()
     loaded_guys=true;
     loaditem(scr, offx, offy);
     
-    if(game->lvlitems[dlevel]&(1 << li_boss_killed))
+    if(game->lvlitems.get(dlevel)&(1 << li_boss_killed))
     {
         return;
     }

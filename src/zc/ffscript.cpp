@@ -28773,7 +28773,7 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 		return 0;
 	}
 	
-	return game->screen_d[index1][index2];
+	return game->screen_d.get(index1).get(index2);
 }
 
 void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
