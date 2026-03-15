@@ -1237,7 +1237,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 
 	int lvl = DMaps[cur_dmap].level;
-	toggle_switches(game->lvlswitches[lvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(lvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
 	bool do_layers = false;
@@ -6223,7 +6223,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 	auto screen_handles = create_screen_handles(base_scr);
 
 	int destlvl = DMaps[dmap].level;
-	toggle_switches(game->lvlswitches[destlvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(destlvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
 	bool should_check_for_state_things = (screen < 0x80);
@@ -6660,7 +6660,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	for (int i = 0; i <= 6; i++)
 		screen_handles[i] = {scr, special_warp_return_scrs[i].is_valid() ? &special_warp_return_scrs[i] : nullptr, screen, i};
 
-	toggle_switches(game->lvlswitches[destlvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(destlvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
 	apply_screen_state_remove_combos(screen_handles, game->maps.get(mi), true);

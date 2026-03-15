@@ -1024,10 +1024,10 @@ static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
 	static ScriptingArray_GlobalComputed<dword> impl(
 		[](int) { return game->lvlswitches.size(); },
 		[](int, int index) -> dword {
-			return game->lvlswitches[index];
+			return game->lvlswitches.get(index);
 		},
 		[](int, int index, dword value) {
-			auto old = game->lvlswitches[index];
+			auto old = game->lvlswitches.get(index);
 			game->lvlswitches[index] = value;
 			if (index == dlevel && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
 				toggle_switches(old ^ value, false);

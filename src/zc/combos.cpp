@@ -2081,9 +2081,9 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_REVCOND))
 			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) == trig.trig_levelitems)
 				return false;
-		if((trig.req_level_state & game->lvlswitches[dmap_level]) != trig.req_level_state)
+		if((trig.req_level_state & game->lvlswitches.get(dmap_level)) != trig.req_level_state)
 			return false; // missing at least 1 required state
-		if(trig.unreq_level_state & game->lvlswitches[dmap_level])
+		if(trig.unreq_level_state & game->lvlswitches.get(dmap_level))
 			return false; // has at least 1 un-required state
 		for(int q = 0; q < 256; ++q)
 		{

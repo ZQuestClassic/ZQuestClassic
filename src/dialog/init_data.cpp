@@ -538,7 +538,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			width = 1.5_em, padding = 0_px, forceFitH = true,
 			text = "P", onPressFunc = [&, ind]()
 			{
-				dword flags = local_zinit.lvlswitches[ind+levelsOffset];
+				dword flags = local_zinit.lvlswitches.get(ind+levelsOffset);
 				auto& lstates = GUI::ZCCheckListData::level_states();
 				if(!call_checklist_dialog("Select 'Level States'",lstates,flags,8))
 					return;

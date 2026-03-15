@@ -20370,7 +20370,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->lvlswitches[level] & (1<<flag);
+			bool state = game->lvlswitches.get(level) & (1<<flag);
 			if (state == value)
 			{
 				last_arg = 3;
@@ -20403,7 +20403,7 @@ static bool parsemsgcode(const StringCommand& command)
 
 			if (level == dlevel)
 			{
-				if (bool(game->lvlswitches[level] & (1<<flag)) != value)
+				if (bool(game->lvlswitches.get(level) & (1<<flag)) != value)
 					toggle_switches(1<<flag, false);
 			}
 			else

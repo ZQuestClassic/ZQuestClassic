@@ -1922,7 +1922,7 @@ bool SubscrWidget::check_conditions() const
 		if (unsigned(lvl) < MAXLEVELS)
 		{
 			bool inverted = genflags&SUBSCRFLAG_REQ_INVERT_LSTATE;
-			auto lstates = game->lvlswitches[lvl] & req_lvlstate;
+			auto lstates = game->lvlswitches.get(lvl) & req_lvlstate;
 			if (genflags&SUBSCRFLAG_REQ_ANY_LSTATE) // require at least one
 			{
 				if(inverted ? lstates == req_lvlstate : lstates == 0)
