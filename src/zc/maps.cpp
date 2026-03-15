@@ -528,7 +528,7 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
 	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cCHEST, cCHEST2);
 	}
 
-	if(flags&mCHEST)              // if special stuff done before
+	if(flags&mLOCKEDCHEST)              // if special stuff done before
 	{
 	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKEDCHEST, cLOCKEDCHEST2);
 	}
