@@ -5997,7 +5997,7 @@ int32_t get_register(int32_t arg)
 			int mi = mapind(cur_map, GET_REF(screenref));
 			if(mi < 0)
 				ret = -10000;
-			else ret = game->guys[mi] * 10000;
+			else ret = game->guys.get(mi) * 10000;
 			break;
 		}
 		case SCREENDATAEXDOOR:
@@ -6523,7 +6523,7 @@ int32_t get_register(int32_t arg)
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi > -1)
 				{
-					ret = game->guys[mi] * 10000;
+					ret = game->guys.get(mi) * 10000;
 					break;
 				}
 			}

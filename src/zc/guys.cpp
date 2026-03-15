@@ -18812,7 +18812,7 @@ static void side_load_enemies(mapscr* scr)
 		load_default_enemies(scr);
 
 		bool beenhere = check_if_recently_visited();
-		if (beenhere && game->guys[mi] == 0)
+		if (beenhere && game->guys.get(mi) == 0)
 		{
 			sle_cnt=0;
 			reload=false;
@@ -18820,7 +18820,7 @@ static void side_load_enemies(mapscr* scr)
 
 		if(reload)
 		{
-			sle_cnt = game->guys[mi];
+			sle_cnt = game->guys.get(mi);
 			
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
@@ -19345,7 +19345,7 @@ void loadenemies()
 
 		//Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		bool reload = true;
-		if (beenhere && game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		if (beenhere && game->guys.get(mi) == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{
 			loadcnt = 0; //It will tell it not to load any enemies,
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
@@ -19354,7 +19354,7 @@ void loadenemies()
 		bool unbeatablereload = true;
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
-			loadcnt = game->guys[mi]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			loadcnt = game->guys.get(mi); //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
 			
 			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
 				(get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.

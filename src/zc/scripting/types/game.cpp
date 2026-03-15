@@ -996,7 +996,7 @@ static ArrayRegistrar GAMEGUYCOUNT_registrar(GAMEGUYCOUNT, []{
 		[](int) { return MAPSCRSNORMAL; },
 		[](int, int index) -> int { // index is screen number for current map
 			int mi = mapind(cur_map, index);
-			return game->guys[mi];
+			return game->guys.get(mi);
 		},
 		[](int, int index, int value) {
 			int mi = mapind(cur_map, index);
