@@ -1228,6 +1228,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	int32_t section_id=ID_SAVEGAME;
 	int32_t section_version=V_SAVEGAME;
 	int32_t section_size=0;
+	save_genscript(game); //read the values into the save object
 	game.normalize();
 	
 	//section id
@@ -1423,7 +1424,6 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_iputw(game.saved_mirror_portal.spr, f))
 		return 70;
 	
-	save_genscript(game); //read the values into the save object
 	if(!p_putbitstr(game.gen_doscript, f))
 		return 72;
 	if(!p_putbmap(game.gen_exitState, f))

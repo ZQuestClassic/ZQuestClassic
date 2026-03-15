@@ -1923,11 +1923,11 @@ void load_genscript(const gamedata& gd)
 		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
 		gen.doscript() = gd.gen_doscript.get(q);
-		gen.exitState = gd.gen_exitState[q];
-		gen.reloadState = gd.gen_reloadState[q];
-		gen.eventstate = gd.gen_eventstate[q];
-		gen.initd = gd.gen_initd[q];
-		gen.data = gd.gen_data[q];
+		gen.exitState = gd.gen_exitState.get(q);
+		gen.reloadState = gd.gen_reloadState.get(q);
+		gen.eventstate = gd.gen_eventstate.get(q);
+		gen.initd = gd.gen_initd.get(q);
+		gen.data = gd.gen_data.get(q);
 	}
 }
 void load_genscript(const zinitdata& zd)
@@ -1937,11 +1937,11 @@ void load_genscript(const zinitdata& zd)
 		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
 		gen.doscript() = zd.gen_doscript.get(q);
-		gen.exitState = zd.gen_exitState[q];
-		gen.reloadState = zd.gen_reloadState[q];
-		gen.eventstate = zd.gen_eventstate[q];
-		gen.initd = zd.gen_initd[q];
-		gen.data = zd.gen_data[q];
+		gen.exitState = zd.gen_exitState.get(q);
+		gen.reloadState = zd.gen_reloadState.get(q);
+		gen.eventstate = zd.gen_eventstate.get(q);
+		gen.initd = zd.gen_initd.get(q);
+		gen.data = zd.gen_data.get(q);
 	}
 }
 
