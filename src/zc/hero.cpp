@@ -7795,7 +7795,7 @@ void HeroClass::handle_water_passive_damage(combined_handle_t combined_handle, i
 	else damageovertimeclk = 0;
 }
 
-static void dec_cooldowns(bounded_map<int, int>& cd)
+static void dec_cooldowns(bounded_map<word, int>& cd)
 {
 	auto& cont = cd.mut_inner();
 	for (auto it = cont.begin(); it != cont.end();)

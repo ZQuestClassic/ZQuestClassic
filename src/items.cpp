@@ -743,9 +743,9 @@ struct LensOffsetData
 	bool operator==(LensOffsetData const& other) const = default;
 };
 
-bounded_map<int, LensHintData> lens_hint_item {MAXITEMS, {}};
-bounded_map<int, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
-bounded_map<int, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
+bounded_map<dword, LensHintData> lens_hint_item {MAXITEMS, {}};
+bounded_map<dword, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
+bounded_map<dword, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
 void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash)
 {
 	LensHintData data = lens_hint_item.get(item_id);

@@ -1,9 +1,13 @@
-#ifndef CONTAINERS_H_
-#define CONTAINERS_H_
+#pragma once
 
 #include "base/headers.h"
 #include <array>
 #include <stdexcept>
+#include <type_traits>
+#include <concepts>
+
+template<typename T>
+concept uint_type = (std::is_integral<T>::value && std::is_unsigned<T>::value);
 
 struct SuperSet
 {
@@ -145,7 +149,7 @@ private:
 	}
 };
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 class bounded_container
 {
 public:
@@ -185,7 +189,15 @@ protected:
 	value_type default_val;
 };
 
-template<typename Sz,typename T>
+template<typename ContType, typename ElemType>
+concept is_bounded_container = (
+	std::is_base_of<bounded_container<uint8_t, ElemType>, ContType>::value
+	|| std::is_base_of<bounded_container<uint16_t, ElemType>, ContType>::value
+	|| std::is_base_of<bounded_container<uint32_t, ElemType>, ContType>::value
+	|| std::is_base_of<bounded_container<uint64_t, ElemType>, ContType>::value
+);
+
+template<uint_type Sz,typename T>
 class bounded_map : public bounded_container<Sz,T>
 {
 public:
@@ -318,7 +330,7 @@ private:
 	cont_t cont;
 };
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 class bounded_vec : public bounded_container<Sz,T>
 {
 public:
@@ -547,19 +559,19 @@ inline void _do_normalize<bitstring>(bitstring& v)
 {
 	v.normalize();
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void _do_normalize(bounded_vec<Sz,T>& v)
 {
 	v.normalize();
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void _do_normalize(bounded_map<Sz,T>& v)
 {
 	v.normalize();
 }
 
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void bounded_vec<Sz,T>::normalize()
 {
 	if(cont.size() > this->true_sz)
@@ -570,7 +582,7 @@ void bounded_vec<Sz,T>::normalize()
 	for(auto& v : cont)
 		_do_normalize(v);
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void bounded_map<Sz,T>::normalize()
 {
 	for(auto it = cont.begin(); it != cont.end();)
@@ -583,5 +595,3 @@ void bounded_map<Sz,T>::normalize()
 	for(auto& [k,v] : cont)
 		_do_normalize(v);
 }
-#endif
-
