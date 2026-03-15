@@ -570,7 +570,7 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 			if (mi < 0)
 				return -1;
 
-			return game->screen_d[mi][index];
+			return game->screen_d.get(mi).get(index);
 		},
 		[](mapdata* mapdata, int index, int value){
 			int mi = mapind(mapdata->scr->map, mapdata->scr->screen);

@@ -20187,7 +20187,7 @@ static bool parsemsgcode(const StringCommand& command)
 			int32_t s = ((get_currdmap())<<7) + msgscr->screen-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
 			arg = args[1];
 
-			if(game->screen_d[s][d] >= arg)
+			if(game->screen_d.get(s).get(d) >= arg)
 			{
 				last_arg = 2;
 				goto switched;

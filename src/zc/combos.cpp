@@ -768,7 +768,7 @@ bool play_combo_string(int str, optional<int> screen)
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
 			int32_t di = (cur_dmap<<7) + *screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
-			str = game->screen_d[di][abs(str)-10] / 10000L;
+			str = game->screen_d.get(di).get(abs(str)-10) / 10000L;
 			break;
 	}
 	if(!str || unsigned(str) >= MAXMSGS)
@@ -950,7 +950,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			case -14: case -15: case -16: case -17:
 			{
 				int32_t di = ((cur_dmap)<<7) + screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
-				itid = game->screen_d[di][abs(itid)-10] / 10000L;
+				itid = game->screen_d.get(di).get(abs(itid)-10) / 10000L;
 				break;
 			}
 			case -1:
