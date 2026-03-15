@@ -1791,7 +1791,7 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 			return game->get_keys();
 			
 		case itype_lkey:
-			return game->lvlkeys[get_dlevel()];
+			return game->lvlkeys.get(get_dlevel());
 			
 		case itype_magiccontainer:
 			return game->get_maxmagic()/game->get_mp_per_block();

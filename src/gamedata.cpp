@@ -707,7 +707,7 @@ void gamedata::change_canslash(int16_t s)
 
 byte gamedata::get_lkeys()
 {
-    return lvlkeys[dlevel];
+    return lvlkeys.get(dlevel);
 }
 
 byte gamedata::get_hcp_per_hc()

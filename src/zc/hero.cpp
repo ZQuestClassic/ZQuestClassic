@@ -21626,7 +21626,7 @@ bool usekey()
 			return true;
 	}
 	
-	if(game->lvlkeys[dlevel] != 0)
+	if(game->lvlkeys.get(dlevel) != 0)
 	{
 		game->lvlkeys[dlevel]--;
 		run_first_script_of_type(itype_lkey);
@@ -21657,7 +21657,7 @@ bool canUseKey(int32_t num)
 			: itm.power == dlevel)
 			return true;
 	}
-    return game->lvlkeys[dlevel] + game->get_keys() >= num;
+    return game->lvlkeys.get(dlevel) + game->get_keys() >= num;
 }
 
 bool usekey(int32_t num)
@@ -31205,7 +31205,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			auto lvl = dlevel;
 			if(idat.flags & item_flag1) // custom level
 				lvl = vbound(idat.misc1, 0, MAXLEVELS-1);
-			if(game->lvlkeys[lvl]<255)
+			if(game->lvlkeys.get(lvl)<255)
 				game->lvlkeys[lvl]++;
 			break;
 		}
@@ -31376,7 +31376,7 @@ void takeitem(int32_t id)
 			auto lvl = dlevel;
 			if(idat.flags & item_flag1) // custom level
 				lvl = vbound(idat.misc1, 0, MAXLEVELS-1);
-			if(game->lvlkeys[lvl])
+			if(game->lvlkeys.get(lvl))
 				game->lvlkeys[lvl]--;
 			break;
 		}

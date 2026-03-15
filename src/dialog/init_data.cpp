@@ -64,7 +64,7 @@ void InitDataDialog::setOfs(size_t ofs)
 		l_lab[q]->setText(std::to_string(q+levelsOffset));
 		for (int li = 0; li < li_max; ++li)
 			l_lvlitem[li][q]->setChecked(local_zinit.litems[q+levelsOffset] & (1 << li));
-		l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
+		l_keys[q]->setVal(local_zinit.level_keys.get(q+levelsOffset));
 	}
 }
 
@@ -528,7 +528,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					SETFLAG(local_zinit.litems[ind+levelsOffset], (1 << li), state);
 				}));
 		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
-			val = local_zinit.level_keys[ind+levelsOffset], high = 255, padding = 0_px,
+			val = local_zinit.level_keys.get(ind+levelsOffset), high = 255, padding = 0_px,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.level_keys[ind+levelsOffset] = val;

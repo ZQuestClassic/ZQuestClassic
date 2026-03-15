@@ -492,18 +492,18 @@ void modify_ssc_ctr(int ctr, int amnt, bool gradual)
 			if(ctr == sscLEVKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
 				|| ctr == sscLEVKEYMAGIC || ctr == sscANYKEYMAGIC)
 			{
-				if(amnt > 0 || -amnt < game->lvlkeys[dlevel])
+				if(amnt > 0 || -amnt < game->lvlkeys.get(dlevel))
 				{
 					game->lvlkeys[dlevel] += amnt;
 					amnt = 0;
 					break; // modification fulfilled
 				}
-				else
+				else if (auto v = game->lvlkeys.get(dlevel))
 				{
-					amnt += game->lvlkeys[dlevel];
+					amnt += v;
 					game->lvlkeys[dlevel] = 0;
-					// fallthrough to general keys
 				}
+				// fallthrough to general keys
 			}
 			
 			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
