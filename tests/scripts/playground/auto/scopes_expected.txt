@@ -6849,6 +6849,7 @@ debug data:
       - int LastChangerY @ Reg[FFCLASTCHANGERY]
       - int Layer @ Reg[FFCLAYER]
       - int Link @ Reg[FFLINK]
+      - const int ScreenFFCIndex @ Reg[FFCINDEX]
       - int Script @ Reg[FFSCRIPT]
       - int Vx @ Reg[XD]
       - int Vy @ Reg[YD]

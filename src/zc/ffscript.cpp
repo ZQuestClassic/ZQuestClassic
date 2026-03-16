@@ -3089,6 +3089,10 @@ int32_t get_register(int32_t arg)
 			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
 				ret = (get_region_screen_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
+		case FFCINDEX:
+			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
+				ret = ffc->index * 10000;
+			break;
 			
 		case XD2:
 			if(auto ffc = ResolveFFC(GET_REF(ffcref)))

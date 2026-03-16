@@ -657,6 +657,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case FFCLASTCHANGERY: return "ffc::LastChangerY";
 		case FFCLAYER: return "ffc::Layer";
 		case FFLINK: return "ffc::Link";
+		case FFCINDEX: return "ffc::ScreenFFCIndex";
 		case FFSCRIPT: return "ffc::Script";
 		case XD: return "ffc::Vx";
 		case YD: return "ffc::Vy";
