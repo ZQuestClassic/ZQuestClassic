@@ -256,13 +256,6 @@ namespace ZScript
 
 		// Documentation string associated with this node.
 		string doc_comment;
-
-		// List of expected compile error ids for this node. They are
-		// removed as they are encountered.
-		owning_vector<ASTExprConst> compileErrorCatches;
-
-		// If this node has been disabled due to an error.
-		bool errorDisabled;
 		
 		bool isDisabled() const {return disabled_;}
 		void disable() {disabled_ = true;}

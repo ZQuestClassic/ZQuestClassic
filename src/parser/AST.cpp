@@ -53,7 +53,7 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
+	: location(location), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
 const ParsedComment& AST::getParsedComment() const
@@ -1468,11 +1468,6 @@ DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
 	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
-	if(baseTypeNode->errorDisabled)
-	{
-		errorDisabled = true;
-		return *type;
-	}
 	if (!type->isResolved())
 		return *type;
 	

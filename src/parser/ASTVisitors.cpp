@@ -28,9 +28,9 @@ bool zscript_error_out = false;
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
 
-bool RecursiveVisitor::breakRecursion(AST& host, void*) const
+bool RecursiveVisitor::breakRecursion(AST&, void*) const
 {
-	return host.errorDisabled || failure_temp || failure_halt || breakNode;
+	return failure_temp || failure_halt || breakNode;
 }
 
 bool RecursiveVisitor::breakRecursion(void*) const
@@ -41,33 +41,6 @@ bool RecursiveVisitor::breakRecursion(void*) const
 void RecursiveVisitor::handleError(CompileError const& error, std::string const* inf)
 {
 	bool hard_error = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) == 0);
-	// Scan through the node stack looking for a handler.
-	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
-		 it != recursionStack.rend(); ++it)
-	{
-		AST& ancestor = **it;
-		for (vector<ASTExprConst*>::iterator it =
-				 ancestor.compileErrorCatches.begin();
-			 it != ancestor.compileErrorCatches.end(); ++it)
-		{
-			ASTExprConst& idNode = **it;
-			std::optional<int32_t> errorId = idNode.getCompileTimeValue(this, scope);
-			assert(errorId);
-			// If we've found a handler, remove that handler from the node's
-			// list of handlers and disable the current node (if not a
-			// warning).
-			if (*errorId == *error.getId() * 10000L)
-			{
-				ancestor.compileErrorCatches.erase(it);
-				if (error.isStrict())
-				{
-					ancestor.errorDisabled = true;
-					breakNode = &ancestor;
-				}
-				return;
-			}
-		}
-	}
 
 	// Actually handle the error.
 	std::string err_str = error.toString();

@@ -109,7 +109,6 @@ const		TOKEN( ZCONST );
 do		TOKEN( DO );
 typedef		TOKEN( TYPEDEF );
 
-catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 IS_INCLUDED		++doImportStr; TOKEN( ISINCLUDED );
 enum			TOKEN( ENUM );
@@ -295,10 +294,6 @@ appx_equal	TOKEN( APPXEQUAL );
 <HASH>{
 	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); UPDATE_YYLLOC; yycol = 1; return TOK_ENDLINE;
 	"option"		TOKEN( OPTION );
-	"ignore error"		TOKEN( EXPECTERROR );
-	"IGNORE ERROR"		TOKEN( EXPECTERROR );
-	"ignore warning"	TOKEN( EXPECTERROR );
-	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
 	includepath			BEGIN( IMPORTING ); TOKEN( INCLUDEPATH );

@@ -194,13 +194,6 @@ void BuildOpcodes::visit(AST& node, void* param)
 
 	if(sidefx_only) return sidefx_visit(node, param);
 	RecursiveVisitor::visit(node, param);
-	for (auto it = node.compileErrorCatches.cbegin(); it != node.compileErrorCatches.cend(); ++it)
-	{
-		ASTExprConst& idNode = **it;
-		auto errorId = idNode.getCompileTimeValue(this, scope);
-		assert(errorId);
-		handleError(CompileError::MissingCompileError(&node, int32_t(*errorId / 10000L)));
-	}
 
 	current_file = prev_file;
 	current_line = prev_line;
@@ -252,13 +245,6 @@ void BuildOpcodes::sidefx_visit(AST& node, void* param)
 	}
 	
 	RecursiveVisitor::visit(node, param);
-	for (auto it = node.compileErrorCatches.cbegin(); it != node.compileErrorCatches.cend(); ++it)
-	{
-		ASTExprConst& idNode = **it;
-		auto errorId = idNode.getCompileTimeValue(this, scope);
-		assert(errorId);
-		handleError(CompileError::MissingCompileError(&node, int32_t(*errorId / 10000L)));
-	}
 	sidefx_only = tmpb;
 }
 

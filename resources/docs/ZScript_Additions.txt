@@ -2844,19 +2844,6 @@ _________                       .__.__
 
 									// Compiler
 
-///////////////////////////
-/// Compiler Directives ///
-///////////////////////////
-
-	There's a new compile_error directive that ignores the next compiler error/warning of the 
-	specified number, that you can use to suppress warnings or halts. 
-
-	Syntax:
-	#ignore error(error_number) {error_generating_code}
-	#ignore warning(error_number) {error_generating_code}
-	catch(error_number) {error_generating_code}
-	
-
 //////////////////////
 // import, #include //
 //////////////////////
