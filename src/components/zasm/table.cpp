@@ -2768,6 +2768,7 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIG_PLAY_MUSIC", CMBTRIG_PLAY_MUSIC, 0},
 	{ "CMBTRIG_MUSIC_REFRESH", CMBTRIG_MUSIC_REFRESH, 0},
 	{ "SUBWIDGTY_COLOR_VISITED", SUBWIDGTY_COLOR_VISITED, 0 },
+	{ "FFCINDEX", FFCINDEX, 0},
 	{"", -1},
 };
 
@@ -3892,6 +3893,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case FCSET:
 		case FFCHEIGHT:
 		case FFCID:
+		case FFCINDEX:
 		case FFCLAYER:
 		case FFCWIDTH:
 		case FFFLAGSD:
