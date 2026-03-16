@@ -20045,11 +20045,20 @@ static bool parsemsgcode(const StringCommand& command)
 		
 		case MSGC_SETSCREEND:
 		{
-			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
+			int32_t dmap =     args[0];
 			int32_t screen =     args[1];
 			int32_t reg =     args[2];
 			int32_t val =     args[3];
-			FFCore.set_screen_d(screen + dmap, reg, val);
+			FFCore.set_screen_d(screen + dmap*128, reg, val);
+			return true;
+		}
+		case MSGC_SETCURRENTSCREEND:
+		{
+			int32_t dmap =    cur_dmap;
+			int32_t screen =  cur_screen;
+			int32_t reg =     args[0];
+			int32_t val =     args[1];
+			FFCore.set_screen_d(screen + dmap*128, reg, val);
 			return true;
 		}
 		case MSGC_TAKEITEM:

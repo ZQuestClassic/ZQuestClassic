@@ -77,6 +77,7 @@
 #define MSGC_CHANGEBOTTLE          158  // 3 args (quantity, old fill type, new fill type)
 #define MSGC_MUSIC                 159  // 1 arg (music)
 #define MSGC_MUSIC_REFRESH         160  // 1 arg (music refresh)
+#define MSGC_SETCURRENTSCREEND     161  // 2 args (reg, value)
 
 #define MAX_SCC_ARG_COUNT 6
 

@@ -118,6 +118,7 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_GOTOMENUCHOICE); // Go If Menu Choice
 	
 	addCommand(ld, MSGC_SETSCREEND); // Set Screen->D[]
+	addCommand(ld, MSGC_SETCURRENTSCREEND); // Set Current Screen->D[]
 	addCommand(ld, MSGC_SETSCREENSTATE); // Set Current Screen State
 	addCommand(ld, MSGC_SETSCREENSTATER); // Set Screen State
 	addCommand(ld, MSGC_SETSCREENEXSTATE); // Set Current Screen ExState
@@ -311,6 +312,7 @@ std::string scc_help(byte scc)
 			" an enemy eating the item.";
 		case MSGC_WARP: return "Warp the Hero";
 		case MSGC_SETSCREEND: return "Set the value of any screen's 'Screen->D[]'";
+		case MSGC_SETCURRENTSCREEND: return "Set the value of the current screen's 'Screen->D[]'";
 		case MSGC_SFX: return "Plays an SFX";
 		case MSGC_MIDI: return "Plays a MIDI";
 		case MSGC_MUSIC: return "Plays a Music";
@@ -868,6 +870,22 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
 					NUM_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
+					INFOBTN("Value to assign to register")
+				)
+			);
+			break;
+		}
+		case MSGC_SETCURRENTSCREEND:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Register:"),
+					NUM_FIELD(cur_args[0],0,7),
+					INFOBTN("Screen->D[] register to edit")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Value:"),
+					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
 					INFOBTN("Value to assign to register")
 				)
 			);
