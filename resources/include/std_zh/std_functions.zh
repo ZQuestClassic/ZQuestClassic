@@ -2368,15 +2368,15 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-//Use NPCT_* constants.
-int NumNPCsOf(int type)
+//Use NPC_* constants.
+int NumNPCsOf(int id)
 {
 	int ret = 0;
 	npc n;
 	for (int i = Screen->NumNPCs; i > 0 ; --i)
 	{
 		n = Screen->LoadNPC(i);
-		if (n->ID == type)
+		if (n->ID == id)
 			++ret;
 	}
 	return ret;
