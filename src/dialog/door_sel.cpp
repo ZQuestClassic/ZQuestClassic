@@ -45,6 +45,16 @@ DoorSelDialog::DoorSelDialog(mapscr const& ref) :
 		doors[q] = screen.door[q];;
 }
 
+static void redraw_to_bg_bitmap()
+{
+	// Temporarily point 'screen' to the background layer so refresh()
+	// doesn't dump opaque black map pixels onto the transparent dialog overlay.
+	BITMAP* active_dlg_bmp = screen;
+	if (zqdialog_bg_bmp) screen = zqdialog_bg_bmp;
+	refresh(rMAP | rNOCURSOR);
+	screen = active_dlg_bmp;
+}
+
 void DoorSelDialog::set_doors()
 {
 	//Recover the combos that were there previously!
@@ -53,7 +63,7 @@ void DoorSelDialog::set_doors()
 	Map.DoSetDCSCommand(door_combo_set);
 	for (int q = 0; q < 4; q++)
 		Map.DoPutDoorCommand(q,doors[q],door_combo_set!=old_door_combo_set);
-	refresh(rMAP | rNOCURSOR);
+	redraw_to_bg_bitmap();
 }
 
 std::shared_ptr<GUI::Widget> DoorSelDialog::DoorDDL(byte dir)
