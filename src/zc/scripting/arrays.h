@@ -975,7 +975,7 @@ public:
 
 		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
 		{
-			if constexpr (is_bounded_container<MemberType, ElementType>)
+			if constexpr (is_gettable_container<MemberType>)
 				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
 			else
 				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);

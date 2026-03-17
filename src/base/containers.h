@@ -7,7 +7,13 @@
 #include <concepts>
 
 template<typename T>
-concept uint_type = (std::is_integral<T>::value && std::is_unsigned<T>::value);
+concept uint_type = std::unsigned_integral<T>;
+
+template <typename ContType>
+concept is_gettable_container = requires(const ContType& cont, size_t idx)
+{
+	{ cont.get(idx) };
+};
 
 struct SuperSet
 {
@@ -188,14 +194,6 @@ protected:
 	size_type true_sz;
 	value_type default_val;
 };
-
-template<typename ContType, typename ElemType>
-concept is_bounded_container = (
-	std::is_base_of<bounded_container<uint8_t, ElemType>, ContType>::value
-	|| std::is_base_of<bounded_container<uint16_t, ElemType>, ContType>::value
-	|| std::is_base_of<bounded_container<uint32_t, ElemType>, ContType>::value
-	|| std::is_base_of<bounded_container<uint64_t, ElemType>, ContType>::value
-);
 
 template<uint_type Sz,typename T>
 class bounded_map : public bounded_container<Sz,T>

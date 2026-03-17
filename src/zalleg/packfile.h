@@ -682,7 +682,7 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 				if(cont.get(q) == dt) continue;
 				if(!p_putvar(q, f))
 					return false;
-				if(!p_putvar(cont[q], f))
+				if(!p_putvar(cont.get(q), f))
 					return false;
 			}
 		}
