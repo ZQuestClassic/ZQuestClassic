@@ -1887,15 +1887,15 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-// @param [NPCType] type
-int NumNPCsOf(int type)
+// @param [NPCID] id
+int NumNPCsOf(int id)
 {
 	int ret = 0;
 	npc n;
 	for (int i = Screen->NumNPCs; i > 0 ; --i)
 	{
 		n = Screen->LoadNPC(i);
-		if (n->ID == type)
+		if (n->ID == id)
 			++ret;
 	}
 	return ret;
