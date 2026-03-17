@@ -6282,7 +6282,7 @@ int32_t get_register(const int32_t arg)
 		
 		case NPCSHIELD:
 		{
-			int32_t indx = ri->d[rINDEX];
+			int32_t indx = ri->d[rINDEX]/10000;
 			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
 			{
 				switch(indx)
@@ -20736,7 +20736,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case NPCSHIELD:
 		{
-			int32_t indx = ri->d[rINDEX];
+			int32_t indx = ri->d[rINDEX]/10000;
 			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
 			{
 				switch(indx)
