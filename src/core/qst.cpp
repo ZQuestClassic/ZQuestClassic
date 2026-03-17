@@ -3331,11 +3331,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LANDING_SFX, 1);
 		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
 	}
-	if (compatrule_version < 74 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 9) < 0))
+	if (compatrule_version < 74)
 		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
-	if (compatrule_version < 75 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+	if (compatrule_version < 75)
 		set_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, 1);
-	if (compatrule_version < 76 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+	if (compatrule_version < 76)
 		set_qr(qr_INVERTED_DARK_COMBO_TRIGGERS, 1);
 	if (compatrule_version < 77)
 		set_qr(qr_BROKEN_ICY_FLOOR_SIDEVIEW, 1);
@@ -3345,22 +3345,22 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SYSTEM_COLORS, 1);
 	if (compatrule_version < 80)
 		set_qr(qr_ZS_OLD_SUSPEND_FFC, 1);
-	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 10) < 0))
+	if (compatrule_version < 81)
 		set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
-	if (compatrule_version < 81 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 6) < 0))
+	if (compatrule_version < 81)
 		set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
 	if (compatrule_version < 82)
 	{
 		set_qr(qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID, 1);
 		set_qr(qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS, 1);
 	}
-	if (compatrule_version < 83 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+	if (compatrule_version < 83)
 		set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
-	if (compatrule_version < 84 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+	if (compatrule_version < 84)
 		set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
 	if (compatrule_version < 85)
 		set_qr(qr_OLD_WEAPON_REFLECTION, 1);
-	if (compatrule_version < 86 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+	if (compatrule_version < 86)
 		set_qr(qr_OLD_SPRITE_FALL_DROWN, 1);
 	if (compatrule_version < 87)
 		set_qr(qr_OLD_TERMINAL_VELOCITY, 1);
@@ -3381,10 +3381,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE, 1);
 	}
 
-	if (compatrule_version < 92 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 11) < 0))
+	if (compatrule_version < 92)
 		set_qr(qr_OLD_PIT_SENSITIVITY, 1);
 
-	if (compatrule_version < 93 && (tempheader.version_major >= 3 || tempheader.compareVer(2, 55, 12) < 0))
+	if (compatrule_version < 93)
 		set_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, 1);
 
 	if (compatrule_version < 94)
@@ -3412,6 +3412,60 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
+
+	// These QRs are for changes that were cherry-picked to the 2.55 branch. We can't bump the
+	// compatrule version there anymore, so instead we check the header version.
+	if (tempheader.version_major < 3)
+	{
+		// Older than 2.55.6?
+		if (tempheader.compareVer(2, 55, 6) < 0)
+			set_qr(qr_ROPE_ENEMIES_SPEED_NOT_CONFIGURABLE, 1);
+	
+		// Older than 2.55.9?
+		if (tempheader.compareVer(2, 55, 9) < 0)
+		{
+			set_qr(qr_NEWDARK_TRANS_STACKING,1);
+			set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
+			// Note: in 3.0, this is only sometimes enabled for quests prior to 2.55.9.
+			// So purposefully skipped here. See compat_qr_hide_bottom_pixels.
+			// set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
+		}
+	
+		// Older than 2.55.10?
+		if (tempheader.compareVer(2, 55, 10) < 0)
+		{
+			set_qr(qr_BROKEN_SCRIPTS_BITMAP_DRAW_ORIGIN, 1);
+			set_qr(qr_LAYER6_STRINGS_OVER_SUBSCREEN, 1);
+			set_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL, 1);
+		}
+	
+		// Older than 2.55.11?
+		if (tempheader.compareVer(2, 55, 11) < 0)
+		{
+			set_qr(qr_BROKEN_BLOCKHOLE_PITFALLS, 1);
+			set_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE, 1);
+			set_qr(qr_OLD_SPRITE_FALL_DROWN, 1);
+			set_qr(qr_OLD_PIT_SENSITIVITY, 1);
+		}
+	
+		// Older than 2.55.12?
+		if (tempheader.compareVer(2, 55, 12) < 0)
+		{
+			set_qr(qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT, 1);
+			set_qr(qr_ACTIVE_SUB_IGNORE_8PX, 1);
+		}
+	
+		// Older than 2.55.13?
+		if (tempheader.compareVer(2, 55, 13) < 0)
+		{
+			set_qr(qr_DRAWCOMBO_IGNORES_FRAME, 1);
+			set_qr(qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY, 1);
+			set_qr(qr_BUGGY_MULTIPLE_WIND, 1);
+			set_qr(qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES, 1);
+			set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
+			set_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS, 1);
+		}
+	}
 
 	*Header = tempheader;
 
