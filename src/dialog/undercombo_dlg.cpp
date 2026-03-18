@@ -20,7 +20,7 @@ static void get_screens(mapscr& s, mapscr* screens[7])
 	{
 		screens[layer] = nullptr;
 		if (s.layermap[layer-1] > 0)
-			screens[layer] = Map.AbsoluteScr(s.layermap[layer-1], s.layerscreen[layer-1]);
+			screens[layer] = Map.AbsoluteScr(s.layermap[layer-1]-1, s.layerscreen[layer-1]);
 	}
 }
 
@@ -87,8 +87,6 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 	
 	while (layer < 7)
 	{
-		if (layer > 0)
-			g->add(HSeparator());
 		shared_ptr<GUI::Grid> subg = GUI::Internal::makeRowsColumns(2, whole_map ? 2 : 3);
 		subg->setHAlign(0.0);
 		
@@ -103,10 +101,12 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 		subg->add(INFOBTN("The combo+cset set as the undercombo for the layer screen."
 			"\nFirst box selects combo, second box shows animated preview of the combo."));
 		
+		bool did_something = false;
 		for (int q = 0; q < 4 && layer < 7; ++layer)
 		{
 			if (!whole_map && !layer_enabled[layer])
 				continue;
+			did_something = true;
 			++q;
 			size_t idx = 0;
 			#define ADD(w) \
@@ -173,7 +173,13 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 			
 			#undef ADD
 		}
-		g->add(subg);
+		
+		if (did_something) // don't add a blank row
+		{
+			if (layer > 0)
+				g->add(HSeparator());
+			g->add(subg);
+		}
 	}
 	
 	if (whole_map)
@@ -273,7 +279,7 @@ bool UnderComboDialog::save_results()
 				cur_screens[layer]->undercombo = undercombos[layer];
 				cur_screens[layer]->undercset = undercsets[layer];
 				if (layer > 0)
-					Map.AbsoluteScrMakeValid(cur_screens[0]->layermap[layer-1], cur_screens[0]->layerscreen[layer-1]);
+					Map.AbsoluteScrMakeValid(cur_screens[0]->layermap[layer-1]-1, cur_screens[0]->layerscreen[layer-1]);
 			}
 		}
 	}
