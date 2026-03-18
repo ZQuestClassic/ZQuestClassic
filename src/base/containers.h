@@ -1,9 +1,19 @@
-#ifndef CONTAINERS_H_
-#define CONTAINERS_H_
+#pragma once
 
 #include "base/headers.h"
 #include <array>
 #include <stdexcept>
+#include <type_traits>
+#include <concepts>
+
+template<typename T>
+concept uint_type = std::unsigned_integral<T>;
+
+template <typename ContType>
+concept is_gettable_container = requires(const ContType& cont, size_t idx)
+{
+	{ cont.get(idx) };
+};
 
 struct SuperSet
 {
@@ -145,7 +155,7 @@ private:
 	}
 };
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 class bounded_container
 {
 public:
@@ -159,6 +169,7 @@ public:
 	
 	virtual value_type& at(size_type ind) = 0;
 	virtual value_type const& at(size_type ind) const = 0;
+	virtual value_type const& get(size_type ind) const {return at(ind);}
 	virtual value_type& operator[](size_type ind) = 0;
 	virtual value_type const& operator[](size_type ind) const = 0;
 	virtual void clear() = 0;
@@ -184,7 +195,7 @@ protected:
 	value_type default_val;
 };
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 class bounded_map : public bounded_container<Sz,T>
 {
 public:
@@ -218,10 +229,6 @@ public:
 			return this->default_val;
 		}
 		throw std::out_of_range("Bad bounded_map access");
-	}
-	value_type const& get(size_type ind) const
-	{
-		return at(ind);
 	}
 
 	value_type& operator[](size_type ind)
@@ -288,13 +295,13 @@ public:
 			return false;
 		if(other.default_val != this->default_val)
 			return false;
-		map<size_type,bool> keys;
-		for(auto [k,v] : cont)
-			keys[k] = true;
+		std::set<size_type> keys;
+		for(auto [k,v] : this->cont)
+			keys.insert(k);
 		for(auto [k,v] : other.cont)
-			keys[k] = true;
-		for(auto [k,b] : keys)
-			if(other[k] != (*this)[k])
+			keys.insert(k);
+		for(auto k : keys)
+			if(other.get(k) != this->get(k))
 				return false;
 		return true;
 	}
@@ -321,7 +328,7 @@ private:
 	cont_t cont;
 };
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 class bounded_vec : public bounded_container<Sz,T>
 {
 public:
@@ -356,10 +363,6 @@ public:
 			return this->default_val;
 		}
 		throw std::out_of_range("Bad bounded_vec access");
-	}
-	value_type const& get(size_type ind) const
-	{
-		return at(ind);
 	}
 
 	value_type& operator[](size_type ind)
@@ -421,7 +424,7 @@ public:
 			return false;
 		size_t cap = std::max(other.capacity(), this->capacity());
 		for(size_t q = 0; q < cap; ++q)
-			if(other[q] != (*this)[q])
+			if(other.get(q) != this->get(q))
 				return false;
 		return true;
 	}
@@ -445,7 +448,7 @@ public:
 	
 	bool get(index_t ind) const
 	{
-		return cont[ind/8] & (1 << ind%8);
+		return cont.get(ind/8) & (1 << ind%8);
 	}
 	void set(index_t ind, bool state)
 	{
@@ -503,7 +506,7 @@ public:
 	
 	bool get(index_t ind) const
 	{
-		return cont[ind/8] & (1 << ind%8);
+		return cont.get(ind/8) & (1 << ind%8);
 	}
 	void set(index_t ind, bool state)
 	{
@@ -554,19 +557,19 @@ inline void _do_normalize<bitstring>(bitstring& v)
 {
 	v.normalize();
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void _do_normalize(bounded_vec<Sz,T>& v)
 {
 	v.normalize();
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void _do_normalize(bounded_map<Sz,T>& v)
 {
 	v.normalize();
 }
 
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void bounded_vec<Sz,T>::normalize()
 {
 	if(cont.size() > this->true_sz)
@@ -577,7 +580,7 @@ void bounded_vec<Sz,T>::normalize()
 	for(auto& v : cont)
 		_do_normalize(v);
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 void bounded_map<Sz,T>::normalize()
 {
 	for(auto it = cont.begin(); it != cont.end();)
@@ -590,5 +593,3 @@ void bounded_map<Sz,T>::normalize()
 	for(auto& [k,v] : cont)
 		_do_normalize(v);
 }
-#endif
-

@@ -314,7 +314,7 @@ void gamedata::change_dcounter(int16_t change, byte c)
 
 int32_t gamedata::get_generic(byte c) const
 {
-    return _generic[c];
+    return _generic.get(c);
 }
 
 void gamedata::set_generic(int32_t change, byte c)
@@ -707,7 +707,7 @@ void gamedata::change_canslash(int16_t s)
 
 byte gamedata::get_lkeys()
 {
-    return lvlkeys[dlevel];
+    return lvlkeys.get(dlevel);
 }
 
 byte gamedata::get_hcp_per_hc()

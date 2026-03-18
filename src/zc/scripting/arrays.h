@@ -974,7 +974,12 @@ public:
 		const auto& container = obj->*T_MemberPtr;
 
 		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
-			return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
+		{
+			if constexpr (is_gettable_container<MemberType>)
+				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
+			else
+				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
+		}
 
 		return getDefaultValue();
 	}

@@ -235,7 +235,7 @@ GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 	
 	for(word q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		std::string name = itemsbuf[q].name;
+		std::string name = itemsbuf.get(q).name;
 		if(numbered)
 			name = fmt::format("{} ({:04})", name, q);
 		
@@ -820,7 +820,7 @@ GUI::ListData GUI::ZCListData::disabled_items(bitstring const& disabledarray)
 	for (word q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		if (disabledarray.get(q))
-			ls.add(itemsbuf[q].name, q);
+			ls.add(itemsbuf.get(q).name, q);
 	}
 	if (ls.size() == 0)
 		ls.add("", -1);

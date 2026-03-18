@@ -41,7 +41,7 @@ bool item::animate(int32_t)
 		if(invalid_item_id(id2))
 			id2 = id;
 		else if (id2 != id)
-			disp_item = &itemsbuf[id2];
+			disp_item = &itemsbuf.get(id2);
 		
 		if(id2 != linked_parent) //Update item
 		{
@@ -352,7 +352,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	
 	if (invalid_item_id(id))
 		return;
-	itemdata const& itm = itemsbuf[id];
+	itemdata const& itm = itemsbuf.get(id);
 	
 	o_tile = itm.tile;
 	tile = itm.tile;
@@ -566,7 +566,7 @@ static void _check_itembundle_recursive(int32_t itmid, prog_item_data& data)
 		data.errored = true;
 		return;
 	}
-	itemdata const& itm = itemsbuf[itmid];
+	itemdata const& itm = itemsbuf.get(itmid);
 	if(itm.type != itype_itmbundle)
 	{
 		assert(false);
@@ -579,7 +579,7 @@ static void _check_itembundle_recursive(int32_t itmid, prog_item_data& data)
 	{
 		if(invalid_item_id(id))
 			continue;
-		itemdata const& targItem = itemsbuf[id];
+		itemdata const& targItem = itemsbuf.get(id);
 		if(targItem.type == itype_itmbundle)
 		{
 			prog_item_data subdata = data.make_child();
@@ -626,7 +626,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		return;
 	}
 	data.visited->insert(itmid);
-	itemdata const& itm = itemsbuf[itmid];
+	itemdata const& itm = itemsbuf.get(itmid);
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 	for(auto id : arr)
@@ -638,7 +638,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
 			continue;
-		itemdata const& targItem = itemsbuf[id];
+		itemdata const& targItem = itemsbuf.get(id);
 		//Skip items that would increase a counter max by 0, due to 'Not Above...'
 		if(targItem.setmax > 0) //Increases a counter
 			if(game->get_maxcounter(targItem.count) >= targItem.max) //...but can't
@@ -647,7 +647,7 @@ static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 		{
 			int32_t hcid = heart_container_id();
 			if(invalid_item_id(hcid)) continue;
-			itemdata const& hcitem = itemsbuf[hcid];
+			itemdata const& hcitem = itemsbuf.get(hcid);
 			if(hcitem.setmax > 0)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
 					continue;
@@ -743,9 +743,9 @@ struct LensOffsetData
 	bool operator==(LensOffsetData const& other) const = default;
 };
 
-bounded_map<int, LensHintData> lens_hint_item {MAXITEMS, {}};
-bounded_map<int, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
-bounded_map<int, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
+bounded_map<dword, LensHintData> lens_hint_item {MAXITEMS, {}};
+bounded_map<dword, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
+bounded_map<dword, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
 void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash)
 {
 	LensHintData data = lens_hint_item.get(item_id);
@@ -953,7 +953,7 @@ void removeItemsOfFamily(int32_t family)
 {
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family)
 		{
 			game->set_item_no_flush(q, false);
@@ -975,7 +975,7 @@ void removeLowerLevelItemsOfFamily(int32_t family, int32_t level)
 {
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && itm.level < level)
 		{
 			game->set_item_no_flush(q, false);
@@ -1001,7 +1001,7 @@ int32_t getHighestLevelOfFamily(zinitdata *source, int32_t family)
 	size_t sz = zc_min(itemsbuf.capacity(), source->items.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && source->get_item(q))
 		{
 			if(itm.level >= highestlevel)
@@ -1023,7 +1023,7 @@ int32_t getHighestLevelOfFamily(gamedata *source, int32_t family)
 	size_t sz = zc_min(itemsbuf.capacity(), source->items_owned.length());
 	for(size_t q = 0; q < sz; ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && source->get_item(q))
 		{
 			if(itm.level >= highestlevel)
@@ -1044,7 +1044,7 @@ int32_t getHighestLevelEvenUnowned(int32_t family)
 	
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family)
 		{
 			if(itm.level >= highestlevel)
@@ -1065,7 +1065,7 @@ int32_t getItemID(int32_t family, int32_t level)
 	
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && itm.level == level)
 			return q;
 	}
@@ -1077,7 +1077,7 @@ int32_t getItemIDPower(int32_t family, int32_t power)
 {
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && itm.power == power)
 			return q;
 	}
@@ -1093,7 +1093,7 @@ int32_t getCanonicalItemID(int32_t family)
 	
 	for(size_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if(itm.type == family && (itm.level < lowestlevel || lowestlevel < 0))
 		{
 			lowestlevel = itm.level;
@@ -1225,7 +1225,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 					int id = -1;
 					for (int q = 0; q < itemsbuf.capacity(); ++q)
 					{
-						if(&itemsbuf[q] == this)
+						if(&itemsbuf.get(q) == this)
 						{
 							id = q;
 							break;
@@ -1409,7 +1409,7 @@ static void apply_cooldown_ring(cooldown_data& data)
 		return;
 	if (!checkmagiccost(cooldown_ring_id) || !checkbunny(cooldown_ring_id))
 		return;
-	itemdata const& cdring = itemsbuf[cooldown_ring_id];
+	itemdata const& cdring = itemsbuf.get(cooldown_ring_id);
 	if (!data.max_cooldown && !(cdring.flags & item_flag1))
 		return; // don't affect items already at 0 cooldown unless flag is set
 	zfix max_cd = data.max_cooldown;
@@ -1442,7 +1442,7 @@ cooldown_data calc_item_cooldown(int item_id)
 	apply_cooldown_ring(data);
 	
 #ifdef IS_PLAYER
-	data.cooldown = Hero.item_cooldown[item_id];
+	data.cooldown = Hero.item_cooldown.get(item_id);
 #else
 	data.cooldown = data.max_cooldown - (subscr_item_clk % (data.max_cooldown+1));
 #endif
@@ -1471,7 +1471,7 @@ void run_first_script_of_type([[maybe_unused]] int itype)
 #ifdef IS_PLAYER
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if (itm.type == itype)
 		{
 			if (itm.script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 

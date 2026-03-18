@@ -2985,7 +2985,7 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         
         if(valid_item_id(itemid))
         {
-			auto const& itm = itemsbuf[itemid];
+			auto const& itm = itemsbuf.get(itemid);
             if(itm.flags & item_flag1)
                 magickey = itm.power >= get_dlevel();
             else

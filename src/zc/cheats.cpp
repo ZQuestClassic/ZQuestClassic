@@ -204,7 +204,7 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
     {
         for (size_t i = 0; i < itemsbuf.capacity(); i++)
         {
-			auto const& itm = itemsbuf[i];
+			auto const& itm = itemsbuf.get(i);
             if (itm.type == itype_bomb || itm.type == itype_sbomb)
                 getitem(i, true);
         }

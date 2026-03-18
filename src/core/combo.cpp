@@ -851,7 +851,7 @@ if (var > -2) \
 		{
 			effects << indent;
 			if (spawnitem > 0)
-				effects << fmt::format("Spawn item #{} ({})", spawnitem, itemsbuf[spawnitem].name);
+				effects << fmt::format("Spawn item #{} ({})", spawnitem, itemsbuf.get(spawnitem).name);
 			else effects << fmt::format("Spawn item from dropset #{} ({})", -spawnitem, item_drop_sets[-spawnitem].name);
 			if (specitem)
 				effects << " (using room's 'Special Item' state)";
@@ -904,7 +904,7 @@ if (var > -2) \
 		}
 
 		if (triggeritem && trigger_flags.get(TRIGFLAG_CONSUMEITEM))
-			effects << indent << fmt::format("Consume item {} '{}'\n", triggeritem, itemsbuf[triggeritem].name);
+			effects << indent << fmt::format("Consume item {} '{}'\n", triggeritem, itemsbuf.get(triggeritem).name);
 			if (trigctramnt && ctr_consume)
 			{
 				effects << indent << "Consume " << ctr_str;

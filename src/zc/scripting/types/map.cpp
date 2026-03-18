@@ -320,7 +320,7 @@ static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->maps[mi] >> index) & 1;
+			return (game->maps.get(mi) >> index) & 1;
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);
@@ -342,7 +342,7 @@ static ArrayRegistrar MAPDATAEXSTATED_registrar(MAPDATAEXSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->xstates[mi] >> index) & 1;
+			return (game->xstates.get(mi) >> index) & 1;
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);
@@ -397,7 +397,7 @@ static ArrayRegistrar MAPDATASCRDATA_registrar(MAPDATASCRDATA, []{
 			int mapindex = get_ref_map_index(ref);
 			if (mapindex < 0) return 0;
 
-			return game->screen_data[mapindex][index];
+			return game->screen_data.get(mapindex).get(index);
 		},
 		[](int ref, int index, int value){
 			int mapindex = get_ref_map_index(ref);
@@ -570,7 +570,7 @@ static ArrayRegistrar MAPDATAMISCD_registrar(MAPDATAMISCD, []{
 			if (mi < 0)
 				return -1;
 
-			return game->screen_d[mi][index];
+			return game->screen_d.get(mi).get(index);
 		},
 		[](mapdata* mapdata, int index, int value){
 			int mi = mapind(mapdata->scr->map, mapdata->scr->screen);

@@ -2608,7 +2608,7 @@ void update_sso_name()
 			SW_ItemSlot* widg = static_cast<SW_ItemSlot*>(w);
 			if(widg->iid > -1)
 			{
-				itemdata const& itm = itemsbuf[widg->iid];
+				itemdata const& itm = itemsbuf.get(widg->iid);
 				onamestr = fmt::format("{} (Item: {})", onamestr, itm.get_name(true,itm.type==itype_arrow));
 			}
 			else onamestr = fmt::format("{} (Class: {})", onamestr, ZI.getItemClassName(widg->iclass));

@@ -340,7 +340,7 @@ public:
 	int32_t autowalk_combo_id = -1;
 	combined_handle_t autowalk_handle;
 	
-	bounded_map<int, int> item_cooldown {MAXITEMS, 0};
+	bounded_map<word, int> item_cooldown {MAXITEMS, 0};
 private:
 	ffcdata const* platform_ffc;
 	bool lamp_paid;

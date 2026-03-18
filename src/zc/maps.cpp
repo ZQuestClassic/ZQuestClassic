@@ -1237,7 +1237,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 
 	int lvl = DMaps[cur_dmap].level;
-	toggle_switches(game->lvlswitches[lvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(lvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
 	bool do_layers = false;
@@ -1269,7 +1269,7 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
 			return std::nullopt;
 	}
 
-	int flags = secrets ? game->maps[mapind(map, screen)] : 0;
+	int flags = secrets ? game->maps.get(mapind(map, screen)) : 0;
 	mapscr scr = *source;
 	apply_state_changes_to_screen(scr, map, screen, flags, secrets_do_replay_comment);
 
@@ -1419,7 +1419,7 @@ void eventlog_mapflags()
 	std::ostringstream oss;
 	
 	int mi = mapind(cur_map, home_screen);
-	dword g = game->maps[mi];
+	dword g = game->maps.get(mi);
     
 	oss << fmt::format("Screen ({}, {:02X})", cur_map+1, home_screen);
 	if(g) // Main States
@@ -1446,13 +1446,13 @@ void eventlog_mapflags()
 		}
 		oss << "]";
 	}
-	if(game->xstates[mi]) // ExStates
+	if(game->xstates.get(mi)) // ExStates
 	{
 		oss << " Ex[";
 		bool comma = false;
 		for(byte fl = 0; fl < 32; ++fl)
 		{
-			if(game->xstates[mi] & (1<<fl))
+			if(game->xstates.get(mi) & (1<<fl))
 			{
 				if(comma)
 					oss << ", ";
@@ -1466,7 +1466,7 @@ void eventlog_mapflags()
 		for(int q = 0; q < 4; ++q)
 		{
 			bool comma = false;
-			if(auto v = game->xdoors[mi][q])
+			if(auto v = game->xdoors.get(mi)[q])
 			{
 				if(comma)
 					oss << ",";
@@ -1524,7 +1524,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
 	const char* replay_state_string = state_string;
 	if(temp == 6) replay_state_string = "No Return";
 
-    if (replay_is_active() && !(game->maps[mi] & flag))
+    if (replay_is_active() && !(game->maps.get(mi) & flag))
         replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, replay_state_string));
     game->maps[mi] |= flag;
     log_state_change(cmap, cscr, fmt::format("State set: {}", state_string));
@@ -1539,7 +1539,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if(!(game->maps[((nmap-1)<<7)+nscr] & flag))
+            if(!(game->maps.get(((nmap-1)<<7)+nscr) & flag))
             {
                 log_state_change(nmap, nscr, "State change carried over");
                 if (replay_is_active())
@@ -1621,7 +1621,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if(game->maps[((nmap-1)<<7)+nscr] & flag)
+            if(game->maps.get(((nmap-1)<<7)+nscr) & flag)
             {
                 log_state_change(nmap, nscr, "State change carried over");
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;
@@ -1646,12 +1646,12 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, uint32_t flag, bool anyflag)
 bool getmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
-    return (game->maps[mi] & flag) != 0;
+    return (game->maps.get(mi) & flag) != 0;
 }
 bool getmapflag(mapscr* scr, uint32_t flag)
 {
 	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
-	return (game->maps[mi] & flag) != 0;
+	return (game->maps.get(mi) & flag) != 0;
 }
 
 void setxmapflag(int32_t screen, uint32_t flag)
@@ -1661,7 +1661,7 @@ void setxmapflag(int32_t screen, uint32_t flag)
 }
 void setxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(game->xstates[mi] & flag) return;
+	if(game->xstates.get(mi) & flag) return;
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
 
@@ -1684,7 +1684,7 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 		
 		while((nmap!=0) && !looped && !(nscr>=128))
 		{
-			if(!(game->maps[((nmap-1)<<7)+nscr] & flag))
+			if(!(game->maps.get(((nmap-1)<<7)+nscr) & flag))
 			{
 				log_state_change(nmap, nscr, "ExState change carried over");
 				if (replay_is_active())
@@ -1714,7 +1714,7 @@ void unsetxmapflag(int32_t screen, uint32_t flag)
 }
 void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(!(game->xstates[mi] & flag)) return;
+	if(!(game->xstates.get(mi) & flag)) return;
 	byte cscr = mi&((1<<7)-1);
 	byte cmap = (mi>>7);
 	byte temp=(byte)log2((double)flag);
@@ -1735,7 +1735,7 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 		
 		while((nmap!=0) && !looped && !(nscr>=128))
 		{
-			if(game->maps[((nmap-1)<<7)+nscr] & flag)
+			if(game->maps.get(((nmap-1)<<7)+nscr) & flag)
 			{
 				log_state_change(nmap, nscr, "ExState change carried over");
 				game->xstates[((nmap-1)<<7)+nscr] &= ~flag;
@@ -1768,14 +1768,14 @@ bool getxmapflag(mapscr* scr, uint32_t flag)
 }
 bool getxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	return (game->xstates[mi] & flag) != 0;
+	return (game->xstates.get(mi) & flag) != 0;
 }
 
 void setxdoor_mi(uint mi, uint dir, uint ind, bool state)
 {
 	if(mi > game->xdoors.size() || dir > 3 || ind > 8)
 		return;
-	if(!(game->xdoors[mi][dir] & (1<<ind)) == !state)
+	if(!(game->xdoors.get(mi)[dir] & (1<<ind)) == !state)
 		return;
 
 	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
@@ -1791,7 +1791,7 @@ bool getxdoor_mi(uint mi, uint dir, uint ind)
 {
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return false;
-	return (game->xdoors[mi][dir] & (1<<ind));
+	return (game->xdoors.get(mi)[dir] & (1<<ind));
 }
 bool getxdoor(int32_t screen, uint dir, uint ind)
 {
@@ -6195,12 +6195,12 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen))
 	{
-		if(game->maps[mi] & mSECRET)    // if special stuff done before
+		if(game->maps.get(mi) & mSECRET)    // if special stuff done before
 		{
 			reveal_hidden_stairs(base_scr, screen, false);
 			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, base_scr, false);
 		}
-		if(game->maps[mi] & mLIGHTBEAM) // if special stuff done before
+		if(game->maps.get(mi) & mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
@@ -6223,21 +6223,21 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 	auto screen_handles = create_screen_handles(base_scr);
 
 	int destlvl = DMaps[dmap].level;
-	toggle_switches(game->lvlswitches[destlvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(destlvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
 	bool should_check_for_state_things = (screen < 0x80);
 	if (should_check_for_state_things)
 	{
-		if (game->maps[mi]&mLOCKBLOCK)
+		if (game->maps.get(mi)&mLOCKBLOCK)
 			remove_lockblocks(screen_handles);
-		if (game->maps[mi]&mBOSSLOCKBLOCK)
+		if (game->maps.get(mi)&mBOSSLOCKBLOCK)
 			remove_bosslockblocks(screen_handles);
-		if (game->maps[mi]&mCHEST)
+		if (game->maps.get(mi)&mCHEST)
 			remove_chests(screen_handles);
-		if (game->maps[mi]&mLOCKEDCHEST)
+		if (game->maps.get(mi)&mLOCKEDCHEST)
 			remove_lockedchests(screen_handles);
-		if (game->maps[mi]&mBOSSCHEST)
+		if (game->maps.get(mi)&mBOSSCHEST)
 			remove_bosschests(screen_handles);
 		
 		clear_xdoors_mi(screen_handles, mi, true);
@@ -6264,7 +6264,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dLOCKED:
-				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
+				if(should_check_for_state_things && game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dUNLOCKED;
 				}
@@ -6272,7 +6272,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dBOSS:
-				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
+				if(should_check_for_state_things && game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dOPENBOSS;
 				}
@@ -6280,7 +6280,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 				break;
 				
 			case dBOMB:
-				if(should_check_for_state_things && game->maps[mi]&(mDOOR_UP<<i))
+				if(should_check_for_state_things && game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					base_scr->door[i]=dBOMBED;
 				}
@@ -6626,7 +6626,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,screen))
 	{
-		if(game->maps[mi]&mSECRET)			   // if special stuff done before
+		if(game->maps.get(mi)&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
 
@@ -6636,7 +6636,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 			bool from_active_screen = false;
 			trigger_secrets_for_screen_internal(create_screen_handles(special_warp_return_scr), from_active_screen, false, -1, do_replay_comment);
 		}
-		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
+		if(game->maps.get(mi)&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
@@ -6660,10 +6660,10 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	for (int i = 0; i <= 6; i++)
 		screen_handles[i] = {scr, special_warp_return_scrs[i].is_valid() ? &special_warp_return_scrs[i] : nullptr, screen, i};
 
-	toggle_switches(game->lvlswitches[destlvl], true, screen_handles);
+	toggle_switches(game->lvlswitches.get(destlvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
-	apply_screen_state_remove_combos(screen_handles, game->maps[mi], true);
+	apply_screen_state_remove_combos(screen_handles, game->maps.get(mi), true);
 
 	clear_xdoors(screen_handles, true);
 	clear_xstatecombos(screen_handles, true);
@@ -6688,7 +6688,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dLOCKED:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dUNLOCKED;
 				}
@@ -6696,7 +6696,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dBOSS:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dOPENBOSS;
 				}
@@ -6704,7 +6704,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 				break;
 				
 			case dBOMB:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dBOMBED;
 				}
@@ -6793,14 +6793,14 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 	
 	if(canPermSecret(-1,screen))
 	{
-		if(game->maps[mi]&mSECRET)			   // if special stuff done before
+		if(game->maps.get(mi)&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
 			bool from_active_screen = false;
 			bool do_replay_comment = true;
 			trigger_secrets_for_screen_internal(screen_handles, from_active_screen, false, -1, do_replay_comment);
 		}
-		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
+		if(game->maps.get(mi)&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
@@ -6820,27 +6820,27 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 		}
 	}
 
-	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
+	if(game->maps.get(mi)&mLOCKBLOCK)			  // if special stuff done before
 	{
 		remove_lockblocks(screen_handles);
 	}
 	
-	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	if(game->maps.get(mi)&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
 		remove_bosslockblocks(screen_handles);
 	}
 	
-	if(game->maps[mi]&mCHEST)			  // if special stuff done before
+	if(game->maps.get(mi)&mCHEST)			  // if special stuff done before
 	{
 		remove_chests(screen_handles);
 	}
 	
-	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
+	if(game->maps.get(mi)&mLOCKEDCHEST)			  // if special stuff done before
 	{
 		remove_lockedchests(screen_handles);
 	}
 	
-	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
+	if(game->maps.get(mi)&mBOSSCHEST)			  // if special stuff done before
 	{
 		remove_bosschests(screen_handles);
 	}
@@ -6863,7 +6863,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dLOCKED:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dUNLOCKED;
 				}
@@ -6871,7 +6871,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dBOSS:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dOPENBOSS;
 				}
@@ -6879,7 +6879,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 				break;
 				
 			case dBOMB:
-				if(game->maps[mi]&(mDOOR_UP<<i))
+				if(game->maps.get(mi)&(mDOOR_UP<<i))
 				{
 					scr->door[i]=dBOMBED;
 				}
@@ -7459,7 +7459,7 @@ void map_bkgsfx(bool on)
 	{
 		cont_sfx(hero_scr->oceansfx);
 		
-		if(hero_scr->bosssfx && !(game->lvlitems[dlevel]&(1 << li_boss_killed)))
+		if(hero_scr->bosssfx && !(game->lvlitems.get(dlevel)&(1 << li_boss_killed)))
 			cont_sfx(hero_scr->bosssfx);
 	}
 	else
@@ -7845,7 +7845,7 @@ bool displayOnMap(int32_t x, int32_t y)
 {
     int32_t s = (y<<4) + x;
 	int mi = mapind(cur_map, s);
-    if (!(game->maps[mi]&mVISITED))
+    if (!(game->maps.get(mi)&mVISITED))
         return false;
 
     // Don't display if not part of DMap

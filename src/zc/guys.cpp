@@ -1690,7 +1690,7 @@ void enemy::leave_item()
 		drop_item = select_dropitem(thedropset,x,y);
 	}
 	
-	if(valid_item_id(drop_item) &&((itemsbuf[drop_item].type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	if(valid_item_id(drop_item) &&((itemsbuf.get(drop_item).type!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -8753,7 +8753,7 @@ int32_t ePeahat::takehit(weapon *w, weapon* realweap)
 		
 	if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
 			// fire boomerang, for nailing peahats
-			&& !(wpnId==wBrang && (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_brang))>0))
+			&& !(wpnId==wBrang && (valid_item_id(parent_item) ? itemsbuf.get(parent_item).power : current_item_power(itype_brang))>0))
 		return 0;
 		
 	// Time for a kludge...
@@ -10706,7 +10706,7 @@ bool eStalfos::animate(int32_t index)
 			{
 				for(int32_t i=0; i<itemsbuf.capacity(); i++)
 				{
-					if (itemsbuf[i].flags & item_edible)
+					if (itemsbuf.get(i).flags & item_edible)
 						game->set_item(i, false);
 				}
 				
@@ -13358,7 +13358,7 @@ int32_t eGanon::takehit(weapon *w, [[maybe_unused]] weapon* realweap)
 		return 1;
 		
 	case 2:
-		if(wpnId!=wArrow || (valid_item_id(parent_item) ? itemsbuf[parent_item].power : current_item_power(itype_arrow))<4)
+		if(wpnId!=wArrow || (valid_item_id(parent_item) ? itemsbuf.get(parent_item).power : current_item_power(itype_arrow))<4)
 			return 0;
 			
 		misc=3;
@@ -18141,7 +18141,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
 				add_item_for_screen(screen, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].type==itype_triforcepiece ||
+								   Item,ipONETIME|ipBIGRANGE|((itemsbuf.get(Item).type==itype_triforcepiece ||
 										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
 		}
@@ -18812,7 +18812,7 @@ static void side_load_enemies(mapscr* scr)
 		load_default_enemies(scr);
 
 		bool beenhere = check_if_recently_visited();
-		if (beenhere && game->guys[mi] == 0)
+		if (beenhere && game->guys.get(mi) == 0)
 		{
 			sle_cnt=0;
 			reload=false;
@@ -18820,7 +18820,7 @@ static void side_load_enemies(mapscr* scr)
 
 		if(reload)
 		{
-			sle_cnt = game->guys[mi];
+			sle_cnt = game->guys.get(mi);
 			
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
@@ -19336,7 +19336,7 @@ void loadenemies()
 		state.loaded_enemies = true;
 
 		// check if it's the dungeon boss and it has been beaten before
-		if (scr->flags11&efBOSS && game->lvlitems[dlevel]&(1 << li_boss_killed))
+		if (scr->flags11&efBOSS && game->lvlitems.get(dlevel)&(1 << li_boss_killed))
 			return;
 
 		int32_t loadcnt = 10;
@@ -19345,7 +19345,7 @@ void loadenemies()
 
 		//Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		bool reload = true;
-		if (beenhere && game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		if (beenhere && game->guys.get(mi) == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{
 			loadcnt = 0; //It will tell it not to load any enemies,
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
@@ -19354,7 +19354,7 @@ void loadenemies()
 		bool unbeatablereload = true;
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
-			loadcnt = game->guys[mi]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			loadcnt = game->guys.get(mi); //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
 			
 			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
 				(get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
@@ -19515,7 +19515,7 @@ void setupscreen()
 				
 				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if (itm.flags & item_flag1)
 						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
@@ -19625,7 +19625,7 @@ void setupscreen()
 				
 				if(valid_item_id(itemid) && prices[i]!=100000)
 				{
-					auto const& itm = itemsbuf[itemid];
+					auto const& itm = itemsbuf.get(itemid);
 					if (itm.flags & item_flag1)
 						prices[i] = ((prices[i] * itm.misc1) / 100);
 					else
@@ -19713,7 +19713,7 @@ void setupscreen()
 			
 			if(valid_item_id(itemid) && prices[i]!=100000)
 			{
-				auto const& itm = itemsbuf[itemid];
+				auto const& itm = itemsbuf.get(itemid);
 				if(itm.flags & item_flag1)
 					prices[i] = ((prices[i] * itm.misc1) / 100);
 				else
@@ -19760,7 +19760,7 @@ void setupscreen()
 		
 		if(valid_item_id(itemid))
 		{
-			auto const& itm = itemsbuf[itemid];
+			auto const& itm = itemsbuf.get(itemid);
 			if(itm.flags & item_flag1)
 				prices[i] *= (itm.misc1 / 100.0);
 			else
@@ -20002,7 +20002,7 @@ static bool parsemsgcode(const StringCommand& command)
 				if (!FFCore.doscript(ScriptType::Item, itemID))
 				{
 					FFCore.reset_script_engine_data(ScriptType::Item, itemID);
-					FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&item_passive_script) > 0;
+					FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf.get(itemID).flags&item_passive_script) > 0;
 				}
 			}
 			return true;
@@ -20196,7 +20196,7 @@ static bool parsemsgcode(const StringCommand& command)
 			int32_t s = ((get_currdmap())<<7) + msgscr->screen-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
 			arg = args[1];
 
-			if(game->screen_d[s][d] >= arg)
+			if(game->screen_d.get(s).get(d) >= arg)
 			{
 				last_arg = 2;
 				goto switched;
@@ -20216,7 +20216,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->gswitch_timers[index] != 0;
+			bool state = game->gswitch_timers.get(index) != 0;
 
 			if (state == value)
 			{
@@ -20238,7 +20238,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			if (bool(game->gswitch_timers[index]) != bool(value))
+			if (bool(game->gswitch_timers.get(index)) != bool(value))
 				toggle_gswitches(index, false);
 			game->gswitch_timers[index] = value;
 
@@ -20292,7 +20292,7 @@ static bool parsemsgcode(const StringCommand& command)
 			}
 
 			int mi = mapind(map, screen);
-			bool state = (game->maps[mi] & (1<<flag)) != 0;
+			bool state = (game->maps.get(mi) & (1<<flag)) != 0;
 			if (state == value)
 			{
 				last_arg = 4;
@@ -20379,7 +20379,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->lvlswitches[level] & (1<<flag);
+			bool state = game->lvlswitches.get(level) & (1<<flag);
 			if (state == value)
 			{
 				last_arg = 3;
@@ -20412,7 +20412,7 @@ static bool parsemsgcode(const StringCommand& command)
 
 			if (level == dlevel)
 			{
-				if (bool(game->lvlswitches[level] & (1<<flag)) != value)
+				if (bool(game->lvlswitches.get(level) & (1<<flag)) != value)
 					toggle_switches(1<<flag, false);
 			}
 			else
@@ -20444,7 +20444,7 @@ static bool parsemsgcode(const StringCommand& command)
 				return true;
 			}
 
-			bool state = game->lvlitems[level] & (1<<flag);
+			bool state = game->lvlitems.get(level) & (1<<flag);
 			if (state == value)
 			{
 				last_arg = 3;
@@ -20558,7 +20558,7 @@ static bool parsemsgcode(const StringCommand& command)
 		{
 			int32_t lev = args[0];
 			
-			if(lev<MAXLEVELS && game->lvlitems[lev]&(1 << li_mcguffin))
+			if(unsigned(lev)<MAXLEVELS && game->lvlitems.get(lev)&(1 << li_mcguffin))
 			{
 				last_arg = 1;
 				goto switched;
@@ -21237,7 +21237,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						e->hitby[HIT_BY_LWEAPON] = indx+1;
 					e->hitby[HIT_BY_LWEAPON_UID] = w->getUID();
 					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-					if (valid_item_id(w->parentitem)) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].type; 
+					if (valid_item_id(w->parentitem)) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf.get(w->parentitem).type; 
 					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
 					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
 					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
@@ -21285,7 +21285,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
@@ -21316,7 +21316,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey))&& !priced)))
@@ -21339,7 +21339,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					{
 						item *theItem = ((item*)items.spr(j));
 						bool priced = theItem->PriceIndex >-1;
-						auto const& itm = itemsbuf[theItem->id];
+						auto const& itm = itemsbuf.get(theItem->id);
 						bool isKey = itm.type == itype_key || itm.type == itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
@@ -21405,7 +21405,7 @@ void dragging_item()
 				
 				// Drag the Fairy enemy as well as the Fairy item
 				int32_t id = dragItem->id;
-				auto const& itm = itemsbuf[id];
+				auto const& itm = itemsbuf.get(id);
 				if(itm.type == itype_fairy && itm.misc3)
 				{
 					movefairynew2(w->x,w->y,*dragItem);
@@ -21482,7 +21482,7 @@ static void roaming_item(mapscr* scr)
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].type==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((scr->flags3&fHOLDITEM) || (itemsbuf.get(Item).type==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
 			state.item_state = ScreenItemState::CarriedByEnemy;

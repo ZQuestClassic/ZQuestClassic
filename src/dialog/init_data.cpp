@@ -64,7 +64,7 @@ void InitDataDialog::setOfs(size_t ofs)
 		l_lab[q]->setText(std::to_string(q+levelsOffset));
 		for (int li = 0; li < li_max; ++li)
 			l_lvlitem[li][q]->setChecked(local_zinit.litems[q+levelsOffset] & (1 << li));
-		l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
+		l_keys[q]->setVal(local_zinit.level_keys.get(q+levelsOffset));
 	}
 }
 
@@ -250,7 +250,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_05(int val)
 std::string item_name(int id)
 {
 	if(valid_item_id(id))
-		return itemsbuf[id].get_name(true);
+		return itemsbuf.get(id).get_name(true);
 	return "";
 }
 
@@ -528,7 +528,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					SETFLAG(local_zinit.litems[ind+levelsOffset], (1 << li), state);
 				}));
 		litem_grid->add(l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
-			val = local_zinit.level_keys[ind+levelsOffset], high = 255, padding = 0_px,
+			val = local_zinit.level_keys.get(ind+levelsOffset), high = 255, padding = 0_px,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.level_keys[ind+levelsOffset] = val;
@@ -538,7 +538,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			width = 1.5_em, padding = 0_px, forceFitH = true,
 			text = "P", onPressFunc = [&, ind]()
 			{
-				dword flags = local_zinit.lvlswitches[ind+levelsOffset];
+				dword flags = local_zinit.lvlswitches.get(ind+levelsOffset);
 				auto& lstates = GUI::ZCCheckListData::level_states();
 				if(!call_checklist_dialog("Select 'Level States'",lstates,flags,8))
 					return;
@@ -844,7 +844,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::GEN_INITD(int ind,zasm_meta co
 		TextField(
 			fitParent = true, minwidth = 8_em,
 			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_zinit.gen_initd[index][ind], swap_type = meta.initd_type[ind],
+			val = local_zinit.gen_initd.get(index).get(ind), swap_type = meta.initd_type[ind],
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.gen_initd[index][ind] = val;
@@ -907,7 +907,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					),
 					//
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_exitState[index]&GEN_EXSTATE_RELOAD,
+						checked = local_zinit.gen_exitState.get(index)&GEN_EXSTATE_RELOAD,
 						text = "Reload",
 						onToggleFunc = [&](bool state)
 						{
@@ -915,7 +915,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					INFOBTN("When loading from the save select screen"),
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_reloadState[index]&GEN_EXSTATE_RELOAD,
+						checked = local_zinit.gen_reloadState.get(index)&GEN_EXSTATE_RELOAD,
 						text = "Reload",
 						onToggleFunc = [&](bool state)
 						{
@@ -923,7 +923,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					//
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_exitState[index]&GEN_EXSTATE_CONTINUE,
+						checked = local_zinit.gen_exitState.get(index)&GEN_EXSTATE_CONTINUE,
 						text = "Continue",
 						onToggleFunc = [&](bool state)
 						{
@@ -931,7 +931,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					INFOBTN("When using the 'Continue' option"),
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_reloadState[index]&GEN_EXSTATE_CONTINUE,
+						checked = local_zinit.gen_reloadState.get(index)&GEN_EXSTATE_CONTINUE,
 						text = "Continue",
 						onToggleFunc = [&](bool state)
 						{
@@ -939,7 +939,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					//
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_exitState[index]&GEN_EXSTATE_CHANGE_SCREEN,
+						checked = local_zinit.gen_exitState.get(index)&GEN_EXSTATE_CHANGE_SCREEN,
 						text = "Change Screen",
 						onToggleFunc = [&](bool state)
 						{
@@ -947,7 +947,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					INFOBTN("When changing to a new screen"),
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_reloadState[index]&GEN_EXSTATE_CHANGE_SCREEN,
+						checked = local_zinit.gen_reloadState.get(index)&GEN_EXSTATE_CHANGE_SCREEN,
 						text = "Change Screen",
 						onToggleFunc = [&](bool state)
 						{
@@ -955,7 +955,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					//
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_exitState[index]&GEN_EXSTATE_CHANGE_DMAP,
+						checked = local_zinit.gen_exitState.get(index)&GEN_EXSTATE_CHANGE_DMAP,
 						text = "Change DMap",
 						onToggleFunc = [&](bool state)
 						{
@@ -963,7 +963,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					INFOBTN("When changing to a new dmap"),
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_reloadState[index]&GEN_EXSTATE_CHANGE_DMAP,
+						checked = local_zinit.gen_reloadState.get(index)&GEN_EXSTATE_CHANGE_DMAP,
 						text = "Change DMap",
 						onToggleFunc = [&](bool state)
 						{
@@ -971,7 +971,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					//
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_exitState[index]&GEN_EXSTATE_CHANGE_LEVEL,
+						checked = local_zinit.gen_exitState.get(index)&GEN_EXSTATE_CHANGE_LEVEL,
 						text = "Change Level",
 						onToggleFunc = [&](bool state)
 						{
@@ -979,7 +979,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						}),
 					INFOBTN("When changing to a new dmap level"),
 					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_reloadState[index]&GEN_EXSTATE_CHANGE_LEVEL,
+						checked = local_zinit.gen_reloadState.get(index)&GEN_EXSTATE_CHANGE_LEVEL,
 						text = "Change Level",
 						onToggleFunc = [&](bool state)
 						{
@@ -1001,7 +1001,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 						low = 0, high = 214748,
-						val = local_zinit.gen_data[index].size(),
+						val = local_zinit.gen_data.get(index).size(),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_zinit.gen_data[index].resize(val);
@@ -1011,10 +1011,10 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					//
 					databtn = Button(colSpan = 3, fitParent = true,
 						text = "Edit Starting Data",
-						disabled = local_zinit.gen_data[index].empty(),
+						disabled = local_zinit.gen_data.get(index).empty(),
 						onPressFunc = [&]()
 						{
-							if(!local_zinit.gen_data[index].empty())
+							if(!local_zinit.gen_data.get(index).empty())
 								call_edit_map(local_zinit.gen_data[index], true);
 						})
 				)
@@ -1032,7 +1032,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 				Row(vAlign = 0.0,
 					Rows<2>(vAlign = 0.0,
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_INIT),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_INIT),
 							text = "Init",
 							onToggleFunc = [&](bool state)
 							{
@@ -1041,7 +1041,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When loading the game"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CONTINUE),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_CONTINUE),
 							text = "Continue",
 							onToggleFunc = [&](bool state)
 							{
@@ -1050,7 +1050,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When using the 'Continue' option"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_FFC_PRELOAD),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_FFC_PRELOAD),
 							text = "FFC Preload",
 							onToggleFunc = [&](bool state)
 							{
@@ -1059,7 +1059,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("Just before FFC scripts run 'On Screen Init'"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_SCREEN),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_CHANGE_SCREEN),
 							text = "Change Screen",
 							onToggleFunc = [&](bool state)
 							{
@@ -1068,7 +1068,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When changing to a new screen"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_DMAP),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_CHANGE_DMAP),
 							text = "Change DMap",
 							onToggleFunc = [&](bool state)
 							{
@@ -1077,7 +1077,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When changing to a new dmap"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_LEVEL),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_CHANGE_LEVEL),
 							text = "Change Level",
 							onToggleFunc = [&](bool state)
 							{
@@ -1086,7 +1086,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When changing to a new dmap level"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_1),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_HERO_HIT_1),
 							text = "Hero Hit 1",
 							onToggleFunc = [&](bool state)
 							{
@@ -1095,7 +1095,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When the Hero is hit, before applying ring defense"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_2),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_HERO_HIT_2),
 							text = "Hero Hit 2",
 							onToggleFunc = [&](bool state)
 							{
@@ -1104,7 +1104,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When the Hero is hit, after applying ring defense"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_COLLECT_ITEM),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_COLLECT_ITEM),
 							text = "Collect Item",
 							onToggleFunc = [&](bool state)
 							{
@@ -1113,7 +1113,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When an item is collected"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),
 							text = "Enemy Drop Item 1",
 							onToggleFunc = [&](bool state)
 							{
@@ -1122,7 +1122,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When an enemy is deciding whether or not to drop an item"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),
 							text = "Enemy Drop Item 2",
 							onToggleFunc = [&](bool state)
 							{
@@ -1132,7 +1132,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					),
 					Rows<2>(vAlign = 0.0,
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DEATH),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_ENEMY_DEATH),
 							text = "Enemy Death",
 							onToggleFunc = [&](bool state)
 							{
@@ -1141,7 +1141,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When an enemy is dying"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT1),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_ENEMY_HIT1),
 							text = "Enemy Hit 1",
 							onToggleFunc = [&](bool state)
 							{
@@ -1150,7 +1150,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When an enemy is hit, before applying defenses"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT2),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_ENEMY_HIT2),
 							text = "Enemy Hit 2",
 							onToggleFunc = [&](bool state)
 							{
@@ -1159,7 +1159,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("When an enemy is hit, after applying defenses"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
 							text = "Post Collect Item",
 							onToggleFunc = [&](bool state)
 							{
@@ -1168,7 +1168,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("After an item is collected (After the holdup animation completes, if held)"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_FALL),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_PLAYER_FALL),
 							text = "Hero Fall",
 							onToggleFunc = [&](bool state)
 							{
@@ -1177,7 +1177,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						INFOBTN("After the Hero falls in a Pitfall"),
 						//
 						Checkbox(hAlign = 0.0,
-							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_DROWN),
+							checked = local_zinit.gen_eventstate.get(index)&(1<<GENSCR_EVENT_PLAYER_DROWN),
 							text = "Hero Drown",
 							onToggleFunc = [&](bool state)
 							{
@@ -1213,11 +1213,11 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 		{
 			dest_zinit.gen_doscript.set(index, local_zinit.gen_doscript.get(index));
-			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState[index];
-			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState[index];
-			dest_zinit.gen_initd[index] = local_zinit.gen_initd[index];
-			dest_zinit.gen_data[index] = local_zinit.gen_data[index];
-			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate[index];
+			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState.get(index);
+			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState.get(index);
+			dest_zinit.gen_initd[index] = local_zinit.gen_initd.get(index);
+			dest_zinit.gen_data[index] = local_zinit.gen_data.get(index);
+			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate.get(index);
 		}
 		return true;
 

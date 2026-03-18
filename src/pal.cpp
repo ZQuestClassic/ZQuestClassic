@@ -169,7 +169,7 @@ void ringcolor(bool forceDefault)
     
     if(!forceDefault && valid_item_id(itemid))
     {
-		auto const& itm = itemsbuf[itemid];
+		auto const& itm = itemsbuf.get(itemid);
         loadpalset(6,itm.misc1 ? pSprite(zc_min((pdSPRITE-1),itm.misc1)):6);
     }
     else

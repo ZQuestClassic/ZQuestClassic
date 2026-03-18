@@ -2866,7 +2866,7 @@ void do_magic_casting()
             {
                 if (valid_item_id(div_prot_item))
                 {
-					auto const& itm = itemsbuf[div_prot_item];
+					auto const& itm = itemsbuf.get(div_prot_item);
                     stop_sfx(itm.usesound+1);
                     stop_sfx(itm.usesound);
                 }
@@ -3651,7 +3651,7 @@ int32_t get_homescr()
 
 int32_t get_bmaps(int32_t si)
 {
-    return game->bmaps[si];
+    return game->bmaps.get(si);
 }
 
 bool no_subscreen()
@@ -5082,7 +5082,7 @@ bool checkmagiccost(int32_t itemid, bool checkTime)
 {
 	if (invalid_item_id(itemid))
 		return false;
-	itemdata const& id = itemsbuf[itemid];
+	itemdata const& id = itemsbuf.get(itemid);
 	bool ret = true;
 	if(!checkTime || !id.magiccosttimer[0] || !(frame%id.magiccosttimer[0]))
 		ret = checkCost(id.cost_counter[0], id.cost_amount[0]);
@@ -5151,7 +5151,7 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	if (invalid_item_id(itemid))
 		return;
-	itemdata const& id = itemsbuf[itemid];
+	itemdata const& id = itemsbuf.get(itemid);
 	if(!(id.flags&item_validate_only) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
 	if(!(id.flags&item_validate_only_2) && (!onlyTimer || id.magiccosttimer[1]))

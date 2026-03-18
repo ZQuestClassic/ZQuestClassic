@@ -1479,7 +1479,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, itemsbuf[new_i].initiald, 8 * sizeof(int32_t));
+				memcpy(ri->d, itemsbuf.get(new_i).initiald, 8 * sizeof(int32_t));
 				data.initialized = true;
 			}			
 			ri->itemdataref = ( collect ) ? new_i : i; //'this' pointer
@@ -1923,11 +1923,11 @@ void load_genscript(const gamedata& gd)
 		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
 		gen.doscript() = gd.gen_doscript.get(q);
-		gen.exitState = gd.gen_exitState[q];
-		gen.reloadState = gd.gen_reloadState[q];
-		gen.eventstate = gd.gen_eventstate[q];
-		gen.initd = gd.gen_initd[q];
-		gen.data = gd.gen_data[q];
+		gen.exitState = gd.gen_exitState.get(q);
+		gen.reloadState = gd.gen_reloadState.get(q);
+		gen.eventstate = gd.gen_eventstate.get(q);
+		gen.initd = gd.gen_initd.get(q);
+		gen.data = gd.gen_data.get(q);
 	}
 }
 void load_genscript(const zinitdata& zd)
@@ -1937,11 +1937,11 @@ void load_genscript(const zinitdata& zd)
 		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
 		gen.doscript() = zd.gen_doscript.get(q);
-		gen.exitState = zd.gen_exitState[q];
-		gen.reloadState = zd.gen_reloadState[q];
-		gen.eventstate = zd.gen_eventstate[q];
-		gen.initd = zd.gen_initd[q];
-		gen.data = zd.gen_data[q];
+		gen.exitState = zd.gen_exitState.get(q);
+		gen.reloadState = zd.gen_reloadState.get(q);
+		gen.eventstate = zd.gen_eventstate.get(q);
+		gen.initd = zd.gen_initd.get(q);
+		gen.data = zd.gen_data.get(q);
 	}
 }
 
@@ -2029,12 +2029,12 @@ void FFScript::initZScriptItemScripts()
 		//     if scripts make previously unused items now used.
 		if (q < itemsbuf.capacity())
 		{
-			auto const& itm = itemsbuf[q];
+			auto const& itm = itemsbuf.get(q);
 			if (itm.script)
 			{
 				auto& data = get_script_engine_data(ScriptType::Item, q);
 				data.reset();
-				data.doscript = ((itemsbuf[q].flags&item_passive_script) && game->get_item(q)) ? 1 : 0;
+				data.doscript = ((itm.flags&item_passive_script) && game->get_item(q)) ? 1 : 0;
 			}
 			if (itm.collect_script)
 			{
@@ -2825,7 +2825,7 @@ int32_t item_flag(item_flags flag)
 		scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 		return 0;
 	}
-	return (itemsbuf[GET_REF(itemdataref)].flags & flag) ? 10000 : 0;
+	return (itemsbuf.get(GET_REF(itemdataref)).flags & flag) ? 10000 : 0;
 }
 void item_flag(item_flags flag, bool val)
 {
@@ -3779,7 +3779,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.imitate_weapon)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.imitate_weapon)*10000;
 			break;
 		case IDATAUSEDEF:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3788,7 +3788,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.default_defense)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.default_defense)*10000;
 			break;
 		case IDATAWRANGE:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3797,7 +3797,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weaprange)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weaprange)*10000;
 			break;
 		case IDATAMAGICTIMER:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3806,7 +3806,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].magiccosttimer[0])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).magiccosttimer[0])*10000;
 			break;
 		case IDATAMAGICTIMER2:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3815,7 +3815,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].magiccosttimer[1])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).magiccosttimer[1])*10000;
 			break;
 		
 		case IDATADURATION:
@@ -3825,7 +3825,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weapduration)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weapduration)*10000;
 			break;
 		
 		case IDATADUPLICATES:
@@ -3835,7 +3835,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].duplicates)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).duplicates)*10000;
 			break;
 		case IDATADRAWLAYER:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3844,7 +3844,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].drawlayer)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).drawlayer)*10000;
 			break;
 		case IDATACOLLECTFLAGS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3853,7 +3853,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].collectflags)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).collectflags)*10000;
 			break;
 		case IDATAWEAPONSCRIPT:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3862,7 +3862,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.script)*10000;
 			break;
 		case IDATAWEAPHXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3871,7 +3871,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.hxofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.hxofs)*10000;
 			break;
 		case IDATAWEAPHYOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3880,7 +3880,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.hyofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.hyofs)*10000;
 			break;
 		case IDATAWEAPHXSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3889,7 +3889,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.hxsz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.hxsz)*10000;
 			break;
 		case IDATAWEAPHYSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3898,7 +3898,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.hysz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.hysz)*10000;
 			break;
 		case IDATAWEAPHZSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3907,7 +3907,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.hzsz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.hzsz)*10000;
 			break;
 		case IDATAWEAPXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3916,7 +3916,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.xofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.xofs)*10000;
 			break;
 		case IDATAWEAPYOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3925,7 +3925,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.yofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.yofs)*10000;
 			break;
 		case IDATAHXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3934,7 +3934,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].hxofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).hxofs)*10000;
 			break;
 		case IDATAHYOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3943,7 +3943,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].hyofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).hyofs)*10000;
 			break;
 		case IDATAHXSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3952,7 +3952,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].hxsz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).hxsz)*10000;
 			break;
 		case IDATAHYSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3961,7 +3961,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].hysz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).hysz)*10000;
 			break;
 		case IDATAHZSZ:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3970,7 +3970,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].hzsz)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).hzsz)*10000;
 			break;
 		case IDATADXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3979,7 +3979,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].xofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).xofs)*10000;
 			break;
 		case IDATADYOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3988,7 +3988,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].yofs)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).yofs)*10000;
 			break;
 		case IDATATILEW:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -3997,7 +3997,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].tilew)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).tilew)*10000;
 			break;
 		case IDATATILEH:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4006,7 +4006,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].tileh)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).tileh)*10000;
 			break;
 		case IDATAPICKUP:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4015,7 +4015,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].pickup)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).pickup)*10000;
 			break;
 		case IDATAOVERRIDEFL:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4024,7 +4024,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].overrideFLAGS)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).overrideFLAGS)*10000;
 			break;
 
 		case IDATATILEWWEAP:
@@ -4034,7 +4034,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.tilew)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.tilew)*10000;
 			break;
 		case IDATATILEHWEAP:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4043,7 +4043,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.tileh)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.tileh)*10000;
 			break;
 		case IDATAOVERRIDEFLWEAP:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4052,7 +4052,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].weap_data.override_flags)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.override_flags)*10000;
 			break;
 		
 		case IDATATYPE:
@@ -4062,7 +4062,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].type)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).type)*10000;
 			break;
 			
 		case IDATALEVEL:
@@ -4072,7 +4072,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].level)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).level)*10000;
 			break;
 			
 		case IDATAKEEP:
@@ -4087,7 +4087,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			int32_t v = itemsbuf[GET_REF(itemdataref)].amount;
+			int32_t v = itemsbuf.get(GET_REF(itemdataref)).amount;
 			ret = ((v&0x4000)?-1:1)*(v & 0x3FFF)*10000;
 			break;
 		}
@@ -4099,7 +4099,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret = (itemsbuf[GET_REF(itemdataref)].amount&0x8000) ? 10000 : 0;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).amount&0x8000) ? 10000 : 0;
 			break;
 		}
 		case IDATACONSTSCRIPT:
@@ -4123,7 +4123,7 @@ int32_t get_register(int32_t arg)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				ret = 0;
 			}
-			else ret = (itemsbuf[GET_REF(itemdataref)].weap_data.wflags & WFLAG_UPDATE_IGNITE_SPRITE) ? 10000 : 0;
+			else ret = (itemsbuf.get(GET_REF(itemdataref)).weap_data.wflags & WFLAG_UPDATE_IGNITE_SPRITE) ? 10000 : 0;
 			break;
 			
 		case IDATASETMAX:
@@ -4133,7 +4133,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].setmax)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).setmax)*10000;
 			break;
 			
 		case IDATAMAX:
@@ -4143,7 +4143,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].max)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).max)*10000;
 			break;
 			
 		case IDATACOUNTER:
@@ -4153,7 +4153,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].count)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).count)*10000;
 			break;
 			
 		case IDATAPSOUND:
@@ -4163,7 +4163,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].playsound)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).playsound)*10000;
 			break;
 		case IDATAUSESOUND:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4172,7 +4172,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].usesound)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).usesound)*10000;
 			break;
 			
 		case IDATAUSESOUND2:
@@ -4182,7 +4182,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].usesound2)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).usesound2)*10000;
 			break;
 			
 		case IDATAPOWER:
@@ -4192,7 +4192,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].power)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).power)*10000;
 			break;
 		
 		//Get the ID of an item.
@@ -4213,7 +4213,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).script)*10000;
 			break;
 		case IDATASPRSCRIPT:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4222,7 +4222,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].sprite_script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).sprite_script)*10000;
 			break;
 		//Hero TIle modifier
 		case IDATALTM:
@@ -4232,7 +4232,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].ltm)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).ltm)*10000;
 			break;
 		//Pickup script
 		case IDATAPSCRIPT:
@@ -4242,7 +4242,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].collect_script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).collect_script)*10000;
 			break;
 		//Pickup string
 		case IDATAPSTRING:
@@ -4252,7 +4252,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].pstring)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).pstring)*10000;
 			break;
 		case IDATAPFLAGS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4261,7 +4261,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret = (itemsbuf[GET_REF(itemdataref)].pickup_string_flags)*10000;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).pickup_string_flags)*10000;
 			break;
 		case IDATAPICKUPLITEMS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4270,7 +4270,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret = (itemsbuf[GET_REF(itemdataref)].pickup_litems)*10000;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).pickup_litems)*10000;
 			break;
 		case IDATAPICKUPLITEMLEVEL:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4279,7 +4279,7 @@ int32_t get_register(int32_t arg)
 				ret = 0;
 				break;
 			}
-			ret = (itemsbuf[GET_REF(itemdataref)].pickup_litem_level)*10000;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).pickup_litem_level)*10000;
 			break;
 		//Magic cost
 		case IDATAMAGCOST:
@@ -4289,7 +4289,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].cost_amount[0])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).cost_amount[0])*10000;
 			break;
 		case IDATACOST2:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4298,7 +4298,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].cost_amount[1])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).cost_amount[1])*10000;
 			break;
 		case IDATACOOLDOWN:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4307,7 +4307,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret = (itemsbuf[GET_REF(itemdataref)].cooldown) * 10000;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).cooldown) * 10000;
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
@@ -4317,7 +4317,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].cost_counter[0])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).cost_counter[0])*10000;
 			break;
 		case IDATACOSTCOUNTER2:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4326,7 +4326,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].cost_counter[1])*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).cost_counter[1])*10000;
 			break;
 		//Min Hearts to Pick Up
 		case IDATAMINHEARTS:
@@ -4336,7 +4336,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].pickup_hearts)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).pickup_hearts)*10000;
 			break;
 		//Tile used by the item
 		case IDATATILE:
@@ -4346,7 +4346,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].tile)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).tile)*10000;
 			break;
 		//itemdata->Flash
 		case IDATAMISC:
@@ -4356,7 +4356,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].misc_flags)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).misc_flags)*10000;
 			break;
 		//->CSet
 		case IDATACSET:
@@ -4367,13 +4367,13 @@ int32_t get_register(int32_t arg)
 				break;
 			}
 
-			ret = (itemsbuf[GET_REF(itemdataref)].csets&15)*10000;
+			ret = (itemsbuf.get(GET_REF(itemdataref)).csets&15)*10000;
 
 			// If we find quests that broke, use this code.
 			// if (QHeader.compareVer(2, 55, 9) >= 0)
-			// 	ret = (itemsbuf[ri->idata].csets&15)*10000;
+			// 	ret = (itemsbuf.get(ri->idata).csets&15)*10000;
 			// else
-			// 	ret = itemsbuf[ri->idata].csets*10000;
+			// 	ret = itemsbuf.get(ri->idata).csets*10000;
 			break;
 		case IDATAFLASHCSET:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -4382,7 +4382,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].csets>>4)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).csets>>4)*10000;
 			break;
 		//->A.Frames
 		case IDATAFRAMES:
@@ -4392,11 +4392,11 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].frames)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).frames)*10000;
 			break;
 		/*
 		case IDATAFRAME:
-			ret=(itemsbuf[ri->idata].frame)*10000;
+			ret=(itemsbuf.get(ri->idata).frame)*10000;
 			break;
 		*/ 
 		//->A.Speed
@@ -4407,7 +4407,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].speed)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).speed)*10000;
 			break;
 		//->Delay
 		case IDATADELAY:
@@ -4417,7 +4417,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[GET_REF(itemdataref)].delay)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).delay)*10000;
 			break;
 		// teo of this item upgrades
 		case IDATACOMBINE:
@@ -6001,7 +6001,7 @@ int32_t get_register(int32_t arg)
 			int mi = mapind(cur_map, GET_REF(screenref));
 			if(mi < 0)
 				ret = -10000;
-			else ret = game->guys[mi] * 10000;
+			else ret = game->guys.get(mi) * 10000;
 			break;
 		}
 		case SCREENDATAEXDOOR:
@@ -6018,7 +6018,7 @@ int32_t get_register(int32_t arg)
 			else
 			{
 				int bit = 1<<ind;
-				ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+				ret = (game->xdoors.get(mi)[dir]&bit) ? 10000 : 0;
 			}
 			break;
 		}
@@ -6527,7 +6527,7 @@ int32_t get_register(int32_t arg)
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi > -1)
 				{
-					ret = game->guys[mi] * 10000;
+					ret = game->guys.get(mi) * 10000;
 					break;
 				}
 			}
@@ -6550,7 +6550,7 @@ int32_t get_register(int32_t arg)
 				else
 				{
 					int bit = 1<<ind;
-					ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+					ret = (game->xdoors.get(mi)[dir]&bit) ? 10000 : 0;
 				}
 			}
 			break;
@@ -21320,7 +21320,7 @@ void item_display_name(const bool setter)
 	}
 	else
 	{
-		if(ArrayH::setArray(arrayptr, itemsbuf[ID].display_name) == SH::_Overflow)
+		if(ArrayH::setArray(arrayptr, itemsbuf.get(ID).display_name) == SH::_Overflow)
 			Z_scripterrlog("Array supplied to 'itemdata->GetDisplayName()' not large enough\n");
 	}
 }
@@ -21330,7 +21330,7 @@ void item_shown_name()
 	if(invalid_item_id(ID))
 		return;
 	int32_t arrayptr = get_register(sarg1);
-	if(ArrayH::setArray(arrayptr, itemsbuf[ID].get_name()) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, itemsbuf.get(ID).get_name()) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetShownName()' not large enough\n");
 }
 
@@ -21781,12 +21781,12 @@ void do_createitem(const bool v)
 		sprite* item = items.spr(items.Count() - 1);
 		item->screen_spawned = ri->screenref;
 		ri->itemref = item->getUID();
-		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf[ID].name.c_str(), ri->itemref);
+		Z_eventlog("Script created item \"%s\" with UID = %u\n", itemsbuf.get(ID).name.c_str(), ri->itemref);
 	}
 	else
 	{
 		ri->itemref = 0;
-		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", itemsbuf[ID].name.c_str());
+		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", itemsbuf.get(ID).name.c_str());
 	}
 }
 
@@ -23731,7 +23731,7 @@ void do_getitemname()
 		return;
 	}
 	
-	if(ArrayH::setArray(arrayptr, itemsbuf[itmid].name) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, itemsbuf.get(itmid).name) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
 }
 
@@ -27304,7 +27304,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				int32_t itemid = GET_REF(itemdataref);
 				if(unsigned(itemid) > itemsbuf.capacity()) break;
-				auto const& itm = itemsbuf[itemid];
+				auto const& itm = itemsbuf.get(itemid);
 				int32_t mode = get_register(sarg1) / 10000;
 				auto& data = get_script_engine_data(ScriptType::Item, itemid);
 				switch(mode)
@@ -28777,7 +28777,7 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 		return 0;
 	}
 	
-	return game->screen_d[index1][index2];
+	return game->screen_d.get(index1).get(index2);
 }
 
 void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
@@ -29690,7 +29690,7 @@ bool FFScript::itemScriptEngine()
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
@@ -29772,7 +29772,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
@@ -30111,7 +30111,7 @@ void FFScript::do_getitembyname()
 	
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		if (the_string == itemsbuf[q].name)
+		if (the_string == itemsbuf.get(q).name)
 		{
 			num = q;
 			break;

@@ -372,18 +372,18 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 	if(cmb.usrflags & cflag11) //global state
 	{
 		int32_t tmr = cmb.c_attributes[2].getTrunc();
-		bool oldstate = game->gswitch_timers[pair];
+		bool oldstate = game->gswitch_timers.get(pair);
 		if(tmr > 0)
 		{
 			game->gswitch_timers[pair] = tmr;
 		}
 		else
 		{
-			if(game->gswitch_timers[pair])
+			if(game->gswitch_timers.get(pair))
 				game->gswitch_timers[pair] = 0;
 			else game->gswitch_timers[pair] = -1;
 		}
-		if(oldstate != (game->gswitch_timers[pair] != 0))
+		if(oldstate != (game->gswitch_timers.get(pair) != 0))
 		{
 			toggle_gswitches(pair, false);
 		}
@@ -768,7 +768,7 @@ bool play_combo_string(int str, optional<int> screen)
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
 			int32_t di = (cur_dmap<<7) + *screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
-			str = game->screen_d[di][abs(str)-10] / 10000L;
+			str = game->screen_d.get(di).get(abs(str)-10) / 10000L;
 			break;
 	}
 	if(!str || unsigned(str) >= MAXMSGS)
@@ -890,7 +890,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&(1 << li_boss_key)))
+			if(!(game->lvlitems.get(dlevel)&(1 << li_boss_key)))
 			{
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
@@ -950,7 +950,7 @@ bool trigger_chest(const combined_handle_t& handle)
 			case -14: case -15: case -16: case -17:
 			{
 				int32_t di = ((cur_dmap)<<7) + screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
-				itid = game->screen_d[di][abs(itid)-10] / 10000L;
+				itid = game->screen_d.get(di).get(abs(itid)-10) / 10000L;
 				break;
 			}
 			case -1:
@@ -992,7 +992,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 			
 		case cBOSSLOCKBLOCK:
 		{
-			if (!(game->lvlitems[dlevel] & (1 << li_boss_key)))
+			if (!(game->lvlitems.get(dlevel) & (1 << li_boss_key)))
 			{
 				play_combo_string(cmb.c_attributes[3].getTrunc());
 				return false;
@@ -1369,7 +1369,7 @@ bool trigger_stepfx(const combined_handle_t& handle, bool stepped)
 		int parentitem = cmb.c_attributes[12].getTrunc();
 		if (!parentitem || invalid_item_id(parentitem))
 			parentitem = -1;
-		auto wlvl = parentitem > -1 ? itemsbuf[parentitem].level : 0;
+		auto wlvl = parentitem > -1 ? itemsbuf.get(parentitem).level : 0;
 		switch(wpn)
 		{
 			//eweapons
@@ -1548,7 +1548,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 		int pitem = cmb.c_attributes[14].getTrunc();
 		if (!pitem || invalid_item_id(pitem))
 			pitem = -1;
-		int plvl = pitem > -1 ? itemsbuf[pitem].level : 0;
+		int plvl = pitem > -1 ? itemsbuf.get(pitem).level : 0;
 		
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr,autorot);
 		if (!Lwpns.add(wpn)) return nullptr;
@@ -1904,7 +1904,7 @@ int32_t get_cmb_trigctrcost(combo_trigger const& trig)
 		auto wmedal_id = current_item_id(itype_wealthmedal);
 		if(valid_item_id(wmedal_id))
 		{
-			itemdata const& wmedal = itemsbuf[wmedal_id];
+			itemdata const& wmedal = itemsbuf.get(wmedal_id);
 			if(wmedal.flags & item_flag1)
 				ctrcost = (ctrcost * wmedal.misc1) / 100;
 			else
@@ -2076,20 +2076,20 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		auto dmap_level = trig.trigdmlevel > -1 ? trig.trigdmlevel : dlevel;
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_COND))
-			if((trig.trig_levelitems & game->lvlitems[dmap_level]) != trig.trig_levelitems)
+			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) != trig.trig_levelitems)
 				return false;
 		if(trig.trigger_flags.get(TRIGFLAG_LITEM_REVCOND))
-			if((trig.trig_levelitems & game->lvlitems[dmap_level]) == trig.trig_levelitems)
+			if((trig.trig_levelitems & game->lvlitems.get(dmap_level)) == trig.trig_levelitems)
 				return false;
-		if((trig.req_level_state & game->lvlswitches[dmap_level]) != trig.req_level_state)
+		if((trig.req_level_state & game->lvlswitches.get(dmap_level)) != trig.req_level_state)
 			return false; // missing at least 1 required state
-		if(trig.unreq_level_state & game->lvlswitches[dmap_level])
+		if(trig.unreq_level_state & game->lvlswitches.get(dmap_level))
 			return false; // has at least 1 un-required state
 		for(int q = 0; q < 256; ++q)
 		{
-			if(trig.req_global_state.get(q) && !game->gswitch_timers[q])
+			if(trig.req_global_state.get(q) && !game->gswitch_timers.get(q))
 				return false;
-			if(trig.unreq_global_state.get(q) && game->gswitch_timers[q])
+			if(trig.unreq_global_state.get(q) && game->gswitch_timers.get(q))
 				return false;
 		}
 	}
@@ -2175,18 +2175,18 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			if (!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
 			{
 				int tmr = trig.trig_statetime, pair = trig.trig_gstate;
-				bool oldstate = game->gswitch_timers[pair] != 0;
+				bool oldstate = game->gswitch_timers.get(pair) != 0;
 				if (tmr > 0)
 				{
 					game->gswitch_timers[pair] = tmr;
 				}
 				else
 				{
-					if (game->gswitch_timers[pair])
+					if (game->gswitch_timers.get(pair))
 						game->gswitch_timers[pair] = 0;
 					else game->gswitch_timers[pair] = -1;
 				}
-				if (oldstate != (game->gswitch_timers[pair] != 0))
+				if (oldstate != (game->gswitch_timers.get(pair) != 0))
 				{
 					triggering_generic_switchstate = true;
 					toggle_gswitches(pair, false);
@@ -2558,7 +2558,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 	bool is_active_screen = is_in_current_region(base_scr);
 	cpos_info& timer = is_active_screen ? handle.info() : null_info;
 
-	bool dorun = !timer.trig_data[idx].cooldown;
+	bool dorun = !timer.trig_data.get(idx).cooldown;
 	if(dorun)
 	{
 		if (is_active_screen && (trig.trigger_flags.get(TRIGFLAG_CMBTYPEFX) || alwaysCTypeEffects(cmb.type)))
@@ -2740,7 +2740,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	int32_t cid = rpos_handle.data();
 	int32_t cset = rpos_handle.cset();
 	auto& cmb = rpos_handle.combo();
-	itemdata const& glove = itemsbuf[gloveid];
+	itemdata const& glove = itemsbuf.get(gloveid);
 
 	if(cmb.liftlvl > glove.level) return false;
 
@@ -2782,7 +2782,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	int wlvl = 0, wtype = wThrown;
 	if (prntid && valid_item_id(prntid))
 	{
-		itemdata const& prntitm = itemsbuf[prntid];
+		itemdata const& prntitm = itemsbuf.get(prntid);
 		switch(prntitm.type)
 		{
 			case itype_bomb:

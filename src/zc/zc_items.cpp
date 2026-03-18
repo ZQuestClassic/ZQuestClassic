@@ -114,11 +114,11 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(valid_item_id(drop_item) && itemsbuf[drop_item].type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
+    if(valid_item_id(drop_item) && itemsbuf.get(drop_item).type==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {
-            if((itemsbuf[items.spr(j)->id].type==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
+            if((itemsbuf.get(items.spr(j)->id).type==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
             {
                 drop_item=-1;
                 break;

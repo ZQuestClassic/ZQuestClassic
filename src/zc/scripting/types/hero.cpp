@@ -61,12 +61,12 @@ static ArrayRegistrar LINKITEMD_registrar(LINKITEMD, []{
 			{
 				//Clear the item refInfo and stack for use.
 				data.clear_ref();
-				if ( (itemsbuf[itemID].flags&item_passive_script) ) data.doscript = 1;
+				if ( (itemsbuf.get(itemID).flags&item_passive_script) ) data.doscript = 1;
 			}
 			else if ( value && data.doscript == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&item_passive_script) ) data.doscript = 1;
+				if ( (itemsbuf.get(itemID).flags&item_passive_script) ) data.doscript = 1;
 			}
 			
 			//Sanity check to prevent setting the item if the value would be the same. -Z

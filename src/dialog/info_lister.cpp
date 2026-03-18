@@ -289,7 +289,7 @@ void ItemListerDialog::postinit()
 	size_t len = 16;
 	for(int q = 0; q < itemsbuf.capacity(); ++q)
 	{
-		auto const& itm = itemsbuf[q];
+		auto const& itm = itemsbuf.get(q);
 		size_t tlen = text_length(GUI_DEF_FONT,itm.get_name(true).c_str());
 		if(tlen > len)
 			len = tlen;
@@ -336,13 +336,13 @@ void ItemListerDialog::update(bool)
 	std::string copied_name = "(None)\n";
 	if(unsigned(copied_item_id) < itemsbuf.capacity())
 	{
-		itemdata const& copied_itm = itemsbuf[copied_item_id];
+		itemdata const& copied_itm = itemsbuf.get(copied_item_id);
 		copied_name = fmt::format("{}\n{}", copied_itm.name,
 			copied_itm.display_name.empty() ? "[No Display Name]" : copied_itm.get_name(true));
 	}
 	if(unsigned(selected_val) < itemsbuf.capacity())
 	{
-		itemdata const& itm = itemsbuf[selected_val];
+		itemdata const& itm = itemsbuf.get(selected_val);
 		std::string display_name = itm.display_name.empty()
 			? "[No Display Name]"
 			: itm.get_name(true);
@@ -428,7 +428,7 @@ bool ItemListerDialog::clear()
 {
 	if (unsigned(selected_val) >= itemsbuf.capacity())
 		return false;
-	auto& itm = itemsbuf[selected_val];
+	auto& itm = itemsbuf.get(selected_val);
 	if (!alert_confirm(fmt::format("Delete Item '{}'?", itm.name),
 		fmt::format("This will delete Item #{}, '{}'."
 		"\nThis will offset all entries after it; item IDs of various things may need to be updated.",
@@ -453,7 +453,7 @@ bool ItemListerDialog::paste()
 		return false;
 	if(copied_item_id == selected_val)
 		return false;
-	itemsbuf[selected_val] = itemsbuf[copied_item_id];
+	itemsbuf[selected_val] = itemsbuf.get(copied_item_id);
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
@@ -492,7 +492,7 @@ bool ItemListerDialog::adv_paste()
 	};
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
-	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
+	itemsbuf[selected_val].advpaste(itemsbuf.get(copied_item_id), pasteflags);
 	refresh_dlg();
 	mark_save_dirty();
 	return true;
@@ -503,7 +503,7 @@ void ItemListerDialog::save()
 {
 	if(invalid_item_id(selected_val))
 		return;
-	if(!prompt_for_new_file_compat(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
+	if(!prompt_for_new_file_compat(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf.get(selected_val).get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return;
 	
 	PACKFILE *f=zalleg_pack_fopen_password(temppath,F_WRITE,"");
@@ -519,7 +519,7 @@ bool ItemListerDialog::load()
 {
 	if(invalid_item_id(selected_val))
 		return false;
-	if(!prompt_for_existing_file_compat(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
+	if(!prompt_for_existing_file_compat(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf.get(selected_val).get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return false;
 	
 	PACKFILE *f=zalleg_pack_fopen_password(temppath,F_READ,"");

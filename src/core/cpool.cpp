@@ -19,7 +19,7 @@ bool combo_alias::valid() const
 {
 	if(combo)
 		return combobuf[combo].tile;
-	return width || height || (combos.size() && combos[0]);
+	return width || height || (combos.size() && combos.get(0));
 }
 void combo_alias::clear()
 {

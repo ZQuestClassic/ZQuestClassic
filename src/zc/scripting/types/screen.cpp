@@ -537,7 +537,7 @@ static ArrayRegistrar SCREENSTATED_registrar(SCREENSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->maps[mi] >> index) & 1;
+			return (game->maps.get(mi) >> index) & 1;
 		},
 		[](screendata* scr, int index, bool value){
 			int mi = mapind(cur_map, scr->screen);
@@ -559,7 +559,7 @@ static ArrayRegistrar SCREENEXSTATED_registrar(SCREENEXSTATED, []{
 			if (mi < 0)
 				return false;
 
-			return (game->xstates[mi] >> index) & 1;
+			return (game->xstates.get(mi) >> index) & 1;
 		},
 		[](screendata* scr, int index, bool value){
 			int mi = mapind(cur_map, scr->screen);
@@ -614,7 +614,7 @@ static ArrayRegistrar SCREENSCRDATA_registrar(SCREENSCRDATA, []{
 			int mapindex = map_screen_index(cur_map, ref);
 			if (mapindex < 0) return 0;
 
-			return game->screen_data[mapindex][index];
+			return game->screen_data.get(mapindex).get(index);
 		},
 		[](int ref, int index, int value){
 			int mapindex = map_screen_index(cur_map, ref);

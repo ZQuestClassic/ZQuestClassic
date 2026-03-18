@@ -503,7 +503,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			int32_t flag = GET_D(rINDEX2) / 10000;
 
 			if(BC::checkMapID(mi>>7) == SH::_NoError)
-				ret=(game->maps[mi] >> flag & 1) ? 10000 : 0;
+				ret=(game->maps.get(mi) >> flag & 1) ? 10000 : 0;
 			else
 				ret=0;
 				
@@ -977,10 +977,10 @@ static ArrayRegistrar GAMEGSWITCH_registrar(GAMEGSWITCH, []{
 	static ScriptingArray_GlobalComputed<int> impl(
 		[](int) { return NUM_GSWITCHES; },
 		[](int, int index) -> int {
-			return game->gswitch_timers[index];
+			return game->gswitch_timers.get(index);
 		},
 		[](int, int index, int value) {
-			bool old = game->gswitch_timers[index];
+			bool old = game->gswitch_timers.get(index);
 			game->gswitch_timers[index] = value;
 			if (old != bool(value) && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
 				toggle_gswitches(index, false);
@@ -996,7 +996,7 @@ static ArrayRegistrar GAMEGUYCOUNT_registrar(GAMEGUYCOUNT, []{
 		[](int) { return MAPSCRSNORMAL; },
 		[](int, int index) -> int { // index is screen number for current map
 			int mi = mapind(cur_map, index);
-			return game->guys[mi];
+			return game->guys.get(mi);
 		},
 		[](int, int index, int value) {
 			int mi = mapind(cur_map, index);
@@ -1024,10 +1024,10 @@ static ArrayRegistrar GAMELSWITCH_registrar(GAMELSWITCH, []{
 	static ScriptingArray_GlobalComputed<dword> impl(
 		[](int) { return game->lvlswitches.size(); },
 		[](int, int index) -> dword {
-			return game->lvlswitches[index];
+			return game->lvlswitches.get(index);
 		},
 		[](int, int index, dword value) {
-			auto old = game->lvlswitches[index];
+			auto old = game->lvlswitches.get(index);
 			game->lvlswitches[index] = value;
 			if (index == dlevel && !get_qr(qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES))
 				toggle_switches(old ^ value, false);
@@ -1244,7 +1244,7 @@ static ArrayRegistrar DISABLEDITEM_registrar(DISABLEDITEM, []{
 		},
 		[](int, int index, bool value){
 			game->items_off.set(index, value);
-			removeFromItemCache(itemsbuf[index].type);
+			removeFromItemCache(itemsbuf.get(index).type);
 			return true;
 		}
 	);

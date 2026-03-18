@@ -4727,7 +4727,7 @@ void zmap::Copy(int scr)
         can_paste=true;
         copymap=cursor.map;
         copyscr=scr;
-		copyscrdata = zinit.screen_data[cursor.map*MAPSCRS+scr];
+		copyscrdata = zinit.screen_data.get(cursor.map*MAPSCRS+scr);
         copyffc = -1;
     }
 }
@@ -8335,7 +8335,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 
 int32_t write_single_item(PACKFILE *f, word index)
 {
-	itemdata const& item_ref = itemsbuf[index];
+	itemdata const& item_ref = itemsbuf.get(index);
 	if (!p_putcstr(item_ref.name, f))
 		new_return(5);
 	
@@ -9817,7 +9817,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
             
             for(int32_t k=0; k<count; k++)
             {
-                if(!p_iputw(combo_aliases[j].combos[k],f))
+                if(!p_iputw(combo_aliases[j].combos.get(k),f))
                 {
                     new_return(10);
                 }
@@ -9825,7 +9825,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
             
             for(int32_t k=0; k<count; k++)
             {
-                if(!p_putc(combo_aliases[j].csets[k],f))
+                if(!p_putc(combo_aliases[j].csets.get(k),f))
                 {
                     new_return(11);
                 }
