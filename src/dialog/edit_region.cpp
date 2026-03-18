@@ -8,6 +8,7 @@
 #include "zq/zq_misc.h"
 #include "zq/render.h"
 #include "zc_list_data.h"
+#include "dialog/quest_rules.h"
 
 static std::vector<int> qrs_must_be_off = {
 	// This is a snapshot of all the compat QRs as of Feb 17, 2025.
@@ -157,9 +158,12 @@ static std::vector<int> get_problematic_qrs(const std::vector<int>& qrs, bool ex
 {
 	std::vector<int> result;
 
+	// Only these QRs are shown in InfoDialog::view.
+	static auto applicable_qrs = (combinedQRList()+combinedZSRList());
+
 	for (auto qr : qrs)
 	{
-		if (bool(get_bit(quest_rules, qr)) != expected)
+		if (bool(get_bit(quest_rules, qr)) != expected && applicable_qrs.hasKey(qr))
 			result.push_back(qr);
 	}
 
