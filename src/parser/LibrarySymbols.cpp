@@ -77,18 +77,18 @@ void getInternalArray(int32_t refVar, Function* function, int32_t zasm_var)
 	{
 		function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 		addOpcode2 (code, new OLoadInternalArray(new VarArgument(EXP1), new LiteralVarArgument(zasm_var)));
-		LABELBACK(label);
 	}
 	else
 	{
-		addOpcode2 (code, new OLoadInternalArrayRef(new VarArgument(EXP1), new LiteralVarArgument(zasm_var), new VarArgument(refVar)));
-		LABELBACK(label);
 		//pop object pointer
 		if (refVar == REFSCREEN)
 			function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 		else
 			POPREF();
+		addOpcode2 (code, new OLoadInternalArrayRef(new VarArgument(EXP1), new LiteralVarArgument(zasm_var), new VarArgument(refVar)));
 	}
+
+	code.front()->setLabel(label);
 
 	RETURN();
 	function->giveCode(code);
