@@ -17,6 +17,7 @@ include(CodeCoverage)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
+set(WANT_ZUPDATER TRUE CACHE BOOL "Build the zupdater target")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
@@ -784,29 +785,32 @@ endif()
 # ZUpdater
 #############################################################
 
-# TODO give zupdater its own icon.
-if(MSVC)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.rc)
-elseif(LINUX)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.c)
+if(WANT_ZUPDATER AND WIN32)
+	if(NOT CURL_FOUND)
+		message(WARNING "WANT_ZUPDATER is set, but could not find curl, so ignoring")
+	else()
+		set(BUILD_ZUPDATER TRUE)
+	endif()
 endif()
 
-add_executable(zupdater src/zupdater/zupdater.cpp src/zconfig.cpp ${UPDATEREXTRASOURCES})
-target_compile_definitions(zupdater PRIVATE ZUPDATER)
-target_link_libraries(zupdater PRIVATE allegro_with_legacy fmt zcbase)
-target_include_directories(zupdater PRIVATE src)
-if(WIN32)
-	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
-endif()
-
-if(CURL_FOUND AND WIN32)
-	message(STATUS "Using curl for zupdater")
-
-	target_link_libraries(zupdater PRIVATE CURL::libcurl)
+if(BUILD_ZUPDATER)
+	# TODO give zupdater its own icon.
+	if(MSVC)
+		list(APPEND UPDATEREXTRASOURCES zl_icon.rc)
+	elseif(LINUX)
+		list(APPEND UPDATEREXTRASOURCES zl_icon.c)
+	endif()
 
 	add_library(json INTERFACE third_party/json/json/json.h)
 	target_include_directories(json INTERFACE third_party/json)
-	target_link_libraries(zupdater PRIVATE json)
+
+	add_executable(zupdater src/zupdater/zupdater.cpp ${UPDATEREXTRASOURCES})
+	target_compile_definitions(zupdater PRIVATE ZUPDATER)
+	target_link_libraries(zupdater PRIVATE zcbase allegro_with_legacy CURL::libcurl json)
+	target_include_directories(zupdater PRIVATE src)
+	if(WIN32)
+		target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
+	endif()
 
 	FetchContent_Declare(
 		miniz
@@ -821,11 +825,6 @@ if(CURL_FOUND AND WIN32)
 	FetchContent_MakeAvailable(miniz)
 	set(BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS_PREV} CACHE BOOL "" FORCE)
 	target_link_libraries(zupdater PRIVATE miniz)
-else()
-	message(WARNING "Using Python for zupdater")
-
-	target_compile_definitions(zupdater PRIVATE UPDATER_USES_PYTHON)
-	target_compile_definitions(zlauncher PRIVATE UPDATER_USES_PYTHON)
 endif()
 
 #############################################################
@@ -843,7 +842,12 @@ endif()
 # Misc.
 #############################################################
 
-set(zc_targets zeditor zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
+set(zc_targets zeditor zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger)
+
+if(BUILD_ZUPDATER)
+	list(APPEND zc_targets zupdater)
+endif()
+
 set(zc_clang_errors
 	-Werror=array-bounds
 	-Werror=format
@@ -1050,7 +1054,10 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zplayer zeditor zscript zlauncher zupdater package_zc PROPERTIES FOLDER "")
+	set_target_properties(zplayer zeditor zscript zlauncher package_zc PROPERTIES FOLDER "")
+	if(BUILD_ZUPDATER)
+		set_target_properties(zupdater package_zc PROPERTIES FOLDER "")
+	endif()
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme PROPERTIES FOLDER Sound)

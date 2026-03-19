@@ -1,4 +1,4 @@
-#include "allegro5/allegro_native_dialog.h"
+#include "base/about.h"
 #include "base/files.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
@@ -425,6 +425,8 @@ bool LauncherDialog::load_theme(char const* themefile)
 	return false;
 }
 
+#ifdef HAS_CURL
+
 static bool has_checked_for_updates = false;
 static bool found_new_update = false;
 static std::string next_version;
@@ -457,6 +459,8 @@ static bool check_for_updates()
 	return found_new_update = next_version != getReleaseTag();
 }
 
+#endif
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
@@ -464,8 +468,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
 
+#ifdef HAS_CURL
 	if (zc_get_config("ZLAUNCH", "check_for_updates", false, App::launcher))
 		check_for_updates();
+#endif
 
 	queue_revert = 0;
 	int rightmost;
@@ -494,13 +500,17 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				minheight = zq_screen_h - 100_px,
 				onSwitch = [&](size_t oldind, size_t newind)
 				{
+#ifdef HAS_CURL
 					if (newind == 5)
 					{
 						check_for_updates();
-						btn_download_update->setText(found_new_update ? "Update to " + next_version : "No update found");
+						lbl_latest_version->setText(found_new_update ?
+							("Latest version: " + next_version) :
+							fmt::format("You are on the latest version for this channel ({})", getReleaseChannel()));
 						btn_download_update->setDisabled(!found_new_update);
 						btn_release_notes->setDisabled(!found_new_update);
 					}
+#endif
 
 					if(newind < 2 || newind >= 5) //not a theme tab
 					{
@@ -772,34 +782,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							strcpy(tmp_themefile, theme_saved_filepath);
 						}
 					})
-				))
-#ifndef ALLEGRO_LINUX
-				,
+				)),
 				TabRef(name = "Update", Column(padding = 0_px,
-					Row(framed = true,
-						Rows<2>(fitParent = true,
-							CONFIG_CHECKBOX_I("Check for updates on startup",App::launcher,"ZLAUNCH","check_for_updates",0,"Check for updates when starting ZLauncher. When a new version is available, ZLauncher will focus the Update tab on startup.")
-						)
-					),
-					Row(
-						Rows<2>(fitParent = true,
-							btn_download_update = Button(
-								// TODO: Will change button text dynamically, but that breaks an assumption in Button::realize
-								// re: usage of its `text.data()`. So let's reserve a large enough string to workaround that.
-								text = std::string(200, ' '),
-								maxwidth = 250_px,
-								onClick = message::ZU
-							),
-							btn_release_notes = Button(
-								text = "View Latest Release Notes",
-								onClick = message::ZU_RELEASE_NOTES_NEXT
-							)
-						)
-					),
-#ifdef UPDATER_USES_PYTHON
-					Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH"),
-#endif
-					Row(framed = true, padding = 10_px, topMargin = 40_px,
+					Row(framed = true, padding = 10_px, topMargin = 0_px,
 						Rows<1>(fitParent = true,
 							Label(text = fmt::format("Current version: {}", getReleaseTag())),
 							Label(text = fmt::format("Channel: {}", getReleaseChannel())),
@@ -809,9 +794,28 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								onClick = message::ZU_RELEASE_NOTES
 							)
 						)
+					),
+#ifdef HAS_CURL
+					Row(framed = true, padding = 10_px, topMargin = 20_px, bottomMargin = 20_px,
+						Rows<1>(fitParent = true,
+							lbl_latest_version = Label(text = std::string(70, ' '), bottomMargin = 5_px),
+							btn_release_notes = Button(
+								text = "View Latest Release Notes",
+								onClick = message::ZU_RELEASE_NOTES_NEXT
+							),
+							btn_download_update = Button(
+								text = "Update",
+								onClick = message::ZU
+							)
+						)
+					),
+#endif
+					Row(framed = true,
+						Rows<2>(fitParent = true,
+							CONFIG_CHECKBOX_I("Check for updates on startup",App::launcher,"ZLAUNCH","check_for_updates",0,"Check for updates when starting ZLauncher. When a new version is available, ZLauncher will focus the Update tab on startup.")
+						)
 					)
 				))
-#endif
 			),
 			Row(
 				vAlign = 1.0,
@@ -832,15 +836,17 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 		)
 	);
 
+#ifdef HAS_CURL
 	if (found_new_update)
 	{
 		// Note: the onSwitch callback above does not run when calling `switchTo` below because the dialog has not been realized yet.
-		btn_download_update->setText("Update to " + next_version);
+		lbl_latest_version->setText("Latest version: " + next_version);
 		btn_download_update->setDisabled(false);
 		btn_release_notes->setDisabled(false);
 		tabPanel->switchTo(6);
 	}
-	
+#endif
+
 	return window;
 }
 
@@ -869,6 +875,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::ZU:
 		{
+#if defined(HAS_CURL) && defined(_WIN32)
 			std::string output;
 			bool success = run_and_get_output(locate_zapp_file(ZUPDATER_FILE), {
 				"-headless",
@@ -887,8 +894,11 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				InfoDialog("Updater Error", output).show();
 			}
+#else
+			InfoDialog("Updater Error", "The updater is not currently supported on this platform. Please manually download the latest version.").show();
+#endif
+			break;
 		}
-		break;
 		case message::ZU_RELEASE_NOTES:
 		{
 			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", getReleaseTag());
@@ -904,6 +914,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 		case message::ZU_RELEASE_NOTES_NEXT:
 		{
+#ifdef HAS_CURL
 			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", next_version);
 #ifdef _WIN32
 			std::string cmd = "start " + url;
@@ -912,6 +923,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			launch_process("open", {url});
 #else
 			launch_process("xdg-open", {url});
+#endif
 #endif
 		}
 		break;

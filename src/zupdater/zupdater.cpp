@@ -1,20 +1,14 @@
 #include "base/about.h"
-#include "base/process_management.h"
 #include "base/util.h"
 #include "base/zc_alleg.h"
 #include "base/zapp.h"
 #include "allegro5/allegro_native_dialog.h"
-#include <algorithm>
 #include <filesystem>
-#include <map>
 #include <vector>
 #include <string>
-#include <sstream>
 #include <fstream>
-#include <regex>
 #include <fmt/format.h>
 
-#ifndef UPDATER_USES_PYTHON
 #include <curl/curl.h>
 #include "json/json.h"
 #include "miniz.h"
@@ -46,8 +40,6 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
  
   return realsize;
 }
-
-#endif
 
 namespace fs = std::filesystem;
 
@@ -106,53 +98,9 @@ static bool prompt(std::string msg)
 	return ret != 2;
 }
 
-static std::string get_output(std::string file, const std::vector<std::string>& args, std::string fatal_error_msg = "")
-{
-	std::string output;
-	if (!run_and_get_output(file, args, output))
-	{
-		if (fatal_error_msg.empty()) fatal("Failed to launch: " + file);
-		fatal(fatal_error_msg);
-	}
-	output.erase(output.find_last_not_of("\t\n\v\f\r ") + 1);
-	return output;
-}
-
-static std::pair<std::string, std::map<std::string, std::string>> get_output_map(std::string file, const std::vector<std::string>& args, std::string fatal_error_msg = "")
-{
-	std::string output = get_output(file, args, fatal_error_msg);
-	return {output, parse_output_map(output)};
-}
-
-static void require_python()
-{
-	std::string py_version = get_output(PYTHON, {"--version"}, "Python3 is required to run the updater");
-	if (!py_version.starts_with("Python 3"))
-	{
-		fatal("Python3 is required, but found " + py_version);
-	}
-}
-
-// NOTE: for Python, this returns the latest release. Otherwise, it returns the latest release
-// of the configured channel. Could do the same in Python, but Windows is most of our userbase, and
-// the Python implementation should be dropped eventually on non-Windows platforms so opting not to implement it.
+// Returns the latest release of the configured channel.
 static std::tuple<std::string, std::string> get_next_release()
 {
-#ifdef UPDATER_USES_PYTHON
-	auto [next_release_output, next_release_map] = get_output_map(PYTHON, {
-		"tools/updater.py",
-		"--repo", repo,
-		"--platform", platform,
-		"--print-next-release",
-	});
-	if (!next_release_map.contains("tag_name") || !next_release_map.contains("asset_url"))
-	{
-		fatal("Could not find next version: " + next_release_output);
-	}
-	std::string new_version = next_release_map["tag_name"];
-	std::string asset_url = next_release_map["asset_url"];
-	return {new_version, asset_url};
-#else
 	std::string json_url = fmt::format("https://zquestclassic.com/releases/{}.json", channel);
 
 	struct MemoryStruct chunk;
@@ -194,10 +142,7 @@ static std::tuple<std::string, std::string> get_next_release()
 	free(chunk.memory);
 
 	return {tag_name, asset_url};
-#endif
 }
-
-#ifndef UPDATER_USES_PYTHON
 
 static bool download_file(std::string url, fs::path dest, std::string& error)
 {
@@ -296,30 +241,8 @@ static bool unzip_file(mz_zip_archive& archive, fs::path dest, std::string& erro
 	return true;
 }
 
-#endif
-
 static bool install_release(std::string asset_url, bool use_cache, std::string& error)
 {
-#ifdef UPDATER_USES_PYTHON
-	std::vector<std::string> args = {
-		"tools/updater.py",
-		"--repo", repo,
-		"--platform", platform,
-		"--asset-url", asset_url,
-	};
-	if (use_cache) args.push_back("--cache");
-	auto updater_output = get_output(PYTHON, args);
-	if (updater_output.empty())
-	{
-		fatal("Failed to launch updater.py");
-	}
-	printf("updater.py:\n%s\n", updater_output.c_str());
-
-	bool success = updater_output.find("Success!") != std::string::npos;
-	if (!success)
-		error = updater_output;
-	return success;
-#else
 	fs::path root_dir = "";
 	if (!fs::exists(root_dir / "base_config"))
 	{
@@ -366,7 +289,6 @@ static bool install_release(std::string asset_url, bool use_cache, std::string& 
 		return false;
 
 	return true;
-#endif
 }
 
 int32_t main(int32_t argc, char* argv[])
@@ -389,10 +311,6 @@ int32_t main(int32_t argc, char* argv[])
 		else
 			fatal("Failed: " + error);
 	}
-
-#ifdef UPDATER_USES_PYTHON
-	require_python();
-#endif
 
 	auto [new_version, asset_url] = get_next_release();
 	if (new_version.empty() || asset_url.empty())

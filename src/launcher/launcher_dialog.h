@@ -29,8 +29,11 @@ private:
 	std::shared_ptr<GUI::TextField> tf_savefile;
 	std::shared_ptr<GUI::TextField> tf_theme[3];
 	std::shared_ptr<GUI::Button> btn_save[3];
+#ifdef HAS_CURL
+	std::shared_ptr<GUI::Label> lbl_latest_version;
 	std::shared_ptr<GUI::Button> btn_download_update;
 	std::shared_ptr<GUI::Button> btn_release_notes;
+#endif
 	std::shared_ptr<GUI::Label> lbl_theme_error;
 	std::shared_ptr<GUI::DropDownList> ddl_res;
 };
