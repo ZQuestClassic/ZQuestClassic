@@ -143,3 +143,4 @@ changelogs/nightly.txt
 api_server
 venv
 *.tsbuildinfo
+*.backups
