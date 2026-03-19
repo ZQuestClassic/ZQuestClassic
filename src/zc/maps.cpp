@@ -4344,15 +4344,12 @@ void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 	}
 }
 
-void calc_darkroom_combos(mapscr* scr, int offx, int offy)
+void calc_darkroom_combos(screen_handles_t screen_handles, int offx, int offy)
 {
-	int map = scr->map;
-	int screen = scr->screen;
-
-	for(int32_t lyr = 0; lyr < 7; ++lyr)
+	for (auto& handle : screen_handles)
 	{
-		mapscr* scr = get_scr_layer(map, screen, lyr);
-		if (!scr->is_valid()) continue;
+		mapscr* scr = handle.scr;
+		if (!scr) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
 		{
@@ -5358,7 +5355,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	{
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].base_scr;
-			calc_darkroom_combos(base_scr, offx, offy + playing_field_offset);
+			calc_darkroom_combos(screen_handles, offx, offy + playing_field_offset);
 			calc_darkroom_ffcs(base_scr, 0, playing_field_offset);
 		});
 		if(showhero)

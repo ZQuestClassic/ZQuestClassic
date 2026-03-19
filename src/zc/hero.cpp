@@ -28920,7 +28920,7 @@ static void scrollscr_handle_dark(const nearby_scrolling_screens_t& nearby_scree
 
 		dither_offx = is_new_screen ? -new_region_offset_x : 0;
 		dither_offy = is_new_screen ? -new_region_offset_y : 0;
-		calc_darkroom_combos(base_scr, offx, offy + playing_field_offset);
+		calc_darkroom_combos(screen_handles, offx, offy + playing_field_offset);
 
 		int offx2 = is_new_screen ? new_region_offset_x : 0;
 		int offy2 = is_new_screen ? new_region_offset_y : 0;
