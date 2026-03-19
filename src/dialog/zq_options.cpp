@@ -283,10 +283,6 @@ void OptionsDialog::saveOption(int ind)
 			AnimationOn = v;
 			zc_set_config("zquest","animation_on",v);
 			break;
-		case OPT_ABRETENTION:
-			AutoBackupRetention = v;
-			zc_set_config("zquest","auto_backup_retention",v);
-			break;
 		case OPT_ASINTERVAL:
 			time(&auto_save_time_start); //Reset autosave timer
 			AutoSaveInterval = v;
@@ -295,6 +291,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_ASRETENTION:
 			AutoSaveRetention = v;
 			zc_set_config("zquest","auto_save_retention",v);
+			break;
+		case OPT_ABRETENTION:
+			AutoBackupRetention = v;
+			zc_set_config("zquest","auto_backup_retention",v);
 			break;
 		case OPT_UNCOMP_AUTOSAVE:
 			UncompressedAutoSaves = v;
@@ -550,20 +550,6 @@ TextField(type = GUI::TextField::type::INT_DECIMAL, \
 //}
 
 //{ Listers
-static const GUI::ListData abRetentionList
-{
-	{ "Disabled", 0 },
-	{ " 1", 1 },
-	{ " 2", 2 },
-	{ " 3", 3 },
-	{ " 4", 4 },
-	{ " 5", 5 },
-	{ " 6", 6 },
-	{ " 7", 7 },
-	{ " 8", 8 },
-	{ " 9", 9 },
-	{ "10", 10 }
-};
 static const GUI::ListData asIntervalList
 {
 	{ "Disabled", 0 },
@@ -577,19 +563,6 @@ static const GUI::ListData asIntervalList
 	{ " 8 Minutes", 8 },
 	{ " 9 Minutes", 9 },
 	{ "10 Minutes", 10 }
-};
-static const GUI::ListData asRetentionList
-{
-	{ " 1", 0 },
-	{ " 2", 1 },
-	{ " 3", 2 },
-	{ " 4", 3 },
-	{ " 5", 4 },
-	{ " 6", 5 },
-	{ " 7", 6 },
-	{ " 8", 7 },
-	{ " 9", 8 },
-	{ "10", 9 }
 };
 static const GUI::ListData colorList
 {
@@ -876,9 +849,9 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 		TabPanel(ptr = &tabpos3,
 			TabRef(name = "1", Row(padding = 0_px,
 				Rows<3>(vAlign = 0.0,
-					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
-					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
-					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
+					ROW_TF_RANGE_I(OPT_ABRETENTION, "Auto-Backup Retention:", -1, 1000, "How many backups to store for each qst file. Every time you save, a backup is made. Set to 0 to disable. -1 means no limit."),
+					ROW_DDOWN(OPT_ASINTERVAL, "Auto-Save Interval:", asIntervalList),
+					ROW_TF_RANGE_I(OPT_ASRETENTION, "Auto-Save Retention:", 0, 100, "How many timed-save backups to store for each qst file. Every x minutes, a backup of your unsaved changes is made."),
 					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
 					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
 						"The color of the current screen outline on the minimap."

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <map>
 
+#include "base/expected.h"
 #include "base/general.h"
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
@@ -6637,7 +6638,10 @@ int32_t load_quest(const char *filename, bool show_progress)
 	}
 
     Map.ClearCommandHistory();
-	
+
+	if (ret == qe_OK)
+		disable_saving = std::string(filename).find(".backups") != std::string::npos;
+
 	return ret;
 }
 
@@ -13869,9 +13873,197 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 
 	return 0;
 }
+
+// #ifdef _WIN32
+// static std::time_t to_time_t(FILETIME const& ft) {
+//     uint64_t t = (static_cast<uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+//     t -= 116444736000000000ull;
+//     t /= 10000000u;
+//     return static_cast<std::time_t>(t);
+// }
+// #else
+// #endif
+template<typename TP>
+static std::time_t to_time_t(TP tp) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
+
+static expected<std::string, std::error_code> get_time_last_modified_string(std::string path)
+{
+	std::error_code ec;
+	auto write_time = fs::last_write_time(path, ec);
+	if (ec)
+		return make_unexpected(ec);
+
+	// TODO: C++20 but not supported yet.
+	// auto tt = std::chrono::clock_cast<std::chrono::system_clock>(write_time);
+    std::time_t tt = to_time_t(write_time);
+	std::tm *tm = std::localtime(&tt);
+	std::stringstream buffer;
+	buffer << std::put_time(tm, "%Y_%m_%d %H%M%S");
+	std::string formattedFileTime = buffer.str();
+	return formattedFileTime;
+}
+
+// Returns a path like this:
+//   SomeQuest.qst.backups/YYYY_MM_DD_HH_mm_SS--autosave--v3.0.0--SomeQuest.qst
+//   SomeQuest.qst.backups/YYYY_MM_DD_HH_mm_SS--backup--v3.0.0--SomeQuest.qst
+static expected<std::string, std::error_code> create_path_for_backup(const char* original_filepath, bool is_timed_save = false)
+{
+	std::string timestamp;
+	if (is_timed_save)
+	{
+		std::time_t tt = std::time(nullptr);
+		std::tm *tm = std::localtime(&tt);
+		std::stringstream buffer;
+		buffer << std::put_time(tm, "%Y_%m_%d %H%M%S");
+		timestamp = buffer.str();
+	}
+	else
+	{
+		if (auto v = get_time_last_modified_string(original_filepath); !v)
+			return v;
+		else
+			timestamp = v.value();
+	}
+
+	std::string original_filename = get_filename(original_filepath);
+	std::string save_type = is_timed_save ? "autosave" : "backup";
+
+	std::string backup_filename;
+	backup_filename = fmt::format("{}--{}--v{}--{}", timestamp, save_type, header.getVerStr(), original_filename);
+
+	std::string backup_folder_name = std::string(original_filepath) + ".backups";
+	fs::path backup_path = fs::path(backup_folder_name) / backup_filename;
+
+	if (is_timed_save && UncompressedAutoSaves)
+		backup_path.replace_extension(".qsu");
+
+	return backup_path.string();
+}
+
+void perform_backup_retention(const fs::path& backup_folder, bool is_timed_save)
+{
+	int32_t limit = is_timed_save ? AutoSaveRetention : AutoBackupRetention;
+	if (limit <= 0)
+		return;
+
+	std::string marker = is_timed_save ? "--autosave--" : "--backup--";
+	int32_t count = 0;
+	fs::path oldest_file;
+	fs::file_time_type oldest_time = fs::file_time_type::max();
+	std::error_code ec;
+
+	for (const auto& entry : fs::directory_iterator(backup_folder, ec))
+	{
+		if (entry.is_regular_file(ec))
+		{
+			std::string filename = entry.path().filename().string();
+			if (filename.find(marker) != std::string::npos)
+			{
+				count++;
+				auto write_time = entry.last_write_time(ec);
+
+				if (write_time < oldest_time)
+				{
+					oldest_time = write_time;
+					oldest_file = entry.path();
+				}
+			}
+		}
+	}
+
+	// Just to be conservative, only ever delete 1 file at a time.
+	if (count > limit && !oldest_file.empty())
+		fs::remove(oldest_file, ec);
+}
+
+static void save_backup_quest(const char* original_filename)
+{
+	std::string backup_path;
+	if (auto v = create_path_for_backup(original_filename, false); !v)
+	{
+		InfoDialog("Quest Backup", "Failed to save backup.", v.error().message()).show();
+		return;
+	}
+	else
+	{
+		backup_path = v.value();
+	}
+
+	auto backup_folder = fs::path(backup_path).parent_path();
+	if (fs::exists(backup_path))
+		return;
+
+	std::error_code ec;
+	fs::create_directories(backup_folder, ec);
+	if (ec)
+	{
+		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path), ec.message()).show();
+		return;
+	}
+
+	fs::copy_file(original_filename, backup_path, ec);
+	if (ec)
+	{
+		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path), ec.message()).show();
+		return;
+	}
+
+	perform_backup_retention(backup_folder, false);
+}
+
+int32_t save_timed_auto_backup(const char* original_filepath)
+{
+	std::string backup_path;
+	if (auto v = create_path_for_backup(original_filepath, true); !v)
+		return 1;
+	else
+		backup_path = v.value();
+
+	auto backup_folder = fs::path(backup_path).parent_path();
+	std::error_code ec;
+	fs::create_directories(backup_folder, ec);
+	if (ec)
+		return 1;
+
+	bool compress = !UncompressedAutoSaves;
+	int32_t ret = _save_unencoded_quest_int(backup_path.c_str(), compress, original_filepath);
+
+	fake_pack_writing = false;
+	if (ret)
+	{
+		box_out("-- Error saving quest file! --");
+		box_end(true);
+	}
+	else
+		box_end(false);
+
+	if (ret == 0)
+		perform_backup_retention(backup_folder, true);
+
+	return ret;
+}
+
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
 {
+	if (exists(filename))
+	{
+		bool should_do_backup = AutoBackupRetention != 0;
+
+		// Always backup quest if it was last saved in a different version of the editor,
+		// or if this a new file and is overwriting another qst file.
+		// if (std::string(getVersionString()) != header.zelda_version_string)
+		// 	should_do_backup = true;
+
+		if (should_do_backup)
+			save_backup_quest(filename);
+	}
+
 	auto ret = _save_unencoded_quest_int(filename,compressed,afname);
+
 	fake_pack_writing = false;
 	if(ret)
 	{
@@ -13882,60 +14074,17 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	return ret;
 }
 
-int32_t save_quest(const char *filename, bool timed_save)
+int32_t user_initiated_save_quest(const char* filename, const char* afname)
 {
-	int32_t retention=timed_save?AutoSaveRetention:AutoBackupRetention;
-	bool compress=!(timed_save&&UncompressedAutoSaves);
-	char ext1[5];
-	ext1[0]=0;
-	
-	if(timed_save)
-	{
-		sprintf(ext1, "qt");
-	}
-	else
-	{
-		sprintf(ext1, "qb");
-	}
-	
-	if(retention)
-	{
-		char backupname[2048];
-		char backupname2[2048];
-		char ext[12];
-		
-		for(int32_t i=retention-1; i>0; --i)
-		{
-			sprintf(ext, "%s%d", ext1, i-1);
-			replace_extension(backupname, filepath, ext, 2047);
-			
-			if(exists(backupname))
-			{
-				sprintf(ext, "%s%d", ext1, i);
-				replace_extension(backupname2, filepath, ext, 2047);
-				
-				if(exists(backupname2))
-				{
-					remove(backupname2);
-				}
-				
-				rename(backupname, backupname2);
-			}
-		}
-		
-		//don't do this if we're not saving to the same name -DD
-		if(!timed_save && !strcmp(filepath, filename))
-		{
-			sprintf(ext, "%s%d", ext1, 0);
-			replace_extension(backupname, filepath, ext, 2047);
-			rename(filepath, backupname);
-		}
-	}
-	
-	int32_t ret;
-	ret  = save_unencoded_quest(filename, compress, filename);
+	bool compress = true;
+	if (util::get_ext(filename) == ".qsu") compress = false;
+	return save_unencoded_quest(filename, compress, afname);
+}
 
-	return ret;
+int32_t save_quest(const char *filename)
+{
+	bool compress = true;
+	return save_unencoded_quest(filename, compress, filename);
 }
 
 void center_zq_class_dialogs()

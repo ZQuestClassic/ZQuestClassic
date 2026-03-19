@@ -1214,9 +1214,7 @@ bool disabled_hotkey(uint hkey)
 	switch(hkey)
 	{
 		case ZQKEY_SAVE: case ZQKEY_REVERT:
-			return saved | disable_saving | OverwriteProtection;
-		case ZQKEY_SAVEAS:
-			return disable_saving;
+			return saved | OverwriteProtection;
 		case ZQKEY_PASTE: case ZQKEY_PASTEALL: case ZQKEY_PASTETOALL:
 		case ZQKEY_PASTEALLTOALL: case ZQKEY_PASTE_DOORS:
 		case ZQKEY_PASTE_ENEMIES: case ZQKEY_PASTE_LAYERS:
