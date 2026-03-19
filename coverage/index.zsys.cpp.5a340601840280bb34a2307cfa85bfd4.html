@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-16 09:28:56</td>
+      <td>2026-03-19 19:47:34</td>
     </tr>
   </table>
 </div>
@@ -93,7 +93,7 @@
     <tr><td><a href="#l1694">gcd(int, int) (line 1694)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1715">lcm(int, int) (line 1715)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1014">lock_dclick_function() (line 1014)</a></td><td>called 1 time, returned 1 time</td><td>100.0%</td></tr>
-    <tr><td><a href="#l203">log_console(int, char const*) (line 203)</a></td><td>called 12851 times, returned 12851 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l203">log_console(int, char const*) (line 203)</a></td><td>called 13191 times, returned 13191 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l336">rand_007(int) (line 336)</a></td><td>called 555151159 times, returned 555151159 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1679">safe_rect(BITMAP*, int, int, int, int, int) (line 1679)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1683">safe_rect(BITMAP*, int, int, int, int, int, int) (line 1683)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -168,7 +168,7 @@
     <tr><td><a href="#l848">try_open_maybe_legacy_encoded_file(char const*, char const*, char const*, char const*, char const*) (line 848)</a></td><td>called 988 times, returned 988 times</td><td>56.0%</td></tr>
     <tr><td><a href="#l141">zc_make_relative_filename(char*, char const*, char const*, int) (line 141)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l274">zprint(char const*, ...) (line 274)</a></td><td>called 3 times, returned 3 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l290">zprint2(char const*, ...) (line 290)</a></td><td>called 6002 times, returned 6002 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l290">zprint2(char const*, ...) (line 290)</a></td><td>called 6342 times, returned 6342 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -1622,7 +1622,7 @@
       <td class="lineno"><a id="l203" href="#l203">203</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">12851</td>
+      <td class="linecount coveredLine">13191</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_console</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1636,14 +1636,14 @@
       <td class="lineno"><a id="l205" href="#l205">205</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">12851</td>
+      <td class="linecount coveredLine">13191</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">safe_al_trace</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l206" href="#l206">206</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">12851</td>
+      <td class="linecount coveredLine">13191</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zscript_coloured_console</span><span class="p">.</span><span class="n">safeprint</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1652,26 +1652,26 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 9978 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 10318 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 2873 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">12851</td>
+      <td class="linecount coveredLine">13191</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zc_log_cb</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l208" href="#l208">208</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9978</td>
+      <td class="linecount coveredLine">10318</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">zc_log_cb</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l209" href="#l209">209</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">12851</td>
+      <td class="linecount coveredLine">13191</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2245,7 +2245,7 @@
       <td class="lineno"><a id="l290" href="#l290">290</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zprint2</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">format</span><span class="p">,...)</span></td>
     </tr>
     <tr class="source-line">
@@ -2280,21 +2280,21 @@
       <td class="lineno"><a id="l295" href="#l295">295</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">va_start</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l296" href="#l296">296</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">vsnprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="mi">8192</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">ap</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l297" href="#l297">297</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">va_end</span><span class="p">(</span><span class="n">ap</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2308,21 +2308,21 @@
       <td class="lineno"><a id="l299" href="#l299">299</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">12004</td>
+      <td class="linecount coveredLine">12684</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">log_console</span><span class="p">((</span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">COLOR_BLUE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">COLOR_INTENSITY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l300" href="#l300">300</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">CConsoleLoggerEx</span><span class="o">::</span><span class="n">COLOR_BACKGROUND_BLACK</span><span class="p">),</span><span class="n">buf</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l301" href="#l301">301</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6002</td>
+      <td class="linecount coveredLine">6342</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-16 09:28:56</td>
+      <td>2026-03-19 19:47:34</td>
     </tr>
   </table>
 </div>
@@ -1097,7 +1097,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">45202</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">valid_item_id</span><span class="p">(</span><span class="n">drop_item</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">drop_item</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_fairy</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_OLD_FAIRY_LIMIT</span><span class="p">))</span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">valid_item_id</span><span class="p">(</span><span class="n">drop_item</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">drop_item</span><span class="p">).</span><span class="n">type</span><span class="o">==</span><span class="n">itype_fairy</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_OLD_FAIRY_LIMIT</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
@@ -1143,7 +1143,7 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">10</td>
-      <td class="src partialCoveredLine"><span class="w">            </span><span class="k">if</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">].</span><span class="n">type</span><span class="o">==</span><span class="n">itype_fairy</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="p">((</span><span class="n">abs</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">32</span><span class="p">)</span><span class="o">||</span><span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">y</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">32</span><span class="p">)))</span></td>
+      <td class="src partialCoveredLine"><span class="w">            </span><span class="k">if</span><span class="p">((</span><span class="n">itemsbuf</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">).</span><span class="n">type</span><span class="o">==</span><span class="n">itype_fairy</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="p">((</span><span class="n">abs</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">32</span><span class="p">)</span><span class="o">||</span><span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">spr</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">y</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">32</span><span class="p">)))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l122" href="#l122">122</a></td>
