@@ -659,7 +659,6 @@ bool run_and_get_output(std::string file, const std::vector<std::string>& args, 
 }
 
 // Utility function for parsing structured data from process output.
-// Example usage is updater.py
 std::map<std::string, std::string> parse_output_map(std::string output)
 {
 	std::map<std::string, std::string> result;

@@ -135,7 +135,10 @@ function(zc_install_targets_windows)
 endfunction()
 
 if(NOT EMSCRIPTEN)
-	list(APPEND ZC_INSTALL_TARGETS zlauncher zplayer zeditor zscript zcsound zupdater)
+	list(APPEND ZC_INSTALL_TARGETS zlauncher zplayer zeditor zscript zcsound)
+	if(BUILD_ZUPDATER)
+		list(APPEND ZC_INSTALL_TARGETS zupdater)
+	endif()
 	zc_install_targets("${ZC_INSTALL_TARGETS}")
 	if(WIN32)
 		# This copies additional dlls that for some reason the above install command ignores:
@@ -240,8 +243,11 @@ if(APPLE)
 			\"\${APP_ROOT}/Contents/Resources/zplayer\"
 			\"\${APP_ROOT}/Contents/Resources/zeditor\"
 			\"\${APP_ROOT}/Contents/Resources/zscript\"
-			\"\${APP_ROOT}/Contents/Resources/zupdater\"
 		)
+		set(BUILD_ZUPDATER \"${BUILD_ZUPDATER}\")
+		if(BUILD_ZUPDATER)
+			list(APPEND BINARIES_TO_FIX \"\${APP_ROOT}/Contents/Resources/zupdater\")
+		endif()
 		fixup_bundle(\"\${APP_ROOT}\" \"\${BINARIES_TO_FIX}\" \"\${APP_ROOT}/Contents/Frameworks\")
 	")
 elseif(LINUX)
