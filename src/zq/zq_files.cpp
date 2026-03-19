@@ -4,6 +4,7 @@
 #include <system_error>
 
 #include "allegro/gui.h"
+#include "dialog/externs.h"
 #include "zalleg/files.h"
 #include "core/misctypes.h"
 #include "core/qrs.h"
@@ -49,6 +50,7 @@ int32_t NewQuestFile(std::string tileset_path)
     box_eol();
     init_quest(tileset_path);
     saved = autosaved = true;
+	disable_saving = false;
     box_end(false);
     refresh(rALL);
     return D_O_K;
@@ -349,9 +351,11 @@ int32_t onSave()
 {
     restore_mouse();
     
-    if(disable_saving)
+    if (disable_saving)
     {
-        displayinfo("ZQuest","Saving is disabled in this version.");
+		if (alert_confirm("Saving not allowed", "This qst is in a backup folder, so it is read-only. Would you like to Save As instead?"))
+			return onSaveAs();
+
         return D_O_K;
     }
     
@@ -370,12 +374,8 @@ int32_t onSave()
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}
 	}
-	
-    //bool compress = !UncompressedAutoSaves;
-	//Don't tie regular saves being uncompressed to the autosave option.
-	bool compress = true;
-    if (util::get_ext(temppath) == ".qsu") compress = false;
-    int32_t ret = save_unencoded_quest(filepath, compress, filepath);
+
+    int32_t ret = user_initiated_save_quest(filepath, filepath);
     char name[256];
     extract_name(filepath,name,FILENAMEALL);
     
@@ -406,11 +406,6 @@ int32_t onSaveAs()
 		{ NULL,                                                  NULL                                              }
 	};
 
-	if(disable_saving)
-	{
-		displayinfo("ZQuest","Saving is disabled in this version.");
-		return D_O_K;
-	}
 #ifdef __EMSCRIPTEN__
 	std::string path;
 	if (auto result = prompt_for_new_file("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder(),true); !result)
@@ -426,6 +421,12 @@ int32_t onSaveAs()
 	}
 	else path = *result;
 #endif
+
+	if (std::string(path).find(".backups") != std::string::npos)
+	{
+		displayinfo("ZQuest", "Cannot save in a backups folder.");
+		return D_O_K;
+	}
 
 	// TODO: stop using temppath.
 	strcpy(temppath, path.c_str());
@@ -449,11 +450,8 @@ int32_t onSaveAs()
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}
 	}
-	
-	//bool compress = !UncompressedAutoSaves;
-	bool compress = true;
-	if (util::get_ext(temppath) == ".qsu") compress = false;
-	int32_t ret = save_unencoded_quest(temppath, compress, temppath);
+
+	int32_t ret = user_initiated_save_quest(temppath, temppath);
 	char buf[1024],name[256];
 	extract_name(temppath,name,FILENAMEALL);
 	
@@ -465,6 +463,7 @@ int32_t onSaveAs()
 		set_window_title(buf);
 		displayinfo("ZQuest",fmt::format("Saved {}",name));
 		saved = autosaved = true;
+		disable_saving = false;
 		first_save=true;
 		header.dirty_password=false;
 	}
@@ -475,6 +474,7 @@ int32_t onSaveAs()
 	
 	refresh(rMENU);
 	set_last_timed_save(nullptr);
+
 	return D_O_K;
 }
 
@@ -509,7 +509,7 @@ int32_t open_quest(char const* path)
         displayinfo("Error",fmt::format("Unable to load {}\n{}",name,qst_error[ret]));
 		filepath[0]=0;
 	}
-	
+
 	setup_combo_animations();
 	setup_combo_animations2();
 	Map.setCurrMap(zinit.last_map);

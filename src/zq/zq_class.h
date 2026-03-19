@@ -512,8 +512,10 @@ int32_t quest_access(const char *filename, zquestheader *hdr);
 bool write_midi(MIDI *m,PACKFILE *f);
 int32_t load_quest(const char *filename, bool show_progress = true);
 int32_t load_tileset(const char *filename, dword tsetflags);
+int32_t user_initiated_save_quest(const char* filename, const char* afname);
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char* afname = NULL);
-int32_t save_quest(const char *filename, bool timed_save);
+int32_t save_timed_auto_backup(const char *original_filepath);
+int32_t save_quest(const char *filename);
 
 int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j);
 

@@ -163,12 +163,12 @@ extern int32_t OpenLastQuest;                                   //makes the prog
 extern int32_t ShowMisalignments;                               //makes the program display arrows over combos that are
 //not aligned with the next screen.
 extern int32_t AnimationOn;                                     //animate the combos in zquest?
-extern int32_t AutoBackupRetention;                             //use auto-backup feature?  if so, how many backups (1-10) to keep
+extern int32_t AutoBackupRetention;                             //how many auto backups to keep. -1 means no limit, 0 means disabled.
+extern int32_t AutoSaveRetention;                               //how many autosaves of a quest to keep. 0 means disabled.
 extern int32_t AutoSaveInterval;                                //how often a timed autosave is made (not overwriting the current file)
 extern int32_t UncompressedAutoSaves;                           //should timed saves be uncompressed/encrypted?
 extern time_t auto_save_time_start, auto_save_time_current;
 extern double auto_save_time_diff;
-extern int32_t AutoSaveRetention;                               //how many autosaves of a quest to keep
 extern int32_t ImportMapBias;                                   //tells what has precedence on map importing
 extern int32_t BrushWidth, BrushHeight;
 extern bool quit, saved, autosaved;

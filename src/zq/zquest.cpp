@@ -600,7 +600,8 @@ int32_t OpenLastQuest = 0;                                          //makes the 
 int32_t ShowMisalignments = 0;                                      //makes the program display arrows over combos that are
 //not aligned with the next screen.
 int32_t AnimationOn = 0;                                            //animate the combos in zquest?
-int32_t AutoBackupRetention = 0;                                    //use auto-backup feature?  if so, how many backups (1-10) to keep
+int32_t AutoBackupRetention = 0;                                    //how many auto backups to keep. -1 means no limit, 0 means disabled.
+int32_t AutoSaveRetention;                                          //how many autosaves of a quest to keep. 0 means disabled.
 int32_t AutoSaveInterval = 0;                                       //how often a timed autosave is made (not overwriting the current file)
 int32_t UncompressedAutoSaves = 0;                                  //should timed saves be uncompressed/encrypted?
 int32_t KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
@@ -608,7 +609,6 @@ int32_t KeyboardRepeatRate = 0;                                     //the time i
 
 time_t auto_save_time_start, auto_save_time_current;
 double auto_save_time_diff = 0;
-int32_t AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
 int32_t ImportMapBias = 0;                                          //tells what has precedence on map importing
 int32_t BrushWidth=1, BrushHeight=1;
 bool saved = true, autosaved = true;
@@ -19788,9 +19788,10 @@ int32_t main(int32_t argc,char **argv)
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
 	AnimationOn					= zc_get_config("zquest","animation_on",1);
-	AutoBackupRetention			= zc_get_config("zquest","auto_backup_retention",2);
-	AutoSaveInterval			   = zc_get_config("zquest","auto_save_interval",6);
-	AutoSaveRetention			  = zc_get_config("zquest","auto_save_retention",2);
+	AutoBackupRetention			= zc_get_config("zquest","auto_backup_retention",20);
+	AutoSaveInterval			   = zc_get_config("zquest","auto_save_interval",0);
+	AutoSaveRetention			  = zc_get_config("zquest","auto_save_retention",5);
+
 	UncompressedAutoSaves		  = zc_get_config("zquest","uncompressed_auto_saves",1);
 	OverwriteProtection			= zc_get_config("zquest","overwrite_prevention",0)!=0;
 	ImportMapBias				  = zc_get_config("zquest","import_map_bias",0);
@@ -20158,9 +20159,8 @@ int32_t main(int32_t argc,char **argv)
 		}
 		++frame;
 		
-		file_menu.disable_uid(MENUID_FILE_SAVE, saved||disable_saving||OverwriteProtection);
-		file_menu.disable_uid(MENUID_FILE_REVERT, saved||disable_saving||OverwriteProtection);
-		file_menu.disable_uid(MENUID_FILE_SAVEAS, disable_saving);
+		file_menu.disable_uid(MENUID_FILE_SAVE, saved||OverwriteProtection);
+		file_menu.disable_uid(MENUID_FILE_REVERT, saved||OverwriteProtection);
 		
 		fixtools_menu.disable_uid(MENUID_FIXTOOL_OLDSTRING,
 			!(get_qr(qr_OLD_STRING_EDITOR_MARGINS)
@@ -21451,43 +21451,30 @@ int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 
 void check_autosave()
 {
-    if (!first_save)
-        return;
+	if (!first_save || disable_saving)
+		return;
 
-    if(AutoSaveInterval>0)
-    {
-        time(&auto_save_time_current);
-        auto_save_time_diff = difftime(auto_save_time_current,auto_save_time_start);
-        
-        if(auto_save_time_diff>AutoSaveInterval*60)
-        {
+	if (AutoSaveInterval > 0 && AutoSaveRetention != 0)
+	{
+		time(&auto_save_time_current);
+		auto_save_time_diff = difftime(auto_save_time_current, auto_save_time_start);
+
+		if (auto_save_time_diff >= AutoSaveInterval * 60)
+		{
 			if (!autosaved)
 			{
 				MouseSprite::set(ZQM_NORMAL);
-				replace_extension(last_timed_save, filepath, "qt0", 2047);
-				set_last_timed_save(last_timed_save);
-				
-				if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
-				{
-					displayinfo("Auto Save","This quest was saved in an older version of ZQuest.\nIf you wish to use the autosave feature, you must manually save the files in this version first.");
-					time(&auto_save_time_start);
-					return;
-				}
-				
-				int32_t ret = save_quest(last_timed_save, true);
-				
-				if(ret)
-				{
-					displayinfo("Error","Timed save did not complete successfully.");
-					set_last_timed_save(nullptr);
-				}
-				else autosaved = true;
-				
-				save_config_file();
-            }
-            time(&auto_save_time_start);
-        }
-    }
+
+				int32_t ret = save_timed_auto_backup(filepath);
+				if (ret)
+					displayinfo("Error", "Timed save did not complete successfully.");
+				else
+					autosaved = true;
+			}
+
+			time(&auto_save_time_start);
+		}
+	}
 }
 
 void flushItemCache(bool) {}

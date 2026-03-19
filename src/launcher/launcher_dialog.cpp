@@ -98,8 +98,6 @@ namespace GUI::Lists
 		{ "Static", 1 },
 		{ "Checkerboard", 2 }
 	};
-	static const ListData autoBackupCopiesList = ListData::numbers(false, 0, 11);
-	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
 	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
 
 	static const ListData gfxDriverList
@@ -636,9 +634,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Snapshot Output:", App::zquest,"zquest","snapshot_format",3,snapshotFormatList,"The format of map screen snapshots / window screenshots"),
 						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zquest,"zquest","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),
-						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
-						CONFIG_DROPDOWN_I("Auto-Save Retention:", App::zquest,"zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
-						CONFIG_TEXTFIELD_I("Auto-Save Interval:", App::zquest, "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
+						CONFIG_TEXTFIELD_I("Auto-Backup Retention:", App::zquest, "zquest", "auto_backup_retention", 20, -1, 1000, "The number of quest backups to keep. -1 means no limit. To disable, set to 0."),
+						CONFIG_TEXTFIELD_I("Auto-Save Interval:", App::zquest, "zquest", "auto_save_interval", 0, 0, 300, "Frequency of auto save backups, in minutes. Valid range is 0-300, where '0' disables these backups."),
+						CONFIG_TEXTFIELD_I("Auto-Save Retention:", App::zquest, "zquest", "auto_save_retention", 5, 0, 100, "The number of auto-saves to keep."),
 						CONFIG_TEXTFIELD_I("Window Width:",App::zquest,"zquest","window_width", -1, -1, 3000, "The width of the ZQuest window. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Window Height:",App::zquest,"zquest","window_height", -1, -1, 2250, "The height of the ZQuest window. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zquest,"zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),

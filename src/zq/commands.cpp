@@ -90,7 +90,7 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 		zq_exit(ret);
 	}
 
-	ret = save_quest(output_filename, false);
+	ret = save_quest(output_filename);
 	zq_exit(ret);
 }
 
@@ -790,7 +790,7 @@ static void do_compile_command(std::string path, int mode)
 		zq_exit(1);
 	}
 
-	success = save_quest(path.c_str(), false) == 0;
+	success = save_quest(path.c_str()) == 0;
 	if (!success)
 	{
 		printf("Failed to save quest\n");

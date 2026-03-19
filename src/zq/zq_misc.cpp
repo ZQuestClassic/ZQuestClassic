@@ -850,7 +850,7 @@ int32_t onMapscrSnapshot()
 
 int32_t checksave()
 {
-    if(saved)
+    if(saved || disable_saving)
         return 1;
 
     char buf[256+20];
