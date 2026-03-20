@@ -11913,7 +11913,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].count)=vbound(value/10000,0,31);
+			(itemsbuf[GET_REF(itemdataref)].count)=vbound(value/10000,0,MAX_COUNTERS-1);
 			break;
 			
 		case IDATAPSOUND:
@@ -12114,7 +12114,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			itemsbuf[GET_REF(itemdataref)].cost_counter[0]=(vbound(value/10000,-1,32));
+			itemsbuf[GET_REF(itemdataref)].cost_counter[0]=(vbound(value/10000,-1,MAX_COUNTERS-1));
 			break;
 		case IDATACOSTCOUNTER2:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -12122,7 +12122,7 @@ void set_register(int32_t arg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			itemsbuf[GET_REF(itemdataref)].cost_counter[1]=(vbound(value/10000,-1,32));
+			itemsbuf[GET_REF(itemdataref)].cost_counter[1]=(vbound(value/10000,-1,MAX_COUNTERS-1));
 			break;
 		//min hearts to pick up
 		case IDATAMINHEARTS:
