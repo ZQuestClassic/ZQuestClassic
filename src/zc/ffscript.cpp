@@ -18308,7 +18308,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
+			(itemsbuf[ri->idata].count)=vbound(value/10000,0,MAX_COUNTERS-1);
 			break;
 			
 		case IDATAPSOUND:
@@ -18648,7 +18648,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].cost_counter[0]=(vbound(value/10000,-1,32));
+			itemsbuf[ri->idata].cost_counter[0]=(vbound(value/10000,-1,MAX_COUNTERS-1));
 			break;
 		case IDATACOSTCOUNTER2:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -18656,7 +18656,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].cost_counter[1]=(vbound(value/10000,-1,32));
+			itemsbuf[ri->idata].cost_counter[1]=(vbound(value/10000,-1,MAX_COUNTERS-1));
 			break;
 		//min hearts to pick up
 		case IDATAMINHEARTS:
