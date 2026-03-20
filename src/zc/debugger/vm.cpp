@@ -252,6 +252,17 @@ std::optional<DebugValue> VM::readArrayElement(DebugValue array, int index)
 	return DebugValue{value, default_elem_type};
 }
 
+std::optional<int32_t> VM::readArraySize(DebugValue array)
+{
+	InDebuggerScopeGuard scope_guard(suppress_errors_in_sandbox);
+
+	ArrayManager am(array.raw_value);
+	if (am.invalid())
+		return std::nullopt;
+
+	return am.size();
+}
+
 std::optional<std::string> VM::readString(int32_t string_ptr)
 {
 	InDebuggerScopeGuard scope_guard(suppress_errors_in_sandbox);

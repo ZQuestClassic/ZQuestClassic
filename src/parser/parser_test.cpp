@@ -389,6 +389,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			return std::nullopt;
 		}
 
+		std::optional<int32_t> readArraySize(DebugValue) override
+		{
+			return std::nullopt;
+		}
+
 		std::optional<std::string> readString(int32_t) override
 		{
 			return "";

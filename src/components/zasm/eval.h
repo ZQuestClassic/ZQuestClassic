@@ -140,6 +140,7 @@ public:
 	virtual std::optional<std::string> readString(int32_t string_ptr) = 0;
 	virtual std::optional<std::vector<DebugValue>> readArray(DebugValue array) = 0;
 	virtual std::optional<DebugValue> readArrayElement(DebugValue array, int index) = 0;
+	virtual std::optional<int32_t> readArraySize(DebugValue array) = 0;
 	virtual void writeGlobal(int32_t offset, int32_t value) = 0;
 	virtual void writeStack(int32_t offset, int32_t value) = 0;
 	virtual void writeRegister(int32_t offset, int32_t value) = 0;

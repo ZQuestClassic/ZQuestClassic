@@ -158,7 +158,8 @@ void Debugger::Init()
 	watch_variables.clear();
 	source_line_can_have_breakpoint_map.clear();
 	root_node = {};
-	SetSourceFile(&zasm_debug_data.source_files[0]);
+	if (zasm_debug_data.exists())
+		SetSourceFile(&zasm_debug_data.source_files[0]);
 	Load();
 }
 
@@ -901,19 +902,13 @@ std::string Debugger::ValueToStringSummary(DebugValue value)
 
 	if (type->isArray(zasm_debug_data))
 	{
-		script_is_within_debugger_vm = true;
-
-		ArrayManager am(value.raw_value);
-		if (am.invalid())
-		{
-			script_is_within_debugger_vm = false;
+		if (!value.raw_value)
 			return "null (Array)";
-		}
 
-		int size = am.size();
-		script_is_within_debugger_vm = false;
+		if (auto size = vm.readArraySize(value))
+			return fmt::format("Array[{}]", size.value());
 
-		return fmt::format("Array[{}]", size);
+		return "invalid (Array)";
 	}
 
 	if (type->isClass(zasm_debug_data))
@@ -958,7 +953,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 		seen.insert(value.raw_value);
 
 		auto values = vm.readArray(value);
-		if (!values) return "null (Array)";
+		if (!values) return "invalid (Array)";
 		if (values->empty()) return "{}";
 
 		std::string result = "{";
