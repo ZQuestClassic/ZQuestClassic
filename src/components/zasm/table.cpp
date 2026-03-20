@@ -2769,6 +2769,8 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIG_MUSIC_REFRESH", CMBTRIG_MUSIC_REFRESH, 0},
 	{ "SUBWIDGTY_COLOR_VISITED", SUBWIDGTY_COLOR_VISITED, 0 },
 	{ "FFCINDEX", FFCINDEX, 0},
+	{ "LWPNPIERCE", LWPNPIERCE, 0},
+	{ "EWPNPIERCE", EWPNPIERCE, 0},
 	{"", -1},
 };
 
@@ -3872,6 +3874,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNSTEP:
 		case EWPNTILE:
 		case EWPNTIMEOUT:
+		case EWPNPIERCE:
 		case EWPNTOTALDYOFFS:
 		case EWPNTXSZ:
 		case EWPNTYPE:
@@ -4146,6 +4149,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNSTEP:
 		case LWPNTILE:
 		case LWPNTIMEOUT:
+		case LWPNPIERCE:
 		case LWPNTOTALDYOFFS:
 		case LWPNTXSZ:
 		case LWPNTYPE:
