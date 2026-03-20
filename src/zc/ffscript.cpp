@@ -4986,6 +4986,12 @@ int32_t get_register(int32_t arg)
 				ret = s->weap_timeout * 10000;
 			}
 			break;
+		case LWPNPIERCE:
+			if(auto s=checkLWpn(GET_REF(lwpnref)))
+			{
+				ret = s->pierce_count * 10000;
+			}
+			break;
 		case LWPNDEATHITEM:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
@@ -5545,6 +5551,12 @@ int32_t get_register(int32_t arg)
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
 				ret = s->weap_timeout * 10000;
+			}
+			break;
+		case EWPNPIERCE:
+			if(auto s=checkEWpn(GET_REF(ewpnref)))
+			{
+				ret = s->pierce_count * 10000;
 			}
 			break;
 		case EWPNDEATHITEM:
@@ -12755,6 +12767,12 @@ void set_register(int32_t arg, int32_t value)
 				s->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;
+		case LWPNPIERCE:
+			if(auto s=checkLWpn(GET_REF(lwpnref)))
+			{
+				s->pierce_count = vbound(value/10000,-1,32767);
+			}
+			break;
 		case LWPNDEATHITEM:
 			if(auto s=checkLWpn(GET_REF(lwpnref)))
 			{
@@ -13323,7 +13341,14 @@ void set_register(int32_t arg, int32_t value)
 			{
 				s->weap_timeout = vbound(value/10000,0,214748);
 			}
-			break;case EWPNDEATHITEM:
+			break;
+		case EWPNPIERCE:
+			if(auto s=checkEWpn(GET_REF(ewpnref)))
+			{
+				s->pierce_count = vbound(value/10000,-1,32767);
+			}
+			break;
+		case EWPNDEATHITEM:
 			if(auto s=checkEWpn(GET_REF(ewpnref)))
 			{
 				s->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
@@ -22611,7 +22636,7 @@ void do_sfx_ex(const bool restart)
 	zfix vol = vbound(zslongToFix(SH::read_stack(ri->sp + 3)), 0_zf, 100_zf);
 	int32_t pan = vbound(SH::read_stack(ri->sp + 2)/10000 + 128, 0, 255);
 	int32_t freq = SH::read_stack(ri->sp + 1);
-	bool loop = SH::read_stack(ri->sp) != 0;
+	bool loop = SH::read_stack(ri->sp) / 10000;
 
 	if (BC::checkSFXID(ID) != SH::_NoError)
 		return;
@@ -29097,7 +29122,7 @@ void FFScript::gfxmonohue()
 		g = convert_6bit_to_8bit_color_shift_arg(g);
 		b = convert_6bit_to_8bit_color_shift_arg(b);
 	}
-	bool m   = (SH::read_stack(ri->sp + 0) != 0);
+	bool m   = (SH::read_stack(ri->sp + 0) / 10000);
 	doGFXMonohue(r,g,b,m);
 }
 

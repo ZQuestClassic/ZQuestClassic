@@ -633,6 +633,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case EWPNOTILE: return "eweapon::OriginalTile";
 		case EWPNPARENT: return "eweapon::Parent";
 		case EWPNPARENTUID: return "eweapon::ParentUID";
+		case EWPNPIERCE: return "eweapon::PierceCount";
 		case EWPNPOWER: return "eweapon::Power";
 		case EWPNSCRIPT: return "eweapon::Script";
 		case EWPNSPRITES: return "eweapon::Sprites[]";
@@ -812,6 +813,7 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case LWPNOCSET: return "lweapon::OriginalCSet";
 		case LWPNOTILE: return "lweapon::OriginalTile";
 		case LWPNPARENT: return "lweapon::Parent";
+		case LWPNPIERCE: return "lweapon::PierceCount";
 		case LWPNPOWER: return "lweapon::Power";
 		case LWPNSCRIPT: return "lweapon::Script";
 		case LWPNSPECIAL: return "lweapon::Special";

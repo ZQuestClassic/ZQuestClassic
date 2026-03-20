@@ -3365,6 +3365,8 @@ enum ASM_DEFINE
 #define CMBTRIG_MUSIC_REFRESH          0x16A5
 #define SUBWIDGTY_COLOR_VISITED        0x16A6
 #define FFCINDEX                       0x16A7
+#define LWPNPIERCE                     0x16A8
+#define EWPNPIERCE                     0x16A9
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

@@ -219,6 +219,16 @@ class lweapon {
 	// @zasm_var LWPNTIMEOUT
 	internal int Timeout;
 
+	// If < 0, the weapon behaves as normal. If == 0, the weapon pierces infinitely.
+	// If > 0, each time the weapon hits an enemy or the player, counts down by 1.
+	// When counting down from '1' to '0', the weapon dies.
+	// Some weapons have special behavior; ex. bomb blasts do not die, but will
+	// have their collision disabled so they cannot hit further targets-
+	// and the PierceCount set on a lit bomb will apply to the bomb's blast.
+	//
+	// @zasm_var LWPNPIERCE
+	internal int PierceCount;
+
 	// The angle of the weapon, in radians for Angle or degrees for DegAngle.
 	// Has no real effect if the weapon is not `Angular`.
 	//
