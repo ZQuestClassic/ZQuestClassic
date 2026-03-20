@@ -148,17 +148,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #428 Test
+LOAD D2 0.0001; if() #429 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 41 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #428 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #429 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #428 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #429 Body End
 NOP
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -999,10 +999,10 @@ CALLFUNC 0.3824; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0003
-LOAD D2 0.0003; if() #432 Test
+LOAD D2 0.0003; if() #433 Test
 COMPAREV D2 0
 GOTOCMP 897 ==; Test 'if'
-LOAD D2 0.0003; if() #432 Body Start
+LOAD D2 0.0003; if() #433 Body Start
 STORE_OBJECT D2 0.0002
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -1014,7 +1014,7 @@ PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-REF_REMOVE 0.0002; if() #432 Body End
+REF_REMOVE 0.0002; if() #433 Body End
 NOP
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -1043,12 +1043,12 @@ CALLFUNC 0.3824; ClassFunc[Person Person::Person(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0003
-LOAD D2 0.0003; if(b) #433 Decl
+LOAD D2 0.0003; if(b) #434 Decl
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0002; if(b) #433 Test
+LOAD D2 0.0002; if(b) #434 Test
 COMPAREV D2 0
 GOTOCMP 941 ==; Test 'if'
-PUSHR D4; if(b) #433 Body Start
+PUSHR D4; if(b) #434 Body Start
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D2
@@ -1057,7 +1057,7 @@ REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
-POP D4; if(b) #433 Body End
+POP D4; if(b) #434 Body End
 REF_REMOVE 0.0002
 NOP
 PUSHR D4
@@ -1204,13 +1204,13 @@ COMPAREV D2 3
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 1121 ==; Test 'while'
-LOAD D2 0.0002; if() #434 Test AND while() #5 Body Start
+LOAD D2 0.0002; if() #435 Test AND while() #5 Body Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1093 ==; Test 'if'
-REF_REMOVE 0.0001; if() #434 Body Start
-GOTO 1121; break 1; AND if() #434 Body End
+REF_REMOVE 0.0001; if() #435 Body Start
+GOTO 1121; break 1; AND if() #435 Body End
 NOP
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -1285,12 +1285,12 @@ PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0.0003; if(b2) #435 Decl
+LOAD D2 0.0003; if(b2) #436 Decl
 STORE_OBJECT D2 0.0001
-LOAD D2 0.0001; if(b2) #435 Test
+LOAD D2 0.0001; if(b2) #436 Test
 COMPAREV D2 0
 GOTOCMP 1200 ==; Test 'if'
-PUSHR D4; if(b2) #435 Body Start
+PUSHR D4; if(b2) #436 Body Start
 ALLOCATEMEMV D2 13 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(b2)"
 PUSHR D2
@@ -1316,7 +1316,7 @@ REF_REMOVE 0
 REF_REMOVE 0.0001
 REF_REMOVE 0.0002
 GOTO 1203; break 1;
-REF_REMOVE 0; if(b2) #435 Body End
+REF_REMOVE 0; if(b2) #436 Body End
 REF_REMOVE 0.0001
 NOP
 REF_REMOVE 0.0002; while() #6 Body End
@@ -2667,15 +2667,15 @@ COMPAREV D2 0
 GOTOCMP 2596 ==; for() #138 TestFail?
 LOADRNG; InlineFunc[randgen Game::LoadRNG()] Body AND for() #138 Body Start
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0002; if() #436 Test
+LOAD D2 0.0002; if() #437 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2558 ==; Test 'if'
-ALLOCATEMEMV D2 27 0; UsrFunc[void Fail(char32[])] Params Start AND if() #436 Body Start
+ALLOCATEMEMV D2 27 0; UsrFunc[void Fail(char32[])] Params Start AND if() #437 Body Start
 WRITEPODSTRING D2 "failed to allocate randgen"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.4631; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #436 Body End
+CALLFUNC 0.4631; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #437 Body End
 NOP
 PUSHR CLASS_THISKEY
 PUSHR D4
@@ -2695,18 +2695,18 @@ PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0.0003; if() #437 Test
+LOAD D2 0.0003; if() #438 Test
 COMPAREV D2 100
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 2589 ==; Test 'if'
-PUSHR D4; if() #437 Body Start
+PUSHR D4; if() #438 Body Start
 PUSHR GD2; UsrFunc[void AssertEqual(int, int)] Params Start
 LOAD D2 0.0003
 ADDV D2 1
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
 CALLFUNC 0.4555; UsrFunc[void AssertEqual(int, int)] Call
-POP D4; if() #437 Body End
+POP D4; if() #438 Body End
 NOP
 REF_REMOVE 0.0001
 REF_REMOVE 0.0002; for() #138 Body End
@@ -4095,25 +4095,6 @@ REF_REMOVE 0.0002
 POPARGS D5 0.0003
 RETURNFUNC; Func[void check(char32[], int, int)] Body End
 SETR D4 SP2; Func[void checkCountWithGC(int)] Body Start
-SETR D2 GD1; if() #429 Test
-PUSHR D2
-LOAD D2 0
-POP D3
-COMPARER D3 D2
-SETCMP D2 I!=
-COMPAREV D2 0
-GOTOCMP 3994 ==; Test 'if'
-PUSHR D4; if() #429 Body Start
-ALLOCATEMEMV D2 15 0; UsrFunc[void check(char32[], int, int)] Params Start
-WRITEPODSTRING D2 "count (pre GC)"
-PUSHR D2
-PUSHR GD1
-LOAD D2 0
-PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
-CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
-POP D4; if() #429 Body End
-NOP
-GC; InlineFunc[void GC()] Body
 SETR D2 GD1; if() #430 Test
 PUSHR D2
 LOAD D2 0
@@ -4121,8 +4102,27 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4013 ==; Test 'if'
+GOTOCMP 3994 ==; Test 'if'
 PUSHR D4; if() #430 Body Start
+ALLOCATEMEMV D2 15 0; UsrFunc[void check(char32[], int, int)] Params Start
+WRITEPODSTRING D2 "count (pre GC)"
+PUSHR D2
+PUSHR GD1
+LOAD D2 0
+PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
+POP D4; if() #430 Body End
+NOP
+GC; InlineFunc[void GC()] Body
+SETR D2 GD1; if() #431 Test
+PUSHR D2
+LOAD D2 0
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 4013 ==; Test 'if'
+PUSHR D4; if() #431 Body Start
 ALLOCATEMEMV D2 16 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "count (post GC)"
 PUSHR D2
@@ -4130,7 +4130,7 @@ PUSHR GD1
 LOAD D2 0
 PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
-POP D4; if() #430 Body End
+POP D4; if() #431 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void checkCountWithGC(int)] Body End
@@ -4226,10 +4226,10 @@ PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0.0006; if() #438 Test
+LOAD D2 0.0006; if() #439 Test
 COMPAREV D2 0
 GOTOCMP 4349 ==; Test 'if'
-LOAD D2 0.0006; if() #438 Body Start
+LOAD D2 0.0006; if() #439 Body Start
 STORE_OBJECT D2 0.0003
 PUSHR D4
 ALLOCATEMEMV D2 21 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -4256,11 +4256,11 @@ PUSHR D2
 PUSHV 0.0004; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0.0002; if() #439 Test
+LOAD D2 0.0002; if() #440 Test
 COMPAREV D2 0
 GOTOCMP 4143 ==; Test 'if'
-REF_REMOVE 0.0002; if() #439 Body Start
-GOTO 4146; break 1; AND if() #439 Body End
+REF_REMOVE 0.0002; if() #440 Body Start
+GOTO 4146; break 1; AND if() #440 Body End
 NOP
 REF_REMOVE 0.0002; while() #7 Body End
 GOTO 4123; while() #7 End
@@ -4279,10 +4279,10 @@ COMPAREV D2 0
 GOTOCMP 4183 ==; Test 'while'
 LOAD D2 0.0006; while() #8 Body Start
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0002; if() #440 Test
+LOAD D2 0.0002; if() #441 Test
 COMPAREV D2 0
 GOTOCMP 4180 ==; Test 'if'
-LOAD D2 0.0002; if() #440 Body Start
+LOAD D2 0.0002; if() #441 Body Start
 STORE_OBJECT D2 0.0001
 PUSHR D4
 ALLOCATEMEMV D2 21 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -4297,7 +4297,7 @@ POP D4
 REF_REMOVE 0.0001
 REF_REMOVE 0.0002
 GOTO 4183; break 1;
-REF_REMOVE 0.0001; if() #440 Body End
+REF_REMOVE 0.0001; if() #441 Body End
 NOP
 REF_REMOVE 0.0002; while() #8 Body End
 GOTO 4156; while() #8 End
@@ -4317,15 +4317,15 @@ GOTOCMP 4210 ==; Test 'while'
 STOREV 13 0.0002; while() #9 Body Start
 SETV D2 14
 STORE D2 0.0002
-LOAD D2 0.0002; if() #441 Test
+LOAD D2 0.0002; if() #442 Test
 COMPAREV D2 0
 GOTOCMP 4208 ==; Test 'if'
-LOAD D2 0.0006; return Start AND if() #441 Body Start
+LOAD D2 0.0006; return Start AND if() #442 Body Start
 REF_AUTORELEASE D2
 REF_REMOVE 0.0003
 REF_REMOVE 0.0002
 REF_REMOVE 0.0004
-GOTO 4354; return End AND if() #441 Body End
+GOTO 4354; return End AND if() #442 Body End
 NOP; while() #9 Body End
 GOTO 4193; while() #9 End
 PUSHR D4
@@ -4433,10 +4433,10 @@ PUSHR D2
 PUSHV 0.0004; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0.0001; if() #442 Test
+LOAD D2 0.0001; if() #443 Test
 COMPAREV D2 0
 GOTOCMP 4343 ==; Test 'if'
-LOAD D2 0.0006; if() #442 Body Start
+LOAD D2 0.0006; if() #443 Body Start
 STORE_OBJECT D2 0
 PUSHR D4
 ALLOCATEMEMV D2 21 0; UsrFunc[void check(char32[], int, int)] Params Start
@@ -4448,25 +4448,25 @@ PUSHR D2
 PUSHV 0.0005; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.3961; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-LOAD D2 0; if() #443 Test
+LOAD D2 0; if() #444 Test
 COMPAREV D2 0
 GOTOCMP 4341 ==; Test 'if'
-LOAD D2 0; return Start AND if() #443 Body Start
+LOAD D2 0; return Start AND if() #444 Body Start
 REF_AUTORELEASE D2
 REF_REMOVE 0
 REF_REMOVE 0.0001
 REF_REMOVE 0.0003
 REF_REMOVE 0.0002
 REF_REMOVE 0.0004
-GOTO 4354; return End AND if() #443 Body End
+GOTO 4354; return End AND if() #444 Body End
 NOP
-REF_REMOVE 0; if() #442 Body End
+REF_REMOVE 0; if() #443 Body End
 NOP
 REF_REMOVE 0.0001; while() #11 Body End
 GOTO 4300; while() #11 End
 NOP
 REF_REMOVE 0.0003
-REF_REMOVE 0.0002; if() #438 Body End
+REF_REMOVE 0.0002; if() #439 Body End
 NOP
 SETV D2 0; return Start
 REF_REMOVE 0.0004
@@ -4595,17 +4595,17 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
 POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
-LOAD D2 0.0001; if() #431 Test
+LOAD D2 0.0001; if() #432 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 4488 ==; Test 'if'
-PUSHR D4; if() #431 Body Start
+PUSHR D4; if() #432 Body Start
 LOAD D2 0.0001; UsrFunc[void recursePrint(int)] Params Start
 SUBV D2 1
 PUSHR D2; UsrFunc[void recursePrint(int)] Params End
 CALLFUNC 0.4463; UsrFunc[void recursePrint(int)] Call
-POP D4; if() #431 Body End
+POP D4; if() #432 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -4653,16 +4653,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-LOAD D2 0; if() #427 Test
+LOAD D2 0; if() #428 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 4545 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #427 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #428 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #427 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #428 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
@@ -4674,7 +4674,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #444 Test
+LOAD D2 0; if() #445 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -4682,7 +4682,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 4574 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #444 Body Start
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #445 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
@@ -4691,38 +4691,11 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #444 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #445 Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start
-MARK_TYPE_STACK 0.0009 0
-REF_INC 0
-LOAD D2 0.0001; if() #445 Test
-PUSHR D2
-LOAD D2 0.0002
-POP D3
-COMPARER D3 D2
-SETCMP D2 I!=
-COMPAREV D2 0
-GOTOCMP 4600 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #445 Body Start
-WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
-PUSHR D2
-LOAD D2 0.0001
-PUSHVARGR D2
-LOAD D2 0.0002
-PUSHVARGR D2
-LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #445 Body End
-NOP
-REF_REMOVE 0
-POPARGS D5 0.0003
-RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
-SETR D4 SP2; Func[void AssertEqual(long, long, char32[])] Body Start
 MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; if() #446 Test
@@ -4732,7 +4705,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4627 ==; Test 'if'
+GOTOCMP 4600 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #446 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -4745,6 +4718,33 @@ PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #446 Body End
+NOP
+REF_REMOVE 0
+POPARGS D5 0.0003
+RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End
+SETR D4 SP2; Func[void AssertEqual(long, long, char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0.0001; if() #447 Test
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 4627 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #447 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #447 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0003

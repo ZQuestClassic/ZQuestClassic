@@ -56,7 +56,7 @@ GOTOCMP 31 ==; Test 'if'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #109 Body Start
 GOTO 20; continue 1;
 GOTO 57; if() #109 Body End
-LOAD D2 0.0005; if() #427 Test AND if() #109 Else Start
+LOAD D2 0.0005; if() #428 Test AND if() #109 Else Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -64,7 +64,7 @@ COMPAREV D2 0.0003
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 56 ==; Test 'if'
-ALLOCATEMEMV D2 0 0; if() #427 Body Start
+ALLOCATEMEMV D2 0 0; if() #428 Body Start
 STORE_OBJECT D2 0.0003
 LOAD D2 0.0005; InlineFunc[void websocket::GetError(char32[])] Params Start
 PUSHR D2
@@ -80,10 +80,10 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0.0003
 GOTO 190; break 1;
-REF_REMOVE 0.0003; if() #427 Body End
+REF_REMOVE 0.0003; if() #428 Body End
 NOP; if() #109 Else End
 NOP
-LOAD D2 0.0005; if() #428 Test
+LOAD D2 0.0005; if() #429 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -91,7 +91,7 @@ COMPAREV D2 0.0001
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 76 ==; Test 'if'
-ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #428 Body Start
+ALLOCATEMEMV D2 23 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #429 Body Start
 WRITEPODSTRING D2 "Failed to connect: %l\n"
 PUSHR D2
 LOAD D2 0.0005
@@ -100,12 +100,12 @@ POP REFWEBSOCKET
 PUSHVARGR WEBSOCKET_STATE; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 190; break 1; AND if() #428 Body End
+GOTO 190; break 1; AND if() #429 Body End
 NOP
-LOAD D2 0.0004; unless() #429 Test
+LOAD D2 0.0004; unless() #430 Test
 COMPAREV D2 0
 GOTOCMP 105 !=; Test 'unless'
-ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND unless() #429 Body Start
+ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND unless() #430 Body Start
 WRITEPODSTRING D2 "Connected!\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
@@ -129,7 +129,7 @@ POP D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body Start
 POP REFWEBSOCKET
 WEBSOCKET_SEND D2 D3; InlineFunc[void websocket::Send(char32[], WebsocketType)] Body End
 SETV D2 1
-STORE D2 0.0004; unless() #429 Body End
+STORE D2 0.0004; unless() #430 Body End
 NOP
 LOAD D2 0.0005; while() #3 Test
 PUSHR D2

@@ -80,17 +80,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params         | 51 tests/scripts/playground/auto/test_runner.zs:93
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body      | 52 tests/scripts/playground/auto/test_runner.zs:93
 STORE D2 0.0001                                                                 | 53 tests/scripts/playground/auto/test_runner.zs:93
-LOAD D2 0.0001; if() #429 Test                                                  | 54 tests/scripts/playground/auto/test_runner.zs:94
+LOAD D2 0.0001; if() #430 Test                                                  | 54 tests/scripts/playground/auto/test_runner.zs:94
 COMPAREV D2 -1                                                                  | 55 tests/scripts/playground/auto/test_runner.zs:94
 SETCMP D2 I==                                                                   | 56 tests/scripts/playground/auto/test_runner.zs:94
 COMPAREV D2 0                                                                   | 57 tests/scripts/playground/auto/test_runner.zs:94
 GOTOCMP 66 ==; Test 'if'                                                        | 58 tests/scripts/playground/auto/test_runner.zs:94
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #429 Body Start | 59 tests/scripts/playground/auto/test_runner.zs:96
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #430 Body Start | 59 tests/scripts/playground/auto/test_runner.zs:96
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"       | 60 tests/scripts/playground/auto/test_runner.zs:96
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End            | 61 tests/scripts/playground/auto/test_runner.zs:96
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 62 tests/scripts/playground/auto/test_runner.zs:96
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 63 tests/scripts/playground/auto/test_runner.zs:96
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #429 Body End             | 64 tests/scripts/playground/auto/test_runner.zs:97
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #430 Body End             | 64 tests/scripts/playground/auto/test_runner.zs:97
 NOP                                                                             | 65 tests/scripts/playground/auto/test_runner.zs:94
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params       | 66 tests/scripts/playground/auto/test_runner.zs:100
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start | 67 tests/scripts/playground/auto/test_runner.zs:100
@@ -123,22 +123,22 @@ SETR D2 GD4                                                                     
 COMPAREV D2 0                                                                   | 94 tests/scripts/playground/auto/global_objects.zs:32
 SETCMP D2 I==                                                                   | 95 tests/scripts/playground/auto/global_objects.zs:32
 STORE D2 0.0001                                                                 | 96 tests/scripts/playground/auto/global_objects.zs:32
-LOAD D2 0.0001; if() #430 Test                                                  | 97 tests/scripts/playground/auto/global_objects.zs:33
+LOAD D2 0.0001; if() #431 Test                                                  | 97 tests/scripts/playground/auto/global_objects.zs:33
 COMPAREV D2 0                                                                   | 98 tests/scripts/playground/auto/global_objects.zs:33
 GOTOCMP 105 ==; Test 'if'                                                       | 99 tests/scripts/playground/auto/global_objects.zs:33
-PUSHR D4; if() #430 Body Start                                                  | 100 tests/scripts/playground/auto/global_objects.zs:33
+PUSHR D4; if() #431 Body Start                                                  | 100 tests/scripts/playground/auto/global_objects.zs:33
 PUSHV 0; UsrFunc[void Init(int)] Params                                         | 101 tests/scripts/playground/auto/global_objects.zs:33
 CALLFUNC 0.2486; UsrFunc[void Init(int)] Call                                   | 102 tests/scripts/playground/auto/global_objects.zs:33
-POP D4; if() #430 Body End                                                      | 103 tests/scripts/playground/auto/global_objects.zs:33
+POP D4; if() #431 Body End                                                      | 103 tests/scripts/playground/auto/global_objects.zs:33
 NOP                                                                             | 104 tests/scripts/playground/auto/global_objects.zs:33
 SETR D2 GD4                                                                     | 105 tests/scripts/playground/auto/global_objects.zs:35
 ADDV D2 1                                                                       | 106 tests/scripts/playground/auto/global_objects.zs:35
 SETR GD4 D2                                                                     | 107 tests/scripts/playground/auto/global_objects.zs:35
 STOREV 0 0                                                                      | 108 tests/scripts/playground/auto/global_objects.zs:37
-SETR D2 GD12; unless() #431 Test                                                | 109 tests/scripts/playground/auto/global_objects.zs:39
+SETR D2 GD12; unless() #432 Test                                                | 109 tests/scripts/playground/auto/global_objects.zs:39
 COMPAREV D2 0                                                                   | 110 tests/scripts/playground/auto/global_objects.zs:39
 GOTOCMP 327 !=; Test 'unless'                                                   | 111 tests/scripts/playground/auto/global_objects.zs:39
-PUSHR D4; unless() #431 Body Start                                              | 112 tests/scripts/playground/auto/global_objects.zs:41
+PUSHR D4; unless() #432 Body Start                                              | 112 tests/scripts/playground/auto/global_objects.zs:41
 LOAD D2 0.0001; UsrFunc[void Assert(bool, char32[])] Params Start               | 113 tests/scripts/playground/auto/global_objects.zs:41
 PUSHR D2                                                                        | 114 tests/scripts/playground/auto/global_objects.zs:41
 ALLOCATEMEMV D2 10 0                                                            | 115 tests/scripts/playground/auto/global_objects.zs:41
@@ -351,7 +351,7 @@ SETR D0 D2                                                                      
 POP D2                                                                          | 322 tests/scripts/playground/auto/global_objects.zs:72
 WRITEPODARRAYVR 0 D2 0.0008                                                     | 323 tests/scripts/playground/auto/global_objects.zs:72
 LOAD D2 0                                                                       | 324 tests/scripts/playground/auto/global_objects.zs:73
-SETR GD3 D2; unless() #431 Body End                                             | 325 tests/scripts/playground/auto/global_objects.zs:73
+SETR GD3 D2; unless() #432 Body End                                             | 325 tests/scripts/playground/auto/global_objects.zs:73
 NOP                                                                             | 326 tests/scripts/playground/auto/global_objects.zs:39
 SETR D2 GD12                                                                    | 327 tests/scripts/playground/auto/global_objects.zs:79
 ZCLASS_READ D2 0.0003                                                           | 328 tests/scripts/playground/auto/global_objects.zs:79
@@ -644,13 +644,13 @@ PUSHR D2; UsrFunc[void Assert(bool)] Params End                                 
 CALLFUNC 0.2645; UsrFunc[void Assert(bool)] Call                                | 615 tests/scripts/playground/auto/global_objects.zs:117
 POP D4; if() #111 Else End                                                      | 616 tests/scripts/playground/auto/global_objects.zs:117
 NOP                                                                             | 617 tests/scripts/playground/auto/global_objects.zs:111
-SETR D2 GD4; if() #432 Test                                                     | 618 tests/scripts/playground/auto/global_objects.zs:119
+SETR D2 GD4; if() #433 Test                                                     | 618 tests/scripts/playground/auto/global_objects.zs:119
 COMPAREV D2 3                                                                   | 619 tests/scripts/playground/auto/global_objects.zs:119
 SETCMP D2 I<=                                                                   | 620 tests/scripts/playground/auto/global_objects.zs:119
 COMPAREV D2 0                                                                   | 621 tests/scripts/playground/auto/global_objects.zs:119
 GOTOCMP 626 ==; Test 'if'                                                       | 622 tests/scripts/playground/auto/global_objects.zs:119
-SAVE; InlineFunc[void Game::Save()] Body AND if() #432 Body Start               | 623 tests/scripts/playground/auto/global_objects.zs:122
-GAMERELOAD; InlineFunc[void Game::Reload()] Body AND if() #432 Body End         | 624 tests/scripts/playground/auto/global_objects.zs:123
+SAVE; InlineFunc[void Game::Save()] Body AND if() #433 Body Start               | 623 tests/scripts/playground/auto/global_objects.zs:122
+GAMERELOAD; InlineFunc[void Game::Reload()] Body AND if() #433 Body End         | 624 tests/scripts/playground/auto/global_objects.zs:123
 NOP                                                                             | 625 tests/scripts/playground/auto/global_objects.zs:119
 CALLFUNC 0.2508; UsrFunc[void End()] Call AND [Opt:NeverRet]                    | 626 tests/scripts/playground/auto/global_objects.zs:126
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End                            | 627 tests/scripts/playground/auto/global_objects.zs:31
@@ -923,10 +923,10 @@ PUSHR GD8; UsrFunc[void AssertEqual(int, int)] Params Start                     
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End                         | 894 tests/scripts/playground/auto/scopes.zs:35
 CALLFUNC 0.2515; UsrFunc[void AssertEqual(int, int)] Call                       | 895 tests/scripts/playground/auto/scopes.zs:35
 POP D4                                                                          | 896 tests/scripts/playground/auto/scopes.zs:35
-SETR D2 GD9; if() #433 Test                                                     | 897 tests/scripts/playground/auto/scopes.zs:36
+SETR D2 GD9; if() #434 Test                                                     | 897 tests/scripts/playground/auto/scopes.zs:36
 COMPAREV D2 0                                                                   | 898 tests/scripts/playground/auto/scopes.zs:36
 GOTOCMP 913 ==; Test 'if'                                                       | 899 tests/scripts/playground/auto/scopes.zs:36
-PUSHR D4; if() #433 Body Start                                                  | 900 tests/scripts/playground/auto/scopes.zs:38
+PUSHR D4; if() #434 Body Start                                                  | 900 tests/scripts/playground/auto/scopes.zs:38
 PUSHR GD8; UsrFunc[void AssertEqual(int, int)] Params Start                     | 901 tests/scripts/playground/auto/scopes.zs:38
 PUSHV 2; UsrFunc[void AssertEqual(int, int)] Params End                         | 902 tests/scripts/playground/auto/scopes.zs:38
 CALLFUNC 0.2515; UsrFunc[void AssertEqual(int, int)] Call                       | 903 tests/scripts/playground/auto/scopes.zs:38
@@ -937,7 +937,7 @@ LOAD D2 0; UsrFunc[void AssertEqual(int, int)] Params Start                     
 PUSHR D2                                                                        | 908 tests/scripts/playground/auto/scopes.zs:40
 PUSHV 3; UsrFunc[void AssertEqual(int, int)] Params End                         | 909 tests/scripts/playground/auto/scopes.zs:40
 CALLFUNC 0.2515; UsrFunc[void AssertEqual(int, int)] Call                       | 910 tests/scripts/playground/auto/scopes.zs:40
-POP D4; if() #433 Body End                                                      | 911 tests/scripts/playground/auto/scopes.zs:40
+POP D4; if() #434 Body End                                                      | 911 tests/scripts/playground/auto/scopes.zs:40
 NOP                                                                             | 912 tests/scripts/playground/auto/scopes.zs:36
 POP D5                                                                          | 913 tests/scripts/playground/auto/scopes.zs:41
 RETURNFUNC; Func[void B_fn()] Body End                                          | 914 tests/scripts/playground/auto/scopes.zs:41
@@ -1315,11 +1315,11 @@ ADDV D2 1                                                                       
 STORE D2 0                                                                      | 1286 tests/scripts/playground/auto/scopes.zs:224
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 1287 tests/scripts/playground/auto/scopes.zs:225
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 1288 tests/scripts/playground/auto/scopes.zs:225
-LOAD D2 0; if() #354 Test                                                       | 1289 tests/scripts/playground/auto/scopes.zs:226
+LOAD D2 0; if() #355 Test                                                       | 1289 tests/scripts/playground/auto/scopes.zs:226
 COMPAREV D2 3                                                                   | 1290 tests/scripts/playground/auto/scopes.zs:226
 SETCMP D2 I==                                                                   | 1291 tests/scripts/playground/auto/scopes.zs:226
 COMPAREV D2 0                                                                   | 1292 tests/scripts/playground/auto/scopes.zs:226
-GOTOCMP 1304 !=; Test 'if' AND break 1; AND if() #354 Body                      | 1293 tests/scripts/playground/auto/scopes.zs:226
+GOTOCMP 1304 !=; Test 'if' AND break 1; AND if() #355 Body                      | 1293 tests/scripts/playground/auto/scopes.zs:226
 NOP; for(each) #1 Body End                                                      | 1294 tests/scripts/playground/auto/scopes.zs:226
 GOTO 1276; for(each) #1 End                                                     | 1295 tests/scripts/playground/auto/scopes.zs:222
 STOREV 1 0.0003; for(each) #1 Else Start                                        | 1296 tests/scripts/playground/auto/scopes.zs:230
@@ -2520,16 +2520,16 @@ LOAD D2 0                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2491 tests/scripts/playground/auto/test_runner.zs:7
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2492 tests/scripts/playground/auto/test_runner.zs:7
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2493 tests/scripts/playground/auto/test_runner.zs:7
-LOAD D2 0; if() #428 Test                                                       | 2494 tests/scripts/playground/auto/test_runner.zs:8
+LOAD D2 0; if() #429 Test                                                       | 2494 tests/scripts/playground/auto/test_runner.zs:8
 COMPAREV D2 0                                                                   | 2495 tests/scripts/playground/auto/test_runner.zs:8
 SETCMP D2 I!=                                                                   | 2496 tests/scripts/playground/auto/test_runner.zs:8
 COMPAREV D2 0                                                                   | 2497 tests/scripts/playground/auto/test_runner.zs:8
 GOTOCMP 2505 ==; Test 'if'                                                      | 2498 tests/scripts/playground/auto/test_runner.zs:8
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #428 Body Start | 2499 tests/scripts/playground/auto/test_runner.zs:10
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #429 Body Start | 2499 tests/scripts/playground/auto/test_runner.zs:10
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End                     | 2500 tests/scripts/playground/auto/test_runner.zs:10
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start                        | 2501 tests/scripts/playground/auto/test_runner.zs:10
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End                     | 2502 tests/scripts/playground/auto/test_runner.zs:10
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #428 Body End             | 2503 tests/scripts/playground/auto/test_runner.zs:11
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #429 Body End             | 2503 tests/scripts/playground/auto/test_runner.zs:11
 NOP                                                                             | 2504 tests/scripts/playground/auto/test_runner.zs:8
 POP D5                                                                          | 2505 tests/scripts/playground/auto/test_runner.zs:12
 RETURNFUNC; Func[void Init(int)] Body End                                       | 2506 tests/scripts/playground/auto/test_runner.zs:12
@@ -2541,7 +2541,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2512 tests/scripts/playground/auto/test_runner.zs:17
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End | 2513 tests/scripts/playground/auto/test_runner.zs:18
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start                        | 2514 tests/scripts/playground/auto/test_runner.zs:21
-LOAD D2 0; if() #444 Test                                                       | 2515 tests/scripts/playground/auto/test_runner.zs:23
+LOAD D2 0; if() #445 Test                                                       | 2515 tests/scripts/playground/auto/test_runner.zs:23
 PUSHR D2                                                                        | 2516 tests/scripts/playground/auto/test_runner.zs:23
 LOAD D2 0.0001                                                                  | 2517 tests/scripts/playground/auto/test_runner.zs:23
 POP D3                                                                          | 2518 tests/scripts/playground/auto/test_runner.zs:23
@@ -2549,7 +2549,7 @@ COMPARER D3 D2                                                                  
 SETCMP D2 I!=                                                                   | 2520 tests/scripts/playground/auto/test_runner.zs:23
 COMPAREV D2 0                                                                   | 2521 tests/scripts/playground/auto/test_runner.zs:23
 GOTOCMP 2534 ==; Test 'if'                                                      | 2522 tests/scripts/playground/auto/test_runner.zs:23
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #444 Body Start | 2523 tests/scripts/playground/auto/test_runner.zs:25
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #445 Body Start | 2523 tests/scripts/playground/auto/test_runner.zs:25
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"           | 2524 tests/scripts/playground/auto/test_runner.zs:25
 PUSHR D2                                                                        | 2525 tests/scripts/playground/auto/test_runner.zs:25
 LOAD D2 0                                                                       | 2526 tests/scripts/playground/auto/test_runner.zs:25
@@ -2558,14 +2558,14 @@ LOAD D2 0.0001                                                                  
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2529 tests/scripts/playground/auto/test_runner.zs:25
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2530 tests/scripts/playground/auto/test_runner.zs:25
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2531 tests/scripts/playground/auto/test_runner.zs:25
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #444 Body End             | 2532 tests/scripts/playground/auto/test_runner.zs:26
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #445 Body End             | 2532 tests/scripts/playground/auto/test_runner.zs:26
 NOP                                                                             | 2533 tests/scripts/playground/auto/test_runner.zs:23
 POPARGS D5 0.0002                                                               | 2534 tests/scripts/playground/auto/test_runner.zs:27
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End                           | 2535 tests/scripts/playground/auto/test_runner.zs:27
 SETR D4 SP2; Func[void AssertEqual(int, int, char32[])] Body Start              | 2536 tests/scripts/playground/auto/test_runner.zs:30
 MARK_TYPE_STACK 0.0009 0                                                        | 2537 tests/scripts/playground/auto/test_runner.zs:30
 REF_INC 0                                                                       | 2538 tests/scripts/playground/auto/test_runner.zs:30
-LOAD D2 0.0001; if() #445 Test                                                  | 2539 tests/scripts/playground/auto/test_runner.zs:32
+LOAD D2 0.0001; if() #446 Test                                                  | 2539 tests/scripts/playground/auto/test_runner.zs:32
 PUSHR D2                                                                        | 2540 tests/scripts/playground/auto/test_runner.zs:32
 LOAD D2 0.0002                                                                  | 2541 tests/scripts/playground/auto/test_runner.zs:32
 POP D3                                                                          | 2542 tests/scripts/playground/auto/test_runner.zs:32
@@ -2573,7 +2573,7 @@ COMPARER D3 D2                                                                  
 SETCMP D2 I!=                                                                   | 2544 tests/scripts/playground/auto/test_runner.zs:32
 COMPAREV D2 0                                                                   | 2545 tests/scripts/playground/auto/test_runner.zs:32
 GOTOCMP 2560 ==; Test 'if'                                                      | 2546 tests/scripts/playground/auto/test_runner.zs:32
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #445 Body Start | 2547 tests/scripts/playground/auto/test_runner.zs:34
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #446 Body Start | 2547 tests/scripts/playground/auto/test_runner.zs:34
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"       | 2548 tests/scripts/playground/auto/test_runner.zs:34
 PUSHR D2                                                                        | 2549 tests/scripts/playground/auto/test_runner.zs:34
 LOAD D2 0.0001                                                                  | 2550 tests/scripts/playground/auto/test_runner.zs:34
@@ -2584,7 +2584,7 @@ LOAD D2 0                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2555 tests/scripts/playground/auto/test_runner.zs:34
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2556 tests/scripts/playground/auto/test_runner.zs:34
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2557 tests/scripts/playground/auto/test_runner.zs:34
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #445 Body End             | 2558 tests/scripts/playground/auto/test_runner.zs:35
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #446 Body End             | 2558 tests/scripts/playground/auto/test_runner.zs:35
 NOP                                                                             | 2559 tests/scripts/playground/auto/test_runner.zs:32
 REF_REMOVE 0                                                                    | 2560 tests/scripts/playground/auto/test_runner.zs:36
 POPARGS D5 0.0003                                                               | 2561 tests/scripts/playground/auto/test_runner.zs:36
@@ -2592,7 +2592,7 @@ RETURNFUNC; Func[void AssertEqual(int, int, char32[])] Body End                 
 SETR D4 SP2; Func[void AssertEqual(bool, bool, char32[])] Body Start            | 2563 tests/scripts/playground/auto/test_runner.zs:30
 MARK_TYPE_STACK 0.0009 0                                                        | 2564 tests/scripts/playground/auto/test_runner.zs:30
 REF_INC 0                                                                       | 2565 tests/scripts/playground/auto/test_runner.zs:30
-LOAD D2 0.0001; if() #446 Test                                                  | 2566 tests/scripts/playground/auto/test_runner.zs:32
+LOAD D2 0.0001; if() #447 Test                                                  | 2566 tests/scripts/playground/auto/test_runner.zs:32
 PUSHR D2                                                                        | 2567 tests/scripts/playground/auto/test_runner.zs:32
 LOAD D2 0.0002                                                                  | 2568 tests/scripts/playground/auto/test_runner.zs:32
 POP D3                                                                          | 2569 tests/scripts/playground/auto/test_runner.zs:32
@@ -2600,7 +2600,7 @@ COMPARER D3 D2                                                                  
 SETCMP D2 BI!=                                                                  | 2571 tests/scripts/playground/auto/test_runner.zs:32
 COMPAREV D2 0                                                                   | 2572 tests/scripts/playground/auto/test_runner.zs:32
 GOTOCMP 2587 ==; Test 'if'                                                      | 2573 tests/scripts/playground/auto/test_runner.zs:32
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #446 Body Start | 2574 tests/scripts/playground/auto/test_runner.zs:34
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #447 Body Start | 2574 tests/scripts/playground/auto/test_runner.zs:34
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"       | 2575 tests/scripts/playground/auto/test_runner.zs:34
 PUSHR D2                                                                        | 2576 tests/scripts/playground/auto/test_runner.zs:34
 LOAD D2 0.0001                                                                  | 2577 tests/scripts/playground/auto/test_runner.zs:34
@@ -2611,7 +2611,7 @@ LOAD D2 0                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2582 tests/scripts/playground/auto/test_runner.zs:34
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2583 tests/scripts/playground/auto/test_runner.zs:34
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2584 tests/scripts/playground/auto/test_runner.zs:34
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #446 Body End             | 2585 tests/scripts/playground/auto/test_runner.zs:35
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #447 Body End             | 2585 tests/scripts/playground/auto/test_runner.zs:35
 NOP                                                                             | 2586 tests/scripts/playground/auto/test_runner.zs:32
 REF_REMOVE 0                                                                    | 2587 tests/scripts/playground/auto/test_runner.zs:36
 POPARGS D5 0.0003                                                               | 2588 tests/scripts/playground/auto/test_runner.zs:36
@@ -2619,7 +2619,7 @@ RETURNFUNC; Func[void AssertEqual(bool, bool, char32[])] Body End               
 SETR D4 SP2; Func[void AssertEqual(untyped, untyped, char32[])] Body Start      | 2590 tests/scripts/playground/auto/test_runner.zs:30
 MARK_TYPE_STACK 0.0009 0                                                        | 2591 tests/scripts/playground/auto/test_runner.zs:30
 REF_INC 0                                                                       | 2592 tests/scripts/playground/auto/test_runner.zs:30
-LOAD D2 0.0001; if() #447 Test                                                  | 2593 tests/scripts/playground/auto/test_runner.zs:32
+LOAD D2 0.0001; if() #448 Test                                                  | 2593 tests/scripts/playground/auto/test_runner.zs:32
 PUSHR D2                                                                        | 2594 tests/scripts/playground/auto/test_runner.zs:32
 LOAD D2 0.0002                                                                  | 2595 tests/scripts/playground/auto/test_runner.zs:32
 POP D3                                                                          | 2596 tests/scripts/playground/auto/test_runner.zs:32
@@ -2627,7 +2627,7 @@ COMPARER D3 D2                                                                  
 SETCMP D2 I!=                                                                   | 2598 tests/scripts/playground/auto/test_runner.zs:32
 COMPAREV D2 0                                                                   | 2599 tests/scripts/playground/auto/test_runner.zs:32
 GOTOCMP 2614 ==; Test 'if'                                                      | 2600 tests/scripts/playground/auto/test_runner.zs:32
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #447 Body Start | 2601 tests/scripts/playground/auto/test_runner.zs:34
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #448 Body Start | 2601 tests/scripts/playground/auto/test_runner.zs:34
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"       | 2602 tests/scripts/playground/auto/test_runner.zs:34
 PUSHR D2                                                                        | 2603 tests/scripts/playground/auto/test_runner.zs:34
 LOAD D2 0.0001                                                                  | 2604 tests/scripts/playground/auto/test_runner.zs:34
@@ -2638,7 +2638,7 @@ LOAD D2 0                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2609 tests/scripts/playground/auto/test_runner.zs:34
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2610 tests/scripts/playground/auto/test_runner.zs:34
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2611 tests/scripts/playground/auto/test_runner.zs:34
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #447 Body End             | 2612 tests/scripts/playground/auto/test_runner.zs:35
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #448 Body End             | 2612 tests/scripts/playground/auto/test_runner.zs:35
 NOP                                                                             | 2613 tests/scripts/playground/auto/test_runner.zs:32
 REF_REMOVE 0                                                                    | 2614 tests/scripts/playground/auto/test_runner.zs:36
 POPARGS D5 0.0003                                                               | 2615 tests/scripts/playground/auto/test_runner.zs:36
@@ -2646,7 +2646,7 @@ RETURNFUNC; Func[void AssertEqual(untyped, untyped, char32[])] Body End         
 SETR D4 SP2; Func[void AssertEqual(long, long, char32[])] Body Start            | 2617 tests/scripts/playground/auto/test_runner.zs:30
 MARK_TYPE_STACK 0.0009 0                                                        | 2618 tests/scripts/playground/auto/test_runner.zs:30
 REF_INC 0                                                                       | 2619 tests/scripts/playground/auto/test_runner.zs:30
-LOAD D2 0.0001; if() #448 Test                                                  | 2620 tests/scripts/playground/auto/test_runner.zs:32
+LOAD D2 0.0001; if() #449 Test                                                  | 2620 tests/scripts/playground/auto/test_runner.zs:32
 PUSHR D2                                                                        | 2621 tests/scripts/playground/auto/test_runner.zs:32
 LOAD D2 0.0002                                                                  | 2622 tests/scripts/playground/auto/test_runner.zs:32
 POP D3                                                                          | 2623 tests/scripts/playground/auto/test_runner.zs:32
@@ -2654,7 +2654,7 @@ COMPARER D3 D2                                                                  
 SETCMP D2 I!=                                                                   | 2625 tests/scripts/playground/auto/test_runner.zs:32
 COMPAREV D2 0                                                                   | 2626 tests/scripts/playground/auto/test_runner.zs:32
 GOTOCMP 2641 ==; Test 'if'                                                      | 2627 tests/scripts/playground/auto/test_runner.zs:32
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #448 Body Start | 2628 tests/scripts/playground/auto/test_runner.zs:34
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #449 Body Start | 2628 tests/scripts/playground/auto/test_runner.zs:34
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"       | 2629 tests/scripts/playground/auto/test_runner.zs:34
 PUSHR D2                                                                        | 2630 tests/scripts/playground/auto/test_runner.zs:34
 LOAD D2 0.0001                                                                  | 2631 tests/scripts/playground/auto/test_runner.zs:34
@@ -2665,65 +2665,65 @@ LOAD D2 0                                                                       
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 2636 tests/scripts/playground/auto/test_runner.zs:34
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 2637 tests/scripts/playground/auto/test_runner.zs:34
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 2638 tests/scripts/playground/auto/test_runner.zs:34
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #448 Body End             | 2639 tests/scripts/playground/auto/test_runner.zs:35
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #449 Body End             | 2639 tests/scripts/playground/auto/test_runner.zs:35
 NOP                                                                             | 2640 tests/scripts/playground/auto/test_runner.zs:32
 REF_REMOVE 0                                                                    | 2641 tests/scripts/playground/auto/test_runner.zs:36
 POPARGS D5 0.0003                                                               | 2642 tests/scripts/playground/auto/test_runner.zs:36
 RETURNFUNC; Func[void AssertEqual(long, long, char32[])] Body End               | 2643 tests/scripts/playground/auto/test_runner.zs:36
 SETR D4 SP2; Func[void Assert(bool)] Body Start                                 | 2644 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #434 Test                                                   | 2645 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #435 Test                                                   | 2645 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2646 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2653 !=; Test 'unless'                                                  | 2647 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #434 Body Start | 2648 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #435 Body Start | 2648 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2649 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2650 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #434 Body End | 2651 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #435 Body End | 2651 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2652 tests/scripts/playground/auto/test_runner.zs:41
 POP D5                                                                          | 2653 tests/scripts/playground/auto/test_runner.zs:42
 RETURNFUNC; Func[void Assert(bool)] Body End                                    | 2654 tests/scripts/playground/auto/test_runner.zs:42
 SETR D4 SP2; Func[void Assert(int)] Body Start                                  | 2655 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #435 Test                                                   | 2656 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #436 Test                                                   | 2656 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2657 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2664 !=; Test 'unless'                                                  | 2658 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #435 Body Start | 2659 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #436 Body Start | 2659 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2660 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2661 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #435 Body End | 2662 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #436 Body End | 2662 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2663 tests/scripts/playground/auto/test_runner.zs:41
 POP D5                                                                          | 2664 tests/scripts/playground/auto/test_runner.zs:42
 RETURNFUNC; Func[void Assert(int)] Body End                                     | 2665 tests/scripts/playground/auto/test_runner.zs:42
 SETR D4 SP2; Func[void Assert(ffc)] Body Start                                  | 2666 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #436 Test                                                   | 2667 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #437 Test                                                   | 2667 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2668 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2675 !=; Test 'unless'                                                  | 2669 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #436 Body Start | 2670 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #437 Body Start | 2670 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2671 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2672 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #436 Body End | 2673 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #437 Body End | 2673 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2674 tests/scripts/playground/auto/test_runner.zs:41
 POP D5                                                                          | 2675 tests/scripts/playground/auto/test_runner.zs:42
 RETURNFUNC; Func[void Assert(ffc)] Body End                                     | 2676 tests/scripts/playground/auto/test_runner.zs:42
 SETR D4 SP2; Func[void Assert(npc)] Body Start                                  | 2677 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #437 Test                                                   | 2678 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #438 Test                                                   | 2678 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2679 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2686 !=; Test 'unless'                                                  | 2680 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #437 Body Start | 2681 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #438 Body Start | 2681 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2682 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2683 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #437 Body End | 2684 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #438 Body End | 2684 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2685 tests/scripts/playground/auto/test_runner.zs:41
 POP D5                                                                          | 2686 tests/scripts/playground/auto/test_runner.zs:42
 RETURNFUNC; Func[void Assert(npc)] Body End                                     | 2687 tests/scripts/playground/auto/test_runner.zs:42
 SETR D4 SP2; Func[void Assert(bitmap)] Body Start                               | 2688 tests/scripts/playground/auto/test_runner.zs:39
 MARK_TYPE_STACK 0.0001 0                                                        | 2689 tests/scripts/playground/auto/test_runner.zs:39
 REF_INC 0                                                                       | 2690 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #438 Test                                                   | 2691 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #439 Test                                                   | 2691 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2692 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2699 !=; Test 'unless'                                                  | 2693 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #438 Body Start | 2694 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #439 Body Start | 2694 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2695 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2696 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #438 Body End | 2697 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #439 Body End | 2697 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2698 tests/scripts/playground/auto/test_runner.zs:41
 REF_REMOVE 0                                                                    | 2699 tests/scripts/playground/auto/test_runner.zs:42
 POP D5                                                                          | 2700 tests/scripts/playground/auto/test_runner.zs:42
@@ -2731,13 +2731,13 @@ RETURNFUNC; Func[void Assert(bitmap)] Body End                                  
 SETR D4 SP2; Func[void Assert(Thing[])] Body Start                              | 2702 tests/scripts/playground/auto/test_runner.zs:39
 MARK_TYPE_STACK 0.0009 0                                                        | 2703 tests/scripts/playground/auto/test_runner.zs:39
 REF_INC 0                                                                       | 2704 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #439 Test                                                   | 2705 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #440 Test                                                   | 2705 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2706 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2713 !=; Test 'unless'                                                  | 2707 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #439 Body Start | 2708 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #440 Body Start | 2708 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2709 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2710 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #439 Body End | 2711 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #440 Body End | 2711 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2712 tests/scripts/playground/auto/test_runner.zs:41
 REF_REMOVE 0                                                                    | 2713 tests/scripts/playground/auto/test_runner.zs:42
 POP D5                                                                          | 2714 tests/scripts/playground/auto/test_runner.zs:42
@@ -2745,13 +2745,13 @@ RETURNFUNC; Func[void Assert(Thing[])] Body End                                 
 SETR D4 SP2; Func[void Assert(CL)] Body Start                                   | 2716 tests/scripts/playground/auto/test_runner.zs:39
 MARK_TYPE_STACK 0.0008 0                                                        | 2717 tests/scripts/playground/auto/test_runner.zs:39
 REF_INC 0                                                                       | 2718 tests/scripts/playground/auto/test_runner.zs:39
-LOAD D2 0; unless() #440 Test                                                   | 2719 tests/scripts/playground/auto/test_runner.zs:41
+LOAD D2 0; unless() #441 Test                                                   | 2719 tests/scripts/playground/auto/test_runner.zs:41
 COMPAREV D2 0                                                                   | 2720 tests/scripts/playground/auto/test_runner.zs:41
 GOTOCMP 2727 !=; Test 'unless'                                                  | 2721 tests/scripts/playground/auto/test_runner.zs:41
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #440 Body Start | 2722 tests/scripts/playground/auto/test_runner.zs:42
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #441 Body Start | 2722 tests/scripts/playground/auto/test_runner.zs:42
 WRITEPODSTRING D2 ""                                                            | 2723 tests/scripts/playground/auto/test_runner.zs:42
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2724 tests/scripts/playground/auto/test_runner.zs:42
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #440 Body End | 2725 tests/scripts/playground/auto/test_runner.zs:42
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #441 Body End | 2725 tests/scripts/playground/auto/test_runner.zs:42
 NOP                                                                             | 2726 tests/scripts/playground/auto/test_runner.zs:41
 REF_REMOVE 0                                                                    | 2727 tests/scripts/playground/auto/test_runner.zs:42
 POP D5                                                                          | 2728 tests/scripts/playground/auto/test_runner.zs:42
@@ -2759,12 +2759,12 @@ RETURNFUNC; Func[void Assert(CL)] Body End                                      
 SETR D4 SP2; Func[void Assert(bool, char32[])] Body Start                       | 2730 tests/scripts/playground/auto/test_runner.zs:45
 MARK_TYPE_STACK 0.0009 0                                                        | 2731 tests/scripts/playground/auto/test_runner.zs:45
 REF_INC 0                                                                       | 2732 tests/scripts/playground/auto/test_runner.zs:45
-LOAD D2 0.0001; unless() #441 Test                                              | 2733 tests/scripts/playground/auto/test_runner.zs:47
+LOAD D2 0.0001; unless() #442 Test                                              | 2733 tests/scripts/playground/auto/test_runner.zs:47
 COMPAREV D2 0                                                                   | 2734 tests/scripts/playground/auto/test_runner.zs:47
 GOTOCMP 2740 !=; Test 'unless'                                                  | 2735 tests/scripts/playground/auto/test_runner.zs:47
-LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #441 Body Start | 2736 tests/scripts/playground/auto/test_runner.zs:48
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #442 Body Start | 2736 tests/scripts/playground/auto/test_runner.zs:48
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2737 tests/scripts/playground/auto/test_runner.zs:48
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #441 Body End | 2738 tests/scripts/playground/auto/test_runner.zs:48
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #442 Body End | 2738 tests/scripts/playground/auto/test_runner.zs:48
 NOP                                                                             | 2739 tests/scripts/playground/auto/test_runner.zs:47
 REF_REMOVE 0                                                                    | 2740 tests/scripts/playground/auto/test_runner.zs:48
 POPARGS D5 0.0002                                                               | 2741 tests/scripts/playground/auto/test_runner.zs:48
@@ -2774,12 +2774,12 @@ MARK_TYPE_STACK 0.0008 0.0001                                                   
 REF_INC 0.0001                                                                  | 2745 tests/scripts/playground/auto/test_runner.zs:45
 MARK_TYPE_STACK 0.0009 0                                                        | 2746 tests/scripts/playground/auto/test_runner.zs:45
 REF_INC 0                                                                       | 2747 tests/scripts/playground/auto/test_runner.zs:45
-LOAD D2 0.0001; unless() #442 Test                                              | 2748 tests/scripts/playground/auto/test_runner.zs:47
+LOAD D2 0.0001; unless() #443 Test                                              | 2748 tests/scripts/playground/auto/test_runner.zs:47
 COMPAREV D2 0                                                                   | 2749 tests/scripts/playground/auto/test_runner.zs:47
 GOTOCMP 2755 !=; Test 'unless'                                                  | 2750 tests/scripts/playground/auto/test_runner.zs:47
-LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #442 Body Start | 2751 tests/scripts/playground/auto/test_runner.zs:48
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #443 Body Start | 2751 tests/scripts/playground/auto/test_runner.zs:48
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2752 tests/scripts/playground/auto/test_runner.zs:48
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #442 Body End | 2753 tests/scripts/playground/auto/test_runner.zs:48
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #443 Body End | 2753 tests/scripts/playground/auto/test_runner.zs:48
 NOP                                                                             | 2754 tests/scripts/playground/auto/test_runner.zs:47
 REF_REMOVE 0.0001                                                               | 2755 tests/scripts/playground/auto/test_runner.zs:48
 REF_REMOVE 0                                                                    | 2756 tests/scripts/playground/auto/test_runner.zs:48
@@ -2788,12 +2788,12 @@ RETURNFUNC; Func[void Assert(Thing, char32[])] Body End                         
 SETR D4 SP2; Func[void Assert(untyped, char32[])] Body Start                    | 2759 tests/scripts/playground/auto/test_runner.zs:45
 MARK_TYPE_STACK 0.0009 0                                                        | 2760 tests/scripts/playground/auto/test_runner.zs:45
 REF_INC 0                                                                       | 2761 tests/scripts/playground/auto/test_runner.zs:45
-LOAD D2 0.0001; unless() #443 Test                                              | 2762 tests/scripts/playground/auto/test_runner.zs:47
+LOAD D2 0.0001; unless() #444 Test                                              | 2762 tests/scripts/playground/auto/test_runner.zs:47
 COMPAREV D2 0                                                                   | 2763 tests/scripts/playground/auto/test_runner.zs:47
 GOTOCMP 2769 !=; Test 'unless'                                                  | 2764 tests/scripts/playground/auto/test_runner.zs:47
-LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #443 Body Start | 2765 tests/scripts/playground/auto/test_runner.zs:48
+LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #444 Body Start | 2765 tests/scripts/playground/auto/test_runner.zs:48
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End                               | 2766 tests/scripts/playground/auto/test_runner.zs:48
-CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #443 Body End | 2767 tests/scripts/playground/auto/test_runner.zs:48
+CALLFUNC 0.2773; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #444 Body End | 2767 tests/scripts/playground/auto/test_runner.zs:48
 NOP                                                                             | 2768 tests/scripts/playground/auto/test_runner.zs:47
 REF_REMOVE 0                                                                    | 2769 tests/scripts/playground/auto/test_runner.zs:48
 POPARGS D5 0.0002                                                               | 2770 tests/scripts/playground/auto/test_runner.zs:48
@@ -3702,18 +3702,18 @@ POP D2; Func[void itemdata::GetName(char32[])] Body Start                       
 POP REFITEMDATA                                                                 | 3673 resources/include/bindings/itemdata.zh:928
 ITEMNAME D2                                                                     | 3674 resources/include/bindings/itemdata.zh:928
 RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3675 resources/include/bindings/itemdata.zh:928
-POP D2; Func[void itemdata::GetDisplayName(int)] Body Start                     | 3676 resources/include/bindings/itemdata.zh:936
+POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3676 resources/include/bindings/itemdata.zh:936
 POP REFITEMDATA                                                                 | 3677 resources/include/bindings/itemdata.zh:936
 ITEMGETDISPLAYNAME D2                                                           | 3678 resources/include/bindings/itemdata.zh:936
-RETURNFUNC; Func[void itemdata::GetDisplayName(int)] Body End                   | 3679 resources/include/bindings/itemdata.zh:936
-POP D2; Func[void itemdata::SetDisplayName(int)] Body Start                     | 3680 resources/include/bindings/itemdata.zh:944
+RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3679 resources/include/bindings/itemdata.zh:936
+POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3680 resources/include/bindings/itemdata.zh:944
 POP REFITEMDATA                                                                 | 3681 resources/include/bindings/itemdata.zh:944
 ITEMSETDISPLAYNAME D2                                                           | 3682 resources/include/bindings/itemdata.zh:944
-RETURNFUNC; Func[void itemdata::SetDisplayName(int)] Body End                   | 3683 resources/include/bindings/itemdata.zh:944
-POP D2; Func[void itemdata::GetShownName(int)] Body Start                       | 3684 resources/include/bindings/itemdata.zh:954
+RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3683 resources/include/bindings/itemdata.zh:944
+POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3684 resources/include/bindings/itemdata.zh:954
 POP REFITEMDATA                                                                 | 3685 resources/include/bindings/itemdata.zh:954
 ITEMGETSHOWNNAME D2                                                             | 3686 resources/include/bindings/itemdata.zh:954
-RETURNFUNC; Func[void itemdata::GetShownName(int)] Body End                     | 3687 resources/include/bindings/itemdata.zh:954
+RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3687 resources/include/bindings/itemdata.zh:954
 POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3688 resources/include/bindings/itemdata.zh:963
 POP REFITEMDATA                                                                 | 3689 resources/include/bindings/itemdata.zh:963
 RUNITEMSCRIPT D2                                                                | 3690 resources/include/bindings/itemdata.zh:963
@@ -9148,19 +9148,19 @@ debug data:
       - int WeaponTileWidth @ Reg[IDATATILEWWEAP]
       [FUNCTION] GetDisplayName <PC:3676-3679 IDX:586> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
-        - int buf @ Stack[0]
+        - char32[] buf @ Stack[0]
       [FUNCTION] GetName <PC:3672-3675 IDX:587> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
       [FUNCTION] GetShownName <PC:3684-3687 IDX:588> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
-        - int buf @ Stack[0]
+        - char32[] buf @ Stack[0]
       [FUNCTION] RunScript <PC:3688-3691 IDX:589> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
         - int mode @ Stack[0]
       [FUNCTION] SetDisplayName <PC:3680-3683 IDX:590> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
-        - int buf @ Stack[0]
+        - char32[] buf @ Stack[0]
   [FILE] resources/include/bindings/itemsprite.zh <IDX:591>
     [CLASS] itemsprite  extends sprite <IDX:592>
       - int AClock @ Reg[ITEMACLK]
@@ -13210,11 +13210,13 @@ debug data:
     - const int FFCS_MIN_FFC @ Constant[10000]
     - const int MAX_EWEAPONSCRIPT @ Constant[2550000]
     - const int MAX_GENERICSCRIPT @ Constant[5110000]
+    - const int MAX_ITEMDATASCRIPT @ Constant[2550000]
     - const int MAX_ITEMSPRITESCRIPT @ Constant[2550000]
     - const int MAX_LWEAPONSCRIPT @ Constant[2550000]
     - const int MAX_NPCSCRIPT @ Constant[2550000]
     - const int MIN_EWEAPONSCRIPT @ Constant[10000]
     - const int MIN_GENERICSCRIPT @ Constant[10000]
+    - const int MIN_ITEMDATASCRIPT @ Constant[10000]
     - const int MIN_ITEMSPRITESCRIPT @ Constant[10000]
     - const int MIN_LWEAPONSCRIPT @ Constant[10000]
     - const int MIN_NPCSCRIPT @ Constant[10000]
