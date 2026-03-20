@@ -380,7 +380,12 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	if (!f)
 		return false;
 
-	fclose(f);
+	// Canonicalize the path to resolve exact OS-specific casing and symlinks.
+	std::error_code ec;
+	fs::path canonical_abspath = fs::canonical(abspath, ec);
+	if (!ec)
+		abspath = canonical_abspath;
+
 	decl.setFilename(abspath.string());
 	ret_fname = abspath.string();
 

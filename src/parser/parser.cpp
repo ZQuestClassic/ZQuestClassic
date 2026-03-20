@@ -439,6 +439,10 @@ int32_t main(int32_t argc, char **argv)
 		return 1;
 	}
 	std::string script_path = argv[script_path_index + 1];
+	std::error_code ec;
+	fs::path canonical = fs::canonical(script_path, ec);
+	if (!ec)
+		script_path = canonical.string();
 
 	int32_t console_path_index = used_switch(argc, argv, "-console");
 	if (linked && !console_path_index)
@@ -509,6 +513,14 @@ int32_t main(int32_t argc, char **argv)
 		extern std::string metadata_orig_path;
 		metadata_tmp_path = argv[metadata_tmp_path_idx + 1];
 		metadata_orig_path = argv[metadata_orig_path_idx + 1];
+
+		std::error_code ec;
+		fs::path canonical = fs::canonical(metadata_tmp_path, ec);
+		if (!ec)
+			metadata_tmp_path = canonical.string();
+		canonical = fs::canonical(metadata_orig_path, ec);
+		if (!ec)
+			metadata_orig_path = canonical.string();
 	}
 
 	bool docs = used_switch(argc, argv, "-doc") > 0;
