@@ -34042,7 +34042,7 @@ void do_sfx_ex(const bool restart)
 	int32_t vol = vbound(SH::read_stack(ri->sp + 3), 0, 10000 * 100);
 	int32_t pan = vbound(SH::read_stack(ri->sp + 2)/10000 + 128, 0, 255);
 	int32_t freq = SH::read_stack(ri->sp + 1);
-	bool loop = SH::read_stack(ri->sp) / 10000;
+	bool loop = SH::read_stack(ri->sp) != 0;
 
 	if (BC::checkSFXID(ID, restart?"Audio->PlaySound":"Audio->AdjustSound") != SH::_NoError)
 		return;
@@ -42889,7 +42889,7 @@ void FFScript::gfxmonohue()
 	int32_t _r   = SH::read_stack(ri->sp + 3) / 10000;
 	int32_t _g = SH::read_stack(ri->sp + 2) / 10000;
 	int32_t _b   = SH::read_stack(ri->sp + 1) / 10000;
-	bool m   = (SH::read_stack(ri->sp + 0) / 10000);
+	bool m   = (SH::read_stack(ri->sp + 0) != 0);
 	doGFXMonohue(_r,_g,_b,m);
 }
 
