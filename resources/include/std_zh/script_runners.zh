@@ -241,6 +241,19 @@ eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped[] args =
 	return obj;
 }
 
+DEFINE MIN_ITEMDATASCRIPT = 1;
+DEFINE MAX_ITEMDATASCRIPT = 255;
+int CheckItemDataScript(char32[] scriptname)
+{
+	int id = Game->GetItemScript(scriptname);
+	if(id < 0)
+	{
+		printf("ItemData Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+
 DEFINE MIN_ITEMSPRITESCRIPT = 1;
 DEFINE MAX_ITEMSPRITESCRIPT = 255;
 int CheckItemSpriteScript(char32[] scriptname)
