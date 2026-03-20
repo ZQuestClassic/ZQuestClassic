@@ -498,8 +498,8 @@ class bitmap {
 							bool is8bit = true, bool mask = false);
 
 	// Draws [color] onto the bitmap on pixels that are non-color-0 on the
-	// [mask] bitmap, based on the
-	// Identical to [Screen->Rectangle], but it draws to a target bitmap.
+	// [mask] bitmap, excluding pixels dithered-out by the specified
+	// [ditherType] / [ditherArg].
 	//
 	// @zasm
 	//   BMPDITHER
@@ -507,7 +507,7 @@ class bitmap {
 	internal void Dither(int layer, bitmap mask, int color, int ditherType,
 						 int ditherArg);
 
-	// Replaces colors that are [startCol] <= [color] <= [endCol].
+	// Replaces colors that are [startCol] <= color <= [endCol], with [color].
 	//
 	// @zasm
 	//   BMPREPLCOLOR
