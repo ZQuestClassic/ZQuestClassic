@@ -287,7 +287,7 @@ static AccessorTable ScreenTable[] =
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   SCREENINITD,                       0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   SCREENINITD,                       0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "DrawFrame",                  0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 1280000 } },
+	{ "DrawFrame",                  0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ -10000, 10000, 1280000 } },
 
 	{ "_getSecretsTriggered",       0,         ZTID_BOOL,   SCREENSECRETSTRIGGERED,       FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->SecretsTriggered' instead!" },
 	{ "getSecretsTriggered",        0,         ZTID_BOOL,   SCREENSECRETSTRIGGERED,             0,  { ZTID_SCREEN },{} },

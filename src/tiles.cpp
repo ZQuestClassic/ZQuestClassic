@@ -1854,14 +1854,23 @@ void overblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t
 
 int combotile_override_x = -1, combotile_override_y = -1;
 int combotile_add_x = 0, combotile_add_y = 0;
-int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
+int32_t combo_tile(const newcombo &c, int32_t x, int32_t y, int frame)
 {
 	if(combotile_override_x > -1)
 		x = combotile_override_x;
 	if(combotile_override_y > -1)
 		y = combotile_override_y;
-    int32_t drawtile=c.tile;
-    int32_t tframes=zc_max(1, c.frames);
+    int32_t tframes = zc_max(1, c.frames);
+    int32_t drawtile;
+	if (frame < 0)
+		drawtile = c.tile;
+	else
+	{
+		frame %= zc_max(1, c.frames);
+		drawtile = c.o_tile + ((1+c.skipanim)*frame);
+		if(int32_t rowoffset = TILEROW(drawtile)-TILEROW(c.o_tile))
+			drawtile += c.skipanimy * rowoffset * TILES_PER_ROW;
+	}
 
     x += combotile_add_x;
     y += combotile_add_y;
@@ -1983,10 +1992,10 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
     return drawtile;
 }
 
-int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y)
+int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y, int frame)
 {
     const newcombo & c = combobuf[cmbdat];
-    return combo_tile(c, x, y);
+    return combo_tile(c, x, y, frame);
 }
 
 void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity)

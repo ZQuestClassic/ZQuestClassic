@@ -1658,6 +1658,8 @@ GUI::ListData instructionRulesList
 	{ "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", qr_250WRITEEDEFSCRIPT },
 	{ "Writing npc->Weapon Sets its Weapon Sprite", qr_SETENEMYWEAPONSPRITESONWPNCHANGE },
 	{ "Broken DrawInteger and DrawCharacter Scaling", qr_BROKENCHARINTDRAWING },
+	{ "'DrawCombo' ignores the 'frame' parameter", qr_DRAWCOMBO_IGNORES_FRAME,
+		"If checked, the 'DrawCombo' function will always treat the value of 'frame' as '-1'." },
 	{ "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES },
 	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
 	{ "Don't allow overwriting hopping action", qr_NO_OVERWRITING_HOPPING },
@@ -1796,7 +1798,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
-				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE,
+				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_DRAWCOMBO_IGNORES_FRAME,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

@@ -3467,6 +3467,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ACTIVE_SUB_IGNORE_8PX, 1);
 	}
 
+	// Older than 2.55.13?
+	if (tempheader.compareVer(2, 55, 13) < 0)
+	{
+		set_qr(qr_DRAWCOMBO_IGNORES_FRAME, 1);
+	}
+
 	*Header = tempheader;
 	
 	return 0;

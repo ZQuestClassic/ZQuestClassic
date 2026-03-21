@@ -47,7 +47,7 @@ static AccessorTable BitmapTable[] =
 	{ "ClearToColor",            0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "Free",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
 	{ "Own",                     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
-	{ "DrawFrame",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 1280000 } },
+	{ "DrawFrame",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ -10000, 10000, 1280000 } },
 	{ "WriteTile",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 10000, 0 } },
 	
 	{ "Dither",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
