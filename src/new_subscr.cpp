@@ -5647,10 +5647,10 @@ bool ZCSubscreen::get_page_pos(int32_t itmid, word& pgpos)
 {
 	for(byte q = 0; q < pages.size(); ++q)
 	{
-		byte p = pages[q].get_pos_of_item(itmid);
+		auto p = pages[q].get_pos_of_item(itmid);
 		if(p > -1)
 		{
-			pgpos = q | (p<<8);
+			pgpos = q | (byte(p)<<8);
 			return true;
 		}
 	}
