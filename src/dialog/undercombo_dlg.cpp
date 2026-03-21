@@ -103,6 +103,7 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 			"\nFirst box selects combo, second box shows animated preview of the combo."));
 		
 		bool did_something = false;
+		bool first_loop = !layer;
 		for (int q = 0; q < 4 && layer < 7; ++layer)
 		{
 			if (!whole_map && !layer_enabled[layer])
@@ -177,7 +178,7 @@ shared_ptr<GUI::Widget> UnderComboDialog::view()
 		
 		if (did_something) // don't add a blank row
 		{
-			if (layer > 0)
+			if (!first_loop)
 				g->add(HSeparator());
 			g->add(subg);
 		}
