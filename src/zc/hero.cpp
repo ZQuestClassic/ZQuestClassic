@@ -9197,7 +9197,14 @@ heroanimate_skip_liftwpn:;
 			selectNextAWpn(SEL_RIGHT);
 	}
 
-	if (getInput(btnP, INPUT_PRESS | INPUT_HERO_ACTION))
+	if (FFCore.queued_subscreen && FFCore.queued_subscreen->sub_type == sstMAP)
+	{
+		new_subscreen_map = FFCore.queued_subscreen;
+		FFCore.queued_subscreen = nullptr; // before 'dosubscr()', so another can be queued via subscreen script
+		dosubscr(true);
+		update_subscreens(); // revert to the normal dmap subscreen
+	}
+	else if (getInput(btnP, INPUT_PRESS | INPUT_HERO_ACTION))
 	{
 		if( !FFCore.runOnMapScriptEngine() ) //OnMap script replaces the 'onViewMap()' call
 		{
@@ -10246,7 +10253,14 @@ heroanimate_skip_liftwpn:;
 	}
 	}
 
-	if (getInput(btnS, INPUT_PRESS | INPUT_HERO_ACTION))
+	if (FFCore.queued_subscreen && FFCore.queued_subscreen->sub_type == sstACTIVE)
+	{
+		new_subscreen_active = FFCore.queued_subscreen;
+		FFCore.queued_subscreen = nullptr; // before 'dosubscr()', so another can be queued via subscreen script
+		dosubscr(false);
+		update_subscreens(); // revert to the normal dmap subscreen
+	}
+	else if (getInput(btnS, INPUT_PRESS | INPUT_HERO_ACTION))
 	{
 		int32_t tmp_subscr_clk = frame;
 		

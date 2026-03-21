@@ -27677,6 +27677,27 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			///----------------------------------------------------------------------------------------------------//
 			
+			case SUBDATA_OPEN:
+			{
+				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				{
+					FFCore.queued_subscreen = sub;
+				}
+				break;
+			}
+			case SUBDATA_CLOSE:
+			{
+				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				{
+					if (type != ScriptType::EngineSubscreen
+						|| ri->subscreendataref != get_subref(-1, i))
+					{
+						scripting_log_error_with_context("This function can only be used on the currently-open Active or Map subscreen.");
+					}
+					else return RUNSCRIPT_SELFDELETE; // exit the subscreen itself
+				}
+				break;
+			}
 			case SUBDATA_GET_NAME:
 			{
 				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
@@ -29007,6 +29028,7 @@ void FFScript::init(bool for_continue)
 	markGlobalRegisters();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	temp_no_stepforward = 0;
+	queued_subscreen = nullptr;
 	nostepforward = 0;
 	numscriptdraws = 0;
 	skipscriptdraws = false;
