@@ -6770,10 +6770,10 @@ bool ZCSubscreen::get_page_pos(ButtonItemData const& target, word& pgpos) const
 {
 	for(byte q = 0; q < pages.size(); ++q)
 	{
-		byte p = pages[q].get_pos_of_item(target);
+		auto p = pages[q].get_pos_of_item(target);
 		if(p > -1)
 		{
-			pgpos = q | (p<<8);
+			pgpos = q | (byte(p)<<8);
 			return true;
 		}
 	}
