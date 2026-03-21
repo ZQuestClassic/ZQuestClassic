@@ -662,6 +662,7 @@ int32_t max_ff_rules;
 std::vector<mapscr*> ScrollingScreensAll;
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;
+ZCSubscreen* queued_subscreen;
 
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);

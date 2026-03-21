@@ -614,4 +614,21 @@ class subscreendata {
 	//   SUBDATA_SWAP_PAGES
 	//   POPARGS D5 0.0003
 	internal void SwapPages(int index1, int index2);
+	
+	// Opens the specified subscreen (at the next moment possible).
+	// Only works on Active / Map subscreens.
+	//
+	// @zasm
+	//   POP REFSUBSCREENDATA
+	//   SUBDATA_OPEN
+	internal void Open();
+	
+	// Closes the subscreen. Only works on the Active / Map subscreen
+	// that is currently running during a subscreendata script (i.e.
+	// 'this->Close()')
+	//
+	// @zasm
+	//   POP REFSUBSCREENDATA
+	//   SUBDATA_CLOSE
+	internal void Close();
 }

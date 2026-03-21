@@ -2112,7 +2112,9 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case STRRCHR: return "strrchr()";
 		case STRSPN: return "strspn()";
 		case STRSTR: return "strstr()";
+		case SUBDATA_CLOSE: return "subscreendata::Close()";
 		case SUBDATA_GET_NAME: return "subscreendata::GetName()";
+		case SUBDATA_OPEN: return "subscreendata::Open()";
 		case SUBDATA_SET_NAME: return "subscreendata::SetName()";
 		case SUBDATA_SWAP_PAGES: return "subscreendata::SwapPages()";
 		case SUBPAGE_NEW_WIDG: return "subscreenpage::CreateWidget()";

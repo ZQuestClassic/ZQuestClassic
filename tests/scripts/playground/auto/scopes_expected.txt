@@ -4179,75 +4179,81 @@ RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                
 SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4150 resources/include/bindings/subscreendata.zh:616
 POPARGS D5 0.0003                                                               | 4151 resources/include/bindings/subscreendata.zh:616
 RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4152 resources/include/bindings/subscreendata.zh:616
-SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4153 resources/include/bindings/subscreenpage.zh:48
-POPARGS D5 0.0002                                                               | 4154 resources/include/bindings/subscreenpage.zh:48
-RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4155 resources/include/bindings/subscreenpage.zh:48
-SUBPAGE_NEW_WIDG; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body Start | 4156 resources/include/bindings/subscreenpage.zh:57
-POPARGS D5 0.0002                                                               | 4157 resources/include/bindings/subscreenpage.zh:57
-RETURNFUNC; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body End     | 4158 resources/include/bindings/subscreenpage.zh:57
-SUBPAGE_SWAP_WIDG; Func[void subscreenpage::SwapWidgets(int, int)] Body Start   | 4159 resources/include/bindings/subscreenpage.zh:64
-POPARGS D5 0.0003                                                               | 4160 resources/include/bindings/subscreenpage.zh:64
-RETURNFUNC; Func[void subscreenpage::SwapWidgets(int, int)] Body End            | 4161 resources/include/bindings/subscreenpage.zh:64
-SUBPAGE_FIND_WIDGET; Func[subscreenwidget subscreenpage::FindWidget(int)] Body Start | 4162 resources/include/bindings/subscreenpage.zh:72
-POPARGS D5 0.0002                                                               | 4163 resources/include/bindings/subscreenpage.zh:72
-RETURNFUNC; Func[subscreenwidget subscreenpage::FindWidget(int)] Body End       | 4164 resources/include/bindings/subscreenpage.zh:72
-SUBPAGE_MOVE_SEL; Func[int subscreenpage::SelectorMove(int, int, int)] Body Start | 4165 resources/include/bindings/subscreenpage.zh:82
-POPARGS D5 0.0004                                                               | 4166 resources/include/bindings/subscreenpage.zh:82
-RETURNFUNC; Func[int subscreenpage::SelectorMove(int, int, int)] Body End       | 4167 resources/include/bindings/subscreenpage.zh:82
-POP REFSUBSCREENPAGE; Func[void subscreenpage::Delete()] Body Start             | 4168 resources/include/bindings/subscreenpage.zh:91
-SUBPAGE_DELETE                                                                  | 4169 resources/include/bindings/subscreenpage.zh:91
-RETURNFUNC; Func[void subscreenpage::Delete()] Body End                         | 4170 resources/include/bindings/subscreenpage.zh:91
-POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4171 resources/include/bindings/subscreenwidget.zh:985
-POP REFSUBSCREENWIDG                                                            | 4172 resources/include/bindings/subscreenwidget.zh:985
-SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4173 resources/include/bindings/subscreenwidget.zh:985
-RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4174 resources/include/bindings/subscreenwidget.zh:985
-POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4175 resources/include/bindings/subscreenwidget.zh:995
-POP REFSUBSCREENWIDG                                                            | 4176 resources/include/bindings/subscreenwidget.zh:995
-SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4177 resources/include/bindings/subscreenwidget.zh:995
-RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4178 resources/include/bindings/subscreenwidget.zh:995
-POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4179 resources/include/bindings/subscreenwidget.zh:1006
-POP REFSUBSCREENWIDG                                                            | 4180 resources/include/bindings/subscreenwidget.zh:1006
-SUBWIDG_GET_LABEL D2                                                            | 4181 resources/include/bindings/subscreenwidget.zh:1006
-RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4182 resources/include/bindings/subscreenwidget.zh:1006
-POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4183 resources/include/bindings/subscreenwidget.zh:1014
-POP REFSUBSCREENWIDG                                                            | 4184 resources/include/bindings/subscreenwidget.zh:1014
-SUBWIDG_SET_LABEL D2                                                            | 4185 resources/include/bindings/subscreenwidget.zh:1014
-RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4186 resources/include/bindings/subscreenwidget.zh:1014
-POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4187 resources/include/bindings/subscreenwidget.zh:1029
-POP REFSUBSCREENWIDG                                                            | 4188 resources/include/bindings/subscreenwidget.zh:1029
-SUBWIDG_TY_GETTEXT D2                                                           | 4189 resources/include/bindings/subscreenwidget.zh:1029
-RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4190 resources/include/bindings/subscreenwidget.zh:1029
-POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4191 resources/include/bindings/subscreenwidget.zh:1040
-POP REFSUBSCREENWIDG                                                            | 4192 resources/include/bindings/subscreenwidget.zh:1040
-SUBWIDG_TY_SETTEXT D2                                                           | 4193 resources/include/bindings/subscreenwidget.zh:1040
-RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4194 resources/include/bindings/subscreenwidget.zh:1040
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4195 resources/include/bindings/subscreenwidget.zh:1048
-SUBWIDG_CHECK_CONDITIONS D2                                                     | 4196 resources/include/bindings/subscreenwidget.zh:1048
-RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4197 resources/include/bindings/subscreenwidget.zh:1048
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4198 resources/include/bindings/subscreenwidget.zh:1055
-SUBWIDG_CHECK_VISIBLE D2                                                        | 4199 resources/include/bindings/subscreenwidget.zh:1055
-RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4200 resources/include/bindings/subscreenwidget.zh:1055
-POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4201 resources/include/bindings/websocket.zh:19
-WEBSOCKET_LOAD D2                                                               | 4202 resources/include/bindings/websocket.zh:19
-RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4203 resources/include/bindings/websocket.zh:19
-POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4204 resources/include/bindings/websocket.zh:43
-POP REFWEBSOCKET                                                                | 4205 resources/include/bindings/websocket.zh:43
-WEBSOCKET_ERROR D2                                                              | 4206 resources/include/bindings/websocket.zh:43
-RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4207 resources/include/bindings/websocket.zh:43
-POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4208 resources/include/bindings/websocket.zh:52
-POP D3                                                                          | 4209 resources/include/bindings/websocket.zh:52
-POP REFWEBSOCKET                                                                | 4210 resources/include/bindings/websocket.zh:52
-WEBSOCKET_SEND D2 D3                                                            | 4211 resources/include/bindings/websocket.zh:52
-RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4212 resources/include/bindings/websocket.zh:52
-POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4213 resources/include/bindings/websocket.zh:62
-WEBSOCKET_RECEIVE D2                                                            | 4214 resources/include/bindings/websocket.zh:62
-RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4215 resources/include/bindings/websocket.zh:62
-POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4216 resources/include/bindings/websocket.zh:80
-WEBSOCKET_FREE                                                                  | 4217 resources/include/bindings/websocket.zh:80
-RETURNFUNC; Func[void websocket::Free()] Body End                               | 4218 resources/include/bindings/websocket.zh:80
-POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4219 resources/include/bindings/websocket.zh:92
-WEBSOCKET_OWN                                                                   | 4220 resources/include/bindings/websocket.zh:92
-RETURNFUNC; Func[void websocket::Own()] Body End                                | 4221 resources/include/bindings/websocket.zh:92
+POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4153 resources/include/bindings/subscreendata.zh:624
+SUBDATA_OPEN                                                                    | 4154 resources/include/bindings/subscreendata.zh:624
+RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4155 resources/include/bindings/subscreendata.zh:624
+POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4156 resources/include/bindings/subscreendata.zh:633
+SUBDATA_CLOSE                                                                   | 4157 resources/include/bindings/subscreendata.zh:633
+RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4158 resources/include/bindings/subscreendata.zh:633
+SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4159 resources/include/bindings/subscreenpage.zh:48
+POPARGS D5 0.0002                                                               | 4160 resources/include/bindings/subscreenpage.zh:48
+RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4161 resources/include/bindings/subscreenpage.zh:48
+SUBPAGE_NEW_WIDG; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body Start | 4162 resources/include/bindings/subscreenpage.zh:57
+POPARGS D5 0.0002                                                               | 4163 resources/include/bindings/subscreenpage.zh:57
+RETURNFUNC; Func[subscreenwidget subscreenpage::CreateWidget(int)] Body End     | 4164 resources/include/bindings/subscreenpage.zh:57
+SUBPAGE_SWAP_WIDG; Func[void subscreenpage::SwapWidgets(int, int)] Body Start   | 4165 resources/include/bindings/subscreenpage.zh:64
+POPARGS D5 0.0003                                                               | 4166 resources/include/bindings/subscreenpage.zh:64
+RETURNFUNC; Func[void subscreenpage::SwapWidgets(int, int)] Body End            | 4167 resources/include/bindings/subscreenpage.zh:64
+SUBPAGE_FIND_WIDGET; Func[subscreenwidget subscreenpage::FindWidget(int)] Body Start | 4168 resources/include/bindings/subscreenpage.zh:72
+POPARGS D5 0.0002                                                               | 4169 resources/include/bindings/subscreenpage.zh:72
+RETURNFUNC; Func[subscreenwidget subscreenpage::FindWidget(int)] Body End       | 4170 resources/include/bindings/subscreenpage.zh:72
+SUBPAGE_MOVE_SEL; Func[int subscreenpage::SelectorMove(int, int, int)] Body Start | 4171 resources/include/bindings/subscreenpage.zh:82
+POPARGS D5 0.0004                                                               | 4172 resources/include/bindings/subscreenpage.zh:82
+RETURNFUNC; Func[int subscreenpage::SelectorMove(int, int, int)] Body End       | 4173 resources/include/bindings/subscreenpage.zh:82
+POP REFSUBSCREENPAGE; Func[void subscreenpage::Delete()] Body Start             | 4174 resources/include/bindings/subscreenpage.zh:91
+SUBPAGE_DELETE                                                                  | 4175 resources/include/bindings/subscreenpage.zh:91
+RETURNFUNC; Func[void subscreenpage::Delete()] Body End                         | 4176 resources/include/bindings/subscreenpage.zh:91
+POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4177 resources/include/bindings/subscreenwidget.zh:985
+POP REFSUBSCREENWIDG                                                            | 4178 resources/include/bindings/subscreenwidget.zh:985
+SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4179 resources/include/bindings/subscreenwidget.zh:985
+RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4180 resources/include/bindings/subscreenwidget.zh:985
+POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4181 resources/include/bindings/subscreenwidget.zh:995
+POP REFSUBSCREENWIDG                                                            | 4182 resources/include/bindings/subscreenwidget.zh:995
+SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4183 resources/include/bindings/subscreenwidget.zh:995
+RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4184 resources/include/bindings/subscreenwidget.zh:995
+POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4185 resources/include/bindings/subscreenwidget.zh:1006
+POP REFSUBSCREENWIDG                                                            | 4186 resources/include/bindings/subscreenwidget.zh:1006
+SUBWIDG_GET_LABEL D2                                                            | 4187 resources/include/bindings/subscreenwidget.zh:1006
+RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4188 resources/include/bindings/subscreenwidget.zh:1006
+POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4189 resources/include/bindings/subscreenwidget.zh:1014
+POP REFSUBSCREENWIDG                                                            | 4190 resources/include/bindings/subscreenwidget.zh:1014
+SUBWIDG_SET_LABEL D2                                                            | 4191 resources/include/bindings/subscreenwidget.zh:1014
+RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4192 resources/include/bindings/subscreenwidget.zh:1014
+POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4193 resources/include/bindings/subscreenwidget.zh:1029
+POP REFSUBSCREENWIDG                                                            | 4194 resources/include/bindings/subscreenwidget.zh:1029
+SUBWIDG_TY_GETTEXT D2                                                           | 4195 resources/include/bindings/subscreenwidget.zh:1029
+RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4196 resources/include/bindings/subscreenwidget.zh:1029
+POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4197 resources/include/bindings/subscreenwidget.zh:1040
+POP REFSUBSCREENWIDG                                                            | 4198 resources/include/bindings/subscreenwidget.zh:1040
+SUBWIDG_TY_SETTEXT D2                                                           | 4199 resources/include/bindings/subscreenwidget.zh:1040
+RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4200 resources/include/bindings/subscreenwidget.zh:1040
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4201 resources/include/bindings/subscreenwidget.zh:1048
+SUBWIDG_CHECK_CONDITIONS D2                                                     | 4202 resources/include/bindings/subscreenwidget.zh:1048
+RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4203 resources/include/bindings/subscreenwidget.zh:1048
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4204 resources/include/bindings/subscreenwidget.zh:1055
+SUBWIDG_CHECK_VISIBLE D2                                                        | 4205 resources/include/bindings/subscreenwidget.zh:1055
+RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4206 resources/include/bindings/subscreenwidget.zh:1055
+POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4207 resources/include/bindings/websocket.zh:19
+WEBSOCKET_LOAD D2                                                               | 4208 resources/include/bindings/websocket.zh:19
+RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4209 resources/include/bindings/websocket.zh:19
+POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4210 resources/include/bindings/websocket.zh:43
+POP REFWEBSOCKET                                                                | 4211 resources/include/bindings/websocket.zh:43
+WEBSOCKET_ERROR D2                                                              | 4212 resources/include/bindings/websocket.zh:43
+RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4213 resources/include/bindings/websocket.zh:43
+POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4214 resources/include/bindings/websocket.zh:52
+POP D3                                                                          | 4215 resources/include/bindings/websocket.zh:52
+POP REFWEBSOCKET                                                                | 4216 resources/include/bindings/websocket.zh:52
+WEBSOCKET_SEND D2 D3                                                            | 4217 resources/include/bindings/websocket.zh:52
+RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4218 resources/include/bindings/websocket.zh:52
+POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4219 resources/include/bindings/websocket.zh:62
+WEBSOCKET_RECEIVE D2                                                            | 4220 resources/include/bindings/websocket.zh:62
+RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4221 resources/include/bindings/websocket.zh:62
+POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4222 resources/include/bindings/websocket.zh:80
+WEBSOCKET_FREE                                                                  | 4223 resources/include/bindings/websocket.zh:80
+RETURNFUNC; Func[void websocket::Free()] Body End                               | 4224 resources/include/bindings/websocket.zh:80
+POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4225 resources/include/bindings/websocket.zh:92
+WEBSOCKET_OWN                                                                   | 4226 resources/include/bindings/websocket.zh:92
+RETURNFUNC; Func[void websocket::Own()] Body End                                | 4227 resources/include/bindings/websocket.zh:92
 
 debug data:
 
@@ -12320,48 +12326,52 @@ debug data:
       - int TransToPage @ Reg[SUBDATATRANSTOPG]
       - int TransType @ Reg[SUBDATATRANSTY]
       - const int Type @ Reg[SUBDATATYPE]
-      [FUNCTION] GetName <PC:4142-4145 IDX:888> <INTERNAL>
+      [FUNCTION] Close <PC:4156-4158 IDX:888> <INTERNAL>
+        - const subscreendata this @ Stack[0] <HIDDEN>
+      [FUNCTION] GetName <PC:4142-4145 IDX:889> <INTERNAL>
         - const subscreendata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] SetName <PC:4146-4149 IDX:889> <INTERNAL>
+      [FUNCTION] Open <PC:4153-4155 IDX:890> <INTERNAL>
+        - const subscreendata this @ Stack[0] <HIDDEN>
+      [FUNCTION] SetName <PC:4146-4149 IDX:891> <INTERNAL>
         - const subscreendata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] SwapPages <PC:4150-4152 IDX:890> <INTERNAL>
+      [FUNCTION] SwapPages <PC:4150-4152 IDX:892> <INTERNAL>
         - const subscreendata this @ Stack[2] <HIDDEN>
         - int index1 @ Stack[1]
         - int index2 @ Stack[0]
-  [FILE] resources/include/bindings/subscreenpage.zh <IDX:891>
-    [ENUM] int MoveSubscreenSelectorBitflags <IDX:892>
+  [FILE] resources/include/bindings/subscreenpage.zh <IDX:893>
+    [ENUM] int MoveSubscreenSelectorBitflags <IDX:894>
       - const MoveSubscreenSelectorBitflags SUBSEL_FLAG_NO_NONEQUIP @ Constant[10000]
       - const MoveSubscreenSelectorBitflags SUBSEL_FLAG_NEED_ITEM @ Constant[20000]
-    [CLASS] subscreenpage <IDX:893>
+    [CLASS] subscreenpage <IDX:895>
       - int CursorPos @ Reg[SUBPGCURSORPOS]
       - const int Index @ Reg[SUBPGINDEX]
       - const int NumWidgets @ Reg[SUBPGNUMWIDG]
       - const subscreendata SubData @ Reg[SUBPGSUBDATA]
       - const subscreenwidget[] Widgets @ Reg[SUBPGWIDGETS]
-      [FUNCTION] subscreenwidget CreateWidget <PC:4156-4158 IDX:894> <INTERNAL>
+      [FUNCTION] subscreenwidget CreateWidget <PC:4162-4164 IDX:896> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - int type @ Stack[0]
-      [FUNCTION] Delete <PC:4168-4170 IDX:895> <INTERNAL>
+      [FUNCTION] Delete <PC:4174-4176 IDX:897> <INTERNAL>
         - const subscreenpage this @ Stack[0] <HIDDEN>
-      [FUNCTION] subscreenwidget FindWidget <PC:4162-4164 IDX:896> <INTERNAL>
+      [FUNCTION] subscreenwidget FindWidget <PC:4168-4170 IDX:898> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - int cursor_pos @ Stack[0]
-      [FUNCTION] subscreenwidget GetWidget <PC:4153-4155 IDX:897> <INTERNAL>
+      [FUNCTION] subscreenwidget GetWidget <PC:4159-4161 IDX:899> <INTERNAL>
         - const subscreenpage this @ Stack[1] <HIDDEN>
         - char32[] label @ Stack[0]
-      [FUNCTION] int SelectorMove <PC:4165-4167 IDX:898> <INTERNAL>
+      [FUNCTION] int SelectorMove <PC:4171-4173 IDX:900> <INTERNAL>
         - const subscreenpage this @ Stack[3] <HIDDEN>
         - int cursor_pos @ Stack[2]
         - int dir @ Stack[1]
         - int flags @ Stack[0]
-      [FUNCTION] SwapWidgets <PC:4159-4161 IDX:899> <INTERNAL>
+      [FUNCTION] SwapWidgets <PC:4165-4167 IDX:901> <INTERNAL>
         - const subscreenpage this @ Stack[2] <HIDDEN>
         - int index1 @ Stack[1]
         - int index2 @ Stack[0]
-  [FILE] resources/include/bindings/subscreenwidget.zh <IDX:900>
-    [ENUM] int ConditionType <IDX:901>
+  [FILE] resources/include/bindings/subscreenwidget.zh <IDX:902>
+    [ENUM] int ConditionType <IDX:903>
       - const ConditionType CONDTY_NONE @ Constant[0]
       - const ConditionType CONDTY_EQ @ Constant[10000]
       - const ConditionType CONDTY_NEQ @ Constant[20000]
@@ -12370,14 +12380,14 @@ debug data:
       - const ConditionType CONDTY_LESS @ Constant[50000]
       - const ConditionType CONDTY_LESSEQ @ Constant[60000]
       - const ConditionType NUM_CONDTY @ Constant[70000]
-    [ENUM] int SubscreenItemButton <IDX:902>
+    [ENUM] int SubscreenItemButton <IDX:904>
       - const SubscreenItemButton ITMBTN_NONE @ Constant[-10000]
       - const SubscreenItemButton ITMBTN_A @ Constant[0]
       - const SubscreenItemButton ITMBTN_B @ Constant[10000]
       - const SubscreenItemButton ITMBTN_X @ Constant[20000]
       - const SubscreenItemButton ITMBTN_Y @ Constant[30000]
       - const SubscreenItemButton NUM_ITMBTN @ Constant[40000]
-    [CLASS] subscreenwidget <IDX:903>
+    [CLASS] subscreenwidget <IDX:905>
       - int Align @ Reg[SUBWIDGTY_ALIGN]
       - int AnimVal @ Reg[SUBWIDGTY_ANIMVAL]
       - bool[] BtnPageChange @ Reg[SUBWIDGBTNPG]
@@ -12488,187 +12498,187 @@ debug data:
       - int W @ Reg[SUBWIDGW]
       - int X @ Reg[SUBWIDGX]
       - int Y @ Reg[SUBWIDGY]
-      [FUNCTION] bool CheckConditions <PC:4195-4197 IDX:904> <INTERNAL>
+      [FUNCTION] bool CheckConditions <PC:4201-4203 IDX:906> <INTERNAL>
         - const subscreenwidget this @ Stack[0] <HIDDEN>
-      [FUNCTION] bool CheckVisible <PC:4198-4200 IDX:905> <INTERNAL>
+      [FUNCTION] bool CheckVisible <PC:4204-4206 IDX:907> <INTERNAL>
         - const subscreenwidget this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetLabel <PC:4179-4182 IDX:906> <INTERNAL>
+      [FUNCTION] GetLabel <PC:4185-4188 IDX:908> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] GetSelTextOverride <PC:4171-4174 IDX:907> <INTERNAL>
+      [FUNCTION] GetSelTextOverride <PC:4177-4180 IDX:909> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] GetText <PC:4187-4190 IDX:908> <INTERNAL>
+      [FUNCTION] GetText <PC:4193-4196 IDX:910> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] SetLabel <PC:4183-4186 IDX:909> <INTERNAL>
+      [FUNCTION] SetLabel <PC:4189-4192 IDX:911> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-      [FUNCTION] SetSelTextOverride <PC:4175-4178 IDX:910> <INTERNAL>
+      [FUNCTION] SetSelTextOverride <PC:4181-4184 IDX:912> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-      [FUNCTION] SetText <PC:4191-4194 IDX:911> <INTERNAL>
+      [FUNCTION] SetText <PC:4197-4200 IDX:913> <INTERNAL>
         - const subscreenwidget this @ Stack[1] <HIDDEN>
         - char32[] str @ Stack[0]
-  [FILE] resources/include/bindings/text.zh <IDX:912>
+  [FILE] resources/include/bindings/text.zh <IDX:914>
     - const Text Text @ Constant[0]
-    [CLASS] Text <IDX:913>
-      [FUNCTION] int CharHeight <PC:2432-2435 IDX:914> <INTERNAL>
+    [CLASS] Text <IDX:915>
+      [FUNCTION] int CharHeight <PC:2432-2435 IDX:916> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32 c @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int CharWidth <PC:2424-2427 IDX:915> <INTERNAL>
+      [FUNCTION] int CharWidth <PC:2424-2427 IDX:917> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32 c @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int FontHeight <PC:2436-2438 IDX:916> <INTERNAL>
+      [FUNCTION] int FontHeight <PC:2436-2438 IDX:918> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int font @ Stack[0]
-      [FUNCTION] int MessageHeight <PC:2442-2444 IDX:917> <INTERNAL>
+      [FUNCTION] int MessageHeight <PC:2442-2444 IDX:919> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int msg @ Stack[0]
-      [FUNCTION] int MessageWidth <PC:2439-2441 IDX:918> <INTERNAL>
+      [FUNCTION] int MessageWidth <PC:2439-2441 IDX:920> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int msg @ Stack[0]
-      [FUNCTION] int StringHeight <PC:2428-2431 IDX:919> <INTERNAL>
+      [FUNCTION] int StringHeight <PC:2428-2431 IDX:921> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] s @ Stack[1]
         - int font @ Stack[0]
-      [FUNCTION] int StringWidth <PC:2420-2423 IDX:920> <INTERNAL>
+      [FUNCTION] int StringWidth <PC:2420-2423 IDX:922> <INTERNAL>
         - const Text this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] s @ Stack[1]
         - int font @ Stack[0]
-  [FILE] resources/include/bindings/viewport.zh <IDX:921>
+  [FILE] resources/include/bindings/viewport.zh <IDX:923>
     - const Viewport Viewport @ Constant[0]
-    [ENUM] int ViewportMode <IDX:922>
+    [ENUM] int ViewportMode <IDX:924>
       - const ViewportMode VIEW_MODE_CENTER_AND_BOUND @ Constant[0]
       - const ViewportMode VIEW_MODE_CENTER @ Constant[1]
       - const ViewportMode VIEW_MODE_SCRIPT @ Constant[2]
-    [CLASS] Viewport <IDX:923>
+    [CLASS] Viewport <IDX:925>
       - const int Height @ Reg[VIEWPORT_HEIGHT]
       - ViewportMode Mode @ Reg[VIEWPORT_MODE]
       - sprite Target @ Reg[VIEWPORT_TARGET]
       - const int Width @ Reg[VIEWPORT_WIDTH]
       - int X @ Reg[VIEWPORT_X]
       - int Y @ Reg[VIEWPORT_Y]
-  [FILE] resources/include/bindings/websocket.zh <IDX:924>
-    [ENUM] int WebsocketState <IDX:925>
+  [FILE] resources/include/bindings/websocket.zh <IDX:926>
+    [ENUM] int WebsocketState <IDX:927>
       - const WebsocketState WEBSOCKET_STATE_CONNECTING @ Constant[0]
       - const WebsocketState WEBSOCKET_STATE_OPEN @ Constant[1]
       - const WebsocketState WEBSOCKET_STATE_CLOSING @ Constant[2]
       - const WebsocketState WEBSOCKET_STATE_CLOSED @ Constant[3]
-    [ENUM] int WebsocketType <IDX:926>
+    [ENUM] int WebsocketType <IDX:928>
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_TEXT @ Constant[1]
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_BINARY @ Constant[2]
-    [CLASS] websocket <IDX:927>
+    [CLASS] websocket <IDX:929>
       - const bool HasMessage @ Reg[WEBSOCKET_HAS_MESSAGE]
       - const WebsocketType MessageType @ Reg[WEBSOCKET_MESSAGE_TYPE]
       - const WebsocketState State @ Reg[WEBSOCKET_STATE]
       - const char32[] URL @ Reg[WEBSOCKET_URL]
-      [FUNCTION] websocket websocket <PC:4201-4203 IDX:928> <INTERNAL>
+      [FUNCTION] websocket websocket <PC:4207-4209 IDX:930> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] url @ Stack[0]
-      [FUNCTION] Free <PC:4216-4218 IDX:929> <INTERNAL> <DEPRECATED>
+      [FUNCTION] Free <PC:4222-4224 IDX:931> <INTERNAL> <DEPRECATED>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetError <PC:4204-4207 IDX:930> <INTERNAL>
+      [FUNCTION] GetError <PC:4210-4213 IDX:932> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] Own <PC:4219-4221 IDX:931> <INTERNAL>
+      [FUNCTION] Own <PC:4225-4227 IDX:933> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] untyped[] Receive <PC:4213-4215 IDX:932> <INTERNAL>
+      [FUNCTION] untyped[] Receive <PC:4219-4221 IDX:934> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] Send <PC:4208-4212 IDX:933> <INTERNAL>
+      [FUNCTION] Send <PC:4214-4218 IDX:935> <INTERNAL>
         - const websocket this @ Stack[2] <HIDDEN>
         - char32[] buf @ Stack[1]
         - WebsocketType type @ Stack[0]
-  [FILE] resources/include/bindings/zinfo.zh <IDX:934>
+  [FILE] resources/include/bindings/zinfo.zh <IDX:936>
     - const ZInfo Module @ Constant[0]
     - const ZInfo ZInfo @ Constant[0]
-    [CLASS] ZInfo <IDX:935>
-      [FUNCTION] GetItemType <PC:2118-2121 IDX:936> <INTERNAL>
+    [CLASS] ZInfo <IDX:937>
+      [FUNCTION] GetItemType <PC:2118-2121 IDX:938> <INTERNAL>
         - const ZInfo this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] buffer @ Stack[1]
         - int itemclass_id @ Stack[0]
-  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:937>
+  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:939>
     - const int CONST_GLOBAL_VAR @ Constant[10000]
     - bool GLOBAL_BOOL @ Global[7]
     - int GLOBAL_VAR @ Global[6]
     - int GLOBAL_VAR_NEVER_SHADOWED @ Global[5]
-    [ENUM] int Enum <IDX:938>
+    [ENUM] int Enum <IDX:940>
       - const Enum Enum_A @ Constant[0]
       - const Enum Enum_B @ Constant[10000]
-    [NAMESPACE] A <IDX:994>
+    [NAMESPACE] A <IDX:996>
       - int A_var @ Global[9]
       - int GLOBAL_VAR @ Global[8]
       - CL cl @ Global[14]
-      [NAMESPACE] B <IDX:995>
+      [NAMESPACE] B <IDX:997>
         - int B_var @ Global[10]
-        [FUNCTION] B_fn <PC:890-914 IDX:996>
-          [BLOCK] <PC:900-911 IDX:997>
+        [FUNCTION] B_fn <PC:890-914 IDX:998>
+          [BLOCK] <PC:900-911 IDX:999>
             - int GLOBAL_VAR @ Stack[0]
-      [CLASS] CL <IDX:998>
+      [CLASS] CL <IDX:1000>
         - int A_var @ ClassField[0]
         - int[] arr @ ClassField[2]
         - untyped[] arr_untyped @ ClassField[3]
         - CL this_ptr @ ClassField[1]
-        [FUNCTION] CL CL <PC:998-1079 IDX:999>
+        [FUNCTION] CL CL <PC:998-1079 IDX:1001>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1006-1071 IDX:1000>
+          [BLOCK] <PC:1006-1071 IDX:1002>
             - CL ptr @ Stack[1]
             - DataBag d @ Stack[0]
-        [FUNCTION] ~CL <PC:1080-1091 IDX:1001>
+        [FUNCTION] ~CL <PC:1080-1091 IDX:1003>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1083-1089 IDX:1002>
+          [BLOCK] <PC:1083-1089 IDX:1004>
             - int a @ Stack[0]
-        [FUNCTION] int getVar <PC:1106-1110 IDX:1003>
+        [FUNCTION] int getVar <PC:1106-1110 IDX:1005>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] trace <PC:1092-1105 IDX:1004>
+        [FUNCTION] trace <PC:1092-1105 IDX:1006>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [CLASS] DataBag <IDX:1005>
+      [CLASS] DataBag <IDX:1007>
         - int var1 @ ClassField[0]
         - int var2 @ ClassField[1]
-        [FUNCTION] DataBag DataBag <PC:915-929 IDX:1006>
+        [FUNCTION] DataBag DataBag <PC:915-929 IDX:1008>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] dosomething <PC:930-952 IDX:1007>
+        [FUNCTION] dosomething <PC:930-952 IDX:1009>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:933-949 IDX:1008>
+          [BLOCK] <PC:933-949 IDX:1010>
             - int v1 @ Stack[1]
             - int v2 @ Stack[0]
-        [FUNCTION] int sum <PC:953-997 IDX:1009>
+        [FUNCTION] int sum <PC:953-997 IDX:1011>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
           - int a @ Stack[3]
           - int[] rest @ Stack[2] <VARARG>
-          [BLOCK] <PC:958-994 IDX:1010>
+          [BLOCK] <PC:958-994 IDX:1012>
             - int sum @ Stack[1]
-            [BLOCK] <PC:968-992 IDX:1011>
+            [BLOCK] <PC:968-992 IDX:1013>
               - int i @ Stack[0]
-      [FUNCTION] A_fn <PC:881-889 IDX:1012>
+      [FUNCTION] A_fn <PC:881-889 IDX:1014>
         - int GLOBAL_VAR @ Stack[0]
-      [FUNCTION] int DebugAddOne <PC:876-880 IDX:1013>
+      [FUNCTION] int DebugAddOne <PC:876-880 IDX:1015>
         - int a @ Stack[0]
-      [FUNCTION] trace <PC:1111-1117 IDX:1014>
-    [NAMESPACE] D <IDX:1015>
+      [FUNCTION] trace <PC:1111-1117 IDX:1016>
+    [NAMESPACE] D <IDX:1017>
       - int D_var @ Global[11]
-    [CLASS] DebugClassDefaultCtor <IDX:1016>
+    [CLASS] DebugClassDefaultCtor <IDX:1018>
       - int data @ ClassField[0]
-      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1570-1581 IDX:1017>
+      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1570-1581 IDX:1019>
         - const DebugClassDefaultCtor this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] scopes <IDX:1018>
-      [FUNCTION] run <PC:628-791 IDX:1019>
+    [SCRIPT] scopes <IDX:1020>
+      [FUNCTION] run <PC:628-791 IDX:1021>
         - const genericdata this @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1307-1311 IDX:1020>
+    [FUNCTION] int DebugAdd <PC:1307-1311 IDX:1022>
       - int a @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1312-1319 IDX:1021>
+    [FUNCTION] int DebugAdd <PC:1312-1319 IDX:1023>
       - int a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1320-1328 IDX:1022>
+    [FUNCTION] int DebugAdd <PC:1320-1328 IDX:1024>
       - int a @ Stack[1]
       - long b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1329-1337 IDX:1023>
+    [FUNCTION] int DebugAdd <PC:1329-1337 IDX:1025>
       - long a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] DebugArrays <PC:1346-1434 IDX:1024>
-      [BLOCK] <PC:1348-1424 IDX:1025>
+    [FUNCTION] DebugArrays <PC:1346-1434 IDX:1026>
+      [BLOCK] <PC:1348-1424 IDX:1027>
         - const bitmap b @ Stack[7]
         - int[] arr1 @ Stack[6]
         - int[] arr2 @ Stack[5]
@@ -12677,96 +12687,96 @@ debug data:
         - CL[] arr5 @ Stack[2]
         - untyped[] arr6 @ Stack[1]
         - const int[] arr7 @ Stack[0]
-    [FUNCTION] int DebugFrames1 <PC:1509-1533 IDX:1026>
+    [FUNCTION] int DebugFrames1 <PC:1509-1533 IDX:1028>
       - int a @ Stack[3]
       - int b @ Stack[2]
-      [BLOCK] <PC:1511-1532 IDX:1027>
+      [BLOCK] <PC:1511-1532 IDX:1029>
         - int c @ Stack[1]
         - int d @ Stack[0]
-    [FUNCTION] int DebugFrames2 <PC:1534-1544 IDX:1028>
+    [FUNCTION] int DebugFrames2 <PC:1534-1544 IDX:1030>
       - int a @ Stack[2]
       - int b @ Stack[1]
-      [BLOCK] <PC:1536-1543 IDX:1029>
+      [BLOCK] <PC:1536-1543 IDX:1031>
         - int c @ Stack[0]
-    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1545-1549 IDX:1030>
-    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1550-1556 IDX:1031>
-    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1582-1618 IDX:1032>
-      [BLOCK] <PC:1584-1614 IDX:1033>
+    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1545-1549 IDX:1032>
+    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1550-1556 IDX:1033>
+    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1582-1618 IDX:1034>
+      [BLOCK] <PC:1584-1614 IDX:1035>
         - DebugClassDefaultCtor c @ Stack[1]
         - untyped[] a @ Stack[0]
-    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1619-1633 IDX:1034>
+    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1619-1633 IDX:1036>
       - untyped[] c @ Stack[0]
-    [FUNCTION] DebugFunctionInfiniteLoop <PC:1557-1569 IDX:1035>
+    [FUNCTION] DebugFunctionInfiniteLoop <PC:1557-1569 IDX:1037>
       - bool forever @ Stack[0]
-    [FUNCTION] int DebugFunctionVarargs <PC:1634-1668 IDX:1036>
+    [FUNCTION] int DebugFunctionVarargs <PC:1634-1668 IDX:1038>
       - int first @ Stack[3]
       - int[] rest @ Stack[2] <VARARG>
-      [BLOCK] <PC:1638-1666 IDX:1037>
+      [BLOCK] <PC:1638-1666 IDX:1039>
         - int sum @ Stack[1]
-        [BLOCK] <PC:1640-1664 IDX:1038>
+        [BLOCK] <PC:1640-1664 IDX:1040>
           - int i @ Stack[0]
-    [FUNCTION] DebugInternalObjects <PC:1435-1508 IDX:1039>
-      [BLOCK] <PC:1437-1505 IDX:1040>
+    [FUNCTION] DebugInternalObjects <PC:1435-1508 IDX:1041>
+      [BLOCK] <PC:1437-1505 IDX:1042>
         - const ffc f @ Stack[2]
         - const npc n @ Stack[1]
         - const bitmap b @ Stack[0]
-    [FUNCTION] DebugPrintCL <PC:1338-1345 IDX:1041>
+    [FUNCTION] DebugPrintCL <PC:1338-1345 IDX:1043>
       - const CL cl @ Stack[0]
-    [FUNCTION] do_fn <PC:1245-1263 IDX:1042>
-      [BLOCK] <PC:1247-1261 IDX:1043>
+    [FUNCTION] do_fn <PC:1245-1263 IDX:1044>
+      [BLOCK] <PC:1247-1261 IDX:1045>
         - int i @ Stack[1]
-        [BLOCK] <PC:1248-1254 IDX:1044>
+        [BLOCK] <PC:1248-1254 IDX:1046>
           - int j @ Stack[0]
-    [FUNCTION] Enum enum_fn <PC:1221-1224 IDX:1045>
+    [FUNCTION] Enum enum_fn <PC:1221-1224 IDX:1047>
       - const Enum e @ Stack[0]
-    [FUNCTION] has_constant <PC:1125-1129 IDX:1046>
-      [BLOCK] <PC:1127-1127 IDX:1047>
+    [FUNCTION] has_constant <PC:1125-1129 IDX:1048>
+      [BLOCK] <PC:1127-1127 IDX:1049>
         - const int constant_int @ Constant[10000]
-    [FUNCTION] long_fn <PC:1216-1220 IDX:1048>
+    [FUNCTION] long_fn <PC:1216-1220 IDX:1050>
       - long a @ Stack[0]
-    [FUNCTION] loop_fn <PC:1225-1244 IDX:1049>
-      [BLOCK] <PC:1227-1239 IDX:1050>
+    [FUNCTION] loop_fn <PC:1225-1244 IDX:1051>
+      [BLOCK] <PC:1227-1239 IDX:1052>
         - int i @ Stack[0]
-      [BLOCK] <PC:1240-1242 IDX:1051>
+      [BLOCK] <PC:1240-1242 IDX:1053>
         - int x @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1052>
+      [BLOCK] <PC:0-0 IDX:1054>
         - int y @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1053>
+      [BLOCK] <PC:0-0 IDX:1055>
         - int z @ Stack[0]
-    [FUNCTION] num_fn <PC:1211-1215 IDX:1054>
+    [FUNCTION] num_fn <PC:1211-1215 IDX:1056>
       - int a @ Stack[0]
-    [FUNCTION] num_fn <PC:1206-1210 IDX:1055>
+    [FUNCTION] num_fn <PC:1206-1210 IDX:1057>
       - long a @ Stack[0]
-    [FUNCTION] range_loop_fn <PC:1264-1306 IDX:1056>
-      [BLOCK] <PC:1266-1303 IDX:1057>
+    [FUNCTION] range_loop_fn <PC:1264-1306 IDX:1058>
+      [BLOCK] <PC:1266-1303 IDX:1059>
         - int[] arr @ Stack[4]
-        [BLOCK] <PC:1271-1295 IDX:1058>
+        [BLOCK] <PC:1271-1295 IDX:1060>
           - int __LOOP_ITER @ Stack[3] <HIDDEN>
           - int[] __LOOP_ARR @ Stack[2] <HIDDEN>
           - int x @ Stack[1]
-          [BLOCK] <PC:1284-1294 IDX:1059>
+          [BLOCK] <PC:1284-1294 IDX:1061>
             - int y @ Stack[0]
-        [BLOCK] <PC:1296-1302 IDX:1060>
+        [BLOCK] <PC:1296-1302 IDX:1062>
           - int z @ Stack[3]
-    [FUNCTION] template_fn <PC:1157-1187 IDX:1061>
+    [FUNCTION] template_fn <PC:1157-1187 IDX:1063>
       - char32[] val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1161-1183 IDX:1062>
+      [BLOCK] <PC:1161-1183 IDX:1064>
         - char32[][][] double_arr @ Stack[0]
-    [FUNCTION] template_fn <PC:1130-1156 IDX:1063>
+    [FUNCTION] template_fn <PC:1130-1156 IDX:1065>
       - int val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1132-1153 IDX:1064>
+      [BLOCK] <PC:1132-1153 IDX:1066>
         - int[][] double_arr @ Stack[0]
-    [FUNCTION] trace_all <PC:1188-1197 IDX:1065>
+    [FUNCTION] trace_all <PC:1188-1197 IDX:1067>
       - int a @ Stack[1]
       - int[] b @ Stack[0] <VARARG>
-    [FUNCTION] trace_all_2 <PC:1198-1205 IDX:1066>
+    [FUNCTION] trace_all_2 <PC:1198-1205 IDX:1068>
       - int[] a @ Stack[0] <VARARG>
-    [FUNCTION] using_namespace_statement <PC:1118-1124 IDX:1067>
-      [BLOCK] <PC:1119-1123 IDX:1068>
-  [FILE] resources/include/std.zh <IDX:939>
-  [FILE] resources/include/std_zh/std.cfg <IDX:940>
+    [FUNCTION] using_namespace_statement <PC:1118-1124 IDX:1069>
+      [BLOCK] <PC:1119-1123 IDX:1070>
+  [FILE] resources/include/std.zh <IDX:941>
+  [FILE] resources/include/std_zh/std.cfg <IDX:942>
     - const int MAX_HIGHEST_LEVEL_ITEM_CHECK @ Constant[2550000]
     - const int MAX_NOACTION_INPUT @ Constant[140000]
     - const int NOACTION_SKIP_MAP @ Constant[0]
@@ -12780,12 +12790,12 @@ debug data:
     - const int STD_EMULATE_ENGINE_COLLISION @ Constant[0]
     - const int STD_FORCE_OLD_DISTANCE @ Constant[10000]
     - const int STD_NEVER_USE_SAFESQRT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_extension.zh <IDX:941>
-  [FILE] resources/include/std_zh/std_functions.zh <IDX:942>
-    [NAMESPACE] std <IDX:953>
-    [FUNCTION] bool Above <PC:2470-2484 IDX:954>
+  [FILE] resources/include/std_zh/std_extension.zh <IDX:943>
+  [FILE] resources/include/std_zh/std_functions.zh <IDX:944>
+    [NAMESPACE] std <IDX:955>
+    [FUNCTION] bool Above <PC:2470-2484 IDX:956>
       - sprite s @ Stack[0]
-  [FILE] resources/include/std_zh/std_constants.zh <IDX:943>
+  [FILE] resources/include/std_zh/std_constants.zh <IDX:945>
     - const int BIT_INTBTN_A @ Constant[10000]
     - const int BIT_INTBTN_B @ Constant[20000]
     - const int BIT_INTBTN_EX1 @ Constant[160000]
@@ -13096,7 +13106,7 @@ debug data:
     - const int SUBSCREEN_BOTTOM @ Constant[-10000]
     - const int SUBSCREEN_TOP @ Constant[-560000]
     - const int TERMINAL_VELOCITY @ Constant[32000]
-    [ENUM] int AimType <IDX:944>
+    [ENUM] int AimType <IDX:946>
       - const AimType AT_NONE @ Constant[0]
       - const AimType AT_4DIR @ Constant[10000]
       - const AimType AT_8DIR @ Constant[20000]
@@ -13104,7 +13114,7 @@ debug data:
       - const AimType AT_RAND4DIR @ Constant[40000]
       - const AimType AT_RAND8DIR @ Constant[50000]
       - const AimType AT_RANDANGULAR @ Constant[60000]
-    [ENUM] int Dir2 <IDX:945>
+    [ENUM] int Dir2 <IDX:947>
       - const Dir2 DIR2_UP @ Constant[80000]
       - const Dir2 DIR2_RIGHTUP @ Constant[90000]
       - const Dir2 DIR2_RIGHT @ Constant[100000]
@@ -13117,7 +13127,7 @@ debug data:
       - const Dir2 DIR2_DOWNRIGHT @ Constant[110000]
       - const Dir2 DIR2_DOWNLEFT @ Constant[130000]
       - const Dir2 DIR2_UPLEFT @ Constant[150000]
-    [ENUM] int DitherType <IDX:946>
+    [ENUM] int DitherType <IDX:948>
       - const DitherType DITH_CHECKER @ Constant[0]
       - const DitherType DITH_CHECKER_INV @ Constant[10000]
       - const DitherType DITH_CRISS_CROSS @ Constant[20000]
@@ -13147,17 +13157,17 @@ debug data:
       - const DitherType DITH_DOTS4 @ Constant[260000]
       - const DitherType DITH_DOTS4_INV @ Constant[270000]
       - const DitherType DITH_MAX @ Constant[280000]
-    [ENUM] int HeroMoveFlag <IDX:947>
+    [ENUM] int HeroMoveFlag <IDX:949>
       - const HeroMoveFlag HEROMV_OBEYS_GRAVITY @ Constant[0]
       - const HeroMoveFlag HEROMV_CAN_PITFALL @ Constant[10000]
       - const HeroMoveFlag HEROMV_NO_FAKE_Z @ Constant[80000]
       - const HeroMoveFlag HEROMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int ItemspriteMoveFlag <IDX:948>
+    [ENUM] int ItemspriteMoveFlag <IDX:950>
       - const ItemspriteMoveFlag ITEMMV_OBEYS_GRAVITY @ Constant[0]
       - const ItemspriteMoveFlag ITEMMV_CAN_PITFALL @ Constant[10000]
       - const ItemspriteMoveFlag ITEMMV_NO_FAKE_Z @ Constant[80000]
       - const ItemspriteMoveFlag ITEMMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int NPCMoveFlag <IDX:949>
+    [ENUM] int NPCMoveFlag <IDX:951>
       - const NPCMoveFlag NPCMV_OBEYS_GRAVITY @ Constant[0]
       - const NPCMoveFlag NPCMV_CAN_PITFALL @ Constant[10000]
       - const NPCMoveFlag NPCMV_CAN_PIT_WALK @ Constant[20000]
@@ -13174,12 +13184,12 @@ debug data:
       - const NPCMoveFlag NPCMV_IGNORE_SCREENEDGE @ Constant[130000]
       - const NPCMoveFlag NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE @ Constant[140000]
       - const NPCMoveFlag NPCMV_NOT_PUSHABLE_BY_SOLIDS @ Constant[150000]
-    [ENUM] int WeaponMoveFlag <IDX:950>
+    [ENUM] int WeaponMoveFlag <IDX:952>
       - const WeaponMoveFlag WPNMV_OBEYS_GRAVITY @ Constant[0]
       - const WeaponMoveFlag WPNMV_CAN_PITFALL @ Constant[10000]
       - const WeaponMoveFlag WPNMV_NO_FAKE_Z @ Constant[80000]
       - const WeaponMoveFlag WPNMV_NO_REAL_Z @ Constant[90000]
-  [FILE] resources/include/std_zh/limits.zh <IDX:951>
+  [FILE] resources/include/std_zh/limits.zh <IDX:953>
     - const int BYTE_MAX @ Constant[2550000]
     - const int BYTE_MIN @ Constant[0]
     - const int CHAR_MAX @ Constant[1270000]
@@ -13206,7 +13216,7 @@ debug data:
     - const int USHRT_MIN @ Constant[0]
     - const int WORD_MAX @ Constant[655350000]
     - const int WORD_MIN @ Constant[0]
-  [FILE] resources/include/std_zh/script_runners.zh <IDX:952>
+  [FILE] resources/include/std_zh/script_runners.zh <IDX:954>
     - const int FFCS_INVISIBLE_COMBO @ Constant[10000]
     - const int FFCS_MAX_FFC @ Reg[MAX_FFC_ID]
     - const int FFCS_MIN_FFC @ Constant[10000]
@@ -13222,18 +13232,18 @@ debug data:
     - const int MIN_ITEMSPRITESCRIPT @ Constant[10000]
     - const int MIN_LWEAPONSCRIPT @ Constant[10000]
     - const int MIN_NPCSCRIPT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_time.zh <IDX:955>
-    [NAMESPACE] time <IDX:956>
+  [FILE] resources/include/std_zh/std_time.zh <IDX:957>
+    [NAMESPACE] time <IDX:958>
       - const int FRAMES_PER_SECOND @ Constant[600000]
       - const int MINUTES_PER_HOUR @ Constant[600000]
       - const int SECONDS_PER_MINUTE @ Constant[600000]
       - const long TIME_FRAME @ Constant[1]
-  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:957>
-    [NAMESPACE] GhostBasedMovement <IDX:958>
-  [FILE] resources/include/std_zh/std_sideview.zh <IDX:959>
+  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:959>
+    [NAMESPACE] GhostBasedMovement <IDX:960>
+  [FILE] resources/include/std_zh/std_sideview.zh <IDX:961>
     - const bool ONSIDEVIEWPLATFORM_CHECK_OBJ_WIDTH @ Constant[10000]
     - const int ONSIDEVIEWPLATFORM_OVERHANG_DEPTH @ Constant[40000]
-  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:960>
+  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:962>
     - const char32 CHAR_0 @ Constant[480000]
     - const char32 CHAR_0_SUPER @ Constant[1860000]
     - const char32 CHAR_1 @ Constant[490000]
@@ -13524,8 +13534,8 @@ debug data:
     - const int MF_PTR @ Constant[50000]
     - const int MF_STRING @ Constant[10000]
     - const char32 MSGC_LINEFEED @ Constant[100000]
-  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:961>
-  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:962>
+  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:963>
+  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:964>
     - const char32 CHAR_ARROW_D @ Constant[-5120000]
     - const char32 CHAR_ARROW_L @ Constant[-2560000]
     - const char32 CHAR_ARROW_R @ Constant[-10240000]
@@ -13546,64 +13556,64 @@ debug data:
     - const int KEYBOARD_REPEAT_RATE @ Constant[60000]
     - const int KEYBOARD_TYPE @ Constant[0]
     - const int ___KEY_TIMER @ Constant[2550000]
-  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:963>
-    [NAMESPACE] Test <IDX:964>
+  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:965>
+    [NAMESPACE] Test <IDX:966>
       - const int TestingDmap @ Constant[50000]
-      [FUNCTION] Assert <PC:2716-2729 IDX:965>
+      [FUNCTION] Assert <PC:2716-2729 IDX:967>
         - CL actual @ Stack[0]
-      [FUNCTION] Assert <PC:2702-2715 IDX:966>
+      [FUNCTION] Assert <PC:2702-2715 IDX:968>
         - Thing[] actual @ Stack[0]
-      [FUNCTION] Assert <PC:2688-2701 IDX:967>
+      [FUNCTION] Assert <PC:2688-2701 IDX:969>
         - bitmap actual @ Stack[0]
-      [FUNCTION] Assert <PC:2677-2687 IDX:968>
+      [FUNCTION] Assert <PC:2677-2687 IDX:970>
         - npc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2666-2676 IDX:969>
+      [FUNCTION] Assert <PC:2666-2676 IDX:971>
         - ffc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2655-2665 IDX:970>
+      [FUNCTION] Assert <PC:2655-2665 IDX:972>
         - int actual @ Stack[0]
-      [FUNCTION] Assert <PC:2644-2654 IDX:971>
+      [FUNCTION] Assert <PC:2644-2654 IDX:973>
         - bool actual @ Stack[0]
-      [FUNCTION] Assert <PC:2759-2771 IDX:972>
+      [FUNCTION] Assert <PC:2759-2771 IDX:974>
         - untyped actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2743-2758 IDX:973>
+      [FUNCTION] Assert <PC:2743-2758 IDX:975>
         - Thing actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2730-2742 IDX:974>
+      [FUNCTION] Assert <PC:2730-2742 IDX:976>
         - bool actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2514-2535 IDX:975>
+      [FUNCTION] AssertEqual <PC:2514-2535 IDX:977>
         - int actual @ Stack[1]
         - int expected @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2617-2643 IDX:976>
+      [FUNCTION] AssertEqual <PC:2617-2643 IDX:978>
         - long actual @ Stack[2]
         - long expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2590-2616 IDX:977>
+      [FUNCTION] AssertEqual <PC:2590-2616 IDX:979>
         - untyped actual @ Stack[2]
         - untyped expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2563-2589 IDX:978>
+      [FUNCTION] AssertEqual <PC:2563-2589 IDX:980>
         - bool actual @ Stack[2]
         - bool expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2536-2562 IDX:979>
+      [FUNCTION] AssertEqual <PC:2536-2562 IDX:981>
         - int actual @ Stack[2]
         - int expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] End <PC:2507-2513 IDX:980>
-      [FUNCTION] Fail <PC:2772-2796 IDX:981>
+      [FUNCTION] End <PC:2507-2513 IDX:982>
+      [FUNCTION] Fail <PC:2772-2796 IDX:983>
         - char32[] error @ Stack[0]
-      [FUNCTION] Init <PC:2485-2506 IDX:982>
+      [FUNCTION] Init <PC:2485-2506 IDX:984>
         - int screen @ Stack[0]
-    [SCRIPT] TestRunner <IDX:983>
-      [FUNCTION] run <PC:37-89 IDX:984>
+    [SCRIPT] TestRunner <IDX:985>
+      [FUNCTION] run <PC:37-89 IDX:986>
         - const dmapdata this @ Stack[3]
-        [BLOCK] <PC:40-88 IDX:985>
+        [BLOCK] <PC:40-88 IDX:987>
           - char32[] name @ Stack[2]
           - int script_id @ Stack[1]
           - genericdata gd @ Stack[0]
-  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:986>
+  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:988>
     - Thing globalThing @ Global[12]
     - Thing[] globalThings @ Global[15]
     - untyped[] globalUntypedThings @ Global[16]
@@ -13613,25 +13623,25 @@ debug data:
     - Thing[] thingsNotGlobalized @ Global[17]
     - int untypedThingGlobalized @ Global[2]
     - int untypedThingNotGlobalized @ Global[3]
-    [CLASS] Counter <IDX:987>
+    [CLASS] Counter <IDX:989>
       - int field @ ClassField[0]
-      [FUNCTION] Counter Counter <PC:2458-2469 IDX:988>
+      [FUNCTION] Counter Counter <PC:2458-2469 IDX:990>
         - const Counter this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [CLASS] Thing <IDX:989>
+    [CLASS] Thing <IDX:991>
       - bitmap a_bitmap @ ClassField[1]
       - Counter not_globalized @ ClassField[2]
       - Thing otherThing @ ClassField[0]
       - Counter[] someCounters @ ClassField[3]
-      [FUNCTION] Thing Thing <PC:2445-2457 IDX:990>
+      [FUNCTION] Thing Thing <PC:2445-2457 IDX:992>
         - const Thing this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] global_objects <IDX:991>
-      [FUNCTION] run <PC:90-627 IDX:992>
+    [SCRIPT] global_objects <IDX:993>
+      [FUNCTION] run <PC:90-627 IDX:994>
         - const genericdata this @ Stack[2]
-        [BLOCK] <PC:93-626 IDX:993>
+        [BLOCK] <PC:93-626 IDX:995>
           - bool firstTime @ Stack[1]
           - Thing thing @ Stack[0]
-  [SCRIPT] ~Init <IDX:1069>
-    [FUNCTION] run <PC:0-36 IDX:1070>
+  [SCRIPT] ~Init <IDX:1071>
+    [FUNCTION] run <PC:0-36 IDX:1072>
 
 Types:
 

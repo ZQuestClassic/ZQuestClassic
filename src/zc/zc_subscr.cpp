@@ -55,20 +55,25 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 	}
 }
 
-void run_active_subscript(bool waitdraw)
+bool run_active_subscript(bool waitdraw)
 {
-	if (new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
+	if (new_subscreen_active && new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE)))
 	{
-		ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, sstACTIVE);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, sstACTIVE);
+		if (ret == RUNSCRIPT_SELFDELETE)
+			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE) = false;
 	}
 	if (new_subscreen_map && new_subscreen_map->script && FFCore.doscript(ScriptType::EngineSubscreen, sstMAP)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP)))
 	{
-		ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->script, sstMAP);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->script, sstMAP);
+		if (ret == RUNSCRIPT_SELFDELETE)
+			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP) = false;
 	}
+	return false;
 }
 void dosubscr()
 {
@@ -149,7 +154,10 @@ void dosubscr()
 	subscrpg_clear_animation();
 	subscreen_open = true;
 	current_subscr_pos = sspSCROLLING;
-	for(int32_t y = -distance; y <= 0; y += 3*Hero.subscr_speed)
+	bool force_exit = false;
+	bool done = false;
+	int y;
+	for(y = -distance; y <= 0 && !force_exit; y += 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -157,10 +165,12 @@ void dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		run_active_subscript(false);
+		if (!force_exit)
+			force_exit = run_active_subscript(false);
 		do_dcounters();
 		Hero.refill();
-		run_active_subscript(true);
+		if (!force_exit)
+			force_exit = run_active_subscript(true);
 		//fill in the screen with black to prevent the hall of mirrors effect
 		clear_to_color(framebuf, BLACK);
 
@@ -186,7 +196,6 @@ void dosubscr()
 	}
 	active_sub_yoff = -playing_field_offset;
 	current_subscr_pos = sspDOWN;
-	bool done=false;
 
 	// Consume whatever input was registered during opening animation.
 	if (replay_version_check(18))
@@ -201,16 +210,17 @@ void dosubscr()
 		legacy_btn_press_peek |= qst == "hell_awaits.qst";
 	}
 
-	do
+	while (!done && !force_exit)
 	{
 		if (replay_version_check(0, 11))
 			load_control_state();
 		if(replay_version_check(19))
 			script_drawing_commands.Clear();
-		run_active_subscript(false);
+		if (!force_exit)
+			force_exit = run_active_subscript(false);
 		auto pgnum = CURRENT_ACTIVE_SUBSCREEN->curpage;
 		auto& pg = CURRENT_ACTIVE_SUBSCREEN->cur_page();
-		bool can_btn = !subscr_pg_animating;
+		bool can_btn = !subscr_pg_animating && !force_exit;
 		if(can_btn)
 		{
 			byte btn_press = getIntBtnInput(0xFF, INPUT_PRESS | (legacy_btn_press_peek ? INPUT_PEEK : 0));
@@ -477,7 +487,8 @@ void dosubscr()
 		do_dcounters();
 		Hero.refill();
 		
-		run_active_subscript(true);
+		if (!force_exit)
+			force_exit = run_active_subscript(true);
 
 		clear_to_color(framebuf, BLACK);
 
@@ -506,10 +517,10 @@ void dosubscr()
 		if(can_btn && (getInput(btnS, INPUT_PRESS) || ((map_subscreen_open || get_qr(qr_MAP_BUTTON_CLOSES_SUBSCREEN)) && getInput(btnP, INPUT_PRESS))))
 			done=true;
 	}
-	while(!done);
+	
 	subscrpg_clear_animation();
 	current_subscr_pos = sspSCROLLING;
-	for(int32_t y = 0; y >= -distance; y -= 3*Hero.subscr_speed)
+	for(y = zc_min(y, 0); y >= -distance; y -= 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
 		{
@@ -517,10 +528,12 @@ void dosubscr()
 			script_drawing_commands.Clear();
 		}
 		active_sub_yoff = y-playing_field_offset;
-		run_active_subscript(false);
+		if (!force_exit)
+			force_exit = run_active_subscript(false);
 		do_dcounters();
 		Hero.refill();
-		run_active_subscript(true);
+		if (!force_exit)
+			force_exit = run_active_subscript(true);
 		//fill in the screen with black to prevent the hall of mirrors effect
 		clear_to_color(framebuf, BLACK);
 		
