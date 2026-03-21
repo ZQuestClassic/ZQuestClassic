@@ -597,6 +597,32 @@ set(core_sources
 	src/core/misctypes.cpp
 	src/core/msgstr.cpp
 	src/core/qrs.cpp
+	src/core/qst_advmusic.cpp
+	src/core/qst_cheats.cpp
+	src/core/qst_colors.cpp
+	src/core/qst_comboaliases.cpp
+	src/core/qst_combos.cpp
+	src/core/qst_csets.cpp
+	src/core/qst_dmaps.cpp
+	src/core/qst_doors.cpp
+	src/core/qst_favorites.cpp
+	src/core/qst_ffscript.cpp
+	src/core/qst_guys.cpp
+	src/core/qst_header.cpp
+	src/core/qst_herosprites.cpp
+	src/core/qst_icons.cpp
+	src/core/qst_initdata.cpp
+	src/core/qst_itemdropsets.cpp
+	src/core/qst_items.cpp
+	src/core/qst_maps.cpp
+	src/core/qst_midis.cpp
+	src/core/qst_misc.cpp
+	src/core/qst_rules.cpp
+	src/core/qst_sfx.cpp
+	src/core/qst_strings.cpp
+	src/core/qst_subscreen.cpp
+	src/core/qst_tiles.cpp
+	src/core/qst_weapons.cpp
 	src/core/qst.cpp
 	src/core/weapon_data.cpp
 	src/core/zdefs.cpp

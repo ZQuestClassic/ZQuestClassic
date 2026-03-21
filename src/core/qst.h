@@ -136,7 +136,6 @@ PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool v
 
 void clear_combo(int32_t i);
 void clear_combos();
-void pack_combos();
 void fix_maps(mapscr *buf,int32_t cnt);
 
 extern void(*reset_scripts_hook)();
@@ -154,9 +153,6 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
 	bool report = true, byte qst_num = 0, dword tileset_flags = 0);
 
-char *byte_conversion(int32_t number, int32_t format);
-char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
-
 bool valid_zqt(PACKFILE *f);
 bool valid_zqt(const char *filename);
 bool reset_mapstyles(miscQdata *Misc);
@@ -164,6 +160,7 @@ bool reset_items(bool validate, zquestheader *Header);
 bool reset_guys();
 bool reset_wpns(bool validate, zquestheader *Header);
 bool init_tiles(bool validate, zquestheader *Header);
+bool init_tiles_for_190(bool validate, zquestheader *Header);
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc);
 bool init_combos(bool validate, zquestheader *Header);
 
@@ -180,7 +177,6 @@ enum
 };
 bool check_keyfiles(char const* path, vector<uint> types, zquestheader* Header);
 
-void update_guy_1(guydata *tempguy);
 void initMsgStr(MsgStr *str);
 void init_msgstrings(int32_t start, int32_t end);
 
@@ -201,6 +197,8 @@ int32_t readitems(PACKFILE *f, word version, word build);
 int32_t read_single_spritedata(PACKFILE *f, zquestheader *Header, word s_version, word index);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);
 int32_t readguys(PACKFILE *f, zquestheader *Header);
+int32_t readherosprites(PACKFILE *f, zquestheader *Header);
+int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites);
 int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind = -1, bool keep_music = false);
 int32_t readmaps(PACKFILE *f, zquestheader *Header);
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos);
@@ -211,29 +209,25 @@ int32_t readmidis(PACKFILE *f, zquestheader *Header, zctune *tunes);
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
 int32_t readinitdata(PACKFILE *f, zquestheader *Header);
 int32_t readffscript(PACKFILE *f, zquestheader *Header);
-int32_t read_quest_zasm(PACKFILE *f, word s_version);
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, script_data *script, word zmeta_version);
-int32_t read_old_ffscript(PACKFILE *f, word s_version, script_data *script, word zmeta_version);
 int32_t readsfx(PACKFILE *f, zquestheader *Header);
-int32_t readitemdropsets(PACKFILE *f, word version);
+int32_t readitemdropsets(PACKFILE *f, int32_t version);
 int32_t readfavorites(PACKFILE *f, int32_t);
+int32_t read_adv_music(PACKFILE *f);
 
 int32_t readsubscreens(PACKFILE *f);
-int32_t read_old_subscreens(PACKFILE *f, word s_version);
 int32_t read_one_old_subscreen(PACKFILE* f, subscreen_group* g, word s_version);
+
+int32_t read_weap_data(weapon_data& data, PACKFILE* f);
 
 void init_msgstr(MsgStr *str);
 
 int32_t get_version_and_build(PACKFILE *f, word *version, word *build);
 bool find_section(PACKFILE *f, int32_t section_id_requested);
 
-void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int32_t setupsubscreens();
 void setupsfx();
 void reset_itembuf(itemdata *item, int32_t id);
-void reset_itemname(int32_t id);
-void reset_weaponname(int32_t i);
 void init_guys(int32_t guyversion);
 void init_item_drop_sets();
 void init_favorites();
