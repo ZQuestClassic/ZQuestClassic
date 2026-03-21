@@ -73,6 +73,7 @@ word_replacements = {
     # keep lowercase
     r'\beweapon\b': 'eweapon',
     r'\blweapon\b': 'lweapon',
+    r'\bzfix\b': 'zfix',
 }
 
 # Pre-compile the regex patterns once.
@@ -849,6 +850,9 @@ if args.generate_cherrypicks:
     shas = re.findall(r'cherry picked from commit ([a-zA-Z0-9]+)', output)
     commits_cherry_picked = []
     for sha in shas:
+        if sha in shas_seen:
+            continue
+
         shas_seen.append(sha)
         commits_cherry_picked.append((sha, get_subject(sha)))
 

@@ -10,6 +10,15 @@ subject dabe7c091b89fa2e09217dfb63c652184b78f65e feat(vscode): create VS Code ex
 subject 6ecf0775afeac108bb4f806b76f9c1835c0a98d1 feat(vscode): update vscode extension keywords
 subject d82a0d8458b3029283385db04f1d935fd0dbce48 misc: add 'std_zh' scope to changelog generation
 subject f7228536ad55c2fb4bb20d00bba8b8c06d7e67c2 feat(std_zh): add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
+subject 20e5b2415ba90cb1f172e408d1703b8ffa1ee800 eweapon Rocks no longer hardcoded to die on solids
+subject 742115e11333df188997ce1dcf962246d1047d36 Use correct .sav path for -standalone mode
+subject 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): Upgrade sprite data list dialog
+subject c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): Clean up `Quest->Audio->MIDIs` lister
+subject ec60344a6bbe40e152d15bd316d35c0426da1315 fix(zscript): Make `npcdata->Flags` a bool array, remove `->Flags2`
+subject 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: Update door selector to zcgui
+subject e5cf4d4dab7aa57e7d0d91e7eecfa03ae604349d feat(zq): Add descriptive labels and dropdowns to walker type attributes in enemy editor
+subject d253cbb843b7652810c69b3e9d7044c1c136fef2 refactor(zscript): optimize sections of zasm that are run only for their side-effects
+
 drop 165b42156443f963f41ce0f5a68638010ff7c137 feat: setting for overlay subscreens to hide during message strings
 
 squash 2571479f44d6a99c06e097e7c6a34378d4e14e28 refactor(launcher): remove title option
@@ -17,7 +26,7 @@ squash 17e56f1410dc0bd04183ba13eda55e4892979b7f fix(zc): put title.mid back in z
 squash d6878d6d2a7cffa96ba3090ac29c7b2f5bf758d7 refactor(zc): remove title option from menu
 squash dcd117a1a9d4c9aefd653f5a56f090ad231d394e misc(zc): remove unused title/logo assets from classic_zelda.dat
 squash bcfd8bbf59023ddc0ca8db77b260dadd6e8504b3 refactor(zq): remove defunct -notitle switch from quest packager
-pick e4640ab770d6aae79df2a2748646edd8d6fb63ac refactor(zc): remove title screen
+pick e4640ab770d6aae79df2a2748646edd8d6fb63ac refactor(zc): Remove the original Zelda title screen
 
 drop 93953beea071045757d2d7b69b053149b3e2fc21 chore: fix last commit
 drop 3d944ba6532d7fb96ed6eb6e78463c71add6775e build: fix windows build
@@ -45,9 +54,38 @@ reword 88d94ba3c1917b36a3801e2d93a00f5f80554ec4 feat(zq): -smart-assign CLI swit
 Example usage: ./zeditor.exe -smart-assign your_quest.qst
 =end
 
-reword 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): show bottom 8 pixels by default for most quests made prior to 2.55.9
+subject 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): Show bottom 8 pixels by default for most quests made prior to 2.55.9
+subject cf2769fe95ae01ba07d2a028c803e284fdecc6a8 feat(zscript): Arrays now are separately typed from non-arrays
 
-# obsoluted
+drop ca846de53dca7814a112b604d34bc4f9df721a06 fix(zq): Update cambria tileset
+drop 6406f4745d9317efa80d8fafce24b3ba84c3cae1 fix(zq): update Cambria tileset
+drop 99fedb984d3bbb1b2e49bdd968e873712e78285d fix(zq)<: Update cambria tileset
+
+# ! trigger examples
+
+drop 4a50b8a0167d41f5425e6a8cf233d3a99b9cba4e misc: update `quests/examples/trigger_example.qst`
+drop 73f5b12e58e684cc1c066729639f981506524210 misc: update `trigger_example.qst`
+pick 2e886e3e1473be779843e5055d3a723c7d7ba88b feat(zq): Add `quests/examples/trigger_example.qst`
+
+# ! don't hide
+reword 1b4fd9b5077b6970da14f11fe594f9edfa7e8674 fix(zc): armos/graves not activating properly from Large Hitbox player
+=end
+
+drop 8ec6c7c39922b3f8f348d893b697783776ff9f4d fix(zscript): prevent var declaration having wrong flags in ASTDataDecl
+drop 39098a4a1dca13bf5d7dd467d72016a50975c73d fix(zc)!: handle older replays in replay_get_zc_version_created
+drop 236e4bc8396602c1101a7cb5c0b0bc1262b0122f fix(zq): screen enemy list dialog constantly resetting focus
+drop d82e808320a33d6daa957231866383c23122118b fix(zq): item advanced paste not pasting item name properly
+drop ab9ad2fc84b5ba56b2cac094ef962fba063057ad fix: prevent rare crash when destroying null midi
+drop 209b276703b4418fef1f33f2c01142e392497aeb fix(zq): "Follow Warp" not respecting dmap xoffset
+drop 7ff9ca9c9621ba566062020ae358bb4d2763dd70 fix(zscript): improve unsafe code in STARTDESTRUCTOR/ZCLASS_MARK_TYPE commands
+drop 8fdcbfe65c1c911de2d445d13fb5d2dac8b37053 fix(zq): typo in epilepsy qr helptext
+drop 842d2a0bcb0eafde8550c6a36ce658a53657043b fix(zq): layer dialog not marking quest as "needing to be saved"
+drop 44df6116058a4acfd3910e9bdcb208c618b1add0 fix: save menus not stopping sfx before opening (ex. ocean sounds)
+drop f7a7e2a825ae5927a7ed3cb8b64c945da49b77de feat(web): add zasm output to zscript playground
+drop 3ea93b743739fb402ff4c3524d61d74e74bd596d misc(zscript): re-number zasm comment numberings
+drop 0faa3c2b6d1e1aa3aed7a9012edc7a2f5143d3fa feat(zc): remove dead ZASM
+
+# ! obsoluted
 drop 4be7097b035eff3e44a75370f25a9587f2d5b28b refactor(zscript): upgrade to jitted script without stalling game
 
 # ! various fixes of bugs only introduced in 3.0 prerelease builds
@@ -73,17 +111,37 @@ drop 8a3f7b5de7d814cdd8598fb3d8a9e72682f5e153 fix(zscript): internal label error
 drop dc424156c65998ec48c39d83768815c01d90331e docs(zscript): clean up docs for some global functions
 drop fafa5cba970453584766fcf419ef03fdf7e87cd0 fix: prevent rare crash related to loading fake weapon script
 
-reword 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): upgrade sprite data list dialog
-reword c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): clean up `Quest->Audio->MIDIs` lister
-reword 35c95f6cc8bdaf374cfef3bf06a4370e573a9cae refactor(zq)!: update door selector to zcgui
-
 drop 14267e6b6fd29a990b66438ed35ccb9e79d9ce74 feat: subscreen minimap compass can point to boss instead of McGuffin
 drop 9a75c5452b9837bf6ac84a0441728e9e513ff422 build: upgrade sentry to 0.9.0
 
+drop d00a94dfb186dd0fb49d9cf68d6776cfca482ed3 build: update websocketpp to newer develop branch
+drop ae375c53032c4ce491c70330d44c83ee138e3f1e fix(zscript): websocket pool being destroyed on 'cont_game()'
+drop 764e539e0fb340d2e231448ee74ae5f9b5c852d1 refactor(zscript): document, clean up, and sanity check websocket stuff
+drop ce2f07d9c5a535ca67fc935c114494f0f4f3734d refactor(zscript): document, clean up, and sanity check websocket stuff
+drop 83df3a67bcf48288e64b429dcc2be5627301e01f fix(zscript): websocket double-deleting their arrays, doing extra alloc/dealloc work
+drop 32996be02bd5d7eee2de4b86de266d00487b1692 fix(zscript): crash in UserDataContainer, broken `websocket->Free()`
+drop f98c49c6966990aa76cb43a0f993634caa17fe19 fix(zc): websockets reading wrong pointer
+drop a2801b774c7ec896b83cd0a623ef4aafca9952df build: fix websocket cmake project from breaking CMAKE_CONFIGURATION_TYPES
+drop 26c78ebec25fcaab7db36521f0e4f3a894e9a8a0 fix(zscript): '@AlwaysRunEndpoint("off")' erroring despite being valid
+drop 5c0ac01fe97010564142b34f3ce68351a191ade4 fix(zq): Rename `Under Combo` -> `Undercombo` in many places for consistency
+drop a12dbe335c222b47601737b9e9b06051c35fa2f1 docs(zscript): update webdocs
+drop f17fa5f6a1b5eae327e003b0e44bef0aac767c83 docs(zscript): use .. version*:: admonitions for '@version' docs
+drop 33effdbf0d5b560b1758767ea27d246f6cdb4475 docs(zscript): add examples using `Screen->DrawOrigin`
+drop 52d0aa35ad1087803e2250ed80d7ebf3a88ebdf5 misc(zc): temporarily disable compare zasm opt as I improve in a branch
+
+# ! vs code extension
+
+drop 5526c1ddc2511e64f9e97452606af15fd1f80986 misc(vscode): publish 1.0.8
+drop c58661f071c6b6e0f09ceb4dc13cc667371401f4 misc(vscode): publish 1.0.9
+drop 790dc584ff36aac6390de58d79410ae2bc85c307 misc(vscode): publish 1.0.10
+drop 23981d26c925e8ca6affd213e60fec46754a39c6 misc(vscode): publish 1.0.11
+drop 87e68c33c1b34fe8970415c8be595edea9b78545 misc(vscode): publish 1.0.12
+
 # ! reverted
 drop 636cd693ebcc1cbec50ced5af8ece8be31f04f64 fix(zc): only grab one held item at a time
+drop 1a1bd37ac769db838a390e88b6fef03288576b01 fix: changer ffcs counting for trigger groups and similar effects (they shouldn't)
 
-reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: add many new SCCs
+reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: Add many new SCCs
 - CollectItem
 - Delay
 - ForceDelay
@@ -106,3 +164,17 @@ reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: add many new SCCs
 
 See https://docs.zquestclassic.com/tutorials/message_strings for details.
 =end
+
+# ! drop CI stuff
+
+drop 1a8cbf99daded2c578e1163a853831e0e92bbb9b ci: reset cache for web builds
+drop 16ce632d59cc0e38f7ee2e6a397ddbb95a56a2c1 ci: for web tests, build for RelWithDebInfo
+drop c0e0151c499e52c41af50a84f2c517971a1ddc4b ci: include coverage for all apps, not just zplayer
+drop 75da202d66b1f3d3e1ad37ca44a6374756ad0a6e ci: bump build cache so 2.55 branch doesn't conflict
+drop 2ebfaeffcf7b3118ba7e2efa6c17d6d127ac49ea ci: set correct test results folder for web replays for upload
+drop 15b7ff4aa5da3829107662191d7444126e4040e8 ci: get database update cron working again
+drop ec499225b80237aeeaa055ab0043e5229577c69b ci: fix type in download-artifact v4 action
+drop e272d0914fd05db5944f2477cff73d66c33f8804 ci: fix another typo in download-artifact v4 action
+drop bfd9daa06a00e56f506e14ed67087d3ffc9f90c1 ci: set test results folder names for jit/non-jit replay runs
+drop bbb53680f956136f2c1417b4b1d5aff042ccd58b ci: fix replay report generation for forks
+drop 12b1fa6541c20cea165e22259cb10d142721013d ci: upgrade to python 3.12.8

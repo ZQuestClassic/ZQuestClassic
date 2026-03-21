@@ -396,11 +396,11 @@ zc: Skip slow combo movement modification when nothing would change
 zc: Do not poll music in timer
   We poll music often enough via `advanceframe`
 
-zc: remove title screen
+zc: Remove the original Zelda title screen
 
   Relevant changes:
     fix(zc): put title.mid back in zelda.dat, since it is available to quests
-    refactor(zc): remove title screen
+    refactor(zc): Remove the original Zelda title screen
     refactor(zc): remove title option from menu
     refactor(zq): remove defunct -notitle switch from quest packager
     refactor(launcher): remove title option

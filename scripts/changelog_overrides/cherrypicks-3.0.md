@@ -2,6 +2,139 @@
 # ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release
 
 # ! cherry-pick -x
+drop cc4edaa409a2f8308bd7257fd1e1bbf8f374af22 fix(zq)!: minor visual error on undercombo dialog
+drop 3a56e7b463ffc03aac85ebd153b227e661a6dd0d fix(zq): Under Combo dialog broken for layers
+drop d620bffe6ece125dd605f55d7f082d4d02a15736 refactor!: clean up undercombo dialog re: feedback
+drop e000276dbfb43a94dd9244aecded50ca698e23d8 fix(zscript): itemdata Counter fields not allowing new counter values
+drop 2ee1726963ec0832baf5fd1eb820028d89074372 feat(zscript)!: CheckItemDataScript() added to script_runners.zh
+drop 6e0a660b90cc2d0518a6743e8c412cee5488d9d4 fix(zscript): bad bool checks for `Audio->PlaySoundEx()` and `Graphics->MonochromeHue()`
+drop 6b301ea7c02888625a1a13cfe09aae6c4dfe8e9f fix: prevent grid widget from possibly hanging CPU
+drop 71cb846df27f8ba17f81c3e08076d2aa9ccb1727 refactor(zc): speed up loading replays by 20x
+drop bde0eb9cf36d80ef7e564f56984e3a96effaee93 fix(std_zh): rename misleading parameter for `NumNPCsOf`
+drop 725a5ad988a8c61cb5e3413ddecccd43867a5ffa fix(zc): combo triggers triggering themselves extra times
+drop 7845e3dc991cdaa22dfc689090aa12b6fa3381b8 fix(zc): 'copycat' trigger sometimes triggering the same combo again instantly
+drop 0ebc138a73becdc2770fb52b59881a806a54a418 fix(zc): cores of some enemy types not issuing generic script death events
+drop 0f840cbbf84399356efa42334d198495b6cc344f fix(zc): lweapon wind getting confused if more than 1 onscreen
+drop 0fe5e82d9f358e25f098bdd828a59af96226aaa2 fix(zscript): DrawTile wraps around better
+drop deb71789b822e4383ad2e6bde6beec732a4f279f fix(zscript): DrawCombo's "frame" parameter being useless.
+drop 88b3affaba3f7cee22a76eba16919d2547ef5576 fix(zscript): bad weapon ID bounds check
+drop 5d9fd83954f25f585a59b7bbf9185d5012c1b2d3 fix(zq): scc editor using wrong value for 'goto string' dropdowns
+drop 055eb40f5ce92c4a7ff9f87fc270eabeaa4e7867 fix(zc): Combo triggers killing bombs explodes them instead of deleting them
+drop 3d72aeb3b4143d50ded3224aeb2dc9c308620da6 fix(zc): 'Break On Solid/Landing' and 'Timeout' explode bombs instead of deleting them
+drop 958e860169d711b92ca248e59ee44567efaac2dd fix(zc): `Disabled In Sideview Water` not working on some item types
+drop 1e3d7979c8cb9089f14e912bf91eefd0aa7a218a fix(zq): total subscreens not properly bounded
+drop 34cb4445760872198843f982bddbb7c767a28837 fix(zq): subscreen pages improperly using 256 as max widgets in some places
+drop daeb06947bb776c65d0755b52e28922ec7ad48ae docs: specify the "instant" SCC warp effect first does blackout
+drop 3c580ff152f6cd3ae26cbe478732954ff5492e99 fix(zc): resolve multiple out-of-bounds enemy ID accesses
+drop 650c15dbc856540d31a2e99eb735100f876306ed build!: upgrade pillow
+drop 395694f7533585db38a0f06ed267e5e46dc76639 build!: check CURL_FOUND in vcpkg ASAN install code
+drop a97e0e04b9a6b58cf32c746c3178b8750b0c43be fix(zscript): don't repeat division
+drop 2b1c25bf5ade59dfa27739083582d227c847fd82 fix: load music using case insensitive file lookup
+drop c7aeff37225189976ac70ca550825240e3bd6ef7 fix(zq): 'Browse Notes' breaking gui on large notes
+drop eeb9d19c20ae3e4acd1d335e84dd6852a8c3b5c0 feat(zq): implicitly add `<qst dir>/scripts` to include paths
+drop e96bb6d2b51bd1502571cd10c69ad66fa8a5caaf feat(zc): add option to manually upload single replay file
+drop b19952433d4becbdd3a2e4e3564037f273289fea fix(zc): always cancel charging when scrolling
+drop af43997f31e61fb3b55f69912dd55e6a378f36ab fix(zc): control dialog crash
+drop d51e1fe955eaa54c30bcfbe31f617bc1f90e2085 fix(zq): do not clear selected screen when File>New is opened
+drop 0e011269b52e94e0c1b01145a9e24f8f11dd38a2 fix(zc): reset cursor after canceling new file
+drop 8207a3d9dd776474ea4767f79362ab2a6c29492e test!: print more details if test_compile_and_quick_assign fails
+drop 4523cbe918b8cf1fa3e4908c166f93799df38940 fix(zq): 'Move' using bad tile count for weapon sprites' tile usage
+drop 482de35f3dca045c658d21709bdfafb321fd9dd1 fix(zc): DCounter[] not working for counters >= 32 (the new custom counters)
+drop 82138fc9e1bf15e93dcf4b3debb805a316d030c4 fix(std_zh): DCounterAdd() changing MCounter[] instead of DCounter[]
+drop c19417f8de653c608f9a956c08efcc7f57aae9d7 fix: remove visual delay when click+dragging on a list
+drop faf3d98f3abce59a57a46e8df56967696a7f1b79 fix(zc): control scheme using wrong value for quest-specific scheme
+drop f0cefef6e2c115e2f5c6093cae396da55c938525 fix: gui label wrapping
+drop b5742a28ca8556f3b51ece4a24b12f82ecda17fc fix(zscript): Screen->Quad() being unable to use tiles >65519
+drop b206711b434bad50d1d48555e1bfdaf03ddb88e4 fix(zc): save combos using the wrong attribyte for magic restore percentage
+drop 8d5bc6d1d15de654fa36bef4effe250c0080296e misc(std_zh): add `std_time.zh`
+drop 6ee80982727bed815cb0a7abaf3d41800ab5da41 fix(zc)!: enemy script movement functions wrongly over-accounting for screen edges
+drop 9991720a057f575c73857ddc4cf4a32195f556ca fix(zc)!: pushed torches not shining
+drop 903fa8f01d9d89d7da144d515553b155f8fcd4a0 fix(zc): long control scheme names breaking control scheme dialog
+drop 2f83017a834a4a276572cfdbf9185061a8cf6c70 fix(zc): control schemes not loading properly from config file
+drop aa36d60846f59ff115d88358da6a240c8f523bae fix(zc): use configured `Halt Duration`, `Acceleration Factor` for peahats
+drop ac62fac65dac972a28c845284de0b0b8c63721e8 fix(zq): dmap import/export
+drop e9b624e4a05343b279b9923bbea171ad8666d8c5 fix(zc): 'Menu' gamepad button not activating the menu
+drop 157e0bbff4be3085c1920312c3c39e0288fc6805 feat(zc): multiple control schemes
+drop 02c727d155833ec92db824fc52c90986cf9b508f feat(zq): upgrade Under Combo dialog
+drop 878a40f5e5d24699878f165f7ad0cb1eff019c50 misc!: add 'Rows_Columns<w,h>' and 'Columns_Rows<h,w>' GUI arrangements
+drop 389db9babddf911b6166746f1bca2d894e6bdd13 fix: allegro5 render layers having uninitialized transforms
+drop 1f927eee9346a62482769c071b29b04c98521211 feat!: add dialog for inputing text
+drop 29bce6e28fb9ade52e51cd6e03dc679e40470f27 misc: add allegro 5 config handler
+drop b4cbbe59bf2092a6a25ce2260b20e584743a62df fix(zq)!: flickering in tile grab dialog
+drop e62ca0b5db3dfa81ba3c8cb7e52bf2997f34ec77 fix(zc)!: active subscreen extra 8 pixels not drawing during page transitions
+drop 0daddbc1c4159379fbd187c02df9d628237c842b fix: missing 8 pixels in active subscreen
+drop 95049068db02f0f952b5977f346ee868ee5562a3 feat(std_zh): add a few functions
+drop 046b4dd8e6904b1253bf2b8fede4113ccce1a5c4 fix(zscript): printf/sprintf '%f' improperly ending in `.` instead of `.0` for integers
+drop 34b374fe49c86e3a8ee25b99f22fecaa2a2c6c7f fix(zc): Whistle defense not respecting 'Ignore' behavior
+drop f5d68bffe21546380c74259344a19951f02830d8 fix(zc): player being able to be hit by certain damage sources while falling down a pitfall
+drop 7db5d04d09b439b09aced54a3ef5a888f618726b fix(zc): bombs falling into pits not near them when exploding
+drop 725e1bc8656a2b3cb9249f1f1c3447de352c8d33 feat(zq): smart autosave
+drop fd1eb34689eb3930560f984f97f6c6416d1a1a2e feat(zq): rclicking the map/screen shortcut bookmarks now clears them back to 1:00
+drop 761d86407533716f3269530111aa835eea178019 fix(zc): Active shields and Passive Button Roc Items not running scripts
+drop 9b1fb83345f253315c5c0f52aeab332f2ec57b5a fix(web)!: fix app hanging when waiting for mouse release
+drop b611476073e2658b13e3604f1c6650425fb61794 fix(zq): lag in tile/combo/alias/etc pages dialogs
+drop 92971ff29d1c2f93ad08e74bd63b2876cf3d25a9 fix(zq): remove frame of lag when opening tiles dialog
+drop 965be1beb592ebd66402286bd400d3d2ae88c705 fix(zq): some textfields being hard to type in due to default digit count
+drop 7fc36dad9563386363aaadc49fe55ff073022b07 fix: improve keyboard driver
+drop cc585b7311b0d1adca0b53bba0ec8cbbc7212aac misc!: fix run_zc_command
+drop 9d2c8c1fbabc44e679a7461032e226806a40cc81 refactor(zc): stop printing include paths in zplayer
+drop 0fd788e5d308637544985121ba5273a90b5f2ff9 refactor!: log all al_trace output to stdout (except on windows)
+drop 69818cb88c88040357be0bcc10fb302aa8522cd8 fix(zc): properly load files saved as .QST
+drop 2ba36cbe31d01ffb629e646b3c06ea1d845e60c6 refactor!: log error reason when failing to open file
+drop 81ace29ed6fea609833e26b68989568ae764b5c9 fix: build with pulseaudio support, fixes sound in many Linux distros
+drop c08528030415af165b195eccf303db1d7f9f94f6 fix(zq): prevent rare crash in subscreen Counter Block wizard
+drop bbf82a97d08212d08543ea3ce5d57e6a3d53fc36 fix(zscript): for x64 jit, check CPU supports SSE4.1
+drop 8b074adb32f888e66fd58e89a0ecaa9178ac328f ci!: pin cmake to 3.31.10
+drop d16ecce9a921b196971ad0396a4217730e542910 fix: [win] correctly position drive selector in file dialog
+drop 3087de2aebd6adabfbf441b67af3323c18d005c0 build!: fix ASAN under windows (bug in allegro)
+drop 4bc18457b2e12561625f427136ffcda01b7a01fe fix(web): resolve issues with non-US standard keyboard layouts
+drop 60a009e685d2962bf5e43747124193abf458e462 build!: fix mac packaging randomly failing when making dmg
+drop 5c3bd9e337b190f7bb8666b29e3642bdf1af0cbc build!: fix ASAN on windows
+drop d4ee0a67b710af0da4cbd136db3dc559be51bb73 build: update nativefiledialog
+drop 8ddff9fe228bd74889b58a988bf43eed2c4d89b0 build: vendor libpng
+drop 04e27954d82beef9a13ad362efc34260dd8bc22f build: vendor zlib
+drop df5cba6f37eb2e930657cdda65872796a1f047d2 build: upgrade allegro
+drop aea6a1803842de514c91fcc1fcc054d049eaaaf3 build!: improve allegro5 cmake targets
+drop 7edeafd15d5e51c0139ecf65ab2c55c390434065 refactor: enable allegro DEBUGMODE in debug builds
+drop 27d0518933e59170e44e5ea034cf9c35c2974e06 build!: fix some probably invalid cmake when configuring allegro build
+drop 83426603a510c7c6b84a21b1a8c4c5747d5375a8 build!: do not include third-party build-only artifacts in package
+drop 28c6e77a332dc347c8e37c5ffc3d6cc53c3a038c build!: fix sentry sometimes not linking statically
+drop 81615e24549a054e56ebd9bdf4cf357a8d02cbe0 build!: add EXCLUDE_FROM_ALL for third_party installs
+drop db5bc5aff60f4854356fceb40b8dae29027bde33 build!: move fmt lib to third_party cmake
+drop 0c5429eff4a794ced969851e741a1dfe8bf1afb5 build: switch to libjpeg_turbo
+drop 6478776720aaeb8cc5c4181b9ba06c5bc352eb96 build: vendor libdumb and link statically
+drop ab0dff78482754cb0107269878331a00ac640996 fix!: prevent program sometimes not changing to correct folder at startup
+drop 6383509d5efe9d281c4104d7acf6e30b952d7cdf build!: improve packaging, lean on CMake more
+drop da66fdfdf90023d5af9cbe10144afada1d98425d fix(zq): correctly show cset/combo type for selected layer
+drop 8ad909177b81aa4b20a2808a059fba11fd5e7cfd feat(zq): subscreen editor option for "Duplicate In-Place"
+drop f917ce713e57b42a089ae6fb48138b859cf07c4e fix(zc): "respawning" to another screen using wrong dmap's xoffset
+drop 307f0a02d37de87976a3f74f9b27bdd0776826be fix: scrolling ui panes sometimes blanking out contents
+drop f9ffce1e1a825520eaa16f22d85f42eef45baaf6 feat(zq): add 'Open Combo Page' to on-screen rclick menus
+drop 3181551a2a35aa2ad08643752e1a1cbdcb6c6efc feat(zq): added 'Combo Pools' / 'Auto Combos' to 'Quest->Graphics' menu
+drop 3503f983761d56fb4d99ddf68f295024003babbd feat(zq): improve map view with mouse zoom/drag
+drop 16771d9f472f3c4c5bade3c1062e0ddfb2bf040f refactor!: use vsnprintf instead of uvszprintf for text rendering
+drop d0cb70c4282ddda47cc56e932ef9fa430d43a1c1 refactor!: cache bitmap used in overtile16_scale
+drop 0d65146a87204469f214a919644e92366a0e0d1f fix(zc): getting stuck on solid FFCs w/ new movement disabled
+drop 1709eef089d76dbd107d196f6a2ccc035d136c50 refactor!: speed up overtile8
+drop 0fd5749b7e623cb25690e05bca6c150208ba6266 refactor!: speed up drawtile16_cs2
+drop 2cfde45796f607c5559d3ab7e0f91a8d0097e3af refactor!: speed up puttile16
+drop a70962ee3a2a621c81bb73447159158e94c7db59 refactor!: simplify overtile16
+drop afc3b2ca086bdb951ee3c2495ab93e6e201a9394 refactor!: speed up draw_tile16_unified
+drop 414723096c66a79d9211f840991e16952c4bd131 refactor: speed up bitmap rendering by removing branch
+drop 25e73ab2d438ec7c34cb7ab0f4cad7be427b8462 fix(zq)!: enemy defense list missing 'Switch w/ Player'
+drop e3ca3d9c71431d40a2f1a53ef25cd9fce2a83c8e fix(zc): draw transparency correctly during death
+drop d5a68c0bdc92ce8efcc9ae2e9b00f5cc47b1a968 fix(zq): quest report `Save` button not working
+drop 9986555628663b15817df70091c74be25ebc7b87 fix(zc): only force grab one held-up item at a time
+drop 8e2f18926124fa081732b677036463ca1b699f41 fix(zq): String list '-->' not appearing when it should
+drop e9dfa8509220a44f7efdf70444f05f32dd3d9ad1 fix(zc): hookshot wedging the player into walls sometimes.
+drop 05c8afe1fb3f26529f1e096f96deecefaa560302 fix(zscript): prevent crash when using empty string with some file functions
+drop 3271a7f75df4283f8de6d1ba3f123ab2346521c5 fix(zscript): prevent crash in `Game->GetItem()`
+drop bf5ce3c9820874e058d309477b8cb298608b312e fix(zscript): support changing BS-Zelda animation, many scrolling related QRs
+drop 94f6dd1380cf9d475a40913b96161d0901346f7a fix(zc)!: lift glove action script clearing owned script objects after first frame
+drop f8b829b1b0bd4c71be512d42bd5122bdccd443c6 feat(zq): new boxes to enter timed warp time in minutes/seconds
+drop a2f17868061fd87f4c2eb53a9c00932eef865661 ci!: update to macos-15-intel
+drop 08a6a91a3385e3f55c429bb623e752880edac441 fix(zc)!: drowning despite walk-through-walls being enabled
+drop d774e014fe74a9522f7eee15a9b25556605cbca0 test!: add --root_replays_folder to run_replay_tests.py
 drop 2546414377dbcfa429747ee1c8480041ad35abd8 fix(zc): allow background to be transparent in active subscreens
 drop cf7b17d3ee599790db2d72c64c5d5c96a3637998 fix(zscript): load initial screen before onSaveLoad global script
 drop 408947a3c6b5f5b3635e886d43be9893c8fd817d feat(zscript): log error when GetPixel input is out-of-bounds
@@ -592,6 +725,7 @@ drop c47b6f2dbbb4e7a510c7cf1fc7f4fc3d16e44da3 feat: include The Deep quest in re
 drop 9dfd04a559b316734ef871c88e18739d9a2b2b88 misc!: add 2.55.9 changelog
 drop af1586ae0987360a7cffe8897c47c8c6425411ae fix(zc)!: remove incorrect ASSERT for whistle item with no sound
 drop ab62458e24bbc374c4c6a271728cb82012a5869f chore!: add 2.55.10 changelog
+drop 6020153e20556e077a62dfc3c0234d6defa7da2a misc!: add 2.55.12 changelog
 
 # ! same subject
 drop 58abb5008f1c0c3c7b7177818e9967afbd84ba99 fix(zscript): properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
