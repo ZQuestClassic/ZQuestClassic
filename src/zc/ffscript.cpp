@@ -27741,9 +27741,9 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
 					int p2 = SH::read_stack(ri->sp+0) / 10000;
 					if(unsigned(p1) >= pg->size())
-						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p1);
+						Z_scripterrlog("Invalid first widget index '%d' passed to subscreenpage->SwapWidgets()\n", p1);
 					else if(unsigned(p2) >= pg->size())
-						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p2);
+						Z_scripterrlog("Invalid second widget index '%d' passed to subscreenpage->SwapWidgets()\n", p2);
 					else pg->swap_widg(p1,p2);
 				}
 				break;
