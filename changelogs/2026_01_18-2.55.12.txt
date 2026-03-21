@@ -11,7 +11,7 @@ zc: multiple control schemes
 
 zq: new boxes to enter timed warp time in minutes/seconds
 zq: improve map view with mouse zoom/drag
-zq: added 'Combo Pools' / 'Auto Combos' to 'Quest->Graphics' menu
+zq: added 'Combo Pools' / 'Auto Combos' to `Quest->Graphics` menu
 zq: add 'Open Combo Page' to screen right-click menu
 zq: subscreen editor option for "Duplicate In-Place"
   If enabled, duplicating a widget will place the new one at the same x,y
@@ -36,7 +36,7 @@ scrolling ui panes sometimes blanking out contents
 build with PulseAudio support; fixes sound in many Linux distros
 improve keyboard driver
 missing 8 pixels in active subscreen
-  compat qr for old behavior
+  compat QR for old behavior
 
 allegro5 render layers having uninitialized transforms
 zc: prevent drowning when walk-through-walls cheat is enabled
@@ -60,7 +60,7 @@ zc: draw transparency correctly during death
   darker than they should.
 
 zc: getting stuck on solid FFCs w/ new movement disabled
-zc: "respawning" to another screen using wrong dmap's xoffset
+zc: "respawning" to another screen using wrong DMap's xoffset
 zc: properly load files saved as .QST
   The qst file selector when creating a save was always making the file
   extension lowercased. On Windows and Mac that doesn't matter because the
@@ -87,7 +87,7 @@ zq: don't incorrectly show '-->' in the String list
 
 zq: quest report `Save` button not working
 zq: enemy defense list missing 'Switch w/ Player'
-zq: correctly show cset/combo type for selected layer
+zq: correctly show CSet/combo type for selected layer
   The "Show CSets/Types" feature is meant to only show the currently
   selected layer, but instead it was showing the highest layer (except for
   when "Show Flags" was also enabled, which prevented the bug).
@@ -111,14 +111,14 @@ zq: skip timed autosave when there are no changes
   just like normal saves. This prevents the window from popping up
   repeatedly when the editor is idle.
 
-zq: dmap import/export
+zq: DMap import/export
 std_zh: update ghost.zh to use 128 ffcs instead of 32
 zscript: using `[]` on some types crashing the parser
 zscript: support changing BS-Zelda animation, many scrolling related QRs
 zscript: prevent crash in `Game->GetItem()`
 zscript: prevent crash when using empty string with some file functions
-zscript: for x64 jit, check CPU supports SSE4.1
-  This prevents a crash when the jit is enabled on CPUs that don't support
+zscript: for x64 JIT, check CPU supports SSE4.1
+  This prevents a crash when the JIT is enabled on CPUs that don't support
   SSE4.1 (~2007 for Intel, ~2013 for AMD).
 
 zscript: printf/sprintf '%f' improperly ending in `.` instead of `.0` for integers
@@ -171,4 +171,4 @@ use vsnprintf instead of uvszprintf for text rendering
 log error reason when failing to open file
 log all al_trace output to stdout (except on Windows)
 zc: stop printing include paths in zplayer
-zq: upgrade Under Combo dialog to new gui
+zq: upgrade Undercombo dialog to new GUI

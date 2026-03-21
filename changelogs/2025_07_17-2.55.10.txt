@@ -40,7 +40,7 @@ zc: bottom 8 pixels not showing in some cases
   were being cut off even when showing the bottom 8 pixels is enabled.
   Some scrolling/end game effects were also impacted.
 
-zc: qr for strings on layer 6 timing fix
+zc: QR for strings on layer 6 timing fix
 zc: use proper start screen after reset for test mode + recording a replay
 zc: prevent crash on `Game->Reload()` on instant reload
   Regressed in 2.55.7
@@ -118,7 +118,7 @@ zq: item editor crash on long item name/display name
 zq: include licenses in package export
 zq: add '?' buttons for 'Show/Hide' lens layer, to clarify possibly misleading labels
 zq: slash combo wizard not setting sfx properly
-zq: Item wizard for various slash->item types not opening with proper values
+zq: Item wizard for various `slash->item` types not opening with proper values
 zq: preserve items on save when using test init data
 zq: prevent crash when formatting some message strings
   The code that generates the shortened text for each message string for

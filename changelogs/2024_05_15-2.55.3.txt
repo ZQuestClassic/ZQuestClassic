@@ -39,9 +39,9 @@ zscript: tweak `Region->` and screen script internals in preparation for z3
   
   Similar change made to `Region->GetScreenForComoboPos(int pos)`.
 
-zscript: use faster register allocation in jit
+zscript: use faster register allocation in JIT
   asmjit's register allocation was using a bin-packing algorithm. This
-  turns out to be very slow for the assembly that our jit compiler emits,
+  turns out to be very slow for the assembly that our JIT compiler emits,
   since the vast majority of variables exist for only a single basic
   block. Instead of bin-packing, the much faster and simpler linear scan
   register allocation algorithm is now used.
@@ -49,9 +49,9 @@ zscript: use faster register allocation in jit
   For a very large 200k-instruction script, compilation went from 19.5s to
   2.8s (a 85% decrease).
   
-  With this improvement, the 20k-instruction limit for jit has been
+  With this improvement, the 20k-instruction limit for JIT has been
   removed. One example of the impact of this is that `yuurand.zplay`,
-  which the jit compiler was previously mostly disabled for since most of
+  which the JIT compiler was previously mostly disabled for since most of
   its scripts are huge, now has all its scripts compiled. This increased
   the average FPS for `yuurand.zplay` from ~320 to ~2000, while still
   reducing the total time spent compiling.

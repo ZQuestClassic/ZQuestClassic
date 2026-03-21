@@ -5,10 +5,10 @@ https://zquestclassic.com/releases/2.55-alpha-116
 # Features
 
 
-Torch combos support shapes, dirs, new Square shape.
+Torch combos support shapes, dirs, new Square shape
   Also refactor how shape drawing works to remove the need for duplicate ZQ versions.
 
-Add general SFX/Sprites to combos (no zscript access yet)
+Add general SFX/Sprites to combos (no ZScript access yet)
 add solid damage combo QRs
   also fixed "No Solid Damage Combos" QR and fixed more issues with Newer Hero Movement
 
@@ -61,11 +61,11 @@ add -window-title switch
 zq: 'Quick Compile ZScript' favorite command
 zq: Option to auto-recompile when saving quest
 zq: save autolayer info to reapply to blue void screens as a default
-zscript: Add script access to draw lights (circle, cone, or square) arbitrarily.
-zscript: '@InitScript(int weight)' annotation allows multiple global init scripts (all merged into ~Init).
-zscript: jit compile MULTV
+zscript: Add script access to draw lights (circle, cone, or square) arbitrarily
+zscript: '@InitScript(int weight)' annotation allows multiple global init scripts (all merged into ~Init)
+zscript: JIT compile MULTV
 zscript: JIT compile scripts with background threads
-  Control how many threads are used with `[ZSCRIPT] jit_threads`.
+  Control how many threads are used with `[ZScript] jit_threads`.
   
   ```ini
   # Number of background threads for compiling scripts.
@@ -78,7 +78,7 @@ zscript: JIT compile scripts with background threads
 vscode: create VS Code extension
   This adds support to VS Code for displaying error/warning messages,
   syntax highlighting, and code formatting. You can install it by
-  searching for "zscript" in the extensions Marketplace. See the extension
+  searching for "ZScript" in the extensions Marketplace. See the extension
   homepage for more:
   
   https://marketplace.visualstudio.com/items?itemName=cjamcl.zquest-lsp
@@ -95,7 +95,7 @@ ZQ doesn't lock up if parser crashes [windows only]
 properly set sentry breadcrumb category
 add win7 compat for GetOverlappedResults
 zc: reset button down state correctly
-zc: 'npc->Remove()' no longer leaves behind enemy bg sfx
+zc: `npc->Remove()` no longer leaves behind enemy bg sfx
 zc: clear darkroom bitmaps to dark color during player death animation
 zc: Lantern inconsistency during scrolling caused by previous commit
 zc: memory leak in read_one_subscreen
@@ -124,9 +124,9 @@ zq: grabbing tiles from qst files
   Commit `142485` regressed this, by accidentally throwing out the next
   section id when skipping unwanted sections.
 
-zscript: global object arrays being wrongly cleared on F6->Continue
-zscript: fix for-each loops on non-const arrays.
-zscript: free jit script handles on engine shutdown
+zscript: global object arrays being wrongly cleared on `F6->Continue`
+zscript: fix for-each loops on non-const arrays
+zscript: free JIT script handles on engine shutdown
 zscript: Negative Array rule issues
   Fixed negative array rule not being respected on first load of game (either via test quest or when loading from file select); also fixed negative array rule not being turned on via compat.
 
@@ -134,7 +134,7 @@ zscript: compile crash
 zscript: several class related bugs
 zscript: QUOTEDSTRINGs not merging for all use cases (ex. annotations)
 zscript: screen script run function arguments
-zscript: shutdown jit thread pool before resetting scripts
+zscript: shutdown JIT thread pool before resetting scripts
   This prevents a segfault when a thread is compiling some old script
   after a new quest has loaded.
 
@@ -142,7 +142,7 @@ zscript: Broken labels and stack size in global init scripts
 zscript: more string literal related issues
   also added macros to help fix more of these that might pop up
 
-zscript: prevent MODR divide-by-zero in jit
+zscript: prevent MODR divide-by-zero in JIT
 zscript: make div-by-zero an error instead of a warning, when divisor is literal 0
 zscript: script engine hanging on empty script
 vscode: support missing edge case for parsing error
@@ -172,7 +172,7 @@ upgrade to latest fmtlib, for compile time checks
 
 bump version to alpha 116
 add docs/constants for new square light shape
-bump dmap section version to reserve for z3
+bump DMap section version to reserve for z3
 fix compile previous commit
 add include
 try fix linux compile
@@ -199,7 +199,7 @@ actually skip reading qst sections when requested
 add 'qrs.h','qrs.cpp' and move 'box_' related functions
 optimize some more headers/zdefs stuff
 move Hotkey struct to 'hotkey.h'/'hotkey.cpp'
-move dmap struct/flags to 'dmap.h', various constants to 'sizes.h'
+move DMap struct/flags to 'dmap.h', various constants to 'sizes.h'
 move packfile-related functions to 'packfile.h'
 move combo pool/alias data to 'cpool.h'/'cpool.cpp'
 move font enum to 'fonts.h'
@@ -245,9 +245,9 @@ fix regression from refactor in aa282f
 fix silly lazy unit test
 update test_replays with new unexpected gfx frames, changed in 7ed7b
 fix argument passing to run_replay_tests.py
-update expected zasm, changed by 8402c4
+update expected ZASM, changed by 8402c4
 add -headless switch for disabling display and sound
-update expected zasm, changed by 52b34
+update expected ZASM, changed by 52b34
 
 print backtrace on crash
   Every Python test and invocation of our programs in CI is now called

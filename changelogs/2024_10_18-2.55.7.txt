@@ -18,7 +18,7 @@ zq: extension autocombo mode, for resizing things along one axis
 
 # Bug Fixes
 
-mapscr::numFFC() no longer returns 1 when there are 0 ffcs
+`mapscr::numFFC()` no longer returns 1 when there are 0 ffcs
 issue where double clicking could stop working in lists
 
 load NES tiles for old quests without tile data
@@ -53,11 +53,11 @@ zc: handle screen transitions on slopes in sideview mode
   avoid starting upwards-stairs on the edge of a screen, as the player
   still does not traverse up it when entering from the other side.
 
-zq: lifted duplicate combo and combo 0 restrictions from autocombo types that did not need them.
+zq: lifted duplicate combo and combo 0 restrictions from autocombo types that did not need them
 zq: reset animation in item dialog on selection change
-zq: set track to 0 when updating dmap music
+zq: set track to 0 when updating DMap music
   This prevents a bug where an invalid track could be selected when
-  changing the tracker music file in the dmap editor.
+  changing the tracker music file in the DMap editor.
 
 zq: fix Preview mode not working when opened from top menu
 zq: prevent crash when saving test init data
@@ -88,7 +88,7 @@ zc: improve how title screen assets are loaded
     Previously this file was unnecessarily loaded multiple times while
     simply navigating the save select screens
 
-zscript: remove unused ->ScriptEntry, ->ScriptOccupancy, ->ExitScript
+zscript: remove unused `->ScriptEntry`, `->ScriptOccupancy`, `->ExitScript`
 zscript: always show script context when logging errors
   Previously the "Print Script Metadata on Traces" QR had to be enabled to
   show what script caused an error. However, this context is always useful

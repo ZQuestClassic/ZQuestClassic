@@ -2,12 +2,12 @@ https://zquestclassic.com/releases/2.55-alpha-115
 
 # Features
 
-`Pushed->` triggerflag, triggers when the combo clicks into place after a pushblock push.
+`Pushed->` triggerflag, triggers when the combo clicks into place after a pushblock push
 customizable ripple/tallgrass sprites per-combo
 increase combo label limit from 11 to 255
 zq: 'Test Quest' hotkey (default 'Ctrl+T')
 zq: Finish signpost combo wizard
-zq: AutoBrush now will revert to 1x1 after placing if ALT is held while selecting an area.
+zq: AutoBrush now will revert to 1x1 after placing if ALT is held while selecting an area
 zq: Compiler settings now searchable in QR search dialog
 zq: Screen Palette menu now previews in the window behind it
 
@@ -19,11 +19,11 @@ zq: -quick-assign CLI switch to compile + assign
 zq: tile editor 'Esc' deselects selections (if something selected)
 zq: Add 'General Tab' to advanced-paste combo dialog (and clean up the dialog)
 zscript: Weapon death effects + liftability settings
-zscript: Hero->MoveAtAngle(), Hero->Move()
+zscript: `Hero->MoveAtAngle()`, `Hero->Move()`
 zscript: generic event HERO_HIT can now understand FFC/combo position
-zscript: Hero->ShieldJinx, new generic events (drown, fall, HeroHit applies to shallow liquid)
+zscript: `Hero->ShieldJinx`, new generic events (drown, fall, HeroHit applies to shallow liquid)
 zscript: -include switch to set include paths
-zscript: Graphics->ConvertRGBTo() and Graphics->ConvertRGBFrom()
+zscript: `Graphics->ConvertRGBTo()` and `Graphics->ConvertRGBFrom()`
 
 # Bug Fixes
 
@@ -62,7 +62,7 @@ zc: cleanup bush/flower/etc decoration sprite code
 zc: items/weapons/players not rounding y coordinate when landing
 zc: 'Save Indicator' option now works to toggle the 'Saving...' text
 zc: mouse cursor not appearing in some popups
-zc: prevent Hero->CanMove unwanted side effects
+zc: prevent `Hero->CanMove` unwanted side effects
 zc: fix dropped input when script modifies input state
 zc: Fix 4-way "Newer Player Movement"
 zc: signpost prompts take priority over triggers tab prompts
@@ -76,7 +76,7 @@ zc: npc scripts not running on screen load
 zc: enemies not running scripts on first frame with scriptloadenemies
   forgot to handle this when fixing last commit
 
-zc: Fix writing to shopdata->Price[]
+zc: Fix writing to `shopdata->Price[]`
 zc: fixed new (non-classic) respawn points being unsafe in sideview
 zc: off-by-one error with ffc link delay
 zc: Should fix all instances of things occurring on the wrong screen when scrolling
@@ -100,7 +100,7 @@ zq: string list dropdowns were offset
 zq: string list ordered wrongly in dropdowns
 zq: undo history for "Paste FFC as ..."
 zq: undo history for "Paste FFC Data"
-zq: gui label text wrapping on strings without spaces
+zq: GUI label text wrapping on strings without spaces
 zq: background blank-out after adjusting tiles in string editor
 zq: bad pointer alias crashing QR search dialog
 zq: stop using corrupted file handle when saving .zcheat file
@@ -120,19 +120,19 @@ zq: do not show guys in screen enemy selector
   The enemy selector list also will no longer show any of these enemy ids.
 
 zq: more fixes to load quest usage of keep data
-zscript: dmap scripts not updating
+zscript: DMap scripts not updating
 zscript: use sane qrs by default for parser CLI
 zscript: backwards byte order of the rgb type used by paldata
 zscript: use correct engine data for player scripts
 zscript: setting input buttons to false correctly prevents button press
-zconsole: [win] use async i/o, speeds up zscript debugger
+zconsole: [win] use async i/o, speeds up ZScript debugger
 
 # Documentation
 
 update weapon lifting docs
 add fuzzing.md
 type help for Slope combo type
-zq: Clean up tooltips for combos on the screen.
+zq: Clean up tooltips for combos on the screen
 
 # Build
 
@@ -153,8 +153,8 @@ comment (and slightly optimize) 'user_object.cpp'
 update changelog for A115
 zc: fix misaligned checkbox
 zc: system palette code
-zq: init data gui cleanup
-zq: update default quest file (fix dmap 0 flags)
+zq: init data GUI cleanup
+zq: update default quest file (fix DMap 0 flags)
 zq: fix missed in previous commit
 
 # Refactors
@@ -185,7 +185,7 @@ zscript: only allocate script data for combos that need it
 update replays
 add lifting.zplay, rocs_feather.zplay
 increase replay timeout for web
-add zscript compiler expected zasm tests
+add ZScript compiler expected ZASM tests
 check if failing frame values exist in dict
 use exists_ok when making updated dir
 print failing frame during replay test
@@ -213,7 +213,7 @@ support substring for run_replay_tests.py --filter
 add test_zquest.py. tests compile, slot assign of playground.qst
 move ghost replay into playground.qst
 rename lifting and rocs_feather replays
-remove replay comment when jit fails to compile
+remove replay comment when JIT fails to compile
 fix web replay tests hanging
 add ganon.zplay
 
@@ -247,6 +247,6 @@ include commit body in changelog
 automate fuzzing process
 remove unneeded init code for fuzzing quest loading
 update used QRs in quest database
-include deprecated_rules in qr analysis
+include deprecated_rules in QR analysis
 zq: Change "Place + Edit FFC #" text to "Edit New FFC #" for clarity
 zq: do less setup for -copy-qst command

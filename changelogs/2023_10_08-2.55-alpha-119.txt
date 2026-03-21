@@ -47,10 +47,10 @@ zc: remove encoding layer for save files
   and move to the destination when done. This may prevent a source of save
   file corruption.
 
-zq: 'Highlight Current Layer' option, when enabled dithers out non-active layers.
+zq: 'Highlight Current Layer' option, when enabled dithers out non-active layers
 zq: "Open Tile Page" now saves which page was last opened
 zq: options to control the size and color of the dither when using "Highlight Current Layer"
-zq: added cset to the autocombo preview, made autocombo engravings in the combo list draw over the selector
+zq: added CSet to the autocombo preview, made autocombo engravings in the combo list draw over the selector
 zq: added a popup when using an invalid autocombo explaining why it's invalid
 zq: added a "Connect to Edge" flag to certain autocombos, changing how they interact with the edge of the screen
 zq: quick map view hotkey, 2x and 4x map scale
@@ -65,7 +65,7 @@ zq: subscreen wizards for generating item grids and counter blocks
 zq: "connect to solids" flag for basic and relational autocombos
 std_zh: add 'SF_LAST', convert SF_ constants to enum
 zscript: 'auto' variable declarations
-zscript: 'sprintf' will resize the buffer if it is too small.
+zscript: 'sprintf' will resize the buffer if it is too small
 vscode: update keyword highlighting
 web: migrate to new database manifest and use CDN
   * Quests and associated music are now hosted at data.zquestclassic.com,
@@ -121,7 +121,7 @@ replays depending on wrong moveflags
   not sure of a better commit title
 
 handle empty init data delta, which is when no change is made
-fix dmap title corruption
+fix DMap title corruption
 use correct subscreen font for PROP type
 zc: pushblock solidity inconsistency
 zc: oddities with pushblocks and pits/water
@@ -131,7 +131,7 @@ zc: 'Magic Containers' cheat not updating max magic soon enough to refill
 zc: bugginess with push flags on 'Push (Generic)' combos
 zc: Oddity with swords/spin attacks not properly hitting triggers
 zc: remove accidental code that resulted in less precise sin even outside replays
-zc: incorrect value for cos(90) in replay mode
+zc: incorrect value for `cos(90)` in replay mode
 zc: fixed unresponsive input in SCC menus
 zc: fixed line heights after drawing tiles to strings with SCCs
 zc: check if A wpn slot when doing bomb deselect
@@ -147,7 +147,7 @@ zq: sanitize quest title for package name
 zq: allow spaces in package name
 zq: fixed crash in combo wizard for signposts
 zq: fixed bugged inner bottom corner in DoR autocombo
-zq: right clicking autocombo combo panes no longer resets cset to 0
+zq: right clicking autocombo combo panes no longer resets CSet to 0
 zq: clearing an autocombo in the editor also clears args and flags
 zq: combo aliases with layers now flag layer screens valid
 zq: fixed out of bounds array access with the drawing mode menu
@@ -173,19 +173,19 @@ zq: fixed subscreen wizard window titles not updating
 zq: fixed crashes when previewing layer solidity and incorrect layered solidity drawing
 zq: copy over assets folder in packager
 zscript: typechecking error related to arrays of class objects
-zscript: fixed paldata mix() not flagging changed colors as used
-zscript: fixed incorrect argument ordering in DrawTiles() and erroneous error logging in serveral drawing functions
+zscript: fixed paldata `mix()` not flagging changed colors as used
+zscript: fixed incorrect argument ordering in `DrawTiles()` and erroneous error logging in serveral drawing functions
 zscript: fixed incorrect max count for user objects
 zscript: paldata objects not clearing properly on init
-zscript: generic script local arrays and '->Own()'ed objects bugging out on 'Continue'
+zscript: generic script local arrays and `->Own()`ed objects bugging out on 'Continue'
 zupdater: use headless mode when run from launcher
 web: avoid double save when using the quick-load feature
 
 # Documentation
 
 move packaging_quests.md to packaged docs
-zscript: made note of rotation arguments for PutPixels()
-zscript: webdocs for paldata and correction for PutPixels()
+zscript: made note of rotation arguments for `PutPixels()`
+zscript: webdocs for paldata and correction for `PutPixels()`
 
 # Build
 
@@ -221,8 +221,8 @@ use transform matrices for render tree
   that only update when the underlying transformations change (or one of
   its parents)
 
-add TabBuilder gui class
-gamedata and user_object stuff, script '->Own()' handling
+add TabBuilder GUI class
+gamedata and user_object stuff, script `->Own()` handling
 zc: only check already loaded saves for 4th qst red easter egg
   Otherwise, it takes noticeable time to load every save file when the
   file select screen loads.
@@ -265,7 +265,7 @@ create cron job to update database daily
 # Misc.
 
 add script for expanding ZASM opcodes/registers en masse
-update zasm expansion script to handle name lists from file
+update ZASM expansion script to handle name lists from file
 package changelogs for recent alphas, and include nightly changes
 update GitHub org
 fix transparency on some cave tiles in the default quest

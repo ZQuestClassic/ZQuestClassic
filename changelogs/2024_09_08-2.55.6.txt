@@ -66,7 +66,7 @@ zc: avoid crash in Go To cheat by checking destination is valid
   is displayed next to each DMap in the dropdown.
 
 zc: fire trail weapons glow in dark rooms, just like flames
-zq: prevent dmap editor crash when map is no longer valid
+zq: prevent DMap editor crash when map is no longer valid
 zq: prevent various quest report crashes
 zq: set the default values for patra's (2 and 3) inner eyes
 zq: reduce latency on combo page paste

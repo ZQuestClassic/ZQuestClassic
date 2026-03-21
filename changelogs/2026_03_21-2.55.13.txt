@@ -16,7 +16,7 @@ std_zh: add `CheckItemDataScript()` to script_runners.zh
 
 # Bug Fixes
 
-gui label wrapping
+GUI label wrapping
 remove visual delay when click+dragging on a list
 
 load music using case insensitive file lookup
@@ -35,7 +35,7 @@ zc: correctly check locked chest state for smart screen scrolling
 
 zc: save combos using the wrong attribyte for magic restore percentage
 zc: control scheme using wrong value for quest-specific scheme
-zc: DCounter[] not working for counters >= 32 (the new custom counters)
+zc: `DCounter[]` not working for counters >= 32 (the new custom counters)
 zc: reset cursor after canceling new file
   The heart cursor was sometimes displaying at an invalid position.
 
@@ -80,7 +80,7 @@ zq: do not clear selected screen on `File > New`
   This dialog can be cancelled, but when doing that the selected screen
   (including all bookmark screen buttons) was being incorrectly cleared.
 
-zq: 'Browse Notes' breaking gui on large notes
+zq: 'Browse Notes' breaking GUI on large notes
   Now large notes will produce a scrollbar for the preview, rather than breaking the UI.
 
 zq: use correct max widgets for subscreen pages
@@ -92,11 +92,11 @@ zq: total subscreens not properly bounded
   could corrupt the quest file. The limit is now properly capped at 255
   per subscreen type.
 
-zq: scc editor using wrong value for 'goto string' dropdowns
+zq: SCC editor using wrong value for 'goto string' dropdowns
   If strings were re-ordered, the list position was being used instead of
   the string number.
 
-zq: Under Combo dialog broken for layers
+zq: Undercombo dialog broken for layers
   The 'map' being used for each layer was off-by-1, causing the dialog to edit the wrong screens when editing layers
 
 std_zh: add std_time.zh back
@@ -109,7 +109,7 @@ std_zh: rename misleading parameter for `NumNPCsOf`
   wrongly said it expects `NPCT_` type constants.
 
 zscript: enemy script movement functions wrongly over-accounting for screen edges
-zscript: Screen->Quad() being unable to use tiles >65519
+zscript: `Screen->Quad()` being unable to use tiles >65519
 zscript: don't repeat division
   When the left-hand side is constant (ex: `10 / x`), the compiler was
   emitting inefficient ZASM that repeated the same division twice. The

@@ -5,7 +5,7 @@ https://zquestclassic.com/releases/2.55-alpha-118
 # Bug Fixes
 
 typo with subscreen view setting
-windows 7 crashes on compile zscript
+windows 7 crashes on compile ZScript
 'View Unowned Items' subscreen bugs
 subscreen buttonitem on active subscreen not scrolling properly
 close about window on ESC/clicking X
@@ -18,8 +18,8 @@ close about window on ESC/clicking X
 zc: handle error when sav file fails to load
 zc: unload other save games when selecting one
 zc: save file corruption from overlooked fields
-zc: Crash on zscript object destructor
-zc: Crash on dmap lacking subscreen
+zc: Crash on ZScript object destructor
+zc: Crash on DMap lacking subscreen
 zc: read hp from save file for life meter on titlescreen
 zc: remove accidental dev mode, which always allows cheats
 zc: retain previous position when returning to title screen
@@ -28,11 +28,11 @@ zc: sfx accidentally disabled in save select screen
 zc: empty item slots filling wrongly
 zc: weird subscreen item animation resetting
 zq: mention change-combo shortcut in info text
-zq: room data gui text overlap
+zq: room data GUI text overlap
 std_zh: CR_RUPEES definition was missing
 zscript: set save name being truncated because not using new string
 zscript: use safer vsnprintf to avoid crash via buffer overflow in logging
-zscript: check_bunny accidentally always on for Game->CurrentItemID()
+zscript: check_bunny accidentally always on for `Game->CurrentItemID()`
 web: set default saves folder to /local/saves
 web: quick quest load was broken after save refactor
 
@@ -46,10 +46,10 @@ remove outdated source file preamble comments
 
 # Tests
 
-add -test-zc switch to test save file roundtrip
+add -test-ZC switch to test save file roundtrip
 mostly finish save roundtrip test
 check for full game equality in save roundtrip
-fix zc saves test
+fix ZC saves test
 
 # CI
 

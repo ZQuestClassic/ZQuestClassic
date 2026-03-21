@@ -2,7 +2,7 @@ https://zquestclassic.com/releases/2.55.11
 
 # Features
 
-zc: optimize ORR/ORV/ORR32/ORV32 in x64 jit
+zc: optimize ORR/ORV/ORR32/ORV32 in x64 JIT
 zq: add 'Script Bugfix' option (default on) to new file dialog
 
 zscript: support `Trace(string)`
@@ -50,7 +50,7 @@ zc: do not unselect A button when loading save
   A bug in initializing the game resulted in the A button always being
   unequipped (unless it was forcibly set with a script).
 
-zc: cane of byrna sparkles lingering after death if extra dying frame qr is on
+zc: cane of byrna sparkles lingering after death if extra dying frame QR is on
 zc: prevent possible crash in ZCSubscreen::get_item_pos
 zc: avoid "invalid save slot index" when creating new save
   Creating a new save slot could sometimes invalidate all existing save
@@ -89,9 +89,9 @@ zc: allow background to be transparent in active subscreens
   even when the subscreen did not have a solid background.
 
 zq: allow item editor to enter larger numbers for the Power field
-zq: subscreen editor color selectors not showing cset 12/13 properly
+zq: subscreen editor color selectors not showing CSet 12/13 properly
 zq: improve test mode screen matching
-  Take into account the dmap xoff value when selecting the default dmap
+  Take into account the DMap xoff value when selecting the default DMap
   to use for test mode.
 
 zq: prevent test mode from using screens >= 0x80
@@ -122,7 +122,7 @@ zscript: prevent crash when drawing to system bitmap render targets
   
   This regressed in 2.55.9.
 
-zscript: correctly handle COMPAREV2 in x64 jit
+zscript: correctly handle COMPAREV2 in x64 JIT
 zscript: use correct sprite for step in weapon MakeAngular
   The wrong variable was being referenced to access the weapon's step
   value. Instead of using the weapon, it used whatever was last set to a

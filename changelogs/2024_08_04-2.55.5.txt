@@ -33,7 +33,7 @@ zc: side shield flags on npcs being flipped when facing left/right
 zq: [windows] Load Tileset with native file dialog no longer busted
 zq: wording consistency issue (`trigger` should refer to the `Triggers` tab)
 
-zq: some number entries (using SWAP_ZSINT_NO_DEC) being broken.
+zq: some number entries (using SWAP_ZSINT_NO_DEC) being broken
   Notably fixes many spots in the "Insert SCC" dialog, and some in combo wizards.
 
 zq: death/spawn sprites not properly updating on tile move

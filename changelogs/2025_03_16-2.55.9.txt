@@ -35,8 +35,8 @@ zscript: add `Screen->Index`
 zscript: add `itemdata::FlashCSet`, improve `itemdata::CSet`
   `itemdata::CSet` contained both the normal and flash csets, and required
   bitwise operations to access. It also didn't allow for setting the flash
-  cset. Now, `itemdata::CSet` is only for the normal cset, and the flash
-  cset uses the new `itemdata::FlashCSet`.
+  CSet. Now, `itemdata::CSet` is only for the normal CSet, and the flash
+  CSet uses the new `itemdata::FlashCSet`.
 
 zscript: add `Viewport`
   This global represents the currently visible playing field. In 2.55,
@@ -77,7 +77,7 @@ zc: show hero position in minimap for most special screens
   special screens. Now, even item cellar / guy special rooms will render
   the dot on the screen the player came from.
 
-zc: update dmap charted state more reliably
+zc: update DMap charted state more reliably
 zc: fix bad memory access when checking for sword tap
 zc: prevent OOB related to bridges in `HeroClass::checkchest`
 zc: prevent many crashes related to sprite list being full
@@ -86,7 +86,7 @@ zc: off-by-one error in y-position world bounds for a few hero attacks
   Relevant changes:
     fix(zc): more off-by-one errors
 zc: F5 map snapshot works again
-zc: some collision issues related to 4-way movement with no-gridlock enabled.
+zc: some collision issues related to 4-way movement with no-gridlock enabled
 zc: broken 'Z_Eventlog` output related to ExStates
 zc: prevent crash when loading save files from 3.0
 zq: lockblock/chest combo wizard bad field for counter amount

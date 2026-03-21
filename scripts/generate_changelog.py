@@ -55,16 +55,162 @@ overrides_squashes = dict()
 # to mention. However, they are relevant for nightly releases, so let's show 'em in that case.
 should_drop_commits = not args.for_nightly
 
+# What follows is a bunch of code to try and ensure some consistency in the changelog text.
+
+word_replacements = {
+    r'\bcset\b': 'CSet',
+    r'\bdmap\b': 'DMap',
+    r'\bgui\b': 'GUI',
+    r'\bjit\b': 'JIT',
+    r'\bqr\b': 'QR',
+    r'\bscc\b': 'SCC',
+    r'\bUnder [cC]ombo\b': 'Undercombo',
+    r'\bunder combo\b': 'Undercombo',
+    r'\bzasm\b': 'ZASM',
+    r'\bzc\b': 'ZC',
+    r'\bZQ\b': 'ZQ',
+    r'\bzscript\b': 'ZScript',
+}
+
+# Pre-compile the regex patterns once.
+compiled_word_patterns = []
+
+
+def normalize_text(text: str) -> str:
+    if not text:
+        return text
+
+    if not compiled_word_patterns:
+        for pattern, replacement in word_replacements.items():
+            dynamic_pattern = rf'(?<!\.)(?<![/\\])(?:{pattern})(?!\.\w)'
+            combined_pattern = rf'(https?://[^\s)]+)|({dynamic_pattern})'
+
+            # Store the compiled regex and its target replacement string together
+            compiled_word_patterns.append(
+                (re.compile(combined_pattern, flags=re.IGNORECASE), replacement)
+            )
+
+    # Split lines but keep the exact original line endings (\n, \r\n, etc.)
+    lines = text.splitlines(keepends=True)
+    new_lines = []
+    in_code_block = False
+
+    for line in lines:
+        # Toggle state if we hit a Markdown code block fence
+        if line.strip().startswith('```'):
+            in_code_block = not in_code_block
+            new_lines.append(line)
+            continue
+
+        # If we are inside a code block, safely pass the line through untouched
+        if in_code_block:
+            new_lines.append(line)
+            continue
+
+        # If we are outside a code block, apply all our normalizations
+        normalized_line = line
+        for compiled_regex, replacement in compiled_word_patterns:
+
+            # Using a default argument (rep=replacement) safely binds the current loop's
+            # replacement value to the function, avoiding Python's late-binding loop gotchas.
+            def replacer(match, rep=replacement):
+                if match.group(1):
+                    return match.group(1)  # It's a URL
+                else:
+                    return rep  # It's our target word
+
+            normalized_line = compiled_regex.sub(replacer, normalized_line)
+
+        new_lines.append(normalized_line)
+
+    return ''.join(new_lines)
+
+
+def wrap_in_backticks(text: str) -> str:
+    # Group 1: A single-quoted string containing at least one whitespace character.
+    ignore_pattern = r"('[^']*?\s[^']*?')"
+
+    # Group 2: Optional opening quote.
+    # Group 3: The actual code syntax (functions, arrays, pointers).
+    # Note: We now use \2 to check the closing quote, because Group 1 is taken by the ignore_pattern.
+    code_pattern = r"(?<!`)([']?)(?<!\w)([@~]?(?:[a-zA-Z_]\w*::)*[a-zA-Z_]\w*(?:\([^)]*\)|\[[^\]]*\])|[@~]?(?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*)?->[a-zA-Z_]\w*(?:\([^)]*\)|\[[^\]]*\])?)\2(?:(?=s\b|ed\b|ing\b)|(?!\w))(?!`)"
+
+    # Combine them with an OR (|) operator
+    pattern = f"{ignore_pattern}|{code_pattern}"
+
+    def replacer(match):
+        if match.group(1):
+            # We matched a quoted string with spaces. Return it exactly as is!
+            return match.group(1)
+        elif match.group(3):
+            # We matched a code snippet. Wrap it in backticks, dropping the single quotes.
+            return f"`{match.group(3)}`"
+        return match.group(0)
+
+    # Pass our replacer function instead of a static string
+    return re.sub(pattern, replacer, text)
+
+
+def maybe_capitalize_first_word(text: str) -> str:
+    # Capitalization logic with code-protection.
+    if text and text[0].isalpha():
+        protected_lowercase_words = {
+            'sprintf',
+            'printf',
+            'trace',
+            'itemdata',
+            'mapdata',
+            'npcdata',
+            'combodata',
+            'subdata',
+        }
+
+        # Extract the very first word to inspect it
+        first_word_match = re.match(r'^([a-zA-Z0-9_]+)', text)
+        if first_word_match:
+            first_word = first_word_match.group(1)
+
+            # Check for obvious code traits
+            is_snake_case = '_' in first_word
+            is_camel_case = bool(re.search(r'[a-z][A-Z]', first_word))
+            is_protected = first_word.lower() in protected_lowercase_words
+
+            # Only capitalize if it looks like a normal English word
+            if not (is_snake_case or is_camel_case or is_protected):
+                text = text[0].upper() + text[1:]
+
+    return text
+
+
+def normalize_oneline(text: str) -> str:
+    if not text:
+        return text
+
+    # Wrap function calls, array accesses, or pointer accesses in backticks.
+    text = wrap_in_backticks(text)
+    # text = maybe_capitalize_first_word(text)
+    if text.endswith('.'):
+        text = text[:-1]
+    text = normalize_text(text)
+
+    return text
+
 
 def parse_override_file(file: Path):
     last_override = None
     current_squash_list = []
 
-    for line in file.read_text().splitlines():
-        if line.startswith('# !'):
+    # Read lines keeping trailing whitespace/newlines to perfectly restore formatting.
+    original_lines = file.read_text().splitlines(keepends=True)
+    new_lines = []
+    file_modified = False
+
+    for original_line in original_lines:
+        if original_line.startswith('# !'):
+            new_lines.append(original_line)
             continue
 
-        line = line.rstrip()
+        line = original_line.rstrip()
 
         if (
             last_override
@@ -73,12 +219,15 @@ def parse_override_file(file: Path):
         ):
             if line == '=end':
                 last_override = None
+                new_lines.append(original_line)
                 continue
 
             last_override[1] += f'\n{line}'
+            new_lines.append(original_line)
             continue
 
         if not line:
+            new_lines.append(original_line)
             continue
 
         parts = line.split(' ', 2)
@@ -87,8 +236,53 @@ def parse_override_file(file: Path):
         else:
             type, hash, rest = [*parts, None]
 
+        # Normalize short hashes to full 40-character hashes.
         if len(hash) != 40:
-            raise Exception(f'expected full hashes. got: {hash}')
+            try:
+                # --verify ensures the hash uniquely identifies exactly 1 commit
+                full_hash = subprocess.check_output(
+                    ['git', 'rev-parse', '--verify', hash],
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                ).strip()
+            except subprocess.CalledProcessError as e:
+                raise Exception(
+                    f"Short hash does not uniquely identify 1 commit: '{hash}'.\nGit error: {e.output.strip()}"
+                )
+
+            if len(full_hash) != 40:
+                raise Exception(
+                    f"Expected a 40-character hash for '{hash}', but got: '{full_hash}'"
+                )
+
+            # Safely replace the short hash with the full hash in the original string,
+            # leveraging the known 'type' prefix to prevent accidental replacements elsewhere in the line.
+            original_line = original_line.replace(
+                f'{type} {hash}', f'{type} {full_hash}', 1
+            )
+            hash = full_hash
+            file_modified = True
+
+        # Normalize drop subjects to match the real commit subject.
+        if type == 'drop':
+            try:
+                real_subject = subprocess.check_output(
+                    ['git', 'log', '-1', '--format=%s', hash],
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                ).strip()
+            except subprocess.CalledProcessError as e:
+                raise Exception(
+                    f"Failed to fetch subject for '{hash}'.\nGit error: {e.output.strip()}"
+                )
+
+            if rest != real_subject:
+                # Capture the original trailing whitespace (like '\n') to keep formatting intact.
+                trailing_chars = original_line[len(original_line.rstrip()) :]
+                original_line = f"{type} {hash} {real_subject}{trailing_chars}"
+                rest = real_subject
+                file_modified = True
+
         if hash in overrides:
             raise Exception(f'hash already present: {hash}')
 
@@ -99,9 +293,14 @@ def parse_override_file(file: Path):
             current_squash_list = []
 
         overrides[hash] = last_override = [type, rest]
+        new_lines.append(original_line)
 
     if last_override and last_override[0] == 'squash':
         raise Exception('squash into what?')
+
+    # Write the formatted output back to the file if any hashes were expanded
+    if file_modified:
+        file.write_text(''.join(new_lines))
 
 
 @dataclass
@@ -143,7 +342,8 @@ def parse_scope_and_type(subject: str):
         type, oneline = match.groups()
         return type, None, oneline, False
 
-    return 'misc', None, subject, False
+    drop = subject.startswith('Revert')
+    return 'misc', None, subject, drop
 
 
 def get_type_index(type: str):
@@ -418,10 +618,30 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
             body = body[0 : m.start()].strip()
         body = re.sub(r'^Co-authored-by: .+', '', body, flags=re.MULTILINE).strip()
         body = re.sub(r'^Signed-off-by: .+', '', body, flags=re.MULTILINE).strip()
-        body = re.sub(r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE).strip()
-        type, scope, oneline, drop = parse_scope_and_type(subject)
+        body = re.sub(
+            r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE
+        ).strip()
+
+        # Check if the subject is being overridden before testing for drops.
+        subject_to_parse = subject
+        did_override_subject = False
+        if hash in overrides:
+            if overrides[hash][0] in ['subject', 'squash', 'pick']:
+                subject_to_parse = overrides[hash][1]
+                did_override_subject = True
+            elif overrides[hash][0] == 'reword':
+                subject_to_parse = overrides[hash][1].splitlines()[0]
+                did_override_subject = True
+
+        type, scope, oneline, drop = parse_scope_and_type(subject_to_parse)
+
         if drop and should_drop_commits:
             continue
+
+        if not did_override_subject:
+            oneline = normalize_oneline(oneline)
+        body = normalize_text(body)
+
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
     # Replace commit messages with overrides.
@@ -430,7 +650,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     for commit in commits:
         hash = commit.hash
         reparse = True
-        if hash in overrides and overrides[hash][0] in ['subject', 'squash']:
+        if hash in overrides and overrides[hash][0] in ['subject', 'squash', 'pick']:
             commit.subject = overrides[hash][1]
         elif hash in overrides and overrides[hash][0] == 'reword':
             lines = overrides[hash][1].splitlines()
@@ -618,14 +838,11 @@ if args.generate_cherrypicks:
     shas_seen = []
 
     # cherry-pick'd with the -x option (cherry picked from commit ...)
-    output = (
-        subprocess.check_output(
-            'git log main..releases/2.55 --grep "cherry picked from commit"',
-            shell=True,
-            encoding='utf-8',
-        )
-        .strip()
-    )
+    output = subprocess.check_output(
+        'git log main..releases/2.55 --grep "cherry picked from commit"',
+        shell=True,
+        encoding='utf-8',
+    ).strip()
     shas = re.findall(r'cherry picked from commit ([a-zA-Z0-9]+)', output)
     commits_cherry_picked = []
     for sha in shas:

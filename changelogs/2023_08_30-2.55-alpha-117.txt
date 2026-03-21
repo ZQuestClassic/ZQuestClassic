@@ -97,7 +97,7 @@ Music and sound stuff galore!
     chore: attempt to fix ubuntu compile
     chore: Merge branch 'main' into music-backup
     chore: merge main into music branch
-qr for mirror/prism combos working on all layers
+QR for mirror/prism combos working on all layers
 'Dive->','Dive-> (Sensitive)' trigger flags
 Lens can show/hide multiple different layers per screen, can include layer 0
 Can now disable pushblock draw layer [QR `Pushable Block Sprite Layer`]
@@ -126,7 +126,7 @@ setting for subscreen widgets to hide during message strings
 parser timeout is now configurable/disablable (instead of 30sec)
 expand combo initd to [8]
 walk-through nes doors now set door states when used
-allow closing program with (most) dialogs open. (clean up gui functions too)
+allow closing program with (most) dialogs open. (clean up GUI functions too)
 add 'Button Counter' subscreen widget type
 'No Unequip' flag for subscreen itemslot widgets
 new subscreen selector options (per-widget and subscreen-wide)
@@ -187,17 +187,17 @@ zq: save test init data per-quest
 zq: made side warps for new screens default to Scrolling warps
 zq: side warp triggers cycle backwards with right click
 zq: "Set All" buttons for screen state carryovers
-zq: Smart Assign Slots in zscript compile
+zq: Smart Assign Slots in ZScript compile
 zq: ctrl+clicking a tile selector goes to previously selected tile
 std_zh: add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
 std_zh: item_tile/item_cset animation helpers in EmilyMisc.zh
 zscript: special layer for non-overhead ffc draws
 zscript: Add special layer timings related to lens of truth
-zscript: Add 'Game->TrigGroups[]' read-only array
+zscript: Add `Game->TrigGroups[]` read-only array
 zscript: Variadic Parameters (user functions)
 zscript: printfa/sprintfa to take an array of args like printf/sprintf
 zscript: Allow declaring size 0 arrays
-zscript: Game->CurrentItemID() to use the engine method of checking owned items.
+zscript: `Game->CurrentItemID()` to use the engine method of checking owned items
 zscript: Array Push/Pop functions
 zscript: ArrayPushAt/ArrayPopAt for arbitrary index push/pop
 vscode: add "Always Include" setting, default ["std.zh"]
@@ -237,8 +237,8 @@ support leading dot in file selector filter
   extension changed from `zplay` to `.zplay`, and the old file selector
   expect no leading dot, unlike every other file path API known to man.
 
-dmap music with crossfades was not setting loop points
-Allow exiting zc when test mode gets stuck in error
+DMap music with crossfades was not setting loop points
+Allow exiting ZC when test mode gets stuck in error
 some bad dialog 'default's resulting in windows closing
 event crash due to bad weapon access
 checkbox odd alignment issues
@@ -259,7 +259,7 @@ write zeros instead of random memory for fixed sized string fields
 virtual dtors for subscreen widget base classes to avoid memory leak
 use safer vsnprintf for zsys messages
 subscreen non-equippable item flag being broken
-fixed missing zcmixer->newtrack pointer null
+fixed missing `zcmixer->newtrack` pointer null
 minor subscreen related fixes/tweaks
 subscreen issues related to item overrides / bow&arrow
 item quickswap issues
@@ -294,9 +294,9 @@ zc: defer making .sav file until after quest is selected
 zc: X/Alt+F4 not working while in game view
 zq: bad index for -quick-assign
 zq: support headless switch with quick assign
-zq: dmap midi dropdown
+zq: DMap midi dropdown
 zq: better error handling for test init data
-zq: use gui list data getter for init data dmap
+zq: use GUI list data getter for init data DMap
 zq: use correct int size when reading qst template size
 zq: door dialog now updates visually on dropdown modify
 zq: write to temp file when saving qst and rename when done
@@ -305,7 +305,7 @@ zq: write to temp file when saving qst and rename when done
 
 zq: misaligned subcreen editor 'View' menu checkmarks
 zscript: support absolute path includes on non-windows too
-zscript: null check results before attempting to write zasm
+zscript: null check results before attempting to write ZASM
 zscript: missed deallocation when directly returning string literals
 zscript: shop data not handling info correctly
 zscript: some parser pointer issues
@@ -370,8 +370,8 @@ zscript: Make all 'yyerror' error messages start with 'ERROR:'
 
 Screen Script dialog now new GUI, respects script metadata
 New "Screen Data" dialog
-update dmap editor to new GUI
-Fix hardcoded icons, no longer using custom codepoint strings.
+update DMap editor to new GUI
+Fix hardcoded icons, no longer using custom codepoint strings
 Merge New Subscreens
 remove build version
 remove old project name "AEternal"
@@ -407,12 +407,12 @@ zc: remove title screen
     misc(zc): remove unused title/logo assets from classic_zelda.dat
 zc: remove aglogo
 zc: disable credit menu
-zscript: better jit compilation for 32b div 10000
+zscript: better JIT compilation for 32b div 10000
 
 # Tests
 
 add more visual indicators to playground_scrolling_script.zplay
-forgot to update zasm snapshot from f6d318
+forgot to update ZASM snapshot from f6d318
 fix usage of -quick-assign in test_zquest.py
 add stdout to parser expectations to capture warnings/errors
 check if gfx segments exist in workflow get_args
@@ -439,7 +439,7 @@ move zquest save classic_1st.qst test to python
     test: move zquest save classic_1st.qst test to python
 make copy of playground.qst for quick assign test
 move recording test to python
-move File->New test to python
+move `File->New` test to python
 disable save test
 do not retry replay if zplayer exits before starting
   This was hiding crashes that only sometimes happen on startup, and never

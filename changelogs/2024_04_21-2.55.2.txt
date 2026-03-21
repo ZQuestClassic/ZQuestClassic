@@ -14,7 +14,7 @@ update 'default.qst'
 
 reduce sfx buffer to decrease lag caused by e7c214e
 removed flag that was breaking mod playback
-zc: hardcode 120 for zscript alpha register
+zc: hardcode 120 for ZScript alpha register
   This fixes some quests that only look at the alpha version and,
   seeing it was now 0 presented an error message to the user.
 
@@ -26,7 +26,7 @@ zq: avoid overwriting screen bookmarks on quest load
 zq: 'Gen Flags' being missing from combo advanced paste
 zq: Crash in ZInfo menu if descriptions are long
 zq: crash on reducing map count
-zq: warp dialog selector mishandling negative dmap offsets
+zq: warp dialog selector mishandling negative DMap offsets
 zq: upgrade tile+combo 'move' code, more things now update on moving tiles/combos
   Also fixes some issues with 'undo'ing moves, and adds Combo Protection for in-use combos.
 
@@ -47,10 +47,10 @@ zscript: disallow casting custom objects to unrelated types
   
   The above code now produces a compiler error.
 
-zscript: handful of zasm commands using wrong name
-zscript: handful of zasm commands using wrong name
-zscript: Trace(string) using wrong register
-zscript: wrong names for zasm npc InitD and item WeaponHitWidth
+zscript: handful of ZASM commands using wrong name
+zscript: handful of ZASM commands using wrong name
+zscript: `Trace(string)` using wrong register
+zscript: wrong names for ZASM npc InitD and item WeaponHitWidth
 zscript: various symbols with broken compiler output
   * npc->Attack()
   * npc->CanSlide()
@@ -72,7 +72,7 @@ zscript: remove some unimplemented symbols and correct some types
 
 # Documentation
 
-zscript: add documentation regarding 'Hero->Warp()' and its return square
+zscript: add documentation regarding `Hero->Warp()` and its return square
 
 # Refactors
 

@@ -5,7 +5,7 @@ https://zquestclassic.com/releases/2.55-alpha-120
 # Features
 
 
-Add 'Screen->Data[]', 'Screen->DataSize' script data array for every screen.
+Add `Screen->Data[]`, `Screen->DataSize` script data array for every screen
   This data array can be edited in the 'Screen Data' dialog, and all changes made by scripts are saved to the save file.
 
 `Init Data` dither pattern picker/previewer
@@ -17,25 +17,25 @@ Crumbling Combos (crumbling floors)
 Customizable sword tapping sounds (in Misc SFX and combo editor)
 customizable flicker speed and color for enemies and player in init data
 allow conveyors on all layers + ffcs (QR)
-Add itemsprite->NoSound
+Add `itemsprite->NoSound`
   Disables the pickup sound for an item if true.
 
-add itemsprite->NoHoldSound
+add `itemsprite->NoHoldSound`
 add configuration for snapshot image scale
 set default snapshot scale to 2x
 Allow weapons to change sprite when lit on fire
-Add 'ExDoors', similar to 'ExStates', but directional. Carries over to adjacent screen.
+Add 'ExDoors', similar to 'ExStates', but directional. Carries over to adjacent screen
 
   Relevant changes:
     feat(zscript): ZScript access for ExDoor related features
     fix: typo in previous commit
 zc: added a setting to put a limit on 'uncapped' FPS so the game still runs at playable speeds
-zq: Pressing 'esc' while zoomed in on the minimap now unzooms (instead of trying to quit zq)
+zq: Pressing 'esc' while zoomed in on the minimap now unzooms (instead of trying to quit ZQ)
 zq: 'Insert SCC' button in the string editor now respects the caret position
 zq: made enemy editor InitD compatible with script metadata
 zq: add zooming when grabbing from image
 zq: added angular tile block rotation option to the tile editor
-zq: added buttons to the dmap editor to preview enhanced music looping
+zq: added buttons to the DMap editor to preview enhanced music looping
 zq: view script slots dialog
 zq: Combo Pool Pages dialog
   Dialog is modular, should make adding future pages dialogs much easier
@@ -44,9 +44,9 @@ zq: Auto Combo Pages dialog
 zq: allow customizing invalid checkerboard color
 zq: Combo Alias Pages dialog
 std_zh: `memcpy` version that only takes 2 args (auto-determines size)
-zscript: script access for extended dmap titles and new dmap intro string IDs
-zscript: GetTilePixel(), SetTilePixel(), and Is8BitTile[]
-zscript: 'Screen->GuyCount'/'mapdata->GuyCount' for read/write enemy respawns
+zscript: script access for extended DMap titles and new DMap intro string IDs
+zscript: `GetTilePixel()`, `SetTilePixel()`, and `Is8BitTile[]`
+zscript: `Screen->GuyCount`/`mapdata->GuyCount` for read/write enemy respawns
 zscript: script access for player and enemy flicker and flash effects
 zupdater: add release channel to builds to specify where zupdater looks for updates
   This adds a "channel" configuration to releases that limits what
@@ -68,7 +68,7 @@ a couple small things related to script access of subscreens
 'Newer Player Movement' corner-shove works better with off-grid solids
 Init Data dialog sometimes being too tall
 use cross platform clock for text edit proc
-issue more vsync in old gui proc as needed to catch up
+issue more vsync in old GUI proc as needed to catch up
 [mac] only check for `.app` to allow for app bundle to be renamed
 set size when making dlg layer to avoid crash
 minor dialog hiccups in some circumstances
@@ -117,7 +117,7 @@ mark render item transform dirty when changing parent
 
 bomb equippability not respecting cost counter customization
 many issues with the 'Doors' dialog
-  Also adds new '(None)' door type. The player will not 'auto-walk' when entering from a '(None)' door, and no combos are placed when setting one in zq.
+  Also adds new '(None)' door type. The player will not 'auto-walk' when entering from a '(None)' door, and no combos are placed when setting one in ZQ.
 
 use simpler temp file creation for all platforms
   This should resolve problems with making save files observed on
@@ -142,7 +142,7 @@ zc: titlescreen hp offset when hp_per_heart != 16
 zc: Lift 'Special Item' setting wrong state
 zc: properly reset directory cache
 zc: subscreens with item-overridden level items not properly displaying
-zc: snapshot entire player screen for gui snapshot, which was missing a5 layers
+zc: snapshot entire player screen for GUI snapshot, which was missing a5 layers
 zc: set game played to false to fix quest progression sword/health bug
 zc: fix conveyor stun and forced direction persisting past stepping off the conveyor
 zc: set dummy flag when drawing temporary item
@@ -161,7 +161,7 @@ zq: import maps was unhelpfully clearing everything
   breaks map imports randomly.
 
 zq: use cross platform clock for timing to fix combo editor animation
-zq: use cross platform clock for zscript compile timing
+zq: use cross platform clock for ZScript compile timing
 zq: format zc_args.txt correctly
 zq: preserve screen bitmap
 zq: prevent crash when rendering minimap during loading
@@ -179,12 +179,12 @@ zq: Tall Grass combo wizard dropset not setting flags properly
 zq: prevent bad overlay when no tile is copied
 zq: more tile page problems from 4-bit: scaling, overlay
 zq: snapshot entire editor screen to include a5 layers
-zq: dmap editor remembering wrong tab
+zq: DMap editor remembering wrong tab
 zq: use consistent values for mouse coords when making tooltips
 std_zh: update ffrules.zh to include all new quest rules
-zscript: 'subdata->TransClock' was not returning -1 properly when not transitioning
+zscript: `subdata->TransClock` was not returning -1 properly when not transitioning
 zscript: fix slowdown caused by draw commands during frozen message strings
-zscript: persist compiled jit functions when reloading the same quest
+zscript: persist compiled JIT functions when reloading the same quest
 zscript: `Game->CurrentItemID()` being completely broken
 zscript: mark destructors of base classes as virtual
 zscript: do allegro 5 init before a4 init in parser
@@ -215,7 +215,7 @@ web: fix renamed script
 web: remove post-processing by python script
 web: include function names in release build, separate dwarf for debug build
 web: integrate web build into cmake
-web: fix missing zscript compiler caused by 7dbb75d
+web: fix missing ZScript compiler caused by 7dbb75d
 
 # Chores
 
@@ -231,7 +231,7 @@ memcpy the buffer in PACKFILE fread
 speed up copy_tile / tilesize
 use safe cstr reading functions
 add `bounded_vec` container type
-render a4->a5 bitmaps in first pass
+render `a4->a5` bitmaps in first pass
 reorder field initializer list to fix compiler warnings
 simplify render tree drawing
   This adds `prepare` and `render` functions to the RenderTreeItem
@@ -250,7 +250,7 @@ Init Data / Gamedata
       - Can set init values for script counters 26-100 (was missing before) 
   - Change how data is stored and saved to the save file
 
-cache zasm script size
+cache ZASM script size
 move zcsound source files to src/sound
 remove zcmusicd.cpp
 move ffc set data / changer out of ffc.cpp and to src/zc
@@ -371,7 +371,7 @@ fix archive test results on windows
 # Misc.
 
 include oneliners in changelog script
-reserve dmap data in qst format for z3 regions
+reserve DMap data in qst format for z3 regions
 add README.txt to release package
 log time it took to load qst
 collect quest ratings
@@ -393,7 +393,7 @@ zscript: Add compile error when trying to store temporary literals
 zscript: never compile scripts larger than 20,000 ZASM instructions
 zscript: print jit_log stuff to allegro log instead of stdout
 zscript: highly priortize only frame-1 global scripts for JIT compiler
-launcher: add support zc button
+launcher: add support ZC button
 web: make quest url a bit friendlier
 
 web: use gzip instead of allegro PACKFILE compression
