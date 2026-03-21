@@ -320,7 +320,7 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
     byte temp_midi_flags[MIDIFLAGS_SIZE];
     memcpy(temp_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     
-    zquestheader tempheader;
+    zquestheader tempheader{};
     
     if(!f)
     {
@@ -1888,7 +1888,8 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 {
 	int32_t dummy;
-	zquestheader tempheader;
+	zquestheader tempheader{};
+	tempheader.filename = Header->filename;
 	char dummybuf[80];
 	byte temp_map_count;
 	byte temp_midi_flags[MIDIFLAGS_SIZE];
@@ -1897,9 +1898,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	int16_t temp_pwdkey;
 	cvs_MD5Context ctx;
 	memset(temp_midi_flags, 0, MIDIFLAGS_SIZE);
-	memset(&tempheader, 0, sizeof(tempheader));
 	memset(FFCore.quest_format, 0, sizeof(FFCore.quest_format));
-	
 
 	
 	if(!pfread(tempheader.id_str,sizeof(tempheader.id_str),f))      // first read old header
@@ -2648,8 +2647,8 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	//}
 	
 	read_ext_zinfo = tempheader.external_zinfo;
-	
-	memcpy(Header, &tempheader, sizeof(tempheader));
+
+	*Header = tempheader;
 	map_count=temp_map_count;
 	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
 
@@ -2665,11 +2664,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		return 0;
 
 	int32_t dummy;
-	zquestheader tempheader;
+	zquestheader tempheader = *Header;
 	word s_version=0;
 	dword compatrule_version=0;
-	
-	memcpy(&tempheader, Header, sizeof(tempheader));
 	
 	if(tempheader.zelda_version >= 0x193)
 	{
@@ -3470,7 +3467,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ACTIVE_SUB_IGNORE_8PX, 1);
 	}
 
-	memcpy(Header, &tempheader, sizeof(tempheader));
+	*Header = tempheader;
 	
 	return 0;
 }
@@ -22058,7 +22055,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     
     if(!get_bit(skip_flags, skip_header))
     {
-        memcpy(Header, &tempheader, sizeof(tempheader));
+		*Header = tempheader;
     }
     if(!get_bit(skip_flags, skip_zinfo))
     {
