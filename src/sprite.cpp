@@ -20,6 +20,7 @@
 #include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/guys.h"
+#include "gui/jwin_a5.h"
 #endif
 
 #ifdef IS_PLAYER
@@ -1498,7 +1499,7 @@ void sprite::draw_hitbox()
 	start_info_bmp();
 	int x0 = x + hxofs - viewport.x;
 	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;
-	al_draw_rectangle(x0, y0, x0 + hit_width, y0 + hit_height, hitboxColor(info_opacity), 1);
+	al_draw_int_rectangle(x0, y0, hit_width, hit_height, hitboxColor(info_opacity), 1);
 	end_info_bmp();
 #endif
 }

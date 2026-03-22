@@ -387,5 +387,8 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	return D_O_K;
 }
 
-
+void al_draw_int_rectangle(int x, int y, int w, int h, ALLEGRO_COLOR col, double width)
+{
+	al_draw_rectangle(x + 0.5, y + 0.5, x + w - 0.5, y + h - 0.5, col, width);
+}
 

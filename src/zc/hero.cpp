@@ -46,6 +46,7 @@ extern refInfo playerScriptData;
 #include <fmt/format.h>
 #include "zc/render.h"
 #include <array>
+#include "gui/jwin_a5.h"
 
 extern refInfo *ri; //= NULL;
 extern int32_t(*stack)[MAX_STACK_SIZE];
@@ -5956,7 +5957,7 @@ void HeroClass::draw_hitbox()
 		start_info_bmp();
 		int x0 = x + itembox_xofs - viewport.x;
 		int y0 = y + playing_field_offset + itembox_yofs - (z + zofs) - fakez - viewport.y;
-		al_draw_rectangle(x0, y0, x0 + itembox_width, y0 + itembox_height, al_map_rgba(64,64,255,info_opacity), 1);
+		al_draw_int_rectangle(x0, y0, itembox_width, itembox_height, al_map_rgba(64,64,255,info_opacity), 1);
 		end_info_bmp();	
 	}
 }
