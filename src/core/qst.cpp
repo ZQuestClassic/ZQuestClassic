@@ -3372,6 +3372,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	
 	if (compatrule_version < 101)
 		set_qr(qr_BROKEN_WATER_PASSIVE_DAMAGE, 1);
+	if (compatrule_version < 103)
+		set_qr(qr_OLD_ITEM_HITBOXES, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -21412,6 +21414,25 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
 				if(!p_igetw(&temp_zinit.sprite_z_thresholds[q], f))
 					return qe_invalid;
+		}
+		if (s_version >= 48)
+		{
+			if (!p_getc(&temp_zinit.hero_itembox_xofs, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.hero_itembox_yofs, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.hero_itembox_width, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.hero_itembox_height, f))
+				return qe_invalid;
+		}
+		else if (get_qr(qr_LTTPCOLLISION))
+		{
+			// the default values match qr_LTTPCOLLISION being off
+			// just modify the y/height to match
+			// Not actually needed for compat in any way, but seems like a convenient default to match
+			temp_zinit.hero_itembox_yofs = 0;
+			temp_zinit.hero_itembox_height = 16;
 		}
 	}
 	

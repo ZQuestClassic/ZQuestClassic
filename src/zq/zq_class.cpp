@@ -13865,6 +13865,14 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		for(int q = 0; q < SPRITE_THRESHOLD_MAX; ++q)
 			if (!p_iputw(zinit.sprite_z_thresholds[q], f))
 				new_return(82);
+		if (!p_putc(zinit.hero_itembox_xofs, f))
+			new_return(83);
+		if (!p_putc(zinit.hero_itembox_yofs, f))
+			new_return(84);
+		if (!p_putc(zinit.hero_itembox_width, f))
+			new_return(85);
+		if (!p_putc(zinit.hero_itembox_height, f))
+			new_return(86);
 		
 		if(writecycle==0)
 		{

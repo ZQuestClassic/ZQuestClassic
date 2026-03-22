@@ -3593,6 +3593,14 @@ int32_t get_register(int32_t arg)
 			ret = Hero.ice_entry_count*10000; break;
 		case HEROICEENTRYMAXFRAMES:
 			ret = Hero.ice_entry_mcount*10000; break;
+		case HERO_ITEMBOX_XOFF:
+			ret = Hero.itembox_xofs * 10000; break;
+		case HERO_ITEMBOX_YOFF:
+			ret = Hero.itembox_yofs * 10000; break;
+		case HERO_ITEMBOX_WIDTH:
+			ret = Hero.itembox_width * 10000; break;
+		case HERO_ITEMBOX_HEIGHT:
+			ret = Hero.itembox_height * 10000; break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -11348,6 +11356,14 @@ void set_register(int32_t arg, int32_t value)
 			Hero.ice_entry_count = vbound(value/10000,0,255); break;
 		case HEROICEENTRYMAXFRAMES:
 			Hero.ice_entry_mcount = vbound(value/10000,0,255); break;
+		case HERO_ITEMBOX_XOFF:
+			Hero.itembox_xofs = vbound(value/10000,-128,127); break;
+		case HERO_ITEMBOX_YOFF:
+			Hero.itembox_yofs = vbound(value/10000,-128,127); break;
+		case HERO_ITEMBOX_WIDTH:
+			Hero.itembox_width = vbound(value/10000,0,255); break;
+		case HERO_ITEMBOX_HEIGHT:
+			Hero.itembox_height = vbound(value/10000,0,255); break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//

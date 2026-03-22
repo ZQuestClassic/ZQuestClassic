@@ -397,7 +397,12 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		
 	anim = itm.frames>0;
 	
-	if(pickup&ipBIGRANGE)
+	if (!get_qr(qr_OLD_ITEM_HITBOXES))
+	{
+		hxofs = hyofs = 0;
+		hit_width = hit_height = 16;
+	}
+	else if(pickup&ipBIGRANGE)
 	{
 		hxofs=-8;
 		hit_width=17;

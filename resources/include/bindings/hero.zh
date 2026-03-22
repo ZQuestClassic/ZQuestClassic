@@ -638,6 +638,26 @@ class hero {
 
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
+	
+	// X-offset for the player's item collection hitbox.
+	//
+	// @zasm_var HERO_ITEMBOX_XOFF
+	internal int ItemBoxXOffset;
+	
+	// Y-offset for the player's item collection hitbox.
+	//
+	// @zasm_var HERO_ITEMBOX_YOFF
+	internal int ItemBoxYOffset;
+	
+	// Width of the player's item collection hitbox.
+	//
+	// @zasm_var HERO_ITEMBOX_WIDTH
+	internal int ItemBoxWidth;
+	
+	// Height of the player's item collection hitbox.
+	//
+	// @zasm_var HERO_ITEMBOX_HEIGHT
+	internal int ItemBoxHeight;
 
 	// The current A and B button items (combined bitwise). Doesn't work for item IDs > 255.
 	//

@@ -87,6 +87,9 @@ struct zinitdata
 	word item_spawn_flicker = 32, item_timeout_dur = 512, item_timeout_flicker = 0;
 	byte item_flicker_speed = 2;
 	
+	int8_t hero_itembox_xofs, hero_itembox_yofs = 8;
+	byte hero_itembox_width = 16, hero_itembox_height = 8;
+	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
 	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
