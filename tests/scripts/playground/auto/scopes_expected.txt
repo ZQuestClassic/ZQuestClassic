@@ -1329,7 +1329,7 @@ TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start                          
 TRACE3; InlineFunc[void Trace(char32[])] Body End                               | 1300 tests/scripts/playground/auto/scopes.zs:231
 LOAD D2 0.0003; InlineFunc[void Trace(untyped)] Params                          | 1301 tests/scripts/playground/auto/scopes.zs:232
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Else End       | 1302 tests/scripts/playground/auto/scopes.zs:232
-NOP                                                                             | 1303 tests/scripts/playground/auto/scopes.zs:222
+REF_REMOVE 0.0002                                                               | 1303 tests/scripts/playground/auto/scopes.zs:222
 REF_REMOVE 0.0004                                                               | 1304 tests/scripts/playground/auto/scopes.zs:220
 POPARGS D5 0.0005                                                               | 1305 tests/scripts/playground/auto/scopes.zs:233
 RETURNFUNC; Func[void range_loop_fn()] Body End                                 | 1306 tests/scripts/playground/auto/scopes.zs:233

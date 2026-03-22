@@ -135,6 +135,7 @@ namespace ZScript
 		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;
 		std::vector<int32_t> continuelabelids;
+		std::vector<std::vector<Scope*>> continueScopes;
 		std::vector<int32_t> breaklabelids;
 		std::vector<std::vector<Scope*>> breakScopes;
 		// TODO: Not really used, refactor its one usage and delete.
@@ -164,10 +165,11 @@ namespace ZScript
 			break_to_counts.push_back(0);
 			scope_allocations.emplace_back(scope_pops);
 		}
-		void push_cont(int32_t id)
+		void push_cont(int32_t id, std::vector<Scope*> scopes)
 		{
 			++continue_depth;
 			continuelabelids.push_back(id);
+			continueScopes.push_back(scopes);
 		}
 		void pop_break()
 		{
@@ -181,6 +183,7 @@ namespace ZScript
 		{
 			--continue_depth;
 			continuelabelids.pop_back();
+			continueScopes.pop_back();
 		}
 		uint scope_pops_back(uint break_count)
 		{

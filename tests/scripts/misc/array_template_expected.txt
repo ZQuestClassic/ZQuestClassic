@@ -65,7 +65,7 @@ STORE_OBJECT D2 0.0009
 PUSHR D4
 LOAD D2 0.0009; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0271; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 3 0.0009
 PUSHR D2
@@ -96,7 +96,7 @@ STORE_OBJECT D2 0.0008
 PUSHR D4
 LOAD D2 0.0008; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0271; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 0 0
 STORE_OBJECT D2 0.0007
@@ -110,7 +110,7 @@ LOAD D3 0.0006
 COMPARER D3 D2
 GOTOCMP 96 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
-STORE D2 0.0004
+STORE_OBJECT D2 0.0004
 ADDV D3 1
 STORE D3 0.0006
 PUSHR D4; for(each) #1 Body Start
@@ -118,13 +118,15 @@ LOAD D2 0.0007; UsrFunc[void arraycat(int[], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void arraycat(int[], int[])] Params End
-CALLFUNC 0.0177; UsrFunc[void arraycat(int[], int[])] Call
+CALLFUNC 0.0179; UsrFunc[void arraycat(int[], int[])] Call
 POP D4; for(each) #1 Body End
 GOTO 79; for(each) #1 End
+REF_REMOVE 0.0005
+REF_REMOVE 0.0004
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[void print(int[])] Params Start
 PUSHR D2; UsrFunc[void print(int[])] Params End
-CALLFUNC 0.0258; UsrFunc[void print(int[])] Call
+CALLFUNC 0.0260; UsrFunc[void print(int[])] Call
 POP D4
 STOREV -1 0.0006; loop() #1 ValDecl
 PUSHR D4; loop() #1 Body Start
@@ -132,18 +134,18 @@ LOAD D2 0.0007; UsrFunc[void append(int[], int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2; UsrFunc[void append(int[], int)] Params End
-CALLFUNC 0.0229; UsrFunc[void append(int[], int)] Call
+CALLFUNC 0.0231; UsrFunc[void append(int[], int)] Call
 POP D4; loop() #1 Body End
 LOAD D3 0.0006; loop() #1 Incr
 ADDV D3 -1
 STORE D3 0.0006
 COMPAREV D3 -9.9999; loop() #1 Test
-GOTOCMP 102 >=; >= start, keep looping
+GOTOCMP 104 >=; >= start, keep looping
 POPARGS D5 0
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[void print(int[])] Params Start
 PUSHR D2; UsrFunc[void print(int[])] Params End
-CALLFUNC 0.0258; UsrFunc[void print(int[])] Call
+CALLFUNC 0.0260; UsrFunc[void print(int[])] Call
 POP D4
 ALLOCATEMEMV D2 3 0
 PUSHR D2
@@ -155,11 +157,11 @@ LOAD D2 0.0009; UsrFunc[void append(int[][], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2; UsrFunc[void append(int[][], int[])] Params End
-CALLFUNC 0.0242; UsrFunc[void append(int[][], int[])] Call
+CALLFUNC 0.0244; UsrFunc[void append(int[][], int[])] Call
 PEEK D4
 LOAD D2 0.0009; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0271; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 3 0
 PUSHR D2
@@ -230,7 +232,7 @@ LOAD D0 0.0001; for(each) #2 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 224 >=; for(each) #2 to Else
+GOTOCMP 226 >=; for(each) #2 to Else
 READPODARRAYR D2 D3; for(each) #2 Next Index
 STORE D2 0
 ADDV D3 1
@@ -248,8 +250,8 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2 0; for(each) #2 Body End
-GOTO 201; for(each) #2 End
-NOP
+GOTO 203; for(each) #2 End
+REF_REMOVE 0.0001
 REF_REMOVE 0.0005
 REF_REMOVE 0.0004
 POPARGS D5 0.0006

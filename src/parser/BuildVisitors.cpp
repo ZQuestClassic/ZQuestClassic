@@ -464,6 +464,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		//nop
 		addOpcode(new ONoOp(endif));
 
+		mark_ref_remove_if_needed_for_scope(host.getScope());
 		finalizeScope();
 	}
 	else
@@ -587,6 +588,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		
 		addOpcode(new ONoOp(endif));
 
+		mark_ref_remove_if_needed_for_scope(host.getScope());
 		finalizeScope();
 	}
 	else
@@ -938,8 +940,9 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//run the loop body
 	//save the old break and continue values
 
-	push_break(loopend, 0, getBreakableScopesForStatement(&host));
-	push_cont(loopincr);
+	auto breakable_scopes = getBreakableScopesForStatement(&host);
+	push_break(loopend, 0, breakable_scopes);
+	push_cont(loopincr, breakable_scopes);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -969,6 +972,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//nop
 	addOpcode(new ONoOp(loopend));
 
+	mark_ref_remove_if_needed_for_scope(host.getScope());
 	finalizeScope();
 }
 
@@ -996,7 +1000,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	targ_sz = commentTarget();
 	literal_visit(host.decl.get(), param);
 	commentAt(targ_sz, fmt::format("for(each) #{} ValDecl",forid));
-	
+
 	int32_t decloffset = host.decl->manager->getStackOffset(false);
 	int32_t arrdecloffset = host.arrdecl->manager->getStackOffset(false);
 	int32_t indxdecloffset = host.indxdecl->manager->getStackOffset(false);
@@ -1021,14 +1025,19 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP2)));
 	commentBack(fmt::format("for(each) #{} Next Index",forid));
 	//... and store it in the local variable.
-	addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	auto& declType = host.decl->resolveType(scope, this);
+	if (declType.isObject())
+		addOpcode(new OStoreObject(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	else
+		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 	//Now increment the iterator for the next loop
 	addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(10000)));
 	addOpcode(new OStore(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	
 	//...and run the inside of the loop.
-	push_break(loopend, 0, getBreakableScopesForStatement(&host));
-	push_cont(loopstart);
+	auto breakable_scopes = getBreakableScopesForStatement(&host);
+	push_break(loopend, 0, breakable_scopes);
+	push_cont(loopstart, breakable_scopes);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1036,7 +1045,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	
 	pop_break();
 	pop_cont();
-	
+
 	//Return to top of loop
 	if(host.ends_loop)
 		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
@@ -1055,6 +1064,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	}
 	
 	addOpcode(new ONoOp(loopend));
+	mark_ref_remove_if_needed_for_scope(host.getScope());
 }
 
 void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
@@ -1189,8 +1199,9 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
-	push_break(loopend, mgr.count(), getBreakableScopesForStatement(&host));
-	push_cont(loopcont);
+	auto breakable_scopes = getBreakableScopesForStatement(&host);
+	push_break(loopend, mgr.count(), breakable_scopes);
+	push_cont(loopcont, breakable_scopes);
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1393,6 +1404,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	
 	addOpcode(new ONoOp(loopend));
+	mark_ref_remove_if_needed_for_scope(host.getScope());
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
@@ -1438,8 +1450,9 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		}
 	}
 	
-	push_break(endlabel, 0, getBreakableScopesForStatement(&host));
-	push_cont(startlabel);
+	auto breakable_scopes = getBreakableScopesForStatement(&host);
+	push_break(endlabel, 0, breakable_scopes);
+	push_cont(startlabel, breakable_scopes);
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1481,8 +1494,9 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	if(!deadloop)
 		addOpcode(new ONoOp(startlabel));
 	
-	push_break(endlabel, 0, getBreakableScopesForStatement(&host));
-	push_cont(continuelabel);
+	auto breakable_scopes = getBreakableScopesForStatement(&host);
+	push_break(endlabel, 0, breakable_scopes);
+	push_cont(continuelabel, breakable_scopes);
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
@@ -1636,6 +1650,21 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 	}
 
 	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
+
+	// Cleanup objects in the scopes we are skipping.
+	auto exiting_scopes = continueScopes.at(continueScopes.size()-host.contCount);
+	if (!exiting_scopes.empty())
+	{
+		for (auto it = cur_scopes.rbegin(); it != cur_scopes.rend(); it++)
+		{
+			auto scope = *it;
+			mark_ref_remove_if_needed_for_scope(scope);
+
+			if (std::find(exiting_scopes.begin(), exiting_scopes.end(), scope) != exiting_scopes.end())
+				break;
+		}
+	}
+
 	if(uint pops = scope_pops_back(host.contCount-1))
 		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));

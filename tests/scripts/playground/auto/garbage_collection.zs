@@ -935,6 +935,73 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - continue statement does not bypass cleanup === \n", ++tests);
+		{
+			int i = 0;
+			while (i < 3)
+			{
+				i++;
+				Person p = new Person();
+				
+				// Force a jump to the loop start, bypassing the end of the block.
+				if (i <= 3) continue; 
+			}
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - if-else with condition declaration === \n", ++tests);
+		{
+			if (Person p = new Person())
+			{
+				check("RefCount(p) inside if", RefCount(p), 1L);
+			}
+			else
+			{
+				// Unreachable because new Person() is truthy, 
+				// but its presence forces the compiler to use caseStmtIfElse.
+			}
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - for-loop setup declaration === \n", ++tests);
+		{
+			for (Person p = new Person(); p->age < 2; p->age++)
+			{
+				check("RefCount(p) inside for", RefCount(p), 1L);
+			}
+
+			for (Person p = new Person(); p->age < 2; p->age++)
+			{
+				if (p) break;
+			}
+			else
+			{
+				check("RefCount(p) inside for", RefCount(p), 1L);
+			}
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - for-each loop declaration === \n", ++tests);
+		{
+			Person[] arr = {new Person()};
+
+			for (p : arr)
+			{
+				// 1 reference in 'arr', 1 reference in the local loop variable 'p'.
+				check("RefCount(p) inside for-each", RefCount(p), 2L); 
+			}
+
+			for (p : arr)
+			{
+				if (p) break;
+			}
+			else
+			{
+				check("RefCount(arr[0]) inside for-each-else", RefCount(arr[0]), 1L); 
+			}
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
