@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-20 20:15:26</td>
+      <td>2026-03-22 04:34:09</td>
     </tr>
   </table>
 </div>
@@ -75,13 +75,13 @@
     </tr>
     <tr><td><a href="#l67">AnnotData::AnnotData() (line 67)</a></td><td>called 22223 times, returned 22223 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l67">AnnotData::~AnnotData() (line 67)</a></td><td>called 22223 times, returned 22223 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l2567">ZScript::parseFile(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 2567)</a></td><td>called 63907 times, returned 63907 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l2567">ZScript::parseFile(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 2567)</a></td><td>called 63849 times, returned 63849 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l75">annot_errstr(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, YYLTYPE const&amp;) (line 75)</a></td><td>called 2 times, returned 2 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l92">annot_incompatible(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, YYLTYPE const&amp;) (line 92)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l80">annot_trunc_str(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;, unsigned long) (line 80)</a></td><td>called 249 times, returned 249 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l84">annot_type_check(unsigned int, AnnotData const&amp;) (line 84)</a></td><td>called 22222 times, returned 22222 times</td><td>15.0%</td></tr>
     <tr><td><a href="#l96">handle_annotations(ZScript::ASTAnnotationList*, std::function&lt;bool (AnnotData&amp;)&gt;) (line 96)</a></td><td>called 22019 times, returned 22019 times</td><td>69.0%</td></tr>
-    <tr><td><a href="#l151">handle_statement_expr(ZScript::ASTExpr*) (line 151)</a></td><td>called 1622261 times, returned 1622261 times</td><td>83.0%</td></tr>
+    <tr><td><a href="#l151">handle_statement_expr(ZScript::ASTExpr*) (line 151)</a></td><td>called 1618437 times, returned 1618437 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l45">trunc_str(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;, unsigned long, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 45)</a></td><td>called 249 times, returned 249 times</td><td>8.0%</td></tr>
     <tr><td><a href="#l2555">yydb(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 2555)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l2550">yyerrmsg(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 2550)</a></td><td>called 73 times, returned 73 times</td><td>44.0%</td></tr>
@@ -1377,7 +1377,7 @@
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1622261</td>
+      <td class="linecount coveredLine">1618437</td>
       <td class="src coveredLine">ASTExpr* handle_statement_expr(ASTExpr* expr)</td>
     </tr>
     <tr class="source-line">
@@ -1393,14 +1393,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1622261 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1618437 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 128772 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1493489 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 128520 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1489917 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1622261</td>
+      <td class="linecount partialCoveredLine">1618437</td>
       <td class="src partialCoveredLine">	if(ASTExprIncrement* increm = dynamic_cast&lt;ASTExprIncrement*&gt;(expr))</td>
     </tr>
     <tr class="source-line">
@@ -1414,14 +1414,14 @@
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">128772</td>
+      <td class="linecount coveredLine">128520</td>
       <td class="src coveredLine">		increm-&gt;is_pre = true;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">128772</td>
+      <td class="linecount coveredLine">128520</td>
       <td class="src coveredLine">	}</td>
     </tr>
     <tr class="source-line">
@@ -1431,13 +1431,13 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1493489 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1432402 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 61087 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1489917 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1428930 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 60987 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1493489</td>
+      <td class="linecount partialCoveredLine">1489917</td>
       <td class="src partialCoveredLine">	else if(ASTExprDecrement* decrem = dynamic_cast&lt;ASTExprDecrement*&gt;(expr))</td>
     </tr>
     <tr class="source-line">
@@ -1451,21 +1451,21 @@
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">61087</td>
+      <td class="linecount coveredLine">60987</td>
       <td class="src coveredLine">		decrem-&gt;is_pre = true;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">61087</td>
+      <td class="linecount coveredLine">60987</td>
       <td class="src coveredLine">	}</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1622261</td>
+      <td class="linecount coveredLine">1618437</td>
       <td class="src coveredLine">	return expr;</td>
     </tr>
     <tr class="source-line">
@@ -18860,7 +18860,7 @@
       <td class="lineno"><a id="l2567" href="#l2567">2567</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">63907</td>
+      <td class="linecount coveredLine">63849</td>
       <td class="src coveredLine">	std::shared_ptr&lt;ASTFile&gt; parseFile(std::string const&amp; filename)</td>
     </tr>
     <tr class="source-line">
@@ -18874,7 +18874,7 @@
       <td class="lineno"><a id="l2569" href="#l2569">2569</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">63907</td>
+      <td class="linecount coveredLine">63849</td>
       <td class="src coveredLine">		std::shared_ptr&lt;ASTFile&gt; result;</td>
     </tr>
     <tr class="source-line">
@@ -18895,7 +18895,7 @@
       <td class="lineno"><a id="l2572" href="#l2572">2572</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">63907</td>
+      <td class="linecount coveredLine">63849</td>
       <td class="src coveredLine">		yyin = NULL;</td>
     </tr>
     <tr class="source-line">
@@ -18904,12 +18904,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		resetLexer();</td>
     </tr>
     <tr class="source-line">
@@ -18932,12 +18932,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		yyin = fopen(filename.c_str(), &#34;r&#34;);</td>
     </tr>
     <tr class="source-line">
@@ -18946,12 +18946,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		yyout = std::tmpfile();</td>
     </tr>
     <tr class="source-line">
@@ -18961,11 +18961,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 63849 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		if (!yyin)</td>
     </tr>
     <tr class="source-line">
@@ -19002,12 +19002,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		curfilename = filename;</td>
     </tr>
     <tr class="source-line">
@@ -19030,14 +19030,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 63837 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 63779 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 70 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		if (yyparse(result))</td>
     </tr>
     <tr class="source-line">
@@ -19067,12 +19067,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		fclose(yyout);</td>
     </tr>
     <tr class="source-line">
@@ -19081,12 +19081,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 63907 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 63849 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">63907</td>
+      <td class="linecount partialCoveredLine">63849</td>
       <td class="src partialCoveredLine">		fclose(yyin);</td>
     </tr>
     <tr class="source-line">
@@ -19100,14 +19100,14 @@
       <td class="lineno"><a id="l2593" href="#l2593">2593</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">63907</td>
+      <td class="linecount coveredLine">63849</td>
       <td class="src coveredLine">		return result;</td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2594" href="#l2594">2594</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">63907</td>
+      <td class="linecount coveredLine">63849</td>
       <td class="src coveredLine">	}</td>
     </tr>
     <tr class="source-line">
