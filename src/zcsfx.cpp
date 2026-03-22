@@ -2,6 +2,7 @@
 #include <allegro5/internal/aintern_audio.h>
 #include <allegro5/allegro_memfile.h>
 #include <zalleg/zalleg.h>
+#include "base/zapp.h"
 #include "core/qst.h"
 #include "zalleg/packfile.h"
 
@@ -1031,7 +1032,7 @@ void ZCSFX::clear()
 }
 void ZCSFX::cleanup_memory()
 {
-	if (internal)
+	if (internal && !is_exiting())
 		delete internal;
 	internal = nullptr;
 }
