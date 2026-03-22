@@ -21,6 +21,7 @@
 
 #ifndef IS_EDITOR
 #include "zc/render.h"
+#include "gui/jwin_a5.h"
 #endif
 
 extern HeroClass Hero;
@@ -8238,12 +8239,12 @@ void weapon::draw_hitbox()
 			{
 				int tx = x+(sbomb?sbombxoff:bombxoff)[q];
 				int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q]+playing_field_offset;
-				al_draw_rectangle(tx,ty,tx+15,ty+15,hitboxColor(info_opacity),1);
+				al_draw_int_rectangle(tx, ty, 16, 16, hitboxColor(info_opacity), 1);
 			}
 		}
 		else
 		{
-			al_draw_circle(x+8, y+8-fakez+playing_field_offset, itemsbuf[parentitem].misc7, hitboxColor(info_opacity), 1);
+			al_draw_circle(x+8+0.5, y+8-fakez+playing_field_offset+0.5, itemsbuf[parentitem].misc7, hitboxColor(info_opacity), 1);
 		}
 		end_info_bmp();
 #endif

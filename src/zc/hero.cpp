@@ -34,6 +34,7 @@ extern refInfo playerScriptData;
 #include "particles.h"
 #include <fmt/format.h>
 #include "zc/render.h"
+#include "gui/jwin_a5.h"
 
 extern refInfo *ri; //= NULL;
 extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
@@ -5772,6 +5773,7 @@ ALLEGRO_COLOR HeroClass::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(0,0,255,opacity);
 }
+
 int32_t HeroClass::compareDir(int32_t other)
 {
 	if(other != NORMAL_DIR(other))
