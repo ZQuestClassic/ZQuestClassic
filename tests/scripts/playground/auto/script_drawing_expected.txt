@@ -388,7 +388,7 @@ LOAD D2 0.0009
 PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0174; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
-STORE D2 0.0002
+STORE D2 0.0001
 LOAD D2 0.0004; if() #430 Test
 COMPAREV D2 0
 SETCMP D2 I!=
@@ -399,7 +399,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -412,7 +412,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -425,7 +425,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -438,7 +438,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -468,7 +468,7 @@ LOAD D2 0.0009
 POP D0
 WRITEPODARRAYVR 7 D2 0
 POP D2
-STORE_OBJECT D2 0.0001
+STORE_OBJECT D2 0
 PUSHR D4
 LOAD D2 0.0012; UsrFunc[int Lerp(int, int, int)] Params Start
 PUSHR D2
@@ -482,7 +482,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -490,7 +490,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 2 D2 0
@@ -507,7 +507,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -515,7 +515,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 3 D2 0
@@ -533,7 +533,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -541,7 +541,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 4 D2 0
@@ -559,7 +559,7 @@ PUSHR D2
 PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -567,7 +567,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 5 D2 0
@@ -586,7 +586,7 @@ PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -594,7 +594,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 8 D2 0
@@ -613,7 +613,7 @@ PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -621,7 +621,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 9 D2 0
@@ -639,7 +639,7 @@ PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorX(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0210; UsrFunc[int VectorX(int, int)] Call
@@ -647,7 +647,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 10 D2 0
@@ -665,7 +665,7 @@ PUSHR D4
 LOAD D2 0.0007; UsrFunc[int VectorY(int, int)] Params Start
 SUBV2 0 D2
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0001
 SUBV D2 90
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
@@ -673,7 +673,7 @@ POP D4
 POP D3
 ADDR D2 D3
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 11 D2 0
@@ -685,7 +685,7 @@ PUSHR D2
 LOAD D2 0.0013
 PUSHR D2
 PUSHV 6
-LOAD D2 0.0001
+LOAD D2 0
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
@@ -697,7 +697,7 @@ GOTO 680; if() #110 Body End
 LOAD D2 0.0013; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params Start AND if() #110 Else Start
 PUSHR D2
 PUSHV 6
-LOAD D2 0.0001
+LOAD D2 0
 PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
@@ -706,7 +706,7 @@ PUSHR D2; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Params E
 POLYGONR; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body Start
 POPARGS D5 0.0005; InlineFunc[void screendata::Polygon(int, int, int, int, int)] Body End AND if() #110 Else End
 NOP
-REF_REMOVE 0.0001
+REF_REMOVE 0
 REF_REMOVE 0.0003
 POPARGS D5 0.0014
 RETURNFUNC; Func[void DrawSlashLine(int, int, int, int, int, int, int, int, int, int, bitmap)] Body End

@@ -1749,30 +1749,7 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 	return true;
 }
-void BasicScope::decr_stack_recursive(int32_t offset)
-{
-	bool skip = true;
-	for(auto& offs : stackOffsets_)
-		if(offs.second > offset)
-		{
-			skip = false;
-			break;
-		}
-	if(skip)
-		return;
 
-	--stackDepth_;
-	for(auto& offs : stackOffsets_)
-	{
-		if (offs.second > offset)
-			--offs.second;
-	}
-	for(auto child : getChildren())
-	{
-		BasicScope* scope = static_cast<BasicScope*>(child);
-		scope->decr_stack_recursive(offset);
-	}
-}
 bool BasicScope::remove(Datum& datum)
 {
 	if (datum.type.isObject())
@@ -1783,18 +1760,10 @@ bool BasicScope::remove(Datum& datum)
 		auto it = stackOffsets_.find(&datum);
 		if(it != stackOffsets_.end())
 		{
-			auto offset = it->second;
+			// Erase it from the manager so it isn't tracked.
+			// Don't bother trying to close the hole in the stack - it isn't simple to
+			// do, and has caused a few bugs.
 			stackOffsets_.erase(it);
-			--stackDepth_;
-			for(auto& offs : stackOffsets_)
-				if(offs.second > offset)
-					--offs.second;
-			for(auto child : getChildren())
-			{
-				BasicScope* scope = static_cast<BasicScope*>(child);
-				scope->decr_stack_recursive(offset);
-			}
-			invalidateStackSize();
 			datum.mark_erased();
 			return true;
 		}

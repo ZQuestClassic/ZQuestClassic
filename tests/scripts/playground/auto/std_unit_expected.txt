@@ -423,35 +423,35 @@ GOTO 344; for() #96 End
 NOP
 POPARGS D5 0.0008
 RETURNFUNC; Func[void SetRegion(int, int, int, int, int)] Body End
-PUSHARGSV 0 0.0004; Func[int ComboX(int)] Body Start
+PUSHARGSV 0 0.0005; Func[int ComboX(int)] Body Start
 SETR D4 SP2
 SETR D2 REGION_ID; if() #23 Test
 COMPAREV D2 0
 GOTOCMP 437 ==; Test 'if'
-LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start AND if() #23 Body Start
+LOAD D2 0.0005; InlineFunc[int Floor(int)] Params Start AND if() #23 Body Start
 DIVV D2 176; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
-STORE D2 0.0003
+STORE D2 0.0004
 SETR D2 REGION_SCREEN_WIDTH
-STORE D2 0.0002
-LOAD D2 0.0003
+STORE D2 0.0003
+LOAD D2 0.0004
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0003
 POP D3
 MODR D3 D2
 SETR D2 D3
-STORE D2 0.0001
-LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+STORE D2 0.0002
+LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0003
 POP D3
 DIVR D3 D2
 SETR D2 D3; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
-LOAD D2 0.0004
+LOAD D2 0.0005
 MODV D2 176
 STORE D2 0
-LOAD D2 0.0001; return Start
+LOAD D2 0.0002; return Start
 MULTV D2 16
 MULTV D2 16
 PUSHR D2
@@ -462,33 +462,33 @@ POP D3
 ADDR D2 D3
 GOTO 442; return End
 GOTO 441; if() #23 Body End
-LOAD D2 0.0004; return Start AND if() #23 Else Start
+LOAD D2 0.0005; return Start AND if() #23 Else Start
 MODV D2 16
 MULTV D2 16
 GOTO 442; return End AND if() #23 Else End
 NOP
-POPARGS D5 0.0005
+POPARGS D5 0.0006
 RETURNFUNC; Func[int ComboX(int)] Body End
-PUSHARGSV 0 0.0004; Func[int ComboY(int)] Body Start
+PUSHARGSV 0 0.0005; Func[int ComboY(int)] Body Start
 SETR D4 SP2
 SETR D2 REGION_ID; if() #24 Test
 COMPAREV D2 0
 GOTOCMP 476 ==; Test 'if'
-LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start AND if() #24 Body Start
+LOAD D2 0.0005; InlineFunc[int Floor(int)] Params Start AND if() #24 Body Start
 DIVV D2 176; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
-STORE D2 0.0003
+STORE D2 0.0004
 SETR D2 REGION_SCREEN_WIDTH
-STORE D2 0.0002
-LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+STORE D2 0.0003
+LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
-LOAD D2 0.0002
+LOAD D2 0.0003
 POP D3
 DIVR D3 D2
 SETR D2 D3; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0001
-LOAD D2 0.0004
+LOAD D2 0.0005
 MODV D2 176
 STORE D2 0
 LOAD D2 0.0001; return Start
@@ -501,11 +501,11 @@ POP D3
 ADDR D2 D3
 GOTO 480; return End
 GOTO 479; if() #24 Body End
-LOAD D2 0.0004; return Start AND if() #24 Else Start
+LOAD D2 0.0005; return Start AND if() #24 Else Start
 ANDV D2 240
 GOTO 480; return End AND if() #24 Else End
 NOP
-POPARGS D5 0.0005
+POPARGS D5 0.0006
 RETURNFUNC; Func[int ComboY(int)] Body End
 SETR D4 SP2; Func[int DirNormal(int)] Body Start
 LOAD D2 0; switch() #9 Key

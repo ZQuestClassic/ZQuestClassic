@@ -1175,18 +1175,18 @@ PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.4205; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D2 0.0003
-STORE_OBJECT D2 0.0001
+STORE_OBJECT D2 0
 PUSHR D4
 ALLOCATEMEMV D2 13 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(b2)"
 PUSHR D2
-LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
+LOAD D2 0; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
 PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
 CALLFUNC 0.4205; UsrFunc[void check(char32[], int, int)] Call
 POP D4
-REF_REMOVE 0.0001; while() #4 Else End
+REF_REMOVE 0; while() #4 Else End
 PUSHR D4
 ALLOCATEMEMV D2 12 0; UsrFunc[void check(char32[], int, int)] Params Start
 WRITEPODSTRING D2 "RefCount(a)"
