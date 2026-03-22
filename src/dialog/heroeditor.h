@@ -67,11 +67,6 @@ private:
 	GUI::ListData list_defensenames, list_defenses, list_deftypes, list_animations, list_swimtypes;
 	
 	std::shared_ptr<GUI::SelHeroTileSwatch> liftSwatch[4];
-	std::shared_ptr<GUI::DropDownList> ddl_defenses[36];
-	std::shared_ptr<GUI::DropDownList> animation_style;
-	std::shared_ptr<GUI::DropDownList> swim_speed;
-	std::shared_ptr<GUI::Checkbox> biglinkhitbox;
-	std::shared_ptr<GUI::Checkbox> diagonalmovement;
 
 	std::shared_ptr<GUI::Window> window;
 		

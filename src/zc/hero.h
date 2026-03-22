@@ -275,6 +275,8 @@ public:
 	int32_t swimsiderate;
 	int32_t swimdownrate;
 	zfix shove_offset;
+	int8_t itembox_xofs, itembox_yofs;
+	byte itembox_width, itembox_height;
 	byte defence[wMax];
 	int32_t subscr_speed;
 	bool is_warping;
@@ -462,6 +464,7 @@ public:
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
+	virtual void draw_hitbox();
 	int getHammerState() const;
 	bool handle_portal_collide(portal* p);
 	void handle_portal_prox(portal* p);

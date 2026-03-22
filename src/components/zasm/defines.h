@@ -3369,6 +3369,10 @@ enum ASM_DEFINE
 #define FFCINDEX                       0x16A7
 #define LWPNPIERCE                     0x16A8
 #define EWPNPIERCE                     0x16A9
+#define HERO_ITEMBOX_XOFF              0x16AA
+#define HERO_ITEMBOX_YOFF              0x16AB
+#define HERO_ITEMBOX_WIDTH             0x16AC
+#define HERO_ITEMBOX_HEIGHT            0x16AD
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

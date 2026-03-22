@@ -1072,6 +1072,12 @@ static GUI::ListData compatRulesList
 		"If enabled, the passive damage feature of liquid combos will not properly check the item to nullify the damage."
 		"\nIt will also EITHER not emit player damage events OR not use the hit sound properly,"
 		" depending on if the water is shallow or not and if 'New Shallow Water Detection' is enabled or not." },
+	{ "Old Item Hitboxes", qr_OLD_ITEM_HITBOXES,
+		"If enabled, items will use relatively weird hitboxes, and the player will also use a weird hitbox calculation"
+		" for picking them up. This weirdness is how items have worked in ZC for a long time, but makes it difficult to"
+		" do things like customize item hitboxes per-item and still having them work properly."
+		"\nIf disabled, items use a standard 16x16 hitbox by default, and the player's collision check uses a"
+		" customizable hitbox for items (see 'Quest->Hero')."},
 };
 
 static GUI::ListData enemiesRulesList

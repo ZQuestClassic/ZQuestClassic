@@ -171,6 +171,10 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case HEROISWARPING: return "Hero->IsWarping";
 		case LINKITEMA: return "Hero->ItemA";
 		case LINKITEMB: return "Hero->ItemB";
+		case HERO_ITEMBOX_HEIGHT: return "Hero->ItemBoxHeight";
+		case HERO_ITEMBOX_WIDTH: return "Hero->ItemBoxWidth";
+		case HERO_ITEMBOX_XOFF: return "Hero->ItemBoxXOffset";
+		case HERO_ITEMBOX_YOFF: return "Hero->ItemBoxYOffset";
 		case HEROITEMCOOLDOWN: return "Hero->ItemCooldown[]";
 		case LINKITEMJINX: return "Hero->ItemJinx";
 		case LINKITEMX: return "Hero->ItemX";

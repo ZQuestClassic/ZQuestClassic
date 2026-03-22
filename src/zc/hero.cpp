@@ -1792,6 +1792,12 @@ void HeroClass::init()
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
 	shove_offset = zinit.shove_offset;
+	
+	itembox_xofs = zinit.hero_itembox_xofs;
+	itembox_yofs = zinit.hero_itembox_yofs;
+	itembox_width = zinit.hero_itembox_width;
+	itembox_height = zinit.hero_itembox_height;
+	
 	is_warping = false;
 	coyotetime = 0;
 	
@@ -5940,6 +5946,19 @@ int32_t HeroClass::defend(weapon *w)
 ALLEGRO_COLOR HeroClass::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(0,0,255,opacity);
+}
+void HeroClass::draw_hitbox()
+{
+	sprite::draw_hitbox();
+	if (!get_qr(qr_OLD_ITEM_HITBOXES))
+	{
+		// Draw the new 'itembox'
+		start_info_bmp();
+		int x0 = x + itembox_xofs - viewport.x;
+		int y0 = y + playing_field_offset + itembox_yofs - (z + zofs) - fakez - viewport.y;
+		al_draw_rectangle(x0, y0, x0 + itembox_width, y0 + itembox_height, al_map_rgba(64,64,255,info_opacity), 1);
+		end_info_bmp();	
+	}
 }
 int32_t HeroClass::compareDir(int32_t other)
 {
@@ -31467,11 +31486,15 @@ bool HeroClass::checkitems(int32_t index)
 					i--;
 			}
 		}
-		if(diagonalMovement || NO_GRIDLOCK)
+		if (!get_qr(qr_OLD_ITEM_HITBOXES))
 		{
-			index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
+			index = items.hit(x+itembox_xofs,y-fakez+itembox_yofs,z,itembox_width,itembox_height,1);
 		}
-		else index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,1,1,1);
+		else if (diagonalMovement || NO_GRIDLOCK)
+		{
+			index = items.hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
+		}
+		else index = items.hit(x,y+(bigHitbox?0:8)-fakez,z,1,1,1);
 	}
 	
 	if(index==-1)
