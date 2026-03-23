@@ -11645,6 +11645,17 @@ REDRAW:
 							mark_save_dirty();
 						}
 					} },
+				{ "Select", [&]()
+					{
+						void on_scroll_cpane();
+						int32_t onDrawingModeNormal();
+						Combo = tile;
+						CSet = cs;
+						done = 1;
+						onDrawingModeNormal();
+						on_scroll_cpane();
+					}
+				},
 				{},
 				{ "Edit", [&]()
 					{
