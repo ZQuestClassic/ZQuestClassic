@@ -137,7 +137,7 @@ static const char *combotype_help_string[cMAX] =
 	"Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
 	"", //cUNDEF
 	"A Bracelet is not needed to push this combo, but it can't be pushed until the enemies are cleared from the screen.",
-	"A Bracelet is needed to push this combo. The screen's Under Combo will appear beneath it when it is pushed aside.",
+	"A Bracelet is needed to push this combo. The screen's Undercombo will appear beneath it when it is pushed aside.",
 	"A Bracelet is needed to push this combo, and it can't be pushed until the enemies are cleared from the screen.",
 	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
 	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
@@ -152,7 +152,7 @@ static const char *combotype_help_string[cMAX] =
 	"This activates Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
 	"This activates Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
 	"", // Unused
-	"When stabbed or slashed with a Sword, this combo changes into the screen's Under Combo.",
+	"When stabbed or slashed with a Sword, this combo changes into the screen's Undercombo.",
 	"Identical to Slash, but an item from Item Drop Set 12 is created when this combo is slashed.",
 	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy).",
 	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy, Wait).",
@@ -254,9 +254,9 @@ static const char *combotype_help_string[cMAX] =
 	"While this combo is on the screen, all action is frozen, except for FFC animation and all scripts. Best used in conjunction with Changer FFCs or scripts.",
 	"While this combo is on the screen, FFCs and FFC scripts will be frozen. Best used in conjunction with combo cycling, screen secrets or global scripts.",
 	"Enemies that don't fly or jump cannot enter or appear on this combo.",
-	"Identical to Slash, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-	"Identical to Slash (Item), but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-	"Identical to Bush, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	"Identical to Slash, but instead of changing into the Undercombo when slashed, this changes to the next combo in the list.",
+	"Identical to Slash (Item), but instead of changing into the Undercombo when slashed, this changes to the next combo in the list.",
+	"Identical to Bush, but instead of changing into the Undercombo when slashed, this changes to the next combo in the list.",
 	// Continuous variation
 	"Identical to Slash, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
 	"Identical to Slash->Item, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
@@ -267,7 +267,7 @@ static const char *combotype_help_string[cMAX] =
 	"Identical to Slash->Next (Item), but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
 	"Identical to Bush->Next, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
 	"Identical to Eyeball (8-Way A), but only the four cardinal directions/sets of tiles are used (up, down, left and right, respectively).",
-	"Identical to Tall Grass, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	"Identical to Tall Grass, but instead of changing into the Undercombo when slashed, this changes to the next combo in the list.",
 	// Script types
 	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //1
 	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
@@ -402,7 +402,7 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = "Crumbles when stood on, turning into the next combo. Various crumbling options are available.";
 			break;
 		case cARMOS:
-			typehelp = "When touched, this combo produces an Armos and changes to the screen's Under Combo."
+			typehelp = "When touched, this combo produces an Armos and changes to the screen's Undercombo."
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
 			break;
 		case cGRAVE:
@@ -468,7 +468,7 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.";
 			break;
 		case mfARMOS_SECRET:
-			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is activated, instead of the screen's Under Combo.";
+			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is activated, instead of the screen's Undercombo.";
 			break;
 		case mfARMOS_ITEM:
 			flaghelp = "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.";
@@ -621,7 +621,7 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfSECRETS13: case mfSECRETS14: case mfSECRETS15: case mfSECRETS16:
 			flaghelp = "When Screen Secrets are activated, this is replaced with Secret Combo "
 				+ std::to_string(id) + ". (Also, flagged Destructible Combos"
-				" will use that Secret Combo instead of the Under Combo.)";
+				" will use that Secret Combo instead of the Undercombo.)";
 			break;
 		case mfENEMY0: case mfENEMY1: case mfENEMY2: case mfENEMY3: case mfENEMY4:
 		case mfENEMY5: case mfENEMY6: case mfENEMY7: case mfENEMY8: case mfENEMY9:

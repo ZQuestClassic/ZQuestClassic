@@ -1451,7 +1451,7 @@ static NewMenu data_menu
 	{ "&Tile Warp", onTileWarp },
 	{ "Side &Warp", onSideWarp },
 	{ "Secret &Combos", onSecretCombo },
-	{ "&Under Combo", onUnderCombo },
+	{ "&Undercombo", onUnderCombo },
 	{ "&Doors", onDoors },
 	{ "&Maze Path", onPath },
 	{},
@@ -6954,7 +6954,7 @@ void refresh(int32_t flags, bool update)
 			if(!undercombo && integrityBoolUnderCombo(Map.CurrScr(),ctype))
 			{
 				undercombo = true;
-				show_screen_error("Under Combo is combo 0",i++, vc(7));
+				show_screen_error("Undercombo is combo 0",i++, vc(7));
 			}
 			
 			// Tile Warp types
