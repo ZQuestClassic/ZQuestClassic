@@ -1590,6 +1590,8 @@ static GUI::ListData subscrRulesList
 		"\nAlso allows unequipping items by trying to equip it to the same button again."},
 	{ "Old Gauge Tile Layout", qr_OLD_GAUGE_TILE_LAYOUT,
 		"If enabled, 'Gauge' type widgets on the subscreen will use the old-style layout."},
+	{ "Subscreen Selector fits to item hitboxes", qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX,
+		"If enabled, the subscreen selector will fit itself to the hitbox of an Item Slot widget's item." },
 	
 	{ "Allow Setting A Button Items", qr_SELECTAWPN,
 		"If enabled, you can select what item goes on the A button on the subscreen."

@@ -4641,6 +4641,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	}
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
+	bool use_item_hitbox = get_qr(qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX);
 	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
 	tempsel.subscreenItem=true;
@@ -4684,7 +4685,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		sw = selectile.sw;
 		sh = selectile.sh;
 		sxofs = syofs = 0;
-		if(widg->getType() == widgITEMSLOT && id > -1)
+		if (use_item_hitbox && widg->getType() == widgITEMSLOT && id > -1)
 		{
 			dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
 			dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
@@ -4740,7 +4741,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			sh = (tempsel.extend > 2 ? tempsel.hit_height : 16);
 			sxofs = (tempsel.extend > 2 ? tempsel.hxofs : 0);
 			syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
-			if(widg->getType() == widgITEMSLOT && id > -1)
+			if (use_item_hitbox && widg->getType() == widgITEMSLOT && id > -1)
 			{
 				dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
 				dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
