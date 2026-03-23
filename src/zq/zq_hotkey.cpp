@@ -234,7 +234,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_NES_DUNGEON_TEMPL: return "NES Dungeon Template";
 		case ZQKEY_DEFAULT_TILES: return "Default Tiles";
 		case ZQKEY_MCGUFFIN_PIECES: return "McGuffin Pieces";
-		case ZQKEY_UNDERCOMBO: return "Under Combo";
+		case ZQKEY_UNDERCOMBO: return "Undercombo";
 		case ZQKEY_PASTE_UNDERCOMBO: return "Paste Undercombo";
 		case ZQKEY_VIDEO_MODE: return "Video Mode";
 		case ZQKEY_VIEW_PALETTE: return "View Palette";
