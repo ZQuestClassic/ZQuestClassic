@@ -11710,6 +11710,14 @@ REDRAW:
 						mark_save_dirty();
 					} },
 				{},
+				{ "Open Tile Page", [&]()
+					{
+						int t = combobuf[tile].o_tile;
+						int f = 0;
+						int cs = CSet;
+						select_tile(t,f,0,cs,true,0,false);
+					}
+				},
 				{ "Locations", [&]()
 					{
 						int32_t z = Combo;
