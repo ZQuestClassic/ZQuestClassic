@@ -18,6 +18,7 @@ int32_t onComboTypeLocationReport();
 int32_t onBuggedNextComboLocationReport();
 void BuggedNextComboLocationReport();
 int32_t onWhatWarpsReport();
+int32_t onDMapLevelsReport();
 
 //Integrity booleans
 bool integrityBoolSpecialItem(mapscr* ts);

@@ -1306,6 +1306,7 @@ static NewMenu quest_reports_menu
 	{ "&Item Locations", onItemLocationReport },
 	{ "&Script Locations", onScriptLocationReport },
 	{ "&What Links Here", onWhatWarpsReport },
+	{ "&DMap Levels", onDMapLevelsReport },
 	{ "In&tegrity Check ", &integrity_check_menu },
 };
 
