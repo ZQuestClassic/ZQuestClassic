@@ -921,7 +921,7 @@ void integrityCheckUnderCombo()
             {
                 if(!type_found)
                 {
-                    quest_report_str+="The following screens contain combo types or secret combos that are replaced with the Under Combo, but the Under Combo for that room is combo 0. In some cases, this may not indicate a problem. Also, this does not take cycling combos into account.\n";
+                    quest_report_str+="The following screens contain combo types or secret combos that are replaced with the Undercombo, but the Undercombo for that room is combo 0. In some cases, this may not indicate a problem. Also, this does not take cycling combos into account.\n";
                     type_found=true;
                 }
                 
