@@ -22,6 +22,7 @@
 #include "zq/zquest.h"
 #include "core/qst.h"
 #include "zc_list_data.h"
+#include <fmt/ranges.h>
 
 extern int32_t bie_cnt;
 
@@ -2453,3 +2454,40 @@ int32_t onWhatWarpsReport()
         
     return D_O_K;
 }
+
+int32_t onDMapLevelsReport()
+{
+	quest_report_str = "This report lists the dmaps currently set for each Level number.\n";
+
+	std::map<int, std::vector<string>> data;
+	size_t nameless_0_count = 0;
+
+	for (int q = 0; q < MAXDMAPS; ++q)
+	{
+		auto const& dm = DMaps[q];
+		if (!dm.level && !strlen(dm.name))
+			++nameless_0_count;
+		else
+			data[dm.level].push_back(fmt::format("{}: '{}'", q, dm.name));
+	}
+
+	if (!data.contains(0))
+		quest_report_str += fmt::format("\nLevel 0:\n{} dmaps with empty names, presumably empty.\n", nameless_0_count);
+	for (auto [k, vals] : data)
+	{
+		quest_report_str += fmt::format("\nLevel {}:\n{}\n", k, fmt::join(vals, ", "));
+		
+		if (!k && nameless_0_count)
+		{
+			quest_report_str += fmt::format("...and {} unnamed dmaps.\n", nameless_0_count);
+			nameless_0_count = 0;
+		}
+	}
+
+	restore_mouse();
+
+	showQuestReport();
+
+	return D_O_K;
+}
+
