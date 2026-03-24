@@ -4,58 +4,58 @@ https://zquestclassic.com/releases/2.55-alpha-118
 
 # Bug Fixes
 
-typo with subscreen view setting
-windows 7 crashes on compile ZScript
+Typo with subscreen view setting
+Windows 7 crashes on compile ZScript
 'View Unowned Items' subscreen bugs
-subscreen buttonitem on active subscreen not scrolling properly
-close about window on ESC/clicking X
+Subscreen buttonitem on active subscreen not scrolling properly
+Close about window on ESC/clicking X
 
 [mac] title bar showing on initial fullscreen launch
   The `osx_tell_dock_outside_bundle = false` feature I added to allegro
   recently is somewhat useful in development, but apparently problematic
   for normal use.
 
-zc: handle error when sav file fails to load
-zc: unload other save games when selecting one
-zc: save file corruption from overlooked fields
+zc: Handle error when sav file fails to load
+zc: Unload other save games when selecting one
+zc: Save file corruption from overlooked fields
 zc: Crash on ZScript object destructor
 zc: Crash on DMap lacking subscreen
-zc: read hp from save file for life meter on titlescreen
-zc: remove accidental dev mode, which always allows cheats
-zc: retain previous position when returning to title screen
-zc: unreliable behavior of ESC in title screen
-zc: sfx accidentally disabled in save select screen
-zc: empty item slots filling wrongly
-zc: weird subscreen item animation resetting
-zq: mention change-combo shortcut in info text
-zq: room data GUI text overlap
+zc: Read hp from save file for life meter on titlescreen
+zc: Remove accidental dev mode, which always allows cheats
+zc: Retain previous position when returning to title screen
+zc: Unreliable behavior of ESC in title screen
+zc: Sfx accidentally disabled in save select screen
+zc: Empty item slots filling wrongly
+zc: Weird subscreen item animation resetting
+zq: Mention change-combo shortcut in info text
+zq: Room data GUI text overlap
 std_zh: CR_RUPEES definition was missing
-zscript: set save name being truncated because not using new string
-zscript: use safer vsnprintf to avoid crash via buffer overflow in logging
+zscript: Set save name being truncated because not using new string
+zscript: Use safer vsnprintf to avoid crash via buffer overflow in logging
 zscript: check_bunny accidentally always on for `Game->CurrentItemID()`
-web: set default saves folder to /local/saves
-web: quick quest load was broken after save refactor
+web: Set default saves folder to /local/saves
+web: Quick quest load was broken after save refactor
 
 # Build
 
-fix windows compile due to msvc hang bug
+Fix windows compile due to msvc hang bug
 
 # Chores
 
-remove outdated source file preamble comments
+Remove outdated source file preamble comments
 
 # Tests
 
-add -test-ZC switch to test save file roundtrip
-mostly finish save roundtrip test
-check for full game equality in save roundtrip
-fix ZC saves test
+Add -test-ZC switch to test save file roundtrip
+Mostly finish save roundtrip test
+Check for full game equality in save roundtrip
+Fix ZC saves test
 
 # CI
 
-fix updater test cache
-add test_zplayer.py
+Fix updater test cache
+Add test_zplayer.py
 
 # Misc.
 
-support sentry unique user counting
+Support sentry unique user counting

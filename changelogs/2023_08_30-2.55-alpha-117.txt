@@ -121,16 +121,16 @@ add software updater
     test: re-enable updater test
 Add 'Game->OverrideItems[]' to allow forcing an item id to be "highest level owned" of its' class.
 One-line minimap titles, 'Preview DMap' for subscreen editor
-allow copying subscreen pages (including across subscreens, and quests)
-setting for subscreen widgets to hide during message strings
-parser timeout is now configurable/disablable (instead of 30sec)
-expand combo initd to [8]
-walk-through nes doors now set door states when used
-allow closing program with (most) dialogs open. (clean up GUI functions too)
-add 'Button Counter' subscreen widget type
+Allow copying subscreen pages (including across subscreens, and quests)
+Setting for subscreen widgets to hide during message strings
+Parser timeout is now configurable/disablable (instead of 30sec)
+Expand combo initd to [8]
+Walk-through nes doors now set door states when used
+Allow closing program with (most) dialogs open. (clean up GUI functions too)
+Add 'Button Counter' subscreen widget type
 'No Unequip' flag for subscreen itemslot widgets
-new subscreen selector options (per-widget and subscreen-wide)
-zc: split saves into individual files
+New subscreen selector options (per-widget and subscreen-wide)
+zc: Split saves into individual files
   Each save slot created is now stored in a separate file, kept in the
   `saves/` folder. This path is configurable with `[zeldadx] save_folder`.
   
@@ -152,9 +152,9 @@ zc: split saves into individual files
   The `-standalone` switch still works the same, but the save file is at
   `saves/standalone.sav`.
 
-zc: change save slot limit from 15 to ∞
-zc: copy save file to backup folder on every save
-zc: support more than one qst file for -standalone mode
+zc: Change save slot limit from 15 to ∞
+zc: Copy save file to backup folder on every save
+zc: Support more than one qst file for -standalone mode
   Previously, standalone mode only worked for a single quest file at a
   time. For example, run `-standalone game.qst` once and `game.qst`
   becomes the only quest that will work with the save file generated. Now,
@@ -164,13 +164,13 @@ zc: support more than one qst file for -standalone mode
   relative to the `save/` folder (you can also use an absolute path).
   Example usage: `-standalone game.qst me.sav`
 
-zc: record music and sfx position for scripts in replays
-zc: configure primary and secondary gamepad stick in settings
-zc: select one of multiple gamepads in settings
-zc: add option to auto-restart in test mode when qst is saved in zquest
+zc: Record music and sfx position for scripts in replays
+zc: Configure primary and secondary gamepad stick in settings
+zc: Select one of multiple gamepads in settings
+zc: Add option to auto-restart in test mode when qst is saved in zquest
 zq: Remember 'View Layer 2/3 as BG' setting
-zq: add Shift+Minus/Plus for changing combo in combo editor
-zq: configure multiple init datas for test mode
+zq: Add Shift+Minus/Plus for changing combo in combo editor
+zq: Configure multiple init datas for test mode
   Test Mode now allows you to customize test-only init data. You can make
   multiple init datas. They are saved to your `zquest.cfg`. A basic name
   is auto-assigned, but you can set your own name by modifying your
@@ -183,32 +183,32 @@ zq: configure multiple init datas for test mode
   You can also directly modify the init data values in the config, though
   the format is not documented anywhere.
 
-zq: save test init data per-quest
-zq: made side warps for new screens default to Scrolling warps
-zq: side warp triggers cycle backwards with right click
+zq: Save test init data per-quest
+zq: Made side warps for new screens default to Scrolling warps
+zq: Side warp triggers cycle backwards with right click
 zq: "Set All" buttons for screen state carryovers
 zq: Smart Assign Slots in ZScript compile
-zq: ctrl+clicking a tile selector goes to previously selected tile
+zq: Ctrl+clicking a tile selector goes to previously selected tile
 std_zh: add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
 std_zh: item_tile/item_cset animation helpers in EmilyMisc.zh
-zscript: special layer for non-overhead ffc draws
+zscript: Special layer for non-overhead ffc draws
 zscript: Add special layer timings related to lens of truth
 zscript: Add `Game->TrigGroups[]` read-only array
 zscript: Variadic Parameters (user functions)
-zscript: printfa/sprintfa to take an array of args like printf/sprintf
+zscript: Printfa/sprintfa to take an array of args like printf/sprintf
 zscript: Allow declaring size 0 arrays
 zscript: `Game->CurrentItemID()` to use the engine method of checking owned items
 zscript: Array Push/Pop functions
 zscript: ArrayPushAt/ArrayPopAt for arbitrary index push/pop
-vscode: add "Always Include" setting, default ["std.zh"]
+vscode: Add "Always Include" setting, default ["std.zh"]
   This takes an array of files to always '#include', so that you don't need to manually add the #include to every one of your files.
 
-vscode: better working 'alwaysInclude', clean error messages for other-file errors
-vscode: better CONST_ASSERT handling, setting to ignore CONST_ASSERT errors
-vscode: use default options NO_ERROR_HALT, HEADER_GUARD for language server compiles
-vscode: add includepaths option
-launcher: add button to view current release notes
-web: support music crossfading, set position, set speed
+vscode: Better working 'alwaysInclude', clean error messages for other-file errors
+vscode: Better CONST_ASSERT handling, setting to ignore CONST_ASSERT errors
+vscode: Use default options NO_ERROR_HALT, HEADER_GUARD for language server compiles
+vscode: Add includepaths option
+launcher: Add button to view current release notes
+web: Support music crossfading, set position, set speed
   This drops the web-specific implementation of zcmusic via SDL_mixer. It
   was only done that way because we weren't building any sound libraries
   from source, so using emscripten's port system + SDL_mixer was a
@@ -218,11 +218,11 @@ web: support music crossfading, set position, set speed
 
 # Bug Fixes
 
-cutscene combos being incompatible with replays
-set exe path string to empty if fail to get exe path
-changer ffc interactions, ffc timer interactions
+Cutscene combos being incompatible with replays
+Set exe path string to empty if fail to get exe path
+Changer ffc interactions, ffc timer interactions
 
-use ut8 encoding for config and filenames
+Use ut8 encoding for config and filenames
   Config values can now carry non-ascii values. This required also configuring
   allegro to treat file paths as UTF8.
   
@@ -231,169 +231,169 @@ use ut8 encoding for config and filenames
   characters. While you may see gibberish in the file picker, files should
   still load just fine.
 
-pushable blocks not respecting lens layer hiding/revealing
-support leading dot in file selector filter
+Pushable blocks not respecting lens layer hiding/revealing
+Support leading dot in file selector filter
   This recently broke loading zplay files because the constant for the
   extension changed from `zplay` to `.zplay`, and the old file selector
   expect no leading dot, unlike every other file path API known to man.
 
 DMap music with crossfades was not setting loop points
 Allow exiting ZC when test mode gets stuck in error
-some bad dialog 'default's resulting in windows closing
-event crash due to bad weapon access
-checkbox odd alignment issues
-test quest dlg wrong button focus
-add some missing properties to init data delta
+Some bad dialog 'default's resulting in windows closing
+Event crash due to bad weapon access
+Checkbox odd alignment issues
+Test quest dlg wrong button focus
+Add some missing properties to init data delta
   Not all properties were being covered here, which affected init data
   cheat and test init data feature.
 
-typo in transition editor title
-wrong spacing on one-line minimap title widget
-avoid heap overflow crash for draw_textbox scanned string
-draw bow and arrow as button item correctly
-extraneous popup about string ordering error when loading older quests
-set window icon on Windows
-room dialog not refreshing on setting old-guy info
-fixed crash when loading enhanced music in nosound mode
-write zeros instead of random memory for fixed sized string fields
-virtual dtors for subscreen widget base classes to avoid memory leak
-use safer vsnprintf for zsys messages
-subscreen non-equippable item flag being broken
-fixed missing `zcmixer->newtrack` pointer null
-minor subscreen related fixes/tweaks
-subscreen issues related to item overrides / bow&arrow
-item quickswap issues
-subscreen related crashes
-item override arrows not displaying properly
-item bug introduced by recent commit
+Typo in transition editor title
+Wrong spacing on one-line minimap title widget
+Avoid heap overflow crash for draw_textbox scanned string
+Draw bow and arrow as button item correctly
+Extraneous popup about string ordering error when loading older quests
+Set window icon on Windows
+Room dialog not refreshing on setting old-guy info
+Fixed crash when loading enhanced music in nosound mode
+Write zeros instead of random memory for fixed sized string fields
+Virtual dtors for subscreen widget base classes to avoid memory leak
+Use safer vsnprintf for zsys messages
+Subscreen non-equippable item flag being broken
+Fixed missing `zcmixer->newtrack` pointer null
+Minor subscreen related fixes/tweaks
+Subscreen issues related to item overrides / bow&arrow
+Item quickswap issues
+Subscreen related crashes
+Item override arrows not displaying properly
+Item bug introduced by recent commit
 'Background Color' element drawing in wrong area
-zc: fix bad rebase that messed up new save file header
-zc: check save exists before attempting to use
-zc: remove warning about standalone mode
-zc: resize save vector before copying
-zc: fix bad rebase that messed up new save file header (for real)
-zc: update current volume when changing enhanced music volume
-zc: fairy flags acting different placed vs inherent
-zc: allow canceling delete/copy save with ESC
-zc: do not update saves order.txt in standalone mode
-zc: set ascii mode for ending graphics
+zc: Fix bad rebase that messed up new save file header
+zc: Check save exists before attempting to use
+zc: Remove warning about standalone mode
+zc: Resize save vector before copying
+zc: Fix bad rebase that messed up new save file header (for real)
+zc: Update current volume when changing enhanced music volume
+zc: Fairy flags acting different placed vs inherent
+zc: Allow canceling delete/copy save with ESC
+zc: Do not update saves order.txt in standalone mode
+zc: Set ascii mode for ending graphics
 zc: Conveyor oddities related to `Force Dir` flag
 zc: Triggers tab state issues
   - "->LevelState" not setting the state properly
   - "->LevelState" and "->GlobalState" not working on ffcs
 
-zc: reset the map view cursor state in init_game
+zc: Reset the map view cursor state in init_game
   For replay determinism.
 
 zc: 'Load Quest' menu option was busted from recent refactors
-zc: enhanced music not cutting to midi (none) when there's no crossfade
-zc: zero gamepad axis state on init
-zc: crop snapshot for screens with NOSUBSCR
-zc: handle failure to create save file error
-zc: defer making .sav file until after quest is selected
+zc: Enhanced music not cutting to midi (none) when there's no crossfade
+zc: Zero gamepad axis state on init
+zc: Crop snapshot for screens with NOSUBSCR
+zc: Handle failure to create save file error
+zc: Defer making .sav file until after quest is selected
 zc: X/Alt+F4 not working while in game view
-zq: bad index for -quick-assign
-zq: support headless switch with quick assign
+zq: Bad index for -quick-assign
+zq: Support headless switch with quick assign
 zq: DMap midi dropdown
-zq: better error handling for test init data
-zq: use GUI list data getter for init data DMap
-zq: use correct int size when reading qst template size
-zq: door dialog now updates visually on dropdown modify
-zq: write to temp file when saving qst and rename when done
+zq: Better error handling for test init data
+zq: Use GUI list data getter for init data DMap
+zq: Use correct int size when reading qst template size
+zq: Door dialog now updates visually on dropdown modify
+zq: Write to temp file when saving qst and rename when done
   This avoids issues with zplayer being unable to load the file on Reset
   when in Test Mode, while zquest is writing to it.
 
-zq: misaligned subcreen editor 'View' menu checkmarks
-zscript: support absolute path includes on non-windows too
-zscript: null check results before attempting to write ZASM
-zscript: missed deallocation when directly returning string literals
-zscript: shop data not handling info correctly
-zscript: some parser pointer issues
-zscript: broken typedefs from recent commits
-zscript: handle variadic class functions
-vscode: some more CONST_ASSERT issues
+zq: Misaligned subcreen editor 'View' menu checkmarks
+zscript: Support absolute path includes on non-windows too
+zscript: Null check results before attempting to write ZASM
+zscript: Missed deallocation when directly returning string literals
+zscript: Shop data not handling info correctly
+zscript: Some parser pointer issues
+zscript: Broken typedefs from recent commits
+zscript: Handle variadic class functions
+vscode: Some more CONST_ASSERT issues
 vscode: header_guard works properly for edited file, no longer causes dupe errors
-vscode: handle non-windows paths
-vscode: add missing std_constants typedef type highlightings
-vscode: operator highlighting typo
-web: prevent crash when freeing music
-web: add rests in some ui busy loops
-web: use half-frequency for sound, just like previous sdl impl
-web: update deploy script for new asset names
+vscode: Handle non-windows paths
+vscode: Add missing std_constants typedef type highlightings
+vscode: Operator highlighting typo
+web: Prevent crash when freeing music
+web: Add rests in some ui busy loops
+web: Use half-frequency for sound, just like previous sdl impl
+web: Update deploy script for new asset names
 
 # Documentation
 
-correct typo in comment for `jit_threads` option
-specify that linux builds should use clang
-changelog overrides for subscreen rework
-add Arithmetic Operators to webdocs
-line-wrap singleline codes, strip single leading newline from code blocks
-minor typo fix in webdocs
+Correct typo in comment for `jit_threads` option
+Specify that linux builds should use clang
+Changelog overrides for subscreen rework
+Add Arithmetic Operators to webdocs
+Line-wrap singleline codes, strip single leading newline from code blocks
+Minor typo fix in webdocs
 
 # Build
 
-add targets for common replay test invocations
-add stubs for sdl music to un-break web build
-fix mac app bundle signing
-fix compile by using portable optional varargs
-enable c++ 20 preprocessor for msvc
-support single config builds
-include missing import for stdint
-disable format-overflow gcc error
-disable compiler extensions
+Add targets for common replay test invocations
+Add stubs for sdl music to un-break web build
+Fix mac app bundle signing
+Fix compile by using portable optional varargs
+Enable c++ 20 preprocessor for msvc
+Support single config builds
+Include missing import for stdint
+Disable format-overflow gcc error
+Disable compiler extensions
 
-use new msvc preprocessor only for our targets
+Use new msvc preprocessor only for our targets
   This would otherwise result in crashpad_handler failing to link
   `capture_context_win.asm.obj`, which is very strange.
 
-upgrade to latest allegro
+Upgrade to latest allegro
   https://github.com/liballeg/allegro5/compare/c2bf1e11bed0b63539267115baf190741e0a437a...02382edf26ff0b0ca021dfd10c370c59d9006888
   
   https://github.com/connorjclark/allegro5/compare/my-fork-3..my-fork-4
 
-upgrade allegro fork for gamepad improvements
+Upgrade allegro fork for gamepad improvements
   https://github.com/connorjclark/allegro5/compare/my-fork-4..my-fork-5
 
-configure allegro audio to not build libdumb or libflac
+Configure allegro audio to not build libdumb or libflac
 
 # Chores
 
-bump version to alpha 117
-clean up stdout garbage whitespace output
-modify changelog for recent music additions
-add more to recent music changelog
-add sanity check to previous commit
-add some changelog overrides
+Bump version to alpha 117
+Clean up stdout garbage whitespace output
+Modify changelog for recent music additions
+Add more to recent music changelog
+Add sanity check to previous commit
+Add some changelog overrides
 zscript: Make all 'yyerror' error messages start with 'ERROR:'
 
 # Refactors
 
 Screen Script dialog now new GUI, respects script metadata
 New "Screen Data" dialog
-update DMap editor to new GUI
+Update DMap editor to new GUI
 Fix hardcoded icons, no longer using custom codepoint strings
 Merge New Subscreens
-remove build version
-remove old project name "AEternal"
-replace "string.h" with "cstring"
-use calloc in reset_tile instead of manually zeroing
+Remove build version
+Remove old project name "AEternal"
+Replace "string.h" with "cstring"
+Use calloc in reset_tile instead of manually zeroing
 
-zc: split save code from title.cpp, remove .icn
+zc: Split save code from title.cpp, remove .icn
   .icn files contained just the color data for each ring variant needed
   by the title screen. The idea was to avoid loading each quest just to
   show a single tile graphic. But, this same data is already in the gamedata
   save structure, so we don't need to maintained a separate file doing the same.
   The greatly simplifies much of the code dealing with displaying these icons.
 
-zc: remove skipicon and print_metadata_for_each_save_slot config options
-zc: move more save file handling behind saves.h interface
-zc: move save file name into saves.cpp, remove -savefile
-zc: store saves in a vector
-zc: remove support of .dat# when loading save files
-zc: update icon only once when making new save
-zc: remove unnecessary sleep/flash of black on updating save icon
-zc: skip slow combo movement modification when nothing would change
-zc: do not poll music in timer
+zc: Remove skipicon and print_metadata_for_each_save_slot config options
+zc: Move more save file handling behind saves.h interface
+zc: Move save file name into saves.cpp, remove -savefile
+zc: Store saves in a vector
+zc: Remove support of .dat# when loading save files
+zc: Update icon only once when making new save
+zc: Remove unnecessary sleep/flash of black on updating save icon
+zc: Skip slow combo movement modification when nothing would change
+zc: Do not poll music in timer
   We poll music often enough via `advanceframe`
 
 zc: remove title screen
@@ -405,80 +405,80 @@ zc: remove title screen
     refactor(zq): remove defunct -notitle switch from quest packager
     refactor(launcher): remove title option
     misc(zc): remove unused title/logo assets from classic_zelda.dat
-zc: remove aglogo
-zc: disable credit menu
-zscript: better JIT compilation for 32b div 10000
+zc: Remove aglogo
+zc: Disable credit menu
+zscript: Better JIT compilation for 32b div 10000
 
 # Tests
 
-add more visual indicators to playground_scrolling_script.zplay
-forgot to update ZASM snapshot from f6d318
-fix usage of -quick-assign in test_zquest.py
-add stdout to parser expectations to capture warnings/errors
-check if gfx segments exist in workflow get_args
-support starting replay from a sav file
+Add more visual indicators to playground_scrolling_script.zplay
+Forgot to update ZASM snapshot from f6d318
+Fix usage of -quick-assign in test_zquest.py
+Add stdout to parser expectations to capture warnings/errors
+Check if gfx segments exist in workflow get_args
+Support starting replay from a sav file
 
-add script for splitting replays
+Add script for splitting replays
   also support folders in the replay test directory
 
-split large replay files
-support headless flag for web replay tests
-disable sound for mac in CI
+Split large replay files
+Support headless flag for web replay tests
+Disable sound for mac in CI
   For some reason this started hanging the --no-headless tests, and
   crashing other tests on exit.
 
-skip sound driver in headless mode for zquest
-check allegro log exists before printing on timeout
-track save files with git lfs
-add (crude) RNG debugging option
+Skip sound driver in headless mode for zquest
+Check allegro log exists before printing on timeout
+Track save files with git lfs
+Add (crude) RNG debugging option
 run_replay_tests now forwards more args when collecting local baseline results
 move zquest save classic_1st.qst test to python
 
   Relevant changes:
     test: move zquest save classic_1st.qst test to python
     test: move zquest save classic_1st.qst test to python
-make copy of playground.qst for quick assign test
-move recording test to python
-move `File->New` test to python
-disable save test
-do not retry replay if zplayer exits before starting
+Make copy of playground.qst for quick assign test
+Move recording test to python
+Move `File->New` test to python
+Disable save test
+Do not retry replay if zplayer exits before starting
   This was hiding crashes that only sometimes happen on startup, and never
   showing a backtrace.
 
 
 # CI
 
-do not show info dialogs in ci
-quit earlier in zquest
-skip crashy test on linux
-also show changelog relative to last alpha for nightlies
-handle "boolean" correctly
-upgrade to python 3.11.4
-run python unittest module instead of calling each test file individually
+Do not show info dialogs in ci
+Quit earlier in zquest
+Skip crashy test on linux
+Also show changelog relative to last alpha for nightlies
+Handle "boolean" correctly
+Upgrade to python 3.11.4
+Run python unittest module instead of calling each test file individually
 
 # Misc.
 
 add 'std_zh' scope to changelog generation
-make std_zh a scope, instead of a type
-support squashing and rewriting commit body for changelogs
-add -version, -channel, and -repo switches
-use new name in readme
-rename mac app bundle to ZQuestClassic
-rename player executable from zelda to zplayer
-add '-no_console' switch to prevent debug console opening
+Make std_zh a scope, instead of a type
+Support squashing and rewriting commit body for changelogs
+Add -version, -channel, and -repo switches
+Use new name in readme
+Rename mac app bundle to ZQuestClassic
+Rename player executable from zelda to zplayer
+Add '-no_console' switch to prevent debug console opening
 Merge branch 'main' into newsubscr2
-support dropping commits in changelog
-allow for squash commit subjects to be changed too
-support changelog 'section' overrides for large custom markdown sections
-wrap changelog-since-alpha in a details element
-wrap custom changelog sections in details elements
-revert grabber.exe to 4.2.0 version, since current one stopped working
-add sentry breadcrumb for zsys error messages
-disable sentry session for all but zplayer and zquest
-add 'templates' folder of subscreen templates
-update default quest, default new subscreens + new gauge layout
-allow dropping commit from changelog with '!' before ':'
-vscode: publish 1.0.6
+Support dropping commits in changelog
+Allow for squash commit subjects to be changed too
+Support changelog 'section' overrides for large custom markdown sections
+Wrap changelog-since-alpha in a details element
+Wrap custom changelog sections in details elements
+Revert grabber.exe to 4.2.0 version, since current one stopped working
+Add sentry breadcrumb for zsys error messages
+Disable sentry session for all but zplayer and zquest
+Add 'templates' folder of subscreen templates
+Update default quest, default new subscreens + new gauge layout
+Allow dropping commit from changelog with '!' before ':'
+vscode: Publish 1.0.6
 
 # Full Subscreen Rewrite
 The entire code behind how the subscreen functions has been entirely reworked to be less janky and more manageable. This makes editing the subscreen further a LOT easier of a task for us, and makes everything just a lot nicer in general.

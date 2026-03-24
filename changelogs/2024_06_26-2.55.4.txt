@@ -2,17 +2,17 @@ https://zquestclassic.com/releases/2.55.4
 
 # Features
 
-add 'Note' item wizard, notes can play relative strings now
-add enemy flag to control if affected by "Kill All Enemies"
+Add 'Note' item wizard, notes can play relative strings now
+Add enemy flag to control if affected by "Kill All Enemies"
 
-add option to use the native OS dialog to select/create files
+Add option to use the native OS dialog to select/create files
   A new button allows using the OS dialog to select/create a file. This
   can be used directly by setting the `Native File Dialog` option in the
   launcher.
 
-zq: show CSet in combo pages
-zq: hex entry for string control code dialog
-zscript: allow function return and parameter types to use `[]`
+zq: Show CSet in combo pages
+zq: Hex entry for string control code dialog
+zscript: Allow function return and parameter types to use `[]`
   This doesn't enforce array types, but allows 3.0 scripts to be
   backwards-compatabile with 2.55
 
@@ -20,34 +20,34 @@ zscript: allow function return and parameter types to use `[]`
 # Bug Fixes
 
 
-zc: npc scripts for many enemies ending after one frame
+zc: Npc scripts for many enemies ending after one frame
   Enemies larger than one tile use a different code path than other enemies,
   and that path was mistakenly only allowing scripts to run for a single frame.
 
-zq: prevent invalid string access resulting in crash
-launcher: hide update tab on linux
+zq: Prevent invalid string access resulting in crash
+launcher: Hide update tab on linux
 
 # Build
 
-add cmake install commands for linux
-update GME, which should resolve the final gcc build issue
-set default install folder on linux to ~/zquestclassic
-generate changelog when doing linux install
+Add cmake install commands for linux
+Update GME, which should resolve the final gcc build issue
+Set default install folder on linux to ~/zquestclassic
+Generate changelog when doing linux install
 
 # Refactors
 
 
-remove expensive busy loop in render throttler
+Remove expensive busy loop in render throttler
   Replaces a busy loop with a much cheaper mutex condition variable to
   control FPS.
   
   The `maxfps` option now works for values less than 60 fps.
 
-zc: add cache to generation of translucency tables
+zc: Add cache to generation of translucency tables
   This took up a lot of CPU time during the titlescreen and during
   animations such as screen wipes / triforce pickup / etc.
 
-std_zh: delete unused and unwanted stuff
+std_zh: Delete unused and unwanted stuff
   These files have been deleted from the `std` library:
   
   * std_zh/assert.zh
@@ -65,7 +65,7 @@ std_zh: delete unused and unwanted stuff
   are not finished, or otherwise provide little to no value so are just
   a maintenance burden.
 
-zscript: reduce the scripts included by default
+zscript: Reduce the scripts included by default
   This removes some scripts that aren't useful, or aren't a good fit for
   default inclusion.
   
@@ -86,8 +86,8 @@ zscript: reduce the scripts included by default
 
 # Tests
 
-add newbie_boss.zplay and recompile test
+Add newbie_boss.zplay and recompile test
 
 # Misc.
 
-launcher: remove tounge-in-cheek tooltip from Fullscreen checkbox
+launcher: Remove tounge-in-cheek tooltip from Fullscreen checkbox

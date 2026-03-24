@@ -9,18 +9,18 @@ Torch combos support shapes, dirs, new Square shape
   Also refactor how shape drawing works to remove the need for duplicate ZQ versions.
 
 Add general SFX/Sprites to combos (no ZScript access yet)
-add solid damage combo QRs
+Add solid damage combo QRs
   also fixed "No Solid Damage Combos" QR and fixed more issues with Newer Hero Movement
 
 Customize 'Guy' per-room (compat ruled)
-multiple new options related to subscreen item selection
+Multiple new options related to subscreen item selection
   - Cursor can be allowed to select empty slots (Freeform Subscreen
   Cursor)
   - Can be set to require pressing B to equip (Always Press To Equip)
   - Items have 'Non-equippable' flag, allowing them to be cursor-selected
   without allowing them on buttons.
 
-add quest package export for standalone app
+Add quest package export for standalone app
   In the ZQuest `File -> Export` menu, there is a new option to package your
   `.qst` file as a standalone application. This gives you the option to
   distribute your quest in a way that allows people to play without
@@ -57,10 +57,10 @@ add quest package export for standalone app
   
   Custom icons are also supported. See `docs/packaging_quests.md` for details.
 
-add -window-title switch
+Add -window-title switch
 zq: 'Quick Compile ZScript' favorite command
 zq: Option to auto-recompile when saving quest
-zq: save autolayer info to reapply to blue void screens as a default
+zq: Save autolayer info to reapply to blue void screens as a default
 zscript: Add script access to draw lights (circle, cone, or square) arbitrarily
 zscript: '@InitScript(int weight)' annotation allows multiple global init scripts (all merged into ~Init)
 zscript: JIT compile MULTV
@@ -87,108 +87,108 @@ vscode: update vscode extension keywords
 
 # Bug Fixes
 
-memory leak when allegro does not find file
-for linux, use posix_spawnp when launching processes
-set dirty flag for vedit text field components
-bad ternary from solid damage commit
+Memory leak when allegro does not find file
+For linux, use posix_spawnp when launching processes
+Set dirty flag for vedit text field components
+Bad ternary from solid damage commit
 ZQ doesn't lock up if parser crashes [windows only]
-properly set sentry breadcrumb category
-add win7 compat for GetOverlappedResults
-zc: reset button down state correctly
+Properly set sentry breadcrumb category
+Add win7 compat for GetOverlappedResults
+zc: Reset button down state correctly
 zc: `npc->Remove()` no longer leaves behind enemy bg sfx
-zc: clear darkroom bitmaps to dark color during player death animation
+zc: Clear darkroom bitmaps to dark color during player death animation
 zc: Lantern inconsistency during scrolling caused by previous commit
-zc: memory leak in read_one_subscreen
-zc: more reproducible fairy hearts, for replay in Debug mode
+zc: Memory leak in read_one_subscreen
+zc: More reproducible fairy hearts, for replay in Debug mode
 zc: various newer hero movement
 zc: new respawn points with ladder
-zc: check for invalid screen index in subscreen map draw
-zc: reduce some data races
-zc: smart conveyors snapping you to the grid
+zc: Check for invalid screen index in subscreen map draw
+zc: Reduce some data races
+zc: Smart conveyors snapping you to the grid
 zc: Crash related to reflected magic having invalid parent
 
-zc: specific NES door softlock
+zc: Specific NES door softlock
   softlock when moving through a bombable or walk-through door *in mid-air* with "No Scrolling Screen While In Air" enabled.
   (Now, with this rule on, you won't be able to go through the door until you land)
 
-zc: input prompt not showing when configuring gamepad
-zc: prevent invalid memory access in triggerfire
-zc: prevent invalid memory access in joytn
-zq: set list position for strings of older quests
+zc: Input prompt not showing when configuring gamepad
+zc: Prevent invalid memory access in triggerfire
+zc: Prevent invalid memory access in joytn
+zq: Set list position for strings of older quests
   This resulted in the Strings GUI not correctly showing all the strings.
 
-zq: use correct index when saving string editor "Next"
-zq: some pasting/blue void screen related issues
-zq: blue void issues related to F4 (screen palette) dialog
-zq: grabbing tiles from qst files
+zq: Use correct index when saving string editor "Next"
+zq: Some pasting/blue void screen related issues
+zq: Blue void issues related to F4 (screen palette) dialog
+zq: Grabbing tiles from qst files
   Commit `142485` regressed this, by accidentally throwing out the next
   section id when skipping unwanted sections.
 
-zscript: global object arrays being wrongly cleared on `F6->Continue`
-zscript: fix for-each loops on non-const arrays
-zscript: free JIT script handles on engine shutdown
+zscript: Global object arrays being wrongly cleared on `F6->Continue`
+zscript: Fix for-each loops on non-const arrays
+zscript: Free JIT script handles on engine shutdown
 zscript: Negative Array rule issues
   Fixed negative array rule not being respected on first load of game (either via test quest or when loading from file select); also fixed negative array rule not being turned on via compat.
 
-zscript: compile crash
-zscript: several class related bugs
+zscript: Compile crash
+zscript: Several class related bugs
 zscript: QUOTEDSTRINGs not merging for all use cases (ex. annotations)
-zscript: screen script run function arguments
-zscript: shutdown JIT thread pool before resetting scripts
+zscript: Screen script run function arguments
+zscript: Shutdown JIT thread pool before resetting scripts
   This prevents a segfault when a thread is compiling some old script
   after a new quest has loaded.
 
 zscript: Broken labels and stack size in global init scripts
-zscript: more string literal related issues
+zscript: More string literal related issues
   also added macros to help fix more of these that might pop up
 
-zscript: prevent MODR divide-by-zero in JIT
-zscript: make div-by-zero an error instead of a warning, when divisor is literal 0
-zscript: script engine hanging on empty script
-vscode: support missing edge case for parsing error
+zscript: Prevent MODR divide-by-zero in JIT
+zscript: Make div-by-zero an error instead of a warning, when divisor is literal 0
+zscript: Script engine hanging on empty script
+vscode: Support missing edge case for parsing error
 
 # Documentation
 
-zscript: docs for light-related new drawing functions, LIGHT_SQUARE constant
+zscript: Docs for light-related new drawing functions, LIGHT_SQUARE constant
 
 # Build
 
 
-remove alogg, use a5 audio streams for ogg
+Remove alogg, use a5 audio streams for ogg
   Also refactors zcmusic to use `ALSTREAMFILE` for any a5 audio stream.
   Currently, mp3 and ogg use this.
 
-fix compiling zcbase for msvc debug
-upgrade to latest allegro
+Fix compiling zcbase for msvc debug
+Upgrade to latest allegro
   https://github.com/liballeg/allegro5/compare/68946485f315c5a6df753250ec5979ab291c60a9...c2bf1e11bed0b63539267115baf190741e0a437a
   
   https://github.com/connorjclark/allegro5/compare/my-fork-2..my-fork-3
 
-for linux, use libcurl with openssl instead of gnutls
-disable WANT_OPUS when building allegro
-upgrade to latest fmtlib, for compile time checks
+For linux, use libcurl with openssl instead of gnutls
+Disable WANT_OPUS when building allegro
+Upgrade to latest fmtlib, for compile time checks
 
 # Chores
 
-bump version to alpha 116
-add docs/constants for new square light shape
-bump DMap section version to reserve for z3
-fix compile previous commit
-add include
-try fix linux compile
-update instances of "Zelda Classic" to "ZQuest Classic"
-update *comment* instances of "Zelda Classic" to "ZQuest Classic"
-add commit to .git-blame-ignore-revs
-update changelog for A116
+Bump version to alpha 116
+Add docs/constants for new square light shape
+Bump DMap section version to reserve for z3
+Fix compile previous commit
+Add include
+Try fix linux compile
+Update instances of "Zelda Classic" to "ZQuest Classic"
+Update *comment* instances of "Zelda Classic" to "ZQuest Classic"
+Add commit to .git-blame-ignore-revs
+Update changelog for A116
 
 # Refactors
 
 
-un-inline zc_math functions
+Un-inline zc_math functions
   This allows for us to always optimize these functions, even for Debug
   builds. Good for replay determinism.
 
-actually skip reading qst sections when requested
+Actually skip reading qst sections when requested
   Only the tile importer for qst files uses the feature of skipping
   sections when loading a qst file. This would still read and process
   every section, it just wouldn't persist anything. So it wasn't really
@@ -196,21 +196,21 @@ actually skip reading qst sections when requested
   
   This paves the way for removing `keepdata` from all of our loading code.
 
-add 'qrs.h','qrs.cpp' and move 'box_' related functions
-optimize some more headers/zdefs stuff
-move Hotkey struct to 'hotkey.h'/'hotkey.cpp'
-move DMap struct/flags to 'dmap.h', various constants to 'sizes.h'
-move packfile-related functions to 'packfile.h'
-move combo pool/alias data to 'cpool.h'/'cpool.cpp'
-move font enum to 'fonts.h'
-move MsgStr stuff to 'msgstr.h'/'msgstr.cpp'
-move newcombo stuff to 'combo.h'/'combo.cpp'
-move combo 'advanced paste' to 'combo.cpp', use enum flags, rename 'sizes.h' to 'general.h'
-move triggerflags to combo.h
-move misc data stuff to 'misctypes.h'/'misctypes.cpp'
-only use 'QMisc' as a single global 'miscQdata' for all programs
-remove keepdata boolean from packfile reading
-zc: remove windows midi_patch; improve switch out/in
+Add 'qrs.h','qrs.cpp' and move 'box_' related functions
+Optimize some more headers/zdefs stuff
+Move Hotkey struct to 'hotkey.h'/'hotkey.cpp'
+Move DMap struct/flags to 'dmap.h', various constants to 'sizes.h'
+Move packfile-related functions to 'packfile.h'
+Move combo pool/alias data to 'cpool.h'/'cpool.cpp'
+Move font enum to 'fonts.h'
+Move MsgStr stuff to 'msgstr.h'/'msgstr.cpp'
+Move newcombo stuff to 'combo.h'/'combo.cpp'
+Move combo 'advanced paste' to 'combo.cpp', use enum flags, rename 'sizes.h' to 'general.h'
+Move triggerflags to combo.h
+Move misc data stuff to 'misctypes.h'/'misctypes.cpp'
+Only use 'QMisc' as a single global 'miscQdata' for all programs
+Remove keepdata boolean from packfile reading
+zc: Remove windows midi_patch; improve switch out/in
   This code was pausing/restarting MIDIs and resetting the volume in a
   convulted manner, likely to workaround some old bug with MIDIs seen on
   windows only. We've since upgraded to allegro 5, which gives a different
@@ -223,73 +223,73 @@ zc: remove windows midi_patch; improve switch out/in
   
   https://discord.com/channels/876899628556091432/1114306020848717904
 
-zc: do not recreate script_data when resetting
-zc: delete unused enemy clone ctors
-zscript: optimize function code, add PEEK to allow combining POP/PUSH back-to-backs
-zscript: optimize 'SETV reg,X - TRACER reg' to 'TRACEV X'
+zc: Do not recreate script_data when resetting
+zc: Delete unused enemy clone ctors
+zscript: Optimize function code, add PEEK to allow combining POP/PUSH back-to-backs
+zscript: Optimize 'SETV reg,X - TRACER reg' to 'TRACEV X'
 
 # Tests
 
-better error message when zelda binary not present
-return failing exit code if replay mode desyncs
-remove timeout for Coverage and Asan builds
-use python server instead of node for local compare report
-disable sound for replay tests
-check exit code for replay tests
-only check exit code for replay tests under Asan
-add download_artifacts.py
-add asserts for group_arg logic
-condense --snapshot args generated for failing run
-refactor compare report to use ReplayTestResults
-fix regression from refactor in aa282f
-fix silly lazy unit test
-update test_replays with new unexpected gfx frames, changed in 7ed7b
-fix argument passing to run_replay_tests.py
-update expected ZASM, changed by 8402c4
-add -headless switch for disabling display and sound
-update expected ZASM, changed by 52b34
+Better error message when zelda binary not present
+Return failing exit code if replay mode desyncs
+Remove timeout for Coverage and Asan builds
+Use python server instead of node for local compare report
+Disable sound for replay tests
+Check exit code for replay tests
+Only check exit code for replay tests under Asan
+Add download_artifacts.py
+Add asserts for group_arg logic
+Condense --snapshot args generated for failing run
+Refactor compare report to use ReplayTestResults
+Fix regression from refactor in aa282f
+Fix silly lazy unit test
+Update test_replays with new unexpected gfx frames, changed in 7ed7b
+Fix argument passing to run_replay_tests.py
+Update expected ZASM, changed by 8402c4
+Add -headless switch for disabling display and sound
+Update expected ZASM, changed by 52b34
 
-print backtrace on crash
+Print backtrace on crash
   Every Python test and invocation of our programs in CI is now called
   via `run_target.py`, which will attempt to print a backtrace if the
   program crashes.
 
-fix sharding for replays with sub-second durations
-add playground_slopes.zplay
-use debugger for replay tests by default only in ci
-add playground_screen_script.zplay
-add replays for step triggers, trigger groups, and cutscene triggers
-add --show flag for replays script, alias for --no-headless and --throttle_fps
-update playground maths script to not divide by literal 0
-update run_target default build folder selection to work on windows
-add playground_sideview_slopes.zplay
+Fix sharding for replays with sub-second durations
+Add playground_slopes.zplay
+Use debugger for replay tests by default only in ci
+Add playground_screen_script.zplay
+Add replays for step triggers, trigger groups, and cutscene triggers
+Add --show flag for replays script, alias for --no-headless and --throttle_fps
+Update playground maths script to not divide by literal 0
+Update run_target default build folder selection to work on windows
+Add playground_sideview_slopes.zplay
 
 # CI
 
-allow Asan config type for test workflow
-pass build type to replay tests script
-when updating artifacts, only upload the updated/ folder
-do better job of reducing size of compare report
-enable jit_threads
-limit yuurand.zplay for coverage because of rng desync
-fix previous commit 8f12f54
-select previous alpha when generating automated changelog
-remove github's version of generated changelogs
+Allow Asan config type for test workflow
+Pass build type to replay tests script
+When updating artifacts, only upload the updated/ folder
+Do better job of reducing size of compare report
+Enable jit_threads
+Limit yuurand.zplay for coverage because of rng desync
+Fix previous commit 8f12f54
+Select previous alpha when generating automated changelog
+Remove github's version of generated changelogs
 
 # Misc.
 
-fix bisect process spawn for non-windows
-add .mailmap file
-add changelog overrides
-set failing_frame in replays for rng desync, even in replay mode
-add new commit scope for the extension: vscode
-improve changelog markdown
-remove commit body after "end changelog"
-add sentry tags for qst/screen
-add script to get all quests on purezc
-add render_debug option for debugging render tree
-improve newlines in changelog markdown generator
-show deprecation warning in 32bit windows build
-add -crash switch for crash reporting test
-zscript: add missing asm debug for first uncompiled command
-vscode: publish 1.0.5
+Fix bisect process spawn for non-windows
+Add .mailmap file
+Add changelog overrides
+Set failing_frame in replays for rng desync, even in replay mode
+Add new commit scope for the extension: vscode
+Improve changelog markdown
+Remove commit body after "end changelog"
+Add sentry tags for qst/screen
+Add script to get all quests on purezc
+Add render_debug option for debugging render tree
+Improve newlines in changelog markdown generator
+Show deprecation warning in 32bit windows build
+Add -crash switch for crash reporting test
+zscript: Add missing asm debug for first uncompiled command
+vscode: Publish 1.0.5

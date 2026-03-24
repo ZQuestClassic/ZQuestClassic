@@ -3,28 +3,28 @@ https://zquestclassic.com/releases/2.55.8
 # Features
 
 
-trigger flag 'Only Grounded Weapons'
+Trigger flag 'Only Grounded Weapons'
   Makes weapons that are in the air NOT trigger the combo (until they land)
 
-subscreen counters can have separate color when "full"
+Subscreen counters can have separate color when "full"
 zq: 'Whistle' item editor help text
-zq: large corner option for dungeon carving autocombo mode
+zq: Large corner option for dungeon carving autocombo mode
 zq: -smart-assign CLI switch to compile + assign
   Example usage: ./zeditor.exe -smart-assign your_quest.qst
 
 zq: Item animation previews now preview 'flash'
-zq: add Cambria as tileset option
-zq: hotkey for 'Show FFCs' (no default keybind)
-zscript: allow trailing commas in enum/array body declarations
+zq: Add Cambria as tileset option
+zq: Hotkey for 'Show FFCs' (no default keybind)
+zscript: Allow trailing commas in enum/array body declarations
 
 # Bug Fixes
 
-correct bad version number used in 2.55 Alpha 86
+Correct bad version number used in 2.55 Alpha 86
 
-number picker dialog not using proper starting value
+Number picker dialog not using proper starting value
   fixes some dialogs in Init Data
 
-prevent crash when there are too many door combo sets
+Prevent crash when there are too many door combo sets
 Lift gloves with specific settings not allowing throwing
   Gloves with Button=0 and 'Disable Item Use' set were unable to throw objects once picked up.
 
@@ -32,74 +32,74 @@ zc: Push (Generic) 'Opposites Cancel' flag not working properly with 0-push dire
 zc: Add limit to `genericdata->RunFrozen()` recursion to prevent crashing
   Running too many frozen scripts at once caused a stack overflow crash, now it causes a script error message.
 
-zc: prevent potential crash from show walkability cheat
-zc: remove ladder during warp
-zc: when charging duration of Charge Ring is 0, use default time instead
-zc: remove jittery 1px gap when pushing blocks right/down
-zc: step triggers ignoring z-axis
-zc: triggered autowarp combos now use sidewarps
+zc: Prevent potential crash from show walkability cheat
+zc: Remove ladder during warp
+zc: When charging duration of Charge Ring is 0, use default time instead
+zc: Remove jittery 1px gap when pushing blocks right/down
+zc: Step triggers ignoring z-axis
+zc: Triggered autowarp combos now use sidewarps
   autowarps triggered by combotriggers use sidewarps. instead of tilewarps
   screenflags that make autowarp and sidewarp direct work with triggers now (as they should)
 
 zc: Custom Bush/Slash combo sprites not spawning centered on the combo
-zc: incorrect dungeon check in map view
+zc: Incorrect dungeon check in map view
   This resulted in drawing doors incorrectly.
 
-zc: bombed walls drawn incorrectly during scrolling
-zq: add more ? buttons to combo editor about weapon triggers
+zc: Bombed walls drawn incorrectly during scrolling
+zq: Add more ? buttons to combo editor about weapon triggers
   Clarified how the fire triggers work
   Renamed 'Any Fire' to 'Normal Fire' to better reflect how it actually works
 
-zq: some lists closing dialogs randomly when rclicked
-zq: changing some options in options dlg wasn't updating rclick menu
-zq: show tile 0's actual graphic for gauge widget tile selectors
+zq: Some lists closing dialogs randomly when rclicked
+zq: Changing some options in options dlg wasn't updating rclick menu
+zq: Show tile 0's actual graphic for gauge widget tile selectors
 zq: `Mouse Scroll` setting not working on 4th combo column
-zq: typo in subscreen gauge piece 'Units per Frame' help text
-zq: set explicit width for combo lifting drop-down lists
-zq: typo in push flag help text
-zq: crash on importing combo aliases
+zq: Typo in subscreen gauge piece 'Units per Frame' help text
+zq: Set explicit width for combo lifting drop-down lists
+zq: Typo in push flag help text
+zq: Crash on importing combo aliases
 zq: 'delay' animation preview was calculated wrong
-zq: remove hidden combo selection mode toggled with spacebar
+zq: Remove hidden combo selection mode toggled with spacebar
   Pressing space changed how combo selection worked in a way that often confused
   users. There was also no visible indication of this, so it was extra bad. This
   mode was perhaps useful for something in the combo selector dialog, but outside
   that it was seemingly not useful at all - and is now removed.
 
-zq: item 'flash' not previewing on main screen
-zq: remove extraneous `String, but guy is (none)` warning
+zq: Item 'flash' not previewing on main screen
+zq: Remove extraneous `String, but guy is (none)` warning
   Due to various new features, this warning is no longer valid,	as
   there are reasons to have a string with no guy, ex. Signposts
 
-zscript: prevent potential crash while compiling ternary expressions
+zscript: Prevent potential crash while compiling ternary expressions
   Regressed 2 years ago in dd975320.
 
-zscript: fix codegen for long integer `^^^` constant 0
+zscript: Fix codegen for long integer `^^^` constant 0
   This was accidentally producing `10000` instead of `1`.
 
-zscript: correct broken clipping of draw commands in some cases
+zscript: Correct broken clipping of draw commands in some cases
   Some draw commands clip their contents based on whether the render
   target is the screen or a custom bitmap. However, the way this was
   tracked was broken, and resulted in all draw commands in the same batch
   following a single custom bitmap draw command incorrectly using the
   clipping bounds meant for just custom bitmaps.
 
-zscript: properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
+zscript: Properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
 
 # Documentation
 
-link to docs.zquestclassic.com/zscript in zscript.txt, ZScript_Additions.txt
+Link to docs.zquestclassic.com/zscript in zscript.txt, ZScript_Additions.txt
 
 # Refactors
 
-zq: rename boomerang range attribute to duration
-zq: in Load Tileset wizard, enable all clear options by default
-std_zh: remove DMFS_SIDEVIEW since it was never implemented
-zscript: log errors in ghost_zh when creating an enemy fails
+zq: Rename boomerang range attribute to duration
+zq: In Load Tileset wizard, enable all clear options by default
+std_zh: Remove DMFS_SIDEVIEW since it was never implemented
+zscript: Log errors in ghost_zh when creating an enemy fails
 
-zscript: rename `Game->LevelStates[]`/`Game->GlobalStates[]`
+zscript: Rename `Game->LevelStates[]`/`Game->GlobalStates[]`
   previous names `Game->LSwitches[]`/`Game->GSwitch[]` are deprecated
 
-zscript: add a few functions in preparation for z3 regions
+zscript: Add a few functions in preparation for z3 regions
   While 2.55 won't support scrolling regions, it will still have these
   following functions so that scripts may be written to be compatible with
   2.55 and 3.0.
@@ -119,7 +119,7 @@ zscript: add a few functions in preparation for z3 regions
 # Tests
 
 
-correctly emit error when compiling unsupported ZASM
+Correctly emit error when compiling unsupported ZASM
   The `-quick-compile` and `-smart-compile` CLI switches were not
   correctly failing the program or printing an error message when
   encountering a bad ZASM command.
@@ -127,8 +127,8 @@ correctly emit error when compiling unsupported ZASM
 
 # CI
 
-use macos-13 for newer clang
+Use macos-13 for newer clang
 
 # Misc.
 
-zq: add help text for conveyors about positive/negative values
+zq: Add help text for conveyors about positive/negative values

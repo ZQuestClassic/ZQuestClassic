@@ -4,7 +4,7 @@ https://zquestclassic.com/releases/2.55.9
 
 option to disable transparent darkrooms stacking multiple transparent layers
 
-show bottom 8 pixels
+Show bottom 8 pixels
   The bottom 8 pixels of the screen has always been hidden. This was
   considered to be a universally bad thing, so they are now visible. A
   compat quest rule is added to control this behavior.
@@ -23,33 +23,33 @@ zq: 'Reference Tiles'
 zscript: Allow '_' to be used as a spacer in numbers
   Ex. 100_000 == 100000, 2_147_483_647L = 2147483647L, 0b10_10_10_10 == 0b10101010
 
-zscript: add `Game->HeroScreen`
+zscript: Add `Game->HeroScreen`
   In 2.55, this is always equal to `Game->CurScreen`. In 3.0, this updates
   as the player moves around. Added to 2.55 for script compatability.
 
-zscript: add `Screen->Index`
+zscript: Add `Screen->Index`
   In 2.55, this is always equal to `Game->CurScreen`. In 3.0 scrolling
   regions, the value of this varies depending on the context (for example,
   an npc script will have this set to the screen the enemy spawned on).
 
-zscript: add `itemdata::FlashCSet`, improve `itemdata::CSet`
+zscript: Add `itemdata::FlashCSet`, improve `itemdata::CSet`
   `itemdata::CSet` contained both the normal and flash csets, and required
   bitwise operations to access. It also didn't allow for setting the flash
   CSet. Now, `itemdata::CSet` is only for the normal CSet, and the flash
   CSet uses the new `itemdata::FlashCSet`.
 
-zscript: add `Viewport`
+zscript: Add `Viewport`
   This global represents the currently visible playing field. In 2.55,
   this is all read-only and only changes during scroll transitions. In
   3.0, the visible viewport can be modified by scripts, and updates as the
   player moves around a scrolling region.
 
-zscript: add `Screen->DrawOrigin`
+zscript: Add `Screen->DrawOrigin`
   Determines how coordinates given to Screen drawing functions are
   interpreted. For more, see: https://docs.zquestclassic.com/zscript/globals/screen#globals-screen-var-draworigin
 
-zscript: more value range types (.., =.., ..=, =..=)
-zscript: add `ComboAdjust` for getting combo position offset by some pixels
+zscript: More value range types (.., =.., ..=, =..=)
+zscript: Add `ComboAdjust` for getting combo position offset by some pixels
 
 # Bug Fixes
 
@@ -60,8 +60,8 @@ System menu mouse responsiveness
   parent menus. These were features of the old menu system, which were
   lost during the system upgrade.
 
-prevent crash when loading midi with 32 tracks
-actually fix loading tile data for old 1.90 quests
+Prevent crash when loading midi with 32 tracks
+Actually fix loading tile data for old 1.90 quests
   2.55.7 (commit be55516) attempted to fix this, but used the wrong path
   to the classic quest. This commit fixes the path, but uses a new qst
   file with only the tile data (since classic_1st.qst is going to be
@@ -71,54 +71,54 @@ actually fix loading tile data for old 1.90 quests
 
 zc: 'Platform' ffcs teleporting the player as the screen loads
 zc: Game time shows in-game, even when you've 'cheated'
-zc: show hero position in minimap for most special screens
+zc: Show hero position in minimap for most special screens
   In the original Zelda, the dot in the minimap rendered even in special
   screens, except for dungeon passageways. ZC was never rendering for any
   special screens. Now, even item cellar / guy special rooms will render
   the dot on the screen the player came from.
 
-zc: update DMap charted state more reliably
-zc: fix bad memory access when checking for sword tap
-zc: prevent OOB related to bridges in `HeroClass::checkchest`
-zc: prevent many crashes related to sprite list being full
-zc: off-by-one error in y-position world bounds for a few hero attacks
+zc: Update DMap charted state more reliably
+zc: Fix bad memory access when checking for sword tap
+zc: Prevent OOB related to bridges in `HeroClass::checkchest`
+zc: Prevent many crashes related to sprite list being full
+zc: Off-by-one error in y-position world bounds for a few hero attacks
 
   Relevant changes:
     fix(zc): more off-by-one errors
 zc: F5 map snapshot works again
-zc: some collision issues related to 4-way movement with no-gridlock enabled
-zc: broken 'Z_Eventlog` output related to ExStates
-zc: prevent crash when loading save files from 3.0
-zq: lockblock/chest combo wizard bad field for counter amount
+zc: Some collision issues related to 4-way movement with no-gridlock enabled
+zc: Broken 'Z_Eventlog` output related to ExStates
+zc: Prevent crash when loading save files from 3.0
+zq: Lockblock/chest combo wizard bad field for counter amount
 zq: Mixed weapon listers now show 'E ' before enemy weapons
   Previously, they would, ex., list 'Magic' twice, once for the lweapon and once for the eweapon.
   This changes it to list 'Magic' and 'E Magic' separately.
   This does NOT change listers showing only eweapons, such as the enemy editor's attack field.
 
 zq: 'BtnCounter' subscreen widget ui was crunched
-std_zh: wrap angle in `AngleDir4` and `AngleDir8`
-zscript: keep modifications made during last frames before scrolling
+std_zh: Wrap angle in `AngleDir4` and `AngleDir8`
+zscript: Keep modifications made during last frames before scrolling
   When scrolling between screens, scripts can run for a few frames just
   before scrolling begins, but modifications to the temporary screen were
   not persisting during the actual scroll.
 
-zscript: prevent many out-of-bounds reads/writes
-zscript: use correct upper limit when setting itemdata Tile
-zscript: properly revert scope when processing class
+zscript: Prevent many out-of-bounds reads/writes
+zscript: Use correct upper limit when setting itemdata Tile
+zscript: Properly revert scope when processing class
 
 # Refactors
 
-remove classic NES quests from release package
-zc: show play time even when recording a replay
-zq: better error messages related to loading enhanced music files
-zq: drop "Load Tileset" and consolidate loading tilesets via File>New
+Remove classic NES quests from release package
+zc: Show play time even when recording a replay
+zq: Better error messages related to loading enhanced music files
+zq: Drop "Load Tileset" and consolidate loading tilesets via File>New
 
 # Tests
 
-add nargads_trail_crystal_crusades/ffc_carryover.zplay
-add freeform_shutters.zplay
+Add nargads_trail_crystal_crusades/ffc_carryover.zplay
+Add freeform_shutters.zplay
 
 # CI
 
 [win] update vcpkg to 2024.12.16
-upgrade actions due to node 16 deprecation
+Upgrade actions due to node 16 deprecation

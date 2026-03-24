@@ -3,40 +3,40 @@ https://zquestclassic.com/releases/2.55.2
 # Features
 
 zq: 'Notes' per-screen for editor use
-zq: ffc editor now previews large ffcs
+zq: Ffc editor now previews large ffcs
 
 # Bug Fixes
 
 Improve dropdown numerical search
 
-update 'default.qst'
+Update 'default.qst'
   Several default subscreen fixes (some by P-Tux7, some by myself)
 
-reduce sfx buffer to decrease lag caused by e7c214e
-removed flag that was breaking mod playback
-zc: hardcode 120 for ZScript alpha register
+Reduce sfx buffer to decrease lag caused by e7c214e
+Removed flag that was breaking mod playback
+zc: Hardcode 120 for ZScript alpha register
   This fixes some quests that only look at the alpha version and,
   seeing it was now 0 presented an error message to the user.
 
 zc: 'Spotlight' combos on changer/ethereal ffcs still shooting light
-zc: fix buggy color flickering on big player sprites
-zc: some variables being improperly reset on 'Continue'
+zc: Fix buggy color flickering on big player sprites
+zc: Some variables being improperly reset on 'Continue'
 zq: 'View Map' favorite command skipping menu
-zq: avoid overwriting screen bookmarks on quest load
+zq: Avoid overwriting screen bookmarks on quest load
 zq: 'Gen Flags' being missing from combo advanced paste
 zq: Crash in ZInfo menu if descriptions are long
-zq: crash on reducing map count
-zq: warp dialog selector mishandling negative DMap offsets
-zq: upgrade tile+combo 'move' code, more things now update on moving tiles/combos
+zq: Crash on reducing map count
+zq: Warp dialog selector mishandling negative DMap offsets
+zq: Upgrade tile+combo 'move' code, more things now update on moving tiles/combos
   Also fixes some issues with 'undo'ing moves, and adds Combo Protection for in-use combos.
 
-std_zh: update to remove use of 'deprecated' functions/vars
+std_zh: Update to remove use of 'deprecated' functions/vars
 std_zh: 'TRIGFLAG_' constants were off-by-one at a certain point in the list
-zscript: some array-related functions breaking for arrays >65535 in size
-zscript: class variables not shadowing global vars properly
-zscript: some wrong error messages related to mapdata FFC access
+zscript: Some array-related functions breaking for arrays >65535 in size
+zscript: Class variables not shadowing global vars properly
+zscript: Some wrong error messages related to mapdata FFC access
 zscript: 'delete' within a destructor being buggy
-zscript: disallow casting custom objects to unrelated types
+zscript: Disallow casting custom objects to unrelated types
   A bug in type conversion allowed this code to compile:
   
   ```c++
@@ -47,11 +47,11 @@ zscript: disallow casting custom objects to unrelated types
   
   The above code now produces a compiler error.
 
-zscript: handful of ZASM commands using wrong name
-zscript: handful of ZASM commands using wrong name
+zscript: Handful of ZASM commands using wrong name
+zscript: Handful of ZASM commands using wrong name
 zscript: `Trace(string)` using wrong register
-zscript: wrong names for ZASM npc InitD and item WeaponHitWidth
-zscript: various symbols with broken compiler output
+zscript: Wrong names for ZASM npc InitD and item WeaponHitWidth
+zscript: Various symbols with broken compiler output
   * npc->Attack()
   * npc->CanSlide()
   * npc->ConstantWalk(int[])
@@ -68,17 +68,17 @@ zscript: various symbols with broken compiler output
   * npc->VariableWalk8(int[])
   * Trace(char32[])
 
-zscript: remove some unimplemented symbols and correct some types
+zscript: Remove some unimplemented symbols and correct some types
 
 # Documentation
 
-zscript: add documentation regarding `Hero->Warp()` and its return square
+zscript: Add documentation regarding `Hero->Warp()` and its return square
 
 # Refactors
 
-zscript: better 'read-only' compile warnings
+zscript: Better 'read-only' compile warnings
 
-zscript: deprecate many getters/setters, replace with variables
+zscript: Deprecate many getters/setters, replace with variables
   ~40 built-in methods exist in this style:
   
   ```c++
@@ -97,8 +97,8 @@ zscript: deprecate many getters/setters, replace with variables
 
 # Tests
 
-add tests for read-only vars and deprecation
+Add tests for read-only vars and deprecation
 
 # Misc.
 
-update themes
+Update themes

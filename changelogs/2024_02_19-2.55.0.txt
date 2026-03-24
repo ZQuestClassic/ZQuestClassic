@@ -7,11 +7,11 @@ View a summary of what's new in 2.55: https://zquestclassic.com/docs/2.55/
 # Features
 
 Allow disabling resizability of windows (setting in launcher only)
-add 'Script1'-'Script10' shield blockflags, to block *specific* scripted weapons
-add burn-based light radii for items, to change the glow radius when lit on fire
+Add 'Script1'-'Script10' shield blockflags, to block *specific* scripted weapons
+Add burn-based light radii for items, to change the glow radius when lit on fire
 LW_REFARROW, LW_REFFIRE, LW_REFFIRE2 (reflected arrows, fire, fire2)
 zc: Custom mirrors can 'block' instead of reflect per-direction
-zc: option to show game time in the corner, for all those speedrunners out there
+zc: Option to show game time in the corner, for all those speedrunners out there
 zq: Add warnings to combo editor (can detect problems and warn you about them)
 
 zq: Merge 'Favorite Command' and 'Hotkey' systems
@@ -20,8 +20,8 @@ zq: Merge 'Favorite Command' and 'Hotkey' systems
 
 zq: Hotkey cheatsheet, open with Shift+?
 zq: Item Wizard (Shields)
-zq: support multiple palettes in map preview/image export
-zq: various updates to default.qst (`File->New`)
+zq: Support multiple palettes in map preview/image export
+zq: Various updates to default.qst (`File->New`)
   - Add sideview swimming tiles
   - Add charge-swimming sprites
   - Add Bunny Link - this required expanding the pages per LTM from 1 to 2
@@ -38,8 +38,8 @@ zq: various updates to default.qst (`File->New`)
   - Delete unused scripts in the tiles
   - Delete unimplemented Sprite 088 (Firework)
 
-zq: set test_mode_record option in test dialog directly
-zq: export/import strings to .tsv text file
+zq: Set test_mode_record option in test dialog directly
+zq: Export/import strings to .tsv text file
   Allows for exporting strings to a spreadsheet, text editor, or other
   program for modification, then importing them back to ZC.
   
@@ -54,12 +54,12 @@ zq: export/import strings to .tsv text file
   Example:
   https://docs.google.com/spreadsheets/d/197-NSvNQJ174Ri9GVlxYDX4oFp8w1SZbmOXuDohKZZk/edit?usp=sharing
 
-zq: fix some tiles in default.qst (`File->New`)
+zq: Fix some tiles in default.qst (`File->New`)
   - Fix wrong assignment of lava drown tiles
   - Delete redundant diving tiles in Z3 player tile pages
 
-launcher: set save folder
-launcher: add options for window size, and cap max default window size
+launcher: Set save folder
+launcher: Add options for window size, and cap max default window size
   `[ZLAUNCH] window_width, window_height` in zcl.cfg
   
   Cap max default size to 2x
@@ -68,34 +68,34 @@ launcher: add options for window size, and cap max default window size
 # Bug Fixes
 
 
-prevent clock shifts from hanging the program
+Prevent clock shifts from hanging the program
   Allegro 5 doesn't use a monotonic clock that ignores suspended time,
   so day light saving shifts or even hibernating your computer can result
   in Allegro trying to do so much work to "catch up" that it hangs the
   program. See https://github.com/liballeg/allegro5/pull/1511 for more.
 
-shift key input no longer accidentally ignored
-passive (non-button) items not respecting "Usable as a Bunny" flag
+Shift key input no longer accidentally ignored
+Passive (non-button) items not respecting "Usable as a Bunny" flag
 ZScript metadata fields cutting off at semicolons in strings
 'box_out' popups sometimes appearing squished in the upper-left
-default bs patra has broken animation
-newer hero movement ladder polish
-fairy npc not despawning when picked up
-being able to carry objects while swimming, when lift glove isn't swim-capable
+Default bs patra has broken animation
+Newer hero movement ladder polish
+Fairy npc not despawning when picked up
+Being able to carry objects while swimming, when lift glove isn't swim-capable
 'Push (Generic)' combos not properly locking into place on block triggers
-deleting subscreens resulting in invalid/crashy data
-arrow key navigation in menus not resepecting hidden items
-prevent 1.90 qst load compat from setting first DMap cont/compass to bad value
+Deleting subscreens resulting in invalid/crashy data
+Arrow key navigation in menus not resepecting hidden items
+Prevent 1.90 qst load compat from setting first DMap cont/compass to bad value
 ZScript access to subscreen elements was missing a 'transparent' color option
 ZASM metadata not clearing properly when assigning slots
-implement set volume for GME music (spc,gbs,vgm,gym,nsf)
+Implement set volume for GME music (spc,gbs,vgm,gym,nsf)
 Enemy Flames not reflecting off of shields, even with reflect flag set
-issues with numbers between 0 and -1
-swords not updating properly, sometimes
-old quest subscreen minimap titles overlapping
-placing flags on layers not marking the layer screen as "valid"
-ensure file is closed when qst fails to load
-retain monitor resolution for fullscreen mode
+Issues with numbers between 0 and -1
+Swords not updating properly, sometimes
+Old quest subscreen minimap titles overlapping
+Placing flags on layers not marking the layer screen as "valid"
+Ensure file is closed when qst fails to load
+Retain monitor resolution for fullscreen mode
   Previously, the maximum monitor resolution would be used when using
   fullscreen mode. That was bad because it messes up the window layout of
   anything else on that monitor. Now we create fullscreen displays without
@@ -105,50 +105,50 @@ retain monitor resolution for fullscreen mode
   fullscreen/windowed mode. Switching between is much smoother now, and
   the code got a bit simpler and safer.
 
-changer ffcs counting for trigger groups and similar effects (they shouldn't)
+Changer ffcs counting for trigger groups and similar effects (they shouldn't)
 zc: Music not properly changing when using some warp types (ex. SCC warp)
-zc: extra pushing allowed per screen
-zc: cheats menu being greyed out when it shouldn't be
-zc: new respawn points not accounting for DMap offset
-zc: initialize fadevolume to avoid undefined behavior
+zc: Extra pushing allowed per screen
+zc: Cheats menu being greyed out when it shouldn't be
+zc: New respawn points not accounting for DMap offset
+zc: Initialize fadevolume to avoid undefined behavior
   This fixes a bug where music would randomly be silent or extremely loud.
   
   Also, cap the volume used to play music to 255, to avoid ever playing
   it so loud again.
 
-zc: set volume correctly when music changes with only fading in or out
+zc: Set volume correctly when music changes with only fading in or out
   For example, if the new music has a fade in frame duration of 0, and the
   old music has a fade out frame duration of >0, then the new music would
   incorrectly have its volume stuck at 0%.
 
-zc: menu bar unaligned with dropdown due to menu using int scaling
+zc: Menu bar unaligned with dropdown due to menu using int scaling
 zc: Swim speeds not being saved to save file
-zc: spotlights with color setting '0,0,0' or tile setting '0,0' now function
+zc: Spotlights with color setting '0,0,0' or tile setting '0,0' now function
 zc: Allow throwing lifted object without validating cost
-zc: thrown weapons now should hit enemies that they land on
-zc: all 'break on landing' weapons should hit enemies/the player that they land on
-zc: correctly make qstpath relative to quests dir in "custom_game" dialog
-zc: use correct sav path for -standalone mode
-zc: prevent bad module path being set after exiting
-zc: improve main menu responsiveness
-zc: system menu not closing on reset/quit/etc
-zc: fix 'warp' SCC sometimes not closing the string
-zc: use more performant throttleFPS instead of rest in system menu
-zc: remove accidental double compilation for global scripts
-zc: draw to correct bitmap when showing button clear prompt
-zc: minor replay determinism bug for subscr_item_clk (selector animation)
-zc: only assign save path just before actually writing to disk
-zc: call saves_do_first_time_stuff when changing slot qstpath
-zc: handle edge case when changing unplayed save file qst
-zc: prevent calling DMap script twice in scrolling DMap warp
-zc: set previously unset save_t write_to_disk in all places
-zc: not showing error dialogs in title screen, and unbreak -only switch
-zc: clear spin state during screen scroll
+zc: Thrown weapons now should hit enemies that they land on
+zc: All 'break on landing' weapons should hit enemies/the player that they land on
+zc: Correctly make qstpath relative to quests dir in "custom_game" dialog
+zc: Use correct sav path for -standalone mode
+zc: Prevent bad module path being set after exiting
+zc: Improve main menu responsiveness
+zc: System menu not closing on reset/quit/etc
+zc: Fix 'warp' SCC sometimes not closing the string
+zc: Use more performant throttleFPS instead of rest in system menu
+zc: Remove accidental double compilation for global scripts
+zc: Draw to correct bitmap when showing button clear prompt
+zc: Minor replay determinism bug for subscr_item_clk (selector animation)
+zc: Only assign save path just before actually writing to disk
+zc: Call saves_do_first_time_stuff when changing slot qstpath
+zc: Handle edge case when changing unplayed save file qst
+zc: Prevent calling DMap script twice in scrolling DMap warp
+zc: Set previously unset save_t write_to_disk in all places
+zc: Not showing error dialogs in title screen, and unbreak -only switch
+zc: Clear spin state during screen scroll
   This avoid a ghost sword visible during scrolling, and also prevents
   a nasty bug where the player's action state would be frozen until
   hit.
 
-zc: prevent crash in save creation by resetting global vars
+zc: Prevent crash in save creation by resetting global vars
   When a game is loaded, many global variables are initialized to a known
   state. These variables were not reset when the game ends and returns
   to the title screen. However, save creation happens to call code that
@@ -158,27 +158,27 @@ zc: prevent crash in save creation by resetting global vars
   Now, these global variables are reset also just before loading the
   title screen.
 
-zc: prevent failing to save after continue
-zc: lift glove 'disable item use' not stopping sword SFX from playing
-zc: remember last save slot position when returning to save select screen
+zc: Prevent failing to save after continue
+zc: Lift glove 'disable item use' not stopping sword SFX from playing
+zc: Remember last save slot position when returning to save select screen
 zc: [win32] invisible hero because of MSVC bug
-zc: remember cheat on continue game
+zc: Remember cheat on continue game
 zc: 'Custom Weapon' itemclasses rounding down step speed
-zc: restore option to scale display to full window size
+zc: Restore option to scale display to full window size
   This broke when the display was fixed to only show at the correct aspect
   ratio. Default is still as before, but now the
   "Force Integer Values for Scale" option works again.
 
-zc: still allow for game area to be stretched, ignoring aspect ratio
-zc: ignore gamepad input when window is not active
-zc: weird newer movement edge-case
-zc: opening spacebar map triggering some secret effects on the current screen
-zc: lens unintentionally making enemies sometimes invisible
-zc: lens unintentionally making enemies sometimes invisible
+zc: Still allow for game area to be stretched, ignoring aspect ratio
+zc: Ignore gamepad input when window is not active
+zc: Weird newer movement edge-case
+zc: Opening spacebar map triggering some secret effects on the current screen
+zc: Lens unintentionally making enemies sometimes invisible
+zc: Lens unintentionally making enemies sometimes invisible
 zc: Divine Escape particles sometimes flying in wrong directions
-zc: crash when running replay without any real saves
-zc: remove unnecessary absolute path check for standalone mode saves
-zc: show final game frame when opening/closing subscreen
+zc: Crash when running replay without any real saves
+zc: Remove unnecessary absolute path check for standalone mode saves
+zc: Show final game frame when opening/closing subscreen
   For older quests utilizing none of the QRs related to "cool scrolling",
   the subscreen open/close crawl would show a version of the game frame
   that was missing a few things, like enemy or player sprites.
@@ -186,31 +186,31 @@ zc: show final game frame when opening/closing subscreen
   This should allow us to simplify the rendering (no need to render most
   things twice to a secondary bitmap), and just looks better.
 
-zc: do not stretch GUI
-zc: tall grass on layers not applying its sfx/sprite
-zc: fix snapshot with NOSUBSCR not supplying a palette and not accounting for NOSUBSCROFFSET
-zc: set default volume to 100% instead of 25%
-zc: prevent grid aligning while jumping, which broke jumping for some old quests
-zc: for replay mode, whistle sfx pauses game for number of frames proportional to sfx length instead of 0 frames
-zc: hero action "swimhit" incorrectly unset due to broken `isSwimming()` check
-zc: combo cycling reset too early for animations with frame skips
+zc: Do not stretch GUI
+zc: Tall grass on layers not applying its sfx/sprite
+zc: Fix snapshot with NOSUBSCR not supplying a palette and not accounting for NOSUBSCROFFSET
+zc: Set default volume to 100% instead of 25%
+zc: Prevent grid aligning while jumping, which broke jumping for some old quests
+zc: For replay mode, whistle sfx pauses game for number of frames proportional to sfx length instead of 0 frames
+zc: Hero action "swimhit" incorrectly unset due to broken `isSwimming()` check
+zc: Combo cycling reset too early for animations with frame skips
   Turns out this never worked properly!
 
-zc: defer deletion of sprites to end of animate logic
+zc: Defer deletion of sprites to end of animate logic
   This fixes a crash caused when a sprite deletes itself in middle of its
   animate logic.
 
-zc: prevent OOB access for darkroom ditherrectfill
+zc: Prevent OOB access for darkroom ditherrectfill
   When scrolling, this function could be told to grab a line of the bitmap
   memory outside its bounds, which resulted in a crash.
 
-zc: reset global variables on continue game for replays
-zc: actually stop mp3/ogg
+zc: Reset global variables on continue game for replays
+zc: Actually stop mp3/ogg
   Due to a bug ogg and mp3 formats were really just "paused"
   when told to stop, so setting the volume afterwards would result in
   resuming music that was meant to be over.
 
-zc: ambient/background sfx volume not being set
+zc: Ambient/background sfx volume not being set
   The recent removal of "digi_volume" made all background sfx play at full
   volume. Fixed that.
   
@@ -218,43 +218,43 @@ zc: ambient/background sfx volume not being set
   when adjusting currently playing sounds to the new volume. That first
   sfx is often a background sfx.
 
-zc: various slope improvements, like fixing ffc slopes
-zc: fix mirror shield not resetting the last used mirror combo position
-zc: save select screen not showing new hp after `save->reset`
-zc: load default quest for sfx when loading replay
+zc: Various slope improvements, like fixing ffc slopes
+zc: Fix mirror shield not resetting the last used mirror combo position
+zc: Save select screen not showing new hp after `save->reset`
+zc: Load default quest for sfx when loading replay
   Quests before custom sfx rely on the default quest providing sfx,
   but that wasn't being loaded when playing back a replay. So it would
   either use whatever the last quest loaded, or have nothing, which was
   the case for the replay test script.
 
-zc: use correct graphic when holding up purchase from bottle shop
-zc: apply BS swim sprites compat rule to Zelda 3000 qst
+zc: Use correct graphic when holding up purchase from bottle shop
+zc: Apply BS swim sprites compat rule to Zelda 3000 qst
   This QR is applied to all 1.90 quests, but Zelda 3000 was saved in 1.92
   and this visual bug was overlooked.
 
-zc: consume button presses in subscreen menu
+zc: Consume button presses in subscreen menu
   The subscreen refactor ~6 months ago resulted in button presses not
   being eaten. One side effect of this was the item selection sfx playing
   for every frame the button was down, instead of the intended one time.
 
 zc: ZC menu options render/get disabled correctly
-zq: prevent flickering for minimap tooltip
+zq: Prevent flickering for minimap tooltip
 zq: Tile editor checkboxes not clicking
-zq: disable unpack cache to fix tile rotate/flip
-zq: tile page rclick "insert", "delete" was swapped
-zq: disabling tooltips works again
-zq: item editor candle text goof
+zq: Disable unpack cache to fix tile rotate/flip
+zq: Tile page rclick "insert", "delete" was swapped
+zq: Disabling tooltips works again
+zq: Item editor candle text goof
 zq: 'Go' in warp dialogs not rebuilding transparency table
-zq: fixed warp ring dialog
-zq: wrong button focused in ZScript compile dialog
-zq: tile editor bugginess
+zq: Fixed warp ring dialog
+zq: Wrong button focused in ZScript compile dialog
+zq: Tile editor bugginess
 zq: Polish numpick dialog, fix new GUI focusing
 zq: Crash on changing map count
-zq: timeout of 0 for parser timeout now acts as "no timeout"
+zq: Timeout of 0 for parser timeout now acts as "no timeout"
 zq: `File->Exit` not exiting
 zq: 'Scroll to Combo' on screen rclick being offset
-zq: greyed out pasting in string list
-zq: create test init data relative to qst init, not base init
+zq: Greyed out pasting in string list
+zq: Create test init data relative to qst init, not base init
   This was originally done this way to avoid changing test init data when
   the quest's actual init data changed, but that maybe is not as useful
   as the other approach.
@@ -262,30 +262,30 @@ zq: create test init data relative to qst init, not base init
   Also very simply fixes the problem of screen data (and other init
   values) not being properly set.
 
-zq: autocombo/combo pool/combo alias pages RClick menus being offset
+zq: Autocombo/combo pool/combo alias pages RClick menus being offset
 zq: 'Open Tile Page' on combos not using the ORIGINAL tile of the combo
-zq: disable tooltips when hotkey cheatsheet is open
-zq: clean up several issues with the warp dialogs
+zq: Disable tooltips when hotkey cheatsheet is open
+zq: Clean up several issues with the warp dialogs
 zq: `options->fonts` being broken/inconsistent, not saving changes
-zq: undefined memory write when applying modern quest ruleset
-zq: lockblock/chest combo wizards not saving 'Use ExState' flag
-zq: some more issues with warp dialogs
-zq: warp dialogs not properly previewing negative xoffset DMap map-marked squares
-zq: solidity preview inaccuracies
+zq: Undefined memory write when applying modern quest ruleset
+zq: Lockblock/chest combo wizards not saving 'Use ExState' flag
+zq: Some more issues with warp dialogs
+zq: Warp dialogs not properly previewing negative xoffset DMap map-marked squares
+zq: Solidity preview inaccuracies
 zq: 'Tools->Combo Flags' bugging out when clicked
-zq: crash related to 'Scroll to page' for aliases/pools/autocombos
-zq: midi edit dialog not showing in new rendering system
-zq: handle quest path/title with spaces in package export
-zq: transparent tiles not drawing correctly in map preview
-zq: error message on failure to load enhanced music in the DMap editor
-zq: skipy broken in combo preview animation
-zq: combo animations not resetting after using combo selector in dialogs
-zq: weapon type names drop down being empty
+zq: Crash related to 'Scroll to page' for aliases/pools/autocombos
+zq: Midi edit dialog not showing in new rendering system
+zq: Handle quest path/title with spaces in package export
+zq: Transparent tiles not drawing correctly in map preview
+zq: Error message on failure to load enhanced music in the DMap editor
+zq: Skipy broken in combo preview animation
+zq: Combo animations not resetting after using combo selector in dialogs
+zq: Weapon type names drop down being empty
   This broke from recent addition of reflected arrows/fire (e3b23aa)
 
-zq: hide unimplemented enemies
-zq: handle error instead of crashing if package export fails
-zq: stop clearing screen when editing palette
+zq: Hide unimplemented enemies
+zq: Handle error instead of crashing if package export fails
+zq: Stop clearing screen when editing palette
   Since the render refactor, we haven't needed to clear the screen when
   changing palettes, since this dialog is rendered to a different bitmap
   than whats in the background.
@@ -294,50 +294,50 @@ zq: 'Load Tileset' not applying compat fixes
 std_zh: DMFS_ constants being off-by-one
 zscript: `subscreenwidget->PerContainer` not working
 zscript: al_rest crashing when using debug feature
-zscript: parser configs not working
-zscript: issues running destructors
-zscript: handle rare COMPAREV2 for x64 JIT
+zscript: Parser configs not working
+zscript: Issues running destructors
+zscript: Handle rare COMPAREV2 for x64 JIT
 zscript: sprintf giving a wrong error message on %c
 zscript: `Screen->SetExDoor()`/`mapdata->SetExDoor()` not opening matching doors
-zscript: grab correct value from stack for POPARGS JIT x64
+zscript: Grab correct value from stack for POPARGS JIT x64
   This didn't seem to break anything, but it showed up as a difference
   when comparing registers from JIT w/ non-JIT.
 
 zscript: `Hero->WarpEx` not using DMap xoff when setting continue screen
-zscript: global var initializers not erroring when non-constant
-zscript: escape character \" not working properly in string literals
-zscript: invalid character errors wrongly occurring for values 128-255
-zscript: subscreen widgets not allowing SUB_COLOR_TRANSPARENT to be used
-zscript: class function params with same-name as class member not shadowing properly
-zscript: class/object destructors stack being offset wrongly
-zscript: fix `Audio->SetMusicLoop()` truncating decimal values
-zscript: compiler crash related to invalid array indeces
-zscript: sanity check for `bitmap->isValid()` and `bitmap->isAllocated()`
-zscript: stale data in destructors
+zscript: Global var initializers not erroring when non-constant
+zscript: Escape character \" not working properly in string literals
+zscript: Invalid character errors wrongly occurring for values 128-255
+zscript: Subscreen widgets not allowing SUB_COLOR_TRANSPARENT to be used
+zscript: Class function params with same-name as class member not shadowing properly
+zscript: Class/object destructors stack being offset wrongly
+zscript: Fix `Audio->SetMusicLoop()` truncating decimal values
+zscript: Compiler crash related to invalid array indeces
+zscript: Sanity check for `bitmap->isValid()` and `bitmap->isAllocated()`
+zscript: Stale data in destructors
   scripted objects weren't clearing data used by the destructor when being cleared, leading to future objects referencing the stale data if they didn't have a destructor of their own to overwrite it.
 
-zscript: generic script item collect event fix
+zscript: Generic script item collect event fix
   Item Collect event will no longer be fired for items such as timeout items when they are *not* actually able to be collected.
   Due to timing changes, the "Combine when collected twice" now also occurs BEFORE the event.
 
-zscript: clear JIT-compiled scripts as intended when loading new quest
-zscript: fix crash when creating too many paldatas
-zscript: fix `paldata->CopyCSet()` referencing the wrong pointer
-zscript: handle out of bounds for `Game->LItems[]`
+zscript: Clear JIT-compiled scripts as intended when loading new quest
+zscript: Fix crash when creating too many paldatas
+zscript: Fix `paldata->CopyCSet()` referencing the wrong pointer
+zscript: Handle out of bounds for `Game->LItems[]`
   This fixes a crash in Panolpy when reading a specific sign.
 
-zscript: return enemy x,y when getting fairy item x,y
+zscript: Return enemy x,y when getting fairy item x,y
   Setting `item->X,Y` on fairy items additionally sets the position of the
   corresponding fairy enemy sprite. However, the getter returns the item
   coordinate. This resulted in unexpected behavior from something harmless
   like `item->X = item->X` causing the engine fairy movement to halt.
 
-zscript: fix sideview sprites becoming unable to jump when on the ground
-zscript: compat rule for old sprite jump behavior
-web: use ZC-data.nyc3.digitaloceanspaces.com for now
+zscript: Fix sideview sprites becoming unable to jump when on the ground
+zscript: Compat rule for old sprite jump behavior
+web: Use ZC-data.nyc3.digitaloceanspaces.com for now
 web: "Copy URL" in player now uses correct test params
-web: sync fs when writing save order txt file
-web: quick save creation link working again
+web: Sync fs when writing save order txt file
+web: Quick save creation link working again
   The `quest` gamedata field was inadvertently set to 0 because
   the save file was prematurely selected before being saved for the first
   time, which prevented anything in `saves_do_first_time_stuff` from
@@ -346,44 +346,44 @@ web: quick save creation link working again
 
 # Documentation
 
-add a couple missing subscreen widget script docs
-document DrawTile '-777' rotation behavior
-fix typo
-update zstrings.txt to mention the "Insert SCC" button
-fix some issues with the webdocs
-fix `subscreendata->PosDirs[]` being misdocumented as `->Poses[]`
+Add a couple missing subscreen widget script docs
+Document DrawTile '-777' rotation behavior
+Fix typo
+Update zstrings.txt to mention the "Insert SCC" button
+Fix some issues with the webdocs
+Fix `subscreendata->PosDirs[]` being misdocumented as `->Poses[]`
 
 # Build
 
-fix missing libpng for web build
-fix missing libogg for web build
+Fix missing libpng for web build
+Fix missing libogg for web build
 
-upgrade to latest asmjit
+Upgrade to latest asmjit
   Resolves MSVC release mode bug: https://github.com/asmjit/asmjit/issues/427
 
-add default file for compiler "signature"
+Add default file for compiler "signature"
   This is to make the build _just work_ in a clean checkout until I get
   around to removing this pointless thing altogether.
 
 
 # Refactors
 
-remove unused 'VSync' option (it didn't do anything)
+Remove unused 'VSync' option (it didn't do anything)
 
-key files
+Key files
   Now work from the folder the quest is in OR the exe is in, and saves to the folder the quest is in.
   Also cleaned up the code for handling reading key files.
 
-remove unsupported color_depth option
-load text files more efficiently
-don't tint behind dropdown lists (allow skipping dlgs tint)
+Remove unsupported color_depth option
+Load text files more efficiently
+Don't tint behind dropdown lists (allow skipping dlgs tint)
 Menus (new sleeker look, much cleaner backend)
-remove scary and now pointless warnings when toggling fullscreen
-zc: remove unused volume code in read_saves
-zc: move x64 backend JIT code to separate file
-zc: move global inits from init_game to new init_game_vars
-zc: make lamp_paid not static for replay determinism
-zc: remove ZASM debugger from menu
+Remove scary and now pointless warnings when toggling fullscreen
+zc: Remove unused volume code in read_saves
+zc: Move x64 backend JIT code to separate file
+zc: Move global inits from init_game to new init_game_vars
+zc: Make lamp_paid not static for replay determinism
+zc: Remove ZASM debugger from menu
   You may still activate this with `[CONSOLE] print_ZASM = 1` in `zc.cfg`,
   but the option is no longer in the player menu. This will be removed
   entirely soon - it's so slow it can lock up a computer, and not useful
@@ -392,8 +392,8 @@ zc: remove ZASM debugger from menu
   We may introduce a proper debugger in the future for ZScript to serve
   the purpose the ZASM debugger tried to.
 
-zc: remove extra draws to scrollbuf in draw_screen
-zc: remove digi_music volume control
+zc: Remove extra draws to scrollbuf in draw_screen
+zc: Remove digi_music volume control
   `digi_music` is a global volume control for all allegro 4 music streams,
   which is only used for GME (so all those chiptune formats). But we
   already apply `emusic_volume` (enhanced music) to all non-MIDI music,
@@ -407,100 +407,100 @@ zc: remove digi_music volume control
   BTW - ~6 months ago OGG was changed to use Allegro 5 instead of 4, which
   means at that point `digi_music` no longer had any effect on OGG volume.
 
-zc: remove music buffer setting
+zc: Remove music buffer setting
   This only applied to it/xm/s3m/mod music. There's no need to expose this
   to users. Instead, always use 128KB as a buffer size.
 
 zq: Clean up Tile/Side/Ring warp dialogs
-zscript: optimize script lookup by name
-zscript: copy script entry to tempfile quicker
-zscript: manually parse config file, drop al_init
-zscript: clean up ScriptEngineData for all script types
+zscript: Optimize script lookup by name
+zscript: Copy script entry to tempfile quicker
+zscript: Manually parse config file, drop al_init
+zscript: Clean up ScriptEngineData for all script types
 
 # Tests
 
-save replay result file when starting replay
-suppress timeout check on frame 0
-update 'triggers.zplay'
-add '--output' option for ZScript tests
-fix ZScript subfolder tests not running (and update)
-update errors_2_expected.txt
-filter out expired test builds in bisect_builds.py
-prevent infinite loop when zplayer exits before first frame
-add nargads_trail_crystal_crusades.zplay
-fail replay test if JIT cannot compile a script
-fix local webserver when offline
-include js script in web replay test stdout/stderr
-add umbral_cloud.zplay
-add pageerror listener in run_replay.js
-fail on abort in web replay tests
-stop on fatal errors in run_web_version.js
-set write_to_disk in saves_test
-add "frames" and "length" meta fields to zplay
+Save replay result file when starting replay
+Suppress timeout check on frame 0
+Update 'triggers.zplay'
+Add '--output' option for ZScript tests
+Fix ZScript subfolder tests not running (and update)
+Update errors_2_expected.txt
+Filter out expired test builds in bisect_builds.py
+Prevent infinite loop when zplayer exits before first frame
+Add nargads_trail_crystal_crusades.zplay
+Fail replay test if JIT cannot compile a script
+Fix local webserver when offline
+Include js script in web replay test stdout/stderr
+Add umbral_cloud.zplay
+Add pageerror listener in run_replay.js
+Fail on abort in web replay tests
+Stop on fatal errors in run_web_version.js
+Set write_to_disk in saves_test
+Add "frames" and "length" meta fields to zplay
 
-use "latest" version for all playground.qst replays
+Use "latest" version for all playground.qst replays
   These replays should be trivial to update as needed, and using no
   replay compat code makes them far more useful for verifying specific
   features.
 
-add link_to_the_heavens.zplay
-add dinus.zplay
-add grassland_attack.zplay
-make the editor `File->New` test do what it says it does
-add goriya_moblin_war.zplay
-update test_compile_and_quick_assign to compile replays/scripting quests
+Add link_to_the_heavens.zplay
+Add dinus.zplay
+Add grassland_attack.zplay
+Make the editor `File->New` test do what it says it does
+Add goriya_moblin_war.zplay
+Update test_compile_and_quick_assign to compile replays/scripting quests
   This is the first of more planned script replay tests, which along with
   the playground.qst replays will be re-compiled with the latest ZScript
   in CI and their replays re-verified. Should result in better test
   coverage for newer compiler features.
 
-add 100_rooms_of_wisdom.zplay
-add dragon_ball_z.zplay
-add new_beginnings.zplay
-add kriztles_3.zplay
-add final_fantasy.zplay
-add zelda_3000.zplay
-use original qst for combo rotator replay
+Add 100_rooms_of_wisdom.zplay
+Add dragon_ball_z.zplay
+Add new_beginnings.zplay
+Add kriztles_3.zplay
+Add final_fantasy.zplay
+Add zelda_3000.zplay
+Use original qst for combo rotator replay
 
 # CI
 
 
-update vcpkg
+Update vcpkg
   Apparently vcpkg has issues with retaining build assets long term.
   Being forced to update to latest as something we need expired.
   
   https://github.com/microsoft/vcpkg/pull/30546#issuecomment-1819985146
 
-set correct test results folder for web replays for upload
-use improved lfs cache
-use RelWithDebInfo for win32 tests
+Set correct test results folder for web replays for upload
+Use improved lfs cache
+Use RelWithDebInfo for win32 tests
 
 # Misc.
 
 Allow scrolling info popups
 Remove '(Experimental)' label from FFC solidity
-add `peekkey()` / `upeekkey()` local allegro edits
-clean up menus, particularly the ZC main menu
+Add `peekkey()` / `upeekkey()` local allegro edits
+Clean up menus, particularly the ZC main menu
 Remove whistle delay for new replays
-update default fonts to be same between base_config and 'Default:' button
-help text to indicate use of A1/A2 values on ffc/item editors
-remove noisy allocation logs
-add qst.author sentry tag, so we can know who to reach out to for crashes in unpublished quests
+Update default fonts to be same between base_config and 'Default:' button
+Help text to indicate use of A1/A2 values on ffc/item editors
+Remove noisy allocation logs
+Add qst.author sentry tag, so we can know who to reach out to for crashes in unpublished quests
 
-remove tilesets/classic.qst
+Remove tilesets/classic.qst
   The default quest (File->New) makes this not necessary.
 
-zc: show current frame count when recording and system menu is active
-zc: improve error message when qst title does not match save file
-zc: support "latest" for version field in zplay
+zc: Show current frame count when recording and system menu is active
+zc: Improve error message when qst title does not match save file
+zc: Support "latest" for version field in zplay
 zq: Add hotkey for rebinding hotkeys
-zq: fix some text, add divine escape help text for warp types
-zq: clean up 'Door Combo Set' dialog/hotkeys and document them
-zq: upgrade combo 'advanced paste' dialog, add 'Adv. Paste' to rclick menu
-zq: disable auto save for new, unsaved quest
-zscript: internal label errors now prevent compile
-zscript: add `itemdata->LAttributes[]` to access attributes as a full 32-bit long value
-zscript: add Region in anticipation of z3 scrolling
+zq: Fix some text, add divine escape help text for warp types
+zq: Clean up 'Door Combo Set' dialog/hotkeys and document them
+zq: Upgrade combo 'advanced paste' dialog, add 'Adv. Paste' to rclick menu
+zq: Disable auto save for new, unsaved quest
+zscript: Internal label errors now prevent compile
+zscript: Add `itemdata->LAttributes[]` to access attributes as a full 32-bit long value
+zscript: Add Region in anticipation of z3 scrolling
   To enable scripts to work in 2.55 and in a future release with z3
   scrolling, we are adding a non-functional `Region`:
   
@@ -520,4 +520,4 @@ zscript: add Region in anticipation of z3 scrolling
   anything else to translate between pixel coordinates and a combo
   position.
 
-zscript: mark `combo->CSet` deprecated, in favor for the better named `->CSet2`
+zscript: Mark `combo->CSet` deprecated, in favor for the better named `->CSet2`

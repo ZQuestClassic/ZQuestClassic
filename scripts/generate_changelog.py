@@ -70,6 +70,9 @@ word_replacements = {
     r'\bzc\b': 'ZC',
     r'\bZQ\b': 'ZQ',
     r'\bzscript\b': 'ZScript',
+    # keep lowercase
+    r'\beweapon\b': 'eweapon',
+    r'\blweapon\b': 'lweapon',
 }
 
 # Pre-compile the regex patterns once.
@@ -188,7 +191,7 @@ def normalize_oneline(text: str) -> str:
 
     # Wrap function calls, array accesses, or pointer accesses in backticks.
     text = wrap_in_backticks(text)
-    # text = maybe_capitalize_first_word(text)
+    text = maybe_capitalize_first_word(text)
     if text.endswith('.'):
         text = text[:-1]
     text = normalize_text(text)
