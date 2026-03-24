@@ -33,6 +33,8 @@ squash 593beae6594ff734d535b3664dd867b06bbb6305 test: move zquest save classic_1
 pick 7c8a5625c582a12b7d779cf6173f670543d25214 test: move zquest save classic_1st.qst test to python
 
 drop 2769fc99965e764f2b2f809ea935bb15d5db4213 build: fix windows compile
+# ! accidentally duplicated this message
+drop 774573f246c6ab49609f653198d7e3b11597fe79 feat(zq): implicitly add `<qst dir>/scripts` to include paths
 
 subject 3c86a76b8d93c250bcf636ce19c3206be79b94c9 fix(zscript): 'delete' within a destructor being buggy
 subject d188ece0e85762c8238e4081951da877a0b458e9 feat: option to disable transparent darkrooms stacking multiple transparent layers
