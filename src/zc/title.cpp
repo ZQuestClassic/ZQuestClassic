@@ -485,13 +485,6 @@ static bool register_name(TitleMenuState& state)
 
 	if (!load_qstpath.empty()) {
 		new_game->header.qstpath = load_qstpath;
-
-		std::string filename = get_filename(load_qstpath.c_str());
-		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
-		auto len = filename.find(".qst", 0);
-		len = zc_min(len, 8);
-		strcpy(name, filename.substr(0, len).c_str());
-		x = strlen(name);
 	}
 	else if (!only_qstpath.empty())
 	{
@@ -674,13 +667,17 @@ static bool register_name(TitleMenuState& state)
 							break;
 
 						case KEY_ESC:
-							x = -1;
-							done = true;
-
-							while (key[KEY_ESC])
+							// For web ?open mode, don't allow quitting.
+							if (load_qstpath.empty())
 							{
-								poll_keyboard();
-								rest(1);
+								x = -1;
+								done = true;
+	
+								while (key[KEY_ESC])
+								{
+									poll_keyboard();
+									rest(1);
+								}
 							}
 							break;
 						}
@@ -771,6 +768,10 @@ static bool register_name(TitleMenuState& state)
 
 					if (!ltrs)
 						cancel = true;
+
+					// For web ?open mode, don't allow quitting.
+					if (cancel && !load_qstpath.empty())
+						done = cancel = false;
 				}
 			}
 		}
