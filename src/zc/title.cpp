@@ -634,17 +634,16 @@ static bool register_name(TitleMenuState& state)
 				
 				sfx(WAV_CHIME);
 			}
-			else if(getInput(btnB, INPUT_PRESS))
+			else if (getInput(btnB, INPUT_PRESS))
 			{
-				if(x<8 && name[zc_min(x,7)])
+				if (x > 0)
 				{
-					++x;
-					sfx(WAV_CHIME);
-				}
-				
-				if(x>=8)
-				{
-					x=0;
+					--x;
+					
+					for (int32_t i = zc_min(x, 7); i < 8; i++)
+						name[i] = name[i + 1];
+					
+					sfx(WAV_OUCH);
 				}
 			}
 			else if(getInput(btnA, INPUT_PRESS))
