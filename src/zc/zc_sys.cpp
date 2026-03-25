@@ -340,7 +340,7 @@ void load_game_configs()
 	SnapshotScale = zc_get_config(cfg_sect,"snapshot_scale",2);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
 #ifdef __EMSCRIPTEN__
-	if (em_is_mobile()) NameEntryMode = 2;
+	if (em_is_mobile() && NameEntryMode == 0) NameEntryMode = 2;
 #endif
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
 	ShowGameTime = zc_get_config(cfg_sect,"showtime",0);
