@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "core/hotkey.h"
 #include "zalleg/files.h"
 #include "core/fonts.h"
 #include "zalleg/render.h"
@@ -18,6 +19,7 @@
 #include "music_playback.h"
 #include "components/sound/zcmusic.h"
 #include "subscr.h"
+#include "zc/control_scheme.h"
 #include "zc/replay.h"
 #include "zc/replay_upload.h"
 #include "zc/zc_sys.h"
@@ -569,114 +571,208 @@ static bool register_name(TitleMenuState& state)
 	
 	int32_t grid_x=0;
 	int32_t grid_y=0;
-	
-	
+	bool keyboard_mode = false;
+
 	do
 	{
 		if(NameEntryMode2>0)
 		{
-			spos = grid_y*letter_grid_width+grid_x;
+			spos = grid_y * letter_grid_width + grid_x;
 			load_control_state();
-			
-			if(getInput(btnLeft, INPUT_PRESS))
+
+			while (keypressed())
 			{
-				--grid_x;
-				
-				if(grid_x<0)
+				int32_t k = readkey();
+				int32_t ch = k & 0xFF;
+				int32_t scancode = k >> 8;
+
+				if (scancode == KEY_TAB)
 				{
-					grid_x=letter_grid_width-1;
+					keyboard_mode = !keyboard_mode;
+					sfx(WAV_CHIME);
+				}
+				else if (keyboard_mode)
+				{
+					if (isprint(ch))
+					{
+						if (NameEntryMode2 == 1 && ch >= 'a' && ch <= 'z')
+							ch = toupper(ch);
+
+						const char* grid = (NameEntryMode2 == 2) ? complete_grid : simple_grid;
+						const char* ptr = strchr(grid, ch);
+
+						if (ptr)
+						{
+							int32_t idx = ptr - grid;
+							grid_y = idx / letter_grid_width;
+							grid_x = idx % letter_grid_width;
+
+							name[zc_min(x, 7)] = ch;
+
+							if (x < 8)
+								++x;
+
+							sfx(WAV_PLACE);
+						}
+					}
+					else
+					{
+						switch (scancode)
+						{
+						case KEY_LEFT:
+							if (x > 0)
+							{
+								if (x == 8)
+									x = 6;
+								else
+									--x;
+
+								sfx(WAV_CHIME);
+							}
+							break;
+
+						case KEY_RIGHT:
+							if (x < 8 && name[zc_min(x, 7)])
+							{
+								++x;
+								sfx(WAV_CHIME);
+							}
+							break;
+
+						case KEY_BACKSPACE:
+							if (x > 0)
+							{
+								--x;
+
+								for (int32_t i = zc_min(x, 7); i < 8; i++)
+									name[i] = name[i + 1];
+
+								sfx(WAV_OUCH);
+							}
+							break;
+
+						case KEY_ENTER:
+						case KEY_ENTER_PAD:
+						{
+							done = true;
+							int32_t ltrs = 0;
+
+							for (int32_t i = 0; i < 8; i++)
+								if (name[i] != ' ' && name[i] != 0)
+									++ltrs;
+
+							if (!ltrs)
+								cancel = true;
+						}
+						break;
+
+						case KEY_DEL:
+							for (int32_t i = zc_min(x, 7); i < 8; i++)
+								name[i] = name[i + 1];
+
+							sfx(WAV_OUCH);
+							break;
+
+						case KEY_ESC:
+							x = -1;
+							done = true;
+
+							while (key[KEY_ESC])
+							{
+								poll_keyboard();
+								rest(1);
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			if (!keyboard_mode)
+			{
+				if (getInput(btnLeft, INPUT_PRESS))
+				{
+					--grid_x;
+
+					if (grid_x < 0)
+					{
+						grid_x = letter_grid_width - 1;
+						--grid_y;
+						
+						if (grid_y < 0)
+							grid_y = letter_grid_height - 1;
+					}
+
+					sfx(WAV_CHIME);
+				}
+				else if (getInput(btnRight, INPUT_PRESS))
+				{
+					++grid_x;
+
+					if (grid_x >= letter_grid_width)
+					{
+						grid_x = 0;
+						++grid_y;
+						
+						if (grid_y >= letter_grid_height)
+							grid_y = 0;
+					}
+
+					sfx(WAV_CHIME);
+				}
+				else if (getInput(btnUp, INPUT_PRESS))
+				{
 					--grid_y;
-					
-					if(grid_y<0)
-					{
-						grid_y=letter_grid_height-1;
-					}
+
+					if (grid_y < 0)
+						grid_y = letter_grid_height - 1;
+
+					sfx(WAV_CHIME);
 				}
-				
-				sfx(WAV_CHIME);
-			}
-			else if(getInput(btnRight, INPUT_PRESS))
-			{
-				++grid_x;
-				
-				if(grid_x>=letter_grid_width)
+				else if (getInput(btnDown, INPUT_PRESS))
 				{
-					grid_x=0;
 					++grid_y;
-					
-					if(grid_y>=letter_grid_height)
+
+					if (grid_y >= letter_grid_height)
+						grid_y = 0;
+
+					sfx(WAV_CHIME);
+				}
+				else if (getInput(btnB, INPUT_PRESS))
+				{
+					if (x > 0)
 					{
-						grid_y=0;
+						--x;
+						
+						for (int32_t i = zc_min(x, 7); i < 8; i++)
+							name[i] = name[i + 1];
+							
+						sfx(WAV_OUCH);
 					}
 				}
-				
-				sfx(WAV_CHIME);
-			}
-			else if(getInput(btnUp, INPUT_PRESS))
-			{
-				--grid_y;
-				
-				if(grid_y<0)
+				else if (getInput(btnA, INPUT_PRESS))
 				{
-					grid_y=letter_grid_height-1;
+					name[zc_min(x, 7)] = (NameEntryMode2 == 2) ? complete_grid[spos] : simple_grid[spos];
+					++x;
+
+					if (x >= 8)
+						x = 0;
+
+					sfx(WAV_PLACE);
 				}
-				
-				sfx(WAV_CHIME);
-			}
-			else if(getInput(btnDown, INPUT_PRESS))
-			{
-				++grid_y;
-				
-				if(grid_y>=letter_grid_height)
+				else if (getInput(btnS, INPUT_PRESS))
 				{
-					grid_y=0;
-				}
-				
-				sfx(WAV_CHIME);
-			}
-			else if (getInput(btnB, INPUT_PRESS))
-			{
-				if (x > 0)
-				{
-					--x;
-					
-					for (int32_t i = zc_min(x, 7); i < 8; i++)
-						name[i] = name[i + 1];
-					
-					sfx(WAV_OUCH);
+					done = true;
+					int32_t ltrs = 0;
+
+					for (int32_t i = 0; i < 8; i++)
+						if (name[i] != ' ' && name[i] != 0)
+							++ltrs;
+
+					if (!ltrs)
+						cancel = true;
 				}
 			}
-			else if(getInput(btnA, INPUT_PRESS))
-			{
-				name[zc_min(x,7)]=(NameEntryMode2==2)?complete_grid[spos]:simple_grid[spos];
-				++x;
-				
-				if(x>=8)
-				{
-					x=0;
-				}
-				
-				sfx(WAV_PLACE);
-			}
-			else if(getInput(btnS, INPUT_PRESS))
-			{
-				done=true;
-				int32_t ltrs=0;
-				
-				for(int32_t i=0; i<8; i++)
-				{
-					if(name[i]!=' ' && name[i]!=0)
-					{
-						++ltrs;
-					}
-				}
-				
-				if(!ltrs)
-				{
-					cancel=true;
-				}
-			}
-			
 		}
 		else
 		{
@@ -797,10 +893,40 @@ static bool register_name(TitleMenuState& state)
 				}
 			}
 		}
-		
+
 		new_game->set_name(name);
 		blit(scrollbuf,framebuf,0,0,0,0,framebuf->w,framebuf->h);
 		list_save(&new_game->header, s, 56+((NameEntryMode2>0)?0:(pos*24)));
+
+		// Show instructions.
+		if (NameEntryMode2 > 0)
+		{
+			FONT* f = get_zc_font(font_z3smallfont);
+			int32_t inst_y = letter_grid_y + ((NameEntryMode2 == 2) ? 80 : 72);
+
+			int left_col_x = 24;
+			int right_col_x = 140;
+
+			// Insert
+			textout_ex(framebuf, f, "Insert", left_col_x, inst_y, 3, -1);
+			std::string a_btn_right = fmt::format(": A (key {})", get_keystr(active_control_scheme->keys[btnA]));
+			textout_ex(framebuf, f, a_btn_right.c_str(), left_col_x + text_length(f, "Insert"), inst_y, 1, -1);
+
+			// Backspace
+			textout_ex(framebuf, f, "Backspace", left_col_x, inst_y + 12, 3, -1);
+			std::string b_btn_right = fmt::format(": B (key {})", get_keystr(active_control_scheme->keys[btnB]));
+			textout_ex(framebuf, f, b_btn_right.c_str(), left_col_x + text_length(f, "Backspace"), inst_y + 12, 1, -1);
+
+			// Confirm
+			textout_ex(framebuf, f, "Confirm", right_col_x, inst_y, 3, -1);
+			std::string start_btn_right = fmt::format(": Start (key {})", get_keystr(active_control_scheme->keys[btnS]));
+			textout_ex(framebuf, f, start_btn_right.c_str(), right_col_x + text_length(f, "Confirm"), inst_y, 1, -1);
+
+			// Keyboard mode
+			int tab_color = keyboard_mode ? (CSET(2) + 3) : 3;
+			textout_ex(framebuf, f, "Keyboard mode", right_col_x, inst_y + 12, tab_color, -1);
+			textout_ex(framebuf, f, ": Tab", right_col_x + text_length(f, "Keyboard mode"), inst_y + 12, 1, -1);
+		}
 		
 		int32_t x2=letter_grid_x + grid_x*letter_grid_spacing;
 		int32_t y2=letter_grid_y + grid_y*letter_grid_spacing;
