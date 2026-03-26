@@ -2464,7 +2464,7 @@ weapon* find_first_wtype(int wtype)
 	{
 		weapon* w = (weapon*)Lwpns.spr(i);
 		
-		if(w->id == wtype && !w->weapon_dying_frame)
+		if(w->id == wtype)
 			return w;
 	}
 	return nullptr;
@@ -2539,8 +2539,18 @@ void HeroClass::draw(BITMAP* dest)
 			{
 				if(attack == wBugNet)
 				{
-					weapon *w = find_first_wtype(wBugNet);
-					if(!w)
+					weapon *w=NULL;
+					bool found = false;
+					for(int32_t q = 0; q < Lwpns.Count(); ++q)
+					{
+						w = (weapon*)Lwpns.spr(q);
+						if(w->id == wBugNet)
+						{
+							found = true;
+							break;
+						}
+					}
+					if(!found)
 					{
 						// TODO(crash): check that .add succeeds.
 						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wBugNet,0,0,dir,itemid,getUID(),false,false,true));
@@ -2665,12 +2675,25 @@ void HeroClass::draw(BITMAP* dest)
 				int32_t wy=1;
 				int32_t wx=1;
 				int32_t f=0,t,cs2;
-				weapon *w = find_first_wtype(wHammer);
+				weapon *w=NULL;
+				bool found = false;
 				
-				if(!w)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
+				{
+					w = (weapon*)Lwpns.spr(i);
+					
+					if(w->id == wHammer)
+					{
+						found = true;
+						break;
+					}
+				}
+				
+				if(!found)
 				{
 					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
 					w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+					found = true;
 				}
 				
 				t = w->o_tile;
