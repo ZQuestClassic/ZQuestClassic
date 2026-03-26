@@ -154,7 +154,12 @@ async function main() {
   let readyToRunPromiseResolve;
   const readyToRunPromise = new Promise(resolve => readyToRunPromiseResolve = resolve);
 
-  await renderDefaultControls();
+  // Not all browsers support navigator.keyboard.getLayoutMap.
+  try {
+    await renderDefaultControls();
+  } catch (err) {
+    console.error(err);
+  }
 
   // window.Module = await initModule({
   window.Module = Object.assign(Module, {
@@ -544,49 +549,60 @@ async function renderDefaultControls() {
 }
 
 function setupTouchControls() {
-  const createKeyEvent = Module.cwrap('create_synthetic_key_event', null, ['int', 'int']);
-  const EVENTS = {
-    KEY_DOWN: 10,
-    KEY_CHAR: 11,
-    KEY_UP: 12,
-  };
-  const KEY_CODES = {
-    B: 26,
-    A: 24,
-    Start: 67,
-    Map: 75,
-    L: 1,
-    R: 19,
-    Left: 82,
-    Right: 83,
-    Down: 84,
-    Up: 85,
-  };
-  const getDirectionalKey = (x, y) => {
-    if (x === -1) return KEY_CODES.Left;
-    if (x === 1) return KEY_CODES.Right;
-    if (y === -1) return KEY_CODES.Down;
-    if (y === 1) return KEY_CODES.Up;
-  }
-  const sendKeyEvent = (eventType, key) => {
-    if (eventType === 'touchstart') createKeyEvent(EVENTS.KEY_DOWN, key);
-    if (eventType === 'touchmove' || eventType === 'touchstart') createKeyEvent(EVENTS.KEY_CHAR, key);
-    if (eventType === 'touchend') createKeyEvent(EVENTS.KEY_UP, key);
+  const BUTTON_MAP = {
+    'A':     { code: 'KeyZ', key: 'z', keyCode: 90 },
+    'B':     { code: 'KeyX', key: 'x', keyCode: 88 },
+    'Start': { code: 'Enter', key: 'Enter', keyCode: 13 },
+    'Map':   { code: 'Space', key: ' ', keyCode: 32 },
+    'L':     { code: 'KeyA', key: 'a', keyCode: 65 },
+    'R':     { code: 'KeyS', key: 's', keyCode: 83 },
+    'Left':  { code: 'ArrowLeft', key: 'ArrowLeft', keyCode: 37 },
+    'Right': { code: 'ArrowRight', key: 'ArrowRight', keyCode: 39 },
+    'Up':    { code: 'ArrowUp', key: 'ArrowUp', keyCode: 38 },
+    'Down':  { code: 'ArrowDown', key: 'ArrowDown', keyCode: 40 },
   };
 
-  const getKeysForInputElement = (el) => {
+  const getDirectionalAction = (x, y) => {
+    if (x === -1) return 'Left';
+    if (x === 1) return 'Right';
+    if (y === 1) return 'Down';
+    if (y === -1) return 'Up';
+    return null;
+  };
+
+  const sendDOMKeyEvent = (touchType, action) => {
+    const keyDef = BUTTON_MAP[action];
+    if (!keyDef) return;
+
+    // Convert the touch state into a standard key down/up event.
+    let eventType;
+    if (touchType === 'touchstart' || touchType === 'touchmove') eventType = 'keydown';
+    if (touchType === 'touchend') eventType = 'keyup';
+
+    const event = new KeyboardEvent(eventType, {
+      bubbles: true,
+      cancelable: true,
+      code: keyDef.code,
+      key: keyDef.key,
+      keyCode: keyDef.keyCode,
+      which: keyDef.keyCode
+    });
+
+    // Dispatch to the document so Emscripten/SDL catches it naturally.
+    document.dispatchEvent(event);
+  };
+
+  const getActionsForInputElement = (el) => {
     const action = el.getAttribute('data-action');
-    if (action) {
-      return [KEY_CODES[action]];
-    }
+    if (action) return [action];
 
-    const keys = [];
+    const actions = [];
     const x = Number(el.getAttribute('data-x'));
     const y = Number(el.getAttribute('data-y'));
-    if (x) keys.push(getDirectionalKey(x, 0));
-    if (y) keys.push(getDirectionalKey(0, y));
+    if (x) actions.push(getDirectionalAction(x, 0));
+    if (y) actions.push(getDirectionalAction(0, y));
 
-    return keys;
+    return actions;
   }
 
   for (const touchInputsEl of document.querySelectorAll('.touch-inputs')) {
@@ -608,16 +624,17 @@ function setupTouchControls() {
       }
 
       const elementMouseIsOver = document.elementFromPoint(touch.clientX, touch.clientY);
-      const inputEl = elementMouseIsOver.classList.contains('touch-input') ? elementMouseIsOver : null;
+      const inputEl = elementMouseIsOver && elementMouseIsOver.classList.contains('touch-input') ? elementMouseIsOver : null;
 
-      if (!inputEl && elementMouseIsOver.closest('.touch-inputs') === touchInputsEl && eventType !== 'touchend') {
-        // In the "dead zone" between the inputs (ex: the middle of the dpad).
+      // In the "dead zone" between the inputs (ex: the middle of the dpad).
+      if (!inputEl && elementMouseIsOver && elementMouseIsOver.closest('.touch-inputs') === touchInputsEl && eventType !== 'touchend') {
         return;
       }
 
+      // Release the old key if we slid off it.
       if (activeInputEl && (inputEl !== activeInputEl || !inputEl)) {
-        for (const key of getKeysForInputElement(activeInputEl)) {
-          sendKeyEvent('touchend', key);
+        for (const action of getActionsForInputElement(activeInputEl)) {
+          sendDOMKeyEvent('touchend', action);
         }
       }
 
@@ -626,15 +643,22 @@ function setupTouchControls() {
         return;
       }
 
-      for (const key of getKeysForInputElement(inputEl)) {
-        sendKeyEvent(eventType, key);
+      // Press the new key.
+      for (const action of getActionsForInputElement(inputEl)) {
+        sendDOMKeyEvent(eventType, action);
       }
 
       setActiveInputEl(eventType === 'touchend' ? null : inputEl);
     };
 
-    touchInputsEl.addEventListener('touchstart', e => touchFn('touchstart', e));
-    touchInputsEl.addEventListener('touchmove', e => touchFn('touchmove', e));
+    touchInputsEl.addEventListener('touchstart', e => {
+      e.preventDefault(); // Kills the long-press haptic timer instantly.
+      touchFn('touchstart', e);
+    }, { passive: false });
+    touchInputsEl.addEventListener('touchmove', e => {
+      e.preventDefault(); // Prevents accidental scrolling while dragging across the D-pad.
+      touchFn('touchmove', e);
+    }, { passive: false });
     touchInputsEl.addEventListener('touchend', e => touchFn('touchend', e));
     touchInputsEl.addEventListener('touchcancel', e => touchFn('touchend', e));
     touchInputsEl.addEventListener('contextmenu', e => e.preventDefault());

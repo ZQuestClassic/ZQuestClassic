@@ -492,22 +492,3 @@ void safe_al_trace(std::string const& str)
 {
 	zc_trace_handler(str.c_str());
 }
-
-#ifdef __EMSCRIPTEN__
-bool has_init_fake_key_events = false;
-ALLEGRO_EVENT_SOURCE fake_src;
-extern "C" void create_synthetic_key_event(ALLEGRO_EVENT_TYPE type, int keycode)
-{
-  if (!has_init_fake_key_events)
-  {
-    al_init_user_event_source(&fake_src);
-    all_keyboard_queue_register_event_source(&fake_src);
-    has_init_fake_key_events = true;
-  }
-
-  ALLEGRO_EVENT event;
-  event.any.type = type;
-  event.keyboard.keycode = keycode;
-  al_emit_user_event(&fake_src, &event, NULL);
-}
-#endif
