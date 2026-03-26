@@ -20,6 +20,7 @@ default_db_path = root_dir / '.tmp/database'
 
 @dataclass
 class Release:
+    data: dict
     id: str
     name: str
     resources: list[str]
@@ -37,9 +38,6 @@ class Quest:
 
 
 def _should_ignore_key(key: str) -> bool:
-    if key in ['cache.json']:
-        return True
-
     # qst.gz files are compressed for the web build. Never needed in a local copy of the database.
     if key.endswith('.qst.gz'):
         return True
@@ -113,6 +111,7 @@ class Database:
 
                 releases.append(
                     Release(
+                        data=release_data,
                         id=id,
                         name=name,
                         resources=resources,
