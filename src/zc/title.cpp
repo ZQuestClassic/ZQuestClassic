@@ -1014,9 +1014,12 @@ static bool register_name(TitleMenuState& state)
 	}
 
 	SystemKeys=true;
-	selectscreen();
-	list_saves(state.get_page_start());
-	select_mode();
+	if (load_qstpath.empty() || !done)
+	{
+		selectscreen();
+		list_saves(state.get_page_start());
+		select_mode();
+	}
 	return done && new_game != nullptr;
 }
 
@@ -1387,6 +1390,31 @@ static void select_game(bool skip = false)
 	refreshpal=true;
 	do
 	{
+		if(!load_qstpath.empty())
+		{
+			if (register_name(state))
+			{
+				saveslot = saves_count()-1;
+				if (auto r = saves_select(saveslot); !r)
+				{
+					enter_sys_pal();
+					InfoDialog("Error loading save", r.error()).show();
+					exit_sys_pal();
+					continue;
+				}
+				else
+				{
+					loadlast = saves_current_path();
+				}
+
+				break;
+			}
+			else
+			{
+				load_qstpath = "";
+			}
+		}
+
 		if (keypressed())
 		{
 			int32_t k=readkey()>>8;
@@ -1416,31 +1444,6 @@ static void select_game(bool skip = false)
 		load_control_state();
 
 		saveslot = state.target == CursorTarget::SaveSlot ? state.selected_save_index : -1;
-
-		if(!load_qstpath.empty())
-		{
-			if (register_name(state))
-			{
-				saveslot = saves_count()-1;
-				if (auto r = saves_select(saveslot); !r)
-				{
-					enter_sys_pal();
-					InfoDialog("Error loading save", r.error()).show();
-					exit_sys_pal();
-					continue;
-				}
-				else
-				{
-					loadlast = saves_current_path();
-				}
-
-				break;
-			}
-			else
-			{
-				load_qstpath = "";
-			}
-		}
 		
 		if (getInput(btnS, INPUT_PRESS))
 		{
