@@ -1617,7 +1617,7 @@ void ASTExprConst::execute(ASTVisitor& visitor, void* param)
 std::optional<int32_t> ASTExprConst::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
-	return content ? content->getCompileTimeValue(errorHandler, scope) : std::nullopt;
+	return content && scope ? content->getCompileTimeValue(errorHandler, scope) : std::nullopt;
 }
 
 // ASTExprBoolTree

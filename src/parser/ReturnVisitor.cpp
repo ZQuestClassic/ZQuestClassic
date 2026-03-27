@@ -142,6 +142,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				return; //nothing more to possibly do here
 		}
 		ResetVisitor resetter(program);
+		resetter.scope = scope;
 		resetter.visit(*block); //reset the 'reachable' state to false
 		func_var_map.clear();
 		
