@@ -291,7 +291,9 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	}
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));
+#ifndef __EMSCRIPTEN__
 	set_always_use_native_file_dialog(zc_get_config("gui","native_file_dialog",1));
+#endif
 
 	packfile_password(datapwd);
 
