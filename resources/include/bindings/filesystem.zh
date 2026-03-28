@@ -1,7 +1,9 @@
 // Contains functions related to accessing the filesystem.
 //
+// Consider using `new file()` or `new directory()` instead.
+//
 // All paths are made relative to a quest-specific directory,
-// found at `<zc root folder>/files/<quest name>`. Quests cannot access
+// found at `<zc root folder>/Files/<quest name>`. Quests cannot access
 // files outside this folder.
 //
 // Access with `FileSystem->`.
@@ -14,14 +16,14 @@ class FileSystem {
 	// @zasm
 	//   POP D2
 	//   DIREXISTS D2
-	internal bool DirExists(char32 dirpath);
+	internal bool DirExists(char32[] dirpath);
 
 	// Returns true if the file/dir specified by the given path exists.
 	//
 	// @zasm
 	//   POP D2
 	//   FILEEXISTS D2
-	internal bool FileExists(char32 filepath);
+	internal bool FileExists(char32[] filepath);
 
 	// Deletes the file pointed to by 'filepath'. Path is relative to the
 	// quest's specific directory.
@@ -29,14 +31,30 @@ class FileSystem {
 	// @zasm
 	//   POP D2
 	//   FILESYSREMOVE D2
-	internal bool Remove(char32 filepath);
+	internal bool Remove(char32[] filepath);
 
-	// Opens the directory pointed to by 'dirpath'
+	// Opens the file pointed to by 'path'.
+	//
+	// You can use `new file(filepath, mode)` (3.0) or [file::OpenMode] instead.
+	//
+	// @param mode - See [file] for details.
+	// @versionadded 3.0
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   SETV REFFILE 0
+	//   FILEOPENMODE D2 D3
+	//   SETR D2 D3
+	internal file LoadFile(char32[] path, char32[] mode);
+
+	// Opens the directory pointed to by 'path'.
+	//
+	// @versionchanged 3.0 You can use `new directory(filepath)` instead.
 	//
 	// @zasm
 	//   POP D2
 	//   LOADDIRECTORYR D2
-	internal directory LoadDirectory(char32 dirpath);
+	internal directory LoadDirectory(char32[] path);
 }
 
 internal const FileSystem FileSystem;

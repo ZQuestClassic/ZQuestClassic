@@ -1,12 +1,40 @@
+// Valid modes (details taken from http://www.cplusplus.com/reference/cstdio/fopen/):
+//
+// - "r" (read): Open file for input operations. The file must exist.
+// - "w" (write): Create an empty file for output operations. If a file with the same name
+//    already exists, its contents are discarded and the file is treated as a new empty file.
+// - "a" (append): Open file for output at the end of a file. Output operations always write
+//    data at the end of the file, expanding it. Repositioning operations ('Seek()', 'Rewind()')
+//    are ignored. The file is created if it does not exist.
+// - "r+" (read/update): Open a file for update (both for input and output). The file must
+//    exist.
+// - "w+" (write/update): Create an empty file and open it for update (both for input and
+//    output). If a file with the same name already exists its contents are discarded and the file
+//    is treated as a new empty file.
+// - "a+" (append/update): Open a file for update (both for input and output) with all output
+//   operations writing data at the end of the file. Repositioning operations (fseek, fsetpos,
+//   rewind) affects the next input operations, but output operations move the position back to
+//   the end of file. The file is created if it does not exist.
+//
+// The letter "b" can be added to the end of any of these (but before the "+" for update modes)
+//     to specify a binary file mode. Otherwise, the file opens in text mode.
+//
+// Text files are files containing sequences of lines of text. Depending on the environment
+//     where the application runs, some special character conversion may occur in input/output
+//     operations in text mode to adapt them to a system-specific text file format. Although
+//     on some environments no conversions occur and both text files and binary files are
+//     treated the same way, using the appropriate mode improves portability.
+//
 // @zasm_ref REFFILE
 class file {
+	// @param mode - See [file] for details.
 	// @zasm
 	//   POP D3
 	//   POP D2
 	//   SETV REFFILE 0
 	//   FILEOPENMODE D2 D3
 	//   SETR D2 D3
-	internal file(char32 path, char32 mode);
+	internal file(char32[] path, char32[] mode);
 
 	// This represents the current position in the file.
 	//
@@ -31,7 +59,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEOPEN D2
-	internal bool Open(char32[] filepath);
+	internal bool Open(char32[] path);
 
 	// If the file pointer is not allocated, this will allocate it. Also closes
 	// any file that is already open on the pointer.
@@ -41,18 +69,20 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILECREATE D2
-	internal bool Create(char32[] filepath);
+	internal bool Create(char32[] path);
 
 	// If the file pointer is not allocated, this will allocate it. Also closes
 	// any file that is already open on the pointer.
 	//
+	// @param mode - See [file] for details.
+	// @deprecated Use `new file(path, mode)` instead.
 	// @reassign_ptr
 	// @zasm
 	//   POP D3
 	//   POP D2
 	//   POP REFFILE
 	//   FILEOPENMODE D2 D3
-	internal bool OpenMode(char32[] filepath, char32[] mode_string);
+	internal bool OpenMode(char32[] path, char32[] mode);
 
 	// Closes any open file connected to the file pointer (which also includes
 	// 'Flush()'). Does *NOT* deallocate the pointer, it is still reserved to

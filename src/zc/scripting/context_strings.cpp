@@ -1950,7 +1950,6 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case FILEGETCHAR: return "file::GetChar()";
 		case FILEGETERROR: return "file::GetError()";
 		case FILEOPEN: return "file::Open()";
-		case FILEOPENMODE: return "file::OpenMode()";
 		case FILEOWN: return "file::Own()";
 		case FILEPUTCHAR: return "file::PutChar()";
 		case FILEREADBYTES: return "file::ReadBytes()";
@@ -1965,6 +1964,7 @@ const char* scripting_get_zasm_command_context_string(ASM_DEFINE command)
 		case FILEWRITECHARS: return "file::WriteChars()";
 		case FILEWRITEINTS: return "file::WriteInts()";
 		case FILEWRITESTR: return "file::WriteString()";
+		case FILEOPENMODE: return "file::file()";
 		case FILEISALLOCATED: return "file::isAllocated()";
 		case FILEISVALID: return "file::isValid()";
 		case RUNGENFRZSCR: return "genericdata::RunFrozen()";
