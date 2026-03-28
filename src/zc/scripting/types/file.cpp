@@ -71,15 +71,19 @@ void do_fopen(const bool v, const char* f_mode)
 		if(!create || util::make_dirs_for_file(resolved_path))
 		{
 			f->file = fopen(resolved_path.c_str(), f_mode);
-			fflush(f->file);
-			util::zc_chmod(resolved_path.c_str(), SCRIPT_FILE_MODE);
-			f->setPath(resolved_path.c_str());
-			//r+; read-write, will not create if does not exist, will not delete content if does exist.
-			//w+; read-write, will create if does not exist, will delete all content if does exist.
-			if(f->file)
+			if (f->file)
 			{
+				fflush(f->file);
+				util::zc_chmod(resolved_path.c_str(), SCRIPT_FILE_MODE);
+				f->setPath(resolved_path.c_str());
+				//r+; read-write, will not create if does not exist, will not delete content if does exist.
+				//w+; read-write, will create if does not exist, will delete all content if does exist.
 				SET_D(rEXP1, 10000L); //Success
 				return;
+			}
+			else
+			{
+				Z_scripterrlog("Script failed to open path '%s'.\n", resolved_path.c_str());
 			}
 		}
 		else
@@ -546,9 +550,7 @@ user_file* checkFile(int32_t ref, bool req_file, bool skipError)
 	{
 		if (skipError) return NULL;
 
-		scripting_log_error_with_context("Script attempted to reference an invalid file!");
-		Z_scripterrlog("File with UID = %d does not have an open file connection!\n", ref);
-		Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+		scripting_log_error_with_context("Script attempted to reference an invalid file! Use '->Open()' or '->Create()' to hook to a system file.");
 		return NULL;
 	}
 	return file;
