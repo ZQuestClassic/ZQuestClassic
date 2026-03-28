@@ -2,28 +2,37 @@ stderr:
 
 Compiling 'errors_8.zs'
 Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-Pass 5: Checking code paths
-Pass 6: Generating object code
-Pass 7: Assembling
-Success!
-Compile finished with exit code '0' (success)
+ERROR: Bad Annotation Value: @Author expects a String, not a Number
+
+
+13    
+14    // https://discord.com/channels/876899628556091432/1487233484924784682
+15    @Author(1.11111) // expected error: Bad Annotation Value: @Author expects a String, not a Number
+      ^~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
 
 stdout:
 
 {
-  "success": true,
-  "diagnostics": [],
-  "metadata": {
-    "currentFileSymbols": 2,
-    "symbols": 3,
-    "identifiers": 5,
-    "elided": true
-  }
+  "success": false,
+  "code": -1,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 0
+        },
+        "end": {
+          "line": 14,
+          "character": 16
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @Author expects a String, not a Number"
+    }
+  ]
 }
-
-zasm:
-
-QUIT; void run() Body

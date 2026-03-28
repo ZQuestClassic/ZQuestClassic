@@ -478,7 +478,7 @@ int32_t ASTFloat::getValue(Scope* scope)
 			{
 				if(f.at(i) == '.')
 				{
-					if(int q = 4-(f.size()-i-1))
+					if(int q = 4-(f.size()-i-1); q > 0)
 						f += string(q, '0'); // add trailing 0s
 					outval = std::stoi(f.substr(0,i))*10000 + std::stoi(f.substr(i+1,4));
 					founddot = true;
