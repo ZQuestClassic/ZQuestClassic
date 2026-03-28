@@ -1026,7 +1026,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		{
 			ASTExprIdentifier const& id = *(host.identifier);
 			
-			vector<string> scopeNames(id.components.begin(), --id.components.end());
+			vector<string> scopeNames(id.components.begin(), id.components.end() - 1);
 			vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
 			host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
 			if(!host.parentScope)
