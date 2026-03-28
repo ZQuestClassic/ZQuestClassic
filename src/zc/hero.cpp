@@ -7821,7 +7821,10 @@ static void dec_cooldowns(bounded_map<word, int>& cd)
 	for (auto it = cont.begin(); it != cont.end();)
 	{
 		if (it->second > 1) // tick down one per frame
+		{
 			--it->second;
+			++it;
+		}
 		else if (it->second >= 0) // ticked down to nothing, remove from map
 			it = cont.erase(it);
 	}
