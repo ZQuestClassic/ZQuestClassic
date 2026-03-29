@@ -441,7 +441,7 @@ int xtoa(char32[] ptr, int num, bool upper)
 //regardless of the most significant digit
 int ftoa(char32[] ptr, int pos, float num, bool printall)
 {
-	if(OPTION_VALUE(TRUE_INT_SIZE) && num == -214748.3648)
+	if(num == -214748.3648)
 	{
 		int ret = ftoa(ptr,pos,-214748.364);
 		ptr[pos + ret] = '8';

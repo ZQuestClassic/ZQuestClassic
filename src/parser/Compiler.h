@@ -329,8 +329,7 @@ namespace ZScript
 		static std::shared_ptr<ASTFile> parse_from_root(std::string entry_filename, std::string metadata_orig_path, std::string metadata_tmp_path);
 		static unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
 		static void initialize(bool has_qrs);
-		static std::pair<int32_t,bool> parseLong(
-				std::pair<std::string,std::string> parts, Scope* scope);
+		static std::pair<int32_t,bool> parseLong(std::pair<std::string,std::string> parts);
 
 		static int32_t const recursionLimit = 30;
 	private:

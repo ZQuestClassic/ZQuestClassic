@@ -2450,20 +2450,14 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 	
 	visit(host.operand.get(), param);
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
 	if(host.isInverted())
 	{
-		if(decret)
-			addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-		else
-			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+		addOpcode(new OCastBoolI(new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		auto cmp = CMP_EQ;
-		if(!decret)
-			cmp |= CMP_SETI;
+		auto cmp = CMP_EQ|CMP_SETI;
 		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 	}
 }
@@ -2479,8 +2473,7 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 	
 	visit(host.operand.get(), param);
 	
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || host.operand.get()->isLong(scope, this))
+	if(host.operand.get()->isLong(scope, this))
 		addOpcode(new O32BitNot(new VarArgument(EXP1)));
 	else
 		addOpcode(new ONot(new VarArgument(EXP1)));
@@ -2514,7 +2507,6 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 	else buildPostOp(host.operand.get(), param, ops);
 }
 
-static bool booltree_decret = false;
 optional<bool> BuildOpcodes::rec_booltree_shortcircuit(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param)
 {
 	switch(node.mode)
@@ -2608,81 +2600,6 @@ optional<bool> BuildOpcodes::rec_booltree_shortcircuit(BoolTreeNode& node, int p
 	}
 	return nullopt;
 }
-void BuildOpcodes::rec_booltree_noshort(BoolTreeNode& node, int parentMode, void* param)
-{
-	bool _and = parentMode == BoolTreeNode::MODE_AND;
-	bool _or = parentMode == BoolTreeNode::MODE_OR;
-	switch(node.mode)
-	{
-		case BoolTreeNode::MODE_LEAF:
-		{
-			auto val = node.leaf->getCompileTimeValue(this, scope);
-			if(val)
-			{
-				if(_and)
-				{
-					if(!*val)
-						addOpcode(new OStackWriteAtVV(new LiteralArgument(0), new LiteralArgument(0)));
-					return;
-				}
-				else if(_or)
-				{
-					if(*val)
-						addOpcode(new OStackWriteAtVV(new LiteralArgument(booltree_decret ? 1 : 10000), new LiteralArgument(0)));
-					return;
-				}
-			}
-			else
-			{
-				visit(node.leaf.get(), param);
-				int c = 0;
-				if(auto cmp = eatSetCompare())
-					c = *cmp & ~CMP_SETI;
-				else
-				{
-					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-					c = CMP_NE;
-				}
-				int val = booltree_decret ? 1 : 10000;
-				if(_and)
-				{
-					val = 0;
-					c = INVERT_CMP(c);
-				}
-				addOpcode(new OStackWriteAtVV_If(new LiteralArgument(val), new LiteralArgument(0), new CompareArgument(c)));
-			}
-			return;
-		}
-		case BoolTreeNode::MODE_AND:
-		{
-			addOpcode(new OPushImmediate(new LiteralArgument(booltree_decret ? 1 : 10000)));
-			for(size_t q = 0; q < node.branch.size(); ++q)
-				rec_booltree_noshort(node.branch[q], node.mode, param);
-			addOpcode(new OPopRegister(new VarArgument(EXP1)));
-			break;
-		}
-		case BoolTreeNode::MODE_OR:
-		{
-			addOpcode(new OPushImmediate(new LiteralArgument(0)));
-			for(size_t q = 0; q < node.branch.size(); ++q)
-				rec_booltree_noshort(node.branch[q], node.mode, param);
-			addOpcode(new OPopRegister(new VarArgument(EXP1)));
-			break;
-		}
-	}
-	if(_and || _or)
-	{
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		int val = booltree_decret ? 1 : 10000;
-		int c = CMP_NE;
-		if(_and)
-		{
-			val = 0;
-			c = INVERT_CMP(c);
-		}
-		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(val), new LiteralArgument(0), new CompareArgument(c)));
-	}
-}
 
 void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 {
@@ -2693,42 +2610,32 @@ void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 	}
 	BoolTreeNode& node = host.root;
 	bool _and = node.mode == BoolTreeNode::MODE_AND;
-	bool decret = booltree_decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
-	
-	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	
 	auto sidefx = sidefx_only ;
 	sidefx_only = false;
-	if(short_circuit)
+	auto endlbl = ScriptParser::getUniqueLabelID();
+	auto truelbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
+	auto falselbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
+	rec_booltree_shortcircuit(node, -1, truelbl, falselbl, param);
+	if(sidefx)
+		addOpcode(new ONoOp(endlbl));
+	else if(_and)
 	{
-		auto endlbl = ScriptParser::getUniqueLabelID();
-		auto truelbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
-		auto falselbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
-		rec_booltree_shortcircuit(node, -1, truelbl, falselbl, param);
-		if(sidefx)
-			addOpcode(new ONoOp(endlbl));
-		else if(_and)
-		{
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
-			backOpcode()->setLabel(truelbl);
-			addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-			backOpcode()->setLabel(falselbl);
-			addOpcode(new ONoOp(endlbl));
-		}
-		else
-		{
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-			backOpcode()->setLabel(falselbl);
-			addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
-			backOpcode()->setLabel(truelbl);
-			addOpcode(new ONoOp(endlbl));
-		}
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		backOpcode()->setLabel(truelbl);
+		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		backOpcode()->setLabel(falselbl);
+		addOpcode(new ONoOp(endlbl));
 	}
 	else
 	{
-		rec_booltree_noshort(node, -1, param);
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		backOpcode()->setLabel(falselbl);
+		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		backOpcode()->setLabel(truelbl);
+		addOpcode(new ONoOp(endlbl));
 	}
 	sidefx_only = sidefx;
 }
@@ -2746,17 +2653,12 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
-	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	if(auto val = host.left->getCompileTimeValue(this, scope))
 	{
 		if(*val)
 		{
 			visit(host.right.get(), param);
-			if(decret)
-				addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			else
-				addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
 			return;
 		}
 		else //if(!short_circuit) //if short circuit were true, the top early return would have triggered.
@@ -2771,10 +2673,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		if(*val)
 		{
 			visit(host.left.get(), param);
-			if(decret)
-				addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			else
-				addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
 			return;
 		}
 		else
@@ -2784,49 +2683,20 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 			return;
 		}
 	}
-	uint cmp;
-	if(short_circuit)
-	{
-		int32_t skip = ScriptParser::getUniqueLabelID();
-		//Get left
-		visit(host.left.get(), param);
-		//Check left, skip if false
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
-		//Get right
-		visit(host.right.get(), param);
-		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-		ocode->setLabel(skip);
-		addOpcode(ocode);
-		cmp = CMP_NE;
-		if(!decret)
-			cmp |= CMP_SETI;
-		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
-	}
-	else
-	{
-		addOpcode(new OPushImmediate(new LiteralArgument(decret ? 1 : 10000))); //push true
-		//Get left
-		visit(host.left.get(), param);
-		//If false, set retval to 0
-		int cmp = CMP_EQ;
-		if(auto cmpval = eatSetCompare())
-			cmp = INVERT_CMP(*cmpval) & ~CMP_SETI;
-		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(0),
-			new LiteralArgument(0), new CompareArgument(cmp)));
-		//Get right
-		visit(host.right.get(), param);
-		//If false, set retval to 0
-		cmp = CMP_EQ;
-		if(auto cmpval = eatSetCompare())
-			cmp = INVERT_CMP(*cmpval) & ~CMP_SETI;
-		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(0),
-			new LiteralArgument(0), new CompareArgument(cmp)));
-		//Pop retval
-		addOpcode(new OPopRegister(new VarArgument(EXP1)));
-	}
+
+	int32_t skip = ScriptParser::getUniqueLabelID();
+	//Get left
+	visit(host.left.get(), param);
+	//Check left, skip if false
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
+	//Get right
+	visit(host.right.get(), param);
+	Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+	ocode->setLabel(skip);
+	addOpcode(ocode);
+	uint cmp = CMP_NE|CMP_SETI;
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
@@ -2843,23 +2713,18 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
-	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	if(auto val = host.left->getCompileTimeValue(this, scope))
 	{
 		if(*val) //if short circuit were true, the top early return would have triggered.
 		{
 			visit(host.right.get(), param); //Visit in case it has 'side effects'
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 			return;
 		}
 		else
 		{
 			visit(host.right.get(), param);
-			if(decret)
-				addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			else
-				addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
 			return;
 		}
 	}
@@ -2868,61 +2733,31 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		if(*val)
 		{
 			visit(host.left.get(), param); //Visit in case it has 'side effects'
-			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 			return;
 		}
 		else
 		{
 			visit(host.left.get(), param);
-			if(decret)
-				addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			else
-				addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
 			return;
 		}
 	}
-	if(short_circuit)
-	{
-		int32_t skip = ScriptParser::getUniqueLabelID();
-		//Get left
-		visit(host.left.get(), param);
-		//Check left, skip if true
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OGotoFalseImmediate(new LabelArgument(skip)));
-		//Get rightx
-		//Get right
-		visit(host.right.get(), param);
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		//Set output
-		Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE | (decret?0:CMP_SETI)));
-		ocode->setLabel(skip);
-		addOpcode(ocode);
-	}
-	else
-	{
-		auto trueval = decret ? 1 : 10000;
-		addOpcode(new OPushImmediate(new LiteralArgument(0))); //push false
-		//Get left
-		visit(host.left.get(), param);
-		//If true, set retval to 1/10000
-		int cmp = CMP_NE;
-		if(auto cmpval = eatSetCompare())
-			cmp = *cmpval & ~CMP_SETI;
-		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(trueval),
-			new LiteralArgument(0), new CompareArgument(cmp)));
-		//Get right
-		visit(host.right.get(), param);
-		//If true, set retval to 1/10000
-		cmp = CMP_NE;
-		if(auto cmpval = eatSetCompare())
-			cmp = *cmpval & ~CMP_SETI;
-		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(trueval),
-			new LiteralArgument(0), new CompareArgument(cmp)));
-		//Pop retval
-		addOpcode(new OPopRegister(new VarArgument(EXP1)));
-	}
+
+	int32_t skip = ScriptParser::getUniqueLabelID();
+	//Get left
+	visit(host.left.get(), param);
+	//Check left, skip if true
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	addOpcode(new OGotoFalseImmediate(new LabelArgument(skip)));
+	//Get rightx
+	//Get right
+	visit(host.right.get(), param);
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	//Set output
+	Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE|CMP_SETI));
+	ocode->setLabel(skip);
+	addOpcode(ocode);
 }
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
@@ -2934,11 +2769,8 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_GT;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_GT|CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -2951,11 +2783,8 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_GE;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_GE|CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -2968,11 +2797,8 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_LT;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_LT|CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -2985,11 +2811,8 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_LE;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_LE|CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -3007,13 +2830,10 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 	DataType const* rtype = host.right->getReadType(scope, this);
 	bool isBoolean = (*ltype == DataType::BOOL || *rtype == DataType::BOOL || *ltype == DataType::CBOOL || *rtype == DataType::CBOOL);
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_EQ;
+	auto cmp = CMP_EQ|CMP_SETI;
 	if(isBoolean)
 		cmp |= CMP_BOOL;
-	if(!decret)
-		cmp |= CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -3031,13 +2851,10 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 	DataType const* rtype = host.right->getReadType(scope, this);
 	bool isBoolean = (*ltype == DataType::BOOL || *rtype == DataType::BOOL || *ltype == DataType::CBOOL || *rtype == DataType::CBOOL);
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	compareExprs(host.left.get(), host.right.get(), param);
-	auto cmp = CMP_NE;
+	auto cmp = CMP_NE|CMP_SETI;
 	if(isBoolean)
 		cmp |= CMP_BOOL;
-	if(!decret)
-		cmp |= CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -3075,10 +2892,7 @@ void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 	
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))));
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
-	auto cmp = CMP_LE;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_LE|CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -3091,13 +2905,9 @@ void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
-	
 	compareExprs(host.left.get(), host.right.get(), param);
 	
-	auto cmp = CMP_NE | CMP_BOOL;
-	if(!decret)
-		cmp |= CMP_SETI;
+	auto cmp = CMP_NE | CMP_BOOL | CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
@@ -3372,8 +3182,7 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
+	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	auto rval = host.right->getCompileTimeValue(this, scope);
@@ -3416,8 +3225,7 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
+	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	auto rval = host.right->getCompileTimeValue(this, scope);
@@ -3460,8 +3268,7 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
+	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	auto rval = host.right->getCompileTimeValue(this, scope);
@@ -3504,8 +3311,7 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		|| host.left.get()->isLong(scope, this);
+	bool do_long = host.left.get()->isLong(scope, this);
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	auto rval = host.right->getCompileTimeValue(this, scope);
@@ -3547,8 +3353,7 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 	}
 	SIDEFX_BINOP();
 	
-	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		|| host.left.get()->isLong(scope, this);
+	bool do_long = host.left.get()->isLong(scope, this);
 	
 	auto lval = host.left->getCompileTimeValue(this, scope);
 	auto rval = host.right->getCompileTimeValue(this, scope);
@@ -3688,7 +3493,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
-		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(scope), scope);
+		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue());
 
 		if (!val.second)
 			handleError(CompileError::ConstTrunc(&host, host.value->value));
@@ -3703,7 +3508,7 @@ void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
-		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(scope), scope);
+		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue());
 
 		if (!val.second)
 			handleError(CompileError::ConstTrunc(&host, host.value->value));

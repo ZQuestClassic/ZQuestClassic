@@ -205,8 +205,9 @@ class TestZEditor(unittest.TestCase):
             ),
         ]
         for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):
-            # Somewhere between 2.53.1 and 2.55-alpha-1, simply resaving newbie_boss.qst
-            # results in a replay failure (bosses end up a few pixels off where they should be).
+            # newbie_boss.qst was compiled w/o short-circuit boolean logic, which is
+            # no longer supported. So newbie_boss.zplay can't work for a re-compiled
+            # version.
             # For now, just use an alternative replay to test the post-compile qst.
             if replay_path.name == 'newbie_boss.zplay':
                 qst_path = root_dir / 'tests/replays/scripting/newbie_boss.qst'

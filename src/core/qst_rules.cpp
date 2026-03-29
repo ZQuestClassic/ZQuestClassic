@@ -408,12 +408,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_TRACESCRIPTIDS, 0);      
 		set_qr(qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
-		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
-		set_qr(qr_PARSER_250DIVISION,1);
-		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL,1);
-		set_qr(qr_PARSER_TRUE_INT_SIZE,0);
-		set_qr(qr_PARSER_FORCE_INLINE,0);
-		set_qr(qr_PARSER_BINARY_32BIT,0);
+		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL, 1); // Deprecated.
+		set_qr(qr_PARSER_250DIVISION,1); // Deprecated.
+		set_qr(qr_PARSER_TRUE_INT_SIZE,0); // Deprecated.
+		set_qr(qr_PARSER_FORCE_INLINE,0); // Deprecated.
+		set_qr(qr_PARSER_BINARY_32BIT,0); // Deprecated.
 		if ( get_qr(qr_SELECTAWPN) ) 
 		{
 			set_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 

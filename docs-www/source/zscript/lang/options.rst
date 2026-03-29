@@ -15,18 +15,17 @@ Option Scope
 
 Different parts of your scripts can use different options.
 This is accomplished by using the :zs_kw:`#option` compiler directive.
-The :zs_kw:`#option` directive may be used at function scope or higher,
-and may only be used at the top of the scope, before any other statements.
+The :zs_kw:`#option` directive may be used in any scope. It must be at the top
+of the scope, before any other statements or declarations.
 
-If, for example, you're compiling an older script that relied
-on the broken integer division behavior that was present in version
-2.50, you could put:
+For example, if you're compiling an older script that relies
+on legacy array syntax, you could put:
 
 .. zscript::
-	#option TRUNCATE_DIVISION_BY_LITERAL_BUG on
+	#option LEGACY_ARRAYS on
 
-at the top of the script that requires the old broken behavior. Then, while
-compiling that script, the compiler will use the old behavior.
+at the top of the script that requires the old behavior. Then, while
+compiling that script, the compiler will use the old behavior for that scope.
 
 .. _option_inherit:
 
@@ -88,6 +87,9 @@ Standard Options
 
 Compatibility Options
 ^^^^^^^^^^^^^^^^^^^^^
+
+.. versionremoved:: 3.0
+	All of these options are no longer supported as of 3.0. The default behavior listed below is the only behavior in 3.0.
 
 You almost certainly want to leave these in their default state, unless you know what you are doing.
 	

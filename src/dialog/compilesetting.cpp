@@ -37,13 +37,7 @@ static const GUI::ListData list_deprecated_features
 
 GUI::ListData compileSettingList
 {
-	{ "2.50 Division Truncation", qr_PARSER_250DIVISION, "COMPAT - This replicates an old bug with division." },
 	{ "Disable Tracing", qr_PARSER_NO_LOGGING, "OPTION - Disables 'Trace()', 'printf()', and similar commands." },
-	{ "Short-Circuit Boolean Operations", qr_PARSER_SHORT_CIRCUIT, "COMPAT REVERSE - applies short-circuit." },
-	{ "2.50 Value of 'true' is 0.0001", qr_PARSER_BOOL_TRUE_DECIMAL, "COMPAT - replicates old behavior possibly needed for ZASM" },
-	{ "True MAX_INT sizing", qr_PARSER_TRUE_INT_SIZE, "COMPAT REVERSE - Uses 214748.3648 as the max value, instead of 214747 (similar for negative min value)" },
-	//{ "", qr_PARSER_FORCE_INLINE, "" }, //Unimplemented
-	{ "Binary Operations use true 32-bit Int", qr_PARSER_BINARY_32BIT, "COMPAT - treats all binary operations as 'long' type" },
 	{ "Switch/case of strings is case-insensitive", qr_PARSER_STRINGSWITCH_INSENSITIVE, "OPTION - disables 'switch(string)' case sensitivity" },
 };
 

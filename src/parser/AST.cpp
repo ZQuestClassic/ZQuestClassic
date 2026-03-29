@@ -191,7 +191,7 @@ void ASTFloat::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFloat(*this, param);
 }
 
-pair<string, string> ASTFloat::parseValue(Scope* scope) const
+pair<string, string> ASTFloat::parseValue() const
 {
 	string f = value;
 	util::removechar(f, '_'); // underscores are cosmetic for spacing, trim them first
@@ -396,7 +396,7 @@ pair<string, string> ASTFloat::parseValue(Scope* scope) const
 				f = f.substr(0,f.size()-1);
 			}
 			int32_t val2=0;
-			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			if(is_long)
 			{
 				if(f.size() > 32)
 				{
@@ -424,7 +424,7 @@ pair<string, string> ASTFloat::parseValue(Scope* scope) const
 
 			if(neg && val2 > 0) val2 *= -1;
 
-			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			if(is_long)
 			{
 				char temp[60];
 				sprintf(temp, "%d", abs(val2/10000));
@@ -446,7 +446,7 @@ pair<string, string> ASTFloat::parseValue(Scope* scope) const
 
 	return pair<string,string>(intpart, fpart);
 }
-int32_t ASTFloat::getValue(Scope* scope)
+int32_t ASTFloat::getValue()
 {
 	string f = value;
 	int32_t outval = 0;
@@ -592,7 +592,7 @@ int32_t ASTFloat::getValue(Scope* scope)
 				//trim 'b' suffix
 				f = f.substr(0,f.size()-1);
 			}
-			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			if(is_long)
 			{
 				if(f.size() > 32)
 				{
@@ -1669,7 +1669,7 @@ std::optional<int32_t> ASTExprBoolTree::getCompileTimeValue(
 {
 	auto val = root.getCompileTimeValue(errorHandler, scope);
 	if(val)
-		return *val ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0;
+		return *val ? 10000L : 0;
 	return nullopt;
 }
 
@@ -1957,7 +1957,7 @@ std::optional<int32_t> ASTExprNot::getCompileTimeValue(
 {
 	if (!operand) return std::nullopt;
 	if (std::optional<int32_t> value = operand->getCompileTimeValue(errorHandler, scope))
-		return *value ? 0L : (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L);
+		return *value ? 0L : 10000L;
 	return std::nullopt;
 }
 
@@ -1980,8 +1980,7 @@ std::optional<int32_t> ASTExprBitNot::getCompileTimeValue(
 	if (!operand) return std::nullopt;
 	if (std::optional<int32_t> value = operand->getCompileTimeValue(errorHandler, scope))
 	{
-		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-		   || operand->isLong(scope, errorHandler))
+		if(operand->isLong(scope, errorHandler))
 			return ~*value;
 		return ~(*value / 10000L) * 10000L;
 	}
@@ -2076,13 +2075,12 @@ std::optional<int32_t> ASTExprAnd::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return std::nullopt;
-	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	std::optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return std::nullopt;
-	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
+	if(!*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue && *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue && *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprOr
@@ -2101,13 +2099,12 @@ std::optional<int32_t> ASTExprOr::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!left || !right) return std::nullopt;
-	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	std::optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return std::nullopt;
-	if(short_circuit && *leftValue) return 10000L; //Cut it int16_t if we already know the result, and the option is on.
+	if(*leftValue) return 10000L; //Cut it int16_t if we already know the result, and the option is on.
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue || *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue || *rightValue) ? 10000L : 0L;
 }
 
 // ASTRelExpr
@@ -2137,7 +2134,7 @@ std::optional<int32_t> ASTExprGT::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue > *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue > *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprGE
@@ -2160,7 +2157,7 @@ std::optional<int32_t> ASTExprGE::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue >= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue >= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprLT
@@ -2183,7 +2180,7 @@ std::optional<int32_t> ASTExprLT::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue < *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue < *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprLE
@@ -2206,7 +2203,7 @@ std::optional<int32_t> ASTExprLE::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue <= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue <= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprEQ
@@ -2229,7 +2226,7 @@ std::optional<int32_t> ASTExprEQ::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue == *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue == *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprNE
@@ -2252,7 +2249,7 @@ std::optional<int32_t> ASTExprNE::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (*leftValue != *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprAppxEQ
@@ -2275,7 +2272,7 @@ std::optional<int32_t> ASTExprAppxEQ::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return (abs(*leftValue - *rightValue) <= (*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return (abs(*leftValue - *rightValue) <= (*lookupOption(*scope, CompileOption::OPT_APPROX_EQUAL_MARGIN))) ? 10000L : 0L;
 }
 
 // ASTExprXOR
@@ -2298,7 +2295,7 @@ std::optional<int32_t> ASTExprXOR::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	return ((!*leftValue) != (!*rightValue)) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+	return ((!*leftValue) != (!*rightValue)) ? 10000L : 0L;
 }
 
 // ASTAddExpr
@@ -2458,12 +2455,6 @@ std::optional<int32_t> ASTExprDivide::getCompileTimeValue(
 		return (*leftValue >= 0) ? 2147483647 : -2147483647; //error value
 	}
 	
-	if(*lookupOption(*scope, CompileOption::OPT_TRUNCATE_DIVISION_BY_LITERAL_BUG)
-		&& left->isLiteral() && right->isLiteral())
-	{
-		return *leftValue / *rightValue * 10000L;
-	}
-	
 	return static_cast<int32_t>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
 }
 
@@ -2524,8 +2515,7 @@ std::optional<int32_t> ASTExprBitAnd::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || left->isLong(scope, errorHandler)
+	if(left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue & *rightValue;
 	return ((*leftValue / 10000L) & (*rightValue / 10000L)) * 10000L;
@@ -2552,8 +2542,7 @@ std::optional<int32_t> ASTExprBitOr::getCompileTimeValue(
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
 
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || left->isLong(scope, errorHandler)
+	if(left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue | *rightValue;
 	return ((*leftValue / 10000L) | (*rightValue / 10000L)) * 10000L;
@@ -2580,8 +2569,7 @@ std::optional<int32_t> ASTExprBitXor::getCompileTimeValue(
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
 
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || left->isLong(scope, errorHandler)
+	if(left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue ^ *rightValue;
 	return ((*leftValue / 10000L) ^ (*rightValue / 10000L)) * 10000L;
@@ -2622,8 +2610,7 @@ std::optional<int32_t> ASTExprLShift::getCompileTimeValue(
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
 
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || left->isLong(scope, errorHandler)
+	if(left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue << (*rightValue / 10000L);
 	
@@ -2658,8 +2645,7 @@ std::optional<int32_t> ASTExprRShift::getCompileTimeValue(
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
 
-	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
-	   || left->isLong(scope, errorHandler)
+	if(left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue >> (*rightValue / 10000L);
 	
@@ -2779,10 +2765,10 @@ std::string ASTNumberLiteral::asString() const
 	return value->value;
 }
 std::optional<int32_t> ASTNumberLiteral::getCompileTimeValue(
-	CompileErrorHandler* errorHandler, Scope* scope)
+	CompileErrorHandler* errorHandler, Scope*)
 {
 	if (!value) return std::nullopt;
-    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue());
 	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -2821,10 +2807,10 @@ std::string ASTCharLiteral::asString() const
 }
 
 std::optional<int32_t> ASTCharLiteral::getCompileTimeValue(
-	CompileErrorHandler* errorHandler, Scope* scope)
+	CompileErrorHandler* errorHandler, Scope*)
 {
 	if (!value) return std::nullopt;
-    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue());
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -2987,7 +2973,7 @@ void ASTIsIncluded::execute(ASTVisitor& visitor, void* param)
 std::optional<int32_t> ASTIsIncluded::getCompileTimeValue(CompileErrorHandler*, Scope* scope)
 {
 	RootScope* root = getRoot(*scope);
-	return root->isImported(name) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0;
+	return root->isImported(name) ? 10000L : 0;
 }
 
 ////////////////////////////////////////////////////////////////

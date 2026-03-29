@@ -2831,7 +2831,7 @@ void ScriptAssembler::finalize_debug_scopes(ScopeProcessingContext& ctx)
 		ctx.debug_data.symbols[i].type_id = type_builder.getTypeID(ctx.symbol_types[i], class_scope_map, ctx.enum_id_to_scope_index);
 }
 
-std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
+std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
@@ -2839,7 +2839,6 @@ std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts,
 	bool negative=false;
 	std::pair<int32_t, bool> rval;
 	rval.second=true;
-	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
 
 	if(parts.first.data()[0]=='-')
 	{
@@ -2860,17 +2859,9 @@ std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts,
 	}
 
 	int32_t firstpart = atoi(parts.first.c_str());
-	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
+	if(firstpart > 214748)
 	{
-		if(firstpart > 214748)
-		{
-			firstpart = 214748;
-			rval.second = false;
-		}
-	}
-	else if(firstpart > 214747)
-	{
-		firstpart = 214747;
+		firstpart = 214748;
 		rval.second = false;
 	}
 
@@ -2888,7 +2879,7 @@ std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts,
 		fpart += parts.second[i] - '0';
 	}
 
-	if(intOneLarger && firstpart == 214748 && (negative ? fpart > 3648 : fpart > 3647))
+	if(firstpart == 214748 && (negative ? fpart > 3648 : fpart > 3647))
 	{
 		fpart = negative ? 3648 : 3647;
 		rval.second = false;

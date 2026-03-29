@@ -115,7 +115,7 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 		else if(a->intval)
 		{
 			data.type = ANNTY_INT;
-			data.intval = zslongToFix(a->intval->getValue(nullptr));
+			data.intval = zslongToFix(a->intval->getValue());
 		}
 		
 		data.val = "";

@@ -361,8 +361,8 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
     	
-		std::pair<std::string,std::string> parseValue(Scope* scope) const;
-		int32_t getValue(Scope* scope);
+		std::pair<std::string,std::string> parseValue() const;
+		int32_t getValue();
 		void initNeg();
 		Type type;
 		std::string value;
@@ -2230,8 +2230,8 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		optional<int32_t> getCompileTimeValue(CompileErrorHandler*, Scope* scope)
-				{return value ? (*ZScript::lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;}
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler*, Scope*)
+				{return value ? 10000L : 0L;}
 		virtual DataType const* getReadType(Scope*, CompileErrorHandler*) {return &DataType::BOOL;}
 	
 		bool value;
