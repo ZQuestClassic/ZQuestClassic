@@ -19662,7 +19662,7 @@ int32_t main(int32_t argc,char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
-	Z_title("ZQuest Classic Editor, %s", getVersionString());
+	Z_title("ZQuest Classic Editor, %s\n", getVersionString());
 
 	if(!get_qst_buffers())
 	{

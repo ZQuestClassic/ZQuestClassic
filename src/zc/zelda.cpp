@@ -4078,7 +4078,7 @@ int main(int argc, char **argv)
 
 	FFCore.clear_combo_scripts();
 
-	Z_title("ZC Launched: %s, %s","ZQuest Classic Player", getVersionString());
+	Z_title("ZQuest Classic Player, %s\n", getVersionString());
 	
 	if(!get_qst_buffers())
 	{

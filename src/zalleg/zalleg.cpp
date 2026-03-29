@@ -297,14 +297,13 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 
 	packfile_password(datapwd);
 
-	Z_message("Fonts.Dat...");
 	char fontsdat_sig[52]={0};
 	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 
 	size_t fontsdat_cnt = 0;
 	if((fontsdata=load_datafile_count("modules/classic/classic_fonts.dat", fontsdat_cnt))==NULL)
 	{
-		Z_error_fatal("failed to load fonts");
+		Z_error_fatal("failed to load fonts\n");
 	}
 	if(fontsdat_cnt != FONTSDAT_CNT)
 	{
@@ -313,7 +312,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
-		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d\n",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	}
 
 	packfile_password(NULL);
