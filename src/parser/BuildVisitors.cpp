@@ -2894,7 +2894,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		visit(host.right.get(), param);
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		//Set output
-		Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE | (decret?CMP_SETI:0)));
+		Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE | (decret?0:CMP_SETI)));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
 	}
