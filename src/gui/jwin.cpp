@@ -6996,10 +6996,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 
 			int32_t cur = d->d1;
 			int32_t charpos = 0; int32_t listpos = 0; int32_t lastmatch = -1;
-			char tmp[1024] = { 0 };
-			char lsttmp[1024] = { 0 };
-			int32_t lastmatches[32768] = {0};
-			for ( int32_t a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
 			int32_t lmindx = 0;
 			
 			bool foundmatch = false;
@@ -7068,18 +7064,16 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 					}
 				}
 			}
-			if(!foundmatch)
+			if (!foundmatch)
 			{
-				strcpy(tmp, abc_keypresses);
-				for ( int32_t listpos = 0; listpos < max; ++listpos )
+				size_t search_len = strlen(abc_keypresses);
+				for (int32_t listpos = 0; listpos < max; ++listpos)
 				{
-					memset(lsttmp, 0, 1024);
-					strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
-					
-					if ( !(strnicmp(lsttmp, tmp, strlen(tmp))))
+					const char* lst_val = data->listFunc(listpos, &dummy);
+					if (!strnicmp(lst_val, abc_keypresses, search_len))
 					{
 						d->d1 = listpos;
-						d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+						d->d2 = zc_max(zc_min(listpos - (h >> 1), max - h), 0);
 						foundmatch = true;
 						break;
 					}
