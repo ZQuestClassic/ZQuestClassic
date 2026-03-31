@@ -604,6 +604,13 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    /* TODO: shouldn't this be incremented only IF successful? */
    _gfx_mode_set_count++;
 
+   // local edit
+   if (w <= 0 || h <= 0)
+   {
+      TRACE(PREFIX_E "Invalid w or h.\n");
+      return -1;
+   }
+
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE)
       return _set_gfx_mode_safe(card, w, h, v_w, v_h);

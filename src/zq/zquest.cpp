@@ -19900,7 +19900,9 @@ int32_t main(int32_t argc,char **argv)
 	zq_screen_h = LARGE_H;
 	window_width = zc_get_config("zquest","window_width",-1);
 	window_height = zc_get_config("zquest","window_height",-1);
-	auto [w, h] = zalleg_get_default_display_size(LARGE_W, LARGE_H, window_width, window_height);
+	int base_width = is_web() ? zq_screen_w/2 : zq_screen_w;
+	int base_height = is_web() ? zq_screen_h/2 : zq_screen_h;
+	auto [w, h] = zalleg_get_default_display_size(base_width, base_height, window_width, window_height);
 	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
 	//extra block here is intentional
