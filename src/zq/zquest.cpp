@@ -458,7 +458,6 @@ bool showxypos_dummy = false;
 
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 //int32_t mode, switch_mode, orig_mode;
-int32_t tempmode=GFX_AUTODETECT;
 RGB_MAP* zq_rgb_table;
 MIDI *song=NULL;
 BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
@@ -19709,12 +19708,6 @@ int32_t main(int32_t argc,char **argv)
 	LOCK_VARIABLE(dclick_time);
 	lock_dclick_function();
 	install_int(dclick_check, 20);
-	
-	set_gfx_mode(GFX_TEXT,80,50,0,0);
-
-	load_assets();
-
-	Z_message("OK\n");
 
 	helpstr = util::read_text_file("docs/zquest.txt");
 	zstringshelpstr = util::read_text_file("docs/zstrings.txt");
@@ -19832,7 +19825,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	byte layermask = zc_get_config("zquest","layer_mask",0x7F);
 	int32_t usefullscreen = zc_get_config("zquest","fullscreen",0);
-	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
 	
 	for(int32_t x=0; x<7; x++)
 	{
@@ -19886,55 +19878,29 @@ int32_t main(int32_t argc,char **argv)
 	set_color_depth(8);
 	
 	set_close_button_callback((void (*)()) hit_close_button);
-	
-	if(used_switch(argc,argv,"-fullscreen"))
+
+	int gfx_mode = usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
+	if (zapp_check_switch("-fullscreen"))
 	{
-		tempmode = GFX_AUTODETECT_FULLSCREEN;
+		gfx_mode = GFX_AUTODETECT_FULLSCREEN;
 	}
-	else if(used_switch(argc,argv,"-windowed"))
+	else if (zapp_check_switch("-windowed"))
 	{
-		tempmode=GFX_AUTODETECT_WINDOWED;
+		gfx_mode = GFX_AUTODETECT_WINDOWED;
 	}
 
 	zq_screen_w = LARGE_W;
 	zq_screen_h = LARGE_H;
 	window_width = zc_get_config("zquest","window_width",-1);
 	window_height = zc_get_config("zquest","window_height",-1);
-	int base_width = is_web() ? zq_screen_w/2 : zq_screen_w;
-	int base_height = is_web() ? zq_screen_h/2 : zq_screen_h;
-	auto [w, h] = zalleg_get_default_display_size(base_width, base_height, window_width, window_height);
-	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
-	//extra block here is intentional
-	if(videofail!=0)
-	{
-		quit_game();
-		allegro_exit();
-	}
+	zalleg_create_window("ZC Editor", gfx_mode, zq_screen_w, zq_screen_h, window_width, window_height);
 
-	zalleg_create_window();
-	Z_message("gfx mode set at -%d %dbpp %d x %d \n",
-				tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
-
-	set_window_title("ZC Editor");
-
+	load_assets();
 	load_size_poses();
-
-	if (!is_headless())
-	{
-		// Just in case.
-		while (!all_get_display()) {
-			al_rest(1);
-		}
-
-		al_resize_display(all_get_display(), w, h);
-	}
-
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag() && !is_headless()) {
-		al_resize_display(all_get_display(), w, h);
-
 		int window_w = al_get_display_width(all_get_display());
 		int window_h = al_get_display_height(all_get_display());
 
@@ -19967,8 +19933,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
-	
-	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
 	dmapbmp_small = create_bitmap_ex(8,65,33);
 	dmapbmp_large = create_bitmap_ex(8,177,81);

@@ -349,8 +349,8 @@ void load_game_configs()
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
 	
-	window_width = resx = zc_get_config(cfg_sect,"window_width",-1);
-	window_height = resy = zc_get_config(cfg_sect,"window_height",-1);
+	window_width = zc_get_config(cfg_sect,"window_width",-1);
+	window_height = zc_get_config(cfg_sect,"window_height",-1);
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
@@ -615,34 +615,6 @@ void load_mouse()
 	destroy_bitmap(blankmouse);
 	destroy_bitmap(cursor_bitmap);
 	exit_sys_pal();
-}
-
-// sets the video mode and initializes the palette and mouse sprite
-bool game_vid_mode(int32_t mode,int32_t wait)
-{
-	if (is_headless())
-		return true;
-
-	extern int zq_screen_w, zq_screen_h;
-	if(set_gfx_mode(mode,resx,resy,zq_screen_w,zq_screen_h)!=0)
-	{
-		return false;
-	}
-	
-	scrx = (resx-320)>>1;
-	scry = (resy-240)>>1;
-	for(int32_t q = 0; q < NUM_ZCMOUSE; ++q)
-		zcmouse[q] = NULL;
-	load_mouse();
-	
-	for(int32_t i=240; i<256; i++)
-		RAMpal[i]=pal_gui[i];
-		
-	zc_set_palette(RAMpal);
-	clear_to_color(screen,BLACK);
-	
-	rest(wait);
-	return true;
 }
 
 void null_quest()

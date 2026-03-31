@@ -49,7 +49,7 @@ extern DATAFILE *sfxdata;
 extern bool sound_was_installed;
 
 void zalleg_setup_allegro(App id, int argc, char **argv);
-void zalleg_create_window();
+void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_height, int saved_window_width, int saved_window_height, int max_scale = 3);
 void zalleg_wait_for_all_keys_up();
 std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
 void zalleg_process_display_events();

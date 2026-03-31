@@ -85,23 +85,13 @@ int32_t main(int32_t argc, char* argv[])
 	lock_dclick_function();
 	install_int(dclick_check, 20);
 	
-	set_gfx_mode(GFX_TEXT,80,50,0,0);
-	
 	set_color_depth(8);
 
+	int gfx_mode = GFX_AUTODETECT_WINDOWED;
 	int window_width = zc_get_config("ZLAUNCH", "window_width", -1);
 	int window_height = zc_get_config("ZLAUNCH", "window_height", -1);
-	auto [w, h] = zalleg_get_default_display_size(zq_screen_w, zq_screen_h, window_width, window_height, 2);
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,w,h,zq_screen_w, zq_screen_h);
-	
-	if(videofail)
-	{
-		Z_error_fatal(allegro_error);
-		QUIT_LAUNCHER();
-	}
 
-	set_window_title("ZQuest Classic Launcher");
-	zalleg_create_window();
+	zalleg_create_window("ZQuest Classic Launcher", gfx_mode, zq_screen_w, zq_screen_h, window_width, window_height, 2);
 
 	Z_message("Loading bitmaps..."); //{
 	mouse_bmp = create_bitmap_ex(8,16,16);
@@ -112,9 +102,6 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	Z_message("OK\n");
-	//}
-	
-	// while(!key[KEY_SPACE]);
 	
 	Z_message("Loading configs...");
 	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
@@ -126,9 +113,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	
 	Z_message("Initializing mouse...");
-	//{ Mouse setup
 	load_mouse();
-	//}
 	Z_message("OK\n");
 	
 	set_close_button_callback((void (*)()) hit_close_button);

@@ -1,5 +1,6 @@
 #include "zc/zelda.h"
 
+#include "a5alleg.h"
 #include "allegro/file.h"
 #include "base/util.h"
 #include "base/version.h"
@@ -430,13 +431,6 @@ dword getNumGlobalArrays()
 	return ret;
 }
 
-//movingblock mblock2; //mblock[4]?
-//HeroClass   Hero;
-
-int32_t resx= 0,resy= 0;
-// the number of horizontal or vertical pixels between the framebuffer (320x240) and the window.
-// aka, the letterbox size.
-int32_t scrx= 0,scry= 0;
 int32_t window_width = 0, window_height = 0;
 extern byte pause_in_background;
 extern signed char pause_in_background_menu_init;
@@ -495,8 +489,6 @@ void update_hw_screen()
 	framecnt++;
 
 	zalleg_process_display_events();
-	resx = al_get_display_width(all_get_display());
-	resy = al_get_display_height(all_get_display());
 	if (update_hw_pal && hw_palette)
 	{
 		zc_set_palette(*hw_palette);
@@ -4095,6 +4087,93 @@ int main(int argc, char **argv)
 }
 END_OF_MAIN()
 
+static void init_display()
+{
+	int argc = zapp_get_argc();
+	char** argv = zapp_get_argv();
+
+	int gfx_mode = GFX_AUTODETECT;
+	if(used_switch(argc,argv,"-fullscreen") ||
+			(!used_switch(argc, argv, "-windowed") && zc_get_config("zeldadx","fullscreen",0)==1))
+	{
+		gfx_mode = GFX_AUTODETECT_FULLSCREEN;
+	}
+	else if(used_switch(argc,argv,"-windowed") || zc_get_config("zeldadx","fullscreen",0)==0)
+	{
+		gfx_mode = GFX_AUTODETECT_WINDOWED;
+	}
+
+	// Set in load_game_configs, but may be overriden by -res CLI args.
+	int saved_window_width = window_width;
+	int saved_window_height = window_height;
+
+	int res_arg = used_switch(argc,argv,"-res");
+	if(res_arg && (argc>(res_arg+2)))
+	{
+		saved_window_width = atoi(argv[res_arg+1]);
+		saved_window_height = atoi(argv[res_arg+2]);
+	}
+
+	const char* window_title = "ZQuest Classic";
+	int window_title_arg = used_switch(argc, argv, "-window-title");
+	if (window_title_arg > 0)
+		window_title = argv[window_title_arg + 1];
+
+	// This defines the resolution for the GUI (the System menu).
+	// The main game bitmap is a smaller resolution defined by framebuf.
+	zq_screen_w = 640;
+	zq_screen_h = 480;
+
+	zalleg_create_window(window_title, gfx_mode, zq_screen_w, zq_screen_h, saved_window_width, saved_window_height);
+
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag() && !is_headless())
+	{
+		int new_x = zc_get_config("zeldadx","window_x",0);
+		int new_y = zc_get_config("zeldadx","window_y",0);
+#ifdef ALLEGRO_MACOSX
+		if (new_x && new_y)
+			al_set_window_position(all_get_display(), new_x, new_y);
+#else
+		if (new_x == 0 && new_y == 0)
+		{
+			int window_w = al_get_display_width(all_get_display());
+			int window_h = al_get_display_height(all_get_display());
+
+			ALLEGRO_MONITOR_INFO info;
+			al_get_monitor_info(0, &info);
+
+			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
+			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
+		}
+		al_set_window_position(all_get_display(), new_x, new_y);
+#endif
+	}
+#endif
+
+	if (is_headless())
+	{
+		screen = create_bitmap_ex(8, 256, 240);
+	}
+	else
+	{
+		// Update with the real display size.
+		window_width = al_get_display_width(all_get_display());
+		window_height = al_get_display_height(all_get_display());
+
+		for (int q = 0; q < NUM_ZCMOUSE; q++)
+			zcmouse[q] = NULL;
+		load_mouse();
+	}
+
+	for(int32_t i=240; i<256; i++)
+		RAMpal[i]=pal_gui[i];
+
+	zc_set_palette(RAMpal);
+	hw_palette = &RAMpal;
+	clear_to_color(screen, BLACK);
+}
+
 void init_and_run_main_zplayer_loop()
 {
 	int argc = zapp_get_argc();
@@ -4159,9 +4238,6 @@ void init_and_run_main_zplayer_loop()
 	zcmusic_init();
 	zcmixer = zcmixer_create();
 	Z_message("OK\n");
-
-	int32_t tempmode=GFX_AUTODETECT;
-	int32_t res_arg = used_switch(argc,argv,"-res");
 	
 	if(used_switch(argc,argv,"-v0")) Throttlefps=false;
 	
@@ -4205,8 +4281,6 @@ void init_and_run_main_zplayer_loop()
 	zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
 	
 	Z_init_sound();
-	
-	const int32_t wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
 
 	// quick quit
 	if(used_switch(argc,argv,"-q"))
@@ -4215,102 +4289,12 @@ void init_and_run_main_zplayer_loop()
 		zc_exit(0);
 		return;
 	}
-	
-	// set video mode
-	
-	if(res_arg && (argc>(res_arg+2)))
-	{
-		resx = atoi(argv[res_arg+1]);
-		resy = atoi(argv[res_arg+2]);
-		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
-		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
-	}
 
-	//request_refresh_rate(60);al_trace("Used switch: -fullscreen\n");
-	
-	//is the config file wrong (not zc.cfg!) here? -Z
-	if(used_switch(argc,argv,"-fullscreen") ||
-			(!used_switch(argc, argv, "-windowed") && zc_get_config("zeldadx","fullscreen",0)==1))
-	{
-		al_trace("Used switch: -fullscreen\n");
-		tempmode = GFX_AUTODETECT_FULLSCREEN;
-	}
-	else if(used_switch(argc,argv,"-windowed") || zc_get_config("zeldadx","fullscreen",0)==0)
-	{
-		al_trace("Used switch: -windowed\n");
-		tempmode=GFX_AUTODETECT_WINDOWED;
-	}
-
-	if (resx != -1)
-	{
-		if(resx < 256) resx = 256;
-		if(resy < 240) resy = 240;
-	}
-
-	zq_screen_w = 640;
-	zq_screen_h = 480;
-
-	auto [w, h] = zalleg_get_default_display_size(zq_screen_w, zq_screen_h, resx, resy);
-	resx = w;
-	resy = h;
-	// TODO: consolidate "resx" and "resy" variables with window_width,height.
-	window_width = resx;
-	window_height = resy;
-	
 	if(zc_get_config("gui","disable_window_resizing",0))
 		all_set_resize_flag(false);
-	
-	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-	{
-		al_trace("Fatal Error: could not create a window for ZQuest Classic.\n");
-		Z_error_fatal(allegro_error);
-	}
-	else
-	{
-		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-	}
 
-	const char* window_title = "ZQuest Classic";
-	int window_title_arg = used_switch(argc, argv, "-window-title");
-	if (window_title_arg > 0)
-		window_title = argv[window_title_arg + 1];
-	set_window_title(window_title);
-	zalleg_create_window();
+	init_display();
 
-#ifndef __EMSCRIPTEN__
-	if (!all_get_fullscreen_flag() && !is_headless()) {
-		// Just in case.
-		while (!all_get_display()) {
-			al_rest(1);
-		}
-
-		int window_w = al_get_display_width(all_get_display());
-		int window_h = al_get_display_height(all_get_display());
-		if(window_w < 320 || window_h < 240)
-		{
-			if(window_w < 320) window_w = 320;
-			if(window_h < 240) window_h = 240;
-			al_resize_display(all_get_display(),window_w,window_h);
-		}
-		
-		int new_x = zc_get_config("zeldadx","window_x",0);
-		int new_y = zc_get_config("zeldadx","window_y",0);
-#ifdef ALLEGRO_MACOSX
-		if (new_x && new_y)
-			al_set_window_position(all_get_display(), new_x, new_y);
-#else
-		if (new_x == 0 && new_y == 0)
-		{
-			ALLEGRO_MONITOR_INFO info;
-			al_get_monitor_info(0, &info);
-
-			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
-			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
-		}
-		al_set_window_position(all_get_display(), new_x, new_y);
-#endif
-	}
-#endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 
 	if (!is_headless())
@@ -4320,11 +4304,6 @@ void init_and_run_main_zplayer_loop()
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
 
-	hw_palette = &RAMpal;
-	if (is_headless())
-		screen = create_bitmap_ex(8, 256, 240);
-	clear_to_color(screen, BLACK);
-
 	// Initialize render tree.
 	render_zc();
 	
@@ -4332,7 +4311,6 @@ void init_and_run_main_zplayer_loop()
 
 	fix_dialogs();
 	gui_mouse_focus = FALSE;
-	position_mouse(resx-16,resy-16);
 	
 	// TODO: we are repeating this code (See few lines above) but different switch mode ...
 	if (!is_headless())

@@ -1,6 +1,7 @@
 #include "zalleg/zalleg.h"
 #include "allegro/base.h"
 #include "allegro/file.h"
+#include "allegro/inline/system.inl"
 #include "allegro/palette.h"
 #include "allegro5/events.h"
 #include "zalleg/files.h"
@@ -318,11 +319,45 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	packfile_password(NULL);
 }
 
-void zalleg_create_window()
+// (v_width, v_height): the size of the allegro 4 screen bitmap. It's the "base" resolution, as far as allegro 4 is concerned.
+// (saved_window_width, saved_window_height): the size to make the display window. If -1, this function picks the best size based on the monitor.
+void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_height, [[maybe_unused]] int saved_window_width, [[maybe_unused]] int saved_window_height, [[maybe_unused]] int max_scale)
 {
-	// TODO: move window creation stuff to here.
+	if (is_headless())
+	{
+		initFonts(); // Doesn't really belong here, but whatever.
+
+		Z_message("gfx mode set: %s %dbpp %d x %d \n", "headless", get_color_depth(), v_width, v_height);
+		return;
+	}
+
+#ifdef __EMSCRIPTEN__
+	// For web, there's no point making the display size different from the virtual screen size,
+	// because the canvas that SDL renders into is scaled up via CSS.
+	int w = v_width;
+	int h = v_height;
+#else
+	// Either get the saved window width/height (if not -1), or determine the largest width/height
+	// for the primary monitor that fits the virtual screen's aspect ratio.
+	auto [w, h] = zalleg_get_default_display_size(v_width, v_height, saved_window_width, saved_window_height, max_scale);
+	if (w <= 0 || h <= 0)
+	{
+		w = v_width;
+		h = v_height;
+	}
+#endif
+
+	// This is an allegro 4 call to setup the graphics driver. It creates the `screen` bitmap using
+	// (v_width, v_height), and creates an OS windows using (w, h).
+	// This also sets up the allegro 5 display, via third_party/allegro_legacy/src/a5/a5_display.c
+	if (set_gfx_mode(gfx_mode, w, h, v_width, v_height))
+		Z_error_fatal("Failed to create window: %s\n", allegro_error);
+
+	Z_message("gfx mode set: %d %dbpp %d x %d \n", gfx_mode, get_color_depth(), v_width, v_height);
+
+	set_window_title(title);
 	zapp_setup_icon();
-	initFonts();
+	initFonts(); // Doesn't really belong here, but whatever.
 }
 
 void zalleg_wait_for_all_keys_up()

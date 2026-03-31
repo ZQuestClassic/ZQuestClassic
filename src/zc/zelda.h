@@ -399,7 +399,6 @@ extern ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
 
-extern int32_t  resx,resy,scrx,scry;
 extern int32_t window_width, window_height;
 
 extern bool walk_through_walls;

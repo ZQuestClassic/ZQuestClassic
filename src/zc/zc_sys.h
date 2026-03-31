@@ -108,7 +108,7 @@ bool sys_mouse();
 bool game_mouse();
 void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale);
 void recolor_mouse(BITMAP* bmp);
-bool game_vid_mode(int32_t mode,int32_t wait);
+void load_mouse();
 void init_NES_mode();
 
 extern int32_t black_opening_count;
