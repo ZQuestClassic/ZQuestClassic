@@ -65,10 +65,9 @@ std::filesystem::path resolve_case_insensitive(const std::filesystem::path& base
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(base))
 		{
-			std::string entry_lower = entry.path().filename().string();
-
-			for (char& c : entry_lower)
-				c = std::tolower(static_cast<unsigned char>(c));
+			std::u8string entry_lower_u8 = entry.path().filename().u8string();
+			std::string entry_lower(entry_lower_u8.begin(), entry_lower_u8.end());
+			ustrlwr(entry_lower.data());
 
 			if (entry_lower == target_lower)
 				return entry.path();
