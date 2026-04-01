@@ -91,6 +91,8 @@ enum class FileMode
 	Folder,
 };
 
+// TODO: while this function supports loading utf8 filenames (i think), the rest of ZC doesn't (at least not on Windows).
+// One example of an issue is gme_load_file which uses fopen.
 static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::string initial_path, std::vector<nfdfilteritem_t> filters)
 {
 #ifdef _WIN32
@@ -99,41 +101,42 @@ static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::st
 
 	if (initial_path.empty())
 	{
-		initial_path_str = fs::current_path().string();
+		auto u8_str = fs::current_path().u8string();
+		initial_path_str = std::string(u8_str.begin(), u8_str.end());
 	}
 	else
 	{
 		try
 		{
-			// fs::weakly_canonical does two things:
-			// 1. Makes the path absolute (resolving against current_path)
-			// 2. Normalizes the path (removes "./", "../")
-			// It does not require the file to exist (unlike fs::canonical)
-			initial_path_str = fs::weakly_canonical(fs::path(initial_path)).string();
+			fs::path p(reinterpret_cast<const char8_t*>(initial_path.c_str()));
+			auto u8_str = fs::weakly_canonical(p).u8string();
+			initial_path_str = std::string(u8_str.begin(), u8_str.end());
 		}
 		catch (const fs::filesystem_error&)
 		{
-			initial_path_str = fs::current_path().string();
+			auto u8_str = fs::current_path().u8string();
+			initial_path_str = std::string(u8_str.begin(), u8_str.end());
 		}
 	}
 	const char* initial_path_ = initial_path_str.c_str();
 #else
 	const char* initial_path_ = initial_path.c_str();
 #endif
-	nfdchar_t *outPath;
+	nfdu8char_t* outPath;
 	nfdresult_t result;
 
 	if (mode == FileMode::Folder)
-		result = NFD_PickFolder(&outPath, initial_path_);
+		result = NFD_PickFolderU8(&outPath, initial_path_);
 	else if (mode == FileMode::Save)
-		result = NFD_SaveDialog(&outPath, filters.data(), filters.size(), initial_path_, nullptr);
+		result = NFD_SaveDialogU8(&outPath, filters.data(), filters.size(), initial_path_, nullptr);
 	else
-		result = NFD_OpenDialog(&outPath, filters.data(), filters.size(), initial_path_);
+		result = NFD_OpenDialogU8(&outPath, filters.data(), filters.size(), initial_path_);
 
 	if (result == NFD_OKAY)
 	{
-		std::string path = outPath;
-		NFD_FreePath(outPath);
+		fs::path p(reinterpret_cast<const char8_t*>(outPath));
+		std::string path(reinterpret_cast<const char*>(outPath));
+		NFD_FreePathU8(outPath);
 		return path;
 	}
 
