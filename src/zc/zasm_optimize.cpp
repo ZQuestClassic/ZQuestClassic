@@ -2126,6 +2126,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 		ffscript inline_instr;
 		int internal_reg_to_type[8]; // 0 - stack index, 1 - z-register/number
 		int internal_reg_to_value[8];
+		int num_args_popped;
 	};
 
 	std::map<pc_t, InlineFunctionData> functions_to_inline;
@@ -2172,6 +2173,7 @@ static bool optimize_inline_functions(OptContext& ctx)
 
 				data.internal_reg_to_value[reg] = stack++;
 				data.internal_reg_to_type[reg] = 0;
+				data.num_args_popped = stack;
 				continue;
 			}
 
@@ -2358,15 +2360,23 @@ static bool optimize_inline_functions(OptContext& ctx)
 			must_keep_store_stack = true;
 
 		pc_t hole_start_pc = i;
-		if (prev_instr.command != PUSHARGSR)
+		if (prev_instr.command != PUSHARGSR && data.num_args_popped > 0)
 			hole_start_pc -= 1;
-		pc_t hole_final_pc = i;
-		if (C(i + 1).command != PEEK && hole_start_pc > 0 && C(hole_start_pc - 1).command != PEEK)
-			hole_final_pc += 1;
+
 		bool store_stack_part_of_hole =
 			(store_stack_pc == hole_start_pc - 1 || store_stack_pc == hole_start_pc) && C(store_stack_pc).command != PUSHARGSR && !must_keep_store_stack;
+
+		pc_t hole_final_pc = i;
+		bool next_is_pop_frame = (C(i + 1).command == POP && C(i + 1).arg1 == rSFRAME);
+
+		if (next_is_pop_frame && (store_stack_part_of_hole || C(store_stack_pc).command == PUSHARGSR))
+			hole_final_pc += 1;
+		else if (C(i + 1).command == NOP)
+			hole_final_pc += 1;
+
 		if (store_stack_part_of_hole)
 			hole_start_pc = store_stack_pc;
+
 		size_t hole_length = hole_final_pc - hole_start_pc + 1;
 		if (inlined_zasm.size() > hole_length)
 		{
@@ -2388,18 +2398,19 @@ static bool optimize_inline_functions(OptContext& ctx)
 
 		if (!must_keep_store_stack)
 		{
-			store_stack_pcs.pop_back();
-			if (C(store_stack_pc).command == PUSHARGSR)
+			if (store_stack_part_of_hole || C(store_stack_pc).command == PUSHARGSR)
 			{
-				if (C(store_stack_pc).arg1 > 2)
-					C(store_stack_pc).arg2 -= 1;
-				else if (C(store_stack_pc).arg1 == 2)
-					C(store_stack_pc) = {PUSHR, rSFRAME};
-				else
-					remove(ctx, store_stack_pc);
+				store_stack_pcs.pop_back();
+				if (C(store_stack_pc).command == PUSHARGSR)
+				{
+					if (C(store_stack_pc).arg2 > 2)
+						C(store_stack_pc).arg2 -= 1;
+					else if (C(store_stack_pc).arg2 == 2)
+						C(store_stack_pc) = {PUSHR, rSFRAME};
+					else
+						remove(ctx, store_stack_pc);
+				}
 			}
-			else if (!store_stack_part_of_hole)
-				remove(ctx, store_stack_pc);
 		}
 
 		if (command_is_wait(inline_instr.command))

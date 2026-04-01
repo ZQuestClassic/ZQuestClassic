@@ -1,24 +1,21 @@
-rewrite 3: 2 -> 1 commands
-3: TRACEV          1               
-4: NOP            
-rewrite 6: 2 -> 1 commands
-6: TRACEV          2               
-7: NOP            
-rewrite 9: 2 -> 1 commands
-9: TRACEV          3               
-10: NOP            
+rewrite 4: 1 -> 1 commands
+4: TRACEV          1               
+rewrite 7: 1 -> 1 commands
+7: TRACEV          2               
+rewrite 10: 1 -> 1 commands
+10: TRACEV          3               
 Function run_none-0
     0: PUSHV           0                            [Block 0 -> ]
     1: NOP
     2: PUSHR           SP2
-    3: TRACEV          1
-    4: NOP
+    3: NOP
+    4: TRACEV          1
     5: NOP
-    6: TRACEV          2
-    7: NOP
+    6: NOP
+    7: TRACEV          2
     8: NOP
-    9: TRACEV          3
-   10: NOP
+    9: NOP
+   10: TRACEV          3
    11: POP             D4
    12: LOAD            LINKX            0
    13: QUIT

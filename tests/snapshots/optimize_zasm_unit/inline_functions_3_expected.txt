@@ -15,7 +15,7 @@ rewrite 23: 3 -> 1 commands
 25: NOP            
 Function run_none-0
     0: SETR            D4               SP2         [Block 0 -> ]
-    1: PUSHARGSR       SP2              1
+    1: PUSHR           SP2
     2: LOAD            D2               7
     3: SINR            D2               D2
     4: NOP
@@ -34,7 +34,7 @@ Function run_none-0
    17: PUSHR           D4
    18: CALLFUNC        35                           [Function #1]
    19: POP             D4
-   20: PUSHARGSR       D4               1
+   20: PUSHR           D4
    21: NOP
    22: NOP
    23: NOP

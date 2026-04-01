@@ -1,8 +1,3 @@
-rewrite 0: 4 -> 2 commands
-0: SETV            D3               100    
-1: TRACER          D3              
-2: NOP            
-3: NOP            
 rewrite 5: 4 -> 1 commands
 5: SETV            D2               200    
 6: NOP            
@@ -13,10 +8,10 @@ rewrite 11: 3 -> 0 commands
 12: NOP            
 13: NOP            
 Function run_none-0
-    0: SETV            D3               100         [Block 0 -> ]
-    1: TRACER          D3
-    2: NOP
-    3: NOP
+    0: PUSHR           D4                           [Block 0 -> ]
+    1: PUSHV           100
+    2: CALLFUNC        15                           [Function #1]
+    3: POP             D4
     4: NOP
     5: SETV            D2               200
     6: NOP
@@ -28,18 +23,21 @@ Function run_none-0
    12: NOP
    13: NOP
    14: QUIT
-   15: LOAD            D3               0
+
+
+Function Function #1
+   15: LOAD            D3               0           [Block 0 -> ]
    16: TRACER          D3
    17: RETURNFUNC
 
 
-Function Function #1
+Function Function #2
    18: SETR            D4               SP2         [Block 0 -> ]
    19: LOAD            D2               0
    20: POP             D5
    21: RETURNFUNC
 
 
-Function Function #2
+Function Function #3
    22: NOP                                          [Block 0 -> ]
    23: RETURNFUNC

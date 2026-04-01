@@ -124,6 +124,7 @@ void zplayer_handle_commands()
 	{
 		std::string path = zapp_get_arg_string(test_opt_zasm_arg + 1);
 		zasm_optimize_run_for_file(path);
+		set_is_exiting();
 		exit(0);
 	}
 
@@ -161,6 +162,7 @@ void zplayer_handle_commands()
 		if (auto r = saves_create_slot(new_game); !r)
 			Z_error_fatal("failed to create save file: %s\n", r.error().c_str());
 
+		set_is_exiting();
 		exit(0);
 	}
 

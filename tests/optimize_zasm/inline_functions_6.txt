@@ -1,0 +1,23 @@
+; This test ensures the inline optimization pass does not incorrectly
+; consume a stack push when the instruction immediately following the
+; CALLFUNC is a PEEK.
+Function run_none-0
+    0: PUSHV           0                            [Block 0 -> ]
+    1: SETR            D4               SP
+    2: PUSHR           D4
+    3: CALLFUNC        7                            [Function #1]
+    4: PEEK            D4
+    5: CALLFUNC        9                            [Function #2]
+    6: QUIT
+
+
+Function Function #1
+    7: TRACEV          10000                        [Block 0 -> ]
+    8: RETURNFUNC
+
+
+Function Function #2
+    9: TRACEV          1                            [Block 0 -> ]
+   10: TRACEV          1
+   11: TRACEV          1
+   12: RETURNFUNC

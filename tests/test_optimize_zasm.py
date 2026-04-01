@@ -86,6 +86,9 @@ class TestOptimizeZasm(ZCTestCase):
 
     def test_optimize_zasm(self):
         for qst_path in test_dir.rglob('*.qst'):
+            if '.backups' in str(qst_path):
+                continue
+
             self.run_for_qst(qst_path)
 
 

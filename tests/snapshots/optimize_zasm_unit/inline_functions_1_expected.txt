@@ -1,14 +1,12 @@
-rewrite 8: 3 -> 1 commands
+rewrite 8: 2 -> 1 commands
 8: ARRAYSIZE       D2              
 9: NOP            
-10: NOP            
-rewrite 32: 3 -> 1 commands
+rewrite 32: 2 -> 1 commands
 32: ABS             D2              
 33: NOP            
-34: NOP            
 Function run_none-0
     0: SETR            D4               SP2         [Block 0 -> ]
-    1: NOP
+    1: PUSHR           SP2
     2: NOP
     3: NOP
     4: NOP
@@ -41,7 +39,7 @@ Function run_none-0
    31: SETR            D2               D3
    32: ABS             D2
    33: NOP
-   34: NOP
+   34: POP             D4
    35: TRACER          D2
    36: QUIT
 
