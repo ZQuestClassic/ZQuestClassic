@@ -1,50 +1,45 @@
-rewrite 13: 3 -> 2 commands
-13: SETR            D2               LINKX  
-14: ADDV            D2               80000  
-15: NOP            
-rewrite 17: 3 -> 2 commands
-17: SETR            D2               LINKY  
-18: ADDV            D2               80000  
-19: NOP            
 Function run_none-0
     0: SETR            D4               SP2         [Block 0 -> ]
     1: PUSHARGSR       SP2              2
     2: LOAD            D2               7
     3: PUSHR           D2
-    4: CALLFUNC        43                           [Function #4]
+    4: CALLFUNC        43                           [Function #5]
     5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
     8: LOAD            D2               7
     9: PUSHR           D2
-   10: CALLFUNC        32                           [Function #2]
+   10: CALLFUNC        32                           [Function #3]
    11: POP             D4
    12: PUSHR           D2
-   13: SETR            D2               LINKX
-   14: ADDV            D2               80000
-   15: NOP
+   13: PUSHR           D4
+   14: CALLFUNC        24                           [Function #1]
+   15: POP             D4
    16: PUSHR           D2
-   17: SETR            D2               LINKY
-   18: ADDV            D2               80000
-   19: NOP
+   17: PUSHR           D4
+   18: CALLFUNC        28                           [Function #2]
+   19: POP             D4
    20: PUSHR           D2
-   21: CALLFUNC        37                           [Function #3]
+   21: CALLFUNC        37                           [Function #4]
    22: POP             D4
    23: QUIT
-   24: NOP
+
+
+Function Function #1
+   24: NOP                                          [Block 0 -> ]
    25: SETR            D2               LINKX
    26: ADDV            D2               80000
    27: RETURNFUNC
 
 
-Function Function #1
+Function Function #2
    28: NOP                                          [Block 0 -> ]
    29: SETR            D2               LINKY
    30: ADDV            D2               80000
    31: RETURNFUNC
 
 
-Function Function #2
+Function Function #3
    32: NOP                                          [Block 0 -> ]
    33: POP             D2
    34: TRACER          D2
@@ -52,7 +47,7 @@ Function Function #2
    36: RETURNFUNC
 
 
-Function Function #3
+Function Function #4
    37: POP             D2                           [Block 0 -> ]
    38: POP             D1
    39: POP             D0
@@ -61,7 +56,7 @@ Function Function #3
    42: RETURNFUNC
 
 
-Function Function #4
+Function Function #5
    43: SETR            D0               LINKX       [Block 0 -> ]
    44: TRACER          D0
    45: TRACER          D0

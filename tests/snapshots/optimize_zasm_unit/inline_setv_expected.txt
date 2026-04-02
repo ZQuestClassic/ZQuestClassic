@@ -1,27 +1,18 @@
-rewrite 5: 4 -> 1 commands
-5: SETV            D2               200    
-6: NOP            
-7: NOP            
-8: NOP            
-rewrite 11: 3 -> 0 commands
-11: NOP            
-12: NOP            
-13: NOP            
 Function run_none-0
     0: PUSHR           D4                           [Block 0 -> ]
     1: PUSHV           100
     2: CALLFUNC        15                           [Function #1]
     3: POP             D4
     4: NOP
-    5: SETV            D2               200
-    6: NOP
-    7: NOP
-    8: NOP
+    5: PUSHR           D4
+    6: PUSHV           200
+    7: CALLFUNC        18                           [Function #2]
+    8: POP             D4
     9: TRACER          D2
    10: NOP
-   11: NOP
-   12: NOP
-   13: NOP
+   11: PUSHR           D4
+   12: CALLFUNC        22                           [Function #3]
+   13: POP             D4
    14: QUIT
 
 

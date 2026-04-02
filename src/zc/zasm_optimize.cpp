@@ -2470,7 +2470,12 @@ static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> scr
 	// passes may assume that.
 	{"calling_mode", optimize_calling_mode},
 	{"goto_next_instruction", optimize_goto_next_instruction},
-	{"inline_functions", optimize_inline_functions},
+	// Note: currently disabled for a few reasons:
+	// 	 - it isn't super effective, since only rather tiny functions can be inlined
+	//   - too many bugs related to preserving stack (I think fixed, but suggests this pass is too dangerious)
+	//   - breaks debugging capabilities for tiny functions (debug_data doesn't get updated to reflect inlined instructions)
+	// So for now, disable entirely.
+	// {"inline_functions", optimize_inline_functions},
 };
 
 static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> function_passes = {

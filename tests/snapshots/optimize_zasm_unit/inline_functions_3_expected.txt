@@ -1,64 +1,52 @@
-rewrite 3: 3 -> 1 commands
-3: SINR            D2               D2     
-4: NOP            
-5: NOP            
-rewrite 13: 3 -> 1 commands
-13: ADDR            D4               D4     
-14: NOP            
-15: NOP            
-rewrite 21: 2 -> 1 commands
-21: SETR            D2               LINKX  
-22: NOP            
-rewrite 23: 3 -> 1 commands
-23: ADDR            D4               D4     
-24: NOP            
-25: NOP            
 Function run_none-0
     0: SETR            D4               SP2         [Block 0 -> ]
-    1: PUSHR           SP2
+    1: PUSHARGSR       SP2              2
     2: LOAD            D2               7
-    3: SINR            D2               D2
-    4: NOP
-    5: NOP
+    3: PUSHR           D2
+    4: CALLFUNC        31                           [Function #1]
+    5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
     8: LOAD            D2               7
     9: PUSHR           D2
-   10: CALLFUNC        39                           [Function #2]
+   10: CALLFUNC        39                           [Function #3]
    11: POP             D4
    12: PUSHR           D2
-   13: ADDR            D4               D4
-   14: NOP
-   15: NOP
+   13: PUSHR           D4
+   14: CALLFUNC        48                           [Function #5]
+   15: POP             D4
    16: PUSHR           D2
    17: PUSHR           D4
-   18: CALLFUNC        35                           [Function #1]
+   18: CALLFUNC        35                           [Function #2]
    19: POP             D4
-   20: PUSHR           D4
-   21: NOP
-   22: NOP
-   23: NOP
-   24: NOP
-   25: NOP
-   26: TRACER          LINKX
+   20: PUSHARGSR       D4               2
+   21: CALLFUNC        44                           [Function #4]
+   22: POP             D4
+   23: PUSHR           D4
+   24: CALLFUNC        48                           [Function #5]
+   25: POP             D4
+   26: TRACER          D2
    27: POP             D4
    28: TRACER          D4
    29: NOP
    30: QUIT
-   31: POP             D3
+
+
+Function Function #1
+   31: POP             D3                           [Block 0 -> ]
    32: SINR            D2               D3
    33: NOP
    34: RETURNFUNC
 
 
-Function Function #1
+Function Function #2
    35: NOP                                          [Block 0 -> ]
    36: SETR            D2               INPUTA
-   37: GOTO            31
+   37: GOTO            31                           [Function #1]
    38: RETURNFUNC
 
 
-Function Function #2
+Function Function #3
    39: NOP                                          [Block 0 -> ]
    40: NOP
    41: NOP
@@ -66,14 +54,14 @@ Function Function #2
    43: RETURNFUNC
 
 
-Function Function #3
+Function Function #4
    44: NOP                                          [Block 0 -> ]
    45: SETR            D2               LINKX
    46: NOP
    47: RETURNFUNC
 
 
-Function Function #4
+Function Function #5
    48: POP             D2                           [Block 0 -> ]
    49: ADDR            D2               D2
    50: NOP

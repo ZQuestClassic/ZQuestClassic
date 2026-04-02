@@ -1,18 +1,19 @@
-rewrite 3: 1 -> 1 commands
-3: TRACEV          10000           
 Function run_none-0
     0: PUSHV           0                            [Block 0 -> ]
     1: NOP
     2: PUSHR           SP2
-    3: TRACEV          10000
+    3: CALLFUNC        7                            [Function #1]
     4: NOP
-    5: CALLFUNC        9                            [Function #1]
+    5: CALLFUNC        9                            [Function #2]
     6: QUIT
-    7: TRACEV          10000
-    8: RETURNFUNC
 
 
 Function Function #1
+    7: TRACEV          10000                        [Block 0 -> ]
+    8: RETURNFUNC
+
+
+Function Function #2
     9: TRACEV          1                            [Block 0 -> ]
    10: TRACEV          1
    11: TRACEV          1
