@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-03-31 07:28:15</td>
+      <td>2026-04-02 07:12:39</td>
     </tr>
   </table>
 </div>
@@ -90,7 +90,7 @@
     <tr><td><a href="#l787">Debugger::Evaluate(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, bool) (line 787)</a></td><td>called 165 times, returned 165 times</td><td>48.0%</td></tr>
     <tr><td><a href="#l718">Debugger::FetchChildren(Variable&amp;) (line 718)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l620">Debugger::FindVariable(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 620)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l304">Debugger::HasBreakpoint(unsigned int) (line 304)</a></td><td>called 131405 times, returned 131405 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l304">Debugger::HasBreakpoint(unsigned int) (line 304)</a></td><td>called 131409 times, returned 131409 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l142">Debugger::Init() (line 142)</a></td><td>called 5 times, returned 5 times</td><td>36.0%</td></tr>
     <tr><td><a href="#l166">Debugger::Load() (line 166)</a></td><td>called 5 times, returned 5 times</td><td>43.0%</td></tr>
     <tr><td><a href="#l283">Debugger::RemoveBreakpoint(unsigned int) (line 283)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -112,10 +112,10 @@
     <tr><td><a href="#l109">Debugger::~Debugger() (line 109)</a></td><td>called 2 times, returned 2 times</td><td>76.0%</td></tr>
     <tr><td><a href="#l1217">zscript_debugger_clear() (line 1217)</a></td><td>called 457 times, returned 457 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1254">zscript_debugger_close() (line 1254)</a></td><td>called 1 time, returned 1 time</td><td>66.0%</td></tr>
-    <tr><td><a href="#l1123">zscript_debugger_exec(unsigned int) (line 1123)</a></td><td>called 170268 times, returned 170268 times</td><td>86.0%</td></tr>
-    <tr><td><a href="#l1207">zscript_debugger_get_if_open() (line 1207)</a></td><td>called 60187128 times, returned 60187128 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1123">zscript_debugger_exec(unsigned int) (line 1123)</a></td><td>called 170272 times, returned 170272 times</td><td>86.0%</td></tr>
+    <tr><td><a href="#l1207">zscript_debugger_get_if_open() (line 1207)</a></td><td>called 60187130 times, returned 60187130 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1226">zscript_debugger_init() (line 1226)</a></td><td>called 457 times, returned 457 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1212">zscript_debugger_is_open() (line 1212)</a></td><td>called 1375447155 times, returned 1375447155 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1212">zscript_debugger_is_open() (line 1212)</a></td><td>called 1375899063 times, returned 1375899063 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1194">zscript_debugger_open() (line 1194)</a></td><td>called 6 times, returned 6 times</td><td>80.0%</td></tr>
     <tr><td><a href="#l1186">zscript_debugger_reset() (line 1186)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1241">zscript_debugger_update() (line 1241)</a></td><td>called 19238663 times, returned 19238663 times</td><td>71.0%</td></tr>
@@ -2701,7 +2701,7 @@
       <td class="lineno"><a id="l304" href="#l304">304</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131405</td>
+      <td class="linecount coveredLine">131409</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">HasBreakpoint</span><span class="p">(</span><span class="n">pc_t</span><span class="w"> </span><span class="n">pc</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2715,7 +2715,7 @@
       <td class="lineno"><a id="l306" href="#l306">306</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131405</td>
+      <td class="linecount coveredLine">131409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">Breakpoint</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">Breakpoint</span><span class="o">::</span><span class="n">Type</span><span class="o">::</span><span class="n">Normal</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
@@ -2732,11 +2732,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 128506 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2899 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2903 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131405</td>
+      <td class="linecount coveredLine">131409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">breakpoints</span><span class="p">.</span><span class="n">end</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="n">target</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="o">*</span><span class="n">it</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -9567,7 +9567,7 @@
       <td class="lineno"><a id="l1123" href="#l1123">1123</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">170268</td>
+      <td class="linecount coveredLine">170272</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">zscript_debugger_exec</span><span class="p">(</span><span class="n">pc_t</span><span class="w"> </span><span class="n">pc</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9597,14 +9597,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 131412 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 131416 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 38856 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 131412 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 131416 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">170268</td>
+      <td class="linecount partialCoveredLine">170272</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">debugger</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">zasm_debug_data</span><span class="p">.</span><span class="n">exists</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -9627,12 +9627,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 131412 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 131416 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131412</td>
+      <td class="linecount partialCoveredLine">131416</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">target_state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9656,11 +9656,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 7 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131405 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131409 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131412</td>
+      <td class="linecount coveredLine">131416</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">PlayUntil</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9718,12 +9718,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 131382 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 131386 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 23 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131405</td>
+      <td class="linecount coveredLine">131409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">HasBreakpoint</span><span class="p">(</span><span class="n">pc</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -9761,7 +9761,7 @@
         <summary class="linebranchSummary">4/6</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 47 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131361 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131365 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 47 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
@@ -9769,7 +9769,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131408</td>
+      <td class="linecount partialCoveredLine">131412</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">StepOver</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ri</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">last_ri</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ri</span><span class="o">-&gt;</span><span class="n">retsp</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">last_retsp</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9830,13 +9830,13 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 14 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131394 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131398 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="takenBranch">&check; Branch 3 taken 14 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131408</td>
+      <td class="linecount partialCoveredLine">131412</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">StepInto</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ri</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">last_ri</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9897,13 +9897,13 @@
         <summary class="linebranchSummary">1/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131408 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131412 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131408</td>
+      <td class="linecount partialCoveredLine">131412</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">StepOut</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ri</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">last_ri</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9948,13 +9948,13 @@
         <summary class="linebranchSummary">4/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 87 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131321 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131325 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 3 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 84 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131408</td>
+      <td class="linecount coveredLine">131412</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">Playing</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">PlayUntil</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -9968,14 +9968,14 @@
       <td class="lineno"><a id="l1167" href="#l1167">1167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131324</td>
+      <td class="linecount coveredLine">131328</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1168" href="#l1168">1168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131324</td>
+      <td class="linecount coveredLine">131328</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">elapsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">playing_last_update_time</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -9984,12 +9984,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 131295 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 131299 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 29 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131324</td>
+      <td class="linecount coveredLine">131328</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">elapsed</span><span class="p">.</span><span class="n">count</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -10031,7 +10031,7 @@
       <td class="lineno"><a id="l1175" href="#l1175">1175</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131324</td>
+      <td class="linecount coveredLine">131328</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -10048,13 +10048,13 @@
         <summary class="linebranchSummary">4/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 1 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131509 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 131513 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 102 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 131408 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 131412 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">131510</td>
+      <td class="linecount coveredLine">131514</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">Paused</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -10110,7 +10110,7 @@
       <td class="lineno"><a id="l1184" href="#l1184">1184</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">170268</td>
+      <td class="linecount coveredLine">170272</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -10285,7 +10285,7 @@
       <td class="lineno"><a id="l1207" href="#l1207">1207</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">60187128</td>
+      <td class="linecount coveredLine">60187130</td>
       <td class="src coveredLine"><span class="n">Debugger</span><span class="o">*</span><span class="w"> </span><span class="n">zscript_debugger_get_if_open</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -10299,7 +10299,7 @@
       <td class="lineno"><a id="l1209" href="#l1209">1209</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">60187128</td>
+      <td class="linecount coveredLine">60187130</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">debugger</span><span class="p">.</span><span class="n">get</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -10320,7 +10320,7 @@
       <td class="lineno"><a id="l1212" href="#l1212">1212</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1375447155</td>
+      <td class="linecount coveredLine">1375899063</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">zscript_debugger_is_open</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -10334,7 +10334,7 @@
       <td class="lineno"><a id="l1214" href="#l1214">1214</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1375447155</td>
+      <td class="linecount coveredLine">1375899063</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">debugger</span><span class="p">.</span><span class="n">get</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
