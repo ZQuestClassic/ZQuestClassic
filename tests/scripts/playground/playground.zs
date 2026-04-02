@@ -42,3 +42,10 @@ ffc script WinTheGame
         }
     }
 }
+
+global script Init {
+    void run() {
+        // Empty on purpose.
+        // https://discord.com/channels/876899628556091432/1486850950931939521
+    }
+}
