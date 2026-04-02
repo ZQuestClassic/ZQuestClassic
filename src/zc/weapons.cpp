@@ -7080,10 +7080,19 @@ bool weapon::animate(int32_t index)
 	bool ret = dead==0;
 	if(ret && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_DEATH_FRAME))
 	{
-		if(id!=wSword)
+		switch (id)
 		{
-			weapon_dying_frame = true;
-			ret = false;
+			// melee weapons have issues never dying with this
+			// they also would only extremely rarely / never actually benefit
+			// so just excluding them works best
+			case wSword:
+			case wHammer:
+			case wWand: // melee Candle / Byrna use wWand too
+			case wBugNet:
+				break;
+			default:
+				weapon_dying_frame = true;
+				ret = false;
 		}
 	}
 	if(ret || rundeath) do_death_fx();
