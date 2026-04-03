@@ -5780,9 +5780,9 @@ untyped HitBy[10];
 
 **************************************************************
 
-int Defense[42];
+int Defense[41];
 int Defense[MAX_DEFENSE];		
- * Expanded to a size of 42 to cover new defense categories.
+ * Expanded to a size of 41 to cover new defense categories.
 
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.

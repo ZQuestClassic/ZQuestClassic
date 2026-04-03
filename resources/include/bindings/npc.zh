@@ -419,6 +419,7 @@ class npc {
 	//
 	// @index [enum NPCDefenseIndex]
 	// @value [enum NPCDefenseType]
+	// @length [MAX_DEFENSE]
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
