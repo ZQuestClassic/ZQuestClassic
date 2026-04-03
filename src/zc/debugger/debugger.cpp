@@ -1017,8 +1017,6 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 			result += "}";
 		}
 
-		seen.erase(raw_value); 
-
 		return result;
 	}
 
@@ -1095,8 +1093,6 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 
 			result += fmt::format("{}", fmt::join(parts, ", ")) + "}";
 		}
-
-		seen.erase(raw_value);
 
 		return result;
 	}
