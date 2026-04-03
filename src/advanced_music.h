@@ -61,8 +61,8 @@ void clear_current_music_data();
 
 int convert_from_old_midi_id(int midi, bool for_screen = false);
 int convert_to_old_midi_id(int midi, bool for_screen = false);
-int32_t find_or_make_midi_music(int16_t midi);
-int32_t find_or_make_dmap_music(int16_t dmap);
+int find_or_make_midi_music(int midi);
+int find_or_make_dmap_music(int dmap);
 void delete_quest_music(std::function<bool(AdvancedMusic const&)> proc);
 void delete_quest_music(size_t idx);
 void swap_quest_music(size_t idx1, size_t idx2);

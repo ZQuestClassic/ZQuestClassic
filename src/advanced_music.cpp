@@ -307,7 +307,7 @@ int convert_to_old_midi_id(int midi, bool for_screen)
 			return midi;
 	}
 }
-int32_t find_or_make_midi_music(int16_t midi)
+int find_or_make_midi_music(int midi)
 {
 	if (midi == MIDI_SCREEN_INHERIT)
 		return -1;
@@ -329,7 +329,7 @@ int32_t find_or_make_midi_music(int16_t midi)
 	return (m.id = quest_music.size());
 }
 // for old dmap values
-int32_t find_or_make_dmap_music(int16_t dmap)
+int find_or_make_dmap_music(int dmap)
 {
 	if (unsigned(dmap) < MAXDMAPS && DMaps[dmap].music)
 		return DMaps[dmap].music;
