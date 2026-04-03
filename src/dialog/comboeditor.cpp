@@ -2489,7 +2489,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Rows<2>(
 						Label(text = "Label:", hAlign = 1.0),
 						TextField(
-							fitParent = true,
+							fitParent = true, minwidth = 200_px, maxwidth = 500_px,
 							type = GUI::TextField::type::TEXT,
 							maxLength = 255,
 							text = local_comboref.label,
