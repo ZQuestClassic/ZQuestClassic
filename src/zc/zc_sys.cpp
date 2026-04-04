@@ -4014,15 +4014,10 @@ void syskeys()
 	
 	if(zc_read_system_key(KEY_F6)) onTryQuit();
 	
-#ifndef ALLEGRO_MACOSX
 	if(zc_read_system_key(KEY_F9))	f_Quit(qRESET);
 	
 	if(zc_read_system_key(KEY_F10))   f_Quit(qEXIT);
-#else
-	if(zc_read_system_key(KEY_F7))	f_Quit(qRESET);
-	
-	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
-#endif
+
 	if(zc_read_system_key(KEY_F5)&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
 	if (zc_read_system_key(KEY_F12))
@@ -4071,7 +4066,7 @@ void syskeys()
 	}
 	
 	if(zc_readkey(KEY_G))   db=(db==999)?0:999;
-#ifndef ALLEGRO_MACOSX
+
 	if(zc_readkey(KEY_F8))  Showpal=!Showpal;
 	
 	if(zc_readkey(KEY_F7))
@@ -4079,17 +4074,7 @@ void syskeys()
 		Matrix(ss_speed, ss_density, 0);
 		game_pal();
 	}
-#else
-	// The reason these are different on Mac in the first place is that
-	// the OS doesn't let us use F9 and F10...
-	if(zc_readkey(KEY_F10))  Showpal=!Showpal;
-	
-	if(zc_readkey(KEY_F9))
-	{
-		Matrix(ss_speed, ss_density, 0);
-		game_pal();
-	}
-#endif
+
 	if(zc_readkey(KEY_PLUS_PAD) || zc_readkey(KEY_EQUALS))
 	{
 		//change containers
@@ -4166,15 +4151,9 @@ bottom:
 
 void checkQuitKeys()
 {
-#ifndef ALLEGRO_MACOSX
 	if(key[KEY_F9])	f_Quit(qRESET);
 	
 	if(key[KEY_F10])   f_Quit(qEXIT);
-#else
-	if(key[KEY_F7])	f_Quit(qRESET);
-	
-	if(key[KEY_F8])   f_Quit(qEXIT);
-#endif
 }
 
 bool CheatModifierKeys()
@@ -6192,15 +6171,10 @@ static NewMenu game_menu
 	{ "L&oad Quest...", onCustomGame, MENUID_GAME_LOADQUEST },
 	{ "&End Game","F6", onTryQuitMenu, MENUID_GAME_ENDGAME },
 	{},
-#ifdef __EMSCRIPTEN__
-	{ "&Reset","F7", onReset },
-#elif defined(ALLEGRO_MACOSX)
-	{ "&Reset","F7", onReset },
-	{ "&Quit","F8", onExit },
-#else
 	{ "&Reset","F9", onReset },
+#ifndef __EMSCRIPTEN__
 	{ "&Quit","F10", onExit },
-#endif
+ #endif
 };
 
 static NewMenu snapshot_format_menu
@@ -6913,21 +6887,12 @@ void System()
 				case KEY_F6:
 					onTryQuitMenu();
 					break;
-				#ifndef ALLEGRO_MACOSX
 				case KEY_F9:
 					onReset();
 					break;
 				case KEY_F10:
 					onExit();
 					break;
-				#else
-				case KEY_F7:
-					onReset();
-					break;
-				case KEY_F8:
-					onExit();
-					break;
-				#endif
 				case KEY_F12:
 					onSnapshot();
 					break;
