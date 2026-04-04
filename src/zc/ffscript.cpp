@@ -34433,7 +34433,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			markBmap(Hero.dir^1);
 			
-			if(iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
+			if(iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{
 				Hero.hopclk=0xFF;
 				Hero.attackclk = Hero.charging = Hero.spins = 0;
@@ -34705,7 +34705,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	}
 		
 	// But keep him swimming if he ought to be!
-	if(Hero.getAction()!=rafting && iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && (_walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) || get_qr(qr_DROWN))
+	if(Hero.getAction()!=rafting && iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && (_walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) || get_qr(qr_DROWN))
 			&& (current_item(itype_flippers)) && (Hero.getAction()!=inwind))
 	{
 		Hero.hopclk=0xFF;

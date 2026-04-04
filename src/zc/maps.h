@@ -4,6 +4,10 @@
 
 struct newcombo;
 
+// Varies in 3.0, but not in 2.55.
+static const int world_w = 256;
+static const int world_h = 176;
+
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);
@@ -88,6 +92,7 @@ bool isSVLadder(int32_t x, int32_t y);
 bool isSVPlatform(int32_t x, int32_t y);
 bool checkSVLadderPlatform(int32_t x, int32_t y);
 bool iswater(int32_t combo);
+int32_t iswaterex_z3(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false, bool hero = true);
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false, bool hero = true);
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
 bool iswater_type(int32_t type);

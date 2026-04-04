@@ -280,7 +280,7 @@ bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true, false, false)));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true, false, false)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -294,7 +294,7 @@ bool enemy::flyerblocked(int32_t dx, int32_t dy, int32_t special, bool isKB)
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
-			 (water_blocks && iswaterex(MAPCOMBO(dx, dy), currmap, currscr, -1, dx,dy, false, false, true)) ||
+			 (water_blocks && iswaterex_z3(MAPCOMBO(dx, dy), currmap, currscr, -1, dx,dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 // Returns true iff a combo type or flag precludes enemy movement.
@@ -312,7 +312,7 @@ bool groundblocked(int32_t dx, int32_t dy, guydata const& gd)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -325,7 +325,7 @@ bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
 			 (MAPFLAG(dx,dy)==mfNOENEMY)||
 			 (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)||
-			 (water_blocks && iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)) ||
+			 (water_blocks && iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
 
@@ -648,9 +648,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	#define iwtr(cmb, x, y, shallow) \
 		(shallow \
-			? iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, true, false) \
-				&& !iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false) \
-			: iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false))
+			? iswaterex_z3(cmb, currmap, currscr, -1, dx, dy, false, false, false, true, false) \
+				&& !iswaterex_z3(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false) \
+			: iswaterex_z3(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false))
 	bool wtr = iwtr(ci, dx, dy, false);
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
@@ -10603,7 +10603,7 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	Clk=Clk;
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
-	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
+	/*if((x>-17 && x<0) && iswaterex_z3(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
 	{
 	  clk=1;
 	}*/
@@ -10707,7 +10707,7 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			int32_t watertype = iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			int32_t watertype = iswaterex_z3(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
 			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
 			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
@@ -19523,7 +19523,7 @@ int32_t next_side_pos(bool random)
 				  (combo_class_buf[COMBOTYPE(sle_x,sle_y)].block_enemies ||
 				   MAPFLAG(sle_x,sle_y) == mfNOENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOENEMY ||
 				   MAPFLAG(sle_x,sle_y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOGROUNDENEMY ||
-				   iswaterex(MAPCOMBO(sle_x,sle_y), currmap, currscr, -1, sle_x, sle_y, true));
+				   iswaterex_z3(MAPCOMBO(sle_x,sle_y), currmap, currscr, -1, sle_x, sle_y, true));
 				   
 		if(++c>50)
 			return -1;

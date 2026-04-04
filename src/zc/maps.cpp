@@ -1209,9 +1209,15 @@ bool iswater(int32_t combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
+int32_t iswaterex_z3(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
+{
+	x = vbound(x, 0, world_w-1);
+	y = vbound(y, 0, world_h-1);
+	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
+}
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck)
 {
-	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
+	return iswaterex_z3(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
@@ -1229,7 +1235,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 				if (m < 0 || m == 0 && get_qr(qr_WATER_ON_LAYER_1)
 				|| m == 1 && get_qr(qr_WATER_ON_LAYER_2))
 				{
-					int32_t checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
+					int32_t checkwater = iswaterex_z3(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
 					if (checkwater > 0) 
 					{
 						return checkwater;
@@ -3570,7 +3576,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			else continue;
 		}
 		bool doladdercheck = true;
-		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+		//if ( iswaterex_z3(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
 		
 		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
 		{
@@ -3685,7 +3691,7 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 		if ((bridgedetected & (1<<i)))
 			continue;
 		bool doladdercheck = true;
-		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+		//if ( iswaterex_z3(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
 		
 		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
 		{

@@ -2609,7 +2609,7 @@ void HeroClass::draw(BITMAP* dest)
 				
 				if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
 				{
-					sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
+					sfx(((iswaterex_z3(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
 				}
 				
 				goto herodraw_end;
@@ -2634,7 +2634,7 @@ void HeroClass::draw(BITMAP* dest)
 		if(action != casting && action != sideswimcasting)
 		{
 			// Keep this consistent with checkspecial2, line 7800-ish...
-			bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
+			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex_z3(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 			
 			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
@@ -8156,10 +8156,10 @@ heroanimate_skip_liftwpn:;
 		{
 			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !toogam)
 			{
-				if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
-				&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
-				&& iswaterex(FFORCOMBO(x+11,y+9), currmap, currscr, -1, x+11,y+9, false, false, true, true)
-				&& iswaterex(FFORCOMBO(x+4,y+9), currmap, currscr, -1, x+4,y+9, false, false, true, true))
+				if (iswaterex_z3(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
+				&& iswaterex_z3(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
+				&& iswaterex_z3(FFORCOMBO(x+11,y+9), currmap, currscr, -1, x+11,y+9, false, false, true, true)
+				&& iswaterex_z3(FFORCOMBO(x+4,y+9), currmap, currscr, -1, x+4,y+9, false, false, true, true))
 				{
 					int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
 					int ffpos = getFFCAt(watercheck_x,watercheck_y);
@@ -8168,7 +8168,7 @@ heroanimate_skip_liftwpn:;
 						combopos = -1;
 					int waterid = ffpos > -1 ? tmpscr->ffcs[ffpos].data : (combopos > -1 ? tmpscr->data[combopos] : 0);
 					if(waterid)
-						waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
+						waterid = iswaterex_z3(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
 					if(waterid)
 					{
 						newcombo const& watercmb = combobuf[waterid];
@@ -8482,7 +8482,7 @@ heroanimate_skip_liftwpn:;
 					info = walkflag(x,y+15+2,2,down);
 					execute(info);
 				}
-			        if(!info.isUnwalkable() && (game->get_watergrav() > 0 || iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(game->get_watergrav()/10000.0);
+			        if(!info.isUnwalkable() && (game->get_watergrav() > 0 || iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(game->get_watergrav()/10000.0);
 			}
 		}
 		// Stop hovering/falling if you land on something.
@@ -8718,7 +8718,7 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+					if((iswaterex_z3(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
 						sfx(WAV_ZN1SPLASH,x.getInt());
 						
 					stomping = true;
@@ -8748,7 +8748,7 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fakefall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+					if((iswaterex_z3(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
 						sfx(WAV_ZN1SPLASH,x.getInt());
 						
 					stomping = true;
@@ -9793,7 +9793,7 @@ heroanimate_skip_liftwpn:;
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
-			int32_t water = drownCombo ? drownCombo : iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
@@ -9958,8 +9958,8 @@ heroanimate_skip_liftwpn:;
                 || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
 		if ((get_qr(qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Hero out of water...
 		{
-			if(!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
-			|| !iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+9), currmap, currscr, -1, x.getInt()+11,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+15), currmap, currscr, -1, x.getInt()+11,y.getInt()+15, true, false))
+			if(!iswaterex_z3(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex_z3(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
+			|| !iswaterex_z3(MAPCOMBO(x.getInt()+11,y.getInt()+9), currmap, currscr, -1, x.getInt()+11,y.getInt()+9, true, false)||!iswaterex_z3(MAPCOMBO(x.getInt()+11,y.getInt()+15), currmap, currscr, -1, x.getInt()+11,y.getInt()+15, true, false))
 			{
 				hopclk=0;
 				diveclk=0;
@@ -9971,7 +9971,7 @@ heroanimate_skip_liftwpn:;
 		if (shouldbreak) break;
 		if (action == swimming || action == sideswimming || action == sideswimattacking)
 		{
-			int32_t watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t watercheck = iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
 				if (current_item(combobuf[watercheck].attribytes[2]) < combobuf[watercheck].attribytes[3])
@@ -10747,10 +10747,10 @@ int HeroClass::onWater(bool drownonly)
 		y1 = y+9, y2 = y+15;
 	if (get_qr(qr_SMARTER_WATER))
 	{
-		if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
-		iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
-		iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-		iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+		if (iswaterex_z3(0, currmap, currscr, -1, x1, y1, true, false) &&
+		iswaterex_z3(0, currmap, currscr, -1, x1, y2, true, false) &&
+		iswaterex_z3(0, currmap, currscr, -1, x2, y1, true, false) &&
+		iswaterex_z3(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex_z3(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
 	}
 	else
 	{
@@ -13445,16 +13445,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
+                    if(iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && !iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
-                    else if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
+                    else if(!iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex_z3(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -13469,16 +13469,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
+                    if(iswaterex_z3(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex_z3(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex_z3(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
-                    else if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
+                    else if(!iswaterex_z3(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex_z3(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex_z3(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -13493,16 +13493,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
+                    if(iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && !iswaterex_z3(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
-                    else if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
+                    else if(!iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && iswaterex_z3(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex_z3(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -13517,16 +13517,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
+                    if(iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && !iswaterex_z3(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
-                    else if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
+                    else if(!iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && iswaterex_z3(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(!iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&!iswaterex_z3(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -13546,16 +13546,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=1;
-                    else if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
+                    else if(iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex_z3(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1, true, false) && !iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
+		    if(iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -13569,16 +13569,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex_z3(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex_z3(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=1;
-                    else if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
+                    else if(iswaterex_z3(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex_z3(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex_z3(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y++;
                     
-		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
+		    if(iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+15), currmap, currscr, -1, x.getInt(),y.getInt()+15, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -13593,16 +13593,16 @@ void HeroClass::do_hopping()
                     herostep();
                     int32_t sidestep=0;
                     
-                    if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && iswaterex_z3(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=1;
-                    else if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
+                    else if(iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?7:11)), currmap, currscr, -1, x-1,y+(bigHitbox?7:11), true, false) && !iswaterex_z3(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
+		    if(iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex_z3(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -13617,16 +13617,16 @@ void HeroClass::do_hopping()
                     
                     int32_t sidestep=0;
                     
-                    if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
+                    if(!iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && iswaterex_z3(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=1;
-                    else if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
+                    else if(iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?7:11)), currmap, currscr, -1, x+16,y+(bigHitbox?7:11), true, false) && !iswaterex_z3(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-		    if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
+		    if(iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+(bigHitbox?0:8)), currmap, currscr, -1, x.getInt(),y.getInt()+(bigHitbox?0:8), true, false)&&iswaterex_z3(MAPCOMBO(x.getInt()+15,y.getInt()+8), currmap, currscr, -1, x.getInt()+15,y.getInt()+8, true, false))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -13644,7 +13644,7 @@ void HeroClass::do_hopping()
                 hopclk = 0;
                 diveclk = 0;
                 
-                if(iswaterex(MAPCOMBO(x.getInt(),y.getInt()+8), currmap, currscr, -1, x.getInt(),y.getInt()+8, true, false))
+                if(iswaterex_z3(MAPCOMBO(x.getInt(),y.getInt()+8), currmap, currscr, -1, x.getInt(),y.getInt()+8, true, false))
                 {
                     // hopped in
                     SetSwim();
@@ -16862,11 +16862,11 @@ void HeroClass::moveheroOld()
 		}
 		if(shield_forcedir > -1 && action != rafting)
 			dir = shield_forcedir;
-		int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
-		int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
-		int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
-		int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
-		int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
+		int32_t wtry  = iswaterex_z3(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+		int32_t wtry8 = iswaterex_z3(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+		int32_t wtrx = iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+		int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+		int32_t wtrc = iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 		
 		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 		{
@@ -17023,8 +17023,8 @@ void HeroClass::moveheroOld()
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
 						
 						if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1,SWITCHBLOCK_STATE) &&
-								!(iswaterex(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x, temp_y+(bigHitbox?0:8)-temp_step, true, false) &&
-								  iswaterex(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, true, false)))
+								!(iswaterex_z3(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x, temp_y+(bigHitbox?0:8)-temp_step, true, false) &&
+								  iswaterex_z3(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, true, false)))
 							info.setUnwalkable(true);
 					}
 					else
@@ -17153,8 +17153,8 @@ void HeroClass::moveheroOld()
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
 						
 						if(_walkflag(temp_x+15, temp_y+15+temp_step, 1,SWITCHBLOCK_STATE) &&
-								!(iswaterex(MAPCOMBO(temp_x, temp_y+15+temp_step), currmap, currscr, -1, temp_x, temp_y+15+temp_step, true, false) &&
-								  iswaterex(MAPCOMBO(temp_x+15, temp_y+15+temp_step), currmap, currscr, -1, temp_x+15, temp_y+15+temp_step, true, false)))
+								!(iswaterex_z3(MAPCOMBO(temp_x, temp_y+15+temp_step), currmap, currscr, -1, temp_x, temp_y+15+temp_step, true, false) &&
+								  iswaterex_z3(MAPCOMBO(temp_x+15, temp_y+15+temp_step), currmap, currscr, -1, temp_x+15, temp_y+15+temp_step, true, false)))
 							info.setUnwalkable(true);
 					}
 					else
@@ -17546,8 +17546,8 @@ LEFTRIGHT_NEWMOVE:
 					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
 					
 					if(_walkflag(x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
-							!(iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])) &&
-							  iswaterex(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]))))
+							!(iswaterex_z3(MAPCOMBO(x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])) &&
+							  iswaterex_z3(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
@@ -17651,8 +17651,8 @@ LEFTRIGHT_NEWMOVE:
 					info=walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					
 					if(_walkflag(x+15, y+15+int32_t(lsteps[y.getInt()&7]), 1,SWITCHBLOCK_STATE) &&
-							!(iswaterex(MAPCOMBO(x, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int32_t(lsteps[y.getInt()&7])) &&
-							  iswaterex(MAPCOMBO(x+15, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int32_t(lsteps[y.getInt()&7]))))
+							!(iswaterex_z3(MAPCOMBO(x, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x, y+15+int32_t(lsteps[y.getInt()&7])) &&
+							  iswaterex_z3(MAPCOMBO(x+15, y+15+int32_t(lsteps[y.getInt()&7])), currmap, currscr, -1, x+15, y+15+int32_t(lsteps[y.getInt()&7]))))
 						info.setUnwalkable(true);
 				}
 				else
@@ -17941,7 +17941,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 				else if(dx>=256);
 				else if(dy>=176);
 				else if(get_qr(qr_DROWN) && !ilswim);
-				else if(iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
+				else if(iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
 					solid = false;
 				else
 					solid = true;
@@ -17949,7 +17949,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 		}
 		else
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
+			int32_t wtrx  = iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
 			
 			if(wtrx)
 				solid = false;
@@ -18014,13 +18014,13 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			// definitions of unwalkablex.
 			// * Instead, prevent the ladder from being used in the
 			// one frame where Hero has landed on water before drowning.
-			unwalkablex = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
+			unwalkablex = !iswaterex_z3(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
 		}
 		
 		// check if he can swim
 		if(current_item(itype_flippers) && z==0 && fakez==0)
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
+			int32_t wtrx  = iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
 			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
 			{
 				//ladder ignores water combos that are now walkable thanks to flippers -DD
@@ -18047,7 +18047,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			// laddersetup
 		{
 			// Check if there's water to use the ladder over
-			bool wtrx = (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy) != 0);
+			bool wtrx = (iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
 			
@@ -18100,7 +18100,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 					}
 				}
 			}
-			bool walkwater = (get_qr(qr_DROWN) && !iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy));
+			bool walkwater = (get_qr(qr_DROWN) && !iswaterex_z3(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy));
 			
 			if (!wtrx && solid)
 			{
@@ -18129,12 +18129,12 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 							// to make big changes to this stuff.
 							bool deployLadder=true;
 							int32_t lx=dx&0xF0;
-							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
 							{
-								if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
-									iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
-									iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
-									iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
+								if(iswaterex_z3(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
+									iswaterex_z3(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
+									iswaterex_z3(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
+									iswaterex_z3(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
 									deployLadder=false;
 							}
 							if(deployLadder)
@@ -18547,14 +18547,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix tx3 = (dx < 0 ? -8 : 8);
 				ladderx = tx.getInt()&0xF8;
 				laddery = y.getTrunc();
-				if (((iswaterex(MAPCOMBO(ladderx+tx2,y+9), currmap, currscr, -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
-				&& ((iswaterex(MAPCOMBO(ladderx+tx2,y+15), currmap, currscr, -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
+				if (((iswaterex_z3(MAPCOMBO(ladderx+tx2,y+9), currmap, currscr, -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
+				&& ((iswaterex_z3(MAPCOMBO(ladderx+tx2,y+15), currmap, currscr, -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
 				{
 					ladderdir = left;
 					ladderstart = dir;
 				}
-				else if (((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+9), currmap, currscr, -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
-				&& ((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+15), currmap, currscr, -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
+				else if (((iswaterex_z3(MAPCOMBO(ladderx+tx2+tx3,y+9), currmap, currscr, -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
+				&& ((iswaterex_z3(MAPCOMBO(ladderx+tx2+tx3,y+15), currmap, currscr, -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
 				{
 					ladderx = (tx.getInt()+tx3.getInt())&0xF8;
 					ladderdir = left;
@@ -18713,14 +18713,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				
 				ladderx = x.getTrunc();
 				laddery = ty.getInt()&0xF8;
-				if (((iswaterex(MAPCOMBO(x+4,laddery+ty2), currmap, currscr, -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
-				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2), currmap, currscr, -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
+				if (((iswaterex_z3(MAPCOMBO(x+4,laddery+ty2), currmap, currscr, -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
+				&& ((iswaterex_z3(MAPCOMBO(x+11,laddery+ty2), currmap, currscr, -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
 				{
 					ladderdir = up;
 					ladderstart = dir;
 				}
-				else if (((iswaterex(MAPCOMBO(x+4,laddery+ty2+ty3), currmap, currscr, -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
-				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2+ty3), currmap, currscr, -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
+				else if (((iswaterex_z3(MAPCOMBO(x+4,laddery+ty2+ty3), currmap, currscr, -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
+				&& ((iswaterex_z3(MAPCOMBO(x+11,laddery+ty2+ty3), currmap, currscr, -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
 				{
 					laddery = (ty.getInt() + ty3.getInt())&0xF8;
 					ladderdir = up;
@@ -18866,7 +18866,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		return ret;
 	if(dy < 0 && !ign_sv && sideview_mode() && IsSideSwim() && checkladder)
 	{
-		if(!iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-2), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
+		if(!iswaterex_z3(MAPCOMBO(x, y+(bigHitbox?0:8)-2), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
 			&& !canSideviewLadderRemote(x, y-4) && scr_canmove(0, -2, kb, true) && (y+(bigHitbox?0:8) - 4) > 0)
 		{
 			if (game->get_sideswim_jump() != 0)
@@ -19580,11 +19580,11 @@ void HeroClass::movehero()
 		}
 		else
 		{
-			int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
-			int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
-			int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
-			int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
-			int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
+			int32_t wtry  = iswaterex_z3(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+			int32_t wtry8 = iswaterex_z3(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+			int32_t wtrx = iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+			int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+			int32_t wtrc = iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 			
 			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 			{
@@ -20237,7 +20237,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 					if (IsSideSwim()) 
 					{
 						dy = up_step;
-						if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 					}
 				}
 				break;
@@ -20267,7 +20267,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 						if (IsSideSwim()) 
 						{
 							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+							if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 						}
 						break;
 					case down:
@@ -20289,7 +20289,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 						if (IsSideSwim()) 
 						{
 							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+							if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 						}
 						break;
 					case down:
@@ -20523,8 +20523,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     //int32_t vy=((int32_t)y+4)&0xFFF8;
                     if(d2==left)
                     {
-                        if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?6:11)), currmap, currscr, -1, x-1,y+(bigHitbox?6:11)) &&
-                           !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?9:12)), currmap, currscr, -1, x-1,y+(bigHitbox?9:12)) &&
+                        if(!iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?6:11)), currmap, currscr, -1, x-1,y+(bigHitbox?6:11)) &&
+                           !iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?9:12)), currmap, currscr, -1, x-1,y+(bigHitbox?9:12)) &&
                            !_walkflag(x-1,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE) &&
                            !_walkflag(x-1,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE))
                         {
@@ -20535,8 +20535,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                     else if(d2==right)
                     {
-                        if(!iswaterex(MAPCOMBO(x+16,y+(bigHitbox?6:11)), currmap, currscr, -1, x+16,y+(bigHitbox?6:11)) &&
-                           !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?9:12)), currmap, currscr, -1, x+16,y+(bigHitbox?9:12)) &&
+                        if(!iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?6:11)), currmap, currscr, -1, x+16,y+(bigHitbox?6:11)) &&
+                           !iswaterex_z3(MAPCOMBO(x+16,y+(bigHitbox?9:12)), currmap, currscr, -1, x+16,y+(bigHitbox?9:12)) &&
                            !_walkflag(x+16,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE) &&
                            !_walkflag(x+16,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE))
                         {
@@ -20547,8 +20547,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                     else if(d2==up)
                     {
-                        if(!iswaterex(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1) &&
-                           !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1) &&
+                        if(!iswaterex_z3(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+7,y+(bigHitbox?0:8)-1) &&
+                           !iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1) &&
                            !_walkflag(x+7,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
                            !_walkflag(x+8,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
                         {
@@ -20559,8 +20559,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                     else if(d2==down)
                     {
-                        if(!iswaterex(MAPCOMBO(x+7,y+16), currmap, currscr, -1, x+7,y+16) &&
-                           !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16) &&
+                        if(!iswaterex_z3(MAPCOMBO(x+7,y+16), currmap, currscr, -1, x+7,y+16) &&
+                           !iswaterex_z3(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16) &&
                            !_walkflag(x+7,y+16,1,SWITCHBLOCK_STATE) &&
                            !_walkflag(x+8,y+16,1,SWITCHBLOCK_STATE))
                         {
@@ -20576,8 +20576,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 else if(wx>240&&cnt==2);
                 else if(wy>176 - (show_bottom_8px ? 0 : 8));
                 else if(get_qr(qr_DROWN) && !ilswim);
-		//if(iswaterex(MAPCOMBO(wx,wy)) && iswaterex(MAPCOMBO(wx,wy)))
-                else if(iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
+		//if(iswaterex_z3(MAPCOMBO(wx,wy)) && iswaterex_z3(MAPCOMBO(wx,wy)))
+                else if(iswaterex_z3(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
                 {
                     ret.setUnwalkable(false);
                     return ret;
@@ -20591,8 +20591,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         }
         else
         {
-            int32_t wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-            int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
+            int32_t wtrx  = iswaterex_z3(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+            int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Is x + 8 intentional???
             
             if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
@@ -20603,8 +20603,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
     }
     else if(ladderx+laddery)                                  // ladder is being used
     {
-        int32_t lx = !(get_qr(qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wx) : x;
-        int32_t ly = !(get_qr(qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wy) : y;
+        int32_t lx = !(get_qr(qr_DROWN)&&iswaterex_z3(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wx) : x;
+        int32_t ly = !(get_qr(qr_DROWN)&&iswaterex_z3(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wy) : y;
         
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -20728,14 +20728,14 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             // definitions of unwalkablex and unwalkablex8.
             // * Instead, prevent the ladder from being used in the
             // one frame where Hero has landed on water before drowning.
-            unwalkablex = unwalkablex8 = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
+            unwalkablex = unwalkablex8 = !iswaterex_z3(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
         }
         
         // check if he can swim
         if(current_item(itype_flippers) && z==0 && fakez==0)
         {
-		int32_t wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
-		int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
+		int32_t wtrx  = iswaterex_z3(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
+		int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
 		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
 		{
 		//ladder ignores water combos that are now walkable thanks to flippers -DD
@@ -20782,8 +20782,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             // laddersetup
         {
             // Check if there's water to use the ladder over
-            bool wtrx = (iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy) != 0);
-            bool wtrx8 = (iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy) != 0);
+            bool wtrx = (iswaterex_z3(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy) != 0);
+            bool wtrx8 = (iswaterex_z3(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
             
@@ -20844,7 +20844,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 				}
 			}
 		}
-            bool walkwater = (get_qr(qr_DROWN) && !iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy));
+            bool walkwater = (get_qr(qr_DROWN) && !iswaterex_z3(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy));
             
             if((diagonalMovement||NO_GRIDLOCK))
             {
@@ -20864,12 +20864,12 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             // to make big changes to this stuff.
                             bool deployLadder=true;
                             int32_t lx=wx&0xF0;
-                            if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+                            if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
                             {
-                                if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
-				iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
-                                iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
-				iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
+                                if(iswaterex_z3(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
+				iswaterex_z3(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
+                                iswaterex_z3(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
+				iswaterex_z3(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
                                     deployLadder=false;
                             }
                             if(deployLadder)
@@ -26200,7 +26200,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		markBmap(dir^1);
 		
-		int32_t checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
+		int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex_z3 can be intensive, so let's avoid as many calls as we can.
 		
 		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
 		{
@@ -26391,7 +26391,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			
 			markBmap(dir^1);
 			
-			if(iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
+			if(iswaterex_z3(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
 			{
 				hopclk=0xFF;
 				SetSwim();
@@ -26516,7 +26516,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		action=none; FFCore.setHeroAction(none);
 	}
 	
-	int32_t checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
+	int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
 	// But keep him swimming if he ought to be!
 	// Unless the water is too high levelled, in which case... well, he'll drown on transition probably anyways. -Dimi
 	if(action!=rafting && checkwater && (_walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) || get_qr(qr_DROWN))
@@ -27471,7 +27471,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 			}*/
 			
 			//bool swim = iswater_type(c.type) && (current_item(itype_flippers) || action==rafting);
-			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, get_qr(qr_SMARTER_SMART_SCROLL)), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
+			bool swim = iswaterex_z3(MAPCOMBO3(map, screen, -1,cx,cy, get_qr(qr_SMARTER_SMART_SCROLL)), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
 			
 			if((walk&b) && !swim)
 			{
@@ -27501,7 +27501,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 			}
 		}
 	
-		swim = iswaterex(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
+		swim = iswaterex_z3(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
 		
 		if((c.walk&b) && !dried && !swim)
 		{
@@ -27520,7 +27520,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 			{
 				c = combobuf[TheMaps[ns].data[++cmb]];
 				dried = iswater_type(c.type) && DRIEDLAKE;
-				//swim = iswaterex(cmb, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
+				//swim = iswaterex_z3(cmb, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
 				b=1;
 				
 				if(cy&8)
@@ -27529,7 +27529,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 				}
 			}
 		
-		swim = iswaterex(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
+		swim = iswaterex_z3(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
 			
 			if((c.walk&b) && !dried && !swim)
 				return true;
@@ -27808,9 +27808,6 @@ void HeroClass::checkscroll()
 
 bool HeroClass::check_prescroll()
 {
-	static int world_w = 256;
-	static int world_h = 176;
-
 	if (toogam)
 		return true;
 	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
@@ -28947,7 +28944,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				raftclk=0;
 			}
 		}
-		else if(iswaterex(ahead, currmap, currscr, -1, wateraheadx1,wateraheady1) && iswaterex(ahead, currmap, currscr, -1, wateraheadx2,wateraheady2) && (current_item(itype_flippers)))
+		else if(iswaterex_z3(ahead, currmap, currscr, -1, wateraheadx1,wateraheady1) && iswaterex_z3(ahead, currmap, currscr, -1, wateraheadx2,wateraheady2) && (current_item(itype_flippers)))
 		{
 			if(lastaction==swimming || lastaction == sideswimming || lastaction == sideswimattacking || lastaction == sideswimhit || lastaction == swimhit || lastaction == sideswimcasting || lastaction == sidewaterhold1 || lastaction == sidewaterhold2)
 			{
@@ -29839,7 +29836,7 @@ bool HeroClass::sideviewhammerpound()
     
     if(!isSideViewHero())
     {
-        return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswaterex(MAPCOMBO(x+wx,y+wy), currmap, currscr, -1, x+wx,y+wy));
+        return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswaterex_z3(MAPCOMBO(x+wx,y+wy), currmap, currscr, -1, x+wx,y+wy));
     }
     
     if(_walkflag(x+wx,y+wy,0,SWITCHBLOCK_STATE)) return true;
