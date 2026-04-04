@@ -2028,9 +2028,8 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 // (x, y) are world coordinates
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero, optional<combined_handle_t>* out_handle)
 {
-	if (x<0 || x>=world_w || y<0 || y>=world_h)
-		return false;
-
+	x = vbound(x, 0, world_w-1);
+	y = vbound(y, 0, world_h-1);
 	return iswaterex(combo, cur_map, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero, out_handle);
 }
 
