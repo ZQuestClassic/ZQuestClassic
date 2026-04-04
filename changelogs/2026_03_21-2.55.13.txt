@@ -1,0 +1,154 @@
+https://zquestclassic.com/releases/2.55.13
+
+# Features
+
+
+zc: Add option to manually upload single replay file
+  A new `Replay > Upload single replay` menu option allows users to
+  manually upload individual replay files.
+
+zq: Implicitly add `<qst dir>/scripts` to include paths
+  This introduces a new convention: place your scripts in a folder called
+  `scripts` next to your `.qst` file, and you'll be able to compile your
+  quest without ever modifying your include paths.
+
+std_zh: Add `CheckItemDataScript()` to script_runners.zh
+
+# Bug Fixes
+
+GUI label wrapping
+Remove visual delay when click+dragging on a list
+
+Load music using case insensitive file lookup
+  When loading music, ZC looks for a folder named `music` (among others).
+  If a quest places its music in `Music`, the music will still be loaded
+  but only on case-insensitive filesystems (such as Windows). Previously,
+  this would often fail on case-sensitive filesystems like Linux and the
+  web. ZC now ignores casing when loading music files across all
+  platforms.
+
+Prevent grid widget from possibly hanging CPU
+zc: Pushed torches not shining
+zc: Correctly check locked chest state for smart screen scrolling
+  When combos on the next screen are checked for purposes of scrolling,
+  the wrong state flag was being used for locked chests.
+
+zc: Save combos using the wrong attribyte for magic restore percentage
+zc: Control scheme using wrong value for quest-specific scheme
+zc: `DCounter[]` not working for counters >= 32 (the new custom counters)
+zc: Reset cursor after canceling new file
+  The heart cursor was sometimes displaying at an invalid position.
+
+zc: Control dialog crash
+zc: Always cancel charging when scrolling
+  The QR "Scrolling Cancels Charge" was introduced ~3 years ago as a
+  compat QR, but it was accidentally implemented backwards.
+  
+  Instead, the QR check is removed so this charging bug is now fixed for
+  all quests. It is highly unlikely that any existing quests relied on
+  this bugged behavior.
+
+zc: Resolve multiple out-of-bounds enemy ID accesses
+  This fixes a few potential crashes, including when Digdogger spawns
+  Lanmolas.
+  
+  * Prevent unmasked segment IDs from indexing `guysbuf` in `fix_coords`
+    by using the local `SIZEflags` member.
+  * Fix off-by-one bounds check in `addenemy_z`.
+  * Prevent negative replacement IDs from bypassing bounds checks in
+    `defendNew`.
+
+zc: `Disabled In Sideview Water` not working on some item types
+zc: Make bombs explode instead of sometimes just deleting them
+  The 'Break On Solid/Landing' and 'Timeout' weapon flags were simply
+  deleting bombs; they now correctly trigger an explosion.
+
+zc: For combo triggers, ensure bombs explode
+  The 'Kill Triggering Weapon' weapon effect was simply deleting the bomb;
+  it now correctly explodes.
+
+zc: lweapon wind getting confused if more than 1 onscreen
+  The player would teleport between winds when one died while another was
+  on-screen. Now, the player remembers which wind they are in.
+
+zc: Cores of some enemy types not issuing generic script death events
+zc: 'copycat' trigger sometimes triggering the same combo again instantly
+zc: Combo triggers triggering themselves extra times
+zq: Classic / cambria tilesets having a 'pop' in the 'Jump' sfx
+zq: 'Move' using bad tile count for weapon sprites' tile usage
+zq: Do not clear selected screen on `File > New`
+  This dialog can be cancelled, but when doing that the selected screen
+  (including all bookmark screen buttons) was being incorrectly cleared.
+
+zq: 'Browse Notes' breaking GUI on large notes
+  Now large notes will produce a scrollbar for the preview, rather than breaking the UI.
+
+zq: Use correct max widgets for subscreen pages
+  The code incorrectly used 256 as the max in some places, but now all
+  places use 8192.
+
+zq: Total subscreens not properly bounded
+  Previously, you could create an unlimited number of subscreens, which
+  could corrupt the quest file. The limit is now properly capped at 255
+  per subscreen type.
+
+zq: SCC editor using wrong value for 'goto string' dropdowns
+  If strings were re-ordered, the list position was being used instead of
+  the string number.
+
+zq: Undercombo dialog broken for layers
+  The 'map' being used for each layer was off-by-1, causing the dialog to edit the wrong screens when editing layers
+
+std_zh: Add std_time.zh back
+  This file was deprecated in 2.55.4; however, a few things should have
+  been preserved.
+
+std_zh: Update the correct counter array in `DCounterAdd()`
+std_zh: Rename misleading parameter for `NumNPCsOf`
+  `NumNPCsOf` requires the `NPC_` ID constants, but the function comment
+  wrongly said it expects `NPCT_` type constants.
+
+zscript: Enemy script movement functions wrongly over-accounting for screen edges
+zscript: `Screen->Quad()` being unable to use tiles >65519
+zscript: Don't repeat division
+  When the left-hand side is constant (ex: `10 / x`), the compiler was
+  emitting inefficient ZASM that repeated the same division twice. The
+  result was still correct, but it was doing extra work.
+
+zscript: Bad weapon ID bounds check
+zscript: Make the `DrawCombo` "frame" parameter useful
+  It now specifies which frame of the combo's animation to draw. If a
+  negative value is passed, the current frame is used, preserving the
+  legacy behavior.
+
+zscript: Improve how `DrawTile` wraps around
+  When drawing a >1 tall tileblock with `DrawTile`, it now wraps multiple
+  rows at the edges similar to combos with Skip Y.
+
+zscript: Use correct index for `npc->Shield[]`
+  Ever since it was added, this field did not divide the index by 10000 so
+  only really worked for index 0.
+
+zscript: Bad bool checks for `Audio->PlaySoundEx()` and `Graphics->MonochromeHue()`
+  The script engine was incorrectly dividing the bool parameter by 10000,
+  which produces the wrong results when the compiler is configured to emit
+  1L (rather than 10000L) for the `true` keyword.
+
+zscript: itemdata `Counter` fields not allowing new counter values
+  The set values were being capped at 32.
+
+
+# Documentation
+
+Specify the "instant" SCC warp effect first does blackout
+
+# Refactors
+
+
+zc: Speed up loading replays by 20x
+  Very large replays could take many seconds to load, which made long save
+  files load slowly.
+  
+  Also now logging the time taken to load replay files.
+
+zq: Clean up undercombo dialog based on feedback
