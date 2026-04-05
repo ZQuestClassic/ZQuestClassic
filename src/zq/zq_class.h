@@ -277,6 +277,7 @@ public:
 
 	void clear();
 	void force_refr_pointer();
+	void PurgeInvalidHistory();
     bool CanUndo();
     bool CanRedo();
     bool CanPaste();

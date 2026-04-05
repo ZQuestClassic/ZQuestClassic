@@ -159,6 +159,51 @@ void zmap::force_refr_pointer()
 		screens = nullptr;
 	else screens = &TheMaps[cursor.map*MAPSCRS];
 }
+
+// Remove invalid maps from navigation / command history.
+void zmap::PurgeInvalidHistory()
+{
+	cursor_undo_stack.erase(
+		std::remove_if(cursor_undo_stack.begin(), cursor_undo_stack.end(), [](const MapCursor& c) { return c.map >= map_count; }),
+		cursor_undo_stack.end()
+	);
+
+	input_undo_stack.erase(
+		std::remove_if(input_undo_stack.begin(), input_undo_stack.end(), [](const auto& cmd) { return cmd->cursor.map >= map_count; }),
+		input_undo_stack.end()
+	);
+
+	std::stack<MapCursor> temp_cursor_redo;
+	while (!cursor_redo_stack.empty())
+	{
+		if (cursor_redo_stack.top().map < map_count)
+			temp_cursor_redo.push(cursor_redo_stack.top());
+
+		cursor_redo_stack.pop();
+	}
+
+	while (!temp_cursor_redo.empty())
+	{
+		cursor_redo_stack.push(temp_cursor_redo.top());
+		temp_cursor_redo.pop();
+	}
+
+	std::stack<std::shared_ptr<user_input_command>> temp_input_redo;
+	while (!input_redo_stack.empty())
+	{
+		if (input_redo_stack.top()->cursor.map < map_count)
+			temp_input_redo.push(input_redo_stack.top());
+
+		input_redo_stack.pop();
+	}
+
+	while (!temp_input_redo.empty())
+	{
+		input_redo_stack.push(temp_input_redo.top());
+		temp_input_redo.pop();
+	}
+}
+
 bool zmap::CanUndo()
 {
     return input_undo_stack.size() > 0;
@@ -2740,6 +2785,11 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		basescr=AbsoluteScr(map,screen);
 	}
+
+	DCHECK(basescr);
+	if (!basescr)
+		return;
+
 	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
 	{
@@ -6339,6 +6389,7 @@ bool setMapCount2(int32_t c)
                 DMaps[i].map=map_count-1;
             }
         }
+        Map.PurgeInvalidHistory();
     }
     
     return true;
