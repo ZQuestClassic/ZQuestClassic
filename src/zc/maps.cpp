@@ -4173,14 +4173,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 232);
-
-	//6b. Draw the subscreen, without clipping
-	if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	{
-		bool dotime = false;
-		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
-	}
 	
 	//3. Draw some sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,232);
@@ -4379,14 +4371,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	particles.draw(framebuf, true, -1);
 	
-	// //6b. Draw the subscreen, without clipping
-	// if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	// {
-	// 	bool dotime = false;
-	// 	if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
-	// 	put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
-	// }
-	
+	//6b. Draw the subscreen, without clipping
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		bool dotime = false;
+		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+	}
 	
 	//7. Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
@@ -4414,18 +4405,20 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	if(!get_qr(qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || (guys.spr(i)->z+guys.spr(i)->fakez) > (zfix)zinit.jump_hero_layer_threshold)
+			sprite* s = guys.spr(i);
+			if((isflier(s->id)) || (s->z+s->fakez) > (zfix)zinit.jump_hero_layer_threshold)
 			{
-				guys.spr(i)->draw(framebuf);
+				s->draw(framebuf);
 			}
 		}
 	else
 	{
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0 || guys.spr(i)->fakez > 0)
+			sprite* s = guys.spr(i);
+			if((isflier(s->id)) || s->z > 0 || s->fakez > 0)
 			{
-				guys.spr(i)->draw(framebuf);
+				s->draw(framebuf);
 			}
 		}
 	}
