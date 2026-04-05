@@ -776,7 +776,7 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     font_h = text_height(font);
     
     if(height == 0)
-        height = (int32_t)(0.80*SCREEN_H);
+        height = (int32_t)(0.80*screen->h);
         
     vpad = (int32_t)(0.05*height);
     
@@ -828,7 +828,7 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     font_h = text_height(font);
     
     if(height == 0)
-        height = (int32_t)(0.95*SCREEN_H);
+        height = (int32_t)(0.95*screen->h);
     
     vpad = (int32_t)(0.04*height);
     

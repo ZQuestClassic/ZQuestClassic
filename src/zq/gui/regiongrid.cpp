@@ -78,7 +78,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 	case MSG_DRAW:
 	{
-		BITMAP* tempbmp = create_bitmap_ex(8, SCREEN_W, SCREEN_H);
+		BITMAP* tempbmp = create_bitmap_ex(8, screen->w, screen->h);
 		clear_bitmap(tempbmp);
 		int32_t x = d->x;
 		int32_t y = d->y;
@@ -115,7 +115,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 			}
 		}
 
-		masked_blit(tempbmp, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+		masked_blit(tempbmp, screen, 0, 0, 0, 0, screen->w, screen->h);
 		destroy_bitmap(tempbmp);
 	}
 	break;
