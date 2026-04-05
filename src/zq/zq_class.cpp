@@ -174,6 +174,31 @@ void zmap::force_refr_pointer()
 		screens = nullptr;
 	else screens = &TheMaps[currmap*MAPSCRS];
 }
+
+// Remove invalid maps from command history.
+void zmap::PurgeInvalidHistory()
+{
+	undo_stack.erase(
+		std::remove_if(undo_stack.begin(), undo_stack.end(), [](const auto& cmd) { return cmd->view_map >= map_count; }),
+		undo_stack.end()
+	);
+
+	std::stack<std::shared_ptr<user_input_command>> temp_input_redo;
+	while (!redo_stack.empty())
+	{
+		if (redo_stack.top()->view_map < map_count)
+			temp_input_redo.push(redo_stack.top());
+
+		redo_stack.pop();
+	}
+
+	while (!temp_input_redo.empty())
+	{
+		redo_stack.push(temp_input_redo.top());
+		temp_input_redo.pop();
+	}
+}
+
 bool zmap::CanUndo()
 {
     return undo_stack.size() > 0;
@@ -2638,6 +2663,11 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		basescr=AbsoluteScr(map,scr);
 	}
+
+	assert(basescr);
+	if (!basescr)
+		return;
+
 	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
 	{
@@ -6295,6 +6325,7 @@ bool setMapCount2(int32_t c)
                 DMaps[i].map=map_count-1;
             }
         }
+        Map.PurgeInvalidHistory();
     }
     
     return true;
