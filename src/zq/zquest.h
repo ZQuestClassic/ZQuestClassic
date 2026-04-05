@@ -372,6 +372,7 @@ int32_t playTune(int32_t pos);
 int32_t stopMusic();
 
 int32_t onQMiscValues();
+int32_t onStrFix(bool confirmation = true);
 
 //  +----------+
 //  |          |

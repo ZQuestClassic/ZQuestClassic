@@ -17,14 +17,13 @@ class PickRuleTemplateDialog: public GUI::Dialog<PickRuleTemplateDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
-	PickRuleTemplateDialog(std::function<void(int32_t, byte*)> setRuleTemplate);
+	PickRuleTemplateDialog();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::shared_ptr<GUI::Checkbox> templates[sz_ruletemplate];
-	std::function<void(int32_t,byte*)> setRuleTemplate;
 };
 
 #endif

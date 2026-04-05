@@ -1303,40 +1303,32 @@ static NewMenu quest_reports_menu
 
 int32_t onPalFix();
 int32_t onPitFix();
-int32_t onStrFix()
+int32_t onStrFix(bool confirmation)
 {
 	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS))
 	{
-		AlertDialog("Fix: Old Margins",
+		if (!confirmation || alert_confirm("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
-			" to instead be cut off. Are you sure?",
-			[&](bool ret,bool)
-			{
-				if(ret)
-				{
-					set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
-					mark_save_dirty();
-				}
-			}).show();
+			" to instead be cut off. Are you sure?"))
+		{
+			set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
+			mark_save_dirty();
+		}
 	}
 	if(get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 	{
-		AlertDialog("Fix: Old Frame Size",
+		if (!confirmation || alert_confirm("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
-			" as the string width/height will be fixed, but the compat QR will also be unchecked.",
-			[&](bool ret,bool)
+			" as the string width/height will be fixed, but the compat QR will also be unchecked."))
+		{
+			for(auto q = 0; q < msg_count; ++q)
 			{
-				if(ret)
-				{
-					for(auto q = 0; q < msg_count; ++q)
-					{
-						MsgStrings[q].w += 16;
-						MsgStrings[q].h += 16;
-					}
-					set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
-					mark_save_dirty();
-				}
-			}).show();
+				MsgStrings[q].w += 16;
+				MsgStrings[q].h += 16;
+			}
+			set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
+			mark_save_dirty();
+		}
 	}
 	return D_O_K;
 }
@@ -1352,7 +1344,7 @@ static NewMenu fixtools_menu
 	{ "&Effect Square Fix", onEffectFix },
 	{ "&Level Palette Fix", onPalFix },
 	{ "&Pit and Liquid Damage Fix", onPitFix },
-	{ "&Old Strings Fix", onStrFix, MENUID_FIXTOOL_OLDSTRING },
+	{ "&Old Strings Fix", std::bind(onStrFix, true), MENUID_FIXTOOL_OLDSTRING },
 };
 
 static NewMenu tool_menu

@@ -18,6 +18,10 @@ optional<zfix> call_get_zfix(string const& lbl, string const& inf, zfix dv, zfix
 void displayinfo(string const& title, string const& text, optional<string> subtext = nullopt);
 void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
 
+std::pair<bool,bool> alert_confirm_dsa(string const& title, string const& text,
+	optional<string> yes_btn = std::nullopt, optional<string> no_btn = std::nullopt,
+	optional<string> subtext = std::nullopt);
+
 bool call_checklist_dialog(string const& title, vector<string> const& flagnames, bitstring& flags);
 
 void edit_screen_notes(mapscr* scr, int map, int screen);

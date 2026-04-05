@@ -15,6 +15,7 @@
 #include "base/zdefs.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
+#include "dialog/pickruletemplate.h"
 #include "dialog/tilesetwizard.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
@@ -215,7 +216,6 @@ void alwaysOnRules()
 	set_qr(qr_SMARTER_SMART_SCROLL, 1);
 }
 
-int32_t onStrFix();
 void applyRuleset(int32_t newRuleset, byte *qrptr)
 {
 	ruleset = newRuleset;
@@ -241,7 +241,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		}
 	}
 	onStrFix();
-	applyRuleTemplate(ruletemplateFixCompat, qrptr);
+	applyRuleTemplateWithConfirmation(ruletemplateFixCompat, qrptr);
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
@@ -337,14 +337,13 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 			for(auto qr : rMODERN)
 				set_qr(qr, 1, qrptr);
 			for(auto tmpl : rMODERN_TMPL)
-				applyRuleTemplate(tmpl, qrptr);
+				applyRuleTemplateWithConfirmation(tmpl, qrptr);
 			break;
 		}
 	}
 }
 
 void call_ruleset_dlg();
-void call_ruletemplate_dlg();
 int32_t PickRuleset()
 {
 	call_ruleset_dlg(); return D_O_K;

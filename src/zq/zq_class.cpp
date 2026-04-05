@@ -6534,25 +6534,18 @@ void popup_bugfix_dlg(const char* cfg)
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
 	if(!dont_show_again && hasCompatRulesEnabled())
 	{
-		AlertDialog("Apply New Bugfixes",
+		auto [ret, dsa] = alert_confirm_dsa("Apply New Bugfixes",
 			"New bugfixes found that can be applied to this quest!"
 			"\nWould you like to apply them?"
-			"\n(Applies 'Bugfix' rule template, un-checking compat rules)",
-			[&](bool ret,bool dsa)
-			{
-				if(ret)
-				{
-					applyRuleTemplate(ruletemplateFixCompat);
-				}
-				if(dsa)
-				{
-					zc_set_config("zquest",cfg,1);
-				}
-			},
-			"Yes","No",
-			0,false, //timeout - none
-			true //"Don't show this again"
-		).show();
+			"\n(Applies 'Bugfix' rule template, un-checking compat rules)");
+		if(ret)
+		{
+			applyRuleTemplateWithConfirmation(ruletemplateFixCompat);
+		}
+		if(dsa)
+		{
+			zc_set_config("zquest",cfg,1);
+		}
 	}
 }
 
@@ -6660,9 +6653,9 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	else
 	{
 		if(tsetflags & TILESET_BUGFIX)
-			applyRuleTemplate(ruletemplateFixCompat);
+			applyRuleTemplateWithoutConfirmation(ruletemplateFixCompat);
 		if(tsetflags & TILESET_SCR_BUGFIX)
-			applyRuleTemplate(ruletemplateFixZSCompat);
+			applyRuleTemplateWithoutConfirmation(ruletemplateFixZSCompat);
 
 		int32_t accessret = quest_access(filename, &header);
 		

@@ -15,8 +15,6 @@
 extern BITMAP* zqdialog_bg_bmp;
 void update_map_count(word newmapcount);
 
-void popup_bugfix_dlg(const char* cfg); //zq_class.cpp
-
 static const GUI::ListData tilesetList
 {
 	{ "Cambria (recommended)", cambria,

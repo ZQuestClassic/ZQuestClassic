@@ -443,4 +443,5 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header);
 int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_data **script);
 int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header);
 int32_t writefavorites(PACKFILE *f, zquestheader *Header);
+
 #endif

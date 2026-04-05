@@ -1,18 +1,17 @@
 #ifndef _ZQ_FILES_H_
 #define _ZQ_FILES_H_
 
-#include "base/zc_alleg.h"
 #include "allegro/file.h"
 #include "base/ints.h"
 #include <string>
-#include <string_view>
 
 extern char qtbuf[31];
 
 int32_t NewQuestFile(std::string tileset_path);
 int32_t onNew();
 void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
-void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
+void applyRuleTemplateWithConfirmation(int32_t ruleTemplate, byte* qrptr = nullptr);
+void applyRuleTemplateWithoutConfirmation(int32_t ruleTemplate, byte* qrptr = nullptr);
 bool hasCompatRulesEnabled();
 int32_t PickRuleset();
 int32_t PickRuleTemplate();

@@ -7,7 +7,7 @@
 
 void call_ruletemplate_dlg()
 {
-	PickRuleTemplateDialog(applyRuleTemplate).show();
+	PickRuleTemplateDialog().show();
 }
 
 const GUI::ListData ruletemplatesList
@@ -23,8 +23,7 @@ const GUI::ListData ruletemplatesList
 		" engine subscreen functionality." },
 };
 
-PickRuleTemplateDialog::PickRuleTemplateDialog(std::function<void(int32_t,byte*)> setRuleTemplate):
-	setRuleTemplate(setRuleTemplate)
+PickRuleTemplateDialog::PickRuleTemplateDialog()
 {}
 
 std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
@@ -91,7 +90,9 @@ bool PickRuleTemplateDialog::handleMessage(const GUI::DialogMessage<message>& ms
 			for(size_t q = 0; q < ruletemplatesList.size(); ++q)
 			{
 				if(templates[q]->getChecked())
-					setRuleTemplate(ruletemplatesList.getValue(q),nullptr);
+				{
+					applyRuleTemplateWithConfirmation(ruletemplatesList.getValue(q),nullptr);
+				}
 			}
 			return true;
 		case message::CANCEL:

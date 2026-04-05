@@ -275,7 +275,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					for(int q = 0; q < sz_ruletemplate; ++q)
 					{
 						if(on_templates[q])
-							applyRuleTemplate(q,local_qrs);
+							applyRuleTemplateWithConfirmation(q,local_qrs);
 					}
 				}
 				memcpy(dest_qrs, local_qrs, sizeof(local_qrs));
