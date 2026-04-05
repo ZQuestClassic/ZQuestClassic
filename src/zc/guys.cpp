@@ -4029,6 +4029,26 @@ bool enemy::dont_draw()
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+	// The hitbox is normally draw in sprite::draw, but for enemies that is not always called.
+	// So instead we draw it here, and supress it within sprite::draw.
+	if (show_hitboxes)
+		draw_hitbox();
+	struct RestoreEnemyHideHitbox
+	{
+		enemy* npc;
+		bool prev_hide_hitbox;
+
+		RestoreEnemyHideHitbox(enemy* npc_) : npc(npc_), prev_hide_hitbox(npc_->hide_hitbox)
+		{
+			npc_->hide_hitbox = true;
+		}
+
+		~RestoreEnemyHideHitbox(){
+			npc->hide_hitbox = prev_hide_hitbox;
+		}
+	};
+	RestoreEnemyHideHitbox restore{this};
+
 	didScriptThisFrame = false; //Since there's no better place to put it
 	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
 		return;
