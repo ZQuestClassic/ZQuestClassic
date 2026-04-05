@@ -2654,41 +2654,52 @@ byte SW_MMapTitle::getType() const
 }
 byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 {
-	line1[0] = line2[0] = 0;
+	line1[0] = '\0';
+	line2[0] = '\0';
+
 	char dmaptitlesource[2][11];
 	char dmaptitle[2][11];
-	std::string legacy_title = DMaps[get_sub_dmap()].title;
-	legacy_title.resize(21, ' ');
-	const char* title = legacy_title.c_str();
-	sprintf(dmaptitlesource[0], "%.10s", title);
-	sprintf(dmaptitlesource[1], "%.10s", title+10);
+
+	std::string_view title_view = DMaps[get_sub_dmap()].title;
+
+	for (int i = 0; i < 10; i++)
+	{
+		dmaptitlesource[0][i] = (i < title_view.length()) ? title_view[i] : ' ';
+		dmaptitlesource[1][i] = ((i + 10) < title_view.length()) ? title_view[i + 10] : ' ';
+	}
+
+	dmaptitlesource[0][10] = '\0';
+	dmaptitlesource[1][10] = '\0';
+
 	bool l1 = stripspaces(dmaptitlesource[0], dmaptitle[0], 10) > 0;
 	bool l2 = stripspaces(dmaptitlesource[1], dmaptitle[1], 10) > 0;
+
 	int linecnt = (l1 ? 1 : 0) + (l2 ? 1 : 0);
-	switch(linecnt)
+
+	if (linecnt == 0)
+		return 0;
+
+	if (linecnt == 1)
 	{
-		default:
-		case 0:
-			return 0;
-		case 1:
-			sprintf(line1,"%s",dmaptitle[l1?0:1]);
-			return 1;
-		case 2:
-			if(flags&SUBSCR_MMAPTIT_ONELINE)
-			{
-				char spacebuf[2] = {0};
-				if(dmaptitlesource[0][9]==' '||dmaptitlesource[1][0]==' ')
-					spacebuf[0] = ' ';
-				sprintf(line1,"%s%s%s",dmaptitle[0],spacebuf,dmaptitle[1]);
-				return 1;
-			}
-			else
-			{
-				sprintf(line1,"%s",dmaptitle[0]);
-				sprintf(line2,"%s",dmaptitle[1]);
-				return 2;
-			}
+		strcpy(line1, dmaptitle[l1 ? 0 : 1]);
+		return 1;
 	}
+
+	if (flags & SUBSCR_MMAPTIT_ONELINE)
+	{
+		strcpy(line1, dmaptitle[0]);
+
+		if(dmaptitlesource[0][9] == ' ' || dmaptitlesource[1][0] == ' ')
+			strcat(line1, " ");
+
+		strcat(line1, dmaptitle[1]);
+
+		return 1;
+	}
+
+	strcpy(line1, dmaptitle[0]);
+	strcpy(line2, dmaptitle[1]);
+	return 2;
 }
 
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
@@ -2717,18 +2728,15 @@ void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage
 	auto linecnt = get_strs(bufs[0],bufs[1]);
 	if(linecnt == 1)
 	{
-		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
-			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-			"%s",bufs[0]);
+		textout_styled_aligned_ex(dest,tempfont,bufs[0],x+xofs,y2,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 	}
 	else if(linecnt == 2)
 	{
-		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
-			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-			"%s",bufs[1]);
-		textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y1,shadtype,
-			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
-			"%s",bufs[0]);
+		textout_styled_aligned_ex(dest,tempfont,bufs[1],x+xofs,y2,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+		textout_styled_aligned_ex(dest,tempfont,bufs[0],x+xofs,y1,shadtype,
+			align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 	}
 }
 SubscrWidget* SW_MMapTitle::clone() const
