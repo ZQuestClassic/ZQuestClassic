@@ -5240,7 +5240,7 @@ void tile_warp_notification(int32_t which, char *buf)
         else
             sprintf(buf2,"%d-%s",Map.CurrScr()->tilewarpdmap[which],DMaps[Map.CurrScr()->tilewarpdmap[which]].name);
             
-        sprintf(buf,"Tile Warp %c: %s, %02X", letter, buf2, Map.CurrScr()->tilewarpscr[which]);
+        sprintf(buf,"Tile Warp %c: %s, 0x%02X", letter, buf2, Map.CurrScr()->tilewarpscr[which]);
         break;
     }
     
@@ -5273,10 +5273,10 @@ void side_warp_notification(int32_t which, int32_t dir, char *buf)
         // Destination DMap name
         if(strlen(DMaps[Map.CurrScr()->sidewarpdmap[which]].name)==0)
         {
-            sprintf(buf,"Side Warp %c (%s): %d, %02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which], Map.CurrScr()->sidewarpscr[which]);
+            sprintf(buf,"Side Warp %c (%s): %d, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which], Map.CurrScr()->sidewarpscr[which]);
         }
         else
-            sprintf(buf,"Side Warp %c (%s): %d-%s, %02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which],DMaps[Map.CurrScr()->sidewarpdmap[which]].name, Map.CurrScr()->sidewarpscr[which]);
+            sprintf(buf,"Side Warp %c (%s): %d-%s, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which],DMaps[Map.CurrScr()->sidewarpdmap[which]].name, Map.CurrScr()->sidewarpscr[which]);
             
         break;
     }
@@ -6616,9 +6616,10 @@ void refresh(int32_t flags, bool update)
 		
 		if(i>0 && Map.CurrScr()->layermap[i-1])
 		{
+			std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
 			if(is_compact)
-				sprintf(tbuf, "%s%d %d:%02X", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
-			else sprintf(tbuf, "%s%d (%d:%02X)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+				sprintf(tbuf, "%s%d %s", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
+			else sprintf(tbuf, "%s%d (%s)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
 		}
 		else
 		{
@@ -6707,7 +6708,7 @@ void refresh(int32_t flags, bool update)
 			//This fixes Screen Info not displaying properly when changing maps. -Z 
 			//Needed to refresh the screen info. -Z ( 26th March, 2019 )
 			int32_t m = Map.getLayerTargetMultiple();
-			sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
+			sprintf(buf,"Used as a layer by screen %s", formatMapScreenPair(Map.getLayerTargetMap(), Map.getLayerTargetScr()).c_str());
 			char buf2[24];
 			
 			if(m>0)
@@ -6721,7 +6722,7 @@ void refresh(int32_t flags, bool update)
 		
 		if(Map.CurrScr()->nextmap)
 		{
-			sprintf(buf,"Screen State carries over to %d:%02X",Map.CurrScr()->nextmap,Map.CurrScr()->nextscr);
+			sprintf(buf,"Screen State carries over to %s",formatMapScreenPair(Map.CurrScr()->nextmap, Map.CurrScr()->nextscr).c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -10280,14 +10281,14 @@ void domouse()
 		for(int32_t btn=0; btn<mappage_count; ++btn)
 		{
 			if (btn == current_mappage) continue;
-			char tbuf[15];
-			sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
+
+			std::string screen_str = formatMapScreenPair(map_page[btn].map+1, map_page[btn].screen);
 			auto& sqr = map_page_bar[btn];
 			if(sqr.rect(x,y))
 			{
-				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
+				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,screen_str.c_str(),(btn==current_mappage?D_SELECTED:0)))
 				{
-					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
+					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,screen_str.c_str(),D_SELECTED);
 					
 					if (lclick)
 					{
@@ -10467,17 +10468,18 @@ void domouse()
 				
 				if(i!=0 && Map.CurrScr()->layermap[i-1])
 				{
+					std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
 					if(is_compact)
 					{
-						sprintf(tbuf, "%s%d %d:%02X",
+						sprintf(tbuf, "%s%d %s",
 							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
-							i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+							i, screen_str.c_str());
 					}
 					else
 					{
-						sprintf(tbuf, "%s%d (%d:%02X)",
+						sprintf(tbuf, "%s%d (%s)",
 							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
-							i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+							i, screen_str.c_str());
 					}
 				}
 				else
@@ -28235,6 +28237,15 @@ void ZQ_ClearQuestPath()
 {
 	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
 	strcpy(filepath,"");
+}
+
+// map should be 1-indexed.
+// Formats map as decimal, screen as hex. Ex: `19 : 0x3`.
+std::string formatMapScreenPair(int map, int screen)
+{
+	assert(map > 0);
+	assert(screen >= 0);
+	return fmt::format("{} : 0x{:02X}", map, screen);
 }
 
 //FFCore
