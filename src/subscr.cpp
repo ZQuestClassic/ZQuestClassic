@@ -10,6 +10,7 @@
 #include "items.h"
 #include <stdio.h>
 #include <cstring>
+#include <charconv>
 #include "core/misctypes.h"
 
 using namespace util;
@@ -1891,23 +1892,6 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
     }
 }
 
-void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
-{
-
-    char buf[512];
-    va_list ap;
-    ASSERT(bmp);
-    ASSERT(f);
-    ASSERT(format);
-    
-    va_start(ap, format);
-    vsnprintf(buf, sizeof(buf), format, ap);
-    va_end(ap);
-    
-    textout_styled_aligned_ex(bmp, f, buf, x, y, textstyle, alignment, color, shadow, bg);
-}
-
-
 void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char const* thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
 {
     int32_t y1 = y;
@@ -2719,68 +2703,63 @@ void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t
     {
         return;
     }
-    
-    int32_t found_digits=5;
-    
-    if(num<10000)
-    {
-        found_digits=4;
-    }
-    
-    if(num<1000)
-    {
-        found_digits=3;
-    }
-    
-    if(num<100)
-    {
-        found_digits=2;
-    }
-    
-    if(num<10)
-    {
-        found_digits=1;
-    }
-    
-    if(infinite)
-    {
-        textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,ALIGN_LEFT,color,shadowcolor,bgcolor,"%s%c",usex?"X":"",idigit);
-    }
-    else
-    {
-        textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,ALIGN_LEFT,color,shadowcolor,bgcolor,"%s%d",(usex && found_digits<digits)?"X":"",num);
-    }
+
+    char buf[32];
+	int32_t pos = 0;
+
+	if(infinite)
+	{
+		if(usex)
+			buf[pos++] = 'X';
+
+		buf[pos++] = idigit;
+		buf[pos] = '\0';
+	}
+	else
+	{
+		int32_t found_digits = 5;
+
+		if(num < 10000)
+			found_digits = 4;
+
+		if(num < 1000)
+			found_digits = 3;
+
+		if(num < 100)
+			found_digits = 2;
+
+		if(num < 10)
+			found_digits = 1;
+
+		if(usex && found_digits < digits)
+			buf[pos++] = 'X';
+
+		auto [ptr, ec] = std::to_chars(buf + pos, buf + sizeof(buf), num);
+		*ptr = '\0';
+	}
+
+	textout_styled_aligned_ex(dest, tempfont, buf, x, y, textstyle, ALIGN_LEFT, color, shadowcolor, bgcolor);
 }
 
-/*
-  INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
-  {
-  rectfill(dest,x,y,x+2,y+2,c);
-  }
-  */
-
-/****/
 int32_t stripspaces(char *source, char *target, int32_t stop)
 {
-    int32_t begin, end;
-    
-    for(begin=0; ((begin<stop)&&(source[begin]==' ')); ++begin)
-    {
-        /* do nothing */
-    }
-    
-    if(begin==stop)
-    {
-        return 0;
-    }
-    
-    for(end=stop-1; source[end]==' '; --end)
-    {
-        /* do nothing */
-    }
-    
-    sprintf(target, "%.*s", (end-begin+1), source+begin);
-    return (end-begin+1);
+	int32_t begin = 0;
+	int32_t end = stop - 1;
+
+	while (begin < stop && source[begin] == ' ')
+		begin++;
+
+	if (begin == stop)
+		return 0;
+
+	while (end > begin && source[end] == ' ')
+		end--;
+
+	int32_t len = end - begin + 1;
+	memcpy(target, source + begin, len);
+	target[len] = '\0';
+
+	return len;
 }
 
 bool findWeaponWithParent(int32_t id, int32_t type)
@@ -2971,7 +2950,8 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 
 void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit)
 {
-    int32_t yofs = (game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1)) ? 8 : 0;
+	bool has_sbombs = (game == NULL || (game->get_sbombs() && current_item_id(itype_sbomb) > -1));
+    int32_t yofs = has_sbombs ? 8 : 0;
     
     //88, 16
     overtile8(dest,5,x,y,1,0);
@@ -2996,8 +2976,8 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         putxnum(dest,x+8,y+16-yofs,game->get_keys()+game->get_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,magickey,idigit);
         putxnum(dest,x+8,y+24-yofs,game->get_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,current_item_power(itype_bombbag)>0,idigit);
     }
-    
-    if(game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1))
+
+    if (has_sbombs)
     {
         overtile8(dest,13,x,y+24,1,0);
         
