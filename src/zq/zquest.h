@@ -603,6 +603,7 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txs
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void ZQ_ClearQuestPath();
+std::string formatMapScreenPair(int map, int screen);
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);
 void questrev_help();

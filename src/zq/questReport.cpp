@@ -202,13 +202,14 @@ void TileWarpsReport()
             {
                 if(!type_found)
                 {
-                    sprintf(buf, "The following screens have tile warp references set to the current screen (%X:%02X):\n", Map.getCurrMap()+1, Map.getCurrScr());
-                    quest_report_str+=buf;
+					quest_report_str += fmt::format(
+						"The following screens have tile warp references set to the current screen ({}):\n",
+						formatMapScreenPair(Map.getCurrMap()+1, Map.getCurrScr()));
                     type_found=true;
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -268,13 +269,14 @@ void SideWarpsReport()
             {
                 if(!type_found)
                 {
-                    sprintf(buf, "The following screens have side warp references set to the current screen (%X:%02X):\n", Map.getCurrMap()+1, Map.getCurrScr());
-                    quest_report_str+=buf;
+                    quest_report_str += fmt::format(
+						"The following screens have side warp references set to the current screen ({}):\n",
+						formatMapScreenPair(Map.getCurrMap()+1, Map.getCurrScr()));
                     type_found=true;
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -331,13 +333,14 @@ void LayersReport()
             {
                 if(!type_found)
                 {
-                    sprintf(buf, "The following screens use the current screen as a layer (%X:%02X):\n", Map.getCurrMap()+1, Map.getCurrScr());
-                    quest_report_str+=buf;
+					quest_report_str += fmt::format(
+						"The following screens use the current screen as a layer ({}):\n",
+						formatMapScreenPair(Map.getCurrMap()+1, Map.getCurrScr()));
                     type_found=true;
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (layer %d)\n", palname_spaced(ts->color), m+1, s, layer_check[i]);
+                sprintf(buf, "%s %10s (layer %d)\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str(), layer_check[i]);
                 quest_report_str+=buf;
             }
         }
@@ -377,7 +380,7 @@ void integrityCheckSpecialItem()
                     
                 type_found=true;
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -454,7 +457,7 @@ void integrityCheckEnemiesItem()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -531,7 +534,7 @@ void integrityCheckEnemiesSecret()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -615,7 +618,10 @@ void integrityCheckTileWarpDestSquare()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palname_spaced(ts->color), m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
+                sprintf(buf, "%s %10s (%10s)\n",
+					palname_spaced(ts->color),
+					formatMapScreenPair(m + 1, s).c_str(),
+					formatMapScreenPair(((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -736,7 +742,7 @@ void integrityCheckTileWarpDest()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X %s%s%s%s%s\n", palname_spaced(ts->color), m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
+                sprintf(buf, "%s %10s %s%s%s%s%s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str(), warpa ? "[A] ":"", warpb ? "[B] ":"",
                         warpc ? "[C] ":"", warpd ? "[D] ":"", warpr ? "[Random]":"");
                 quest_report_str+=buf;
             }
@@ -846,7 +852,7 @@ void integrityCheckSideWarpDest()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X %s%s%s%s%s%s\n", palname_spaced(ts->color), m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
+                sprintf(buf, "%s %10s %s%s%s%s%s%s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str(), warpa ? "[A] ":"", warpb ? "[B] ":"",
                         warpc ? "[C] ":"", warpd ? "[D] ":"", warpr ? "[Random]":"", warpt ? "[Triforce]" : "");
                 quest_report_str+=buf;
             }
@@ -926,7 +932,7 @@ void integrityCheckUnderCombo()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1001,7 +1007,7 @@ void integrityCheckSaveCombo()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1041,7 +1047,7 @@ void integrityCheckGuyNoString()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1112,7 +1118,7 @@ void integrityCheckRoomNoGuy()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1182,7 +1188,7 @@ void integrityCheckRoomNoString()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
                 type_found=true;
             }
@@ -1252,7 +1258,7 @@ void integrityCheckRoomNoGuyNoString()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
                 type_found=true;
             }
@@ -1299,7 +1305,7 @@ void integrityCheckItemWalkability()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1371,7 +1377,10 @@ void integrityCheckTileWarpDestSquareWalkability()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palname_spaced(ts->color), m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
+                sprintf(buf, "%s %10s (%10s)\n",
+					palname_spaced(ts->color),
+					formatMapScreenPair(m + 1, s).c_str(),
+					formatMapScreenPair(((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS).c_str());
                 quest_report_str+=buf;
             }
         }
@@ -1425,7 +1434,7 @@ void integrityCheckTileWarpDestScreenInvalid()
                     }
                     
                     buf[0]=0;
-                    sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
+                    sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                     quest_report_str+=buf;
                     type_found=true;
                 }
@@ -1906,10 +1915,9 @@ void enemyLocationReport()
                 tempnode=tempnode->next;
                 //add it to the list
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%d)\n",
+                sprintf(buf, "%s %10s (%d)\n",
                         palname_spaced(tempnode->pal),
-                        tempnode->map,
-                        tempnode->screen,
+						formatMapScreenPair(tempnode->map, tempnode->screen).c_str(),
                         tempnode->list /* Possibly add more details later/never */);
                 quest_report_str+=buf;
             }
@@ -2061,7 +2069,9 @@ void scriptLocationReport()
                 tempnode=tempnode->next;
                 //add it to the list
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (Args: %d, %d, %d, %d, %d, %d, %d, %d)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
+                sprintf(buf, "%s %10s (Args: %d, %d, %d, %d, %d, %d, %d, %d)\n",
+						palname_spaced(tempnode->pal),
+						formatMapScreenPair(tempnode->map, tempnode->screen).c_str(),
                         tempnode->d[0]/10000,tempnode->d[1]/10000,tempnode->d[2]/10000,tempnode->d[3]/10000,
                         tempnode->d[4]/10000,tempnode->d[5]/10000,tempnode->d[6]/10000,tempnode->d[7]/10000);
                 quest_report_str+=buf;
@@ -2153,7 +2163,7 @@ void ComboLocationReport()
                 }
                 
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%d use%s", palname_spaced(ts->color), m+1, s, uses, uses>1 ? "s" : "");
+                sprintf(buf, "%s %10s (%d use%s", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str(), uses, uses>1 ? "s" : "");
                 quest_report_str+=buf;
                 
                 if(secretuses>0)
@@ -2374,7 +2384,7 @@ void ComboTypeLocationReport()
                 tempnode=tempnode->next;
                 //add it to the list
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%d uses", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->uses);
+                sprintf(buf, "%s %10s (%d uses", palname_spaced(tempnode->pal), formatMapScreenPair(tempnode->map, tempnode->screen).c_str(), tempnode->uses);
                 quest_report_str+=buf;
                 
                 if(tempnode->secretuses>0)
