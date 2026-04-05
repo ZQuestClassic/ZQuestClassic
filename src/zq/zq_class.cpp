@@ -6603,7 +6603,7 @@ void popup_bugfix_dlg(const char* cfg, byte* dest_qrs)
 			"\n(Applies 'Bugfix' rule template, un-checking compat rules)");
 		if(ret)
 		{
-			applyRuleTemplate(ruletemplateFixCompat,dest_qrs);
+			applyRuleTemplateWithConfirmation(ruletemplateFixCompat,dest_qrs);
 		}
 		if(dsa)
 		{
@@ -6734,9 +6734,9 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	else
 	{
 		if(tsetflags & TILESET_BUGFIX)
-			applyRuleTemplate(ruletemplateFixCompat);
+			applyRuleTemplateWithoutConfirmation(ruletemplateFixCompat);
 		if(tsetflags & TILESET_SCR_BUGFIX)
-			applyRuleTemplate(ruletemplateFixZSCompat);
+			applyRuleTemplateWithoutConfirmation(ruletemplateFixZSCompat);
 
 		int32_t accessret = quest_access(filename, &header);
 		

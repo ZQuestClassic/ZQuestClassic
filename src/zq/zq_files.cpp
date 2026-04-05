@@ -171,7 +171,6 @@ int32_t d_rulesettext_proc(int32_t msg, DIALOG *d, int32_t)
 	return D_O_K;
 }
 
-int32_t onStrFix();
 void applyRuleset(int32_t newRuleset, byte *qrptr)
 {
 	ruleset = newRuleset;
@@ -197,7 +196,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		}
 	}
 	onStrFix();
-	applyRuleTemplate(ruletemplateFixCompat, qrptr);
+	applyRuleTemplateWithConfirmation(ruletemplateFixCompat, qrptr);
 	
 	//Set on things that should ALWAYS be on.
 	static const int rALWAYS_ON[] = {
@@ -323,7 +322,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 			for(auto qr : rMODERN)
 				set_qr(qr, 1, qrptr);
 			for(auto tmpl : rMODERN_TMPL)
-				applyRuleTemplate(tmpl, qrptr);
+				applyRuleTemplateWithConfirmation(tmpl, qrptr);
 			break;
 		}
 	}

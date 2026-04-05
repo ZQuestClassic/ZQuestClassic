@@ -9,7 +9,7 @@ static bool modified;
 bool call_ruletemplate_dlg(byte* dest)
 {
 	modified = false;
-	PickRuleTemplateDialog(applyRuleTemplate, dest).show();
+	PickRuleTemplateDialog(dest).show();
 	return modified;
 }
 
@@ -26,8 +26,7 @@ const GUI::ListData ruletemplatesList
 		" engine subscreen functionality." },
 };
 
-PickRuleTemplateDialog::PickRuleTemplateDialog(std::function<void(int32_t,byte*)> setRuleTemplate, byte* dest_qrs):
-	setRuleTemplate(setRuleTemplate), dest_qrs(dest_qrs)
+PickRuleTemplateDialog::PickRuleTemplateDialog(byte* dest_qrs): dest_qrs(dest_qrs)
 {}
 
 std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
@@ -96,7 +95,7 @@ bool PickRuleTemplateDialog::handleMessage(const GUI::DialogMessage<message>& ms
 				if(templates[q]->getChecked())
 				{
 					modified = true;
-					setRuleTemplate(ruletemplatesList.getValue(q),dest_qrs);
+					applyRuleTemplateWithConfirmation(ruletemplatesList.getValue(q),dest_qrs);
 				}
 			}
 			return modified;

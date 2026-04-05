@@ -351,6 +351,8 @@ int32_t playMusic();
 int32_t playTune(int32_t pos);
 int32_t stopMusic();
 
+int32_t onStrFix(bool confirmation = true);
+
 //  +----------+
 //  |          |
 //  | View Pic |

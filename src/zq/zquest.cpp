@@ -1312,11 +1312,11 @@ static NewMenu quest_reports_menu
 
 int32_t onPalFix();
 int32_t onPitFix();
-int32_t onStrFix()
+int32_t onStrFix(bool confirmation)
 {
 	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS))
 	{
-		if (alert_confirm("Fix: Old Margins",
+		if (!confirmation || alert_confirm("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
 			" to instead be cut off. Are you sure?"))
 		{
@@ -1326,7 +1326,7 @@ int32_t onStrFix()
 	}
 	if(get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 	{
-		if (alert_confirm("Fix: Old Frame Size",
+		if (!confirmation || alert_confirm("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
 			" as the string width/height will be fixed, but the compat QR will also be unchecked."))
 		{
@@ -1354,7 +1354,7 @@ static NewMenu fixtools_menu
 	{ "&Effect Square Fix", onEffectFix },
 	{ "&Level Palette Fix", onPalFix },
 	{ "&Pit and Liquid Damage Fix", onPitFix },
-	{ "&Old Strings Fix", onStrFix, MENUID_FIXTOOL_OLDSTRING },
+	{ "&Old Strings Fix", std::bind(onStrFix, true), MENUID_FIXTOOL_OLDSTRING },
 	{ "&Green Arrival Square Fix", onRemoveOldArrivalSquare },
 };
 

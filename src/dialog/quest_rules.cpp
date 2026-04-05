@@ -1874,7 +1874,6 @@ GUI::ListData const& combinedZSRList()
 }
 
 //}
-int32_t onStrFix(); //zquest.cpp
 void popup_bugfix_dlg(const char* cfg, byte* dest_qrs); //zq_class.cpp
 bool hasCompatRulesEnabled()
 {
@@ -1886,7 +1885,7 @@ bool hasCompatRulesEnabled()
 	}
 	return false;
 }
-void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
+static void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr, bool confirmation)
 {
 	bool inv = false;
 	switch(ruleTemplate)
@@ -1905,7 +1904,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				set_qr(rule, 0, qrptr);
 			}
 			set_qr(qr_CORRECTED_EW_BRANG_ANIM, 1, qrptr); //this should be on
-			onStrFix();
+			onStrFix(confirmation);
 			break;
 		}
 		case ruletemplateFixZSCompat:
@@ -1964,6 +1963,14 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 	}
 	if(qrptr == quest_rules || !qrptr)
 		mark_save_dirty();
+}
+void applyRuleTemplateWithConfirmation(int32_t ruleTemplate, byte* qrptr)
+{
+	applyRuleTemplate(ruleTemplate, qrptr, true);
+}
+void applyRuleTemplateWithoutConfirmation(int32_t ruleTemplate, byte* qrptr)
+{
+	applyRuleTemplate(ruleTemplate, qrptr, false);
 }
 
 void QRDialog::reloadQRs()

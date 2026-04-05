@@ -5,8 +5,6 @@
 #include "gui/checkbox.h"
 #include "gui/label.h"
 #include "core/qrs.h"
-#include <functional>
-#include <string_view>
 #include "zq/zq_files.h"
 
 bool call_ruletemplate_dlg(byte* dest = nullptr);
@@ -17,7 +15,7 @@ class PickRuleTemplateDialog: public GUI::Dialog<PickRuleTemplateDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
-	PickRuleTemplateDialog(std::function<void(int32_t, byte*)> setRuleTemplate, byte* dest_qrs);
+	PickRuleTemplateDialog(byte* dest_qrs);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -25,7 +23,6 @@ public:
 private:
 	byte* dest_qrs;
 	std::shared_ptr<GUI::Checkbox> templates[sz_ruletemplate];
-	std::function<void(int32_t,byte*)> setRuleTemplate;
 };
 
 #endif
