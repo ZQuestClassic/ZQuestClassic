@@ -4920,14 +4920,6 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	// After this point, scrollbuf is no longer drawn to - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
-
-	// Draw the subscreen, without clipping
-	if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	{
-		bool dotime = false;
-		if (replay_version_check(22)) dotime = game->should_show_time();
-		put_passive_subscr(dest, 0, 0, dotime, sspUP);
-	}
 	
 	// Draw some sprites onto dest
 	set_clip_rect(dest,0,0,256,232);
@@ -5244,11 +5236,16 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	});
 
 	do_primitives(dest, SPLAYER_OVERHEAD_CMB);
-	
+
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		bool dotime = false;
+		if (replay_version_check(22)) dotime = game->should_show_time();
+		put_passive_subscr(dest, 0, 0, dotime, sspUP);
+	}
+
 	// Draw some flying sprites onto dest
 	clear_clip_rect(dest);
-	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		add_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
 	
 	if (classic_draw)
 	{
@@ -5274,18 +5271,20 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		
 		if(!get_qr(qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || (guys.spr(i)->z+guys.spr(i)->fakez) > (zfix)zinit.jump_hero_layer_threshold)
+			sprite* s = guys.spr(i);
+			if((isflier(s->id)) || (s->z+s->fakez) > (zfix)zinit.jump_hero_layer_threshold)
 			{
-				guys.spr(i)->draw(dest);
+				s->draw(dest);
 			}
 		}
 		else
 		{
 			for(int32_t i=0; i<guys.Count(); i++)
 			{
-				if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0 || guys.spr(i)->fakez > 0)
+				sprite* s = guys.spr(i);
+				if((isflier(s->id)) || s->z > 0 || s->fakez > 0)
 				{
-					guys.spr(i)->draw(dest);
+					s->draw(dest);
 				}
 			}
 		}
