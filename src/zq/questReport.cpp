@@ -174,13 +174,7 @@ void TileWarpsReport()
     
     bool type_found=false;
     
-    int32_t *warp_check;
-    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
-    
-    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
-    {
-        warp_check[i]=0;
-    }
+    int32_t* warp_check = (int32_t *)calloc(Map.getMapCount() * MAPSCRS, sizeof(int32_t));
     
     for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
@@ -240,14 +234,8 @@ void SideWarpsReport()
     char buf[255];
     
     bool type_found=false;
-    
-    int32_t *warp_check;
-    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
-    
-    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
-    {
-        warp_check[i]=0;
-    }
+
+	int32_t* warp_check = (int32_t *)calloc(Map.getMapCount() * MAPSCRS, sizeof(int32_t));
     
     for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
@@ -308,13 +296,7 @@ void LayersReport()
     
     bool type_found=false;
     
-    int32_t *layer_check;
-    layer_check =(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
-    
-    for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
-    {
-        layer_check[i]=0;
-    }
+	int32_t* layer_check = (int32_t *)calloc(Map.getMapCount() * MAPSCRS, sizeof(int32_t));
     
     for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
@@ -363,6 +345,60 @@ void LayersReport()
     }
     
     free(layer_check);
+}
+
+void ScreenStateReport()
+{
+    mapscr *ts=NULL;
+    char buf[255];
+    
+    bool type_found=false;
+
+    int32_t* screen_state_check = (int32_t *)calloc(Map.getMapCount() * MAPSCRS, sizeof(int32_t));
+    
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
+    {
+        for(int32_t s=0; s<MAPSCRS; ++s)
+        {
+            int32_t i=(m*MAPSCRS+s);
+            ts=&TheMaps[i];
+
+			if (ts->nextmap - 1 == Map.getCurrMap() && ts->nextscr == Map.getCurrScr())
+			{
+				screen_state_check[i]=1;
+			}
+        }
+    }
+    
+    for(int32_t m=0; m<Map.getMapCount(); ++m)
+    {
+        for(int32_t s=0; s<MAPSCRS; ++s)
+        {
+            int32_t i=(m*MAPSCRS+s);
+            
+            if(screen_state_check[i]!=0)
+            {
+                if(!type_found)
+                {
+					quest_report_str += fmt::format(
+						"The following screens have screen state carryovers to the current screen ({}):\n",
+						formatMapScreenPair(Map.getCurrMap()+1, Map.getCurrScr()));
+                    type_found=true;
+                }
+
+                buf[0]=0;
+                sprintf(buf, "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
+                quest_report_str+=buf;
+            }
+        }
+    }
+    
+    if(type_found)
+    {
+        quest_report_str += '\n';
+    }
+    
+    free(screen_state_check);
 }
 
 
@@ -2597,6 +2633,7 @@ int32_t onWhatWarpsReport()
     TileWarpsReport();
     SideWarpsReport();
     LayersReport();
+    ScreenStateReport();
     restore_mouse();
     
     if(quest_report_str!="")
