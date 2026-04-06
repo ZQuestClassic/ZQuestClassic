@@ -369,9 +369,10 @@ ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 std::map<int32_t,ZScriptArray> objectRAM;
 ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
+bool pending_save_from_save_menu;
+
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
-
 
 void setZScriptVersion(int32_t s_version)
 {
@@ -1648,6 +1649,7 @@ void init_game_vars(bool is_cont_game = false)
 	{
 		visited[i]=-1;
 	}
+	pending_save_from_save_menu = false;
 }
 
 int32_t init_game()
@@ -4715,6 +4717,11 @@ reload_for_replay_file:
 					save_game(false);
 					Quit = qCONT;
 				}
+				else if (pending_save_from_save_menu)
+				{
+					save_game(false);
+				}
+				pending_save_from_save_menu = false;
 				
 				if (get_qr(qr_OLD_SCRIPT_VOLUME))
 				{

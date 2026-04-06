@@ -53,6 +53,7 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 	{
 		if (use_music && unsigned(music-1) < quest_music.size())
 			quest_music[music-1].play();
+
 		while (!tick(cursor, clk))
 		{
 			if (Quit)
@@ -65,17 +66,11 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 			advanceframe(false, true, false);
 			load_control_state();
 		}
-		
+
 		if (cursor)
 		{
 			SaveMenuOption const& opt = options[*cursor];
-			
-			if (opt.flags & SMENU_OPT_SAVE)
-				save_game(false);
-			
-			if (opt.gen_script)
-				FFCore.runGenericFrozenEngine(opt.gen_script);
-			
+
 			running = false;
 			if (Quit)
 				;
@@ -88,6 +83,14 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 			else if (!is_dead && (opt.flags & SMENU_OPT_CANCEL))
 				Quit = 0;
 			else running = true;
+
+			// We must save the game in the outermost game loop (init_and_run_main_zplayer_loop) for
+			// replays to work.
+			if (opt.flags & SMENU_OPT_SAVE)
+				pending_save_from_save_menu = true;
+
+			if (opt.gen_script)
+				FFCore.runGenericFrozenEngine(opt.gen_script);
 		}
 		else if (Quit)
 			running = false;

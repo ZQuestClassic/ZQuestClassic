@@ -423,6 +423,8 @@ extern std::string only_qstpath;
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
 
+extern bool pending_save_from_save_menu;
+
 // quest file data
 extern zquestheader QHeader;
 extern int32_t				   msg_strings_size;

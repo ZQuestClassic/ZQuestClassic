@@ -4290,9 +4290,11 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (GameFlags & GAMEFLAG_TRYQUIT)
 		replay_step_quit(0);
 	if(allowF6Script)
+	{
 		FFCore.runF6Engine();
-	if (Quit)
-		replay_step_quit(Quit);
+		if (Quit)
+			replay_step_quit(Quit);
+	}
 	
 #ifdef _WIN32
 	

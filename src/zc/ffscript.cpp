@@ -29470,6 +29470,7 @@ void FFScript::runF6Engine()
 		}
 		else if (unsigned(QMisc.savemenu_f6 - 1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6 - 1].is_valid())
 		{
+			GameFlags &= ~GAMEFLAG_TRYQUIT;
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
 			QMisc.save_menus[QMisc.savemenu_f6 - 1].run();
 			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
