@@ -12759,8 +12759,44 @@ int32_t get_register(const int32_t arg)
 		case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
 		case NPCDATAWEAPONSCRIPT: GET_NPCDATA_VAR_INT32(weaponscript, "WeaponScript"); break;
 		case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
-		case NPCDATAINITD: GET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
-		case NPCDATAWEAPONINITD: GET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
+		case NPCDATAINITD:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "InitD", (ri->npcdataref*10000));
+				ret = -1;
+			}
+			else if ( (unsigned)indx > 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "InitD", indx);
+				ret = -1;
+			}
+			else
+			{
+				ret = (guysbuf[ri->npcdataref].initD[indx]);
+			}
+			break;
+		}
+		case NPCDATAWEAPONINITD:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "WeaponInitD", (ri->npcdataref*10000));
+				ret = -1;
+			}
+			else if ( (unsigned)indx > 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "WeaponInitD", indx);
+				ret = -1;
+			}
+			else
+			{
+				ret = (guysbuf[ri->npcdataref].weap_initiald[indx]);
+			}
+			break;
+		}
 		case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 		case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -25576,7 +25612,7 @@ void set_register(int32_t arg, int32_t value)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
@@ -25588,7 +25624,7 @@ void set_register(int32_t arg, int32_t value)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
@@ -25600,7 +25636,7 @@ void set_register(int32_t arg, int32_t value)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
@@ -25613,11 +25649,11 @@ void set_register(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25630,11 +25666,11 @@ void set_register(int32_t arg, int32_t value)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 				} \
 				else \
 				{ \
@@ -25647,7 +25683,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
@@ -25703,8 +25739,40 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 		case NPCDATAWEAPONSCRIPT: SET_NPCDATA_VAR_INT(weaponscript, "WeaponScript"); break;
 		case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
-		case NPCDATAWEAPONINITD: SET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
-		case NPCDATAINITD: SET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
+		case NPCDATAWEAPONINITD:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "WeaponInitD", (ri->npcdataref*10000));
+			}
+			else if ( (unsigned)indx > 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "WeaponInitD", indx);
+			}
+			else
+			{
+				guysbuf[ri->npcdataref].weap_initiald[indx] = vbound(value,0,214747);
+			}
+			break;
+		}
+		case NPCDATAINITD:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "InitD", (ri->npcdataref*10000));
+			}
+			else if ( (unsigned)indx > 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", "InitD", indx);
+			}
+			else
+			{
+				guysbuf[ri->npcdataref].initD[indx] = vbound(value,0,214747);
+			}
+			break;
+		}
 		case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
 		case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
