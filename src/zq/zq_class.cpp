@@ -6640,7 +6640,7 @@ int32_t load_quest(const char *filename, bool show_progress)
     Map.ClearCommandHistory();
 
 	if (ret == qe_OK)
-		disable_saving = std::string(filename).find(".backups") != std::string::npos;
+		disable_saving = should_open_as_readonly(filename);
 
 	return ret;
 }

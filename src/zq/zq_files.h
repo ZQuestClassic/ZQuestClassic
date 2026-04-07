@@ -2,6 +2,10 @@
 #define _ZQ_FILES_H_
 
 #include "base/zc_alleg.h"
+#include "allegro/file.h"
+#include "base/ints.h"
+#include <string>
+#include <string_view>
 
 extern char qtbuf[31];
 
@@ -17,6 +21,7 @@ int32_t onSaveAs();
 int32_t open_quest(char const* path);
 int32_t customOpen(char const* path);
 char* get_qst_name(char const* def_path = nullptr);
+bool should_open_as_readonly(std::string_view path);
 int32_t onOpen();
 int32_t onRevert();
 int32_t get_import_map_bias();
