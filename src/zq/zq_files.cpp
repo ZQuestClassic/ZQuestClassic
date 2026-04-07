@@ -421,7 +421,7 @@ int32_t onSaveAs()
 	else path = *result;
 #endif
 
-	if (std::string(path).find(".backups") != std::string::npos)
+	if (should_open_as_readonly(path))
 	{
 		displayinfo("ZQuest", "Cannot save in a backups folder.");
 		return D_O_K;
@@ -554,6 +554,15 @@ char* get_qst_name(char const* def_path)
 #endif
 		? temppath : nullptr;
 }
+
+bool should_open_as_readonly(std::string_view path)
+{
+	return
+		path.find(".backups") != std::string::npos ||
+		path.find(".tmp/database") != std::string::npos ||
+		path.find(".tmp\\database") != std::string::npos;
+}
+
 int32_t onOpen()
 {
 	restore_mouse();
