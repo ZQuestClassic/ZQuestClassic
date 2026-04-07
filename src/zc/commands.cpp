@@ -28,6 +28,7 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 		jit_set_enabled(true);
 	zasm_pipeline_init(true);
 
+	set_is_exiting();
 	exit(0);
 }
 
@@ -102,8 +103,10 @@ void zplayer_handle_commands()
 	{
 #ifdef HAS_CURL
 		replay_upload();
+		set_is_exiting();
 		exit(0);
 #else
+		set_is_exiting();
 		exit(1);
 #endif
 	}
