@@ -20,7 +20,7 @@ static ArrayRegistrar NPCDATADEFENSE_registrar(NPCDATADEFENSE, []{
 static ArrayRegistrar NPCDATAINITD_registrar(NPCDATAINITD, []{
 	static ScriptingArray_ObjectMemberCArray<guydata, &guydata::initD> impl;
 	impl.compatSetDefaultValue(-10000);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	impl.setValueTransform(transforms::vbound<0, 214747>);
 	return &impl;
 }());
@@ -28,7 +28,7 @@ static ArrayRegistrar NPCDATAINITD_registrar(NPCDATAINITD, []{
 static ArrayRegistrar NPCDATAWEAPONINITD_registrar(NPCDATAWEAPONINITD, []{
 	static ScriptingArray_ObjectSubMemberCArray<guydata, &guydata::weap_data, &weapon_data::initd> impl;
 	impl.compatSetDefaultValue(-10000);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	impl.setValueTransform(transforms::vbound<0, 214747>);
 	return &impl;
 }());
