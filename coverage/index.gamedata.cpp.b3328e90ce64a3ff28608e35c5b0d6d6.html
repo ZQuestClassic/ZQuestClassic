@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-03 05:10:38</td>
+      <td>2026-04-09 04:37:06</td>
     </tr>
   </table>
 </div>
@@ -118,9 +118,9 @@
     <tr><td><a href="#l733">gamedata::get_cont_percent() (line 733)</a></td><td>called 1031 times, returned 1031 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l613">gamedata::get_continue_dmap() const (line 613)</a></td><td>called 2407 times, returned 2407 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l594">gamedata::get_continue_scrn() const (line 594)</a></td><td>called 4438 times, returned 4438 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l180">gamedata::get_counter(unsigned char) const (line 180)</a></td><td>called 1002614758 times, returned 1002614758 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l180">gamedata::get_counter(unsigned char) const (line 180)</a></td><td>called 992450589 times, returned 992450589 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l829">gamedata::get_darkscr_color() (line 829)</a></td><td>called 31441065 times, returned 31441065 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l269">gamedata::get_dcounter(unsigned char) const (line 269)</a></td><td>called 1676935468 times, returned 1676935468 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l269">gamedata::get_dcounter(unsigned char) const (line 269)</a></td><td>called 1676885257 times, returned 1676885257 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l432">gamedata::get_deaths() const (line 432)</a></td><td>called 604 times, returned 604 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l793">gamedata::get_dither_arg() (line 793)</a></td><td>called 1886612 times, returned 1886612 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l802">gamedata::get_dither_perc() (line 802)</a></td><td>called 1886612 times, returned 1886612 times</td><td>75.0%</td></tr>
@@ -156,7 +156,7 @@
     <tr><td><a href="#l167">gamedata::get_quest() const (line 167)</a></td><td>called 935 times, returned 935 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l944">gamedata::get_regionmapping() (line 944)</a></td><td>called 14880447 times, returned 14880447 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l382">gamedata::get_rupies() (line 382)</a></td><td>called 23316090 times, returned 23316090 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l500">gamedata::get_sbombs() (line 500)</a></td><td>called 27975389 times, returned 27975389 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l500">gamedata::get_sbombs() (line 500)</a></td><td>called 17861431 times, returned 17861431 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l881">gamedata::get_sideswim_down() (line 881)</a></td><td>called 966131 times, returned 966131 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l890">gamedata::get_sideswim_jump() (line 890)</a></td><td>called 21 times, returned 21 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l872">gamedata::get_sideswim_side() (line 872)</a></td><td>called 1932241 times, returned 1932241 times</td><td>100.0%</td></tr>
@@ -1706,7 +1706,7 @@
       <td class="lineno"><a id="l180" href="#l180">180</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1002614758</td>
+      <td class="linecount coveredLine">992450589</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="nf">gamedata::get_counter</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -1723,11 +1723,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1002614758 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 992450589 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1002614758</td>
+      <td class="linecount partialCoveredLine">992450589</td>
       <td class="src partialCoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">c</span><span class="o">&gt;=</span><span class="n">MAX_COUNTERS</span><span class="p">)</span><span class="w">  </span><span class="c1">// Sanity check</span></td>
     </tr>
     <tr class="source-line">
@@ -1748,14 +1748,14 @@
       <td class="lineno"><a id="l185" href="#l185">185</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1002614758</td>
+      <td class="linecount coveredLine">992450589</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_counter</span><span class="p">[</span><span class="n">c</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l186" href="#l186">186</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1002614758</td>
+      <td class="linecount coveredLine">992450589</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2434,7 +2434,7 @@
       <td class="lineno"><a id="l269" href="#l269">269</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1676935468</td>
+      <td class="linecount coveredLine">1676885257</td>
       <td class="src coveredLine"><span class="kt">int16_t</span><span class="w"> </span><span class="nf">gamedata::get_dcounter</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -2451,11 +2451,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1676935468 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1676885257 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1676935468</td>
+      <td class="linecount partialCoveredLine">1676885257</td>
       <td class="src partialCoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">c</span><span class="o">&gt;=</span><span class="n">MAX_COUNTERS</span><span class="p">)</span><span class="w">  </span><span class="c1">// Sanity check</span></td>
     </tr>
     <tr class="source-line">
@@ -2476,14 +2476,14 @@
       <td class="lineno"><a id="l274" href="#l274">274</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1676935468</td>
+      <td class="linecount coveredLine">1676885257</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_dcounter</span><span class="p">[</span><span class="n">c</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l275" href="#l275">275</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1676935468</td>
+      <td class="linecount coveredLine">1676885257</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4132,7 +4132,7 @@
       <td class="lineno"><a id="l500" href="#l500">500</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27975389</td>
+      <td class="linecount coveredLine">17861431</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="nf">gamedata::get_sbombs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -4146,7 +4146,7 @@
       <td class="lineno"><a id="l502" href="#l502">502</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">27975389</td>
+      <td class="linecount coveredLine">17861431</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">get_counter</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
