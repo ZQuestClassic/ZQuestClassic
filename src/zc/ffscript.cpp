@@ -29470,6 +29470,9 @@ void FFScript::runF6Engine()
 		}
 		else if (unsigned(QMisc.savemenu_f6 - 1) < NUM_SAVE_MENUS && QMisc.save_menus[QMisc.savemenu_f6 - 1].is_valid())
 		{
+			clear_bitmap(f6_menu_buf);
+			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+
 			GameFlags &= ~GAMEFLAG_TRYQUIT;
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
 			QMisc.save_menus[QMisc.savemenu_f6 - 1].run();
