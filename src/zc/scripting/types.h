@@ -1,6 +1,7 @@
 #ifndef ZC_SCRIPTING_SCRIPTING_ENGINE_H_
 #define ZC_SCRIPTING_SCRIPTING_ENGINE_H_
 
+#include "base/check.h"
 #include "base/compiler.h"
 #include "base/ints.h"
 #include "zc/scripting/types/directory.h"
@@ -16,46 +17,65 @@
 
 #include <optional>
 
-ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_get_register(int32_t reg)
+enum class EngineSubsystem : uint8_t
 {
-	if (auto r = sprite_get_register(reg))
-		return *r;
-	if (auto r = itemsprite_get_register(reg))
-		return *r;
-	if (auto r = game_get_register(reg))
-		return *r;
-	if (auto r = npc_get_register(reg))
-		return *r;
-	if (auto r = file_get_register(reg))
-		return *r;
-	if (auto r = savemenu_get_register(reg))
-		return *r;
-	if (auto r = directory_get_register(reg))
-		return *r;
-	if (auto r = websocket_get_register(reg))
-		return *r;
-	if (auto r = musicdata_get_register(reg))
-		return *r;
+	None,
+	Directory,
+	File,
+	Game,
+	Item,
+	Music,
+	Npc,
+	SaveMenu,
+	Sprite,
+	Websocket,
+};
 
-	return std::nullopt;
+constexpr int MAX_REGISTER_ID = NUMVARIABLES;
+extern EngineSubsystem register_routing_table[MAX_REGISTER_ID + 1];
+
+void initializeRegisterRoutingTable();
+
+ZC_FORCE_INLINE int32_t scripting_engine_get_register(int32_t reg)
+{
+	if (reg < 0 || reg > MAX_REGISTER_ID)
+		return 0;
+
+	switch (register_routing_table[reg])
+	{
+		case EngineSubsystem::Directory: return directory_get_register(reg);
+		case EngineSubsystem::File: return file_get_register(reg);
+		case EngineSubsystem::Game: return game_get_register(reg);
+		case EngineSubsystem::Item: return itemsprite_get_register(reg);
+		case EngineSubsystem::Music: return musicdata_get_register(reg);
+		case EngineSubsystem::Npc: return npc_get_register(reg);
+		case EngineSubsystem::SaveMenu: return savemenu_get_register(reg);
+		case EngineSubsystem::Sprite: return sprite_get_register(reg);
+		case EngineSubsystem::Websocket: return websocket_get_register(reg);
+    }
+
+	NOTREACHED();
 }
 
-ZC_FORCE_INLINE bool scripting_engine_set_register(int32_t reg, int32_t value)
+ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
 {
-	if (sprite_set_register(reg, value))
-		return true;
-	if (itemsprite_set_register(reg, value))
-		return true;
-	if (game_set_register(reg, value))
-		return true;
-	if (npc_set_register(reg, value))
-		return true;
-	if (savemenu_set_register(reg, value))
-		return true;
-	if (musicdata_set_register(reg, value))
-		return true;
+	if (reg < 0 || reg > MAX_REGISTER_ID)
+		return;
 
-	return false;
+	switch (register_routing_table[reg])
+	{
+		case EngineSubsystem::Directory: directory_set_register(reg, value); return;
+		case EngineSubsystem::File: file_set_register(reg, value); return;
+		case EngineSubsystem::Game: game_set_register(reg, value); return;
+		case EngineSubsystem::Item: itemsprite_set_register(reg, value); return;
+		case EngineSubsystem::Music: musicdata_set_register(reg, value); return;
+		case EngineSubsystem::Npc: npc_set_register(reg, value); return;
+		case EngineSubsystem::SaveMenu: savemenu_set_register(reg, value); return;
+		case EngineSubsystem::Sprite: sprite_set_register(reg, value); return;
+		case EngineSubsystem::Websocket: websocket_set_register(reg, value); return;
+    }
+
+	NOTREACHED();
 }
 
 ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_run_command(word command)

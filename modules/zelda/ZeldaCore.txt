@@ -81,6 +81,7 @@ src/zc/scripting/types/subscreenwidget.cpp
 src/zc/scripting/types/user_object.cpp
 src/zc/scripting/types/weapon.cpp
 src/zc/scripting/types/websocket.cpp
+src/zc/scripting/types.cpp
 
 src/zc/zasm_optimize.cpp
 src/zc/zasm_pipeline.cpp

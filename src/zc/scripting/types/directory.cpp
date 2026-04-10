@@ -1,5 +1,6 @@
 #include "zc/scripting/types/directory.h"
 
+#include "base/check.h"
 #include "base/util.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/common.h"
@@ -120,7 +121,7 @@ void dirs_init()
 	user_dirs.clear();
 }
 
-std::optional<int32_t> directory_get_register(int32_t reg)
+int32_t directory_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 
@@ -133,15 +134,15 @@ std::optional<int32_t> directory_get_register(int32_t reg)
 			break;
 		}
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
 
-bool directory_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
+void directory_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	return false;
+	NOTREACHED();
 }
 
 std::optional<int32_t> directory_run_command(word command)

@@ -75,9 +75,16 @@ void ItemH::clearTemp()
 	tempitem = NULL;
 }
 
-std::optional<int32_t> itemsprite_get_register(int32_t reg)
+int32_t itemsprite_get_register(int32_t reg)
 {
+	switch (reg)
+	{
+		case ITEMCOUNT:
+			return items.Count() * 10000;
+	}
+
 	int32_t ret = 0;
+	item* s = checkItem(GET_REF(itemref));
 
 	switch (reg)
 	{
@@ -87,7 +94,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)s->scale)*100.0;
 			}
@@ -95,7 +102,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 		
 		case ITEMX:
 		{
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				zfix x;
 				auto const& fairy_item = itemsbuf.get(s->id);
@@ -120,7 +127,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 
 		case ITEMY:
 		{
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				zfix y;
 				auto const& fairy_item = itemsbuf.get(s->id);
@@ -144,21 +151,21 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 		break;
 
 		case ITEMSPRITESCRIPT:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)s->script)*10000;
 			}
 			break;
 
 		case ITEMTYPE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)s->type)*10000;
 			}
 			break;
 		
 		case ITEMLEVEL:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)s->lvl)*10000;
 			}
@@ -172,7 +179,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 		}
 		
 		case ITEMSCRIPTUID:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)s->getUID());
 			}
@@ -180,7 +187,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 		
 			
 		case ITEMZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -192,7 +199,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			break;
 			
 		case ITEMJUMP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -200,7 +207,7 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			break;
 		
 		case ITEMFAKEJUMP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
@@ -208,132 +215,132 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			break;
 			
 		case ITEMDRAWTYPE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->drawstyle*10000;
 			}
 			break;
 		  
 		case ITEMGRAVITY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((s->moveflags & move_obeys_grav) ? 10000 : 0);
 			}
 			break;
 			
 		case ITEMID:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->id*10000;
 			}
 			break;
 			
 		case ITEMTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->tile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->scripttile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->scriptflip*10000;
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->pstring*10000;
 			}
 			break;
 		case ITEMPSTRINGFLAGS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->pickup_string_flags*10000;
 			}
 			break;
 			
 		case ITEMOTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->o_tile*10000;
 			}
 			break;
 			
 		case ITEMCSET:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->o_cset&15)*10000;
 			}
 			break;
 			
 		case ITEMFLASHCSET:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->o_cset>>4)*10000;
 			}
 			break;
 			
 		case ITEMFRAMES:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->frames*10000;
 			}
 			break;
 			
 		case ITEMFRAME:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->aframe*10000;
 			}
 			break;
 		
 		case ITEMACLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->aclk*10000;
 			}
 			break;    
 		
 		case ITEMASPEED:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->o_speed*10000;
 			}
 			break;
 			
 		case ITEMDELAY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->o_delay*10000;
 			}
 			break;
 			
 		case ITEMFLIP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->flip*10000;
 			}
 			break;
 			
 		case ITEMFLASH:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->flash*10000;
 			}
 			break;
 			
 		case ITEMHXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->hxofs)*10000;
 			}
@@ -345,42 +352,42 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->rotation)*10000;
 			}
 			break;
 
 		case ITEMHYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->hyofs)*10000;
 			}
 			break;
 			
 		case ITEMXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)(s->xofs))*10000;
 			}
 			break;
 			
 		case ITEMYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
 		
 		case ITEMSHADOWXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)(s->shadowyofs))*10000;
 			}
 			break;
 			
 		case ITEMSHADOWYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)(s->shadowxofs))*10000;
 			}
@@ -388,95 +395,91 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			
 			
 		case ITEMZOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=((int32_t)(s->zofs))*10000;
 			}
 			break;
 			
 		case ITEMHXSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->hit_width)*10000;
 			}
 			break;
 			
 		case ITEMHYSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->hit_height)*10000;
 			}
 			break;
 			
 		case ITEMHZSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->hzsz)*10000;
 			}
 			break;
 			
 		case ITEMTXSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->txsz)*10000;
 			}
 			break;
 			
 		case ITEMTYSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=(s->tysz)*10000;
 			}
 			break;
 			
-		case ITEMCOUNT:
-			ret=(items.Count())*10000;
-			break;
-			
 		case ITEMEXTEND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->extend*10000;
 			}
 			break;
 			
 		case ITEMPICKUP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->pickup*10000;
 			}
 			break;
 
 		case ITEMFALLCLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->fallclk * 10000;
 			}
 			break;
 		
 		case ITEMFALLCMB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->fallCombo * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->drownclk * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCMB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->drownCombo * 10000;
 			}
 			break;
 		
 		case ITEMFAKEZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
@@ -488,94 +491,96 @@ std::optional<int32_t> itemsprite_get_register(int32_t reg)
 			break;
 
 		case ITEMGLOWRAD:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->glowRad * 10000;
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->glowShape * 10000;
 			}
 			break;
 			
 		case ITEMDIR:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->dir * 10000;
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = int32_t(s->do_animation) * 10000;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = int32_t(s->spr_shadow) * 10000;
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = int32_t(s->from_dropset) * 10000;
 			}
 			break;
 		case ITMSWHOOKED:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case ITEMFORCEGRAB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret = s->get_forcegrab() ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOSOUND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->noSound ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOHOLDSOUND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				ret=s->noHoldSound ? 10000 : 0;
 			}
 			break;
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
 
-bool itemsprite_set_register(int32_t reg, int32_t value)
+void itemsprite_set_register(int32_t reg, int32_t value)
 {
+	item* s = checkItem(GET_REF(itemref));
+
 	switch (reg)
 	{
 		case ITEMTYPE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->type)=value/10000;
+				s->type=value/10000;
 			}
 			
 			break;
 		
 		case ITEMLEVEL:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->lvl)=value/10000;
+				s->lvl=value/10000;
 			}
 			
 			break;
@@ -588,7 +593,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 		}
 		
 		case ITEMX:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
@@ -604,7 +609,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 
 		case ITEMY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
@@ -621,7 +626,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 		
 		case ITEMSPRITESCRIPT:
 			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, GET_REF(itemref));
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				(s->script)=(value/10000);
 			}
@@ -633,7 +638,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				(s->scale)=(zfix)(value/100.0);
 			}
@@ -641,7 +646,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				(s->z)=(zfix)(value/10000);
 				
@@ -652,178 +657,178 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMJUMP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->fall)=zslongToFix(value)*-100;
+				(s->fall)=zslongToFix(value)*-100;
 			}
 			
 			break;
 		
 		case ITEMFAKEJUMP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->fakefall)=zslongToFix(value)*-100;
+				(s->fakefall)=zslongToFix(value)*-100;
 			}
 			
 			break;
 			
 		case ITEMDRAWTYPE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->drawstyle)=value/10000;
+				(s->drawstyle)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMGRAVITY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				if(value)
-					((item *)s)->moveflags |= move_obeys_grav;
+					s->moveflags |= move_obeys_grav;
 				else
-					((item *)s)->moveflags &= ~move_obeys_grav;
+					s->moveflags &= ~move_obeys_grav;
 			}
 			
 			break;
 			
 		case ITEMID:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->id)=value/10000;
+				(s->id)=value/10000;
 				flushItemCache();
 			}
 			
 			break;
 			
 		case ITEMTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->tile)=vbound(value/10000,0,NEWMAXTILES-1);
+				(s->tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
 			
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
+				(s->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->scriptflip)=vbound((value/10000),-1,127);
+				(s->scriptflip)=vbound((value/10000),-1,127);
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->pstring)=vbound(value/10000,0,(msg_count-1));
+				(s->pstring)=vbound(value/10000,0,(msg_count-1));
 			}
 			
 			break;
 		
 		case ITEMPSTRINGFLAGS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->pickup_string_flags)=vbound(value/10000, 0, 214748);
+				(s->pickup_string_flags)=vbound(value/10000, 0, 214748);
 			}
 			
 			break;
 			
 		case ITEMOTILE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->o_tile)=vbound(value/10000,0,NEWMAXTILES-1);
+				(s->o_tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
 			
 			break;
 			
 		case ITEMCSET:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->o_cset) = (((item *)s)->o_cset & ~15) | ((value/10000)&15);
-				(((item *)s)->cs) = (((item *)s)->o_cset & 15);
+				(s->o_cset) = (s->o_cset & ~15) | ((value/10000)&15);
+				(s->cs) = (s->o_cset & 15);
 			}
 			
 			break;
 			
 		case ITEMFLASHCSET:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->o_cset) = ((value/10000)<<4) | (((item *)s)->o_cset & 15);
+				(s->o_cset) = ((value/10000)<<4) | (s->o_cset & 15);
 			}
 			
 			break;
 			
 		case ITEMFRAMES:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->frames)=value/10000;
+				(s->frames)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMFRAME:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->aframe)=value/10000;
+				(s->aframe)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMASPEED:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->o_speed)=value/10000;
+				(s->o_speed)=value/10000;
 			}
 			
 			break;
 		
 		 case ITEMACLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->aclk)=value/10000;
+				(s->aclk)=value/10000;
 			}
 			
 			break;
 		
 		case ITEMDELAY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->o_delay)=value/10000;
+				(s->o_delay)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMFLIP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->flip)=value/10000;
+				(s->flip)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMFLASH:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->flash)= (value/10000)?1:0;
+				(s->flash)= (value/10000)?1:0;
 			}
 			
 			break;
 			
 		case ITEMEXTEND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
-				(((item *)s)->extend)=value/10000;
+				(s->extend)=value/10000;
 			}
 			
 			break;
 			
 		case ITEMHXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->hxofs=value/10000;
 			}
@@ -836,7 +841,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->rotation=value/10000;
 			}
@@ -844,7 +849,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMHYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->hyofs=value/10000;
 			}
@@ -852,7 +857,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->xofs=(zfix)(value/10000);
 			}
@@ -860,7 +865,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->yofs=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			}
@@ -868,7 +873,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMSHADOWXOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->shadowxofs=(zfix)(value/10000);
 			}
@@ -876,7 +881,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMSHADOWYOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->shadowyofs=(zfix)(value/10000);
 			}
@@ -884,7 +889,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMZOFS:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->zofs=(zfix)(value/10000);
 			}
@@ -892,7 +897,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMHXSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->hit_width=value/10000;
 			}
@@ -900,7 +905,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMHYSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->hit_height=value/10000;
 			}
@@ -908,7 +913,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMHZSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->hzsz=value/10000;
 			}
@@ -916,7 +921,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMTXSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->txsz=vbound((value/10000),1,20);
 			}
@@ -924,7 +929,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMTYSZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->tysz=vbound((value/10000),1,20);
 			}
@@ -932,7 +937,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMPICKUP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				int32_t newpickup = value/10000;
 				// Values that the questmaker should not use, ever
@@ -1033,7 +1038,7 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 
 		case ITEMFALLCLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				if(s->fallclk != 0 && value == 0)
 				{
@@ -1045,13 +1050,13 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		case ITEMFALLCMB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMDROWNCLK:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				if(s->drownclk != 0 && value == 0)
 				{
@@ -1063,13 +1068,13 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		case ITEMDROWNCMB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMFAKEZ:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				(s->fakez)=(zfix)(value/10000);
 				
@@ -1080,41 +1085,41 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMGLOWRAD:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMDIR:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->dir=(value/10000);
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->do_animation=value;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->spr_shadow=vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->from_dropset=vbound(value/10000,-1,255);
 			}
@@ -1122,28 +1127,26 @@ bool itemsprite_set_register(int32_t reg, int32_t value)
 		case ITMSWHOOKED:
 			break; //read-only
 		case ITEMFORCEGRAB:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->set_forcegrab(value!=0);
 			}
 			break;
 		case ITEMNOSOUND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->noSound = (value!=0);
 			}
 			break;
 		case ITEMNOHOLDSOUND:
-			if (auto s = checkItem(GET_REF(itemref)))
+			if (s)
 			{
 				s->noHoldSound = (value!=0);
 			}
 			break;
 
-		default: return false;
+		default: NOTREACHED();
 	}
-
-	return true;
 }
 
 std::optional<int32_t> itemsprite_run_command(word command)

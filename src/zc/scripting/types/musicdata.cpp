@@ -20,7 +20,7 @@ AdvancedMusic* checkMusic(int32_t ref, bool skipError)
 	return &quest_music[ref-1];
 }
 
-std::optional<int32_t> musicdata_get_register(int32_t reg)
+int32_t musicdata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 	int ref = GET_REF(musicref);
@@ -96,14 +96,16 @@ std::optional<int32_t> musicdata_get_register(int32_t reg)
 			break;
 		}
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
-bool musicdata_set_register(int32_t reg, int32_t value)
+
+void musicdata_set_register(int32_t reg, int32_t value)
 {
 	int ref = GET_REF(musicref);
+
 	switch (reg)
 	{
 		case MUSICDATA_MIDI:
@@ -189,10 +191,10 @@ bool musicdata_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		
-		default: return false;
+		default: NOTREACHED();
 	}
-	return true;
 }
+
 std::optional<int32_t> musicdata_run_command(word command)
 {
 	extern ScriptType curScriptType;

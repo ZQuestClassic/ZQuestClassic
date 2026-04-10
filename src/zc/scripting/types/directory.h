@@ -25,8 +25,8 @@ struct user_dir : public user_abstract_obj
 void dirs_init();
 user_dir* checkDir(uint32_t id,  bool skipError = false);
 
-std::optional<int32_t> directory_get_register(int32_t reg);
-bool directory_set_register(int32_t reg, int32_t value);
+int32_t directory_get_register(int32_t reg);
+void directory_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> directory_run_command(word command);
 
 #endif

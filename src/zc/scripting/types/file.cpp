@@ -1,5 +1,6 @@
 #include "zc/scripting/types/file.h"
 
+#include "base/check.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/common.h"
@@ -556,7 +557,7 @@ user_file* checkFile(int32_t ref, bool req_file, bool skipError)
 	return file;
 }
 
-std::optional<int32_t> file_get_register(int32_t reg)
+int32_t file_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 
@@ -584,15 +585,15 @@ std::optional<int32_t> file_get_register(int32_t reg)
 			break;
 		}
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
 
-bool file_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
+void file_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
 {
-	return false;
+	NOTREACHED();
 }
 
 std::optional<int32_t> file_run_command(word command)

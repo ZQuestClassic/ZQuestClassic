@@ -28,7 +28,8 @@ struct user_websocket : public user_abstract_obj
 user_websocket* checkWebsocket(int32_t ref, bool skipError = false);
 
 void websocket_init();
-std::optional<int32_t> websocket_get_register(int32_t reg);
+int32_t websocket_get_register(int32_t reg);
+void websocket_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> websocket_run_command(word command);
 
 #endif

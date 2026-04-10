@@ -1,4 +1,5 @@
 #include "zc/scripting/types/savemenu.h"
+#include "base/check.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
 
@@ -19,141 +20,142 @@ SaveMenu* checkSaveMenu(int32_t ref, bool skipError)
 	return nullptr;
 }
 
-std::optional<int32_t> savemenu_get_register(int32_t reg)
+int32_t savemenu_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref));
 
 	switch (reg)
 	{
 		case SAVEMENU_CURSORTILE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->cursor_tile * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_CURSORCSET:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->cursor_cset * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_BGCOLOR:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->bg_color * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_BGTILE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->bg_tile * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_BGCSET:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->bg_cset * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_BGTW:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->bg_tw * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_BGTH:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->bg_th * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_SFX_CURSOR:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->cursor_sfx * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_SFX_CHOOSE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->choose_sfx * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_HSPACE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->hspace * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_VSPACE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->vspace * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_OPTX:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->opt_x * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_OPTY:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->opt_y * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_TEXT_ALIGN:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->text_align * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_TEXT_BOX_ALIGN:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->textbox_align * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_CLOSE_FRAMES:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->close_frames * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_CLOSE_FLASH_RATE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->close_flash_rate * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_MUSIC:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->music;
 			break;
 		}
 		case SAVEMENU_MIDI:
 		{
 			ret = -10000L;
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 			{
 				if (!menu->music)
 					ret = 0;
@@ -164,148 +166,151 @@ std::optional<int32_t> savemenu_get_register(int32_t reg)
 		}
 		case SAVEMENU_NUM_OPTIONS:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = menu->options.size() * 10000L;
 			else ret = -10000L;
 			break;
 		}
 		case SAVEMENU_ID:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				ret = ri->savemenuref * 10000L;
 			else ret = -10000L;
 			break;
 		}
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
-bool savemenu_set_register(int32_t reg, int32_t value)
+
+void savemenu_set_register(int32_t reg, int32_t value)
 {
+	SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref));
+
 	switch (reg)
 	{
 		case SAVEMENU_CURSORTILE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->cursor_tile = vbound(value / 10000L, 0, NEWMAXTILES-1);
 			break;
 		}
 		case SAVEMENU_CURSORCSET:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->cursor_cset = vbound(value / 10000L, 0, 0xF);
 			break;
 		}
 		case SAVEMENU_BGCOLOR:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->bg_color = vbound(value / 10000L, 0, 0xFF);
 			break;
 		}
 		case SAVEMENU_BGTILE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->bg_tile = vbound(value / 10000, 0, NEWMAXTILES-1);
 			break;
 		}
 		case SAVEMENU_BGCSET:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->bg_cset = vbound(value / 10000, 0, 0xF);
 			break;
 		}
 		case SAVEMENU_BGTW:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->bg_tw = vbound(value / 10000, 0, 16);
 			break;
 		}
 		case SAVEMENU_BGTH:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->bg_th = vbound(value / 10000, 0, 16);
 			break;
 		}
 		case SAVEMENU_SFX_CURSOR:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->cursor_sfx = vbound(value / 10000L, 0, MAX_SFX);
 			break;
 		}
 		case SAVEMENU_SFX_CHOOSE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->choose_sfx = vbound(value / 10000L, 0, MAX_SFX);
 			break;
 		}
 		case SAVEMENU_HSPACE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->hspace = vbound(value / 10000L, 0, 255);
 			break;
 		}
 		case SAVEMENU_VSPACE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->vspace = vbound(value / 10000L, 0, 255);
 			break;
 		}
 		case SAVEMENU_OPTX:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->opt_x = vbound(value / 10000L, 0, 255);
 			break;
 		}
 		case SAVEMENU_OPTY:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->opt_y = vbound(value / 10000L, 0, 255);
 			break;
 		}
 		case SAVEMENU_TEXT_ALIGN:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->text_align = vbound(value / 10000L, 0, 2);
 			break;
 		}
 		case SAVEMENU_TEXT_BOX_ALIGN:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->textbox_align = vbound(value / 10000L, 0, 2);
 			break;
 		}
 		case SAVEMENU_CLOSE_FRAMES:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->close_frames = vbound(value / 10000L, 0, 65535);
 			break;
 		}
 		case SAVEMENU_CLOSE_FLASH_RATE:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->close_flash_rate = vbound(value / 10000L, 0, 255);
 			break;
 		}
 		case SAVEMENU_MUSIC:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				if (value == 0 || checkMusic(value))
 					menu->music = value;
 			break;
 		}
 		case SAVEMENU_MIDI:
 		{
-			if (SaveMenu* menu = checkSaveMenu(GET_REF(savemenuref)))
+			if (menu)
 				menu->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4)));
 			break;
 		}
 		
-		default: return false;
+		default: NOTREACHED();
 	}
-	return true;
 }
+
 std::optional<int32_t> savemenu_run_command(word command)
 {
 	extern ScriptType curScriptType;

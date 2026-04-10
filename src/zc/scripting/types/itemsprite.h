@@ -16,8 +16,8 @@ public:
 	static void clearTemp();
 };
 
-std::optional<int32_t> itemsprite_get_register(int32_t reg);
-bool itemsprite_set_register(int32_t reg, int32_t value);
+int32_t itemsprite_get_register(int32_t reg);
+void itemsprite_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> itemsprite_run_command(word command);
 
 #endif

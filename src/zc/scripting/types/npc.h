@@ -29,8 +29,8 @@ private:
 	static enemy *tempenemy;
 };
 
-std::optional<int32_t> npc_get_register(int32_t reg);
-bool npc_set_register(int32_t reg, int32_t value);
+int32_t npc_get_register(int32_t reg);
+void npc_set_register(int32_t reg, int32_t value);
 std::optional<int32_t> npc_run_command(word command);
 
 #endif

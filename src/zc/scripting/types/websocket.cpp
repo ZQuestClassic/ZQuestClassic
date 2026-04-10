@@ -1,4 +1,5 @@
 #include "zc/scripting/types/websocket.h"
+#include "base/check.h"
 #include "core/zdefs.h"
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
@@ -83,15 +84,15 @@ void websocket_init()
 	websocket_pool_destroy();
 }
 
-std::optional<int32_t> websocket_get_register(int32_t reg)
+int32_t websocket_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	auto ws = user_websockets.check(GET_REF(websocketref));
 
 	switch (reg)
 	{
 		case WEBSOCKET_STATE:
 		{
-			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
 			ret = (int)ws->get_state();
@@ -99,7 +100,6 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		}
 		case WEBSOCKET_HAS_MESSAGE:
 		{
-			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
 			ret = ws->has_message() * 10000;
@@ -107,16 +107,20 @@ std::optional<int32_t> websocket_get_register(int32_t reg)
 		}
 		case WEBSOCKET_MESSAGE_TYPE:
 		{
-			auto ws = user_websockets.check(GET_REF(websocketref));
 			if (!ws) break;
 
 			ret = (int)ws->last_message_type;
 			break;
 		}
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
+}
+
+void websocket_set_register([[maybe_unused]] int32_t reg, [[maybe_unused]] int32_t value)
+{
+	NOTREACHED();
 }
 
 std::optional<int32_t> websocket_run_command(word command)

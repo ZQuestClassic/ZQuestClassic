@@ -39,7 +39,10 @@ void HandleCheckError(const char* file, int line, const char* func, const char* 
 #define DCHECK_LAYER_NEG1_INDEX(l) DCHECK(l >= -1 && l < 6)
 
 #ifndef NOTREACHED
-#define NOTREACHED() CHECK(0)
+#define NOTREACHED() {\
+	HandleCheckError(__FILE__, __LINE__, __func__, "unexpected code path");\
+	abort();\
+}
 #endif
 
 #endif

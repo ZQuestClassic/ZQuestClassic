@@ -676,7 +676,7 @@ void do_repairshield()
 
 } // end namespace
 
-std::optional<int32_t> npc_get_register(int32_t reg)
+int32_t npc_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 
@@ -1298,13 +1298,13 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 		case NPCFIRESFX:
 			GET_NPC_VAR_INT(firesfx) break;
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
 
-bool npc_set_register(int32_t reg, int32_t value)
+void npc_set_register(int32_t reg, int32_t value)
 {
 	switch (reg)
 	{
@@ -1925,10 +1925,8 @@ bool npc_set_register(int32_t reg, int32_t value)
 			}
 			break;
 
-		default: return false;
+		default: NOTREACHED();
 	}
-
-	return true;
 }
 
 std::optional<int32_t> npc_run_command(word command)

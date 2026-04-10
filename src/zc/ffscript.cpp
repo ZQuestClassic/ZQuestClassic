@@ -10391,8 +10391,7 @@ int32_t get_register(int32_t arg)
 				int ref = ref_arg ? get_ref(ref_arg) : 0;
 				ret = zasm_array_get(arg, ref, GET_D(rINDEX) / 10000);
 			}
-			else if (auto r = scripting_engine_get_register(arg))
-				ret = *r;
+			else ret = scripting_engine_get_register(arg);
 			break;
 		}
 	}
@@ -29036,6 +29035,7 @@ int32_t FFScript::getHeroAction()
 
 void FFScript::init(bool for_continue)
 {
+	initializeRegisterRoutingTable();
 	apply_qr_rules();
 	eventData.clear();
 	countGenScripts();

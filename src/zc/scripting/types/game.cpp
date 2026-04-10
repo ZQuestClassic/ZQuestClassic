@@ -300,7 +300,7 @@ static auto ResolveGameScreens(const char* context)
 	return result;
 }
 
-std::optional<int32_t> game_get_register(int32_t reg)
+int32_t game_get_register(int32_t reg)
 {
 	int32_t ret = 0;
 
@@ -510,13 +510,13 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 		}
 
-		default: return std::nullopt;
+		default: NOTREACHED();
 	}
 
 	return ret;
 }
 
-bool game_set_register(int32_t reg, int32_t value)
+void game_set_register(int32_t reg, int32_t value)
 {
 	switch (reg)
 	{
@@ -763,10 +763,8 @@ bool game_set_register(int32_t reg, int32_t value)
 		}
 		break;
 
-		default: return false;
+		default: NOTREACHED();
 	}
-
-	return true;
 }
 
 std::optional<int32_t> game_run_command(word command)
