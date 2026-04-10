@@ -2188,7 +2188,8 @@ static bool do_save_games(std::string& err)
 	{
 		auto dir = get_save_folder_path() / "current_replay";
 		fs::create_directories(dir);
-		saves[currgame].path = util::create_new_file_path(dir, "zc", ".sav", true);
+		std::string prefix = "zc_frame_" + std::to_string(replay_get_frame());
+		saves[currgame].path = util::create_new_file_path(dir, prefix, ".sav");
 		saves[currgame].write_to_disk = true;
 		if (!_write_save(&saves[currgame], err))
 			return false;

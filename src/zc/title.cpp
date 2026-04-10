@@ -1945,7 +1945,7 @@ void game_over(int32_t type)
 			
 			game->save_objects(ZScriptVersion::gc_arrays());
 			saves_write();
-			replay_step_comment("save game");
+			replay_step_comment("save game"); // TODO: not actually needed now. Could remove.
 		}
 
 		// Anything but Continue.

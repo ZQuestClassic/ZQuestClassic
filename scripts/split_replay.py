@@ -1,14 +1,15 @@
-# Splits a replay into individual replays at every point where the original saved.
+# Splits a replay into individual replays at every point where the original hit init_game.
 #   python scripts/split_replay.py --replay tests/replays/nes_remastered.zplay --output-folder tests/replays/nes_remastered
 #
 # This helps break up really long replays which can be hard to debug when an assert fails really deep into it.
 # Until the day where we can generate arbitrary save states (probably at specific boundraries - like in loadscr),
-# splitting at engine-game over save points is the best we can do.
+# splitting at init_game is the best we can do.
 #
 # If splitting a replay test, be sure to delete the original and the qst file (which was copied into the output folder).
 
 import argparse
 import os
+import re
 import shutil
 
 from dataclasses import dataclass, field
@@ -32,7 +33,8 @@ class ReplayStep:
 @dataclass
 class ReplayPart:
     steps: list[ReplayStep] = field(default_factory=list)
-    save_index: int = None
+    absolute_start_frame: int = 0
+    save_file: Optional[Path] = None
     last_key_step: Optional[ReplayStep] = None
 
 
@@ -47,7 +49,7 @@ def split_replay(
     current_part = replay_parts[0]
     previous_part = None
     qst_path = Path()
-    num_saves = 0
+
     with replay_path.open('r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
@@ -66,36 +68,22 @@ def split_replay(
                 if previous_part and previous_part.last_key_step.data == step.data:
                     continue
 
-            # We can only split at points where the game engine writes everything to disk via a save file,
-            # in the game_over function.
-            if (
-                type == 'C'
-                and data == 'init_game'
-                and step.frame != 0
-                and current_part.steps[-1].data == 'save game'
-            ):
-                # Don't make sub-replays with too little frames. Too many small replays might make more overhead than it saves.
+            # We split strictly at init_game.
+            # We track the absolute start frame so we can find the matching .sav file later.
+            if type == 'C' and data == 'init_game' and step.frame != 0:
                 if len(current_part.steps) > split_threshold:
                     previous_part = current_part
-                    current_part = ReplayPart()
-                    current_part.save_index = num_saves
+                    current_part = ReplayPart(absolute_start_frame=step.frame)
                     replay_parts.append(current_part)
-                num_saves += 1
 
             current_part.steps.append(step)
 
     total = len(replay_parts)
     if total == 1:
         raise Exception(
-            'Nothing to split. Either the replay file has no saves, or it is missing "save game" comments (in which case you must update it)'
+            'Nothing to split. Either the replay file has no "init_game" commands, or they did not meet the split threshold.'
         )
     print(f'will split into {total} replays')
-    maxcol1 = len(str(total))
-    maxcol2 = 5
-    for i, part in enumerate(replay_parts):
-        col1 = str(i + 1).rjust(maxcol1, ' ')
-        col2 = str(part.save_index).rjust(maxcol2, ' ')
-        print(f'[{col1}] save {col2} {len(part.steps)}')
 
     build_folder = run_target.get_build_folder()
     saves_folder = build_folder / 'saves/current_replay'
@@ -115,14 +103,49 @@ def split_replay(
             ],
             build_folder,
         )
-    save_files = sorted(list(saves_folder.rglob('*.sav')))
-    if num_saves != len(save_files):
-        print(f'expected {num_saves} save files, but got {len(save_files)}')
+
+    # Find all .sav files and extract their frame numbers from the filename (e.g. zc_frame_28709.sav).
+    save_files_map = []
+    for p in saves_folder.rglob('*.sav'):
+        match = re.search(r'_frame_(\d+)', p.name)
+        if match:
+            frame = int(match.group(1))
+            save_files_map.append((frame, p))
+        else:
+            raise Exception(f'Could not parse frame number from save file: {p.name}')
+
+    # Sort saves by frame ascending to ensure we always grab the latest valid one.
+    save_files_map.sort(key=lambda x: x[0])
+
+    # Assign the correct save file to each part.
+    for i, part in enumerate(replay_parts):
+        if i == 0:
+            continue  # Part 0 uses no save file.
+
+        # Find the most recent save file generated before (or exactly at) this part's start frame.
+        assigned_save = None
+        for save_frame, save_path in save_files_map:
+            if save_frame <= part.absolute_start_frame:
+                assigned_save = save_path
+            else:
+                break  # Since it's sorted, we can stop checking once save_frame exceeds our start frame.
+
+        part.save_file = assigned_save
+        if not part.save_file:
+            raise Exception(
+                f'No save file found for segment starting at frame {part.absolute_start_frame}'
+            )
+
+    maxcol1 = len(str(total))
+    for i, part in enumerate(replay_parts):
+        col1 = str(i + 1).rjust(maxcol1, ' ')
+        save_name = part.save_file.name if part.save_file else 'None'
+        print(f'[{col1}] length: {len(part.steps)} | save: {save_name}')
 
     output_folder.mkdir(exist_ok=True)
-    # qst file may not be relative to the replay file
     if qst_path.exists():
         shutil.copy(qst_path, output_folder)
+
     most_recent_key_step = None
     for i, part in enumerate(replay_parts):
         is_first = i == 0
@@ -156,26 +179,22 @@ def split_replay(
                     last_hero_position = step.data.replace('h ', '')
                     break
 
-            print(output_replay.name, has_frame_zero_position, last_hero_position)
             if not has_frame_zero_position and last_hero_position:
-                if last_hero_position:
-                    # Insert just after the `scr=` comment.
-                    inserted = False
-                    for j, step in enumerate(part.steps):
-                        if step.frame != 0:
-                            break
-
-                        if step.type == 'C' and step.data.startswith('scr='):
-                            part.steps.insert(
-                                j + 1, ReplayStep('C', 0, f'h {last_hero_position}')
-                            )
-                            inserted = True
-                            break
-
-                    if not inserted:
-                        raise Exception(
-                            f'[{output_replay.name}] could not find where to insert hero position'
+                inserted = False
+                for j, step in enumerate(part.steps):
+                    if step.frame != 0:
+                        break
+                    if step.type == 'C' and step.data.startswith('scr='):
+                        part.steps.insert(
+                            j + 1, ReplayStep('C', 0, f'h {last_hero_position}')
                         )
+                        inserted = True
+                        break
+
+                if not inserted:
+                    raise Exception(
+                        f'[{output_replay.name}] could not find where to insert hero position'
+                    )
 
         with output_replay.open('w', newline='\n') as f:
             for line in meta:
@@ -191,16 +210,12 @@ def split_replay(
                 f.write(line)
                 f.write('\n')
                 if line.startswith('M qst '):
-                    if not is_first:
+                    if not is_first and part.save_file:
                         save_file_name = f'{output_replay.stem}.sav'
                         f.write('M sav ')
                         f.write(save_file_name)
                         f.write('\n')
-                        if save_files:
-                            shutil.copy(
-                                save_files[part.save_index],
-                                output_folder / save_file_name,
-                            )
+                        shutil.copy(part.save_file, output_folder / save_file_name)
 
                     # Not used yet, but perhaps would be useful to have a feature to continue playing the next replay
                     # in a series.
@@ -210,10 +225,10 @@ def split_replay(
                         f.write(f'{replay_path.stem}_{number_part}.zplay')
                         f.write('\n')
 
-                    # For debug purposes, in case you need to compare a frame with the original.
-                    f.write('M parent_replay_frame_offset ')
-                    f.write(str(first_frame))
-                    f.write('\n')
+                    if first_frame:
+                        f.write('M parent_replay_frame_offset ')
+                        f.write(str(first_frame))
+                        f.write('\n')
 
             if most_recent_key_step:
                 f.write(
