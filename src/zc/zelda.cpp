@@ -3296,6 +3296,7 @@ void game_loop()
 							{
 								QMisc.save_menus[QMisc.savemenu_game_over-1].run();
 								// Quit should be changed to something else by this menu, always
+								replay_step_quit(Quit);
 							}
 						}
 						
