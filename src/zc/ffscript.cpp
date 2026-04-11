@@ -4402,11 +4402,6 @@ int32_t get_register(int32_t arg)
 			}
 			ret=(itemsbuf.get(GET_REF(itemdataref)).frames)*10000;
 			break;
-		/*
-		case IDATAFRAME:
-			ret=(itemsbuf.get(ri->idata).frame)*10000;
-			break;
-		*/ 
 		//->A.Speed
 		case IDATAASPEED:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -5920,10 +5915,6 @@ int32_t get_register(int32_t arg)
 		case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics); break;	//W
 		case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap); break;	//B
 		case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr); break;	//B
-		case SCREENDATAVIEWX: 		break;//GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		break;//GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	break;//GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	break;//GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x); break;	//B
 		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y); break;	//B
 		//Number of ffcs that are in use (have valid data
@@ -5948,25 +5939,6 @@ int32_t get_register(int32_t arg)
 			{
 				ret = get_script_engine_data(ScriptType::FFC, indx).initialized ? 10000 : 0;
 			}
-		}
-		break;
-
-		case SCREENDATASCRIPTENTRY:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
-			ret = -10000;
-		}
-		break;
-		case SCREENDATASCRIPTOCCUPANCY:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
-			ret = -10000;
-		}
-		break;
-		case SCREENDATASCRIPTEXIT:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
-			ret = -10000;
 		}
 		break;
 
@@ -7161,7 +7133,6 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-		case COMBODFOO:			break;						//W
 		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames); break;					//C
 		case COMBODNEXTD:		GET_COMBO_VAR_INT(nextcombo); break;					//W
@@ -12204,11 +12175,6 @@ void set_register(int32_t arg, int32_t value)
 
 			itemsbuf[ri->itemdataref].csets = (itemsbuf[ri->itemdataref].csets & 0xF) | (vbound(value/10000,0,15)<<4);
 			break;
-		/*
-		case IDATAFRAME:
-			itemsbuf[ri->idata].frame=value/10000;
-			break;
-		*/
 		//A.Frames
 		case IDATAFRAMES:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -13594,10 +13560,6 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 		case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 		case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
-		case SCREENDATAVIEWX: 		break;//SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		break;//SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	break;//SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	break;//SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
@@ -13634,22 +13596,6 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
-		}
-		break;
-
-		case SCREENDATASCRIPTENTRY:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
-		}
-		break;
-		case SCREENDATASCRIPTOCCUPANCY:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
-		}
-		break;
-		case SCREENDATASCRIPTEXIT:
-		{
-			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
 		}
 		break;
 
@@ -14765,7 +14711,6 @@ void set_register(int32_t arg, int32_t value)
 			screen_combo_modify_post(GET_REF(combodataref));
 			break;
 		}
-		case COMBODFOO:		break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames); break;						//C
 		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo); break;						//W
 		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset); break;					//C
