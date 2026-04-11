@@ -1,3 +1,4 @@
+#include "components/zasm/defines.h"
 #include "zc/scripting/arrays.h"
 
 // weapon arrays.

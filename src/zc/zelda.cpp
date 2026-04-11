@@ -52,6 +52,7 @@
 #include "zc/saves.h"
 #include "zc/script_debug.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/types/genericdata.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"

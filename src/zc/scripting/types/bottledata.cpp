@@ -1,4 +1,68 @@
+#include "zc/scripting/types/bottledata.h"
+
+#include "base/check.h"
+#include "components/zasm/defines.h"
+#include "core/misctypes.h"
+#include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+
+extern refInfo *ri;
+extern int32_t sarg1;
+extern int32_t sarg2;
+extern int32_t sarg3;
+
+bottletype* checkBottleData(int32_t ref, bool skipError)
+{
+	if(ref > 0 && ref <= 64)
+	{
+		return &QMisc.bottle_types[ref-1];
+	}
+	if(skipError) return NULL;
+
+	scripting_log_error_with_context("Invalid {} using UID = {}", "bottledata", ref);
+	return NULL;
+}
+
+int32_t bottledata_get_register(int32_t reg)
+{
+	int32_t ret = 0;
+
+	switch (reg)
+	{
+		case BOTTLENEXT:
+		{
+			if(bottletype* ptr = checkBottleData(GET_REF(bottletyperef)))
+			{
+				ret = 10000L * ptr->next_type;
+			}
+			else ret = -10000L;
+		}
+		break;
+
+		default:
+			NOTREACHED();
+	}
+
+	return ret;
+}
+
+void bottledata_set_register(int32_t reg, int32_t value)
+{
+	switch (reg)
+	{
+		case BOTTLENEXT:
+		{
+			if(bottletype* ptr = checkBottleData(GET_REF(bottletyperef)))
+			{
+				ptr->next_type = vbound(value/10000, 0, 64);
+			}
+		}
+		break;
+
+		default:
+			NOTREACHED();
+	}
+}
 
 // bottledata arrays.
 

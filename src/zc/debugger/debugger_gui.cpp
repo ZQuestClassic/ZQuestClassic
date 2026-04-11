@@ -7,7 +7,7 @@
 #include "components/zasm/debug_data.h"
 #include "components/zasm/eval.h"
 #include "zc/debugger/debugger.h"
-#include "zc/ffscript.h"
+#include "zc/scripting/types/bitmap.h"
 #include "imgui.h"
 #include "imgui_impl_allegro5.h"
 #include "../third_party/ImGuiColorTextEdit/src/TextEditor.h"

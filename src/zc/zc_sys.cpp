@@ -25,6 +25,7 @@
 #include "zc/debugger/debugger.h"
 #include "zc/frame_timings.h"
 #include "zc/replay_upload.h"
+#include "zc/scripting/types/genericdata.h"
 #include "zc/zasm_pipeline.h"
 #include "zc/zc_init.h"
 #include "init.h"

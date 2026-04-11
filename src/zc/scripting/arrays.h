@@ -6,8 +6,12 @@
 #include "core/combo.h"
 #include "base/general.h"
 #include "core/qrs.h"
+#include "ffc.h"
 #include "new_subscr.h"
-#include "zc/ffscript.h"
+#include "zc/hero.h"
+#include "zc/scripting/common.h"
+#include "zc/scripting/types/bottledata.h"
+#include "zc/scripting/types/genericdata.h"
 #include "zc/scripting/types/savemenu.h"
 #include "zc/scripting/types/websocket.h"
 #include <cstddef>
@@ -16,6 +20,37 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+// Avoid including ffscript.h b/c it causes circular includes, errors on windows.
+// TODO: move all these to seperate files in `zc/scripting/types`, so this file doesn't need to rely on ffscript.cpp.
+
+struct dmap;
+class enemy;
+struct mapdata;
+struct user_paldata;
+struct sprite_data;
+struct MsgStr;
+
+sprite* ResolveBaseSprite(int32_t uid);
+newcombo* checkCombo(int32_t ref, bool skipError = false);
+dmap* checkDmap(int32_t ref);
+ffcdata* checkFFC(int32_t ref);
+enemy* checkNPC(int32_t ref);
+guydata* checkNPCData(int32_t ref);
+item* checkItem(int32_t ref);
+itemdata* checkItemData(int32_t ref);
+mapdata* checkMapData(int32_t ref);
+mapscr* checkMapDataScr(int32_t ref);
+screendata* checkScreen(int32_t ref);
+user_paldata* checkPalData(int32_t ref, bool skipError = false);
+weapon* checkWpn(int32_t uid);
+bottleshoptype *checkBottleShopData(int32_t ref, bool skipError = false);
+item_drop_object *checkDropSetData(int32_t ref);
+sprite_data *checkSpriteData(int32_t ref);
+MsgStr *checkMessageData(int32_t ref);
+SubscrWidget *checkSubWidg(int32_t ref, std::set<int> const& req_sub_tys = {}, int req_widg_ty = -1);
+ZCSubscreen *checkSubData(int32_t ref, std::set<int> const& req_tys = {});
+combo_trigger* checkComboTrigger(dword ref);
 
 #define MAX_ZC_ARRAY_SIZE 214748
 
@@ -56,7 +91,7 @@ namespace transforms
 	{
 		if (value < min_inclusive || value >= max_exclusive)
 		{
-			scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, min_inclusive, max_exclusive);
+			_scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, min_inclusive, max_exclusive);
 			return std::nullopt;
 		}
 
@@ -68,7 +103,7 @@ namespace transforms
 	{
 		if (value < 0 || value >= max_exclusive)
 		{
-			scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, 0, max_exclusive);
+			_scripting_log_error_with_context("Attempted to set invalid value for array: {} - must be >= {} and < {}", value, 0, max_exclusive);
 			return std::nullopt;
 		}
 
@@ -111,7 +146,7 @@ static int bound_index(int index, int low, int high)
 	if (index >= low && index <= high)
 		return index;
 
-	scripting_log_error_with_context("Using invalid index {}, bounding to valid range between {} and {}", index, low, high);
+	_scripting_log_error_with_context("Using invalid index {}, bounding to valid range between {} and {}", index, low, high);
 	return index < low ? low : high;
 }
 
@@ -249,7 +284,7 @@ protected:
 					return new_index;
 			}
 
-			scripting_log_error_with_context("Invalid array index {} for internal array of size {}", index, size);
+			_scripting_log_error_with_context("Invalid array index {} for internal array of size {}", index, size);
 			return std::nullopt;
 		}
 
@@ -257,7 +292,7 @@ protected:
 		{
 			if (size == 0)
 			{
-				scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
+				_scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
 				return std::nullopt;
 			}
 
@@ -274,7 +309,7 @@ protected:
 	{
 		if (index == 0)
 		{
-			scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array", index);
+			_scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array", index);
 			return std::nullopt;
 		}
 
@@ -294,7 +329,7 @@ protected:
 					return new_index;
 			}
 
-			scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array of size {}", index, size);
+			_scripting_log_error_with_context("Invalid array index {} for 1-indexed internal array of size {}", index, size);
 			return std::nullopt;
 		}
 
@@ -302,7 +337,7 @@ protected:
 		{
 			if (size == 0)
 			{
-				scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
+				_scripting_log_error_with_context("Attempted to access empty internal array with index: {}", index);
 				return std::nullopt;
 			}
 

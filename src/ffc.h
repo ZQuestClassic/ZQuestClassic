@@ -1,6 +1,13 @@
 #ifndef FFC_H_
 #define FFC_H_
 
+#include <cstdint>
+
+// A unique identifier for an ffc in the current region.
+// Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
+// For non-scrolling regions, or for the top-left screen in a region, this is equal to the index.
+typedef uint16_t ffc_id_t;
+
 #include "core/zdefs.h"
 #include "core/cpos_info.h"
 #include "core/flags.h"
@@ -36,11 +43,6 @@ enum ffc_flags : uint32_t
 	ffc_swapnext            = F(31), //Swap speed with next FFC
 };
 } // ends namespace
-
-// A unique identifier for an ffc in the current region.
-// Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
-// For non-scrolling regions, or for the top-left screen in a region, this is equal to the index.
-typedef uint16_t ffc_id_t;
 
 class ffcdata : public sprite
 {

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "base/ints.h"
-#include "zc/ffscript.h"
+#include "save_menu.h"
+
 #include <optional>
 
 SaveMenu* checkSaveMenu(int32_t ref, bool skipError = false);

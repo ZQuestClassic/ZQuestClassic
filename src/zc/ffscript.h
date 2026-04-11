@@ -3,10 +3,9 @@
 
 #include "core/dmap.h"
 #include "base/general.h"
+#include "ffc.h"
 #include "core/mapscr.h"
 #include "core/misctypes.h"
-#include "core/zdefs.h"
-#include "core/initdata.h"
 #include "parser/parserDefs.h"
 #include <utility>
 #include <string>
@@ -46,8 +45,6 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 #define MAX_NPC_SPRITES 1024
 #define MAX_ITEM_SPRITES 1024
 
-#define ZSCRIPT_MAX_STRING_CHARS 214748
-
 #define MAX_ZQ_LAYER 6
 #define MIN_ZQ_LAYER 0
 #define MAX_FLAGS 512
@@ -82,6 +79,9 @@ static void scripting_log_error_with_context(fmt::format_string<Args...> s, Args
 //Visual Warp Effect Types for Hero->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectNONE2 };
 void doWarpEffect(int32_t warpEffect, bool out);
+
+int scripting_read_pal_color(int c);
+int scripting_write_pal_color(int c);
 
 void apply_qr_rule(int qr_id);
 
@@ -213,72 +213,6 @@ enum //ScrollingData indexes
 	SCROLLDATA_OLD_VIEWPORT_X, SCROLLDATA_OLD_VIEWPORT_Y,
 
 	SZ_SCROLLDATA
-};
-
-//User-generated / Script-Generated bitmap object
-#define UBMPFLAG_FREEING               0x01
-#define UBMPFLAG_CAN_DELETE            0x02
-struct user_bitmap : public user_abstract_obj
-{
-	BITMAP* u_bmp;
-	int32_t width;
-	int32_t height;
-	byte flags;
-
-	user_bitmap() = default;
-	user_bitmap(const user_bitmap&) = delete;
-
-	~user_bitmap()
-	{
-		destroy_bitmap(u_bmp);
-	}
-
-	void destroy()
-	{
-		destroy_bitmap(u_bmp);
-		width = 0;
-		height = 0;
-		flags = 0;
-		u_bmp = NULL;
-	}
-
-	void free_obj()
-	{
-		flags |= UBMPFLAG_FREEING;
-	}
-
-	void mark_can_del()
-	{
-		flags |= UBMPFLAG_CAN_DELETE;
-	}
-
-	bool is_freeing()
-	{
-		return flags & UBMPFLAG_FREEING;
-	}
-
-	bool can_del()
-	{
-		return flags & UBMPFLAG_CAN_DELETE;
-	}
-};
-
-
-
-//Old, 2.50 bitmap IDs
-enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
-	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
-//bitmap constants
-#define MAX_USER_BITMAPS 256
-#define MIN_OLD_RENDERTARGETS -1 //old script drawing
-#define MAX_OLD_RENDERTARGETS 6
-	
-//Holds all of the user-generated / script-generated bitmaps and their information.
-	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
-struct script_bitmaps
-{
-	void update();
-	user_bitmap& get(int32_t id);
 };
 
 #define MAX_USER_STACKS 256
@@ -434,37 +368,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance = nullptr);
 
 void clearConsole();
 
-
-enum scr_timing
-{
-	SCR_TIMING_INIT = -1,
-	//0
-	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
-	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
-	//5
-	SCR_TIMING_POST_PLAYER_ACTIVE, SCR_TIMING_POST_DMAPDATA_ACTIVE,
-	SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN, SCR_TIMING_POST_COMBOSCRIPT,
-	SCR_TIMING_POST_PUSHBLOCK,
-	//10
-	SCR_TIMING_POST_ITEMSPRITE_SCRIPT, SCR_TIMING_POST_ITEMSPRITE_ANIMATE,
-	SCR_TIMING_POST_NPC_ANIMATE, SCR_TIMING_POST_EWPN_ANIMATE, SCR_TIMING_POST_EWPN_SCRIPT,
-	//15
-	SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT, SCR_TIMING_POST_PLAYER_ANIMATE,
-	SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT, SCR_TIMING_POST_CASTING,
-	SCR_TIMING_POST_LWPN_ANIMATE,
-	//20
-	SCR_TIMING_POST_DECOPARTICLE_ANIMATE, SCR_TIMING_POST_COLLISIONS_PALETTECYCLE,
-	SCR_TIMING_WAITDRAW, SCR_TIMING_POST_GLOBAL_WAITDRAW, SCR_TIMING_POST_PLAYER_WAITDRAW,
-	//25
-	SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW, SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW,
-	SCR_TIMING_POST_SCREEN_WAITDRAW, SCR_TIMING_POST_FFC_WAITDRAW, SCR_TIMING_POST_COMBO_WAITDRAW,
-	//30
-	SCR_TIMING_POST_ITEM_WAITDRAW, SCR_TIMING_POST_NPC_WAITDRAW, SCR_TIMING_POST_EWPN_WAITDRAW,
-	SCR_TIMING_POST_LWPN_WAITDRAW, SCR_TIMING_POST_ITEMSPRITE_WAITDRAW,
-	//35
-	SCR_TIMING_PRE_DRAW, SCR_TIMING_POST_DRAW, SCR_TIMING_POST_STRINGS, SCR_TIMING_END_FRAME,
-	SCR_NUM_TIMINGS
-};
 enum
 {
 	GENSCR_ST_RELOAD,
@@ -504,49 +407,6 @@ enum
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag
 };
 
-struct user_genscript
-{
-	//Saved vars
-	byte _doscript;
-	bounded_map<dword,int32_t> data;
-	word exitState;
-	word reloadState;
-	uint32_t eventstate;
-	bounded_vec<byte,int32_t> initd;
-	
-	//Temp Vars
-	bool wait_atleast = true;
-	bool waitevent;
-	scr_timing waituntil = SCR_TIMING_START_FRAME;
-	
-	void clear();
-	void launch();
-	void quit();
-	size_t dataSize() const
-	{
-		return data.size();
-	}
-	void dataResize(int32_t sz)
-	{
-		data.resize(vbound(sz, 0, 214748));
-	}
-	void timeExit(byte exState)
-	{
-		if(!doscript()) return;
-		if(exitState & (1<<exState))
-			quit();
-		else if(reloadState & (1<<exState))
-			launch();
-	}
-	byte& doscript();
-	byte const& doscript() const;
-	static user_genscript& get(int indx);
-private:
-	static user_genscript user_scripts[NUMSCRIPTSGENERIC];
-	
-	int32_t indx;
-	user_genscript() = default;
-};
 extern int32_t genscript_timing;
 void countGenScripts();
 void timeExitAllGenscript(byte exState);
@@ -555,76 +415,14 @@ void load_genscript(const gamedata& gd);
 void load_genscript(const zinitdata& gd);
 void save_genscript(gamedata& gd);
 
-enum class mapdata_type
-{
-	None,
-	CanonicalScreen,
-	TemporaryCurrentScreen,
-	TemporaryCurrentRegion,
-	TemporaryScrollingScreen,
-	TemporaryScrollingRegion,
-};
+struct mapdata;
 
-struct mapdata {
-	mapdata_type type;
-	mapscr* base_scr;
-	mapscr* scr;
-	int screen;
-	int layer;
-
-	bool temporary() const
-	{
-		return type != mapdata_type::None && type != mapdata_type::CanonicalScreen;
-	}
-
-	bool canonical() const
-	{
-		return type == mapdata_type::CanonicalScreen;
-	}
-
-	bool current() const
-	{
-		return type == mapdata_type::TemporaryCurrentRegion || type == mapdata_type::TemporaryCurrentScreen;
-	}
-
-	bool scrolling() const
-	{
-		return type == mapdata_type::TemporaryScrollingRegion || type == mapdata_type::TemporaryScrollingScreen;
-	}
-
-	int max_pos();
-	rpos_handle_t resolve_pos(int pos);
-	ffc_handle_t resolve_ffc_handle(int index);
-	ffcdata* resolve_ffc(int index);
-};
-
-newcombo* checkCombo(int32_t ref, bool skipError = false);
 newcombo* checkComboFromTriggerRef(dword ref);
-dmap* checkDmap(int32_t ref);
-ffcdata* checkFFC(int32_t ref);
-enemy* checkNPC(int32_t ref);
-guydata* checkNPCData(int32_t ref);
-item* checkItem(int32_t ref);
-itemdata* checkItemData(int32_t ref);
-mapdata* checkMapData(int32_t ref);
-mapscr* checkMapDataScr(int32_t ref);
-screendata* checkScreen(int32_t ref);
-user_bitmap* checkBitmap(int32_t ref);
-user_paldata* checkPalData(int32_t ref, bool skipError = false);
-weapon* checkWpn(int32_t uid);
 weapon* checkLWpn(int32_t uid);
 weapon* checkEWpn(int32_t uid);
-bottletype* checkBottleData(int32_t ref, bool skipError = false);
-bottleshoptype *checkBottleShopData(int32_t ref, bool skipError = false);
-item_drop_object *checkDropSetData(int32_t ref);
-sprite_data *checkSpriteData(int32_t ref);
-MsgStr *checkMessageData(int32_t ref);
-user_genscript *checkGenericScr(int32_t ref);
-SubscrWidget *checkSubWidg(int32_t ref, std::set<int> const& req_sub_tys = {}, int req_widg_ty = -1);
-ZCSubscreen *checkSubData(int32_t ref, std::set<int> const& req_tys = {});
 SubscrPage *checkSubPage(int32_t ref, std::set<int> const& req_tys = {});
-combo_trigger* checkComboTrigger(dword ref);
 combo_trigger* get_first_combo_trigger();
+combo_trigger* get_combo_trigger(dword ref);
 
 std::tuple<byte,int8_t,byte,word> from_subref(dword ref);
 dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0);
@@ -1103,6 +901,7 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset);
 int32_t get_ref_map_index(int32_t ref);
 
 ffcdata* ResolveFFCWithID(ffc_id_t id);
+ffcdata *ResolveFFC(int32_t ffcref);
 sprite* ResolveBaseSprite(int32_t uid);
 item* ResolveItemSprite(int32_t uid);
 enemy* ResolveNpc(int32_t uid);
@@ -1147,316 +946,6 @@ int32_t combopos_ref_to_layer(int32_t combopos_ref);
 bool is_valid_array(int32_t ptr);
 uint32_t allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none);
 
-class SH
-{
-
-public:
-
-	enum __Error
-	{
-		_NoError, //OK!
-		_Overflow, //script array too small
-		_InvalidPointer, //passed NULL pointer or similar
-		_OutOfBounds, //library array out of bounds
-		_InvalidSpriteUID //bad npc, ffc, etc.
-	};
-
-#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
-
-	static void write_stack(const uint32_t stackoffset, const int32_t value);
-	static int32_t read_stack(const uint32_t stackoffset);
-	static INLINE int32_t get_arg(int32_t arg, bool v)
-	{
-		return v ? arg : get_register(arg);
-	}
-};
-
-class ArrayH : public SH
-{
-public:
-	static size_t getSize(const int32_t ptr);
-	
-	//Can't you get the std::string and then check its length?
-	static int32_t strlen(const int32_t ptr);
-	
-	//Returns values of a zscript array as an std::string.
-	static void getString(const int32_t ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0);
-	
-	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
-	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
-	
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
-	
-	static void copyValues(const int32_t ptr, const int32_t ptr2);
-
-	//Get element from array
-	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);
-	
-	//Set element in array
-	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false, const script_object_type type = script_object_type::none);
-	
-	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, T *refArray)
-	{
-		return getArray(ptr, getSize(ptr), 0, 0, 0, refArray);
-	}
-	
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
-	{
-		return getArray(ptr, size, 0, 0, 0, refArray);
-	}
-	
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray);
-	
-	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false);
-
-	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
-	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
-	{
-		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
-	}
-
-	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
-	{
-		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
-		{
-			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-
-	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
-	{
-		ArrayManager am(ptr);
-		
-		if (am.invalid())
-			return _InvalidPointer;
-		
-		if(am.can_resize() && resize)
-			am.resize_min((userStride+1)*size);
-			
-		word j = 0, k = userStride;
-		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
-		{
-			if(i >= sz)
-				return _Overflow; //Resize?
-				
-			if (userOffset > 0)
-			{
-				--userOffset;
-				continue;
-			}
-				
-			if(k > 0)
-				k--;
-			else if(checkUserArrayIndex(i, sz) == _NoError)
-			{
-				am.set(i,int32_t(refArray[j + refArrayOffset]) * (x10k ? 10000 : 1));
-				k = userStride;
-				j++;
-			}
-		}
-		
-		return _NoError;
-	}
-};
-
-class BC : public SH
-{
-public:
-
-	static INLINE int32_t checkMapID(const int32_t ID)
-	{
-		return checkBounds(ID, 0, map_count-1);
-	}
-	
-	static INLINE int32_t checkDMapID(const int32_t ID)
-	{
-		return checkBounds(ID, 0, MAXDMAPS-1);
-	}
-	
-	static INLINE int32_t checkComboPos(const int32_t pos)
-	{
-		return checkBoundsPos(pos, 0, 175);
-	}
-
-	static INLINE int32_t checkComboRpos(const rpos_t rpos)
-	{
-		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos);
-	}
-
-	static INLINE int32_t checkTile(const int32_t pos)
-	{
-		return checkBounds(pos, 0, NEWMAXTILES-1);
-	}
-	
-	static INLINE int32_t checkCombo(const int32_t pos)
-	{
-		return checkBounds(pos, 0, MAXCOMBOS-1);
-	}
-	
-	static INLINE int32_t checkMessage(const int32_t ID)
-	{
-		return checkBounds(ID, 0, msg_strings_size-1);
-	}
-	
-	static INLINE int32_t checkLayer(const int32_t layer)
-	{
-		return checkBounds(layer, 0, 6);
-	}
-	
-	static INLINE int32_t checkFFC(ffc_id_t id)
-	{
-		return checkBoundsOneIndexed(id, 0, MAX_FFCID);
-	}
-
-	static INLINE int32_t checkMapdataFFC(int index)
-	{
-		return checkBounds(index, 0, MAXFFCS-1);
-	}
-	
-	static INLINE int32_t checkGuyIndex(const int32_t index)
-	{
-		return checkBoundsOneIndexed(index, 0, guys.Count()-1);
-	}
-	
-	static INLINE int32_t checkItemIndex(const int32_t index)
-	{
-		return checkBoundsOneIndexed(index, 0, items.Count()-1);
-	}
-	
-	static INLINE int32_t checkEWeaponIndex(const int32_t index)
-	{
-		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1);
-	}
-	
-	static INLINE int32_t checkLWeaponIndex(const int32_t index)
-	{
-		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1);
-	}
-	
-	static INLINE int32_t checkGuyID(const int32_t ID)
-	{
-		//return checkBounds(ID, 0, MAXGUYS-1); //Can't create NPC ID 0
-		return checkBounds(ID, 1, MAXGUYS-1);
-	}
-	
-	static INLINE int32_t checkItemID(const int32_t ID)
-	{
-		return checkBounds(ID, 0, MAXITEMS-1);
-	}
-	
-	static INLINE int32_t checkWeaponID(const int32_t ID)
-	{
-		return checkBounds(ID, 0, wMax-1);
-	}
-	
-	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID)
-	{
-		return checkBounds(ID, 0, MAXSPRITES-1);
-	}
-	
-	static INLINE int32_t checkSFXID(const int32_t ID)
-	{
-		return checkBounds(ID, 0, MAX_SFX); // could check `quest_sounds.size()`, but want no error unless value is out of MAX bounds.
-	}
-	
-	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char* term = "value")
-	{
-		if(n < boundlow || n > boundup)
-		{
-			scripting_log_error_with_context("Invalid {}: {} - must be >= {} and <= {}", term, n, boundlow, boundup);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-
-	static INLINE int32_t checkIndex(const int32_t n, const int32_t boundlow, const int32_t boundup)
-	{
-		return checkBounds(n, boundlow, boundup, "index");
-	}
-
-	// Typical array indexing: >= 0 and < len.
-	// TODO: use this in all index bound checks.
-	static INLINE int32_t checkIndex2(int32_t n, int32_t len)
-	{
-		if(n < 0 || n >= len)
-		{
-			scripting_log_error_with_context("Invalid index: {} - must be >= 0 and < {}", n, len);
-			return _OutOfBounds;
-		}
-
-		return _NoError;
-	}
-
-	static INLINE int32_t checkIndex2OneIndex(int32_t n, int32_t len)
-	{
-		if(n <= 0 || n > len)
-		{
-			scripting_log_error_with_context("Invalid index: {} - must be > 0 and <= {}", n, len);
-			return _OutOfBounds;
-		}
-
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup)
-	{
-		return checkBounds(n, boundlow, boundup, "position");
-	}
-
-	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			scripting_log_error_with_context("Invalid position: {} - must be >= {} and <= {}", (int)n, (int)boundlow, (int)boundup);
-			return _OutOfBounds;
-		}
-        
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup)
-	{
-		if (boundup < 0)
-		{
-			scripting_log_error_with_context("Invalid index: {} (empty)", n + 1);
-			return _OutOfBounds;
-		}
-
-		if(n < boundlow || n > boundup)
-		{
-			scripting_log_error_with_context("Invalid index: {} - must be >= {} and <= {}", n + 1, boundlow + 1, boundup + 1);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
-	{
-		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
-		{
-			scripting_log_error_with_context("Invalid index: {}, array size: {}", index, size);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-};
-
 struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_STACK_SIZE];
@@ -1493,6 +982,9 @@ struct ScriptEngineData {
 extern std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
 void on_reassign_script_engine_data(ScriptType type, int index);
+ScriptEngineData& get_script_engine_data(ScriptType type, int index);
+bool script_engine_data_exists(ScriptType type, int index);
+ScriptEngineData& get_script_engine_data(ScriptType type);
 ScriptEngineData& get_ffc_script_engine_data(int index);
 ScriptEngineData& get_item_script_engine_data(int index);
 
@@ -1501,6 +993,9 @@ extern byte flagpos;
 extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
+
+void log_stack_overflow_error();
+void log_call_limit_error();
 
 int32_t get_mi(int32_t);
 int32_t get_mi(mapdata const&);

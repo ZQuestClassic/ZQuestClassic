@@ -1,8 +1,8 @@
 #pragma once
 
 #include "base/ints.h"
-#include "zc/ffscript.h"
 #include "advanced_music.h"
+
 #include <optional>
 
 AdvancedMusic* checkMusic(int32_t ref, bool skipError = false);

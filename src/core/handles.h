@@ -2,8 +2,10 @@
 #define CORE_HANDLES_H_
 
 #include "core/combo.h"
+#include "core/zdefs.h"
 #include "base/compiler.h"
 #include "core/cpos_info.h"
+#include "ffc.h"
 #include "core/mapscr.h"
 #include <stdint.h>
 #include <variant>

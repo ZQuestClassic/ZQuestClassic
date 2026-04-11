@@ -7,6 +7,7 @@
 #include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/replay_compat.h"
+#include "zc/scripting/types/genericdata.h"
 #include "zc/zelda.h"
 
 #include <optional>

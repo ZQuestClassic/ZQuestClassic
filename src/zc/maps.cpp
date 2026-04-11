@@ -5,6 +5,7 @@
 #include "base/general.h"
 #include "dialog/externs.h"
 #include "zc/debugger/debugger.h"
+#include "zc/scripting/types/genericdata.h"
 #include <cstring>
 #include <assert.h>
 #include <math.h>

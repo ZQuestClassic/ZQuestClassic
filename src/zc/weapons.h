@@ -6,6 +6,7 @@
 #include "core/zdefs.h"
 #include "base/zfix.h"
 #include "core/flags.h"
+#include "ffc.h"
 #include "sprite.h"
 
 #include <set>

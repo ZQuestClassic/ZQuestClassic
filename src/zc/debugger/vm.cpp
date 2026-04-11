@@ -7,7 +7,7 @@
 #include "components/zasm/defines.h"
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
-#include "zc/ffscript.h"
+#include "zc/scripting/common.h"
 #include "zc/scripting/script_object.h"
 #include "zc/zelda.h"
 #include <cstdint>

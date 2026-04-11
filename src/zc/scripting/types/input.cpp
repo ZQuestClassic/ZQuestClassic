@@ -1,7 +1,61 @@
-#include "core/qrs.h"
+#include "zc/scripting/types/input.h"
+
+#include "base/check.h"
 #include "base/zc_math.h"
+#include "components/zasm/defines.h"
+#include "core/qrs.h"
+#include "zc/ffscript.h"
 #include "zc/render.h"
 #include "zc/scripting/arrays.h"
+
+extern refInfo *ri;
+extern int32_t sarg1;
+extern int32_t sarg2;
+extern int32_t sarg3;
+
+int32_t input_get_register(int32_t reg)
+{
+	int32_t ret = 0;
+
+	switch (reg)
+	{
+		case KEYMODIFIERS:
+		{
+			ret = (key_shifts*10000);
+			break;
+		}
+
+		default:
+			NOTREACHED();
+	}
+
+	return ret;
+}
+
+void input_set_register(int32_t reg, int32_t value)
+{
+	switch (reg)
+	{
+		case KEYMODIFIERS:
+		{
+			key_shifts = ( value/10000 );
+			break;
+		}
+		break;
+		case SIMULATEKEYPRESS:
+		{
+			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
+			//hmm...no, this won;t return properly for modifier keys. 
+			int32_t keyid = GET_D(rINDEX)/10000;
+			//key = vbound(key,0,n);
+			if (value/10000) simulate_keypress(keyid << 8);
+		}
+		break;
+
+		default:
+			NOTREACHED();
+	}
+}
 
 // Input arrays.
 

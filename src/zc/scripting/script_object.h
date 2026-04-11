@@ -2,10 +2,9 @@
 #define ZC_SCRIPTING_SCRIPT_OBJECT_H_
 
 #include "base/general.h"
-#include "base/ints.h"
 #include "zc/ffscript.h"
-#include "zc/zelda.h"
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <set>

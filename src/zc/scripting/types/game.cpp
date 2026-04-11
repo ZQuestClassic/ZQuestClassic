@@ -422,10 +422,6 @@ int32_t game_get_register(int32_t reg)
 			ret=FFCore.get_free_bitmap();
 			break;
 			
-		case GETMIDI:
-			ret=(currmidi-MIDIOFFSET_ZSCRIPT)*10000;
-			break;
-			
 		case CURDSCR:
 		{
 			int32_t di = (get_currscr()-DMaps[get_currdmap()].xoff);
@@ -507,6 +503,88 @@ int32_t game_get_register(int32_t reg)
 			else
 				ret=0;
 				
+			break;
+		}
+
+		case GAMEASUBOPEN:
+		{
+			ret = subscreen_open && !map_subscreen_open ? 10000 : 0;
+			break;
+		}
+		case GAMEASUBYOFF:
+		{
+			ret = active_sub_yoff*10000;
+			break;
+		}
+		case GAMEMSUBOPEN:
+		{
+			ret = subscreen_open && map_subscreen_open ? 10000 : 0;
+			break;
+		}
+		case GAMENUMASUB:
+		{
+			ret = subscreens_active.size()*10000;
+			break;
+		}
+		case GAMENUMMSUB:
+		{
+			ret = subscreens_map.size()*10000;
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			ret = subscreens_overlay.size()*10000;
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			ret = subscreens_passive.size()*10000;
+			break;
+		}
+		case SCRIPTRAM:
+		case GLOBALRAM:
+			ret = ArrayH::getElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000);
+			break;
+		case INCQST:
+		{
+			int32_t newqst = 0;
+			if ( game->get_quest() < 255 )  //255 is a custom quest
+			{
+				newqst = (game->get_quest()+1);
+			}
+			else
+			{
+				newqst = 1;
+			}
+			if ( newqst < 11 ) 
+			{
+
+				ret = newqst * 10000;
+				Quit = qINCQST;
+				//ending();
+
+			}
+			else ret = -10000;
+			break;
+		}
+		case LOADMAPDATA:
+			ret=FFScript::loadMapData();
+			break;
+		case SAVEDPORTALCOUNT:
+		{
+			ret = game->user_portals.size()*10000;
+			break;
+		}
+		case SDDD:
+			ret=FFScript::get_screen_d((GET_D(rINDEX))/10000 + ((get_currdmap())<<7), GET_D(rINDEX2) / 10000);
+			break;
+		case SDDDD:
+			ret=FFScript::get_screen_d(GET_D(rINDEX2) / 10000 + ((GET_D(rINDEX)/10000)<<7), GET_D(rEXP1) / 10000);
+			break;
+		case SPRITEMAXLWPN:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			ret = Lwpns.getMax() * 10000;
 			break;
 		}
 
@@ -762,6 +840,87 @@ void game_set_register(int32_t reg, int32_t value)
 			}
 		}
 		break;
+
+		case GAMENUMASUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_active.size() < sz)
+				{
+					auto& sub = subscreens_active.emplace_back();
+					sub.sub_type = sstACTIVE;
+				}
+				while(subscreens_active.size() > sz)
+					subscreens_active.pop_back();
+			}
+			break;
+		}
+		case GAMENUMMSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_map.size() < sz)
+				{
+					auto& sub = subscreens_map.emplace_back();
+					sub.sub_type = sstMAP;
+				}
+				while(subscreens_map.size() > sz)
+					subscreens_map.pop_back();
+			}
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_overlay.size() < sz)
+				{
+					auto& sub = subscreens_overlay.emplace_back();
+					sub.sub_type = sstOVERLAY;
+				}
+				while(subscreens_overlay.size() > sz)
+					subscreens_overlay.pop_back();
+			}
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_passive.size() < sz)
+				{
+					auto& sub = subscreens_passive.emplace_back();
+					sub.sub_type = sstPASSIVE;
+				}
+				while(subscreens_passive.size() > sz)
+					subscreens_passive.pop_back();
+			}
+			break;
+		}
+		case SCRIPTRAM:
+		case GLOBALRAM:
+			ArrayH::setElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000, value);
+			break;
+		case SCRIPTRAMD:
+		case GLOBALRAMD:
+			ArrayH::setElement(GET_D(rINDEX), 0, value);
+			break;
+		case SDDD:
+			FFScript::set_screen_d((GET_D(rINDEX))/10000 + ((get_currdmap())<<7), GET_D(rINDEX2)/10000, value);
+			break;
+		case SDDDD:
+			FFScript::set_screen_d(GET_D(rINDEX2)/10000 + ((GET_D(rINDEX)/10000)<<7), GET_D(rEXP1)/10000, value);
+			break;
+		case SPRITEMAXLWPN:
+		{
+			//No bounds check, as this is a universal function and works from NULL pointers!
+			Lwpns.setMax(vbound((value/10000),1,MAX_LWPN_SPRITES));
+			break;
+		}
 
 		default: NOTREACHED();
 	}

@@ -6,6 +6,7 @@
 #include "core/zdefs.h"
 #include "zalleg/zalleg.h"
 #include "zc/script_drawing.h"
+#include "zc/scripting/types/bitmap.h"
 #include "zc/rendertarget.h"
 #include "zc/maps.h"
 #include "tiles.h"

@@ -1,4 +1,347 @@
+#include "zc/scripting/types/subscreendata.h"
+
+#include "base/check.h"
+#include "components/zasm/defines.h"
+#include "new_subscr.h"
+#include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+
+extern refInfo *ri;
+extern int32_t sarg1;
+extern int32_t sarg2;
+extern int32_t sarg3;
+
+int32_t subscreendata_get_register(int32_t reg)
+{
+	int32_t ret = 0;
+
+	switch (reg)
+	{
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
+				if (sub->sub_type == sstACTIVE || sub->sub_type == sstMAP)
+					ret = 10000*sub->curpage;
+			break;
+		}
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				SubscrPage& pg = sub->cur_page();
+				ret = pg.cursor_pos * 10000;
+			}
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
+			{
+				if (sub->sub_type == sstACTIVE || sub->sub_type == sstMAP)
+					ret = 10000*sub->pages.size();
+				else ret = 10000;
+			}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				ret = sub->script * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				ret = sub->selector_setting.h * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				ret = sub->selector_setting.w * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				ret = sub->selector_setting.x * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				ret = sub->selector_setting.y * 10000;
+			break;
+		}
+		case SUBDATATRANSCLK:
+		{
+			ret = -10000;
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open && subscr_pg_animating)
+					ret = subscr_pg_clk*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_from*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_to*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					ret = trans.type*10000;
+			}
+			break;
+		}
+		case SUBDATATYPE:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
+				ret = sub->sub_type*10000;
+			break;
+		}
+
+		default:
+			NOTREACHED();
+	}
+
+	return ret;
+}
+
+void subscreendata_set_register(int32_t reg, int32_t value)
+{
+	switch (reg)
+	{
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
+				if(sub->sub_type == sstACTIVE || sub->sub_type == sstMAP)
+					sub->curpage = vbound(value/10000,0,sub->pages.size()-1);
+			break;
+		}
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				SubscrPage& pg = sub->cur_page();
+				//Should this be sanity checked? Or should nulling out
+				// the cursor by setting it invalid be allowed? -Em
+				pg.cursor_pos = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref)))
+				if((sub->sub_type == sstACTIVE || sub->sub_type == sstMAP) && value >= 10000)
+				{
+					size_t sz = value/10000;
+					while(sub->pages.size() < sz)
+						if(!sub->add_page(MAX_SUBSCR_PAGES))
+							break;
+					while(sub->pages.size() > sz)
+						sub->delete_page(sub->pages.size()-1);
+				}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				sub->script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				sub->selector_setting.h = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				sub->selector_setting.w = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				sub->selector_setting.x = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				sub->selector_setting.y = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATATRANSCLK:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+				{
+					int val = value/10000;
+					if(val < 0)
+						subscrpg_clear_animation();
+					else if(!subscr_pg_animating)
+					{
+						SubscrTransition tr = subscr_pg_transition;
+						tr.tr_sfx = 0;
+						subscrpg_animate(subscr_pg_from,subscr_pg_to,tr,*CURRENT_ACTIVE_SUBSCREEN,*CURRENT_ACTIVE_SUBSCREEN);
+						subscr_pg_clk = val;
+					}
+					else subscr_pg_clk = val;
+				}
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_from = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_left;
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_left;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_right;
+				trans.tr_sfx = vbound(value/10000,0,MAX_SFX);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = sub->trans_right;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_to = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != CURRENT_ACTIVE_SUBSCREEN)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active/map subscreen!\n");
+				else if(subscreen_open)
+					trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATYPE: break; //READONLY
+
+		default:
+			NOTREACHED();
+	}
+}
 
 // subscreendata arrays.
 

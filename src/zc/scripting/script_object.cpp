@@ -4,6 +4,7 @@
 #include "base/zc_array.h"
 #include "user_object.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/types/bitmap.h"
 #include "zc/scripting/types/user_object.h"
 #include "zc/zscriptversion.h"
 

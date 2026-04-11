@@ -1,5 +1,7 @@
 #include "zc/scripting/types/savemenu.h"
 #include "base/check.h"
+#include "components/zasm/defines.h"
+#include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
 

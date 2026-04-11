@@ -1,7 +1,620 @@
+#include "zc/scripting/types/screendata.h"
+
+#include "base/check.h"
+#include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"
+#include "zc/rendertarget.h"
 #include "zc/scripting/arrays.h"
+#include "zc/scripting/types/musicdata.h"
 #include "zc/zscriptversion.h"
+
+extern refInfo *ri;
+extern int32_t sarg1;
+extern int32_t sarg2;
+extern int32_t sarg3;
+
+void playLevelMusic();
+
+int32_t screendata_get_register(int32_t reg)
+{
+	int32_t ret = 0;
+
+	#define	GET_SCREENDATA_VAR_INT32(member) \
+	{ \
+		ret = (get_scr(GET_REF(screenref))->member *10000); \
+	} \
+
+	#define	GET_SCREENDATA_VAR_INT16(member) \
+	{ \
+		ret = (get_scr(GET_REF(screenref))->member *10000); \
+	} \
+
+	#define	GET_SCREENDATA_VAR_BYTE(member) \
+	{ \
+		ret = (get_scr(GET_REF(screenref))->member *10000); \
+	} \
+
+	#define GET_SCREENDATA_BYTE_INDEX(member, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		ret = (get_scr(GET_REF(screenref))->member[indx] *10000); \
+	} \
+
+	//byte
+	#define GET_SCREENDATA_LAYER_INDEX(member, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
+		{ \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (get_scr(GET_REF(screenref))->member[indx-1] *10000); \
+		} \
+	} \
+
+	#define GET_SCREENDATA_BOOL_INDEX(member, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		if (BC::checkIndex(indx, 0, indexbound) != SH::_NoError) \
+		{ \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (get_scr(GET_REF(screenref))->member[indx]?10000:0); \
+		} \
+	} \
+
+
+	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
+	{ \
+		int32_t flag =  (value/10000);  \
+		ret = (get_scr(GET_REF(screenref))->member&flag) ? 10000 : 0); \
+	} \
+
+	switch (reg)
+	{
+		case CREATELWPNDX:
+		{
+			//Z_message("Trying to get Hero->SetExtend().\n");
+			int32_t ID = (GET_D(rINDEX) / 10000);
+			int32_t itemid = (GET_D(rINDEX2)/10000);
+			itemid = vbound(itemid,0,(MAXITEMS-1));
+
+			// TODO: use has_space()
+			if ( Lwpns.Count() < 256 )
+			{
+
+				(void)Lwpns.add
+				(
+					new weapon
+					(
+						(zfix)0, /*X*/
+						(zfix)0, /*Y*/
+						(zfix)0, /*Z*/
+						ID,	 /*id*/
+						0,	 /*type*/
+						0,	 /*power*/
+						0,	 /*dir*/
+						-1,	 /*Parentid*/
+						Hero.getUID(), /*prntid*/
+						false,	 /*isdummy*/
+						1,	 /*script_gen*/
+						1,  /*islwpn*/
+						(ID==wWind?1:0)  /*special*/
+					)
+				);
+				ri->lwpnref = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+
+				weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //What the fuck Zoria, this broke old quests...
+				w->ScriptGenerated = 1;
+				w->isLWeapon = 1;
+				if(ID == wWind) w->specialinfo = 1;
+				//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //not needed here because this has access to wpn->prent
+			}
+			else
+			{
+				Z_scripterrlog("Tried to create too many LWeapons on the screen. The current LWeapon count is: %d\n", Lwpns.Count());
+				ri->lwpnref = 0;
+			}
+
+			ret = ri->lwpnref; 
+		}
+		break;
+		case EWPNCOUNT:
+			ret=Ewpns.Count()*10000;
+			break;
+		case GETRENDERTARGET:
+			ret=(zscriptDrawingRenderTarget->GetCurrentRenderTarget())*10000;
+			break;
+		case LIT:
+			ret= get_lights() ? 10000 : 0;
+			break;
+		case LWPNCOUNT:
+			ret=Lwpns.Count()*10000;
+			break;
+		case NPCCOUNT:
+			ret = guys.Count()*10000;
+			break;
+		case PORTALCOUNT:
+		{
+			ret = portals.Count()*10000;
+			break;
+		}
+		case PUSHBLOCKCOMBO:
+			ret = mblock2.bcombo*10000;
+			break;
+		case PUSHBLOCKCSET:
+			ret = mblock2.cs*10000;
+			break;
+		case PUSHBLOCKLAYER:
+			ret = mblock2.active() ? int32_t(mblock2.blockLayer)*10000 : -10000;
+			break;
+		case PUSHBLOCKX:
+			ret = mblock2.active() ? int32_t(mblock2.x)*10000 : -10000;
+			break;
+		case PUSHBLOCKY:
+			ret = mblock2.active() ? int32_t(mblock2.y)*10000 : -10000;
+			break;
+		case QUAKE:
+			ret = quakeclk*10000;
+			break;
+		case REGION_NUM_COMBOS:
+		{
+			ret = region_num_rpos * 10000;
+		}
+		break;
+		case ROOMDATA:
+			ret = get_scr(GET_REF(screenref))->catchall*10000;
+			break;
+		case ROOMTYPE:
+			ret = get_scr(GET_REF(screenref))->room*10000;
+			break;
+		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_INT16(bosssfx); break;	//B
+		case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall); break; //W
+		case SCREENDATACOLOUR: 		GET_SCREENDATA_VAR_INT32(color); break;	//w
+		case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive); break;	//B
+		case SCREENDATADOOR: 		GET_SCREENDATA_BYTE_INDEX(door, 3); break;	//b, 4 of these
+		case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set); break;	//w
+		case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(flags11);	break;	//b
+		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x); break;	//B
+		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y); break;	//B
+		case SCREENDATAEXDOOR:
+		{
+			ret = 0;
+			int mi = mapind(cur_map, GET_REF(screenref));
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->GetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->GetExDoor()'; must be 0-7\n", ind);
+			else
+			{
+				int bit = 1<<ind;
+				ret = (game->xdoors.get(mi)[dir]&bit) ? 10000 : 0;
+			}
+			break;
+		}
+		case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir); break;	//b
+		case SCREENDATAFFINITIALISED: 	{
+			int32_t indx = GET_D(rINDEX) / 10000;
+			if (indx < 0 || indx > MAX_FFCID)
+			{
+				scripting_log_error_with_context("Invalid index: %d", (indx));
+				ret = -10000;
+			}
+			else
+			{
+				ret = get_script_engine_data(ScriptType::FFC, indx).initialized ? 10000 : 0;
+			}
+		}
+		break;
+		case SCREENDATAGUY: 		GET_SCREENDATA_VAR_BYTE(guy); break;		//b
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = mapind(cur_map, GET_REF(screenref));
+			if(mi < 0)
+				ret = -10000;
+			else ret = game->guys.get(mi) * 10000;
+			break;
+		}
+		case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem); break;	//b
+		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_INT16(holdupsfx); break; //B
+		case SCREENDATAITEM:
+		{
+			mapscr* scr = get_scr(GET_REF(screenref));
+			if(scr->hasitem)
+				ret = (scr->item *10000);
+			else ret = -10000;
+			break;
+		}
+		case SCREENDATAITEMX:		GET_SCREENDATA_VAR_BYTE(itemx); break; //itemx
+		case SCREENDATAITEMY:		GET_SCREENDATA_VAR_BYTE(itemy); break;	//itemy
+		case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer); break;	//B, OLD QUESTS ONLY?
+		case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap); break;	//B
+		case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr); break;	//B
+		case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry); break;	//W
+		case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset); break;	//W
+		case SCREENDATANUMFF: 	
+		{
+			int id = GET_D(rINDEX) / 10000;
+			if (auto ffc = ResolveFFCWithID(id))
+				ret = ffc->data != 0 ? 10000 : 0;
+			break;
+		}
+		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_INT16(oceansfx); break;	//B
+		case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern); break;	//b
+		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room);	break;		//b
+		case SCREENDATASCREENMIDI:
+		{
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (unsigned(m->music) > quest_music.size())
+				ret = -40000; // old value for using dmap music
+			else if (!m->music)
+				ret = 0;
+			else
+			{
+				auto const& amus = quest_music[m->music-1];
+				if (amus.enhanced.is_empty())
+					ret = convert_to_old_midi_id(amus.midi, true) * 10000;
+				else ret = -10000; // error using outdated zasm with new features
+			}
+			break;
+		}
+		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_INT16(secretsfx); break;	//B
+		case SCREENDATASIDEWARPINDEX: 	GET_SCREENDATA_VAR_BYTE(sidewarpindex); break;	//b
+		case SCREENDATASTAIRX: 		GET_SCREENDATA_VAR_BYTE(stairx); break;	//b
+		case SCREENDATASTAIRY: 		GET_SCREENDATA_VAR_BYTE(stairy); break;	//b
+		case SCREENDATASTRING:		GET_SCREENDATA_VAR_INT32(str); break;		//w
+		case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics); break;	//W
+		case SCREENDATAVALID:		GET_SCREENDATA_VAR_BYTE(valid); break;		//b
+		case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx); break;	//b
+		case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly); break;	//b
+		case SCREENDATAWARPRETURNC: 	GET_SCREENDATA_VAR_INT32(warpreturnc); break;	//w
+		case SCREENDATA_GRAVITY_STRENGTH:
+		{
+			ret = get_scr(GET_REF(screenref))->screen_gravity.getZLong();
+			break;
+		}
+		case SCREENDATA_MUSIC:
+		{
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (m->music < -1 || m->music > quest_music.size())
+				ret = -1;
+			else ret = m->music;
+			break;
+		}
+		case SCREENDATA_TERMINAL_VELOCITY:
+		{
+			ret = get_scr(GET_REF(screenref))->screen_terminal_v.getZLong();
+			break;
+		}
+		case SCREENSCRDATASIZE:
+		{
+			int index = map_screen_index(cur_map, ri->screenref);
+			if (index < 0) break;
+			ret = 10000*game->scriptDataSize(index);
+			break;
+		}
+		case SCREENSCRIPT:
+			ret=get_scr(GET_REF(screenref))->script*10000;
+			break;
+		case SCREENSECRETSTRIGGERED:
+		{
+			ret = get_screen_state(GET_REF(screenref)).triggered_secrets ? 10000L : 0L;
+			break;
+		}
+		case SCREEN_DRAW_ORIGIN:
+			ret = (int)ri->screen_draw_origin;
+			break;
+		case SCREEN_DRAW_ORIGIN_TARGET:
+			ret = ri->screen_draw_origin_target;
+			break;
+		case SCREEN_INDEX:
+			ret = ri->screenref*10000;
+			break;
+		case SHOWNMSG:
+		{
+			ret = ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
+			break;
+		}
+		case UNDERCOMBO:
+			ret = get_scr(GET_REF(screenref))->undercombo*10000;
+			break;
+		case UNDERCSET:
+			ret = get_scr(GET_REF(screenref))->undercset*10000;
+			break;
+		case WAVY:
+			ret = wavy*10000;
+			break;
+
+		default:
+			NOTREACHED();
+	}
+
+	return ret;
+}
+
+void screendata_set_register(int32_t reg, int32_t value)
+{
+	#define	SET_SCREENDATA_VAR_INT32(member, str) \
+	{ \
+		get_scr(GET_REF(screenref))->member = vbound((value / 10000),-214747,214747); \
+	} \
+
+	#define	SET_SCREENDATA_VAR_INT16(member, str) \
+	{ \
+		get_scr(GET_REF(screenref))->member = vbound((value / 10000),0,32767); \
+	} \
+
+	#define	SET_SCREENDATA_VAR_BYTE(member, str) \
+	{ \
+		get_scr(GET_REF(screenref))->member = vbound((value / 10000),0,255); \
+	} \
+
+	#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		get_scr(GET_REF(screenref))->member[indx] = vbound((value / 10000),0,255); \
+	}
+
+	///max screen id is higher! vbound properly... -Z
+	#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		int32_t scrn_id = value/10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if (BC::checkIndex(indx, 1, indexbound) != SH::_NoError) \
+		{ \
+		} \
+		else if ( scrn_id > MAPSCRS ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
+			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+		} \
+		else get_scr(GET_REF(screenref))->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+	}
+
+	#define SET_SCREENDATA_FLAG(member, str) \
+	{ \
+		int32_t flag =  (value/10000);  \
+		if ( flag != 0 ) \
+		{ \
+			get_scr(GET_REF(screenref))->member|=flag; \
+		} \
+		else get_scr(GET_REF(screenref))->.member|= ~flag; \
+	} \
+
+	#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int32_t indx = GET_D(rINDEX) / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		get_scr(GET_REF(screenref))->member[indx] =( (value/10000) ? 1 : 0 ); \
+	}
+
+
+	switch (reg)
+	{
+		case LIT:
+			set_lights(value);
+			break;
+		case PUSHBLOCKCOMBO:
+			mblock2.bcombo=value/10000;
+			break;
+		case PUSHBLOCKCSET:
+			mblock2.cs=value/10000;
+			mblock2.oldcset=value/10000;
+			break;
+		case PUSHBLOCKLAYER:
+			mblock2.blockLayer=vbound(value/10000, 0, 6);
+			break;
+		case QUAKE:
+			quakeclk=value/10000;
+			break;
+		case ROOMDATA:
+			get_scr(GET_REF(screenref))->catchall=value/10000;
+			break;
+		case ROOMTYPE:
+			get_scr(GET_REF(screenref))->room=value/10000; break; //this probably doesn't work too well...
+		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_INT16(bosssfx, "BossSFX"); break;	//B
+		case SCREENDATACATCHALL:	 	SET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+		case SCREENDATACOLOUR: 		SET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
+		case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
+		case SCREENDATADOOR: 		SET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
+		case SCREENDATADOORCOMBOSET: 	SET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
+		case SCREENDATAENEMYFLAGS: 	SET_SCREENDATA_VAR_BYTE(flags11, "EnemyFlags");	break;	//b
+		case SCREENDATAENTRYX: 		
+		{
+			int32_t newx = vbound((value/10000),0,255);
+			get_scr(GET_REF(screenref))->entry_x = newx;
+			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Hero.respawn_x = (zfix)(newx);
+			}
+			break;
+		}
+		case SCREENDATAENTRYY: 		
+		{
+
+			int32_t newy = vbound((value/10000),0,175);
+			get_scr(GET_REF(screenref))->entry_y = newy;
+			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			{
+				Hero.respawn_y = (zfix)(newy);
+			}
+			break;	//B
+		}
+		case SCREENDATAEXDOOR:
+		{
+			int mi = mapind(cur_map, GET_REF(screenref));
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->SetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
+			else
+				set_xdoorstate_mi(mi, dir, ind);
+			break;
+		}
+		case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+		case SCREENDATAFFINITIALISED:
+		{
+			int32_t indx = GET_D(rINDEX) / 10000;
+			if (indx < 0 || indx > MAX_FFCID)
+			{
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", "FFCRunning", (indx));
+				break;
+			}
+			get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
+		}
+		break;
+		case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = mapind(cur_map, GET_REF(screenref));
+			if(mi > -1)
+				game->guys[mi] = vbound(value/10000,10,0);
+			break;
+		}
+		case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
+		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_INT16(holdupsfx,	"ItemSFX"); break; //B
+		case SCREENDATAITEM:
+		{
+			auto v = vbound((value / 10000),-1,MAXITEMS-1);
+			auto scr = get_scr(GET_REF(screenref));
+			if(v > -1)
+				scr->item = v;
+			scr->hasitem = v > -1;
+			break;
+		}
+		case SCREENDATAITEMX:		SET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
+		case SCREENDATAITEMY:		SET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
+		case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+		case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
+		case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
+		case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+		case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
+		case SCREENDATANUMFF: 	
+		{
+			break;
+		}
+		case SCREENDATAOCEANSFX:
+		{
+			int32_t v = vbound(value/10000, 0, MAX_SFX);
+			auto scr = get_scr(GET_REF(screenref));
+			if (scr == hero_scr && scr->oceansfx != v)
+			{
+				stop_sfx(scr->oceansfx);
+				scr->oceansfx = v;
+				cont_sfx(scr->oceansfx);
+			}
+			break;
+		}
+		case SCREENDATAPATTERN: 		SET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
+		case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
+		case SCREENDATASCREENMIDI:
+		{
+			get_scr(GET_REF(screenref))->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4), true));
+			break;
+		}
+		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_INT16(secretsfx, "SecretSFX"); break;	//B
+		case SCREENDATASIDEWARPINDEX: 	SET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
+		case SCREENDATASTAIRX: 		SET_SCREENDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
+		case SCREENDATASTAIRY: 		SET_SCREENDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
+		case SCREENDATASTRING:		SET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
+		case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
+		case SCREENDATAVALID:
+		{
+			SET_SCREENDATA_VAR_BYTE(valid, "Valid"); //b
+			mark_current_region_handles_dirty();
+			break;
+		}
+		case SCREENDATAWARPARRIVALX: 	SET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
+		case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
+		case SCREENDATAWARPRETURNC: 	SET_SCREENDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
+		case SCREENDATA_GRAVITY_STRENGTH:
+		{
+			get_scr(GET_REF(screenref))->screen_gravity = zslongToFix(value);
+			break;
+		}
+		case SCREENDATA_MUSIC:
+		{
+			mapscr* m = get_scr(GET_REF(screenref));
+			if (m->music != value && (value == -1 || value == 0 || checkMusic(value)))
+			{
+				m->music = value;
+				if (engine_music_active && m == hero_scr)
+					playLevelMusic();
+			}
+			break;
+		}
+		case SCREENDATA_TERMINAL_VELOCITY:
+		{
+			get_scr(GET_REF(screenref))->screen_terminal_v = zslongToFix(value);
+			break;
+		}
+		case SCREENSCRDATASIZE:
+		{
+			int index = map_screen_index(cur_map, ri->screenref);
+			if (index < 0) break;
+
+			game->scriptDataResize(index, value/10000);
+			break;
+		}
+		case SCREENSCRIPT:
+		{
+			mapscr* scr = get_scr(GET_REF(screenref));
+
+			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int32_t q=0; q<8; q++)
+					scr->screeninitd[q] = 0;
+			}
+
+			scr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
+			break;
+		}
+		case SCREEN_DRAW_ORIGIN:
+			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last) != SH::_NoError)
+				break;
+
+			ri->screen_draw_origin = (DrawOrigin)value;
+			break;
+		case SCREEN_DRAW_ORIGIN_TARGET:
+		{
+			if (ResolveBaseSprite(value))
+				ri->screen_draw_origin_target = value;
+
+			break;
+		}
+		case UNDERCOMBO:
+			get_scr(GET_REF(screenref))->undercombo=value/10000;
+			break;
+		case UNDERCSET:
+			get_scr(GET_REF(screenref))->undercset=value/10000;
+			break;
+		case WAVY:
+			wavy=value/10000;
+			break;
+
+		default:
+			NOTREACHED();
+	}
+}
 
 // Screen arrays.
 

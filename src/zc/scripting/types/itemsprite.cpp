@@ -1,3 +1,5 @@
+#include "zc/scripting/types/itemsprite.h"
+
 #include "core/qrs.h"
 #include "core/zdefs.h"
 #include "items.h"
@@ -6,7 +8,6 @@
 #include "zc/guys.h"
 #include "zc/hero.h"
 #include "zc/rendertarget.h"
-#include "zc/scripting/types/itemsprite.h"
 #include "zc/scripting/arrays.h"
 #include "zc/zelda.h"
 
