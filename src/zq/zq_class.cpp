@@ -13935,7 +13935,11 @@ static expected<std::string, std::error_code> create_path_for_backup(const char*
 	std::string backup_filename;
 	backup_filename = fmt::format("{}--{}--v{}--{}", timestamp, save_type, header.getVerStr(), original_filename);
 
+#ifdef _WIN32
+	std::string backup_folder_name = "backups." + std::string(original_filepath);
+#else
 	std::string backup_folder_name = std::string(original_filepath) + ".backups";
+#endif
 	fs::path backup_path = fs::path(backup_folder_name) / backup_filename;
 
 	if (is_timed_save && UncompressedAutoSaves)

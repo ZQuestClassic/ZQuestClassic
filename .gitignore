@@ -144,3 +144,4 @@ api_server
 venv
 *.tsbuildinfo
 *.backups
+backups.*
