@@ -632,7 +632,7 @@ int32_t LeechUpdateTiles = 0;
 int32_t SnapshotFormat = 0;
 byte SnapshotScale = 0;
 
-byte Color = 0;
+word Color = 0;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 
