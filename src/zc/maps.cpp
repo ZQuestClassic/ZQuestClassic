@@ -4528,17 +4528,17 @@ static void draw_msgstr(byte layer, BITMAP* dest = nullptr)
 
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(dest,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_bg(dest,0,0,0,playing_field_offset,dest->w,dest->h);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(dest,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_prt(dest,0,0,0,playing_field_offset,dest->w,dest->h);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(dest,0,0,0,playing_field_offset,256,176);
+		blit_msgstr_fg(dest,0,0,0,playing_field_offset,dest->w,dest->h);
 	}
 }
 
@@ -4926,7 +4926,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	
 	if(!(pricesdisplaybuf->clip))
 	{
-		masked_blit(pricesdisplaybuf,dest,0,0,0,playing_field_offset,256,176);
+		masked_blit(pricesdisplaybuf,dest,0,0,0,playing_field_offset,dest->w,dest->h);
 	}
 
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
@@ -5311,7 +5311,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
 			draw_trans_sprite(dest, lightbeam_bmp, 0, playing_field_offset);
 		else
-			masked_blit(lightbeam_bmp, dest, 0, 0, 0, playing_field_offset, 256, 176);
+			masked_blit(lightbeam_bmp, dest, 0, 0, 0, playing_field_offset, dest->w,dest->h);
 		color_map = trans_table;
 	}
 
