@@ -165,6 +165,18 @@ reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: Add many new SCCs
 See https://docs.zquestclassic.com/tutorials/message_strings for details.
 =end
 
+reword a1002f4173b36ecdf8cc0386ac14a8c13cc02444 feat(zq): improve quest auto-backup and timed auto-saves
+
+* Enable auto-backup by default.
+* Save all backups and auto-saves to a backups folder - on Windows,
+  it is `backups.YourQuest.qst/`, otherwise it is
+  `YourQuest.qst.backups/`.
+* Include timestamps and ZC version numbers in backup filenames for
+  easier identification and recovery.
+* Implement read-only protection to prevent accidentally saving over
+  files loaded from a backup folder.
+=end
+
 # ! drop CI stuff
 
 drop 1a8cbf99daded2c578e1163a853831e0e92bbb9b ci: reset cache for web builds

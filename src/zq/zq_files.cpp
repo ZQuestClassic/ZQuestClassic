@@ -558,7 +558,7 @@ char* get_qst_name(char const* def_path)
 bool should_open_as_readonly(std::string_view path)
 {
 	return
-		path.find(".backups") != std::string::npos ||
+		path.find("backups") != std::string::npos ||
 		path.find(".tmp/database") != std::string::npos ||
 		path.find(".tmp\\database") != std::string::npos;
 }
