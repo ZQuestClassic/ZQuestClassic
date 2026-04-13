@@ -16,37 +16,38 @@ void playLevelMusic();
 int32_t dmapdata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	dmap& dmap = DMaps[GET_REF(dmapdataref)];
 
 	switch (reg)
 	{
 		case DMAPDATAASUBSCRIPT:	//word
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].active_sub_script) * 10000; break;
+			ret = (dmap.active_sub_script) * 10000; break;
 		}
 		case DMAPDATACOMPASS:	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].compass) * 10000; break;
+			ret = ((byte)dmap.compass) * 10000; break;
 		}
 		case DMAPDATACONTINUE:	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].cont) * 10000; break;
+			ret = ((byte)dmap.cont) * 10000; break;
 		}
 		case DMAPDATAFLAGS:	 //int32_t
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].flags) * 10000; break;
+			ret = (dmap.flags) * 10000; break;
 		}
 		case DMAPDATAFLOOR:	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].floor) * 10000; break;
+			ret = ((byte)dmap.floor) * 10000; break;
 		}
 		case DMAPDATAID: ret = ri->dmapdataref*10000; break; //read-only, equal to CurrentDMap
 		case DMAPDATAINTROSTRINGID:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].intro_string_id * 10000); break;
+			ret = (dmap.intro_string_id * 10000); break;
 		}
 		case DMAPDATALEVEL:	//word
 		{
-			ret = ((word)DMaps[GET_REF(dmapdataref)].level) * 10000; break;
+			ret = ((word)dmap.level) * 10000; break;
 		}
 		case DMAPDATALOOPEND:
 		{
@@ -62,11 +63,11 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAMAP: 	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].map + 1) * 10000; break;
+			ret = ((byte)dmap.map + 1) * 10000; break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].onmap_script) * 10000; break;
+			ret = (dmap.onmap_script) * 10000; break;
 		}
 		case DMAPDATAMIDI:	//byte
 		{
@@ -76,7 +77,7 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAMIRRDMAP:
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].mirrorDMap) * 10000; break;
+			ret = (dmap.mirrorDMap) * 10000; break;
 		}
 		case DMAPDATAMUISCTRACK:	//byte
 		{
@@ -86,35 +87,35 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			ret = ((char)DMaps[GET_REF(dmapdataref)].xoff) * 10000; break;
+			ret = ((char)dmap.xoff) * 10000; break;
 		}
 		case DMAPDATAPALETTE:	//word
 		{
-			ret = ((word)DMaps[GET_REF(dmapdataref)].color) * 10000; break;
+			ret = ((word)dmap.color) * 10000; break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//word
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].passive_sub_script) * 10000; break;
+			ret = (dmap.passive_sub_script) * 10000; break;
 		}
 		case DMAPDATASIDEVIEW:	//byte
 		{
-			ret = ((DMaps[GET_REF(dmapdataref)].sideview) ? 10000 : 0); break;
+			ret = ((dmap.sideview) ? 10000 : 0); break;
 		}
 		case DMAPDATASUBSCRA:
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].active_subscreen) * 10000; break;
+			ret = ((byte)dmap.active_subscreen) * 10000; break;
 		}
 		case DMAPDATASUBSCRO:
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].overlay_subscreen) * 10000; break;
+			ret = ((byte)dmap.overlay_subscreen) * 10000; break;
 		}
 		case DMAPDATASUBSCRP:
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].passive_subscreen) * 10000; break;
+			ret = ((byte)dmap.passive_subscreen) * 10000; break;
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			ret = ((byte)DMaps[GET_REF(dmapdataref)].type&dmfTYPE) * 10000; break;
+			ret = ((byte)dmap.type&dmfTYPE) * 10000; break;
 		}
 		case DMAPDATAXFADEIN:
 		{
@@ -130,22 +131,22 @@ int32_t dmapdata_get_register(int32_t reg)
 		}
 		case DMAPDATA_GRAVITY_STRENGTH:
 		{
-			ret = DMaps[GET_REF(dmapdataref)].dmap_gravity.getZLong();
+			ret = dmap.dmap_gravity.getZLong();
 			break;
 		}
 		case DMAPDATA_MUSIC:
 		{
-			ret = DMaps[GET_REF(dmapdataref)].music;
+			ret = dmap.music;
 			break;
 		}
 		case DMAPDATA_TERMINAL_VELOCITY:
 		{
-			ret = DMaps[GET_REF(dmapdataref)].dmap_terminal_v.getZLong();
+			ret = dmap.dmap_terminal_v.getZLong();
 			break;
 		}
 		case DMAPSCRIPT:	//word
 		{
-			ret = (DMaps[GET_REF(dmapdataref)].script) * 10000; break;
+			ret = (dmap.script) * 10000; break;
 		}
 
 		default:
@@ -157,38 +158,40 @@ int32_t dmapdata_get_register(int32_t reg)
 
 void dmapdata_set_register(int32_t reg, int32_t value)
 {
+	dmap& dmap = DMaps[GET_REF(dmapdataref)];
+
 	switch (reg)
 	{
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapdataref);
 			break;
 		}
 		case DMAPDATACOMPASS:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].compass = ((byte)(value / 10000)); break;
+			dmap.compass = ((byte)(value / 10000)); break;
 		}
 		case DMAPDATACONTINUE:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].cont = ((byte)(value / 10000)); break;
+			dmap.cont = ((byte)(value / 10000)); break;
 		}
 		case DMAPDATAFLAGS:	 //int32_t
 		{
-			DMaps[GET_REF(dmapdataref)].flags = (value / 10000); break;
+			dmap.flags = (value / 10000); break;
 		}
 		case DMAPDATAFLOOR:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].floor = ((byte)(value / 10000)); break;
+			dmap.floor = ((byte)(value / 10000)); break;
 		}
 		case DMAPDATAINTROSTRINGID:
 		{
-			DMaps[GET_REF(dmapdataref)].intro_string_id = (value / 10000);
+			dmap.intro_string_id = (value / 10000);
 			break;
 		}
 		case DMAPDATALEVEL:	//word
 		{
-			DMaps[GET_REF(dmapdataref)].level = ((word)(value / 10000)); break;
+			dmap.level = ((word)(value / 10000)); break;
 		}
 		case DMAPDATALOOPEND:
 		{
@@ -212,11 +215,11 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAMAP: 	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].map = ((byte)(value / 10000)) - 1; break;
+			dmap.map = ((byte)(value / 10000)) - 1; break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapdataref);
 			break;
 		}
@@ -228,7 +231,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAMIRRDMAP:
 		{
-			DMaps[GET_REF(dmapdataref)].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
+			dmap.mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
 		}
 		case DMAPDATAMUISCTRACK:	//byte
 		{
@@ -238,15 +241,15 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATAOFFSET:	//char
 		{
-			DMaps[GET_REF(dmapdataref)].xoff = ((char)(value / 10000)); break;
+			dmap.xoff = ((char)(value / 10000)); break;
 		}
 		case DMAPDATAPALETTE:	//word
 		{
-			DMaps[GET_REF(dmapdataref)].color= ((word)(value / 10000));
+			dmap.color= ((word)(value / 10000));
 			if(ri->dmapdataref == cur_dmap)
 			{
-				loadlvlpal(DMaps[GET_REF(dmapdataref)].color);
-				currcset = DMaps[GET_REF(dmapdataref)].color;
+				loadlvlpal(dmap.color);
+				currcset = dmap.color;
 			}
 			break;
 		}
@@ -254,9 +257,9 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapdataref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref == cur_dmap && val == DMaps[GET_REF(dmapdataref)].passive_sub_script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapdataref == cur_dmap && val == dmap.passive_sub_script)
 				break;
-			DMaps[GET_REF(dmapdataref)].passive_sub_script = val;
+			dmap.passive_sub_script = val;
 			if(ri->dmapdataref == cur_dmap)
 			{
 				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
@@ -265,35 +268,35 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
 		{
-			DMaps[GET_REF(dmapdataref)].sideview = ((value) ? 1 : 0); break;
+			dmap.sideview = ((value) ? 1 : 0); break;
 		}
 		case DMAPDATASUBSCRA:
 		{
-			bool changed = DMaps[GET_REF(dmapdataref)].active_subscreen != ((byte)(value / 10000));
-			DMaps[GET_REF(dmapdataref)].active_subscreen= ((byte)(value / 10000));
+			bool changed = dmap.active_subscreen != ((byte)(value / 10000));
+			dmap.active_subscreen= ((byte)(value / 10000));
 			if(changed&&ri->dmapdataref==cur_dmap)
 				update_subscreens();
 			break;
 		}
 		case DMAPDATASUBSCRO:
 		{
-			bool changed = DMaps[GET_REF(dmapdataref)].overlay_subscreen != ((byte)(value / 10000));
-			DMaps[GET_REF(dmapdataref)].overlay_subscreen = ((byte)(value / 10000));
+			bool changed = dmap.overlay_subscreen != ((byte)(value / 10000));
+			dmap.overlay_subscreen = ((byte)(value / 10000));
 			if(changed&&ri->dmapdataref==cur_dmap)
 				update_subscreens();
 			break;
 		}
 		case DMAPDATASUBSCRP:
 		{
-			bool changed = DMaps[GET_REF(dmapdataref)].passive_subscreen != ((byte)(value / 10000));
-			DMaps[GET_REF(dmapdataref)].passive_subscreen= ((byte)(value / 10000));
+			bool changed = dmap.passive_subscreen != ((byte)(value / 10000));
+			dmap.passive_subscreen= ((byte)(value / 10000));
 			if(changed&&ri->dmapdataref==cur_dmap)
 				update_subscreens();
 			break;
 		}
 		case DMAPDATATYPE:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].type = (((byte)(value / 10000))&dmfTYPE) | (DMaps[GET_REF(dmapdataref)].type&~dmfTYPE); break;
+			dmap.type = (((byte)(value / 10000))&dmfTYPE) | (dmap.type&~dmfTYPE); break;
 		}
 		case DMAPDATAXFADEIN:
 		{
@@ -313,7 +316,7 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATA_GRAVITY_STRENGTH:
 		{
-			DMaps[GET_REF(dmapdataref)].dmap_gravity = zslongToFix(value);
+			dmap.dmap_gravity = zslongToFix(value);
 			break;
 		}
 		case DMAPDATA_MUSIC:
@@ -330,12 +333,12 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		}
 		case DMAPDATA_TERMINAL_VELOCITY:
 		{
-			DMaps[GET_REF(dmapdataref)].dmap_terminal_v = zslongToFix(value);
+			dmap.dmap_terminal_v = zslongToFix(value);
 			break;
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			DMaps[GET_REF(dmapdataref)].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			dmap.script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapdataref);
 			break;
 		}

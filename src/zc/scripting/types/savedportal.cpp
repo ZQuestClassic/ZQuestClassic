@@ -45,76 +45,77 @@ int32_t getPortalFromSaved(savedportal* p)
 int32_t savedportal_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	savedportal* p = checkSavedPortal(GET_REF(savportalref));
 
 	switch (reg)
 	{
 		case SAVEDPORTALDESTDMAP:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->destdmap * 10000;
 			break;
 		}
 		case SAVEDPORTALDSTSCREEN:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->destscr * 10000;
 			break;
 		}
 		case SAVEDPORTALPORTAL:
 		{
 			ret = 0;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = getPortalFromSaved(p);
 			break;
 		}
 		case SAVEDPORTALSPRITE:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->spr * 10000;
 			break;
 		}
 		case SAVEDPORTALSRCDMAP:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->srcdmap * 10000;
 			break;
 		}
 		case SAVEDPORTALSRCSCREEN:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->srcscr * 10000;
 			break;
 		}
 		case SAVEDPORTALWARPSFX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->sfx * 10000;
 			break;
 		}
 		case SAVEDPORTALWARPVFX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->warpfx * 10000;
 			break;
 		}
 		case SAVEDPORTALX:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->x;
 			break;
 		}
 		case SAVEDPORTALY:
 		{
 			ret = -10000;
-			if(savedportal* p = checkSavedPortal(GET_REF(savportalref)))
+			if (p)
 				ret = p->y;
 			break;
 		}

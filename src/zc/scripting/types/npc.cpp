@@ -271,7 +271,6 @@ void do_npc_haltwalk8()
 	{
 		if ( sz == 6 ) 
 		{
-			
 			GuyH::getNPC()->halting_walk_8( (am.get(0)/10000), (am.get(1)/10000),
 				(am.get(2)/10000), (am.get(3)/10000),
 				(am.get(4)/10000),(am.get(5)/10000));
@@ -533,7 +532,7 @@ void do_getnpcname()
 {
 	int32_t arrayptr = get_register(sarg1);
 	
-	if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+	if (GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
 		return;
 		
 	word ID = (GuyH::getNPC()->id & 0xFFF);
@@ -679,70 +678,71 @@ void do_repairshield()
 int32_t npc_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	enemy* npc = GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError ? GuyH::getNPC() : nullptr;
 
 	switch (reg)
 	{
 		#define GET_NPC_VAR_INT(member) \
 		{ \
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) \
+			if (!npc) \
 				ret = -10000; \
 			else \
-				ret = GuyH::getNPC()->member * 10000; \
+				ret = npc->member * 10000; \
 		}
 
 		case NPCDIR:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = zc_max(GuyH::getNPC()->dir * 10000, 0);
+				ret = zc_max(npc->dir * 10000, 0);
 				
 			break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->hitdir * 10000);
+				ret = (npc->hitdir * 10000);
 				
 			break;
 			
 		case NPCSLIDECLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->sclk * 10000);
+				ret = (npc->sclk * 10000);
 				
 			break;
 			
 		case NPCHALTCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->clk2 * 10000);
+				ret = (npc->clk2 * 10000);
 				
 			break;
 			
 		case NPCFRAME:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->clk * 10000);
+				ret = (npc->clk * 10000);
 				
 			break;
 			
 		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->movestatus * 10000);
+				ret = (npc->movestatus * 10000);
 				
 			break;
 			
 		case NPCFADING:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->fading * 10000);
+				ret = (npc->fading * 10000);
 				
 			break;
 			
@@ -859,19 +859,19 @@ int32_t npc_get_register(int32_t reg)
 		//And zfix
 		#define GET_NPC_VAR_FIX(member) \
 		{ \
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) \
+			if (!npc) \
 			{ \
 				ret = -10000; \
 				break; \
 			} \
 			else \
-				ret = (int32_t(GuyH::getNPC()->member) * 10000); \
+				ret = (int32_t(npc->member) * 10000); \
 		}
 
 		case NPCX:
 		//GET_NPC_VAR_FIX(x, "npc->X") break;     
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) 
+			if (!npc)
 			{
 				ret = -10000; 
 			}
@@ -879,11 +879,11 @@ int32_t npc_get_register(int32_t reg)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = ((GuyH::getNPC()->x).getZLong()); 
+					ret = ((npc->x).getZLong()); 
 				}
 				else
 				{
-					ret = (int32_t(GuyH::getNPC()->x) * 10000);   
+					ret = (int32_t(npc->x) * 10000);   
 				}
 			}
 			break;
@@ -898,13 +898,13 @@ int32_t npc_get_register(int32_t reg)
 		
 		case NPCSUBMERGED:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) 
+			if (!npc)
 			{
 				ret = -10000; 
 			}    
 			else
 			{
-				ret = ((GuyH::getNPC()->isSubmerged()) ? 10000 : 0);
+				ret = ((npc->isSubmerged()) ? 10000 : 0);
 				
 			}
 			break;	
@@ -914,7 +914,7 @@ int32_t npc_get_register(int32_t reg)
 		case NPCY:
 			//GET_NPC_VAR_FIX(y, "npc->Y") break;
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) 
+			if (!npc)
 			{
 				ret = -10000; 
 			}
@@ -922,11 +922,11 @@ int32_t npc_get_register(int32_t reg)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = ((GuyH::getNPC()->y).getZLong()); 
+					ret = ((npc->y).getZLong()); 
 				}
 				else
 				{
-					ret = (int32_t(GuyH::getNPC()->y) * 10000);   
+					ret = (int32_t(npc->y) * 10000);   
 				}
 			}
 			break;
@@ -936,7 +936,7 @@ int32_t npc_get_register(int32_t reg)
 		case NPCZ:
 			//GET_NPC_VAR_FIX(z, "npc->Z") break;
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) 
+			if (!npc)
 			{
 				ret = -10000; 
 			}
@@ -944,11 +944,11 @@ int32_t npc_get_register(int32_t reg)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = ((GuyH::getNPC()->z).getZLong()); 
+					ret = ((npc->z).getZLong()); 
 				}
 				else
 				{
-					ret = (int32_t(GuyH::getNPC()->z) * 10000);   
+					ret = (int32_t(npc->z) * 10000);   
 				}
 			}
 			break;
@@ -968,14 +968,14 @@ int32_t npc_get_register(int32_t reg)
 			
 		case NPCTOTALDYOFFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 			{
 				ret = -10000;
 			}
 			else
 			{
-				ret = ((int32_t(GuyH::getNPC()->yofs - (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
-					+ ((GuyH::getNPC()->switch_hooked && Hero.switchhookstyle == swRISE)
+				ret = ((int32_t(npc->yofs - (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+					+ ((npc->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000);
 			}
 			break;
@@ -986,22 +986,22 @@ int32_t npc_get_register(int32_t reg)
 			
 			//These variables are all different to the templates (casting for jump and step is slightly non-standard)
 		case NPCJUMP:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
 			{
-				ret = GuyH::getNPC()->fall.getZLong() / -100;
+				ret = npc->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 		
 		case NPCFAKEJUMP:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
 			{
-				ret = GuyH::getNPC()->fakefall.getZLong() / -100;
+				ret = npc->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
@@ -1014,64 +1014,64 @@ int32_t npc_get_register(int32_t reg)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				ret = -1; break;
 			}
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (int32_t(GuyH::getNPC()->scale) * 100.0);
+				ret = (int32_t(npc->scale) * 100.0);
 				
 			break;
 		
 		case NPCIMMORTAL:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = GuyH::getNPC()->immortal ? 10000 : 0;
+				ret = npc->immortal ? 10000 : 0;
 			break;
 		
 		case NPCNOSLIDE:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
+				ret = (npc->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
 			break;
 		
 		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
+				ret = (npc->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
 			break;
 		
 		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = GuyH::getNPC()->knockbackSpeed * 10000;
+				ret = npc->knockbackSpeed * 10000;
 			break;
 			
 		case NPCSTEP:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
-					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
+					ret = ( ( (npc->step).getZLong() ) * 100 );
 				}
 				//old, buggy code replication, round two: Go! -Z
-				//else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
+				//else ret = ( ( (npc->step) * 100.0 ).getZLong() );
 				else 
 				{
-					double s2 = ( (GuyH::getNPC()->step).getZLong() );
+					double s2 = ( (npc->step).getZLong() );
 					ret = int32_t(s2*100);
-					//ret = int32_t( ( (GuyH::getNPC()->step) * 100.0 )) * 10000;
+					//ret = int32_t( ( (npc->step) * 100.0 )) * 10000;
 				}
-				//else ret = int32_t(GuyH::getNPC()->step * fix(100.0)) * 10000;
+				//else ret = int32_t(npc->step * fix(100.0)) * 10000;
 				
 				//else 
 				//{
 					//old, buggy code replication, round THREE: Go! -Z
-				//	double tmp = ( (GuyH::getNPC()->step) ) * 1000000.0;
+				//	double tmp = ( (npc->step) ) * 1000000.0;
 				//	ret = (int32_t)tmp;
 				//}
 			}
@@ -1079,48 +1079,48 @@ int32_t npc_get_register(int32_t reg)
 			break;
 		
 		case NPCGRAVITY:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->moveflags & move_obeys_grav) ? 10000 : 0);
+				ret = ((npc->moveflags & move_obeys_grav) ? 10000 : 0);
 				
 			break;
 		
 			
 		case NPCID:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
+				ret = (npc->id & 0xFFF) * 10000;
 				
 			break;
 		
 		case NPCISCORE:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->isCore) ? 10000 : 0);
+				ret = ((npc->isCore) ? 10000 : 0);
 				
 			break;
 		
 		case NPCSCRIPTUID:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->getUID()));
+				ret = ((npc->getUID()));
 				
 			break;
 		
 		case NPCPARENTUID:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = GuyH::getNPC()->parent ? GuyH::getNPC()->parent->getUID() : 0; //literal, not *10000
+				ret = npc->parent ? npc->parent->getUID() : 0; //literal, not *10000
 				
 			break;
 
 		case NPCMFLAGS:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
 				ret = GuyH::getMFlags() * 10000;
@@ -1129,45 +1129,45 @@ int32_t npc_get_register(int32_t reg)
 
 		case NPCSCRIPT:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError )
+			if (!npc)
 				ret = -10000;
 			else
 			{
 				//enemy *e = (enemy*)guys.spr(GET_REF(npcref));
-				ret = (int32_t)GuyH::getNPC()->script * 10000;
+				ret = (int32_t)npc->script * 10000;
 			}
 		}
 		break;
 		
 		case NPCINVINC:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (int32_t)GuyH::getNPC()->hclk * 10000;
+				ret = (int32_t)npc->hclk * 10000;
 				
 			break;
 		
 		case NPCHASITEM:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = 0;
 			else
-				ret = GuyH::getNPC()->itemguy?10000:0;
+				ret = npc->itemguy?10000:0;
 				
 			break;
 		
 		case NPCRINGLEAD:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = 0;
 			else
-				ret = GuyH::getNPC()->leader?10000:0;
+				ret = npc->leader?10000:0;
 				
 			break;
 		
 		case NPCSUPERMAN:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = (int32_t)GuyH::getNPC()->superman * 10000;
+				ret = (int32_t)npc->superman * 10000;
 				
 			break;
 		
@@ -1183,36 +1183,36 @@ int32_t npc_get_register(int32_t reg)
 		
 
 		case NPCFALLCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->fallclk * 10000;
+				ret = npc->fallclk * 10000;
 			}
 			break;
 		
 		case NPCFALLCMB:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->fallCombo * 10000;
+				ret = npc->fallCombo * 10000;
 			}
 			break;
 			
 		case NPCDROWNCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->drownclk * 10000;
+				ret = npc->drownclk * 10000;
 			}
 			break;
 		
 		case NPCDROWNCMB:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->drownCombo * 10000;
+				ret = npc->drownCombo * 10000;
 			}
 			break;
 		
 		case NPCFAKEZ:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError) 
+			if (!npc)
 			{
 				ret = -10000; 
 			}
@@ -1220,68 +1220,68 @@ int32_t npc_get_register(int32_t reg)
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret = ((GuyH::getNPC()->fakez).getZLong()); 
+					ret = ((npc->fakez).getZLong()); 
 				}
 				else
 				{
-					ret = (int32_t(GuyH::getNPC()->fakez) * 10000);   
+					ret = (int32_t(npc->fakez) * 10000);   
 				}
 			}
 			break;
 		}
 
 		case NPCGLOWRAD:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->glowRad * 10000;
+				ret = npc->glowRad * 10000;
 			}
 			break;
 			
 		case NPCGLOWSHP:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->glowShape * 10000;
+				ret = npc->glowShape * 10000;
 			}
 			break;
 			
 		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->spr_shadow * 10000;
+				ret = npc->spr_shadow * 10000;
 			}
 			break;
 		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->spr_spawn * 10000;
+				ret = npc->spr_spawn * 10000;
 			}
 			break;
 		case NPCDEATHSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->spr_death * 10000;
+				ret = npc->spr_death * 10000;
 			}
 			break;
 		case NPCSWHOOKED:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->switch_hooked ? 10000 : 0;
+				ret = npc->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case NPCCANFLICKER:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
+				ret = npc->getCanFlicker() ? 10000 : 0;
 			}
 			break;
 		case NPCFLICKERCOLOR:
 			GET_NPC_VAR_INT(flickercolor) break;
 		case NPCFLASHINGCSET:
 		{
-			if (GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
+			if (!npc)
 				ret = -10000;
 			else
-				ret = GuyH::getNPC()->getFlashingCSet() * 10000;
+				ret = npc->getFlashingCSet() * 10000;
 			break;
 		}
 		case NPCFLICKERTRANSP:
@@ -1306,13 +1306,15 @@ int32_t npc_get_register(int32_t reg)
 
 void npc_set_register(int32_t reg, int32_t value)
 {
+	enemy* npc = GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError ? GuyH::getNPC() : nullptr;
+
 	switch (reg)
 	{
 		case NPCX:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				npc->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				if(GuyH::hasHero())
 					Hero.setXfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
@@ -1327,52 +1329,52 @@ void npc_set_register(int32_t reg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->scale = (value / 100.0);
+				npc->scale = (value / 100.0);
 			}
 		}
 		break;
 		
 		case NPCIMMORTAL:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->immortal = (value ? true : false);
+				npc->immortal = (value ? true : false);
 			}
 			break;
 		
 		case NPCNOSLIDE:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				if(value)
 				{
-					GuyH::getNPC()->knockbackflags |= FLAG_NOSLIDE;
+					npc->knockbackflags |= FLAG_NOSLIDE;
 				}
 				else
 				{
-					GuyH::getNPC()->knockbackflags &= ~FLAG_NOSLIDE;
+					npc->knockbackflags &= ~FLAG_NOSLIDE;
 				}
 			}
 			break;
 		
 		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				if(value)
 				{
-					GuyH::getNPC()->knockbackflags |= FLAG_NOSCRIPTKNOCKBACK;
+					npc->knockbackflags |= FLAG_NOSCRIPTKNOCKBACK;
 				}
 				else
 				{
-					GuyH::getNPC()->knockbackflags &= ~FLAG_NOSCRIPTKNOCKBACK;
+					npc->knockbackflags &= ~FLAG_NOSCRIPTKNOCKBACK;
 				}
 			}
 			break;
 		
 		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
+				npc->knockbackSpeed = vbound(value/10000, 0, 255);
 			}
 			break;
 		
@@ -1385,11 +1387,11 @@ void npc_set_register(int32_t reg, int32_t value)
 			
 		case NPCY:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				zfix oldy = GuyH::getNPC()->y;
-				GuyH::getNPC()->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				GuyH::getNPC()->floor_y += ((get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
+				zfix oldy = npc->y;
+				npc->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				npc->floor_y += ((get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
 				
 				if(GuyH::hasHero())
 					Hero.setYfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
@@ -1399,14 +1401,14 @@ void npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCZ:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				if(!never_in_air(GuyH::getNPC()->id))
+				if(!never_in_air(npc->id))
 				{
 					if(value < 0)
-						GuyH::getNPC()->z = 0_zf;
+						npc->z = 0_zf;
 					else
-						GuyH::getNPC()->z = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+						npc->z = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 						
 					if(GuyH::hasHero())
 						Hero.setZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
@@ -1417,10 +1419,10 @@ void npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCJUMP:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fall =zslongToFix(value)*-100;
+				if(canfall(npc->id))
+					npc->fall =zslongToFix(value)*-100;
 					
 				if(GuyH::hasHero())
 					Hero.setFall(zslongToFix(value)*-100);
@@ -1430,10 +1432,10 @@ void npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCFAKEJUMP:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fakefall =zslongToFix(value)*-100;
+				if(canfall(npc->id))
+					npc->fakefall =zslongToFix(value)*-100;
 					
 				if(GuyH::hasHero())
 					Hero.setFakeFall(zslongToFix(value)*-100);
@@ -1443,21 +1445,21 @@ void npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCSTEP:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{	
-					GuyH::getNPC()->step = zslongToFix(value / 100);
+					npc->step = zslongToFix(value / 100);
 				}
 				else
 				{
 					//old, buggy code replication, round two: Go! -Z
 					//zfix val = zslongToFix(value);
 					//val.doFloor();
-					//GuyH::getNPC()->step = ((val / 100.0).getFloat());
+					//npc->step = ((val / 100.0).getFloat());
 					
 					//old, buggy code replication, round THREE: Go! -Z
-					GuyH::getNPC()->step = ((value/10000)/100.0);
+					npc->step = ((value/10000)/100.0);
 				}
 			}
 		}
@@ -1465,41 +1467,41 @@ void npc_set_register(int32_t reg, int32_t value)
 		
 		case NPCGRAVITY:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				if(value)
-					GuyH::getNPC()->moveflags |= move_obeys_grav;
+					npc->moveflags |= move_obeys_grav;
 				else
-					GuyH::getNPC()->moveflags &= ~move_obeys_grav;
+					npc->moveflags &= ~move_obeys_grav;
 			}
 		}
 		break;
 		
 		case NPCXOFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->xofs = zfix(value / 10000);
+			if (npc)
+				npc->xofs = zfix(value / 10000);
 		}
 		break;
 		
 		case NPCYOFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			if (npc)
+				npc->yofs = zfix(value / 10000) + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 		}
 		break;
 		
 		case NPCSHADOWXOFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->shadowxofs = zfix(value / 10000);
+			if (npc)
+				npc->shadowxofs = zfix(value / 10000);
 		}
 		break;
 		
 		case NPCSHADOWYOFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->shadowyofs = zfix(value / 10000);
+			if (npc)
+				npc->shadowyofs = zfix(value / 10000);
 		}
 		break;
 		
@@ -1513,28 +1515,28 @@ void npc_set_register(int32_t reg, int32_t value)
 				scripting_log_error_with_context("To use this you must disable the quest rule 'Old (Faster) Sprite Drawing'.");
 				break;
 			}
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->rotation = (value / 10000);
+			if (npc)
+				npc->rotation = (value / 10000);
 		}
 		break;
 		
 		case NPCZOFS:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->zofs = zfix(value / 10000);
+			if (npc)
+				npc->zofs = zfix(value / 10000);
 		}
 		break;
 		
 		#define SET_NPC_VAR_INT(member) \
 		{ \
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError) \
-				GuyH::getNPC()->member = value / 10000; \
+			if (npc) \
+				npc->member = value / 10000; \
 		}
 		
 		
 		case NPCISCORE:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-			GuyH::getNPC()->isCore = ( (value / 10000) ? true : false );
+			if (npc)
+				npc->isCore = ( (value / 10000) ? true : false );
 			break;
 		
 		
@@ -1542,38 +1544,38 @@ void npc_set_register(int32_t reg, int32_t value)
 			SET_NPC_VAR_INT(dir) break;
 			
 		case NPCHITDIR:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
+			if (npc)
+				(npc->hitdir) = vbound(value/10000, 0, 3);
 				
 			break;
 			
 		case NPCSLIDECLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
+			if (npc)
+				npc->sclk = value/10000;//vbound(value/10000,0,255);
 				
 			break;
 			
 		case NPCFADING:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
+			if (npc)
+				(npc->fading) = vbound(value/10000,0,4);
 				
 			break;
 			
 		case NPCHALTCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+			if (npc)
+				(npc->clk2) = vbound(value/10000,0,214748);
 				
 			break;
 			
 		case NPCFRAME:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
+			if (npc)
+				(npc->clk2) = vbound(value/10000,0,214748);
 				
 			break;
 		
 		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(GET_REF(npcref)) != SH::_NoError)
-				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
+			if (npc)
+				(npc->movestatus) = vbound(value/10000,0,3);
 				
 			break;
 			
@@ -1620,7 +1622,7 @@ void npc_set_register(int32_t reg, int32_t value)
 			SET_NPC_VAR_INT(bosspal) break;
 			
 		case NPCBGSFX:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				enemy *en=GuyH::getNPC();
 				int32_t newSFX = value / 10000;
@@ -1671,10 +1673,10 @@ void npc_set_register(int32_t reg, int32_t value)
 			
 		case NPCCSET:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->cs = (value / 10000) & 0xF;
-				if(GuyH::getNPC()->type == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
+				npc->cs = (value / 10000) & 0xF;
+				if (npc->type == eeLEV) npc->dcset = (value / 10000) & 0xF;
 			}
 		}
 		break;
@@ -1684,9 +1686,8 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t height = value / 10000;
 			
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkIndex(height, 0, 20) == SH::_NoError)
-				GuyH::getNPC()->txsz = height;
+			if (npc && BC::checkIndex(height, 0, 20) == SH::_NoError)
+				npc->txsz = height;
 		}
 		break;
 		
@@ -1694,9 +1695,8 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t width = value / 10000;
 			
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkBounds(width, 0, 20) == SH::_NoError)
-				GuyH::getNPC()->tysz = width;
+			if (npc && BC::checkBounds(width, 0, 20) == SH::_NoError)
+				npc->tysz = width;
 		}
 		break;
 		
@@ -1704,9 +1704,8 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t tile = value / 10000;
 			
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkTile(tile) == SH::_NoError)
-				GuyH::getNPC()->o_tile = tile;
+			if (npc && BC::checkTile(tile) == SH::_NoError)
+				npc->o_tile = tile;
 		}
 		break;
 		
@@ -1714,23 +1713,22 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t tile = value / 10000;
 			
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkTile(tile) == SH::_NoError)
-				GuyH::getNPC()->tile = tile;
+			if (npc && BC::checkTile(tile) == SH::_NoError)
+				npc->tile = tile;
 		}
 		break;
 		
 		case NPCSCRIPTTILE:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
+			if (npc)
+				npc->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
 		}
 		break;
 		
 		case NPCSCRIPTFLIP:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError )
-				GuyH::getNPC()->scriptflip = vbound(value/10000, -1, 127);
+			if (npc)
+				npc->scriptflip = vbound(value/10000, -1, 127);
 		}
 		break;
 		
@@ -1738,41 +1736,40 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			int32_t weapon = value / 10000;
 			
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError &&
-					BC::checkBounds(weapon, 0, wMax-1) == SH::_NoError)
+			if (npc && BC::checkBounds(weapon, 0, wMax-1) == SH::_NoError)
 			{
-				GuyH::getNPC()->wpn = weapon;
+				npc->wpn = weapon;
 			
 				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) )
 				{
-					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
+					npc->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
 				}
 				if (get_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE))
 				{
-					GuyH::getNPC()->firesfx = FFCore.GetDefaultWeaponSFX(weapon);
+					npc->firesfx = FFCore.GetDefaultWeaponSFX(weapon);
 				}
-				//else GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
+				//else npc->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
 			}
 		}
 		break;
 
 		case NPCPARENTUID:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->setParent(sprite::getByUID(value));
+				npc->setParent(sprite::getByUID(value));
 			}
 			break;
 
 		case NPCSCRIPT:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
-						GuyH::getNPC()->initD[q] = 0;
+						npc->initD[q] = 0;
 				}
-				GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
+				npc->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
 				on_reassign_script_engine_data(ScriptType::NPC, GET_REF(npcref));
 			}
 		}
@@ -1780,29 +1777,29 @@ void npc_set_register(int32_t reg, int32_t value)
 
 		case NPCINVINC:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->hclk = (int32_t)value/10000;
+			if (npc)
+				npc->hclk = (int32_t)value/10000;
 		}
 		break;
 		
 		case NPCSUPERMAN:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->superman = (int32_t)value/10000;
+			if (npc)
+				npc->superman = (int32_t)value/10000;
 		}
 		break;
 		
 		case NPCHASITEM:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->itemguy = (value/10000)?1:0;
+			if (npc)
+				npc->itemguy = (value/10000)?1:0;
 		}
 		break;
 		
 		case NPCRINGLEAD:
 		{
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
-				GuyH::getNPC()->leader = (value/10000)?1:0;
+			if (npc)
+				npc->leader = (value/10000)?1:0;
 		}
 		break;
 
@@ -1814,50 +1811,50 @@ void npc_set_register(int32_t reg, int32_t value)
 			SET_NPC_VAR_INT(frozenclock); break;
 
 		case NPCFALLCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				if(GuyH::getNPC()->fallclk != 0 && value == 0)
+				if (npc->fallclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
-					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
+					npc->cs = npc->o_cset;
+					npc->tile = npc->o_tile;
 				}
-				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
-				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
+				else if (npc->fallclk == 0 && value != 0) npc->o_cset = npc->cs;
+				npc->fallclk = vbound(value/10000,0,70);
 			}
 			break;
 		case NPCFALLCMB:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				npc->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case NPCDROWNCLK:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				if(GuyH::getNPC()->drownclk != 0 && value == 0)
+				if (npc->drownclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
-					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
+					npc->cs = npc->o_cset;
+					npc->tile = npc->o_tile;
 				}
-				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
-				GuyH::getNPC()->drownclk = vbound(value/10000,0,70);
+				else if (npc->drownclk == 0 && value != 0) npc->o_cset = npc->cs;
+				npc->drownclk = vbound(value/10000,0,70);
 			}
 			break;
 		case NPCDROWNCMB:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				npc->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 		case NPCFAKEZ:
 			{
-				if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+				if (npc)
 				{
-					if(!never_in_air(GuyH::getNPC()->id))
+					if(!never_in_air(npc->id))
 					{
 						if(value < 0)
-							GuyH::getNPC()->fakez = 0_zf;
+							npc->fakez = 0_zf;
 						else
-							GuyH::getNPC()->fakez = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+							npc->fakez = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 							
 						if(GuyH::hasHero())
 							Hero.setFakeZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
@@ -1867,61 +1864,61 @@ void npc_set_register(int32_t reg, int32_t value)
 			break;
 
 		case NPCGLOWRAD:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
+				npc->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 		case NPCGLOWSHP:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
+				npc->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,MAXSPRITES-1);
+				npc->spr_shadow = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,MAXSPRITES-1);
+				npc->spr_spawn = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCDEATHSPR:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->spr_death = vbound(value/10000,0,MAXSPRITES-1);
+				npc->spr_death = vbound(value/10000,0,MAXSPRITES-1);
 			}
 			break;
 		case NPCSWHOOKED:
 			break; //read-only
 		case NPCCANFLICKER:
-			if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->setCanFlicker(value != 0);
+				npc->setCanFlicker(value != 0);
 			}
 			break;
 		case NPCFLICKERCOLOR:
-			if (GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->flickercolor = vbound(value/10000,-1,255);
+				npc->flickercolor = vbound(value/10000,-1,255);
 			}
 			break;
 		case NPCFLICKERTRANSP:
-			if (GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
+				npc->flickertransp = vbound(value / 10000, -1, 255);
 			}
 			break;
 
 		case NPCFIRESFX:
-			if (GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+			if (npc)
 			{
-				GuyH::getNPC()->firesfx = vbound(value / 10000, 0, 255);
+				npc->firesfx = vbound(value / 10000, 0, 255);
 			}
 			break;
 

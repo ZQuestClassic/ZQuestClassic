@@ -32,97 +32,98 @@ portal* checkPortal(int32_t ref, bool skiperr)
 int32_t portal_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	portal* p = checkPortal(GET_REF(portalref));
 
 	switch (reg)
 	{
 		case PORTALACLK:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->aclk*10000;
 			break;
 		}
 		case PORTALAFRM:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->aframe*10000;
 			break;
 		}
 		case PORTALASPD:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->aspd*10000;
 			break;
 		}
 		case PORTALCLOSEDIS:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->prox_active ? 0 : 10000; //Inverted
 			break;
 		}
 		case PORTALDMAP:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->destdmap*10000;
 			break;
 		}
 		case PORTALFRAMES:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->frames*10000;
 			break;
 		}
 		case PORTALOTILE:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->o_tile*10000;
 			break;
 		}
 		case PORTALSAVED:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->saved_data;
 			break;
 		}
 		case PORTALSCREEN:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->destscr*10000;
 			break;
 		}
 		case PORTALWARPSFX:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->wsfx ? 0 : 10000;
 			break;
 		}
 		case PORTALWARPVFX:
 		{
 			ret = 0;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->weffect ? 0 : 10000;
 			break;
 		}
 		case PORTALX:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->x.getZLong();
 			break;
 		}
 		case PORTALY:
 		{
 			ret = -10000;
-			if(portal* p = checkPortal(GET_REF(portalref)))
+			if (p)
 				ret = p->y.getZLong();
 			break;
 		}

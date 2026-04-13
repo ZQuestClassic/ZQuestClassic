@@ -6,7 +6,7 @@
 #include "base/compiler.h"
 #include "base/general.h"
 #include "core/handles.h"
-#include "ffc.h"
+#include "../ffc.h"
 #include "sprite.h"
 #include "zc/zelda.h"
 

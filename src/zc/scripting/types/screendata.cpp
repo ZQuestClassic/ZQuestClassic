@@ -19,26 +19,27 @@ void playLevelMusic();
 int32_t screendata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	mapscr* scr = get_scr(GET_REF(screenref));
 
 	#define	GET_SCREENDATA_VAR_INT32(member) \
 	{ \
-		ret = (get_scr(GET_REF(screenref))->member *10000); \
+		ret = (scr->member *10000); \
 	} \
 
 	#define	GET_SCREENDATA_VAR_INT16(member) \
 	{ \
-		ret = (get_scr(GET_REF(screenref))->member *10000); \
+		ret = (scr->member *10000); \
 	} \
 
 	#define	GET_SCREENDATA_VAR_BYTE(member) \
 	{ \
-		ret = (get_scr(GET_REF(screenref))->member *10000); \
+		ret = (scr->member *10000); \
 	} \
 
 	#define GET_SCREENDATA_BYTE_INDEX(member, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		ret = (get_scr(GET_REF(screenref))->member[indx] *10000); \
+		ret = (scr->member[indx] *10000); \
 	} \
 
 	//byte
@@ -51,7 +52,7 @@ int32_t screendata_get_register(int32_t reg)
 		} \
 		else \
 		{ \
-			ret = (get_scr(GET_REF(screenref))->member[indx-1] *10000); \
+			ret = (scr->member[indx-1] *10000); \
 		} \
 	} \
 
@@ -64,7 +65,7 @@ int32_t screendata_get_register(int32_t reg)
 		} \
 		else \
 		{ \
-			ret = (get_scr(GET_REF(screenref))->member[indx]?10000:0); \
+			ret = (scr->member[indx]?10000:0); \
 		} \
 	} \
 
@@ -72,7 +73,7 @@ int32_t screendata_get_register(int32_t reg)
 	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
 	{ \
 		int32_t flag =  (value/10000);  \
-		ret = (get_scr(GET_REF(screenref))->member&flag) ? 10000 : 0); \
+		ret = (scr->member&flag) ? 10000 : 0); \
 	} \
 
 	switch (reg)
@@ -170,10 +171,10 @@ int32_t screendata_get_register(int32_t reg)
 		}
 		break;
 		case ROOMDATA:
-			ret = get_scr(GET_REF(screenref))->catchall*10000;
+			ret = scr->catchall*10000;
 			break;
 		case ROOMTYPE:
-			ret = get_scr(GET_REF(screenref))->room*10000;
+			ret = scr->room*10000;
 			break;
 		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_INT16(bosssfx); break;	//B
 		case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall); break; //W
@@ -229,7 +230,6 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_INT16(holdupsfx); break; //B
 		case SCREENDATAITEM:
 		{
-			mapscr* scr = get_scr(GET_REF(screenref));
 			if(scr->hasitem)
 				ret = (scr->item *10000);
 			else ret = -10000;
@@ -254,14 +254,13 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room);	break;		//b
 		case SCREENDATASCREENMIDI:
 		{
-			mapscr* m = get_scr(GET_REF(screenref));
-			if (unsigned(m->music) > quest_music.size())
+			if (unsigned(scr->music) > quest_music.size())
 				ret = -40000; // old value for using dmap music
-			else if (!m->music)
+			else if (!scr->music)
 				ret = 0;
 			else
 			{
-				auto const& amus = quest_music[m->music-1];
+				auto const& amus = quest_music[scr->music-1];
 				if (amus.enhanced.is_empty())
 					ret = convert_to_old_midi_id(amus.midi, true) * 10000;
 				else ret = -10000; // error using outdated zasm with new features
@@ -280,20 +279,19 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREENDATAWARPRETURNC: 	GET_SCREENDATA_VAR_INT32(warpreturnc); break;	//w
 		case SCREENDATA_GRAVITY_STRENGTH:
 		{
-			ret = get_scr(GET_REF(screenref))->screen_gravity.getZLong();
+			ret = scr->screen_gravity.getZLong();
 			break;
 		}
 		case SCREENDATA_MUSIC:
 		{
-			mapscr* m = get_scr(GET_REF(screenref));
-			if (m->music < -1 || m->music > quest_music.size())
+			if (scr->music < -1 || scr->music > quest_music.size())
 				ret = -1;
-			else ret = m->music;
+			else ret = scr->music;
 			break;
 		}
 		case SCREENDATA_TERMINAL_VELOCITY:
 		{
-			ret = get_scr(GET_REF(screenref))->screen_terminal_v.getZLong();
+			ret = scr->screen_terminal_v.getZLong();
 			break;
 		}
 		case SCREENSCRDATASIZE:
@@ -304,7 +302,7 @@ int32_t screendata_get_register(int32_t reg)
 			break;
 		}
 		case SCREENSCRIPT:
-			ret=get_scr(GET_REF(screenref))->script*10000;
+			ret=scr->script*10000;
 			break;
 		case SCREENSECRETSTRIGGERED:
 		{
@@ -326,10 +324,10 @@ int32_t screendata_get_register(int32_t reg)
 			break;
 		}
 		case UNDERCOMBO:
-			ret = get_scr(GET_REF(screenref))->undercombo*10000;
+			ret = scr->undercombo*10000;
 			break;
 		case UNDERCSET:
-			ret = get_scr(GET_REF(screenref))->undercset*10000;
+			ret = scr->undercset*10000;
 			break;
 		case WAVY:
 			ret = wavy*10000;
@@ -344,25 +342,27 @@ int32_t screendata_get_register(int32_t reg)
 
 void screendata_set_register(int32_t reg, int32_t value)
 {
+	mapscr* scr = get_scr(GET_REF(screenref));
+
 	#define	SET_SCREENDATA_VAR_INT32(member, str) \
 	{ \
-		get_scr(GET_REF(screenref))->member = vbound((value / 10000),-214747,214747); \
+		scr->member = vbound((value / 10000),-214747,214747); \
 	} \
 
 	#define	SET_SCREENDATA_VAR_INT16(member, str) \
 	{ \
-		get_scr(GET_REF(screenref))->member = vbound((value / 10000),0,32767); \
+		scr->member = vbound((value / 10000),0,32767); \
 	} \
 
 	#define	SET_SCREENDATA_VAR_BYTE(member, str) \
 	{ \
-		get_scr(GET_REF(screenref))->member = vbound((value / 10000),0,255); \
+		scr->member = vbound((value / 10000),0,255); \
 	} \
 
 	#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 		int32_t indx = GET_D(rINDEX) / 10000; \
-		get_scr(GET_REF(screenref))->member[indx] = vbound((value / 10000),0,255); \
+		scr->member[indx] = vbound((value / 10000),0,255); \
 	}
 
 	///max screen id is higher! vbound properly... -Z
@@ -379,7 +379,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
 			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
 		} \
-		else get_scr(GET_REF(screenref))->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+		else scr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 	}
 
 	#define SET_SCREENDATA_FLAG(member, str) \
@@ -387,9 +387,9 @@ void screendata_set_register(int32_t reg, int32_t value)
 		int32_t flag =  (value/10000);  \
 		if ( flag != 0 ) \
 		{ \
-			get_scr(GET_REF(screenref))->member|=flag; \
+			scr->member|=flag; \
 		} \
-		else get_scr(GET_REF(screenref))->.member|= ~flag; \
+		else scr->.member|= ~flag; \
 	} \
 
 	#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
@@ -400,7 +400,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 			break; \
 		} \
-		get_scr(GET_REF(screenref))->member[indx] =( (value/10000) ? 1 : 0 ); \
+		scr->member[indx] =( (value/10000) ? 1 : 0 ); \
 	}
 
 
@@ -423,10 +423,10 @@ void screendata_set_register(int32_t reg, int32_t value)
 			quakeclk=value/10000;
 			break;
 		case ROOMDATA:
-			get_scr(GET_REF(screenref))->catchall=value/10000;
+			scr->catchall=value/10000;
 			break;
 		case ROOMTYPE:
-			get_scr(GET_REF(screenref))->room=value/10000; break; //this probably doesn't work too well...
+			scr->room=value/10000; break; //this probably doesn't work too well...
 		case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_INT16(bosssfx, "BossSFX"); break;	//B
 		case SCREENDATACATCHALL:	 	SET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 		case SCREENDATACOLOUR: 		SET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
@@ -437,7 +437,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
-			get_scr(GET_REF(screenref))->entry_x = newx;
+			scr->entry_x = newx;
 			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_x = (zfix)(newx);
@@ -448,7 +448,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		{
 
 			int32_t newy = vbound((value/10000),0,175);
-			get_scr(GET_REF(screenref))->entry_y = newy;
+			scr->entry_y = newy;
 			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_y = (zfix)(newy);
@@ -527,7 +527,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 		case SCREENDATASCREENMIDI:
 		{
-			get_scr(GET_REF(screenref))->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4), true));
+			scr->music = find_or_make_midi_music(convert_from_old_midi_id(vbound(value / 10000, MAXMIDIS-MIDIOFFSET_ZSCRIPT, -4), true));
 			break;
 		}
 		case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_INT16(secretsfx, "SecretSFX"); break;	//B
@@ -547,23 +547,22 @@ void screendata_set_register(int32_t reg, int32_t value)
 		case SCREENDATAWARPRETURNC: 	SET_SCREENDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
 		case SCREENDATA_GRAVITY_STRENGTH:
 		{
-			get_scr(GET_REF(screenref))->screen_gravity = zslongToFix(value);
+			scr->screen_gravity = zslongToFix(value);
 			break;
 		}
 		case SCREENDATA_MUSIC:
 		{
-			mapscr* m = get_scr(GET_REF(screenref));
-			if (m->music != value && (value == -1 || value == 0 || checkMusic(value)))
+			if (scr->music != value && (value == -1 || value == 0 || checkMusic(value)))
 			{
-				m->music = value;
-				if (engine_music_active && m == hero_scr)
+				scr->music = value;
+				if (engine_music_active && scr == hero_scr)
 					playLevelMusic();
 			}
 			break;
 		}
 		case SCREENDATA_TERMINAL_VELOCITY:
 		{
-			get_scr(GET_REF(screenref))->screen_terminal_v = zslongToFix(value);
+			scr->screen_terminal_v = zslongToFix(value);
 			break;
 		}
 		case SCREENSCRDATASIZE:
@@ -576,8 +575,6 @@ void screendata_set_register(int32_t reg, int32_t value)
 		}
 		case SCREENSCRIPT:
 		{
-			mapscr* scr = get_scr(GET_REF(screenref));
-
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
@@ -602,10 +599,10 @@ void screendata_set_register(int32_t reg, int32_t value)
 			break;
 		}
 		case UNDERCOMBO:
-			get_scr(GET_REF(screenref))->undercombo=value/10000;
+			scr->undercombo=value/10000;
 			break;
 		case UNDERCSET:
-			get_scr(GET_REF(screenref))->undercset=value/10000;
+			scr->undercset=value/10000;
 			break;
 		case WAVY:
 			wavy=value/10000;

@@ -28,47 +28,48 @@ bool checkNPCDataRef()
 int32_t npcdata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	guydata* nd = checkNPCDataRef() ? &guysbuf[GET_REF(npcdataref)] : nullptr;
 
 	#define	GET_NPCDATA_VAR_INT32(member, str) \
 	{ \
-		if( !checkNPCDataRef() ) \
+		if( !nd ) \
 		{ \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			ret = (guysbuf[GET_REF(npcdataref)].member *10000); \
+			ret = (nd->member *10000); \
 		} \
 	} \
 
 	#define	GET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if( !checkNPCDataRef() ) \
+		if( !nd ) \
 		{ \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			ret = (guysbuf[GET_REF(npcdataref)].member *10000); \
+			ret = (nd->member *10000); \
 		} \
 	} \
 	
 	#define	GET_NPCDATA_VAR_INT16(member, str) \
 	{ \
-		if( !checkNPCDataRef() ) \
+		if( !nd ) \
 		{ \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			ret = (guysbuf[GET_REF(npcdataref)].member *10000); \
+			ret = (nd->member *10000); \
 		} \
 	} \
 
 	#define GET_NPCDATA_FLAG(member, str, indexbound) \
 	{ \
 		int32_t flag =  (value/10000);  \
-		if( !checkNPCDataRef() ) \
+		if( !nd ) \
 		{ \
 		} \
 		else \
@@ -92,26 +93,26 @@ int32_t npcdata_get_register(int32_t reg)
 		case NPCDATAFIRESFX: GET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
 		case NPCDATAFLAGS1:
 		{
-			if( !checkNPCDataRef() )
+			if( !nd )
 			{
 				ret = -10000;
 			}
 			else
 			{
-				uint32_t value = guysbuf[GET_REF(npcdataref)].flags & 0xFFFFFFFFLL;
+				uint32_t value = nd->flags & 0xFFFFFFFFLL;
 				ret = value * 10000;
 			}
 		}
 		break;
 		case NPCDATAFLAGS2:
 		{
-			if( !checkNPCDataRef() )
+			if( !nd )
 			{
 				ret = -10000;
 			}
 			else
 			{
-				uint32_t value = (guysbuf[GET_REF(npcdataref)].flags >> 32) & 0xFFFFFFFFLL;
+				uint32_t value = (nd->flags >> 32) & 0xFFFFFFFFLL;
 				ret = value * 10000;
 			}
 		}
@@ -151,7 +152,7 @@ int32_t npcdata_get_register(int32_t reg)
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponScript: %d\n", ri->npcdataref);
 				ret = -10000;
 			}
-			else ret = (guysbuf[GET_REF(npcdataref)].weap_data.script *10000);
+			else ret = (nd->weap_data.script *10000);
 			break;
 		}
 		case NPCDATAWIDTH: GET_NPCDATA_VAR_BYTE(width, "Width"); break;
@@ -161,40 +162,40 @@ int32_t npcdata_get_register(int32_t reg)
 		case NPCDATAZOFS: GET_NPCDATA_VAR_INT32(zofs, "DrawZOffset"); break;
 		case NPCDDEATHSPR:
 		{
-			if(!checkNPCDataRef()) 
+			if(!nd) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", ri->npcdataref);
 				ret = -10000; 
 			} 
 			else 
 			{
-				ret = guysbuf[GET_REF(npcdataref)].spr_death * 10000;
+				ret = nd->spr_death * 10000;
 			} 
 			break;
 		}
 		case NPCDSHADOWSPR:
 		{
-			if(!checkNPCDataRef()) 
+			if(!nd) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", ri->npcdataref);
 				ret = -10000; 
 			} 
 			else 
 			{
-				ret = guysbuf[GET_REF(npcdataref)].spr_shadow * 10000;
+				ret = nd->spr_shadow * 10000;
 			} 
 			break;
 		}
 		case NPCDSPAWNSPR:
 		{
-			if(!checkNPCDataRef()) 
+			if(!nd) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", ri->npcdataref);
 				ret = -10000; 
 			} 
 			else 
 			{
-				ret = guysbuf[GET_REF(npcdataref)].spr_spawn * 10000;
+				ret = nd->spr_spawn * 10000;
 			} 
 			break;
 		}
@@ -202,7 +203,7 @@ int32_t npcdata_get_register(int32_t reg)
 			//bool npcdata->MatchInitDLabel("label", d)
 		{
 
-			if( !checkNPCDataRef() ) \
+			if( !nd ) \
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "MatchInitDLabel()", GET_REF(npcdataref));
 				ret = 0; 
@@ -215,7 +216,7 @@ int32_t npcdata_get_register(int32_t reg)
 			string name;
 			ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
 
-			bool match = (!( strcmp(name.c_str(), guysbuf[GET_REF(npcdataref)].initD_label[init_d_index] )));
+			bool match = (!( strcmp(name.c_str(), nd->initD_label[init_d_index] )));
 
 			ret = ( match ? 10000 : 0 );
 			break;
@@ -230,41 +231,38 @@ int32_t npcdata_get_register(int32_t reg)
 
 void npcdata_set_register(int32_t reg, int32_t value)
 {
+	guydata* nd = checkNPCData(GET_REF(npcdataref));
+	if (!nd)
+		return;
+
 	#define	SET_NPCDATA_VAR_INT(member, str) \
 	{ \
-		if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
-			nd->member = vbound((value / 10000),0,214747); \
+		nd->member = vbound((value / 10000),0,214747); \
 	} \
 
 	#define	SET_NPCDATA_VAR_WORD(member, str) \
 	{ \
-		if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
-			nd->member = vbound((value / 10000),0,32767); \
+		nd->member = vbound((value / 10000),0,32767); \
 	} \
 
 	#define	SET_NPCDATA_VAR_ENUM(member, str) \
 	{ \
-		if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
-			nd->member = (decltype(guysbuf[GET_REF(npcdataref)].member))vbound((value / 10000),0,32767); \
+		nd->member = (decltype(nd->member))vbound((value / 10000),0,32767); \
 	} \
 
 	#define	SET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
-			nd->member = vbound((value / 10000),0,255); \
+		nd->member = vbound((value / 10000),0,255); \
 	} \
 
 	#define SET_NPCDATA_FLAG(member, str) \
 	{ \
 		int32_t flag =  (value/10000);  \
-		if( auto nd = checkNPCData(GET_REF(npcdataref)) ) \
+		if ( flag ) \
 		{ \
-			if ( flag ) \
-			{ \
-				nd->member|=flag; \
-			} \
-			else nd->member|= ~flag; \
+			nd->member|=flag; \
 		} \
+		else nd->member|= ~flag; \
 	} \
 
 	switch (reg)
@@ -312,8 +310,7 @@ void npcdata_set_register(int32_t reg, int32_t value)
 		case NPCDATAWEAPONDAMAGE: SET_NPCDATA_VAR_WORD(wdp, "WeaponDamage"); break;
 		case NPCDATAWEAPONSCRIPT: 
 		{
-			if(checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].weap_data.script = vbound((value / 10000),0,214747);
+			nd->weap_data.script = vbound((value / 10000),0,214747);
 			break;
 		}
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
@@ -323,20 +320,17 @@ void npcdata_set_register(int32_t reg, int32_t value)
 		case NPCDATAZOFS: SET_NPCDATA_VAR_INT(zofs, "DrawZOffset"); break;
 		case NPCDDEATHSPR:
 		{
-			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_death = vbound(value/10000, 0, MAXSPRITES-1);
+			nd->spr_death = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case NPCDSHADOWSPR:
 		{
-			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_shadow = vbound(value/10000, 0, MAXSPRITES-1);
+			nd->spr_shadow = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 		case NPCDSPAWNSPR:
 		{
-			if (checkNPCDataRef())
-				guysbuf[GET_REF(npcdataref)].spr_spawn = vbound(value/10000, 0, MAXSPRITES-1);
+			nd->spr_spawn = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
 

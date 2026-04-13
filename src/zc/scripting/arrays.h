@@ -6,7 +6,7 @@
 #include "core/combo.h"
 #include "base/general.h"
 #include "core/qrs.h"
-#include "ffc.h"
+#include "../../ffc.h"
 #include "new_subscr.h"
 #include "zc/hero.h"
 #include "zc/scripting/common.h"

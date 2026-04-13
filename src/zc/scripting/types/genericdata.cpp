@@ -73,24 +73,25 @@ user_genscript* checkGenericScr(int32_t ref)
 int32_t genericdata_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	user_genscript* genscr = checkGenericScr(GET_REF(genericdataref));
 
 	switch (reg)
 	{
 		case GENDATARUNNING:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(GET_REF(genericdataref)))
+			if (genscr)
 			{
-				ret = scr->doscript() ? 10000L : 0L;
+				ret = genscr->doscript() ? 10000L : 0L;
 			}
 			break;
 		}
 		case GENDATASIZE:
 		{
 			ret = 0;
-			if(user_genscript* scr = checkGenericScr(GET_REF(genericdataref)))
+			if (genscr)
 			{
-				ret = scr->dataSize()*10000;
+				ret = genscr->dataSize()*10000;
 			}
 			break;
 		}
@@ -104,24 +105,22 @@ int32_t genericdata_get_register(int32_t reg)
 
 void genericdata_set_register(int32_t reg, int32_t value)
 {
+	user_genscript* genscr = checkGenericScr(GET_REF(genericdataref));
+	if (!genscr)
+		return;
+
 	switch (reg)
 	{
 		case GENDATARUNNING:
 		{
-			if(user_genscript* scr = checkGenericScr(GET_REF(genericdataref)))
-			{
-				if(value)
-					scr->launch();
-				else scr->quit();
-			}
+			if(value)
+				genscr->launch();
+			else genscr->quit();
 			break;
 		}
 		case GENDATASIZE:
 		{
-			if(user_genscript* scr = checkGenericScr(GET_REF(genericdataref)))
-			{
-				scr->dataResize(value/10000);
-			}
+			genscr->dataResize(value/10000);
 			break;
 		}
 

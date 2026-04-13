@@ -15,86 +15,69 @@ extern int32_t sarg3;
 
 int32_t ffc_get_register(int32_t reg)
 {
+	if (reg == MAX_FFC_ID)
+		return (MAX_FFCID + 1) * 10000;
+
 	int32_t ret = 0;
+	ffcdata* ffc = ResolveFFC(GET_REF(ffcref));
+	if (!ffc)
+		return ret;
 
 	switch (reg)
 	{
 		case DATA:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->data * 10000;
+			ret = ffc->data * 10000;
 			break;
 		case DELAY:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->delay * 10000;
+			ret = ffc->delay * 10000;
 			break;
 		case FCSET:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->cset * 10000;
+			ret = ffc->cset * 10000;
 			break;
 		case FFCHEIGHT:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->hit_height * 10000;
+			ret = ffc->hit_height * 10000;
 			break;
 		case FFCID:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = (get_region_screen_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
+			ret = (get_region_screen_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 		case FFCINDEX:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->index * 10000;
+			ret = ffc->index * 10000;
 			break;
 		case FFCLAYER:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->layer * 10000;
+			ret = ffc->layer * 10000;
 			break;
 		case FFCWIDTH:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->hit_width * 10000;
+			ret = ffc->hit_width * 10000;
 			break;
 		case FFLINK:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->link * 10000;
+			ret = ffc->link * 10000;
 			break;
 		case FFSCRIPT:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->script * 10000;
+			ret = ffc->script * 10000;
 			break;
 		case FFTHEIGHT:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->tysz * 10000;
+			ret = ffc->tysz * 10000;
 			break;
 		case FFTWIDTH:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->txsz * 10000;
+			ret = ffc->txsz * 10000;
 			break;
 		case FX:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->x.getZLong();
+			ret = ffc->x.getZLong();
 			break;
 		case FY:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->y.getZLong();
+			ret = ffc->y.getZLong();
 			break;
-		case MAX_FFC_ID:
-		{
-			ret = (MAX_FFCID + 1) * 10000;
-			break;
-		}
 		case XD:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->vx.getZLong();
+			ret = ffc->vx.getZLong();
 			break;
 		case XD2:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->ax.getZLong();
+			ret = ffc->ax.getZLong();
 			break;
 		case YD:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->vy.getZLong();
+			ret = ffc->vy.getZLong();
 			break;
 		case YD2:
-			if(auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ret = ffc->ay.getZLong();
+			ret = ffc->ay.getZLong();
 			break;
 
 		default:
@@ -106,94 +89,78 @@ int32_t ffc_get_register(int32_t reg)
 
 void ffc_set_register(int32_t reg, int32_t value)
 {
+	ffcdata* ffc = ResolveFFC(GET_REF(ffcref));
+	if (!ffc)
+		return;
+
 	switch (reg)
 	{
 		case DATA:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-			{
-				zc_ffc_set(*ffc, vbound(value/10000,0,MAXCOMBOS-1));
-			}
+			zc_ffc_set(*ffc, vbound(value/10000,0,MAXCOMBOS-1));
 			break;
 		case DELAY:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->delay = value/10000;
+			ffc->delay = value/10000;
 			break;
 		case FCSET:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->cset = (value/10000)&15;
+			ffc->cset = (value/10000)&15;
 			break;
 		case FFCHEIGHT:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->hit_height = (value/10000);
+			ffc->hit_height = (value/10000);
 			break;
 		case FFCID:
 			break;
 		case FFCLASTCHANGERX:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)) )
-				ffc->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			ffc->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		case FFCLASTCHANGERY:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)) )
-				ffc->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			ffc->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		case FFCLAYER:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->layer = vbound(value/10000, 0, 7);
+			ffc->layer = vbound(value/10000, 0, 7);
 			break;
 		case FFCWIDTH:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->hit_width = (value/10000);
+			ffc->hit_width = (value/10000);
 			break;
 		case FFLINK:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
+			(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
 		case FFSCRIPT:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
+		{
+			ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+			for(int32_t i=0; i<16; i++)
+				ffc->miscellaneous[i] = 0;
+			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
-				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-				for(int32_t i=0; i<16; i++)
-					ffc->miscellaneous[i] = 0;
-				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-				{
-					for(int32_t i=0; i<8; i++)
-						ffc->initd[i] = 0;
-				}
-				on_reassign_script_engine_data(ScriptType::FFC, ffc->index);
+				for(int32_t i=0; i<8; i++)
+					ffc->initd[i] = 0;
 			}
+			on_reassign_script_engine_data(ScriptType::FFC, ffc->index);
 			break;
+		}
 		case FFTHEIGHT:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->tysz = vbound(value/10000, 1, 4);
+			ffc->tysz = vbound(value/10000, 1, 4);
 			break;
 		case FFTWIDTH:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->txsz = vbound(value/10000, 1, 4);
+			ffc->txsz = vbound(value/10000, 1, 4);
 			break;
 		case FX:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->x = zslongToFix(value);
+			ffc->x = zslongToFix(value);
 			break;
 		case FY:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->y=zslongToFix(value);
+			ffc->y=zslongToFix(value);
 			break;
 		case XD:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->vx=zslongToFix(value);
+			ffc->vx=zslongToFix(value);
 			break;
 		case XD2:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->ax=zslongToFix(value);
+			ffc->ax=zslongToFix(value);
 			break;
 		case YD:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->vy=zslongToFix(value);
+			ffc->vy=zslongToFix(value);
 			break;
 		case YD2:
-			if (auto ffc = ResolveFFC(GET_REF(ffcref)))
-				ffc->ay=zslongToFix(value);
+			ffc->ay=zslongToFix(value);
 			break;
 
 		default:

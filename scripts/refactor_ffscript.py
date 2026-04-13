@@ -1707,6 +1707,7 @@ def write_register_routing_table_switch():
         content = path.read_text()
         content = content.split('_run_command')[0]
         matches = re.findall(r'case ([A-Z].*):', content)
+        matches.extend(re.findall(r'if\s?\(reg == ([A-Z].*)\)', content))
         matches = list(set(matches))
         matches.sort()
         if not matches:

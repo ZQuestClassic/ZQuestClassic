@@ -3,7 +3,7 @@
 
 #include "core/handles.h"
 #include "core/mapscr.h"
-#include "ffc.h"
+#include "../../ffc.h"
 #include <cstdint>
 
 enum class mapdata_type

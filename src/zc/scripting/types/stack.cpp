@@ -21,12 +21,13 @@ user_stack *checkStack(uint32_t id, bool skipError)
 int32_t stack_get_register(int32_t reg)
 {
 	int32_t ret = 0;
+	user_stack* st = checkStack(GET_REF(stackref), true);
 
 	switch (reg)
 	{
 		case STACKFULL:
 		{
-			if(user_stack* st = checkStack(GET_REF(stackref), true))
+			if (st)
 			{
 				ret = st->full() ? 10000L : 0L;
 			}
@@ -35,7 +36,7 @@ int32_t stack_get_register(int32_t reg)
 		}
 		case STACKSIZE:
 		{
-			if(user_stack* st = checkStack(GET_REF(stackref), true))
+			if (st)
 			{
 				ret = st->size(); //NOT *10000
 			}
