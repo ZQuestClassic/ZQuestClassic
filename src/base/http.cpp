@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <sys/stat.h>
+#include <zlib.h>
 
 namespace http {
 
@@ -47,13 +48,41 @@ expected<http_response, std::string> get(std::string url)
 	return response;
 }
 
+static bool compress_file_to_gzip(const fs::path& input_path, const fs::path& output_path)
+{
+	FILE* in = fopen(input_path.string().c_str(), "rb");
+	if (!in)
+		return false;
+
+	gzFile out = gzopen(output_path.string().c_str(), "wb");
+	if (!out)
+	{
+		fclose(in);
+		return false;
+	}
+
+	char buffer[8192];
+	int bytes_read;
+	while ((bytes_read = fread(buffer, 1, sizeof(buffer), in)) > 0)
+		gzwrite(out, buffer, bytes_read);
+
+	fclose(in);
+	gzclose(out);
+
+	return true;
+}
+
 expected<http_response, std::string> upload(std::string url, fs::path path)
 {
 	http_response response{};
 
-	FILE* fd = fopen(path.string().c_str(), "rb");
+	fs::path compressed_path = path.string() + ".gz";
+	if (!compress_file_to_gzip(path, compressed_path))
+		return make_unexpected("failed to compress file");
+
+	FILE* fd = fopen(compressed_path.string().c_str(), "rb");
 	if (!fd)
-		return make_unexpected("can't read file");
+		return make_unexpected("can't read compressed file");
 
 	struct stat file_info;
 	if (fstat(fileno(fd), &file_info) != 0)
@@ -63,15 +92,24 @@ expected<http_response, std::string> upload(std::string url, fs::path path)
 	}
 
 	CURL *curl_handle = curl_easy_init();
+
+	struct curl_slist* headers = NULL;
+	headers = curl_slist_append(headers, "Content-Encoding: gzip");
+
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl_handle, CURLOPT_UPLOAD, 1);
+	curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, _write_callback);
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&response.body);
 	curl_easy_setopt(curl_handle, CURLOPT_READDATA, fd);
 	curl_easy_setopt(curl_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, UA.c_str());
+
 	CURLcode res = curl_easy_perform(curl_handle);
+
 	fclose(fd);
+	curl_slist_free_all(headers);
+	fs::remove(compressed_path);
 
 	if (res != CURLE_OK)
 	{

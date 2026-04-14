@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 import sys
@@ -97,13 +98,40 @@ def quests():
 
 @app.route('/api/v1/replays/<uuid>', methods=['PUT'])
 def replays(uuid):
-    # No larger than 30 MB.
+    # Limit the raw / uncompressed incoming payload size.
     if len(request.data) > 30e6:
-        return {'error': 'too large, max is 30 MB'}, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
+        return {
+            'error': 'Uncompressed payload too large, max is 30 MB'
+        }, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
 
-    data = request.data.decode('utf-8')
+    raw_data = request.data
+
+    content_encoding = request.headers.get('Content-Encoding', '').lower()
+    if content_encoding == 'gzip':
+        try:
+            raw_data = gzip.decompress(raw_data)
+        except Exception as e:
+            return {
+                'error': f'Failed to decompress gzip payload: {str(e)}'
+            }, HTTPStatus.BAD_REQUEST
+    elif content_encoding:
+        return {
+            'error': f'Unsupported content encoding payload: {content_encoding}'
+        }, HTTPStatus.BAD_REQUEST
+
+    try:
+        data = raw_data.decode('utf-8')
+    except UnicodeDecodeError:
+        return {'error': 'Payload is not valid utf-8 text'}, HTTPStatus.BAD_REQUEST
+
     if not data.startswith('M'):
         return {'error': 'invalid replay'}, HTTPStatus.BAD_REQUEST
+
+    # No larger than 300 MB.
+    if len(data) > 300e6:
+        return {
+            'error': 'too large, max is 300 MB'
+        }, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
 
     meta, steps = parse_replay(data)
     qst_hash = meta.get('qst_hash')
@@ -113,7 +141,9 @@ def replays(uuid):
         return {'error': 'replay is too old'}, HTTPStatus.BAD_REQUEST
 
     if uuid_from_replay != uuid:
-        return {'error': 'replay uuid does not match uuid from url'}, HTTPStatus.BAD_REQUEST
+        return {
+            'error': 'replay uuid does not match uuid from url'
+        }, HTTPStatus.BAD_REQUEST
 
     if not qst_hash.isalnum():
         return {'error': 'invalid qst_hash'}, HTTPStatus.BAD_REQUEST
@@ -136,11 +166,8 @@ def replays(uuid):
         if int(existing_meta['length']) > int(meta['length']):
             return {'error': 'replay is older than current'}, HTTPStatus.CONFLICT
         # Replays are append-only.
-        for i, existing_step in enumerate(existing_steps):
-            if existing_step != steps[i]:
-                return {
-                    'error': 'replay is different than current'
-                }, HTTPStatus.CONFLICT
+        if steps[: len(existing_steps)] != existing_steps:
+            return {'error': 'replay is different than current'}, HTTPStatus.CONFLICT
 
     path.parent.mkdir(exist_ok=True)
     path.write_text(data)
