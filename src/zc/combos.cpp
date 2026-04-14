@@ -2502,11 +2502,12 @@ struct active_trigger_data
 	active_trigger_data(int layer, size_t id)
 		: layer(layer), id(id)
 	{}
-	
+
 	bool operator<(active_trigger_data const& other) const
 	{
-		if (unsigned(layer) < unsigned(other.layer))
-			return true;
+		if (layer != other.layer)
+			return layer < other.layer;
+
 		return id < other.id;
 	}
 	bool operator==(active_trigger_data const& other) const = default;
