@@ -14550,7 +14550,10 @@ static expected<std::string, std::error_code> create_path_for_backup(const char*
 		backup_filename = fmt::format("{}--{}--{}", timestamp, save_type, original_filename);
 
 #ifdef _WIN32
-	std::string backup_folder_name = "backups." + std::string(original_filepath);
+	std::filesystem::path p(original_filepath);
+	std::filesystem::path parent = p.parent_path();
+	std::string new_filename = "backups." + p.filename().string();
+	std::string backup_folder_name = (parent / new_filename).string();
 #else
 	std::string backup_folder_name = std::string(original_filepath) + ".backups";
 #endif
