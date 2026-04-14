@@ -2465,15 +2465,18 @@ struct active_trigger_data
 			layer = -1;
 		}
 	}
-	
+
 	bool operator<(active_trigger_data const& other) const
 	{
 		if (is_rpos != other.is_rpos)
 			return is_rpos; // rpos_handle_t < ffc_handle_t
-		if (layer < other.layer)
-			return true;
-		if (id < other.id)
-			return true;
+
+		if (layer != other.layer)
+			return layer < other.layer;
+
+		if (id != other.id)
+			return id < other.id;
+
 		return idx < other.idx;
 	}
 	bool operator==(active_trigger_data const& other) const = default;
