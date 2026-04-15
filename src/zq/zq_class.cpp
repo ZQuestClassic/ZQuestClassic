@@ -3098,10 +3098,12 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 	{
 		for(int32_t i=c; i<(c&0xF0)+16; i++)
 		{
-			word cmbdat = (i < 176 ? layer->data[i] : 0);
+			word data = (i < 176 ? layer->data[i] : 0);
+			if(combo_class_buf[combobuf[data].type].overhead) continue; // Overhead are done below.
+
 			byte cmbcset = (i < 176 ? layer->cset[i] : 0);
 			int32_t cmbflag = (i < 176 ? layer->sflag[i] : 0);
-			drawcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),
+			drawcombo(dest,((i&15)<<4)+x,y,data,cmbcset,((flags|dark)&~cWALK),
 				cmbflag,(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 		}
 	}
@@ -3401,10 +3403,11 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 	{
 		for(int32_t i=c; i<176; i+=16)
 		{
-			word cmbdat = layer->data[i];
+			word data = layer->data[i];
+			if(combo_class_buf[combobuf[data].type].overhead) continue; // Overhead are done below.
 			byte cmbcset = layer->cset[i];
 			int32_t cmbflag = layer->sflag[i];
-			drawcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
+			drawcombo(dest,x,(i&0xF0)+y,data,cmbcset,((flags|dark)&~cWALK),cmbflag,
 				(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 		}
 	}
@@ -3514,9 +3517,9 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 	{
 		for(int32_t i=c; i<176; i+=16)
 		{
-			auto data = TheMaps[layerscreen].data[i];
+			auto data = layer->data[i];
 			if(!combo_class_buf[combobuf[data].type].overhead) continue;
-			auto cs = TheMaps[layerscreen].cset[i];
+			auto cs = layer->cset[i];
 			drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0);
 		}
 	}
@@ -3675,11 +3678,15 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 	// int32_t cs=2;
 	if(LayerMaskInt[0]!=0)
 	{
-		word cmbdat = layer->data[c];
-		byte cmbcset = layer->cset[c];
-		int32_t cmbflag = layer->sflag[c];
-		drawcombo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
-			(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+		word data = layer->data[c];
+		// Overhead are done below.
+		if(!combo_class_buf[combobuf[data].type].overhead)
+		{
+			byte cmbcset = layer->cset[c];
+			int32_t cmbflag = layer->sflag[c];
+			drawcombo(dest,x,y,data,cmbcset,((flags|dark)&~cWALK),cmbflag,
+				(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+		}
 	}
 	
 	
@@ -3719,10 +3726,10 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 	//Overhead L0
 	if(LayerMaskInt[0]!=0)
 	{
-		auto data = TheMaps[layerscreen].data[c];
+		auto data = layer->data[c];
 		if(combo_class_buf[combobuf[data].type].overhead)
 		{
-			auto cs = TheMaps[layerscreen].cset[c];
+			auto cs = layer->cset[c];
 			drawcombo(dest,x,y,data,cs,0,0);
 		}
 	}
