@@ -85,13 +85,12 @@
 #include "zc_list_data.h"
 #include "gui/editbox.h"
 #include "zq/zq_misc.h"
-#include "zq/zq_tiles.h"                                       // tile and combo code
+#include "zq/zq_tiles.h"
 
 #include "zq/zquest.h"
 #include "zq/ffasm.h"
 #include "zq/render.h"
 
-// the following are used by both zelda.cc and zquest.cc
 #include "core/zdefs.h"
 #include "core/qrs.h"
 #include "tiles.h"
@@ -113,7 +112,7 @@
 #include "zc/ffscript.h"
 #include "gui/EditboxNew.h"
 #include "sfx.h"
-#include "zq/zq_custom.h" // custom items and guys
+#include "zq/zq_custom.h"
 #include "zq/zq_strings.h"
 #include "zq/questReport.h"
 #include <fstream>
@@ -124,14 +123,6 @@
 #include "zq/package.h"
 #include "zq/zq_files.h"
 #include "music_playback.h"
-
-//Windows mmemory tools
-#ifdef _WIN32
-#include <windows.h>
-#include <stdio.h>
-#include <psapi.h>
-#pragma comment(lib, "psapi.lib") // Needed to avoid linker issues. -Z
-#endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>

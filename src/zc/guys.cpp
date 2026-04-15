@@ -11,6 +11,7 @@
 #include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
+#include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "zalleg/zsys.h"
 #include "core/msgstr.h"
@@ -43,8 +44,6 @@ int32_t sle_x,sle_y,sle_cnt,sle_clk=0;
 int32_t vhead=0;
 
 char *guy_string[eMAXGUYS];
-
-void playLevelMusic();
 
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)

@@ -5,6 +5,7 @@
 #include "core/zdefs.h"
 #include "ffc.h"
 #include "zc/zc_ffc.h"
+#include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
@@ -20,8 +21,6 @@
 #include "iter.h"
 #include "zc/zscriptversion.h"
 #include "advanced_music.h"
-
-void playLevelMusic();
 
 extern sprite_list items, decorations;
 

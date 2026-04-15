@@ -3,7 +3,6 @@
 #include <utility>
 #include <cstdarg>
 #include <gui/size.h>
-extern int32_t zq_screen_w;
 
 AlertFuncDialog::AlertFuncDialog(string const& title, string const& text, string info)
 	: InfoDialog(title,text), didend(false), helptxt(info), chosen_ptr(nullptr)

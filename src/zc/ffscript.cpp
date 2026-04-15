@@ -9,14 +9,12 @@
 #include <cstdio>
 #include <algorithm>
 #include <ranges>
-//
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-//
 
 #include "base/check.h"
 #include "base/expected.h"
@@ -96,8 +94,6 @@ using namespace util;
 
 using namespace util;
 using std::ostringstream;
-
-void playLevelMusic();
 
 static ASM_DEFINE current_zasm_command;
 static uint32_t current_zasm_register;

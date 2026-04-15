@@ -9,8 +9,6 @@
 #include "zc/replay.h"
 #include "zc/title.h"
 #include "zc/ffscript.h"
-extern int32_t skipcont;
-void playLevelMusic();
 #else
 #include "gui/jwin.h"
 #include "zq/zquest.h"
@@ -107,6 +105,7 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 			}
 		}
 	}
+	extern int32_t skipcont;
 	if (Quit)
 		skipcont = true;
 	else

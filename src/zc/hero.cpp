@@ -41,7 +41,6 @@
 #include "iter.h"
 #include "advanced_music.h"
 
-extern refInfo playerScriptData;
 #include "zc/zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
@@ -49,6 +48,7 @@ extern refInfo playerScriptData;
 #include <array>
 #include "gui/jwin_a5.h"
 
+extern refInfo playerScriptData;
 extern refInfo *ri; //= NULL;
 extern int32_t(*stack)[MAX_STACK_SIZE];
 extern portal mirror_portal;
@@ -78,8 +78,6 @@ int32_t directItemY = -1;
 int32_t directWpn = -1;
 int32_t whistleitem=-1;
 extern int32_t script_hero_cset;
-
-void playLevelMusic();
 
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 

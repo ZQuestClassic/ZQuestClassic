@@ -6,13 +6,12 @@
 #include "zc/guys.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
+#include "zc/zc_sys.h"
 
 extern refInfo *ri;
 extern int32_t sarg1;
 extern int32_t sarg2;
 extern int32_t sarg3;
-
-void playLevelMusic();
 
 namespace {
 

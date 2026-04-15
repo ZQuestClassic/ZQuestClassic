@@ -165,8 +165,6 @@ bool disable_save_to_disk=false;
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
 byte favorite_combo_modes[MAXFAVORITECOMBOS] = {0};
 
-void playLevelMusic();
-
 //Prevent restarting during ending sequence from creating a rect clip
 int32_t draw_screen_clip_rect_x1=0;
 int32_t draw_screen_clip_rect_x2=255;

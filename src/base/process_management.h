@@ -8,8 +8,6 @@
 #include <map>
 #include "base/ints.h"
 
-static uint32_t __dummy_;
-
 #ifdef _WIN32
 #define NOGDI
 #define WinMain __win_main
@@ -19,6 +17,8 @@ static uint32_t __dummy_;
 #else
 #include <unistd.h>
 #endif
+
+static uint32_t __dummy_;
 
 #define ZPLAYER_FILE "zplayer"
 #define ZEDITOR_FILE "zeditor"

@@ -2,8 +2,8 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/scripting/arrays.h"
+#include "zc/zc_sys.h"
 
-void playLevelMusic();
 void music_stop();
 
 extern refInfo *ri;
