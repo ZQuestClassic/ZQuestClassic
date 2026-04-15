@@ -6,6 +6,7 @@
 
 #ifdef IS_PLAYER
 #include "zc/zelda.h"
+#include "zc/replay.h"
 #include "zc/title.h"
 #include "zc/ffscript.h"
 extern int32_t skipcont;
@@ -45,7 +46,10 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 		map_bkgsfx(false);
 		kill_sfx();
 	}
-	
+
+	if (replay_version_check(51))
+		zc_readrawkey(active_control_scheme->keys[btnS], true);
+
 	auto was_playing = Playing;
 	Playing = false;
 	bool running = true;
