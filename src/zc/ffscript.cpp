@@ -36281,8 +36281,11 @@ j_command:
 
 			case RETURN:
 			{
-				if (script_funcrun)
+				if (script_funcrun && ri->sp >= MAX_SCRIPT_REGISTERS)
+				{
+					ri->pc = MAX_PC;
 					break; //handled below
+				}
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
 				ri->sp &= MASK_SP;
@@ -40311,7 +40314,7 @@ j_command:
 			Z_scripterrlog("Stack over/underflow caused by command %d!\n", scommand);
 		}
 		if(hit_invalid_zasm) break;
-		if(script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))
+		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
 
 #ifdef _SCRIPT_COUNTER
