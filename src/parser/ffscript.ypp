@@ -1831,8 +1831,12 @@ Statement_Do :
 Statement_Repeat :
 	REPEAT LPAREN Expression_Constant RPAREN Statement {
 		ASTExprConst* expr = (ASTExprConst*)$3;
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
+		ASTExpr* zero = new ASTNumberLiteral(new ASTFloat("0", ASTFloat::TYPE_DECIMAL, @$), @$);
+		ASTRange* range = new ASTRange(zero, expr, ASTRange::RANGE_L, @$);
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$5;
-		$$ = new ASTStmtRepeat(expr, body, @$);}
+		$$ = new ASTStmtRangeLoop(type, new ASTString("__LOOP_ITER", @$), range, incr, body, @$);}
 	;
 
 Statement_Return :
