@@ -6616,7 +6616,7 @@ void refresh(int32_t flags, bool update)
 		
 		if(i>0 && Map.CurrScr()->layermap[i-1])
 		{
-			std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+			std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1], true);
 			if(is_compact)
 				sprintf(tbuf, "%s%d %s", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
 			else sprintf(tbuf, "%s%d (%s)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
@@ -28241,10 +28241,13 @@ void ZQ_ClearQuestPath()
 
 // map should be 1-indexed.
 // Formats map as decimal, screen as hex. Ex: `19 : 0x3`.
-std::string formatMapScreenPair(int map, int screen)
+// If condensed is true, formats as `19:03`.
+std::string formatMapScreenPair(int map, int screen, bool condensed)
 {
 	assert(map > 0);
 	assert(screen >= 0);
+	if (condensed)
+		return fmt::format("{}:{:02X}", map, screen);
 	return fmt::format("{} : 0x{:02X}", map, screen);
 }
 
