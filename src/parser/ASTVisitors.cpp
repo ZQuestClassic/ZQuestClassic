@@ -419,36 +419,6 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 		visit(host.elseBlock.get(), param);
 }
 
-void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
-{
-	visit(*host.iter, param);
-	if(breakRecursion(host, param)) return;
-	std::optional<int32_t> repeats = (*host.iter).getCompileTimeValue(this, scope);
-	if(host.bodies.size() == 0)
-	{
-		if(repeats)
-		{
-			int32_t rep = *repeats / 10000L;
-			if(rep>0)
-			{
-				for(int32_t q = 0; q < rep; ++q)
-				{
-					host.bodies.push_back((*host.body).clone());
-				}
-			}
-			else if(rep < 0)
-			{
-				handleError(CompileError::ConstantBadSize(&*host.iter, ">= 0"));
-			}
-		}
-		else
-		{
-			handleError(CompileError::ExprNotConstant(&*host.iter));
-		}
-	}
-	visit_vec(host.bodies, param);
-}
-
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
 	visit(host.value.get(), param);
