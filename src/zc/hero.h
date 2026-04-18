@@ -386,7 +386,7 @@ public:
 	bool can_moveDir(int dir, zfix px, bool kb = false, bool ign_sv = false, bool shove = false);
 	void snap_platform();
 	bool premove();
-	void movehero();
+	void movehero(bool premove_passed);
 	bool new_engine_move(zfix dx, zfix dy);
 	void moveOld(int32_t d2);
 	void moveOld2(int32_t d2, int32_t forceRate = -1);

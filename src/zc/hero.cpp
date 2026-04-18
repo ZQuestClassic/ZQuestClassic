@@ -9832,8 +9832,7 @@ heroanimate_skip_liftwpn:;
 		// call the main movement routine
 		if(get_qr(qr_NEW_HERO_MOVEMENT2))
 		{
-			if(premove())
-				movehero();
+			movehero(premove());
 		}
 		else
 		{
@@ -19475,13 +19474,19 @@ bool HeroClass::premove()
 	}
 	return true;
 }
-void HeroClass::movehero()
+void HeroClass::movehero(bool premove_passed)
 {
 	bool earlyret = false;
 	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !walk_through_walls);
 	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !walk_through_walls);
 	zfix dx, dy;
 	auto push=pushing;
+	if (!premove_passed)
+	{
+		if (sliding)
+			goto newmove_slide;
+		else return;
+	}
 	pushing=0;
 	
 	if(!is_conveyor_stunned && !is_autowalking()) //these do not apply to conveyor auto-walk
