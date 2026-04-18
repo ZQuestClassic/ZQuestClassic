@@ -452,6 +452,8 @@ JittedFunction jit_compile_script(script_data *script)
 
 	if (size <= 1)
 		return nullptr;
+	if (size >= 25000)
+		return nullptr;
 
 	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
