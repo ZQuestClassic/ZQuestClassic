@@ -139,8 +139,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 		
 	if (use_preview)
 	{
-		g->add(Column(prev_holder = Column(padding = 0_px,
-			widgPrev = TileFrame(visible = false)
+		g->add(Column(prev_holder = Column(
+			widgPrev = TileFrame(padding = 0_px, visible = false)
 		)));
 		g->add(widgInfo = Label(text = "", fitParent = true));
 	}
