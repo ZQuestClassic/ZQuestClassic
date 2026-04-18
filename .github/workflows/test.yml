@@ -64,7 +64,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: git clone
-        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+        uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
