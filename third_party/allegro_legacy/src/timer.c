@@ -77,7 +77,10 @@ long _handle_timer_tick(int interval)
 
    timer_delay += interval;
 
-#ifdef ALLEGRO_LEGACY_MULTITHREADED
+   #ifdef ALLEGRO_LEGACY_MULTITHREADED
+   // local edit
+   if (!timer_mutex)
+      return new_delay;
    system_driver->lock_mutex(timer_mutex);
 #else
    /* reentrant interrupt? */
