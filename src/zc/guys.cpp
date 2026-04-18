@@ -3819,9 +3819,12 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		{
 			stunclk=160;
 			
-			if(itm.power)
+			if (get_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT))
+				power = itm.power * game->get_hero_dmgmult();;
+			
+			if(power)
 			{
-				hp -= itm.power * game->get_hero_dmgmult();
+				hp -= power;
 				goto hitclock;
 			}
 			
@@ -3851,9 +3854,12 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			if(!swgrab)
 				stunclk=160;
 			
-			if (itm.power)
+			if (get_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT))
+				power = itm.power * game->get_hero_dmgmult();;
+			
+			if(power)
 			{
-				hp -= itm.power * game->get_hero_dmgmult();
+				hp -= power;
 				goto hitclock;
 			}
 			

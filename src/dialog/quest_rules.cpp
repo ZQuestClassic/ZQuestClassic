@@ -1078,6 +1078,10 @@ static GUI::ListData compatRulesList
 		" do things like customize item hitboxes per-item and still having them work properly."
 		"\nIf disabled, items use a standard 16x16 hitbox by default, and the player's collision check uses a"
 		" customizable hitbox for items (see 'Quest->Hero')."},
+	{ "Broken 0-power BRang/HShot", qr_BROKEN_0_DAMAGE_BRANG_HSHOT,
+		"If enabled, boomerangs and hookshots with 0 power set in the item editor will ignore"
+		" script changes to their power (including via Enemy Hit generic events) when hitting"
+		" enemies with 'Damaged by Power 0 weapons' unchecked."},
 };
 
 static GUI::ListData enemiesRulesList
