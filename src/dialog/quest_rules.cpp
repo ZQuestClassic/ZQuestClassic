@@ -1001,6 +1001,10 @@ static GUI::ListData compatRulesList
 	{ "Broken Combo Trigger Self-Triggering", qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
 		"If enabled, some combo trigger effects may cause the same trigger to trigger again."
 		" This may have negative effects, such as double-charging a cost, or toggling a state on and back off instead of just on." },
+	{ "Broken 0-power BRang/HShot", qr_BROKEN_0_DAMAGE_BRANG_HSHOT,
+		"If enabled, boomerangs and hookshots with 0 power set in the item editor will ignore"
+		" script changes to their power (including via Enemy Hit generic events) when hitting"
+		" enemies with 'Damaged by Power 0 weapons' unchecked."}
 };
 
 static GUI::ListData enemiesRulesList
