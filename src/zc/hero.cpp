@@ -4736,7 +4736,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 	    {
 		dontignore = 1;
 	    }
-	if(w->useweapon != wSword && !dontignore) return;
+	if(w->useweapon != wSword) return;
 
     auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
     int32_t i = rpos_handle.pos;
@@ -4748,7 +4748,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(get_bit(w->wscreengrid, i) != 0)
     {
-        ignorescreen = true; dontignore = 0;
+        ignorescreen = true;
     }
     
     auto current_ffc_handle = getFFCAt(fx,fy);
@@ -4783,7 +4783,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		}
 		else skipsecrets = 1; 
     }
-    if((!skipsecrets || !get_qr(qr_BUGGY_BUGGY_SLASH_TRIGGERS)) && (!ignorescreen || dontignore))
+    if((!skipsecrets || !get_qr(qr_BUGGY_BUGGY_SLASH_TRIGGERS)) && !ignorescreen)
     {
         if((flag >= 16)&&(flag <= 31)&&!skipsecrets)
         { 
@@ -4843,7 +4843,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             }
         }
     }
-    else if(skipsecrets && (!ignorescreen || dontignore))
+    else if(skipsecrets && !ignorescreen)
     {
 	    if(isCuttableNextType(type))
 		{
@@ -4879,7 +4879,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         }
     }
     
-    if(!ignorescreen || dontignore)
+    if(!ignorescreen)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
