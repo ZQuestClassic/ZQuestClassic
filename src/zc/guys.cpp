@@ -18151,7 +18151,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
 			else if(scr->flags&fITEM)
 				screen_item_set_state(screen, ScreenItemState::WhenKillEnemies);
-			else if(scr->flags11&efCARRYITEM)
+			else if((scr->flags11&efCARRYITEM) && !getmapflag(screen, mNO_ENEMIES_RETURN))
 				screen_item_set_state(screen, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
 			else
 			{
