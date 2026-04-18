@@ -9736,8 +9736,11 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 
 			case RETURN:
 			{
-				if (script_funcrun)
-					break; //handled below, poorly. 'RETURNFUNC' does this better now.
+				if (script_funcrun && ri->sp >= MAX_STACK_SIZE)
+				{
+					ri->pc = MAX_PC;
+					break; //handled below. 'RETURNFUNC' does this better now.
+				}
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
 				increment = false;
@@ -13076,7 +13079,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			scommand = 0xFFFF;
 		}
 		if(hit_invalid_zasm) break;
-		if(old_script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))
+		if(old_script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
 		
 		if (type == ScriptType::Combo)
