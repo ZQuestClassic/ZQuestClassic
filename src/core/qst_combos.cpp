@@ -52,7 +52,7 @@ int32_t init_combo_classes()
     return 0;
 }
 
-int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
+int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
 	byte tempbyte;
@@ -474,6 +474,11 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			temp_combo.triggers.clear();
 		
 		update_combo(temp_combo, section_version);
+		if(section_version < 67 && !(Header && Header->version_major == 2 && Header->version_minor == 55 && Header->version_patch >= 14))
+		{
+			if(isCuttableType(temp_combo.type) && !temp_combo.triggers.empty())
+				temp_combo.triggers.front().trigger_flags.set(TRIGFLAG_CMBTYPEFX, true);
+		}
 		
 		if(i>=start_combo && !should_skip)
 		{
@@ -877,8 +882,37 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 
 } // end namespace
 
-int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
+bool isCuttableType(int32_t type)
 {
+	switch(type)
+	{
+		case cSLASH:
+		case cSLASHITEM:
+		case cBUSH:
+		case cFLOWERS:
+		case cTALLGRASS:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXT:
+		case cSLASHNEXTITEM:
+		case cBUSHNEXT:
+		
+		case cSLASHTOUCHY:
+		case cSLASHITEMTOUCHY:
+		case cBUSHTOUCHY:
+		case cFLOWERSTOUCHY:
+		case cTALLGRASSTOUCHY:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+			return true;
+	}
+	
+	return false;
+}
+
+int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquestheader *Header)
+{
+	//WARNING: `Header` can be `nullptr` here from import/export code
 	byte tempbyte;
 	word tempword;
 	word combo_has_flags;
@@ -1286,6 +1320,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 	}
 	update_combo(temp_combo, s_version);
+	if(s_version < 67 && !(Header && Header->version_major == 2 && Header->version_minor == 55 && Header->version_patch >= 14))
+	{
+		if(isCuttableType(temp_combo.type) && !temp_combo.triggers.empty())
+			temp_combo.triggers.front().trigger_flags.set(TRIGFLAG_CMBTYPEFX, true);
+	}
 	return 0;
 }
 
@@ -1335,7 +1374,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		}
 		for(int32_t i=0; i<combos_used; i++)
 		{
-			auto ret = readcombo_loop(f,section_version,temp_combo);
+			auto ret = readcombo_loop(f,section_version,temp_combo,Header);
 			if(ret) return ret;
 			if(i>=start_combo)
 			{
