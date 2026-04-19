@@ -252,13 +252,13 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	if (it == script_objects.end())
 		return;
 
-	auto& object = it->second;
+	user_abstract_obj* object = it->second.get();
 
 	// Bitmap objects can't be deleted right away, since drawing operations are deferred slightly.
 	// We must wait for the script drawing to be done with it, which is signaled by script_bitmaps::update
 	if (object->type == script_object_type::bitmap)
 	{
-		auto bitmap = static_cast<user_bitmap*>(object.get());
+		auto bitmap = static_cast<user_bitmap*>(object);
 		if (!bitmap->can_del())
 		{
 			bitmap->free_obj();
@@ -266,7 +266,12 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		}
 	}
 
-	if (auto usr_object = dynamic_cast<user_object*>(object.get()))
+	// Artificially bump the reference count to prevent re-entrant deletion.
+	// When the ZScript destructor runs, temporary engine stack references
+	// will increment/decrement this safely without hitting 0 again.
+	object->ref_count++;
+
+	if (auto usr_object = dynamic_cast<user_object*>(object))
 		usr_object->destruct.execute();
 
 	if (remove_refs)
@@ -279,7 +284,7 @@ void delete_script_object(uint32_t id, bool remove_refs)
 
 	if (!ZScriptVersion::gc_arrays())
 	{
-		if (auto usr_object = dynamic_cast<user_object*>(object.get()))
+		if (auto usr_object = dynamic_cast<user_object*>(object))
 		{
 			for (int ind = usr_object->owned_vars; ind < usr_object->data.size(); ++ind)
 			{
@@ -290,6 +295,9 @@ void delete_script_object(uint32_t id, bool remove_refs)
 			}
 		}
 	}
+
+	// Restore the reference count (doesn't really matter, about to delete it).
+	object->ref_count--;
 
 	util::remove_if_exists(script_object_ids_by_type[object->type], id);
 	script_objects.erase(it);
