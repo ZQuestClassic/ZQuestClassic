@@ -12502,7 +12502,7 @@ void center_zq_tiles_dialogs()
 
 //.ZCOMBO
 
-int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo);
+int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo, zquestheader *Header);
 int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_cmb);
 
 int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t zversion,
@@ -12861,7 +12861,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	size_t end = index+count;
 	for ( size_t q = index; q < end; q++ )
 	{
-		auto ret = readcombo_loop(f,section_version,temp_combo);
+		auto ret = readcombo_loop(f,section_version,temp_combo,nullptr);
 		if(ret) return 0;
 		
 		if ( !(skip && q-1 < skip) )

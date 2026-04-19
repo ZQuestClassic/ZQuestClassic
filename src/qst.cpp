@@ -17191,6 +17191,34 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	return 0;
 }
 
+bool isCuttableType(int32_t type)
+{
+	switch(type)
+	{
+		case cSLASH:
+		case cSLASHITEM:
+		case cBUSH:
+		case cFLOWERS:
+		case cTALLGRASS:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXT:
+		case cSLASHNEXTITEM:
+		case cBUSHNEXT:
+		
+		case cSLASHTOUCHY:
+		case cSLASHITEMTOUCHY:
+		case cBUSHTOUCHY:
+		case cFLOWERSTOUCHY:
+		case cTALLGRASSTOUCHY:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+			return true;
+	}
+	
+	return false;
+}
+
 
 void update_combo(newcombo& cmb, word section_version)
 {
@@ -17207,7 +17235,7 @@ void update_combo(newcombo& cmb, word section_version)
 		}
 	}
 }
-int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
+int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
 
@@ -17623,6 +17651,17 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		}
 		
 		update_combo(temp_combo, section_version);
+		if(!(Header && Header->new_version_id_main == 2 && Header->new_version_id_second == 55 && Header->new_version_id_third >= 14))
+		{
+			if (isCuttableType(temp_combo.type))
+			{
+				bool any_triggerflag_set = false;
+				for (int i = 0; i < 6; i++)
+					if (temp_combo.triggerflags[i]) any_triggerflag_set = true;
+				if (any_triggerflag_set)
+					temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
+			}
+		}
 		
 		if(i>=start_combo && !should_skip)
 		{
@@ -17733,7 +17772,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	setup_combo_animations2();
 	return 0;
 }
-int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
+int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquestheader *Header)
 {
 	byte combo_has_flags;
 	if(!p_getc(&combo_has_flags,f))
@@ -17985,6 +18024,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 	}
 	update_combo(temp_combo, s_version);
+	if(!(Header && Header->new_version_id_main == 2 && Header->new_version_id_second == 55 && Header->new_version_id_third >= 14))
+	{
+		if(isCuttableType(temp_combo.type) && combo_has_flags&CHAS_TRIG)
+			temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
+	}
 	return 0;
 }
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
@@ -18035,7 +18079,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		}
 		for(int32_t i=0; i<combos_used; i++)
 		{
-			auto ret = readcombo_loop(f,section_version,temp_combo);
+			auto ret = readcombo_loop(f,section_version,temp_combo,Header);
 			if(ret) return ret;
 			if(i>=start_combo)
 			{
