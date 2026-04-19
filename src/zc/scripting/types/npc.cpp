@@ -1422,10 +1422,11 @@ void npc_set_register(int32_t reg, int32_t value)
 			if (npc)
 			{
 				if(canfall(npc->id))
+				{
 					npc->fall =zslongToFix(value)*-100;
-					
-				if(GuyH::hasHero())
-					Hero.setFall(zslongToFix(value)*-100);
+					if(GuyH::hasHero())
+						Hero.setFall(zslongToFix(value)*-100);
+				}
 			}
 		}
 		break;
@@ -1435,10 +1436,11 @@ void npc_set_register(int32_t reg, int32_t value)
 			if (npc)
 			{
 				if(canfall(npc->id))
+				{
 					npc->fakefall =zslongToFix(value)*-100;
-					
-				if(GuyH::hasHero())
-					Hero.setFakeFall(zslongToFix(value)*-100);
+					if(GuyH::hasHero())
+						Hero.setFakeFall(zslongToFix(value)*-100);
+				}
 			}
 		}
 		break;

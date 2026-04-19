@@ -73,12 +73,46 @@ int32_t sprite_get_register(int32_t reg)
 		}
 		case SPRITE_X:
 		{
+			if (auto itm = dynamic_cast<item*>(s))
+			{
+				zfix x;
+				auto const& fairy_item = itemsbuf.get(itm->id);
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(itm->fairyUID);
+					x = fairy ? fairy->x : itm->x;
+				}
+				else
+				{
+					x = itm->x;
+				}
+
+				return as_float(itm) ? x.getZLong() : int(x) * 10000;
+			}
+
 			if (s)
 				return as_float(s) ? s->x.getZLong() : int(s->x) * 10000;
 			return 0;
 		}
 		case SPRITE_Y:
 		{
+			if (auto itm = dynamic_cast<item*>(s))
+			{
+				zfix y;
+				auto const& fairy_item = itemsbuf.get(itm->id);
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(itm->fairyUID);
+					y = fairy ? fairy->y : itm->y;
+				}
+				else
+				{
+					y = itm->y;
+				}
+
+				return as_float(itm) ? y.getZLong() : int(y) * 10000;
+			}
+
 			if (s)
 				return as_float(s) ? s->y.getZLong() : int(s->y) * 10000;
 			return 0;
@@ -167,7 +201,7 @@ int32_t sprite_get_register(int32_t reg)
 					return ffc->cset * 10000;
 
 				if (auto i = dynamic_cast<item*>(s))
-					return i->o_cset * 10000;
+					return (i->o_cset & 0xF) * 10000;
 
 				return (s->cs & 0xF) * 10000;
 			}
@@ -193,6 +227,11 @@ int32_t sprite_get_register(int32_t reg)
 		}
 		case SPRITE_JUMP:
 		{
+			if (is_player(GET_REF(spriteref)))
+			{
+				return Hero.getJump().getZLong();
+			}
+
 			if (s)
 			{
 				int32_t ret = s->fall.getZLong() / -100;
@@ -203,6 +242,11 @@ int32_t sprite_get_register(int32_t reg)
 		}
 		case SPRITE_FAKE_JUMP:
 		{
+			if (is_player(GET_REF(spriteref)))
+			{
+				return Hero.getFakeJump().getZLong() / -100;
+			}
+
 			if (s)
 			{
 				int32_t ret = s->fakefall.getZLong() / -100;
@@ -388,6 +432,18 @@ void sprite_set_register(int32_t reg, int32_t value)
 				if (enemy_has_hero(s))
 					Hero.setXfix(s->x);
 			}
+
+			// Move the Fairy enemy as well.
+			if (auto itm = dynamic_cast<item*>(s))
+			{
+				auto const& fairy_item = itemsbuf.get(itm->id);
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(itm->fairyUID);
+					if (fairy)
+						fairy->x = itm->x;
+				}
+			}
 			break;
 		}
 		case SPRITE_Y:
@@ -403,9 +459,23 @@ void sprite_set_register(int32_t reg, int32_t value)
 
 			if (s)
 			{
+				if (auto npc = dynamic_cast<enemy*>(s))
+					npc->floor_y += ((get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - s->y);
 				s->y = as_float(s) ? zslongToFix(value) : zfix(value/10000);
 				if (enemy_has_hero(s))
-					Hero.setXfix(s->y);
+					Hero.setYfix(s->y);
+			}
+
+			// Move the Fairy enemy as well.
+			if (auto itm = dynamic_cast<item*>(s))
+			{
+				auto const& fairy_item = itemsbuf.get(itm->id);
+				if (fairy_item.type == itype_fairy && fairy_item.misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(itm->fairyUID);
+					if (fairy)
+						fairy->y = itm->y;
+				}
 			}
 			break;
 		}
@@ -417,6 +487,11 @@ void sprite_set_register(int32_t reg, int32_t value)
 					Hero.setZfix(zslongToFix(value));
 				else
 					Hero.setZ(value / 10000);
+				break;
+			}
+
+			if (is_enemy(s) && never_in_air(s->id))
+			{
 				break;
 			}
 
@@ -438,6 +513,11 @@ void sprite_set_register(int32_t reg, int32_t value)
 					Hero.setFakeZfix(zslongToFix(value));
 				else
 					Hero.setFakeZ(value / 10000);
+				break;
+			}
+
+			if (is_enemy(s) && never_in_air(s->id))
+			{
 				break;
 			}
 
@@ -529,16 +609,16 @@ void sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (s)
 			{
-				int height = value / 10000;
+				int width = value / 10000;
 				if (dynamic_cast<ffcdata*>(s))
 				{
 					// TODO: don't vbound, check bounds.
-					s->txsz = vbound(height, 1, 4);
+					s->txsz = vbound(width, 1, 4);
 					break;
 				}
 
-				if (BC::checkBounds(height, 0, 20) == SH::_NoError)
-					s->txsz = height;
+				if (BC::checkBounds(width, 0, 20) == SH::_NoError)
+					s->txsz = width;
 			}
 			break;
 		}
@@ -605,7 +685,7 @@ void sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (is_player(GET_REF(spriteref)))
 			{
-				Hero.setFall(-zslongToFix(value) * 100);
+				Hero.setJump(zslongToFix(value));
 				break;
 			}
 
@@ -614,9 +694,11 @@ void sprite_set_register(int32_t reg, int32_t value)
 				if (auto e = dynamic_cast<enemy*>(s))
 				{
 					if (canfall(e->id))
+					{
 						e->fall = -zslongToFix(value) * 100;
-					if (enemy_has_hero(s))
-						Hero.setFall(e->fall);
+						if (enemy_has_hero(s))
+							Hero.setFall(e->fall);
+					}
 					break;
 				}
 
@@ -637,9 +719,11 @@ void sprite_set_register(int32_t reg, int32_t value)
 				if (auto e = dynamic_cast<enemy*>(s))
 				{
 					if (canfall(e->id))
+					{
 						e->fakefall = -zslongToFix(value) * 100;
-					if (enemy_has_hero(s))
-						Hero.setFall(e->fakefall);
+						if (enemy_has_hero(s))
+							Hero.setFall(e->fakefall);
+					}
 					break;
 				}
 
