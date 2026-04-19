@@ -264,9 +264,9 @@ class mapdata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @value [enum WarpType]
+	// @index [enum TileWarpIndex]
 	// @zasm_var MAPDATATILEWARPTYPE
-	internal int TileWarpType[];
+	internal WarpType TileWarpType[];
 
 	// The screen script that runs on this screen.
 	//
@@ -361,9 +361,9 @@ class mapdata {
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// @value [enum WarpType]
+	// @index [enum SideWarpIndex]
 	// @zasm_var MAPDATASIDEWARPTYPE
-	internal int SideWarpType[];
+	internal WarpType SideWarpType[];
 
 	// Set or get the overlay state for the warp ID corresponding to the index
 	// of this array.

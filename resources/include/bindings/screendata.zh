@@ -662,9 +662,8 @@ class screendata {
 	// respectively.
 	//
 	// @index [enum TileWarpIndex]
-	// @value [enum WarpType]
 	// @zasm_var SCREENDATATILEWARPTYPE
-	internal int TileWarpType[];
+	internal WarpType TileWarpType[];
 
 	// Set or get the overlay state for the warp ID corresponding to the index
 	// of this array.
@@ -737,9 +736,8 @@ class screendata {
 	// respectively.
 	//
 	// @index [enum SideWarpIndex]
-	// @value [enum WarpType]
 	// @zasm_var SCREENDATASIDEWARPTYPE
-	internal int SideWarpType[];
+	internal WarpType SideWarpType[];
 
 	// Set or get the overlay state for the warp ID corresponding to the index
 	// of this array.

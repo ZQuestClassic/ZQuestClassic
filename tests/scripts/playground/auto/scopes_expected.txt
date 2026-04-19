@@ -2154,265 +2154,265 @@ POP D2; Func[void ZInfo::GetItemType(char32[], int)] Body Start                 
 POP D3                                                                          | 2125 resources/include/bindings/zinfo.zh:13
 MODULEGETIC D3 D2                                                               | 2126 resources/include/bindings/zinfo.zh:13
 RETURNFUNC; Func[void ZInfo::GetItemType(char32[], int)] Body End               | 2127 resources/include/bindings/zinfo.zh:13
-POP D2; Func[itemsprite screendata::LoadItem(int)] Body Start                   | 2128 resources/include/bindings/screendata.zh:1117
-SUBV D2 1                                                                       | 2129 resources/include/bindings/screendata.zh:1117
-LOADITEMR D2                                                                    | 2130 resources/include/bindings/screendata.zh:1117
-SETR D2 REFITEM                                                                 | 2131 resources/include/bindings/screendata.zh:1117
-RETURNFUNC; Func[itemsprite screendata::LoadItem(int)] Body End                 | 2132 resources/include/bindings/screendata.zh:1117
-POP D2; Func[itemsprite screendata::CreateItem(int)] Body Start                 | 2133 resources/include/bindings/screendata.zh:1126
-CREATEITEMR D2                                                                  | 2134 resources/include/bindings/screendata.zh:1126
-SETR D2 REFITEM                                                                 | 2135 resources/include/bindings/screendata.zh:1126
-RETURNFUNC; Func[itemsprite screendata::CreateItem(int)] Body End               | 2136 resources/include/bindings/screendata.zh:1126
-POP D2; Func[ffc screendata::LoadFFC(int)] Body Start                           | 2137 resources/include/bindings/screendata.zh:1135
-LOAD_FFC D2                                                                     | 2138 resources/include/bindings/screendata.zh:1135
-RETURNFUNC; Func[ffc screendata::LoadFFC(int)] Body End                         | 2139 resources/include/bindings/screendata.zh:1135
-POP D3; Func[ffc screendata::LoadFFC(int, int)] Body Start                      | 2140 resources/include/bindings/screendata.zh:1145
-POP D2                                                                          | 2141 resources/include/bindings/screendata.zh:1145
-LOAD_FFC_2 D2 D3                                                                | 2142 resources/include/bindings/screendata.zh:1145
-RETURNFUNC; Func[ffc screendata::LoadFFC(int, int)] Body End                    | 2143 resources/include/bindings/screendata.zh:1145
-POP D2; Func[npc screendata::LoadNPC(int)] Body Start                           | 2144 resources/include/bindings/screendata.zh:1155
-SUBV D2 1                                                                       | 2145 resources/include/bindings/screendata.zh:1155
-LOADNPCR D2                                                                     | 2146 resources/include/bindings/screendata.zh:1155
-SETR D2 REFNPC                                                                  | 2147 resources/include/bindings/screendata.zh:1155
-RETURNFUNC; Func[npc screendata::LoadNPC(int)] Body End                         | 2148 resources/include/bindings/screendata.zh:1155
-POP D2; Func[npc screendata::CreateNPC(int)] Body Start                         | 2149 resources/include/bindings/screendata.zh:1164
-CREATENPCR D2                                                                   | 2150 resources/include/bindings/screendata.zh:1164
-SETR D2 REFNPC                                                                  | 2151 resources/include/bindings/screendata.zh:1164
-RETURNFUNC; Func[npc screendata::CreateNPC(int)] Body End                       | 2152 resources/include/bindings/screendata.zh:1164
-POP D2; Func[void screendata::ClearSprites(int)] Body Start                     | 2153 resources/include/bindings/screendata.zh:1173
-CLEARSPRITESR D2                                                                | 2154 resources/include/bindings/screendata.zh:1173
-SETR D2 REFNPC                                                                  | 2155 resources/include/bindings/screendata.zh:1173
-RETURNFUNC; Func[void screendata::ClearSprites(int)] Body End                   | 2156 resources/include/bindings/screendata.zh:1173
-RECTR; Func[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2157 resources/include/bindings/screendata.zh:1207
-POPARGS D5 0.0012                                                               | 2158 resources/include/bindings/screendata.zh:1207
-RETURNFUNC; Func[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2159 resources/include/bindings/screendata.zh:1207
-CIRCLER; Func[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2160 resources/include/bindings/screendata.zh:1214
-POPARGS D5 0.0011                                                               | 2161 resources/include/bindings/screendata.zh:1214
-RETURNFUNC; Func[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2162 resources/include/bindings/screendata.zh:1214
-ARCR; Func[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start | 2163 resources/include/bindings/screendata.zh:1221
-POPARGS D5 0.0014                                                               | 2164 resources/include/bindings/screendata.zh:1221
-RETURNFUNC; Func[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End | 2165 resources/include/bindings/screendata.zh:1221
-ELLIPSER; Func[void screendata::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2166 resources/include/bindings/screendata.zh:1229
-POPARGS D5 0.0012                                                               | 2167 resources/include/bindings/screendata.zh:1229
-RETURNFUNC; Func[void screendata::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2168 resources/include/bindings/screendata.zh:1229
-LINER; Func[void screendata::Line(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2169 resources/include/bindings/screendata.zh:1236
-POPARGS D5 0.0011                                                               | 2170 resources/include/bindings/screendata.zh:1236
-RETURNFUNC; Func[void screendata::Line(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2171 resources/include/bindings/screendata.zh:1236
-SPLINER; Func[void screendata::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2172 resources/include/bindings/screendata.zh:1243
-POPARGS D5 0.0011                                                               | 2173 resources/include/bindings/screendata.zh:1243
-RETURNFUNC; Func[void screendata::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2174 resources/include/bindings/screendata.zh:1243
-PUTPIXELR; Func[void screendata::PutPixel(int, int, int, int, int, int, int, int)] Body Start | 2175 resources/include/bindings/screendata.zh:1250
-POPARGS D5 0.0008                                                               | 2176 resources/include/bindings/screendata.zh:1250
-RETURNFUNC; Func[void screendata::PutPixel(int, int, int, int, int, int, int, int)] Body End | 2177 resources/include/bindings/screendata.zh:1250
-PIXELARRAYR; Func[void screendata::PutPixels(int, int, int, int, int)] Body Start | 2178 resources/include/bindings/screendata.zh:1269
-POPARGS D5 0.0005                                                               | 2179 resources/include/bindings/screendata.zh:1269
-RETURNFUNC; Func[void screendata::PutPixels(int, int, int, int, int)] Body End  | 2180 resources/include/bindings/screendata.zh:1269
-TILEARRAYR; Func[void screendata::DrawTiles(int, int)] Body Start               | 2181 resources/include/bindings/screendata.zh:1281
-POPARGS D5 0.0002                                                               | 2182 resources/include/bindings/screendata.zh:1281
-RETURNFUNC; Func[void screendata::DrawTiles(int, int)] Body End                 | 2183 resources/include/bindings/screendata.zh:1281
-COMBOARRAYR; Func[void screendata::DrawCombos(int, int)] Body Start             | 2184 resources/include/bindings/screendata.zh:1293
-POPARGS D5 0.0002                                                               | 2185 resources/include/bindings/screendata.zh:1293
-RETURNFUNC; Func[void screendata::DrawCombos(int, int)] Body End                | 2186 resources/include/bindings/screendata.zh:1293
-LINESARRAY; Func[void screendata::Lines(int, int)] Body Start                   | 2187 resources/include/bindings/screendata.zh:1305
-POPARGS D5 0.0002                                                               | 2188 resources/include/bindings/screendata.zh:1305
-RETURNFUNC; Func[void screendata::Lines(int, int)] Body End                     | 2189 resources/include/bindings/screendata.zh:1305
-DRAWCHARR; Func[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start | 2190 resources/include/bindings/screendata.zh:1310
-POPARGS D5 0.0010                                                               | 2191 resources/include/bindings/screendata.zh:1310
-RETURNFUNC; Func[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End | 2192 resources/include/bindings/screendata.zh:1310
-DRAWINTR; Func[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2193 resources/include/bindings/screendata.zh:1317
-POPARGS D5 0.0011                                                               | 2194 resources/include/bindings/screendata.zh:1317
-RETURNFUNC; Func[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2195 resources/include/bindings/screendata.zh:1317
-DRAWTILER; Func[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2196 resources/include/bindings/screendata.zh:1324
-POPARGS D5 0.0015                                                               | 2197 resources/include/bindings/screendata.zh:1324
-RETURNFUNC; Func[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2198 resources/include/bindings/screendata.zh:1324
-DRAWTILECLOAKEDR; Func[void screendata::DrawTileCloaked(int, int, int, int, int, int, int)] Body Start | 2199 resources/include/bindings/screendata.zh:1334
-POPARGS D5 0.0007                                                               | 2200 resources/include/bindings/screendata.zh:1334
-RETURNFUNC; Func[void screendata::DrawTileCloaked(int, int, int, int, int, int, int)] Body End | 2201 resources/include/bindings/screendata.zh:1334
-DRAWCOMBOR; Func[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2202 resources/include/bindings/screendata.zh:1340
-POPARGS D5 0.0016                                                               | 2203 resources/include/bindings/screendata.zh:1340
-RETURNFUNC; Func[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2204 resources/include/bindings/screendata.zh:1340
-DRAWCOMBOCLOAKEDR; Func[void screendata::DrawComboCloaked(int, int, int, int, int, int, int)] Body Start | 2205 resources/include/bindings/screendata.zh:1351
-POPARGS D5 0.0007                                                               | 2206 resources/include/bindings/screendata.zh:1351
-RETURNFUNC; Func[void screendata::DrawComboCloaked(int, int, int, int, int, int, int)] Body End | 2207 resources/include/bindings/screendata.zh:1351
-QUADR; Func[void screendata::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2208 resources/include/bindings/screendata.zh:1357
-POPARGS D5 0.0015                                                               | 2209 resources/include/bindings/screendata.zh:1357
-RETURNFUNC; Func[void screendata::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)] Body End | 2210 resources/include/bindings/screendata.zh:1357
-TRIANGLER; Func[void screendata::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2211 resources/include/bindings/screendata.zh:1364
-POPARGS D5 0.0013                                                               | 2212 resources/include/bindings/screendata.zh:1364
-RETURNFUNC; Func[void screendata::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int)] Body End | 2213 resources/include/bindings/screendata.zh:1364
-QUAD3DR; Func[void screendata::Quad3D(int, int[], int[], int[], int[], int, int, int)] Body Start | 2214 resources/include/bindings/screendata.zh:1371
-POPARGS D5 0.0008                                                               | 2215 resources/include/bindings/screendata.zh:1371
-RETURNFUNC; Func[void screendata::Quad3D(int, int[], int[], int[], int[], int, int, int)] Body End | 2216 resources/include/bindings/screendata.zh:1371
-TRIANGLE3DR; Func[void screendata::Triangle3D(int, int[], int[], int[], int[], int, int, int)] Body Start | 2217 resources/include/bindings/screendata.zh:1377
-POPARGS D5 0.0008                                                               | 2218 resources/include/bindings/screendata.zh:1377
-RETURNFUNC; Func[void screendata::Triangle3D(int, int[], int[], int[], int[], int, int, int)] Body End | 2219 resources/include/bindings/screendata.zh:1377
-FASTTILER; Func[void screendata::FastTile(int, int, int, int, int, int)] Body Start | 2220 resources/include/bindings/screendata.zh:1383
-POPARGS D5 0.0006                                                               | 2221 resources/include/bindings/screendata.zh:1383
-RETURNFUNC; Func[void screendata::FastTile(int, int, int, int, int, int)] Body End | 2222 resources/include/bindings/screendata.zh:1383
-FASTCOMBOR; Func[void screendata::FastCombo(int, int, int, int, int, int)] Body Start | 2223 resources/include/bindings/screendata.zh:1389
-POPARGS D5 0.0006                                                               | 2224 resources/include/bindings/screendata.zh:1389
-RETURNFUNC; Func[void screendata::FastCombo(int, int, int, int, int, int)] Body End | 2225 resources/include/bindings/screendata.zh:1389
-DRAWSTRINGR; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start | 2226 resources/include/bindings/screendata.zh:1395
-POPARGS D5 0.0009                                                               | 2227 resources/include/bindings/screendata.zh:1395
-RETURNFUNC; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End | 2228 resources/include/bindings/screendata.zh:1395
-DRAWSTRINGR2; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body Start | 2229 resources/include/bindings/screendata.zh:1406
-POPARGS D5 0.0011                                                               | 2230 resources/include/bindings/screendata.zh:1406
-RETURNFUNC; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body End | 2231 resources/include/bindings/screendata.zh:1406
-DRAWLAYERR; Func[void screendata::DrawLayer(int, int, int, int, int, int, int, int)] Body Start | 2232 resources/include/bindings/screendata.zh:1413
-POPARGS D5 0.0008                                                               | 2233 resources/include/bindings/screendata.zh:1413
-RETURNFUNC; Func[void screendata::DrawLayer(int, int, int, int, int, int, int, int)] Body End | 2234 resources/include/bindings/screendata.zh:1413
-DRAWSCREENR; Func[void screendata::DrawScreen(int, int, int, int, int, int)] Body Start | 2235 resources/include/bindings/screendata.zh:1419
-POPARGS D5 0.0006                                                               | 2236 resources/include/bindings/screendata.zh:1419
-RETURNFUNC; Func[void screendata::DrawScreen(int, int, int, int, int, int)] Body End | 2237 resources/include/bindings/screendata.zh:1419
-BITMAPR; Func[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2238 resources/include/bindings/screendata.zh:1425
-POPARGS D5 0.0012                                                               | 2239 resources/include/bindings/screendata.zh:1425
-RETURNFUNC; Func[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2240 resources/include/bindings/screendata.zh:1425
-BITMAPEXR; Func[void screendata::DrawBitmapEx(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2241 resources/include/bindings/screendata.zh:1432
-POPARGS D5 0.0016                                                               | 2242 resources/include/bindings/screendata.zh:1432
-RETURNFUNC; Func[void screendata::DrawBitmapEx(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2243 resources/include/bindings/screendata.zh:1432
-TILEBLIT; Func[void screendata::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2244 resources/include/bindings/screendata.zh:1461
-POPARGS D5 0.0017                                                               | 2245 resources/include/bindings/screendata.zh:1461
-RETURNFUNC; Func[void screendata::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2246 resources/include/bindings/screendata.zh:1461
-COMBOBLIT; Func[void screendata::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2247 resources/include/bindings/screendata.zh:1490
-POPARGS D5 0.0017                                                               | 2248 resources/include/bindings/screendata.zh:1490
-RETURNFUNC; Func[void screendata::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2249 resources/include/bindings/screendata.zh:1490
-SETRENDERTARGET; Func[void screendata::SetRenderTarget(int)] Body Start         | 2250 resources/include/bindings/screendata.zh:1504
-POP D3                                                                          | 2251 resources/include/bindings/screendata.zh:1504
-RETURNFUNC; Func[void screendata::SetRenderTarget(int)] Body End                | 2252 resources/include/bindings/screendata.zh:1504
-POP D3; Func[void screendata::Message(int)] Body Start                          | 2253 resources/include/bindings/screendata.zh:1514
-MSGSTRR D3                                                                      | 2254 resources/include/bindings/screendata.zh:1514
-RETURNFUNC; Func[void screendata::Message(int)] Body End                        | 2255 resources/include/bindings/screendata.zh:1514
-POP D2; Func[lweapon screendata::LoadLWeapon(int)] Body Start                   | 2256 resources/include/bindings/screendata.zh:1524
-SUBV D2 1                                                                       | 2257 resources/include/bindings/screendata.zh:1524
-LOADLWEAPONR D2                                                                 | 2258 resources/include/bindings/screendata.zh:1524
-SETR D2 REFLWPN                                                                 | 2259 resources/include/bindings/screendata.zh:1524
-RETURNFUNC; Func[lweapon screendata::LoadLWeapon(int)] Body End                 | 2260 resources/include/bindings/screendata.zh:1524
-POP D2; Func[lweapon screendata::CreateLWeapon(int)] Body Start                 | 2261 resources/include/bindings/screendata.zh:1533
-CREATELWEAPONR D2                                                               | 2262 resources/include/bindings/screendata.zh:1533
-SETR D2 REFLWPN                                                                 | 2263 resources/include/bindings/screendata.zh:1533
-RETURNFUNC; Func[lweapon screendata::CreateLWeapon(int)] Body End               | 2264 resources/include/bindings/screendata.zh:1533
-POP D2; Func[eweapon screendata::LoadEWeapon(int)] Body Start                   | 2265 resources/include/bindings/screendata.zh:1543
-SUBV D2 1                                                                       | 2266 resources/include/bindings/screendata.zh:1543
-LOADEWEAPONR D2                                                                 | 2267 resources/include/bindings/screendata.zh:1543
-SETR D2 REFEWPN                                                                 | 2268 resources/include/bindings/screendata.zh:1543
-RETURNFUNC; Func[eweapon screendata::LoadEWeapon(int)] Body End                 | 2269 resources/include/bindings/screendata.zh:1543
-POP D2; Func[eweapon screendata::CreateEWeapon(int)] Body Start                 | 2270 resources/include/bindings/screendata.zh:1552
-CREATEEWEAPONR D2                                                               | 2271 resources/include/bindings/screendata.zh:1552
-SETR D2 REFEWPN                                                                 | 2272 resources/include/bindings/screendata.zh:1552
-RETURNFUNC; Func[eweapon screendata::CreateEWeapon(int)] Body End               | 2273 resources/include/bindings/screendata.zh:1552
-POP D1; Func[bool screendata::isSolid(int, int)] Body Start                     | 2274 resources/include/bindings/screendata.zh:1558
-POP D0                                                                          | 2275 resources/include/bindings/screendata.zh:1558
-ISSOLID D2                                                                      | 2276 resources/include/bindings/screendata.zh:1558
-RETURNFUNC; Func[bool screendata::isSolid(int, int)] Body End                   | 2277 resources/include/bindings/screendata.zh:1558
-POP D2; Func[bool screendata::isSolidLayer(int, int, int)] Body Start           | 2278 resources/include/bindings/screendata.zh:1569
-POP D1                                                                          | 2279 resources/include/bindings/screendata.zh:1569
-POP D0                                                                          | 2280 resources/include/bindings/screendata.zh:1569
-ISSOLIDLAYER D2                                                                 | 2281 resources/include/bindings/screendata.zh:1569
-RETURNFUNC; Func[bool screendata::isSolidLayer(int, int, int)] Body End         | 2282 resources/include/bindings/screendata.zh:1569
-SECRETS; Func[void screendata::TriggerSecrets()] Body Start                     | 2283 resources/include/bindings/screendata.zh:1577
-RETURNFUNC; Func[void screendata::TriggerSecrets()] Body End                    | 2284 resources/include/bindings/screendata.zh:1577
-POP D2; Func[void screendata::TriggerSecrets(int)] Body Start                   | 2285 resources/include/bindings/screendata.zh:1586
-REGION_TRIGGER_SECRETS D2                                                       | 2286 resources/include/bindings/screendata.zh:1586
-RETURNFUNC; Func[void screendata::TriggerSecrets(int)] Body End                 | 2287 resources/include/bindings/screendata.zh:1586
-ZAPIN; Func[void screendata::ZapIn()] Body Start                                | 2288 resources/include/bindings/screendata.zh:1593
-ZAPIN                                                                           | 2289 resources/include/bindings/screendata.zh:1593
-RETURNFUNC; Func[void screendata::ZapIn()] Body End                             | 2290 resources/include/bindings/screendata.zh:1593
-ZAPOUT; Func[void screendata::ZapOut()] Body Start                              | 2291 resources/include/bindings/screendata.zh:1599
-RETURNFUNC; Func[void screendata::ZapOut()] Body End                            | 2292 resources/include/bindings/screendata.zh:1599
-WAVYIN; Func[void screendata::WavyIn()] Body Start                              | 2293 resources/include/bindings/screendata.zh:1605
-RETURNFUNC; Func[void screendata::WavyIn()] Body End                            | 2294 resources/include/bindings/screendata.zh:1605
-WAVYOUT; Func[void screendata::WavyOut()] Body Start                            | 2295 resources/include/bindings/screendata.zh:1611
-RETURNFUNC; Func[void screendata::WavyOut()] Body End                           | 2296 resources/include/bindings/screendata.zh:1611
-OPENWIPE; Func[void screendata::OpeningWipe()] Body Start                       | 2297 resources/include/bindings/screendata.zh:1617
-RETURNFUNC; Func[void screendata::OpeningWipe()] Body End                       | 2298 resources/include/bindings/screendata.zh:1617
-CLOSEWIPE; Func[void screendata::ClosingWipe()] Body Start                      | 2299 resources/include/bindings/screendata.zh:1623
-RETURNFUNC; Func[void screendata::ClosingWipe()] Body End                       | 2300 resources/include/bindings/screendata.zh:1623
-POP D2; Func[void screendata::OpeningWipe(int)] Body Start                      | 2301 resources/include/bindings/screendata.zh:1632
-OPENWIPESHAPE D2                                                                | 2302 resources/include/bindings/screendata.zh:1632
-RETURNFUNC; Func[void screendata::OpeningWipe(int)] Body End                    | 2303 resources/include/bindings/screendata.zh:1632
-POP D2; Func[void screendata::ClosingWipe(int)] Body Start                      | 2304 resources/include/bindings/screendata.zh:1641
-CLOSEWIPESHAPE D2                                                               | 2305 resources/include/bindings/screendata.zh:1641
-RETURNFUNC; Func[void screendata::ClosingWipe(int)] Body End                    | 2306 resources/include/bindings/screendata.zh:1641
-POLYGONR; Func[void screendata::Polygon(int, int, int, int, int)] Body Start    | 2307 resources/include/bindings/screendata.zh:1646
-POPARGS D5 0.0005                                                               | 2308 resources/include/bindings/screendata.zh:1646
-RETURNFUNC; Func[void screendata::Polygon(int, int, int, int, int)] Body End    | 2309 resources/include/bindings/screendata.zh:1646
-FRAMER; Func[void screendata::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body Start | 2310 resources/include/bindings/screendata.zh:1661
-POPARGS D5 0.0009                                                               | 2311 resources/include/bindings/screendata.zh:1661
-RETURNFUNC; Func[void screendata::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body End | 2312 resources/include/bindings/screendata.zh:1661
-SCREENDOSPAWN; Func[bool screendata::SpawnScreenEnemies()] Body Start           | 2313 resources/include/bindings/screendata.zh:1669
-RETURNFUNC; Func[bool screendata::SpawnScreenEnemies()] Body End                | 2314 resources/include/bindings/screendata.zh:1669
-POP D1; Func[bool screendata::TriggerCombo(int, int, int)] Body Start           | 2315 resources/include/bindings/screendata.zh:1679
-POP D3                                                                          | 2316 resources/include/bindings/screendata.zh:1679
-POP D2                                                                          | 2317 resources/include/bindings/screendata.zh:1679
-SCRTRIGGERCOMBO2 D2 D3 D1                                                       | 2318 resources/include/bindings/screendata.zh:1679
-RETURNFUNC; Func[bool screendata::TriggerCombo(int, int, int)] Body End         | 2319 resources/include/bindings/screendata.zh:1679
-POP D2; Func[portal screendata::LoadPortal(int)] Body Start                     | 2320 resources/include/bindings/screendata.zh:1687
-LOADPORTAL D2                                                                   | 2321 resources/include/bindings/screendata.zh:1687
-RETURNFUNC; Func[portal screendata::LoadPortal(int)] Body End                   | 2322 resources/include/bindings/screendata.zh:1687
-CREATEPORTAL; Func[portal screendata::CreatePortal()] Body Start                | 2323 resources/include/bindings/screendata.zh:1693
-RETURNFUNC; Func[portal screendata::CreatePortal()] Body End                    | 2324 resources/include/bindings/screendata.zh:1693
-DRAWLIGHT_SQUARE; Func[void screendata::DrawLightSquare(int, int, int, int, int, int, int)] Body Start | 2325 resources/include/bindings/screendata.zh:1702
-POPARGS D5 0.0007                                                               | 2326 resources/include/bindings/screendata.zh:1702
-RETURNFUNC; Func[void screendata::DrawLightSquare(int, int, int, int, int, int, int)] Body End | 2327 resources/include/bindings/screendata.zh:1702
-DRAWLIGHT_CIRCLE; Func[void screendata::DrawLightCircle(int, int, int, int, int, int, int)] Body Start | 2328 resources/include/bindings/screendata.zh:1713
-POPARGS D5 0.0007                                                               | 2329 resources/include/bindings/screendata.zh:1713
-RETURNFUNC; Func[void screendata::DrawLightCircle(int, int, int, int, int, int, int)] Body End | 2330 resources/include/bindings/screendata.zh:1713
-DRAWLIGHT_CONE; Func[void screendata::DrawLightCone(int, int, int, int, int, int, int, int)] Body Start | 2331 resources/include/bindings/screendata.zh:1725
-POPARGS D5 0.0008                                                               | 2332 resources/include/bindings/screendata.zh:1725
-RETURNFUNC; Func[void screendata::DrawLightCone(int, int, int, int, int, int, int, int)] Body End | 2333 resources/include/bindings/screendata.zh:1725
-SETR D2 SCREENDATAEXDOOR; Func[bool screendata::GetExDoor(int, int)] Body Start | 2334 resources/include/bindings/screendata.zh:1736
-POPARGS D5 0.0002                                                               | 2335 resources/include/bindings/screendata.zh:1736
-RETURNFUNC; Func[bool screendata::GetExDoor(int, int)] Body End                 | 2336 resources/include/bindings/screendata.zh:1736
-POP D2; Func[void screendata::SetExDoor(int, int, bool)] Body Start             | 2337 resources/include/bindings/screendata.zh:1746
-SETR SCREENDATAEXDOOR D2                                                        | 2338 resources/include/bindings/screendata.zh:1746
-POPARGS D5 0.0002                                                               | 2339 resources/include/bindings/screendata.zh:1746
-RETURNFUNC; Func[void screendata::SetExDoor(int, int, bool)] Body End           | 2340 resources/include/bindings/screendata.zh:1746
-SETSIDEWARP; Func[void screendata::SetSideWarp(int, int, int, int)] Body Start  | 2341 resources/include/bindings/screendata.zh:1753
-POPARGS D5 0.0004                                                               | 2342 resources/include/bindings/screendata.zh:1753
-RETURNFUNC; Func[void screendata::SetSideWarp(int, int, int, int)] Body End     | 2343 resources/include/bindings/screendata.zh:1753
-SETTILEWARP; Func[void screendata::SetTileWarp(int, int, int, int)] Body Start  | 2344 resources/include/bindings/screendata.zh:1758
-POPARGS D5 0.0004                                                               | 2345 resources/include/bindings/screendata.zh:1758
-RETURNFUNC; Func[void screendata::SetTileWarp(int, int, int, int)] Body End     | 2346 resources/include/bindings/screendata.zh:1758
-POP D1; Func[lweapon screendata::CreateLWeaponDx(int, int)] Body Start          | 2347 resources/include/bindings/screendata.zh:1767
-POP D0                                                                          | 2348 resources/include/bindings/screendata.zh:1767
-SETR D2 CREATELWPNDX                                                            | 2349 resources/include/bindings/screendata.zh:1767
-RETURNFUNC; Func[lweapon screendata::CreateLWeaponDx(int, int)] Body End        | 2350 resources/include/bindings/screendata.zh:1767
-POP D2; Func[npc screendata::LoadNPCByUID(int)] Body Start                      | 2351 resources/include/bindings/screendata.zh:1774
-LOADNPCBYSUID D2                                                                | 2352 resources/include/bindings/screendata.zh:1774
-SETR D2 REFNPC                                                                  | 2353 resources/include/bindings/screendata.zh:1774
-RETURNFUNC; Func[npc screendata::LoadNPCByUID(int)] Body End                    | 2354 resources/include/bindings/screendata.zh:1774
-POP D2; Func[lweapon screendata::LoadLWeaponByUID(int)] Body Start              | 2355 resources/include/bindings/screendata.zh:1781
-LOADLWEAPONBYSUID D2                                                            | 2356 resources/include/bindings/screendata.zh:1781
-SETR D2 REFLWPN                                                                 | 2357 resources/include/bindings/screendata.zh:1781
-RETURNFUNC; Func[lweapon screendata::LoadLWeaponByUID(int)] Body End            | 2358 resources/include/bindings/screendata.zh:1781
-POP D2; Func[eweapon screendata::LoadEWeaponByUID(int)] Body Start              | 2359 resources/include/bindings/screendata.zh:1788
-LOADWEAPONCBYSUID D2                                                            | 2360 resources/include/bindings/screendata.zh:1788
-SETR D2 REFEWPN                                                                 | 2361 resources/include/bindings/screendata.zh:1788
-RETURNFUNC; Func[eweapon screendata::LoadEWeaponByUID(int)] Body End            | 2362 resources/include/bindings/screendata.zh:1788
-POP D3; Func[int screendata::LayerMap(int)] Body Start                          | 2363 resources/include/bindings/screendata.zh:1794
-LAYERMAP D2 D3                                                                  | 2364 resources/include/bindings/screendata.zh:1794
-RETURNFUNC; Func[int screendata::LayerMap(int)] Body End                        | 2365 resources/include/bindings/screendata.zh:1794
-POP D3; Func[int screendata::LayerScreen(int)] Body Start                       | 2366 resources/include/bindings/screendata.zh:1800
-LAYERSCREEN D2 D3                                                               | 2367 resources/include/bindings/screendata.zh:1800
-RETURNFUNC; Func[int screendata::LayerScreen(int)] Body End                     | 2368 resources/include/bindings/screendata.zh:1800
-POP D2; Func[int screendata::GetSideWarpDMap(int)] Body Start                   | 2369 resources/include/bindings/screendata.zh:1806
-GETSIDEWARPDMAP D2                                                              | 2370 resources/include/bindings/screendata.zh:1806
-RETURNFUNC; Func[int screendata::GetSideWarpDMap(int)] Body End                 | 2371 resources/include/bindings/screendata.zh:1806
-POP D2; Func[int screendata::GetSideWarpScreen(int)] Body Start                 | 2372 resources/include/bindings/screendata.zh:1812
-GETSIDEWARPSCR D2                                                               | 2373 resources/include/bindings/screendata.zh:1812
-RETURNFUNC; Func[int screendata::GetSideWarpScreen(int)] Body End               | 2374 resources/include/bindings/screendata.zh:1812
-POP D2; Func[int screendata::GetSideWarpType(int)] Body Start                   | 2375 resources/include/bindings/screendata.zh:1818
-GETSIDEWARPTYPE D2                                                              | 2376 resources/include/bindings/screendata.zh:1818
-RETURNFUNC; Func[int screendata::GetSideWarpType(int)] Body End                 | 2377 resources/include/bindings/screendata.zh:1818
-POP D2; Func[int screendata::GetTileWarpDMap(int)] Body Start                   | 2378 resources/include/bindings/screendata.zh:1824
-GETTILEWARPDMAP D2                                                              | 2379 resources/include/bindings/screendata.zh:1824
-RETURNFUNC; Func[int screendata::GetTileWarpDMap(int)] Body End                 | 2380 resources/include/bindings/screendata.zh:1824
-POP D2; Func[int screendata::GetTileWarpScreen(int)] Body Start                 | 2381 resources/include/bindings/screendata.zh:1830
-GETTILEWARPSCR D2                                                               | 2382 resources/include/bindings/screendata.zh:1830
-RETURNFUNC; Func[int screendata::GetTileWarpScreen(int)] Body End               | 2383 resources/include/bindings/screendata.zh:1830
-POP D2; Func[int screendata::GetTileWarpType(int)] Body Start                   | 2384 resources/include/bindings/screendata.zh:1836
-GETTILEWARPTYPE D2                                                              | 2385 resources/include/bindings/screendata.zh:1836
-RETURNFUNC; Func[int screendata::GetTileWarpType(int)] Body End                 | 2386 resources/include/bindings/screendata.zh:1836
+POP D2; Func[itemsprite screendata::LoadItem(int)] Body Start                   | 2128 resources/include/bindings/screendata.zh:1115
+SUBV D2 1                                                                       | 2129 resources/include/bindings/screendata.zh:1115
+LOADITEMR D2                                                                    | 2130 resources/include/bindings/screendata.zh:1115
+SETR D2 REFITEM                                                                 | 2131 resources/include/bindings/screendata.zh:1115
+RETURNFUNC; Func[itemsprite screendata::LoadItem(int)] Body End                 | 2132 resources/include/bindings/screendata.zh:1115
+POP D2; Func[itemsprite screendata::CreateItem(int)] Body Start                 | 2133 resources/include/bindings/screendata.zh:1124
+CREATEITEMR D2                                                                  | 2134 resources/include/bindings/screendata.zh:1124
+SETR D2 REFITEM                                                                 | 2135 resources/include/bindings/screendata.zh:1124
+RETURNFUNC; Func[itemsprite screendata::CreateItem(int)] Body End               | 2136 resources/include/bindings/screendata.zh:1124
+POP D2; Func[ffc screendata::LoadFFC(int)] Body Start                           | 2137 resources/include/bindings/screendata.zh:1133
+LOAD_FFC D2                                                                     | 2138 resources/include/bindings/screendata.zh:1133
+RETURNFUNC; Func[ffc screendata::LoadFFC(int)] Body End                         | 2139 resources/include/bindings/screendata.zh:1133
+POP D3; Func[ffc screendata::LoadFFC(int, int)] Body Start                      | 2140 resources/include/bindings/screendata.zh:1143
+POP D2                                                                          | 2141 resources/include/bindings/screendata.zh:1143
+LOAD_FFC_2 D2 D3                                                                | 2142 resources/include/bindings/screendata.zh:1143
+RETURNFUNC; Func[ffc screendata::LoadFFC(int, int)] Body End                    | 2143 resources/include/bindings/screendata.zh:1143
+POP D2; Func[npc screendata::LoadNPC(int)] Body Start                           | 2144 resources/include/bindings/screendata.zh:1153
+SUBV D2 1                                                                       | 2145 resources/include/bindings/screendata.zh:1153
+LOADNPCR D2                                                                     | 2146 resources/include/bindings/screendata.zh:1153
+SETR D2 REFNPC                                                                  | 2147 resources/include/bindings/screendata.zh:1153
+RETURNFUNC; Func[npc screendata::LoadNPC(int)] Body End                         | 2148 resources/include/bindings/screendata.zh:1153
+POP D2; Func[npc screendata::CreateNPC(int)] Body Start                         | 2149 resources/include/bindings/screendata.zh:1162
+CREATENPCR D2                                                                   | 2150 resources/include/bindings/screendata.zh:1162
+SETR D2 REFNPC                                                                  | 2151 resources/include/bindings/screendata.zh:1162
+RETURNFUNC; Func[npc screendata::CreateNPC(int)] Body End                       | 2152 resources/include/bindings/screendata.zh:1162
+POP D2; Func[void screendata::ClearSprites(int)] Body Start                     | 2153 resources/include/bindings/screendata.zh:1171
+CLEARSPRITESR D2                                                                | 2154 resources/include/bindings/screendata.zh:1171
+SETR D2 REFNPC                                                                  | 2155 resources/include/bindings/screendata.zh:1171
+RETURNFUNC; Func[void screendata::ClearSprites(int)] Body End                   | 2156 resources/include/bindings/screendata.zh:1171
+RECTR; Func[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2157 resources/include/bindings/screendata.zh:1205
+POPARGS D5 0.0012                                                               | 2158 resources/include/bindings/screendata.zh:1205
+RETURNFUNC; Func[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2159 resources/include/bindings/screendata.zh:1205
+CIRCLER; Func[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2160 resources/include/bindings/screendata.zh:1212
+POPARGS D5 0.0011                                                               | 2161 resources/include/bindings/screendata.zh:1212
+RETURNFUNC; Func[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2162 resources/include/bindings/screendata.zh:1212
+ARCR; Func[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body Start | 2163 resources/include/bindings/screendata.zh:1219
+POPARGS D5 0.0014                                                               | 2164 resources/include/bindings/screendata.zh:1219
+RETURNFUNC; Func[void screendata::Arc(int, int, int, int, int, int, int, int, int, int, int, bool, bool, int)] Body End | 2165 resources/include/bindings/screendata.zh:1219
+ELLIPSER; Func[void screendata::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2166 resources/include/bindings/screendata.zh:1227
+POPARGS D5 0.0012                                                               | 2167 resources/include/bindings/screendata.zh:1227
+RETURNFUNC; Func[void screendata::Ellipse(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2168 resources/include/bindings/screendata.zh:1227
+LINER; Func[void screendata::Line(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2169 resources/include/bindings/screendata.zh:1234
+POPARGS D5 0.0011                                                               | 2170 resources/include/bindings/screendata.zh:1234
+RETURNFUNC; Func[void screendata::Line(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2171 resources/include/bindings/screendata.zh:1234
+SPLINER; Func[void screendata::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2172 resources/include/bindings/screendata.zh:1241
+POPARGS D5 0.0011                                                               | 2173 resources/include/bindings/screendata.zh:1241
+RETURNFUNC; Func[void screendata::Spline(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2174 resources/include/bindings/screendata.zh:1241
+PUTPIXELR; Func[void screendata::PutPixel(int, int, int, int, int, int, int, int)] Body Start | 2175 resources/include/bindings/screendata.zh:1248
+POPARGS D5 0.0008                                                               | 2176 resources/include/bindings/screendata.zh:1248
+RETURNFUNC; Func[void screendata::PutPixel(int, int, int, int, int, int, int, int)] Body End | 2177 resources/include/bindings/screendata.zh:1248
+PIXELARRAYR; Func[void screendata::PutPixels(int, int, int, int, int)] Body Start | 2178 resources/include/bindings/screendata.zh:1267
+POPARGS D5 0.0005                                                               | 2179 resources/include/bindings/screendata.zh:1267
+RETURNFUNC; Func[void screendata::PutPixels(int, int, int, int, int)] Body End  | 2180 resources/include/bindings/screendata.zh:1267
+TILEARRAYR; Func[void screendata::DrawTiles(int, int)] Body Start               | 2181 resources/include/bindings/screendata.zh:1279
+POPARGS D5 0.0002                                                               | 2182 resources/include/bindings/screendata.zh:1279
+RETURNFUNC; Func[void screendata::DrawTiles(int, int)] Body End                 | 2183 resources/include/bindings/screendata.zh:1279
+COMBOARRAYR; Func[void screendata::DrawCombos(int, int)] Body Start             | 2184 resources/include/bindings/screendata.zh:1291
+POPARGS D5 0.0002                                                               | 2185 resources/include/bindings/screendata.zh:1291
+RETURNFUNC; Func[void screendata::DrawCombos(int, int)] Body End                | 2186 resources/include/bindings/screendata.zh:1291
+LINESARRAY; Func[void screendata::Lines(int, int)] Body Start                   | 2187 resources/include/bindings/screendata.zh:1303
+POPARGS D5 0.0002                                                               | 2188 resources/include/bindings/screendata.zh:1303
+RETURNFUNC; Func[void screendata::Lines(int, int)] Body End                     | 2189 resources/include/bindings/screendata.zh:1303
+DRAWCHARR; Func[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start | 2190 resources/include/bindings/screendata.zh:1308
+POPARGS D5 0.0010                                                               | 2191 resources/include/bindings/screendata.zh:1308
+RETURNFUNC; Func[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End | 2192 resources/include/bindings/screendata.zh:1308
+DRAWINTR; Func[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2193 resources/include/bindings/screendata.zh:1315
+POPARGS D5 0.0011                                                               | 2194 resources/include/bindings/screendata.zh:1315
+RETURNFUNC; Func[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End | 2195 resources/include/bindings/screendata.zh:1315
+DRAWTILER; Func[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2196 resources/include/bindings/screendata.zh:1322
+POPARGS D5 0.0015                                                               | 2197 resources/include/bindings/screendata.zh:1322
+RETURNFUNC; Func[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2198 resources/include/bindings/screendata.zh:1322
+DRAWTILECLOAKEDR; Func[void screendata::DrawTileCloaked(int, int, int, int, int, int, int)] Body Start | 2199 resources/include/bindings/screendata.zh:1332
+POPARGS D5 0.0007                                                               | 2200 resources/include/bindings/screendata.zh:1332
+RETURNFUNC; Func[void screendata::DrawTileCloaked(int, int, int, int, int, int, int)] Body End | 2201 resources/include/bindings/screendata.zh:1332
+DRAWCOMBOR; Func[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start | 2202 resources/include/bindings/screendata.zh:1338
+POPARGS D5 0.0016                                                               | 2203 resources/include/bindings/screendata.zh:1338
+RETURNFUNC; Func[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End | 2204 resources/include/bindings/screendata.zh:1338
+DRAWCOMBOCLOAKEDR; Func[void screendata::DrawComboCloaked(int, int, int, int, int, int, int)] Body Start | 2205 resources/include/bindings/screendata.zh:1349
+POPARGS D5 0.0007                                                               | 2206 resources/include/bindings/screendata.zh:1349
+RETURNFUNC; Func[void screendata::DrawComboCloaked(int, int, int, int, int, int, int)] Body End | 2207 resources/include/bindings/screendata.zh:1349
+QUADR; Func[void screendata::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2208 resources/include/bindings/screendata.zh:1355
+POPARGS D5 0.0015                                                               | 2209 resources/include/bindings/screendata.zh:1355
+RETURNFUNC; Func[void screendata::Quad(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)] Body End | 2210 resources/include/bindings/screendata.zh:1355
+TRIANGLER; Func[void screendata::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int)] Body Start | 2211 resources/include/bindings/screendata.zh:1362
+POPARGS D5 0.0013                                                               | 2212 resources/include/bindings/screendata.zh:1362
+RETURNFUNC; Func[void screendata::Triangle(int, int, int, int, int, int, int, int, int, int, int, int, int)] Body End | 2213 resources/include/bindings/screendata.zh:1362
+QUAD3DR; Func[void screendata::Quad3D(int, int[], int[], int[], int[], int, int, int)] Body Start | 2214 resources/include/bindings/screendata.zh:1369
+POPARGS D5 0.0008                                                               | 2215 resources/include/bindings/screendata.zh:1369
+RETURNFUNC; Func[void screendata::Quad3D(int, int[], int[], int[], int[], int, int, int)] Body End | 2216 resources/include/bindings/screendata.zh:1369
+TRIANGLE3DR; Func[void screendata::Triangle3D(int, int[], int[], int[], int[], int, int, int)] Body Start | 2217 resources/include/bindings/screendata.zh:1375
+POPARGS D5 0.0008                                                               | 2218 resources/include/bindings/screendata.zh:1375
+RETURNFUNC; Func[void screendata::Triangle3D(int, int[], int[], int[], int[], int, int, int)] Body End | 2219 resources/include/bindings/screendata.zh:1375
+FASTTILER; Func[void screendata::FastTile(int, int, int, int, int, int)] Body Start | 2220 resources/include/bindings/screendata.zh:1381
+POPARGS D5 0.0006                                                               | 2221 resources/include/bindings/screendata.zh:1381
+RETURNFUNC; Func[void screendata::FastTile(int, int, int, int, int, int)] Body End | 2222 resources/include/bindings/screendata.zh:1381
+FASTCOMBOR; Func[void screendata::FastCombo(int, int, int, int, int, int)] Body Start | 2223 resources/include/bindings/screendata.zh:1387
+POPARGS D5 0.0006                                                               | 2224 resources/include/bindings/screendata.zh:1387
+RETURNFUNC; Func[void screendata::FastCombo(int, int, int, int, int, int)] Body End | 2225 resources/include/bindings/screendata.zh:1387
+DRAWSTRINGR; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start | 2226 resources/include/bindings/screendata.zh:1393
+POPARGS D5 0.0009                                                               | 2227 resources/include/bindings/screendata.zh:1393
+RETURNFUNC; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End | 2228 resources/include/bindings/screendata.zh:1393
+DRAWSTRINGR2; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body Start | 2229 resources/include/bindings/screendata.zh:1404
+POPARGS D5 0.0011                                                               | 2230 resources/include/bindings/screendata.zh:1404
+RETURNFUNC; Func[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int, int, int)] Body End | 2231 resources/include/bindings/screendata.zh:1404
+DRAWLAYERR; Func[void screendata::DrawLayer(int, int, int, int, int, int, int, int)] Body Start | 2232 resources/include/bindings/screendata.zh:1411
+POPARGS D5 0.0008                                                               | 2233 resources/include/bindings/screendata.zh:1411
+RETURNFUNC; Func[void screendata::DrawLayer(int, int, int, int, int, int, int, int)] Body End | 2234 resources/include/bindings/screendata.zh:1411
+DRAWSCREENR; Func[void screendata::DrawScreen(int, int, int, int, int, int)] Body Start | 2235 resources/include/bindings/screendata.zh:1417
+POPARGS D5 0.0006                                                               | 2236 resources/include/bindings/screendata.zh:1417
+RETURNFUNC; Func[void screendata::DrawScreen(int, int, int, int, int, int)] Body End | 2237 resources/include/bindings/screendata.zh:1417
+BITMAPR; Func[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2238 resources/include/bindings/screendata.zh:1423
+POPARGS D5 0.0012                                                               | 2239 resources/include/bindings/screendata.zh:1423
+RETURNFUNC; Func[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2240 resources/include/bindings/screendata.zh:1423
+BITMAPEXR; Func[void screendata::DrawBitmapEx(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2241 resources/include/bindings/screendata.zh:1430
+POPARGS D5 0.0016                                                               | 2242 resources/include/bindings/screendata.zh:1430
+RETURNFUNC; Func[void screendata::DrawBitmapEx(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2243 resources/include/bindings/screendata.zh:1430
+TILEBLIT; Func[void screendata::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2244 resources/include/bindings/screendata.zh:1459
+POPARGS D5 0.0017                                                               | 2245 resources/include/bindings/screendata.zh:1459
+RETURNFUNC; Func[void screendata::TileBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2246 resources/include/bindings/screendata.zh:1459
+COMBOBLIT; Func[void screendata::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start | 2247 resources/include/bindings/screendata.zh:1488
+POPARGS D5 0.0017                                                               | 2248 resources/include/bindings/screendata.zh:1488
+RETURNFUNC; Func[void screendata::ComboBlit(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End | 2249 resources/include/bindings/screendata.zh:1488
+SETRENDERTARGET; Func[void screendata::SetRenderTarget(int)] Body Start         | 2250 resources/include/bindings/screendata.zh:1502
+POP D3                                                                          | 2251 resources/include/bindings/screendata.zh:1502
+RETURNFUNC; Func[void screendata::SetRenderTarget(int)] Body End                | 2252 resources/include/bindings/screendata.zh:1502
+POP D3; Func[void screendata::Message(int)] Body Start                          | 2253 resources/include/bindings/screendata.zh:1512
+MSGSTRR D3                                                                      | 2254 resources/include/bindings/screendata.zh:1512
+RETURNFUNC; Func[void screendata::Message(int)] Body End                        | 2255 resources/include/bindings/screendata.zh:1512
+POP D2; Func[lweapon screendata::LoadLWeapon(int)] Body Start                   | 2256 resources/include/bindings/screendata.zh:1522
+SUBV D2 1                                                                       | 2257 resources/include/bindings/screendata.zh:1522
+LOADLWEAPONR D2                                                                 | 2258 resources/include/bindings/screendata.zh:1522
+SETR D2 REFLWPN                                                                 | 2259 resources/include/bindings/screendata.zh:1522
+RETURNFUNC; Func[lweapon screendata::LoadLWeapon(int)] Body End                 | 2260 resources/include/bindings/screendata.zh:1522
+POP D2; Func[lweapon screendata::CreateLWeapon(int)] Body Start                 | 2261 resources/include/bindings/screendata.zh:1531
+CREATELWEAPONR D2                                                               | 2262 resources/include/bindings/screendata.zh:1531
+SETR D2 REFLWPN                                                                 | 2263 resources/include/bindings/screendata.zh:1531
+RETURNFUNC; Func[lweapon screendata::CreateLWeapon(int)] Body End               | 2264 resources/include/bindings/screendata.zh:1531
+POP D2; Func[eweapon screendata::LoadEWeapon(int)] Body Start                   | 2265 resources/include/bindings/screendata.zh:1541
+SUBV D2 1                                                                       | 2266 resources/include/bindings/screendata.zh:1541
+LOADEWEAPONR D2                                                                 | 2267 resources/include/bindings/screendata.zh:1541
+SETR D2 REFEWPN                                                                 | 2268 resources/include/bindings/screendata.zh:1541
+RETURNFUNC; Func[eweapon screendata::LoadEWeapon(int)] Body End                 | 2269 resources/include/bindings/screendata.zh:1541
+POP D2; Func[eweapon screendata::CreateEWeapon(int)] Body Start                 | 2270 resources/include/bindings/screendata.zh:1550
+CREATEEWEAPONR D2                                                               | 2271 resources/include/bindings/screendata.zh:1550
+SETR D2 REFEWPN                                                                 | 2272 resources/include/bindings/screendata.zh:1550
+RETURNFUNC; Func[eweapon screendata::CreateEWeapon(int)] Body End               | 2273 resources/include/bindings/screendata.zh:1550
+POP D1; Func[bool screendata::isSolid(int, int)] Body Start                     | 2274 resources/include/bindings/screendata.zh:1556
+POP D0                                                                          | 2275 resources/include/bindings/screendata.zh:1556
+ISSOLID D2                                                                      | 2276 resources/include/bindings/screendata.zh:1556
+RETURNFUNC; Func[bool screendata::isSolid(int, int)] Body End                   | 2277 resources/include/bindings/screendata.zh:1556
+POP D2; Func[bool screendata::isSolidLayer(int, int, int)] Body Start           | 2278 resources/include/bindings/screendata.zh:1567
+POP D1                                                                          | 2279 resources/include/bindings/screendata.zh:1567
+POP D0                                                                          | 2280 resources/include/bindings/screendata.zh:1567
+ISSOLIDLAYER D2                                                                 | 2281 resources/include/bindings/screendata.zh:1567
+RETURNFUNC; Func[bool screendata::isSolidLayer(int, int, int)] Body End         | 2282 resources/include/bindings/screendata.zh:1567
+SECRETS; Func[void screendata::TriggerSecrets()] Body Start                     | 2283 resources/include/bindings/screendata.zh:1575
+RETURNFUNC; Func[void screendata::TriggerSecrets()] Body End                    | 2284 resources/include/bindings/screendata.zh:1575
+POP D2; Func[void screendata::TriggerSecrets(int)] Body Start                   | 2285 resources/include/bindings/screendata.zh:1584
+REGION_TRIGGER_SECRETS D2                                                       | 2286 resources/include/bindings/screendata.zh:1584
+RETURNFUNC; Func[void screendata::TriggerSecrets(int)] Body End                 | 2287 resources/include/bindings/screendata.zh:1584
+ZAPIN; Func[void screendata::ZapIn()] Body Start                                | 2288 resources/include/bindings/screendata.zh:1591
+ZAPIN                                                                           | 2289 resources/include/bindings/screendata.zh:1591
+RETURNFUNC; Func[void screendata::ZapIn()] Body End                             | 2290 resources/include/bindings/screendata.zh:1591
+ZAPOUT; Func[void screendata::ZapOut()] Body Start                              | 2291 resources/include/bindings/screendata.zh:1597
+RETURNFUNC; Func[void screendata::ZapOut()] Body End                            | 2292 resources/include/bindings/screendata.zh:1597
+WAVYIN; Func[void screendata::WavyIn()] Body Start                              | 2293 resources/include/bindings/screendata.zh:1603
+RETURNFUNC; Func[void screendata::WavyIn()] Body End                            | 2294 resources/include/bindings/screendata.zh:1603
+WAVYOUT; Func[void screendata::WavyOut()] Body Start                            | 2295 resources/include/bindings/screendata.zh:1609
+RETURNFUNC; Func[void screendata::WavyOut()] Body End                           | 2296 resources/include/bindings/screendata.zh:1609
+OPENWIPE; Func[void screendata::OpeningWipe()] Body Start                       | 2297 resources/include/bindings/screendata.zh:1615
+RETURNFUNC; Func[void screendata::OpeningWipe()] Body End                       | 2298 resources/include/bindings/screendata.zh:1615
+CLOSEWIPE; Func[void screendata::ClosingWipe()] Body Start                      | 2299 resources/include/bindings/screendata.zh:1621
+RETURNFUNC; Func[void screendata::ClosingWipe()] Body End                       | 2300 resources/include/bindings/screendata.zh:1621
+POP D2; Func[void screendata::OpeningWipe(int)] Body Start                      | 2301 resources/include/bindings/screendata.zh:1630
+OPENWIPESHAPE D2                                                                | 2302 resources/include/bindings/screendata.zh:1630
+RETURNFUNC; Func[void screendata::OpeningWipe(int)] Body End                    | 2303 resources/include/bindings/screendata.zh:1630
+POP D2; Func[void screendata::ClosingWipe(int)] Body Start                      | 2304 resources/include/bindings/screendata.zh:1639
+CLOSEWIPESHAPE D2                                                               | 2305 resources/include/bindings/screendata.zh:1639
+RETURNFUNC; Func[void screendata::ClosingWipe(int)] Body End                    | 2306 resources/include/bindings/screendata.zh:1639
+POLYGONR; Func[void screendata::Polygon(int, int, int, int, int)] Body Start    | 2307 resources/include/bindings/screendata.zh:1644
+POPARGS D5 0.0005                                                               | 2308 resources/include/bindings/screendata.zh:1644
+RETURNFUNC; Func[void screendata::Polygon(int, int, int, int, int)] Body End    | 2309 resources/include/bindings/screendata.zh:1644
+FRAMER; Func[void screendata::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body Start | 2310 resources/include/bindings/screendata.zh:1659
+POPARGS D5 0.0009                                                               | 2311 resources/include/bindings/screendata.zh:1659
+RETURNFUNC; Func[void screendata::DrawFrame(int, int, int, int, int, int, int, bool, int)] Body End | 2312 resources/include/bindings/screendata.zh:1659
+SCREENDOSPAWN; Func[bool screendata::SpawnScreenEnemies()] Body Start           | 2313 resources/include/bindings/screendata.zh:1667
+RETURNFUNC; Func[bool screendata::SpawnScreenEnemies()] Body End                | 2314 resources/include/bindings/screendata.zh:1667
+POP D1; Func[bool screendata::TriggerCombo(int, int, int)] Body Start           | 2315 resources/include/bindings/screendata.zh:1677
+POP D3                                                                          | 2316 resources/include/bindings/screendata.zh:1677
+POP D2                                                                          | 2317 resources/include/bindings/screendata.zh:1677
+SCRTRIGGERCOMBO2 D2 D3 D1                                                       | 2318 resources/include/bindings/screendata.zh:1677
+RETURNFUNC; Func[bool screendata::TriggerCombo(int, int, int)] Body End         | 2319 resources/include/bindings/screendata.zh:1677
+POP D2; Func[portal screendata::LoadPortal(int)] Body Start                     | 2320 resources/include/bindings/screendata.zh:1685
+LOADPORTAL D2                                                                   | 2321 resources/include/bindings/screendata.zh:1685
+RETURNFUNC; Func[portal screendata::LoadPortal(int)] Body End                   | 2322 resources/include/bindings/screendata.zh:1685
+CREATEPORTAL; Func[portal screendata::CreatePortal()] Body Start                | 2323 resources/include/bindings/screendata.zh:1691
+RETURNFUNC; Func[portal screendata::CreatePortal()] Body End                    | 2324 resources/include/bindings/screendata.zh:1691
+DRAWLIGHT_SQUARE; Func[void screendata::DrawLightSquare(int, int, int, int, int, int, int)] Body Start | 2325 resources/include/bindings/screendata.zh:1700
+POPARGS D5 0.0007                                                               | 2326 resources/include/bindings/screendata.zh:1700
+RETURNFUNC; Func[void screendata::DrawLightSquare(int, int, int, int, int, int, int)] Body End | 2327 resources/include/bindings/screendata.zh:1700
+DRAWLIGHT_CIRCLE; Func[void screendata::DrawLightCircle(int, int, int, int, int, int, int)] Body Start | 2328 resources/include/bindings/screendata.zh:1711
+POPARGS D5 0.0007                                                               | 2329 resources/include/bindings/screendata.zh:1711
+RETURNFUNC; Func[void screendata::DrawLightCircle(int, int, int, int, int, int, int)] Body End | 2330 resources/include/bindings/screendata.zh:1711
+DRAWLIGHT_CONE; Func[void screendata::DrawLightCone(int, int, int, int, int, int, int, int)] Body Start | 2331 resources/include/bindings/screendata.zh:1723
+POPARGS D5 0.0008                                                               | 2332 resources/include/bindings/screendata.zh:1723
+RETURNFUNC; Func[void screendata::DrawLightCone(int, int, int, int, int, int, int, int)] Body End | 2333 resources/include/bindings/screendata.zh:1723
+SETR D2 SCREENDATAEXDOOR; Func[bool screendata::GetExDoor(int, int)] Body Start | 2334 resources/include/bindings/screendata.zh:1734
+POPARGS D5 0.0002                                                               | 2335 resources/include/bindings/screendata.zh:1734
+RETURNFUNC; Func[bool screendata::GetExDoor(int, int)] Body End                 | 2336 resources/include/bindings/screendata.zh:1734
+POP D2; Func[void screendata::SetExDoor(int, int, bool)] Body Start             | 2337 resources/include/bindings/screendata.zh:1744
+SETR SCREENDATAEXDOOR D2                                                        | 2338 resources/include/bindings/screendata.zh:1744
+POPARGS D5 0.0002                                                               | 2339 resources/include/bindings/screendata.zh:1744
+RETURNFUNC; Func[void screendata::SetExDoor(int, int, bool)] Body End           | 2340 resources/include/bindings/screendata.zh:1744
+SETSIDEWARP; Func[void screendata::SetSideWarp(int, int, int, int)] Body Start  | 2341 resources/include/bindings/screendata.zh:1751
+POPARGS D5 0.0004                                                               | 2342 resources/include/bindings/screendata.zh:1751
+RETURNFUNC; Func[void screendata::SetSideWarp(int, int, int, int)] Body End     | 2343 resources/include/bindings/screendata.zh:1751
+SETTILEWARP; Func[void screendata::SetTileWarp(int, int, int, int)] Body Start  | 2344 resources/include/bindings/screendata.zh:1756
+POPARGS D5 0.0004                                                               | 2345 resources/include/bindings/screendata.zh:1756
+RETURNFUNC; Func[void screendata::SetTileWarp(int, int, int, int)] Body End     | 2346 resources/include/bindings/screendata.zh:1756
+POP D1; Func[lweapon screendata::CreateLWeaponDx(int, int)] Body Start          | 2347 resources/include/bindings/screendata.zh:1765
+POP D0                                                                          | 2348 resources/include/bindings/screendata.zh:1765
+SETR D2 CREATELWPNDX                                                            | 2349 resources/include/bindings/screendata.zh:1765
+RETURNFUNC; Func[lweapon screendata::CreateLWeaponDx(int, int)] Body End        | 2350 resources/include/bindings/screendata.zh:1765
+POP D2; Func[npc screendata::LoadNPCByUID(int)] Body Start                      | 2351 resources/include/bindings/screendata.zh:1772
+LOADNPCBYSUID D2                                                                | 2352 resources/include/bindings/screendata.zh:1772
+SETR D2 REFNPC                                                                  | 2353 resources/include/bindings/screendata.zh:1772
+RETURNFUNC; Func[npc screendata::LoadNPCByUID(int)] Body End                    | 2354 resources/include/bindings/screendata.zh:1772
+POP D2; Func[lweapon screendata::LoadLWeaponByUID(int)] Body Start              | 2355 resources/include/bindings/screendata.zh:1779
+LOADLWEAPONBYSUID D2                                                            | 2356 resources/include/bindings/screendata.zh:1779
+SETR D2 REFLWPN                                                                 | 2357 resources/include/bindings/screendata.zh:1779
+RETURNFUNC; Func[lweapon screendata::LoadLWeaponByUID(int)] Body End            | 2358 resources/include/bindings/screendata.zh:1779
+POP D2; Func[eweapon screendata::LoadEWeaponByUID(int)] Body Start              | 2359 resources/include/bindings/screendata.zh:1786
+LOADWEAPONCBYSUID D2                                                            | 2360 resources/include/bindings/screendata.zh:1786
+SETR D2 REFEWPN                                                                 | 2361 resources/include/bindings/screendata.zh:1786
+RETURNFUNC; Func[eweapon screendata::LoadEWeaponByUID(int)] Body End            | 2362 resources/include/bindings/screendata.zh:1786
+POP D3; Func[int screendata::LayerMap(int)] Body Start                          | 2363 resources/include/bindings/screendata.zh:1792
+LAYERMAP D2 D3                                                                  | 2364 resources/include/bindings/screendata.zh:1792
+RETURNFUNC; Func[int screendata::LayerMap(int)] Body End                        | 2365 resources/include/bindings/screendata.zh:1792
+POP D3; Func[int screendata::LayerScreen(int)] Body Start                       | 2366 resources/include/bindings/screendata.zh:1798
+LAYERSCREEN D2 D3                                                               | 2367 resources/include/bindings/screendata.zh:1798
+RETURNFUNC; Func[int screendata::LayerScreen(int)] Body End                     | 2368 resources/include/bindings/screendata.zh:1798
+POP D2; Func[int screendata::GetSideWarpDMap(int)] Body Start                   | 2369 resources/include/bindings/screendata.zh:1804
+GETSIDEWARPDMAP D2                                                              | 2370 resources/include/bindings/screendata.zh:1804
+RETURNFUNC; Func[int screendata::GetSideWarpDMap(int)] Body End                 | 2371 resources/include/bindings/screendata.zh:1804
+POP D2; Func[int screendata::GetSideWarpScreen(int)] Body Start                 | 2372 resources/include/bindings/screendata.zh:1810
+GETSIDEWARPSCR D2                                                               | 2373 resources/include/bindings/screendata.zh:1810
+RETURNFUNC; Func[int screendata::GetSideWarpScreen(int)] Body End               | 2374 resources/include/bindings/screendata.zh:1810
+POP D2; Func[int screendata::GetSideWarpType(int)] Body Start                   | 2375 resources/include/bindings/screendata.zh:1816
+GETSIDEWARPTYPE D2                                                              | 2376 resources/include/bindings/screendata.zh:1816
+RETURNFUNC; Func[int screendata::GetSideWarpType(int)] Body End                 | 2377 resources/include/bindings/screendata.zh:1816
+POP D2; Func[int screendata::GetTileWarpDMap(int)] Body Start                   | 2378 resources/include/bindings/screendata.zh:1822
+GETTILEWARPDMAP D2                                                              | 2379 resources/include/bindings/screendata.zh:1822
+RETURNFUNC; Func[int screendata::GetTileWarpDMap(int)] Body End                 | 2380 resources/include/bindings/screendata.zh:1822
+POP D2; Func[int screendata::GetTileWarpScreen(int)] Body Start                 | 2381 resources/include/bindings/screendata.zh:1828
+GETTILEWARPSCR D2                                                               | 2382 resources/include/bindings/screendata.zh:1828
+RETURNFUNC; Func[int screendata::GetTileWarpScreen(int)] Body End               | 2383 resources/include/bindings/screendata.zh:1828
+POP D2; Func[int screendata::GetTileWarpType(int)] Body Start                   | 2384 resources/include/bindings/screendata.zh:1834
+GETTILEWARPTYPE D2                                                              | 2385 resources/include/bindings/screendata.zh:1834
+RETURNFUNC; Func[int screendata::GetTileWarpType(int)] Body End                 | 2386 resources/include/bindings/screendata.zh:1834
 LOADRNG; Func[randgen randgen::randgen()] Body Start                            | 2387 resources/include/bindings/randgen.zh:5
 RETURNFUNC; Func[randgen randgen::randgen()] Body End                           | 2388 resources/include/bindings/randgen.zh:5
 POP REFRNG; Func[int randgen::Rand()] Body Start                                | 2389 resources/include/bindings/randgen.zh:12
@@ -9568,7 +9568,7 @@ debug data:
       - int[] SideWarpOverlay @ Reg[MAPDATASIDEWARPOVFLAGS]
       - int[] SideWarpReturnSquare @ Reg[MAPDATASWARPRETSQR]
       - int[] SideWarpScreen @ Reg[MAPDATASIDEWARPSC]
-      - int[] SideWarpType @ Reg[MAPDATASIDEWARPTYPE]
+      - WarpType[] SideWarpType @ Reg[MAPDATASIDEWARPTYPE]
       - int StairsX @ Reg[MAPDATASTAIRX]
       - int StairsY @ Reg[MAPDATASTAIRY]
       - bool[] State @ Reg[MAPDATASCREENSTATED]
@@ -9578,7 +9578,7 @@ debug data:
       - bool[] TileWarpOverlay @ Reg[MAPDATATILEWARPOVFLAGS]
       - int[] TileWarpReturnSquare @ Reg[MAPDATATWARPRETSQR]
       - int[] TileWarpScreen @ Reg[MAPDATATILEWARPSCREEN]
-      - int[] TileWarpType @ Reg[MAPDATATILEWARPTYPE]
+      - WarpType[] TileWarpType @ Reg[MAPDATATILEWARPTYPE]
       - int TimedWarpTimer @ Reg[MAPDATATIMEDWARPTICS]
       - int UnderCSet @ Reg[MAPDATAUNDERCSET]
       - int UnderCombo @ Reg[MAPDATAUNDERCOMBO]
@@ -11444,7 +11444,7 @@ debug data:
       - bool[] SideWarpOverlay @ Reg[SCREENDATASIDEWARPOVFLAGS]
       - int[] SideWarpReturnSquare @ Reg[SCREENDATASWARPRETSQR]
       - int[] SideWarpScreen @ Reg[SCREENDATASIDEWARPSC]
-      - int[] SideWarpType @ Reg[SCREENDATASIDEWARPTYPE]
+      - WarpType[] SideWarpType @ Reg[SCREENDATASIDEWARPTYPE]
       - int StairsX @ Reg[SCREENDATASTAIRX]
       - int StairsY @ Reg[SCREENDATASTAIRY]
       - bool[] State @ Reg[SCREENSTATED]
@@ -11454,7 +11454,7 @@ debug data:
       - bool[] TileWarpOverlay @ Reg[SCREENDATATILEWARPOVFLAGS]
       - int[] TileWarpReturnSquare @ Reg[SCREENDATATWARPRETSQR]
       - int[] TileWarpScreen @ Reg[SCREENDATATILEWARPSCREEN]
-      - int[] TileWarpType @ Reg[SCREENDATATILEWARPTYPE]
+      - WarpType[] TileWarpType @ Reg[SCREENDATATILEWARPTYPE]
       - int TimedWarpTimer @ Reg[SCREENDATATIMEDWARPTICS]
       - int UnderCSet @ Reg[UNDERCSET]
       - int UnderCombo @ Reg[UNDERCOMBO]
@@ -13981,179 +13981,180 @@ Types:
 319: const SecretComboIndex
 320: combodata[]
 321: const combodata[]
-322: const mapdata
-323: MessageFlag
-324: const MessageFlag
-325: MessageSegmentType
-326: const MessageSegmentType
-327: const messagedata
-328: const musicdata
-329: BossPal
-330: const BossPal
-331: ItemSet
-332: const ItemSet
-333: NPCFlags
-334: const NPCFlags
-335: NPCID
-336: const NPCID
-337: NPCMiscBitflags
-338: const NPCMiscBitflags
-339: NPCMoveStatus
-340: const NPCMoveStatus
-341: NPCWalkType
-342: const NPCWalkType
-343: const npc
-344: NPCDefenseIndex
-345: const NPCDefenseIndex
-346: NPCDefenseType
-347: const NPCDefenseType
-348: NPCFade
-349: const NPCFade
-350: NPCShieldIndex
-351: const NPCShieldIndex
-352: NPCType
-353: const NPCType
-354: NPCWeapon
-355: const NPCWeapon
-356: const npcdata
-357: const rgb
-358: rgb[]
-359: const paldata
-360: const portal
-361: QR
-362: const QR
-363: const randgen
-364: Region
-365: const Region
-366: SaveMenuFlags
-367: const SaveMenuFlags
-368: SaveMenuOptionFlags
-369: const SaveMenuOptionFlags
-370: SaveMenuOptionFlags[]
-371: const save_menu
-372: const savedportal
-373: DrawOrigin
-374: const DrawOrigin
-375: PolygonRenderMode
-376: const PolygonRenderMode
-377: RenderTarget
-378: const RenderTarget
-379: ScreenEnemyFlagGroup
-380: const ScreenEnemyFlagGroup
-381: ScreenEnemyFlagList1
-382: const ScreenEnemyFlagList1
-383: ScreenEnemyFlagList2
-384: const ScreenEnemyFlagList2
-385: ScreenEnemyFlagSpawn
-386: const ScreenEnemyFlagSpawn
-387: ScreenFlag
-388: const ScreenFlag
-389: ScreenFlagCombos
-390: const ScreenFlagCombos
-391: ScreenFlagFFC
-392: const ScreenFlagFFC
-393: ScreenFlagGroup
-394: const ScreenFlagGroup
-395: ScreenFlagItems
-396: const ScreenFlagItems
-397: ScreenFlagMisc
-398: const ScreenFlagMisc
-399: ScreenFlagRoomType
-400: const ScreenFlagRoomType
-401: ScreenFlagSave
-402: const ScreenFlagSave
-403: ScreenFlagSecrets
-404: const ScreenFlagSecrets
-405: ScreenFlagView
-406: const ScreenFlagView
-407: ScreenFlagWarp
-408: const ScreenFlagWarp
-409: ScreenFlagWhistle
-410: const ScreenFlagWhistle
-411: SpriteList
-412: const SpriteList
-413: WipeEffect
-414: const WipeEffect
-415: screendata
-416: const screendata
-417: eweapon[]
-418: const eweapon[]
-419: ffc[]
-420: const ffc[]
-421: itemsprite[]
-422: const itemsprite[]
-423: lweapon[]
-424: const lweapon[]
-425: npc[]
-426: const npc[]
-427: portal[]
-428: const portal[]
-429: SpriteDataFlag
-430: const SpriteDataFlag
-431: const stack
-432: SubscreenPageMode
-433: const SubscreenPageMode
-434: SubscreenWidgetGenFlag
-435: const SubscreenWidgetGenFlag
-436: SubscreenWidgetType
-437: const SubscreenWidgetType
-438: TransitionFlag
-439: const TransitionFlag
-440: subscreenpage
-441: subscreenpage[]
-442: const subscreenpage[]
-443: const subscreendata
-444: MoveSubscreenSelectorBitflags
-445: const MoveSubscreenSelectorBitflags
-446: subscreenwidget[]
-447: const subscreenwidget[]
-448: const subscreenpage
-449: ConditionType
-450: const ConditionType
-451: SubscreenItemButton
-452: const SubscreenItemButton
-453: const subscreenwidget
-454: Text
-455: const Text
-456: ViewportMode
-457: const ViewportMode
-458: Viewport
-459: const Viewport
-460: WebsocketState
-461: const WebsocketState
-462: WebsocketType
-463: const WebsocketType
-464: const char32[]
-465: const websocket
-466: ZInfo
-467: const ZInfo
-468: const Enum
-469: AimType
-470: const AimType
-471: Dir2
-472: const Dir2
-473: DitherType
-474: const DitherType
-475: HeroMoveFlag
-476: const HeroMoveFlag
-477: ItemspriteMoveFlag
-478: const ItemspriteMoveFlag
-479: NPCMoveFlag
-480: const NPCMoveFlag
-481: WeaponMoveFlag
-482: const WeaponMoveFlag
-483: const char32
-484: Thing[]
-485: const Counter
-486: Counter[]
-487: const Thing
-488: const CL
-489: const DataBag
-490: const DebugClassDefaultCtor
-491: CL[]
-492: const ffc
-493: char32[][]
-494: char32[][][]
-495: int[][]
+322: WarpType[]
+323: const mapdata
+324: MessageFlag
+325: const MessageFlag
+326: MessageSegmentType
+327: const MessageSegmentType
+328: const messagedata
+329: const musicdata
+330: BossPal
+331: const BossPal
+332: ItemSet
+333: const ItemSet
+334: NPCFlags
+335: const NPCFlags
+336: NPCID
+337: const NPCID
+338: NPCMiscBitflags
+339: const NPCMiscBitflags
+340: NPCMoveStatus
+341: const NPCMoveStatus
+342: NPCWalkType
+343: const NPCWalkType
+344: const npc
+345: NPCDefenseIndex
+346: const NPCDefenseIndex
+347: NPCDefenseType
+348: const NPCDefenseType
+349: NPCFade
+350: const NPCFade
+351: NPCShieldIndex
+352: const NPCShieldIndex
+353: NPCType
+354: const NPCType
+355: NPCWeapon
+356: const NPCWeapon
+357: const npcdata
+358: const rgb
+359: rgb[]
+360: const paldata
+361: const portal
+362: QR
+363: const QR
+364: const randgen
+365: Region
+366: const Region
+367: SaveMenuFlags
+368: const SaveMenuFlags
+369: SaveMenuOptionFlags
+370: const SaveMenuOptionFlags
+371: SaveMenuOptionFlags[]
+372: const save_menu
+373: const savedportal
+374: DrawOrigin
+375: const DrawOrigin
+376: PolygonRenderMode
+377: const PolygonRenderMode
+378: RenderTarget
+379: const RenderTarget
+380: ScreenEnemyFlagGroup
+381: const ScreenEnemyFlagGroup
+382: ScreenEnemyFlagList1
+383: const ScreenEnemyFlagList1
+384: ScreenEnemyFlagList2
+385: const ScreenEnemyFlagList2
+386: ScreenEnemyFlagSpawn
+387: const ScreenEnemyFlagSpawn
+388: ScreenFlag
+389: const ScreenFlag
+390: ScreenFlagCombos
+391: const ScreenFlagCombos
+392: ScreenFlagFFC
+393: const ScreenFlagFFC
+394: ScreenFlagGroup
+395: const ScreenFlagGroup
+396: ScreenFlagItems
+397: const ScreenFlagItems
+398: ScreenFlagMisc
+399: const ScreenFlagMisc
+400: ScreenFlagRoomType
+401: const ScreenFlagRoomType
+402: ScreenFlagSave
+403: const ScreenFlagSave
+404: ScreenFlagSecrets
+405: const ScreenFlagSecrets
+406: ScreenFlagView
+407: const ScreenFlagView
+408: ScreenFlagWarp
+409: const ScreenFlagWarp
+410: ScreenFlagWhistle
+411: const ScreenFlagWhistle
+412: SpriteList
+413: const SpriteList
+414: WipeEffect
+415: const WipeEffect
+416: screendata
+417: const screendata
+418: eweapon[]
+419: const eweapon[]
+420: ffc[]
+421: const ffc[]
+422: itemsprite[]
+423: const itemsprite[]
+424: lweapon[]
+425: const lweapon[]
+426: npc[]
+427: const npc[]
+428: portal[]
+429: const portal[]
+430: SpriteDataFlag
+431: const SpriteDataFlag
+432: const stack
+433: SubscreenPageMode
+434: const SubscreenPageMode
+435: SubscreenWidgetGenFlag
+436: const SubscreenWidgetGenFlag
+437: SubscreenWidgetType
+438: const SubscreenWidgetType
+439: TransitionFlag
+440: const TransitionFlag
+441: subscreenpage
+442: subscreenpage[]
+443: const subscreenpage[]
+444: const subscreendata
+445: MoveSubscreenSelectorBitflags
+446: const MoveSubscreenSelectorBitflags
+447: subscreenwidget[]
+448: const subscreenwidget[]
+449: const subscreenpage
+450: ConditionType
+451: const ConditionType
+452: SubscreenItemButton
+453: const SubscreenItemButton
+454: const subscreenwidget
+455: Text
+456: const Text
+457: ViewportMode
+458: const ViewportMode
+459: Viewport
+460: const Viewport
+461: WebsocketState
+462: const WebsocketState
+463: WebsocketType
+464: const WebsocketType
+465: const char32[]
+466: const websocket
+467: ZInfo
+468: const ZInfo
+469: const Enum
+470: AimType
+471: const AimType
+472: Dir2
+473: const Dir2
+474: DitherType
+475: const DitherType
+476: HeroMoveFlag
+477: const HeroMoveFlag
+478: ItemspriteMoveFlag
+479: const ItemspriteMoveFlag
+480: NPCMoveFlag
+481: const NPCMoveFlag
+482: WeaponMoveFlag
+483: const WeaponMoveFlag
+484: const char32
+485: Thing[]
+486: const Counter
+487: Counter[]
+488: const Thing
+489: const CL
+490: const DataBag
+491: const DebugClassDefaultCtor
+492: CL[]
+493: const ffc
+494: char32[][]
+495: char32[][][]
+496: int[][]
 
 
