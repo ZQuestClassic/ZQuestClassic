@@ -1466,7 +1466,7 @@ namespace Emily
 						int op = (lyr > 0 ? (Screen->LayerOpacity[lyr]==128 ? OP_TRANS : OP_OPAQUE) : OP_OPAQUE);
 						for(int pos = 160; pos < 176; ++pos)
 						{
-							b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, 0, 0, lyr > 0, op);
+							b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, -1, 0, lyr > 0, op);
 						}
 					}
 					colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
@@ -1600,7 +1600,7 @@ namespace Emily
 							int op = (lyr > 0 ? (Screen->LayerOpacity[lyr]==128 ? OP_TRANS : OP_OPAQUE) : OP_OPAQUE);
 							for(int pos = 160; pos < 176; ++pos)
 							{
-								b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, 0, 0, lyr > 0, op);
+								b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, -1, 0, lyr > 0, op);
 							}
 						}
 						colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
