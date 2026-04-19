@@ -216,7 +216,9 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						high = 255,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-						{liftspeed = val;refresh_dlg();}
+						{
+							liftspeed = val;
+						}
 					),
 					_d,
 					_d,
@@ -234,7 +236,9 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						high = 255,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{liftSwatch[0]->setFrames(val); refresh_dlg(); }
+						{
+							liftSwatch[0]->setFrames(val);
+						}
 					),
 					Label(text = "Num Frames:", hAlign = 1.0),
 					TextField(
@@ -245,7 +249,9 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						high = 255,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{liftSwatch[1]->setFrames(val); refresh_dlg(); }
+						{
+							liftSwatch[1]->setFrames(val);
+						}
 					),
 					//
 					Label(text = "Left", hAlign = 1.0),
@@ -262,7 +268,9 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						high = 255,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{liftSwatch[2]->setFrames(val); refresh_dlg(); }
+						{
+							liftSwatch[2]->setFrames(val);
+						}
 					),
 					Label(text = "Num Frames:", hAlign = 1.0),
 					TextField(
@@ -273,7 +281,9 @@ std::shared_ptr<GUI::Widget> HeroEditorDialog::view()
 						high = 255,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{liftSwatch[3]->setFrames(val); refresh_dlg(); }
+						{
+							liftSwatch[3]->setFrames(val);
+						}
 					)
 					//
 				)
