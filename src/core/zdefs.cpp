@@ -1589,6 +1589,8 @@ MIDI* copy_midi(MIDI* src)
 	for (uint q = 0; q < MIDI_TRACKS; ++q)
 	{
 		size_t sz = zc_max(0, dest->track[q].len);
+		if (!sz)
+			continue;
 		byte* data = (byte*)_AL_MALLOC(sz);
 		if (!data)
 		{
