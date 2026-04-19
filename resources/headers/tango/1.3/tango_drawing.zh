@@ -119,7 +119,7 @@ void __Tango_DrawComboBackdrop(int styleStart, int x, int y)
       __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_WIDTH],
       __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_HEIGHT],
       __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_CSET],
-      -1, -1, 0, 0, 0, 0, 0, true, opacity);
+      -1, -1, 0, 0, 0, -1, 0, true, opacity);
 }
 
 void __Tango_DrawComplexBackdrop(untyped[] backdrop, float x, float y)
@@ -160,7 +160,7 @@ void __Tango_DrawComplexBackdrop(untyped[] backdrop, float x, float y)
                   backdrop[baseIndex+TANGO_TILE_WIDTH],
                   backdrop[baseIndex+TANGO_TILE_HEIGHT],
                   backdrop[baseIndex+TANGO_TILE_CSET],
-                  -1, -1, 0, 0, 0, 0, 0, true, opacity);
+                  -1, -1, 0, 0, 0, -1, 0, true, opacity);
             }
         }
         else if(backdrop[baseIndex]<=TANGO_DRAW_RECT_TRANS)
@@ -302,7 +302,7 @@ void __Tango_DrawMenuCursor()
       __Tango_Data[__TDIDX_MENU_CURSOR_WIDTH],
       __Tango_Data[__TDIDX_MENU_CURSOR_HEIGHT],
       __Tango_Data[__TDIDX_MENU_CURSOR_CSET],
-      -1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
+      -1, -1, 0, 0, 0, -1, 0, true, OP_OPAQUE);
 }
 
 void __Tango_DrawMenuScrollIndicators(int slotX, int slotY)
