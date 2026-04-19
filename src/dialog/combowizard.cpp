@@ -754,7 +754,7 @@ void ComboWizardDialog::endUpdate()
 		case cSIGNPOST:
 		{
 			bool prompt = cboxes[1]->getChecked();
-			zfix& prompt_combo = local_ref.c_attributes[9];
+			zfix& prompt_combo = local_ref.c_attributes[1];
 			zfix& prompt_cset = local_ref.c_attributes[12];
 			zfix& prompt_xoff = local_ref.c_attributes[16];
 			zfix& prompt_yoff = local_ref.c_attributes[17];
@@ -4252,7 +4252,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			zfix& messagestr = local_ref.c_attributes[0];
 			
 			zfix& openbtn = local_ref.c_attributes[10];
-			zfix& prompt_combo = local_ref.c_attributes[9];
+			zfix& prompt_combo = local_ref.c_attributes[1];
 			zfix& prompt_cset = local_ref.c_attributes[12];
 			zfix& prompt_xoff = local_ref.c_attributes[16];
 			zfix& prompt_yoff = local_ref.c_attributes[17];
