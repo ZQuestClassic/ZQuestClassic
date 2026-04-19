@@ -584,7 +584,7 @@ void __Ghost_ShrinkAway(ffc this, npc ghost)
               baseX-(xSize-baseWidth)/2,
               baseY-(ySize-baseHeight)/2,
               Ghost_Data, Ghost_TileWidth, Ghost_TileHeight, Ghost_CSet,
-              xSize, ySize, 0, 0, 0, 0, 0, true, opacity);
+              xSize, ySize, 0, 0, 0, -1, 0, true, opacity);
         }
         
         Ghost_WaitframeLight(this, ghost);

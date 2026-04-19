@@ -112,7 +112,7 @@ void DrawGhostFFCs()
                                   aptr[baseIndex+__GH_CD_WIDTH],
                                   aptr[baseIndex+__GH_CD_HEIGHT],
                                   aptr[__GHI_CD_CSET],
-                                  -1, -1, 0, 0, 0, 0, 0,
+                                  -1, -1, 0, 0, 0, -1, 0,
                                   true, opacity);
             }
             
