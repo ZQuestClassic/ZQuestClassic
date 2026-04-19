@@ -49,6 +49,7 @@ void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3);
 void replay_step_qr(int qr, bool value);
+void replay_step_meta(std::string key, std::string value);
 
 void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);

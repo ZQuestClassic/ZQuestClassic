@@ -53,6 +53,7 @@ static const char TypeState = 'S';
 
 static ReplayMode mode = ReplayMode::Off;
 static int version;
+static int initial_version;
 static bool version_use_latest;
 static bool debug;
 static bool snapshot_all_frames;
@@ -392,12 +393,34 @@ struct StateReplayStep : ReplayStep
 
 	void run()
 	{
-		// current_mouse_state = state;
+		// During replay, the engine calls `replay_get_state` which handles finding the next relevant state step.
 	}
 
 	std::string print() const
 	{
 		return fmt::format("{} {} {} {}", type, frame, (int)state_type, value);
+	}
+};
+
+struct MetaReplayStep : ReplayStep
+{
+	std::string_view key;
+	std::string_view value;
+
+	MetaReplayStep(int frame, std::string_view key, std::string_view value) : ReplayStep(frame, TypeMeta), key(key), value(value)
+	{
+	}
+
+	void run()
+	{
+		std::string& value_str = meta_map[std::string(key)] = std::string(value);
+		if (key == "version")
+			version = std::stoi(value_str);
+	}
+
+	std::string print() const
+	{
+		return fmt::format("{} {} {} {}", type, frame, key, value);
 	}
 };
 
@@ -411,7 +434,8 @@ using ReplayStepVariant = std::variant<
     KeyMapReplayStep,
     KeyReplayStep,
     MouseReplayStep,
-    StateReplayStep
+    StateReplayStep,
+    MetaReplayStep
 >;
 
 static int get_frame(const ReplayStepVariant& v)
@@ -511,6 +535,9 @@ static bool steps_are_equal(const ReplayStepVariant& var1, const ReplayStepVaria
 	case TypeState:
 		return std::get<StateReplayStep>(var1).state_type == std::get<StateReplayStep>(var2).state_type &&
 			std::get<StateReplayStep>(var1).value == std::get<StateReplayStep>(var2).value;
+	case TypeMeta:
+		return std::get<MetaReplayStep>(var1).key == std::get<MetaReplayStep>(var2).key &&
+			std::get<MetaReplayStep>(var1).value == std::get<MetaReplayStep>(var2).value;
 	}
 
 	return false;
@@ -628,6 +655,7 @@ static void set_version()
 	if (!meta_map.contains("version"))
 	{
 		version = 1;
+		initial_version = version;
 		return;
 	}
 
@@ -636,10 +664,12 @@ static void set_version()
 	{
 		version = VERSION;
 		version_use_latest = true;
+		initial_version = version;
 		return;
 	}
 
 	version = std::stoi(version_str);
+	initial_version = version;
 }
 
 static void load_replay(std::string& buffer, std::map<std::string, std::string>& meta_map, std::filesystem::path path, bool only_meta = false)
@@ -674,7 +704,11 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
 
     KeyMapReplayStep key_map = KeyMapReplayStep::make(0);
     bool found_key_map = false;
-    bool done_with_meta = false;
+	// Replays files start with `M` metadata lines. For example: `M key value`.
+	// When done with initial metadata, each line after is associated with a specific frame. For example: `C 123 ...`
+	// `M` steps also exist that change metadata at runtime (like the replay version) - but these are associated
+	// with specific frames. For example: `M 123 key value`.
+    bool done_with_initial_meta = false;
 
     if (size > 0)
         replay_log.reserve(size / 10);
@@ -764,15 +798,15 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
         line.remove_prefix(1);
 
         int frame = 0;
-        if (type != TypeMeta)
+        if (type != TypeMeta || done_with_initial_meta)
             consume_int(line, frame);
 
-        if (!done_with_meta && type != TypeMeta)
+        if (!done_with_initial_meta && type != TypeMeta)
         {
             if (only_meta)
                 return;
 
-            done_with_meta = true;
+            done_with_initial_meta = true;
             set_version();
             if (version < 5)
                 KeyMapReplayStep::current = key_map;
@@ -780,8 +814,6 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
 
         if (type == TypeMeta)
         {
-            ASSERT(!done_with_meta);
-
             std::string key;
             consume_string(line, key);
 
@@ -790,9 +822,20 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
 
             std::string value(line);
 
-            ASSERT(meta_map.find(key) == meta_map.end());
-            ASSERT(annotation_pos == std::string_view::npos);
-            meta_map[key] = value;
+            if (!done_with_initial_meta)
+            {
+                ASSERT(meta_map.find(key) == meta_map.end());
+                ASSERT(annotation_pos == std::string_view::npos);
+                meta_map[key] = value;
+            }
+            else
+            {
+                string_arena.push_back(key);
+                std::string_view key_view = string_arena.back();
+                string_arena.push_back(value);
+                std::string_view value_view = string_arena.back();
+                replay_log.emplace_back(std::in_place_type<MetaReplayStep>, frame, key_view, value_view);
+            }
         }
         else if (type == TypeComment)
         {
@@ -964,7 +1007,7 @@ static void save_replay(std::string filename, const std::vector<ReplayStepVarian
     if (version_use_latest)
         replay_set_meta("version", "latest");
     else
-        replay_set_meta("version", version);
+        replay_set_meta("version", initial_version);
     replay_set_meta("frames", frame_count);
 	replay_set_meta("length", log.size());
 
@@ -1104,7 +1147,7 @@ static void do_replaying_poll()
         if (version >= 6)
         {
             char type = get_type(replay_log[replay_log_current_index]);
-            if (type != TypeKeyDown && type != TypeKeyUp && type != TypeMouse)
+            if (type != TypeKeyDown && type != TypeKeyUp && type != TypeMouse && type != TypeMeta)
                 run_step(replay_log[replay_log_current_index]);
         }
         else
@@ -1248,6 +1291,26 @@ std::map<std::string, std::string> replay_load_meta(std::filesystem::path path)
 	return meta_map;
 }
 
+static void peek_meta_steps()
+{
+	if (!replay_is_replaying())
+		return;
+
+	size_t i = replay_log_current_index;
+	while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+	{
+		if (get_type(replay_log[i]) == TypeMeta)
+		{
+			auto& meta_step = std::get<MetaReplayStep>(replay_log[i]);
+			if (replay_is_recording())
+				replay_step_meta(std::string(meta_step.key), std::string(meta_step.value));
+			else
+				run_step(replay_log[i]);
+		}
+		i++;
+	}
+}
+
 void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
@@ -1296,6 +1359,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     case ReplayMode::Record:
     {
         version = VERSION;
+		initial_version = VERSION;
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
         replay_set_meta("zc_version_created", getVersionString());
@@ -1330,6 +1394,8 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
         record_log.emplace_back(std::in_place_type<KeyMapReplayStep>, 0, KeyMapReplayStep::current.button_keys);
     }
 
+    peek_meta_steps();
+
     save_result();
 }
 
@@ -1345,8 +1411,19 @@ void replay_continue(std::filesystem::path path)
     replay_forget_input();
     replay_path = path;
     load_replay(replay_file_buffer, meta_map, replay_path);
+
+	for (auto& step : replay_log)
+	{
+		if (get_type(step) == TypeMeta)
+			run_step(step);
+	}
+
     record_log = std::move(replay_log);
     frame_count = get_frame(record_log.back()) + 1;
+
+	// Not certain if really old replays (prior to TypeKeyMap) can be updated.
+	if (version >= 5 && version != VERSION)
+		replay_step_meta("version", fmt::format("{}", VERSION));
 }
 
 void replay_poll()
@@ -1504,6 +1581,7 @@ void replay_poll()
 
     rng_seed_count_this_frame.clear();
     frame_count++;
+	peek_meta_steps();
 }
 
 // example: 0 3 4-10 45
@@ -1997,6 +2075,22 @@ void replay_step_qr(int qr, bool value)
 {
 	if (replay_is_recording())
 		record_log.emplace_back(std::in_place_type<QRReplayStep>, frame_count, qr, value);
+}
+
+void replay_step_meta(std::string key, std::string value)
+{
+	if (!replay_is_recording())
+		return;
+
+	// Nothing else is supported right now.
+	CHECK(key == "version");
+
+	string_arena.push_back(key);
+	std::string_view key_view = string_arena.back();
+	string_arena.push_back(value);
+	std::string_view value_view = string_arena.back();
+	record_log.emplace_back(std::in_place_type<MetaReplayStep>, frame_count, key_view, value_view);
+	std::get<MetaReplayStep>(record_log.back()).run();
 }
 
 ReplayMode replay_get_mode()
