@@ -72,6 +72,8 @@ void maps_init_game_vars()
 	viewport_mode = ViewportMode::CenterAndBound;
 	viewport_sprite_uid = 1;
 	currscr_for_passive_subscr = -1;
+	scrolling_maze_last_solved_screen = 0;
+	maze_state = {};
 }
 
 static region_ids_t current_region_ids;

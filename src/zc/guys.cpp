@@ -36,6 +36,15 @@
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
+static std::array<bool, MAPSCRS> script_sle;
+static int32_t sle_pattern;
+
+void guys_init_game_vars()
+{
+	script_sle = {};
+	sle_pattern = 0;
+}
+
 int32_t repaircharge=0;
 bool adjustmagic=false;
 bool learnslash=false;
@@ -18805,9 +18814,6 @@ static bool check_if_recently_visited()
 	return enemy_spawning_has_been_here;
 }
 
-static std::array<bool, MAPSCRS> script_sle;
-
-static int32_t sle_pattern = 0;
 static void script_side_load_enemies(mapscr* scr)
 {
 	if (script_sle[scr->screen] || sle_clk) return;

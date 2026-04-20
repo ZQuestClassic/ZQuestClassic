@@ -129,6 +129,7 @@ bool dev_timestmp = false;
 
 ZCMUSIC *zcmusic = NULL;
 ZCMIXER *zcmixer = NULL;
+extern int32_t potion_life, potion_magic;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
@@ -1558,13 +1559,16 @@ void init_game_vars(bool is_cont_game = false)
 	if (is_cont_game && !(replay_version_check(32) || replay_get_meta_str("qst") == "grassland_attack.qst"))
 		return;
 
-	// Don't reset cheats on continue.
 	if (!is_cont_game)
 	{
+		// Don't reset cheats on continue.
 		cheat=0;
 		show_layers[0]=show_layers[1]=show_layers[2]=show_layers[3]=show_layers[4]=show_layers[5]=show_layers[6]=true;
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
 		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=gofast=false;
+
+		ResetSaveScreenSettings();
+		ALLOFF(true,true,true);
 	}
 
 	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -1587,7 +1591,6 @@ void init_game_vars(bool is_cont_game = false)
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=231;	
-	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
@@ -1605,7 +1608,6 @@ void init_game_vars(bool is_cont_game = false)
 	boughtsomething = false;
 	castnext = false;
 	clock_zoras.clear();
-	didpit = false;
 	hooked_comborpos = rpos_t::None;
 	hooked_layerbits = 0;
 	conveyclk = 3;
@@ -1643,12 +1645,50 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_life=true;
 	msgscr=nullptr;
 	maps_init_game_vars();
+	guys_init_game_vars();
 	reset_lens_hints();
 	for(int32_t i=0; i<6; i++)
 	{
 		visited[i]=-1;
 	}
 	pending_save_from_save_menu = false;
+
+	GameFlags = 0;
+	Playing = true;
+	Paused = false;
+	db = 0;
+	idle_count = 0;
+	active_count = 0;
+	msg_onscreen = msg_active = false;
+	prt_tile = 0;
+	prt_cset = 0;
+	prt_x = 0;
+	prt_y = 0;
+	prt_tw = 0;
+	prt_th = 0;
+	msg_shdtype = 0;
+	msg_shdcol = 0;
+	strike_hint_counter = 0;
+	strike_hint_timer = 0;
+	strike_hint = 0;
+	black_opening_count = 0;
+	introclk = intropos = 0;
+	drawguys = true;
+	lensclk = 0;
+	lensid = -1;
+	potion_life = 0;
+	potion_magic = 0;
+	repaircharge = 0;
+	adjustmagic = false;
+	learnslash = false;
+	wallm_load_clk = 0;
+	vhead = 0;
+
+	watch = freeze_guys = loaded_guys = blockpath = false;
+	fairy_cnt = 0;
+	sle_clk = 0;
+	didpit = false;
+	onload_gswitch_timers();
 }
 
 int32_t init_game()
@@ -1720,8 +1760,6 @@ int32_t init_game()
 	zc_game_srand(initial_seed);
 	zc_game_srand(initial_seed, &drunk_rng);
 
-	onload_gswitch_timers();
-	ResetSaveScreenSettings();
 	zscript_debugger_clear();
 
 	int32_t ret = load_quest(game);
@@ -2255,21 +2293,9 @@ int32_t cont_game()
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	FFCore.init(true);
-	onload_gswitch_timers();
-	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
-	linkedmsgclk=0;
-	mblock2.clear();
-	add_asparkle=0;
-	add_bsparkle=0;
-	add_df1asparkle=false;
-	add_df1bsparkle=false;
-	add_nl1asparkle=false;
-	add_nl1bsparkle=false;
-	add_nl2asparkle=false;
-	add_nl2bsparkle=false;
 
 	bool changedlevel = false;
 	bool changeddmap = false;
