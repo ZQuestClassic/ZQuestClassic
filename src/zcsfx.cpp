@@ -295,13 +295,16 @@ namespace // sample implementations
 	}
 	void SampleOGG::update_freq(int freq)
 	{
-		// can't modify frequency of a stream, except via mixer
-		// but, can't connect mixer to mixer of different frequency
-		// so, no way to update frequency for streamed sfx like this
-		// Anywhere that calls `sfx_ex` with freq >= 0 should be prepared to catch this exception.
-		// Currently, that is ONLY one spot in `ffscript.cpp`.
-		if (freq >= 0)
-			throw zcsfx_exception("Updated frequency of invalid SFX type 'SMPL_OGG'");
+		if (stream)
+		{
+			if (freq < 0)
+				al_set_audio_stream_speed(stream, 1.0);
+			else
+			{
+				double speed = double(freq) / al_get_audio_stream_frequency(stream);
+				al_set_audio_stream_speed(stream, speed);
+			}
+		}
 	}
 	void SampleOGG::update_gain(double gain)
 	{
@@ -807,8 +810,12 @@ namespace // sample implementations
 		if (inst)
 		{
 			if (freq < 0)
-				freq = al_get_sample_frequency(sample);
-			inst->spl_data.frequency = freq;
+				al_set_sample_instance_speed(inst, 1.0);
+			else
+			{
+				double speed = double(freq) / al_get_sample_frequency(sample);
+				al_set_sample_instance_speed(inst, speed);
+			}
 		}
 	}
 	void SampleWAV::update_gain(double gain)
