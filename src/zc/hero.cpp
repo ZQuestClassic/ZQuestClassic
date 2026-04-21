@@ -18620,7 +18620,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 							y -= 1_zf;
 							shoved = true;
 						}
-						else if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v+bigHitbox?11:4)))
+						else if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(y+bigHitbox?11:4)))
 						{
 							if(optional<zfix> ty = get_solid_coord(tx,ry,up,mdir,false,ry-shove_offset, (ladderhit != 2)))
 							{
@@ -18637,7 +18637,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 							y += 1_zf;
 							shoved = true;
 						}
-						else if(skipdmg || !checkdamagecombos(tx,v+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
+						else if(skipdmg || !checkdamagecombos(tx,y+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 						{
 							if(optional<zfix> ty = get_solid_coord(tx,ly,down,mdir,false,ly+shove_offset, (ladderhit != 1)))
 							{
