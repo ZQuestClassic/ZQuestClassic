@@ -823,7 +823,7 @@ def _run_replays(
             replay = pending_replays.pop(0)
             test_index = replays.index(replay)
             run_dir = runs_dir / replay.path.with_suffix('').name
-            run_dir.mkdir(parents=True)
+            run_dir.mkdir(parents=True, exist_ok=True)
             active_tests.append(_run_replay_test(ctx, test_index, replay, run_dir))
 
         next_active_tests = []
