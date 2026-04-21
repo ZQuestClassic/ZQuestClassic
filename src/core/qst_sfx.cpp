@@ -77,13 +77,14 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 				continue;
 			if(get_bit(tempflag, i-1))
 			{
-				char tempname[36];
-				
+				char tempname[37];
+				tempname[sizeof(tempname) - 1] = '\0';
+
 				if(!pfread(tempname, 36, f))
 				{
 					return qe_invalid;
 				}
-				
+
 				sfx_string[i] = tempname;
 			}
 			else
