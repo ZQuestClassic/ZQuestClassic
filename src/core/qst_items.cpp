@@ -883,14 +883,14 @@ int32_t read_items_old(PACKFILE *f, word s_version, word version, word build)
 
 	if (!should_skip)
 		for(word i = 0; i < itemsbuf.capacity(); ++i)
-			update_old_item(s_version, i, version);
+			update_old_item(s_version, i, version, build);
 	
 	return 0;
 }
 
 } // end namespace
 
-void update_old_item(word s_version, word index, word version)
+void update_old_item(word s_version, word index, word version, word build)
 {
 	itemdata& tempitem = itemsbuf[index];
 	
@@ -1554,6 +1554,15 @@ void update_old_item(word s_version, word index, word version)
 				
 			if(tempitem.type == itype_divinefire)
 				tempitem.flags |= item_flag3; // Sideview gravity flag
+		}
+		
+		if (version < 0x250 && (version == 0x250 && build < 30)) // < 2.53
+		{
+			if (tempitem.type == itype_triforcepiece)
+			{
+				if (tempitem.flags & item_gamedata)
+					tempitem.flags |= item_flag8;
+			}
 		}
 		
 		if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
@@ -3104,7 +3113,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if (auto ret = read_single_item(f, s_version, q, version, build))
 			return ret;
 	for (word q = 0; q < items_to_read; ++q)
-		update_old_item(s_version, q, version);
+		update_old_item(s_version, q, version, build);
 	
 	itemsbuf.normalize();
 	
