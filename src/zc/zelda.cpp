@@ -935,6 +935,8 @@ void Z_eventlog(const char *format,...)
     }
 }
 
+// TODO: callers should always end with a newline otherwise the log will render poorly in the console / allegro.log.
+// Should instead add a \n here and remove from all callers. Same for Z_scripterrlog_force_trace. Probably Z_eventlog too.
 void Z_scripterrlog(const char * const format,...)
 {
 	char buf[2048];

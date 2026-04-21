@@ -736,7 +736,7 @@ void hero_set_register(int32_t reg, int32_t value)
 		}
 		case HEROSHOVEOFFSET:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT2))
-				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Hero Movement'.");
+				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Hero Movement'.\n");
 			Hero.shove_offset = vbound(zslongToFix(value),16_zf,0_zf);
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.shove_offset = Hero.shove_offset;
@@ -744,7 +744,7 @@ void hero_set_register(int32_t reg, int32_t value)
 		case HEROSTEPRATE:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT))
 			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.\n", "Hero->Step", "enable", "New Hero Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))

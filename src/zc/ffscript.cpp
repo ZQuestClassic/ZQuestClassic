@@ -4922,7 +4922,7 @@ void FFScript::do_paldata_load_sprite()
 		case 0: pageoffset += 0;  break;
 		case 1: pageoffset += 15; break;
 		default:
-			scripting_log_error_with_context("Invalid page: {}. Valid pages are 0 or 1. Aborting.", page);
+			scripting_log_error_with_context("Invalid page: {}. Valid pages are 0 or 1. Aborting.\n", page);
 			return;
 		}
 		for (int32_t q = 0; q < 15; ++q)
@@ -5479,7 +5479,7 @@ void FFScript::do_paldata_setrgb(user_paldata* pd, int32_t index, int32_t val, i
 		int32_t ind = index;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
-			scripting_log_error_with_context("Invalid color index ({}). Valid indices are 0-255. Aborting.", ind);
+			scripting_log_error_with_context("Invalid color index ({}). Valid indices are 0-255. Aborting.\n", ind);
 			return;
 		}
 		if (unsigned(val) > scripting_max_color_val)
@@ -6872,7 +6872,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -6897,7 +6897,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -6922,7 +6922,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -6946,7 +6946,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -6969,7 +6969,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][3];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -7179,7 +7179,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][3];
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -11584,7 +11584,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case GAMEEND:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot End Game while reading or writing to SRAM. Aborting End. /n");
+					Z_scripterrlog("Cannot End Game while reading or writing to SRAM. Aborting End.\n");
 					break;
 				}
 				Quit = qQUIT;
@@ -11599,7 +11599,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case GAMERELOAD:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Reload Game while reading or writing to SRAM. Aborting Reload. /n");
+					Z_scripterrlog("Cannot Reload Game while reading or writing to SRAM. Aborting Reload.\n");
 					break;
 				}
 				Quit = qRELOAD;
@@ -11633,7 +11633,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case GAMECONTINUE:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue. /n");
+					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue.\n");
 					break;
 				}
 				reset_all_combo_animations();
@@ -11647,7 +11647,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case GAMESAVEQUIT:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save.\n");
 					break;
 				}
 				Quit = qSAVE;
@@ -11664,7 +11664,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case SAVE:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save.\n");
 					break;
 				}
 				if(scriptCanSave)
@@ -13875,7 +13875,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d\n", index);
 		return;
 	}
 

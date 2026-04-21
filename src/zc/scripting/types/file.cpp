@@ -433,7 +433,7 @@ void do_file_putchar()
 	{
 		if(char(c) != c)
 		{
-			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.", c);
+			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.\n", c);
 			c = char(c);
 		}
 		SET_D(rEXP1, fputc(c, f->file) * 10000L);
@@ -449,7 +449,7 @@ void do_file_ungetchar()
 	{
 		if(char(c) != c)
 		{
-			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
+			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.\n", c);
 			c = char(c);
 		}
 		SET_D(rEXP1, ungetc(c,f->file) * 10000L);
