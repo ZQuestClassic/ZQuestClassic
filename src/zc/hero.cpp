@@ -815,7 +815,6 @@ void HeroClass::setSwimDownRate(int32_t newrate)
 void HeroClass::herostep()
 {
     lstep = lstep<((zinit.heroAnimationStyle==las_bszelda)?27:11) ? lstep+1 : 0;
-	//need to run all global/hero/dmap scripts here?
 }
 
 bool is_moving()
@@ -13697,6 +13696,7 @@ void HeroClass::do_rafting()
 	}
 	
 	FFCore.setHeroAction(rafting);
+	attackclk = 0;
 	
 	do_lens();
 	
@@ -19482,9 +19482,13 @@ void HeroClass::movehero(bool premove_passed)
 	auto push=pushing;
 	if (!premove_passed)
 	{
+		if (action == rafting)
+			return;
+		if (action == attacking && get_qr(qr_PAUSE_ICE_SLIDING_WHILE_ATTACKING))
+			return;
 		if (sliding)
 			goto newmove_slide;
-		else return;
+		return;
 	}
 	pushing=0;
 	
@@ -19928,8 +19932,10 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 	{
 		herostep();
 		
-		//ack... don't walk if in midair! -DD
-		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(this) && !getOnSideviewLadder()))
+		if (charging==0 && spins==0
+			&& z==0 && fakez==0
+			&& !(isSideViewHero() && !on_sideview_solid_oldpos(this) && !getOnSideviewLadder())
+			&& !(sliding && action != none))
 		{
 			action=walking; FFCore.setHeroAction(walking);
 		}
