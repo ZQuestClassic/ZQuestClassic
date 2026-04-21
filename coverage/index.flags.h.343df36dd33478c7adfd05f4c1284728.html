@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-19 23:44:51</td>
+      <td>2026-04-21 09:30:48</td>
     </tr>
   </table>
 </div>
@@ -93,8 +93,8 @@
     <tr><td><a href="#l173">ImGuiTreeNodeFlags_ flags::operator|&lt;ImGuiTreeNodeFlags_, ImGuiTreeNodeFlags_&gt;(ImGuiTreeNodeFlags_, ImGuiTreeNodeFlags_) (line 173)</a></td><td>called 1804 times, returned 1804 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l173">ImGuiWindowFlags_ flags::operator|&lt;ImGuiWindowFlags_, ImGuiWindowFlags_&gt;(ImGuiWindowFlags_, ImGuiWindowFlags_) (line 173)</a></td><td>called 1848 times, returned 1848 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l12">flags::F(int) (line 12)</a></td><td>called 529878 times, returned 529878 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l165">flags::ffc_flags flags::operator&amp;&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags, flags::ffc_flags) (line 165)</a></td><td>called 7770073621 times, returned 7770073621 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l173">flags::ffc_flags flags::operator|&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags, flags::ffc_flags) (line 173)</a></td><td>called 1789875672 times, returned 1789875672 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l165">flags::ffc_flags flags::operator&amp;&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags, flags::ffc_flags) (line 165)</a></td><td>called 7770073113 times, returned 7770073113 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l173">flags::ffc_flags flags::operator|&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags, flags::ffc_flags) (line 173)</a></td><td>called 1789875164 times, returned 1789875164 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l181">flags::ffc_flags flags::operator~&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags) (line 181)</a></td><td>called 410047 times, returned 410047 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l195">flags::ffc_flags&amp; flags::operator&amp;=&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags&amp;, flags::ffc_flags) (line 195)</a></td><td>called 410047 times, returned 410047 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l188">flags::ffc_flags&amp; flags::operator|=&lt;flags::ffc_flags, flags::ffc_flags&gt;(flags::ffc_flags&amp;, flags::ffc_flags) (line 188)</a></td><td>called 124048 times, returned 124048 times</td><td>100.0%</td></tr>
@@ -1306,7 +1306,7 @@
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9443914901</td>
+      <td class="linecount coveredLine">9443914393</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">operator</span><span class="o">&amp;</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">lhs</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">rhs</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1320,21 +1320,21 @@
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9443914901</td>
+      <td class="linecount coveredLine">9443914393</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">18887829802</td>
+      <td class="linecount coveredLine">18887828786</td>
       <td class="src coveredLine"><span class="w">        </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">underlying_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9443914901</td>
+      <td class="linecount coveredLine">9443914393</td>
       <td class="src coveredLine"><span class="w">        </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">underlying_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">rhs</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
@@ -1362,7 +1362,7 @@
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1833493418</td>
+      <td class="linecount coveredLine">1833492910</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">operator</span><span class="o">|</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">lhs</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">rhs</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1376,21 +1376,21 @@
       <td class="lineno"><a id="l175" href="#l175">175</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1833493418</td>
+      <td class="linecount coveredLine">1833492910</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l176" href="#l176">176</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3666986836</td>
+      <td class="linecount coveredLine">3666985820</td>
       <td class="src coveredLine"><span class="w">        </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">underlying_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="w"> </span><span class="o">|</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l177" href="#l177">177</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1833493418</td>
+      <td class="linecount coveredLine">1833492910</td>
       <td class="src coveredLine"><span class="w">        </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="n">typename</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">underlying_type</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">rhs</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
