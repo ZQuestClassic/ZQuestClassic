@@ -1042,7 +1042,7 @@ public:
 		if ( !eid ) 
 		{
 			//can never be zero?
-			Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.", funcvar);
+			Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.\n", funcvar);
 			return _InvalidSpriteUID;
 		}
 		tempenemy = (enemy *) guys.getByUID(eid);
@@ -1170,7 +1170,7 @@ public:
 		if ( !iid ) 
 		{
 			//can never be zero?
-			Z_scripterrlog("The item pointer used for %s is NULL or uninitialised.", funcvar);
+			Z_scripterrlog("The item pointer used for %s is NULL or uninitialised.\n", funcvar);
 			return _InvalidSpriteUID;
 		}
 		
@@ -1312,7 +1312,7 @@ public:
 		if ( !wid ) 
 		{
 			//can never be zero?
-			Z_scripterrlog("The lweapon pointer used for %s is NULL or uninitialised.", funcvar);
+			Z_scripterrlog("The lweapon pointer used for %s is NULL or uninitialised.\n", funcvar);
 			return _InvalidSpriteUID;
 		}
 		tempweapon = (weapon *) Lwpns.getByUID(wid);
@@ -1452,7 +1452,7 @@ public:
 		if ( !wid ) 
 		{
 			//can never be zero?
-			Z_scripterrlog("The eweapon pointer used for %s is NULL or uninitialised.", funcvar);
+			Z_scripterrlog("The eweapon pointer used for %s is NULL or uninitialised.\n", funcvar);
 			return _InvalidSpriteUID;
 		}
 		tempweapon = (weapon *) Ewpns.getByUID(wid);
@@ -16161,7 +16161,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROSTEPRATE:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT))
 			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Player Movement");
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.\n", "Hero->Step", "enable", "New Player Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
@@ -16169,7 +16169,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case HEROSHOVEOFFSET:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT2))
-				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Player Movement'.");
+				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Player Movement'.\n");
 			Hero.shove_offset = vbound(zslongToFix(value),16_zf,0_zf);
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.shove_offset = Hero.shove_offset;
@@ -22134,7 +22134,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t enemyid = value/10000;
 			if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
-				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.", enemyid,"Enemy[]"); \
+				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.\n", enemyid,"Enemy[]"); \
 				break; 
 			}
 			if(unsigned(indx) > 9)
@@ -23148,7 +23148,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
-				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.", enemyid,"Enemy[]");
+				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.\n", enemyid,"Enemy[]");
 			} 
 			else if (mapscr *m = GetMapscr(ri->mapsref)) 
 			{ 
@@ -33442,7 +33442,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.\n", arrayptr);
 				break;
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
@@ -33473,7 +33473,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.\n", arrayptr);
 				break;
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
@@ -33504,7 +33504,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.\n", arrayptr);
 				break;
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
@@ -33558,7 +33558,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][2]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.\n", arrayptr);
 				break;
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
@@ -33584,7 +33584,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][3]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -33794,7 +33794,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			int32_t arrayptr = script_drawing_commands[j][3]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
-				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+				Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.\n", arrayptr);
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
@@ -35711,7 +35711,7 @@ void do_readclass()
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
-			Z_scripterrlog("Script tried to read position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
+			Z_scripterrlog("Script tried to read position '%d' out of bounds on a '%d' size object (%d).\n", ind, obj->data.size(), objref);
 		}
 		else
 		{
@@ -35727,7 +35727,7 @@ void do_writeclass()
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
-			Z_scripterrlog("Script tried to write position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
+			Z_scripterrlog("Script tried to write position '%d' out of bounds on a '%d' size object (%d).\n", ind, obj->data.size(), objref);
 		}
 		else
 		{
@@ -38404,7 +38404,7 @@ j_command:
 			case GAMEEND:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot End Game while reading or writing to SRAM. Aborting End. /n");
+					Z_scripterrlog("Cannot End Game while reading or writing to SRAM. Aborting End.\n");
 					break;
 				}
 				Quit = qQUIT;
@@ -38414,7 +38414,7 @@ j_command:
 			case GAMERELOAD:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Reload Game while reading or writing to SRAM. Aborting Reload. /n");
+					Z_scripterrlog("Cannot Reload Game while reading or writing to SRAM. Aborting Reload.\n");
 					break;
 				}
 				Quit = qRELOAD;
@@ -38448,7 +38448,7 @@ j_command:
 			case GAMECONTINUE:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue. /n");
+					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue.\n");
 					break;
 				}
 				reset_combo_animations();
@@ -38463,7 +38463,7 @@ j_command:
 			case GAMESAVEQUIT:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save.\n");
 					break;
 				}
 				Quit = qSAVE;
@@ -38480,7 +38480,7 @@ j_command:
 			case SAVE:
 				if ( using_SRAM )
 				{
-					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save. /n");
+					Z_scripterrlog("Cannot Save Game while reading or writing to SRAM. Aborting Save.\n");
 					break;
 				}
 				if(scriptCanSave)
@@ -41171,7 +41171,7 @@ void FFScript::do_file_putchar()
 		int32_t c = get_register(sarg1) / 10000;
 		if(char(c) != c)
 		{
-			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.", c);
+			Z_scripterrlog("Invalid character val %d passed to PutChar(); value will overflow.\n", c);
 			c = char(c);
 		}
 		ri->d[rEXP1] = fputc(c, f->file) * 10000L;
@@ -41187,7 +41187,7 @@ void FFScript::do_file_ungetchar()
 		int32_t c = get_register(sarg1) / 10000;
 		if(char(c) != c)
 		{
-			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.", c);
+			Z_scripterrlog("Invalid character val %d passed to UngetChar(); value will overflow.\n", c);
 			c = char(c);
 		}
 		ri->d[rEXP1] = ungetc(c,f->file) * 10000L;
@@ -42770,7 +42770,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d\n", index);
 		return;
 	}
 
