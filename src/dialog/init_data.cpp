@@ -254,7 +254,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	{
 		int32_t family = itemsbuf[q].family;
 		
-		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
+		if (family == 0x200 || !(itemsbuf[q].flags & (family == itype_triforcepiece ? ITEM_FLAG8 : ITEM_GAMEDATA)))
 			continue;
 		
 		if(families.find(family) == families.end())

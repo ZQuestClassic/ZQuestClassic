@@ -7693,6 +7693,15 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
 		}
 		
+		if (version < 0x250 && (version == 0x250 && build < 30)) // < 2.53
+		{
+			if (tempitem.family == itype_triforcepiece)
+			{
+				if (tempitem.flags & ITEM_GAMEDATA)
+					tempitem.flags |= ITEM_FLAG8;
+			}
+		}
+		
 		if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
 		{
 			switch(tempitem.family)
