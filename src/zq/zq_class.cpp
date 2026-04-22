@@ -3059,8 +3059,10 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				ditherblit(tmpDarkTrans, tmpDarkTrans, 0, zinit.dither_type, zinit.dither_arg);
 			}
 
-			blit(tmpDark, tmpbuf, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
-			blit(tmpDarkTrans, tmpbuf2, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
+			extern bool HighQualityScreenRendering;
+			bool draw_with_offset = showedges && !HighQualityScreenRendering;
+			blit(tmpDark, tmpbuf, 0, 0, (draw_with_offset?16:0), (draw_with_offset?16:0), 16*16, 16*11);
+			blit(tmpDarkTrans, tmpbuf2, 0, 0, (draw_with_offset?16:0), (draw_with_offset?16:0), 16*16, 16*11);
 
 			if(basescr->flags9 & fDARK_TRANS)
 			{
