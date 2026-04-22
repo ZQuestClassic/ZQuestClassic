@@ -326,6 +326,9 @@ void own_script_object(user_abstract_obj* object, ScriptType type, int i)
 
 void own_script_object(user_abstract_obj* object, sprite* sprite)
 {
+	if (!sprite)
+		return;
+
 	if (!ZScriptVersion::gc())
 	{
 		object->set_owned_by_sprite(sprite);
