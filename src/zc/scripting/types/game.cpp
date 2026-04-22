@@ -680,6 +680,10 @@ void game_set_register(int32_t reg, int32_t value)
 			disableClickToFreeze=value==0;
 			break;
 
+		case NOACTIVESUBSC:
+			Hero.stopSubscreenFalling((value/10000)?1:0);
+			break;
+
 		case COMBODDM:
 		{
 			value = vbound(value/10000,0,MAXCOMBOS);
