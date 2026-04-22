@@ -236,8 +236,8 @@ namespace GhostBasedMovement
 
 	void FixCoords(npc n)
 	{
-		n->X = (n->X & 0xF0) + ((n->X&8)?16:0);
-		n->Y = (n->Y & 0xF0) + ((n->Y&8)?16:0);
+		n->X = Round(n->X / 16) * 16;
+		n->Y = Round(n->Y / 16) * 16;
 	}
 	int LinedUp(npc n, int range, bool eightWay)
 	{
