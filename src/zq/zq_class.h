@@ -42,6 +42,11 @@ struct MapCursor
 
 	void setSize(int new_size)
 	{
+		if (new_size < 1)
+			new_size = 1;
+		if (new_size > 16)
+			new_size = 16;
+
 		if (size == new_size)
 			return;
 
@@ -50,7 +55,8 @@ struct MapCursor
 	}
 
 private:
-	// Modify `viewscr` just enough to keep `screen` in bounds.
+	// Modify `viewscr` just enough to keep `screen` in bounds,
+	// doing a best-effort clamp against the 16x8 map edges.
 	void adjustViewScr()
 	{
 		int cx = screen % 16;
@@ -62,10 +68,21 @@ private:
 			vx = cx;
 		else if (cx >= vx + size)
 			vx = cx - size + 1;
+
 		if (cy < vy)
 			vy = cy;
 		else if (cy >= vy + size)
 			vy = cy - size + 1;
+
+		if (vx + size > 16)
+			vx = 16 - size;
+		if (vy + size > 8)
+			vy = 8 - size;
+
+		if (vx < 0)
+			vx = 0;
+		if (vy < 0)
+			vy = 0;
 
 		viewscr = vx + vy * 16;
 	}

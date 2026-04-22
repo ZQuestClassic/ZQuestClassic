@@ -6665,12 +6665,14 @@ int32_t load_quest(const char *filename, bool show_progress)
 			std::string qst_cfg_header = qst_cfg_header_from_path(filename);
 			int view_size = zc_get_config(qst_cfg_header.c_str(), "zoom_num_screens", 1);
 
-			Map.setCursor(MapCursor{
+			auto cursor = MapCursor{
 				.map = vbound(zinit.last_map, 0, map_count - 1),
 				.screen = zinit.last_screen,
 				.viewscr = zinit.last_screen,
 				.size = view_size,
-			});
+			};
+			cursor.setScreen(cursor.screen); // Force clamping.
+			Map.setCursor(cursor);
 
 			extern int32_t current_mappage;
 			current_mappage = 0;
