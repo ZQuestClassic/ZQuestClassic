@@ -76,8 +76,8 @@ private:
 
 		if (vx + size > 16)
 			vx = 16 - size;
-		if (vy + size > 8)
-			vy = 8 - size;
+		if (vy + size > 9)
+			vy = 9 - size;
 
 		if (vx < 0)
 			vx = 0;
