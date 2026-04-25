@@ -6672,12 +6672,24 @@ static int32_t droplist(DIALOG *d)
 
 	data->listFunc(-1, &listsize);
 	y = d->y + d->h;
-	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
+	int shown_options = listsize;
+	int option_height = text_height(*data->font);
+	int extra_height = 8 + (abc_patternmatch ? option_height : 0);
+	const int dropdown_edge_padding = 75;
+	int top_max_opts = (d->y - dropdown_edge_padding - extra_height) / option_height;
+	int bottom_max_opts = (zq_screen_h - y - dropdown_edge_padding - extra_height) / option_height;
 	
-	if(y+h >= zq_screen_h)
+	bool opens_up = false;
+	if (bottom_max_opts < listsize && top_max_opts > bottom_max_opts)
 	{
-		y = d->y - h;
+		opens_up = true;
+		shown_options = vbound(shown_options, 0, top_max_opts);
 	}
+	else shown_options = vbound(shown_options, 0, bottom_max_opts);
+	
+	h = shown_options * option_height + extra_height;
+	if (opens_up)
+		y = d->y - h;
 	
 	x = d->x;
 	w = d->w;
@@ -6700,7 +6712,7 @@ static int32_t droplist(DIALOG *d)
 	droplist_dlg[1].y  = y;
 	droplist_dlg[1].w  = w;
 	droplist_dlg[1].h  = h;
-	droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
+	droplist_dlg[1].d2 = (shown_options == listsize) ? 0 : zc_max(d1-(shown_options / 2),0);
 	
 	// cancel
 	droplist_dlg[0].x = 0;
