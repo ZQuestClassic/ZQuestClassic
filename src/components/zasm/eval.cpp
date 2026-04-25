@@ -712,9 +712,6 @@ DebugValue ExpressionEvaluator::readSymbol(const DebugSymbol* sym)
 	if (sym->storage == LOC_CLASS)
 	{
 		int32_t thisPtr = vm.getThisPointer();
-		if (thisPtr == 0)
-			throw std::runtime_error("'this' is null");
-
 		if (auto v = vm.readObjectMember(DebugValue{thisPtr, nullptr}, sym))
 			return v.value();
 	}
@@ -766,8 +763,6 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 		else if (sym->storage == LOC_CLASS)
 		{
 			int32_t thisPtr = vm.getThisPointer();
-			if (thisPtr == 0) throw std::runtime_error("'this' is null");
-
 			DebugValue thisVal{thisPtr, nullptr}; // Type doesn't matter for the raw pointer
 			if (!vm.writeObjectMember(thisVal, sym, val))
 				throw std::runtime_error("Failed to write to member variable");
