@@ -7746,6 +7746,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 		{
 			wx = m->warpreturnx[warpDestY];
 			wy = m->warpreturny[warpDestY];
+
+			region_t region;
+			int rx, ry;
+			calculate_region(dest_map, dest_screen, region, rx, ry);
+			wx += rx * 256;
+			wy += ry * 176;
+
 			if(DEVLOGGING)
 			{
 				zprint("WarpEx Return Point X is: %d\n",wx);
