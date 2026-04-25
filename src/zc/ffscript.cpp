@@ -3344,7 +3344,15 @@ int32_t get_register(const int32_t arg)
 			if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
 				ret=(ri->ffcref*10000)+10000;
 			break;
-			
+		case FFCLASTCHANGERX:
+			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
+				ret = ffposx[ri->ffcref] * 10000;
+			break;
+		case FFCLASTCHANGERY:
+			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
+				ret = ffposy[ri->ffcref] * 10000;
+			break;
+
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
 				ret = tmpscr->ffcs[ri->ffcref].ax.getZLong();
