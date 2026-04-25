@@ -1,4 +1,6 @@
 // Clears all regions for a given map.
+//
+// @versionadded 3.0
 void ClearRegion(int map)
 {
 	SetRegion(map, 0, 16, 8, 0);
@@ -7,7 +9,9 @@ void ClearRegion(int map)
 // Sets a rectangular area to the given region id.
 //
 // This modifies the canonical screens, and as such will not take effect until
-// the next screen load, and will persist after the next game load.
+// the next screen load. It also will not persist after the next game load.
+//
+// @versionadded 3.0
 void SetRegion(int map, int origin_screen, int width, int height, int region_id)
 {
 	for (int x = 0; x < width; x++)
