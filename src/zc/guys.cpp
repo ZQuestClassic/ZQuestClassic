@@ -18464,7 +18464,7 @@ static slope_id_t create_slope_id(int stage, int arg1, int arg2)
 	if (stage == SLOPE_STAGE_FFCS)
 		return (region_num_rpos*7)+arg1;
 	if (stage == SLOPE_STAGE_COMBOS_BORDERING_SCREENS)
-		return (region_num_rpos*7 + MAX_FFCID+1)+arg1*7*(16 * 2 + 11 * 2) + arg2;
+		return (region_num_rpos*7 + MAX_FFCID+1)+arg1;
 	// TODO: what about FFCs from bordering screens?
 
 	assert(false);
@@ -18493,9 +18493,9 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	}
 }
 
-static void update_slope_combopos_bordering_screen(int dir, int slope_count, int cid, bool is_slope, int offx, int offy)
+static void update_slope_combopos_bordering_screen(int slope_count, int cid, bool is_slope, int offx, int offy)
 {
-	auto id = create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS, dir, slope_count);
+	auto id = create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS, slope_count, 0);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -18518,7 +18518,7 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 }
 
 // Load a single column or row from a nearby screen, and load its slopes.
-static void handle_slope_combopos_bordering_screen(int initial_screen, int dir, int scr_x, int scr_y)
+static void handle_slope_combopos_bordering_screen(int& bordering_slope_count, int initial_screen, int dir, int scr_x, int scr_y)
 {
 	auto [map, screen] = nextscr2(cur_map, initial_screen, dir);
 	if (map == -1 || is_in_current_region(map, screen))
@@ -18540,8 +18540,6 @@ static void handle_slope_combopos_bordering_screen(int initial_screen, int dir, 
 		auto scr = load_temp_mapscr_and_apply_secrets(map, screen, layer - 1, true, false);
 		if (!scr) continue;
 
-		int slope_count = layer * (16*2);
-
 		if (dir == left || dir == right)
 		{
 			int x = dir == left ? 15 : 0;
@@ -18550,7 +18548,7 @@ static void handle_slope_combopos_bordering_screen(int initial_screen, int dir, 
 				int pos = y * 16 + x;
 				int cid = scr->data[pos];
 				bool is_slope = combobuf[cid].type == cSLOPE;
-				update_slope_combopos_bordering_screen(dir, slope_count++, cid, is_slope, offx, offy + y*16);
+				update_slope_combopos_bordering_screen(bordering_slope_count++, cid, is_slope, offx, offy + y*16);
 			}
 		}
 		else if (dir == up || dir == down)
@@ -18561,7 +18559,7 @@ static void handle_slope_combopos_bordering_screen(int initial_screen, int dir, 
 				int pos = y * 16 + x;
 				int cid = scr->data[pos];
 				bool is_slope = combobuf[cid].type == cSLOPE;
-				update_slope_combopos_bordering_screen(dir, slope_count++, cid, is_slope, offx + x*16, offy);
+				update_slope_combopos_bordering_screen(bordering_slope_count++, cid, is_slope, offx + x*16, offy);
 			}
 		}
 	}
@@ -18575,9 +18573,10 @@ void update_slope_comboposes()
 
 	if (Hero.sideview_mode())
 	{
+		int bordering_slope_count = 0;
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			for (int dir = up; dir <= right; dir++)
-				handle_slope_combopos_bordering_screen(scr->screen, dir, region_scr_x * 256, region_scr_y * 176);
+				handle_slope_combopos_bordering_screen(bordering_slope_count, scr->screen, dir, region_scr_x * 256, region_scr_y * 176);
 		});
 	}
 
