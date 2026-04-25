@@ -3544,6 +3544,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBOD_DIVE_UNDER_LEVEL:
 		case COMBOD_Z_HEIGHT:
 		case COMBOD_Z_STEP_HEIGHT:
+		case COMBODTRIGGERS:
 			return REFCOMBODATA;
 
 		case CMBTRIGBOSSPAL:
