@@ -5774,7 +5774,7 @@ void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw,
 		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
-			get_screen_state(cur_screen).open_doors = -4;
+			get_screen_state(scr->screen).open_doors = -4;
 			break;
 		}
 
