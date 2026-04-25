@@ -37,6 +37,12 @@ class ReplayPart:
     save_file: Optional[Path] = None
     last_key_step: Optional[ReplayStep] = None
 
+    def duration(self) -> int:
+        if not steps:
+            return 0
+
+        return steps[-1].frame - steps[0].frame
+
 
 def split_replay(
     replay_path: Path,
@@ -71,7 +77,7 @@ def split_replay(
             # We split strictly at init_game.
             # We track the absolute start frame so we can find the matching .sav file later.
             if type == 'C' and data == 'init_game' and step.frame != 0:
-                if len(current_part.steps) > split_threshold:
+                if current_part.duration() > split_threshold:
                     previous_part = current_part
                     current_part = ReplayPart(absolute_start_frame=step.frame)
                     replay_parts.append(current_part)
@@ -140,7 +146,7 @@ def split_replay(
     for i, part in enumerate(replay_parts):
         col1 = str(i + 1).rjust(maxcol1, ' ')
         save_name = part.save_file.name if part.save_file else 'None'
-        print(f'[{col1}] length: {len(part.steps)} | save: {save_name}')
+        print(f'[{col1}] length: {len(part.duration())} | save: {save_name}')
 
     output_folder.mkdir(exist_ok=True)
     if qst_path.exists():
@@ -252,7 +258,7 @@ def split_replay(
         if part.last_key_step:
             most_recent_key_step = part.last_key_step
 
-        print(f'\t{output_replay.name}: {len(part.steps)}')
+        print(f'\t{output_replay.name}: {len(part.duration())}')
 
 
 if __name__ == '__main__':
@@ -266,7 +272,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--split-threshold',
-        default=100_000,
+        default=50_000,
         type=int,
         help='If current replay part length at a save point is less than this threshold, the replay will not be cut. It may be long enough on the next save.',
     )
