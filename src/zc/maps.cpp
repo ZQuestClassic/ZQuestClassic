@@ -3362,6 +3362,8 @@ void update_freeform_combos()
 			mapscr* scr = ffc_handle.scr;
 			ffcdata& thisffc = *ffc_handle.ffc;
 
+			thisffc.update_current_screen();
+
 			// Combo 0?
 			if(thisffc.data==0)
 				return;
@@ -3527,6 +3529,7 @@ void update_freeform_combos()
 				}
 			}
 			thisffc.solid_update();
+			thisffc.update_current_screen();
 		});
 	}
 }
