@@ -6167,6 +6167,8 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 			{
 				auto& ffc = base_scr->getFFC(i) = previous_scr->ffcs[i];
 				ffc.screen_spawned = screen;
+				ffc.current_screen = screen;
+				ffc.update_current_screen();
 
 				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
 				loadscr_ffc_script_ids_to_remove.erase(ffc_id);
@@ -6185,6 +6187,8 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 		base_scr->ffcs[i].screen_spawned = screen;
 		base_scr->ffcs[i].x += offx;
 		base_scr->ffcs[i].y += offy;
+		base_scr->ffcs[i].current_screen = screen;
+		base_scr->ffcs[i].update_current_screen();
 	}
 }
 
