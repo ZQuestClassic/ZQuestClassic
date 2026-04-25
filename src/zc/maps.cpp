@@ -3361,6 +3361,8 @@ void update_freeform_combos()
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			mapscr* scr = ffc_handle.scr;
 			ffcdata& thisffc = *ffc_handle.ffc;
+			
+			thisffc.update_current_screen();
 
 			// Combo 0?
 			if(thisffc.data==0)
@@ -3527,6 +3529,7 @@ void update_freeform_combos()
 				}
 			}
 			thisffc.solid_update();
+			thisffc.update_current_screen();
 		});
 	}
 }
@@ -6163,7 +6166,7 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 			if ((previous_scr->ffcs[i].flags&ffc_carryover))
 			{
 				auto& ffc = base_scr->getFFC(i) = previous_scr->ffcs[i];
-				ffc.screen_spawned = screen;
+				ffc.screen_spawned = ffc.current_screen = screen;
 
 				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
 				loadscr_ffc_script_ids_to_remove.erase(ffc_id);
@@ -6179,9 +6182,10 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 	int num_ffcs = base_scr->numFFC();
 	for (word i = 0; i < num_ffcs; i++)
 	{
-		base_scr->ffcs[i].screen_spawned = screen;
-		base_scr->ffcs[i].x += offx;
-		base_scr->ffcs[i].y += offy;
+		auto& ffc = base_scr->ffcs[i];
+		ffc.screen_spawned = ffc.current_screen = screen;
+		ffc.x += offx;
+		ffc.y += offy;
 	}
 }
 
@@ -6614,9 +6618,10 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	int c = scr->numFFC();
 	for (word i = 0; i < c; i++)
 	{
-		scr->ffcs[i].screen_spawned = screen;
-		scr->ffcs[i].x += offx;
-		scr->ffcs[i].y += offy;
+		auto& ffc = scr->ffcs[i];
+		ffc.screen_spawned = ffc.current_screen = screen;
+		ffc.x += offx;
+		ffc.y += offy;
 	}
 
 	int mi = mapind(cur_map, screen);
