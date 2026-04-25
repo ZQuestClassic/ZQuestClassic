@@ -2780,6 +2780,14 @@ bool sprite::handle_termv()
 void sprite::update_current_screen()
 {
 #ifdef IS_PLAYER
+	// This is jank.
+	// When reading screens from a .qst file, this function ends up getting called. It would set
+	// current_screen to 0 since no screen has actually been loaded yet.
+	// So disable this function when loading.
+	extern char const* loading_qst_name;
+	if (loading_qst_name)
+		return;
+
 	int cx = x + hxofs + hit_width / 2;
 	int cy = y + hyofs + hit_height / 2;
 	
