@@ -6886,8 +6886,7 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	switch(msg)
 	{
 		case MSG_CLICK:
-			if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
-				goto dropit;
+			goto dropit;
 				
 			break;
 			
@@ -6924,7 +6923,7 @@ dropit:
 	
 	while(gui_mouse_b())
 	{
-		down = mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h);
+		down = mouse_in_rect(d->x,d->y,d->w,d->h);
 		
 		if(down!=last_draw)
 		{
