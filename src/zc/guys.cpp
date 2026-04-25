@@ -5338,7 +5338,7 @@ int32_t enemy::slide()
 		}
 		case down:
 		{
-		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
+		if(y>=(dmisc2==e2tSPLITHIT ? world_h-26 : world_h-16)) //was 160 --changed for vires bug. 
 		{
 			sclk=0;
 			return 0;
@@ -5360,7 +5360,7 @@ int32_t enemy::slide()
 		}
 		case right:
 		{
-		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
+		if(x>=(dmisc2==e2tSPLITHIT ? world_w-1 : world_w-16)) //vires
 		{
 			sclk=0;
 			return 0;
