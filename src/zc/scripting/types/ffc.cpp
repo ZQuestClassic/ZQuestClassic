@@ -43,6 +43,12 @@ int32_t ffc_get_register(int32_t reg)
 		case FFCINDEX:
 			ret = ffc->index * 10000;
 			break;
+		case FFCLASTCHANGERX:
+			ret = ffc->changer_x * 10000;
+			break;
+		case FFCLASTCHANGERY:
+			ret = ffc->changer_y * 10000;
+			break;
 		case FFCLAYER:
 			ret = ffc->layer * 10000;
 			break;
