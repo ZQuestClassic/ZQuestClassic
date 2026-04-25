@@ -444,6 +444,8 @@ void sprite_set_register(int32_t reg, int32_t value)
 						fairy->x = itm->x;
 				}
 			}
+			
+			s->update_current_screen();
 			break;
 		}
 		case SPRITE_Y:
@@ -477,6 +479,8 @@ void sprite_set_register(int32_t reg, int32_t value)
 						fairy->y = itm->y;
 				}
 			}
+			
+			s->update_current_screen();
 			break;
 		}
 		case SPRITE_Z:
