@@ -922,7 +922,18 @@ void mapdata_set_register(int32_t reg, int32_t value)
 // mapdata arrays.
 
 static ArrayRegistrar MAPDATADOOR_registrar(MAPDATADOOR, []{
-	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::door> impl;
+	static ScriptingArray_ObjectComputed<mapdata, byte> impl(
+		[](mapdata*){ return 4; },
+		[](mapdata* mapdata, int index) -> byte {
+			return mapdata->scr->door[index];
+		},
+		[](mapdata* mapdata, int index, byte value){
+			if (mapdata->current())
+				putdoor(mapdata->scr, scrollbuf, index, value, true, true);
+			else
+				mapdata->scr->door[index] = value;
+		}
+	);
 	impl.setMul10000(true);
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
