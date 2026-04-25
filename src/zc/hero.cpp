@@ -1037,62 +1037,12 @@ int32_t  HeroClass::getLadderY()
 
 void HeroClass::setX(int32_t new_x)
 {
-    zfix dx=new_x-x;
-    justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
-	hs_startx+=(int32_t)dx;
-    }
-    
-    if(Lwpns.idFirst(wHSHandle)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=dx;
-    }
-	
-	if(chainlinks.Count()>0)
-	{
-		for(int32_t j=0; j<chainlinks.Count(); j++)
-        {
-            chainlinks.spr(j)->x+=dx;
-        }
-	}
-    
-    x=new_x;
-    
-    // A kludge
-    if(!diagonalMovement && dir<=down)
-        is_on_conveyor = -1;
+    setXfix(new_x);
 }
 
 void HeroClass::setY(int32_t new_y)
 {
-    zfix dy=new_y-y;
-    justmoved = 2;
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
-	hs_starty+=(int32_t)dy;
-    }
-    
-    if(Lwpns.idFirst(wHSHandle)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=dy;
-    }
-	
-	if(chainlinks.Count()>0)
-	{
-		for(int32_t j=0; j<chainlinks.Count(); j++)
-        {
-            chainlinks.spr(j)->y+=dy;
-        }
-	}
-    
-    y=new_y;
-    
-    // A kludge
-    if(!diagonalMovement && dir>=left)
-        is_on_conveyor = -1;
+    setYfix(new_y);
 }
 
 void HeroClass::setZ(int32_t new_z)
@@ -1208,6 +1158,8 @@ void HeroClass::setXfix(zfix new_x)
     // A kludge
     if(!diagonalMovement && dir<=down)
         is_on_conveyor = -1;
+	
+	update_current_screen();
 }
 
 void HeroClass::setYfix(zfix new_y)
@@ -1238,6 +1190,8 @@ void HeroClass::setYfix(zfix new_y)
     // A kludge
     if(!diagonalMovement && dir>=left)
         is_on_conveyor = -1;
+	
+	update_current_screen();
 }
 
 void HeroClass::setZfix(zfix new_z)
