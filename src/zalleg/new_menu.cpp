@@ -612,8 +612,8 @@ optional<uint> NewMenu::hovered_ind() const
 bool NewMenu::has_mouse() const
 {
 	int mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
-	if(mx < border || mx >= width()-border
-		|| my < border || my >= height()-border)
+	if(mx < 0 || mx >= width()
+		|| my < 0 || my >= height())
 		return false;
 	return true;
 }
@@ -810,8 +810,10 @@ MenuRet NewMenu::run_loop()
 				if(!mb && state.just_mdown) //released
 				{
 					doclick = true;
-					if(!msel)
+					if (!has_mouse()) // clicked off
 						earlyret = true;
+					if (!msel)
+						state.sel_ind.reset();
 				}
 			}
 		}
@@ -917,7 +919,7 @@ MenuRet NewMenu::run_loop()
 		
 		if(mb && msel2 && entries[*msel2].isParent())
 			doclick = true; // expand menus on any mousedown
-		if(doclick)
+		if (doclick && state.sel_ind)
 		{
 			trigger(*state.sel_ind);
 			if(quit_all_menu)
@@ -963,8 +965,10 @@ void NewMenu::run(bool allow_focus)
 			if(!mb && state.just_mdown) //released
 			{
 				doclick = true;
-				if(!msel)
+				if (!has_mouse()) // clicked off
 					earlyret = true;
+				if (!msel)
+					state.sel_ind.reset();
 			}
 		}
 	}
@@ -1064,7 +1068,7 @@ void NewMenu::run(bool allow_focus)
 	
 	if(mb && msel && entries[*msel].isParent())
 		doclick = true; // expand menus on any mousedown
-	if(doclick)
+	if (doclick && state.sel_ind)
 	{
 		state.rti = &gui_mouse_target();
 		trigger(*state.sel_ind);
