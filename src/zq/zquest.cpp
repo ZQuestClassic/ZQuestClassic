@@ -10166,7 +10166,7 @@ void domouse()
 		{
 			if (btn == current_mappage) continue;
 
-			std::string screen_str = formatMapScreenPair(map_page[btn].map+1, map_page[btn].screen);
+			std::string screen_str = formatMapScreenPair(map_page[btn].map+1, map_page[btn].screen, true);
 			auto& sqr = map_page_bar[btn];
 			if(sqr.rect(x,y))
 			{
@@ -10359,7 +10359,7 @@ void domouse()
 				}
 				else if (i != 0 && mapscreen_valid_layers[i - 1])
 				{
-					std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+					std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1], true);
 					if (is_compact)
 					{
 						sprintf(tbuf, "%s%d %s",
