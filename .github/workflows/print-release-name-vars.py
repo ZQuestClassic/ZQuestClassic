@@ -1,8 +1,10 @@
 import argparse
-import subprocess
-import time
 import os
 import re
+import subprocess
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 def set_action_output(output_name, value):
@@ -30,12 +32,18 @@ def make_version_name(version, date):
         return f'{major}.{minor}'
     return f'{major}.{minor}.{patch} Nightly {date}'
 
+
+def get_pt_date():
+    """Returns the current date formatted as YYYY-MM-DD in the Pacific timezone."""
+    return datetime.now(ZoneInfo('America/Los_Angeles')).strftime('%Y-%m-%d')
+
+
 # TODO: remove this first block when ready for 3.0
 if True:
     if args.version_type == 'stable' or args.version_override:
         raise Exception('TODO: not yet')
-    
-    date = time.strftime('%Y-%m-%d')
+
+    date = get_pt_date()
     n = 1
     try:
         previous_release_version = subprocess.check_output(
