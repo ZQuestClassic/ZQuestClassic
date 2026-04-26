@@ -314,7 +314,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			std::string prop = ident.components[1];
 			ident.delimiters.pop_back();
 			ident.components.pop_back();
-			if (auto type = lookupDataType(*scope, ident, nullptr))
+			if (auto type = lookupDataType(*scope, ident, nullptr); type && type->getUsrClass())
 			{
 				ident.components[0] = prop;
 				if (try_variables)
@@ -345,7 +345,7 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 			datum_ident.components.pop_back();
 
 			std::string prop = ident.components[1];
-			if (auto datum = lookupDatum(*scope, datum_ident, nullptr))
+			if (auto datum = lookupDatum(*scope, datum_ident, nullptr); datum && datum->type.getUsrClass())
 			{
 				datum_ident.components[0] = prop;
 				if (try_variables)

@@ -1,0 +1,47 @@
+stderr:
+
+Compiling 'errors_9.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_9.zs Line 8 @ Columns 3-33 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+
+6    void bad_cast()
+7    {
+8        <WarpType>Screen->TileWarpType[0];
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Debug: could not resolve symbol "x->Invalid"
+Failure!
+Compile finished with exit code '27' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 27,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 2
+        },
+        "end": {
+          "line": 7,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "message": "T027: The left of the -> is not a pointer type (ffc, etc)."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 3,
+    "symbols": 4,
+    "identifiers": 4,
+    "elided": true
+  }
+}

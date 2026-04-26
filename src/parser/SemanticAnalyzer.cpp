@@ -1335,6 +1335,12 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
         return;
 	}
 	host.leftClass = leftType->getUsrClass();
+
+	if (!host.leftClass)
+	{
+		handleError(CompileError::ArrowNotPointer(&host));
+		return;
+	}
 	
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
