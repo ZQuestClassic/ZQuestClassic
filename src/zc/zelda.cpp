@@ -3217,7 +3217,6 @@ void game_loop()
 		// these:
 		//
 		//   - screen_combo_modify_postroutine
-		//   - screen_ffc_modify_postroutine
 		//   - screen_combo_modify_post
 		//
 		// ... but that doesn't handle _every_ change to combo data.

@@ -20,7 +20,7 @@ void zc_ffc_set(ffcdata& ffc, word data)
 		if (&ffc == &scr->ffcs[i])
 		{
 			uint16_t id = screen_index_offset * MAXFFCS + i;
-			screen_ffc_modify_postroutine({scr, ffc.screen_spawned, id, i, &ffc});
+			screen_combo_modify_postroutine(ffc_handle_t({scr, ffc.screen_spawned, id, i, &ffc}));
 			return;
 		}
 	}
