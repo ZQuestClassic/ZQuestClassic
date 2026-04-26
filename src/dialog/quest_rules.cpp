@@ -1082,6 +1082,8 @@ static GUI::ListData compatRulesList
 		"If enabled, boomerangs and hookshots with 0 power set in the item editor will ignore"
 		" script changes to their power (including via Enemy Hit generic events) when hitting"
 		" enemies with 'Damaged by Power 0 weapons' unchecked."},
+	{ "Broken Spin Tile Combo Change", qr_BROKEN_SPINTILE_COMBO_CHANGE,
+		"If enabled, Spin Tile combos won't change combos when activating." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -18668,6 +18668,8 @@ void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 	int cset = rpos_handle.cset();
 	auto [x, y] = rpos_handle.xy();
 	addenemy(rpos_handle.screen, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
+	if (!get_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE))
+		rpos_handle.increment_data();
 }
 
 // It stands for next_side_pos
