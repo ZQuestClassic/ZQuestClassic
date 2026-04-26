@@ -266,7 +266,7 @@ ffcdata& mapscr::getFFC(size_t ind)
 
 	// ffc_count_dirty does not need to be set because `data` is still zero, so the count
 	// won't have changed. Only need to mark it dirty when `data` changes (handled in
-	// `screen_ffc_modify_postroutine`).
+	// `screen_combo_modify_postroutine`).
 	ffcs.resize(ind + 1);
 	for (size_t i = 0; i < prev; i++)
 		if (uids[i]) ffcs[i].reassignUid(uids[i]);

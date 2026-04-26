@@ -392,10 +392,10 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_ffc_modify_preroutine(ffc_handle);
+			screen_combo_modify_preroutine(ffc_handle);
 			ffc_handle.set_data(ffc_handle.scr->secretcombo[ft]);
 			ffc->cset = ffc_handle.scr->secretcset[ft];
-			screen_ffc_modify_postroutine(ffc_handle);
+			screen_combo_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].c_attributes[2].getTrunc() > 0 )
 				sfx(combobuf[cid].c_attributes[2].getTrunc(),pan(ffc->x));
 		}
@@ -405,7 +405,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			do
 			{
-				screen_ffc_modify_preroutine(ffc_handle);
+				screen_combo_modify_preroutine(ffc_handle);
 				
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
@@ -416,7 +416,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				else
 					ffc_handle.increment_data();
 				
-				screen_ffc_modify_postroutine(ffc_handle);
+				screen_combo_modify_postroutine(ffc_handle);
 				
 				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
 				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo

@@ -294,11 +294,11 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_ffc_modify_preroutine(ffc_handle);
+			screen_combo_modify_preroutine(ffc_handle);
 			ffc_handle.set_data(scr->secretcombo[ft]);
 			ffc->cset = scr->secretcset[ft];
 			// newflag = s->secretflag[ft];
-			screen_ffc_modify_postroutine(ffc_handle);
+			screen_combo_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].c_attributes[10].getTrunc() > 0 )
 				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(ffc->x));
 		}
@@ -308,7 +308,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		{
 			do
 			{
-				screen_ffc_modify_preroutine(ffc_handle);
+				screen_combo_modify_preroutine(ffc_handle);
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
@@ -319,7 +319,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				{
 					ffc_handle.increment_data();
 				}
-				screen_ffc_modify_postroutine(ffc_handle);
+				screen_combo_modify_postroutine(ffc_handle);
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc_handle.data();
@@ -2367,15 +2367,19 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 		}
 	}
 
-	if (trig.trigchange)
-	{
-		used_bit = true;
-		handle.set_data(BOUND_COMBO(cid + trig.trigchange));
-	}
 	if (trig.trigcschange)
 	{
 		used_bit = true;
 		handle.set_cset((ocs + trig.trigcschange) & 0xF);
+	}
+	if (trig.trigchange)
+	{
+		used_bit = true;
+		if (is_active_screen)
+			screen_combo_modify_preroutine(handle);
+		handle.set_data(BOUND_COMBO(cid + trig.trigchange));
+		if (is_active_screen)
+			screen_combo_modify_postroutine(handle);
 	}
 
 	if (is_active_screen)

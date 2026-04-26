@@ -18584,55 +18584,54 @@ void update_slope_comboposes()
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
-void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle)
+void screen_combo_modify_preroutine(const combined_handle_t& comb_handle)
 {
-	delete_fireball_shooter(rpos_handle);
-}
-
-//Placeholder in case we need it.
-void screen_ffc_modify_preroutine([[maybe_unused]] const ffc_handle_t& ffc_handle)
-{
-	return;
+	if (comb_handle.is_rpos())
+		delete_fireball_shooter(comb_handle.get_rpos());
 }
 
 // Everything that must be done after we change a screen's combo to another combo. -L
-void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
+void screen_combo_modify_postroutine(const combined_handle_t& comb_handle)
 {
-	if (!(rpos_handle.scr->valid & mVALID))
+	if (comb_handle.is_rpos())
 	{
-		rpos_handle.scr->valid |= mVALID;
-		mark_current_region_handles_dirty(); // a new layer becoming valid needs to reload the region handles
-	}
-	activate_fireball_statue(rpos_handle);
+		auto& rpos_handle = comb_handle.get_rpos();
+		if (!(rpos_handle.scr->valid & mVALID))
+		{
+			rpos_handle.scr->valid |= mVALID;
+			mark_current_region_handles_dirty(); // a new layer becoming valid needs to reload the region handles
+		}
+		activate_fireball_statue(rpos_handle);
 
-	if(rpos_handle.ctype()==cSPINTILE1)
+		if(rpos_handle.ctype()==cSPINTILE1)
+		{
+			awaken_spinning_tile(rpos_handle);
+		}
+
+		update_slope_combopos(rpos_handle);
+	}
+	else if (comb_handle.is_ffc())
 	{
-		awaken_spinning_tile(rpos_handle);
-	}
+		auto& ffc_handle = comb_handle.get_ffc();
+		ffcdata* ff = ffc_handle.ffc;
+		auto& cmb = ffc_handle.combo();
+		
+		auto id = create_slope_id(SLOPE_STAGE_FFCS, ffc_handle.id, -1);
+		auto it = slopes.find(id);
+		
+		bool wasSlope = it!=slopes.end();
+		bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffc_changer);
+		if(isSlope && !wasSlope)
+		{
+			slopes.try_emplace(id, nullptr, ff, ffc_handle.id);
+		}
+		else if(wasSlope && !isSlope)
+		{
+			slopes.erase(it);
+		}
 
-	update_slope_combopos(rpos_handle);
-}
-
-void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
-{
-	ffcdata* ff = ffc_handle.ffc;
-	auto& cmb = ffc_handle.combo();
-	
-	auto id = create_slope_id(SLOPE_STAGE_FFCS, ffc_handle.id, -1);
-	auto it = slopes.find(id);
-	
-	bool wasSlope = it!=slopes.end();
-	bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffc_changer);
-	if(isSlope && !wasSlope)
-	{
-		slopes.try_emplace(id, nullptr, ff, ffc_handle.id);
+		ffc_handle.scr->ffcCountMarkDirty();
 	}
-	else if(wasSlope && !isSlope)
-	{
-		slopes.erase(it);
-	}
-
-	ffc_handle.scr->ffcCountMarkDirty();
 }
 
 void screen_combo_modify_pre(int32_t cid)
@@ -18658,7 +18657,7 @@ void screen_combo_modify_post(int32_t cid)
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.data() == cid)
 		{
-			screen_ffc_modify_postroutine(ffc_handle);
+			screen_combo_modify_postroutine(ffc_handle);
 		}
 	});
 }
