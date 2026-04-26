@@ -18424,7 +18424,7 @@ void load_default_enemies(mapscr* scr)
 				addenemy(screen, x, y, trapConstantVerticalID, -14);
 		}
 		
-		if(ctype==cSPINTILE1)
+		if(ctype==cSPINTILE1 && !rpos_handle.combo().only_gentrig)
 		{
 			awaken_spinning_tile(rpos_handle);
 		}
@@ -18603,7 +18603,7 @@ void screen_combo_modify_postroutine(const combined_handle_t& comb_handle)
 		}
 		activate_fireball_statue(rpos_handle);
 
-		if(rpos_handle.ctype()==cSPINTILE1)
+		if(rpos_handle.ctype()==cSPINTILE1 && !rpos_handle.combo().only_gentrig)
 		{
 			awaken_spinning_tile(rpos_handle);
 		}
@@ -18662,14 +18662,16 @@ void screen_combo_modify_post(int32_t cid)
 	});
 }
 
-void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
+void awaken_spinning_tile(const combined_handle_t& comb_handle, bool natural)
 {
-	int cid = rpos_handle.data();
-	int cset = rpos_handle.cset();
-	auto [x, y] = rpos_handle.xy();
-	addenemy(rpos_handle.screen, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
-	if (!get_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE))
-		rpos_handle.increment_data();
+	int cid = comb_handle.data();
+	int cset = comb_handle.cset();
+	auto [x, y] = comb_handle.xy();
+	addenemy(comb_handle.get_screen(), x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
+	if (natural)
+		do_trigger_ctype_causes(comb_handle);
+	if (!get_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE) && cid == comb_handle.data())
+		comb_handle.increment_data();
 }
 
 // It stands for next_side_pos

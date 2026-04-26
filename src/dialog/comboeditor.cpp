@@ -54,6 +54,7 @@ bool hasCTypeEffects(int32_t type)
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		case cSHOOTER: case cCUTSCENETRIG: case cCUTSCENEEFFECT:
 		case cSAVE: case cSAVE2:
+		case cSPINTILE1:
 			return true;
 	}
 	return false;

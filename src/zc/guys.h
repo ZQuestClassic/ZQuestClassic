@@ -32,7 +32,7 @@ int32_t weaponToDefence(int32_t wid);
 int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
-void awaken_spinning_tile(const rpos_handle_t& rpos_handle);
+void awaken_spinning_tile(const combined_handle_t& comb_handle, bool natural = true);
 
 void update_slope_comboposes();
 void update_slope_combopos(const rpos_handle_t& rpos_handle);
