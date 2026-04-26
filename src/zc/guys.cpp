@@ -19482,6 +19482,8 @@ void screen_combo_modify_post(int32_t cid)
 void awaken_spinning_tile(mapscr *s, int32_t pos)
 {
 	addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,combobuf[s->data[pos]].o_tile+zc_max(1,combobuf[s->data[pos]].frames));
+	if (!get_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE))
+		s->data[pos]++;
 }
 
 

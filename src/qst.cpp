@@ -3482,6 +3482,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (tempheader.compareVer(2, 55, 14) < 0)
 	{
 		set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
+		set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
 	}
 
 	*Header = tempheader;
