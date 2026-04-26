@@ -27806,15 +27806,20 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	if (map == -1)
 		return false;
 
-	int32_t cx = x;
-	int32_t cy = y;
-	cx %= 256;
-	cy %= 176;
-	
+	// Get the region for the next screen.
+	region_t dest_region;
+	int dummy1, dummy2;
+	calculate_region(map, screen, dest_region, dummy1, dummy2);
+
+	// Translate coordinates from the current region to the next.
+	int32_t cx = x.getInt() + (cur_region.origin_screen_x - dest_region.origin_screen_x) * 256;
+	int32_t cy = y.getInt() + (cur_region.origin_screen_y - dest_region.origin_screen_y) * 176;
+
+	// Adjust along the axis of scroll.
 	switch(d2)
 	{
 	case up:
-		cy=160;
+		cy=dest_region.height-16;
 		break;
 		
 	case down:
@@ -27822,7 +27827,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 		break;
 		
 	case left:
-		cx=240;
+		cx=dest_region.width-16;
 		break;
 		
 	case right:
@@ -27839,27 +27844,29 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	bool smarter_scroll = get_qr(qr_SMARTER_SMART_SCROLL);
 	// from MAPCOMBO()
 	
-	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
+	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < dest_region.height; cy+=(cy%2)?7:8,i++)
 	{
 		cx = initcx;
-		for(int32_t k=0; k<=(smarter_scroll?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
+		for(int32_t k=0; k<=(smarter_scroll?((initcx&7)?2:1):0) && cx < dest_region.width; cx+=(cx%2)?7:8,k++)
 		{
-			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, smarter_scroll)];
+			int32_t scr_dx = cx / 256;
+			int32_t scr_dy = cy / 176;
+			int32_t local_cx = cx % 256;
+			int32_t local_cy = cy % 176;
+			int32_t local_screen = dest_region.origin_screen + scr_dx + scr_dy * 16;
+			
+			newcombo const& c = combobuf[MAPCOMBO3(map, local_screen, -1, local_cx, local_cy, smarter_scroll)];
 		
 			int32_t b=1;
-			
-			if(cx&8) b<<=2;
-			
-			if(cy&8) b<<=1;
-		
-			//bool bridgedetected = false;
+			if(local_cx&8) b<<=2;
+			if(local_cy&8) b<<=1;
 		
 			int32_t walk = c.walk;
 			if (smarter_scroll)
 			{
 				for (int32_t m = 0; m <= 1; m++)
 				{
-					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
+					newcombo const& cmb = combobuf[MAPCOMBO3(map, local_screen, m, local_cx, local_cy, true)];
 					if (cmb.type == cBRIDGE) 
 					{
 						if (!get_qr(qr_OLD_BRIDGE_COMBOS))
@@ -27874,7 +27881,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 				}
 			}
 
-			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, smarter_scroll), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
+			bool swim = iswaterex(MAPCOMBO3(map, local_screen, -1, local_cx, local_cy, smarter_scroll), map, local_screen, -1, local_cx, local_cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
 			
 			if((walk&b) && !swim)
 			{
