@@ -708,14 +708,13 @@ void hero_set_register(int32_t reg, int32_t value)
 		}
 		case HERORESPAWNX:
 		{
-			zfix zx = zslongToFix(value);
-			Hero.respawn_x = vbound(zx, 0_zf, 240_zf);
+			Hero.respawn_x = zslongToFix(value);
 			break;
 		}
 		case HERORESPAWNY:
 		{
 			zfix zy = zslongToFix(value);
-			Hero.respawn_y = vbound(zy, 0_zf, 160_zf);
+			Hero.respawn_y = zslongToFix(value);
 			break;
 		}
 		case HEROSCRICECMB:
