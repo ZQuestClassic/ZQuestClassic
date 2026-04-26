@@ -2316,13 +2316,15 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 	int32_t cid = tmp->data[pos];
 	int32_t ocs = tmp->cset[pos];
 	newcombo const& cmb = combobuf[cid];	
-	if(cmb.trigchange)
-	{
-		tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
-	}
 	if(cmb.trigcschange)
 	{
 		tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+	}
+	if(cmb.trigchange)
+	{
+		screen_combo_modify_preroutine(tmp, pos);
+		tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
+		screen_combo_modify_postroutine(tmp, pos);
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
@@ -2368,13 +2370,13 @@ void do_ex_trigger_ffc(int32_t pos)
 	int32_t cid = ffc.data;
 	int32_t ocs = ffc.cset;
 	newcombo const& cmb = combobuf[cid];	
-	if(cmb.trigchange)
-	{
-		zc_ffc_set(ffc, cid+cmb.trigchange);
-	}
 	if(cmb.trigcschange)
 	{
 		ffc.cset = (ocs+cmb.trigcschange) & 0xF;
+	}
+	if(cmb.trigchange)
+	{
+		zc_ffc_set(ffc, cid+cmb.trigchange);
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
@@ -2766,15 +2768,17 @@ bool _do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				}
 			}
 			
-			if(cmb.trigchange)
-			{
-				used_bit = true;
-				tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
-			}
 			if(cmb.trigcschange)
 			{
 				used_bit = true;
 				tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+			}
+			if(cmb.trigchange)
+			{
+				used_bit = true;
+				screen_combo_modify_preroutine(tmp, pos);
+				tmp->data[pos] = BOUND_COMBO(cid+cmb.trigchange);
+				screen_combo_modify_postroutine(tmp, pos);
 			}
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
@@ -3171,15 +3175,15 @@ bool _do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				}
 			}
 			
-			if(cmb.trigchange)
-			{
-				used_bit = true;
-				zc_ffc_set(ffc, cid+cmb.trigchange);
-			}
 			if(cmb.trigcschange)
 			{
 				used_bit = true;
 				ffc.cset = (ocs+cmb.trigcschange) & 0xF;
+			}
+			if(cmb.trigchange)
+			{
+				used_bit = true;
+				zc_ffc_set(ffc, cid+cmb.trigchange);
 			}
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
