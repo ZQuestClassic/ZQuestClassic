@@ -474,9 +474,6 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
-	add_compile_options(/W0)
-
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
