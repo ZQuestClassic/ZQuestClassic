@@ -446,7 +446,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# https://stackoverflow.com/a/36502370/2788187
 	add_compile_options(-funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fno-signaling-nans -fno-rounding-math -fcx-limited-range)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	add_compile_options("-ffp-model=fast")
+	add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-ffp-model=fast>")
 endif()
 
 # Optimize the math functions always, even for debug mode. This reduces many inconsistencies with replays
