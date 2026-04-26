@@ -394,9 +394,7 @@ if(WIN32)
 endif()
 
 # Turn off warnings for all targets that aren't ours (warnings for our targets are set in Misc. section)
-if(MSVC)
-	add_compile_options(/W0)
-else()
+if(NOT MSVC)
 	add_compile_options(-Wno-error)
 endif()
 
