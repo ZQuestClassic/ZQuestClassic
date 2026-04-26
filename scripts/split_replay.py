@@ -38,10 +38,10 @@ class ReplayPart:
     last_key_step: Optional[ReplayStep] = None
 
     def duration(self) -> int:
-        if not steps:
+        if not self.steps:
             return 0
 
-        return steps[-1].frame - steps[0].frame
+        return self.steps[-1].frame - self.steps[0].frame
 
 
 def split_replay(
