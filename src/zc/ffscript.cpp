@@ -763,8 +763,8 @@ int32_t get_mi(int32_t ref)
 
 int32_t get_ref_map_index(int32_t ref)
 {
-	if (ref >= 0)
-		return ref;
+	if (ref > 0)
+		return ref - 1;
 
 	auto result = decode_mapdata_ref(ref);
 	if (result.current())
