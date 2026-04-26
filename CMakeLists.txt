@@ -1068,7 +1068,7 @@ foreach(target IN LISTS zc_targets)
 endforeach()
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.13.8)
+	set(SENTRY_VERSION 0.6.6)
 	FetchContent_Declare(sentry
 		URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip
 		EXCLUDE_FROM_ALL
