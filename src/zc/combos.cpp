@@ -2678,6 +2678,9 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 					case cSAVE: case cSAVE2:
 						trigger_save(cmb, base_scr);
 						break;
+					case cSPINTILE1:
+						awaken_spinning_tile(handle, false);
+						break;
 					default:
 						used_bit = false;
 				}

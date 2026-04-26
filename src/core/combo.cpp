@@ -280,6 +280,8 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 							causes << indent << "[ComboType Causes-> is checked but not doing anything]\n";
 					}
 					break;
+				default:
+					causes << indent << "UNKNOWN CMBTYPECAUSES\n";
 			}
 		}
 
@@ -669,7 +671,6 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 				case cTRIGGERGENERIC:
 				case cSTEPSFX:
-				default:
 					effects << indent << "Apply the engine combo-type based effects";
 					break;
 				case cCUTSCENEEFFECT:
@@ -739,6 +740,12 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 					break;
 				case cSAVE: case cSAVE2:
 					effects << indent << "Activate the save combo\n";
+					break;
+				case cSPINTILE1:
+					effects << indent << "Awaken the spinning tile\n";
+					break;
+				default:
+					effects << indent << "UNKNOWN CMBTYPEFX\n";
 					break;
 			}
 		}
