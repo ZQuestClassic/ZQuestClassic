@@ -3375,6 +3375,10 @@ enum ASM_DEFINE
 #define HERO_ITEMBOX_YOFF              0x16AB
 #define HERO_ITEMBOX_WIDTH             0x16AC
 #define HERO_ITEMBOX_HEIGHT            0x16AD
+#define LWPN_BOUNCE_MULT               0x16AE
+#define LWPN_BOUNCE_ADD                0x16AF
+#define EWPN_BOUNCE_MULT               0x16B0
+#define EWPN_BOUNCE_ADD                0x16B1
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

@@ -299,6 +299,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case EWPNZOFS:
 		case EWSWHOOKED:
 		case SPRITEMAXEWPN:
+		case EWPN_BOUNCE_MULT:
+		case EWPN_BOUNCE_ADD:
 			return EngineSubsystem::eweapon;
 
 		case DATA:
@@ -781,6 +783,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case LWPNZ:
 		case LWPNZOFS:
 		case LWSWHOOKED:
+		case LWPN_BOUNCE_MULT:
+		case LWPN_BOUNCE_ADD:
 			return EngineSubsystem::lweapon;
 
 		case MAPDATABOSSSFX:

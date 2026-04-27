@@ -32,7 +32,7 @@ struct weapon_data
 	int32_t override_flags;
 	int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs, tilew, tileh;
 	
-	zfix step;
+	zfix step, bounce_mult, bounce_add;
 	
 	byte unblockable;
 	

@@ -2896,6 +2896,8 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 	}
 	
 	pierce_count = data.pierce_count;
+	bounce_mult = data.bounce_mult;
+	bounce_add = data.bounce_add;
 }
 
 bool weapon::isHeroWeapon()
@@ -3730,19 +3732,24 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 					y.doFloor();
 					y-=(int32_t)y%8; // Fix position
 				}
-					
-				fall = 0;
 				
-				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+				zfix bounce_fall = -(fall * bounce_mult + bounce_add*100);
+				if(bounce_fall < 0)
+					fall = bounce_fall;
+				else
 				{
-					collision_check();
-					kill_weapon_special();
-				}
-				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
-				{
-					if(replay_version_check(42))
+					fall = 0;
+					if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+					{
 						collision_check();
-					step = 0;
+						kill_weapon_special();
+					}
+					if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+					{
+						if(replay_version_check(42))
+							collision_check();
+						step = 0;
+					}
 				}
 			}
 			
@@ -3757,19 +3764,27 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			
 				if(fakez <= 0)
 				{
-					fakez = fakefall = 0;
-					if(didfall)
+					fakez = 0;
+					
+					zfix bounce_fall = -(fakefall * bounce_mult + bounce_add*100);
+					if(didfall && bounce_fall < 0)
+						fakefall = bounce_fall;
+					else
 					{
-						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						fakefall = 0;
+						if(didfall)
 						{
-							collision_check();
-							kill_weapon_special();
-						}
-						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
-						{
-							if(replay_version_check(42))
+							if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+							{
 								collision_check();
-							step = 0;
+								kill_weapon_special();
+							}
+							if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+							{
+								if(replay_version_check(42))
+									collision_check();
+								step = 0;
+							}
 						}
 					}
 				}
@@ -3783,19 +3798,26 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 				
 				if(z <= 0)
 				{
-					z = fall = 0;
-					if(didfall)
+					z = 0;
+					zfix bounce_fall = -(fall * bounce_mult + bounce_add*100);
+					if(didfall && bounce_fall < 0)
+						fall = bounce_fall;
+					else
 					{
-						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						fall = 0;
+						if(didfall)
 						{
-							collision_check();
-							kill_weapon_special();
-						}
-						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
-						{
-							if(replay_version_check(42))
+							if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+							{
 								collision_check();
-							step = 0;
+								kill_weapon_special();
+							}
+							if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+							{
+								if(replay_version_check(42))
+									collision_check();
+								step = 0;
+							}
 						}
 					}
 				}

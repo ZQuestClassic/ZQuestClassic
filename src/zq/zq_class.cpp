@@ -6883,6 +6883,10 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 			new_return(27);
 	if (!p_iputw(data.pierce_count, f))
 		new_return(28);
+	if (!p_iputzf(data.bounce_mult, f))
+		new_return(29);
+	if (!p_iputzf(data.bounce_add, f))
+		new_return(30);
 	return 0;
 }
 

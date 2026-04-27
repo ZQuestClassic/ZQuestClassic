@@ -614,6 +614,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case EWPNANGULAR: return "eweapon::Angular";
 		case EWPNAUTOROTATE: return "eweapon::AutoRotate";
 		case EWPNBEHIND: return "eweapon::Behind";
+		case EWPN_BOUNCE_ADD: return "eweapon::BounceAdd";
+		case EWPN_BOUNCE_MULT: return "eweapon::BounceMult";
 		case EWPNBURNLIGHTRADIUS: return "eweapon::BurnLightRadius[]";
 		case EWPNCOLLDET: return "eweapon::CollDetection";
 		case EWPNDEAD: return "eweapon::DeadState";
@@ -793,6 +795,8 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case LWPNANGULAR: return "lweapon::Angular";
 		case LWPNAUTOROTATE: return "lweapon::AutoRotate";
 		case LWPNBEHIND: return "lweapon::Behind";
+		case LWPN_BOUNCE_ADD: return "lweapon::BounceAdd";
+		case LWPN_BOUNCE_MULT: return "lweapon::BounceMult";
 		case LWPNBURNLIGHTRADIUS: return "lweapon::BurnLightRadius[]";
 		case LWPNCOLLDET: return "lweapon::CollDetection";
 		case LWPNDEAD: return "lweapon::DeadState";
