@@ -146,7 +146,7 @@ def split_replay(
     for i, part in enumerate(replay_parts):
         col1 = str(i + 1).rjust(maxcol1, ' ')
         save_name = part.save_file.name if part.save_file else 'None'
-        print(f'[{col1}] length: {len(part.duration())} | save: {save_name}')
+        print(f'[{col1}] length: {part.duration()} | save: {save_name}')
 
     output_folder.mkdir(exist_ok=True)
     if qst_path.exists():
@@ -258,7 +258,7 @@ def split_replay(
         if part.last_key_step:
             most_recent_key_step = part.last_key_step
 
-        print(f'\t{output_replay.name}: {len(part.duration())}')
+        print(f'\t{output_replay.name}: {part.duration()}')
 
 
 if __name__ == '__main__':
