@@ -930,6 +930,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
 			set_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS, 1);
 		}
+
+		// Older than 2.55.14?
+		if (tempheader.compareVer(2, 55, 14) < 0)
+		{
+			set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
+		}
 	}
 
 	*Header = tempheader;
