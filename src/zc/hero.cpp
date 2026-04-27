@@ -7849,6 +7849,8 @@ bool HeroClass::animate(int32_t)
 	if(lift_wpn)
 	{
 		auto oldid = lift_wpn->id;
+		if (!get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING))
+			lift_wpn->animate_graphics();
 		switch(lift_wpn->id)
 		{
 			case wLitBomb:
