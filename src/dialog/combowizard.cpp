@@ -1100,10 +1100,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cSLOPE:
 		{
 			local_ref.walk -= local_ref.walk & 0x0F; //nonsolid combo
-			zfix& x1 = local_ref.c_attributes[0];
-			zfix& y1 = local_ref.c_attributes[1];
-			zfix& x2 = local_ref.c_attributes[2];
-			zfix& y2 = local_ref.c_attributes[3];
+			zfix& x1 = local_ref.c_attributes[16];
+			zfix& y1 = local_ref.c_attributes[17];
+			zfix& x2 = local_ref.c_attributes[18];
+			zfix& y2 = local_ref.c_attributes[19];
 			int32_t& slip = local_ref.c_attributes[0].val;
 			
 			x1.doTrunc(); y1.doTrunc();
