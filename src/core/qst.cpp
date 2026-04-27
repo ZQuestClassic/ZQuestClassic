@@ -964,6 +964,14 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 			return qe_invalid;
 	if(!p_igetw(&(data.pierce_count), f))
 		return qe_invalid;
+	
+	if (v_weapon_data >= 2)
+	{
+		if (!p_igetzf(&(data.bounce_mult), f))
+			return qe_invalid;
+		if (!p_igetzf(&(data.bounce_add), f))
+			return qe_invalid;
+	}
 	return 0;
 }
 

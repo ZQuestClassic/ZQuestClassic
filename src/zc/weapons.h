@@ -131,6 +131,7 @@ public:
 	int weap_timeout;
     byte specialinfo;
 	int16_t pierce_count = -1;
+	zfix bounce_mult, bounce_add;
 	
 	int shd_aclk, shd_aframe;
     word specialsfx;

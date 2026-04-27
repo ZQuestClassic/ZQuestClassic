@@ -345,6 +345,12 @@ int32_t lweapon_get_register(int32_t reg)
 		case LWSWHOOKED:
 			ret = s->switch_hooked ? 10000 : 0;
 			break;
+		case LWPN_BOUNCE_MULT:
+			ret = s->bounce_mult.getZLong();
+			break;
+		case LWPN_BOUNCE_ADD:
+			ret = s->bounce_add.getZLong();
+			break;
 
 		default:
 			NOTREACHED();
@@ -725,7 +731,12 @@ void lweapon_set_register(int32_t reg, int32_t value)
 			break;
 		case LWSWHOOKED:
 			break; //read-only
-
+		case LWPN_BOUNCE_MULT:
+			s->bounce_mult = zc_max(0_zf, zslongToFix(value));
+			break;
+		case LWPN_BOUNCE_ADD:
+			s->bounce_add = zslongToFix(value);
+			break;
 		default:
 			NOTREACHED();
 	}

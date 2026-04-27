@@ -550,7 +550,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 				)),
 				TabRef(name = "Misc", Column(
 					Row(
-						Rows_Columns<3, 3>(
+						Rows_Columns<3, 4>(
 							Label(text = "Lift Level:", hAlign = 1.0),
 							NUM_FIELD(lift_level, 0, 255),
 							INFOBTN("If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level."
@@ -569,7 +569,6 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 									local_ref.lift_height = zslongToFix(val);
 								}),
 							INFOBTN("The Z height above the Hero's head to lift the weapon."),
-							//
 							Checkbox(text = "Set Step Speed:",
 								checked = local_ref.flags & wdata_set_step,
 								onToggleFunc = [&](bool state)
@@ -589,6 +588,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								}),
 							INFOBTN("Movement speed. 100 step speed is 1 pixel per frame."
 								"\nNot all weapon types will obey this."),
+							//
 							Label(text = "Timeout:", hAlign = 1.0),
 							NUM_FIELD(timeout, 0, 214748),
 							INFOBTN("If >0, the weapon dies automatically after this many frames."),
@@ -598,7 +598,36 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								" dying. If 0, the weapon pierces infinitely. If -1, uses the weapon"
 								" type's default piercing behaviors."
 								"\nNote: Some weapon types may ignore this (ex. melee weapons)."
-								" Bomb type weapons don't use this, but their blast will.")
+								" Bomb type weapons don't use this, but their blast will."),
+							Label(text = "Bounce Mult", hAlign = 1.0),
+							TextField(
+								fitParent = true, vPadding = 0_px,
+								maxLength = 11, type = GUI::TextField::type::NOSWAP_ZSINT,
+								swap_type = nswapDEC,
+								low = 0, high = MAX_SIGNED_32,
+								val = local_ref.bounce_mult.getZLong(),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.bounce_mult = zslongToFix(val);
+								}
+							),
+							INFOBTN("When the weapon lands, it will bounce back up with this multiplier times the velocity it landed with."
+								"\nBouncing with >0 velocity will NOT trigger 'Stop on Landing' / 'Break on Landing'."),
+							Label(text = "Bounce Add", hAlign = 1.0),
+							TextField(
+								fitParent = true, vPadding = 0_px,
+								maxLength = 11, type = GUI::TextField::type::NOSWAP_ZSINT,
+								swap_type = nswapDEC,
+								val = local_ref.bounce_add.getZLong(),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.bounce_add = zslongToFix(val);
+								}
+							),
+							INFOBTN("When the weapon lands, this amount of px/frame will be added after the Bounce Mult."
+								" Using a negative will allow decaying the bounce, and is recommended to prevent many tiny"
+								" bounces when the velocity gets small, and allow the weapon to properly 'land'."
+								"\nBouncing with >0 velocity will NOT trigger 'Stop on Landing' / 'Break on Landing'.")
 						)
 					),
 					Rows<3>(

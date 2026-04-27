@@ -173,6 +173,21 @@ class eweapon {
 	// @zasm_var EWPNTIMEOUT
 	internal int Timeout;
 
+	// When the weapon lands from the air, it bounces based on this multiplier of it's
+	// downward velocity, and [BounceAdd].
+	// Must be >= 0.
+	//
+	// @zasm_var EWPN_BOUNCE_MULT
+	internal int BounceMult;
+	
+	// When the weapon lands from the air, it bounces based on [BounceMult],
+	// adding this value in px/frame after the multiplier.
+	// Using a negative value will dampen the bounce, and is recommended to prevent
+	// the weapon from bouncing many tiny rapid bounces as it's velocity gets small.
+	//
+	// @zasm_var EWPN_BOUNCE_ADD
+	internal int BounceAdd;
+
 	// If < 0, the weapon behaves as normal. If == 0, the weapon pierces infinitely.
 	// If > 0, each time the weapon hits an enemy or the player, counts down by 1.
 	// When counting down from '1' to '0', the weapon dies.

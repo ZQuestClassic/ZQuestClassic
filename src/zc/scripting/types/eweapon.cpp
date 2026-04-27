@@ -332,6 +332,12 @@ int32_t eweapon_get_register(int32_t reg)
 		case EWSWHOOKED:
 			ret = s->switch_hooked ? 10000 : 0;
 			break;
+		case EWPN_BOUNCE_MULT:
+			ret = s->bounce_mult.getZLong();
+			break;
+		case EWPN_BOUNCE_ADD:
+			ret = s->bounce_add.getZLong();
+			break;
 
 		default:
 			NOTREACHED();
@@ -696,6 +702,12 @@ void eweapon_set_register(int32_t reg, int32_t value)
 			break;
 		case EWSWHOOKED:
 			break; //read-only
+		case EWPN_BOUNCE_MULT:
+			s->bounce_mult = zc_max(0_zf, zslongToFix(value));
+			break;
+		case EWPN_BOUNCE_ADD:
+			s->bounce_add = zslongToFix(value);
+			break;
 
 		default:
 			NOTREACHED();

@@ -2699,6 +2699,10 @@ static constexpr script_variable variable_list[]=
 	{ "HERO_ITEMBOX_YOFF", HERO_ITEMBOX_YOFF, 0},
 	{ "HERO_ITEMBOX_WIDTH", HERO_ITEMBOX_WIDTH, 0},
 	{ "HERO_ITEMBOX_HEIGHT", HERO_ITEMBOX_HEIGHT, 0},
+	{ "LWPN_BOUNCE_MULT", LWPN_BOUNCE_MULT, 0},
+	{ "LWPN_BOUNCE_ADD", LWPN_BOUNCE_ADD, 0},
+	{ "EWPN_BOUNCE_MULT", EWPN_BOUNCE_MULT, 0},
+	{ "EWPN_BOUNCE_ADD", EWPN_BOUNCE_ADD, 0},
 	{"", -1},
 };
 
@@ -3755,6 +3759,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNZ:
 		case EWPNZOFS:
 		case EWSWHOOKED:
+		case EWPN_BOUNCE_MULT:
+		case EWPN_BOUNCE_ADD:
 			return REFEWPN;
 
 		case DATA:
@@ -4034,6 +4040,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNZ:
 		case LWPNZOFS:
 		case LWSWHOOKED:
+		case LWPN_BOUNCE_MULT:
+		case LWPN_BOUNCE_ADD:
 			return REFLWPN;
 
 		case MAPDATABOSSSFX:
