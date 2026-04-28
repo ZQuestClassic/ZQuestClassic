@@ -1691,6 +1691,8 @@ void init_game_vars(bool is_cont_game = false)
 	sle_clk = 0;
 	didpit = false;
 	onload_gswitch_timers();
+	refresh_subscr_buttonitems();
+	kill_subscr_items();
 }
 
 int32_t init_game()
@@ -4880,12 +4882,6 @@ void remove_installed_timers()
     Z_remove_timers();
 }
 
-void delete_everything_else() //blarg.
-{
-    refresh_subscr_buttonitems();
-	kill_subscr_items();
-}
-
 void quit_game()
 {
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
@@ -4896,7 +4892,6 @@ void quit_game()
 	script_drawing_commands.Dispose(); //for allegro bitmaps
 	
 	remove_installed_timers();
-	delete_everything_else();
 	
 	al_trace("Freeing Data: \n");
 	
