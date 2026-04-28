@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-28 06:05:24</td>
+      <td>2026-04-28 07:35:25</td>
     </tr>
   </table>
 </div>
@@ -185,7 +185,7 @@
     <tr><td><a href="#l4067">ZScript::LValBOHelper::caseExprArrow(ZScript::ASTExprArrow&amp;, void*) (line 4067)</a></td><td>called 445318 times, returned 445318 times</td><td>52.0%</td></tr>
     <tr><td><a href="#l4024">ZScript::LValBOHelper::caseExprIdentifier(ZScript::ASTExprIdentifier&amp;, void*) (line 4024)</a></td><td>called 429850 times, returned 429850 times</td><td>58.0%</td></tr>
     <tr><td><a href="#l4168">ZScript::LValBOHelper::caseExprIndex(ZScript::ASTExprIndex&amp;, void*) (line 4168)</a></td><td>called 146064 times, returned 146064 times</td><td>66.0%</td></tr>
-    <tr><td><a href="#l164">addOpcode2(std::vector&lt;std::shared_ptr&lt;ZScript::Opcode&gt;, std::allocator&lt;std::shared_ptr&lt;ZScript::Opcode&gt; &gt; &gt;&amp;, ZScript::Opcode*) (line 164)</a></td><td>called 20761812 times, returned 20761812 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l164">addOpcode2(std::vector&lt;std::shared_ptr&lt;ZScript::Opcode&gt;, std::allocator&lt;std::shared_ptr&lt;ZScript::Opcode&gt; &gt; &gt;&amp;, ZScript::Opcode*) (line 164)</a></td><td>called 20769141 times, returned 20769141 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l172">addOpcode2PopArgs(std::vector&lt;std::shared_ptr&lt;ZScript::Opcode&gt;, std::allocator&lt;std::shared_ptr&lt;ZScript::Opcode&gt; &gt; &gt;&amp;, int) (line 172)</a></td><td>called 542014 times, returned 542014 times</td><td>63.0%</td></tr>
     <tr><td><a href="#l659">getBreakableScopesForStatement(ZScript::ASTStmtSwitch*) (line 659)</a></td><td>called 32858 times, returned 32858 times</td><td>78.0%</td></tr>
     <tr><td><a href="#l128">getFileDebugIndex(ZScript::Program&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 128)</a></td><td>called 18596845 times, returned 18596845 times</td><td>100.0%</td></tr>
@@ -1381,7 +1381,7 @@
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20761812</td>
+      <td class="linecount coveredLine">20769141</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">addOpcode2</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Opcode</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">Opcode</span><span class="o">*</span><span class="w"> </span><span class="n">code</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1395,7 +1395,7 @@
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20761812</td>
+      <td class="linecount coveredLine">20769141</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Opcode</span><span class="o">&gt;</span><span class="w"> </span><span class="n">op</span><span class="p">(</span><span class="n">code</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1404,12 +1404,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 20761812 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 20769141 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">20761812</td>
+      <td class="linecount partialCoveredLine">20769141</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">op</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1419,11 +1419,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 7060084 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 13701728 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 13709057 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">20761812</td>
+      <td class="linecount coveredLine">20769141</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">opcode2_line</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1444,7 +1444,7 @@
       <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20761812</td>
+      <td class="linecount coveredLine">20769141</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

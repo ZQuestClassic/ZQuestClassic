@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-28 06:05:24</td>
+      <td>2026-04-28 07:35:25</td>
     </tr>
   </table>
 </div>
@@ -77,9 +77,9 @@
     <tr><td><a href="#l71">(anonymous namespace)::doAspectResize() (line 71)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l119">(anonymous namespace)::zapp_setup_icon() (line 119)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l104">(anonymous namespace)::zc_do_minsize() (line 104)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l47">(anonymous namespace)::zc_trace_handler(char const*) (line 47)</a></td><td>called 1920909 times, returned 1920909 times</td><td>88.0%</td></tr>
-    <tr><td><a href="#l522">safe_al_trace(char const*) (line 522)</a></td><td>called 13687 times, returned 13687 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l527">safe_al_trace(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 527)</a></td><td>called 394712 times, returned 394712 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l47">(anonymous namespace)::zc_trace_handler(char const*) (line 47)</a></td><td>called 1923659 times, returned 1923659 times</td><td>88.0%</td></tr>
+    <tr><td><a href="#l522">safe_al_trace(char const*) (line 522)</a></td><td>called 13679 times, returned 13679 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l527">safe_al_trace(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 527)</a></td><td>called 396555 times, returned 396555 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l435">zalleg_alleg4_save_bitmap(BITMAP*, int, char const*, RGB const*) (line 435)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l324">zalleg_create_window(char const*, int, int, int, int, int, int) (line 324)</a></td><td>called 346 times, returned 346 times</td><td>33.0%</td></tr>
     <tr><td><a href="#l427">zalleg_file_size_ex_password(char const*, char const*) (line 427)</a></td><td>called 740 times, returned 740 times</td><td>100.0%</td></tr>
@@ -434,7 +434,7 @@
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_trace_handler</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -455,7 +455,7 @@
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -478,12 +478,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1920450 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1923200 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 459 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">trace_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -588,28 +588,28 @@
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">trace_file</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fflush</span><span class="p">(</span><span class="n">trace_file</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1920909</td>
+      <td class="linecount coveredLine">1923659</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3974,7 +3974,7 @@
       <td class="lineno"><a id="l522" href="#l522">522</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">13687</td>
+      <td class="linecount coveredLine">13679</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">safe_al_trace</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3988,14 +3988,14 @@
       <td class="lineno"><a id="l524" href="#l524">524</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">13687</td>
+      <td class="linecount coveredLine">13679</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zc_trace_handler</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l525" href="#l525">525</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">13687</td>
+      <td class="linecount coveredLine">13679</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4009,7 +4009,7 @@
       <td class="lineno"><a id="l527" href="#l527">527</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394712</td>
+      <td class="linecount coveredLine">396555</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">safe_al_trace</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -4023,14 +4023,14 @@
       <td class="lineno"><a id="l529" href="#l529">529</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394712</td>
+      <td class="linecount coveredLine">396555</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zc_trace_handler</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l530" href="#l530">530</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394712</td>
+      <td class="linecount coveredLine">396555</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
