@@ -832,12 +832,6 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_ITEM_HITBOXES, 1);
 	if (compatrule_version < 104)
 		set_qr(qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX, 1);
-	if (compatrule_version < 105)
-		set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
-	if (compatrule_version < 106)
-		set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
-	if (compatrule_version < 107)
-		set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -883,6 +877,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_BROKEN_COPYCAT_SELF_TRIGGER, 1);
 		if (compatrule_version < 102)
 			set_qr(qr_BROKEN_SELF_TRIGGERING_TRIGGERS, 1);
+		if (compatrule_version < 105)
+			set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
+		if (compatrule_version < 106)
+			set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
+		if (compatrule_version < 107)
+			set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
 	}
 	else
 	{
@@ -939,6 +939,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		if (tempheader.compareVer(2, 55, 14) < 0)
 		{
 			set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
+			set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
+			set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
 		}
 	}
 
