@@ -7971,6 +7971,7 @@ void HeroClass::handle_portal_prox(portal* p)
 }
 
 static bool replay_compat_hookshot_snap_player_bug();
+static bool replay_compat_whistle_stuck_bug();
 
 // returns true when game over
 bool HeroClass::animate(int32_t)
@@ -10736,6 +10737,9 @@ static bool drown_check(int cid)
 }
 int HeroClass::onWater(bool drownonly)
 {
+	if (action == inwind && !replay_compat_whistle_stuck_bug())
+		return false;
+
 	if (replay_is_active() && replay_get_meta_str("sav") == "nargads_trail_crystal_crusades_23_of_24.sav")
 		; // old broken behavior skips the below check in some circumstances
 	else if(ladderx || laddery || hoverclk || action == rafting
@@ -14187,6 +14191,12 @@ static bool replay_compat_old_movement_off_by_one()
 static bool replay_compat_charging_during_scroll_bug()
 {
 	return replay_compat_check_zc_version_2_55(13);
+}
+
+// https://discord.com/channels/876899628556091432/1479336319674220575
+static bool replay_compat_whistle_stuck_bug()
+{
+	return replay_compat_check_zc_version_2_55(14);
 }
 
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
@@ -27810,6 +27820,8 @@ void HeroClass::checkscroll()
 
 bool HeroClass::check_prescroll()
 {
+	if (action == inwind && !replay_compat_whistle_stuck_bug())
+		return true;
 	if (toogam)
 		return true;
 	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
