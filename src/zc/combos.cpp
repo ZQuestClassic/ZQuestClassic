@@ -1780,13 +1780,19 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 	auto& cmb = handle.combo();
 	if (cmb.triggers.size() <= idx) return;
 	auto& trig = cmb.triggers[idx];
-	if (trig.trigchange)
-	{
-		handle.modify_data(trig.trigchange);
-	}
+	bool is_active_screen = is_in_current_region(handle.base_scr());
+	
 	if (trig.trigcschange)
 	{
 		handle.set_cset((ocs + trig.trigcschange) & 0xF);
+	}
+	if (trig.trigchange)
+	{
+		if (is_active_screen)
+			screen_combo_modify_preroutine(handle);
+		handle.modify_data(trig.trigchange);
+		if (is_active_screen)
+			screen_combo_modify_postroutine(handle);
 	}
 	if (trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 	{
