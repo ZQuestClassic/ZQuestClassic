@@ -1084,6 +1084,8 @@ static GUI::ListData compatRulesList
 		" enemies with 'Damaged by Power 0 weapons' unchecked."},
 	{ "Broken Spin Tile Combo Change", qr_BROKEN_SPINTILE_COMBO_CHANGE,
 		"If enabled, Spin Tile combos won't change combos when activating." },
+	{ "Sprite Light Radius Ignores Hit Offsets", qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS,
+		"If enabled, sprites that emit light will ignore hit offsets when calculating the center position." },
 };
 
 static GUI::ListData enemiesRulesList
