@@ -55,7 +55,16 @@ void sprite::handle_sprlighting()
 	if (!get_qr(qr_NEW_DARKROOM)) return;
 	if (!(tmpscr->flags & fDARK)) return;
 	if (!glowRad) return;
-	handle_lighting(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2),glowShape,glowRad,dir);
+
+	int x0 = x.getInt() + (hit_width / 2);
+	int y0 = y.getInt() + (hit_height / 2);
+	if (!get_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS))
+	{
+		x0 += hxofs;
+		y0 += hyofs;
+	}
+	
+	handle_lighting(x0, y0, glowShape, glowRad, dir);
 }
 
 bool is_conveyor(int32_t type)

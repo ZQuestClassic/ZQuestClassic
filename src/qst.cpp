@@ -3483,6 +3483,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
 		set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
+		set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
 	}
 
 	*Header = tempheader;
