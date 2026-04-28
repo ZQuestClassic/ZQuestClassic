@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-28 07:35:25</td>
+      <td>2026-04-28 09:01:49</td>
     </tr>
   </table>
 </div>
@@ -98,8 +98,8 @@
     <tr><td><a href="#l250">MsgStr::segmentsAsIntArray() const (line 250)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l242">MsgStr::serialize[abi:cxx11]() const (line 242)</a></td><td>called 441 times, returned 441 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l167">MsgStr::set(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, MsgStr::EncodingType) (line 167)</a></td><td>called 116184 times, returned 116184 times</td><td>55.0%</td></tr>
-    <tr><td><a href="#l153">MsgStr::setFromAsciiEncoding(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 153)</a></td><td>called 1423 times, returned 1423 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l160">MsgStr::setFromLegacyEncoding(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 160)</a></td><td>called 4531322 times, returned 4531322 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l153">MsgStr::setFromAsciiEncoding(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 153)</a></td><td>called 1443 times, returned 1443 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l160">MsgStr::setFromLegacyEncoding(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 160)</a></td><td>called 4531302 times, returned 4531302 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -1196,7 +1196,7 @@
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1423</td>
+      <td class="linecount coveredLine">1443</td>
       <td class="src coveredLine"><span class="n">warnings</span><span class="w"> </span><span class="n">MsgStr</span><span class="o">::</span><span class="n">setFromAsciiEncoding</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1210,21 +1210,21 @@
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1423</td>
+      <td class="linecount coveredLine">1443</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">text</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1423</td>
+      <td class="linecount coveredLine">1443</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">encoding_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EncodingType</span><span class="o">::</span><span class="n">Ascii</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1423</td>
+      <td class="linecount coveredLine">1443</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">parse</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -1245,7 +1245,7 @@
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4531322</td>
+      <td class="linecount coveredLine">4531302</td>
       <td class="src coveredLine"><span class="n">warnings</span><span class="w"> </span><span class="n">MsgStr</span><span class="o">::</span><span class="n">setFromLegacyEncoding</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1259,21 +1259,21 @@
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4531322</td>
+      <td class="linecount coveredLine">4531302</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">text</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4531322</td>
+      <td class="linecount coveredLine">4531302</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">encoding_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EncodingType</span><span class="o">::</span><span class="n">Binary</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4531322</td>
+      <td class="linecount coveredLine">4531302</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">parse</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -1310,12 +1310,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">6/10</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1423 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 114761 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1423 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 114761 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 114761 times.</div>
-          <div class="takenBranch">&check; Branch 5 taken 1423 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1443 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 114741 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1443 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 114741 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 114741 times.</div>
+          <div class="takenBranch">&check; Branch 5 taken 1443 times.</div>
           <div class="notTakenBranch">&cross; Branch 6 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 8 not taken.</div>
@@ -1332,12 +1332,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1423 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1443 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1423</td>
+      <td class="linecount partialCoveredLine">1443</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">setFromAsciiEncoding</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">text</span><span class="p">))</span><span class="w"> </span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
@@ -1346,12 +1346,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 114761 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 114741 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">114761</td>
+      <td class="linecount partialCoveredLine">114741</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">setFromLegacyEncoding</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">text</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
@@ -1388,8 +1388,8 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2851 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 4682230 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2891 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 4682190 times.</div>
         </div>
         </details>
       </td>
