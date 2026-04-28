@@ -63,3 +63,12 @@ bool replay_compat_charging_during_scroll_bug()
 
 	return !replay_version_check(50);
 }
+
+// https://discord.com/channels/876899628556091432/1479336319674220575
+bool replay_compat_whistle_stuck_bug()
+{
+	if (check_2_55(14))
+		return true;
+
+	return !replay_version_check(52);
+}

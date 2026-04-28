@@ -10561,6 +10561,9 @@ static bool drown_check(int cid)
 }
 int HeroClass::onWater(bool drownonly)
 {
+	if (action == inwind && !replay_compat_whistle_stuck_bug())
+		return false;
+
 	if (replay_is_active() && replay_get_meta_str("sav") == "nargads_trail_crystal_crusades_23_of_24.sav")
 		; // old broken behavior skips the below check in some circumstances
 	else if(ladderx || laddery || hoverclk || action == rafting
@@ -28201,6 +28204,8 @@ void HeroClass::checkscroll()
 
 bool HeroClass::check_prescroll()
 {
+	if (action == inwind && !replay_compat_whistle_stuck_bug())
+		return true;
 	if (walk_through_walls)
 		return true;
 	if(get_qr(qr_BROKEN_SCROLL_INSTEAD_OF_DROWN_FALL))
