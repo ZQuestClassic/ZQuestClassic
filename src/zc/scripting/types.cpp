@@ -8,6 +8,8 @@ namespace {
 
 constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 {
+	// This should handle every register, except for arrays (which are handled via ArrayRegistrar
+	// declarations and thus don't need to be in the routing table).
 	switch (reg)
 	{
 		case AUDIOPAN:
@@ -637,6 +639,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case IDATAWEAPONSCRIPT:
 		case IDATAWEAPXOFS:
 		case IDATAWEAPYOFS:
+		case IDATAWEAPZOFS:
 		case IDATAWRANGE:
 			return EngineSubsystem::itemdata;
 

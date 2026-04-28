@@ -670,6 +670,10 @@ int32_t itemdata_get_register(int32_t reg)
 			}
 			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.yofs)*10000;
 			break;
+		case IDATAWEAPZOFS:
+			scripting_log_error_with_context("itemdata::WeaponDrawZOffset is not implemented");
+			ret = 0;
+			break;
 		case IDATAWRANGE:
 			if(invalid_item_id(GET_REF(itemdataref)))
 			{
@@ -1287,6 +1291,9 @@ void itemdata_set_register(int32_t reg, int32_t value)
 				break;
 			}
 			(itemsbuf[GET_REF(itemdataref)].weap_data.yofs)=(value/10000);
+			break;
+		case IDATAWEAPZOFS:
+			scripting_log_error_with_context("itemdata::WeaponDrawZOffset is not implemented");
 			break;
 		case IDATAWRANGE:
 			if(invalid_item_id(GET_REF(itemdataref)))

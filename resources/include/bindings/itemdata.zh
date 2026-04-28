@@ -660,11 +660,6 @@ class itemdata {
 	// @zasm_var IDATAWEAPYOFS
 	internal int WeaponDrawYOffset;
 
-	// The default DrawZOffset used by this weapon when the item generates it.
-	//
-	// @zasm_var IDATAWEAPZOFS
-	internal int WeaponDrawZOffset;
-
 	// The timer for the 'Use Cost'/'Use Cost 2' of the item.
 	//
 	// @zasm_var IDATAMAGICTIMER

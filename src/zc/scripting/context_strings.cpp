@@ -755,7 +755,6 @@ const char* scripting_get_zasm_register_context_string(int reg)
 		case IDATAUSEWPN: return "itemdata::Weapon";
 		case IDATAWEAPXOFS: return "itemdata::WeaponDrawXOffset";
 		case IDATAWEAPYOFS: return "itemdata::WeaponDrawYOffset";
-		case IDATAWEAPZOFS: return "itemdata::WeaponDrawZOffset";
 		case IDATAWEAPHYSZ: return "itemdata::WeaponHitHeight";
 		case IDATAWEAPHXSZ: return "itemdata::WeaponHitWidth";
 		case IDATAWEAPHXOFS: return "itemdata::WeaponHitXOffset";
