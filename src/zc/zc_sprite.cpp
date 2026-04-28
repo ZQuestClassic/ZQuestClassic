@@ -18,6 +18,11 @@ void sprite::handle_sprlighting()
 
 	int x0 = x.getInt() + (hit_width / 2);
 	int y0 = y.getInt() + (hit_height / 2);
+	if (!get_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS))
+	{
+		x0 += hxofs;
+		y0 += hyofs;
+	}
 
 	handle_lighting(x0, y0 + playing_field_offset, glowShape, glowRad, dir, darkscr_bmp);
 }
