@@ -10172,7 +10172,7 @@ heroanimate_skip_liftwpn:;
 			{
 				do_trigger_combo(layer, i);
 			}
-			
+
 			//AUTO WARP CODE
 			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 			{
@@ -10204,15 +10204,16 @@ heroanimate_skip_liftwpn:;
 			}
 			if(awarp)
 			{
+				int32_t warpsound = cmb.attribytes[0];
 				if(tmpscr->flags5&fDIRECTAWARP)
 				{
 					didpit=true;
 					pitx=x;
 					pity=y;
 				}
-				
+
 				sdir = dir;
-				dowarp(1,ind);
+				dowarp(1,ind,warpsound);
 				break;
 			}
 		}
