@@ -1707,6 +1707,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								{
 									SETFLAG(local_subref->genflags, SUBSCRFLAG_SELECTABLE, state);
 									updateSelectable();
+									refr_info(); // widgITEMSLOT cares about this!
 								}),
 							selgs[0] = Rows<3>(
 								Label(text = "Position:", hAlign = 1.0),
@@ -2868,7 +2869,7 @@ void SubscrPropDialog::refr_info()
 	{
 		case widgITEMSLOT:
 		{
-			bool dis = get_qr(qr_OLD_SUBSCR);
+			bool dis = get_qr(qr_OLD_SUBSCR) || !(local_subref->genflags & SUBSCRFLAG_SELECTABLE);
 			def_eqp_cboxes[0]->setDisabled(dis || !get_qr(qr_SELECTAWPN));
 			def_eqp_cboxes[1]->setDisabled(dis);
 			def_eqp_cboxes[2]->setDisabled(dis || !get_qr(qr_SET_XBUTTON_ITEMS));
