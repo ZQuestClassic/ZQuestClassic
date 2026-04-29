@@ -53,13 +53,6 @@ on:
       SENTRY_TOKEN:
         required: false
 
-env:
-  CCACHE_BASEDIR: ${{ github.workspace }}
-  CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CCACHE_MAXSIZE: 400M
-  CCACHE_SLOPPINESS: time_macros
-  TARGET: zplayer zeditor zscript zlauncher ${{ contains(inputs.runs-on, 'windows') && 'zupdater' || '' }} ${{ inputs.test-runner && 'base_test_runner' || '' }}
-
 jobs:
   build:
     runs-on: ${{ inputs.runs-on }}
@@ -71,17 +64,6 @@ jobs:
         with:
           cmake-version: '3.31.10'
 
-      # Install dependencies.
-      - if: ${{ contains(inputs.runs-on, 'mac') }}
-        name: Build and install Bison
-        run: |
-          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-          tar -zxvf bison-3.6.tar.gz
-          cd bison-3.6
-          ./configure CFLAGS='-Wno-error=incompatible-pointer-types'
-          make
-          sudo make install
-
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
@@ -89,175 +71,99 @@ jobs:
           fetch-depth: 0
           enableCrossOsArchive: true
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12.8'
           cache: pip
-      - run: pip install -r requirements.txt
 
-      - if: ${{ contains(inputs.runs-on, 'windows') }}
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Setup MSVC (Windows only)
+        if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ inputs.arch }}
 
-      - if: ${{ contains(inputs.runs-on, 'windows') }}
-        name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@dff3862348493b11fba2fbc49147b6d2dfe09b66
-        with:
-          args: install .github/dependencies.config -y --allow-downgrade
       - name: Install LLVM and Clang
         if: inputs.compiler == 'clang' && runner.os == 'Linux'
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: 17.0.2
           env: true
-      - if: ${{ contains(inputs.runs-on, 'windows') }}
-        name: Set vcpkg env vars
-        shell: python
-        run: |
-          import os
 
-          arch = '${{ inputs.arch }}'
-          triplet = 'x64-windows' if arch == 'x64' else 'x86-windows'
-
-          with open(os.environ['GITHUB_ENV'], 'a') as f:
-            print('{0}={1}'.format('CMAKE_TOOLCHAIN_FILE', r'${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake'), file=f)
-            print('{0}={1}'.format('VCPKG_DEFAULT_TRIPLET', triplet), file=f)
-      - if: ${{ contains(inputs.runs-on, 'windows') }}
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b
-      - if: ${{ contains(inputs.runs-on, 'windows') }}
-        run: vcpkg install libogg libvorbis curl openssl freetype
-
-      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libssl-dev libcurl4-openssl-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev libpulse-dev libfreetype6-dev
-
-      - if: ${{ contains(inputs.runs-on, 'mac') }}
-        run: brew install ninja ccache libogg libvorbis
-
-      # Setup build cache via ccache.
-      - name: ccache cache files
+      - name: Restore ccache
         if: inputs.cache
         uses: actions/cache@v4
         with:
           path: .ccache
           key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
           restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-
-      - if: ${{ !inputs.cache }}
-        run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
 
-      # Configure build.
-      - if: inputs.compiler == 'gcc'
-        run: |
-          echo "CC=gcc" >> "$GITHUB_ENV"
-          echo "CXX=g++" >> "$GITHUB_ENV"
-      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.release-version || '3.0.0' }}
-      - name: Set release platform
-        id: set-platform
-        shell: python
-        run: |
-          import platform
-          import os
+      - name: Setup vcpkg
+        if: ${{ contains(inputs.runs-on, 'windows') }}
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b
 
-          arch = '${{ inputs.arch }}'
-
-          system = platform.system()
-          if system == 'Windows':
-            arch_label = 'x86' if arch == 'win32' else 'x64'
-            release_platform = f'windows-{arch_label}'
-          elif system == 'Darwin':
-            release_platform = 'mac'
-          elif system == 'Linux':
-            release_platform = 'linux'
-
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            print('{0}={1}'.format('platform', release_platform), file=f)
-      - name: Configure build
+      - name: Install OS Dependencies
         run: >
-          cmake -S . -B build -G 'Ninja Multi-Config'
-          -DCOPY_RESOURCES=OFF
-          -DZC_OFFICIAL="${{ inputs.official }}"
-          -DZC_VERSION="${{ inputs.release-version }}"
-          -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
-          -DRELEASE_CHANNEL="3"
-          -DREPO="${{ github.repository }}"
-          -DWANT_SENTRY="${{ inputs.sentry }}"
-          -DWANT_ZC_TESTS="${{ inputs.test-runner }}"
-          -DCMAKE_WIN32_EXECUTABLE=1
-          -DCMAKE_C_COMPILER_LAUNCHER=ccache
-          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          python .github/workflows/ci.py install-deps
+          --repo ${{ github.repository }}
+          --arch ${{ inputs.arch }}
+          --compiler ${{ inputs.compiler }}
 
-      - run: ccache -z
-      - run: cmake --build build --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
-      - run: ccache -s
+      - name: Build
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py build
+          --arch ${{ inputs.arch }}
+          --compiler ${{ inputs.compiler }}
+          --config ${{ inputs.config }}
+          --release-version "${{ inputs.release-version || '3.0.0' }}"
+          --repo "${{ github.repository }}"
+          ${{ inputs.official && '--official' || '' }}
+          ${{ inputs.test-runner && '--test-runner' || '' }}
+          ${{ inputs.sentry && '--sentry' || '' }}
+          ${{ !inputs.cache && '--no-cache' || '' }}
 
-      # Fail if any changes were written to any source files.
-      - run: git diff --cached --exit-code
-
-      # Package.
-      - name: Set package vars
-        id: set-package-vars
-        shell: python
-        run: |
-          import platform
-          import os
-
-          release_version = '${{ inputs.release-version }}' or 'zc'
-          arch = '${{ inputs.arch }}'
-
-          system = platform.system()
-          if system == 'Windows':
-            arch_label = 'x86' if arch == 'win32' else 'x64'
-            package_name = f'{release_version}-windows-{arch_label}.zip'
-          elif system == 'Darwin':
-            package_name = f'{release_version}-mac.dmg'
-          elif system == 'Linux':
-            package_name = f'{release_version}-linux.tar.gz'
-
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            print('{0}={1}'.format('package-name', package_name), file=f)
       - name: Package
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py package
+          --repo ${{ github.repository }}
+          --arch ${{ inputs.arch }}
+          --config ${{ inputs.config }}
+          --release-version "${{ inputs.release-version || 'zc' }}"
+          --packages-dir packages
+          ${{ inputs.debug-info && '--debug-info' || '' }}
+
+      - name: Set package output variable
+        id: set-package-vars
         shell: bash
         run: |
-          mkdir -p packages
-          cd build
-          mkdir package_output
-          cpack --verbose -C ${{ inputs.config }} \
-            -D CPACK_PACKAGE_DIRECTORY=$PWD/package_output \
-            ${{ inputs.debug-info && '-D CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE' || '' }}
-          mv package_output/*.* ../packages/${{ steps.set-package-vars.outputs.package-name }}
+          # Dynamically grab the name of the file our script put in the packages directory
+          PACKAGE_NAME=$(basename packages/*.*)
+          echo "package-name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
-      # Coverage builds need the entire build folder.
-      - name: tar build folder (Coverage)
-        if: inputs.config == 'Coverage'
-        run: |
-          cd build
-          rm -fr package_output
-          mkdir -p tmp-src/parser
-          cp ../src/parser/lex.yy.cpp tmp-src/parser
-          cp ../src/parser/y.tab.cpp tmp-src/parser
-          cp ../src/parser/y.tab.hpp tmp-src/parser
-          tar czpvf build.tar.gz * --preserve-permissions
-          mv build.tar.gz ../packages/build.tar.gz
-
-      # Make build result available to other workflows.
-      - uses: actions/upload-artifact@v4
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
           path: packages/*.*
 
-      # Upload debug symbols to Sentry.
       - name: Setup Sentry CLI
         if: inputs.sentry
-        uses: mathieu-bour/setup-sentry-cli@dbbd0776d55f6e0e5cd7e81fa1a80f4fd0c60369 # v2.0.0
+        uses: mathieu-bour/setup-sentry-cli@dbbd0776d55f6e0e5cd7e81fa1a80f4fd0c60369
         with:
           version: '2.20.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
-      - run: sentry-cli --version
+
+      - name: Verify Sentry CLI
         if: inputs.sentry
+        run: sentry-cli --version
+
       - name: Upload debugging symbols
         if: inputs.sentry
         run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-version }}' --include-sources --wait build

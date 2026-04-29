@@ -84,134 +84,119 @@ jobs:
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
           enableCrossOsArchive: true
-      - uses: actions/setup-python@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12.8'
           cache: pip
-      - run: pip install -r requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Linux Test Dependencies
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0
+
       - run: mkdir -p .tmp
 
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        name: Install Node.js 20.x
+      - name: Install Node.js 20.x
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/setup-node@v3
         with:
           node-version: 20.x
 
-      - uses: actions/download-artifact@v4
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
-      - name: Prepare package
-        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
-        with:
-          windows: |
-            chcp 65001
-            echo ("BUILD_FOLDER=$PWD/zc-extracted") >> $env:GITHUB_ENV
-            mkdir zc-extracted
-            cd zc-extracted
-            7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
-          macos: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted/ZQuest Classic.app/Contents/Resources" >> "$GITHUB_ENV"
-            hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
-            mkdir zc-extracted
-            cp -r "zc-mounted/ZQuest Classic.app" zc-extracted
-            cp -r "zc-mounted/ZQuest Classic.app.dSYM" zc-extracted
-            hdiutil unmount zc-mounted
-          linux: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted/bin" >> "$GITHUB_ENV"
-            mkdir zc-extracted
-            tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
-      - name: Prepare build folder (Coverage)
-        if: inputs.config == 'Coverage'
-        run: |
-            mkdir -p build
-            ls ${{ needs.build.outputs.artifact-name }}
-            tar -xvzf ${{ needs.build.outputs.artifact-name }}/build.tar.gz -C build
-            cp -r build/tmp-src/* src/
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0
-        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+      # Extract the build artifact to zc-extracted.
+      - name: Extract package
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py extract-package
+          --repo ${{ github.repository }}
+          --config ${{ inputs.config }}
+          --package "${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}"
+          --build-folder zc-extracted
 
-      # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
-          bash .github/workflows/run_python.sh tests/run_replay_tests.py
-          --build_folder "${{ env.BUILD_FOLDER }}"
-          --build_type ${{ inputs.config }}
-          --test_results_folder .tmp/test_results/${{ github.run_id }}
-          --retries 1
-          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
+          bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
+          --repo ${{ github.repository }}
+          --runs-on ${{ inputs.runs-on }}
+          --arch ${{ inputs.arch }}
+          --config ${{ inputs.config }}
+          --run-id ${{ github.run_id }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
-          ${{ inputs.extra-args }}
+          --extra-args "${{ inputs.extra-args }}"
+          --build-folder zc-extracted
 
       # Just run a few replays with JIT disabled.
       # Also, without headless.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.from-ci-workflow && inputs.arch != 'win32' }}
-        name: Test w/o JIT
+      - name: Test w/o JIT
+        if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.from-ci-workflow && inputs.arch != 'win32' }}
         run: >
-          bash .github/workflows/run_python.sh tests/run_replay_tests.py
-          --build_folder "${{ env.BUILD_FOLDER }}"
-          --build_type ${{ inputs.config }}
-          --test_results_folder .tmp/test_results/${{ github.run_id }}-nojit
-          --retries 1
-          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
-          --filter playground
-          --filter keys.zplay
+          bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
+          --repo ${{ github.repository }}
+          --runs-on ${{ inputs.runs-on }}
+          --arch ${{ inputs.arch }}
+          --config ${{ inputs.config }}
+          --run-id ${{ github.run_id }}
           --no-jit
-          --no-headless
+          --build-folder zc-extracted
 
-      - name: update_auto_script_tests.py
-        if: inputs.config != 'Coverage'
-        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        name: Updater cache
+      - name: Updater cache
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && !contains(inputs.runs-on, 'ubuntu') }}
-        name: Archives cache
+      - name: Archives cache
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && !contains(inputs.runs-on, 'ubuntu') }}
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.tmp/archives
           key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        name: Checkout zscript database
+      - name: Checkout zscript database
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/checkout@v4
         with:
-          # Note: this token expires annually.
           token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
           repository: ZQuestClassic/zscript-database
           ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
           path: ${{ github.workspace }}/.tmp/zscript-database
 
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        name: Run Python tests
-        run: bash .github/workflows/run_python.sh -m unittest discover tests
-        env:
-          CXX: ${{ inputs.compiler }}
+      - name: Run unit tests
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py unit-tests
+          --repo ${{ github.repository }}
+          --compiler ${{ inputs.compiler }}
+          --config ${{ inputs.config }}
+          --build-folder zc-extracted
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
-        run: bash tests/generate_coverage_report.sh
-        env:
-          GCOV: llvm-cov-14 gcov
-      - uses: actions/upload-artifact@v4
+        run: python .github/workflows/ci.py coverage
+
+      - name: Upload Coverage JSON
+        uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage'
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Generated Source Files
+        uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage' && matrix.shard_index == 1
         with:
           name: generated-source-files
           path: ${{ github.workspace }}/build/tmp-src
 
-      # It's much faster to upload a single file than many files.
-      # https://github.com/actions/upload-artifact/issues/36
       - name: Archive test results
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         shell: bash
@@ -220,13 +205,16 @@ jobs:
             cd .tmp/test_results
             bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload updated files
+        uses: actions/upload-artifact@v4
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
