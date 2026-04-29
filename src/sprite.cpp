@@ -364,6 +364,11 @@ zfix sprite::center_y() const
 	return y + yofs + (tysz * 8);
 }
 
+bool sprite::uses_sideview_platforms() const
+{
+	return false;
+}
+
 int32_t sprite::get_pit() //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 {
 	int32_t ispitul = getpitfall(x,y);
