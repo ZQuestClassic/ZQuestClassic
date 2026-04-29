@@ -1376,10 +1376,10 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[12] = "CSet to draw the prompt in";
 			}
 			l_attribute[18] = "Contained Item";
-			h_attribute[18] = "The item contained by the chest."
-				"\n0-256: Use specified item ID\n"
+			h_attribute[18] = fmt::format("The item contained by the chest."
+				"\n0-{}: Use specified item ID\n"
 				"-1: Use screen special item (catchall)\n"
-				"-10 to -17: Use Screen->D[0] to [7] as item ID";
+				"-10 to -17: Use Screen->D[0] to [7] as item ID", MAXITEMS-1);
 			l_flag[6] = "Use SItem State";
 			h_flag[6] = "Link contained item to 'Special Item' screen state.";
 		}
