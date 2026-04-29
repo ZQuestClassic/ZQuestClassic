@@ -837,6 +837,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SV_SOLID_CONVEYORS, 1);
 		set_qr(qr_ITEM_CONVEYORS_IGNORE_HITBOX, 1);
 		set_qr(qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX, 1);
+		set_qr(qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX, 1);
 	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);

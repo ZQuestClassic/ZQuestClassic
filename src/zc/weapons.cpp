@@ -3211,6 +3211,10 @@ static uint flame_count()
 	return Lwpns.idCount(flametypes) + Ewpns.idCount(flametypes);
 }
 
+bool weapon::hardcoded_sideview_hitbox() const
+{
+	return get_qr(qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX);
+}
 void weapon::limited_animate()
 {
 	switch(id)
@@ -3717,8 +3721,13 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 	{
 		if(isSideViewGravity())
 		{
-			if((!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP) && ((fall>=0&&!_walkflag(x,y+16,0))||fall<0)) ||
-				(get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP) && !_walkflag(x, y+16, 0)))
+			bool on_solid;
+			if (hardcoded_sideview_hitbox())
+				on_solid = _walkflag(x, y+16, 0);
+			else
+				on_solid = on_sideview_solid();
+			if (get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP) ? !on_solid
+				: ((fall >= 0 && !on_solid) || fall < 0))
 			{
 				y+=fall/100;
 				
@@ -3730,7 +3739,10 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
 				{
 					y.doFloor();
-					y-=(int32_t)y%8; // Fix position
+					if (hardcoded_sideview_hitbox())
+						y -= int32_t(y) % 8; // Fix position
+					else
+						y -= int32_t(y + hyofs + hit_height) % 8; // Fix position
 				}
 				
 				zfix bounce_fall = -(fall * bounce_mult + bounce_add*100);
