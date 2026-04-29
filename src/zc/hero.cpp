@@ -33044,7 +33044,22 @@ void HeroClass::check_conveyor()
 			conv_forcedir = -1;
 	}
 	
-	if((!get_qr(qr_BROKEN_CONVEYORS) && action==rafting) || action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||is_autowalking())
+	
+	switch (action)
+	{
+		case rafting:
+			if (get_qr(qr_BROKEN_CONVEYORS))
+				break;
+		[[fallthrough]];
+		case casting:
+		case sideswimcasting:
+		case drowning:
+		case sidedrowning:
+		case lavadrowning:
+			is_conveyor_stunned = 0;
+			return;
+	}
+	if(inlikelike || pull_hero || is_autowalking() || (walk_through_walls && replay_version_check(53)))
 	{
 		is_conveyor_stunned = 0;
 		return;
