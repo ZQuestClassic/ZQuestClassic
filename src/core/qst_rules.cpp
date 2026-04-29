@@ -832,6 +832,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_ITEM_HITBOXES, 1);
 	if (compatrule_version < 104)
 		set_qr(qr_SUBSCR_SELECTOR_USES_ITEM_HITBOX, 1);
+	if (compatrule_version < 108)
+	{
+		set_qr(qr_BROKEN_SV_SOLID_CONVEYORS, 1);
+		set_qr(qr_ITEM_CONVEYORS_IGNORE_HITBOX, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

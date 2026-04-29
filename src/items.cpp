@@ -29,6 +29,10 @@ item::~item()
 #endif
 }
 
+bool item::uses_sideview_platforms() const
+{
+	return !get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS);
+}
 bool item::animate(int32_t)
 {
 	update_current_screen();
@@ -102,7 +106,7 @@ bool item::animate(int32_t)
 				( moveflags & move_obeys_grav ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
-				if (!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x + 4, y + (fall / 100) + 15))
+				if (uses_sideview_platforms() && checkSVLadderPlatform(x + 4, y + (fall / 100) + 15))
 				{
 					y += fall / 100;
 					y -= int32_t(y) % 16; //Fix to top of ladder

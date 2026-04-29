@@ -125,20 +125,6 @@ static inline bool platform_fallthrough(bool doslopecheck = true)
 	return false;
 }
 
-static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
-{
-	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, (slopesmisc == 3), true) < 0) return true;
-	if(slopesmisc == 2) return false;
-	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	mapscr* s = get_scr_for_world_xy(x, y);
-	if (y>=world_h-16 && cur_screen>=0x70 && !(s->flags2&wfDOWN)) return true;
-	if (platform_fallthrough() && !ignoreFallthrough) return false;
-	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, false, true) < 0) return true;
-	if (y.getInt() % 16 ==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
-		return true;
-	return false;
-}
-
 static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough = false, int32_t slopesmisc = 0, zfix xofs = 0, zfix yofs = 0)
 {
 	zfix rx = obj->x+obj->hxofs+obj->sxofs+xofs, ry = obj->y+obj->hyofs+obj->syofs+yofs,
@@ -546,7 +532,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 			}
 			if(!is_safe) break; //unsafe action
 			if(z > 0 || fakez > 0 || hoverclk) break; //in air
-			if(sideview_mode() && !on_sideview_solid(x,y,true)) break; //in air sideview
+			if(sideview_mode() && !on_sideview_solid_oldpos(this,true)) break; //in air sideview
 			if(check_pitslide(true) != -1) break; //On a pit
 			if (ladderx+laddery) break; //on the ladder
 			if (onWater(false)) break;
@@ -33033,8 +33019,19 @@ void HeroClass::reset_ladder()
 }
 
 bool is_conveyor(int32_t type);
-int32_t get_conveyor(int32_t x, int32_t y);
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates);
 
+bool HeroClass::uses_sideview_platforms() const
+{
+	return true;
+}
+bool HeroClass::on_sideview_solid() const
+{
+	// This function should not be used for the hero; see 'on_sideview_solid_oldpos' instead
+	// Hero has different params and such so this function signature can't handle hero's needs.
+	DCHECK(false);
+	return false;
+}
 void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
@@ -33056,8 +33053,13 @@ void HeroClass::check_conveyor()
 	WalkflagInfo info;
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
-	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
-	if(cmbid < 0) 
+	int32_t cmbid = get_conveyor(x+7, y+(bigHitbox?8:12), true);
+	if (cmbid < 0 && !get_qr(qr_BROKEN_SV_SOLID_CONVEYORS) && (isSideViewHero() && on_sideview_solid_oldpos(this)))
+	{
+		for (int xo = 0; xo < 16 && cmbid < 0; xo += 4)
+			cmbid = get_conveyor(x + xo, y + 16, true);
+	}
+	if(cmbid < 0)
 	{
 		if (conveyclk <= 0)
 		{
@@ -33071,8 +33073,6 @@ void HeroClass::check_conveyor()
 		return;
 	}
 	newcombo const* cmb = &combobuf[cmbid];
-	rpos_t rpos = COMBOPOS_REGION(x+7,y+(bigHitbox?8:12));
-	bool custom_spd = (cmb->usrflags&cflag2);
 	if((z>0||fakez>0) && !((hero_scr->flags2&fAIRCOMBOS)||(cmb->usrflags&cflag7)))
 	{
 		is_on_conveyor = 0;
@@ -33080,502 +33080,502 @@ void HeroClass::check_conveyor()
 		is_conveyor_stunned = 0;
 		return;
 	}
-	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
+	rpos_t rpos = COMBOPOS_REGION(x+7,y+(bigHitbox?8:12));
+	bool custom_spd = (cmb->usrflags&cflag2);
+	if (custom_spd)
 	{
-		int32_t ctype=cmb->type;
-		auto rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
-		if(custom_spd && (newconveyorclk % rate)) return;
-		if((cmb->usrflags&cflag5) && HasHeavyBoots())
+		deltax = cmb->c_attributes[0];
+		deltay = cmb->c_attributes[1];
+	}
+	else
+	{
+		deltax = combo_class_buf[cmb->type].conveyor_x_speed;
+		deltay = combo_class_buf[cmb->type].conveyor_y_speed;
+	}
+	
+	if (!deltax && !deltay && get_qr(qr_BROKEN_SV_SOLID_CONVEYORS)
+		&& isSideViewHero() && on_sideview_solid_oldpos(this))
+	{
+		cmbid = get_conveyor(x+8,y+16,true);
+		if (cmbid < 0)
 			return;
-		is_on_conveyor = 0;
-		conv_forcedir = -1;
-		is_conveyor_stunned = 0;
-		
-		deltax=combo_class_buf[ctype].conveyor_x_speed;
-		deltay=combo_class_buf[ctype].conveyor_y_speed;
-		
-		if (is_conveyor(ctype) && custom_spd)
+		cmb = &combobuf[cmbid];
+		custom_spd = cmb->usrflags&cflag2;
+		if (custom_spd)
 		{
 			deltax = cmb->c_attributes[0];
 			deltay = cmb->c_attributes[1];
 		}
-		
-		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid_oldpos(this)))
+		else
 		{
-			cmbid = MAPCOMBO(x+8,y+16);
-			cmb = &combobuf[cmbid];
-			custom_spd = cmb->usrflags&cflag2;
-			ctype=(cmb->type);
-			rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
-			deltax=combo_class_buf[ctype].conveyor_x_speed;
-			deltay=combo_class_buf[ctype].conveyor_y_speed;
-			if ((deltax != 0 || deltay != 0) && custom_spd)
+			deltax = combo_class_buf[cmb->type].conveyor_x_speed;
+			deltay = combo_class_buf[cmb->type].conveyor_y_speed;
+		}
+	}
+	if (!deltax && !deltay)
+		return;
+	if ((cmb->usrflags&cflag5) && HasHeavyBoots())
+		return;
+	auto rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
+	if (custom_spd ? (newconveyorclk % rate) : conveyclk > 0)
+		return;
+	is_on_conveyor = custom_spd ? rate : -1;
+	conv_forcedir = -1;
+	is_conveyor_stunned = 0;
+	
+	bool forcewalk = (cmb->usrflags&cflag6) && get_qr(qr_NEW_HERO_MOVEMENT2);
+	if(forcewalk)
+	{
+		is_conveyor_stunned = rate;
+		if(cmb->usrflags&cflag3)
+		{
+			if(abs(deltax) > abs(deltay))
+				conv_forcedir = dir = (deltax > 0) ? right : left;
+			else conv_forcedir = dir = (deltay > 0) ? down : up;
+		}
+		convey_forcex = deltax;
+		convey_forcey = deltay;
+	}
+	else
+	{
+		bool movedx = false, movedy = false;
+		if(cmb->usrflags&cflag4) //Smart corners
+		{
+			if(deltay<0)
 			{
-				deltax = cmb->c_attributes[0];
-				deltay = cmb->c_attributes[1];
+				info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedy = true;
+					zfix step(0);
+					
+					if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<(abs(deltay)*(isSideViewHero()?2:1)))
+						{
+							yoff=int32_t(y-step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y-step;
+					hs_starty-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
+					}
+				}
+			}
+			else if(deltay>0)
+			{
+				info = walkflag(x,y+15+2,2,down);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedy = true;
+					zfix step(0);
+					
+					if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltay))
+						{
+							yoff=int32_t(y+step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y+step;
+					hs_starty+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+					}
+				}
+			}
+			
+			if(deltax<0)
+			{
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x-step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x-step;
+					hs_startx-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
+					}
+				}
+			}
+			else if(deltax>0)
+			{
+				info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x+step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x+step;
+					hs_startx+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+					}
+				}
+			}
+			if(deltax && !movedx && !deltay)
+			{
+				zfix oy = y;
+				y = COMBOY_REGION(rpos);
+				bool validpush = scr_canmove(deltax, 0, false, false);
+				zfix ny = handle_movestate_zfix([&]()
+				{
+					movexy(deltax,0,false,false,true,true);
+					return y;
+				});
+				y = oy;
+				if (validpush || ny != COMBOY_REGION(rpos))
+				{
+					if (y <= ny-1)
+					{
+						setYfix(y+1);
+					}
+					else if (y >= ny+1)
+					{
+						setYfix(y-1);
+					}
+					else
+					{
+						setYfix(ny);
+					}
+				}
+			}
+			if(deltay && !movedy && !deltax)
+			{
+				zfix ox = x;
+				x = COMBOX_REGION(rpos);
+				bool validpush = scr_canmove(0, deltay, false, false);
+				zfix nx = handle_movestate_zfix([&]()
+				{
+					movexy(0,deltay,false,false,true,true);
+					return x;
+				});
+				x = ox;
+				if (validpush || nx != COMBOX_REGION(rpos))
+				{
+					if (x <= nx-1)
+					{
+						setXfix(x+1);
+					}
+					else if (x >= nx+1)
+					{
+						setXfix(x-1);
+					}
+					else
+					{
+						setXfix(nx);
+					}
+				}
 			}
 		}
-		
-		if(deltax!=0||deltay!=0)
+		if(!movedy)
 		{
-			is_on_conveyor = custom_spd ? rate : -1;
+			if(deltay<0)
+			{
+				info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedy = true;
+					zfix step(0);
+					
+					if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<(abs(deltay)*(isSideViewHero()?2:1)))
+						{
+							yoff=int32_t(y-step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y-step;
+					hs_starty-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
+					}
+				}
+				else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
+			}
+			else if(deltay>0)
+			{
+				info = walkflag(x,y+15+2,2,down);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedy = true;
+					zfix step(0);
+					
+					if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltay))
+						{
+							yoff=int32_t(y+step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y+step;
+					hs_starty+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+					}
+				}
+				else checkdamagecombos(x,y+15);
+			}
 		}
-		else return;
-		
-		bool forcewalk = (cmb->usrflags&cflag6) && get_qr(qr_NEW_HERO_MOVEMENT2);
-		if(forcewalk)
+		if(!movedx)
 		{
-			is_conveyor_stunned = rate;
+			if(deltax<0)
+			{
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x-step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x-step;
+					hs_startx-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
+					}
+				}
+				else checkdamagecombos(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
+			}
+			else if(deltax>0)
+			{
+				info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x+step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x+step;
+					hs_startx+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+					}
+				}
+				else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
+			}
+		}
+		if(movedx || movedy)
+		{
+			if(cmb->usrflags&cflag1)
+				is_conveyor_stunned = rate;
 			if(cmb->usrflags&cflag3)
 			{
 				if(abs(deltax) > abs(deltay))
 					conv_forcedir = dir = (deltax > 0) ? right : left;
 				else conv_forcedir = dir = (deltay > 0) ? down : up;
-			}
-			convey_forcex = deltax;
-			convey_forcey = deltay;
-		}
-		else
-		{
-			bool movedx = false, movedy = false;
-			if(cmb->usrflags&cflag4) //Smart corners
-			{
-				if(deltay<0)
-				{
-					info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedy = true;
-						zfix step(0);
-						
-						if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<(abs(deltay)*(isSideViewHero()?2:1)))
-							{
-								yoff=int32_t(y-step)&7;
-								
-								if(!yoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltay);
-						}
-						
-						y=y-step;
-						hs_starty-=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->y-=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
-						}
-					}
-				}
-				else if(deltay>0)
-				{
-					info = walkflag(x,y+15+2,2,down);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedy = true;
-						zfix step(0);
-						
-						if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltay))
-							{
-								yoff=int32_t(y+step)&7;
-								
-								if(!yoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltay);
-						}
-						
-						y=y+step;
-						hs_starty+=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->y+=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
-						}
-					}
-				}
-				
-				if(deltax<0)
-				{
-					info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedx = true;
-						zfix step(0);
-						
-						if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltax))
-							{
-								xoff=int32_t(x-step)&7;
-								
-								if(!xoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltax);
-						}
-						
-						x=x-step;
-						hs_startx-=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->x-=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
-						}
-					}
-				}
-				else if(deltax>0)
-				{
-					info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedx = true;
-						zfix step(0);
-						
-						if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltax))
-							{
-								xoff=int32_t(x+step)&7;
-								
-								if(!xoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltax);
-						}
-						
-						x=x+step;
-						hs_startx+=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->x+=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
-						}
-					}
-				}
-				if(deltax && !movedx && !deltay)
-				{
-					zfix oy = y;
-					y = COMBOY_REGION(rpos);
-					bool validpush = scr_canmove(deltax, 0, false, false);
-					zfix ny = handle_movestate_zfix([&]()
-					{
-						movexy(deltax,0,false,false,true,true);
-						return y;
-					});
-					y = oy;
-					if (validpush || ny != COMBOY_REGION(rpos))
-					{
-						if (y <= ny-1)
-						{
-							setYfix(y+1);
-						}
-						else if (y >= ny+1)
-						{
-							setYfix(y-1);
-						}
-						else
-						{
-							setYfix(ny);
-						}
-					}
-				}
-				if(deltay && !movedy && !deltax)
-				{
-					zfix ox = x;
-					x = COMBOX_REGION(rpos);
-					bool validpush = scr_canmove(0, deltay, false, false);
-					zfix nx = handle_movestate_zfix([&]()
-					{
-						movexy(0,deltay,false,false,true,true);
-						return x;
-					});
-					x = ox;
-					if (validpush || nx != COMBOX_REGION(rpos))
-					{
-						if (x <= nx-1)
-						{
-							setXfix(x+1);
-						}
-						else if (x >= nx+1)
-						{
-							setXfix(x-1);
-						}
-						else
-						{
-							setXfix(nx);
-						}
-					}
-				}
-			}
-			if(!movedy)
-			{
-				if(deltay<0)
-				{
-					info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedy = true;
-						zfix step(0);
-						
-						if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<(abs(deltay)*(isSideViewHero()?2:1)))
-							{
-								yoff=int32_t(y-step)&7;
-								
-								if(!yoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltay);
-						}
-						
-						y=y-step;
-						hs_starty-=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->y-=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
-						}
-					}
-					else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
-				}
-				else if(deltay>0)
-				{
-					info = walkflag(x,y+15+2,2,down);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedy = true;
-						zfix step(0);
-						
-						if ((getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != left && dir != right && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltay))
-							{
-								yoff=int32_t(y+step)&7;
-								
-								if(!yoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltay);
-						}
-						
-						y=y+step;
-						hs_starty+=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->y+=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
-						}
-					}
-					else checkdamagecombos(x,y+15);
-				}
-			}
-			if(!movedx)
-			{
-				if(deltax<0)
-				{
-					info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedx = true;
-						zfix step(0);
-						
-						if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltax))
-							{
-								xoff=int32_t(x-step)&7;
-								
-								if(!xoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltax);
-						}
-						
-						x=x-step;
-						hs_startx-=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->x-=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
-						}
-					}
-					else checkdamagecombos(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
-				}
-				else if(deltax>0)
-				{
-					info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
-					execute(info);
-					
-					if(!info.isUnwalkable())
-					{
-						movedx = true;
-						zfix step(0);
-						
-						if ((getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) || getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) && dir != up && dir != down && !(diagonalMovement || NO_GRIDLOCK))
-						{
-							while(step<abs(deltax))
-							{
-								xoff=int32_t(x+step)&7;
-								
-								if(!xoff) break;
-								
-								step++;
-							}
-						}
-						else
-						{
-							step=abs(deltax);
-						}
-						
-						x=x+step;
-						hs_startx+=step.getInt();
-						
-						for(int32_t j=0; j<chainlinks.Count(); j++)
-						{
-							chainlinks.spr(j)->x+=step;
-						}
-						
-						if(Lwpns.idFirst(wHookshot)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
-						}
-						
-						if(Lwpns.idFirst(wHSHandle)>-1)
-						{
-							Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
-						}
-					}
-					else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
-				}
-			}
-			if(movedx || movedy)
-			{
-				if(cmb->usrflags&cflag1)
-					is_conveyor_stunned = rate;
-				if(cmb->usrflags&cflag3)
-				{
-					if(abs(deltax) > abs(deltay))
-						conv_forcedir = dir = (deltax > 0) ? right : left;
-					else conv_forcedir = dir = (deltay > 0) ? down : up;
-				}
 			}
 		}
 	}

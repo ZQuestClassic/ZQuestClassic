@@ -1086,6 +1086,11 @@ static GUI::ListData compatRulesList
 		"If enabled, Spin Tile combos won't change combos when activating." },
 	{ "Sprite Light Radius Ignores Hit Offsets", qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS,
 		"If enabled, sprites that emit light will ignore hit offsets when calculating the center position." },
+	{ "Broken Solid Conveyors in Sideview", qr_BROKEN_SV_SOLID_CONVEYORS,
+		"If enabled, solid conveyors in sideview will not work properly. They may still work in extremely specific"
+		" situations, but not consistently or how they should." },
+	{ "Items Ignore Hitbox For Conveyors", qr_ITEM_CONVEYORS_IGNORE_HITBOX,
+		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for conveyors." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -115,6 +115,8 @@ public:
 	
 	bool get_forcegrab() {return force_grab;}
 	
+	bool uses_sideview_platforms() const;
+	
 private:
 	bool force_grab;
 };
