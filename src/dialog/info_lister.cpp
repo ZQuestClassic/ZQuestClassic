@@ -401,10 +401,10 @@ void ItemListerDialog::rclick(int x, int y)
 	bool paste_oob = oob && (selected_val != itemsbuf.capacity());
 	bool copy_oob = unsigned(copied_item_id) >= itemsbuf.capacity();
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Adv. Paste", [&](){adv_paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Save", [&](){save();}, oob ? MFL_DIS : 0 },
 		{ "&Load", [&](){load();}, paste_oob ? MFL_DIS : 0 },
@@ -655,9 +655,9 @@ void SpriteListerDialog::rclick(int x, int y)
 	bool paste_oob = oob && (selected_val != sprite_data_buf.capacity());
 	bool copy_oob = unsigned(copied_sprite_id) >= sprite_data_buf.capacity();
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, copy_oob || paste_oob ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Save", [&](){save();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Load", [&](){load();}, 0, paste_oob ? MFL_DIS : 0 },
@@ -992,9 +992,9 @@ void MidiListerDialog::rclick(int x, int y)
 	size_t idx = size_t(selected_val-1);
 	bool valid = idx < MAXCUSTOMMIDIS;
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear();}, 0, valid ? 0 : MFL_DIS },
 		{ "&Copy", [&](){copy();}, 0, valid ? 0 : MFL_DIS },
 		{ "Paste", "&v", [&](){paste();}, 0, valid && copied_midi_id > 0 ? 0 : MFL_DIS },
+		{ "Clear", [&](){clear();}, 0, valid ? 0 : MFL_DIS },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
@@ -1150,9 +1150,9 @@ void SFXListerDialog::rclick(int x, int y)
 		return; // no rclick menu on the 'None' option
 	bool oob = unsigned(selected_val-1) > quest_sounds.size();
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, copied_sfx_id < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear_nondelete();}, 0, oob ? MFL_DIS : 0 },
 		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
@@ -1360,9 +1360,9 @@ void FFCListerDialog::rclick(int x, int y)
 {
 	mapscr* curscr = Map.CurrScr();
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, Map.getCopyFFC() < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear();}, 0, selected_val >= curscr->ffcs.size() ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
@@ -1454,9 +1454,9 @@ void SaveMenuListerDialog::rclick(int x, int y)
 		return; // no rclick menu on the 'Default' option
 	SaveMenu& sm = QMisc.save_menus[selected_val-1];
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear();}, 0, sm.is_empty() ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, sm.is_empty() ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, copied_savemenu_id < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear();}, 0, sm.is_empty() ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
 	};
@@ -1656,9 +1656,9 @@ void MusicListerDialog::rclick(int x, int y)
 		return; // no rclick menu on the 'None' option
 	bool oob = unsigned(selected_val-1) > quest_music.size();
 	NewMenu rcmenu {
-		{ "Clear", [&](){clear_nondelete();}, 0, (oob || quest_music[selected_val-1].is_empty()) ? MFL_DIS : 0 },
 		{ "&Copy", [&](){copy();}, 0, oob ? MFL_DIS : 0 },
 		{ "Paste", "&v", [&](){paste();}, 0, copied_music_id < 0 ? MFL_DIS : 0 },
+		{ "Clear", [&](){clear_nondelete();}, 0, (oob || quest_music[selected_val-1].is_empty()) ? MFL_DIS : 0 },
 		{ "Delete", [&](){clear();}, 0, oob ? MFL_DIS : 0 },
 		// { "&Save", [&](){save(); update();} },
 		// { "&Load", [&](){load(); update();} },
