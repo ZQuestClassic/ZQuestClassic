@@ -32,11 +32,15 @@ bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy)
     return true;
 }
 
-bool can_drop(zfix x, zfix y)
+bool can_drop(item const* itm)
 {
-    return !(_walkflag(x,y+16,0) ||
-		((!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int32_t(y)%16==0) &&
-		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
+	if (itm->hardcoded_sideview_hitbox())
+	{
+		return !(_walkflag(itm->x,itm->y+16,0) ||
+			((!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int32_t(itm->y)%16==0) &&
+			((checkSVLadderPlatform(itm->x+4,itm->y+16)) || (checkSVLadderPlatform(itm->x+12,itm->y+16)))));
+	}
+	return !itm->on_sideview_solid();
 }
 
 int32_t select_dropitem(int32_t item_set)
