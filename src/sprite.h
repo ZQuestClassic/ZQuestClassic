@@ -156,6 +156,8 @@ public:
     virtual bool animate(int32_t index);
 	virtual void post_animate();
 	//virtual void solid_push(solid_object* pusher);
+	
+	virtual bool hardcoded_sideview_hitbox() const;
 	virtual bool uses_sideview_platforms() const;
 	virtual bool on_sideview_solid() const;
     virtual void check_conveyor();

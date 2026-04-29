@@ -1091,6 +1091,8 @@ static GUI::ListData compatRulesList
 		" situations, but not consistently or how they should." },
 	{ "Items Ignore Hitbox For Conveyors", qr_ITEM_CONVEYORS_IGNORE_HITBOX,
 		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for conveyors." },
+	{ "Items Use Hardcoded Sideview Hitbox", qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX,
+		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
 };
 
 static GUI::ListData enemiesRulesList

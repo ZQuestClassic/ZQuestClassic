@@ -57,7 +57,7 @@ extern const itemdata nil_item;
 extern int32_t fairy_cnt;
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);
 bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy);
-bool can_drop(zfix x, zfix y);
+bool can_drop(item const* itm);
 int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
 int32_t select_dropitem(int32_t item_set);
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);
@@ -115,6 +115,7 @@ public:
 	
 	bool get_forcegrab() {return force_grab;}
 	
+	bool hardcoded_sideview_hitbox() const;
 	bool uses_sideview_platforms() const;
 	
 private:

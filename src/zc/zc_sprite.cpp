@@ -99,8 +99,9 @@ bool sprite::on_sideview_solid() const
 	if (!isSideViewGravity(s))
 		return false;
 	bool include_platforms = uses_sideview_platforms();
-	zfix lx = x + hxofs;
-	zfix by = y + hyofs + hit_height;
+	bool hardcoded = hardcoded_sideview_hitbox();
+	zfix lx = hardcoded ? x : x + hxofs;
+	zfix by = hardcoded ? y + 16 : y + hyofs + hit_height;
 	if (by.getInt() % 16)
 		include_platforms = false;
 	for (int xo = zc_min(4, hit_width / 2); xo < hit_width; xo += 8)
@@ -146,6 +147,11 @@ void sprite::check_conveyor()
 	bool is_sv = cmbid < 0 && !get_qr(qr_BROKEN_SV_SOLID_CONVEYORS) && on_sideview_solid();
 	if (is_sv)
 	{
+		if (hardcoded_sideview_hitbox())
+		{
+			use_hitbox = false;
+			lx = x; ty = y; cx = lx + 8; cy = ty + 8; by = ty + 16;
+		}
 		for (int xo = 0; xo < (use_hitbox ? hit_width : 16) && cmbid < 0; xo += 4)
 			cmbid = get_conveyor(lx + xo, by, percombo_rate);
 		if (cmbid < 0)

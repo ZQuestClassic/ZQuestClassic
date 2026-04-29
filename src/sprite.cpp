@@ -364,6 +364,10 @@ zfix sprite::center_y() const
 	return y + yofs + (tysz * 8);
 }
 
+bool sprite::hardcoded_sideview_hitbox() const
+{
+	return false;
+}
 bool sprite::uses_sideview_platforms() const
 {
 	return false;

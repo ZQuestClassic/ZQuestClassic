@@ -28,7 +28,10 @@ item::~item()
 	FFCore.destroySprite(this);
 #endif
 }
-
+bool item::hardcoded_sideview_hitbox() const
+{
+	return get_qr(qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX);
+}
 bool item::uses_sideview_platforms() const
 {
 	return !get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS);
@@ -98,18 +101,22 @@ bool item::animate(int32_t)
 		if(isSideViewGravity() && !subscreenItem)
 		{
 			if((
-					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(this)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 					||
-					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
+					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(this)) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
 				) 
 				&& 
 				( moveflags & move_obeys_grav ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
-				if (uses_sideview_platforms() && checkSVLadderPlatform(x + 4, y + (fall / 100) + 15))
+				if (uses_sideview_platforms() && checkSVLadderPlatform(x + 4, y + (fall / 100)
+					+ (hardcoded_sideview_hitbox() ? 16 : hyofs + hit_height) - 1))
 				{
 					y += fall / 100;
-					y -= int32_t(y) % 16; //Fix to top of ladder
+					if (hardcoded_sideview_hitbox())
+						y -= int32_t(y) % 16; //Fix to top of ladder
+					else
+						y -= int32_t(y + hyofs + hit_height) % 16;
 					fall = 0;
 				}
 				else
@@ -123,12 +130,15 @@ bool item::animate(int32_t)
 						fall += get_grav_fall();
 				}
 			}
-			else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+			else if(!can_drop(this) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 			{
 				if(fall!=0)
 				{
 					y.doFloor();
-					y-=int32_t(y)%8; //Fix coords
+					if (hardcoded_sideview_hitbox())
+						y -= int32_t(y) % 8; // Fix coords
+					else
+						y -= int32_t(y + hyofs + hit_height) % 8;
 					fall = 0;
 				}
 				//fall = -fall/2; // LA key bounce. //Is this even working? Doesn't appear to be. -V
