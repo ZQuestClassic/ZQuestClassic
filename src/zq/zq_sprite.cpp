@@ -12,6 +12,14 @@ void sprite::handle_sprlighting()
 	return;
 }
 
+bool sprite::uses_sideview_platforms() const
+{
+	return false;
+}
+bool sprite::on_sideview_solid() const
+{
+	return false;
+}
 void sprite::check_conveyor()
 {
     return;

@@ -500,7 +500,9 @@ private:
 	int32_t  LwpnHit();
 	void heroDeathAnimation();
 	void win_game();
-   
+	
+	bool uses_sideview_platforms() const;
+	bool on_sideview_solid() const;
 	void check_conveyor();
 	bool sideviewhammerpound();
 	bool agonyflag(int32_t flag);

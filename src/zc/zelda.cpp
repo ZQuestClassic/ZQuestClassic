@@ -5014,6 +5014,10 @@ void quit_game()
 #endif
 }
 
+bool isSideViewGravity(mapscr* scr)
+{
+	return (((scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
+}
 bool isSideViewGravity(int32_t t)
 {
 	if (t == 1) return (((special_warp_return_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));

@@ -21996,6 +21996,10 @@ int32_t FFScript::getQuestHeaderInfo(int32_t type)
     return quest_format[type];
 }
 
+bool isSideViewGravity(mapscr* scr)
+{
+	return (scr->flags7&fSIDEVIEW) != 0;
+}
 bool isSideViewGravity([[maybe_unused]] int32_t t)
 {
     return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;

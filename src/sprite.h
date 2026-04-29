@@ -156,6 +156,8 @@ public:
     virtual bool animate(int32_t index);
 	virtual void post_animate();
 	//virtual void solid_push(solid_object* pusher);
+	virtual bool uses_sideview_platforms() const;
+	virtual bool on_sideview_solid() const;
     virtual void check_conveyor();
 	virtual int32_t get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int32_t check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.

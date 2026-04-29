@@ -33,7 +33,7 @@ bool is_conveyor(int32_t type)
 	return cc.conveyor_x_speed || cc.conveyor_y_speed;
 }
 
-int32_t get_conveyor(int32_t x, int32_t y)
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates)
 {
 	x = vbound(x, 0, world_w - 1);
 	y = vbound(y, 0, world_h - 1);
@@ -66,7 +66,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 
 	newcombo const& cmb = combobuf[cmbid];
 	bool custom_spd = (cmb.usrflags&cflag2);
-	if(custom_spd || conveyclk<=0)
+	if(!check_rates || custom_spd || conveyclk<=0)
 	{
 		for (int i = found_layer; i <= 1; ++i)
 		{
@@ -83,52 +83,189 @@ int32_t get_conveyor(int32_t x, int32_t y)
 				}
 			}
 		}
-		auto rate = custom_spd ? zc_max(cmb.c_attributes[8].getTrunc(), 1) : 3;
-		if(custom_spd && (newconveyorclk % rate)) return -1;
+		if (check_rates)
+		{
+			auto rate = custom_spd ? zc_max(cmb.c_attributes[8].getTrunc(), 1) : 3;
+			if(custom_spd && (newconveyorclk % rate)) return -1;
+		}
 		return cmbid;
 	}
 	return -1;
 }
 
+bool sprite::uses_sideview_platforms() const
+{
+	return false;
+}
+bool sprite::on_sideview_solid() const
+{
+	mapscr* s = get_scr_for_world_xy(x, y);
+	if (!isSideViewGravity(s))
+		return false;
+	bool include_platforms = uses_sideview_platforms();
+	zfix lx = x + hxofs;
+	zfix by = y + hyofs + hit_height;
+	if (by.getInt() % 16)
+		include_platforms = false;
+	for (int xo = zc_min(4, hit_width / 2); xo < hit_width; xo += 8)
+	{
+		if (_walkflag(lx + xo, by, 1))
+			return true;
+		if (include_platforms && checkSVLadderPlatform(lx + xo, by))
+			return true;
+	}
+	if (_walkflag(lx + hit_width - 1, by, 1))
+		return true;
+	if (include_platforms && checkSVLadderPlatform(lx + hit_width - 1, by))
+		return true;
+	if (by >= world_h && cur_screen>=0x70 && !(s->flags2&wfDOWN))
+		return true;
+	return false;
+}
 void sprite::check_conveyor()
 {
-    int32_t deltax=0;
-    int32_t deltay=0;
-    int32_t cmbid = get_conveyor(x+8,y+8);
-	if(cmbid < 0) return;
+	bool is_item = dynamic_cast<item*>(this);
+	bool use_hitbox = !(is_item && get_qr(qr_ITEM_CONVEYORS_IGNORE_HITBOX));
+	int32_t deltax = 0, deltay = 0;
+	zfix cx, cy, by, lx, ty;
+	if (use_hitbox)
+	{
+		lx = x + hxofs;
+		ty = y + hyofs;
+		cx = lx + hit_width / 2;
+		cy = ty + hit_height / 2;
+		by = ty + hit_height;
+	}
+	else
+	{
+		lx = x;
+		ty = y;
+		cx = lx + 8;
+		cy = ty + 8;
+		by = ty + 16;
+	}
+	bool percombo_rate = replay_version_check(0,53);
+	int32_t cmbid = get_conveyor(cx, cy, percombo_rate);
+	auto scr = get_scr_for_world_xy(x, y);
+	bool is_sv = cmbid < 0 && !get_qr(qr_BROKEN_SV_SOLID_CONVEYORS) && on_sideview_solid();
+	if (is_sv)
+	{
+		for (int xo = 0; xo < (use_hitbox ? hit_width : 16) && cmbid < 0; xo += 4)
+			cmbid = get_conveyor(lx + xo, by, percombo_rate);
+		if (cmbid < 0)
+			cmbid = get_conveyor(lx + (use_hitbox ? hit_width : 16) -1, by, percombo_rate);
+	}
+	if(cmbid < 0)
+		return;
 	newcombo const* cmb = &combobuf[cmbid];
+	if (z || fakez) // in the air
+		if (!(scr->flags2&fAIRCOMBOS) && !(cmb->usrflags&cflag7)) //affect airborne sprites
+			return;
 	bool custom_spd = (cmb->usrflags&cflag2);
-    if(((z==0&&fakez==0) || (get_scr_for_world_xy(x, y)->flags2&fAIRCOMBOS) || (cmb->usrflags&cflag7)))
-    {
-        int32_t ctype=(combobuf[cmbid].type);
-        deltax=combo_class_buf[ctype].conveyor_x_speed;
-        deltay=combo_class_buf[ctype].conveyor_y_speed;
-		if (is_conveyor(ctype) && custom_spd)
+	if (custom_spd)
+	{
+		deltax = cmb->c_attributes[0];
+		deltay = cmb->c_attributes[1];
+	}
+	else
+	{
+		deltax = combo_class_buf[cmb->type].conveyor_x_speed;
+		deltay = combo_class_buf[cmb->type].conveyor_y_speed;
+	}
+	if (is_sv)
+		deltay = 0;
+	if (!deltax && !deltay)
+		return;
+	if (!percombo_rate)
+	{
+		int rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
+		if (newconveyorclk % rate)
+			return;
+	}
+	
+	bool failed = false;
+	if (deltay < 0)
+	{
+		if (!use_hitbox)
+			failed = _walkflag(x, y + 8 - 2, 2);
+		else
 		{
-			deltax = cmb->c_attributes[0];
-			deltay = cmb->c_attributes[1];
+			for (int xo = zc_min(4, hit_width / 2); xo < hit_width; xo += 4)
+			{
+				if (_walkflag(lx + xo, ty + deltay, 1))
+				{
+					failed = true;
+					break;
+				}
+			}
+			if (!failed)
+				failed = _walkflag(lx + hit_width - 1, ty + deltay, 1);
 		}
-        if(deltax!=0||deltay!=0)
-        {
-            if(deltay<0&&!_walkflag(x,y+8-2,2))
-            {
-                y=y-abs(deltay);
-            }
-            else if(deltay>0&&!_walkflag(x,y+15+2,2))
-            {
-                y=y+abs(deltay);
-            }
-            
-            if(deltax<0&&!_walkflag(x-2,y+8,1))
-            {
-                x=x-abs(deltax);
-            }
-            else if(deltax>0&&!_walkflag(x+15+2,y+8,1))
-            {
-                x=x+abs(deltax);
-            }
-        }
-    }
+		if (!failed)
+			y = y - abs(deltay);
+	}
+	else if (deltay > 0)
+	{
+		if (!use_hitbox)
+			failed = _walkflag(x, y + 15 + 2, 2);
+		else
+		{
+			for (int xo = zc_min(4, hit_width / 2); xo < hit_width; xo += 4)
+			{
+				if (_walkflag(lx + xo, ty + hit_height - 1 + deltay, 1))
+				{
+					failed = true;
+					break;
+				}
+			}
+			if (!failed)
+				failed = _walkflag(lx + hit_width - 1, ty + hit_height - 1 + deltay, 1);
+		}
+		if (!failed)
+			y = y + abs(deltay);
+	}
+	failed = false;
+
+	if (deltax < 0)
+	{
+		if (!use_hitbox)
+			failed = _walkflag(x - 2, y + 8, 1);
+		else
+		{
+			for (int yo = zc_min(4, hit_height / 2); yo < hit_height; yo += 4)
+			{
+				if (_walkflag(lx + deltax, ty + yo, 1))
+				{
+					failed = true;
+					break;
+				}
+			}
+			if (!failed)
+				failed = _walkflag(lx + deltax, ty + hit_height - 1, 1);
+		}
+		if (!failed)
+			x = x - abs(deltax);
+	}
+	else if (deltax > 0)
+	{
+		if (!use_hitbox)
+			failed = _walkflag(x + 15 + 2, y + 8, 1);
+		else
+		{
+			for (int yo = zc_min(4, hit_height / 2); yo < hit_height; yo += 4)
+			{
+				if (_walkflag(lx + hit_width - 1 + deltax, ty + yo, 1))
+				{
+					failed = true;
+					break;
+				}
+			}
+			if (!failed)
+				failed = _walkflag(lx + hit_width - 1 + deltax, ty + hit_height - 1, 1);
+		}
+		if (!failed)
+			x = x + abs(deltax);
+	}
 }
 
 void movingblock::handle_sprlighting()

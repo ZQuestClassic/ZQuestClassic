@@ -184,6 +184,7 @@ extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char
 extern void SetSaveScreenSetting(int32_t indx, int32_t value);
 extern void ChangeSubscreenText(int32_t index, const char *f);
 
+bool isSideViewGravity(mapscr* scr);
 bool isSideViewGravity(int32_t t = 0);
 bool isSideViewHero(int32_t t = 0);
 

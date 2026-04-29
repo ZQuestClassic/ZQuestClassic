@@ -665,6 +665,8 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_DRAWCOMBO_IGNORES_FRAME, "qr_DRAWCOMBO_IGNORES_FRAME" },
 		{ qr_BROKEN_0_DAMAGE_BRANG_HSHOT, "qr_BROKEN_0_DAMAGE_BRANG_HSHOT" },
 		{ qr_BROKEN_SPINTILE_COMBO_CHANGE, "qr_BROKEN_SPINTILE_COMBO_CHANGE" },
+		{ qr_BROKEN_SV_SOLID_CONVEYORS, "qr_BROKEN_SV_SOLID_CONVEYORS" },
+		{ qr_ITEM_CONVEYORS_IGNORE_HITBOX, "qr_ITEM_CONVEYORS_IGNORE_HITBOX" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
