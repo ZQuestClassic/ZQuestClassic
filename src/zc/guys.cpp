@@ -1690,7 +1690,7 @@ void enemy::leave_item()
 	ev.push_back(thedropset*10000);
 	
 	throwGenScriptEvent(GENSCR_EVENT_ENEMY_DROP_ITEM_1);
-	drop_item = vbound(ev[1] / 10000,-2,255);
+	drop_item = vbound(ev[1] / 10000,-2,MAXITEMS);
 	thedropset = ev[2] / 10000;
 	ev.clear();
 	if(drop_item == -2)
