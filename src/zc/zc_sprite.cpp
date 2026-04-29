@@ -93,10 +93,6 @@ int32_t get_conveyor(int32_t x, int32_t y, bool check_rates)
 	return -1;
 }
 
-bool sprite::uses_sideview_platforms() const
-{
-	return false;
-}
 bool sprite::on_sideview_solid() const
 {
 	mapscr* s = get_scr_for_world_xy(x, y);
