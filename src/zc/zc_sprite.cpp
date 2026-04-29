@@ -119,7 +119,7 @@ bool sprite::on_sideview_solid() const
 		return true;
 	return false;
 }
-void sprite::check_conveyor()
+newcombo const* sprite::check_conveyor()
 {
 	bool is_item = dynamic_cast<item*>(this);
 	bool use_hitbox = !(is_item && get_qr(qr_ITEM_CONVEYORS_IGNORE_HITBOX));
@@ -158,11 +158,11 @@ void sprite::check_conveyor()
 			cmbid = get_conveyor(lx + (use_hitbox ? hit_width : 16) -1, by, percombo_rate);
 	}
 	if(cmbid < 0)
-		return;
+		return nullptr;
 	newcombo const* cmb = &combobuf[cmbid];
 	if (z || fakez || !(moveflags & move_obeys_grav)) // in the air
 		if (!(scr->flags2&fAIRCOMBOS) && !(cmb->usrflags&cflag7)) //affect airborne sprites
-			return;
+			return nullptr;
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if (custom_spd)
 	{
@@ -177,12 +177,12 @@ void sprite::check_conveyor()
 	if (is_sv)
 		deltay = 0;
 	if (!deltax && !deltay)
-		return;
+		return nullptr;
 	if (!percombo_rate)
 	{
 		int rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
 		if (newconveyorclk % rate)
-			return;
+			return cmb;
 	}
 	
 	bool failed = false;
@@ -268,6 +268,7 @@ void sprite::check_conveyor()
 		if (!failed)
 			x = x + abs(deltax);
 	}
+	return cmb;
 }
 
 void movingblock::handle_sprlighting()

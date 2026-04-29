@@ -1036,6 +1036,9 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
+			l_flag[0] = "Stunned while moving";
+			h_flag[0] = "While the conveyor is moving the Hero, they are 'stunned'."
+				" Weapons that are affected by conveyors will have their step speed set to 0.";
 			l_flag[1] = "Custom Speed";
 			h_flag[1] = fmt::format("Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the {}ward direction.", dirstr[local_comboref.type-cCVUP]);
 			l_flag[2] = "Force Dir";
@@ -1057,8 +1060,6 @@ void ComboEditorDialog::loadComboType()
 			}
 			if(!FL(cflag6)) //Force Walk
 			{
-				l_flag[0] = "Stunned while moving";
-				h_flag[0] = "While the conveyor is moving the Hero, they are 'stunned'.";
 				l_flag[3] = "Smart Corners";
 				h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			}

@@ -16,9 +16,9 @@ bool sprite::on_sideview_solid() const
 {
 	return false;
 }
-void sprite::check_conveyor()
+newcombo const* sprite::check_conveyor()
 {
-    return;
+    return nullptr;
 }
 void movingblock::handle_sprlighting()
 {
