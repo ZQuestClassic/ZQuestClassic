@@ -159,6 +159,7 @@ public:
 	bool no_collision() const;
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
 	bool hardcoded_sideview_hitbox() const;
+	newcombo const* check_conveyor();
     void limited_animate();
     virtual bool animate(int32_t index);
 	std::set<rpos_t> getBombPositions();

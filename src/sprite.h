@@ -160,7 +160,7 @@ public:
 	virtual bool hardcoded_sideview_hitbox() const;
 	virtual bool uses_sideview_platforms() const;
 	virtual bool on_sideview_solid() const;
-    virtual void check_conveyor();
+    virtual newcombo const* check_conveyor();
 	virtual int32_t get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int32_t check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
 	virtual int32_t check_water(); //Returns combo ID of pit fallen into; 0 for not fallen.

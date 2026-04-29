@@ -3215,6 +3215,16 @@ bool weapon::hardcoded_sideview_hitbox() const
 {
 	return get_qr(qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX);
 }
+newcombo const* weapon::check_conveyor()
+{
+	newcombo const* cmb = sprite::check_conveyor();
+	if (cmb)
+	{
+		if (cmb->usrflags&cflag1) // 'Stunned While Moving'
+			step = 0;
+	}
+	return cmb;
+}
 void weapon::limited_animate()
 {
 	switch(id)
@@ -3717,6 +3727,8 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 	
 	// fall down
 	handle_termv();
+	if (misc_wflags & WFLAG_OBEY_CONVEYORS)
+		check_conveyor();
 	if ( moveflags & move_obeys_grav ) // from above, or if scripted
 	{
 		if(isSideViewGravity())

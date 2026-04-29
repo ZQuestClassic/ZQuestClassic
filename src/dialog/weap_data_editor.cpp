@@ -270,7 +270,17 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_NO_COLL_WHEN_STILL, state);
 									}
 								),
-								INFOBTN("The weapon will not hit any entities while it's step is 0.")
+								INFOBTN("The weapon will not hit any entities while it's step is 0."),
+								Checkbox(text = "Obeys Conveyors",
+									checked = local_ref.wflags & WFLAG_OBEY_CONVEYORS,
+									fitParent = true,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.wflags, WFLAG_OBEY_CONVEYORS, state);
+									}
+								),
+								INFOBTN("The weapon will be moved by conveyors."
+									" Conveyors with 'Stunned while moving' checked will set the weapon's step speed to 0.")
 							)
 						)
 					)

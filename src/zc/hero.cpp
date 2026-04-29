@@ -33032,7 +33032,7 @@ bool HeroClass::on_sideview_solid() const
 	DCHECK(false);
 	return false;
 }
-void HeroClass::check_conveyor()
+newcombo const* HeroClass::check_conveyor()
 {
 	++newconveyorclk;
 
@@ -33057,12 +33057,12 @@ void HeroClass::check_conveyor()
 		case sidedrowning:
 		case lavadrowning:
 			is_conveyor_stunned = 0;
-			return;
+			return nullptr;
 	}
 	if(inlikelike || pull_hero || is_autowalking() || (walk_through_walls && replay_version_check(53)))
 	{
 		is_conveyor_stunned = 0;
-		return;
+		return nullptr;
 	}
 	
 	WalkflagInfo info;
@@ -33085,7 +33085,7 @@ void HeroClass::check_conveyor()
 				is_conveyor_stunned = 0;
 			}
 		}
-		return;
+		return nullptr;
 	}
 	newcombo const* cmb = &combobuf[cmbid];
 	if((z>0||fakez>0) && !((hero_scr->flags2&fAIRCOMBOS)||(cmb->usrflags&cflag7)))
@@ -33093,7 +33093,7 @@ void HeroClass::check_conveyor()
 		is_on_conveyor = 0;
 		conv_forcedir = -1;
 		is_conveyor_stunned = 0;
-		return;
+		return nullptr;
 	}
 	rpos_t rpos = COMBOPOS_REGION(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
@@ -33113,7 +33113,7 @@ void HeroClass::check_conveyor()
 	{
 		cmbid = get_conveyor(x+8,y+16,true);
 		if (cmbid < 0)
-			return;
+			return nullptr;
 		cmb = &combobuf[cmbid];
 		custom_spd = cmb->usrflags&cflag2;
 		if (custom_spd)
@@ -33128,12 +33128,12 @@ void HeroClass::check_conveyor()
 		}
 	}
 	if (!deltax && !deltay)
-		return;
+		return nullptr;
 	if ((cmb->usrflags&cflag5) && HasHeavyBoots())
-		return;
+		return nullptr;
 	auto rate = custom_spd ? zc_max(cmb->c_attributes[8].getTrunc(), 1) : 3;
 	if (custom_spd ? (newconveyorclk % rate) : conveyclk > 0)
-		return;
+		return cmb;
 	is_on_conveyor = custom_spd ? rate : -1;
 	conv_forcedir = -1;
 	is_conveyor_stunned = 0;
@@ -33594,6 +33594,7 @@ void HeroClass::check_conveyor()
 			}
 		}
 	}
+	return cmb;
 }
 
 void HeroClass::setDivineProtectionShieldClk(int32_t newclk)
