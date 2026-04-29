@@ -113,8 +113,8 @@ std::shared_ptr<GUI::Widget> DoorSelDialog::view()
 			),
 			Row(hPadding = 1_em,
 				Button(width = 90_px, text = "Ok", onClick = message::OK),
-				Button(width = 90_px, text = "Cancel", onClick = message::CANCEL),
-				Button(width = 90_px, text = "Clear", onClick = message::CLEAR)
+				Button(width = 90_px, text = "Clear", onClick = message::CLEAR),
+				Button(width = 90_px, text = "Cancel", onClick = message::CANCEL)
 			)
 		)
 	);
