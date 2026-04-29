@@ -1093,6 +1093,8 @@ static GUI::ListData compatRulesList
 		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for conveyors." },
 	{ "Items Use Hardcoded Sideview Hitbox", qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX,
 		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
+	{ "Weapons Use Hardcoded Sideview Hitbox", qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX,
+		"If enabled, weapons will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
 };
 
 static GUI::ListData enemiesRulesList
