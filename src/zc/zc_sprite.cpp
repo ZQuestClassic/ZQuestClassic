@@ -160,7 +160,7 @@ void sprite::check_conveyor()
 	if(cmbid < 0)
 		return;
 	newcombo const* cmb = &combobuf[cmbid];
-	if (z || fakez) // in the air
+	if (z || fakez || !(moveflags & move_obeys_grav)) // in the air
 		if (!(scr->flags2&fAIRCOMBOS) && !(cmb->usrflags&cflag7)) //affect airborne sprites
 			return;
 	bool custom_spd = (cmb->usrflags&cflag2);
