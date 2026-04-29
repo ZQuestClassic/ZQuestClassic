@@ -10036,13 +10036,14 @@ heroanimate_skip_liftwpn:;
 		}
 		if (awarp)
 		{
+			int32_t warpsound = cmb.c_attributes[8].getTrunc();
 			if (rpos_handle.base_scr->flags5 & fDIRECTAWARP)
 			{
 				setpit();
 			}
 			
 			sdir = dir;
-			dowarp(rpos_handle.base_scr, 1, ind);
+			dowarp(rpos_handle.base_scr, 1, ind, warpsound);
 			return false;
 		}
 
