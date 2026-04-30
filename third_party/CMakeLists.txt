@@ -354,3 +354,13 @@ target_include_directories(fmt PUBLIC SYSTEM fmt/include)
 if(WIN32)
 	target_compile_options(fmt PUBLIC /utf-8)
 endif()
+
+if(WANT_VENDORED_JSON)
+	add_library(json INTERFACE)
+	target_include_directories(json INTERFACE SYSTEM
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/json/include>
+	)
+	add_library(nlohmann_json::nlohmann_json ALIAS json)
+else()
+	find_package(nlohmann_json REQUIRED)
+endif()

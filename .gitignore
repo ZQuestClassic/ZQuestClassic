@@ -138,6 +138,7 @@ __pycache__
 ./packages/
 resources/modules/classic/fontsdat
 output/
+!third_party/json/**/output/
 changelogs/nightly.txt
 src/base/version_header.h
 venv

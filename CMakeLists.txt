@@ -31,6 +31,7 @@ set(WANT_VENDORED_LIBPNG TRUE CACHE BOOL "Build the vendored library at third_pa
 set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
 set(WANT_VENDORED_LIBJPEG_TURBO TRUE CACHE BOOL "Build the vendored library at third_party/libjpeg_turbo")
 set(WANT_VENDORED_IMGUI TRUE CACHE BOOL "Build the vendored library at third_party/imgui")
+set(WANT_VENDORED_JSON TRUE CACHE BOOL "Build the vendored library at third_party/json")
 set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
 set(ZC_VERSION "" CACHE STRING "Version string")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
@@ -154,12 +155,6 @@ set(ZC_INSTALL_TARGETS "")
 set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(third_party)
-
-FetchContent_Declare(json
-	URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-	EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(json)
 
 if (NOT EMSCRIPTEN)
 	FetchContent_Declare(

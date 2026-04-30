@@ -31,7 +31,7 @@ def main():
             urllib.request.urlretrieve(args.url, tar_path)
 
             print("Extracting ...")
-            with tarfile.open(tar_path, "r:gz") as tar:
+            with tarfile.open(tar_path, "r") as tar:
                 tar.extractall(path=tmpdir)
 
             os.remove(tar_path)
