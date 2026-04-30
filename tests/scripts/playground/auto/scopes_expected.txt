@@ -11025,7 +11025,7 @@ debug data:
       - const int Height @ Reg[REGION_HEIGHT]
       - const int ID @ Reg[REGION_ID]
       - const int NumCombos @ Reg[REGION_NUM_COMBOS]
-      - const long OriginScreenIndex @ Reg[REGION_ORIGIN_SCREEN]
+      - const int OriginScreenIndex @ Reg[REGION_ORIGIN_SCREEN]
       - const int ScreenHeight @ Reg[REGION_SCREEN_HEIGHT]
       - const int ScreenWidth @ Reg[REGION_SCREEN_WIDTH]
       - const int Width @ Reg[REGION_WIDTH]
