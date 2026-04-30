@@ -43,7 +43,6 @@ Click "Generate." This will create a Visual Studio project file for you in the b
 
 Various features rely on third-party libraries that are optional for building. Without these libraries, the features will be disabled. The features include:
 
-* OGG support (libogg, libvorbis)
 * Updater / replay uploader (curl)
 * Secure websockets (openssl)
 
@@ -59,7 +58,7 @@ cd vcpkg
 ./bootstrap-vcpkg.bat
 
 # install libraries
-./vcpkg.exe install --triplet x64-windows libogg libvorbis curl openssl freetype
+./vcpkg.exe install --triplet x64-windows curl openssl freetype
 ```
 
 You then need to configure your CMake build with the `vcpkg` toolchain (replace the path with where you installed it!):
@@ -101,7 +100,7 @@ The result will be in a zip file `build/Release/packages`, such as `build/Releas
 ## Install dependencies
 
 ```sh
-brew install ninja ccache libogg libvorbis
+brew install ninja ccache
 ```
 
 ## Building

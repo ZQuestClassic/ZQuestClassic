@@ -33,8 +33,6 @@ EMCC_CACHE_LIB_DIR="$EMCC_CACHE_DIR/sysroot/lib/wasm32-emscripten"
 
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
-  -s USE_VORBIS=1
-  -s USE_OGG=1
   -s USE_SDL=2
   -s USE_SDL_MIXER=2
   -pthread
@@ -131,8 +129,6 @@ CMAKE_EXE_LINKER_FLAGS_DEBUG+=(
 # https://github.com/emscripten-core/emscripten/issues/18090
 embuilder build sdl2
 
-embuilder build ogg vorbis
-
 emcmake cmake \
   -G "Ninja Multi-Config" \
   -D ALLEGRO_SDL=ON \
@@ -141,10 +137,6 @@ emcmake cmake \
   -D WANT_ALSA=OFF \
   -D SDL2_INCLUDE_DIR="$EMCC_CACHE_INCLUDE_DIR" \
   -D SDL2_LIBRARY="$EMCC_CACHE_LIB_DIR/libSDL2-mt.a" \
-  -D VORBIS_INCLUDE_DIRS="$EMCC_CACHE_INCLUDE_DIR" \
-  -D VORBIS_LIBRARIES="$EMCC_CACHE_LIB_DIR/libvorbis.a" \
-  -D OGG_INCLUDE_DIRS="$EMCC_CACHE_INCLUDE_DIR" \
-  -D OGG_LIBRARIES="$EMCC_CACHE_LIB_DIR/libogg.a" \
   -D CMAKE_C_FLAGS_RELEASE="${CMAKE_CXX_FLAGS_RELEASE[*]}" \
   -D CMAKE_CXX_FLAGS_RELEASE="${CMAKE_CXX_FLAGS_RELEASE[*]}" \
   -D CMAKE_EXE_LINKER_FLAGS_RELEASE="${CMAKE_EXE_LINKER_FLAGS_RELEASE[*]}" \

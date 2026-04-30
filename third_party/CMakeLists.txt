@@ -200,11 +200,11 @@ if(WANT_VENDORED_DUMB)
 	set_target_properties(dumb PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	set_target_properties(dumb PROPERTIES FOLDER Sound)
 
-	set(DUMB_FOUND TRUE PARENT_SCOPE)
-	set(DUMB_LIBRARIES dumb PARENT_SCOPE)
-	set(DUMB_LIBRARY dumb PARENT_SCOPE)
-	set(DUMB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dumb/include" PARENT_SCOPE)
-	set(DUMB_INCLUDE_DIRS "${DUMB_INCLUDE_DIR}" PARENT_SCOPE)
+	set(DUMB_FOUND TRUE CACHE BOOL "" FORCE)
+	set(DUMB_LIBRARIES dumb CACHE STRING "" FORCE)
+	set(DUMB_LIBRARY dumb CACHE STRING "" FORCE)
+	set(DUMB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dumb/include" CACHE STRING "" FORCE)
+	set(DUMB_INCLUDE_DIRS "${DUMB_INCLUDE_DIR}" CACHE STRING "" FORCE)
 	set(SUPPORT_DUMB 1 CACHE INTERNAL "Force dumb support in Allegro")
 endif()
 
@@ -344,6 +344,72 @@ if(WANT_VENDORED_IMGUI)
 	# endif()
 else()
 	find_package(imgui REQUIRED)
+endif()
+
+if(WANT_VENDORED_LIBOGG)
+	add_library(ogg STATIC
+		libogg/src/bitwise.c
+		libogg/src/framing.c
+	)
+	target_include_directories(ogg PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libogg/include>
+		$<INSTALL_INTERFACE:include/ogg>
+	)
+	set_target_properties(ogg PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	install(TARGETS ogg EXPORT AllegroTargets COMPONENT BuildOnly EXCLUDE_FROM_ALL)
+
+	set(OGG_FOUND TRUE CACHE BOOL "" FORCE)
+	set(OGG_LIBRARIES ogg CACHE STRING "" FORCE)
+	set(OGG_LIBRARY ogg CACHE STRING "" FORCE)
+	set(OGG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libogg/include" CACHE STRING "" FORCE)
+	set(OGG_INCLUDE_DIRS "${OGG_INCLUDE_DIR}" CACHE STRING "" FORCE)
+	add_library(OGG::OGG ALIAS ogg)
+else()
+	find_package(OGG REQUIRED)
+endif()
+
+if(WANT_VENDORED_LIBVORBIS)
+	add_library(vorbis STATIC
+		libvorbis/lib/bitrate.c
+		libvorbis/lib/block.c
+		libvorbis/lib/codebook.c
+		libvorbis/lib/envelope.c
+		libvorbis/lib/floor0.c
+		libvorbis/lib/floor1.c
+		libvorbis/lib/info.c
+		libvorbis/lib/lookup.c
+		libvorbis/lib/lpc.c
+		libvorbis/lib/lsp.c
+		libvorbis/lib/mapping0.c
+		libvorbis/lib/mdct.c
+		libvorbis/lib/psy.c
+		libvorbis/lib/registry.c
+		libvorbis/lib/res0.c
+		libvorbis/lib/sharedbook.c
+		libvorbis/lib/smallft.c
+		libvorbis/lib/synthesis.c
+		libvorbis/lib/vorbisfile.c
+		libvorbis/lib/window.c
+	)
+	target_include_directories(vorbis PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libvorbis/include>
+		$<INSTALL_INTERFACE:include/vorbis>
+	)
+	target_link_libraries(vorbis PUBLIC ogg)
+	set_target_properties(vorbis PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	install(TARGETS vorbis EXPORT AllegroTargets COMPONENT BuildOnly EXCLUDE_FROM_ALL)
+
+	set(VORBIS_FOUND TRUE CACHE BOOL "" FORCE)
+	set(VORBIS_LIBRARIES vorbis ogg CACHE STRING "" FORCE)
+	set(VORBIS_LIBRARY vorbis CACHE STRING "" FORCE)
+	set(VORBISFILE_LIBRARY vorbis CACHE STRING "" FORCE)
+	set(VORBIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libvorbis/include" CACHE STRING "" FORCE)
+	set(VORBIS_INCLUDE_DIRS "${VORBIS_INCLUDE_DIR}" CACHE STRING "" FORCE)
+	add_library(Vorbis::vorbis ALIAS vorbis)
+	add_library(Vorbis::vorbisfile ALIAS vorbis)
+	set(SUPPORT_VORBIS 1 CACHE INTERNAL "Force vorbis support in Allegro")
+else()
+	find_package(VORBIS REQUIRED)
 endif()
 
 # Remove once generally available in all compilers for c++ 20.

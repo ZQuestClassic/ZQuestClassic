@@ -248,7 +248,7 @@ def install_deps(ctx: CiContext, args):
 
     if ctx.is_mac:
         logger.info("macOS detected. Installing via Homebrew.")
-        run_cmd("brew install ninja ccache libogg libvorbis")
+        run_cmd("brew install ninja ccache")
 
         logger.info("Building custom Bison 3.6...")
         run_cmd("wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz")
@@ -281,8 +281,6 @@ def install_deps(ctx: CiContext, args):
             "flex",
             "bison",
             "elfutils",
-            "libogg-dev",
-            "libvorbis-dev",
             "libpulse-dev",
             "libfreetype6-dev",
         ]
@@ -296,9 +294,7 @@ def install_deps(ctx: CiContext, args):
         vcpkg_dir = root_dir / "vcpkg"
         vcpkg_exe = vcpkg_dir / "vcpkg.exe"
         triplet = 'x64-windows' if ctx.arch_label == 'x64' else 'x86-windows'
-        run_cmd(
-            f"{vcpkg_exe} install --triplet {triplet} libogg libvorbis curl openssl freetype"
-        )
+        run_cmd(f"{vcpkg_exe} install --triplet {triplet} curl openssl freetype")
 
     logger.info("Dependency installation complete.")
 
