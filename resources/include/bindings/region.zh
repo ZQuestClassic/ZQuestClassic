@@ -78,7 +78,7 @@ class Region {
 	// This is the same as [Game->CurScreen].
 	//
 	// @zasm_var REGION_ORIGIN_SCREEN
-	internal const long OriginScreenIndex;
+	internal const int OriginScreenIndex;
 
 	// Returns true if the given screen index is inside the current region.
 	// When not in a region, only returns true if screen is equal to [Game->CurScreen].
@@ -106,7 +106,7 @@ class Region {
 	{
 		if (this->ID)
 		{
-			int origin_screen_index = this->OriginScreenIndex * 10000;
+			int origin_screen_index = this->OriginScreenIndex;
 			return screen%16 - origin_screen_index%16;
 		}
 
@@ -121,7 +121,7 @@ class Region {
 	{
 		if (this->ID)
 		{
-			int origin_screen_index = this->OriginScreenIndex * 10000;
+			int origin_screen_index = this->OriginScreenIndex;
 			return Floor(screen/16) - Floor(origin_screen_index/16);
 		}
 

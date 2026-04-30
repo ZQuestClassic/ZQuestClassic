@@ -28,7 +28,7 @@ int32_t region_get_register(int32_t reg)
 		break;
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = cur_screen;
+			ret = cur_screen * 10000;
 		}
 		break;
 		case REGION_SCREEN_HEIGHT:
