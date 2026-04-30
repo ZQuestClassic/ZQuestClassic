@@ -527,6 +527,33 @@ void draw_copy_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
     rect(dest, x, y+2, x+5, y+9, c);
 }
 
+static int32_t jwin_do_question_button(BITMAP *dest, int32_t x, int32_t y)
+{
+    int32_t down=0, last_draw = 0;
+
+    while(gui_mouse_b())
+    {
+        down = mouse_in_rect(x,y,16,14);
+
+        if(down!=last_draw)
+        {
+            draw_question_button(dest,x,y,down);
+            last_draw = down;
+        }
+
+        /* let other objects continue to animate */
+        broadcast_dialog_message(MSG_IDLE, 0);
+        update_hw_screen();
+    }
+
+    if(down)
+    {
+        draw_question_button(dest,x,y,0);
+    }
+
+    return down;
+}
+
 static int32_t jwin_do_copy_button(BITMAP *dest, int32_t x, int32_t y)
 {
     int32_t down=0, last_draw = 0;
@@ -543,7 +570,7 @@ static int32_t jwin_do_copy_button(BITMAP *dest, int32_t x, int32_t y)
 
         /* let other objects continue to animate */
         broadcast_dialog_message(MSG_IDLE, 0);
-        rest(1);
+        update_hw_screen();
     }
 
     if(down)
@@ -636,7 +663,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
         
         /* let other objects continue to animate */
         broadcast_dialog_message(MSG_IDLE, 0);
-        rest(1);
+        update_hw_screen();
     }
     
     if(down)
@@ -886,8 +913,11 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(mouse_in_rect(d->x+d->w-btn_offset, d->y+5, 16, 14))
 				{
-					broadcast_dialog_message(MSG_DRAW,0);
-					InfoDialog("Info", helpstr).show();
+					if(jwin_do_question_button(screen, d->x+d->w-btn_offset, d->y+5))
+					{
+						broadcast_dialog_message(MSG_DRAW,0);
+						InfoDialog("Info", helpstr).show();
+					}
 				}
 			}
 			if(d->dp3) btn_offset += 18;
