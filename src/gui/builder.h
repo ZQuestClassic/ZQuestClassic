@@ -804,7 +804,7 @@ Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo("Info",inf); \
+		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_VS(inf, vs) \
 Button(forceFitH = true, text = "?", \
@@ -812,21 +812,21 @@ Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo("Info",inf); \
+		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_T(title, inf) \
 Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo(title,inf); \
+		InfoDialog(title,inf).show(); \
 	})
 #define INFOBTN_F(inf,...) \
 Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo("Info",fmt::format(inf,__VA_ARGS__)); \
+		InfoDialog("Info",fmt::format(inf,__VA_ARGS__)).show(); \
 	})
 #define INFOBTN_EX(inf, ...) \
 Button(text = "?", \
@@ -834,14 +834,14 @@ Button(text = "?", \
 	__VA_ARGS__, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo("Info",inf); \
+		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_REF(getter) \
 Button(forceFitH = true, text = "?", \
 	onClick = message::REFR_INFO, \
 	onPressFunc = [&]() \
 	{ \
-		displayinfo("Info",getter); \
+		InfoDialog("Info",getter).show(); \
 	})
 
 //

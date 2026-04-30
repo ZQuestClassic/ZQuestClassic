@@ -8,6 +8,7 @@
 #include "core/fonts.h"
 #include "zalleg/packfile.h"
 #include "core/qst.h"
+#include <dialog/info.h>
 
 
 std::string getComboTypeHelpText(int32_t id);
@@ -901,7 +902,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	}
 	
 	if(writesize!=int32_t(section_size))
-		displayinfo("Error:  writezinfo()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error:  writezinfo()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	
 	new_return(0);
 }

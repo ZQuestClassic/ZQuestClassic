@@ -4,6 +4,7 @@
 #include "subscr_grid_dlg.h"
 #include "core/initdata.h"
 #include "subscr.h"
+#include <dialog/info.h>
 
 void mark_save_dirty();
 

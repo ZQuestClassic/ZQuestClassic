@@ -116,7 +116,7 @@ bool SubscreenWizardDialog::finalize()
 #define HANDLE_FAILURE(widget) \
 if (!widget) \
 { \
-	displayinfo("Error", "Failed creating a widget; subscreen page might be full, or else an unexpected error occurred."); \
+	InfoDialog("Error", "Failed creating a widget; subscreen page might be full, or else an unexpected error occurred.").show(); \
 	return true; \
 }
 	memset(sso_selection, 0, sizeof(sso_selection));

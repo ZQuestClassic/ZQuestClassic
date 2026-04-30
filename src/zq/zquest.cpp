@@ -1563,7 +1563,7 @@ int32_t onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    displayinfo("Notice","Translucency Table Rebuilt");
+    InfoDialog("Notice","Translucency Table Rebuilt").show();
     
     refresh(rALL);
     return D_O_K;
@@ -1903,7 +1903,7 @@ void savesometiles([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 			{
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				displayinfo("Success!",fmt::format("Saved {}",name));
+				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 			}
 		}
 	}
@@ -1970,11 +1970,11 @@ void writesometiles_to([[maybe_unused]] const char *prompt, [[maybe_unused]] int
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					displayinfo("ZTILE File: Error","Could not load the specified Tile.");
+					InfoDialog("ZTILE File: Error","Could not load the specified Tile.").show();
 				}
 				else
 				{
-					displayinfo("ZTILE File: Success!","Loaded the source tiles to your tile sheets!");
+					InfoDialog("ZTILE File: Success!","Loaded the source tiles to your tile sheets!").show();
 				}
 				pack_fclose(f);
 			}
@@ -2043,7 +2043,7 @@ void savesomecombos([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_
 			{
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				displayinfo("Success!",fmt::format("Saved {}",name));
+				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 			}
 		}
 	}
@@ -2117,11 +2117,11 @@ void writesomecombos([[maybe_unused]] const char *prompt, [[maybe_unused]] int32
 				if (!readcombofile(f,first_tile_id,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					displayinfo("ZCOMBO File: Error","Could not load the specified combos.");
+					InfoDialog("ZCOMBO File: Error","Could not load the specified combos.").show();
 				}
 				else
 				{
-					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
+					InfoDialog("ZCOMBO File: Success!","Loaded the source combos to your combo pages!").show();
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2198,11 +2198,11 @@ void loadcombopack([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 				if (!readcombofile(f,0,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					displayinfo("ZCOMBO File: Error","Could not load the specified Tile.");
+					InfoDialog("ZCOMBO File: Error","Could not load the specified Tile.").show();
 				}
 				else
 				{
-					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
+					InfoDialog("ZCOMBO File: Success!","Loaded the source combos to your combo pages!").show();
 					mark_save_dirty();
 				}
 			}
@@ -2295,11 +2295,11 @@ void writesomecombos_to([[maybe_unused]] const char *prompt, [[maybe_unused]] in
 				if (!readcombofile_to_location(f,first_tile_id,nooverwrite, skipover))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					displayinfo("ZCOMBO File: Error","Could not load the specified combos.");
+					InfoDialog("ZCOMBO File: Error","Could not load the specified combos.").show();
 				}
 				else
 				{
-					displayinfo("ZCOMBO File: Success!","Loaded the source combos to your combo pages!");
+					InfoDialog("ZCOMBO File: Success!","Loaded the source combos to your combo pages!").show();
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2381,13 +2381,13 @@ void savesomedmaps([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 			{
 				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				displayinfo("Error",fmt::format("Unable to load {}",name));
+				InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
 			}
 			else
 			{
 				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				displayinfo("Success!",fmt::format("Saved {}",name));
+				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 			}
 		}
 		pack_fclose(f);
@@ -2454,7 +2454,7 @@ void savesomecomboaliases([[maybe_unused]] const char *prompt, [[maybe_unused]] 
 			{
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				displayinfo("Success!",fmt::format("Saved {}",name));
+				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 			}
 		}
 	}
@@ -2521,11 +2521,11 @@ void writesomecomboaliases_to([[maybe_unused]] const char *prompt, [[maybe_unuse
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					displayinfo("ZALIAS File: Error","Could not load the specified combo aliases.");
+					InfoDialog("ZALIAS File: Error","Could not load the specified combo aliases.").show();
 				}
 				else
 				{
-					displayinfo("ZALIAS File: Success!","Loaded the source combos to your combo alias table!");
+					InfoDialog("ZALIAS File: Success!","Loaded the source combos to your combo alias table!").show();
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2595,7 +2595,7 @@ void do_exportdoorset([[maybe_unused]] const char *prompt, [[maybe_unused]] int3
 			{
 				writezdoorsets(f,first_doorset_id,the_doorset_count);
 				pack_fclose(f);
-				displayinfo("Success!",fmt::format("Saved {}",name));
+				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 			}
 		}
 	}
@@ -2672,16 +2672,16 @@ void do_importdoorset([[maybe_unused]] const char *prompt, [[maybe_unused]] int3
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", name);
-					displayinfo("ZDOORS File: Error","Could not load the specified doorsets.");
+					InfoDialog("ZDOORS File: Error","Could not load the specified doorsets.").show();
 				}
 				else if ( ret == 1 )
 				{
-					displayinfo("ZDOORS File: Success!","Loaded the source doorsets!");
+					InfoDialog("ZDOORS File: Success!","Loaded the source doorsets!").show();
 					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
-					displayinfo("ZDOORS File: Issue:","Targets exceed doorset count!");
+					InfoDialog("ZDOORS File: Issue:","Targets exceed doorset count!").show();
 					mark_save_dirty();
 				}
 				pack_fclose(f);
@@ -2729,10 +2729,10 @@ void fix_layers(mapscr *tempscr, bool showwarning)
 
 	if(showwarning)
 	{
-		displayinfo("Invalid layers detected",
+		InfoDialog("Invalid layers detected",
 		   fmt::format("One or more layers on this screen used"
 		   "maps that do not exist. The settings of these"
-		   "layers have been changed: {}", buf));
+		   "layers have been changed: {}", buf)).show();
 	}
 }
 
@@ -3138,7 +3138,7 @@ int32_t onDefault_Pals()
         
         if(!init_colordata(true, &header, &QMisc))
         {
-            displayinfo("Error","Palette reset failed.");
+            InfoDialog("Error","Palette reset failed.").show();
         }
         
         refresh_pal();
@@ -3155,7 +3155,7 @@ int32_t onDefault_Combos()
         
         if(!init_combos(true, &header))
         {
-            displayinfo("Error","Combo reset failed.");
+            InfoDialog("Error","Combo reset failed.").show();
         }
         
         refresh(rALL);
@@ -3206,7 +3206,7 @@ int32_t onDefault_Tiles()
         
         if(!init_tiles(true, &header))
         {
-            displayinfo("Error","Tile reset failed.");
+            InfoDialog("Error","Tile reset failed.").show();
         }
         
         refresh(rALL);
@@ -4241,7 +4241,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        displayinfo("Error",fmt::format("Error loading image: {}",imagepath));
+        InfoDialog("Error",fmt::format("Error loading image: {}",imagepath)).show();
         return 2;
     }
     
@@ -4305,7 +4305,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        displayinfo("Error",fmt::format("Error loading image: {}",imagepath));
+        InfoDialog("Error",fmt::format("Error loading image: {}",imagepath)).show();
         return 2;
     }
     
@@ -4381,7 +4381,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t& px2, int32_t& 
 	
 	if(!buf)
 	{
-		displayinfo("Error","Error creating temp bitmap");
+		InfoDialog("Error","Error creating temp bitmap").show();
 		mapview_close();
 		popup_zqdialog_end();
 		return D_O_K;
@@ -11717,12 +11717,12 @@ static DIALOG cflag_dlg[] =
 
 void questrev_help()
 {
-	displayinfo("Help","The revision number of your quest.");
+	InfoDialog("Help","The revision number of your quest.").show();
 }
 
 void questminrev_help()
 {
-	displayinfo("Help","If a player's saved game was from a revision less than the minimum revision, they have to restart from the beginning. This is useful if you make major changes to your quest.");
+	InfoDialog("Help","If a player's saved game was from a revision less than the minimum revision, they have to restart from the beginning. This is useful if you make major changes to your quest.").show();
 }
 
 int32_t select_cflag(const char *prompt,int32_t flag)
@@ -15975,7 +15975,7 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
 		{
-			displayinfo("Error",fmt::format("Invalid source (range 0-{})", MAXCOMBOALIASES-1));
+			InfoDialog("Error",fmt::format("Invalid source (range 0-{})", MAXCOMBOALIASES-1)).show();
 			ret = 1;
 		}
 		
@@ -15996,13 +15996,13 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
 		{
-			displayinfo("Error","Source and dest can't be the same.");
+			InfoDialog("Error","Source and dest can't be the same.").show();
 			ret = 1;
 		}
 		
 		if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
 		{
-			displayinfo("Error",fmt::format("Invalid dest (range 0-{})", MAXCOMBOALIASES-1));
+			InfoDialog("Error",fmt::format("Invalid dest (range 0-{})", MAXCOMBOALIASES-1)).show();
 			ret = 1;
 		}
 		
@@ -17925,7 +17925,7 @@ bool do_slots(ZScript::ZasmCompilerResult& zasmCompilerResult, int assign_mode)
 					
 				if(lind == 0)
 				{
-					displayinfo("Error","ZScript reserves this slot.");
+					InfoDialog("Error","ZScript reserves this slot.").show();
 					break;
 				}
 				
@@ -19986,7 +19986,7 @@ int32_t main(int32_t argc,char **argv)
 			}
 			else
 			{
-				displayinfo("Error","Unable to reload the last timed save.");
+				InfoDialog("Error","Unable to reload the last timed save.").show();
 			}
 		}
 	}
@@ -21428,7 +21428,7 @@ void check_autosave()
 
 				int32_t ret = save_timed_auto_backup(filepath);
 				if (ret)
-					displayinfo("Error", "Timed save did not complete successfully.");
+					InfoDialog("Error", "Timed save did not complete successfully.").show();
 				else
 					autosaved = true;
 			}

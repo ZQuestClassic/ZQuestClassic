@@ -94,7 +94,7 @@ static bool check_full_error()
 {
 	if (subscr_edit.cur_page().full())
 	{
-		displayinfo("Page Full!", "This subscreen page is full, and cannot hold any more widgets!");
+		InfoDialog("Page Full!", "This subscreen page is full, and cannot hold any more widgets!").show();
 		return true;
 	}
 	return false;
@@ -2512,7 +2512,7 @@ bool edit_subscreen()
 				}
 				case 50: // New Page
 					if(!subscr_edit.add_page(subscr_edit.curpage+1))
-						displayinfo("Error","Could not add new page; page limit reached");
+						InfoDialog("Error","Could not add new page; page limit reached").show();
 					break;
 				case 57: // Copy Page
 					subscr_copied_page = subscr_edit.cur_page();
@@ -2523,7 +2523,7 @@ bool edit_subscreen()
 					{
 						if(subscr_edit.add_page(subscr_edit.curpage+1))
 							subscr_edit.cur_page() = subscr_copied_page;
-						else displayinfo("Error","Could not add new page; page limit reached");
+						else InfoDialog("Error","Could not add new page; page limit reached").show();
 					}
 					break;
 			}

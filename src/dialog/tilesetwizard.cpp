@@ -68,7 +68,7 @@ std::shared_ptr<GUI::Widget> TilesetWizard::view()
 	switch(wizard_state)
 	{
 		default:
-			displayinfo("ERROR", "Bad WizardState!");
+			InfoDialog("ERROR", "Bad WizardState!").show();
 			wizard_state = wizstate_preload;
 			[[fallthrough]];
 		case wizstate_preload:

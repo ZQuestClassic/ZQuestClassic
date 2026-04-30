@@ -15,9 +15,6 @@ optional<int32_t> call_get_num(string const& lbl, string const& inf, int32_t dv,
 optional<zfix> call_get_zfix(string const& lbl, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 optional<zfix> call_get_zfix(string const& lbl, string const& inf, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 
-void displayinfo(string const& title, string const& text, optional<string> subtext = nullopt);
-void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
-
 void info_dsa(string const& title, string const& text, string const& dsastr);
 bool alert_confirm(string const& title, string const& text,
 	optional<string> yes_btn = std::nullopt, optional<string> no_btn = std::nullopt,

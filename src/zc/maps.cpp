@@ -43,6 +43,7 @@ using std::set;
 #include "zc/render.h"
 #include "iter.h"
 #include <ranges>
+#include <dialog/info.h>
 
 // All the temporary screens (and their layers) for the currently loaded map.
 static mapscr* temporary_screens[136*7];
@@ -7903,7 +7904,7 @@ void ViewMap()
 	if(!mappic)
 	{
 		enter_sys_pal();
-		displayinfo("View Map","Not enough memory.");
+		InfoDialog("View Map","Not enough memory.").show();
 		exit_sys_pal();
 		return;
 	}

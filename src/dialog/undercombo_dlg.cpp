@@ -2,6 +2,7 @@
 #include "undercombo_dlg.h"
 #include "common.h"
 #include <gui/builder.h>
+#include <dialog/info.h>
 #include "zc_list_data.h"
 #include "core/combo.h"
 

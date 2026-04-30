@@ -148,7 +148,7 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 			
 	if(!tempfile)
 	{
-		//displayinfo("Error","Unable to open the temporary file in current directory!");
+		//InfoDialog("Error","Unable to open the temporary file in current directory!").show();
 		return;
 	}
 	
@@ -255,7 +255,7 @@ void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 			
 	if(!tempfile)
 	{
-		//displayinfo("Error","Unable to create a temporary file in current directory!");
+		//InfoDialog("Error","Unable to create a temporary file in current directory!").show();
 		return;
 	}
 	

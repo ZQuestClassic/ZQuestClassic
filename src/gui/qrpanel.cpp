@@ -104,7 +104,10 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				std::string const& infotext = li->info;
 				cbox->setText(name);
 				if(infotext.size())
-					ibtn->setOnPress([infotext,this](){InfoDialog("QR Info",infotext,nullopt,local_qrs).show();});
+					ibtn->setOnPress([infotext,this]()
+					{
+						InfoDialog("QR Info",infotext).set_dest_qrs(local_qrs).show();
+					});
 				else ibtn->setDisabled(true);
 				cbox->onToggle(message);
 				cbox->setQR(qr);

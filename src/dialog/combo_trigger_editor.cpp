@@ -1782,7 +1782,8 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						string title = "Trigger Summary";
 						if (!local_ref.label.empty())
 							title += fmt::format(" '{}'", local_ref.label);
-						InfoDialog(title, local_ref.summarize(parent_comboref), nullopt, nullptr, 0).show();
+						InfoDialog(title, local_ref.summarize(parent_comboref))
+							.set_text_align(0).show();
 					}),
 				warnbtn = Button(
 					text = "Warnings",
@@ -1844,7 +1845,7 @@ bool ComboTriggerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			updateWarnings();
 			if(warnings.size())
-				displayinfo("Warnings",warnings,"The following issues were found with this trigger:");
+				InfoDialog("Warnings",warnings).set_subtext("The following issues were found with this trigger:").show();
 			return false;
 		}
 		case message::OK:

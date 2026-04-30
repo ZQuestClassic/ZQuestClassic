@@ -89,7 +89,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 
 	if(!tempfile)
 	{
-		displayinfo("Error","Unable to create a temporary file in current directory!");
+		InfoDialog("Error","Unable to create a temporary file in current directory!").show();
 		return true;
 	}
 	
@@ -475,7 +475,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(zscript == NULL)
 			{
-				displayinfo("Error","Cannot open specified file!");
+				InfoDialog("Error","Cannot open specified file!").show();
 				return false;
 			}
 			
@@ -508,14 +508,14 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(!zscript)
 			{
-				displayinfo("Error","Unable to open file for writing!");
+				InfoDialog("Error","Unable to open file for writing!").show();
 				break;
 			}
 			
 			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
 			
 			if(written != (int32_t)zScript.size())
-				displayinfo("Error","IO error while writing script to file!");
+				InfoDialog("Error","IO error while writing script to file!").show();
 				
 			fclose(zscript);
 			return false;

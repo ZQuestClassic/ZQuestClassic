@@ -282,7 +282,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						{
 							if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
 								edit_cycles(index);
-							else displayinfo("Notice","Palettes above 0xFF do not have Palette Cycles");
+							else InfoDialog("Notice","Palettes above 0xFF do not have Palette Cycles").show();
 						}
 					}
 				),

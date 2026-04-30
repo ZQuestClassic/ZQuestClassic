@@ -2369,15 +2369,15 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::QRSTR_CPY:
 			set_al_clipboard(get_qr_hexstr(local_qrs, true));
-			displayinfo("Copied", "QR String copied to clipboard!");
+			InfoDialog("Copied", "QR String copied to clipboard!").show();
 			return false;
 		case message::QRSTR_COMPARE:
 		{
 			byte cmp_rules[QUESTRULES_NEW_SIZE] = {0};
 			if (!load_qr_hexstr_clipboard(cmp_rules))
 			{
-				displayinfo("Error", "No QR String could be loaded from the clipboard."
-					"\nCopy a QR string from another quest to your clipboard and then click this button to compare those QRs with this quest.");
+				InfoDialog("Error", "No QR String could be loaded from the clipboard."
+					"\nCopy a QR string from another quest to your clipboard and then click this button to compare those QRs with this quest.").show();
 				return false;
 			}
 			std::ostringstream oss;
@@ -2417,19 +2417,19 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}
 			}
 			
-			displayinfo("QR Compare Report", oss.str());
+			InfoDialog("QR Compare Report", oss.str()).show();
 			return false;
 		}
 		case message::QRSTR_LOAD:
 			if(load_qr_hexstr_clipboard(local_qrs))
 			{
-				displayinfo("QRs Loaded", "Quest Rules have been loaded from the clipboard");
+				InfoDialog("QRs Loaded", "Quest Rules have been loaded from the clipboard").show();
 				popup_bugfix_dlg("dsa_compatrule2", local_qrs);
 				rerun_dlg = true;
 				return true;
 			}
-			displayinfo("Error", "No QR String could be loaded from the clipboard."
-				"\nCopy a QR string from another quest to your clipboard and then click this button to paste those QRs to this quest.");
+			InfoDialog("Error", "No QR String could be loaded from the clipboard."
+				"\nCopy a QR string from another quest to your clipboard and then click this button to paste those QRs to this quest.").show();
 			return false;
 		case message::RERUN:
 			while(gui_mouse_b()) rest(1); //wait for mouseup

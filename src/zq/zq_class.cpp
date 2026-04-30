@@ -266,7 +266,7 @@ bool zmap::clearall(bool validate)
     {
         if(!valid_zqt(header.templatepath))
         {
-            displayinfo("Error","Invalid Quest Template");
+            InfoDialog("Error","Invalid Quest Template").show();
             return false;
         }
     }
@@ -465,7 +465,7 @@ bool zmap::clearmap(bool newquest)
         {
             if(!reset_templates(false))
             {
-                displayinfo("Error","Error resetting template screens.");
+                InfoDialog("Error","Error resetting template screens.").show();
             }
         }
     }
@@ -6320,8 +6320,8 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
 		if(g.ss_type != loadto.sub_type)
 		{
 			pack_fclose(f);
-			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
-				subscr_names[g.ss_type], subscr_names[loadto.sub_type]));
+			InfoDialog("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[g.ss_type], subscr_names[loadto.sub_type])).show();
 			return false;
 		}
 		loadto.clear();
@@ -6339,8 +6339,8 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
 		if(tmp.sub_type != loadto.sub_type)
 		{
 			pack_fclose(f);
-			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
-				subscr_names[tmp.sub_type], subscr_names[loadto.sub_type]));
+			InfoDialog("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[tmp.sub_type], subscr_names[loadto.sub_type])).show();
 			return false;
 		}
 		loadto.clear();
@@ -6367,7 +6367,7 @@ bool setMapCount2(int32_t c)
     }
     catch(...)
     {
-        displayinfo("Error","Failed to change map count.");
+        InfoDialog("Error","Failed to change map count.").show();
         return false;
     }
     
@@ -7236,7 +7236,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeheader()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeheader()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -7299,7 +7299,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writerules()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writerules()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -7559,7 +7559,7 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writedoorcombosets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writedoorcombosets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -7794,7 +7794,7 @@ int32_t writedmaps(PACKFILE *f, word, word, word start_dmap, word max_dmaps)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writedmaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writedmaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -7993,7 +7993,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writemisccolors()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writemisccolors()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -8053,7 +8053,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writegameicons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writegameicons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -8401,7 +8401,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writemisc()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writemisc()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -8655,7 +8655,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeitems()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeitems()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -8737,7 +8737,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader*)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeweapons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeweapons()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -9353,7 +9353,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writemaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writemaps()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -9814,7 +9814,7 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writecombos()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writecombos()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -10019,7 +10019,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writecomboaliases()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writecomboaliases()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -10120,7 +10120,7 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writecolordata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writecolordata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -10252,7 +10252,7 @@ int32_t writestrings(PACKFILE *f)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writestrings()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writestrings()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -10579,7 +10579,7 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writetiles()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writetiles()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -10695,7 +10695,7 @@ int32_t writemidis(PACKFILE *f)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writemidis()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writemidis()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -10763,7 +10763,7 @@ int32_t writecheats(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writecheats()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writecheats()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -11286,7 +11286,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writeguys()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writeguys()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -11874,7 +11874,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeherosprites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeherosprites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -11971,7 +11971,7 @@ int32_t writesubscreens(PACKFILE *f, [[maybe_unused]] zquestheader *Header)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writesubscreens()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writesubscreens()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -12693,7 +12693,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -13574,7 +13574,7 @@ int32_t writeffscript_old(PACKFILE *f)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeffscript()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -13732,7 +13732,7 @@ int32_t writesfx(PACKFILE *f, zquestheader *)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writesfx()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -13951,7 +13951,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writeinitdata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writeinitdata()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -14035,7 +14035,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
     
     if(writesize!=int32_t(section_size) && save_warn)
     {
-        displayinfo("Error: writeitemdropsets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+        InfoDialog("Error: writeitemdropsets()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
     }
     
     new_return(0);
@@ -14130,7 +14130,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	
 	if(writesize!=int32_t(section_size) && save_warn)
 	{
-		displayinfo("Error: writefavorites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size));
+		InfoDialog("Error: writefavorites()",fmt::format("writesize != section_size\n{} != {}", writesize, section_size)).show();
 	}
 	
 	new_return(0);
@@ -14624,7 +14624,7 @@ static void save_backup_quest(const char* original_filename)
 	std::string backup_path;
 	if (auto v = create_path_for_backup(original_filename, false); !v)
 	{
-		InfoDialog("Quest Backup", "Failed to save backup.", v.error().message()).show();
+		InfoDialog("Quest Backup", "Failed to save backup.").set_subtext(v.error().message()).show();
 		return;
 	}
 	else
@@ -14640,14 +14640,14 @@ static void save_backup_quest(const char* original_filename)
 	fs::create_directories(backup_folder, ec);
 	if (ec)
 	{
-		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path), ec.message()).show();
+		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path)).set_subtext(ec.message()).show();
 		return;
 	}
 
 	fs::copy_file(original_filename, backup_path, ec);
 	if (ec)
 	{
-		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path), ec.message()).show();
+		InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path)).set_subtext(ec.message()).show();
 		return;
 	}
 

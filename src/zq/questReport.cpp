@@ -23,6 +23,7 @@
 #include "core/qst.h"
 #include "zc_list_data.h"
 #include <fmt/ranges.h>
+#include <dialog/info.h>
 
 extern int32_t bie_cnt;
 
@@ -139,14 +140,14 @@ void showQuestReport()
 					
 					if(!report)
 					{
-						displayinfo("Error","Unable to open file for writing!");
+						InfoDialog("Error","Unable to open file for writing!").show();
 						return false;
 					}
 					
 					int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
 					
 					if(written != (int32_t)quest_report_str.size())
-						displayinfo("Error","IO error while writing script to file!");
+						InfoDialog("Error","IO error while writing script to file!").show();
 						
 					fclose(report);
 					return false;
@@ -2276,7 +2277,7 @@ int32_t onComboLocationReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        displayinfo("Combo Locations", "No other screens use this combo.");
+        InfoDialog("Combo Locations", "No other screens use this combo.").show();
         
     return D_O_K;
 }
@@ -2291,7 +2292,7 @@ int32_t onBuggedNextComboLocationReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        displayinfo("Combo Locations", "No buggy ->Next combos.");
+        InfoDialog("Combo Locations", "No buggy ->Next combos.").show();
         
     return D_O_K;
 }
@@ -2497,7 +2498,7 @@ int32_t onWhatWarpsReport()
     if(quest_report_str!="")
         showQuestReport();
     else
-        displayinfo("What Links Here", "No other screens warp to this screen or use this screen as a layer.");
+        InfoDialog("What Links Here", "No other screens warp to this screen or use this screen as a layer.").show();
         
     return D_O_K;
 }

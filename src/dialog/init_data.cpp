@@ -140,7 +140,7 @@ Button(forceFitH = true, text = "?", \
 	padding = 0_px, \
 	onPressFunc = [=]() \
 	{ \
-		displayinfo(title, info); \
+		InfoDialog(title, info).show(); \
 	})
 
 #define LITEM_DINFO() \

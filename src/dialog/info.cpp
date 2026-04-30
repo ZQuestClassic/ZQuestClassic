@@ -11,66 +11,42 @@
 extern const GUI::ListData ruletemplatesList;
 #endif
 
-void displayinfo(string const& title, string const& text, optional<string> subtext)
-{
-	if (is_headless() || is_ci())
-	{
-		al_trace("[info] %s\n", fmt::format("{} - {}\n{}", title, text, subtext.value_or("")).c_str());
-		return;
-	}
-
-	InfoDialog(title,text,subtext).show();
-}
-
-void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext)
-{
-	if (is_headless() || is_ci())
-	{
-		al_trace("[info] %s\n", fmt::format("{} - {}\n{}", title, fmt::join(lines, "\n"), subtext.value_or("")).c_str());
-		return;
-	}
-
-	InfoDialog(title,lines,subtext).show();
-}
-
-InfoDialog::InfoDialog(string const& title, string const& text,
-	optional<string> subtext, byte* dest_qrs, int text_align):
+InfoDialog::InfoDialog(string const& title, string const& text):
 	d_title(title),
-	d_text(text), d_subtext(subtext),
-	dest_qrs(dest_qrs),
-	_text_align(text_align)
+	d_text(text), d_subtext(nullopt),
+	_has_run_postinit(false),
+	d_dest_qrs(nullptr), d_text_align(1)
+{}
+
+InfoDialog::InfoDialog(string const& title, vector<string> const& lines):
+	d_title(title),
+	d_text(""), d_subtext(nullopt),
+	_has_run_postinit(false),
+	d_dest_qrs(nullptr), d_text_align(1)
 {
-	postinit();
+	d_text = fmt::format("{}", fmt::join(lines, "\n"));
 }
 
-InfoDialog::InfoDialog(string const& title, vector<string> const& lines,
-	optional<string> subtext, byte* dest_qrs, int text_align):
-	d_title(title),
-	d_text(), d_subtext(subtext),
-	dest_qrs(dest_qrs),
-	_text_align(text_align)
+InfoDialog& InfoDialog::set_subtext(optional<string> subtext)
 {
-	size_t size = 0;
-
-	for(auto& line: lines)
-		size += line.size();
-	size += lines.size()-1;
-	d_text.reserve(size);
-
-	auto remaining = lines.size();
-	for(auto& line: lines)
-	{
-		d_text += line;
-		--remaining;
-		if(remaining > 0)
-			d_text += '\n';
-	}
-	postinit();
+	d_subtext = subtext;
+	return *this;
+}
+InfoDialog& InfoDialog::set_dest_qrs(byte* dest_qrs)
+{
+	d_dest_qrs = dest_qrs;
+	return *this;
+}
+InfoDialog& InfoDialog::set_text_align(int text_align)
+{
+	d_text_align = text_align;
+	return *this;
 }
 
 static byte* next_dest_qr = nullptr;
 void InfoDialog::postinit()
 {
+	_has_run_postinit = true;
 	old_dest_qrs = next_dest_qr;
 	while(true)
 	{
@@ -128,15 +104,22 @@ void InfoDialog::postinit()
 	
 	if(qrs.size() || ruleTemplates.size())
 	{
-		if(!dest_qrs)
-			dest_qrs = next_dest_qr ? next_dest_qr : quest_rules;
+		if(!d_dest_qrs)
+			d_dest_qrs = next_dest_qr ? next_dest_qr : quest_rules;
 		next_dest_qr = local_qrs;
-		memcpy(local_qrs, dest_qrs, sizeof(local_qrs));
+		memcpy(local_qrs, d_dest_qrs, sizeof(local_qrs));
 	}
 }
 
 std::shared_ptr<GUI::Widget> InfoDialog::view()
 {
+	if (is_headless() || is_ci())
+	{
+		al_trace("[info] %s\n", fmt::format("{} - {}\n{}", d_title, d_text, d_subtext.value_or("")).c_str());
+		return nullptr;
+	}
+	if (!_has_run_postinit)
+		postinit();
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	std::shared_ptr<GUI::Grid> gr;
@@ -244,13 +227,13 @@ std::shared_ptr<GUI::Grid> InfoDialog::build_text()
 	std::shared_ptr<GUI::Grid> col = Column(padding = 0_px);
 	Size maxw = Size::pixels(zq_screen_w)-12_px-5_em;
 	Size maxh = (DEFAULT_PADDING*20)+20_em;
-	double hal = _text_align / 2.0;
+	double hal = d_text_align / 2.0;
 	if(d_subtext)
 		col->add(Label(noHLine = true, hPadding = 2_em,
-			maxwidth = maxw, hAlign = hal, textAlign = _text_align, text = *d_subtext));
+			maxwidth = maxw, hAlign = hal, textAlign = d_text_align, text = *d_subtext));
 	std::shared_ptr<GUI::Label> main_label =
 		Label(noHLine = true, hPadding = 2_em,
-			maxwidth = maxw, hAlign = hal, textAlign = _text_align, text = d_text);
+			maxwidth = maxw, hAlign = hal, textAlign = d_text_align, text = d_text);
 	main_label->calculateSize();
 	if(main_label->getHeight() > maxh)
 	{
@@ -274,7 +257,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::OK:
 			#ifdef IS_EDITOR
-			if(dest_qrs)
+			if(d_dest_qrs)
 			{
 				if(ruleTemplates.size())
 				{
@@ -284,7 +267,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 							applyRuleTemplateWithConfirmation(q,local_qrs);
 					}
 				}
-				memcpy(dest_qrs, local_qrs, sizeof(local_qrs));
+				memcpy(d_dest_qrs, local_qrs, sizeof(local_qrs));
 			}
 			#endif
 		[[fallthrough]];

@@ -362,7 +362,7 @@ int32_t onSave()
         return onSaveAs();
     else if(OverwriteProtection)
     {
-        displayinfo("ZQuest","Overwriting quests is disabled. This can be changed in the options dialog.");
+        InfoDialog("ZQuest","Overwriting quests is disabled. This can be changed in the options dialog.").show();
         return D_O_K;
     }
     
@@ -380,14 +380,14 @@ int32_t onSave()
     
     if(!ret)
     {
-		displayinfo("ZQuest",fmt::format("Saved {}",name));
+		InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
         saved = autosaved = true;
         first_save=true;
         header.dirty_password=false;
     }
     else
     {
-		displayinfo("Error",fmt::format("Error saving {}",name));
+		InfoDialog("Error",fmt::format("Error saving {}",name)).show();
     }
     
 	set_last_timed_save(nullptr);
@@ -423,7 +423,7 @@ int32_t onSaveAs()
 
 	if (should_open_as_readonly(path))
 	{
-		displayinfo("ZQuest", "Cannot save in a backups folder.");
+		InfoDialog("ZQuest", "Cannot save in a backups folder.").show();
 		return D_O_K;
 	}
 
@@ -434,7 +434,7 @@ int32_t onSaveAs()
 	{
 		if(OverwriteProtection)
 		{
-			displayinfo("ZQuest","Overwriting quests is disabled. This can be changed in the options dialog.");
+			InfoDialog("ZQuest","Overwriting quests is disabled. This can be changed in the options dialog.").show();
 			return D_O_K;
 		}
 		
@@ -460,7 +460,7 @@ int32_t onSaveAs()
 		update_recent_quest(temppath);
 		sprintf(buf,"ZC Editor - [%s]", get_filename(filepath));
 		set_window_title(buf);
-		displayinfo("ZQuest",fmt::format("Saved {}",name));
+		InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
 		saved = autosaved = true;
 		disable_saving = false;
 		first_save=true;
@@ -468,7 +468,7 @@ int32_t onSaveAs()
 	}
 	else
 	{
-		displayinfo("Error",fmt::format("Error saving {}",name));
+		InfoDialog("Error",fmt::format("Error saving {}",name)).show();
 	}
 	
 	refresh(rMENU);
@@ -482,9 +482,9 @@ int32_t open_quest(char const* path)
 	std::error_code ec;
 	if (fs::equivalent("./tilesets", fs::path(path).parent_path(), ec))
 	{
-		displayinfo("Warning",
+		InfoDialog("Warning",
 			"You've opened a qst in the tilesets folder - instead, you should probably use File>New so that a new file is made."
-			"\nFiles in this folder may be overwritten by the software updater.");
+			"\nFiles in this folder may be overwritten by the software updater.").show();
 	}
 
 	int32_t ret = load_quest(path);
@@ -505,7 +505,7 @@ int32_t open_quest(char const* path)
 	{
 		char name[256];
 		extract_name(path,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}\n{}",name,qst_error[ret]));
+        InfoDialog("Error",fmt::format("Unable to load {}\n{}",name,qst_error[ret])).show();
 		filepath[0]=0;
 	}
 
@@ -594,7 +594,7 @@ int32_t onRevert()
         {
             char name[256];
             extract_name(filepath,name,FILENAMEALL);
-			displayinfo("Error",fmt::format("Unable to load {}\n{}",name,qst_error[ret]));
+			InfoDialog("Error",fmt::format("Unable to load {}\n{}",name,qst_error[ret])).show();
             filepath[0]=0;
         }
         
@@ -682,7 +682,7 @@ int32_t onImport_Map()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}\n{}",name,loaderror[ret]));
+        InfoDialog("Error",fmt::format("Unable to load {}\n{}",name,loaderror[ret])).show();
         
         if(ret>1)
             Map.clearmap(false);
@@ -707,9 +707,9 @@ int32_t onImport_Map()
         
         if(willaffectlayers)
         {
-            displayinfo("Layers Changed", "One or more screens in the imported map had"
+            InfoDialog("Layers Changed", "One or more screens in the imported map had"
 				"layers on maps that do not exist. The map numbers of the affected"
-				" layers will be reset to 0.");
+				" layers will be reset to 0.").show();
         }
     }
     
@@ -730,9 +730,9 @@ int32_t onExport_Map()
     extract_name(temppath,name,FILENAMEALL);
     
     if(!ret)
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -771,7 +771,7 @@ int32_t onImport_DMaps()
 		{
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
-			displayinfo("Error",fmt::format("Unable to load {}",name));
+			InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
 		}
 		else
 		{
@@ -804,7 +804,7 @@ int32_t onImport_DMaps()
 			
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
-			displayinfo("Success!",fmt::format("Loaded {}",name));
+			InfoDialog("Success!",fmt::format("Loaded {}",name)).show();
 		}
 	}
 	pack_fclose(f);
@@ -827,11 +827,11 @@ int32_t onImport_Tilepack()
 				if (!readtilefile(f))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					displayinfo("ZTILE File: Error","Could not load the specified Tile.");
+					InfoDialog("ZTILE File: Error","Could not load the specified Tile.").show();
 				}
 				else
 				{
-					displayinfo("ZTILE File: Success!","Loaded the source tiles to your tile sheets!");
+					InfoDialog("ZTILE File: Success!","Loaded the source tiles to your tile sheets!").show();
 				}
 			}
 	
@@ -887,11 +887,11 @@ int32_t onImport_Comboaliaspack()
 				if (!readcomboaliasfile(f))
 				{
 					al_trace("Could not read from .zalias packfile %s\n", name);
-					displayinfo("ZALIAS File: Error","Could not load the specified combo aliases.");
+					InfoDialog("ZALIAS File: Error","Could not load the specified combo aliases.").show();
 				}
 				else
 				{
-					displayinfo("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!");
+					InfoDialog("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!").show();
 					mark_save_dirty();
 				}
 			}
@@ -912,7 +912,7 @@ int32_t onImport_Pals()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}",name));
+        InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
     }
     
     return D_O_K;
@@ -927,9 +927,9 @@ int32_t onExport_Pals()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_pals(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -944,7 +944,7 @@ int32_t onImport_Msgs()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}",name));
+        InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
     }
     
     return D_O_K;
@@ -959,9 +959,9 @@ int32_t onExport_Msgs()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -976,7 +976,7 @@ int32_t onImport_StringsTSV()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}",name));
+        InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
     }
     
     return D_O_K;
@@ -991,9 +991,9 @@ int32_t onExport_StringsTSV()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_strings_tsv(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -1007,9 +1007,9 @@ int32_t onExport_MsgsText()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_msgstrs_text(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -1037,10 +1037,10 @@ int32_t onExport_Combos()
 		writecombofile(f,0,MAXCOMBOS);
 		pack_fclose(f);
 		
-		displayinfo("Success!",fmt::format("Saved {}",name));
+		InfoDialog("Success!",fmt::format("Saved {}",name)).show();
 	}
 	else
-		displayinfo("Error",fmt::format("Error saving {}",name));
+		InfoDialog("Error",fmt::format("Error saving {}",name)).show();
     
     return D_O_K;
 }
@@ -1062,9 +1062,9 @@ int32_t onImport_Tiles()
 	if(f)
 	{
 		if(!readtilefile_to_location(f,0,ret))
-			displayinfo("Error",fmt::format("Unable to load {}",name));
+			InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
 		else
-			displayinfo("Success!",fmt::format("Loaded {}",name));
+			InfoDialog("Success!",fmt::format("Loaded {}",name)).show();
 	}
 	pack_fclose(f);
     
@@ -1089,10 +1089,10 @@ int32_t onExport_Tiles()
 		writetilefile(f,0,NEWMAXTILES);
 		pack_fclose(f);
 		
-		displayinfo("Success!",fmt::format("Saved {}", name));
+		InfoDialog("Success!",fmt::format("Saved {}", name)).show();
 	}
 	else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     
     return D_O_K;
 }
@@ -1106,7 +1106,7 @@ int32_t onImport_Guys()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}",name));
+        InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
     }
     
     refresh(rALL);
@@ -1122,9 +1122,9 @@ int32_t onExport_Guys()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_guys(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -1143,7 +1143,7 @@ int32_t onImport_ComboAlias()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error",fmt::format("Unable to load {}",name));
+        InfoDialog("Error",fmt::format("Unable to load {}",name)).show();
     }
     
     refresh(rALL);
@@ -1159,9 +1159,9 @@ int32_t onExport_ComboAlias()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_combo_alias(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 
@@ -1176,7 +1176,7 @@ int32_t onImport_ZGP()
     {
         char name[256];
         extract_name(temppath,name,FILENAMEALL);
-        displayinfo("Error", fmt::format("Unable to load {}",name));
+        InfoDialog("Error", fmt::format("Unable to load {}",name)).show();
     }
     
     refresh(rALL);
@@ -1192,9 +1192,9 @@ int32_t onExport_ZGP()
     extract_name(temppath,name,FILENAMEALL);
     
     if(save_zgp(temppath))
-		displayinfo("ZQuest", fmt::format("Saved {}", name));
+		InfoDialog("ZQuest", fmt::format("Saved {}", name)).show();
     else
-		displayinfo("Error", fmt::format("Error saving {}", name));
+		InfoDialog("Error", fmt::format("Error saving {}", name)).show();
     return D_O_K;
 }
 

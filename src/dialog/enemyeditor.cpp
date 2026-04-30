@@ -1757,8 +1757,8 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 	case message::WARNINGS:
 		if (warnings.size())
-			displayinfo("Warnings", warnings,
-				"The following issues were found with this enemy:");
+			InfoDialog("Warnings", warnings)
+				.set_subtext("The following issues were found with this enemy:").show();
 		return false;
 	case message::OK:
 	{

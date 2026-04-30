@@ -1743,7 +1743,7 @@ int32_t init_game()
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
 					game->header.replay_file);
 				enter_sys_pal();
-				displayinfo("Recording",msg);
+				InfoDialog("Recording",msg).show();
 				exit_sys_pal();
 			}
 			else

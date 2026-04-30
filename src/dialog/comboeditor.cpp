@@ -2714,7 +2714,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 												else oss << "\n\n";
 												oss << trig.summarize(local_comboref);
 											}
-											InfoDialog("All Trigger Summary", oss.str(), nullopt, nullptr, 0).show();
+											InfoDialog("All Trigger Summary", oss.str()).set_text_align(0).show();
 										}),
 									trigbtnSummarize = Button(text = "Summarize",
 										fitParent = true,
@@ -2724,7 +2724,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											string title = fmt::format("Trigger Summary ({:03})", trigger_index);
 											if (!trig.label.empty())
 												title += fmt::format(" '{}'", trig.label);
-											InfoDialog(title, trig.summarize(local_comboref), nullopt, nullptr, 0).show();
+											InfoDialog(title, trig.summarize(local_comboref)).set_text_align(0).show();
 										})
 								),
 								triggerList = List(
@@ -3640,7 +3640,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::WARNINGS:
 			if(warnings.size())
-				displayinfo("Warnings",warnings,"The following issues were found with this combo:");
+				InfoDialog("Warnings",warnings).set_subtext("The following issues were found with this combo:").show();
 			return false;
 		case message::OK:
 		{

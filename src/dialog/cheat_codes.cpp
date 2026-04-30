@@ -1,6 +1,7 @@
 #include "cheat_codes.h"
 #include "externs.h"
 #include <gui/builder.h>
+#include <dialog/info.h>
 
 extern ZCHEATS zcheats;
 void call_cheats_dlg()

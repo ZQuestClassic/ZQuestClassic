@@ -4,6 +4,7 @@
 #include "gui/jwin.h"
 #include "zalleg/zalleg.h"
 #include <utility>
+#include <dialog/info.h>
 #include "dialog/externs.h"
 
 namespace GUI
@@ -32,7 +33,7 @@ int32_t TopLevelWidget::helpproc(int32_t msg, DIALOG* d, int32_t c)
 		case MSG_XCHAR:
 			if((c>>8) != KEY_F1)
 				break;
-			displayinfo("Info", helptext);
+			InfoDialog("Info", helptext).show();
 			return D_USED_CHAR;
 	}
 	return D_O_K;
