@@ -20,6 +20,9 @@ public:
 
 	/* Sets the window's title. */
 	void setHelp(std::string newHelp);
+
+	/* Sets the window's copy text. */
+	void setCopyText(std::string newCopyText);
 	
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
@@ -48,6 +51,7 @@ private:
 	std::shared_ptr<Widget> content;
 	std::shared_ptr<Menu> inner_menu;
 	std::string title;
+	std::string copytext;
 	DialogRef alDialog;
 	int32_t closeMessage;
 	bool use_vsync;

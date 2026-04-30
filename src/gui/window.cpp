@@ -45,6 +45,16 @@ void Window::setHelp(std::string newHelp)
 	}
 }
 
+void Window::setCopyText(std::string newCopyText)
+{
+	copytext = std::move(newCopyText);
+	if(alDialog)
+	{
+		alDialog->d1 = !copytext.empty();
+		pendDraw();
+	}
+}
+
 void Window::setContent(shared_ptr<Widget> newContent) noexcept
 {
 	content = std::move(newContent);
@@ -98,9 +108,13 @@ void Window::calculateSize()
 	{
 		// Sized to content plus a bit of padding and space for the title bar.
 		content->calculateSize();
+		uint32_t title_extra = 22;
+		if(closeMessage >= 0) title_extra += 18;
+		if(!helptext.empty()) title_extra += 18;
+		if(!copytext.empty()) title_extra += 18;
 		size_t wids[] = {
 			content->getTotalWidth()+8u,
-			text_length(get_zc_font(font_lfont), title.c_str())+40u,
+			text_length(get_zc_font(font_lfont), title.c_str())+title_extra,
 			submenu ? submenu->width() : 0
 		};
 		size_t maxwid = 0;
@@ -150,7 +164,7 @@ void Window::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
-		0, 0, // d1, d2
+		(int32_t)(!copytext.empty()), 0, // d1, d2
 		title.data(), get_custom_font(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 	
@@ -184,6 +198,15 @@ int32_t Window::onEvent(int32_t event, MessageDispatcher& sendMessage)
 		if(closeMessage >= 0)
 			sendMessage(closeMessage, MessageArg::none);
 		return -1;
+	}
+
+	if(event == geCOPY)
+	{
+		if(!copytext.empty())
+		{
+			set_al_clipboard(copytext);
+		}
+		return D_O_K;
 	}
 
 	return TopLevelWidget::onEvent(event, sendMessage);

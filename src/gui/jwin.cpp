@@ -431,7 +431,7 @@ char *shorten_string(char *dest, char const* src, FONT *usefont, int32_t maxchar
     return dest;
 }
 
-void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn)
+void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn, bool copybtn)
 {
     char buf[512];
     int32_t len = (int32_t)strlen(str);
@@ -475,16 +475,24 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
     
     textout_ex(dest,font,buf,tx,ty,scheme[jcTITLEFG],-1);
     
+    int32_t btn_offset = 18;
     if(draw_button)
     {
-        draw_x_button(dest, x + w - 18, y+2, 0);
+        draw_x_button(dest, x + w - btn_offset, y+2, 0);
+        btn_offset += 18;
     }
 	
 	if(helpbtn)
 	{
-		draw_question_button(dest, x + w - (draw_button ? 36 : 18), y+2, 0);
+		draw_question_button(dest, x + w - btn_offset, y+2, 0);
+		btn_offset += 18;
 	}
-    
+
+    if(copybtn)
+    {
+        draw_copy_button(dest, x + w - btn_offset, y+2, 0);
+        btn_offset += 18;
+    }
 }
 
 void draw_question_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
@@ -503,6 +511,47 @@ void draw_question_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
     line(dest, x+3, y+4, x+4, y+4, c);
     line(dest, x+3, y+6, x+4, y+6, c);
     line(dest, x+3, y+7, x+4, y+7, c);
+}
+
+void draw_copy_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
+{
+    int32_t c = scheme[jcBOXFG];
+    jwin_draw_button(dest,x,y,16,14,state,0);
+    x += 4 + (state?1:0);
+    y += 2 + (state?1:0);
+    
+    // Back sheet
+    rect(dest, x+3, y, x+7, y+6, c);
+    // Front sheet
+    rectfill(dest, x, y+2, x+5, y+9, scheme[jcBOX]);
+    rect(dest, x, y+2, x+5, y+9, c);
+}
+
+static int32_t jwin_do_copy_button(BITMAP *dest, int32_t x, int32_t y)
+{
+    int32_t down=0, last_draw = 0;
+
+    while(gui_mouse_b())
+    {
+        down = mouse_in_rect(x,y,16,14);
+
+        if(down!=last_draw)
+        {
+            draw_copy_button(dest,x,y,down);
+            last_draw = down;
+        }
+
+        /* let other objects continue to animate */
+        broadcast_dialog_message(MSG_IDLE, 0);
+        rest(1);
+    }
+
+    if(down)
+    {
+        draw_copy_button(dest,x,y,0);
+    }
+
+    return down;
 }
 
 void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
@@ -806,7 +855,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 					font = (FONT*)d->dp2;
 				}
 				
-				jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT, d->dp3!=NULL);
+				jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT, d->dp3!=NULL, d->d1!=0);
 				font = oldfont;
 			}
 			break;
@@ -822,20 +871,35 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_CLICK:
 		{
-			if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
+			int32_t btn_offset = 21;
+			if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-btn_offset, d->y+5, 16, 14))
 			{
-				if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
+				if(jwin_do_x_button(screen, d->x+d->w-btn_offset, d->y+5))
 				{
 					GUI_EVENT(d, geCLOSE);
 					return D_CLOSE;
 				}
 			}
+			if(d->flags & D_EXIT) btn_offset += 18;
+
 			if(char const* helpstr = (char const*)d->dp3)
 			{
-				if(mouse_in_rect(d->x+d->w-((d->flags&D_EXIT)?39:21), d->y+5, 16, 14))
+				if(mouse_in_rect(d->x+d->w-btn_offset, d->y+5, 16, 14))
 				{
 					broadcast_dialog_message(MSG_DRAW,0);
 					InfoDialog("Info", helpstr).show();
+				}
+			}
+			if(d->dp3) btn_offset += 18;
+
+			if(d->d1)
+			{
+				if(mouse_in_rect(d->x+d->w-btn_offset, d->y+5, 16, 14))
+				{
+					if(jwin_do_copy_button(screen, d->x+d->w-btn_offset, d->y+5))
+					{
+						GUI_EVENT(d, geCOPY);
+					}
 				}
 			}
 		}
