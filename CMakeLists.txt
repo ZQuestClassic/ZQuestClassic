@@ -38,6 +38,16 @@ set(WANT_VENDORED_ZLIB TRUE CACHE BOOL "Build the vendored library at third_part
 set(WANT_VENDORED_LIBPNG TRUE CACHE BOOL "Build the vendored library at third_party/libpng")
 set(WANT_VENDORED_DUMB TRUE CACHE BOOL "Build the vendored library at third_party/dumb")
 set(WANT_VENDORED_LIBJPEG_TURBO TRUE CACHE BOOL "Build the vendored library at third_party/libjpeg_turbo")
+# libogg and libvorbis are only vendored by default on mac, where the universal
+# release needs them for both architectures. Everywhere else they come from the
+# system (or vcpkg), as before.
+if(APPLE)
+	set(ZC_VENDOR_OGG_VORBIS_DEFAULT TRUE)
+else()
+	set(ZC_VENDOR_OGG_VORBIS_DEFAULT FALSE)
+endif()
+set(WANT_VENDORED_LIBOGG ${ZC_VENDOR_OGG_VORBIS_DEFAULT} CACHE BOOL "Build the vendored library at third_party/libogg")
+set(WANT_VENDORED_LIBVORBIS ${ZC_VENDOR_OGG_VORBIS_DEFAULT} CACHE BOOL "Build the vendored library at third_party/libvorbis")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
 set(WANT_ERROR_CHECKING TRUE CACHE BOOL "")
 set(RELEASE_TAG "" CACHE STRING "Version string")
@@ -219,6 +229,14 @@ set(ZC_INSTALL_TARGETS "")
 set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(third_party)
+
+# These are primarily for allegro, to ensure it prefers vendored library headers over system headers.
+if(WANT_VENDORED_LIBOGG)
+	include_directories(BEFORE SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libogg/include")
+endif()
+if(WANT_VENDORED_LIBVORBIS)
+	include_directories(BEFORE SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libvorbis/include")
+endif()
 
 FetchContent_Declare(json
 	URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
