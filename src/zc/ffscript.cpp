@@ -8711,7 +8711,7 @@ int32_t get_register(const int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = currscr;
+			ret = currscr * 10000;
 		}
 		break;
 
