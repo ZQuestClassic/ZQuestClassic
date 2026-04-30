@@ -57,7 +57,7 @@ void CompileSettingsDlg::load()
 	{
 		if(q > 8*sizeof(qst_cfg)) //sanity... probably not really necessary, but just to be safe -Em
 		{
-			displayinfo("DEV ERROR","Not enough space for all quest-specific QRs!");
+			InfoDialog("DEV ERROR","Not enough space for all quest-specific QRs!").show();
 			break;
 		}
 		set_bit(qst_cfg,q,get_qr(compileSettingList.getValue(q)));

@@ -17,6 +17,7 @@
 #include "zq/zquest.h"
 #include "zq/render.h"
 #include "dialog/door_sel.h"
+#include <dialog/info.h>
 
 extern void restore_mouse();
 extern zquestheader header;
@@ -1337,12 +1338,12 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				if ( ret )
 				{
 					extract_name(temppath,name,FILENAMEALL);
-					displayinfo("Success!", fmt::format("Saved {}", name));
+					InfoDialog("Success!", fmt::format("Saved {}", name)).show();
 				}
 				else
 				{
 					extract_name(temppath,name,FILENAMEALL);
-					displayinfo("Error!", fmt::format("Failed to save {}", name));
+					InfoDialog("Error!", fmt::format("Failed to save {}", name)).show();
 				}
 			} },
 		{ "Load", [&]()
@@ -1358,16 +1359,16 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", temppath);
-					displayinfo("ZDOOR File: Error","Could not load the specified doorset.");
+					InfoDialog("ZDOOR File: Error","Could not load the specified doorset.").show();
 				}
 				else if ( ret == 1 )
 				{
-					displayinfo("ZDOORS File: Success!","Loaded the source doorsets!");
+					InfoDialog("ZDOORS File: Success!","Loaded the source doorsets!").show();
 					mark_save_dirty();
 				}
 				else if ( ret == 2 )
 				{
-					displayinfo("ZDOORS File: Issue:","Targets exceed doorset count!");
+					InfoDialog("ZDOORS File: Issue:","Targets exceed doorset count!").show();
 					mark_save_dirty();
 				}
 				pack_fclose(f);

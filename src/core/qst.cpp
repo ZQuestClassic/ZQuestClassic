@@ -16,7 +16,7 @@
 #include <vector>
 #include <assert.h>
 #include <fmt/format.h>
-#include "dialog/externs.h"
+#include "dialog/info.h"
 
 #include "fmt/core.h"
 #include "zalleg/zalleg.h"
@@ -585,7 +585,7 @@ PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool v
     {
         if(!valid_zqt(f))
         {
-			displayinfo("Error", "Invalid Quest Template");
+			InfoDialog("Error", "Invalid Quest Template").show();
             pack_fclose(f);
 			clear_quest_tmpfile();
             return NULL;

@@ -22,7 +22,7 @@
 #include <deque>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include "dialog/externs.h"
+#include "dialog/info.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_IMPLEMENTATION
@@ -1196,7 +1196,7 @@ static void check_assert()
             if (!exit_when_done)
             {
                 enter_sys_pal();
-                displayinfo("Assert", error);
+                InfoDialog("Assert", error).show();
                 exit_sys_pal();
             }
             break;
@@ -1261,7 +1261,7 @@ static void fail_replay(std::string error)
 	if (!exit_when_done)
 	{
 		enter_sys_pal();
-		displayinfo(replay_mode_to_string(mode), err_out);
+		InfoDialog(replay_mode_to_string(mode), err_out).show();
 		exit_sys_pal();
 	}
 
@@ -1474,7 +1474,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            displayinfo("Recording", "Replaying stopped at requested frame");
+            InfoDialog("Recording", "Replaying stopped at requested frame").show();
             exit_sys_pal();
         }
     }
@@ -1528,7 +1528,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            displayinfo(replay_mode_to_string(mode), "Stopped at requested frame");
+            InfoDialog(replay_mode_to_string(mode), "Stopped at requested frame").show();
             exit_sys_pal();
             return;
         }
@@ -1775,7 +1775,7 @@ void replay_stop(bool aborted)
         else if (has_assert_failed)
         {
             enter_sys_pal();
-            displayinfo("Assert", "Replay has stopped, and the assert failed.");
+            InfoDialog("Assert", "Replay has stopped, and the assert failed.").show();
             exit_sys_pal();
 			Paused = true;
         }
@@ -1797,7 +1797,7 @@ void replay_stop(bool aborted)
             else
             {
                 enter_sys_pal();
-                displayinfo("Update", "Failed to update replay as there was a non-graphical change.");
+                InfoDialog("Update", "Failed to update replay as there was a non-graphical change.").show();
                 exit_sys_pal();
             }
         }

@@ -2,6 +2,7 @@
 #include "base/containers.h"
 #include <gui/builder.h>
 #include <utility>
+#include <dialog/info.h>
 
 bool call_checklist_dialog(string const& title,
 	vector<CheckListInfo> const& flagnames,

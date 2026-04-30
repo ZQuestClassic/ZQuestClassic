@@ -5,6 +5,7 @@
 #include "core/fonts.h"
 #include "tiles.h"
 #include "zc_list_data.h"
+#include <dialog/info.h>
 
 extern bool reload_fonts;
 void load_size_poses();

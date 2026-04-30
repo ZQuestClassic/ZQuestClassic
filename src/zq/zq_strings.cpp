@@ -18,6 +18,7 @@
 #include "zsyssimple.h"
 #include <map>
 #include <string>
+#include <dialog/info.h>
 
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
@@ -478,9 +479,9 @@ int32_t onStrings()
 		switch(ret)
 		{
 			case 18:
-				displayinfo("String Index","Create a string beginning with two hyphens '--'"
+				InfoDialog("String Index","Create a string beginning with two hyphens '--'"
 					"and it will be listed in this index, serving as a"
-					"shortcut to a location in your string list.");
+					"shortcut to a location in your string list.").show();
 				break;
 				
 			case 17: // Go to category
@@ -857,8 +858,8 @@ void fix_string_list()
 		
 		if(FFCore.getQuestHeaderInfo(vZelda) >= 0x250) //not an error before this, don't pop up
 		{
-			displayinfo("Notice","Your quest's string ordering was corrupted."
-				"\nIt has been reverted to the default order.");
+			InfoDialog("Notice","Your quest's string ordering was corrupted."
+				"\nIt has been reverted to the default order.").show();
 		}
 	}
 }

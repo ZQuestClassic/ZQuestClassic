@@ -7443,7 +7443,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	if(dest_last>=NEWMAXTILES)
 	{
-		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy"));
+		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy")).show();
 		return false;
 	}
 	
@@ -7528,7 +7528,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
-		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", tmd.move ? "Move" : "Copy"));
+		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", tmd.move ? "Move" : "Copy")).show();
 		return false;
 	}
 	
@@ -7870,7 +7870,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
-		displayinfo("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy"));
+		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy")).show();
 		return false;
 	}
 	
@@ -8499,13 +8499,13 @@ void draw_tile_list_window()
 
 void show_blank_tile(int32_t t)
 {
-	displayinfo("Blank Tile Information",fmt::format(
+	InfoDialog("Blank Tile Information",fmt::format(
 		"Tile is{} blank.\n{} {}\n{} {}",
 		blank_tile_table[t]?"":" not",
 		blank_tile_quarters_table[t*4]?'X':'-',
 		blank_tile_quarters_table[(t*4)+1]?'X':'-',
 		blank_tile_quarters_table[(t*4)+2]?'X':'-',
-		blank_tile_quarters_table[(t*4)+3]?'X':'-'));
+		blank_tile_quarters_table[(t*4)+3]?'X':'-')).show();
 }
 
 static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, int format, bool shift, bool alt, bool skip_prompt = false)
@@ -9081,11 +9081,11 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					if (!readtilefile(f))
 					{
 						al_trace("Could not read from .ztile packfile %s\n", temppath);
-						displayinfo("ZTILE File: Error","Could not load the specified Tile.");
+						InfoDialog("ZTILE File: Error","Could not load the specified Tile.").show();
 					}
 					else
 					{
-						displayinfo("ZTILE File: Success!","Loaded the source tiles to your tile sheets!");
+						InfoDialog("ZTILE File: Success!","Loaded the source tiles to your tile sheets!").show();
 					}
 				
 					pack_fclose(f);
@@ -9810,13 +9810,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						
 						if(!same)
 						{
-							displayinfo("Error","The source tiles are not in the same format.");
+							InfoDialog("Error","The source tiles are not in the same format.").show();
 							break;
 						}
 						
 						if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 						{
-							displayinfo("Error","Too many tiles will be created");
+							InfoDialog("Error","Too many tiles will be created").show();
 							break;
 						}
 						
@@ -11815,8 +11815,8 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t ok=1;
 			
 			if(newtilebuf[d->d1].format==tf8Bit)
-				displayinfo("Warning", "You have selected an 8-bit tile."
-				   "\nIt will not be drawn correctly on the file select screen.");
+				InfoDialog("Warning", "You have selected an 8-bit tile."
+				   "\nIt will not be drawn correctly on the file select screen.").show();
 						   
 			return D_REDRAW;
 		}

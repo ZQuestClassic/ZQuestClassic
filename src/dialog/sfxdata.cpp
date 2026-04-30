@@ -149,7 +149,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 			//save
 			if (local_ref.is_invalid())
-				displayinfo("Error!", "Cannot save an empty slot!");
+				InfoDialog("Error!", "Cannot save an empty slot!").show();
 			else
 			{
 				switch (local_ref.get_sample_type())
@@ -167,11 +167,11 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					try
 					{
 						local_ref.save_sound(temppath);
-						displayinfo("Success!", fmt::format("Saved SFX file\n{}", temppath));
+						InfoDialog("Success!", fmt::format("Saved SFX file\n{}", temppath)).show();
 					}
 					catch (zcsfx_io_exception &e)
 					{
-						displayinfo("Error", e.what());
+						InfoDialog("Error", e.what()).show();
 					}
 				}
 			}
@@ -190,7 +190,7 @@ bool SFXDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}
 				catch (zcsfx_io_exception &e)
 				{
-					displayinfo("Error", e.what());
+					InfoDialog("Error", e.what()).show();
 				}
 				return false;
 			}

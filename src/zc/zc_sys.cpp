@@ -3608,7 +3608,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		enter_sys_pal();
-		displayinfo("View Map","Not enough memory.");
+		InfoDialog("View Map","Not enough memory.").show();
 		exit_sys_pal();
 		return D_O_K;;
 	}
@@ -4861,7 +4861,7 @@ int32_t onToggleRecordingNewSaves()
 	else
 	{
 		zc_set_config("zeldadx", "replay_new_saves", true);
-		displayinfo("Recording", "Newly created saves will be recorded and written to a replay file.");
+		InfoDialog("Recording", "Newly created saves will be recorded and written to a replay file.").show();
 	}
 	return D_O_K;
 }
@@ -4876,8 +4876,8 @@ int32_t onToggleAutoUploadReplays()
 	else
 	{
 		zc_set_config("zeldadx", "replay_upload", true);
-		displayinfo("Replays", "Replays will be automatically uploaded. This helps keep ZQuest Classic stable and prevent regressions."
-			"\nUpload will happen no more than once a week when closing ZC");
+		InfoDialog("Replays", "Replays will be automatically uploaded. This helps keep ZQuest Classic stable and prevent regressions."
+			"\nUpload will happen no more than once a week when closing ZC").show();
 
 		if (!zc_get_config("zeldadx", "replay_new_saves", false))
 			onToggleRecordingNewSaves();
@@ -4891,7 +4891,7 @@ int32_t onUploadReplays()
 		"Upload your replays now to assist in development?"))
 	{
 		int num_uploaded = replay_upload();
-		displayinfo("Upload replays", fmt::format("Uploaded {} replays", num_uploaded));
+		InfoDialog("Upload replays", fmt::format("Uploaded {} replays", num_uploaded)).show();
 	}
 	return D_O_K;
 }
@@ -4900,7 +4900,7 @@ int32_t onUploadSingleReplay()
 {
 	if (Playing || saveslot == -1)
 	{
-		displayinfo("Upload replay", "Must be on the title screen.");
+		InfoDialog("Upload replay", "Must be on the title screen.").show();
 		return D_O_K;
 	}
 
@@ -4908,7 +4908,7 @@ int32_t onUploadSingleReplay()
 	// Need to load the full save to get the replay path field.
 	if (auto r = saves_get_slot(saveslot, true); !r || r.value()->header->replay_file.empty())
 	{
-		displayinfo("Upload replay", "The selected save slot does not have a replay.");
+		InfoDialog("Upload replay", "The selected save slot does not have a replay.").show();
 		return D_O_K;
 	}
 	else
@@ -4921,11 +4921,11 @@ int32_t onUploadSingleReplay()
 
 	if (auto error = replay_upload(replay_path))
 	{
-		displayinfo("Upload replay", fmt::format("Error: {}", error.value()));
+		InfoDialog("Upload replay", fmt::format("Error: {}", error.value())).show();
 		return D_O_K;
 	}
 
-	displayinfo("Upload replay", "Successfully uploaded replay file. Thanks!");
+	InfoDialog("Upload replay", "Successfully uploaded replay file. Thanks!").show();
 
 	return D_O_K;
 }
@@ -4957,7 +4957,7 @@ int32_t onStopReplayOrRecord()
 	{
 		if (!replay_get_meta_bool("test_mode"))
 		{
-			displayinfo("Recording", "You cannot stop recording a save file.");
+			InfoDialog("Recording", "You cannot stop recording a save file.").show();
 			return D_CLOSE;
 		}
 
@@ -5053,7 +5053,7 @@ int32_t onSaveReplay()
 
 			if (fileexists(replay_path.c_str()))
 			{
-				displayinfo("Save Replay", "You cannot overwrite an existing file.");
+				InfoDialog("Save Replay", "You cannot overwrite an existing file.").show();
 				return D_CLOSE;
 			}
 

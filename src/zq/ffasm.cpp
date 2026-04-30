@@ -14,6 +14,7 @@
 #include "base/util.h"
 
 #include <sstream>
+#include <dialog/info.h>
 
 using namespace util;
 using std::string;
@@ -233,10 +234,10 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
-				displayinfo("Error", fmt::format("Unable to parse instruction {}"
+				InfoDialog("Error", fmt::format("Unable to parse instruction {}"
 					"\nThe error was: Duplicate Label"
 					"\nThe duplicate label was: \"{}\"",
-					i+1, lbuf));
+					i+1, lbuf)).show();
 				stop=true;
 				success=false;
 				goto zasmfile_fail_str;
@@ -434,14 +435,14 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			char vstrbuf[64] = {0};
 			if(has_str || has_vec)
 				sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-			displayinfo("Error", fmt::format(
+			InfoDialog("Error", fmt::format(
 				"Unable to parse instruction {}"
 				"\nThe error was: {}"
 				"\nThe command was ({}) ({},{},{}){}",
 				i+1,
 				errstrbuf[parse_err],
 				combuf, arg1buf, arg2buf, arg3buf, vstrbuf
-			));
+			)).show();
 			stop=true;
 			success=false;
 			zasm.pop_back();
@@ -449,7 +450,7 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 	}
 
 	if(report_success && success) //(!stop) // stop is never true here
-		displayinfo("Success", "");
+		InfoDialog("Success", "").show();
 zasmfile_fail_str:
 	return success ? D_O_K : D_CLOSE;
 }

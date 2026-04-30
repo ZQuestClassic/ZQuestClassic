@@ -40,7 +40,7 @@ bool alert_confirm(string const& title, string const& text,
 		no_btn.value_or("No"),
 		0,false,false);
 	if (subtext)
-		alert.setSubtext(*subtext);
+		alert.set_subtext(subtext);
 	alert.show();
 	return return_val;
 }
@@ -55,7 +55,7 @@ std::pair<bool,bool> alert_confirm_dsa(string const& title, string const& text,
 		no_btn.value_or("No"),
 		0,false,true);
 	if (subtext)
-		alert.setSubtext(*subtext);
+		alert.set_subtext(subtext);
 	alert.show();
 	return {return_val, dsa_val};
 }

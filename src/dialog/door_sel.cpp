@@ -22,7 +22,7 @@ Button(forceFitH = true, text = "?", \
 	onPressFunc = [=]() \
 	{ \
 		set_dlg_active(false); \
-		displayinfo("Info",inf); \
+		InfoDialog("Info",inf).show(); \
 		set_dlg_active(true); \
 	})
 

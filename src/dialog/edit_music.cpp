@@ -105,7 +105,7 @@ void EditMusicDialog::midiPreview()
 {
 	silenceMusicPreview();
 	if (local_music.midi < 0)
-		displayinfo("Can't Preview", "This internal MIDI cannot be previewed in the editor at this time.");
+		InfoDialog("Can't Preview", "This internal MIDI cannot be previewed in the editor at this time.").show();
 	else if (!local_music.midi)
 		;
 	else if (local_music.midi <= MAXCUSTOMMIDIS)
@@ -303,7 +303,7 @@ std::shared_ptr<GUI::Widget> EditMusicDialog::view()
 
 										if (strlen(tmfname) > 256)
 										{
-											displayinfo("Error", "Filename too long (>256 characters)");
+											InfoDialog("Error", "Filename too long (>256 characters)").show();
 											temppath[0] = 0;
 										}
 										else
