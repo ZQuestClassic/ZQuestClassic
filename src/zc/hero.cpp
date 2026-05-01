@@ -489,7 +489,6 @@ void HeroClass::update_current_screen()
 		current_screen = new_screen;
 		prev_hero_scr = hero_scr;
 		hero_scr = get_scr(current_screen);
-		screen_spawned = current_screen;
 		if (FFCore.can_change_music_within_region())
 		{
 			playLevelMusic();

@@ -45,7 +45,7 @@ class sprite {
 
 	// The screen index this sprite was created on. Does not update as the sprite moves around a region.
 	//
-	// [Hero]: This is always equal to the top-left screen of the current region, equivalent to [Game->CurScreen].
+	// [Hero]: This is equal to the screen that the player first entered the region.
 	//
 	// @versionadded 3.0
 	// @zasm_var SPRITE_SPAWN_SCREEN

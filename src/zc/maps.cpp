@@ -6446,6 +6446,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	load_region(destdmap, screen);
 	home_screen = screen >= 0x80 ? Hero.current_screen : cur_screen;
 	Hero.current_screen = screen;
+	Hero.screen_spawned = screen;
 
 	cpos_clear_all();
 	FFCore.destroyScriptableObjectsOfType(ScriptType::Screen);
