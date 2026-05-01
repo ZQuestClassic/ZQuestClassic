@@ -9,6 +9,7 @@
 #include "subscr.h"
 #include "zc/maps.h"
 #include "zc/replay.h"
+#include "zc/replay_compat.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
@@ -7970,9 +7971,6 @@ void HeroClass::handle_portal_prox(portal* p)
 	p->prox_active = !(abs(x - p->x) < 12 && abs(y - p->y) < 12);
 }
 
-static bool replay_compat_hookshot_snap_player_bug();
-static bool replay_compat_whistle_stuck_bug();
-
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -14149,56 +14147,6 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
-static bool replay_compat_check_zc_version_2_55(int patch)
-{
-	if (!replay_is_active())
-		return false;
-
-	auto zc_version_created = replay_get_zc_version_created();
-	if (!zc_version_created.well_formed)
-		return false;
-
-	if (zc_version_created.major < 2)
-		return true; // Replays didn't exist at this point ... but whatever.
-	if (zc_version_created.major == 2 && zc_version_created.minor < 55)
-		return true; // Replays didn't exist at this point ... but whatever.
-	if (zc_version_created.major == 2 && zc_version_created.minor == 55 && zc_version_created.patch < patch)
-		return true;
-
-	return false;
-}
-
-static bool replay_compat_pitslide_bug()
-{
-	return replay_compat_check_zc_version_2_55(11);
-}
-
-static bool replay_compat_held_items_only_held_always_bug()
-{
-	return replay_compat_check_zc_version_2_55(11);
-}
-
-static bool replay_compat_hookshot_snap_player_bug()
-{
-	return replay_compat_check_zc_version_2_55(12);
-}
-
-static bool replay_compat_old_movement_off_by_one()
-{
-	return replay_compat_check_zc_version_2_55(12);
-}
-
-static bool replay_compat_charging_during_scroll_bug()
-{
-	return replay_compat_check_zc_version_2_55(13);
-}
-
-// https://discord.com/channels/876899628556091432/1479336319674220575
-static bool replay_compat_whistle_stuck_bug()
-{
-	return replay_compat_check_zc_version_2_55(14);
-}
-
 bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
@@ -16184,7 +16132,7 @@ void HeroClass::moveheroOld()
 		}
 		else
 		{
-			int tmp_x = replay_compat_old_movement_off_by_one() ? 16 : 15;
+			int tmp_x = replay_compat_old_movement_off_by_one_bug() ? 16 : 15;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
 			{
 				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
