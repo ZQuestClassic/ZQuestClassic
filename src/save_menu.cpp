@@ -74,6 +74,10 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 			SaveMenuOption const& opt = options[*cursor];
 
 			running = false;
+
+			if (opt.gen_script)
+				FFCore.runGenericFrozenEngine(opt.gen_script);
+
 			if (Quit)
 				;
 			else if (opt.flags & SMENU_OPT_RELOAD)
@@ -90,9 +94,6 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 			// replays to work.
 			if (opt.flags & SMENU_OPT_SAVE)
 				pending_save_from_save_menu = true;
-
-			if (opt.gen_script)
-				FFCore.runGenericFrozenEngine(opt.gen_script);
 		}
 		else if (Quit)
 			running = false;
