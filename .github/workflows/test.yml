@@ -136,7 +136,7 @@ jobs:
       # Just run a few replays with JIT disabled.
       # Also, without headless.
       - name: Test w/o JIT
-        if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.from-ci-workflow && inputs.arch != 'win32' }}
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
         run: >
           bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
           --repo ${{ github.repository }}
@@ -145,6 +145,7 @@ jobs:
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --no-jit
+          --extra-args "${{ inputs.extra-args }}"
           --build-folder zc-extracted
 
       - name: Updater cache

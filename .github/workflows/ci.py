@@ -556,7 +556,8 @@ def replay_tests(ctx: CiContext, args):
                 "--no-headless",
             ]
         )
-    elif args.extra_args:
+
+    if args.extra_args:
         logger.info(f"Applying extra arguments: {args.extra_args}")
         base_cmd.extend(shlex.split(args.extra_args))
 
