@@ -9500,6 +9500,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			numInstructions=0;
 			poll_keyboard();
 			checkQuitKeys();
+			zscript_debugger_update();
 			if(Quit)
 				scommand=0xFFFF;
 		}
