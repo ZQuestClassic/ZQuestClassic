@@ -13,7 +13,9 @@ import subprocess
 import sys
 import time
 
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 system = platform.system()
 
@@ -407,7 +409,7 @@ def generate_changelog(package_dir: Path):
             ).strip()
             date = date.replace('-', '_')
         except:
-            date = time.strftime("%Y_%m_%d")
+            date = datetime.now(ZoneInfo('America/Los_Angeles')).strftime("%Y_%m_%d")
 
         try:
             last_stable = subprocess.check_output(
