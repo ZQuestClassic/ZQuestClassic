@@ -1,5 +1,5 @@
-if(ZC_VERSION)
-	set(CPACK_ZC_VERSION ${ZC_VERSION})
+if(RELEASE_TAG)
+	set(CPACK_ZC_VERSION ${RELEASE_TAG})
 endif()
 set(CPACK_ZC_OFFICIAL ${ZC_OFFICIAL})
 set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CPackConfig.cmake")
@@ -159,7 +159,7 @@ install(CODE "
 			--new_packager
 			--build_folder \"${BUILD_FOLDER}\"
 			--package_folder \"$<INSTALL_PREFIX>/${INSTALL_DATA_DIR}\"
-			$<$<BOOL:${ZC_VERSION}>:--version;${ZC_VERSION}>
+			$<$<BOOL:${RELEASE_TAG}>:--version;${RELEASE_TAG}>
 		COMMAND_ERROR_IS_FATAL ANY)
 ")
 

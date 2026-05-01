@@ -13,7 +13,9 @@ import subprocess
 import sys
 import time
 
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 system = platform.system()
 
@@ -397,7 +399,8 @@ def generate_changelog(package_dir: Path):
         major, minor, patch = map(
             int, re.search(r'^(\d+)\.(\d+)\.(\d+)', args.version).groups()
         )
-        is_stable_release = patch == '0'
+        # is_stable_release = patch == '0'
+        is_stable_release = True
         # Tag either already exists (we are re-publishing for some reason), or doesn't yet.
         try:
             date = subprocess.check_output(
@@ -405,11 +408,11 @@ def generate_changelog(package_dir: Path):
             ).strip()
             date = date.replace('-', '_')
         except:
-            date = time.strftime("%Y_%m_%d")
+            date = datetime.now(ZoneInfo('America/Los_Angeles')).strftime("%Y_%m_%d")
 
         try:
             last_stable = subprocess.check_output(
-                f'git describe --tags --abbrev=0 --match "*.*.0" --match "2.55-alpha-1??" --exclude {args.version}',
+                f'git describe --tags --abbrev=0 --match "2.55.*" --exclude {args.version}',
                 shell=True,
                 encoding='utf-8',
             ).strip()
@@ -421,8 +424,8 @@ def generate_changelog(package_dir: Path):
                     last_stable,
                     '--to',
                     'HEAD',
-                    '--version',
-                    args.version,
+                    # '--version',
+                    # args.version,
                 ],
                 encoding='utf-8',
             ).strip()
@@ -431,7 +434,7 @@ def generate_changelog(package_dir: Path):
             print(e)
 
         if is_stable_release:
-            new_changelog_path = package_dir / f'changelogs/${date}-{args.version}.txt'
+            new_changelog_path = package_dir / f'changelogs/{date}-{args.version}.txt'
         else:
             new_changelog_path = package_dir / 'changelogs/nightly.txt'
 

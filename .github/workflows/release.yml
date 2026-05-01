@@ -89,6 +89,7 @@ jobs:
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
+      official: true
       sentry: ${{ matrix.sentry }}
       release-tag: ${{ needs.create-tag.outputs.release-tag }}
       release-name: ${{ needs.create-tag.outputs.release-name }}

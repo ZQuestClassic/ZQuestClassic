@@ -31,7 +31,7 @@ else()
 		set(VERSION_STRING "${GIT_LATEST_VERSION_TAG}")
 		message(STATUS "CPack: Detected git tag ${VERSION_STRING}")
 	else()
-		message(WARNING "CPack: Could not determine version from git or ZC_VERSION")
+		message(WARNING "CPack: Could not determine version from git or RELEASE_TAG")
 	endif()
 endif()
 
