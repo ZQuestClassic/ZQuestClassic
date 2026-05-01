@@ -126,7 +126,7 @@ jobs:
 
       # Just run a few replays with JIT disabled.
       # Also, without headless.
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.arch != 'win32' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
         name: Test w/o JIT
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
@@ -139,6 +139,7 @@ jobs:
           --filter keys.zplay
           --no-jit
           --no-headless
+          ${{ inputs.extra-args }}
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Updater cache
