@@ -369,8 +369,7 @@ namespace // sample implementations
 	}
 	void SampleOGG::stop()
 	{
-		if (stream)
-			al_set_audio_stream_playing(stream, false);
+		cleanup_stream();
 	}
 	bool SampleOGG::ensure_stream()
 	{
