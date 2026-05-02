@@ -97,6 +97,9 @@ jobs:
         with:
           python-version: '3.11.4'
 
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
