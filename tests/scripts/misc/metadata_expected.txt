@@ -452,21 +452,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 113,
+            "line": 121,
             "character": 5
           },
           "end": {
-            "line": 115,
+            "line": 123,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 113,
+            "line": 121,
             "character": 5
           },
           "end": {
-            "line": 113,
+            "line": 121,
             "character": 6
           }
         },
@@ -477,21 +477,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 117,
+            "line": 125,
             "character": 5
           },
           "end": {
-            "line": 121,
+            "line": 129,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 117,
+            "line": 125,
             "character": 5
           },
           "end": {
-            "line": 117,
+            "line": 125,
             "character": 7
           }
         },
@@ -501,21 +501,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 119,
+                "line": 127,
                 "character": 6
               },
               "end": {
-                "line": 119,
+                "line": 127,
                 "character": 21
               }
             },
             "selectionRange": {
               "start": {
-                "line": 119,
+                "line": 127,
                 "character": 6
               },
               "end": {
-                "line": 119,
+                "line": 127,
                 "character": 7
               }
             },
@@ -528,21 +528,21 @@ stdout:
         "kind": 3,
         "range": {
           "start": {
-            "line": 104,
+            "line": 112,
             "character": 0
           },
           "end": {
-            "line": 111,
+            "line": 119,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 104,
+            "line": 112,
             "character": 10
           },
           "end": {
-            "line": 104,
+            "line": 112,
             "character": 15
           }
         },
@@ -552,21 +552,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 110,
+                "line": 118,
                 "character": 8
               },
               "end": {
-                "line": 110,
+                "line": 118,
                 "character": 11
               }
             },
             "selectionRange": {
               "start": {
-                "line": 110,
+                "line": 118,
                 "character": 8
               },
               "end": {
-                "line": 110,
+                "line": 118,
                 "character": 11
               }
             },
@@ -577,21 +577,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 106,
+                "line": 114,
                 "character": 9
               },
               "end": {
-                "line": 108,
+                "line": 116,
                 "character": 5
               }
             },
             "selectionRange": {
               "start": {
-                "line": 106,
+                "line": 114,
                 "character": 9
               },
               "end": {
-                "line": 106,
+                "line": 114,
                 "character": 11
               }
             },
@@ -608,7 +608,7 @@ stdout:
             "character": 0
           },
           "end": {
-            "line": 101,
+            "line": 109,
             "character": 1
           }
         },
@@ -632,7 +632,7 @@ stdout:
                 "character": 9
               },
               "end": {
-                "line": 100,
+                "line": 108,
                 "character": 5
               }
             },
@@ -893,6 +893,31 @@ stdout:
                   "end": {
                     "line": 98,
                     "character": 15
+                  }
+                },
+                "children": []
+              },
+              {
+                "name": "s",
+                "kind": 13,
+                "range": {
+                  "start": {
+                    "line": 107,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 107,
+                    "character": 18
+                  }
+                },
+                "selectionRange": {
+                  "start": {
+                    "line": 107,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 107,
+                    "character": 18
                   }
                 },
                 "children": []
@@ -1412,11 +1437,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 113,
+              "line": 121,
               "character": 5
             },
             "end": {
-              "line": 113,
+              "line": 121,
               "character": 6
             }
           },
@@ -1427,11 +1452,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 117,
+              "line": 125,
               "character": 5
             },
             "end": {
-              "line": 117,
+              "line": 125,
               "character": 7
             }
           },
@@ -1442,11 +1467,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 119,
+              "line": 127,
               "character": 1
             },
             "end": {
-              "line": 119,
+              "line": 127,
               "character": 21
             }
           },
@@ -1459,17 +1484,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 110,
+              "line": 118,
               "character": 8
             },
             "end": {
-              "line": 110,
+              "line": 118,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D)",
+        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D)",
         "name": "hmm",
         "type": "int"
       },
@@ -1477,17 +1502,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 106,
+              "line": 114,
               "character": 9
             },
             "end": {
-              "line": 106,
+              "line": 114,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A9%7D%7D%7D)"
+        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A9%7D%7D%7D)"
       },
       "script.Metadata": {
         "loc": {
@@ -1804,6 +1829,24 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
+      "5408": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 107,
+              "character": 8
+            },
+            "end": {
+              "line": 107,
+              "character": 18
+            }
+          },
+          "uri": "URI"
+        },
+        "doc": "There was a bug that would result in randomly choosing between functions of the same name.\nIn this case, the internal binding \"itoa\" vs the function in string_functions.zh \"itoa\".\n\nNow, the expected result is to prefer the binding function over any other global function.\n\nfeed me to [`itoa()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A642%2C%22character%22%3A13%7D%2C%22end%22%3A%7B%22line%22%3A642%2C%22character%22%3A17%7D%7D%7D).",
+        "name": "s",
+        "type": "char32[]"
+      },
       "5196": {
         "loc": {
           "range": {
@@ -1853,7 +1896,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7390": {
+      "7391": {
         "loc": {
           "range": {
             "start": {
@@ -2072,7 +2115,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 113,
+          "line": 121,
           "character": 5,
           "length": 1
         },
@@ -2080,7 +2123,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 117,
+          "line": 125,
           "character": 5,
           "length": 2
         },
@@ -2088,7 +2131,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 119,
+          "line": 127,
           "character": 6,
           "length": 1
         },
@@ -2096,7 +2139,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 119,
+          "line": 127,
           "character": 18,
           "length": 1
         },
@@ -2104,7 +2147,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 120,
+          "line": 128,
           "character": 8,
           "length": 1
         },
@@ -2112,7 +2155,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 110,
+          "line": 118,
           "character": 8,
           "length": 3
         },
@@ -2120,7 +2163,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 106,
+          "line": 114,
           "character": 9,
           "length": 2
         },
@@ -2536,6 +2579,14 @@ stdout:
       },
       {
         "loc": {
+          "line": 107,
+          "character": 17,
+          "length": 1
+        },
+        "symbol": "5408"
+      },
+      {
+        "loc": {
           "line": 22,
           "character": 6,
           "length": 3
@@ -2612,7 +2663,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7390"
+        "symbol": "7391"
       },
       {
         "loc": {
@@ -2649,7 +2700,7 @@ SETV GD2 1                                                                      
 SETV GD3 1                                                                      | 2 tests/scripts/misc/metadata.zs:18
 SETV GD4 0                                                                      | 3 tests/scripts/misc/metadata.zs:20
 SETV GD5 2                                                                      | 4 tests/scripts/misc/metadata.zs:20
-SETV GD6 0                                                                      | 5 tests/scripts/misc/metadata.zs:111
+SETV GD6 0                                                                      | 5 tests/scripts/misc/metadata.zs:119
 QUIT; void run() Body End
 PUSHR D0; void run(int, int, int, int, int) Params                              | 7 tests/scripts/misc/metadata.zs:77
 PUSHR D1                                                                        | 8 tests/scripts/misc/metadata.zs:77
@@ -2676,15 +2727,15 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 29 tests/scripts/misc/metadata.zs:78
 PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:79
 PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 31 tests/scripts/misc/metadata.zs:79
-CALLFUNC 0.0155; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:79
+CALLFUNC 0.0157; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:79
 PEEK D4
 PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 34 tests/scripts/misc/metadata.zs:80
-CALLFUNC 0.0149; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:80
+CALLFUNC 0.0151; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:80
 POP D4                                                                          | 36 tests/scripts/misc/metadata.zs:80
 PUSHR CLASS_THISKEY                                                             | 37 tests/scripts/misc/metadata.zs:83
 PUSHR D4                                                                        | 38 tests/scripts/misc/metadata.zs:83
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 39 tests/scripts/misc/metadata.zs:83
-CALLFUNC 0.0119; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:83
+CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:83
 POP D4                                                                          | 41 tests/scripts/misc/metadata.zs:83
 POP CLASS_THISKEY                                                               | 42 tests/scripts/misc/metadata.zs:83
 STORE_OBJECT D2 0.0007                                                          | 43 tests/scripts/misc/metadata.zs:83
@@ -2712,14 +2763,14 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 65 tests/scripts/misc/metadata.zs:84
 PUSHR CLASS_THISKEY                                                             | 66 tests/scripts/misc/metadata.zs:85
 PUSHR D4                                                                        | 67 tests/scripts/misc/metadata.zs:85
-CALLFUNC 0.0137; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:85
+CALLFUNC 0.0139; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:85
 POP D4                                                                          | 69 tests/scripts/misc/metadata.zs:85
 POP CLASS_THISKEY                                                               | 70 tests/scripts/misc/metadata.zs:85
 STORE_OBJECT D2 0.0006                                                          | 71 tests/scripts/misc/metadata.zs:85
 PUSHR CLASS_THISKEY                                                             | 72 tests/scripts/misc/metadata.zs:86
 PUSHR D4                                                                        | 73 tests/scripts/misc/metadata.zs:86
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 74 tests/scripts/misc/metadata.zs:86
-CALLFUNC 0.0119; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:86
+CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:86
 POP D4                                                                          | 76 tests/scripts/misc/metadata.zs:86
 POP CLASS_THISKEY                                                               | 77 tests/scripts/misc/metadata.zs:86
 STORE_OBJECT D2 0.0005                                                          | 78 tests/scripts/misc/metadata.zs:86
@@ -2756,49 +2807,51 @@ TRACER D2; InlineFunc[void Trace(untyped)] Body                                 
 STOREV 0 0.0002                                                                 | 109 tests/scripts/misc/metadata.zs:99
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 110 tests/scripts/misc/metadata.zs:100
 TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 111 tests/scripts/misc/metadata.zs:100
-REF_REMOVE 0.0003                                                               | 112 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0007                                                               | 113 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0005                                                               | 114 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0006                                                               | 115 tests/scripts/misc/metadata.zs:77
-POPARGS D5 0.0014                                                               | 116 tests/scripts/misc/metadata.zs:100
-RETURNFUNC; void run(int, int, int, int, int) Body End                          | 117 tests/scripts/misc/metadata.zs:100
-SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 118 tests/scripts/misc/metadata.zs:28
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 119 tests/scripts/misc/metadata.zs:28
-ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 120 tests/scripts/misc/metadata.zs:28
-REF_INC -0.0001                                                                 | 121 tests/scripts/misc/metadata.zs:28
-SETR D4 SP2                                                                     | 122 tests/scripts/misc/metadata.zs:28
-PUSHR CLASS_THISKEY2                                                            | 123 tests/scripts/misc/metadata.zs:28
-LOAD D2 0                                                                       | 124 tests/scripts/misc/metadata.zs:29
-PUSHR D2                                                                        | 125 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 126 tests/scripts/misc/metadata.zs:29
-SETR D3 D2                                                                      | 127 tests/scripts/misc/metadata.zs:29
-POP D2                                                                          | 128 tests/scripts/misc/metadata.zs:29
-ZCLASS_WRITE D3 0                                                               | 129 tests/scripts/misc/metadata.zs:29
-POP D5                                                                          | 130 tests/scripts/misc/metadata.zs:29
-REF_AUTORELEASE CLASS_THISKEY                                                   | 131 tests/scripts/misc/metadata.zs:29
-REF_DEC -0.0001                                                                 | 132 tests/scripts/misc/metadata.zs:29
-SETR D2 CLASS_THISKEY                                                           | 133 tests/scripts/misc/metadata.zs:29
-POP CLASS_THISKEY                                                               | 134 tests/scripts/misc/metadata.zs:29
-RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 135 tests/scripts/misc/metadata.zs:29
-SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 136 tests/scripts/misc/metadata.zs:42
-SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 137 tests/scripts/misc/metadata.zs:42
-ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 138 tests/scripts/misc/metadata.zs:42
-REF_INC -0.0001                                                                 | 139 tests/scripts/misc/metadata.zs:42
-SETR D4 SP2                                                                     | 140 tests/scripts/misc/metadata.zs:42
-PUSHR CLASS_THISKEY2                                                            | 141 tests/scripts/misc/metadata.zs:42
+STOREV 0 0.0001                                                                 | 112 tests/scripts/misc/metadata.zs:108
+REF_REMOVE 0.0003                                                               | 113 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0007                                                               | 114 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0005                                                               | 115 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0006                                                               | 116 tests/scripts/misc/metadata.zs:77
+REF_REMOVE 0.0001                                                               | 117 tests/scripts/misc/metadata.zs:77
+POPARGS D5 0.0014                                                               | 118 tests/scripts/misc/metadata.zs:108
+RETURNFUNC; void run(int, int, int, int, int) Body End                          | 119 tests/scripts/misc/metadata.zs:108
+SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 120 tests/scripts/misc/metadata.zs:28
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 121 tests/scripts/misc/metadata.zs:28
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 122 tests/scripts/misc/metadata.zs:28
+REF_INC -0.0001                                                                 | 123 tests/scripts/misc/metadata.zs:28
+SETR D4 SP2                                                                     | 124 tests/scripts/misc/metadata.zs:28
+PUSHR CLASS_THISKEY2                                                            | 125 tests/scripts/misc/metadata.zs:28
+LOAD D2 0                                                                       | 126 tests/scripts/misc/metadata.zs:29
+PUSHR D2                                                                        | 127 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 128 tests/scripts/misc/metadata.zs:29
+SETR D3 D2                                                                      | 129 tests/scripts/misc/metadata.zs:29
+POP D2                                                                          | 130 tests/scripts/misc/metadata.zs:29
+ZCLASS_WRITE D3 0                                                               | 131 tests/scripts/misc/metadata.zs:29
+POP D5                                                                          | 132 tests/scripts/misc/metadata.zs:29
+REF_AUTORELEASE CLASS_THISKEY                                                   | 133 tests/scripts/misc/metadata.zs:29
+REF_DEC -0.0001                                                                 | 134 tests/scripts/misc/metadata.zs:29
+SETR D2 CLASS_THISKEY                                                           | 135 tests/scripts/misc/metadata.zs:29
+POP CLASS_THISKEY                                                               | 136 tests/scripts/misc/metadata.zs:29
+RETURNFUNC; Func[Car Car::Car(int)] Body End                                    | 137 tests/scripts/misc/metadata.zs:29
+SETV D2 0; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body Start        | 138 tests/scripts/misc/metadata.zs:42
+SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 139 tests/scripts/misc/metadata.zs:42
+ZCLASS_CONSTRUCT CLASS_THISKEY {0}                                              | 140 tests/scripts/misc/metadata.zs:42
+REF_INC -0.0001                                                                 | 141 tests/scripts/misc/metadata.zs:42
+SETR D4 SP2                                                                     | 142 tests/scripts/misc/metadata.zs:42
+PUSHR CLASS_THISKEY2                                                            | 143 tests/scripts/misc/metadata.zs:42
 NOP
 REF_AUTORELEASE CLASS_THISKEY
 REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body End
-SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 148 tests/scripts/misc/metadata.zs:61
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 149 tests/scripts/misc/metadata.zs:63
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 150 tests/scripts/misc/metadata.zs:63
-LOAD D2 0; return Start                                                         | 151 tests/scripts/misc/metadata.zs:64
-POP D5; return End                                                              | 152 tests/scripts/misc/metadata.zs:64
-RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 153 tests/scripts/misc/metadata.zs:64
-SETR D4 SP2; Func[void fn(int)] Body Start                                      | 154 tests/scripts/misc/metadata.zs:107
+SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 150 tests/scripts/misc/metadata.zs:61
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 151 tests/scripts/misc/metadata.zs:63
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 152 tests/scripts/misc/metadata.zs:63
+LOAD D2 0; return Start                                                         | 153 tests/scripts/misc/metadata.zs:64
+POP D5; return End                                                              | 154 tests/scripts/misc/metadata.zs:64
+RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 155 tests/scripts/misc/metadata.zs:64
+SETR D4 SP2; Func[void fn(int)] Body Start                                      | 156 tests/scripts/misc/metadata.zs:115
 NOP
 POP D5
 RETURNFUNC; Func[void fn(int)] Body End

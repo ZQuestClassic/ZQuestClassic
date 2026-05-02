@@ -249,7 +249,21 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 				ident = parseExprIdentifier(symbol_name);
 				auto fns = lookupFunctions(*scope, ident.components, ident.delimiters, {}, false, false, true);
 				if (!fns.empty())
+				{
+					// Prefer functions in the same file. Then prefer internal bindings functions.
+					std::sort(fns.begin(), fns.end(), [&](Function* a, Function* b) {
+						bool a_same_file = node && a->node && a->node->location.fname == node->location.fname;
+						bool b_same_file = node && b->node && b->node->location.fname == node->location.fname;
+						if (a_same_file != b_same_file) return a_same_file;
+
+						bool a_internal = a->getFlag(FUNCFLAG_INTERNAL);
+						bool b_internal = b->getFlag(FUNCFLAG_INTERNAL);
+						if (a_internal != b_internal) return a_internal;
+
+						return a->id < b->id;
+					});
 					fn = fns[0];
+				}
 			}
 		}
 

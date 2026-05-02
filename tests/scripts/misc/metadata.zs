@@ -98,6 +98,14 @@ ffc script Metadata {
         }
         Brand b = Fancy;
         Trace(b);
+
+        // There was a bug that would result in randomly choosing between functions of the same name.
+        // In this case, the internal binding "itoa" vs the function in string_functions.zh "itoa".
+        //
+        // Now, the expected result is to prefer the binding function over any other global function.
+        //
+        // feed me to [itoa].
+        char32[] s;
     }
 }
 
