@@ -546,7 +546,7 @@ def process_lib(name: str, files):
 
     document = f'zscript/libs/{name}/index'
     sections['Libraries'].append(document)
-    rst_title(lib)
+    rst_title(name)
     add(f'.. _lib_{name}:')
     rst_toc(None, lib_documents)
 
@@ -657,8 +657,16 @@ handle_scope(
 write(document)
 
 # handle libs
-for lib in libraries:
-    files = [f for f in all_files if lib in f.name]
+lib_files = {lib: [] for lib in libraries}
+for f in all_files:
+    if 'bindings' in f.name:
+        continue
+    rel_file = Path(f.name).relative_to(resources_dir)
+    lib = next((x for x in libraries if x in str(rel_file)), None)
+    if lib:
+        lib_files[lib].append(f)
+
+for lib, files in lib_files.items():
     process_lib(lib, files)
 
 # zscript/index.rst
