@@ -14,3 +14,7 @@ api_endpoint = http://127.0.0.1:5000
 ```
 
 and run `bash start.sh` from this folder. You'll find the server data at `.tmp/api_server`.
+
+## Deploying
+
+Run `bash infra/deploy.sh`.
