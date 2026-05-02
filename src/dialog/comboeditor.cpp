@@ -1956,38 +1956,38 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[up] = "Weapons/light beams facing up (coming from below) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[down] = "Down Reflect";
 			h_attribyte[down] = "Weapons/light beams facing down (coming from above) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[left] = "Left Reflect";
 			h_attribyte[left] = "Weapons/light beams facing left (coming from the right) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[right] = "Right Reflect";
 			h_attribyte[right] = "Weapons/light beams facing right (coming from the left) will move in this direction."
 				" Light beams will not work with diagonals."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[l_up] = "Up-Left Reflect";
 			h_attribyte[l_up] = "Weapons facing up-left (coming from down-right) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[r_up] = "Up-Right Reflect";
 			h_attribyte[r_up] = "Weapons facing up-right (coming from down-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[l_down] = "Down-Left Reflect";
 			h_attribyte[l_down] = "Weapons facing down-left (coming from up-right) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			l_attribyte[r_down] = "Down-Right Reflect";
 			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
-				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right, 8 = block";
 			break;
 		}
 		case cCRUMBLE:
