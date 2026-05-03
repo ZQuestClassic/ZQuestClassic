@@ -28597,6 +28597,14 @@ struct rect_t
 	int right() const {return r;}
 	int top() const {return t;}
 	int bottom() const {return b;}
+	
+	void expand(int dist)
+	{
+		l -= dist;
+		r += dist;
+		t -= dist;
+		b += dist;
+	}
 };
 
 struct nearby_scrolling_screens_t
@@ -28811,13 +28819,18 @@ static void for_every_nearby_screen_during_scroll(
 	}
 }
 
-static void scrollscr_handle_dark(const nearby_scrolling_screens_t& nearby_screens)
+static void scrollscr_handle_dark(const nearby_scrolling_screens_t& nearby_screens, const nearby_scrolling_screens_t& nearby_screens_darklights)
 {
-	extern int dither_offx;
-	extern int dither_offy;
+	int saved_dither_offx = dither_offx;
+	int saved_dither_offy = dither_offy;
+	dither_offx -= new_region_offset_x;
+	dither_offy -= new_region_offset_y;
 
 	clear_darkroom_bitmaps();
 	set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
+
+	bool any_trans = false;
+	bool any_nontrans = false;
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
@@ -28825,16 +28838,31 @@ static void scrollscr_handle_dark(const nearby_scrolling_screens_t& nearby_scree
 		if (!dark)
 		{
 			offy += playing_field_offset;
-			rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-			rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp,
+				offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp_trans,
+				offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+		}
+		else
+		{
+			if (base_scr->flags9 & fDARK_DITHER)
+			{
+				offy += playing_field_offset;
+				ditherrectfill(darkscr_bmp,
+					offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1,
+					0, game->get_dither_type(), game->get_dither_arg(), viewport.x, viewport.y - playing_field_offset);
+				ditherrectfill(darkscr_bmp_trans,
+					offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1,
+					0, game->get_dither_type(), game->get_dither_arg(), viewport.x, viewport.y - playing_field_offset);
+			}
+			any_trans |= bool(base_scr->flags9 & fDARK_TRANS);
+			any_nontrans |= !bool(base_scr->flags9 & fDARK_TRANS);
 		}
 	});
 
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy, bool is_new_screen) {
+	for_every_nearby_screen_during_scroll(nearby_screens_darklights, [&](screen_handles_t screen_handles, int, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
-		dither_offx = is_new_screen ? -new_region_offset_x : 0;
-		dither_offy = is_new_screen ? -new_region_offset_y : 0;
 		calc_darkroom_combos(screen_handles, offx, offy + playing_field_offset);
 
 		int offx2 = is_new_screen ? new_region_offset_x : 0;
@@ -28843,31 +28871,55 @@ static void scrollscr_handle_dark(const nearby_scrolling_screens_t& nearby_scree
 	});
 
 	Hero.calc_darkroom_hero(0, -playing_field_offset);
-	dither_offx = 0;
-	dither_offy = 0;
 
 	do_primitives(framebuf, SPLAYER_DARKROOM_UNDER);
 	set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-	if (hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
-	{
-		ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
-		ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
-	}
-	
+
 	color_map = trans_table2;
-	if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
+	if(any_trans) //draw the dark as transparent
 	{
-		draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
-		if(get_qr(qr_NEWDARK_TRANS_STACKING))
+		if (any_nontrans)
+		{
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
+			bool stacked_trans = get_qr(qr_NEWDARK_TRANS_STACKING);
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy, bool is_new_screen) {
+				mapscr* base_scr = screen_handles[0].base_scr;
+				bool dark = is_new_screen ? is_dark(base_scr) : scrolling_is_dark(base_scr);
+				if (!dark)
+					return;
+				if (!(base_scr->flags9 & fDARK_TRANS))
+				{
+					// for non-trans screens, blit opaquely
+					masked_blit(darkscr_bmp, framebuf,
+						offx - viewport.x, offy - viewport.y,
+						offx - viewport.x, offy - viewport.y, 256, 176);
+				}
+				else if (!stacked_trans)
+				{
+					// if transparency shouldn't stack, clear sections where it would stack
+					rectfill(darkscr_bmp_trans,
+						offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				}
+			});
 			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
+		else
+		{
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
+			if(get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
+		}
 	}
 	else
 	{
 		masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 		draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 	}
+
+	dither_offx = saved_dither_offx;
+	dither_offy = saved_dither_offy;
+
 	color_map = trans_table;
-	
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	do_primitives(framebuf, SPLAYER_DARKROOM_OVER);
 }
@@ -29488,11 +29540,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	old_region_visible.intersect_with(rect_t(old_world_rect));
 	new_region_visible.intersect_with(rect_t(new_world_rect));
+	
+	rect_t old_region_dark = old_region_visible;
+	rect_t new_region_dark = new_region_visible;
+	old_region_dark.expand(128);
+	new_region_dark.expand(128);
+	old_region_dark.intersect_with(rect_t(old_world_rect));
+	new_region_dark.intersect_with(rect_t(new_world_rect));
 
 	// For the duration of the scrolling, the old region coordinate system is used for all drawing
 	// operations. This means that the new screens are drawn with offsets relative to the old
 	// coordinate system. These offsets are determined in get_nearby_scrolling_screens.
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport, old_region_visible, new_region_visible);
+	auto nearby_screens_darklights = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport, old_region_dark, new_region_dark);
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
@@ -30009,7 +30069,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6))
 		{
-			scrollscr_handle_dark(nearby_screens);
+			scrollscr_handle_dark(nearby_screens, nearby_screens_darklights);
 		}
 
 		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
@@ -30020,7 +30080,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
-			scrollscr_handle_dark(nearby_screens);
+			scrollscr_handle_dark(nearby_screens, nearby_screens_darklights);
 		}
 
 		SAVE_HERO_POS;

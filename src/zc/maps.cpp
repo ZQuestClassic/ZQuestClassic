@@ -75,6 +75,8 @@ void maps_init_game_vars()
 	currscr_for_passive_subscr = -1;
 	scrolling_maze_last_solved_screen = 0;
 	maze_state = {};
+	dither_offx = 0;
+	dither_offy = 0;
 }
 
 static region_ids_t current_region_ids;
@@ -232,6 +234,8 @@ void load_region(int dmap, int screen)
 	region_max_rpos = (rpos_t)(cur_region.screen_count*176 - 1);
 	region_num_rpos = cur_region.screen_count*176;
 	scrolling_maze_last_solved_screen = 0;
+	dither_offx = cur_region.origin_screen_x * 256;
+	dither_offy = cur_region.origin_screen_y * 176;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
 	for (int x = 0; x < cur_region.screen_width; x++)
@@ -4404,14 +4408,14 @@ static nearby_screens_t get_nearby_screens_non_scrolling_region()
 	return nearby_screens;
 }
 
-static nearby_screens_t get_nearby_screens_scrolling_region()
+static nearby_screens_t get_nearby_screens_scrolling_region(int extra_dist)
 {
 	nearby_screens_t nearby_screens;
 
-	int screens_x0 = viewport.left() / 256;
-	int screens_x1 = (viewport.right() - 1) / 256;
-	int screens_y0 = viewport.top() / 176;
-	int screens_y1 = (viewport.bottom() - 1) / 176;
+	int screens_x0 = (viewport.left() - extra_dist) / 256;
+	int screens_x1 = (viewport.right() - 1 + extra_dist) / 256;
+	int screens_y0 = (viewport.top() - extra_dist) / 176;
+	int screens_y1 = (viewport.bottom() - 1 + extra_dist) / 176;
 
 	screens_x0 = std::clamp(screens_x0, 0, 15);
 	screens_x1 = std::clamp(screens_x1, 0, 15);
@@ -4441,14 +4445,14 @@ static nearby_screens_t get_nearby_screens_scrolling_region()
 	return nearby_screens;
 }
 
-static nearby_screens_t get_nearby_screens_smooth_maze()
+static nearby_screens_t get_nearby_screens_smooth_maze(int extra_dist)
 {
 	nearby_screens_t nearby_screens;
 
-	int screens_x0 = viewport.left() / 256;
-	int screens_x1 = (viewport.right() - 1) / 256;
-	int screens_y0 = viewport.top() / 176;
-	int screens_y1 = (viewport.bottom() - 1) / 176;
+	int screens_x0 = (viewport.left() - extra_dist) / 256;
+	int screens_x1 = (viewport.right() - 1 + extra_dist) / 256;
+	int screens_y0 = (viewport.top() - extra_dist) / 176;
+	int screens_y1 = (viewport.bottom() - 1 + extra_dist) / 176;
 
 	if (viewport.left() < 0) screens_x0--;
 	if (viewport.top() < 0) screens_y0--;
@@ -4511,13 +4515,13 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 	return nearby_screens;
 }
 
-static nearby_screens_t get_nearby_screens()
+static nearby_screens_t get_nearby_screens(int extra_dist = 0)
 {
 	if (maze_state.active && maze_state.loopy)
-		return get_nearby_screens_smooth_maze();
+		return get_nearby_screens_smooth_maze(extra_dist);
 
 	if (is_in_scrolling_region())
-		return get_nearby_screens_scrolling_region();
+		return get_nearby_screens_scrolling_region(extra_dist);
 
 	return get_nearby_screens_non_scrolling_region();
 }
@@ -4608,22 +4612,74 @@ static void draw_sprites(BITMAP* dest, set<sprite*, SpriteSorter>& sprite_set, s
 		clear_clip_rect(dest);
 }
 
-static void draw_high_darkness(BITMAP* dest)
+static void draw_darkroom(BITMAP* dest, const nearby_screens_t& nearby_screens)
 {
 	do_primitives(dest, SPLAYER_DARKROOM_UNDER);
 	set_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
-	if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
-	{
-		ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
-		ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
-	}
+	
+	bool any_trans = false;
+	bool any_nontrans = false;
+	
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (!is_dark(base_scr))
+		{
+			offy += playing_field_offset;
+			rectfill(darkscr_bmp,
+				offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp_trans,
+				offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+		}
+		else
+		{
+			if (base_scr->flags9 & fDARK_DITHER)
+			{
+				offy += playing_field_offset;
+				ditherrectfill(darkscr_bmp,
+					offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1,
+					0, game->get_dither_type(), game->get_dither_arg(), viewport.x, viewport.y - playing_field_offset);
+				ditherrectfill(darkscr_bmp_trans,
+					offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1,
+					0, game->get_dither_type(), game->get_dither_arg(), viewport.x, viewport.y - playing_field_offset);
+			}
+			any_trans |= bool(base_scr->flags9 & fDARK_TRANS);
+			any_nontrans |= !bool(base_scr->flags9 & fDARK_TRANS);
+		}
+	});
 
 	color_map = trans_table2;
-	if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
+	if (any_trans)
 	{
-		draw_trans_sprite(dest, darkscr_bmp, 0, 0);
-		if(get_qr(qr_NEWDARK_TRANS_STACKING))
+		if (any_nontrans)
+		{
+			draw_trans_sprite(dest, darkscr_bmp, 0, 0);
+			bool stacked_trans = get_qr(qr_NEWDARK_TRANS_STACKING);
+			for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy) {
+				mapscr* base_scr = screen_handles[0].base_scr;
+				if (!is_dark(base_scr))
+					return;
+				if (!(base_scr->flags9 & fDARK_TRANS))
+				{
+					// for non-trans screens, blit opaquely
+					masked_blit(darkscr_bmp, dest,
+						offx - viewport.x, offy - viewport.y,
+						offx - viewport.x, offy - viewport.y, 256, 176);
+				}
+				else if (!stacked_trans)
+				{
+					// if transparency shouldn't stack, clear sections where it would stack
+					rectfill(darkscr_bmp_trans,
+						offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				}
+			});
 			draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
+		}
+		else
+		{
+			draw_trans_sprite(dest, darkscr_bmp, 0, 0);
+			if (get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
+		}
 	}
 	else
 	{
@@ -4636,7 +4692,7 @@ static void draw_high_darkness(BITMAP* dest)
 	do_primitives(dest, SPLAYER_DARKROOM_OVER);
 }
 
-static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark)
+static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark, const nearby_screens_t& nearby_screens)
 {
 	draw_msgstr(6, dest);
 
@@ -4644,7 +4700,7 @@ static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark)
 		draw_msgstr(6, dest);
 
 	if (get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && any_dark)
-		draw_high_darkness(dest);
+		draw_darkroom(dest, nearby_screens);
 
 	_do_current_ffc_layer(dest, 7);
 	draw_msgstr(7, dest);
@@ -5358,7 +5414,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	// Handle low drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && any_dark)
 	{
-		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy) {
+		for_every_nearby_screen(get_nearby_screens(128), [&](screen_handles_t screen_handles, int, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].base_scr;
 			calc_darkroom_combos(screen_handles, offx, offy + playing_field_offset);
 			calc_darkroom_ffcs(base_scr, 0, playing_field_offset);
@@ -5378,32 +5434,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	
 	//Darkroom if under the subscreen
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && any_dark)
-	{
-		do_primitives(dest, SPLAYER_DARKROOM_UNDER);
-		set_clip_rect(dest, 0, playing_field_offset, dest->w, dest->h);
-		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
-		{
-			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
-		}
-		
-		color_map = trans_table2;
-		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
-		{
-			draw_trans_sprite(dest, darkscr_bmp, 0, 0);
-			if(get_qr(qr_NEWDARK_TRANS_STACKING))
-				draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
-		}
-		else
-		{
-			masked_blit(darkscr_bmp, dest, 0, 0, 0, 0, dest->w, dest->h);
-			draw_trans_sprite(dest, darkscr_bmp_trans, 0, 0);
-		}
-		color_map = trans_table;
-		
-		set_clip_rect(dest, 0, 0, dest->w, dest->h);
-		do_primitives(dest, SPLAYER_DARKROOM_OVER);
-	}
+		draw_darkroom(dest, nearby_screens);
 
 	if (is_in_scrolling_region() && lensclk && !FFCore.system_suspend[susptLENS])
 	{
@@ -5433,9 +5464,9 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	else if (!classic_draw)
 		do_primitives(dest, 7);
 
-	draw_screen_post_passive_subscreen(dest, any_dark);
+	draw_screen_post_passive_subscreen(dest, any_dark, nearby_screens);
 	if (drawPassiveSubscreenSeparate)
-		draw_screen_post_passive_subscreen(framebuf_no_passive_subscreen, any_dark);
+		draw_screen_post_passive_subscreen(framebuf_no_passive_subscreen, any_dark, nearby_screens);
 
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);

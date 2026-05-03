@@ -3312,21 +3312,10 @@ void draw_lens_over(BITMAP *dest)
 	do_primitives(dest, SPLAYER_LENS_OVER);
 }
 
-static void update_bmp_size(BITMAP** bmp_ptr, int w, int h)
-{
-	BITMAP* bmp = *bmp_ptr;
-	if (bmp->w == w && bmp->h == h)
-		return;
-
-	int depth = bitmap_color_depth(bmp);
-	destroy_bitmap(bmp);
-	*bmp_ptr = create_bitmap_ex(depth, w, h);
-}
-
 void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 {
 	static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
-	update_bmp_size(&wavebuf, 288, 240 - original_playing_field_offset);
+	zalleg_update_bmp_size(&wavebuf, 288, 240 - original_playing_field_offset);
 
 	clear_to_color(wavebuf, BLACK);
 	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,framebuf->h-original_playing_field_offset);
@@ -3426,8 +3415,8 @@ void updatescr(bool allowwavy)
 {
 	static BITMAP *wavybuf = create_bitmap_ex(8, framebuf->w, framebuf->h);
 	static BITMAP *panorama = create_bitmap_ex(8, framebuf->w, framebuf->h);
-	update_bmp_size(&wavybuf, framebuf->w, framebuf->h);
-	update_bmp_size(&panorama, framebuf->w, framebuf->h);
+	zalleg_update_bmp_size(&wavybuf, framebuf->w, framebuf->h);
+	zalleg_update_bmp_size(&panorama, framebuf->w, framebuf->h);
 
 	if(walk_through_walls)
 	{

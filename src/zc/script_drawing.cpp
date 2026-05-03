@@ -5044,7 +5044,7 @@ void do_bmpwritetile(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	write_tile(newtilebuf, refbmp, tl, x+xoffset, y+yoffset, is8bit, mask);
 }
 
-void do_bmpdither(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, [[maybe_unused]] int32_t yoffset)
+void do_bmpdither(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, mask, color, ditherType, ditherArg */
 	//sdci[2] Mask Bitmap Pointer
@@ -5072,7 +5072,7 @@ void do_bmpdither(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, [[ma
 		return;
 	}
 	
-	ditherblit(refbmp, mask, byte(sdci[3]/10000L), dType, sdci[5]/10000L);
+	ditherblit(refbmp, mask, byte(sdci[3]/10000L), dType, sdci[5]/10000L, xoffset, yoffset);
 }
 
 void do_bmpreplcol(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, [[maybe_unused]] int32_t yoffset)

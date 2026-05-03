@@ -53,6 +53,7 @@ enum dithType
 	dithDots4, dithDots4Inv,
 	dithMax
 };
+extern int dither_offx, dither_offy;
 bool dither_staticcheck(int x, int y, double percentage);
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color);
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd);

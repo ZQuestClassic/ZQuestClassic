@@ -451,6 +451,18 @@ bool zalleg_alleg4_save_bitmap(BITMAP* source, int scale, const char* filename, 
 	return result == 0;
 }
 
+void zalleg_update_bmp_size(BITMAP** bmp_ptr, int w, int h)
+{
+	BITMAP* bmp = *bmp_ptr;
+	if (bmp)
+	{
+		if (bmp->w == w && bmp->h == h)
+			return;
+		destroy_bitmap(bmp);
+	}
+	*bmp_ptr = create_bitmap_ex(8, w, h);
+}
+
 /* zalleg_save_midi:
 *  Saves a standard MIDI file, returning 0 on success,
 *  or non-zero on error.
