@@ -475,9 +475,16 @@ def parse_doc_file(x) -> File:
 
 
 def get_doc_data(script_path: Path) -> list[File]:
+    # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
+    include_paths = [
+        str(root_dir / 'resources/include'),
+        str(root_dir / 'resources/headers'),
+    ]
     args = [
         '-input',
         str(script_path),
+        '-include',
+        ';'.join(include_paths),
         '-unlinked',
         '-delay_cassert',
         '-doc',
