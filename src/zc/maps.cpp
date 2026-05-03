@@ -5664,7 +5664,7 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt,zfix const& switchblockst
 {
 	int x = zx.getRound(), y = zy.getRound();
 	//  walkflagx=x; walkflagy=y;
-	if(get_qr(qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK) || get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		if(x<0||y<0) return false;
 		
