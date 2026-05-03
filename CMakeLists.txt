@@ -880,17 +880,18 @@ endif()
 #   Linking CXX executable RelWithDebInfo/zscript
 #   /usr/bin/ld: /usr/bin/ld: DWARF error: invalid or unhandled FORM value: 0x23
 #   RelWithDebInfo/libzcbase.a(zsys.cpp.o): in function `temp_name(char*)':
-if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
-	list(REMOVE_ITEM zscript_binding_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh")
-	add_custom_command(
-		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
-		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp
-		DEPENDS scripts/generate_zasm_context_strings.py ${zscript_binding_files}
-	)
-	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp zscript)
-	add_dependencies(zplayer gen_zscript_context_strings)
-endif()
+# NOTE: no longer really needed, given we now have stack traces for new quests. so let's remove from build process.
+# if(NOT EMSCRIPTEN AND NOT (DEFINED ENV{CI} AND CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+# 	file(GLOB_RECURSE zscript_binding_files "resources/include/bindings/*.zh")
+# 	list(REMOVE_ITEM zscript_binding_files "${CMAKE_CURRENT_SOURCE_DIR}/resources/include/bindings/qrs.zh")
+# 	add_custom_command(
+# 		COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_zasm_context_strings.py --build_folder "${BUILD_FOLDER}"
+# 		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp
+# 		DEPENDS scripts/generate_zasm_context_strings.py ${zscript_binding_files}
+# 	)
+# 	add_custom_target(gen_zscript_context_strings DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/zc/scripting/context_strings.cpp zscript)
+# 	add_dependencies(zplayer gen_zscript_context_strings)
+# endif()
 
 # qr generation
 set(gen_zscript_qr_enum scripts/generate_qr_constants.py)
