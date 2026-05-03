@@ -7741,14 +7741,16 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	if ( warpDestX < 0 )
 	{
 		if(DEVLOGGING) zprint("WarpEx() was set to warp return point:%d\n", warpDestY); 
+
+		region_t region;
+		int rx, ry;
+		calculate_region(dest_map, dest_screen, region, rx, ry);
+
 		if ( (unsigned)warpDestY < 4 )
 		{
 			lx = m->warpreturnx[warpDestY];
 			ly = m->warpreturny[warpDestY];
 
-			region_t region;
-			int rx, ry;
-			calculate_region(dest_map, dest_screen, region, rx, ry);
 			wx = lx + rx * 256;
 			wy = ly + ry * 176;
 
@@ -7763,12 +7765,11 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if ( warpDestY == 5 || warpDestY < 0)
 			{
 				//Pit warp
-				wx = Hero.getX();
-				wy = Hero.getY();
-				// In this case lx/ly don't matter as much for auto-direction, 
-				// but we can approximate them.
 				lx = (int32_t)Hero.getX() % 256;
 				ly = (int32_t)Hero.getY() % 176;
+
+				wx = lx + rx * 256;
+				wy = ly + ry * 176;
 			}
 			else
 			{
