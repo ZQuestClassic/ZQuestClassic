@@ -35,4 +35,5 @@ find build/html -name "*.ttf" -type f -delete
 rm build/html/objects.inv
 
 echo "zipping for offline usage ..."
-(cd build/html && zip -rq ZQuestClassicDocs.zip .)
+# Will fail if zip is not present (aka Windows). so make this part optional.
+(cd build/html && zip -rq ZQuestClassicDocs.zip .) || true
