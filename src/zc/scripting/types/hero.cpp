@@ -741,7 +741,7 @@ void hero_set_register(int32_t reg, int32_t value)
 				zinit.shove_offset = Hero.shove_offset;
 			break;
 		case HEROSTEPRATE:
-			if(!get_qr(qr_NEW_HERO_MOVEMENT))
+			if(!(get_qr(qr_NEW_HERO_MOVEMENT) || get_qr(qr_NEW_HERO_MOVEMENT2)))
 			{
 				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.\n", "Hero->Step", "enable", "New Hero Movement");
 			}
