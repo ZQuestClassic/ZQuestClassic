@@ -83,6 +83,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 #define CANFORCEFACEUP	(get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 #define NO_GRIDLOCK		(get_qr(qr_DISABLE_4WAY_GRIDLOCK)||get_qr(qr_NEW_HERO_MOVEMENT2))
+#define NEW_MOVEMENT		(get_qr(qr_NEW_HERO_MOVEMENT)||get_qr(qr_NEW_HERO_MOVEMENT2))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_qr(qr_BROKEN_Z3_ANIMATION))
 
 zfix HeroClass::get_standing_z_state() const
@@ -329,26 +330,6 @@ int32_t refreshActiveShield()
 	if(!usingActiveShield(id))
 		return -1;
     return id;
-}
-static bool is_immobile()
-{
-	if(!get_qr(qr_NEW_HERO_MOVEMENT))
-		return false;
-	zfix rate(Hero.steprate);
-	int32_t shieldid = getCurrentActiveShield();
-	if (valid_item_id(shieldid))
-	{
-		itemdata const& shield = itemsbuf.get(shieldid);
-		if(shield.flags & item_flag10) //Change Speed flag
-		{
-			zfix perc = shield.misc7;
-			perc /= 100;
-			if(perc < 0)
-				perc = (perc*-1)+1;
-			rate = (rate * perc) + shield.misc8;
-		}
-	}
-	return rate != 0;
 }
 
 bool nomove_action(int action)
@@ -27166,7 +27147,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
     {
 		if(diagonalMovement)
         {
-			if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
+			if(NEW_MOVEMENT || IsSideSwim())
 			{
 				tstep = 1.5;
 			}
@@ -27178,7 +27159,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         }
         else
         {
-			if(get_qr(qr_NEW_HERO_MOVEMENT))
+			if(NEW_MOVEMENT)
 			{
 				tstep = 1.5;
 			}
@@ -27220,7 +27201,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         {
             if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
             {
-				if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
+				if(NEW_MOVEMENT || IsSideSwim())
 				{
 					walkable = false;
 					shiftdir = -1;
@@ -27250,7 +27231,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
             }
             else
             {
-				if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
+				if(NEW_MOVEMENT || IsSideSwim())
 				{
 					s-=1.5;
 				}
@@ -27288,7 +27269,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
             }
             else
 			{
-				if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
+				if(NEW_MOVEMENT || IsSideSwim())
 				{
 					s-=1.5;
 				}
