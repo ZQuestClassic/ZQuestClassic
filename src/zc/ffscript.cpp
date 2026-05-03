@@ -91,8 +91,6 @@
 #include "core/qst.h"
 
 using namespace util;
-
-using namespace util;
 using std::ostringstream;
 
 static ASM_DEFINE current_zasm_command;
@@ -7739,19 +7737,20 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_screen)];
 	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int32_t wx = 0, wy = 0;
+	int32_t lx = 0, ly = 0;
 	if ( warpDestX < 0 )
 	{
 		if(DEVLOGGING) zprint("WarpEx() was set to warp return point:%d\n", warpDestY); 
 		if ( (unsigned)warpDestY < 4 )
 		{
-			wx = m->warpreturnx[warpDestY];
-			wy = m->warpreturny[warpDestY];
+			lx = m->warpreturnx[warpDestY];
+			ly = m->warpreturny[warpDestY];
 
 			region_t region;
 			int rx, ry;
 			calculate_region(dest_map, dest_screen, region, rx, ry);
-			wx += rx * 256;
-			wy += ry * 176;
+			wx = lx + rx * 256;
+			wy = ly + ry * 176;
 
 			if(DEVLOGGING)
 			{
@@ -7766,6 +7765,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				//Pit warp
 				wx = Hero.getX();
 				wy = Hero.getY();
+				// In this case lx/ly don't matter as much for auto-direction, 
+				// but we can approximate them.
+				lx = (int32_t)Hero.getX() % 256;
+				ly = (int32_t)Hero.getY() % 176;
 			}
 			else
 			{
@@ -7774,22 +7777,25 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			}
 		}
 	}
-	else 
+	else
 	{
 		region_t region;
 		int rx, ry;
 		calculate_region(dest_map, dest_screen, region, rx, ry);
-		if ( (unsigned)warpDestX < region.width && (unsigned)warpDestY < region.height )
+		lx = warpDestX;
+		ly = warpDestY;
+		wx = rx * 256 + lx;
+		wy = ry * 176 + ly;
+		if ((unsigned)wx < region.width && (unsigned)wy < region.height)
 		{
-			wx = warpDestX;
-			wy = warpDestY;
+			// success
 		}
 		else
 		{
-			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Hero->WarpEx()\n",warpDestX,warpDestY);
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Hero->WarpEx()\n", warpDestX, warpDestY);
 			return false;
 		}
-	} 
+	}
 	Hero.finish_auto_walk();
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
@@ -7889,21 +7895,21 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 					Hero.dir = heroFacesDir;
 					break;
 				default:
-					if((int32_t)Hero.x==(zfix)0)  
+					if(lx==0)  
 					{
 						Hero.dir=right;
 					}
-					if((int32_t)Hero.x==(zfix)240) 
+					if(lx==240) 
 					{
 						Hero.dir=left;
 					}
 					
-					if((int32_t)Hero.y==(zfix)0)   
+					if(ly==0)   
 					{
 						Hero.dir=down;
 					}
 					
-					if((int32_t)Hero.y==(zfix)160) 
+					if(ly==160) 
 					{
 						Hero.dir=up;
 					}
@@ -8015,21 +8021,21 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 					break;
 				default:
 					Hero.dir=down;
-					if((int32_t)Hero.x==(zfix)0)  
+					if(lx==0)  
 					{
 						Hero.dir=right;
 					}
-					if((int32_t)Hero.x==(zfix)240) 
+					if(lx==240) 
 					{
 						Hero.dir=left;
 					}
 					
-					if((int32_t)Hero.y==(zfix)0)   
+					if(ly==0)   
 					{
 						Hero.dir=down;
 					}
 					
-					if((int32_t)Hero.y==(zfix)160) 
+					if(ly==160) 
 					{
 						Hero.dir=up;
 					}
@@ -8134,7 +8140,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			
 			if(!intradmap)
 			{
-				if(((wx>0||wy>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
+				if(((lx>0||ly>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
 				{
 					if(dlevel)
 					{
