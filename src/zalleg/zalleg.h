@@ -56,6 +56,7 @@ void zalleg_process_display_events();
 PACKFILE* zalleg_pack_fopen_password(const char *filename, const char *mode, const char *password);
 uint64_t zalleg_file_size_ex_password(const char *filename, const char *password);
 bool zalleg_alleg4_save_bitmap(BITMAP* bitmap, int scale, const char* filename, AL_CONST RGB *pal = nullptr);
+void zalleg_update_bmp_size(BITMAP** bmp_ptr, int w, int h);
 int32_t zalleg_save_midi(const char *filename, MIDI *midi);
 void zc_trace_clear();
 void safe_al_trace(const char* str);

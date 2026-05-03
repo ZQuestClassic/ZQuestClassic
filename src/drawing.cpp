@@ -88,7 +88,7 @@ void doDarkroomCircle(int32_t cx, int32_t cy, word glowRad,BITMAP* dest, BITMAP*
 	int offy = 0;
 #ifdef IS_PLAYER
 	offx = viewport.x;
-	offy = viewport.y;
+	offy = viewport.y - playing_field_offset;
 #endif
 
 	if(dest)
@@ -151,7 +151,7 @@ void doDarkroomCone(int32_t sx, int32_t sy, word glowRad, int32_t dir, BITMAP* d
 	int offy = 0;
 #ifdef IS_PLAYER
 	offx = viewport.x;
-	offy = viewport.y;
+	offy = viewport.y - playing_field_offset;
 #endif
 
 	if(dest)
@@ -197,7 +197,7 @@ void doDarkroomSquare(int32_t cx, int32_t cy, word glowRad, BITMAP* dest, BITMAP
 	int offy = 0;
 #ifdef IS_PLAYER
 	offx = viewport.x;
-	offy = viewport.y;
+	offy = viewport.y - playing_field_offset;
 #endif
 
 	if(dest)
@@ -253,6 +253,10 @@ bool dither_staticcheck(int x, int y, double percentage)
 }
 static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_t wid=256, int32_t hei=168)
 {
+#ifdef IS_PLAYER
+	x += dither_offx;
+	y += dither_offy;
+#endif
 	bool ret = false,
 	     inv = (type%2); //invert return for odd types
 	type &= ~1; //even-ize the type for switch simplicity
@@ -430,12 +434,6 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
 
-#ifdef IS_PLAYER
-	xoffs += dither_offx;
-	yoffs += dither_offy;
-	yoffs -= playing_field_offset;
-#endif
-
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = src ? bmp_read_line(src, ty) : 0;
@@ -513,13 +511,13 @@ void ditherblit_clipped(BITMAP* dest, BITMAP* src, int32_t color, byte dType, by
 	bmp_unwrite_line(dest);
 }
 
+static BITMAP* dither_tmp_bmp = nullptr;
 void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
-	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_bitmap(tmp);
-	circlefill(tmp, x, y, rad, 1);
-	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
-	destroy_bitmap(tmp);
+	zalleg_update_bmp_size(&dither_tmp_bmp, dest->w, dest->h);
+	clear_bitmap(dither_tmp_bmp);
+	circlefill(dither_tmp_bmp, x, y, rad, 1);
+	ditherblit(dest, dither_tmp_bmp, color, ditherType, ditherArg, xoffs, yoffs);
 }
 void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 	byte dType, byte dArg, int xoffs, int yoffs, optional<int> inv_color)
@@ -898,11 +896,10 @@ void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, 
 
 void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
-	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_bitmap(tmp);
-	lampcone(tmp, sx, sy, range, dir, 1);
-	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
-	destroy_bitmap(tmp);
+	zalleg_update_bmp_size(&dither_tmp_bmp, dest->w, dest->h);
+	clear_bitmap(dither_tmp_bmp);
+	lampcone(dither_tmp_bmp, sx, sy, range, dir, 1);
+	ditherblit(dest, dither_tmp_bmp, color, ditherType, ditherArg, xoffs, yoffs);
 }
 
 void monocolor(BITMAP* dest, byte col, byte transp_passes)
