@@ -435,7 +435,7 @@ def generate_changelog(package_dir: Path):
             print(e)
 
         if is_stable_release:
-            new_changelog_path = package_dir / f'changelogs/${date}-{args.version}.txt'
+            new_changelog_path = package_dir / f'changelogs/{date}-{args.version}.txt'
         else:
             new_changelog_path = package_dir / 'changelogs/nightly.txt'
 
