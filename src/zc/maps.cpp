@@ -7153,7 +7153,7 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& standing_z_stat
 {
 	int max_x = world_w;
 	int max_y = world_h;
-	if (!get_qr(qr_LTTPWALK))
+	if (!get_qr(qr_LTTPWALK) && !get_qr(qr_NEW_HERO_MOVEMENT2))
 	{
 		max_x -= 7;
 		max_y -= 7;
