@@ -16167,7 +16167,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case HEROSTEPRATE:
-			if(!get_qr(qr_NEW_HERO_MOVEMENT))
+			if(!(get_qr(qr_NEW_HERO_MOVEMENT) || get_qr(qr_NEW_HERO_MOVEMENT2)))
 			{
 				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.\n", "Hero->Step", "enable", "New Player Movement");
 			}
