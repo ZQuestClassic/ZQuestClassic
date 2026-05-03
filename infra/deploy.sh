@@ -7,9 +7,8 @@ cd "$SCRIPT_DIR"
 set -e
 
 SERVER=api.zquestclassic.com
-HASH=$(git rev-parse HEAD)
 
-ssh root@$SERVER "cd /home/zc/ZQuestClassic && git fetch && git checkout $HASH"
+ssh root@$SERVER "cd /home/zc/ZQuestClassic && git fetch && git checkout origin/main"
 
 scp nginx/* root@$SERVER:/etc/nginx/conf.d/
 scp systemd/* root@$SERVER:/etc/systemd/system/

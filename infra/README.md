@@ -4,6 +4,10 @@ This folder holds all the server configuration files for self-hosted services ne
 
 Further, this README documents all the various services we maintain (self-hosted and hosted by third-parties).
 
+## Domains
+
+Registrar is Squarespace.
+
 ## https://zquestclassic.com
 
 Source: https://github.com/ZQuestClassic/zquestclassic.com
@@ -26,14 +30,11 @@ Running `scripts/update.sh path/to/ZC/repo` will build the latest version. Commi
 
 ## https://docs.zquestclassic.com
 
-Repo: https://github.com/ZQuestClassic/docs.zquestclassic.com
-Host: Netlify (free plan)
+Host: DigitalOcean
 
-This is a simple static-site that hosts the docs build for ZC. It is automatically deployed on every push to the repo.
+This is a simple static-site that hosts the docs build for ZC. The deployed site is updated every 10 minutes via a cron.
 
-The source code is in `docs-www`.
-
-Running `update.sh path/to/ZC/repo` will build the latest version. Commit, push, and Netlify will deploy soon.
+The source code is at `./docs-www/`.
 
 ## https://data.zquestclassic.com
 

@@ -13,7 +13,7 @@ ZQuest Classic is a free, open source engine for making games similar to the ori
 
 .. only:: html
 
-   You can download a copy of this documentation site for offline usage `here <https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FZQuestClassic%2Fdocs.zquestclassic.com%2Ftree%2Fmain%2Fwww>`_.
+   You can download a copy of this documentation site for offline usage `here <ZQuestClassicDocs.zip>`_.
 
 .. toctree::
    :hidden:

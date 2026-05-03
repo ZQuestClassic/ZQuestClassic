@@ -1,6 +1,6 @@
 # docs.zquestclassic.com
 
-This folder contains the source code for docs.zquestclassic.com. However, it is deployed from a different repo: https://github.com/ZQuestClassic/docs.zquestclassic.com/
+This folder contains the source code for docs.zquestclassic.com.
 
 ## Building
 
@@ -23,15 +23,10 @@ Making a custom enemy
 
 ## Deploying
 
-1. Build the docs locally (see above)
-2. From the [deployment repo](https://github.com/ZQuestClassic/docs.zquestclassic.com/), run `bash update.sh path/to/zc`
-3. Commit it
-4. Netlify will deploy it with a couple minutes
+See `infra/README.md`.
 
 > TODO: move all information found in `resources/docs` to this doc site
 
 > TODO: include this doc site in release package, remove old zscript one
-
-> TODO: automate docs website deployment
 
 > TODO: move all the content from resources/docs/tango/**.md here (and stop copying the old tango website docs in `update.sh`) (ditto for ghost)

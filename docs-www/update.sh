@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$SCRIPT_DIR/.."
 echo "Generating docs-www/sources/zscript ..."
-rm -fr "build/html"
+rm -fr "docs-www/build/html"
 python scripts/generate_zscript_api_docs.py
 
 cd "$SCRIPT_DIR"
@@ -33,3 +33,6 @@ find build/html -name "*.map" -type f -delete
 find build/html -name "*.ttf" -type f -delete
 # for intersphinx. don't need, and don't now how to disable generation
 rm build/html/objects.inv
+
+echo "zipping for offline usage ..."
+(cd build/html && zip -rq ZQuestClassicDocs.zip .)
