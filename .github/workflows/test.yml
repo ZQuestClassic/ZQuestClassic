@@ -119,6 +119,7 @@ jobs:
           --repo ${{ github.repository }}
           --config ${{ inputs.config }}
           --package "${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}"
+          --artifact-name "${{ needs.build.outputs.artifact-name }}"
           --build-folder zc-extracted
 
       - name: Run replay tests
