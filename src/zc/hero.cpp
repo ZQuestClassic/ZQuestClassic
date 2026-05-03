@@ -29086,13 +29086,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 	}
 
-	if (viewport_mode != ViewportMode::CenterAndBound || get_viewport_sprite() != &Hero)
-	{
-		set_viewport_sprite(&Hero);
-		viewport_mode = ViewportMode::CenterAndBound;
-		update_viewport();
-	}
-
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{

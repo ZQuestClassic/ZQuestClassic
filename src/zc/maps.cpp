@@ -6384,6 +6384,13 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		replay_sync_rng();
 	}
 
+	if (viewport_mode != ViewportMode::CenterAndBound || get_viewport_sprite() != &Hero)
+	{
+		set_viewport_sprite(&Hero);
+		viewport_mode = ViewportMode::CenterAndBound;
+		update_viewport();
+	}
+
 	for (auto& state : get_screen_states())
 		state.second.triggered_secrets = false;
 	slopes.clear();
