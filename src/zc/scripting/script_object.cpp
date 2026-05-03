@@ -451,8 +451,11 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		{
 			if (id && !live_object_ids.contains(id))
 			{
-				live_object_ids.insert(id);
-				worklist.insert(get_script_object(id));
+				if (auto object = get_script_object(id))
+				{
+					live_object_ids.insert(id);
+					worklist.insert(object);
+				}
 			}
 		}
 	}
