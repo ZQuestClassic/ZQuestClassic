@@ -12,11 +12,11 @@ M starting_scr 119
 M sync_rng true
 M test_mode true
 M time_created Sun Mar 29 15:38:55 2026
-M time_updated Sun Mar 29 15:41:11 2026
+M time_updated Mon May  4 12:43:03 2026
 M uuid 7c1871ad-b299-436b-ad49-68594bd68e7f
 M version 50
 M zc_version_created 3.0.0-prerelease.167+2026-03-25.local
-M zc_version_updated 3.0.0-prerelease.167+2026-03-25.local
+M zc_version_updated 3.0.0-prerelease.180+2026-05-02.local
 K 0 84 85 82 83 26 24 67 17 23 75 1 19 4 3
 C 0 init_game
 R 0 0 1 1774823935
@@ -5068,65 +5068,65 @@ C 3266 h 70 4b
 C 3266 g jt
 C 3267 sfx Wand magic
 C 3267 h 70 49
-C 3267 g D2+
+C 3267 g Etp
 C 3268 h 70 48
-C 3268 g Hx`
+C 3268 g f@
 C 3269 h 70 46
-C 3269 g GJ@
+C 3269 g uH
 C 3270 h 70 45
-C 3270 g DFp
+C 3270 g F]8
 C 3271 h 70 43
-C 3271 g Ddb
+C 3271 g G>&
 C 3272 h 70 42
-C 3272 g Bb"
+C 3272 g Dk,
 C 3273 h 70 40
-C 3273 g F)^
+C 3273 g FQJ
 C 3274 h 70 3f
-C 3274 g H2^
+C 3274 g H)K
 C 3275 h 70 3d
-C 3275 g Fk
+C 3275 g BM;
 C 3276 h 70 3c
-C 3276 g H*a
+C 3276 g FKv
 C 3277 h 70 3a
-C 3277 g B}$
+C 3277 g GC;
 C 3278 h 70 39
-C 3278 g $L
+C 3278 g [a
 C 3279 h 70 37
-C 3279 g Hqx
+C 3279 g F8w
 C 3280 h 70 36
-C 3280 g Eu$
+C 3280 g (}
 C 3281 h 70 34
-C 3281 g FMk
+C 3281 g H>|
 D 3281 Down
 C 3282 h 70 35
-C 3282 g 8`
+C 3282 g DlL
 U 3282 Up
 C 3283 h 70 37
-C 3283 g FCn
+C 3283 g E!b
 C 3284 h 70 38
-C 3284 g B0d
+C 3284 g D+x
 C 3285 h 70 3a
-C 3285 g FGV
+C 3285 g G{K
 C 3286 h 70 3b
-C 3286 g BaA
+C 3286 g E"}
 C 3287 h 70 3d
-C 3287 g HX(
+C 3287 g DeE
 C 3288 sfx Fire
-C 3288 g k@
+C 3288 g oZ
 D 3288 B
-C 3289 g ,"
-C 3290 g Cuw
-C 3291 g G!+
-C 3292 g ui
+C 3289 g GG;
+C 3290 g G(^
+C 3291 g DoV
+C 3292 g BY#
 U 3292 Down
-C 3293 g F!@
-C 3294 g B;S
-C 3295 g Fj2
+C 3293 g F{g
+C 3294 g Hkn
+C 3295 g Dk3
 U 3295 B
-C 3296 g EG2
-C 3297 g DdO
-C 3298 g G)D
-C 3299 g D}&
+C 3296 g FNm
+C 3297 g F%M
+C 3298 g C@a
+C 3299 g 28
 C 3300 g Bka
 C 3301 g FfD
 C 3302 g C:"
@@ -5459,73 +5459,73 @@ C 3473 h 50 73
 C 3473 g B_F
 C 3474 sfx Wand magic
 C 3474 h 4e 73
-C 3474 g Fc+
+C 3474 g =K
 C 3475 h 4d 73
-C 3475 g o(
+C 3475 g Ec1
 C 3476 h 4b 73
-C 3476 g E?$
+C 3476 g DWh
 C 3477 h 4a 73
-C 3477 g FTp
+C 3477 g Dm:
 C 3478 h 48 73
-C 3478 g BR?
+C 3478 g C>9
 C 3479 h 47 73
-C 3479 g CpR
+C 3479 g Da$
 C 3480 h 45 73
-C 3480 g F%B
+C 3480 g B`I
 C 3481 h 44 73
-C 3481 g C;X
+C 3481 g FCd
 C 3482 h 42 73
-C 3482 g EZ}
+C 3482 g HG&
 C 3483 h 41 73
-C 3483 g H[e
+C 3483 g FW4
 C 3484 h 3f 73
-C 3484 g F{B
+C 3484 g E1l
 C 3485 h 3e 73
-C 3485 g H6b
+C 3485 g GA$
 C 3486 h 3c 73
-C 3486 g BM
+C 3486 g CN!
 C 3487 h 3b 73
-C 3487 g F+_
+C 3487 g EAF
 C 3488 h 39 73
-C 3488 g Bpq
+C 3488 g C9;
 C 3489 h 38 72
-C 3489 g E1f
+C 3489 g B=q
 D 3489 Up
 C 3490 h 37 71
-C 3490 g Ddd
+C 3490 g Ee{
 C 3491 h 36 70
-C 3491 g D[W
+C 3491 g FB^
 C 3492 h 35 6f
-C 3492 g F5u
+C 3492 g Fu$
 C 3493 h 35 6d
-C 3493 g F@k
+C 3493 g Hb>
 U 3493 Left
 C 3494 h 35 6c
-C 3494 g GT3
+C 3494 g G<#
 C 3495 h 35 6a
-C 3495 g B@D
+C 3495 g Fh[
 C 3496 h 35 69
-C 3496 g EMR
+C 3496 g D6E
 C 3497 h 35 67
-C 3497 g qw
+C 3497 g Dfz
 C 3498 h 35 66
-C 3498 g GEd
+C 3498 g CJL
 C 3499 h 35 64
-C 3499 g 1;
+C 3499 g wM
 C 3500 h 35 63
-C 3500 g Hn`
+C 3500 g EKO
 C 3501 h 35 61
-C 3501 g EZf
+C 3501 g Ew&
 C 3502 h 35 60
-C 3502 g jP
+C 3502 g DY3
 C 3503 h 35 5e
-C 3503 g B8q
+C 3503 g E4B
 C 3504 h 35 5d
-C 3504 g E5G
+C 3504 g DH!
 C 3505 h 35 5b
-C 3505 g Bk_
+C 3505 g CDJ
 C 3506 h 35 5a
-C 3506 g B}=
+C 3506 g B56
 C 3507 h 35 58
 C 3507 g rv
 C 3508 h 35 57
@@ -5798,47 +5798,47 @@ C 3664 g Gw`
 U 3664 Down
 C 3665 sfx Wand magic
 C 3665 sfx Fire
-C 3665 g HCU
+C 3665 g H1X
 D 3665 B
-C 3666 g F0F
-C 3667 g ChD
-C 3668 g BW>
-C 3669 g Ey^
+C 3666 g Dp]
+C 3667 g D*k
+C 3668 g GNs
+C 3669 g lj
 U 3669 B
-C 3670 g ^8
-C 3671 g B}o
-C 3672 g Hj?
-C 3673 g o,
-C 3674 g Db%
-C 3675 g HH(
-C 3676 g C$"
+C 3670 g f(
+C 3671 g H(0
+C 3672 g C_A
+C 3673 g B2M
+C 3674 g G0w
+C 3675 g D)b
+C 3676 g CW.
 D 3676 A
-C 3677 g Bm&
-C 3678 g Gy[
-C 3679 g DzP
+C 3677 g Bfm
+C 3678 g CK<
+C 3679 g Fgi
 C 3680 sfx Sword
-C 3680 g B@8
-C 3681 g CE:
-C 3682 g D~_
+C 3680 g BrN
+C 3681 g Ez"
+C 3682 g Bh.
 U 3682 A
-C 3683 g Bp]
-C 3684 g !F
-C 3685 g H>i
-C 3686 g Bv
-C 3687 g Gl(
+C 3683 g ~z
+C 3684 g Fgm
+C 3685 g G+/
+C 3686 g B_D
+C 3687 g EQa
 D 3687 A
-C 3688 g BXZ
-C 3689 g H:,
-C 3690 g D#u
-C 3691 g Da/
+C 3688 g D_C
+C 3689 g jT
+C 3690 g C^{
+C 3691 g F@M
 C 3692 sfx Sword beam
-C 3692 g ERl
+C 3692 g Erw
 U 3692 A
-C 3693 g C:%
-C 3694 g C,~
-C 3695 g CpA
-C 3696 g H;$
-C 3697 g B(N
+C 3693 g DuK
+C 3694 g c3
+C 3695 g G&s
+C 3696 g B<L
+C 3697 g D2B
 C 3698 g C0<
 C 3699 g HyP
 C 3700 sfx Sword
@@ -6218,47 +6218,47 @@ C 3926 sfx Fire
 C 3926 sfx Fire
 C 3926 g B7K
 C 3927 sfx Wand magic
-C 3927 g SN
-C 3928 g Dhg
-C 3929 g DII
+C 3927 g F"@
+C 3928 g F#1
+C 3929 g !w
 U 3929 A
-C 3930 g DRE
-C 3931 g Cw.
-C 3932 g BbV
-C 3933 g Dtq
-C 3934 g HB"
-C 3935 g ED;
+C 3930 g B59
+C 3931 g @l
+C 3932 g GgT
+C 3933 g CZ?
+C 3934 g HhY
+C 3935 g B~_
 D 3935 A
 C 3936 sfx Sword beam
-C 3936 g H!f
-C 3937 g Dah
-C 3938 g GdO
-C 3939 g D5_
-C 3940 g CbX
+C 3936 g SN
+C 3937 g Ct,
+C 3938 g *X
+C 3939 g FT1
+C 3940 g HIq
 U 3940 A
-C 3941 g D=e
-C 3942 g G:T
-C 3943 g C6I
-C 3944 g lD
-C 3945 g GZA
-C 3946 g D1S
+C 3941 g FC4
+C 3942 g HJ+
+C 3943 g HvM
+C 3944 g BX+
+C 3945 g HSz
+C 3946 g F}A
 C 3947 sfx Sword
-C 3947 g BJ?
+C 3947 g G}d
 D 3947 A
-C 3948 g BOm
-C 3949 g Cg/
-C 3950 g D1A
-C 3951 g B0Y
+C 3948 g H<g
+C 3949 g D?_
+C 3950 g a+
+C 3951 g %~
 U 3951 A
-C 3952 g H7w
-C 3953 g D=E
-C 3954 g CAf
-C 3955 g BU+
-C 3956 g FLp
-C 3957 g B|3
-C 3958 g F4i
+C 3952 g GZ_
+C 3953 g t0
+C 3954 g D]o
+C 3955 g FI3
+C 3956 g Elj
+C 3957 g F^r
+C 3958 g EWV
 D 3958 A
-C 3959 g GIo
+C 3959 g Hta
 C 3960 g DXB
 C 3961 g F2r
 C 3962 g H<2
@@ -6518,45 +6518,45 @@ D 4117 A
 C 4118 g BoW
 C 4119 g EA_
 C 4120 sfx Wand magic
-C 4120 g HQ{
-C 4121 g {P
-C 4122 g E)G
+C 4120 g C<E
+C 4121 g DQ0
+C 4122 g EoP
 U 4122 A
-C 4123 g ho
-C 4124 g BJZ
-C 4125 g G<S
-C 4126 g B<x
-C 4127 g Cy)
-C 4128 g Cs`
+C 4123 g B)]
+C 4124 g HIM
+C 4125 g H8P
+C 4126 g Fuf
+C 4127 g BW"
+C 4128 g BGf
 U 4128 Down
 D 4128 A
-C 4129 g Fj,
-C 4130 g Cb:
-C 4131 g CNm
-C 4132 g BV|
+C 4129 g Eb?
+C 4130 g F`~
+C 4131 g FG"
+C 4132 g EW{
 U 4132 A
-C 4133 g |A
-C 4134 g 4k
-C 4135 g ^t
-C 4136 g D4E
-C 4137 g 7o
-C 4139 g D@<
-C 4140 g |>
-C 4141 g E~I
+C 4133 g B^P
+C 4134 g D[r
+C 4135 g D0i
+C 4137 g C:j
+C 4138 g C{5
+C 4139 g Ev4
+C 4140 g Hot
+C 4141 g GrP
 C 4142 sfx Sword
-C 4142 g F06
+C 4142 g BRJ
 D 4142 A
-C 4143 g FMo
-C 4144 g H:X
-C 4145 g e(
-C 4146 g FBC
-C 4147 g G>A
+C 4143 g DSW
+C 4144 g !Q
+C 4145 g Fk$
+C 4146 g CnE
+C 4147 g FPk
 U 4147 A
-C 4148 g Cub
-C 4149 g HU>
-C 4150 g Gwg
-C 4151 g D%:
-C 4152 g Gr(
+C 4148 g *P
+C 4149 g B/B
+C 4150 g Ce?
+C 4151 g Fxl
+C 4152 g Btx
 C 4153 g Cu|
 D 4153 A
 C 4154 sfx Sword beam
@@ -6867,55 +6867,55 @@ C 4333 h 87 7b
 C 4333 g H9<
 C 4334 sfx Wand magic
 C 4334 h 86 7b
-C 4334 g FJ6
+C 4334 g G^J
 C 4335 h 84 7b
-C 4335 g Dhf
+C 4335 g D`6
 C 4336 h 83 7b
-C 4336 g Fyo
+C 4336 g Bv@
 C 4337 h 81 7b
-C 4337 g GhT
+C 4337 g HDu
 C 4338 h 80 7b
-C 4338 g Esj
+C 4338 g Em>
 C 4339 h 7e 7b
-C 4339 g D#;
+C 4339 g EG#
 C 4340 h 7d 7b
-C 4340 g B2(
+C 4340 g E9D
 C 4341 h 7b 7b
-C 4341 g Cjt
+C 4341 g Go;
 C 4342 sfx Sword
-C 4342 g E1$
+C 4342 g G0!
 D 4342 A
-C 4343 g C.*
-C 4344 g Bw"
-C 4345 g CT,
-C 4346 g E@:
-C 4347 g Cu9
-C 4348 g EK+
-C 4349 g Hl.
-C 4350 g :*
+C 4343 g C6b
+C 4344 g F60
+C 4345 g Fw9
+C 4346 g D3B
+C 4347 g HO&
+C 4348 g Dqb
+C 4349 g Gyo
+C 4350 g G(I
 U 4350 A
-C 4351 g I3
-C 4352 g CW&
-C 4353 g F)l
-C 4354 g B#&
-C 4355 g T{
+C 4351 g BvP
+C 4352 g EI<
+C 4353 g DWF
+C 4354 g 2J
+C 4355 g 6
 C 4356 h 7a 7b
-C 4356 g C/o
+C 4356 g #^
 C 4357 h 78 7b
-C 4357 g FuS
+C 4357 g HE^
 C 4358 h 77 7b
-C 4358 g <0
+C 4358 g EEs
 C 4359 h 75 7b
-C 4359 g ECm
+C 4359 g EM[
 C 4360 sfx Sword
-C 4360 g Fb5
+C 4360 g EQy
 D 4360 A
-C 4361 g HBM
-C 4362 g VH
-C 4363 g Da!
-C 4364 g D]G
-C 4365 g D<T
-C 4366 g Fsl
+C 4361 g HpH
+C 4362 g Cy0
+C 4363 g DL%
+C 4364 g CzE
+C 4365 g F.k
+C 4366 g F`.
 C 4367 g DJl
 U 4367 Left
 C 4368 g COM
@@ -7666,45 +7666,45 @@ C 4844 g B{^
 C 4845 g a@
 U 4845 A
 C 4846 sfx Wand magic
-C 4846 g pJ
-C 4847 g Ee#
-C 4848 g HeS
-C 4849 g CQh
-C 4850 g Gp|
-C 4851 g H2W
-C 4852 g BC]
+C 4846 g )h
+C 4847 g F$(
+C 4848 g Fe&
+C 4849 g C*F
+C 4850 g Fb"
+C 4851 g FJv
+C 4852 g CYk
 C 4853 sfx Sword
-C 4853 g FZ]
+C 4853 g Hv6
 D 4853 A
-C 4854 g ,9
-C 4855 g HP?
-C 4856 g Bi]
-C 4857 g FQ=
-C 4858 g D4S
-C 4859 g D8l
-C 4860 g GY$
+C 4854 g DgX
+C 4855 g Fqg
+C 4856 g EMU
+C 4857 g F6n
+C 4858 g xq
+C 4859 g FH`
+C 4860 g Gii
 U 4860 A
-C 4861 g CvX
-C 4862 g 5Z
-C 4863 g Djl
-C 4864 g G^2
+C 4861 g C59
+C 4862 g Ka
+C 4863 g G!U
+C 4864 g QI
 D 4864 A
 C 4865 sfx Sword beam
-C 4865 g CH1
-C 4866 g Pw
-C 4867 g F3E
-C 4868 g z
-C 4869 g E1I
-C 4870 g Dx4
-C 4871 g E_t
-C 4872 g BG^
-C 4873 g Fv2
-C 4874 g G>Y
+C 4865 g o;
+C 4866 g E+T
+C 4867 g F4r
+C 4868 g Cc~
+C 4869 g Eg?
+C 4870 g 1}
+C 4871 g Ghu
+C 4872 g FWK
+C 4873 g H7`
+C 4874 g B%?
 U 4874 A
-C 4875 g DGY
-C 4876 g C<7
-C 4877 g yt
-C 4878 g CYi
+C 4875 g {@
+C 4876 g B&i
+C 4877 g Bp}
+C 4878 g G=F
 C 4879 g GMG
 C 4880 g Hs7
 C 4881 g C>C
@@ -7931,46 +7931,46 @@ C 5039 g H/y
 C 5040 g E3e
 U 5040 A
 C 5041 sfx Wand magic
-C 5041 g F4x
-C 5042 g BC;
-C 5043 g Gl/
-C 5044 g DZ5
-C 5045 g D)j
-C 5046 g E1V
-C 5047 g 3$
+C 5041 g D%.
+C 5042 g CG7
+C 5043 g DtM
+C 5044 g eX
+C 5045 g Es/
+C 5046 g BMF
+C 5047 g F)C
 C 5048 sfx Sword
-C 5048 g 3b
+C 5048 g By+
 D 5048 A
-C 5049 g D!_
-C 5050 g FNP
-C 5051 g FmV
-C 5052 g CDM
-C 5053 g BVE
+C 5049 g *8
+C 5050 g GgB
+C 5051 g EN6
+C 5052 g F!D
+C 5053 g Gjz
 U 5053 A
-C 5054 g CN2
-C 5055 g F[v
-C 5056 g Edp
-C 5057 g Ci*
-C 5058 g D"3
-C 5059 g Hf$
-C 5060 g C;>
-C 5061 g C5n
-C 5062 g G`_
-C 5063 g BGK
+C 5054 g Cn@
+C 5055 g <i
+C 5056 g F2%
+C 5057 g D^J
+C 5058 g G`5
+C 5059 g CNU
+C 5060 g CK~
+C 5061 g B`e
+C 5062 g HCk
+C 5063 g H0G
 C 5064 sfx Sword
-C 5064 g l"
+C 5064 g Em8
 D 5064 A
-C 5065 g Csn
-C 5066 g B+E
-C 5067 g H=O
-C 5068 g C"@
+C 5065 g E%p
+C 5066 g HZ5
+C 5067 g Ho)
+C 5068 g ClT
 U 5068 A
-C 5069 g G$1
+C 5069 g E9>
 D 5069 A
-C 5070 g 9A
-C 5071 g Fjb
-C 5072 g EZH
-C 5073 g BgO
+C 5070 g Dsp
+C 5071 g FnY
+C 5072 g F(;
+C 5073 g H5
 C 5074 g G0w
 C 5075 g E&1
 C 5076 sfx Sword beam
@@ -8139,47 +8139,47 @@ C 5176 g Ds*
 C 5177 g BR7
 C 5178 g EbU
 C 5179 sfx Wand magic
-C 5179 g G9h
+C 5179 g C=M
 D 5179 A
 C 5180 sfx Sword beam
-C 5180 g C<7
-C 5181 g H/~
-C 5182 g FKV
-C 5183 g H#$
-C 5184 g C{h
+C 5180 g ERm
+C 5181 g G1L
+C 5182 g CR[
+C 5183 g E!A
+C 5184 g E;W
 U 5184 A
-C 5185 g E7n
-C 5186 g BV|
-C 5187 g Bs:
-C 5188 g GQ(
-C 5189 g D;y
-C 5190 g E}z
+C 5185 g Bs}
+C 5186 g F)&
+C 5187 g D@<
+C 5188 g F?<
+C 5189 g Caa
+C 5190 g DpL
 C 5191 sfx Sword
-C 5191 g HeT
+C 5191 g E*m
 D 5191 A
-C 5192 g xu
-C 5193 g CpX
-C 5194 g "@
-C 5195 g HNP
-C 5196 g Dkp
-C 5197 g BPH
+C 5192 g ESc
+C 5193 g H,@
+C 5194 g t%
+C 5195 g FI1
+C 5196 g xQ
+C 5197 g GN*
 U 5197 A
-C 5198 g Hod
-C 5199 g Fkv
-C 5200 g CKP
-C 5201 g CKJ
-C 5202 g z(
-C 5203 g ELJ
-C 5204 g ;r
-C 5205 g CNT
+C 5198 g C%L
+C 5199 g !b
+C 5200 g B4>
+C 5201 g Dzo
+C 5202 g B>e
+C 5203 g E;l
+C 5204 g FQR
+C 5205 g EJA
 D 5205 A
-C 5206 g B&g
-C 5207 g F)w
-C 5208 g E&Y
-C 5209 g BN?
+C 5206 g C#M
+C 5207 g C~A
+C 5208 g Bj4
+C 5209 g EuQ
 U 5209 A
-C 5210 g DSL
-C 5211 g CZ7
+C 5210 g [;
+C 5211 g Hm]
 C 5212 g H%9
 C 5213 g E9U
 C 5214 g EaR
@@ -8422,46 +8422,46 @@ D 5372 A
 C 5373 g GGy
 C 5374 sfx Wand magic
 C 5374 sfx Sword beam
-C 5374 g CZn
-C 5375 g F?X
-C 5376 g Gw2
+C 5374 g Vc
+C 5375 g CJX
+C 5376 g G~B
 U 5376 A
-C 5377 g FhI
-C 5378 g Fsb
-C 5379 g E12
-C 5380 g Bpd
-C 5381 g Dl.
+C 5377 g LI
+C 5378 g Ge%
+C 5379 g F+G
+C 5380 g qd
+C 5381 g By:
 C 5382 sfx Sword
-C 5382 g HF@
+C 5382 g Hr|
 D 5382 A
-C 5383 g H>8
-C 5384 g GRL
-C 5385 g L+
-C 5386 g B1=
-C 5387 g G)}
+C 5383 g G3I
+C 5384 g ETU
+C 5385 g D_V
+C 5386 g D9@
+C 5387 g G4
 U 5387 A
-C 5388 g F&4
-C 5389 g Dv(
-C 5390 g CF)
-C 5391 g BhA
-C 5392 g Ep>
-C 5393 g Dd`
-C 5394 g Bqr
+C 5388 g GcI
+C 5389 g C&J
+C 5390 g Hzc
+C 5391 g F5d
+C 5392 g H>_
+C 5393 g E0w
+C 5394 g H(R
 D 5394 A
-C 5395 g G+`
-C 5396 g F/<
-C 5397 g EzD
-C 5398 g EuU
-C 5399 g KB
+C 5395 g BH;
+C 5396 g FPq
+C 5397 g DxY
+C 5398 g Cg?
+C 5399 g D`P
 U 5399 A
-C 5400 g E3f
-C 5401 g E"]
-C 5402 g FOg
-C 5403 g F=B
-C 5404 g C|9
-C 5405 g D6U
+C 5400 g CTs
+C 5401 g ED9
+C 5402 g D_]
+C 5403 g BP_
+C 5404 g H$`
+C 5405 g HzO
 C 5406 sfx Sword
-C 5406 g GS6
+C 5406 g B`#
 D 5406 A
 C 5407 g mH
 C 5408 g DNt

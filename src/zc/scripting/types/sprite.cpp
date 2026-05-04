@@ -132,19 +132,19 @@ int32_t sprite_get_register(int32_t reg)
 		case SPRITE_X_OFFSET:
 		{
 			if (s)
-				return s->xofs * 10000;
+				return s->xofs.getZLong();
 			return 0;
 		}
 		case SPRITE_Y_OFFSET:
 		{
 			if (s)
-				return (s->yofs - (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset)) * 10000;
+				return int(s->yofs - (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset)) * 10000;
 			return 0;
 		}
 		case SPRITE_Z_OFFSET:
 		{
 			if (s)
-				return s->zofs * 10000;
+				return s->zofs.getZLong();
 			return 0;
 		}
 		case SPRITE_ROTATION:
