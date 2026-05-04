@@ -1600,6 +1600,23 @@ void warp_finish_setup()
 	Hero.trySideviewLadder();
 }
 
+void warp_update_last_entrance(const mapscr* scr, int lx, int ly, int target_dmap, bool is_scroll)
+{
+	if (((lx > 0 || ly > 0) || (get_qr(qr_WARPSIGNOREARRIVALPOINT))) && (!is_scroll || !get_qr(qr_NOSCROLLCONTINUE)) && (!(scr->flags6 & fNOCONTINUEHERE)))
+	{
+		if (dlevel)
+		{
+			lastentrance = cur_screen;
+		}
+		else
+		{
+			lastentrance = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
+		}
+
+		lastentrance_dmap = target_dmap;
+	}
+}
+
 void warp_hero_auto_face(int lx, int ly, int facesDir, bool defaultDown)
 {
 	switch(facesDir)

@@ -7991,46 +7991,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			
 			
 			Hero.scrollscr(Hero.sdir, screen+DMaps[dmap].xoff, dmap);
-			bool changedlevel = false;
-			bool changeddmap = false;
-			if(cur_dmap != dmap)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-				changeddmap = true;
-			}
-			if(dlevel != DMaps[dmap].level)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-				changedlevel = true;
-			}
-			dlevel = DMaps[dmap].level;
-			cur_dmap = dmap;
-			if(changeddmap)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-			}
-			if(changedlevel)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-			}
+			warp_update_dmap_and_level(dmap);
 			
 			Hero.reset_hookshot();
 			
 			if(!intradmap)
 			{
-				if(((lx>0||ly>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
-				{
-					if(dlevel)
-					{
-						lastentrance = cur_screen;
-					}
-					else
-					{
-						lastentrance = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
-					}
-					
-					lastentrance_dmap = dmap;
-				}
+				warp_update_last_entrance(hero_scr, lx, ly, dmap, true);
 			}
 			
 			if(DMaps[cur_dmap].color != c)
