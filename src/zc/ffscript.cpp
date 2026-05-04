@@ -7840,29 +7840,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			}
 			doWarpEffect(warpEffect, true);
 			int32_t c = DMaps[cur_dmap].color;
-			bool changedlevel = false;
-			bool changeddmap = false;
-			if(cur_dmap != dmap)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-				changeddmap = true;
-			}
-			if(dlevel != DMaps[dmap].level)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-				changedlevel = true;
-			}
-			dlevel = DMaps[dmap].level;
-			cur_dmap = dmap;
-			if(changeddmap)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-			}
-			if(changedlevel)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-			}
-			cur_map = DMaps[cur_dmap].map;
+			warp_update_dmap_and_level(dmap);
 			init_dmap();
 			update_subscreens(dmap);
 			
@@ -7887,34 +7865,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			Hero.y = (zfix)wy;
 			update_viewport();
 			
-			switch(heroFacesDir)
-			{
-				case up:
-				case down:
-				case left:
-				case right:
-					Hero.dir = heroFacesDir;
-					break;
-				default:
-					if(lx==0)  
-					{
-						Hero.dir=right;
-					}
-					if(lx==240) 
-					{
-						Hero.dir=left;
-					}
-					
-					if(ly==0)   
-					{
-						Hero.dir=down;
-					}
-					
-					if(ly==160) 
-					{
-						Hero.dir=up;
-					}
-			}
+			warp_hero_auto_face(lx, ly, heroFacesDir, false);
 			
 			markBmap(Hero.dir^1, Hero.current_screen);
 			
@@ -7957,29 +7908,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
-			bool changedlevel = false;
-			bool changeddmap = false;
-			if(cur_dmap != dmap)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-				changeddmap = true;
-			}
-			if(dlevel != DMaps[dmap].level)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-				changedlevel = true;
-			}
-			dlevel = DMaps[dmap].level;
-			cur_dmap = dmap;
-			if(changeddmap)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-			}
-			if(changedlevel)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-			}
-			cur_map=DMaps[cur_dmap].map;
+			warp_update_dmap_and_level(dmap);
 			init_dmap();
 			update_subscreens(dmap);
 			loadfullpal();
@@ -8011,36 +7940,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			Hero.y = (zfix)wy;
 			update_viewport();
 
-			//set his dir
-			switch(heroFacesDir)
-			{
-				case up:
-				case down:
-				case left:
-				case right:
-					Hero.dir = heroFacesDir;
-					break;
-				default:
-					Hero.dir=down;
-					if(lx==0)  
-					{
-						Hero.dir=right;
-					}
-					if(lx==240) 
-					{
-						Hero.dir=left;
-					}
-					
-					if(ly==0)   
-					{
-						Hero.dir=down;
-					}
-					
-					if(ly==160) 
-					{
-						Hero.dir=up;
-					}
-			}
+			warp_hero_auto_face(lx, ly, heroFacesDir, true);
 			
 			if(dlevel)
 			{

@@ -1551,6 +1551,52 @@ void init_dmap()
     return;
 }
 
+void warp_update_dmap_and_level(int new_dmap)
+{
+	bool changedlevel = false;
+	bool changeddmap = false;
+	if(cur_dmap != new_dmap)
+	{
+		timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		changeddmap = true;
+	}
+	if(dlevel != DMaps[new_dmap].level)
+	{
+		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+		changedlevel = true;
+	}
+	dlevel = DMaps[new_dmap].level;
+	cur_dmap = new_dmap;
+	if(changeddmap)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+	}
+	if(changedlevel)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+	}
+	cur_map = DMaps[cur_dmap].map;
+}
+
+void warp_hero_auto_face(int lx, int ly, int facesDir, bool defaultDown)
+{
+	switch(facesDir)
+	{
+		case up:
+		case down:
+		case left:
+		case right:
+			Hero.dir = facesDir;
+			break;
+		default:
+			if (defaultDown) Hero.dir = down;
+			if(lx==0)   Hero.dir=right;
+			if(lx==240) Hero.dir=left;
+			if(ly==0)   Hero.dir=down;
+			if(ly==160) Hero.dir=up;
+	}
+}
+
 // Sets globals to their default values.
 void init_game_vars(bool is_cont_game = false)
 {

@@ -26060,30 +26060,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			music_stop();
 		kill_sfx();
 		blackscr(30,false);
-		bool changedlevel = false;
-		bool changeddmap = false;
-		if(cur_dmap != wdmap)
-		{
-			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-			changeddmap = true;
-		}
-		if(dlevel != DMaps[wdmap].level)
-		{
-			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			changedlevel = true;
-		}
-		dlevel = DMaps[wdmap].level;
-		cur_dmap = wdmap;
-		if(changeddmap)
-		{
-			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-		}
-		if(changedlevel)
-		{
-			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-		}
+		warp_update_dmap_and_level(wdmap);
 		
-		cur_map=DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		loadfullpal();
@@ -26164,11 +26142,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			y=pity;
 		}
 		
-		dir=down;
-		if(x==0)   dir=right;
-		if(x==240) dir=left;
-		if(y==0)   dir=down;
-		if(y==160) dir=up;
+		warp_hero_auto_face((int32_t)x, (int32_t)y, -1, true);
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
@@ -26471,30 +26445,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 		
 		int32_t c = DMaps[cur_dmap].color;
-		bool changedlevel = false;
-		bool changeddmap = false;
-		if(cur_dmap != wdmap)
-		{
-			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-			changeddmap = true;
-		}
-		if(dlevel != DMaps[wdmap].level)
-		{
-			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			changedlevel = true;
-		}
-		dlevel = DMaps[wdmap].level;
-		cur_dmap = wdmap;
-		if(changeddmap)
-		{
-			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-		}
-		if(changedlevel)
-		{
-			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-		}
+		warp_update_dmap_and_level(wdmap);
 
-		cur_map = DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		
@@ -26548,13 +26500,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		type2 = combobuf[MAPCOMBO(x,y)].type;
 		type3 = combobuf[MAPCOMBO(x,y+16)].type;
 		
-		if(x==0)   dir=right;
-		
-		if(x==240) dir=left;
-		
-		if(y==0)   dir=down;
-		
-		if(y==160) dir=up;
+		warp_hero_auto_face((int32_t)x, (int32_t)y, -1, false);
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
@@ -26690,29 +26636,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 			
 			int32_t c = DMaps[cur_dmap].color;
-			bool changedlevel = false;
-			bool changeddmap = false;
-			if(cur_dmap != wdmap)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-				changeddmap = true;
-			}
-			if(dlevel != DMaps[wdmap].level)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-				changedlevel = true;
-			}
-			dlevel = DMaps[wdmap].level;
-			cur_dmap = wdmap;
-			if(changeddmap)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-			}
-			if(changedlevel)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-			}
-			cur_map = DMaps[cur_dmap].map;
+			warp_update_dmap_and_level(wdmap);
 			init_dmap();
 			update_subscreens(wdmap);
 			
@@ -26739,13 +26663,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			type2 = combobuf[MAPCOMBO(x,y)].type;
 			type3 = combobuf[MAPCOMBO(x,y+16)].type;
 			
-			if(x==0)   dir=right;
-			
-			if(x==240) dir=left;
-			
-			if(y==0)   dir=down;
-			
-			if(y==160) dir=up;
+			warp_hero_auto_face((int32_t)x, (int32_t)y, -1, false);
 
 			x += region_scr_dx * 256;
 			y += region_scr_dy * 176;
