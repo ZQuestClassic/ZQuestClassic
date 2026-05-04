@@ -409,7 +409,7 @@ grouped_frame_arg = group_arg(args.frame)
 if args.concurrency:
     concurrency = args.concurrency
 else:
-    if is_web or not args.headless:
+    if is_web or (not args.headless and not is_ci):
         concurrency = 1
     elif is_ci:
         concurrency = os.cpu_count()
