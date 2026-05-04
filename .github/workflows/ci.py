@@ -428,40 +428,39 @@ def package(ctx: CiContext, args):
         )
         shutil.move(build_dir / "build.tar.gz", packages_dir / "build.tar.gz")
 
-    else:
-        build_dir = root_dir / "build"
-        package_output_dir = build_dir / "package_output"
-        package_output_dir.mkdir(parents=True, exist_ok=True)
+    build_dir = root_dir / "build"
+    package_output_dir = build_dir / "package_output"
+    package_output_dir.mkdir(parents=True, exist_ok=True)
 
-        cpack_cmd = [
-            "cpack",
-            "--verbose",
-            "-C",
-            ctx.config,
-            "-D",
-            f"CPACK_PACKAGE_DIRECTORY={package_output_dir.absolute()}",
-        ]
-        if args.debug_info:
-            cpack_cmd.extend(
-                [
-                    "-D",
-                    "CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE",
-                ]
-            )
+    cpack_cmd = [
+        "cpack",
+        "--verbose",
+        "-C",
+        ctx.config,
+        "-D",
+        f"CPACK_PACKAGE_DIRECTORY={package_output_dir.absolute()}",
+    ]
+    if args.debug_info:
+        cpack_cmd.extend(
+            [
+                "-D",
+                "CPACK_CUSTOM_INSTALL_VARIABLES=MAC_CREATE_DEBUG_SYMBOLS_BUNDLE=TRUE",
+            ]
+        )
 
-        run_cmd(cpack_cmd, cwd=build_dir)
+    run_cmd(cpack_cmd, cwd=build_dir)
 
-        # Move and rename the generated artifact
-        files = [f for f in package_output_dir.iterdir() if f.is_file()]
-        if not files:
-            logger.error(f"No package found in {package_output_dir}")
-            sys.exit(1)
+    # Move and rename the generated artifact.
+    files = [f for f in package_output_dir.iterdir() if f.is_file()]
+    if not files:
+        logger.error(f"No package found in {package_output_dir}")
+        sys.exit(1)
 
-        ext = Path(package_name).suffix
-        target_file = next((f for f in files if f.name.endswith(ext)), files[0])
-        dest_path = packages_dir / package_name
-        shutil.move(target_file, dest_path)
-        logger.info(f"Moved {target_file.name} to {dest_path}")
+    ext = Path(package_name).suffix
+    target_file = next((f for f in files if f.name.endswith(ext)), files[0])
+    dest_path = packages_dir / package_name
+    shutil.move(target_file, dest_path)
+    logger.info(f"Moved {target_file.name} to {dest_path}")
 
     logger.info("Packaging complete.")
 
@@ -484,7 +483,6 @@ def extract_package(ctx: CiContext, args):
         shutil.copytree(
             root_dir / "build/tmp-src", root_dir / "src", dirs_exist_ok=True
         )
-        return
 
     extract_dir = ctx.build_folder_base
     extract_dir.mkdir(parents=True, exist_ok=True)

@@ -142,7 +142,8 @@ jobs:
         shell: bash
         run: |
           # Dynamically grab the name of the file our script put in the packages directory
-          PACKAGE_NAME=$(basename packages/*.*)
+          # excluding build.tar.gz if it exists
+          PACKAGE_NAME=$(ls packages/ | grep -v build.tar.gz | head -n 1)
           echo "package-name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload build artifact
