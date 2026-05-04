@@ -72,7 +72,7 @@ jobs:
           enableCrossOsArchive: true
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12.8'
           cache: pip
@@ -95,7 +95,7 @@ jobs:
 
       - name: Restore ccache
         if: inputs.cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .ccache
           key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
@@ -146,7 +146,7 @@ jobs:
           echo "package-name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
           path: packages/*.*

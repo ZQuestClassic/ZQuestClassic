@@ -86,7 +86,7 @@ jobs:
           enableCrossOsArchive: true
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12.8'
           cache: pip
@@ -107,7 +107,7 @@ jobs:
           node-version: 20.x
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -151,14 +151,14 @@ jobs:
 
       - name: Updater cache
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
       - name: Archives cache
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && !contains(inputs.runs-on, 'ubuntu') }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/.tmp/archives
           key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
@@ -186,14 +186,14 @@ jobs:
         run: python .github/workflows/ci.py coverage
 
       - name: Upload Coverage JSON
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: inputs.config == 'Coverage'
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
 
       - name: Upload Generated Source Files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: inputs.config == 'Coverage' && matrix.shard_index == 1
         with:
           name: generated-source-files
@@ -209,14 +209,14 @@ jobs:
           fi
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
       - name: Upload updated files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
