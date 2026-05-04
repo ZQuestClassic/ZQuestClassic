@@ -7839,15 +7839,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				Hero.set_dive(0);
 			}
 			doWarpEffect(warpEffect, true);
-			int32_t c = DMaps[cur_dmap].color;
-			warp_update_dmap_and_level(dmap);
-			init_dmap();
-			update_subscreens(dmap);
-			
-			ringcolor(false);
-			
-			if(DMaps[cur_dmap].color != c)
-				loadlvlpal(DMaps[cur_dmap].color);
+			warp_setup_new_dmap(dmap, false, DMaps[cur_dmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
 			int prev_screen = Hero.current_screen;
@@ -7888,13 +7880,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			putscrdoors(hero_scr, scrollbuf, 0, 0);
 			
 			doWarpEffect(warpEffect, false);
-			show_subscreen_life=true;
-			show_subscreen_numbers=true;
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) playLevelMusic();
-			currcset=DMaps[cur_dmap].color;
-			dointro();
-			Hero.set_respawn_point();
-			Hero.trySideviewLadder();
+			warp_finish_setup();
 			
 			break;
 		}
@@ -7908,12 +7895,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
-			warp_update_dmap_and_level(dmap);
-			init_dmap();
-			update_subscreens(dmap);
-			loadfullpal();
-			ringcolor(false);
-			loadlvlpal(DMaps[cur_dmap].color);
+			warp_setup_new_dmap(dmap, true);
 			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 			
 			if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
@@ -7972,13 +7954,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				openscreen();
 			}
 			
-			show_subscreen_life=true;
-			show_subscreen_numbers=true;
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC))playLevelMusic();
-			currcset=DMaps[cur_dmap].color;
-			dointro();
-			Hero.set_respawn_point();
-			Hero.trySideviewLadder();
+			warp_finish_setup();
 			
 			for(int32_t i=0; i<6; i++)
 				visited[i]=-1;

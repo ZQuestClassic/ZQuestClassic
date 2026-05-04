@@ -26041,13 +26041,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			music_stop();
 		kill_sfx();
 		blackscr(30,false);
-		warp_update_dmap_and_level(wdmap);
-		
-		init_dmap();
-		update_subscreens(wdmap);
-		loadfullpal();
-		ringcolor(false);
-		loadlvlpal(DMaps[cur_dmap].color);
+		warp_setup_new_dmap(wdmap, true);
 		int destscr = wscr + DMaps[cur_dmap].xoff;
 		loadscr(cur_dmap, destscr, -1, overlay);
 		scr = hero_scr;
@@ -26184,18 +26178,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 		}
 		
-		show_subscreen_life=true;
-		show_subscreen_numbers=true;
 		if (updatemusic || !musicnocut)
 		{
 			playLevelMusic();
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[cur_dmap].color;
-		dointro();
-		set_respawn_point();
-		trySideviewLadder();
+		warp_finish_setup();
 		
 		for(int32_t i=0; i<6; i++)
 			visited[i]=-1;
@@ -26401,16 +26390,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			blackscr(30,b2?false:true);
 		}
 		
-		int32_t c = DMaps[cur_dmap].color;
-		warp_update_dmap_and_level(wdmap);
-
-		init_dmap();
-		update_subscreens(wdmap);
-		
-		ringcolor(false);
-		
-		if(DMaps[cur_dmap].color != c)
-			loadlvlpal(DMaps[cur_dmap].color);
+		warp_setup_new_dmap(wdmap, false, DMaps[cur_dmap].color);
 		
 		auto prev_region = cur_region;
 		int prev_origin_screen = cur_screen;
@@ -26513,18 +26493,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		{
 			reposition_sword();
 		}
-		show_subscreen_life=true;
-		show_subscreen_numbers=true;
 		if (updatemusic)
 		{
 			playLevelMusic();
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[cur_dmap].color;
-		dointro();
-		set_respawn_point();
-		trySideviewLadder();
+		warp_finish_setup();
 	}
 	break;
 	

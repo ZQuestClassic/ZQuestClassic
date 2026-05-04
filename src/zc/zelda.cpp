@@ -1578,6 +1578,28 @@ void warp_update_dmap_and_level(int new_dmap)
 	cur_map = DMaps[cur_dmap].map;
 }
 
+void warp_setup_new_dmap(int new_dmap, bool full_pal, int old_color)
+{
+	warp_update_dmap_and_level(new_dmap);
+	init_dmap();
+	update_subscreens(new_dmap);
+	if (full_pal) loadfullpal();
+	ringcolor(false);
+
+	if (old_color == -1 || DMaps[cur_dmap].color != old_color)
+		loadlvlpal(DMaps[cur_dmap].color);
+}
+
+void warp_finish_setup()
+{
+	show_subscreen_life = true;
+	show_subscreen_numbers = true;
+	currcset = DMaps[cur_dmap].color;
+	dointro();
+	Hero.set_respawn_point();
+	Hero.trySideviewLadder();
+}
+
 void warp_hero_auto_face(int lx, int ly, int facesDir, bool defaultDown)
 {
 	switch(facesDir)
