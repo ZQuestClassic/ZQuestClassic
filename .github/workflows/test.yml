@@ -123,6 +123,8 @@ jobs:
           --build-folder zc-extracted
 
       - name: Run replay tests
+        env:
+          EXTRA_ARGS: ${{ inputs.extra-args }}
         run: >
           bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
           --repo ${{ github.repository }}
@@ -131,13 +133,15 @@ jobs:
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
-          --extra-args "${{ inputs.extra-args }}"
+          --extra-args "$EXTRA_ARGS"
           --build-folder zc-extracted
 
       # Just run a few replays with JIT disabled.
       # Also, without headless.
       - name: Test w/o JIT
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
+        env:
+          EXTRA_ARGS: ${{ inputs.extra-args }}
         run: >
           bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
           --repo ${{ github.repository }}
@@ -146,7 +150,7 @@ jobs:
           --config ${{ inputs.config }}
           --run-id ${{ github.run_id }}
           --no-jit
-          --extra-args "${{ inputs.extra-args }}"
+          --extra-args "$EXTRA_ARGS"
           --build-folder zc-extracted
 
       - name: Updater cache
