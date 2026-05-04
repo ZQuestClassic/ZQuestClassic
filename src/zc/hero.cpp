@@ -25729,8 +25729,6 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-<<<<<<< HEAD
-=======
 void warp_update_dmap_and_level(int new_dmap)
 {
 	bool changedlevel = false;
@@ -25816,7 +25814,6 @@ void warp_hero_auto_face(int lx, int ly, int facesDir, bool defaultDown)
 	}
 }
 
->>>>>>> 23b1d4046a (fixup! refactor(zc)!: unify warp exit/entry last entrance state update)
 bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
 {
 	if (!scr) scr = hero_scr;

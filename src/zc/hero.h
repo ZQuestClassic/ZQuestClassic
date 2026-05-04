@@ -702,6 +702,12 @@ bool usekey();
 bool canUseKey(int32_t num = 1);
 bool usekey(int32_t num);
 
+void warp_update_dmap_and_level(int new_dmap);
+void warp_setup_new_dmap(int new_dmap, bool full_pal, int old_color = -1);
+void warp_finish_setup();
+void warp_update_last_entrance(const mapscr* scr, int lx, int ly, int target_dmap, bool is_scroll = false);
+void warp_hero_auto_face(int lx, int ly, int facesDir = -1, bool defaultDown = false);
+
 int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);

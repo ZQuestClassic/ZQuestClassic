@@ -132,11 +132,6 @@ void blit_msgstr_prt(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy,
 void dismissmsg();
 void dointro();
 void init_dmap();
-void warp_update_dmap_and_level(int new_dmap);
-void warp_setup_new_dmap(int new_dmap, bool full_pal, int old_color = -1);
-void warp_finish_setup();
-void warp_update_last_entrance(const mapscr* scr, int lx, int ly, int target_dmap, bool is_scroll = false);
-void warp_hero_auto_face(int lx, int ly, int facesDir = -1, bool defaultDown = false);
 int32_t  init_game();
 int32_t  cont_game();
 void restart_level();
