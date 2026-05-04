@@ -3440,6 +3440,23 @@ void passiveitem_script(int32_t id, bool doRun = false)
 	}
 }
 
+void HeroClass::reposition_sword()
+{
+	weapon *swd = nullptr;
+	for (int32_t i = 0; i < Lwpns.Count(); i++)
+	{
+		swd = (weapon*)Lwpns.spr(i);
+
+		if (swd->id == (attack == wSword ? wSword : wWand))
+		{
+			int32_t itype = (attack == wFire ? itype_candle : attack == wCByrna ? itype_cbyrna : attack == wWand ? itype_wand : attack == wHammer ? itype_hammer : attack == wBugNet ? itype_bugnet : itype_sword);
+			int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
+			positionSword(swd, item_id);
+			break;
+		}
+	}
+}
+
 // separate case for sword/wand/hammer/slashed weapons only
 // the main weapon checking is in the global function check_collisions()
 bool HeroClass::checkstab()
@@ -25867,19 +25884,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			reset_hookshot();
 			if(reposition_sword_postwarp)
 			{
-				weapon *swd=NULL;
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					swd = (weapon*)Lwpns.spr(i);
-					
-					if(swd->id == (attack==wSword ? wSword : wWand))
-					{
-					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-					positionSword(swd,item_id);
-					break;
-					}
-				}
+				reposition_sword();
 			}
 			stepforward(diagonalMovement?5:6, false);
 		}
@@ -25925,19 +25930,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			reset_hookshot();
 			if(reposition_sword_postwarp)
 			{
-				weapon *swd=NULL;
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					swd = (weapon*)Lwpns.spr(i);
-					
-					if(swd->id == (attack==wSword ? wSword : wWand))
-					{
-					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-					positionSword(swd,item_id);
-					break;
-					}
-				}
+				reposition_sword();
 			}
 			lighting(false, true);
 			if ( dontdraw < 2 ) { dontdraw=0; }
@@ -26021,19 +26014,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		reset_hookshot();
 		if(reposition_sword_postwarp)
 		{
-			weapon *swd=NULL;
-			for(int32_t i=0; i<Lwpns.Count(); i++)
-			{
-				swd = (weapon*)Lwpns.spr(i);
-				
-				if(swd->id == (attack==wSword ? wSword : wWand))
-				{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-				}
-			}
+			reposition_sword();
 		}
 		if ( dontdraw < 2 ) { dontdraw=0; }
 		stepforward(diagonalMovement?16:18, false);
@@ -26166,19 +26147,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		reset_hookshot();
 		if(reposition_sword_postwarp)
 		{
-			weapon *swd=NULL;
-			for(int32_t i=0; i<Lwpns.Count(); i++)
-			{
-				swd = (weapon*)Lwpns.spr(i);
-				
-				if(swd->id == (attack==wSword ? wSword : wWand))
-				{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-				}
-			}
+			reposition_sword();
 		}
 
 		if(isdungeon())
@@ -26266,19 +26235,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		reset_hookshot();
 		if(reposition_sword_postwarp)
 		{
-			weapon *swd=NULL;
-			for(int32_t i=0; i<Lwpns.Count(); i++)
-			{
-				swd = (weapon*)Lwpns.spr(i);
-				
-				if(swd->id == (attack==wSword ? wSword : wWand))
-				{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-				}
-			}
+			reposition_sword();
 		}
 		if(!intradmap)
 		{
@@ -26554,19 +26511,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 		if(reposition_sword_postwarp)
 		{
-			weapon *swd=NULL;
-			for(int32_t i=0; i<Lwpns.Count(); i++)
-			{
-				swd = (weapon*)Lwpns.spr(i);
-				
-				if(swd->id == (attack==wSword ? wSword : wWand))
-				{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-				}
-			}
+			reposition_sword();
 		}
 		show_subscreen_life=true;
 		show_subscreen_numbers=true;
@@ -26716,19 +26661,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 			if(reposition_sword_postwarp)
 			{
-				weapon *swd=NULL;
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					swd = (weapon*)Lwpns.spr(i);
-					
-					if(swd->id == (attack==wSword ? wSword : wWand))
-					{
-						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-						positionSword(swd,item_id);
-						break;
-					}
-				}
+				reposition_sword();
 			}
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
@@ -26743,19 +26676,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		{
 			if(reposition_sword_postwarp)
 			{
-				weapon *swd=NULL;
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					swd = (weapon*)Lwpns.spr(i);
-					
-					if(swd->id == (attack==wSword ? wSword : wWand))
-					{
-						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-						positionSword(swd,item_id);
-						break;
-					}
-				}
+				reposition_sword();
 			}
 			didpit=false;
 			update_subscreens();
@@ -26771,19 +26692,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		is_warping = false;
 		if(reposition_sword_postwarp)
 		{
-			weapon *swd=NULL;
-			for(int32_t i=0; i<Lwpns.Count(); i++)
-			{
-				swd = (weapon*)Lwpns.spr(i);
-				
-				if(swd->id == (attack==wSword ? wSword : wWand))
-				{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-				}
-			}
+			reposition_sword();
 		}
 		return false;
 	}
@@ -26952,19 +26861,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	eventlog_mapflags();
 	if(reposition_sword_postwarp)
 	{
-		weapon *swd=NULL;
-		for(int32_t i=0; i<Lwpns.Count(); i++)
-		{
-			swd = (weapon*)Lwpns.spr(i);
-			
-			if(swd->id == (attack==wSword ? wSword : wWand))
-			{
-				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (valid_item_id(directWpn) && itemsbuf.get(directWpn).type == itype) ? directWpn : current_item_id(itype);
-				positionSword(swd,item_id);
-				break;
-			}
-		}
+		reposition_sword();
 	}
 	FFCore.clear_combo_scripts();
 	if (!intradmap || get_qr(qr_WARPS_RESTART_DMAPSCRIPT))

@@ -485,6 +485,7 @@ private:
 	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);
 	void positionSword(weapon* w,int32_t itemid);
+	void reposition_sword();
 	bool checkstab();
 	void fairycircle(int32_t type);
 	void StartRefill(int32_t refillWhat);
