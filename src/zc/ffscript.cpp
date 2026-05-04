@@ -8974,7 +8974,6 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	JittedScriptInstance* j_instance = nullptr;
 	if (jit_is_enabled())
 	{
-		auto& data = get_script_engine_data(type, i);
 		if (!data.j_instance)
 			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri));
 		j_instance = data.j_instance.get();
