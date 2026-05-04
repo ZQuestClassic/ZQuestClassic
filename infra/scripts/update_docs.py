@@ -85,6 +85,7 @@ def main():
         bin_dir = TMP_BUILD_DIR / "bin"
 
     env["BUILD_FOLDER"] = str(bin_dir)
+    env["PRETTY_URLS"] = '1'
 
     print(f"Running update.sh with BUILD_FOLDER={env['BUILD_FOLDER']}...")
     try:

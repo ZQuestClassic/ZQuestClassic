@@ -37,3 +37,8 @@ rm build/html/objects.inv
 echo "zipping for offline usage ..."
 # Will fail if zip is not present (aka Windows). so make this part optional.
 (cd build/html && zip -rq ZQuestClassicDocs.zip .) || true
+
+if [[ "$PRETTY_URLS" == "1" ]]; then
+  echo "Normalizing URLs for web hosting (lowercase and extensionless)..."
+  python pretty_urls.py
+fi
