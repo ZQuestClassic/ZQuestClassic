@@ -1239,13 +1239,74 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
-static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, int index)
+template <typename T, std::size_t N>
+static T get_script_safe(T (&arr)[N], int index)
+{
+	if (index < 0 || index >= N)
+		return nullptr;
+
+	return arr[index];
+}
+
+static script_data* get_script_safe(ScriptType type, int script)
+{
+	switch (type)
+	{
+		case ScriptType::FFC:
+			return get_script_safe(ffscripts, script);
+
+		case ScriptType::NPC:
+			return get_script_safe(guyscripts, script);
+
+		case ScriptType::Lwpn:
+			return get_script_safe(lwpnscripts, script);
+
+		case ScriptType::Ewpn:
+			return get_script_safe(ewpnscripts, script);
+
+		case ScriptType::ItemSprite:
+			return get_script_safe(itemspritescripts, script);
+
+		case ScriptType::Item:
+			return get_script_safe(itemscripts, script);
+
+		case ScriptType::Global:
+			return get_script_safe(globalscripts, script);
+
+		case ScriptType::Generic:
+		case ScriptType::GenericFrozen:
+			return get_script_safe(genericscripts, script);
+
+		case ScriptType::Hero:
+			return get_script_safe(playerscripts, script);
+
+		case ScriptType::DMap:
+		case ScriptType::OnMap:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
+			return get_script_safe(dmapscripts, script);
+
+		case ScriptType::EngineSubscreen:
+			return get_script_safe(subscreenscripts, script);
+
+		case ScriptType::Screen:
+			return get_script_safe(screenscripts, script);
+
+		case ScriptType::Combo:
+			return get_script_safe(comboscripts, script);
+	}
+
+	return nullptr;
+}
+
+static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, script_data* sd, int index)
 {
 	bool got_initialized = false;
 
 	ri = &data.ref;
 	stack = &data.stack;
 	ret_stack = &data.ret_stack;
+	curscript = sd;
 
 	data.script_type = type;
 	data.script_num = script;
@@ -1258,7 +1319,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 	{
 		case ScriptType::FFC:
 		{
-			curscript = ffscripts[script];
 			ffcdata* ffc = get_ffc(index);
 
 			if (!data.initialized)
@@ -1277,7 +1337,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::NPC:
 		{
 			enemy *spr = (enemy*)guys.getByUID(index);
-			curscript = guyscripts[script];
 			
 			if (!data.initialized)
 			{
@@ -1294,7 +1353,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::Lwpn:
 		{
 			weapon *spr = (weapon*)Lwpns.getByUID(index);
-			curscript = lwpnscripts[script];
 			
 			if (!data.initialized)
 			{
@@ -1311,7 +1369,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::Ewpn:
 		{
 			weapon *spr = (weapon*)Ewpns.getByUID(index);
-			curscript = ewpnscripts[script];
 			
 			if (!data.initialized)
 			{
@@ -1328,7 +1385,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::ItemSprite:
 		{
 			item *spr = (item*)items.getByUID(index);
-			curscript = itemspritescripts[script];
 			
 			if (!data.initialized)
 			{
@@ -1349,7 +1405,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
 
-			curscript = itemscripts[script];
 			
 			if (!data.initialized)
 			{
@@ -1363,7 +1418,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::Global:
 		{
-			curscript = globalscripts[script];
 			if (!data.initialized)
 			{
 				got_initialized = true;
@@ -1383,7 +1437,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::Generic:
 		{
 			user_genscript& scr = user_genscript::get(script);
-			curscript = genericscripts[script];
 			scr.waitevent = false;
 			if(!data.initialized)
 			{
@@ -1398,7 +1451,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		case ScriptType::GenericFrozen:
 		{
 			user_genscript& scr = user_genscript::get(script);
-			curscript = genericscripts[script];
 			if(!data.initialized)
 			{
 				got_initialized = true;
@@ -1411,7 +1463,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::Hero:
 		{
-			curscript = playerscripts[script];
 			ri->screenref = Hero.current_screen;
 			if (!data.initialized)
 			{
@@ -1423,7 +1474,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::DMap:
 		{
-			curscript = dmapscripts[script];
 			ri->dmapdataref = index;
 			//how do we clear initialised on dmap change?
 			if ( !data.initialized )
@@ -1440,7 +1490,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::OnMap:
 		{
-			curscript = dmapscripts[script];
 			ri->dmapdataref = index;
 			if (!data.initialized)
 			{
@@ -1456,7 +1505,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::ScriptedActiveSubscreen:
 		{
-			curscript = dmapscripts[script];
 			ri->dmapdataref = index;
 			if (!data.initialized)
 			{
@@ -1472,7 +1520,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::ScriptedPassiveSubscreen:
 		{
-			curscript = dmapscripts[script];
 			ri->dmapdataref = index;
 			if (!data.initialized)
 			{
@@ -1487,7 +1534,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		break;
 		case ScriptType::EngineSubscreen:
 		{
-			curscript = subscreenscripts[script];
 			ri->subscreendataref = get_subref(-1, index);
 			auto [ptr,_ty] = load_subdata(ri->subscreendataref);
 			
@@ -1505,8 +1551,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::Screen:
 		{
-			curscript = screenscripts[script];
-
 			if (!data.initialized)
 			{
 				got_initialized = true;
@@ -1524,8 +1568,6 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 		
 		case ScriptType::Combo:
 		{
-			curscript = comboscripts[script];
-
 			rpos_t rpos = combopos_ref_to_rpos(index);
 			int32_t lyr = combopos_ref_to_layer(index);
 			auto rpos_handle = get_rpos_handle(rpos, lyr);
@@ -8956,8 +8998,15 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		return RUNSCRIPT_ERROR;
 	}
 
+	script_data* next_script_data = get_script_safe(type, script);
+	if (!next_script_data)
+	{
+		al_trace("Invalid script. type: %d num: %d\n", (int)type, (int)script);
+		return RUNSCRIPT_ERROR;
+	}
+
 	auto& data = get_script_engine_data(type, i);
-	set_current_script_engine_data(data, type, script, i);
+	set_current_script_engine_data(data, type, script, next_script_data, i);
 
 	// Because qst.cpp likes to write script_data without setting this.
 	curscript->meta.script_type = type;
