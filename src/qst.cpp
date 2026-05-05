@@ -3486,6 +3486,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
 	}
 
+	// Older than 2.55.15?
+	if (tempheader.compareVer(2, 55, 15) < 0)
+	{
+		set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
+	}
+
 	*Header = tempheader;
 	
 	return 0;
