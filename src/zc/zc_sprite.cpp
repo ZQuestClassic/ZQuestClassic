@@ -23,6 +23,24 @@ void sprite::handle_sprlighting()
 		x0 += hxofs;
 		y0 += hyofs;
 	}
+	if (glowOffset)
+	{
+		switch (dir)
+		{
+			case up:
+				y0 -= glowOffset;
+				break;
+			case down:
+				y0 += glowOffset;
+				break;
+			case left:
+				x0 -= glowOffset;
+				break;
+			case right:
+				x0 += glowOffset;
+				break;
+		}
+	}
 
 	handle_lighting(x0, y0 + playing_field_offset, glowShape, glowRad, dir, darkscr_bmp);
 }

@@ -27,6 +27,7 @@ struct weapon_data
 	
 	word burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
+	int32_t light_offsets[WPNSPR_MAX];
 	byte glow_shape;
 	
 	int32_t override_flags;

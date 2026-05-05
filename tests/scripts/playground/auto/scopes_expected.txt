@@ -3184,38 +3184,38 @@ REF_COUNT D2                                                                    
 RETURNFUNC; Func[long RefCount(untyped)] Body End                               | 3155 resources/include/bindings/global.zh:964
 GC; Func[void GC()] Body Start                                                  | 3156 resources/include/bindings/global.zh:968
 RETURNFUNC; Func[void GC()] Body End                                            | 3157 resources/include/bindings/global.zh:968
-POP D2; Func[void sprite::Own(bitmap)] Body Start                               | 3158 resources/include/bindings/sprite.zh:372
-POP REFSPRITE                                                                   | 3159 resources/include/bindings/sprite.zh:372
-OBJ_OWN_BITMAP D2 0                                                             | 3160 resources/include/bindings/sprite.zh:372
-RETURNFUNC; Func[void sprite::Own(bitmap)] Body End                             | 3161 resources/include/bindings/sprite.zh:372
-POP D2; Func[void sprite::Own(paldata)] Body Start                              | 3162 resources/include/bindings/sprite.zh:380
-POP REFSPRITE                                                                   | 3163 resources/include/bindings/sprite.zh:380
-OBJ_OWN_PALDATA D2 0                                                            | 3164 resources/include/bindings/sprite.zh:380
-RETURNFUNC; Func[void sprite::Own(paldata)] Body End                            | 3165 resources/include/bindings/sprite.zh:380
-POP D2; Func[void sprite::Own(file)] Body Start                                 | 3166 resources/include/bindings/sprite.zh:388
-POP REFSPRITE                                                                   | 3167 resources/include/bindings/sprite.zh:388
-OBJ_OWN_FILE D2 0                                                               | 3168 resources/include/bindings/sprite.zh:388
-RETURNFUNC; Func[void sprite::Own(file)] Body End                               | 3169 resources/include/bindings/sprite.zh:388
-POP D2; Func[void sprite::Own(directory)] Body Start                            | 3170 resources/include/bindings/sprite.zh:396
-POP REFSPRITE                                                                   | 3171 resources/include/bindings/sprite.zh:396
-OBJ_OWN_DIR D2 0                                                                | 3172 resources/include/bindings/sprite.zh:396
-RETURNFUNC; Func[void sprite::Own(directory)] Body End                          | 3173 resources/include/bindings/sprite.zh:396
-POP D2; Func[void sprite::Own(stack)] Body Start                                | 3174 resources/include/bindings/sprite.zh:404
-POP REFSPRITE                                                                   | 3175 resources/include/bindings/sprite.zh:404
-OBJ_OWN_STACK D2 0                                                              | 3176 resources/include/bindings/sprite.zh:404
-RETURNFUNC; Func[void sprite::Own(stack)] Body End                              | 3177 resources/include/bindings/sprite.zh:404
-POP D2; Func[void sprite::Own(randgen)] Body Start                              | 3178 resources/include/bindings/sprite.zh:412
-POP REFSPRITE                                                                   | 3179 resources/include/bindings/sprite.zh:412
-OBJ_OWN_RNG D2 0                                                                | 3180 resources/include/bindings/sprite.zh:412
-RETURNFUNC; Func[void sprite::Own(randgen)] Body End                            | 3181 resources/include/bindings/sprite.zh:412
-POP D2; Func[void sprite::OwnArray(untyped)] Body Start                         | 3182 resources/include/bindings/sprite.zh:420
-POP REFSPRITE                                                                   | 3183 resources/include/bindings/sprite.zh:420
-OBJ_OWN_ARRAY D2 0                                                              | 3184 resources/include/bindings/sprite.zh:420
-RETURNFUNC; Func[void sprite::OwnArray(untyped)] Body End                       | 3185 resources/include/bindings/sprite.zh:420
-POP D2; Func[void sprite::OwnObject(untyped)] Body Start                        | 3186 resources/include/bindings/sprite.zh:428
-POP REFSPRITE                                                                   | 3187 resources/include/bindings/sprite.zh:428
-OBJ_OWN_CLASS D2 0                                                              | 3188 resources/include/bindings/sprite.zh:428
-RETURNFUNC; Func[void sprite::OwnObject(untyped)] Body End                      | 3189 resources/include/bindings/sprite.zh:428
+POP D2; Func[void sprite::Own(bitmap)] Body Start                               | 3158 resources/include/bindings/sprite.zh:378
+POP REFSPRITE                                                                   | 3159 resources/include/bindings/sprite.zh:378
+OBJ_OWN_BITMAP D2 0                                                             | 3160 resources/include/bindings/sprite.zh:378
+RETURNFUNC; Func[void sprite::Own(bitmap)] Body End                             | 3161 resources/include/bindings/sprite.zh:378
+POP D2; Func[void sprite::Own(paldata)] Body Start                              | 3162 resources/include/bindings/sprite.zh:386
+POP REFSPRITE                                                                   | 3163 resources/include/bindings/sprite.zh:386
+OBJ_OWN_PALDATA D2 0                                                            | 3164 resources/include/bindings/sprite.zh:386
+RETURNFUNC; Func[void sprite::Own(paldata)] Body End                            | 3165 resources/include/bindings/sprite.zh:386
+POP D2; Func[void sprite::Own(file)] Body Start                                 | 3166 resources/include/bindings/sprite.zh:394
+POP REFSPRITE                                                                   | 3167 resources/include/bindings/sprite.zh:394
+OBJ_OWN_FILE D2 0                                                               | 3168 resources/include/bindings/sprite.zh:394
+RETURNFUNC; Func[void sprite::Own(file)] Body End                               | 3169 resources/include/bindings/sprite.zh:394
+POP D2; Func[void sprite::Own(directory)] Body Start                            | 3170 resources/include/bindings/sprite.zh:402
+POP REFSPRITE                                                                   | 3171 resources/include/bindings/sprite.zh:402
+OBJ_OWN_DIR D2 0                                                                | 3172 resources/include/bindings/sprite.zh:402
+RETURNFUNC; Func[void sprite::Own(directory)] Body End                          | 3173 resources/include/bindings/sprite.zh:402
+POP D2; Func[void sprite::Own(stack)] Body Start                                | 3174 resources/include/bindings/sprite.zh:410
+POP REFSPRITE                                                                   | 3175 resources/include/bindings/sprite.zh:410
+OBJ_OWN_STACK D2 0                                                              | 3176 resources/include/bindings/sprite.zh:410
+RETURNFUNC; Func[void sprite::Own(stack)] Body End                              | 3177 resources/include/bindings/sprite.zh:410
+POP D2; Func[void sprite::Own(randgen)] Body Start                              | 3178 resources/include/bindings/sprite.zh:418
+POP REFSPRITE                                                                   | 3179 resources/include/bindings/sprite.zh:418
+OBJ_OWN_RNG D2 0                                                                | 3180 resources/include/bindings/sprite.zh:418
+RETURNFUNC; Func[void sprite::Own(randgen)] Body End                            | 3181 resources/include/bindings/sprite.zh:418
+POP D2; Func[void sprite::OwnArray(untyped)] Body Start                         | 3182 resources/include/bindings/sprite.zh:426
+POP REFSPRITE                                                                   | 3183 resources/include/bindings/sprite.zh:426
+OBJ_OWN_ARRAY D2 0                                                              | 3184 resources/include/bindings/sprite.zh:426
+RETURNFUNC; Func[void sprite::OwnArray(untyped)] Body End                       | 3185 resources/include/bindings/sprite.zh:426
+POP D2; Func[void sprite::OwnObject(untyped)] Body Start                        | 3186 resources/include/bindings/sprite.zh:434
+POP REFSPRITE                                                                   | 3187 resources/include/bindings/sprite.zh:434
+OBJ_OWN_CLASS D2 0                                                              | 3188 resources/include/bindings/sprite.zh:434
+RETURNFUNC; Func[void sprite::OwnObject(untyped)] Body End                      | 3189 resources/include/bindings/sprite.zh:434
 POP D1; Func[bitmap bitmap::bitmap(int, int)] Body Start                        | 3190 resources/include/bindings/bitmap.zh:9
 POP D0                                                                          | 3191 resources/include/bindings/bitmap.zh:9
 SETR D2 CREATEBITMAP                                                            | 3192 resources/include/bindings/bitmap.zh:9
@@ -3485,35 +3485,35 @@ RETURNFUNC; Func[void dmapdata::SetMusic(char32[])] Body End                    
 POP REFDROPSETDATA; Func[int dropsetdata::Choose()] Body Start                  | 3456 resources/include/bindings/dropsetdata.zh:31
 SETR D2 DROPSETCHOOSE                                                           | 3457 resources/include/bindings/dropsetdata.zh:31
 RETURNFUNC; Func[int dropsetdata::Choose()] Body End                            | 3458 resources/include/bindings/dropsetdata.zh:31
-POP D2; Func[void eweapon::Max(int)] Body Start                                 | 3459 resources/include/bindings/eweapon.zh:301
-POP REFEWPN                                                                     | 3460 resources/include/bindings/eweapon.zh:301
-SETR SPRITEMAXEWPN D2                                                           | 3461 resources/include/bindings/eweapon.zh:301
-RETURNFUNC; Func[void eweapon::Max(int)] Body End                               | 3462 resources/include/bindings/eweapon.zh:301
-POP D2; Func[bool eweapon::isValid()] Body Start                                | 3463 resources/include/bindings/eweapon.zh:309
-ISVALIDEWPN D2                                                                  | 3464 resources/include/bindings/eweapon.zh:309
-RETURNFUNC; Func[bool eweapon::isValid()] Body End                              | 3465 resources/include/bindings/eweapon.zh:309
-POP D2; Func[void eweapon::UseSprite(int)] Body Start                           | 3466 resources/include/bindings/eweapon.zh:319
-POP D3                                                                          | 3467 resources/include/bindings/eweapon.zh:319
-SETR REFEWPN D3                                                                 | 3468 resources/include/bindings/eweapon.zh:319
-EWPNUSESPRITER D2                                                               | 3469 resources/include/bindings/eweapon.zh:319
-RETURNFUNC; Func[void eweapon::UseSprite(int)] Body End                         | 3470 resources/include/bindings/eweapon.zh:319
-POP D2; Func[void eweapon::Explode(int)] Body Start                             | 3471 resources/include/bindings/eweapon.zh:327
-POP REFEWPN                                                                     | 3472 resources/include/bindings/eweapon.zh:327
-EWEAPONEXPLODER D2                                                              | 3473 resources/include/bindings/eweapon.zh:327
-RETURNFUNC; Func[void eweapon::Explode(int)] Body End                           | 3474 resources/include/bindings/eweapon.zh:327
-POP REFEWPN; Func[void eweapon::Remove()] Body Start                            | 3475 resources/include/bindings/eweapon.zh:334
-EWPNDEL                                                                         | 3476 resources/include/bindings/eweapon.zh:334
-RETURNFUNC; Func[void eweapon::Remove()] Body End                               | 3477 resources/include/bindings/eweapon.zh:334
-POP D2; Func[bool eweapon::Switch(int)] Body Start                              | 3478 resources/include/bindings/eweapon.zh:344
-POP REFEWPN                                                                     | 3479 resources/include/bindings/eweapon.zh:344
-SWITCHEW D2                                                                     | 3480 resources/include/bindings/eweapon.zh:344
-RETURNFUNC; Func[bool eweapon::Switch(int)] Body End                            | 3481 resources/include/bindings/eweapon.zh:344
-POP D2; Func[void eweapon::MakeAngular()] Body Start                            | 3482 resources/include/bindings/eweapon.zh:352
-EWPNMAKEANGULAR D2                                                              | 3483 resources/include/bindings/eweapon.zh:352
-RETURNFUNC; Func[void eweapon::MakeAngular()] Body End                          | 3484 resources/include/bindings/eweapon.zh:352
-POP D2; Func[void eweapon::MakeDirectional()] Body Start                        | 3485 resources/include/bindings/eweapon.zh:360
-EWPNMAKEDIRECTIONAL D2                                                          | 3486 resources/include/bindings/eweapon.zh:360
-RETURNFUNC; Func[void eweapon::MakeDirectional()] Body End                      | 3487 resources/include/bindings/eweapon.zh:360
+POP D2; Func[void eweapon::Max(int)] Body Start                                 | 3459 resources/include/bindings/eweapon.zh:307
+POP REFEWPN                                                                     | 3460 resources/include/bindings/eweapon.zh:307
+SETR SPRITEMAXEWPN D2                                                           | 3461 resources/include/bindings/eweapon.zh:307
+RETURNFUNC; Func[void eweapon::Max(int)] Body End                               | 3462 resources/include/bindings/eweapon.zh:307
+POP D2; Func[bool eweapon::isValid()] Body Start                                | 3463 resources/include/bindings/eweapon.zh:315
+ISVALIDEWPN D2                                                                  | 3464 resources/include/bindings/eweapon.zh:315
+RETURNFUNC; Func[bool eweapon::isValid()] Body End                              | 3465 resources/include/bindings/eweapon.zh:315
+POP D2; Func[void eweapon::UseSprite(int)] Body Start                           | 3466 resources/include/bindings/eweapon.zh:325
+POP D3                                                                          | 3467 resources/include/bindings/eweapon.zh:325
+SETR REFEWPN D3                                                                 | 3468 resources/include/bindings/eweapon.zh:325
+EWPNUSESPRITER D2                                                               | 3469 resources/include/bindings/eweapon.zh:325
+RETURNFUNC; Func[void eweapon::UseSprite(int)] Body End                         | 3470 resources/include/bindings/eweapon.zh:325
+POP D2; Func[void eweapon::Explode(int)] Body Start                             | 3471 resources/include/bindings/eweapon.zh:333
+POP REFEWPN                                                                     | 3472 resources/include/bindings/eweapon.zh:333
+EWEAPONEXPLODER D2                                                              | 3473 resources/include/bindings/eweapon.zh:333
+RETURNFUNC; Func[void eweapon::Explode(int)] Body End                           | 3474 resources/include/bindings/eweapon.zh:333
+POP REFEWPN; Func[void eweapon::Remove()] Body Start                            | 3475 resources/include/bindings/eweapon.zh:340
+EWPNDEL                                                                         | 3476 resources/include/bindings/eweapon.zh:340
+RETURNFUNC; Func[void eweapon::Remove()] Body End                               | 3477 resources/include/bindings/eweapon.zh:340
+POP D2; Func[bool eweapon::Switch(int)] Body Start                              | 3478 resources/include/bindings/eweapon.zh:350
+POP REFEWPN                                                                     | 3479 resources/include/bindings/eweapon.zh:350
+SWITCHEW D2                                                                     | 3480 resources/include/bindings/eweapon.zh:350
+RETURNFUNC; Func[bool eweapon::Switch(int)] Body End                            | 3481 resources/include/bindings/eweapon.zh:350
+POP D2; Func[void eweapon::MakeAngular()] Body Start                            | 3482 resources/include/bindings/eweapon.zh:358
+EWPNMAKEANGULAR D2                                                              | 3483 resources/include/bindings/eweapon.zh:358
+RETURNFUNC; Func[void eweapon::MakeAngular()] Body End                          | 3484 resources/include/bindings/eweapon.zh:358
+POP D2; Func[void eweapon::MakeDirectional()] Body Start                        | 3485 resources/include/bindings/eweapon.zh:366
+EWPNMAKEDIRECTIONAL D2                                                          | 3486 resources/include/bindings/eweapon.zh:366
+RETURNFUNC; Func[void eweapon::MakeDirectional()] Body End                      | 3487 resources/include/bindings/eweapon.zh:366
 POP D3; Func[file file::file(char32[], char32[])] Body Start                    | 3488 resources/include/bindings/file.zh:37
 POP D2                                                                          | 3489 resources/include/bindings/file.zh:37
 SETV REFFILE 0                                                                  | 3490 resources/include/bindings/file.zh:37
@@ -3742,35 +3742,35 @@ POP D2; Func[bool itemsprite::Switch(int)] Body Start                           
 POP REFITEM                                                                     | 3713 resources/include/bindings/itemsprite.zh:171
 SWITCHITM D2                                                                    | 3714 resources/include/bindings/itemsprite.zh:171
 RETURNFUNC; Func[bool itemsprite::Switch(int)] Body End                         | 3715 resources/include/bindings/itemsprite.zh:171
-POP D2; Func[void lweapon::Max(int)] Body Start                                 | 3716 resources/include/bindings/lweapon.zh:341
-POP REFLWPN                                                                     | 3717 resources/include/bindings/lweapon.zh:341
-SETR SPRITEMAXLWPN D2                                                           | 3718 resources/include/bindings/lweapon.zh:341
-RETURNFUNC; Func[void lweapon::Max(int)] Body End                               | 3719 resources/include/bindings/lweapon.zh:341
-POP D2; Func[bool lweapon::isValid()] Body Start                                | 3720 resources/include/bindings/lweapon.zh:349
-ISVALIDLWPN D2                                                                  | 3721 resources/include/bindings/lweapon.zh:349
-RETURNFUNC; Func[bool lweapon::isValid()] Body End                              | 3722 resources/include/bindings/lweapon.zh:349
-POP D2; Func[void lweapon::UseSprite(int)] Body Start                           | 3723 resources/include/bindings/lweapon.zh:359
-POP D3                                                                          | 3724 resources/include/bindings/lweapon.zh:359
-SETR REFLWPN D3                                                                 | 3725 resources/include/bindings/lweapon.zh:359
-LWPNUSESPRITER D2                                                               | 3726 resources/include/bindings/lweapon.zh:359
-RETURNFUNC; Func[void lweapon::UseSprite(int)] Body End                         | 3727 resources/include/bindings/lweapon.zh:359
-POP D2; Func[void lweapon::Explode(int)] Body Start                             | 3728 resources/include/bindings/lweapon.zh:367
-POP REFLWPN                                                                     | 3729 resources/include/bindings/lweapon.zh:367
-LWEAPONEXPLODER D2                                                              | 3730 resources/include/bindings/lweapon.zh:367
-RETURNFUNC; Func[void lweapon::Explode(int)] Body End                           | 3731 resources/include/bindings/lweapon.zh:367
-POP REFLWPN; Func[void lweapon::Remove()] Body Start                            | 3732 resources/include/bindings/lweapon.zh:374
-LWPNDEL                                                                         | 3733 resources/include/bindings/lweapon.zh:374
-RETURNFUNC; Func[void lweapon::Remove()] Body End                               | 3734 resources/include/bindings/lweapon.zh:374
-POP D2; Func[bool lweapon::Switch(int)] Body Start                              | 3735 resources/include/bindings/lweapon.zh:384
-POP REFLWPN                                                                     | 3736 resources/include/bindings/lweapon.zh:384
-SWITCHLW D2                                                                     | 3737 resources/include/bindings/lweapon.zh:384
-RETURNFUNC; Func[bool lweapon::Switch(int)] Body End                            | 3738 resources/include/bindings/lweapon.zh:384
-POP D2; Func[bool lweapon::MakeAngular()] Body Start                            | 3739 resources/include/bindings/lweapon.zh:392
-LWPNMAKEANGULAR D2                                                              | 3740 resources/include/bindings/lweapon.zh:392
-RETURNFUNC; Func[bool lweapon::MakeAngular()] Body End                          | 3741 resources/include/bindings/lweapon.zh:392
-POP D2; Func[bool lweapon::MakeDirectional()] Body Start                        | 3742 resources/include/bindings/lweapon.zh:400
-LWPNMAKEDIRECTIONAL D2                                                          | 3743 resources/include/bindings/lweapon.zh:400
-RETURNFUNC; Func[bool lweapon::MakeDirectional()] Body End                      | 3744 resources/include/bindings/lweapon.zh:400
+POP D2; Func[void lweapon::Max(int)] Body Start                                 | 3716 resources/include/bindings/lweapon.zh:347
+POP REFLWPN                                                                     | 3717 resources/include/bindings/lweapon.zh:347
+SETR SPRITEMAXLWPN D2                                                           | 3718 resources/include/bindings/lweapon.zh:347
+RETURNFUNC; Func[void lweapon::Max(int)] Body End                               | 3719 resources/include/bindings/lweapon.zh:347
+POP D2; Func[bool lweapon::isValid()] Body Start                                | 3720 resources/include/bindings/lweapon.zh:355
+ISVALIDLWPN D2                                                                  | 3721 resources/include/bindings/lweapon.zh:355
+RETURNFUNC; Func[bool lweapon::isValid()] Body End                              | 3722 resources/include/bindings/lweapon.zh:355
+POP D2; Func[void lweapon::UseSprite(int)] Body Start                           | 3723 resources/include/bindings/lweapon.zh:365
+POP D3                                                                          | 3724 resources/include/bindings/lweapon.zh:365
+SETR REFLWPN D3                                                                 | 3725 resources/include/bindings/lweapon.zh:365
+LWPNUSESPRITER D2                                                               | 3726 resources/include/bindings/lweapon.zh:365
+RETURNFUNC; Func[void lweapon::UseSprite(int)] Body End                         | 3727 resources/include/bindings/lweapon.zh:365
+POP D2; Func[void lweapon::Explode(int)] Body Start                             | 3728 resources/include/bindings/lweapon.zh:373
+POP REFLWPN                                                                     | 3729 resources/include/bindings/lweapon.zh:373
+LWEAPONEXPLODER D2                                                              | 3730 resources/include/bindings/lweapon.zh:373
+RETURNFUNC; Func[void lweapon::Explode(int)] Body End                           | 3731 resources/include/bindings/lweapon.zh:373
+POP REFLWPN; Func[void lweapon::Remove()] Body Start                            | 3732 resources/include/bindings/lweapon.zh:380
+LWPNDEL                                                                         | 3733 resources/include/bindings/lweapon.zh:380
+RETURNFUNC; Func[void lweapon::Remove()] Body End                               | 3734 resources/include/bindings/lweapon.zh:380
+POP D2; Func[bool lweapon::Switch(int)] Body Start                              | 3735 resources/include/bindings/lweapon.zh:390
+POP REFLWPN                                                                     | 3736 resources/include/bindings/lweapon.zh:390
+SWITCHLW D2                                                                     | 3737 resources/include/bindings/lweapon.zh:390
+RETURNFUNC; Func[bool lweapon::Switch(int)] Body End                            | 3738 resources/include/bindings/lweapon.zh:390
+POP D2; Func[bool lweapon::MakeAngular()] Body Start                            | 3739 resources/include/bindings/lweapon.zh:398
+LWPNMAKEANGULAR D2                                                              | 3740 resources/include/bindings/lweapon.zh:398
+RETURNFUNC; Func[bool lweapon::MakeAngular()] Body End                          | 3741 resources/include/bindings/lweapon.zh:398
+POP D2; Func[bool lweapon::MakeDirectional()] Body Start                        | 3742 resources/include/bindings/lweapon.zh:406
+LWPNMAKEDIRECTIONAL D2                                                          | 3743 resources/include/bindings/lweapon.zh:406
+RETURNFUNC; Func[bool lweapon::MakeDirectional()] Body End                      | 3744 resources/include/bindings/lweapon.zh:406
 POP D1; Func[bool mapdata::isSolid(int, int)] Body Start                        | 3745 resources/include/bindings/mapdata.zh:893
 POP D0                                                                          | 3746 resources/include/bindings/mapdata.zh:893
 POP REFMAPDATA                                                                  | 3747 resources/include/bindings/mapdata.zh:893
@@ -5311,6 +5311,7 @@ debug data:
       - int HitYOffset @ Reg[SPRITE_HIT_OFFSET_Y]
       - int HitZHeight @ Reg[SPRITE_HIT_ZHEIGHT]
       - int Jump @ Reg[SPRITE_JUMP]
+      - int LightOffset @ Reg[SPRITE_LIGHT_OFFSET]
       - int LightRadius @ Reg[SPRITE_LIGHT_RADIUS]
       - int LightShape @ Reg[SPRITE_LIGHT_SHAPE]
       - untyped[] Misc @ Reg[SPRITE_MISCD]
@@ -6773,6 +6774,7 @@ debug data:
       - bool Behind @ Reg[EWPNBEHIND]
       - int BounceAdd @ Reg[EWPN_BOUNCE_ADD]
       - int BounceMult @ Reg[EWPN_BOUNCE_MULT]
+      - int[] BurnLightOffset @ Reg[EWPNBURNLIGHTOFFSET]
       - int[] BurnLightRadius @ Reg[EWPNBURNLIGHTRADIUS]
       - bool CollDetection @ Reg[EWPNCOLLDET]
       - int Damage @ Reg[EWPNPOWER] <HIDDEN>
@@ -9271,6 +9273,7 @@ debug data:
       - bool Behind @ Reg[LWPNBEHIND]
       - int BounceAdd @ Reg[LWPN_BOUNCE_ADD]
       - int BounceMult @ Reg[LWPN_BOUNCE_MULT]
+      - int[] BurnLightOffset @ Reg[LWPNBURNLIGHTOFFSET]
       - int[] BurnLightRadius @ Reg[LWPNBURNLIGHTRADIUS]
       - bool CollDetection @ Reg[LWPNCOLLDET]
       - int Damage @ Reg[LWPNPOWER] <HIDDEN>

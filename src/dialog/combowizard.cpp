@@ -2462,9 +2462,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			zfix& radius = local_ref.c_attributes[8];
 			zfix& shape = local_ref.c_attributes[9];
 			zfix& dir = local_ref.c_attributes[10];
+			zfix& offset = local_ref.c_attributes[11];
 			radius.doTrunc();
 			shape.doTrunc();
 			dir.doTrunc();
+			offset.doTrunc();
 			
 			windowRow->add(
 				Rows<3>(
@@ -2493,7 +2495,20 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							dir = val;
 						}),
-					INFOBTN("The direction to cast light in, if the shape is directional (like a cone)")
+					INFOBTN("The direction to cast light in, if the shape is directional (like a cone)."
+						" Also determines the direction of the Offset."),
+					Label(text = "Offset", hAlign = 1.0),
+					TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = -255, high = 255, val = offset,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							offset = val;
+						}),
+					INFOBTN("An offset for the source of the light, in pixels."
+						"\nPositive offsets are in the specified direction,"
+						" negative offsets are in the opposite Direction.")
 				)
 			);
 			break;

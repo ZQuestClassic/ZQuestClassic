@@ -809,6 +809,7 @@ weapon::weapon(weapon const & other):
 	{
 		misc_wsprites[q] = other.misc_wsprites[q];
 		light_rads[q] = other.light_rads[q];
+		light_offsets[q] = other.light_offsets[q];
 	}
 	for( int32_t q = 0; q < 8; q++ ) 
 	{
@@ -1772,6 +1773,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		misc_wsprites[q] = 0;
 		light_rads[q] = 0;
+		light_offsets[q] = 0;
 	}
 	
 	optional<word> wpnspr;
@@ -2743,14 +2745,19 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 		{
 			misc_wsprites[q] = data.burnsprs[q];
 			light_rads[q] = data.light_rads[q];
+			light_offsets[q] = data.light_offsets[q];
 		}
 		last_burnstate = get_burnstate();
 		if(out_wpnspr)
 			*out_wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
 		glowRad = light_rads[last_burnstate];
+		glowOffset = light_offsets[last_burnstate];
 	}
 	else if(data.flags & wdata_glow_rad)
+	{
 		glowRad = light_rads[WPNSPR_BASE] = data.light_rads[WPNSPR_BASE];
+		glowOffset = light_offsets[WPNSPR_BASE] = data.light_offsets[WPNSPR_BASE];
+	}
 	
 	glowShape = data.glow_shape;
 	
@@ -3503,6 +3510,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			last_burnstate = burnstate;
 			_handle_loadsprite(misc_wsprites[burnstate]);
 			glowRad = light_rads[burnstate];
+			glowOffset = light_offsets[burnstate];
 		}
 	}
 	if(misc_wflags & WFLAG_PICKUP_ITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.

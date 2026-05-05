@@ -110,6 +110,7 @@ sprite::sprite(): solid_object()
     }
 	glowRad = 0;
 	glowShape = 0;
+	glowOffset = 0;
 	switch_hooked = false;
 	ignore_delete = 0;
 	can_flicker = true;
@@ -152,6 +153,7 @@ sprite::sprite(sprite const & other):
 	spr_death_anim_frm(other.spr_death_anim_frm),
 	spr_spawn_anim_frm(other.spr_spawn_anim_frm),
 	glowRad(other.glowRad), glowShape(other.glowShape),
+	glowOffset(other.glowOffset),
 	ignore_delete(other.ignore_delete),
 	behind(other.behind)
 {
@@ -242,6 +244,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     }
 	glowRad = 0;
 	glowShape = 0;
+	glowOffset = 0;
 	switch_hooked = false;
 	ignore_delete = 0;
 	can_flicker = true;

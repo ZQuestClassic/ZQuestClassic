@@ -930,6 +930,7 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_MOVE_FLAGS", SPRITE_MOVE_FLAGS, 0 },
 	{ "SPRITE_LIGHT_RADIUS", SPRITE_LIGHT_RADIUS, 0 },
 	{ "SPRITE_LIGHT_SHAPE", SPRITE_LIGHT_SHAPE, 0 },
+	{ "SPRITE_LIGHT_OFFSET", SPRITE_LIGHT_OFFSET, 0 },
 	{ "SPRITE_SWHOOKED", SPRITE_SWHOOKED, 0 },
 	{ "SPRITE_SHADOW_SPR", SPRITE_SHADOW_SPR, 0 },
 	{ "SPRITE_DROWN_CLK", SPRITE_DROWN_CLK, 0 },
@@ -2453,6 +2454,8 @@ static constexpr script_variable variable_list[]=
 
 	{ "LWPNBURNLIGHTRADIUS", LWPNBURNLIGHTRADIUS, 0},
 	{ "EWPNBURNLIGHTRADIUS", EWPNBURNLIGHTRADIUS, 0},
+	{ "LWPNBURNLIGHTOFFSET", LWPNBURNLIGHTOFFSET, 0},
+	{ "EWPNBURNLIGHTOFFSET", EWPNBURNLIGHTOFFSET, 0},
 
 	{ "IDATAATTRIB_L", IDATAATTRIB_L, 0},
 
@@ -3095,6 +3098,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case DROPSETCHANCES:
 		case DROPSETITEMS:
 		case EWPNBURNLIGHTRADIUS:
+		case EWPNBURNLIGHTOFFSET:
 		case EWPNFLAGS:
 		case EWPNINITD:
 		case EWPNMISCD:
@@ -3161,6 +3165,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LINKITEMD:
 		case LINKMISCD:
 		case LWPNBURNLIGHTRADIUS:
+		case LWPNBURNLIGHTOFFSET:
 		case LWPNFLAGS:
 		case LWPNINITD:
 		case LWPNMISCD:
@@ -3686,6 +3691,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNAUTOROTATE:
 		case EWPNBEHIND:
 		case EWPNBURNLIGHTRADIUS:
+		case EWPNBURNLIGHTOFFSET:
 		case EWPNCOLLDET:
 		case EWPNCSET:
 		case EWPNDEAD:
@@ -3965,6 +3971,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNAUTOROTATE:
 		case LWPNBEHIND:
 		case LWPNBURNLIGHTRADIUS:
+		case LWPNBURNLIGHTOFFSET:
 		case LWPNCOLLDET:
 		case LWPNCSET:
 		case LWPNDEAD:
@@ -4489,6 +4496,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_JUMP:
 		case SPRITE_LIGHT_RADIUS:
 		case SPRITE_LIGHT_SHAPE:
+		case SPRITE_LIGHT_OFFSET:
 		case SPRITE_MISCD:
 		case SPRITE_MOVE_FLAGS:
 		case SPRITE_ROTATION:

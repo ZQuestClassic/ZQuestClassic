@@ -1867,6 +1867,10 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[9] = "The shape of light. 0=circle, 1=cone, 2=square";
 			l_attribute[10] = "Direction:";
 			h_attribute[10] = "The direction the torch is facing, for direction-requiring shapes like 'cone'.";
+			l_attribute[11] = "Offset:";
+			h_attribute[11] = "An offset for the source of the light, in pixels."
+				"\nPositive offsets are in the specified direction,"
+				" negative offsets are in the opposite direction.";
 			break;
 		}
 		case cSPOTLIGHT:

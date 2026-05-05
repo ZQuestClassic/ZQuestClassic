@@ -64,6 +64,7 @@ public:
     weapon_flags misc_wflags;
 	word misc_wsprites[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
+	int32_t light_offsets[WPNSPR_MAX];
 	byte last_burnstate;
 	byte get_burnstate() const;
 	

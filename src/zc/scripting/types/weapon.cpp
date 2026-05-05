@@ -31,6 +31,12 @@ static WeaponArrayRegistrar WPNBURNLIGHTRADIUS_registrar(LWPNBURNLIGHTRADIUS, EW
 	impl.setValueTransform(transforms::vboundByte);
 	return &impl;
 }());
+static WeaponArrayRegistrar WPNBURNLIGHTOFFSET_registrar(LWPNBURNLIGHTOFFSET, EWPNBURNLIGHTOFFSET, []{
+	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::light_offsets> impl;
+	impl.compatSetDefaultValue(-10000);
+	impl.setMul10000(true);
+	return &impl;
+}());
 
 static WeaponArrayRegistrar WPNINITD_registrar(LWPNINITD, EWPNINITD, []{
 	static ScriptingArray_ObjectMemberCArray<weapon, &weapon::initD> impl;
