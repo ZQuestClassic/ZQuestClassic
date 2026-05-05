@@ -23697,6 +23697,23 @@ void HeroClass::handleSpotlights()
 				}
 			}
 		});
+		
+		if (!found_any_light)
+		{
+			for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
+				ffcdata& ffc = *ffc_handle.ffc;
+				if (ffc.flags & (ffc_changer|ffc_ethereal))
+					return true;
+
+				newcombo const& cmb = combobuf[ffc.data];
+				if (cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
+				{
+					found_any_light = true;
+					return false;
+				}
+				return true;
+			});
+		}
 
 		// The world is dark and full of terrors.
 		if (!found_any_light) return;
