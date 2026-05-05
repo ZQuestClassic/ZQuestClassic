@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-04-28 09:01:49</td>
+      <td>2026-05-05 08:18:50</td>
     </tr>
   </table>
 </div>
@@ -42,7 +42,7 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>131</td>
+      <td>133</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
@@ -54,7 +54,7 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>0</td>
-      <td>182</td>
+      <td>184</td>
       <td class="coverage-none">0.0%</td>
     </tr>
   </table>
@@ -74,7 +74,7 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l19">GUI::QRPanel::QRPanel() (line 19)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l190">GUI::QRPanel::getScrollPane() (line 190)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l193">GUI::QRPanel::getScrollPane() (line 193)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l51">GUI::QRPanel::loadList(GUI::ListData) (line 51)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l107">GUI::QRPanel::loadList(GUI::ListData)::$_0::$_0($_0 const&amp;) (line 107)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l107">GUI::QRPanel::loadList(GUI::ListData)::$_0::$_0($_0&amp;&amp;) (line 107)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -847,661 +847,682 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setOnPress</span><span class="p">([</span><span class="n">infotext</span><span class="p">,</span><span class="k">this</span><span class="p">](){</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;QR Info&quot;</span><span class="p">,</span><span class="n">infotext</span><span class="p">,</span><span class="n">nullopt</span><span class="p">,</span><span class="n">local_qrs</span><span class="p">).</span><span class="n">show</span><span class="p">();});</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setOnPress</span><span class="p">([</span><span class="n">infotext</span><span class="p">,</span><span class="k">this</span><span class="p">]()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setDisabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l109" href="#l109">109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">onToggle</span><span class="p">(</span><span class="n">message</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;QR Info&quot;</span><span class="p">,</span><span class="n">infotext</span><span class="p">).</span><span class="n">set_dest_qrs</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setQR</span><span class="p">(</span><span class="n">qr</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">get_bit</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">qr</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">else</span><span class="w"> </span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setDisabled</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setChecked</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">onToggle</span><span class="p">(</span><span class="n">message</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="o">++</span><span class="n">q</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setQR</span><span class="p">(</span><span class="n">qr</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l114" href="#l114">114</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">get_bit</span><span class="p">(</span><span class="n">local_qrs</span><span class="p">,</span><span class="w"> </span><span class="n">qr</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setChecked</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="o">++</span><span class="n">q</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l117" href="#l117">117</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">onClick</span><span class="p">(</span><span class="n">info_message</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setRightPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l119" href="#l119">119</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setVPadding</span><span class="p">(</span><span class="mi">2</span><span class="n">_px</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l120" href="#l120">120</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">onClick</span><span class="p">(</span><span class="n">info_message</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l121" href="#l121">121</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">overrideWidth</span><span class="p">(</span><span class="mi">2</span><span class="n">_em</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setRightPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l122" href="#l122">122</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setForceFitHei</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"> </span><span class="c1">//fit the height of the cbox</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">setVPadding</span><span class="p">(</span><span class="mi">2</span><span class="n">_px</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">ibtn</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l124" href="#l124">124</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">cbox</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">overrideWidth</span><span class="p">(</span><span class="mi">2</span><span class="n">_em</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrolling</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">showTags</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">setForceFitHei</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"> </span><span class="c1">//fit the height of the cbox</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">ibtn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="c1">//ASSERT(li);</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">cbox</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lbl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrolling</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">showTags</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">lbl</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">				</span><span class="c1">//ASSERT(li);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="w"> </span><span class="n">lbl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">scrollWidth</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="n">_px</span><span class="p">)</span><span class="w"> </span><span class="c1">//width forcing</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">add</span><span class="p">(</span><span class="n">lbl</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//Calculate the width</span></td>
+      <td class="src "><span class="w">				</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Size</span><span class="w"> </span><span class="n">cbwid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scrollWidth</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">if</span><span class="p">(</span><span class="n">scrollWidth</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="n">_px</span><span class="p">)</span><span class="w"> </span><span class="c1">//width forcing</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//Calculate the longest possible width</span></td>
+      <td class="src "><span class="w">				</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l137" href="#l137">137</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getLongestTagName</span><span class="p">());</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="c1">//Calculate the width</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l138" href="#l138">138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">Size</span><span class="w"> </span><span class="n">cbwid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scrollWidth</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setAlign</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="c1">//Calculate the longest possible width</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getLongestTagName</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">minWidth</span><span class="p">(</span><span class="n">Size</span><span class="o">::</span><span class="n">pixels</span><span class="p">(</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">getWidth</span><span class="p">()));</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setAlign</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//Set the real text back</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getTagName</span><span class="p">(</span><span class="n">li</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">minWidth</span><span class="p">(</span><span class="n">Size</span><span class="o">::</span><span class="n">pixels</span><span class="p">(</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">getWidth</span><span class="p">()));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//..and the button width</span></td>
+      <td class="src "><span class="w">					</span><span class="c1">//Set the real text back</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getTagName</span><span class="p">(</span><span class="n">li</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span></td>
+      <td class="src "><span class="w">					</span><span class="c1">//..and the button width</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l150" href="#l150">150</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//..and the padding on the cbox</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">ibtn</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">()</span><span class="o">-</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">getWidth</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">					</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l154" href="#l154">154</a></td>
+      <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="c1">//Force the cbox width</span></td>
+      <td class="src "><span class="w">					</span><span class="c1">//..and the padding on the cbox</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l154" href="#l154">154</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">calculateSize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">overrideWidth</span><span class="p">(</span><span class="n">cbwid</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbwid</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">getTotalWidth</span><span class="p">()</span><span class="o">-</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">getWidth</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="k">else</span></td>
+      <td class="src "><span class="w">					</span><span class="c1">//Force the cbox width</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">{</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">cbox</span><span class="o">-&gt;</span><span class="n">overrideWidth</span><span class="p">(</span><span class="n">cbwid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getTagName</span><span class="p">(</span><span class="n">li</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">}</span></td>
+      <td class="src "><span class="w">				</span><span class="k">else</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">				</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">					</span><span class="n">lbl</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">getTagName</span><span class="p">(</span><span class="n">li</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span></td>
+      <td class="src "><span class="w">				</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l164" href="#l164">164</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">TabRef</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">TabRef</span><span class="o">&gt;</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l166" href="#l166">166</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">setVAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l167" href="#l167">167</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">scrolling</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l168" href="#l168">168</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l169" href="#l169">169</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ScrollingPane</span><span class="o">&gt;</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l170" href="#l170">170</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setContent</span><span class="p">(</span><span class="n">content</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l171" href="#l171">171</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setPtrY</span><span class="p">((</span><span class="kt">int32_t</span><span class="o">*</span><span class="p">)</span><span class="n">indexptr</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l172" href="#l172">172</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l173" href="#l173">173</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrollHeight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l174" href="#l174">174</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">minHeight</span><span class="p">(</span><span class="n">scrollHeight</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l175" href="#l175">175</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrollWidth</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l176" href="#l176">176</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">minWidth</span><span class="p">(</span><span class="n">scrollWidth</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l177" href="#l177">177</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l178" href="#l178">178</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setContent</span><span class="p">(</span><span class="n">scrollpane</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l179" href="#l179">179</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setName</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l180" href="#l180">180</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">else</span></td>
+      <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="lineno"><a id="l167" href="#l167">167</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">TabRef</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">TabRef</span><span class="o">&gt;</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l168" href="#l168">168</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l169" href="#l169">169</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">setVAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l170" href="#l170">170</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">scrolling</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l171" href="#l171">171</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ScrollingPane</span><span class="o">&gt;</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setContent</span><span class="p">(</span><span class="n">content</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setPtrY</span><span class="p">((</span><span class="kt">int32_t</span><span class="o">*</span><span class="p">)</span><span class="n">indexptr</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">setPadding</span><span class="p">(</span><span class="mi">0</span><span class="n">_px</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrollHeight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">minHeight</span><span class="p">(</span><span class="n">scrollHeight</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">scrollWidth</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">scrollpane</span><span class="o">-&gt;</span><span class="n">minWidth</span><span class="p">(</span><span class="n">scrollWidth</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setContent</span><span class="p">(</span><span class="n">scrollpane</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setName</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="k">else</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">content</span><span class="o">-&gt;</span><span class="n">setHAlign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="lineno"><a id="l187" href="#l187">187</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setContent</span><span class="p">(</span><span class="n">content</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">tab</span><span class="o">-&gt;</span><span class="n">setName</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">+</span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">tabnum</span><span class="o">++</span><span class="p">)</span><span class="o">+</span><span class="s">&quot; &quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="lineno"><a id="l190" href="#l190">190</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">add</span><span class="p">(</span><span class="n">tab</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="lineno"><a id="l191" href="#l191">191</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="lineno"><a id="l192" href="#l192">192</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="lineno"><a id="l193" href="#l193">193</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="n">ScrollingPane</span><span class="o">*</span><span class="w"> </span><span class="n">QRPanel</span><span class="o">::</span><span class="n">getScrollPane</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="lineno"><a id="l194" href="#l194">194</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="lineno"><a id="l195" href="#l195">195</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scrolling</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l193" href="#l193">193</a></td>
+      <td class="lineno"><a id="l196" href="#l196">196</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l194" href="#l194">194</a></td>
+      <td class="lineno"><a id="l197" href="#l197">197</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">scrollpane</span><span class="p">.</span><span class="n">get</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l195" href="#l195">195</a></td>
+      <td class="lineno"><a id="l198" href="#l198">198</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l196" href="#l196">196</a></td>
+      <td class="lineno"><a id="l199" href="#l199">199</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l197" href="#l197">197</a></td>
+      <td class="lineno"><a id="l200" href="#l200">200</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l198" href="#l198">198</a></td>
+      <td class="lineno"><a id="l201" href="#l201">201</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l199" href="#l199">199</a></td>
+      <td class="lineno"><a id="l202" href="#l202">202</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l200" href="#l200">200</a></td>
+      <td class="lineno"><a id="l203" href="#l203">203</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l201" href="#l201">201</a></td>
+      <td class="lineno"><a id="l204" href="#l204">204</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
