@@ -187,7 +187,11 @@ jobs:
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
-        run: python .github/workflows/ci.py coverage
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py coverage
+          --repo ${{ github.repository }}
+          --compiler ${{ inputs.compiler }}
+          --config ${{ inputs.config }}
 
       - name: Upload Coverage JSON
         uses: actions/upload-artifact@v7
