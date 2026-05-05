@@ -1095,6 +1095,8 @@ static GUI::ListData compatRulesList
 		"If enabled, items will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
 	{ "Weapons Use Hardcoded Sideview Hitbox", qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX,
 		"If enabled, weapons will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
+	{ "Broken Pushblock Trigger Groups", qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
+		"If enabled, moving Pushblocks will not count towards trigger groups." },
 };
 
 static GUI::ListData enemiesRulesList

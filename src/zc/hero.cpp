@@ -21626,16 +21626,19 @@ void HeroClass::checkpushblock()
 				
 				mblock2.blockLayer = lyr;
 				
+				if (get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS))
+					mblock2.blockinfo = cpinfo;
+				else
+					mblock2.blockinfo.updateInfo(cpinfo);
 				if(t == cPUSHBLOCK)
 				{
 					zfix blockstep = 0.5;
 					if(cmb.c_attributes[16] > 0)
 						blockstep = cmb.c_attributes[16] / 100;
 					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
-					mblock2.blockinfo = cpinfo;
 					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
-					cpinfo.clearInfo();
 					sfx(cmb.c_attributes[9].getTrunc(),(int32_t)x);
+					cpinfo.clearInfo();
 				}
 				else
 				{
@@ -21643,6 +21646,8 @@ void HeroClass::checkpushblock()
 					
 					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
+					if (!get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS))
+						cpinfo.clearInfo();
 				}
 			}
 			break;

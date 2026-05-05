@@ -327,7 +327,7 @@ void movingblock::clear()
 	clk = 0;
 	step = 0;
 	grav_falling = false;
-	blockinfo.clear();
+	blockinfo.clearInfo();
 	solid_update(false);
 }
 
@@ -1023,9 +1023,7 @@ bool movingblock::animate(int32_t)
 			}
 			
 			if(m->data[end_pos] == bcombo)
-			{
 				cpos_get(end_rpos_handle).updateInfo(blockinfo);
-			}
 		}
 		else
 		{
@@ -1256,6 +1254,8 @@ bool movingblock::animate(int32_t)
 					}
 				}
 			}
+			if(!get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS) && m->data[end_pos] == bcombo)
+				cpos_get(end_rpos_handle).updateInfo(blockinfo);
 		}
 		trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_PUSHEDTRIG);
