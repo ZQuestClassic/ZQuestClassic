@@ -206,7 +206,7 @@ void movingblock::clear()
 	blockLayer = 0;
 	clk = 0;
 	step = 0;
-	blockinfo.clear();
+	blockinfo.clearInfo();
 	solid_update(false);
 }
 
@@ -816,7 +816,7 @@ bool movingblock::animate(int32_t)
 			}
 			
 			putcombo(scrollbuf,x,y,bcombo,cs);
-			
+
 			if(m->data[combopos] == bcombo)
 			{
 				cpos_get(blockLayer, combopos).updateInfo(blockinfo);
@@ -1041,9 +1041,11 @@ bool movingblock::animate(int32_t)
 					}
 				}
 			}
-			
+
 			putcombo(scrollbuf,x,y,bcombo,cs);
 		}
+		if(!get_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS) && m->data[combopos] == bcombo)
+			cpos_get(blockLayer, combopos).updateInfo(blockinfo);
 		newcombo const& blockcmb = combobuf[bcombo];
 		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
 		{

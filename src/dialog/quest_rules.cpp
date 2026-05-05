@@ -1012,6 +1012,8 @@ static GUI::ListData compatRulesList
 		"If enabled, Spin Tile combos won't change combos when activating." },
 	{ "Sprite Light Radius Ignores Hit Offsets", qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS,
 		"If enabled, sprites that emit light will ignore hit offsets when calculating the center position." },
+	{ "Broken Pushblock Trigger Groups", qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
+		"If enabled, moving Pushblocks will not count towards trigger groups." },
 };
 
 static GUI::ListData enemiesRulesList
