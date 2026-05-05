@@ -839,6 +839,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX, 1);
 		set_qr(qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX, 1);
 	}
+	if (compatrule_version < 109)
+		set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
