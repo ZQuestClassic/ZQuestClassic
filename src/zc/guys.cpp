@@ -6353,10 +6353,12 @@ bool enemy::HeroInRange(int32_t range)
 }
 
 // place the enemy in line with Hero (red wizzrobes)
+// this restricts movement within the spawn screen.
 void enemy::place_on_axis(bool floater, bool solid_ok)
 {
-	int32_t lx=zc_min(zc_max(int32_t(Hero.getX())&0xF0,32),208);
-	int32_t ly=zc_min(zc_max(int32_t(Hero.getY())&0xF0,32),128);
+	int32_t lx=zc_min(zc_max(int32_t(Hero.getX().getInt()%256)&0xF0,32),208);
+	int32_t ly=zc_min(zc_max(int32_t(Hero.getY().getInt()%176)&0xF0,32),128);
+	int32_t wx = 0, wy = 0;
 	int32_t pos2=zc_oldrand()%23;
 	int32_t tried=0;
 	bool last_resort,placed=false;
@@ -6374,17 +6376,19 @@ void enemy::place_on_axis(bool floater, bool solid_ok)
 			x=lx;
 			y=((pos2-14)<<4)+16;
 		}
-		
+
+		std::tie(wx, wy) = translate_screen_coordinates_to_world(screen_spawned, x, y);
+
 		// Don't commit to a last resort if position is out of bounds.
-		last_resort= !(x<32 || y<32 || x>=224 || y>=144);
+		last_resort= !(x<32 || y<32 || x>=world_w-32 || y>=world_h-32);
 		
 		if(abs(lx-int32_t(x))>16 || abs(ly-int32_t(y))>16)
 		{
 			// Red Wizzrobes should be able to appear on water, but not other
 			// solid combos; however, they could appear on solid combos in 2.10,
 			// and some quests depend on that.
-			if((solid_ok || !m_walkflag(x,y,floater ? spw_water : spw_door, dir))
-					&& !flyerblocked(x,y,floater ? spw_floater : spw_door))
+			if((solid_ok || !m_walkflag(wx,wy,floater ? spw_water : spw_door, dir))
+					&& !flyerblocked(wx,wy,floater ? spw_floater : spw_door))
 				placed=true;
 		}
 		
@@ -6404,6 +6408,8 @@ void enemy::place_on_axis(bool floater, bool solid_ok)
 		dir=(y<ly)?down:up;
 		
 	clk2=tried;
+	x = wx;
+	y = wy;
 }
 
 int32_t enemy::n_frame_n_dir(int32_t frames, int32_t ndir, int32_t f4)
