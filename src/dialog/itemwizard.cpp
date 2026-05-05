@@ -27,6 +27,7 @@ bool hasItemWizard(int32_t type)
 	{
 		case itype_shield:
 		case itype_note:
+		case itype_lantern:
 			return true;
 	}
 	return false;
@@ -83,6 +84,7 @@ void ItemWizardDialog::update([[maybe_unused]] bool first)
 			break;
 		}
 		case itype_note:
+		case itype_lantern:
 			break;
 	}
 	disable(-1, true); //always disabled
@@ -132,6 +134,7 @@ void ItemWizardDialog::endUpdate()
 			break;
 		}
 		case itype_note:
+		case itype_lantern:
 			break;
 	}
 }
@@ -169,7 +172,10 @@ void item_default(itemdata& ref)
 			ref.misc1 = sh_rock|sh_arrow|sh_brang;
 			break;
 		case itype_note:
-			ref.misc1 = 0;
+			break;
+		case itype_lantern:
+			ref.misc1 = 1; // Cone
+			ref.misc2 = 40; // Range
 			break;
 	}
 }
@@ -424,6 +430,49 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 					INFOBTN("Plays when the note is opened")
 				)
 			));
+			break;
+		}
+		case itype_lantern:
+		{
+			auto& shape = local_ref.misc1;
+			auto& radius = local_ref.misc2;
+			auto& offset = local_ref.misc3;
+			
+			lists[0] = GUI::ZCListData::light_shapes();
+			windowRow->add(
+				Rows<3>(
+					Label(text = "Size", hAlign = 1.0),
+					TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::SWAP_BYTE,
+						low = 0, high = 255, val = radius,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							radius = val;
+						}),
+					INFOBTN("The size in pixels of the light area. Acts as a radius for most shapes."),
+					Label(text = "Shape", hAlign = 1.0),
+					DropDownList(data = lists[0],
+						fitParent = true, selectedValue = shape,
+						onSelectFunc = [&](int32_t val)
+						{
+							shape = val;
+						}),
+					INFOBTN("The shape to cast light in."),
+					Label(text = "Offset", hAlign = 1.0),
+					TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = -255, high = 255, val = offset,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							offset = val;
+						}),
+					INFOBTN("An offset for the source of the light, in pixels."
+						"\nPositive offsets are in the direction the player is facing,"
+						" negative offsets are in the opposite direction.")
+				)
+			);
 			break;
 		}
 		default: //Should be unreachable

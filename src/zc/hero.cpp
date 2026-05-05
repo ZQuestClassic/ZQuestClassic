@@ -28532,6 +28532,24 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1)
 	optional<word> wave_opt;
 	if(lamp.flags & item_flag1)
 		wave_opt = 0; // cancel wave effect
+	if (int offs = lamp.misc3)
+	{
+		switch (dir)
+		{
+			case up:
+				hy -= offs;
+				break;
+			case down:
+				hy += offs;
+				break;
+			case left:
+				hx -= offs;
+				break;
+			case right:
+				hx += offs;
+				break;
+		}
+	}
 	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp, NULL, -1, -1, -1, -1, wave_opt, wave_opt);
 }
 

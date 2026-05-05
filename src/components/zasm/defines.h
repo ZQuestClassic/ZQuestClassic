@@ -3379,6 +3379,9 @@ enum ASM_DEFINE
 #define LWPN_BOUNCE_ADD                0x16AF
 #define EWPN_BOUNCE_MULT               0x16B0
 #define EWPN_BOUNCE_ADD                0x16B1
+#define SPRITE_LIGHT_OFFSET            0x16B2
+#define LWPNBURNLIGHTOFFSET            0x16B3
+#define EWPNBURNLIGHTOFFSET            0x16B4
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

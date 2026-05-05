@@ -135,6 +135,7 @@ public:
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	
 	byte glowRad, glowShape;
+	int32_t glowOffset;
 	
 	int32_t ignore_delete;
 	

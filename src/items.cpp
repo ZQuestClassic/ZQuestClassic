@@ -1372,6 +1372,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		{
 			weap_data.burnsprs[q] = other.weap_data.burnsprs[q];
 			weap_data.light_rads[q] = other.weap_data.light_rads[q];
+			weap_data.light_offsets[q] = other.weap_data.light_offsets[q];
 		}
 	}
 	if(pasteflags.get(ITM_ADVP_ITEMSIZE))

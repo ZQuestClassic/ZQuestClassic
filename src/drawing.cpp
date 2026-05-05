@@ -238,7 +238,26 @@ void handle_lighting(int cx, int cy, dword shape, dword rad, dword dir, BITMAP* 
 void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* transdest)
 {
 	ASSERT(cmb.type == cTORCH);
-	handle_lighting(cx, cy, cmb.c_attributes[9].getTrunc(), cmb.c_attributes[8].getTrunc(), cmb.c_attributes[10].getTrunc(), dest, transdest);
+	int dir = cmb.c_attributes[10].getTrunc();
+	if (int offs = cmb.c_attributes[11].getTrunc())
+	{
+		switch (dir)
+		{
+			case up:
+				cy -= offs;
+				break;
+			case down:
+				cy += offs;
+				break;
+			case left:
+				cx -= offs;
+				break;
+			case right:
+				cx += offs;
+				break;
+		}
+	}
+	handle_lighting(cx, cy, cmb.c_attributes[9].getTrunc(), cmb.c_attributes[8].getTrunc(), dir, dest, transdest);
 }
 
 bool dither_staticcheck(int x, int y, double percentage)

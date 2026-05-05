@@ -366,6 +366,12 @@ int32_t sprite_get_register(int32_t reg)
 				return s->glowShape * 10000;
 			return 0;
 		}
+		case SPRITE_LIGHT_OFFSET:
+		{
+			if (s)
+				return s->glowOffset * 10000;
+			return 0;
+		}
 		case SPRITE_SWHOOKED:
 		{
 			if (s)
@@ -855,6 +861,12 @@ void sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (s)
 				s->glowShape = vbound(value / 10000, 0, 255);
+			break;
+		}
+		case SPRITE_LIGHT_OFFSET:
+		{
+			if (s)
+				s->glowOffset = value / 10000;
 			break;
 		}
 		case SPRITE_SWHOOKED:

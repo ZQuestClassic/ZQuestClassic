@@ -6830,6 +6830,8 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 			new_return(5);
 		if (!p_putc(data.light_rads[q], f))
 			new_return(6);
+		if (!p_iputl(data.light_offsets[q], f))
+			new_return(31);
 	}
 	if (!p_putc(data.glow_shape, f))
 		new_return(7);

@@ -911,6 +911,9 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 			return qe_invalid;
 		if (!p_getc(&(data.light_rads[q]), f))
 			return qe_invalid;
+		if (v_weapon_data >= 3)
+			if (!p_igetl(&(data.light_offsets[q]), f))
+				return qe_invalid;
 	}
 	if (!p_getc(&(data.glow_shape), f))
 		return qe_invalid;

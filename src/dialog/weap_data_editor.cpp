@@ -315,8 +315,12 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 							}
 						)
 					),
-					burn_grid = Rows<4>(
-						_d, Label(text = "Sprite"), glow_label = Label(text = "Light Radius"), _d,
+					burn_grid = Rows<5>(
+						_d,
+						Label(text = "Sprite"),
+						glow_label = Label(text = "Light Radius"),
+						glow_off_label = Label(text = "Light Offset"),
+						_d,
 						//
 						Label(text = "No Fire:", hAlign = 1.0),
 						DropDownList(
@@ -326,7 +330,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 							{
 								local_ref.burnsprs[WPNSPR_BASE] = val;
 							}),
-						burn_field_base = NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
+						glow_field_base = NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
+						glow_off_field_base = NUM_FIELD(light_offsets[WPNSPR_BASE], -255, 255),
 						INFOBTN("Settings used for the weapon when not on fire"),
 						//
 						Label(text = "Normal Fire:", hAlign = 1.0),
@@ -338,6 +343,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								local_ref.burnsprs[WPNSPR_IGNITE_ANY] = val;
 							}),
 						NUM_FIELD(light_rads[WPNSPR_IGNITE_ANY], 0, 255),
+						NUM_FIELD(light_offsets[WPNSPR_IGNITE_ANY], -255, 255),
 						INFOBTN("Settings used for the weapon when on 'Normal' fire"),
 						//
 						Label(text = "Strong Fire:", hAlign = 1.0),
@@ -349,6 +355,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								local_ref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
 							}),
 						NUM_FIELD(light_rads[WPNSPR_IGNITE_STRONG], 0, 255),
+						NUM_FIELD(light_offsets[WPNSPR_IGNITE_STRONG], -255, 255),
 						INFOBTN("Settings used for the weapon when on 'Strong' fire"),
 						//
 						Label(text = "Magic Fire:", hAlign = 1.0),
@@ -360,6 +367,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								local_ref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
 							}),
 						NUM_FIELD(light_rads[WPNSPR_IGNITE_MAGIC], 0, 255),
+						NUM_FIELD(light_offsets[WPNSPR_IGNITE_MAGIC], -255, 255),
 						INFOBTN("Settings used for the weapon when on 'Magic' fire"),
 						//
 						Label(text = "Divine Fire:", hAlign = 1.0),
@@ -371,6 +379,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								local_ref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
 							}),
 						NUM_FIELD(light_rads[WPNSPR_IGNITE_DIVINE], 0, 255),
+						NUM_FIELD(light_offsets[WPNSPR_IGNITE_DIVINE], -255, 255),
 						INFOBTN("Settings used for the weapon when on 'Divine' fire")
 					),
 					Row(
@@ -732,7 +741,9 @@ void WeaponDataDialog::refresh_burnglow()
 	for(auto [idx, child] : burn_grid->get_children())
 		child->setDisabled(!burn);
 	glow_label->setDisabled(!burn && !glow);
-	burn_field_base->setDisabled(!burn && !glow);
+	glow_off_label->setDisabled(!burn && !glow);
+	glow_field_base->setDisabled(!burn && !glow);
+	glow_off_field_base->setDisabled(!burn && !glow);
 	burn_box->setChecked(burn);
 	glow_box->setChecked(glow);
 }

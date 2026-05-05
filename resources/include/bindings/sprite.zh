@@ -315,6 +315,12 @@ class sprite {
 	// @zasm_var SPRITE_LIGHT_RADIUS
 	internal int LightRadius;
 
+	// The offset of the light emitted by this sprite, in pixels.
+	// Positive offset goes in the [Dir], while negative is opposite of [Dir].
+	//
+	// @zasm_var SPRITE_LIGHT_OFFSET
+	internal int LightOffset;
+
 	// The shape of light emitted by this sprite.
 	//
 	// @value [enum LightShape]
