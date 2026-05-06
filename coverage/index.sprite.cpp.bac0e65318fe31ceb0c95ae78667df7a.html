@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-06 06:28:58</td>
+      <td>2026-05-06 07:40:01</td>
     </tr>
   </table>
 </div>
@@ -73,8 +73,8 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l940">$_1::operator()() const (line 940)</a></td><td>called 502 times, returned 502 times</td><td>71.0%</td></tr>
-    <tr><td><a href="#l965">$_2::operator()() const (line 965)</a></td><td>called 502 times, returned 502 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l940">$_1::operator()() const (line 940)</a></td><td>called 504 times, returned 504 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l965">$_2::operator()() const (line 965)</a></td><td>called 504 times, returned 504 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l48">as_float(sprite*) (line 48)</a></td><td>called 69730267 times, returned 69730267 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l942">auto $_1::operator()() const::&#39;lambda&#39;(auto)::operator()&lt;sprite*&gt;(auto) const (line 942)</a></td><td>called 9594281 times, returned 9594281 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l943">auto $_1::operator()() const::&#39;lambda&#39;(auto, int)::operator()&lt;sprite*&gt;(auto, int) const (line 943)</a></td><td>called 9486668 times, returned 9486668 times</td><td>100.0%</td></tr>
@@ -88,7 +88,7 @@
     <tr><td><a href="#l17">is_player(int) (line 17)</a></td><td>called 2188371 times, returned 2188371 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l22">is_player(sprite*) (line 22)</a></td><td>called 9598194 times, returned 9598194 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l53">sprite_get_register(int) (line 53)</a></td><td>called 70623405 times, returned 70623405 times</td><td>33.0%</td></tr>
-    <tr><td><a href="#l418">sprite_set_register(int, int) (line 418)</a></td><td>called 2999005 times, returned 2999005 times</td><td>53.0%</td></tr>
+    <tr><td><a href="#l418">sprite_set_register(int, int) (line 418)</a></td><td>called 2999005 times, returned 2999005 times</td><td>55.0%</td></tr>
   </table>
 </details>
 
@@ -7691,7 +7691,7 @@
       <td class="lineno"><a id="l940" href="#l940">940</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1004</td>
+      <td class="linecount coveredLine">1008</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">ArrayRegistrar</span><span class="w"> </span><span class="nf">SPRITE_MISCD_registrar</span><span class="p">(</span><span class="n">SPRITE_MISCD</span><span class="p">,</span><span class="w"> </span><span class="p">[]{</span></td>
     </tr>
     <tr class="source-line">
@@ -7700,16 +7700,16 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 502 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 504 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 502 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 502 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 504 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 504 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">502</td>
+      <td class="linecount partialCoveredLine">504</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">ScriptingArray_ObjectComputed</span><span class="o">&lt;</span><span class="n">sprite</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">impl</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
@@ -7723,7 +7723,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">9594783</td>
+      <td class="linecount partialCoveredLine">9594785</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="n">sprite</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="n">ffcdata</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
@@ -7870,14 +7870,14 @@
       <td class="lineno"><a id="l961" href="#l961">961</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">502</td>
+      <td class="linecount coveredLine">504</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setMul10000</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l962" href="#l962">962</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">502</td>
+      <td class="linecount coveredLine">504</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">impl</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -7898,7 +7898,7 @@
       <td class="lineno"><a id="l965" href="#l965">965</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1004</td>
+      <td class="linecount coveredLine">1008</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">ArrayRegistrar</span><span class="w"> </span><span class="nf">SPRITE_MOVE_FLAGS_registrar</span><span class="p">(</span><span class="n">SPRITE_MOVE_FLAGS</span><span class="p">,</span><span class="w"> </span><span class="p">[]{</span></td>
     </tr>
     <tr class="source-line">
@@ -7907,23 +7907,23 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 502 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 504 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 502 times.</div>
-          <div class="takenBranch">&check; Branch 4 taken 502 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 504 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 504 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">502</td>
+      <td class="linecount partialCoveredLine">504</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">ScriptingArray_ObjectComputed</span><span class="o">&lt;</span><span class="n">sprite</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">impl</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l967" href="#l967">967</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">502</td>
+      <td class="linecount coveredLine">504</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="n">sprite</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">is_enemy</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">11</span><span class="p">;</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
     <tr class="source-line">
@@ -7986,14 +7986,14 @@
       <td class="lineno"><a id="l976" href="#l976">976</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">502</td>
+      <td class="linecount coveredLine">504</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">impl</span><span class="p">.</span><span class="n">setMul10000</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l977" href="#l977">977</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">502</td>
+      <td class="linecount coveredLine">504</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">impl</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

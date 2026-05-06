@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-06 06:28:58</td>
+      <td>2026-05-06 07:40:01</td>
     </tr>
   </table>
 </div>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l35">do_extract_zasm_command(char const*) (line 35)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l49">do_extract_zasm_command(char const*)::$_0::operator()(zasm_script*) const (line 49)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l17">do_load_and_quit_command(char const*, bool) (line 17)</a></td><td>called 46 times, returned 46 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l17">do_load_and_quit_command(char const*, bool) (line 17)</a></td><td>called 47 times, returned 47 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l71">zplayer_handle_commands() (line 71)</a></td><td>called 135 times, returned 135 times</td><td>40.0%</td></tr>
   </table>
 </details>
@@ -207,7 +207,7 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">do_load_and_quit_command</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">quest_path</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">jit_precompile</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -221,14 +221,14 @@
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">skip_flags</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loadquest</span><span class="p">(</span><span class="n">quest_path</span><span class="p">,</span><span class="o">&amp;</span><span class="n">QHeader</span><span class="p">,</span><span class="o">&amp;</span><span class="n">QMisc</span><span class="p">,</span><span class="n">tunes</span><span class="o">+</span><span class="n">ZC_MIDI_COUNT</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="n">skip_flags</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="mh">0xFF</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -238,11 +238,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 46 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 47 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">46</td>
+      <td class="linecount partialCoveredLine">47</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -263,7 +263,7 @@
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">strcpy</span><span class="p">(</span><span class="n">qstpath</span><span class="p">,</span><span class="w"> </span><span class="n">quest_path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -272,12 +272,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 46 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 47 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">46</td>
+      <td class="linecount partialCoveredLine">47</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hash: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">QHeader</span><span class="p">.</span><span class="n">hash</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -294,11 +294,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 46 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 47 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">46</td>
+      <td class="linecount partialCoveredLine">47</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">jit_precompile</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -312,7 +312,7 @@
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zasm_pipeline_init</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -326,14 +326,14 @@
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">set_is_exiting</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">46</td>
+      <td class="linecount coveredLine">47</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">

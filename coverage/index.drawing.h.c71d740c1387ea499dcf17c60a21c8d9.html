@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-06 06:28:58</td>
+      <td>2026-05-06 07:40:01</td>
     </tr>
   </table>
 </div>
@@ -479,164 +479,171 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">dither_staticcheck</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">percentage</span><span class="p">);</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">dither_offx</span><span class="p">,</span><span class="w"> </span><span class="n">dither_offy</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_colorfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">dither_staticcheck</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">percentage</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_colorfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targStart</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targEnd</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_colorfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_blit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">repeats</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_colorfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targStart</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targEnd</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_blit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">repeats</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targStart</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targEnd</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_blit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">repeats</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherblit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mask_blit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">repeats</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targStart</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">targEnd</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherblit_clipped</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherblit</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">bmp_dither</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherblit_clipped</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">custom_bmp_dither</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">proc</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">bmp_dither</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">dArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dithercircfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">rad</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">custom_bmp_dither</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">proc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherrectfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">inv_color</span><span class="o">=</span><span class="n">nullopt</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dithercircfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">rad</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherrectfill</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">inv_color</span><span class="o">=</span><span class="n">nullopt</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">lampcone</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">range</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherLampCone</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">range</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">lampcone</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">range</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ditherLampCone</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">range</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherType</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ditherArg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">monocolor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">transp_passes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">replColor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">startCol</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">endCol</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">shift</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">monocolor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">transp_passes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">replColors</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">srcCol</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dstCol</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">replColor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">startCol</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">endCol</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">shift</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">countColor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">checkCol</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maskCol</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">replColors</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">srcCol</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">dstCol</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">countColor</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">checkCol</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maskCol</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getColors</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxCount</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="n">vector</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getColors</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxCount</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
