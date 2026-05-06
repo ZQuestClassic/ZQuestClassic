@@ -882,7 +882,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 					font = (FONT*)d->dp2;
 				}
 				
-				jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT, d->dp3!=NULL, d->d1!=0);
+				jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT, d->dp3!=NULL, d->d2!=0);
 				font = oldfont;
 			}
 			break;
@@ -922,7 +922,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(d->dp3) btn_offset += 18;
 
-			if(d->d1)
+			if(d->d2)
 			{
 				if(mouse_in_rect(d->x+d->w-btn_offset, d->y+5, 16, 14))
 				{

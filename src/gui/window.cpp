@@ -50,7 +50,7 @@ void Window::setCopyText(std::string newCopyText)
 	copytext = std::move(newCopyText);
 	if(alDialog)
 	{
-		alDialog->d1 = !copytext.empty();
+		alDialog->d2 = !copytext.empty();
 		pendDraw();
 	}
 }
@@ -164,7 +164,7 @@ void Window::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
-		(int32_t)(!copytext.empty()), 0, // d1, d2
+		0, (int32_t)(!copytext.empty()), // d1, d2
 		title.data(), get_custom_font(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 	
