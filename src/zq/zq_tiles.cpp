@@ -9107,339 +9107,309 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_UP:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
+					if (key[KEY_ALT] || key[KEY_ALTGR])
 					{
-						case 3:  //ALT and CTRL
-						case 2:  //ALT
-							if(is_rect)
+						if(is_rect)
+						{
+							int pixels = 1;
+							if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
+								pixels = 8;
+							int inv_pixels = 16 - pixels;
+							mark_save_dirty();
+							go_slide_tiles(columns, rows, top, left);
+							int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+							bool same = true;
+							
+							for(int32_t d=0; d<columns; d++)
 							{
-								mark_save_dirty();
-								go_slide_tiles(columns, rows, top, left);
-								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-								bool same = true;
-								
-								for(int32_t d=0; d<columns; d++)
+								for(int32_t s=0; s<rows; s++)
 								{
-									for(int32_t s=0; s<rows; s++)
-									{
-										int32_t t=((top+s)*TILES_PER_ROW)+left+d;
-										
-										if(newtilebuf[t].format!=bitcheck) same = false;
-									}
+									int32_t t=((top+s)*TILES_PER_ROW)+left+d;
+									
+									if(newtilebuf[t].format!=bitcheck) same = false;
 								}
-								
-								if(!same) break;
+							}
+							
+							if(!same) break;
 
-								// This used to do something. Too lazy to remove.
-								// Can probably remove the above "same" check too.
-								bitcheck = 2;
-								
-								for(int32_t c=0; c<columns; c++)
+							for(int32_t c=0; c<columns; c++)
+							{
+								for(int32_t r=0; r<rows; r++)
 								{
-									for(int32_t r=0; r<rows; r++)
+									int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
+									byte *src_pixelrow=(byte*)(newundotilebuf[temptile].data+16*pixels);
+									byte *dest_pixelrow=(byte*)(newtilebuf[temptile].data);
+									
+									bool zeroing = false;
+									for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 									{
-										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
-										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
-										
-										for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
+										if (pixelrow == inv_pixels)
 										{
-											if(pixelrow==15*bitcheck)
+											if (r != rows-1)
 											{
-												int32_t srctile=temptile+TILES_PER_ROW;
-												if(srctile>=NEWMAXTILES)
-													srctile-=rows*TILES_PER_ROW;
-												src_pixelrow=(qword*)(newtilebuf[srctile].data);
+												int32_t srctile = temptile+TILES_PER_ROW;
+												if(srctile >= NEWMAXTILES)
+													srctile -= rows*TILES_PER_ROW;
+												src_pixelrow = (byte*)(newtilebuf[srctile].data);
 											}
-											
-											*dest_pixelrow=*src_pixelrow;
+											else if (CHECK_CTRL_CMD)
+												zeroing = true;
+											else
+												src_pixelrow = (byte*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data);
+										}
+										for(int p = 0; p < 16; ++p)
+										{
+											if (zeroing)
+												*dest_pixelrow = 0;
+											else
+											{
+												*dest_pixelrow = *src_pixelrow;
+												src_pixelrow++;
+											}
 											dest_pixelrow++;
-											src_pixelrow++;
-										}
-									}
-									
-									qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-									
-									for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
-									{
-										if((CHECK_CTRL_CMD))
-										{
-											*dest_pixelrow=0;
-										}
-										else
-										{
-											qword *src_pixelrow=(qword*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data+(8*b));
-											*dest_pixelrow=*src_pixelrow;
 										}
 									}
 								}
 							}
-							
-							register_blank_tiles();
-							redraw=true;
-							break;
-							
-						case 1:  //CTRL
-						case 0:  //None
-							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
-							redraw=true;
-							
-						default: //Others
-							break;
+						}
+						
+						register_blank_tiles();
+						redraw=true;
+						break;
+					}
+					else
+					{
+						sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(zc_max(1, tile_page_row(tile))*TILES_PER_ROW):-TILES_PER_ROW);
+						redraw=true;
 					}
 				}
 				break;
 				
 				case KEY_DOWN:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
+					if (key[KEY_ALT] || key[KEY_ALTGR])
 					{
-						case 3:  //ALT and CTRL
-						case 2:  //ALT
-							if(is_rect)
+						if(is_rect)
+						{
+							int pixels = 1;
+							if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
+								pixels = 8;
+							int inv_pixels = 16 - pixels;
+							mark_save_dirty();
+							go_slide_tiles(columns, rows, top, left);
+							int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+							bool same = true;
+							
+							for(int32_t c=0; c<columns; c++)
 							{
-								mark_save_dirty();
-								go_slide_tiles(columns, rows, top, left);
-								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-								bool same = true;
-								
-								for(int32_t c=0; c<columns; c++)
+								for(int32_t r=0; r<rows; r++)
 								{
-									for(int32_t r=0; r<rows; r++)
-									{
-										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
-										if(newtilebuf[t].format!=bitcheck) same = false;
-									}
-								}
-								
-								if(!same) break;
-
-								// This used to do something. Too lazy to remove.
-								// Can probably remove the above "same" check too.
-								bitcheck = 2;
-								
-								for(int32_t c=0; c<columns; c++)
-								{
-									for(int32_t r=rows-1; r>=0; r--)
-									{
-										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
-										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
-										
-										for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
-										{
-											if(pixelrow<bitcheck)
-											{
-												int32_t srctile=temptile-TILES_PER_ROW;
-												if(srctile<0)
-													srctile+=rows*TILES_PER_ROW;
-												qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
-												*dest_pixelrow=*tempsrc;
-												//*dest_pixelrow=0;
-											}
-											else
-											{
-												*dest_pixelrow=*src_pixelrow;
-											}
-											
-											dest_pixelrow--;
-											src_pixelrow--;
-										}
-									}
+									int32_t t=((top+r)*TILES_PER_ROW)+left+c;
 									
-									qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
-									qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-									
-									for(int32_t b=0; b<bitcheck; b++)
-									{
-										if((CHECK_CTRL_CMD))
-										{
-											*dest_pixelrow=0;
-										}
-										else
-										{
-											*dest_pixelrow=*src_pixelrow;
-										}
-										
-										dest_pixelrow++;
-										src_pixelrow++;
-									}
+									if(newtilebuf[t].format!=bitcheck) same = false;
 								}
 							}
 							
-							register_blank_tiles();
-							redraw=true;
-							break;
+							if(!same) break;
 							
-						case 1:  //CTRL
-						case 0:  //None
-							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
-							redraw=true;
-							
-						default: //Others
-							break;
+							for(int32_t c=0; c<columns; c++)
+							{
+								for(int32_t r=rows-1; r>=0; r--)
+								{
+									int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
+									byte *src_pixelrow=(byte*)(newundotilebuf[temptile].data+256-(16*pixels)-1);
+									byte *dest_pixelrow=(byte*)(newtilebuf[temptile].data+256-1);
+									
+									bool zeroing = false;
+									for(int32_t pixelrow = 0; pixelrow < 16; ++pixelrow)
+									{
+										if (pixelrow == inv_pixels)
+										{
+											if (r != 0)
+											{
+												int32_t srctile = temptile-TILES_PER_ROW;
+												if (srctile < 0)
+													srctile += rows*TILES_PER_ROW;
+												src_pixelrow = (byte*)(newtilebuf[srctile].data+256-1);
+											}
+											else if (CHECK_CTRL_CMD)
+												zeroing = true;
+											else
+												src_pixelrow = (byte*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+256-1);
+										}
+										for (int p = 0; p < 16; ++p)
+										{
+											if (zeroing)
+												*dest_pixelrow = 0;
+											else
+											{
+												*dest_pixelrow = *src_pixelrow;
+												src_pixelrow--;
+											}
+											dest_pixelrow--;
+										}
+									}
+								}
+							}
+						}
+						
+						register_blank_tiles();
+						redraw=true;
+					}
+					else
+					{
+						sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?zc_max(1, (TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
+						redraw=true;
 					}
 				}
 				break;
 				
 				case KEY_LEFT:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
+					if (key[KEY_ALT] || key[KEY_ALTGR])
 					{
-						case 3:  //ALT and CTRL
-						case 2:  //ALT
-							if(is_rect)
+						if(is_rect)
+						{
+							int pixels = 1;
+							if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
+								pixels = 8;
+							int inv_pixels = 16 - pixels;
+							mark_save_dirty();
+							go_slide_tiles(columns, rows, top, left);
+							int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+							bool same = true;
+							
+							for(int32_t c=0; c<columns; c++)
 							{
-								mark_save_dirty();
-								go_slide_tiles(columns, rows, top, left);
-								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-								bool same = true;
-								
-								for(int32_t c=0; c<columns; c++)
-								{
-									for(int32_t r=0; r<rows; r++)
-									{
-										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
-										if(newtilebuf[t].format!=bitcheck) same = false;
-									}
-								}
-								
-								if(!same) break;
-
-								// This used to do something. Too lazy to remove.
-								// Can probably remove the above "same" check too.
-								bitcheck = 2;
-								
 								for(int32_t r=0; r<rows; r++)
 								{
-									for(int32_t c=0; c<columns; c++)
+									int32_t t=((top+r)*TILES_PER_ROW)+left+c;
+									
+									if(newtilebuf[t].format!=bitcheck) same = false;
+								}
+							}
+							
+							if(!same) break;
+							
+							for(int32_t r=0; r<rows; r++)
+							{
+								for(int32_t c=0; c<columns; c++)
+								{
+									int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
+									byte *dest_pixelrow=(newtilebuf[temptile].data);
+									
+									for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 									{
-										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-										byte *dest_pixelrow=(newtilebuf[temptile].data);
-										
-										for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
+										for(int32_t p=0; p<16; p++)
 										{
-											for(int32_t p=0; p<(8*bitcheck)-1; p++)
+											if (p >= inv_pixels)
 											{
-												*dest_pixelrow=*(dest_pixelrow+1);
-												dest_pixelrow++;
-											}
-											
-											if(c==columns-1)
-											{
-												if(!(CHECK_CTRL_CMD))
+												if(c==columns-1)
 												{
-													byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
-													*dest_pixelrow=*tempsrc;
+													if (CHECK_CTRL_CMD)
+														*dest_pixelrow = 0;
+													else
+													{
+														byte *tempsrc = (newundotilebuf[temptile-c].data+(pixelrow*16)+p-inv_pixels);
+														*dest_pixelrow = *tempsrc;
+													}
+												}
+												else
+												{
+													byte *tempsrc = (newtilebuf[temptile+1].data+(pixelrow*16)+p-inv_pixels);
+													*dest_pixelrow = *tempsrc;
 												}
 											}
-											else
-											
-											{
-												byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
-												*dest_pixelrow=*tempsrc;
-											}
-											
+											else *dest_pixelrow = *(dest_pixelrow+pixels);
 											dest_pixelrow++;
 										}
 									}
 								}
-								
-								register_blank_tiles();
-								redraw=true;
 							}
 							
-							break;
-							
-						case 1:  //CTRL
-						case 0:  //None
-							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile%TILES_PER_ROW):-1);
+							register_blank_tiles();
 							redraw=true;
-							
-						default: //Others
-							break;
+						}
+					}
+					else
+					{
+						sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile%TILES_PER_ROW):-1);
+						redraw=true;
 					}
 				}
 				break;
 			
 				case KEY_RIGHT:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
+					if (key[KEY_ALT] || key[KEY_ALTGR])
 					{
-						case 3:  //ALT and CTRL
-						case 2:  //ALT
-							if(is_rect)
+						if(is_rect)
+						{
+							int pixels = 1;
+							if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
+								pixels = 8;
+							int inv_pixels = 16 - pixels;
+							mark_save_dirty();
+							go_slide_tiles(columns, rows, top, left);
+							int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
+							bool same = true;
+							
+							for(int32_t c=0; c<columns; c++)
 							{
-								mark_save_dirty();
-								go_slide_tiles(columns, rows, top, left);
-								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-								bool same = true;
-								
-								for(int32_t c=0; c<columns; c++)
-								{
-									for(int32_t r=0; r<rows; r++)
-									{
-										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
-										if(newtilebuf[t].format!=bitcheck) same = false;
-									}
-								}
-								
-								if(!same) break;
-
-								// This used to do something. Too lazy to remove.
-								// Can probably remove the above "same" check too.
-								bitcheck = 2;
-								
 								for(int32_t r=0; r<rows; r++)
 								{
-									for(int32_t c=columns-1; c>=0; c--)
+									int32_t t=((top+r)*TILES_PER_ROW)+left+c;
+									
+									if(newtilebuf[t].format!=bitcheck) same = false;
+								}
+							}
+							
+							if(!same) break;
+							
+							for(int32_t r=0; r<rows; r++)
+							{
+								for(int32_t c=columns-1; c>=0; c--)
+								{
+									int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
+									byte *dest_pixelrow=(newtilebuf[temptile].data)+255;
+									
+									for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
 									{
-										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-										byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
-										
-										for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
+										for(int32_t p=0; p<16; p++)
 										{
-											for(int32_t p=0; p<(8*bitcheck)-1; p++)
+											if (p >= inv_pixels)
 											{
-												*dest_pixelrow=*(dest_pixelrow-1);
-												dest_pixelrow--;
-											}
-											
-											if(c==0)
-											{
-												if(!(CHECK_CTRL_CMD))
+												if (c==0)
 												{
-													byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-													*dest_pixelrow=*tempsrc;
+													if (CHECK_CTRL_CMD)
+														*dest_pixelrow = 0;
+													else
+													{
+														byte *tempsrc = (newundotilebuf[temptile-c+columns-1].data+(pixelrow*16)+15-(p-inv_pixels));
+														*dest_pixelrow = *tempsrc;
+													}
+												}
+												else
+												{
+													byte *tempsrc = (newtilebuf[temptile-1].data+(pixelrow*16)+15-(p-inv_pixels));
+													*dest_pixelrow = *tempsrc;
 												}
 											}
-											else
-											{
-												byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-												*dest_pixelrow=*tempsrc;
-											}
-											
+											else *dest_pixelrow = *(dest_pixelrow-pixels);
 											dest_pixelrow--;
 										}
 									}
 								}
-								
-								register_blank_tiles();
-								redraw=true;
 							}
 							
-							break;
-							
-						case 1:  //CTRL
-						case 0:  //None
-							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+							register_blank_tiles();
 							redraw=true;
-							
-						default: //Others
-							break;
+						}
+					}
+					else
+					{
+						sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+						redraw=true;
 					}
 				}
 				break;
