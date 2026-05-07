@@ -1416,6 +1416,18 @@ class screendata {
 	//   POPARGS D5 0.0006
 	internal void DrawScreen(int layer, int map, int screen, int x, int y,
 							 int rotation = 0);
+	
+	// Draws the specified mapdata to the screen.
+	// Only draws the mapdata provided, not layerscreens of that mapdata.
+	// When using a temp mapdata that contains the combos for an entire region,
+	// that layer of the entire region will be drawn.
+	// Only combos will be drawn, FFCs are excluded.
+	//
+	// @zasm
+	//   DRAWMAPDATA
+	//   POPARGS D5 0.0005
+	internal void DrawMapdata(int layer, mapdata source, int x,
+							 int y, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   BITMAPR

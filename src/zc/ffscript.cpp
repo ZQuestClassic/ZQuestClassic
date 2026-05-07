@@ -7089,6 +7089,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		case DRAWSCREENR:
 			set_drawing_command_args(j, 6);
 			break;
+		
+		case DRAWMAPDATA:
+			set_drawing_command_args(j, 5);
+			break;
 			
 		case QUAD3DR:
 		{
@@ -7375,6 +7379,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		case BMPDRAWLAYERR:
 			set_user_bitmap_command_args(j, 8);
 			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+8);
+			break;
+		case BMPDRAWMAPDATA:
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+5);
 			break;
 		case BMPDRAWLAYERSOLIDR: 
 		case BMPDRAWLAYERCFLAGR: 
@@ -11206,6 +11214,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case FRAMER:
 			case TILEBLIT:
 			case COMBOBLIT:
+			case DRAWMAPDATA:
 				do_drawing_command(scommand, true);
 				break;
 				
@@ -11261,6 +11270,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case BMPMASKBLIT:
 			case BMPMASKBLIT2:
 			case BMPMASKBLIT3:
+			case BMPDRAWMAPDATA:
 				do_drawing_command(scommand, false);
 				break;
 			case READBITMAP:

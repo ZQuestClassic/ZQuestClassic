@@ -271,6 +271,18 @@ class bitmap {
 	//   POPARGS D5 0.0007
 	internal void DrawScreen(int layer, int map, int source_screen, int x,
 							 int y, int rotation = 0);
+	
+	// Draws the specified mapdata to the bitmap.
+	// Only draws the mapdata provided, not layerscreens of that mapdata.
+	// When using a temp mapdata that contains the combos for an entire region,
+	// that layer of the entire region will be drawn.
+	// Only combos will be drawn, FFCs are excluded.
+	//
+	// @zasm
+	//   BMPDRAWMAPDATA
+	//   POPARGS D5 0.0006
+	internal void DrawMapdata(int layer, mapdata source, int x,
+							 int y, int opacity = OP_OPAQUE);
 
 	// BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
 	//

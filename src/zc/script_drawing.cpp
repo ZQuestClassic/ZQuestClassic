@@ -7,6 +7,7 @@
 #include "zalleg/zalleg.h"
 #include "zc/script_drawing.h"
 #include "zc/scripting/types/bitmap.h"
+#include "zc/scripting/types/mapdata.h"
 #include "zc/rendertarget.h"
 #include "zc/maps.h"
 #include "tiles.h"
@@ -10710,6 +10711,24 @@ static bool transparent_combo(int32_t id)
 	return bool(combobuf[id].animflags & AF_TRANSPARENT);
 }
 
+void draw_mapdata(BITMAP *b, mapdata const& m, int x, int y, bool transparent)
+{
+	auto const max_pos = m.max_pos();
+	for(int pos = 0; pos <= max_pos; ++pos)
+	{
+		auto rpos_handle = m.resolve_pos(pos);
+		auto cid = rpos_handle.data();
+		if(combobuf[cid].animflags & AF_EDITOR_ONLY) continue;
+		auto [xo, yo] = rpos_handle.xy();
+		auto cset = rpos_handle.cset();
+		
+		if(transparent != transparent_combo(cid))
+			overcomboblocktranslucent(b, x + xo, y + yo, cid, cset, 1, 1, 128);
+		else
+			overcomboblock(b, x + xo, y + yo, cid, cset, 1, 1);
+	}
+}
+
 void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transparent)
 {
 	for(int32_t i(0); i < 176; ++i)
@@ -11232,6 +11251,28 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
 	//putscr
 }
 
+void do_drawmapdata(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool)
+{
+	//sdci[1]=layer
+	//sdci[2]=mapdata
+	//sdci[3]=x
+	//sdci[4]=y
+	//sdci[5]=opacity
+
+	auto mapdata = decode_mapdata_ref(sdci[2]);
+	if (mapdata.type == mapdata_type::None)
+	{
+		Z_error("Invalid mapdata %d for draw command DRAWMAPDATA\n", sdci[2]);
+		return;
+	}
+
+	int32_t x = xoffset + sdci[3]/10000;
+	int32_t y = yoffset + sdci[4]/10000;
+	bool transparent = (sdci[5]/10000) < 128;
+
+	draw_mapdata(bmp, mapdata, x, y, transparent);
+}
+
 
 
 void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, [[maybe_unused]] bool isOffScreen)
@@ -11374,6 +11415,35 @@ void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, 
     }
     
     //putscr
+}
+
+void do_bmpdrawmapdata(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, int32_t yoffset, bool)
+{
+	//sdci[1]=layer
+	//sdci[2]=mapdata
+	//sdci[3]=x
+	//sdci[4]=y
+	//sdci[5]=opacity
+	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
+
+	BITMAP *refbmp = resolveScriptingBitmap(sdci[DRAWCMD_BMP_TARGET]);
+	if ( refbmp == NULL ) return;
+
+	auto mapdata = decode_mapdata_ref(sdci[2]);
+	if (mapdata.type == mapdata_type::None)
+	{
+		Z_error("Invalid mapdata %d for draw command BMPDRAWMAPDATA\n", sdci[2]);
+		return;
+	}
+
+    if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 )
+		yoffset = 0; //Don't crop.
+
+	int32_t x = xoffset + sdci[3]/10000;
+	int32_t y = yoffset + sdci[4]/10000;
+	bool transparent = (sdci[5]/10000) < 128;
+
+	draw_mapdata(refbmp, mapdata, x, y, transparent);
 }
 
 
@@ -12114,6 +12184,12 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			}
 			break;
 			
+			case DRAWMAPDATA:
+			{
+				do_drawmapdata(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
+			}
+			break;
+			
 			case BMPRECTR: bmp_do_rectr(bmp, sdci, xoffset, yoffset); break;
 			case BMPFRAMER: bmp_do_framer(bmp, sdci, xoffset, yoffset); break;
 			case BMPCIRCLER: bmp_do_circler(bmp, sdci, xoffset, yoffset); break;
@@ -12138,6 +12214,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			case BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
 			case BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
 			case BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+			case BMPDRAWMAPDATA: do_bmpdrawmapdata(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWSCREENSOLIDR: do_bmpdrawscreen_solidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWSCREENSOLID2R: do_bmpdrawscreen_solidr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
