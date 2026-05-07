@@ -45,7 +45,7 @@ ffc_handle_t ResolveMapdataFFC(int32_t mapdataref, int index)
 
 }
 
-int mapdata::max_pos()
+int mapdata::max_pos() const
 {
 	if (type == mapdata_type::TemporaryCurrentRegion)
 		return (int)region_max_rpos;
@@ -56,7 +56,7 @@ int mapdata::max_pos()
 	return 175;
 }
 
-rpos_handle_t mapdata::resolve_pos(int pos)
+rpos_handle_t mapdata::resolve_pos(int pos) const
 {
 	if (!screenscrolling && scrolling())
 	{
@@ -108,7 +108,7 @@ rpos_handle_t mapdata::resolve_pos(int pos)
 	return {base_scr, scr, screen, layer, rpos, pos};
 }
 
-ffc_handle_t mapdata::resolve_ffc_handle(int index)
+ffc_handle_t mapdata::resolve_ffc_handle(int index) const
 {
 	index -= 1;
 	if (BC::checkMapdataFFC(index) != SH::_NoError)
@@ -121,7 +121,7 @@ ffc_handle_t mapdata::resolve_ffc_handle(int index)
 	return *scr->getFFCHandle(index, screen_index_offset);
 }
 
-ffcdata* mapdata::resolve_ffc(int index)
+ffcdata* mapdata::resolve_ffc(int index) const
 {
 	return resolve_ffc_handle(index).ffc;
 }

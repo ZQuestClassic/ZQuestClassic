@@ -44,10 +44,10 @@ struct mapdata
 		return type == mapdata_type::TemporaryScrollingRegion || type == mapdata_type::TemporaryScrollingScreen;
 	}
 
-	int max_pos();
-	rpos_handle_t resolve_pos(int pos);
-	ffc_handle_t resolve_ffc_handle(int index);
-	ffcdata* resolve_ffc(int index);
+	int max_pos() const;
+	rpos_handle_t resolve_pos(int pos) const;
+	ffc_handle_t resolve_ffc_handle(int index) const;
+	ffcdata* resolve_ffc(int index) const;
 };
 
 mapdata decode_mapdata_ref(int ref);
