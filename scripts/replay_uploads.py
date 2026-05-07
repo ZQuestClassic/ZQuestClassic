@@ -179,13 +179,24 @@ def init_updated_replay(key: str):
         return
 
     lines = original_replay_path.read_text().splitlines()
-    for i, line in enumerate(lines):
+    new_lines = []
+
+    for line in lines:
         if line.startswith('M qst '):
             qst_hash = key.split('/')[0]
-            lines[i] = f'M qst {qst_hash}.qst'
-            break
+            new_lines.append(f'M qst {qst_hash}.qst')
+            continue
 
-    updated_replay_path.write_text('\n'.join(lines))
+        # TODO: if we make these replays viewable publicly, should first remove key
+        # events. It's rare that a quest needs them.
+        # if line.startswith('D') or line.startswith('U'):
+        #     parts = line.split(' ')
+        #     if len(parts) == 4 and parts[2] == 'k':
+        #         continue
+
+        new_lines.append(line)
+
+    updated_replay_path.write_text('\n'.join(new_lines))
 
 
 def run_replays_process(args):
