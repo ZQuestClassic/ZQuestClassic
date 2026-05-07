@@ -1753,7 +1753,7 @@ void titlescreen(int32_t lsave)
 
 	updateShowBottomPixels();
 
-	if (!SkipTitle && load_qstpath.empty() && lsave == 0 && !q)
+	if (!SkipTitle && load_qstpath.empty() && lsave == 0 && !Quit)
 	{
 		actual_titlescreen();
 	}
