@@ -46,6 +46,9 @@ jobs:
             arch: intel
             compiler: clang
             config: RelWithDebInfo
+            # Mac runners are slower, and if we were paying for Actions are 10x more expensive than linux.
+            # So let's test a subset of replays.
+            extra-args: --filter playground --filter misc --filter terror
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang

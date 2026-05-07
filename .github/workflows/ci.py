@@ -557,7 +557,15 @@ def replay_tests(ctx: CiContext, args):
 
     if args.extra_args:
         logger.info(f"Applying extra arguments: {args.extra_args}")
-        base_cmd.extend(shlex.split(args.extra_args))
+        extra_args = shlex.split(args.extra_args)
+
+        # Ignore any extra filter args for if no_jit was set.
+        if args.no_jit:
+            while "--filter" in extra_args:
+                idx = extra_args.index("--filter")
+                del extra_args[idx : idx + 2]
+
+        base_cmd.extend(extra_args)
 
     run_python_cmd(base_cmd)
 
