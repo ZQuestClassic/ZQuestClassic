@@ -1095,9 +1095,13 @@ static GUI::ListData compatRulesList
 	{ "Broken Pushblock Trigger Groups", qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
 		"If enabled, moving Pushblocks will not count towards trigger groups." },
 	{ "Old Layer Draw Order", qr_OLD_LAYER_DRAW_ORDER,
-		"When enabled, layer -3 drwas in front of layer -2, and script draws / FFCs"
+		"When enabled, layer -3 draws in front of layer -2, and script draws / FFCs"
 		" cannot directly use layers -1 to -7. Also, layer 7 script draws will only work if"
 		" 'Subscreen Appears Above Sprites' is also enabled." },
+	{ "Map Spoils Darkrooms", qr_MAP_SPOILS_DARKROOMS,
+		"When enabled, the Map will not spoil darkrooms."
+		"When disabled, for New Darkrooms, it will draw the proper darkness-"
+		" for old darkrooms, they will simply be blacked-out." },
 };
 
 static GUI::ListData enemiesRulesList

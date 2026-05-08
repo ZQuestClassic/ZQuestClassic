@@ -7960,6 +7960,19 @@ void ViewMap()
 	combotile_add_x = 256;
 	combotile_add_y = 0;
 	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
+	int saved_dither_offx = dither_offx;
+	int saved_dither_offy = dither_offy;
+	
+	bool do_new_dark = get_qr(qr_NEW_DARKROOM);
+	bool do_dark = !get_qr(qr_MAP_SPOILS_DARKROOMS);
+	BITMAP* old_darkscr_bmp = darkscr_bmp;
+	BITMAP* old_darkscr_bmp_trans = darkscr_bmp_trans;
+	if (do_dark && do_new_dark)
+	{
+		darkscr_bmp = create_bitmap_ex(8, darkscr_bmp->w, darkscr_bmp->h);
+		darkscr_bmp_trans = create_bitmap_ex(8, darkscr_bmp_trans->w, darkscr_bmp_trans->h);
+	}
+	
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
@@ -7972,6 +7985,12 @@ void ViewMap()
 			mapscr* scr = &scrs[0];
 			if (!scr->is_valid())
 				continue;
+			if (do_dark && !do_new_dark && (scr->flags & fDARK))
+			{
+				clear_to_color(screen_bmp, BLACK);
+				stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+				continue;
+			}
 			clear_bitmap(screen_bmp);
 
 			screen_handles_t screen_handles;
@@ -8046,17 +8065,53 @@ void ViewMap()
 				do_ffc_layer(screen_bmp, -1000, screen_handles[0], xx, yy);
 			do_layer(screen_bmp, 0, screen_handles[6], xx, yy);
 			do_ffc_layer(screen_bmp, 6, screen_handles[0], xx, yy);
-			do_ffc_layer(screen_bmp, 7, screen_handles[0], xx, yy);
+			if (!get_qr(qr_NEWDARK_L6))
+				do_ffc_layer(screen_bmp, 7, screen_handles[0], xx, yy);
+			
+			if (do_dark && do_new_dark && (scr->flags & fDARK))
+			{
+				clear_darkroom_bitmaps();
+				dither_offx = x * 256 - xx;
+				dither_offy = y * 176 - yy;
+				if (scr->flags & fDARK_DITHER)
+					ditherrectfill(darkscr_bmp, 0, 0, 256, 176, 0, game->get_dither_type(), game->get_dither_arg());
+				calc_darkroom_combos(screen_handles, 0, 0);
+				calc_darkroom_ffcs(scr, 0, 0);
+				if (scr->flags & fDARK_TRANS)
+				{
+					draw_trans_sprite(screen_bmp, darkscr_bmp, 0, 0);
+					if (get_qr(qr_NEWDARK_TRANS_STACKING))
+						draw_trans_sprite(screen_bmp, darkscr_bmp_trans, 0, 0);
+				}
+				else
+				{
+					masked_blit(darkscr_bmp, screen_bmp, 0, 0, 0, 0, 256, 176);
+					draw_trans_sprite(screen_bmp, darkscr_bmp_trans, 0, 0);
+				}
+			}
+			
+			if (get_qr(qr_NEWDARK_L6))
+				do_ffc_layer(screen_bmp, 7, screen_handles[0], xx, yy);
 			
 			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
-
+	dither_offx = saved_dither_offx;
+	dither_offy = saved_dither_offy;
+	
 	viewport = prev_viewport;
 	combotile_add_x = 0;
 	combotile_add_y = 0;
 
 	destroy_bitmap(screen_bmp);
+	if (do_dark && do_new_dark)
+	{
+		destroy_bitmap(darkscr_bmp);
+		destroy_bitmap(darkscr_bmp_trans);
+		darkscr_bmp = old_darkscr_bmp;
+		darkscr_bmp_trans = old_darkscr_bmp_trans;
+	}
+	
 	clear_keybuf();
 	pause_all_sfx();
 	
