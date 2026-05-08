@@ -1014,6 +1014,8 @@ static GUI::ListData compatRulesList
 		"If enabled, sprites that emit light will ignore hit offsets when calculating the center position." },
 	{ "Broken Pushblock Trigger Groups", qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
 		"If enabled, moving Pushblocks will not count towards trigger groups." },
+	{ "BS Overworld Ignores Map", qr_BS_OW_IGNORES_MAP_ITEM,
+		"When enabled, BS Overworlds will show rooms marked on the map even without that level's Map item." },
 };
 
 static GUI::ListData enemiesRulesList

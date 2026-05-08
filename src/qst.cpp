@@ -3490,6 +3490,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (tempheader.compareVer(2, 55, 15) < 0)
 	{
 		set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
+		set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
 	}
 
 	*Header = tempheader;
