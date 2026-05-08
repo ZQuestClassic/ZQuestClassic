@@ -6,6 +6,7 @@
 #include "zc/zelda.h"
 #include <allegro/internal/aintern.h>
 #include <cstdlib>
+#include <type_traits>
 
 #ifdef IS_PLAYER
 extern BITMAP *darkscr_bmp, *darkscr_bmp_trans;
@@ -260,95 +261,140 @@ void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* t
 	handle_lighting(cx, cy, cmb.c_attributes[9].getTrunc(), cmb.c_attributes[8].getTrunc(), dir, dest, transdest);
 }
 
-bool dither_staticcheck(int x, int y, double percentage)
-{
-#ifdef IS_PLAYER
-	double diff = abs(zc::math::Sin((double)((x*double(x))+(y*double(y)))) - (zc::math::Cos((double(x)*y))));
-#else
-	double diff = abs(sin((double)((x*double(x))+(y*double(y)))) - (cos((double(x)*y))));
-#endif
-	double filt = (percentage*(2000))/1000.0;
-	return diff < filt;
-}
-static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_t wid=256, int32_t hei=168)
-{
-#ifdef IS_PLAYER
-	x += dither_offx;
-	y += dither_offy;
-#endif
-	bool ret = false,
-	     inv = (type%2); //invert return for odd types
-	type &= ~1; //even-ize the type for switch simplicity
-	
-	switch(type) //arg bounding, prevent "/0" and "%0"
-	{
-		case dithStatic: case dithStatic2: case dithStatic3:
-			break; //range is full byte, no bounding needed
-		default:
-			arg = zc_max(1,arg); //don't div by 0!
-			break;
-	}
-	
-	switch(type) //calculate
-	{
-		case dithChecker:
-			ret = (((x/arg)&1)^((y/arg)&1));
-			break;
-		case dithCrissCross:
-			ret = (((x%arg)==(y%arg)) || ((arg-(x%arg))==(y%arg)));
-			break;
-		case dithDiagULDR: 
-			ret = ((x%arg)==(y%arg));
-			break;
-		case dithDiagURDL:
-			ret = (((arg-1)-(x%arg))==(y%arg));
-			break;
-		case dithRow:
-			ret = !(y%arg);
-			break;
-		case dithCol:
-			ret = !(x%arg);
-			break;
-		case dithDots:
-			ret = !(x%arg || y%arg);
-			break;
-		case dithGrid:
-			ret = !(x%arg) || !(y%arg);
-			break;
-		case dithStatic:
-			ret = dither_staticcheck(x,y,(arg/255.0));
-			break;
-		case dithStatic2: //changes centering of the formula
-			ret = dither_staticcheck(x-(wid/2),y-(hei/2),(arg/255.0));
-			break;
-		case dithStatic3: //changes centering of the formula
-			ret = dither_staticcheck(x+(wid/2),y+(hei/2),(arg/255.0));
-			break;
-		case dithDots2:
-		{
-			auto a2 = (arg+1)*2;
-			ret = !(x%a2 || y%a2) || ((x%a2==arg+1) && (y%a2==arg+1));
-			break;
-		}
-		case dithDots3:
-		{
-			auto a2 = (arg+1)*2;
-			ret = !(x%a2 || y%2) || ((x%a2==arg+1) && (y%2==1));
-			break;
-		}
-		case dithDots4:
-		{
-			auto a2 = (arg+1)*2;
-			ret = !(x%2 || y%a2) || ((x%2==1) && (y%a2==arg+1));
-			break;
-		}
-		default:
-			//don't dither if invalid type found,
-			//just draw every pixel -Em
-			return true;
-	}
-	return ret^inv;
-}
+// Note: I tried using a templated function, but the compiler stopped inlining / optimizing and
+// drastically slowed down the code.
+#define DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func, body) \
+do { \
+	bool inv = (dType % 2); \
+	byte type = dType & ~1; \
+	int arg = dArg; \
+	if(type != dithStatic && type != dithStatic2 && type != dithStatic3) \
+		arg = zc_max(1, arg); \
+	bool is_replay = replay_is_active(); \
+	auto execute_dither = [&]<int CompileTimeArg>(std::integral_constant<int, CompileTimeArg>) ZC_LAMBDA_FORCE_INLINE \
+	{ \
+		double filt = (CompileTimeArg > 0 ? CompileTimeArg : arg) / 255.0 * 2.0; \
+		auto run_loop = [&](auto dither_check_func) ZC_LAMBDA_FORCE_INLINE \
+		{ \
+			auto check_func = [&](int x, int y) ZC_LAMBDA_FORCE_INLINE { return dither_check_func(x, y) ^ inv; }; \
+			body \
+		}; \
+		switch(type) \
+		{ \
+			case dithChecker: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return (((x/CompileTimeArg)&1)^((y/CompileTimeArg)&1)); \
+					else return (((x/arg)&1)^((y/arg)&1)); \
+				}); \
+				break; \
+			case dithCrissCross: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return (((x%CompileTimeArg)==(y%CompileTimeArg)) || ((CompileTimeArg-(x%CompileTimeArg))==(y%CompileTimeArg))); \
+					else return (((x%arg)==(y%arg)) || ((arg-(x%arg))==(y%arg))); \
+				}); \
+				break; \
+			case dithDiagULDR: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return ((x%CompileTimeArg)==(y%CompileTimeArg)); \
+					else return ((x%arg)==(y%arg)); \
+				}); \
+				break; \
+			case dithDiagURDL: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return (((CompileTimeArg-1)-(x%CompileTimeArg))==(y%CompileTimeArg)); \
+					else return (((arg-1)-(x%arg))==(y%arg)); \
+				}); \
+				break; \
+			case dithRow: \
+				run_loop([&](int, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return !(y%CompileTimeArg); \
+					else return !(y%arg); \
+				}); \
+				break; \
+			case dithCol: \
+				run_loop([&](int x, int) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return !(x%CompileTimeArg); \
+					else return !(x%arg); \
+				}); \
+				break; \
+			case dithDots: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return !(x%CompileTimeArg || y%CompileTimeArg); \
+					else return !(x%arg || y%arg); \
+				}); \
+				break; \
+			case dithGrid: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) return !(x%CompileTimeArg) || !(y%CompileTimeArg); \
+					else return !(x%arg) || !(y%arg); \
+				}); \
+				break; \
+			case dithStatic: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE { \
+					return dither_staticcheck(x, y, filt, is_replay); \
+				}); \
+				break; \
+			case dithStatic2: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE { \
+					return dither_staticcheck(x-(wid/2), y-(hei/2), filt, is_replay); \
+				}); \
+				break; \
+			case dithStatic3: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE { \
+					return dither_staticcheck(x+(wid/2), y+(hei/2), filt, is_replay); \
+				}); \
+				break; \
+			case dithDots2: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) { \
+						constexpr int a2 = (CompileTimeArg+1)*2; \
+						return !(x%a2 || y%a2) || ((x%a2==CompileTimeArg+1) && (y%a2==CompileTimeArg+1)); \
+					} else { \
+						int a2 = (arg+1)*2; \
+						return !(x%a2 || y%a2) || ((x%a2==arg+1) && (y%a2==arg+1)); \
+					} \
+				}); \
+				break; \
+			case dithDots3: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) { \
+						constexpr int a2 = (CompileTimeArg+1)*2; \
+						return !(x%a2 || y%2) || ((x%a2==CompileTimeArg+1) && (y%2==1)); \
+					} else { \
+						int a2 = (arg+1)*2; \
+						return !(x%a2 || y%2) || ((x%a2==arg+1) && (y%2==1)); \
+					} \
+				}); \
+				break; \
+			case dithDots4: \
+				run_loop([&](int x, int y) ZC_LAMBDA_FORCE_INLINE -> bool { \
+					if constexpr(CompileTimeArg > 0) { \
+						constexpr int a2 = (CompileTimeArg+1)*2; \
+						return !(x%2 || y%a2) || ((x%2==1) && (y%a2==CompileTimeArg+1)); \
+					} else { \
+						int a2 = (arg+1)*2; \
+						return !(x%2 || y%a2) || ((x%2==1) && (y%a2==arg+1)); \
+					} \
+				}); \
+				break; \
+			default: \
+				run_loop([](int, int) ZC_LAMBDA_FORCE_INLINE { return true; }); \
+				break; \
+		} \
+	}; \
+	switch(arg) \
+	{ \
+		case 1:  execute_dither(std::integral_constant<int, 1>{});  break; \
+		case 2:  execute_dither(std::integral_constant<int, 2>{});  break; \
+		case 3:  execute_dither(std::integral_constant<int, 3>{});  break; \
+		case 4:  execute_dither(std::integral_constant<int, 4>{});  break; \
+		case 5:  execute_dither(std::integral_constant<int, 5>{});  break; \
+		case 8:  execute_dither(std::integral_constant<int, 8>{});  break; \
+		case 16: execute_dither(std::integral_constant<int, 16>{}); break; \
+		default: execute_dither(std::integral_constant<int, 0>{});  break; \
+	} \
+} while(0)
+
 
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color)
 {
@@ -356,18 +402,16 @@ void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color)
 	int32_t hei = zc_min(dest->h, src->h);
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
+		uint8_t* read_addr = src->line[ty];
+		uint8_t* write_addr = dest->line[ty];
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
-			if(bmp_read8(read_addr+tx))
+			if(read_addr[tx])
 			{
-				bmp_write8(write_addr+tx, color);
+				write_addr[tx] = (uint8_t)color;
 			}
 		}
 	}
-	bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
 }
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd)
 {
@@ -375,19 +419,17 @@ void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart,
 	int32_t hei = zc_min(dest->h, src->h);
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
+		uint8_t* read_addr = src->line[ty];
+		uint8_t* write_addr = dest->line[ty];
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
-			auto oldc = bmp_read8(read_addr+tx);
+			auto oldc = read_addr[tx];
 			if(oldc >= targStart && oldc <= targEnd)
 			{
-				bmp_write8(write_addr+tx, color);
+				write_addr[tx] = (uint8_t)color;
 			}
 		}
 	}
-	bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
 }
 void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats)
 {
@@ -400,21 +442,18 @@ void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats)
 	}
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t mask_addr = bmp_read_line(mask, ty);
-		uintptr_t pattern_addr = bmp_read_line(mask, ty % pattern->h);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
+		uint8_t* mask_addr = mask->line[ty];
+		uint8_t* pattern_addr = pattern->line[ty % pattern->h];
+		uint8_t* write_addr = dest->line[ty];
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
-			if(bmp_read8(mask_addr+tx))
+			if(mask_addr[tx])
 			{
-				auto color = bmp_read8(pattern_addr + (tx % pattern->w));
-				bmp_write8(write_addr+tx, color);
+				auto color = pattern_addr[tx % pattern->w];
+				write_addr[tx] = color;
 			}
 		}
 	}
-	bmp_unwrite_line(mask);
-	bmp_unwrite_line(pattern);
-	bmp_unwrite_line(dest);
 }
 void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_t targStart, int32_t targEnd)
 {
@@ -427,22 +466,19 @@ void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_
 	}
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t mask_addr = bmp_read_line(mask, ty);
-		uintptr_t pattern_addr = bmp_read_line(pattern, ty % pattern->h);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
+		uint8_t* mask_addr = mask->line[ty];
+		uint8_t* pattern_addr = pattern->line[ty % pattern->h];
+		uint8_t* write_addr = dest->line[ty];
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
-			auto oldc = bmp_read8(mask_addr+tx);
+			auto oldc = mask_addr[tx];
 			if(oldc >= targStart && oldc <= targEnd)
 			{
-				auto patternc = bmp_read8(pattern_addr + (tx % pattern->w));
-				bmp_write8(write_addr+tx, patternc);
+				auto patternc = pattern_addr[tx % pattern->w];
+				write_addr[tx] = patternc;
 			}
 		}
 	}
-	bmp_unwrite_line(mask);
-	bmp_unwrite_line(pattern);
-	bmp_unwrite_line(dest);
 }
 
 int dither_offx;
@@ -453,39 +489,51 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
 
-	for(int32_t ty = 0; ty < hei; ++ty)
+#ifdef IS_PLAYER
+	xoffs += dither_offx;
+	yoffs += dither_offy;
+#endif
+
+	DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func,
 	{
-		uintptr_t read_addr = src ? bmp_read_line(src, ty) : 0;
-		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int32_t tx = 0; tx < wid; ++tx)
+		for(int32_t ty = 0; ty < hei; ++ty)
 		{
-			if((!src || bmp_read8(read_addr+tx)) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			uint8_t* read_addr = src ? (uint8_t*)src->line[ty] : nullptr;
+			uint8_t* write_addr = (uint8_t*)dest->line[ty];
+			for(int32_t tx = 0; tx < wid; ++tx)
 			{
-				bmp_write8(write_addr+tx, color);
+				if((!read_addr || read_addr[tx]) && check_func(tx+xoffs,ty+yoffs))
+				{
+					write_addr[tx] = (uint8_t)color;
+				}
 			}
 		}
-	}
-	if(src) bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
+	});
 }
 void bmp_dither(BITMAP* dest, BITMAP* src, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
+#ifdef IS_PLAYER
+	xoffs += dither_offx;
+	yoffs += dither_offy;
+#endif
+
 	int32_t wid = zc_min(dest->w, src->w);
 	int32_t hei = zc_min(dest->h, src->h);
-	for(int32_t ty = 0; ty < hei; ++ty)
+	DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func,
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int32_t tx = 0; tx < wid; ++tx)
+		for(int32_t ty = 0; ty < hei; ++ty)
 		{
-			if(dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			uint8_t* read_addr = (uint8_t*)src->line[ty];
+			uint8_t* write_addr = (uint8_t*)dest->line[ty];
+			for(int32_t tx = 0; tx < wid; ++tx)
 			{
-				bmp_write8(write_addr+tx, bmp_read8(read_addr+tx));
+				if(check_func(tx+xoffs,ty+yoffs))
+				{
+					write_addr[tx] = read_addr[tx];
+				}
 			}
 		}
-	}
-	bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
+	});
 }
 void custom_bmp_dither(BITMAP* dest, BITMAP* src, std::function<bool(int,int,int,int)> proc)
 {
@@ -493,41 +541,45 @@ void custom_bmp_dither(BITMAP* dest, BITMAP* src, std::function<bool(int,int,int
 	int32_t hei = zc_min(dest->h, src->h);
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
+		uint8_t* read_addr = (uint8_t*)src->line[ty];
+		uint8_t* write_addr = (uint8_t*)dest->line[ty];
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
 			if(proc(tx,ty,wid,hei))
 			{
-				bmp_write8(write_addr+tx, bmp_read8(read_addr+tx));
+				write_addr[tx] = read_addr[tx];
 			}
 		}
 	}
-	bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
 }
 
 void ditherblit_clipped(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
+#ifdef IS_PLAYER
+	xoffs += dither_offx;
+	yoffs += dither_offy;
+#endif
+
 	int32_t wid = std::min(dest->w, src->w);
 	int32_t hei = std::min(dest->h, src->h);
 	int32_t max_x = std::min(wid, src->cr);
 	int32_t max_y = std::min(hei, src->cb);
 
-	for(int32_t ty = dest->ct; ty < max_y; ++ty)
+	DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func,
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
-		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int32_t tx = dest->cl; tx < max_x; ++tx)
+		for(int32_t ty = dest->ct; ty < max_y; ++ty)
 		{
-			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			uint8_t* read_addr = (uint8_t*)src->line[ty];
+			uint8_t* write_addr = (uint8_t*)dest->line[ty];
+			for(int32_t tx = dest->cl; tx < max_x; ++tx)
 			{
-				bmp_write8(write_addr+tx, color);
+				if(read_addr[tx] && check_func(tx+xoffs,ty+yoffs))
+				{
+					write_addr[tx] = (uint8_t)color;
+				}
 			}
 		}
-	}
-	bmp_unwrite_line(src);
-	bmp_unwrite_line(dest);
+	});
 }
 
 static BITMAP* dither_tmp_bmp = nullptr;
@@ -541,6 +593,11 @@ void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t col
 void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 	byte dType, byte dArg, int xoffs, int yoffs, optional<int> inv_color)
 {
+#ifdef IS_PLAYER
+	xoffs += dither_offx;
+	yoffs += dither_offy;
+#endif
+
 	if(x1 > x2) zc_swap(x1,x2);
 	if(y1 > y2) zc_swap(y1,y2);
 	int wid = zc_min(x2-x1+1, dest->w-x1);
@@ -551,16 +608,20 @@ void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 	int ystart = zc_max(0, y1);
 	int yend = y1 + hei;
 
-	for(int ty = ystart; ty < yend; ++ty)
+	DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func,
 	{
-		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int tx = xstart; tx < xend; ++tx)
-			if(dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
-				bmp_write8(write_addr+tx, color);
-			else if(inv_color)
-				bmp_write8(write_addr+tx, *inv_color);
-	}
-	bmp_unwrite_line(dest);
+		for(int ty = ystart; ty < yend; ++ty)
+		{
+			uint8_t* write_addr = (uint8_t*)dest->line[ty];
+			for(int tx = xstart; tx < xend; ++tx)
+			{
+				if(check_func(tx + xoffs, ty + yoffs))
+					write_addr[tx] = (uint8_t)color;
+				else if(inv_color)
+					write_addr[tx] = (uint8_t)*inv_color;
+			}
+		}
+	});
 }
 
 void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color)
