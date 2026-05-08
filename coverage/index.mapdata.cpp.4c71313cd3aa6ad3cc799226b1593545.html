@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-06 07:40:01</td>
+      <td>2026-05-08 08:21:50</td>
     </tr>
   </table>
 </div>
@@ -263,10 +263,10 @@
     <tr><td><a href="#l1437">auto $_39::operator()() const::&#39;lambda&#39;(auto, int, int)::operator()&lt;mapscr*&gt;(auto, int, int) const (line 1437)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l210">create_mapdata_temp_ref(mapdata_type, int, int) (line 210)</a></td><td>called 3576743 times, returned 3576743 times</td><td>85.0%</td></tr>
     <tr><td><a href="#l142">decode_mapdata_ref(int) (line 142)</a></td><td>called 146589235 times, returned 146589235 times</td><td>57.0%</td></tr>
-    <tr><td><a href="#l48">mapdata::max_pos() (line 48)</a></td><td>called 142144724 times, returned 142144724 times</td><td>83.0%</td></tr>
-    <tr><td><a href="#l124">mapdata::resolve_ffc(int) (line 124)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l111">mapdata::resolve_ffc_handle(int) (line 111)</a></td><td>called 3023863 times, returned 3023863 times</td><td>57.0%</td></tr>
-    <tr><td><a href="#l59">mapdata::resolve_pos(int) (line 59)</a></td><td>called 142144722 times, returned 142144722 times</td><td>43.0%</td></tr>
+    <tr><td><a href="#l48">mapdata::max_pos() const (line 48)</a></td><td>called 142144724 times, returned 142144724 times</td><td>83.0%</td></tr>
+    <tr><td><a href="#l124">mapdata::resolve_ffc(int) const (line 124)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l111">mapdata::resolve_ffc_handle(int) const (line 111)</a></td><td>called 3023863 times, returned 3023863 times</td><td>57.0%</td></tr>
+    <tr><td><a href="#l59">mapdata::resolve_pos(int) const (line 59)</a></td><td>called 142144722 times, returned 142144722 times</td><td>43.0%</td></tr>
     <tr><td><a href="#l224">mapdata_get_register(int) (line 224)</a></td><td>called 570118 times, returned 570118 times</td><td>9.0%</td></tr>
     <tr><td><a href="#l556">mapdata_set_register(int, int) (line 556)</a></td><td>called 736 times, returned 736 times</td><td>11.0%</td></tr>
     <tr><td><a href="#l1653">resolve_ffc_for_scripting_index(mapdata*, int) (line 1653)</a></td><td>called 1701855 times, returned 1701855 times</td><td>100.0%</td></tr>
@@ -649,7 +649,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">142144724</td>
-      <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">max_pos</span><span class="p">()</span></td>
+      <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">max_pos</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
@@ -740,7 +740,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">142144722</td>
-      <td class="src coveredLine"><span class="n">rpos_handle_t</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_pos</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="n">rpos_handle_t</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_pos</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
@@ -1148,7 +1148,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3023863</td>
-      <td class="src coveredLine"><span class="n">ffc_handle_t</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_ffc_handle</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="n">ffc_handle_t</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_ffc_handle</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
@@ -1255,7 +1255,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">ffcdata</span><span class="o">*</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_ffc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="n">ffcdata</span><span class="o">*</span><span class="w"> </span><span class="n">mapdata</span><span class="o">::</span><span class="n">resolve_ffc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l125" href="#l125">125</a></td>
