@@ -1102,6 +1102,8 @@ static GUI::ListData compatRulesList
 		"When enabled, the Map will not spoil darkrooms."
 		"When disabled, for New Darkrooms, it will draw the proper darkness-"
 		" for old darkrooms, they will simply be blacked-out." },
+	{ "BS Overworld Ignores Map", qr_BS_OW_IGNORES_MAP_ITEM,
+		"When enabled, BS Overworlds will show rooms marked on the map even without that level's Map item." },
 };
 
 static GUI::ListData enemiesRulesList
