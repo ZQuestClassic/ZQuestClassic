@@ -1990,7 +1990,11 @@ int32_t init_game()
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 
-	mark_visited(cur_screen);
+	if (game->get_regionmapping() == REGION_MAPPING_FULL && is_in_scrolling_region())
+		for_every_base_screen_in_region([&](mapscr*, unsigned int x, unsigned int y) {
+			mark_visited(cur_screen + x + y*16);
+		});
+	else mark_visited(cur_screen);
 
 	Hero.init();
 	if (use_testingst_start
