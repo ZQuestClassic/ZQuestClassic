@@ -6,6 +6,7 @@
 #include "core/misctypes.h"
 
 extern miscQdata QMisc;
+void mark_save_dirty();
 
 bool call_mapstyles_dialog()
 {
@@ -160,6 +161,7 @@ bool MapStylesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		QMisc.colors.blueframe_tile = local_mapstyles.blueframe_tile;
 		QMisc.colors.HCpieces_tile = local_mapstyles.HCpieces_tile;
 		QMisc.colors.HCpieces_cset = local_mapstyles.HCpieces_cset;
+		mark_save_dirty();
 		[[fallthrough]];
 	case message::CANCEL:
 		return true;
