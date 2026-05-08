@@ -9984,13 +9984,21 @@ void domouse()
 					}
 					
 					tooltip_current_ffc = i;
-					char msg[1024] = {0};
+
+					std::ostringstream oss;
 					auto& ff = Map.CurrScr()->ffcs[i];
-					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, ff.data,ff.data,
-							combo_class_buf[combobuf[ff.data].type].name,
-							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
-					ttip_install(mapscr_tooltip_id, msg, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, x, y);
+					oss << "FFC: " << (i+1) <<
+						" Combo: " << ff.data <<
+						" CSet: " << int(ff.cset);
+					newcombo const& cmb = combobuf[ff.data];
+					if (cmb.type)
+						oss << "\nType: " << combo_class_buf[cmb.type].name;
+					if (ff.script > 0)
+						oss << "\nScript: " << ffcmap[ff.script-1].scriptname.substr(0,400).c_str();
+					if (!cmb.label.empty())
+						oss << "\nLabel: " << cmb.label;
+
+					ttip_install(mapscr_tooltip_id, oss.str().c_str(), startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, x, y);
 					did_ffttip = true;
 					break;
 				}
