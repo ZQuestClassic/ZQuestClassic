@@ -2869,7 +2869,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 
             if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
             {
-                drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
+                auto unvis_color = (get_qr(qr_BS_OW_IGNORES_MAP_ITEM) || has_item(itype_map, -1)) ? c.bs_goal : -1;
+                drawgrid(dest,tx+8,ty+8,unvis_color,c.bs_dk);
             }
 
             break;
