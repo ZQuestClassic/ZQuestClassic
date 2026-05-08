@@ -12360,14 +12360,27 @@ vector<int> CScriptDrawingCommands::get_dirty_layers_in_range(int min, int max)
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* scr, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
-	if(get_qr(qr_CLASSIC_DRAWING_ORDER))
+	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
+	if (!old_layer_draw_order)
+	{
+		do_primitives(targetBitmap, -7, xoff, yoff);
+		do_primitives(targetBitmap, -6, xoff, yoff);
+		do_primitives(targetBitmap, -5, xoff, yoff);
+		do_primitives(targetBitmap, -4, xoff, yoff);
+	}
+	if(old_layer_draw_order)
 		if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 			do_primitives(targetBitmap, 2, xoff, yoff);
 	if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 		do_primitives(targetBitmap, 3, xoff, yoff);
-	if(!get_qr(qr_CLASSIC_DRAWING_ORDER))
+	if(!old_layer_draw_order)
+	{
+		do_primitives(targetBitmap, -3, xoff, yoff);
 		if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 			do_primitives(targetBitmap, 2, xoff, yoff);
+		do_primitives(targetBitmap, -2, xoff, yoff);
+		do_primitives(targetBitmap, -1, xoff, yoff);
+	}
 	do_primitives(targetBitmap, 0, xoff, yoff);
 	do_primitives(targetBitmap, 1, xoff, yoff);
 	if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))

@@ -3610,7 +3610,7 @@ int32_t onSaveMapPic()
 	
 	// draw the map
 	
-	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
@@ -3631,11 +3631,11 @@ int32_t onSaveMapPic()
 			int xx = 0;
 			int yy = -playing_field_offset;
 			
-			if (!classic_draw)
+			if (!old_layer_draw_order)
 				for (int layer = -7; layer <= -4; ++layer)
 					do_ffc_layer(_screen_draw_buffer, layer, screen_handles[0], xx, yy);
 
-			if(classic_draw)
+			if(old_layer_draw_order)
 			{
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
@@ -3646,7 +3646,7 @@ int32_t onSaveMapPic()
 				do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
 			do_ffc_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy);
 
-			if(!classic_draw)
+			if(!old_layer_draw_order)
 			{
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 					do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);

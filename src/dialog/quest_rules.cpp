@@ -88,9 +88,7 @@ static GUI::ListData animRulesList
 {
 	{ "Classic Drawing Order", qr_CLASSIC_DRAWING_ORDER,
 		"When enabled, uses the classic drawing order code."
-		" When disabled, uses the newer drawing code, which has several effects:"
-		"\n- 'Negative' layers draw in the proper order (-3 is behind -2)"
-		"\n- Scripts can draw to layers '-1' through '-7' to draw in the BG"
+		" When disabled, uses the newer drawing code, which changes:"
 		"\n- Sprites (enemies, weapons, player, etc) are drawn in their Z-order."
 		" This means that higher enemies will be drawn above lower enemies."
 		"\n- Several special script 'layer timings', notably sprite related ones"
@@ -1009,8 +1007,7 @@ static GUI::ListData compatRulesList
 		" If disabled, icy floor takes effect underneath your feet (the combo you are *standing on*) instead." },
 	{ "Strings on Layer 6 Draw Above Layer 7", qr_LAYER6_STRINGS_OVER_SUBSCREEN,
 		"If enabled, message strings set to draw to layer '6' will actually draw over the subscreen and layer 7 script draws."
-		"\nIf disabled, these strings draw directly UNDER the subscreen instead."
-		"\nHas no effect at all if `Subscreen Appears Above Sprites` is unchecked." + QRHINT({qr_SUBSCREENOVERSPRITES})},
+		"\nIf disabled, these strings draw directly UNDER the subscreen instead." },
 	{ "Broken System Colors", qr_BROKEN_SYSTEM_COLORS,
 		"If enabled, subscreen editor 'system colors' will simply use cset 14's colors,"
 		" which will look different in the editor than the player, and is not consistent."
@@ -1097,6 +1094,10 @@ static GUI::ListData compatRulesList
 		"If enabled, weapons will use a hardcoded 16x16 hitbox with no offset for sideview gravity." },
 	{ "Broken Pushblock Trigger Groups", qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS,
 		"If enabled, moving Pushblocks will not count towards trigger groups." },
+	{ "Old Layer Draw Order", qr_OLD_LAYER_DRAW_ORDER,
+		"When enabled, layer -3 drwas in front of layer -2, and script draws / FFCs"
+		" cannot directly use layers -1 to -7. Also, layer 7 script draws will only work if"
+		" 'Subscreen Appears Above Sprites' is also enabled." },
 };
 
 static GUI::ListData enemiesRulesList
