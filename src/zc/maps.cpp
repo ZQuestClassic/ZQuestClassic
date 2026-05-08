@@ -4713,6 +4713,7 @@ static void draw_screen_post_passive_subscreen(BITMAP* dest, bool any_dark, cons
 void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSeparate)
 {
 	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
@@ -4733,7 +4734,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 
 	auto nearby_screens = get_nearby_screens();
 	
-	if (!classic_draw)
+	if (!old_layer_draw_order)
 	{
 		for (int layer = -7; layer <= -4; ++layer)
 		{
@@ -4744,7 +4745,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	}
 	
 	// Handle layer 2/3 possibly being background layers.
-	if (classic_draw) // weird ordering (-3 > -2)
+	if (old_layer_draw_order) // weird ordering (-3 > -2)
 	{
 		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].base_scr;
@@ -4778,7 +4779,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	if (XOR(origin_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 		draw_msgstr(3, scrollbuf);
 	
-	if (!classic_draw)
+	if (!old_layer_draw_order)
 	{
 		do_primitives(scrollbuf, -3);
 		// Actually use proper ordering (-3 < -2)
@@ -5461,7 +5462,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		if (drawPassiveSubscreenSeparate)
 			do_primitives(framebuf_no_passive_subscreen, 7);
 	}
-	else if (!classic_draw)
+	else if (!old_layer_draw_order)
 		do_primitives(dest, 7);
 
 	draw_screen_post_passive_subscreen(dest, any_dark, nearby_screens);
@@ -6997,7 +6998,7 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 	
 	bool over = XOR(scr->flags7&fLAYER2BG,DMaps[cur_dmap].flags&dmfLAYER2BG)
 		|| XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)
-		|| !get_qr(qr_CLASSIC_DRAWING_ORDER);
+		|| !get_qr(qr_OLD_LAYER_DRAW_ORDER);
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);
@@ -7958,7 +7959,7 @@ void ViewMap()
 	BITMAP* screen_bmp = create_bitmap_ex(8, 256, 176);
 	combotile_add_x = 256;
 	combotile_add_y = 0;
-	bool classic_draw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool old_layer_draw_order = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
@@ -7979,11 +7980,11 @@ void ViewMap()
 			int xx = 0;
 			int yy = -playing_field_offset;
 			
-			if (!classic_draw)
+			if (!old_layer_draw_order)
 				for (int layer = -7; layer <= -4; ++layer)
 					do_ffc_layer(screen_bmp, layer, screen_handles[0], xx, yy);
 			
-			if(classic_draw)
+			if(old_layer_draw_order)
 			{
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 					do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
@@ -7994,7 +7995,7 @@ void ViewMap()
 				do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
 			do_ffc_layer(screen_bmp, -3, screen_handles[0], xx, yy);
 			
-			if(!classic_draw)
+			if(!old_layer_draw_order)
 			{
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 					do_layer(screen_bmp, 0, screen_handles[2], xx, yy);

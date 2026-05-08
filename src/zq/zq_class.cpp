@@ -2765,7 +2765,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 {
 	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
-	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool olddraw = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	
 	if(map<0)
 		map=cursor.map;
@@ -2810,7 +2810,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		return;
 	}
 	
-	if(LayerMaskInt[0]==0 || !get_qr(qr_CLASSIC_DRAWING_ORDER))
+	if(LayerMaskInt[0]==0 || !get_qr(qr_OLD_LAYER_DRAW_ORDER))
 	{
 		byte bgfill = 0;
 		if (LayerDitherBG > -1)
@@ -3125,7 +3125,7 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 		rectfill(dest,x,y,x+255,y+15,0);
 	}
 	
-	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool olddraw = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	int order[2] = {2,1};
 	if (olddraw) zc_swap(order[0],order[1]);
 	for(int k : order)
@@ -3425,7 +3425,7 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		rectfill(dest,x,y,x+15,y+175,0);
 	}
 	
-	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool olddraw = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	int order[2] = {2,1};
 	if (olddraw) zc_swap(order[0],order[1]);
 	for(int k : order)
@@ -3703,7 +3703,7 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		rectfill(dest,x,y,x+15,y+15,0);
 	}
 	
-	bool olddraw = get_qr(qr_CLASSIC_DRAWING_ORDER);
+	bool olddraw = get_qr(qr_OLD_LAYER_DRAW_ORDER);
 	int order[2] = {2,1};
 	if (olddraw) zc_swap(order[0],order[1]);
 	for(int k : order)
