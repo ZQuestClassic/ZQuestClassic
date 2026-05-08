@@ -2265,6 +2265,11 @@ void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t
 
 void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t bg_color, int32_t vis_color)
 {
+	// treat 255 as invisible
+	if (unvis_color == 255) unvis_color = -1;
+	if (bg_color == 255) bg_color = -1;
+	if (vis_color == 255) vis_color = -1;
+	
 	if (unvis_color < 0 && bg_color < 0 && vis_color < 0)
 		return;
 
