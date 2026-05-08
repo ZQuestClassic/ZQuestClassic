@@ -1,7 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+#include "base/compiler.h"
 #include "base/headers.h"
+#include "base/zc_math.h"
 
 struct newcombo;
 
@@ -32,7 +34,29 @@ enum dithType
 	dithDots4, dithDots4Inv,
 	dithMax
 };
-bool dither_staticcheck(int x, int y, double percentage);
+ZC_FORCE_INLINE bool dither_staticcheck(int x, int y, double filt, bool replay)
+{
+	double s, c;
+	if (replay)
+	{
+		s = zc::math::Sin((double)((x*double(x))+(y*double(y))));
+		c = zc::math::Cos((double(x)*y));
+	}
+	else
+	{
+		s = std::sin((double)((x*double(x))+(y*double(y))));
+		c = std::cos((double(x)*y));
+	}
+	return std::abs(s - c) < filt;
+}
+
+bool replay_is_active();
+
+ZC_FORCE_INLINE bool dither_staticcheck(int x, int y, double percentage)
+{
+	return dither_staticcheck(x, y, percentage * 2.0, replay_is_active());
+}
+
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color);
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd);
 void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats);
