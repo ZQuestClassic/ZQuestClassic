@@ -845,6 +845,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_OLD_LAYER_DRAW_ORDER, get_qr(qr_CLASSIC_DRAWING_ORDER));
 		set_qr(qr_MAP_SPOILS_DARKROOMS, 1);
+		set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
 	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
