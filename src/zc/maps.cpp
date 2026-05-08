@@ -7972,6 +7972,7 @@ void ViewMap()
 			mapscr* scr = &scrs[0];
 			if (!scr->is_valid())
 				continue;
+			clear_bitmap(screen_bmp);
 
 			screen_handles_t screen_handles;
 			for (int i = 0; i <= 6; i++)
