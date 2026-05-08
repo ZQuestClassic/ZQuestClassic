@@ -612,6 +612,8 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 					ret=(zc_oldrand()*1000)%256;
 					break;
 			}
+			if (ret == 255)
+				ret = -1;
 			
 			break;
 			
@@ -2860,16 +2862,16 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
             {
                 draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
             }
-            else
+            else if(c.overw_bg != 255)
             {
                 rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
             }
-            
+
             if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
             {
                 drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
             }
-            
+
             break;
         }
         case dmDNGN:
@@ -2886,7 +2888,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
             {
                 draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
             }
-            else
+            else if(c.dngn_bg != 255)
             {
                 rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
             }
@@ -2902,7 +2904,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
                     drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
                 }
             }
-            
+
             break;
 		}
         }
@@ -2921,7 +2923,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
                     
                 int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
                 int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
-                putdot(dest,cx,cy,c2);
+                if (c2 >= 0 && c2 < 255)
+                    putdot(dest,cx,cy,c2);
             }
         }
     }
@@ -2934,7 +2937,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 
     if(showplr)
     {
-        if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
+        if(show_subscreen_dmap_dots && c_plr.get_color() < 255 && c_plr.get_color() >= 0)
         {
             if(type==dmOVERW)
             {

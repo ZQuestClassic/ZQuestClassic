@@ -2268,30 +2268,37 @@ void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t
 
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
+    // treat 255 as invisible
+    if (c1 == 255) c1 = -1;
+    if (c2 == 255) c2 = -1;
+
+    if (c1 < 0 && c2 < 0)
+        return;
+
     int32_t si=0;
-    
+
     for(int32_t y2=0; y2<=7; ++y2)
     {
         byte dl = DMaps[get_sub_dmap()].grid[si];
-        
+
         for(int32_t x2=0; x2<=7; ++x2)
         {
-            if(c2==-1)
+            if(c2<0)
             {
-                if(dl&0x80)
+                if((dl&0x80) && c1>=0)
                     rectfill(dest,(x2*8)+x,(y2*4)+y,(x2*8)+x+6,(y2*4)+y+2,c1);
             }
             else
             {
                 rectfill(dest,(x2*8)+x,(y2*4)+y,(x2*8)+x+6,(y2*4)+y+2,c2);
-                
-                if(dl&0x80)
+
+                if((dl&0x80) && c1>=0)
                     rectfill(dest,(x2*8)+x+2,(y2*4)+y,(x2*8)+x+4,(y2*4)+y+2,c1);
             }
-            
+
             dl<<=1;
         }
-        
+
         ++si;
     }
 }
