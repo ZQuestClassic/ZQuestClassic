@@ -500,6 +500,7 @@ class hero {
 
 	// The [lweapon] currently held by the player. Overwriting this directly will delete any [lweapon] previously held.
 	// If an [lweapon] script lifts itself, this also functions as a [Waitframe].
+	// LWeapons do not run their scripts while in the player's hands.
 	//
 	// @zasm_var HEROLIFTEDWPN
 	internal lweapon LiftedWeapon;
@@ -879,6 +880,7 @@ class hero {
 	
 	// Causes the player to lift the specified [lweapon] in the same way they lift combos with the Lift Glove.
 	// If an [lweapon] script lifts itself, this also functions as a [Waitframe].
+	// LWeapons do not run their scripts while in the player's hands.
 	//
 	// @zasm
 	//   HEROLIFTGRAB
