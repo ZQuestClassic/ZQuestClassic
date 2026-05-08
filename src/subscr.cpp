@@ -2285,12 +2285,13 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
 
 			int x_1 = x2 * 8, x_2 = x_1 + 6;
 			int y_1 = y2 * 4, y_2 = y_1 + 2;
+			bool left = false, right = false;
 			if (!oob && reg.get_region_id(scrid) != 0)
 			{
 				//bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid - 0x10);
 				bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid + 0x10);
-				bool left = (scrid & 0xF) && reg.is_same_region(scrid, scrid - 1);
-				bool right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid + 1);
+				left = (scrid & 0xF) && reg.is_same_region(scrid, scrid - 1);
+				right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid + 1);
 
 				// no if(top) because it would be '-= 0' currently
 				if (bottom)
@@ -2307,8 +2308,10 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
 			if (bg_color > -1)
 			{
 				rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, bg_color);
-				x_1 += 2;
-				x_2 -= 2;
+				if (!left)
+					x_1 += 2;
+				if (!right)
+					x_2 -= 2;
 			}
 			if ((dl & (0x80 >> x2)) && fg_color > -1)
 				rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, fg_color);
