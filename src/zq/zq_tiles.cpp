@@ -344,16 +344,16 @@ static optional<TileMoveUndo> last_tile_move_list;
 int refl_flags = 0;
 enum
 {
-	REFL_90CW, REFL_HFLIP,
-	REFL_90CCW, REFL_VFLIP,
-	REFL_180, REFL_DBLFLIP,
+	REFL_90CW, REFL_HFLIP, REFL_VFLIP,
+	REFL_90CCW, REFL_POS_DIAGFLIP, REFL_NEG_DIAGFLIP,
+	REFL_180, REFL_TRANSLATE,
 	REFL_MAX
 };
-const char *reflbtn_names[] =
+const char *reflbtn_names[REFL_MAX] =
 {
-	"90 CW", "HFlip",
-	"90 CCW", "VFlip",
-	"180 Rot", "Diag Flip"
+	"90 CW", "HFlip", "VFlip",
+	"90 CCW", "+Diag Flip", "-Diag Flip",
+	"180 Rot", "Translate",
 };
 int bgmode = 0, xmode = 0;
 const char *bgmodebtn_names[] =
@@ -1245,9 +1245,9 @@ size_and_pos x_btn(890,5,15,13);
 size_and_pos info_btn(872,5,15,13);
 size_and_pos hidegrid_cbox(124,552,16,16);
 size_and_pos quartgrid_cbox(124,572,16,16);
-size_and_pos reflbtn_grid(124,610,2,3,71,21);
-size_and_pos xmodebtn_grid(300,610,1,2,90,21);
-size_and_pos bgmodebtn_grid(390,610,1,2,90,21);
+size_and_pos reflbtn_grid(124,610,3,3,75,21);
+size_and_pos xmodebtn_grid(124+75*3+8,610,1,2,75,21);
+size_and_pos bgmodebtn_grid(124+75*3+8+75,610,1,2,75,21);
 
 int32_t c1=1;
 int32_t c2=0;
@@ -3088,22 +3088,38 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					select_mode = 1;
 				if(qgrid_tool(tool))
 				{
-					if(refl_flags & (1<<REFL_HFLIP))
-						if(__pixel_draw(15-x,y,tile,flip))
+					if (refl_flags & (1<<REFL_HFLIP))
+						if (__pixel_draw(15-x,y,tile,flip))
 							reset_draw = true;
-					if(refl_flags & (1<<REFL_VFLIP))
-						if(__pixel_draw(x,15-y,tile,flip))
+					if (refl_flags & (1<<REFL_VFLIP))
+						if (__pixel_draw(x,15-y,tile,flip))
 							reset_draw = true;
-					//Diagonal flip and 180° rotation are the same!
-					if(refl_flags & ((1<<REFL_DBLFLIP)|(1<<REFL_180)))
-						if(__pixel_draw(15-x,15-y,tile,flip))
+					if (refl_flags & (1<<REFL_180))
+						if (__pixel_draw(15-x,15-y,tile,flip))
 							reset_draw = true;
-					if(refl_flags & (1<<REFL_90CW))
-						if(__pixel_draw(15-y,x,tile,flip))
+					if (refl_flags & (1<<REFL_90CW))
+						if (__pixel_draw(15-y,x,tile,flip))
 							reset_draw = true;
-					if(refl_flags & (1<<REFL_90CCW))
-						if(__pixel_draw(y,15-x,tile,flip))
+					if (refl_flags & (1<<REFL_90CCW))
+						if (__pixel_draw(y,15-x,tile,flip))
 							reset_draw = true;
+					if (refl_flags & (1<<REFL_POS_DIAGFLIP))
+						if (__pixel_draw(15-y,15-x,tile,flip))
+							reset_draw = true;
+					if (refl_flags & (1<<REFL_NEG_DIAGFLIP))
+						if (__pixel_draw(y,x,tile,flip))
+							reset_draw = true;
+					if (refl_flags & (1<<REFL_TRANSLATE))
+					{
+						if (__pixel_draw(x%8,y%8,tile,flip))
+							reset_draw = true;
+						if (__pixel_draw(x%8,y%8+8,tile,flip))
+							reset_draw = true;
+						if (__pixel_draw(x%8+8,y%8,tile,flip))
+							reset_draw = true;
+						if (__pixel_draw(x%8+8,y%8+8,tile,flip))
+							reset_draw = true;
+					}
 				}
 				select_mode = tmp_sel_mode;
 			}
