@@ -6,6 +6,8 @@
 #include "new_subscr.h"
 #include "zq/zq_subscr.h"
 
+using std::string;
+
 #define MISC_COLOR_SEL( txt, num, basec1, basec2) \
 Frame( \
 	title = txt, \
@@ -105,11 +107,208 @@ struct TileBlockLayerData
 	int16_t required_floor = -1, required_level = -1;
 	
 	bool invert_litem, any_litem, invert_scrstate, any_scrstate, invert_lstate, any_lstate;
+	TileBlockLayerData() = default;
+	
+	TileBlockLayerData(json const& data)
+	{
+		data.at("you_are_here").get_to(you_are_here);
+		data.at("req_litems").get_to(required_litems);
+		data.at("req_scr_states").get_to(required_scr_states);
+		data.at("req_ex_states").get_to(required_ex_states);
+		data.at("req_lstate").get_to(required_lstate);
+		data.at("req_floor").get_to(required_floor);
+		data.at("req_level").get_to(required_level);
+		data.at("invert_litem").get_to(invert_litem);
+		data.at("any_litem").get_to(any_litem);
+		data.at("invert_scrstate").get_to(invert_scrstate);
+		data.at("any_scrstate").get_to(any_scrstate);
+		data.at("invert_lstate").get_to(invert_lstate);
+		data.at("any_lstate").get_to(any_lstate);
+		for (auto const& inner_arr : data.at("tile_data"))
+		{
+			vector<TilePickerData>& inner_vec = tile_data.emplace_back();
+			for (auto const& inner_data : inner_arr)
+			{
+				TilePickerData& picker_data = inner_vec.emplace_back();
+				inner_data.at("tile").get_to(picker_data.tile);
+				inner_data.at("cset").get_to(picker_data.cset);
+				inner_data.at("flip").get_to(picker_data.flip);
+			}
+		}
+	}
+	json serialize() const
+	{
+		json data;
+		data["you_are_here"] = you_are_here;
+		data["req_litems"] = required_litems;
+		data["req_scr_states"] = required_scr_states;
+		data["req_ex_states"] = required_ex_states;
+		data["req_lstate"] = required_lstate;
+		data["req_floor"] = required_floor;
+		data["req_level"] = required_level;
+		data["invert_litem"] = invert_litem;
+		data["any_litem"] = any_litem;
+		data["invert_scrstate"] = invert_scrstate;
+		data["any_scrstate"] = any_scrstate;
+		data["invert_lstate"] = invert_lstate;
+		data["any_lstate"] = any_lstate;
+		json picker_arr = json::array();
+		for (auto const& vec : tile_data)
+		{
+			json inner_arr = json::array();
+			for (auto const& picker_data : vec)
+			{
+				json inner_data;
+				inner_data["tile"] = picker_data.tile;
+				inner_data["cset"] = picker_data.cset;
+				inner_data["flip"] = picker_data.flip;
+				inner_arr += inner_data;
+			}
+			picker_arr += inner_arr;
+		}
+		data["tile_data"] = picker_arr;
+		return data;
+	}
 };
 
 static vector<TileBlockLayerData> tileblock_sets;
 static optional<TileBlockLayerData> copied_tileblock_set;
 static size_t tab_ptrs[1];
+
+class subwizard_exception : public std::exception
+{
+public:
+	const char* what() const noexcept override
+	{
+		return msg.c_str();
+	}
+	subwizard_exception(string const& msg) : msg(msg)
+	{}
+private:
+	string msg;
+};
+
+static string get_subwizard_type_name(subwizardtype ty)
+{
+	switch (ty)
+	{
+		case subwizardtype::SW_ITEM_GRID:
+			return "Item Grid";
+		case subwizardtype::SW_COUNTER_BLOCK:
+			return "Counter Block";
+		case subwizardtype::SW_MAP_TILEBLOCK:
+			return "Map Tile Grid";
+		default:
+			return "INVALID";
+	}
+}
+json SubscreenWizardDialog::save_json()
+{
+	json data;
+	string ty = get_subwizard_type_name(wizard_type);
+	data["type"] = ty;
+	switch (wizard_type)
+	{
+		case subwizardtype::SW_MAP_TILEBLOCK:
+		{
+			data["x"] = int(basex);
+			data["y"] = int(basey);
+			data["start_pos"] = tf_values[wizard_index][0];
+			data["xspace"] = tf_values[wizard_index][1];
+			data["yspace"] = tf_values[wizard_index][2];
+			data["map"] = tf_values[wizard_index][3];
+			data["screen"] = tf_values[wizard_index][4];
+			data["level"] = tf_values[wizard_index][5];
+			data["w"] = tf_values[wizard_index][6];
+			data["h"] = tf_values[wizard_index][7];
+			data["overlay"] = cbvals[wizard_index][0];
+			data["transparent"] = cbvals[wizard_index][1];
+			data["connections"] = rs_sel[wizard_index][0];
+			json tblock_sets = json::array();
+			for (auto const& tblock : tileblock_sets)
+				tblock_sets += tblock.serialize();
+			data["data_layers"] = tblock_sets;
+			break;
+		}
+		default:
+			throw subwizard_exception(fmt::format("Invalid subwizard type '{}'", ty));
+	}
+	return data;
+}
+void SubscreenWizardDialog::load_json(const json& data)
+{
+	if (!data.contains("type"))
+		throw subwizard_exception("Invalid json; no 'type' field");
+	string ty = data["type"].get<string>();
+	if (ty != get_subwizard_type_name(wizard_type))
+		throw subwizard_exception(fmt::format("Type '{}' is invalid for the '{}' type dialog!", ty, get_subwizard_type_name(wizard_type)));
+	switch (wizard_type)
+	{
+		case subwizardtype::SW_MAP_TILEBLOCK:
+		{
+			data.at("x").get_to(basex);
+			data.at("y").get_to(basey);
+			data.at("start_pos").get_to(tf_values[wizard_index][0]);
+			data.at("xspace").get_to(tf_values[wizard_index][1]);
+			data.at("yspace").get_to(tf_values[wizard_index][2]);
+			data.at("map").get_to(tf_values[wizard_index][3]);
+			data.at("screen").get_to(tf_values[wizard_index][4]);
+			data.at("level").get_to(tf_values[wizard_index][5]);
+			data.at("w").get_to(tf_values[wizard_index][6]);
+			data.at("h").get_to(tf_values[wizard_index][7]);
+			data.at("overlay").get_to(cbvals[wizard_index][0]);
+			data.at("transparent").get_to(cbvals[wizard_index][1]);
+			data.at("connections").get_to(rs_sel[wizard_index][0]);
+			tileblock_sets.clear();
+			for (auto const& tblock : data["data_layers"])
+				tileblock_sets.emplace_back(tblock);
+			refresh_dlg();
+			break;
+		}
+		default:
+			throw subwizard_exception(fmt::format("Type '{}' is not implemented for json save/load!", ty));
+	}
+}
+void SubscreenWizardDialog::load_json_clipboard()
+{
+	string str;
+	try
+	{
+		json tmp = save_json();
+		try
+		{
+			if (!get_al_clipboard(str))
+				throw subwizard_exception("No text found on clipboard!");
+			json data = json::parse(str, nullptr, false);
+			load_json(data);
+		}
+		catch (std::exception const& e)
+		{
+			InfoDialog("Error", fmt::format("Failed to load JSON from clipboard!\nError: {}", e.what())).show();
+			load_json(tmp);
+		}
+	}
+	catch (std::exception const& e)
+	{
+		string emsg(e.what());
+		if (!emsg.starts_with("Invalid subwizard type"))
+			emsg = fmt::format("Unexpected error! {}", emsg);
+		InfoDialog("Error", emsg).show();
+	}
+}
+void SubscreenWizardDialog::save_json_clipboard()
+{
+	try
+	{
+		json data = save_json();
+		set_al_clipboard(data.dump((key[KEY_LSHIFT]||key[KEY_RSHIFT]) ? 4 : -1));
+		InfoDialog("Copied", "Saved data to clipboard!").show();
+	}
+	catch (std::exception const& e)
+	{
+		InfoDialog("Error", fmt::format("Failed to save JSON to clipboard!\nError: {}", e.what())).show();
+	}
+}
 
 bool SubscreenWizardDialog::finalize()
 {
@@ -176,8 +375,8 @@ if (!widget) \
 			int32_t shadtype = ddls[1]->getSelectedValue();
 			int32_t maxc = tfs[7]->getVal();
 			std::string_view divider = tfs[4]->getText();
-			int32_t dividerw = text_length(get_zc_font(fontid), std::string(divider).c_str());
-			int32_t width = 8 + dividerw + maxc * text_length(get_zc_font(fontid), std::string("8").c_str()) + tfs[3]->getVal();
+			int32_t dividerw = text_length(get_zc_font(fontid), string(divider).c_str());
+			int32_t width = 8 + dividerw + maxc * text_length(get_zc_font(fontid), string("8").c_str()) + tfs[3]->getVal();
 			int32_t height = std::max(8, text_height(get_zc_font(fontid)) + tfs[3]->getVal());
 			int32_t yoff = (8 - text_height(get_zc_font(fontid))) / 2;
 			for (int32_t q = 0; q < tfs[2]->getVal(); ++q)
@@ -384,27 +583,55 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 
-	std::shared_ptr<GUI::Grid> windowRow;
+	std::shared_ptr<GUI::Grid> windowRow, mainCol;
 	window = Window(
 		//use_vsync = true,
 		onClose = message::CANCEL,
-		Column(
-			windowRow = Row(padding = 0_px),
-			Row(
-				vAlign = 1.0,
-				spacing = 2_em,
-				Button(
-					focused = true,
-					text = "OK",
-					minwidth = 90_px,
-					onClick = message::OK),
-				Button(
-					text = "Cancel",
-					minwidth = 90_px,
-					onClick = message::CANCEL)
-			)
+		mainCol = Column(
+			windowRow = Row(padding = 0_px)
 		)
 	);
+	bool serializable = false;
+	switch (wizard_type)
+	{
+		case subwizardtype::SW_MAP_TILEBLOCK:
+			serializable = true;
+			break;
+	}
+	if (serializable)
+	{
+		mainCol->add(Row(
+			vAlign = 1.0,
+			spacing = 2_em,
+			Button(
+				text = "Save to Clipboard",
+				minwidth = 90_px,
+				onPressFunc = [&]()
+				{
+					save_json_clipboard();
+				}),
+			Button(
+				text = "Load from Clipboard",
+				minwidth = 90_px,
+				onPressFunc = [&]()
+				{
+					load_json_clipboard();
+				})
+		));
+	}
+	mainCol->add(Row(
+		vAlign = 1.0,
+		spacing = 2_em,
+		Button(
+			focused = true,
+			text = "OK",
+			minwidth = 90_px,
+			onClick = message::OK),
+		Button(
+			text = "Cancel",
+			minwidth = 90_px,
+			onClick = message::CANCEL)
+	));
 
 	bool wip = false;
 	switch (wizard_type)
