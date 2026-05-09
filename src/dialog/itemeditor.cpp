@@ -723,33 +723,21 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 					" makes the Hero take no damage at all.");
 			break;
 		}
-		case itype_wand: //!TODO Help Text
+		case itype_wand:
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "M. Damage";
-			inf->misc[1] = "W. Type:";
-			inf->misc[2] = "W. Speed:";
-			inf->misc[3] = "W. Range:";
-			inf->misc[4] = "Move Effect:";
-			inf->misc[5] = "Mvt Arg1:";
-			inf->misc[6] = "Mvt Arg2:";
-			inf->misc[7] = "No. of Clones:";
-			inf->misc[8] = "Clone Pattern:";
-			inf->misc[9] = "Slash Sound:";
-			inf->flag[0] = "Allow Magic w/o Book";
-			inf->flag[1] = "Wand Moves";
-			inf->flag[2] = "No Melee Attack";
-			inf->flag[3] = "Can Slash";
-			inf->flag[4] = "No Melee Cooldown";
-			inf->flag[5] = "Melee Weapons Use Magic Cost";
-			inf->flag[6] = "Doesn't Pick Up Dropped Items";
-			inf->flag[7] = "Flip Right-Facing Slash";
-			inf->flag[8] = "Light Torches";
-			inf->wpn[0] = "Stab Sprite:";
-			inf->wpn[1] = "Slash Sprite:";
-			inf->wpn[2] = "Projectile Sprite:";
-			inf->wpn[3] = "Projectile Misc:";
-			inf->actionsnd[0] = "Firing Sound:";
+			_SET(flag[0], "Allow Magic w/o Book", "If unchecked, the projectile will only fire if a Book is owned.");
+			_SET(flag[2], "No Melee Attack", "If checked, the item's melee swing will not damage enemies.");
+			_SET(flag[3], "Can Slash", "If the item's melee attack slashes, instead of stabbing.");
+			_SET(flag[4], "No Melee Cooldown", "Allows spamming the item's melee attack");
+			_SET(flag[5], "Melee Weapons Use Cost", "The cost will be charged when using the item itself, not spawning the projectile."
+				" If unchecked, the item itself can be used even without the cost, it will simply not spawn a projectile.");
+			_SET(flag[6], "Doesn't Pick Up Dropped Items", "If checked, the melee swing will not collect items.");
+			_SET(flag[7], "Flip Right-Facing Slash", "If checked the right-facing slash will slash down-right instead of up-right.");
+			_SET(wpn[0], "Stab Sprite:", "Sprite used by the item itself");
+			_SET(wpn[1], "Slash Sprite:", "Sprite used by the item itself");
+			_SET(wpn[2], "Projectile Sprite:", "Sprite used by the projectile");
+			_SET(actionsnd[0], "Firing Sound:", "Sound played when firing a projectile");
 			break;
 		}
 		case itype_bait: //!TODO Help Text

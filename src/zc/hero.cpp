@@ -12077,32 +12077,6 @@ bool HeroClass::startwpn(int32_t itemid)
 			else
 				sfx(itm.usesound,pan(wx));
 		}
-		/*
-		//    Fireball Wand
-		Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wRefFireball,0,2*game->get_hero_dmgmult(),dir));
-		switch (dir)
-		{
-		case up:
-		  Lwpns.spr(Lwpns.Count()-1)->angle=-PI/2;
-		  Lwpns.spr(Lwpns.Count()-1)->dir=up;
-		  break;
-		case down:
-		  Lwpns.spr(Lwpns.Count()-1)->angle=PI/2;
-		  Lwpns.spr(Lwpns.Count()-1)->dir=down;
-		  break;
-		case left:
-		  Lwpns.spr(Lwpns.Count()-1)->angle=PI;
-		  Lwpns.spr(Lwpns.Count()-1)->dir=left;
-		  break;
-		case right:
-		  Lwpns.spr(Lwpns.Count()-1)->angle=0;
-		  Lwpns.spr(Lwpns.Count()-1)->dir=right;
-		  break;
-		}
-		Lwpns.spr(Lwpns.Count()-1)->clk=16;
-		((weapon*)Lwpns.spr(Lwpns.Count()-1))->step=3.5;
-		Lwpns.spr(Lwpns.Count()-1)->dummy_bool[0]=true; //homing
-		*/
 		break;
 		
 		case itype_sword:
