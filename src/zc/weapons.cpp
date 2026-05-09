@@ -2628,7 +2628,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itemsbuf, itype_whistle);
+					itemid = getCanonicalItemID(itemsbuf, itype_sword);
 				if(itemid > -1)
 					ret = itemsbuf[itemid].wpn3;
 				else ret = ewSWORD;
