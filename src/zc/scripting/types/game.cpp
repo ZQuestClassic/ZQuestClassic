@@ -975,7 +975,7 @@ std::optional<int32_t> game_run_command(word command)
 					vec = &subscreens_map;
 					break;
 				default:
-					Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
+					scripting_log_error_with_context("Invalid Subscreen Type '{}'", ty);
 					break;
 			}
 			if(vec)
@@ -984,9 +984,9 @@ std::optional<int32_t> game_run_command(word command)
 				int p1 = SH::read_stack(ri->sp+1);
 				int p2 = SH::read_stack(ri->sp+0);
 				if(unsigned(p1) >= v.size())
-					Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p1);
+					scripting_log_error_with_context("Invalid susbcr index '{}'", p1);
 				else if(unsigned(p2) >= v.size())
-					Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p2);
+					scripting_log_error_with_context("Invalid susbcr index '{}'", p2);
 				else zc_swap(v[p1],v[p2]);
 			}
 			break;
