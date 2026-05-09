@@ -8077,6 +8077,7 @@ void ViewMap()
 					ditherrectfill(darkscr_bmp, 0, 0, 256, 176, 0, game->get_dither_type(), game->get_dither_arg());
 				calc_darkroom_combos(screen_handles, 0, 0);
 				calc_darkroom_ffcs(scr, 0, 0);
+				color_map = trans_table2;
 				if (scr->flags & fDARK_TRANS)
 				{
 					draw_trans_sprite(screen_bmp, darkscr_bmp, 0, 0);
@@ -8088,6 +8089,7 @@ void ViewMap()
 					masked_blit(darkscr_bmp, screen_bmp, 0, 0, 0, 0, 256, 176);
 					draw_trans_sprite(screen_bmp, darkscr_bmp_trans, 0, 0);
 				}
+				color_map = trans_table;
 			}
 			
 			if (get_qr(qr_NEWDARK_L6))
