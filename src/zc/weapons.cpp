@@ -1986,7 +1986,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 			{
 				int itemid = parentitem;
 				if(isDummy || itemid < 0)
-					itemid = getCanonicalItemID(itype_whistle);
+					itemid = getCanonicalItemID(itype_sword);
 				if (valid_item_id(itemid))
 					ret = itemsbuf.get(itemid).wpn_sprites[2];
 				else ret = ewSWORD;
