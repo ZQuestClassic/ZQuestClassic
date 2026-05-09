@@ -164,6 +164,12 @@ class dmapdata {
 	// @zasm_var DMAPDATASUBSCRO
 	internal int OverlaySubscreen;
 
+	// Which engine map subscreen to use on this dmap.
+	//
+	// @versionadded 3.0
+	// @zasm_var DMAPDATASUBSCRM
+	internal int MapSubscreen;
+
 	// Bitwise values representing the state of the map grid.
 	//
 	// See [SetVisibleOnDungeonMap], [VisibleOnDungeonMap].

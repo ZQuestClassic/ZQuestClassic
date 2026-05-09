@@ -112,6 +112,10 @@ int32_t dmapdata_get_register(int32_t reg)
 		{
 			ret = ((byte)dmap.passive_subscreen) * 10000; break;
 		}
+		case DMAPDATASUBSCRM:
+		{
+			ret = ((byte)dmap.map_subscreen) * 10000; break;
+		}
 		case DMAPDATATYPE:	//byte
 		{
 			ret = ((byte)dmap.type&dmfTYPE) * 10000; break;
@@ -289,6 +293,14 @@ void dmapdata_set_register(int32_t reg, int32_t value)
 		{
 			bool changed = dmap.passive_subscreen != ((byte)(value / 10000));
 			dmap.passive_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapdataref==cur_dmap)
+				update_subscreens();
+			break;
+		}
+		case DMAPDATASUBSCRM:
+		{
+			bool changed = dmap.map_subscreen != ((byte)(value / 10000));
+			dmap.map_subscreen = ((byte)(value / 10000));
 			if(changed&&ri->dmapdataref==cur_dmap)
 				update_subscreens();
 			break;
