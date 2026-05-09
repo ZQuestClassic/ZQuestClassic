@@ -16,6 +16,9 @@
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/misc_color_sel.h"
 #include "tilepicker.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 enum class subwizardtype : uint16_t {
 	SW_ITEM_GRID,
@@ -60,6 +63,11 @@ private:
 	bool finalize();
 	
 	void updateTitle();
+	
+	json save_json();
+	void load_json(const json& data);
+	void load_json_clipboard();
+	void save_json_clipboard();
 
 	SubscreenWizardDialog(subwizardtype stype, int32_t& x, int32_t& y);
 	friend void call_subscreen_wizard(subwizardtype stype, int32_t& x, int32_t& y);
