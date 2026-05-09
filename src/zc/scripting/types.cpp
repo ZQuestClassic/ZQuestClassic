@@ -211,6 +211,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case DMAPDATASUBSCRA:
 		case DMAPDATASUBSCRO:
 		case DMAPDATASUBSCRP:
+		case DMAPDATASUBSCRM:
 		case DMAPDATATYPE:
 		case DMAPDATAXFADEIN:
 		case DMAPDATAXFADEOUT:

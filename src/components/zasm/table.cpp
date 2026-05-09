@@ -2708,6 +2708,7 @@ static constexpr script_variable variable_list[]=
 	{ "LWPN_BOUNCE_ADD", LWPN_BOUNCE_ADD, 0},
 	{ "EWPN_BOUNCE_MULT", EWPN_BOUNCE_MULT, 0},
 	{ "EWPN_BOUNCE_ADD", EWPN_BOUNCE_ADD, 0},
+	{ "DMAPDATASUBSCRM", DMAPDATASUBSCRM, 0},
 	{"", -1},
 };
 
@@ -3671,6 +3672,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATASUBSCRA:
 		case DMAPDATASUBSCRO:
 		case DMAPDATASUBSCRP:
+		case DMAPDATASUBSCRM:
 		case DMAPDATATYPE:
 		case DMAPDATAXFADEIN:
 		case DMAPDATAXFADEOUT:

@@ -3384,6 +3384,7 @@ enum ASM_DEFINE
 #define SPRITE_LIGHT_OFFSET            0x16B2
 #define LWPNBURNLIGHTOFFSET            0x16B3
 #define EWPNBURNLIGHTOFFSET            0x16B4
+#define DMAPDATASUBSCRM                0x16B5
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
