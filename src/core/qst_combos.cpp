@@ -885,6 +885,12 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 			return qe_invalid;
 		if(!p_igetl(&temp_trigger.chance_denominator, f))
 			return qe_invalid;
+		if(!p_igetw(&temp_trigger.sfx_pan, f))
+			return qe_invalid;
+		if(!p_getc(&temp_trigger.sfx_volume, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.sfx_frequency, f))
+			return qe_invalid;
 	}
 	return 0;
 }

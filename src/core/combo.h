@@ -124,6 +124,10 @@ struct combo_trigger
 	int16_t viewport_cond_range;
 	int32_t chance_numerator = 1, chance_denominator = 1;
 	
+	int16_t sfx_pan = -1;
+	byte sfx_volume = 100;
+	int32_t sfx_frequency = -1;
+	
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();
@@ -366,6 +370,9 @@ enum ComboTriggerFlag
 	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
 	TRIGFLAG_VIEWPORT_REQ_ONSCREEN,
 	TRIGFLAG_VIEWPORT_REQ_OFFSCREEN,
+	TRIGFLAG_SFX_LOOP,
+	TRIGFLAG_SFX_NO_RESTART,
+	TRIGFLAG_SFX_KILL,
 	
 	TRIGFLAG_MAX
 };

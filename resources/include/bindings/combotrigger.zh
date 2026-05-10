@@ -170,14 +170,25 @@ enum ComboTriggerFlag
 	// Triggers when a pushblock is about to click into place at this combo's position, on any layer
 	// @versionadded 3.0
 	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
-	// If checked, the trigger will only trigger if some part of the combo is
+	// If true, the trigger will only trigger if some part of the combo is
 	// inside the [combotrigger->ViewportRange] from the edge of the viewport.
 	// @versionadded 3.0
 	TRIGFLAG_VIEWPORT_REQ_ONSCREEN,
-	// If checked, the trigger will only trigger if all of the combo is
+	// If true, the trigger will only trigger if all of the combo is
 	// outside the [combotrigger->ViewportRange] from the edge of the viewport.
 	// @versionadded 3.0
 	TRIGFLAG_VIEWPORT_REQ_OFFSCREEN,
+	// If true, the [combotrigger->SFX] will loop until stopped.
+	// @versionadded 3.0
+	TRIGFLAG_SFX_LOOP,
+	// If true, the [combotrigger->SFX] will not be restarted if it was already playing.
+	// This allows changing the [combotrigger->SFXFrequency], [combotrigger->SFXPan], etc
+	// of an already-playing SFX.
+	// @versionadded 3.0
+	TRIGFLAG_SFX_NO_RESTART,
+	// If true, the [combotrigger->SFX] will be stopped instead of being played.
+	// @versionadded 3.0
+	TRIGFLAG_SFX_KILL,
 	TRIGFLAG_MAX
 };
 
@@ -224,6 +235,29 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGSFX
 	internal int SFX;
+	
+	// The Pan to use for the [SFX]. -1 will pan based on the combo's position,
+	// values 0-255 will specify a specific pan. 128 is centered.
+	//
+	// @value -1 <= N <= 255
+	// @versionadded 3.0
+	// @zasm_var CMBTRIGGER_SFX_PAN
+	internal int SFXPan;
+	
+	// The volume to use for the [SFX], as a percentage of the base volume.
+	//
+	// @versionadded 3.0
+	// @value 0 <= N <= 255
+	// @zasm_var CMBTRIGGER_SFX_VOLUME
+	internal int SFXVolume;
+	
+	// The frequency to use for the [SFX]. -1 will use the default for the SFX,
+	// otherwise this value will be used in Hz.
+	//
+	// @versionadded 3.0
+	// @value -1 or higher
+	// @zasm_var CMBTRIGGER_SFX_FREQUENCY
+	internal int SFXFrequency;
 
 	// The amount the combo will change by when triggered.
 	//
