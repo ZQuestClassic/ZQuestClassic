@@ -763,9 +763,17 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		}
 
 		if (trigchange)
-			effects << indent << "Change combo by " << trigchange << "\n";
+		{
+			if (trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
+				effects << indent << "Change combo to combo #" << trigchange << "\n";
+			else effects << indent << "Change combo by " << trigchange << "\n";
+		}
 		if (trigcschange)
-			effects << indent << "Change cset by " << int(trigcschange) << "\n";
+		{
+			if (trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
+				effects << indent << "Change cset to CSet " << int(trigcschange) << "\n";
+			else effects << indent << "Change cset by " << int(trigcschange) << "\n";
+		}
 		if (trigsfx)
 		{
 			if (trigger_flags.get(TRIGFLAG_SFX_KILL))
