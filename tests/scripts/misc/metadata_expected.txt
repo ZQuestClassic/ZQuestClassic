@@ -372,25 +372,76 @@ stdout:
         "children": []
       },
       {
-        "name": "do_filter",
-        "kind": 12,
+        "name": "int",
+        "kind": 10,
         "range": {
           "start": {
             "line": 60,
-            "character": 15
+            "character": 4
           },
           "end": {
-            "line": 64,
-            "character": 1
+            "line": 60,
+            "character": 10
           }
         },
         "selectionRange": {
           "start": {
             "line": 60,
-            "character": 15
+            "character": 4
           },
           "end": {
             "line": 60,
+            "character": 10
+          }
+        },
+        "children": [
+          {
+            "name": "BLAH_1",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 60,
+                "character": 4
+              },
+              "end": {
+                "line": 60,
+                "character": 10
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 60,
+                "character": 4
+              },
+              "end": {
+                "line": 60,
+                "character": 10
+              }
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "name": "do_filter",
+        "kind": 12,
+        "range": {
+          "start": {
+            "line": 64,
+            "character": 15
+          },
+          "end": {
+            "line": 68,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 64,
+            "character": 15
+          },
+          "end": {
+            "line": 64,
             "character": 24
           }
         },
@@ -401,21 +452,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 66,
+            "line": 70,
             "character": 4
           },
           "end": {
-            "line": 70,
+            "line": 74,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 66,
+            "line": 70,
             "character": 4
           },
           "end": {
-            "line": 66,
+            "line": 70,
             "character": 12
           }
         },
@@ -425,21 +476,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 68,
+                "line": 72,
                 "character": 8
               },
               "end": {
-                "line": 68,
+                "line": 72,
                 "character": 9
               }
             },
             "selectionRange": {
               "start": {
-                "line": 68,
+                "line": 72,
                 "character": 8
               },
               "end": {
-                "line": 68,
+                "line": 72,
                 "character": 9
               }
             },
@@ -452,21 +503,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 121,
+            "line": 125,
             "character": 5
           },
           "end": {
-            "line": 123,
+            "line": 127,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 121,
+            "line": 125,
             "character": 5
           },
           "end": {
-            "line": 121,
+            "line": 125,
             "character": 6
           }
         },
@@ -477,21 +528,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 125,
+            "line": 129,
             "character": 5
           },
           "end": {
-            "line": 129,
+            "line": 133,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 125,
+            "line": 129,
             "character": 5
           },
           "end": {
-            "line": 125,
+            "line": 129,
             "character": 7
           }
         },
@@ -501,21 +552,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 127,
+                "line": 131,
                 "character": 6
               },
               "end": {
-                "line": 127,
+                "line": 131,
                 "character": 21
               }
             },
             "selectionRange": {
               "start": {
-                "line": 127,
+                "line": 131,
                 "character": 6
               },
               "end": {
-                "line": 127,
+                "line": 131,
                 "character": 7
               }
             },
@@ -528,21 +579,21 @@ stdout:
         "kind": 3,
         "range": {
           "start": {
-            "line": 112,
+            "line": 116,
             "character": 0
           },
           "end": {
-            "line": 119,
+            "line": 123,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 112,
+            "line": 116,
             "character": 10
           },
           "end": {
-            "line": 112,
+            "line": 116,
             "character": 15
           }
         },
@@ -552,21 +603,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 118,
+                "line": 122,
                 "character": 8
               },
               "end": {
-                "line": 118,
+                "line": 122,
                 "character": 11
               }
             },
             "selectionRange": {
               "start": {
-                "line": 118,
+                "line": 122,
                 "character": 8
               },
               "end": {
-                "line": 118,
+                "line": 122,
                 "character": 11
               }
             },
@@ -577,21 +628,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 114,
+                "line": 118,
                 "character": 9
               },
               "end": {
-                "line": 116,
+                "line": 120,
                 "character": 5
               }
             },
             "selectionRange": {
               "start": {
-                "line": 114,
+                "line": 118,
                 "character": 9
               },
               "end": {
-                "line": 114,
+                "line": 118,
                 "character": 11
               }
             },
@@ -604,21 +655,21 @@ stdout:
         "kind": 2,
         "range": {
           "start": {
-            "line": 74,
+            "line": 78,
             "character": 0
           },
           "end": {
-            "line": 109,
+            "line": 113,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 74,
+            "line": 78,
             "character": 11
           },
           "end": {
-            "line": 74,
+            "line": 78,
             "character": 19
           }
         },
@@ -628,21 +679,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 76,
+                "line": 80,
                 "character": 9
               },
               "end": {
-                "line": 108,
+                "line": 112,
                 "character": 5
               }
             },
             "selectionRange": {
               "start": {
-                "line": 76,
+                "line": 80,
                 "character": 9
               },
               "end": {
-                "line": 76,
+                "line": 80,
                 "character": 12
               }
             },
@@ -652,21 +703,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 82,
+                    "line": 86,
                     "character": 13
                   },
                   "end": {
-                    "line": 82,
+                    "line": 86,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 82,
+                    "line": 86,
                     "character": 13
                   },
                   "end": {
-                    "line": 82,
+                    "line": 86,
                     "character": 14
                   }
                 },
@@ -677,21 +728,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 84,
+                    "line": 88,
                     "character": 13
                   },
                   "end": {
-                    "line": 84,
+                    "line": 88,
                     "character": 36
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 84,
+                    "line": 88,
                     "character": 13
                   },
                   "end": {
-                    "line": 84,
+                    "line": 88,
                     "character": 14
                   }
                 },
@@ -702,21 +753,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 85,
+                    "line": 89,
                     "character": 12
                   },
                   "end": {
-                    "line": 85,
+                    "line": 89,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 85,
+                    "line": 89,
                     "character": 12
                   },
                   "end": {
-                    "line": 85,
+                    "line": 89,
                     "character": 14
                   }
                 },
@@ -727,21 +778,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 87,
+                    "line": 91,
                     "character": 12
                   },
                   "end": {
-                    "line": 87,
+                    "line": 91,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 87,
+                    "line": 91,
                     "character": 12
                   },
                   "end": {
-                    "line": 87,
+                    "line": 91,
                     "character": 13
                   }
                 },
@@ -752,21 +803,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 90,
+                    "line": 94,
                     "character": 12
                   },
                   "end": {
-                    "line": 90,
+                    "line": 94,
                     "character": 29
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 90,
+                    "line": 94,
                     "character": 12
                   },
                   "end": {
-                    "line": 90,
+                    "line": 94,
                     "character": 15
                   }
                 },
@@ -777,21 +828,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 8
                   },
                   "end": {
-                    "line": 93,
+                    "line": 97,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 13
                   },
                   "end": {
-                    "line": 91,
+                    "line": 95,
                     "character": 14
                   }
                 },
@@ -802,21 +853,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 8
                   },
                   "end": {
-                    "line": 93,
+                    "line": 97,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 13
                   },
                   "end": {
-                    "line": 91,
+                    "line": 95,
                     "character": 14
                   }
                 },
@@ -827,21 +878,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 8
                   },
                   "end": {
-                    "line": 93,
+                    "line": 97,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 91,
+                    "line": 95,
                     "character": 13
                   },
                   "end": {
-                    "line": 91,
+                    "line": 95,
                     "character": 14
                   }
                 },
@@ -852,21 +903,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 94,
+                    "line": 98,
                     "character": 12
                   },
                   "end": {
-                    "line": 94,
+                    "line": 98,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 94,
+                    "line": 98,
                     "character": 16
                   },
                   "end": {
-                    "line": 94,
+                    "line": 98,
                     "character": 20
                   }
                 },
@@ -877,21 +928,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 98,
+                    "line": 102,
                     "character": 14
                   },
                   "end": {
-                    "line": 98,
+                    "line": 102,
                     "character": 23
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 98,
+                    "line": 102,
                     "character": 14
                   },
                   "end": {
-                    "line": 98,
+                    "line": 102,
                     "character": 15
                   }
                 },
@@ -902,21 +953,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 107,
+                    "line": 111,
                     "character": 17
                   },
                   "end": {
-                    "line": 107,
+                    "line": 111,
                     "character": 18
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 107,
+                    "line": 111,
                     "character": 17
                   },
                   "end": {
-                    "line": 107,
+                    "line": 111,
                     "character": 18
                   }
                 },
@@ -1190,12 +1241,12 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 54,
-              "character": 5
+              "line": 56,
+              "character": 4
             },
             "end": {
-              "line": 54,
-              "character": 19
+              "line": 56,
+              "character": 11
             }
           },
           "uri": "URI"
@@ -1205,11 +1256,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 54,
-              "character": 5
+              "line": 56,
+              "character": 13
             },
             "end": {
-              "line": 54,
+              "line": 56,
               "character": 19
             }
           },
@@ -1220,12 +1271,12 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 54,
-              "character": 5
+              "line": 56,
+              "character": 21
             },
             "end": {
-              "line": 54,
-              "character": 19
+              "line": 56,
+              "character": 28
             }
           },
           "uri": "URI"
@@ -1235,12 +1286,12 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 54,
-              "character": 5
+              "line": 56,
+              "character": 30
             },
             "end": {
-              "line": 54,
-              "character": 19
+              "line": 56,
+              "character": 36
             }
           },
           "uri": "URI"
@@ -1336,15 +1387,30 @@ stdout:
         "name": "z",
         "type": "int"
       },
-      "fn.2388": {
+      "5223": {
         "loc": {
           "range": {
             "start": {
               "line": 60,
-              "character": 15
+              "character": 4
             },
             "end": {
               "line": 60,
+              "character": 10
+            }
+          },
+          "uri": "URI"
+        }
+      },
+      "fn.2388": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 64,
+              "character": 15
+            },
+            "end": {
+              "line": 64,
               "character": 24
             }
           },
@@ -1368,15 +1434,15 @@ stdout:
         },
         "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n\n**@deprecated_alias** TraceLWeapon\n\n**@deprecated_alias** TraceEWeapon\n\n**@deprecated_alias** TraceNPC\n\n**@deprecated_alias** TraceFFC\n\n**@deprecated_alias** TraceItem\n\n**@deprecated_alias** TraceItemData"
       },
-      "5373": {
+      "5374": {
         "loc": {
           "range": {
             "start": {
-              "line": 60,
+              "line": 64,
               "character": 40
             },
             "end": {
-              "line": 60,
+              "line": 64,
               "character": 41
             }
           },
@@ -1387,11 +1453,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 66,
+              "line": 70,
               "character": 4
             },
             "end": {
-              "line": 66,
+              "line": 70,
               "character": 12
             }
           },
@@ -1416,15 +1482,15 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5380": {
+      "5381": {
         "loc": {
           "range": {
             "start": {
-              "line": 68,
+              "line": 72,
               "character": 4
             },
             "end": {
-              "line": 68,
+              "line": 72,
               "character": 9
             }
           },
@@ -1437,11 +1503,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 121,
+              "line": 125,
               "character": 5
             },
             "end": {
-              "line": 121,
+              "line": 125,
               "character": 6
             }
           },
@@ -1452,26 +1518,26 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 125,
+              "line": 129,
               "character": 5
             },
             "end": {
-              "line": 125,
+              "line": 129,
               "character": 7
             }
           },
           "uri": "URI"
         }
       },
-      "5353": {
+      "5354": {
         "loc": {
           "range": {
             "start": {
-              "line": 127,
+              "line": 131,
               "character": 1
             },
             "end": {
-              "line": 127,
+              "line": 131,
               "character": 21
             }
           },
@@ -1480,21 +1546,21 @@ stdout:
         "name": "b",
         "type": "bool"
       },
-      "5223": {
+      "5224": {
         "loc": {
           "range": {
             "start": {
-              "line": 118,
+              "line": 122,
               "character": 8
             },
             "end": {
-              "line": 118,
+              "line": 122,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D)",
+        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A118%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A118%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A118%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A118%2C%22character%22%3A11%7D%7D%7D)",
         "name": "hmm",
         "type": "int"
       },
@@ -1502,27 +1568,27 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 114,
+              "line": 118,
               "character": 9
             },
             "end": {
-              "line": 114,
+              "line": 118,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A114%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A114%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A9%7D%7D%7D)"
+        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A118%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A118%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A118%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A118%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A9%7D%7D%7D)"
       },
       "script.Metadata": {
         "loc": {
           "range": {
             "start": {
-              "line": 74,
+              "line": 78,
               "character": 11
             },
             "end": {
-              "line": 74,
+              "line": 78,
               "character": 19
             }
           },
@@ -1533,11 +1599,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 76,
+              "line": 80,
               "character": 9
             },
             "end": {
-              "line": 76,
+              "line": 80,
               "character": 12
             }
           },
@@ -1561,15 +1627,15 @@ stdout:
         },
         "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
       },
-      "5426": {
+      "5427": {
         "loc": {
           "range": {
             "start": {
-              "line": 82,
+              "line": 86,
               "character": 8
             },
             "end": {
-              "line": 82,
+              "line": 86,
               "character": 27
             }
           },
@@ -1611,15 +1677,15 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A102%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A102%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A3%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A3%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A13%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A13%2C%22character%22%3A25%7D%7D%7D)"
       },
-      "5420": {
+      "5421": {
         "loc": {
           "range": {
             "start": {
-              "line": 76,
+              "line": 80,
               "character": 17
             },
             "end": {
-              "line": 76,
+              "line": 80,
               "character": 23
             }
           },
@@ -1643,15 +1709,15 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "5427": {
+      "5428": {
         "loc": {
           "range": {
             "start": {
-              "line": 84,
+              "line": 88,
               "character": 8
             },
             "end": {
-              "line": 84,
+              "line": 88,
               "character": 36
             }
           },
@@ -1675,15 +1741,15 @@ stdout:
           "uri": "URI"
         }
       },
-      "5428": {
+      "5429": {
         "loc": {
           "range": {
             "start": {
-              "line": 85,
+              "line": 89,
               "character": 8
             },
             "end": {
-              "line": 85,
+              "line": 89,
               "character": 27
             }
           },
@@ -1692,15 +1758,15 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5429": {
+      "5430": {
         "loc": {
           "range": {
             "start": {
-              "line": 87,
+              "line": 91,
               "character": 8
             },
             "end": {
-              "line": 87,
+              "line": 91,
               "character": 24
             }
           },
@@ -1726,15 +1792,15 @@ stdout:
         },
         "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A765%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A765%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
-      "5430": {
+      "5431": {
         "loc": {
           "range": {
             "start": {
-              "line": 90,
+              "line": 94,
               "character": 8
             },
             "end": {
-              "line": 90,
+              "line": 94,
               "character": 29
             }
           },
@@ -1744,15 +1810,15 @@ stdout:
         "name": "arr",
         "type": "int[]"
       },
-      "5433": {
+      "5434": {
         "loc": {
           "range": {
             "start": {
-              "line": 91,
+              "line": 95,
               "character": 13
             },
             "end": {
-              "line": 91,
+              "line": 95,
               "character": 14
             }
           },
@@ -1761,15 +1827,15 @@ stdout:
         "name": "v",
         "type": "int"
       },
-      "5431": {
+      "5432": {
         "loc": {
           "range": {
             "start": {
-              "line": 91,
+              "line": 95,
               "character": 13
             },
             "end": {
-              "line": 91,
+              "line": 95,
               "character": 14
             }
           },
@@ -1778,15 +1844,15 @@ stdout:
         "name": "__LOOP_ITER",
         "type": "int"
       },
-      "5432": {
+      "5433": {
         "loc": {
           "range": {
             "start": {
-              "line": 91,
+              "line": 95,
               "character": 13
             },
             "end": {
-              "line": 91,
+              "line": 95,
               "character": 14
             }
           },
@@ -1795,15 +1861,15 @@ stdout:
         "name": "__LOOP_ARR",
         "type": "int[]"
       },
-      "5434": {
+      "5435": {
         "loc": {
           "range": {
             "start": {
-              "line": 94,
+              "line": 98,
               "character": 16
             },
             "end": {
-              "line": 94,
+              "line": 98,
               "character": 20
             }
           },
@@ -1812,15 +1878,15 @@ stdout:
         "name": "ahhh",
         "type": "int"
       },
-      "5435": {
+      "5436": {
         "loc": {
           "range": {
             "start": {
-              "line": 98,
+              "line": 102,
               "character": 8
             },
             "end": {
-              "line": 98,
+              "line": 102,
               "character": 23
             }
           },
@@ -1829,15 +1895,15 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
-      "5436": {
+      "5437": {
         "loc": {
           "range": {
             "start": {
-              "line": 107,
+              "line": 111,
               "character": 8
             },
             "end": {
-              "line": 107,
+              "line": 111,
               "character": 18
             }
           },
@@ -1847,7 +1913,7 @@ stdout:
         "name": "s",
         "type": "char32[]"
       },
-      "5224": {
+      "5225": {
         "loc": {
           "range": {
             "start": {
@@ -1896,7 +1962,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7431": {
+      "7432": {
         "loc": {
           "range": {
             "start": {
@@ -2036,6 +2102,14 @@ stdout:
       {
         "loc": {
           "line": 60,
+          "character": 4,
+          "length": 6
+        },
+        "symbol": "5223"
+      },
+      {
+        "loc": {
+          "line": 64,
           "character": 15,
           "length": 9
         },
@@ -2043,7 +2117,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 60,
+          "line": 64,
           "character": 0,
           "length": 14
         },
@@ -2051,7 +2125,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 62,
+          "line": 66,
           "character": 4,
           "length": 5
         },
@@ -2059,23 +2133,23 @@ stdout:
       },
       {
         "loc": {
-          "line": 62,
+          "line": 66,
           "character": 10,
           "length": 1
         },
-        "symbol": "5373"
+        "symbol": "5374"
       },
       {
         "loc": {
-          "line": 63,
+          "line": 67,
           "character": 11,
           "length": 1
         },
-        "symbol": "5373"
+        "symbol": "5374"
       },
       {
         "loc": {
-          "line": 66,
+          "line": 70,
           "character": 4,
           "length": 8
         },
@@ -2083,7 +2157,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 66,
+          "line": 70,
           "character": 0,
           "length": 3
         },
@@ -2091,7 +2165,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 68,
+          "line": 72,
           "character": 4,
           "length": 3
         },
@@ -2099,23 +2173,23 @@ stdout:
       },
       {
         "loc": {
-          "line": 68,
+          "line": 72,
           "character": 8,
           "length": 1
         },
-        "symbol": "5380"
+        "symbol": "5381"
       },
       {
         "loc": {
-          "line": 69,
+          "line": 73,
           "character": 11,
           "length": 1
         },
-        "symbol": "5380"
+        "symbol": "5381"
       },
       {
         "loc": {
-          "line": 121,
+          "line": 125,
           "character": 5,
           "length": 1
         },
@@ -2123,7 +2197,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 125,
+          "line": 129,
           "character": 5,
           "length": 2
         },
@@ -2131,15 +2205,15 @@ stdout:
       },
       {
         "loc": {
-          "line": 127,
+          "line": 131,
           "character": 6,
           "length": 1
         },
-        "symbol": "5353"
+        "symbol": "5354"
       },
       {
         "loc": {
-          "line": 127,
+          "line": 131,
           "character": 18,
           "length": 1
         },
@@ -2147,23 +2221,23 @@ stdout:
       },
       {
         "loc": {
-          "line": 128,
+          "line": 132,
           "character": 8,
           "length": 1
         },
-        "symbol": "5353"
+        "symbol": "5354"
+      },
+      {
+        "loc": {
+          "line": 122,
+          "character": 8,
+          "length": 3
+        },
+        "symbol": "5224"
       },
       {
         "loc": {
           "line": 118,
-          "character": 8,
-          "length": 3
-        },
-        "symbol": "5223"
-      },
-      {
-        "loc": {
-          "line": 114,
           "character": 9,
           "length": 2
         },
@@ -2171,7 +2245,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 74,
+          "line": 78,
           "character": 11,
           "length": 8
         },
@@ -2179,7 +2253,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 76,
+          "line": 80,
           "character": 9,
           "length": 3
         },
@@ -2187,7 +2261,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 81,
           "character": 8,
           "length": 6
         },
@@ -2195,7 +2269,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 81,
           "character": 26,
           "length": 7
         },
@@ -2203,7 +2277,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 81,
           "character": 36,
           "length": 8
         },
@@ -2211,7 +2285,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 81,
           "character": 50,
           "length": 1
         },
@@ -2219,7 +2293,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 82,
           "character": 15,
           "length": 2
         },
@@ -2227,7 +2301,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 82,
           "character": 18,
           "length": 7
         },
@@ -2235,7 +2309,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 79,
+          "line": 83,
           "character": 8,
           "length": 9
         },
@@ -2243,7 +2317,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 79,
+          "line": 83,
           "character": 18,
           "length": 7
         },
@@ -2251,7 +2325,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 86,
           "character": 8,
           "length": 4
         },
@@ -2259,111 +2333,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
-          "character": 13,
-          "length": 1
-        },
-        "symbol": "5426"
-      },
-      {
-        "loc": {
-          "line": 82,
-          "character": 21,
-          "length": 3
-        },
-        "symbol": "fn.2395"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 8,
-          "length": 6
-        },
-        "symbol": "fn.454"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 32,
-          "length": 5
-        },
-        "symbol": "Car::speed"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 29,
-          "length": 1
-        },
-        "symbol": "5426"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 39,
-          "length": 6
-        },
-        "symbol": "5420"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 54,
-          "length": 3
-        },
-        "symbol": "5223"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 60,
-          "length": 1
-        },
-        "symbol": "5221"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 64,
-          "length": 1
-        },
-        "symbol": "5222"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 68,
-          "length": 4
-        },
-        "symbol": "5212"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 75,
-          "length": 5
-        },
-        "symbol": "5211"
-      },
-      {
-        "loc": {
-          "line": 83,
-          "character": 83,
-          "length": 3
-        },
-        "symbol": "5213"
-      },
-      {
-        "loc": {
-          "line": 84,
-          "character": 8,
-          "length": 4
-        },
-        "symbol": "custom.201"
-      },
-      {
-        "loc": {
-          "line": 84,
+          "line": 86,
           "character": 13,
           "length": 1
         },
@@ -2371,31 +2341,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 84,
-          "character": 21,
-          "length": 13
-        },
-        "symbol": "fn.4211"
-      },
-      {
-        "loc": {
-          "line": 85,
-          "character": 8,
-          "length": 3
-        },
-        "symbol": "custom.200"
-      },
-      {
-        "loc": {
-          "line": 85,
-          "character": 12,
-          "length": 2
-        },
-        "symbol": "5428"
-      },
-      {
-        "loc": {
-          "line": 85,
+          "line": 86,
           "character": 21,
           "length": 3
         },
@@ -2404,15 +2350,15 @@ stdout:
       {
         "loc": {
           "line": 87,
-          "character": 12,
-          "length": 1
+          "character": 8,
+          "length": 6
         },
-        "symbol": "5429"
+        "symbol": "fn.454"
       },
       {
         "loc": {
           "line": 87,
-          "character": 19,
+          "character": 32,
           "length": 5
         },
         "symbol": "Car::speed"
@@ -2420,14 +2366,142 @@ stdout:
       {
         "loc": {
           "line": 87,
-          "character": 16,
+          "character": 29,
           "length": 1
         },
-        "symbol": "5426"
+        "symbol": "5427"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 39,
+          "length": 6
+        },
+        "symbol": "5421"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 54,
+          "length": 3
+        },
+        "symbol": "5224"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 60,
+          "length": 1
+        },
+        "symbol": "5221"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 64,
+          "length": 1
+        },
+        "symbol": "5222"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 68,
+          "length": 4
+        },
+        "symbol": "5212"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 75,
+          "length": 5
+        },
+        "symbol": "5211"
+      },
+      {
+        "loc": {
+          "line": 87,
+          "character": 83,
+          "length": 3
+        },
+        "symbol": "5213"
       },
       {
         "loc": {
           "line": 88,
+          "character": 8,
+          "length": 4
+        },
+        "symbol": "custom.201"
+      },
+      {
+        "loc": {
+          "line": 88,
+          "character": 13,
+          "length": 1
+        },
+        "symbol": "5428"
+      },
+      {
+        "loc": {
+          "line": 88,
+          "character": 21,
+          "length": 13
+        },
+        "symbol": "fn.4211"
+      },
+      {
+        "loc": {
+          "line": 89,
+          "character": 8,
+          "length": 3
+        },
+        "symbol": "custom.200"
+      },
+      {
+        "loc": {
+          "line": 89,
+          "character": 12,
+          "length": 2
+        },
+        "symbol": "5429"
+      },
+      {
+        "loc": {
+          "line": 89,
+          "character": 21,
+          "length": 3
+        },
+        "symbol": "fn.2395"
+      },
+      {
+        "loc": {
+          "line": 91,
+          "character": 12,
+          "length": 1
+        },
+        "symbol": "5430"
+      },
+      {
+        "loc": {
+          "line": 91,
+          "character": 19,
+          "length": 5
+        },
+        "symbol": "Car::speed"
+      },
+      {
+        "loc": {
+          "line": 91,
+          "character": 16,
+          "length": 1
+        },
+        "symbol": "5427"
+      },
+      {
+        "loc": {
+          "line": 92,
           "character": 8,
           "length": 7
         },
@@ -2435,31 +2509,31 @@ stdout:
       },
       {
         "loc": {
-          "line": 88,
+          "line": 92,
           "character": 16,
           "length": 1
         },
-        "symbol": "5429"
+        "symbol": "5430"
       },
       {
         "loc": {
-          "line": 90,
+          "line": 94,
           "character": 12,
           "length": 3
         },
-        "symbol": "5430"
+        "symbol": "5431"
       },
       {
         "loc": {
-          "line": 91,
+          "line": 95,
           "character": 17,
           "length": 3
         },
-        "symbol": "5430"
+        "symbol": "5431"
       },
       {
         "loc": {
-          "line": 92,
+          "line": 96,
           "character": 12,
           "length": 5
         },
@@ -2467,23 +2541,15 @@ stdout:
       },
       {
         "loc": {
-          "line": 92,
+          "line": 96,
           "character": 18,
           "length": 1
         },
-        "symbol": "5433"
+        "symbol": "5434"
       },
       {
         "loc": {
-          "line": 91,
-          "character": 13,
-          "length": 1
-        },
-        "symbol": "5431"
-      },
-      {
-        "loc": {
-          "line": 91,
+          "line": 95,
           "character": 13,
           "length": 1
         },
@@ -2491,15 +2557,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 91,
-          "character": 17,
-          "length": 3
-        },
-        "symbol": "5430"
-      },
-      {
-        "loc": {
-          "line": 91,
+          "line": 95,
           "character": 13,
           "length": 1
         },
@@ -2507,23 +2565,39 @@ stdout:
       },
       {
         "loc": {
-          "line": 94,
-          "character": 16,
-          "length": 4
+          "line": 95,
+          "character": 17,
+          "length": 3
+        },
+        "symbol": "5431"
+      },
+      {
+        "loc": {
+          "line": 95,
+          "character": 13,
+          "length": 1
         },
         "symbol": "5434"
       },
       {
         "loc": {
-          "line": 94,
+          "line": 98,
           "character": 16,
           "length": 4
         },
-        "symbol": "5434"
+        "symbol": "5435"
       },
       {
         "loc": {
-          "line": 96,
+          "line": 98,
+          "character": 16,
+          "length": 4
+        },
+        "symbol": "5435"
+      },
+      {
+        "loc": {
+          "line": 100,
           "character": 12,
           "length": 5
         },
@@ -2531,15 +2605,15 @@ stdout:
       },
       {
         "loc": {
-          "line": 96,
+          "line": 100,
           "character": 18,
           "length": 4
         },
-        "symbol": "5434"
+        "symbol": "5435"
       },
       {
         "loc": {
-          "line": 98,
+          "line": 102,
           "character": 8,
           "length": 5
         },
@@ -2547,15 +2621,15 @@ stdout:
       },
       {
         "loc": {
-          "line": 98,
+          "line": 102,
           "character": 14,
           "length": 1
         },
-        "symbol": "5435"
+        "symbol": "5436"
       },
       {
         "loc": {
-          "line": 98,
+          "line": 102,
           "character": 18,
           "length": 5
         },
@@ -2563,7 +2637,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 99,
+          "line": 103,
           "character": 8,
           "length": 5
         },
@@ -2571,19 +2645,19 @@ stdout:
       },
       {
         "loc": {
-          "line": 99,
+          "line": 103,
           "character": 14,
           "length": 1
         },
-        "symbol": "5435"
+        "symbol": "5436"
       },
       {
         "loc": {
-          "line": 107,
+          "line": 111,
           "character": 17,
           "length": 1
         },
-        "symbol": "5436"
+        "symbol": "5437"
       },
       {
         "loc": {
@@ -2599,7 +2673,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5224"
+        "symbol": "5225"
       },
       {
         "loc": {
@@ -2615,7 +2689,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5224"
+        "symbol": "5225"
       },
       {
         "loc": {
@@ -2663,7 +2737,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7431"
+        "symbol": "7432"
       },
       {
         "loc": {
@@ -2700,121 +2774,121 @@ SETV GD2 1                                                                      
 SETV GD3 1                                                                      | 2 tests/scripts/misc/metadata.zs:18
 SETV GD4 0                                                                      | 3 tests/scripts/misc/metadata.zs:20
 SETV GD5 2                                                                      | 4 tests/scripts/misc/metadata.zs:20
-SETV GD6 0                                                                      | 5 tests/scripts/misc/metadata.zs:119
+SETV GD6 0                                                                      | 5 tests/scripts/misc/metadata.zs:123
 QUIT; void run() Body End
-PUSHR D0; void run(int, int, int, int, int) Params                              | 7 tests/scripts/misc/metadata.zs:77
-PUSHR D1                                                                        | 8 tests/scripts/misc/metadata.zs:77
-PUSHR D2                                                                        | 9 tests/scripts/misc/metadata.zs:77
-PUSHR D3                                                                        | 10 tests/scripts/misc/metadata.zs:77
-PUSHR D4                                                                        | 11 tests/scripts/misc/metadata.zs:77
-PUSHR REFFFC; void run(int, int, int, int, int) Body Start                      | 12 tests/scripts/misc/metadata.zs:77
-PUSHARGSV 0 0.0008                                                              | 13 tests/scripts/misc/metadata.zs:77
-SETR D4 SP2                                                                     | 14 tests/scripts/misc/metadata.zs:77
-ALLOCATEMEMV D2 7 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 15 tests/scripts/misc/metadata.zs:78
-WRITEPODSTRING D2 "%d %d\n"                                                     | 16 tests/scripts/misc/metadata.zs:78
-PUSHR D2                                                                        | 17 tests/scripts/misc/metadata.zs:78
-SETR D2 GD1                                                                     | 18 tests/scripts/misc/metadata.zs:78
-PUSHR D2                                                                        | 19 tests/scripts/misc/metadata.zs:78
-SETR D2 GD2                                                                     | 20 tests/scripts/misc/metadata.zs:78
-POP D3                                                                          | 21 tests/scripts/misc/metadata.zs:78
-ADDR D2 D3                                                                      | 22 tests/scripts/misc/metadata.zs:78
-PUSHVARGR D2                                                                    | 23 tests/scripts/misc/metadata.zs:78
-SETR D2 GD3                                                                     | 24 tests/scripts/misc/metadata.zs:78
-ADDV D2 1                                                                       | 25 tests/scripts/misc/metadata.zs:78
-ADDV D2 2                                                                       | 26 tests/scripts/misc/metadata.zs:78
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 27 tests/scripts/misc/metadata.zs:78
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 28 tests/scripts/misc/metadata.zs:78
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 29 tests/scripts/misc/metadata.zs:78
-PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:79
-PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 31 tests/scripts/misc/metadata.zs:79
-CALLFUNC 0.0157; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:79
+PUSHR D0; void run(int, int, int, int, int) Params                              | 7 tests/scripts/misc/metadata.zs:81
+PUSHR D1                                                                        | 8 tests/scripts/misc/metadata.zs:81
+PUSHR D2                                                                        | 9 tests/scripts/misc/metadata.zs:81
+PUSHR D3                                                                        | 10 tests/scripts/misc/metadata.zs:81
+PUSHR D4                                                                        | 11 tests/scripts/misc/metadata.zs:81
+PUSHR REFFFC; void run(int, int, int, int, int) Body Start                      | 12 tests/scripts/misc/metadata.zs:81
+PUSHARGSV 0 0.0008                                                              | 13 tests/scripts/misc/metadata.zs:81
+SETR D4 SP2                                                                     | 14 tests/scripts/misc/metadata.zs:81
+ALLOCATEMEMV D2 7 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 15 tests/scripts/misc/metadata.zs:82
+WRITEPODSTRING D2 "%d %d\n"                                                     | 16 tests/scripts/misc/metadata.zs:82
+PUSHR D2                                                                        | 17 tests/scripts/misc/metadata.zs:82
+SETR D2 GD1                                                                     | 18 tests/scripts/misc/metadata.zs:82
+PUSHR D2                                                                        | 19 tests/scripts/misc/metadata.zs:82
+SETR D2 GD2                                                                     | 20 tests/scripts/misc/metadata.zs:82
+POP D3                                                                          | 21 tests/scripts/misc/metadata.zs:82
+ADDR D2 D3                                                                      | 22 tests/scripts/misc/metadata.zs:82
+PUSHVARGR D2                                                                    | 23 tests/scripts/misc/metadata.zs:82
+SETR D2 GD3                                                                     | 24 tests/scripts/misc/metadata.zs:82
+ADDV D2 1                                                                       | 25 tests/scripts/misc/metadata.zs:82
+ADDV D2 2                                                                       | 26 tests/scripts/misc/metadata.zs:82
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 27 tests/scripts/misc/metadata.zs:82
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 28 tests/scripts/misc/metadata.zs:82
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 29 tests/scripts/misc/metadata.zs:82
+PUSHR D4                                                                        | 30 tests/scripts/misc/metadata.zs:83
+PUSHR GD1; UsrFunc[void fn(int)] Params                                         | 31 tests/scripts/misc/metadata.zs:83
+CALLFUNC 0.0157; UsrFunc[void fn(int)] Call                                     | 32 tests/scripts/misc/metadata.zs:83
 PEEK D4
-PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 34 tests/scripts/misc/metadata.zs:80
-CALLFUNC 0.0151; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:80
-POP D4                                                                          | 36 tests/scripts/misc/metadata.zs:80
-PUSHR CLASS_THISKEY                                                             | 37 tests/scripts/misc/metadata.zs:83
-PUSHR D4                                                                        | 38 tests/scripts/misc/metadata.zs:83
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 39 tests/scripts/misc/metadata.zs:83
-CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:83
-POP D4                                                                          | 41 tests/scripts/misc/metadata.zs:83
-POP CLASS_THISKEY                                                               | 42 tests/scripts/misc/metadata.zs:83
-STORE_OBJECT D2 0.0007                                                          | 43 tests/scripts/misc/metadata.zs:83
-ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 44 tests/scripts/misc/metadata.zs:84
-WRITEPODSTRING D2 "%d %d %d\n"                                                  | 45 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 46 tests/scripts/misc/metadata.zs:84
-LOAD D2 0.0007                                                                  | 47 tests/scripts/misc/metadata.zs:84
-ZCLASS_READ D2 0                                                                | 48 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2                                                                    | 49 tests/scripts/misc/metadata.zs:84
-LOAD D2 0.0013                                                                  | 50 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2                                                                    | 51 tests/scripts/misc/metadata.zs:84
-SETR D2 GD6                                                                     | 52 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 53 tests/scripts/misc/metadata.zs:84
-SETR D2 GD4                                                                     | 54 tests/scripts/misc/metadata.zs:84
-POP D3                                                                          | 55 tests/scripts/misc/metadata.zs:84
-ADDR D2 D3                                                                      | 56 tests/scripts/misc/metadata.zs:84
-PUSHR D2                                                                        | 57 tests/scripts/misc/metadata.zs:84
-SETR D2 GD5                                                                     | 58 tests/scripts/misc/metadata.zs:84
-POP D3                                                                          | 59 tests/scripts/misc/metadata.zs:84
-ADDR D2 D3                                                                      | 60 tests/scripts/misc/metadata.zs:84
-ADDV D2 1                                                                       | 61 tests/scripts/misc/metadata.zs:84
-ADDV D2 2                                                                       | 62 tests/scripts/misc/metadata.zs:84
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 63 tests/scripts/misc/metadata.zs:84
-PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 64 tests/scripts/misc/metadata.zs:84
-POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 65 tests/scripts/misc/metadata.zs:84
-PUSHR CLASS_THISKEY                                                             | 66 tests/scripts/misc/metadata.zs:85
-PUSHR D4                                                                        | 67 tests/scripts/misc/metadata.zs:85
-CALLFUNC 0.0139; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:85
-POP D4                                                                          | 69 tests/scripts/misc/metadata.zs:85
-POP CLASS_THISKEY                                                               | 70 tests/scripts/misc/metadata.zs:85
-STORE_OBJECT D2 0.0006                                                          | 71 tests/scripts/misc/metadata.zs:85
-PUSHR CLASS_THISKEY                                                             | 72 tests/scripts/misc/metadata.zs:86
-PUSHR D4                                                                        | 73 tests/scripts/misc/metadata.zs:86
-PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 74 tests/scripts/misc/metadata.zs:86
-CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:86
-POP D4                                                                          | 76 tests/scripts/misc/metadata.zs:86
-POP CLASS_THISKEY                                                               | 77 tests/scripts/misc/metadata.zs:86
-STORE_OBJECT D2 0.0005                                                          | 78 tests/scripts/misc/metadata.zs:86
-LOAD D2 0.0007                                                                  | 79 tests/scripts/misc/metadata.zs:88
-ZCLASS_READ D2 0                                                                | 80 tests/scripts/misc/metadata.zs:88
-STORE D2 0.0004                                                                 | 81 tests/scripts/misc/metadata.zs:88
-LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 82 tests/scripts/misc/metadata.zs:89
-WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 83 tests/scripts/misc/metadata.zs:89
-ALLOCATEMEMV D2 3 0                                                             | 84 tests/scripts/misc/metadata.zs:91
-PUSHR D2                                                                        | 85 tests/scripts/misc/metadata.zs:91
-WRITEPODARRAY D2 {1,2,3}                                                        | 86 tests/scripts/misc/metadata.zs:91
-POP D2                                                                          | 87 tests/scripts/misc/metadata.zs:91
-STORE_OBJECT D2 0.0003                                                          | 88 tests/scripts/misc/metadata.zs:91
-LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 89 tests/scripts/misc/metadata.zs:92
-STORE_OBJECT D2 0.0001                                                          | 90 tests/scripts/misc/metadata.zs:92
-STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 91 tests/scripts/misc/metadata.zs:92
-STOREV 0 0; for(each) #1 ValDecl                                                | 92 tests/scripts/misc/metadata.zs:92
-LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 93 tests/scripts/misc/metadata.zs:92
-ARRAYSIZE D0                                                                    | 94 tests/scripts/misc/metadata.zs:92
-LOAD D3 0.0002                                                                  | 95 tests/scripts/misc/metadata.zs:92
-COMPARER D3 D2                                                                  | 96 tests/scripts/misc/metadata.zs:92
-GOTOCMP 106 >=; for(each) #1 to Else                                            | 97 tests/scripts/misc/metadata.zs:92
-READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 98 tests/scripts/misc/metadata.zs:92
-STORE D2 0                                                                      | 99 tests/scripts/misc/metadata.zs:92
-ADDV D3 1                                                                       | 100 tests/scripts/misc/metadata.zs:92
-STORE D3 0.0002                                                                 | 101 tests/scripts/misc/metadata.zs:92
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 102 tests/scripts/misc/metadata.zs:93
-TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 103 tests/scripts/misc/metadata.zs:93
-GOTO 94; for(each) #1 End                                                       | 104 tests/scripts/misc/metadata.zs:92
-REF_REMOVE 0.0001                                                               | 105 tests/scripts/misc/metadata.zs:92
-STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 106 tests/scripts/misc/metadata.zs:95
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 107 tests/scripts/misc/metadata.zs:97
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 108 tests/scripts/misc/metadata.zs:97
-STOREV 0 0.0002                                                                 | 109 tests/scripts/misc/metadata.zs:99
-LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 110 tests/scripts/misc/metadata.zs:100
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 111 tests/scripts/misc/metadata.zs:100
-STOREV 0 0.0001                                                                 | 112 tests/scripts/misc/metadata.zs:108
-REF_REMOVE 0.0003                                                               | 113 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0007                                                               | 114 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0005                                                               | 115 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0006                                                               | 116 tests/scripts/misc/metadata.zs:77
-REF_REMOVE 0.0001                                                               | 117 tests/scripts/misc/metadata.zs:77
-POPARGS D5 0.0014                                                               | 118 tests/scripts/misc/metadata.zs:108
-RETURNFUNC; void run(int, int, int, int, int) Body End                          | 119 tests/scripts/misc/metadata.zs:108
+PUSHV 1; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Params               | 34 tests/scripts/misc/metadata.zs:84
+CALLFUNC 0.0151; UsrFunc[FilterBitflags do_filter(FilterBitflags)] Call         | 35 tests/scripts/misc/metadata.zs:84
+POP D4                                                                          | 36 tests/scripts/misc/metadata.zs:84
+PUSHR CLASS_THISKEY                                                             | 37 tests/scripts/misc/metadata.zs:87
+PUSHR D4                                                                        | 38 tests/scripts/misc/metadata.zs:87
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 39 tests/scripts/misc/metadata.zs:87
+CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 40 tests/scripts/misc/metadata.zs:87
+POP D4                                                                          | 41 tests/scripts/misc/metadata.zs:87
+POP CLASS_THISKEY                                                               | 42 tests/scripts/misc/metadata.zs:87
+STORE_OBJECT D2 0.0007                                                          | 43 tests/scripts/misc/metadata.zs:87
+ALLOCATEMEMV D2 10 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start | 44 tests/scripts/misc/metadata.zs:88
+WRITEPODSTRING D2 "%d %d %d\n"                                                  | 45 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 46 tests/scripts/misc/metadata.zs:88
+LOAD D2 0.0007                                                                  | 47 tests/scripts/misc/metadata.zs:88
+ZCLASS_READ D2 0                                                                | 48 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2                                                                    | 49 tests/scripts/misc/metadata.zs:88
+LOAD D2 0.0013                                                                  | 50 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2                                                                    | 51 tests/scripts/misc/metadata.zs:88
+SETR D2 GD6                                                                     | 52 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 53 tests/scripts/misc/metadata.zs:88
+SETR D2 GD4                                                                     | 54 tests/scripts/misc/metadata.zs:88
+POP D3                                                                          | 55 tests/scripts/misc/metadata.zs:88
+ADDR D2 D3                                                                      | 56 tests/scripts/misc/metadata.zs:88
+PUSHR D2                                                                        | 57 tests/scripts/misc/metadata.zs:88
+SETR D2 GD5                                                                     | 58 tests/scripts/misc/metadata.zs:88
+POP D3                                                                          | 59 tests/scripts/misc/metadata.zs:88
+ADDR D2 D3                                                                      | 60 tests/scripts/misc/metadata.zs:88
+ADDV D2 1                                                                       | 61 tests/scripts/misc/metadata.zs:88
+ADDV D2 2                                                                       | 62 tests/scripts/misc/metadata.zs:88
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End        | 63 tests/scripts/misc/metadata.zs:88
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start          | 64 tests/scripts/misc/metadata.zs:88
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End                | 65 tests/scripts/misc/metadata.zs:88
+PUSHR CLASS_THISKEY                                                             | 66 tests/scripts/misc/metadata.zs:89
+PUSHR D4                                                                        | 67 tests/scripts/misc/metadata.zs:89
+CALLFUNC 0.0139; ClassFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Constructor Call | 68 tests/scripts/misc/metadata.zs:89
+POP D4                                                                          | 69 tests/scripts/misc/metadata.zs:89
+POP CLASS_THISKEY                                                               | 70 tests/scripts/misc/metadata.zs:89
+STORE_OBJECT D2 0.0006                                                          | 71 tests/scripts/misc/metadata.zs:89
+PUSHR CLASS_THISKEY                                                             | 72 tests/scripts/misc/metadata.zs:90
+PUSHR D4                                                                        | 73 tests/scripts/misc/metadata.zs:90
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params                                    | 74 tests/scripts/misc/metadata.zs:90
+CALLFUNC 0.0121; ClassFunc[Car Car::Car(int)] Constructor Call                  | 75 tests/scripts/misc/metadata.zs:90
+POP D4                                                                          | 76 tests/scripts/misc/metadata.zs:90
+POP CLASS_THISKEY                                                               | 77 tests/scripts/misc/metadata.zs:90
+STORE_OBJECT D2 0.0005                                                          | 78 tests/scripts/misc/metadata.zs:90
+LOAD D2 0.0007                                                                  | 79 tests/scripts/misc/metadata.zs:92
+ZCLASS_READ D2 0                                                                | 80 tests/scripts/misc/metadata.zs:92
+STORE D2 0.0004                                                                 | 81 tests/scripts/misc/metadata.zs:92
+LOAD D2 0.0004; InlineFunc[int WrapDeg(int)] Params                             | 82 tests/scripts/misc/metadata.zs:93
+WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body                               | 83 tests/scripts/misc/metadata.zs:93
+ALLOCATEMEMV D2 3 0                                                             | 84 tests/scripts/misc/metadata.zs:95
+PUSHR D2                                                                        | 85 tests/scripts/misc/metadata.zs:95
+WRITEPODARRAY D2 {1,2,3}                                                        | 86 tests/scripts/misc/metadata.zs:95
+POP D2                                                                          | 87 tests/scripts/misc/metadata.zs:95
+STORE_OBJECT D2 0.0003                                                          | 88 tests/scripts/misc/metadata.zs:95
+LOAD D2 0.0003; for(each) #1 ArrDecl                                            | 89 tests/scripts/misc/metadata.zs:96
+STORE_OBJECT D2 0.0001                                                          | 90 tests/scripts/misc/metadata.zs:96
+STOREV 0 0.0002; for(each) #1 IndxDecl                                          | 91 tests/scripts/misc/metadata.zs:96
+STOREV 0 0; for(each) #1 ValDecl                                                | 92 tests/scripts/misc/metadata.zs:96
+LOAD D0 0.0001; for(each) #1 EndArrayCheck                                      | 93 tests/scripts/misc/metadata.zs:96
+ARRAYSIZE D0                                                                    | 94 tests/scripts/misc/metadata.zs:96
+LOAD D3 0.0002                                                                  | 95 tests/scripts/misc/metadata.zs:96
+COMPARER D3 D2                                                                  | 96 tests/scripts/misc/metadata.zs:96
+GOTOCMP 106 >=; for(each) #1 to Else                                            | 97 tests/scripts/misc/metadata.zs:96
+READPODARRAYR D2 D3; for(each) #1 Next Index                                    | 98 tests/scripts/misc/metadata.zs:96
+STORE D2 0                                                                      | 99 tests/scripts/misc/metadata.zs:96
+ADDV D3 1                                                                       | 100 tests/scripts/misc/metadata.zs:96
+STORE D3 0.0002                                                                 | 101 tests/scripts/misc/metadata.zs:96
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start   | 102 tests/scripts/misc/metadata.zs:97
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End       | 103 tests/scripts/misc/metadata.zs:97
+GOTO 94; for(each) #1 End                                                       | 104 tests/scripts/misc/metadata.zs:96
+REF_REMOVE 0.0001                                                               | 105 tests/scripts/misc/metadata.zs:96
+STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]                                | 106 tests/scripts/misc/metadata.zs:99
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 107 tests/scripts/misc/metadata.zs:101
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 108 tests/scripts/misc/metadata.zs:101
+STOREV 0 0.0002                                                                 | 109 tests/scripts/misc/metadata.zs:103
+LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params                          | 110 tests/scripts/misc/metadata.zs:104
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 111 tests/scripts/misc/metadata.zs:104
+STOREV 0 0.0001                                                                 | 112 tests/scripts/misc/metadata.zs:112
+REF_REMOVE 0.0003                                                               | 113 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0007                                                               | 114 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0005                                                               | 115 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0006                                                               | 116 tests/scripts/misc/metadata.zs:81
+REF_REMOVE 0.0001                                                               | 117 tests/scripts/misc/metadata.zs:81
+POPARGS D5 0.0014                                                               | 118 tests/scripts/misc/metadata.zs:112
+RETURNFUNC; void run(int, int, int, int, int) Body End                          | 119 tests/scripts/misc/metadata.zs:112
 SETV D2 0; Func[Car Car::Car(int)] Body Start                                   | 120 tests/scripts/misc/metadata.zs:28
 SETR CLASS_THISKEY2 CLASS_THISKEY                                               | 121 tests/scripts/misc/metadata.zs:28
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}                                         | 122 tests/scripts/misc/metadata.zs:28
@@ -2845,13 +2919,13 @@ REF_DEC -0.0001
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Body End
-SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 150 tests/scripts/misc/metadata.zs:61
-LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 151 tests/scripts/misc/metadata.zs:63
-TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 152 tests/scripts/misc/metadata.zs:63
-LOAD D2 0; return Start                                                         | 153 tests/scripts/misc/metadata.zs:64
-POP D5; return End                                                              | 154 tests/scripts/misc/metadata.zs:64
-RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 155 tests/scripts/misc/metadata.zs:64
-SETR D4 SP2; Func[void fn(int)] Body Start                                      | 156 tests/scripts/misc/metadata.zs:115
+SETR D4 SP2; Func[FilterBitflags do_filter(FilterBitflags)] Body Start          | 150 tests/scripts/misc/metadata.zs:65
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params                               | 151 tests/scripts/misc/metadata.zs:67
+TRACER D2; InlineFunc[void Trace(untyped)] Body                                 | 152 tests/scripts/misc/metadata.zs:67
+LOAD D2 0; return Start                                                         | 153 tests/scripts/misc/metadata.zs:68
+POP D5; return End                                                              | 154 tests/scripts/misc/metadata.zs:68
+RETURNFUNC; Func[FilterBitflags do_filter(FilterBitflags)] Body End             | 155 tests/scripts/misc/metadata.zs:68
+SETR D4 SP2; Func[void fn(int)] Body Start                                      | 156 tests/scripts/misc/metadata.zs:119
 NOP
 POP D5
 RETURNFUNC; Func[void fn(int)] Body End

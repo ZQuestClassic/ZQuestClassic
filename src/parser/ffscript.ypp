@@ -1852,7 +1852,14 @@ Annotated_Enum:
 		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
 		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
 		if(tdef) en = tdef->definition.get();
-		if(tdef) tdef->doc_comment = std::move(list->doc_comment);
+		if(tdef)
+		{
+			if (!list->doc_comment.empty()) tdef->doc_comment = std::move(list->doc_comment);
+		}
+		else if(en)
+		{
+			if (!list->doc_comment.empty()) en->doc_comment = std::move(list->doc_comment);
+		}
 		handle_annotations(list, [&](AnnotData& data)
 		{
 			auto& key = data.key;
@@ -1883,13 +1890,19 @@ Annotated_Enum:
 	| DataEnum {$$ = $1;}
 
 DataEnum:
-	ENUM LBRACE Enum_Block Trail_Comma_RBrace {$$ = $3;}
+	ENUM LBRACE Enum_Block Trail_Comma_RBrace {
+		ASTDataEnum* list = (ASTDataEnum*)$3;
+		list->doc_comment = std::move($1->doc_comment);
+		delete $1;
+		$$ = list;}
 	| ENUM ASSIGN DataType LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* list = (ASTDataEnum*)$5;
 		ASTDataType* type = (ASTDataType*)$3;
 		type->constant_ = 1; //force to be constant, skip `const const` errors
 		list->baseType = type;
 		list->location = @$;
+		list->doc_comment = std::move($1->doc_comment);
+		delete $1;
 		$$ = list;}
 	| ENUM IDENTIFIER LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* en = (ASTDataEnum*)$4;
@@ -1897,6 +1910,9 @@ DataEnum:
 		ASTString* identifier = (ASTString*)$2;
 		auto custom_typedef = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
 		custom_typedef->doc_comment = std::move(identifier->doc_comment);
+		if (custom_typedef->doc_comment.empty())
+			custom_typedef->doc_comment = std::move($1->doc_comment);
+		delete $1;
 		$$ = custom_typedef;};
 
 Enum_Block:

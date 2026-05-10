@@ -254,7 +254,7 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 		return;
 
 	// TODO: the doc_comment isn't always in a consistent place. For example see `utils::hmm // ...` in `metadata.zh` 
-	if (auto n = dynamic_cast<const ASTDataDecl*>(symbol_node); n && n->list && symbol_node->doc_comment.empty())
+	if (auto n = dynamic_cast<const ASTDataDecl*>(symbol_node); n && n->list && symbol_node->doc_comment.empty() && !n->list->isEnum())
 		symbol_node = n->list;
 
 	if (!root["symbols"].contains(symbol_id))

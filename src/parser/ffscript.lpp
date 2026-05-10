@@ -64,6 +64,14 @@ yylval = new CONSTRUCTOR; \
 comment_str.str(""); \
 return TOK_##NAME
 
+// Return token and value, and set as the first identifier for the line (to capture trailing comments).
+#define VALUE_FIRST(NAME, CONSTRUCTOR) \
+UPDATE_YYLLOC; \
+yylval = new CONSTRUCTOR; \
+comment_str.str(""); \
+if (!first_identifier_for_line) first_identifier_for_line = yylval; \
+return TOK_##NAME
+
 // Error, but still return token and value (so we can keep reporting errors).
 #define ERR_VALUE(NAME, CONSTRUCTOR, ERR) \
 UPDATE_YYLLOC; \
@@ -111,7 +119,7 @@ typedef		TOKEN( TYPEDEF );
 
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 IS_INCLUDED		++doImportStr; TOKEN( ISINCLUDED );
-enum			TOKEN( ENUM );
+enum			VALUE_FIRST( ENUM, ASTString("", comment_str.str().c_str(), yylloc) );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
 always			TOKEN( ALWAYS );

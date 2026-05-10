@@ -57,6 +57,10 @@ enum FilterBitflags
     F_SHINY, F_UGLY, F_SMALL, F_FAST
 };
 
+enum { // Blah (should not get assigned to BLAH_1)
+    BLAH_1
+};
+
 // filters with [FilterBitflags].
 FilterBitflags do_filter(FilterBitflags f)
 {

@@ -89,7 +89,7 @@ static void linkifyString(std::string& string, const AST* node)
 static json getCommentJson(const AST* node)
 {
 	// TODO: the doc_comment isn't always in a consistent place. For example see `utils::hmm // ...` in `metadata.zh` 
-	if (auto n = dynamic_cast<const ASTDataDecl*>(node); n && n->list && node->doc_comment.empty())
+	if (auto n = dynamic_cast<const ASTDataDecl*>(node); n && n->list && node->doc_comment.empty() && !n->list->isEnum())
 		node = n->list;
 	else if (auto n = dynamic_cast<const ASTDataEnum*>(node); n)
 		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(n->baseType->type.get()); custom_type && custom_type->getSource())
