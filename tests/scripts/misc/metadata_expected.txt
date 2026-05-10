@@ -1123,7 +1123,7 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
-      "5202": {
+      "5204": {
         "loc": {
           "range": {
             "start": {
@@ -1139,7 +1139,7 @@ stdout:
         },
         "doc": "top class"
       },
-      "5203": {
+      "5205": {
         "loc": {
           "range": {
             "start": {
@@ -1155,7 +1155,7 @@ stdout:
         },
         "doc": "absolute trash"
       },
-      "5204": {
+      "5206": {
         "loc": {
           "range": {
             "start": {
@@ -1172,36 +1172,6 @@ stdout:
         "doc": "meh"
       },
       "custom.198": {
-        "loc": {
-          "range": {
-            "start": {
-              "line": 54,
-              "character": 5
-            },
-            "end": {
-              "line": 54,
-              "character": 19
-            }
-          },
-          "uri": "URI"
-        }
-      },
-      "5205": {
-        "loc": {
-          "range": {
-            "start": {
-              "line": 54,
-              "character": 5
-            },
-            "end": {
-              "line": 54,
-              "character": 19
-            }
-          },
-          "uri": "URI"
-        }
-      },
-      "5206": {
         "loc": {
           "range": {
             "start": {
@@ -1250,6 +1220,36 @@ stdout:
         "loc": {
           "range": {
             "start": {
+              "line": 54,
+              "character": 5
+            },
+            "end": {
+              "line": 54,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        }
+      },
+      "5210": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 54,
+              "character": 5
+            },
+            "end": {
+              "line": 54,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        }
+      },
+      "5211": {
+        "loc": {
+          "range": {
+            "start": {
               "line": 2,
               "character": 4
             },
@@ -1264,7 +1264,7 @@ stdout:
         "name": "postfix",
         "type": "int"
       },
-      "5210": {
+      "5212": {
         "loc": {
           "range": {
             "start": {
@@ -1282,7 +1282,7 @@ stdout:
         "name": "postfix2",
         "type": "int"
       },
-      "5211": {
+      "5213": {
         "loc": {
           "range": {
             "start": {
@@ -1300,7 +1300,7 @@ stdout:
         "name": "x",
         "type": "int"
       },
-      "5212": {
+      "5214": {
         "loc": {
           "range": {
             "start": {
@@ -1318,7 +1318,7 @@ stdout:
         "name": "y",
         "type": "int"
       },
-      "5213": {
+      "5215": {
         "loc": {
           "range": {
             "start": {
@@ -1368,7 +1368,7 @@ stdout:
         },
         "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n\n**@deprecated_alias** TraceLWeapon\n\n**@deprecated_alias** TraceEWeapon\n\n**@deprecated_alias** TraceNPC\n\n**@deprecated_alias** TraceFFC\n\n**@deprecated_alias** TraceItem\n\n**@deprecated_alias** TraceItemData"
       },
-      "5364": {
+      "5366": {
         "loc": {
           "range": {
             "start": {
@@ -1416,7 +1416,7 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5371": {
+      "5373": {
         "loc": {
           "range": {
             "start": {
@@ -1463,7 +1463,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5344": {
+      "5346": {
         "loc": {
           "range": {
             "start": {
@@ -1480,7 +1480,7 @@ stdout:
         "name": "b",
         "type": "bool"
       },
-      "5214": {
+      "5216": {
         "loc": {
           "range": {
             "start": {
@@ -1561,7 +1561,7 @@ stdout:
         },
         "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
       },
-      "5417": {
+      "5419": {
         "loc": {
           "range": {
             "start": {
@@ -1611,7 +1611,7 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A102%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A102%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A3%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A3%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A13%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A13%2C%22character%22%3A25%7D%7D%7D)"
       },
-      "5411": {
+      "5413": {
         "loc": {
           "range": {
             "start": {
@@ -1643,7 +1643,7 @@ stdout:
         "name": "d",
         "type": "IhaveAdefCtor"
       },
-      "5418": {
+      "5420": {
         "loc": {
           "range": {
             "start": {
@@ -1675,7 +1675,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "5419": {
+      "5421": {
         "loc": {
           "range": {
             "start": {
@@ -1692,7 +1692,7 @@ stdout:
         "name": "c2",
         "type": "Car"
       },
-      "5420": {
+      "5422": {
         "loc": {
           "range": {
             "start": {
@@ -1726,7 +1726,7 @@ stdout:
         },
         "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A765%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A765%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
-      "5421": {
+      "5423": {
         "loc": {
           "range": {
             "start": {
@@ -1744,7 +1744,7 @@ stdout:
         "name": "arr",
         "type": "int[]"
       },
-      "5424": {
+      "5426": {
         "loc": {
           "range": {
             "start": {
@@ -1761,7 +1761,7 @@ stdout:
         "name": "v",
         "type": "int"
       },
-      "5422": {
+      "5424": {
         "loc": {
           "range": {
             "start": {
@@ -1778,7 +1778,7 @@ stdout:
         "name": "__LOOP_ITER",
         "type": "int"
       },
-      "5423": {
+      "5425": {
         "loc": {
           "range": {
             "start": {
@@ -1795,7 +1795,7 @@ stdout:
         "name": "__LOOP_ARR",
         "type": "int[]"
       },
-      "5425": {
+      "5427": {
         "loc": {
           "range": {
             "start": {
@@ -1812,7 +1812,7 @@ stdout:
         "name": "ahhh",
         "type": "int"
       },
-      "5426": {
+      "5428": {
         "loc": {
           "range": {
             "start": {
@@ -1829,7 +1829,7 @@ stdout:
         "name": "b",
         "type": "Brand"
       },
-      "5427": {
+      "5429": {
         "loc": {
           "range": {
             "start": {
@@ -1847,7 +1847,7 @@ stdout:
         "name": "s",
         "type": "char32[]"
       },
-      "5215": {
+      "5217": {
         "loc": {
           "range": {
             "start": {
@@ -1896,7 +1896,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "7422": {
+      "7424": {
         "loc": {
           "range": {
             "start": {
@@ -1927,7 +1927,7 @@ stdout:
           "character": 4,
           "length": 5
         },
-        "symbol": "5202"
+        "symbol": "5204"
       },
       {
         "loc": {
@@ -1935,7 +1935,7 @@ stdout:
           "character": 4,
           "length": 4
         },
-        "symbol": "5203"
+        "symbol": "5205"
       },
       {
         "loc": {
@@ -1943,7 +1943,7 @@ stdout:
           "character": 4,
           "length": 3
         },
-        "symbol": "5204"
+        "symbol": "5206"
       },
       {
         "loc": {
@@ -1959,7 +1959,7 @@ stdout:
           "character": 4,
           "length": 7
         },
-        "symbol": "5205"
+        "symbol": "5207"
       },
       {
         "loc": {
@@ -1967,7 +1967,7 @@ stdout:
           "character": 13,
           "length": 6
         },
-        "symbol": "5206"
+        "symbol": "5208"
       },
       {
         "loc": {
@@ -1975,7 +1975,7 @@ stdout:
           "character": 21,
           "length": 7
         },
-        "symbol": "5207"
+        "symbol": "5209"
       },
       {
         "loc": {
@@ -1983,7 +1983,7 @@ stdout:
           "character": 30,
           "length": 6
         },
-        "symbol": "5208"
+        "symbol": "5210"
       },
       {
         "loc": {
@@ -1991,7 +1991,7 @@ stdout:
           "character": 4,
           "length": 7
         },
-        "symbol": "5209"
+        "symbol": "5211"
       },
       {
         "loc": {
@@ -1999,7 +1999,7 @@ stdout:
           "character": 4,
           "length": 8
         },
-        "symbol": "5210"
+        "symbol": "5212"
       },
       {
         "loc": {
@@ -2007,7 +2007,7 @@ stdout:
           "character": 15,
           "length": 7
         },
-        "symbol": "5209"
+        "symbol": "5211"
       },
       {
         "loc": {
@@ -2015,7 +2015,7 @@ stdout:
           "character": 4,
           "length": 1
         },
-        "symbol": "5211"
+        "symbol": "5213"
       },
       {
         "loc": {
@@ -2023,7 +2023,7 @@ stdout:
           "character": 4,
           "length": 1
         },
-        "symbol": "5212"
+        "symbol": "5214"
       },
       {
         "loc": {
@@ -2031,7 +2031,7 @@ stdout:
           "character": 7,
           "length": 1
         },
-        "symbol": "5213"
+        "symbol": "5215"
       },
       {
         "loc": {
@@ -2063,7 +2063,7 @@ stdout:
           "character": 10,
           "length": 1
         },
-        "symbol": "5364"
+        "symbol": "5366"
       },
       {
         "loc": {
@@ -2071,7 +2071,7 @@ stdout:
           "character": 11,
           "length": 1
         },
-        "symbol": "5364"
+        "symbol": "5366"
       },
       {
         "loc": {
@@ -2103,7 +2103,7 @@ stdout:
           "character": 8,
           "length": 1
         },
-        "symbol": "5371"
+        "symbol": "5373"
       },
       {
         "loc": {
@@ -2111,7 +2111,7 @@ stdout:
           "character": 11,
           "length": 1
         },
-        "symbol": "5371"
+        "symbol": "5373"
       },
       {
         "loc": {
@@ -2135,7 +2135,7 @@ stdout:
           "character": 6,
           "length": 1
         },
-        "symbol": "5344"
+        "symbol": "5346"
       },
       {
         "loc": {
@@ -2151,7 +2151,7 @@ stdout:
           "character": 8,
           "length": 1
         },
-        "symbol": "5344"
+        "symbol": "5346"
       },
       {
         "loc": {
@@ -2159,7 +2159,7 @@ stdout:
           "character": 8,
           "length": 3
         },
-        "symbol": "5214"
+        "symbol": "5216"
       },
       {
         "loc": {
@@ -2199,7 +2199,7 @@ stdout:
           "character": 26,
           "length": 7
         },
-        "symbol": "5209"
+        "symbol": "5211"
       },
       {
         "loc": {
@@ -2207,7 +2207,7 @@ stdout:
           "character": 36,
           "length": 8
         },
-        "symbol": "5210"
+        "symbol": "5212"
       },
       {
         "loc": {
@@ -2215,7 +2215,7 @@ stdout:
           "character": 50,
           "length": 1
         },
-        "symbol": "5211"
+        "symbol": "5213"
       },
       {
         "loc": {
@@ -2231,7 +2231,7 @@ stdout:
           "character": 18,
           "length": 7
         },
-        "symbol": "5209"
+        "symbol": "5211"
       },
       {
         "loc": {
@@ -2247,7 +2247,7 @@ stdout:
           "character": 18,
           "length": 7
         },
-        "symbol": "5205"
+        "symbol": "5207"
       },
       {
         "loc": {
@@ -2263,7 +2263,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5417"
+        "symbol": "5419"
       },
       {
         "loc": {
@@ -2295,7 +2295,7 @@ stdout:
           "character": 29,
           "length": 1
         },
-        "symbol": "5417"
+        "symbol": "5419"
       },
       {
         "loc": {
@@ -2303,7 +2303,7 @@ stdout:
           "character": 39,
           "length": 6
         },
-        "symbol": "5411"
+        "symbol": "5413"
       },
       {
         "loc": {
@@ -2311,7 +2311,7 @@ stdout:
           "character": 54,
           "length": 3
         },
-        "symbol": "5214"
+        "symbol": "5216"
       },
       {
         "loc": {
@@ -2319,7 +2319,7 @@ stdout:
           "character": 60,
           "length": 1
         },
-        "symbol": "5212"
+        "symbol": "5214"
       },
       {
         "loc": {
@@ -2327,7 +2327,7 @@ stdout:
           "character": 64,
           "length": 1
         },
-        "symbol": "5213"
+        "symbol": "5215"
       },
       {
         "loc": {
@@ -2335,7 +2335,7 @@ stdout:
           "character": 68,
           "length": 4
         },
-        "symbol": "5203"
+        "symbol": "5205"
       },
       {
         "loc": {
@@ -2343,7 +2343,7 @@ stdout:
           "character": 75,
           "length": 5
         },
-        "symbol": "5202"
+        "symbol": "5204"
       },
       {
         "loc": {
@@ -2351,7 +2351,7 @@ stdout:
           "character": 83,
           "length": 3
         },
-        "symbol": "5204"
+        "symbol": "5206"
       },
       {
         "loc": {
@@ -2367,7 +2367,7 @@ stdout:
           "character": 13,
           "length": 1
         },
-        "symbol": "5418"
+        "symbol": "5420"
       },
       {
         "loc": {
@@ -2391,7 +2391,7 @@ stdout:
           "character": 12,
           "length": 2
         },
-        "symbol": "5419"
+        "symbol": "5421"
       },
       {
         "loc": {
@@ -2407,7 +2407,7 @@ stdout:
           "character": 12,
           "length": 1
         },
-        "symbol": "5420"
+        "symbol": "5422"
       },
       {
         "loc": {
@@ -2423,7 +2423,7 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "5417"
+        "symbol": "5419"
       },
       {
         "loc": {
@@ -2439,53 +2439,13 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "5420"
+        "symbol": "5422"
       },
       {
         "loc": {
           "line": 90,
           "character": 12,
           "length": 3
-        },
-        "symbol": "5421"
-      },
-      {
-        "loc": {
-          "line": 91,
-          "character": 17,
-          "length": 3
-        },
-        "symbol": "5421"
-      },
-      {
-        "loc": {
-          "line": 92,
-          "character": 12,
-          "length": 5
-        },
-        "symbol": "fn.381"
-      },
-      {
-        "loc": {
-          "line": 92,
-          "character": 18,
-          "length": 1
-        },
-        "symbol": "5424"
-      },
-      {
-        "loc": {
-          "line": 91,
-          "character": 13,
-          "length": 1
-        },
-        "symbol": "5422"
-      },
-      {
-        "loc": {
-          "line": 91,
-          "character": 13,
-          "length": 1
         },
         "symbol": "5423"
       },
@@ -2495,7 +2455,23 @@ stdout:
           "character": 17,
           "length": 3
         },
-        "symbol": "5421"
+        "symbol": "5423"
+      },
+      {
+        "loc": {
+          "line": 92,
+          "character": 12,
+          "length": 5
+        },
+        "symbol": "fn.381"
+      },
+      {
+        "loc": {
+          "line": 92,
+          "character": 18,
+          "length": 1
+        },
+        "symbol": "5426"
       },
       {
         "loc": {
@@ -2507,11 +2483,27 @@ stdout:
       },
       {
         "loc": {
-          "line": 94,
-          "character": 16,
-          "length": 4
+          "line": 91,
+          "character": 13,
+          "length": 1
         },
         "symbol": "5425"
+      },
+      {
+        "loc": {
+          "line": 91,
+          "character": 17,
+          "length": 3
+        },
+        "symbol": "5423"
+      },
+      {
+        "loc": {
+          "line": 91,
+          "character": 13,
+          "length": 1
+        },
+        "symbol": "5426"
       },
       {
         "loc": {
@@ -2519,7 +2511,15 @@ stdout:
           "character": 16,
           "length": 4
         },
-        "symbol": "5425"
+        "symbol": "5427"
+      },
+      {
+        "loc": {
+          "line": 94,
+          "character": 16,
+          "length": 4
+        },
+        "symbol": "5427"
       },
       {
         "loc": {
@@ -2535,7 +2535,7 @@ stdout:
           "character": 18,
           "length": 4
         },
-        "symbol": "5425"
+        "symbol": "5427"
       },
       {
         "loc": {
@@ -2551,7 +2551,7 @@ stdout:
           "character": 14,
           "length": 1
         },
-        "symbol": "5426"
+        "symbol": "5428"
       },
       {
         "loc": {
@@ -2559,7 +2559,7 @@ stdout:
           "character": 18,
           "length": 5
         },
-        "symbol": "5202"
+        "symbol": "5204"
       },
       {
         "loc": {
@@ -2575,7 +2575,7 @@ stdout:
           "character": 14,
           "length": 1
         },
-        "symbol": "5426"
+        "symbol": "5428"
       },
       {
         "loc": {
@@ -2583,7 +2583,7 @@ stdout:
           "character": 17,
           "length": 1
         },
-        "symbol": "5427"
+        "symbol": "5429"
       },
       {
         "loc": {
@@ -2599,7 +2599,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5215"
+        "symbol": "5217"
       },
       {
         "loc": {
@@ -2615,7 +2615,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "5215"
+        "symbol": "5217"
       },
       {
         "loc": {
@@ -2663,7 +2663,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "7422"
+        "symbol": "7424"
       },
       {
         "loc": {
