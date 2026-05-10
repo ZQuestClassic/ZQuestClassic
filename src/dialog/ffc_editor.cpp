@@ -434,10 +434,10 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 										" the colliding FFC. This can be used to make FFCs that move in patterns and such."),
 									CHECKB("Swap w/ Next FFC", ffc_swapnext, "If enabled, FFCs that collide with this changer will:\n"
 										"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
-										" next combo in the list after it."),
+										" next ffc in the list after it."),
 									CHECKB("Swap w/ Prev FFC", ffc_swapprev, "If enabled, FFCs that collide with this changer will:\n"
 										"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
-										" previous combo in the list before it. Overrides 'Swap w/ Next FFC'."),
+										" previous ffc in the list before it. Overrides 'Swap w/ Next FFC'."),
 									
 									CHECKB("Become This Combo+CSet", ffc_changethis, "If enabled, FFCs that collide with this changer will:\n"
 										"Change its' combo and cset to the combo and cset of this changer."),
