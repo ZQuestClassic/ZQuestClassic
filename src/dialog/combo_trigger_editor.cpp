@@ -155,7 +155,8 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		TRIGFLAG_PUSHEDTRIG,TRIGFLAG_DIVETRIG,TRIGFLAG_DIVESENSTRIG,TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,
 		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_PLAYERLANDHERE,
 		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
-		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,})) return true;
+		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
+		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,})) return true;
 	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
 	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
 	if(trig.trigcopycat) return true;
@@ -573,7 +574,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					),
 					Row(padding = 0_px,
-						Rows_Columns<4,5>(framed = true, vAlign = 0.0,
+						Rows_Columns<4,6>(framed = true, vAlign = 0.0,
 							IBTN("Triggers when stepped on"),
 							TRIGFLAG(TRIGFLAG_STEP,"Step->"),
 							IBTN("Triggers when stepped on by even a pixel"),
@@ -600,6 +601,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(TRIGFLAG_DIVETRIG, "Dive->"),
 							IBTN("Triggers when the Hero dives on this combo (more sensitive hitbox)"),
 							TRIGFLAG(TRIGFLAG_DIVESENSTRIG, "Dive-> (Sensitive)"),
+							//
+							IBTN("Triggers when the Hero swims on this combo"),
+							TRIGFLAG(TRIGFLAG_SWIMTRIG, "Swim->"),
+							IBTN("Triggers when the Hero swims on this combo (more sensitive hitbox)"),
+							TRIGFLAG(TRIGFLAG_SWIMSENSTRIG, "Swim-> (Sensitive)"),
 							//
 							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
 							TRIGFLAG(TRIGFLAG_SCREENLOAD,"Triggers when screen loads"),

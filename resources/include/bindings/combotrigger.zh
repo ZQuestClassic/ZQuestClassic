@@ -195,6 +195,12 @@ enum ComboTriggerFlag
 	// If true, the [combotrigger->CSetChange] will be an exact combo ID to change to, instead of a relative value.
 	// @versionadded 3.0
 	TRIGFLAG_CSET_CHANGE_ABSOLUTE,
+	// Triggers when the player swims in it
+	// @versionadded 3.0
+	TRIGFLAG_SWIMTRIG,
+	// Triggers when the player swims in it (more sensitively)
+	// @versionadded 3.0
+	TRIGFLAG_SWIMSENSTRIG,
 	TRIGFLAG_MAX
 };
 

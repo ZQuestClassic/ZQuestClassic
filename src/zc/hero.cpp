@@ -24794,6 +24794,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
 		
 		bool hasStep[4] = {false};
+		bool swim_triggers = isSwimming();
 		for(auto p = 0; p < 4; ++p)
 		{
 			if (rposes[p] == rpos_t::None) continue;
@@ -24807,7 +24808,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 				{
 					auto& trig = cmb.triggers[idx];
-					if (trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS})
+					if (trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS,
+						TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG}) // `Step->` meshes with `Swim->` as well
 						|| types[p] == cSTEP)
 					{
 						hasStep[p] = true;
@@ -24836,7 +24838,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{
 					auto rpos_handle = get_rpos_handle(rposes[p], lyr);
 					bool did_trig = canNormalStep && trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_STEP);
+						return trig.trigger_flags.get(TRIGFLAG_STEP) ||
+							(swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMTRIG));
 					});
 					if (did_trig && rposes[p] == sensRposes[p]) continue;
 				}
@@ -24844,7 +24847,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{
 					auto rpos_handle = get_rpos_handle(sensRposes[p], lyr);
 					trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_STEPSENS);
+						return trig.trigger_flags.get(TRIGFLAG_STEPSENS)
+							|| (swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMSENSTRIG));
 					});
 				}
 			}
@@ -24865,7 +24869,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if (found)
 			{
 				trig_each_combo_trigger(ffc_handle, [&](combo_trigger const& trig){
-					return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS});
+					return trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS})
+						|| (swim_triggers && trig.trigger_flags.any({TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG}));
 				});
 			}
 		});

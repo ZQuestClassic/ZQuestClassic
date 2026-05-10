@@ -379,6 +379,10 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			misc_cause.emplace_back("Dive->");
 		if (trigger_flags.get(TRIGFLAG_DIVESENSTRIG))
 			misc_cause.emplace_back("Dive-> (Sensitive)");
+		if (trigger_flags.get(TRIGFLAG_SWIMTRIG))
+			misc_cause.emplace_back("Swim->");
+		if (trigger_flags.get(TRIGFLAG_SWIMSENSTRIG))
+			misc_cause.emplace_back("Swim-> (Sensitive)");
 		if (trigger_flags.get(TRIGFLAG_SCREENLOAD))
 			misc_cause.emplace_back("On screen load");
 		if (trigger_flags.get(TRIGFLAG_AUTOMATIC))
