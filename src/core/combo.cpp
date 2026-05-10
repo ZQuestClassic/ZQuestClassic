@@ -393,6 +393,10 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			misc_cause.emplace_back("Land Anywhere->");
 		if (trigger_flags.get(TRIGFLAG_SECRETSTR))
 			misc_cause.emplace_back("Secrets->");
+		if (trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER))
+			misc_cause.emplace_back("Block (Same Layer)");
+		if (trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER))
+			misc_cause.emplace_back("Block (Any Layer)");
 
 		if (!misc_cause.empty())
 		{
