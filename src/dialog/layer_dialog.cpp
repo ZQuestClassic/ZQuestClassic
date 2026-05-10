@@ -201,7 +201,10 @@ bool LayerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				autolayer_data[autolayer] = temp_autolayer_data;
 				if (temp_autolayer_data.second != autolyr_blanklayers || !dest_ref.layermap[autolayer-1])
+				{
 					local_ref.layermap[autolayer-1] = temp_autolayer_data.first;
+					local_ref.layerscreen[autolayer-1] = screen;
+				}
 				autolayer = 0;
 				rerun_dlg = true;
 			}
