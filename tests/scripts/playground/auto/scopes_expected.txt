@@ -3431,14 +3431,14 @@ POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           
 POP REFCOMBOTRIGGER                                                             | 3402 resources/include/bindings/combodata.zh:381
 COMBOD_GET_TRIGGER D2                                                           | 3403 resources/include/bindings/combodata.zh:381
 RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3404 resources/include/bindings/combodata.zh:381
-POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3405 resources/include/bindings/combotrigger.zh:701
-POP REFCOMBOTRIGGER                                                             | 3406 resources/include/bindings/combotrigger.zh:701
-CMBTRIG_GET_LABEL D2                                                            | 3407 resources/include/bindings/combotrigger.zh:701
-RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3408 resources/include/bindings/combotrigger.zh:701
-POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:709
-POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:709
-CMBTRIG_SET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:709
-RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:709
+POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3405 resources/include/bindings/combotrigger.zh:735
+POP REFCOMBOTRIGGER                                                             | 3406 resources/include/bindings/combotrigger.zh:735
+CMBTRIG_GET_LABEL D2                                                            | 3407 resources/include/bindings/combotrigger.zh:735
+RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3408 resources/include/bindings/combotrigger.zh:735
+POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:743
+POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:743
+CMBTRIG_SET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:743
+RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:743
 POP D2; Func[directory directory::directory(char32[])] Body Start               | 3413 resources/include/bindings/directory.zh:6
 LOADDIRECTORYR D2                                                               | 3414 resources/include/bindings/directory.zh:6
 RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3415 resources/include/bindings/directory.zh:6
@@ -6521,7 +6521,10 @@ debug data:
       - const ComboTriggerFlag TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER @ Constant[1600000]
       - const ComboTriggerFlag TRIGFLAG_VIEWPORT_REQ_ONSCREEN @ Constant[1610000]
       - const ComboTriggerFlag TRIGFLAG_VIEWPORT_REQ_OFFSCREEN @ Constant[1620000]
-      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1630000]
+      - const ComboTriggerFlag TRIGFLAG_SFX_LOOP @ Constant[1630000]
+      - const ComboTriggerFlag TRIGFLAG_SFX_NO_RESTART @ Constant[1640000]
+      - const ComboTriggerFlag TRIGFLAG_SFX_KILL @ Constant[1650000]
+      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1660000]
     [CLASS] combotrigger <IDX:159>
       - int BossPal @ Reg[CMBTRIGBOSSPAL]
       - int Bunny @ Reg[CMBTRIGBUNNY]
@@ -6579,6 +6582,9 @@ debug data:
       - bool[] ReqScreenExState @ Reg[CMBTRIGREQSCREXSTATE]
       - bool[] ReqScreenState @ Reg[CMBTRIGREQSCRSTATE]
       - int SFX @ Reg[CMBTRIGSFX]
+      - int SFXFrequency @ Reg[CMBTRIGGER_SFX_FREQUENCY]
+      - int SFXPan @ Reg[CMBTRIGGER_SFX_PAN]
+      - int SFXVolume @ Reg[CMBTRIGGER_SFX_VOLUME]
       - int ShieldJinx @ Reg[CMBTRIGSHIELDJINX]
       - int SpawnEnemy @ Reg[CMBTRIGSPAWNENEMY]
       - int SpawnItem @ Reg[CMBTRIGSPAWNITEM]

@@ -767,7 +767,26 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		if (trigcschange)
 			effects << indent << "Change cset by " << int(trigcschange) << "\n";
 		if (trigsfx)
-			effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
+		{
+			if (trigger_flags.get(TRIGFLAG_SFX_KILL))
+			{
+				effects << indent << fmt::format("Kill SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
+			}
+			else
+			{
+				effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
+				if (sfx_pan > -1)
+					effects << indent << indent << "Pan " << sfx_pan << " / 255\n";
+				if (sfx_volume != 100)
+					effects << indent << indent << "Volume " << int(sfx_volume) << "%\n";
+				if (sfx_frequency > -1)
+					effects << indent << indent << "Frequency " << sfx_frequency << "\n";
+				if (trigger_flags.get(TRIGFLAG_SFX_LOOP))
+					effects << indent << indent << "Looping\n";
+				if (trigger_flags.get(TRIGFLAG_SFX_NO_RESTART))
+					effects << indent << indent << "Don't Restart\n";
+			}
+		}
 		if (trig_genscr)
 			effects << indent << fmt::format("Run generic script {} ({}) in frozen mode\n", trig_genscr, genericmap[trig_genscr].scriptname);
 		if (trig_msgstr)

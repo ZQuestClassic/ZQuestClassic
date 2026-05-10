@@ -1,8 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ZScript extension Autocomplete global constants latest 1`] = `[]`;
-
-exports[`ZScript extension Autocomplete global constants latest 2`] = `
+exports[`ZScript extension Autocomplete global constants latest 1`] = `
 [
   {
     "detail": "int",

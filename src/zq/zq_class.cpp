@@ -9520,6 +9520,12 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 		return 136;
 	if(!p_iputl(tmp_trig.chance_denominator, f))
 		return 137;
+	if(!p_iputw(tmp_trig.sfx_pan, f))
+		return 138;
+	if(!p_putc(tmp_trig.sfx_volume, f))
+		return 139;
+	if(!p_iputl(tmp_trig.sfx_frequency, f))
+		return 140;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)

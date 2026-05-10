@@ -239,6 +239,16 @@ void ComboTriggerDialog::updateWarnings()
 		warnings.emplace_back("Combo cannot be on-screen and off-screen at the same time!");
 	if (local_ref.chance_numerator > local_ref.chance_denominator)
 		warnings.emplace_back(fmt::format("{} in {} chance is >100%", local_ref.chance_numerator, local_ref.chance_denominator));
+	if (local_ref.sfx_pan > -1 || local_ref.sfx_volume != 100 || local_ref.sfx_frequency > -1 ||
+		local_ref.trigger_flags.get(TRIGFLAG_SFX_LOOP) || local_ref.trigger_flags.get(TRIGFLAG_SFX_NO_RESTART))
+	{
+		if (local_ref.trigsfx <= 0)
+			warnings.emplace_back("No sfx set, modified sfx pan/volume/frequency/etc will have no effect.");
+		else if (local_ref.trigger_flags.get(TRIGFLAG_SFX_KILL))
+			warnings.emplace_back("SFX is being killed, modified pan/volume/frequency/etc will have no effect.");
+	}
+	else if (local_ref.trigger_flags.get(TRIGFLAG_SFX_KILL) && local_ref.trigsfx <= 0)
+		warnings.emplace_back("Kill SFX flag set, but no SFX selected to kill.");
 	
 	warnbtn->setDisabled(warnings.empty());
 }
@@ -712,20 +722,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5,
 										hAlign = 0.0,
 										//
-										Label(text = "SFX:", hAlign = 1.0),
-										DropDownList(data = parent.list_sfx,
-											vPadding = 0_px, maxwidth = 250_px,
-											fitParent = true, selectedValue = local_ref.trigsfx,
-											onSelectFunc = [&](int32_t val)
-											{
-												local_ref.trigsfx = val;
-											}),
-										IBTN_T("Trigger SFX", "If the value is >0, the combo will"
-											" play the specified SFX when triggered."),
-										//
 										Label(text = "RunFrozen:", hAlign = 1.0),
 										DropDownList(data = parent.list_genscr,
-											vPadding = 0_px, maxwidth = 250_px,
+											vPadding = 0_px, maxwidth = 250_px, minwidth = 200_px,
 											fitParent = true, selectedValue = local_ref.trig_genscr,
 											onSelectFunc = [&](int32_t val)
 											{
@@ -997,6 +996,65 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											IBTN("Set the player's Ice Physics Y velocity to this value")
 										)
 									)
+								)
+							)
+						)
+					),
+					TabRef(name = "SFX",
+						Column(padding = 0_px,
+							Row(
+								Label(text = "SFX:", hAlign = 1.0),
+								DropDownList(data = parent.list_sfx,
+									vPadding = 0_px, maxwidth = 250_px,
+									fitParent = true, selectedValue = local_ref.trigsfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_ref.trigsfx = val;
+									}),
+								IBTN_T("Trigger SFX", "If the value is >0, the combo will"
+									" play the specified SFX when triggered.")
+							),
+							Row(
+								Rows<3>(
+									Label(text = "Pan:", hAlign = 1.0),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -1, high = 255, val = local_ref.sfx_pan,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.sfx_pan = (int16_t)val;
+										}),
+									IBTN_T("SFX Pan","If -1, pans based on combo position relative to the player."
+										" Otherwise, specifies the pan value (0-255) - 128 is centered, lower is left, higher is right."),
+									Label(text = "Volume:", hAlign = 1.0),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_ref.sfx_volume,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.sfx_volume = (byte)val;
+										}),
+									IBTN_T("SFX Volume","Percentage of sfx base volume."),
+									Label(text = "Frequency:", hAlign = 1.0),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -1, high = MAX_ZSCRIPT_INT, val = local_ref.sfx_frequency,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.sfx_frequency = val;
+										}),
+									IBTN_T("SFX Frequency","-1 for default frequency. Otherwise, value in Hz to play the sfx in.")
+								),
+								Rows<2>(
+									IBTN("Loop the SFX until manually killed."),
+									TRIGFLAG(TRIGFLAG_SFX_LOOP, "Loop"),
+									IBTN("Don't start the SFX over if it was already playing (just modify it's pan/volume/frequency/etc)."),
+									TRIGFLAG(TRIGFLAG_SFX_NO_RESTART, "No Restart"),
+									IBTN("Kill the SFX instead of playing it."),
+									TRIGFLAG(TRIGFLAG_SFX_KILL, "Kill")
 								)
 							)
 						)

@@ -310,6 +310,27 @@ int32_t combotrigger_get_register(int32_t reg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGER_SFX_PAN:
+		{
+			if (trig)
+				ret = trig->sfx_pan * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGER_SFX_VOLUME:
+		{
+			if (trig)
+				ret = trig->sfx_volume * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGER_SFX_FREQUENCY:
+		{
+			if (trig)
+				ret = trig->sfx_frequency * 10000;
+			else ret = -10000;
+			break;
+		}
 		
 		case CMBTRIGGROUP:
 		{
@@ -780,6 +801,21 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		case CMBTRIGGER_CHANCE_DENOMINATOR:
 		{
 			trig->chance_denominator = zc_max(1, value/10000);
+			break;
+		}
+		case CMBTRIGGER_SFX_PAN:
+		{
+			trig->sfx_pan = vbound(value/10000, -1, 255);
+			break;
+		}
+		case CMBTRIGGER_SFX_VOLUME:
+		{
+			trig->sfx_volume = vbound(value/10000, 0, 255);
+			break;
+		}
+		case CMBTRIGGER_SFX_FREQUENCY:
+		{
+			trig->sfx_frequency = zc_max(value/10000, -1);
 			break;
 		}
 		

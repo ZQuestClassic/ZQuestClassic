@@ -2227,7 +2227,16 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 		}
 
 		if (trig.trigsfx)
-			sfx(trig.trigsfx, pan(combo_x));
+		{
+			if (trig.trigger_flags.get(TRIGFLAG_SFX_KILL))
+				stop_sfx(trig.trigsfx);
+			else
+			{
+				int pan_val = trig.sfx_pan < 0 ? pan(combo_x) : trig.sfx_pan;
+				sfx_ex(trig.trigsfx, pan_val, trig.trigger_flags.get(TRIGFLAG_SFX_LOOP),
+					!trig.trigger_flags.get(TRIGFLAG_SFX_NO_RESTART), trig.sfx_volume, trig.sfx_frequency);
+			}
+		}
 
 		if (trig.trigger_flags.get(TRIGFLAG_KILLENEMIES))
 			kill_em_all();
