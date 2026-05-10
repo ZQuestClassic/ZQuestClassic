@@ -52,6 +52,16 @@ enum HeroSliding
 	SLD_MAX
 };
 
+// Used with [Hero->HammerPos]
+// @versionadded 3.0
+enum HammerPosition
+{
+	HMRPOS_NONE, // Hammer is not in use
+	HMRPOS_UP, // Hammer is above the player's head
+	HMRPOS_ANGLE, // Hammer is at an angle
+	HMRPOS_DOWN, // Hammer is hitting the ground
+};
+
 // Used with [Hero->SetItemSlot].
 enum ItemSlot
 {
@@ -659,6 +669,13 @@ class hero {
 	//
 	// @zasm_var HERO_ITEMBOX_HEIGHT
 	internal int ItemBoxHeight;
+	
+	// The position the Hammer is currently being held in.
+	//
+	// @value [enum HammerPosition]
+	// @versionadded 3.0
+	// @zasm_var HERO_HAMMER_POS
+	internal const int HammerPos;
 
 	// The current A and B button items (combined bitwise). Doesn't work for item IDs > 255.
 	//

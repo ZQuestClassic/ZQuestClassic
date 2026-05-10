@@ -137,6 +137,7 @@ public:
 	int shd_aclk, shd_aframe;
     word specialsfx;
 	
+	bool disable_triggers = false;
 	
 	void do_death_fx();
     void convertType(bool toLW);

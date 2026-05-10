@@ -55,7 +55,8 @@ static bool CanComboTrigger(weapon *w)
 
 bool weapon::no_triggers() const
 {
-	if(no_collision()) return true;
+	if (no_collision()) return true;
+	if (disable_triggers) return true;
 	switch(id)
 	{
 		case wHammer: //Hammers don't trigger anything while in the air if item_flag1 is set!

@@ -3391,6 +3391,9 @@ enum ASM_DEFINE
 #define CMBTRIGGER_SFX_PAN             0x16B9
 #define CMBTRIGGER_SFX_VOLUME          0x16BA
 #define CMBTRIGGER_SFX_FREQUENCY       0x16BB
+#define HERO_HAMMER_POS                0x16BC
+#define LWPN_NO_TRIGGERS               0x16BD
+#define EWPN_NO_TRIGGERS               0x16BE
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
