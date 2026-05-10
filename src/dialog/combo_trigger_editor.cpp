@@ -154,7 +154,8 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		TRIGFLAG_TRIGLEVELSTATE,TRIGFLAG_TRIGGLOBALSTATE,TRIGFLAG_TGROUP_LESS,TRIGFLAG_TGROUP_GREATER,
 		TRIGFLAG_PUSHEDTRIG,TRIGFLAG_DIVETRIG,TRIGFLAG_DIVESENSTRIG,TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,
 		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_PLAYERLANDHERE,
-		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES})) return true;
+		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
+		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,})) return true;
 	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
 	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
 	if(trig.trigcopycat) return true;
@@ -601,7 +602,11 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							IBTN("Triggers when the combo's inherent type-based *cause* occurs"
 								" (Ex. the Player falling down a Pitfall or drowning in Liquid)."
 								" Not available for all combo types; will be greyed out when unavailable."),
-							ctcause_tflag = TRIGFLAG(TRIGFLAG_CMBTYPECAUSES, "ComboType Causes->")
+							ctcause_tflag = TRIGFLAG(TRIGFLAG_CMBTYPECAUSES, "ComboType Causes->"),
+							IBTN("Triggered when a pushblock is about to click into place at this combo's position, on any layer."),
+							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,"Block (Same Layer)->"),
+							IBTN("Triggered when a pushblock is about to click into place replacing this combo."),
+							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,"Block (Any Layer)->")
 						)
 					)
 				)),

@@ -843,6 +843,17 @@ bool movingblock::animate(int32_t)
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
+			
+			trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
+				return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
+			});
+			for (int lyr = 0; lyr < 7; ++lyr)
+			{
+				trig_each_combo_trigger(get_rpos_handle_for_world_xy(endx, endy, lyr), [](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
+				});
+			}
+			
 			if(!fallclk && !drownclk)
 			{
 				end_rpos_handle.set_data(bcombo);
@@ -1041,6 +1052,17 @@ bool movingblock::animate(int32_t)
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
+			
+			trig_each_combo_trigger(end_rpos_handle, [](combo_trigger const& trig){
+				return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER);
+			});
+			for (int lyr = 0; lyr < 7; ++lyr)
+			{
+				trig_each_combo_trigger(get_rpos_handle_for_world_xy(endx, endy, lyr), [](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER);
+				});
+			}
+			
 			if(!fallclk && !drownclk || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
 			{
 				end_rpos_handle.set_data(bcombo);

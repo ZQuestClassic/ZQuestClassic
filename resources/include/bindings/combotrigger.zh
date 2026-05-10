@@ -164,6 +164,12 @@ enum ComboTriggerFlag
 	TRIGFLAG_CANCEL_TRIGGER, // Makes triggers below this trigger on the same combo with the same cause NOT be triggered by this cause
 	TRIGFLAG_SET_GRAVITY, // When triggered, sets [Screen->GravityStrength] and [Screen->TerminalVelocity] to [combotrigger->GravityStrength] and [combotrigger->TerminalVelocity] respectively.
 	TRIGFLAG_REVERT_GRAVITY, // When triggered, resets [Screen->GravityStrength] and [Screen->TerminalVelocity] to the original values of the screen.
+	// Triggers when a pushblock is about to click into place replacing this combo
+	// @versionadded 3.0
+	TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,
+	// Triggers when a pushblock is about to click into place at this combo's position, on any layer
+	// @versionadded 3.0
+	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
 	TRIGFLAG_MAX
 };
 
