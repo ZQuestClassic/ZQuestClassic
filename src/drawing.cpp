@@ -488,19 +488,27 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 {
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
+	int sx = 0, sy = 0;
 
 #ifdef IS_PLAYER
 	xoffs += dither_offx;
 	yoffs += dither_offy;
 #endif
+	if (dest->clip)
+	{
+		wid = zc_min(dest->cr, wid);
+		hei = zc_min(dest->cb, hei);
+		sx = zc_max(dest->cl, sx);
+		sy = zc_max(dest->ct, sy);
+	}
 
 	DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func,
 	{
-		for(int32_t ty = 0; ty < hei; ++ty)
+		for(int32_t ty = sy; ty < hei; ++ty)
 		{
 			uint8_t* read_addr = src ? (uint8_t*)src->line[ty] : nullptr;
 			uint8_t* write_addr = (uint8_t*)dest->line[ty];
-			for(int32_t tx = 0; tx < wid; ++tx)
+			for(int32_t tx = sx; tx < wid; ++tx)
 			{
 				if((!read_addr || read_addr[tx]) && check_func(tx+xoffs,ty+yoffs))
 				{
