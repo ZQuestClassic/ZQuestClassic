@@ -351,6 +351,9 @@ int32_t lweapon_get_register(int32_t reg)
 		case LWPN_BOUNCE_ADD:
 			ret = s->bounce_add.getZLong();
 			break;
+		case LWPN_NO_TRIGGERS:
+			ret = s->disable_triggers ? 10000 : 0;
+			break;
 
 		default:
 			NOTREACHED();
@@ -736,6 +739,9 @@ void lweapon_set_register(int32_t reg, int32_t value)
 			break;
 		case LWPN_BOUNCE_ADD:
 			s->bounce_add = zslongToFix(value);
+			break;
+		case LWPN_NO_TRIGGERS:
+			s->disable_triggers = bool(value);
 			break;
 		default:
 			NOTREACHED();

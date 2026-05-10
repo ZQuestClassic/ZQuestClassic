@@ -2715,6 +2715,9 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGGER_SFX_PAN", CMBTRIGGER_SFX_PAN, 0 },
 	{ "CMBTRIGGER_SFX_VOLUME", CMBTRIGGER_SFX_VOLUME, 0 },
 	{ "CMBTRIGGER_SFX_FREQUENCY", CMBTRIGGER_SFX_FREQUENCY, 0 },
+	{ "HERO_HAMMER_POS", HERO_HAMMER_POS, 0 },
+	{ "LWPN_NO_TRIGGERS", LWPN_NO_TRIGGERS, 0 },
+	{ "EWPN_NO_TRIGGERS", EWPN_NO_TRIGGERS, 0 },
 	{"", -1},
 };
 
@@ -3777,6 +3780,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWSWHOOKED:
 		case EWPN_BOUNCE_MULT:
 		case EWPN_BOUNCE_ADD:
+		case EWPN_NO_TRIGGERS:
 			return REFEWPN;
 
 		case DATA:
@@ -4059,6 +4063,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWSWHOOKED:
 		case LWPN_BOUNCE_MULT:
 		case LWPN_BOUNCE_ADD:
+		case LWPN_NO_TRIGGERS:
 			return REFLWPN;
 
 		case MAPDATABOSSSFX:

@@ -308,6 +308,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SPRITEMAXEWPN:
 		case EWPN_BOUNCE_MULT:
 		case EWPN_BOUNCE_ADD:
+		case EWPN_NO_TRIGGERS:
 			return EngineSubsystem::eweapon;
 
 		case DATA:
@@ -462,6 +463,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case HERO_ITEMBOX_WIDTH:
 		case HERO_ITEMBOX_XOFF:
 		case HERO_ITEMBOX_YOFF:
+		case HERO_HAMMER_POS:
 		case INPUTA:
 		case INPUTAXISDOWN:
 		case INPUTAXISLEFT:
@@ -792,6 +794,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case LWSWHOOKED:
 		case LWPN_BOUNCE_MULT:
 		case LWPN_BOUNCE_ADD:
+		case LWPN_NO_TRIGGERS:
 			return EngineSubsystem::lweapon;
 
 		case MAPDATABOSSSFX:

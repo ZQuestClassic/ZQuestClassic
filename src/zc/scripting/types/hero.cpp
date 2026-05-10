@@ -204,6 +204,8 @@ int32_t hero_get_register(int32_t reg)
 			ret = Hero.itembox_xofs * 10000; break;
 		case HERO_ITEMBOX_YOFF:
 			ret = Hero.itembox_yofs * 10000; break;
+		case HERO_HAMMER_POS:
+			ret = Hero.getHammerState() * 10000; break;
 		case INPUTA:
 			ret=control_state[4]?10000:0;
 			break;

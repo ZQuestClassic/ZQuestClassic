@@ -233,6 +233,16 @@ class lweapon {
 	//
 	// @zasm_var LWPN_BOUNCE_ADD
 	internal int BounceAdd;
+	
+	// Set to true, this prevents the weapon from triggering any Combo Triggers.
+	// Also affects some melee weapon checks (ex. slash/pound combos).
+	//
+	// This being false means that scripts are not CAUSING it to ignore triggers-
+	// it does not account for other things that may disable the weapon from
+	// activating triggers (ex. the Hammer being above the player's head).
+	//
+	// @zasm_var LWPN_NO_TRIGGERS
+	internal bool DisableTriggers;
 
 	// If < 0, the weapon behaves as normal. If == 0, the weapon pierces infinitely.
 	// If > 0, each time the weapon hits an enemy or the player, counts down by 1.
