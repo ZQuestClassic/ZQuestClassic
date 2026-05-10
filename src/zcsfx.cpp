@@ -90,7 +90,7 @@ namespace // sample implementations
 		int write(PACKFILE* f) const override;
 		void save_sound(char const* fpath) const override;
 		
-		void update_pan(int pan) override;
+		void update_pan(double pan) override;
 		void update_loop(bool loop) override;
 		void update_freq(int freq) override;
 		void update_gain(double gain) override;
@@ -102,7 +102,7 @@ namespace // sample implementations
 		bool is_allocated() const override;
 		bool is_playing() const override;
 		
-		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		bool play(double pan, bool loop, bool restart, double gain, int freq) override;
 		void pause() override;
 		void resume() override;
 		void stop() override;
@@ -283,10 +283,10 @@ namespace // sample implementations
 		}
 	}
 	
-	void SampleOGG::update_pan(int pan)
+	void SampleOGG::update_pan(double pan)
 	{
 		if (stream)
-			al_set_audio_stream_pan(stream, pan / 255.0);
+			al_set_audio_stream_pan(stream, pan);
 	}
 	void SampleOGG::update_loop(bool loop)
 	{
@@ -339,7 +339,7 @@ namespace // sample implementations
 		return al_get_audio_stream_playing(stream);
 	}
 	
-	bool SampleOGG::play(int pan, bool loop, bool restart, double gain, int freq)
+	bool SampleOGG::play(double pan, bool loop, bool restart, double gain, int freq)
 	{
 		if (stream && restart)
 			cleanup_stream();
@@ -421,7 +421,7 @@ namespace // sample implementations
 		int read(PACKFILE* f, word s_version) override;
 		int write(PACKFILE* f) const override;
 		
-		void update_pan(int pan) override;
+		void update_pan(double pan) override;
 		void update_loop(bool loop) override;
 		void update_freq(int freq) override;
 		void update_gain(double gain) override;
@@ -435,7 +435,7 @@ namespace // sample implementations
 		bool is_allocated() const override;
 		bool is_playing() const override;
 		
-		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		bool play(double pan, bool loop, bool restart, double gain, int freq) override;
 		void pause() override;
 		void resume() override;
 		void stop() override;
@@ -589,7 +589,7 @@ namespace // sample implementations
 		return 0;
 	}
 	
-	void SampleWAV_NoSound::update_pan([[maybe_unused]] int pan) {}
+	void SampleWAV_NoSound::update_pan([[maybe_unused]] double pan) {}
 	void SampleWAV_NoSound::update_loop([[maybe_unused]] bool loop) {}
 	void SampleWAV_NoSound::update_freq([[maybe_unused]] int freq) {}
 	void SampleWAV_NoSound::update_gain([[maybe_unused]] double gain) {}
@@ -624,7 +624,7 @@ namespace // sample implementations
 		return false;
 	}
 	
-	bool SampleWAV_NoSound::play([[maybe_unused]] int pan, [[maybe_unused]] bool loop, [[maybe_unused]] bool restart, [[maybe_unused]] double gain, [[maybe_unused]] int freq)
+	bool SampleWAV_NoSound::play([[maybe_unused]] double pan, [[maybe_unused]] bool loop, [[maybe_unused]] bool restart, [[maybe_unused]] double gain, [[maybe_unused]] int freq)
 	{
 		return false;
 	}
@@ -658,7 +658,7 @@ namespace // sample implementations
 		int write(PACKFILE* f) const override;
 		void save_sound(char const* fpath) const override;
 		
-		void update_pan(int pan) override;
+		void update_pan(double pan) override;
 		void update_loop(bool loop) override;
 		void update_freq(int freq) override;
 		void update_gain(double gain) override;
@@ -672,7 +672,7 @@ namespace // sample implementations
 		bool is_allocated() const override;
 		bool is_playing() const override;
 		
-		bool play(int pan, bool loop, bool restart, double gain, int freq) override;
+		bool play(double pan, bool loop, bool restart, double gain, int freq) override;
 		void pause() override;
 		void resume() override;
 		void stop() override;
@@ -794,10 +794,10 @@ namespace // sample implementations
 		}
 	}
 	
-	void SampleWAV::update_pan(int pan)
+	void SampleWAV::update_pan(double pan)
 	{
 		if (inst)
-			al_set_sample_instance_pan(inst, pan / 255.0);
+			al_set_sample_instance_pan(inst, pan);
 	}
 	void SampleWAV::update_loop(bool loop)
 	{
@@ -854,7 +854,7 @@ namespace // sample implementations
 		return inst && al_get_sample_instance_playing(inst);
 	}
 	
-	bool SampleWAV::play(int pan, bool loop, bool restart, double gain, int freq)
+	bool SampleWAV::play(double pan, bool loop, bool restart, double gain, int freq)
 	{
 		if (inst && restart)
 		{
@@ -1050,7 +1050,7 @@ bool ZCSFX::play(int pan, bool loop, bool restart, zfix vol_perc, int freq)
 	
 	base_vol = vol_perc;
 	double gain = calc_gain(vol_perc);
-	internal->play(pan, loop, restart, gain, freq);
+	internal->play((pan - 128) / 128.0, loop, restart, gain, freq);
 	return true;
 }
 void ZCSFX::pause()
@@ -1077,7 +1077,7 @@ void ZCSFX::cleanup()
 void ZCSFX::update_pan(int pan)
 {
 	if (internal)
-		internal->update_pan(pan);
+		internal->update_pan((pan - 128) / 128.0);
 }
 void ZCSFX::update_loop(bool loop)
 {

@@ -51,7 +51,7 @@ struct SampleBase
 	virtual int write(PACKFILE* f) const = 0;
 	virtual void save_sound(char const* fpath) const;
 	
-	virtual void update_pan(int pan) = 0;
+	virtual void update_pan(double pan) = 0;
 	virtual void update_loop(bool loop) = 0;
 	virtual void update_freq(int freq) = 0;
 	virtual void update_gain(double gain) = 0;
@@ -64,7 +64,7 @@ struct SampleBase
 	virtual bool is_allocated() const = 0;
 	virtual bool is_playing() const = 0;
 	
-	virtual bool play(int pan, bool loop, bool restart, double gain, int freq) = 0;
+	virtual bool play(double pan, bool loop, bool restart, double gain, int freq) = 0;
 	virtual void pause() = 0;
 	virtual void resume() = 0;
 	virtual void stop() = 0;
