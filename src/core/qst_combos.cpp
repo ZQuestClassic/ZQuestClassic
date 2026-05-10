@@ -881,6 +881,10 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 	{
 		if(!p_igetw(&temp_trigger.viewport_cond_range, f))
 			return qe_invalid;
+		if(!p_igetl(&temp_trigger.chance_numerator, f))
+			return qe_invalid;
+		if(!p_igetl(&temp_trigger.chance_denominator, f))
+			return qe_invalid;
 	}
 	return 0;
 }

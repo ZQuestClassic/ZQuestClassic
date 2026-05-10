@@ -296,6 +296,20 @@ int32_t combotrigger_get_register(int32_t reg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGGER_CHANCE_NUMERATOR:
+		{
+			if (trig)
+				ret = trig->chance_numerator * 10000;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGER_CHANCE_DENOMINATOR:
+		{
+			if (trig)
+				ret = trig->chance_denominator * 10000;
+			else ret = -10000;
+			break;
+		}
 		
 		case CMBTRIGGROUP:
 		{
@@ -758,6 +772,17 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 			trig->viewport_cond_range = vbound(value/10000, -32768, 32767);
 			break;
 		}
+		case CMBTRIGGER_CHANCE_NUMERATOR:
+		{
+			trig->chance_numerator = zc_max(0, value/10000);
+			break;
+		}
+		case CMBTRIGGER_CHANCE_DENOMINATOR:
+		{
+			trig->chance_denominator = zc_max(1, value/10000);
+			break;
+		}
+		
 		case CMBTRIGGROUP:
 		{
 			trig->trig_group = vbound(value/10000, 0, 255);

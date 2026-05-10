@@ -3431,14 +3431,14 @@ POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           
 POP REFCOMBOTRIGGER                                                             | 3402 resources/include/bindings/combodata.zh:381
 COMBOD_GET_TRIGGER D2                                                           | 3403 resources/include/bindings/combodata.zh:381
 RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3404 resources/include/bindings/combodata.zh:381
-POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3405 resources/include/bindings/combotrigger.zh:663
-POP REFCOMBOTRIGGER                                                             | 3406 resources/include/bindings/combotrigger.zh:663
-CMBTRIG_GET_LABEL D2                                                            | 3407 resources/include/bindings/combotrigger.zh:663
-RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3408 resources/include/bindings/combotrigger.zh:663
-POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:671
-POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:671
-CMBTRIG_SET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:671
-RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:671
+POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3405 resources/include/bindings/combotrigger.zh:701
+POP REFCOMBOTRIGGER                                                             | 3406 resources/include/bindings/combotrigger.zh:701
+CMBTRIG_GET_LABEL D2                                                            | 3407 resources/include/bindings/combotrigger.zh:701
+RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3408 resources/include/bindings/combotrigger.zh:701
+POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:709
+POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:709
+CMBTRIG_SET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:709
+RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:709
 POP D2; Func[directory directory::directory(char32[])] Body Start               | 3413 resources/include/bindings/directory.zh:6
 LOADDIRECTORYR D2                                                               | 3414 resources/include/bindings/directory.zh:6
 RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3415 resources/include/bindings/directory.zh:6
@@ -3456,38 +3456,38 @@ RETURNFUNC; Func[void directory::Free()] Body End                               
 POP REFDIRECTORY; Func[void directory::Own()] Body Start                        | 3427 resources/include/bindings/directory.zh:47
 DIRECTORYOWN                                                                    | 3428 resources/include/bindings/directory.zh:47
 RETURNFUNC; Func[void directory::Own()] Body End                                | 3429 resources/include/bindings/directory.zh:47
-POP D2; Func[void dmapdata::GetName(char32[])] Body Start                       | 3430 resources/include/bindings/dmapdata.zh:319
-POP REFDMAPDATA                                                                 | 3431 resources/include/bindings/dmapdata.zh:319
-DMAPDATAGETNAMER D2                                                             | 3432 resources/include/bindings/dmapdata.zh:319
-RETURNFUNC; Func[void dmapdata::GetName(char32[])] Body End                     | 3433 resources/include/bindings/dmapdata.zh:319
-POP D2; Func[void dmapdata::SetName(char32[])] Body Start                       | 3434 resources/include/bindings/dmapdata.zh:327
-POP REFDMAPDATA                                                                 | 3435 resources/include/bindings/dmapdata.zh:327
-DMAPDATASETNAMER D2                                                             | 3436 resources/include/bindings/dmapdata.zh:327
-RETURNFUNC; Func[void dmapdata::SetName(char32[])] Body End                     | 3437 resources/include/bindings/dmapdata.zh:327
-POP D2; Func[void dmapdata::GetTitle(char32[])] Body Start                      | 3438 resources/include/bindings/dmapdata.zh:335
-POP REFDMAPDATA                                                                 | 3439 resources/include/bindings/dmapdata.zh:335
-DMAPDATAGETTITLER D2                                                            | 3440 resources/include/bindings/dmapdata.zh:335
-RETURNFUNC; Func[void dmapdata::GetTitle(char32[])] Body End                    | 3441 resources/include/bindings/dmapdata.zh:335
-POP D2; Func[void dmapdata::SetTitle(char32[])] Body Start                      | 3442 resources/include/bindings/dmapdata.zh:343
-POP REFDMAPDATA                                                                 | 3443 resources/include/bindings/dmapdata.zh:343
-DMAPDATASETTITLER D2                                                            | 3444 resources/include/bindings/dmapdata.zh:343
-RETURNFUNC; Func[void dmapdata::SetTitle(char32[])] Body End                    | 3445 resources/include/bindings/dmapdata.zh:343
-POP D2; Func[void dmapdata::GetIntro(char32[])] Body Start                      | 3446 resources/include/bindings/dmapdata.zh:351
-POP REFDMAPDATA                                                                 | 3447 resources/include/bindings/dmapdata.zh:351
-DMAPDATAGETINTROR D2                                                            | 3448 resources/include/bindings/dmapdata.zh:351
-RETURNFUNC; Func[void dmapdata::GetIntro(char32[])] Body End                    | 3449 resources/include/bindings/dmapdata.zh:351
-POP D2; Func[void dmapdata::SetIntro(char32[])] Body Start                      | 3450 resources/include/bindings/dmapdata.zh:359
-POP REFDMAPDATA                                                                 | 3451 resources/include/bindings/dmapdata.zh:359
-DMAPDATANSETITROR D2                                                            | 3452 resources/include/bindings/dmapdata.zh:359
-RETURNFUNC; Func[void dmapdata::SetIntro(char32[])] Body End                    | 3453 resources/include/bindings/dmapdata.zh:359
-POP D2; Func[void dmapdata::GetMusic(char32[])] Body Start                      | 3454 resources/include/bindings/dmapdata.zh:369
-POP REFDMAPDATA                                                                 | 3455 resources/include/bindings/dmapdata.zh:369
-DMAPDATAGETMUSICR D2                                                            | 3456 resources/include/bindings/dmapdata.zh:369
-RETURNFUNC; Func[void dmapdata::GetMusic(char32[])] Body End                    | 3457 resources/include/bindings/dmapdata.zh:369
-POP D2; Func[void dmapdata::SetMusic(char32[])] Body Start                      | 3458 resources/include/bindings/dmapdata.zh:379
-POP REFDMAPDATA                                                                 | 3459 resources/include/bindings/dmapdata.zh:379
-DMAPDATASETMUSICR D2                                                            | 3460 resources/include/bindings/dmapdata.zh:379
-RETURNFUNC; Func[void dmapdata::SetMusic(char32[])] Body End                    | 3461 resources/include/bindings/dmapdata.zh:379
+POP D2; Func[void dmapdata::GetName(char32[])] Body Start                       | 3430 resources/include/bindings/dmapdata.zh:325
+POP REFDMAPDATA                                                                 | 3431 resources/include/bindings/dmapdata.zh:325
+DMAPDATAGETNAMER D2                                                             | 3432 resources/include/bindings/dmapdata.zh:325
+RETURNFUNC; Func[void dmapdata::GetName(char32[])] Body End                     | 3433 resources/include/bindings/dmapdata.zh:325
+POP D2; Func[void dmapdata::SetName(char32[])] Body Start                       | 3434 resources/include/bindings/dmapdata.zh:333
+POP REFDMAPDATA                                                                 | 3435 resources/include/bindings/dmapdata.zh:333
+DMAPDATASETNAMER D2                                                             | 3436 resources/include/bindings/dmapdata.zh:333
+RETURNFUNC; Func[void dmapdata::SetName(char32[])] Body End                     | 3437 resources/include/bindings/dmapdata.zh:333
+POP D2; Func[void dmapdata::GetTitle(char32[])] Body Start                      | 3438 resources/include/bindings/dmapdata.zh:341
+POP REFDMAPDATA                                                                 | 3439 resources/include/bindings/dmapdata.zh:341
+DMAPDATAGETTITLER D2                                                            | 3440 resources/include/bindings/dmapdata.zh:341
+RETURNFUNC; Func[void dmapdata::GetTitle(char32[])] Body End                    | 3441 resources/include/bindings/dmapdata.zh:341
+POP D2; Func[void dmapdata::SetTitle(char32[])] Body Start                      | 3442 resources/include/bindings/dmapdata.zh:349
+POP REFDMAPDATA                                                                 | 3443 resources/include/bindings/dmapdata.zh:349
+DMAPDATASETTITLER D2                                                            | 3444 resources/include/bindings/dmapdata.zh:349
+RETURNFUNC; Func[void dmapdata::SetTitle(char32[])] Body End                    | 3445 resources/include/bindings/dmapdata.zh:349
+POP D2; Func[void dmapdata::GetIntro(char32[])] Body Start                      | 3446 resources/include/bindings/dmapdata.zh:357
+POP REFDMAPDATA                                                                 | 3447 resources/include/bindings/dmapdata.zh:357
+DMAPDATAGETINTROR D2                                                            | 3448 resources/include/bindings/dmapdata.zh:357
+RETURNFUNC; Func[void dmapdata::GetIntro(char32[])] Body End                    | 3449 resources/include/bindings/dmapdata.zh:357
+POP D2; Func[void dmapdata::SetIntro(char32[])] Body Start                      | 3450 resources/include/bindings/dmapdata.zh:365
+POP REFDMAPDATA                                                                 | 3451 resources/include/bindings/dmapdata.zh:365
+DMAPDATANSETITROR D2                                                            | 3452 resources/include/bindings/dmapdata.zh:365
+RETURNFUNC; Func[void dmapdata::SetIntro(char32[])] Body End                    | 3453 resources/include/bindings/dmapdata.zh:365
+POP D2; Func[void dmapdata::GetMusic(char32[])] Body Start                      | 3454 resources/include/bindings/dmapdata.zh:375
+POP REFDMAPDATA                                                                 | 3455 resources/include/bindings/dmapdata.zh:375
+DMAPDATAGETMUSICR D2                                                            | 3456 resources/include/bindings/dmapdata.zh:375
+RETURNFUNC; Func[void dmapdata::GetMusic(char32[])] Body End                    | 3457 resources/include/bindings/dmapdata.zh:375
+POP D2; Func[void dmapdata::SetMusic(char32[])] Body Start                      | 3458 resources/include/bindings/dmapdata.zh:385
+POP REFDMAPDATA                                                                 | 3459 resources/include/bindings/dmapdata.zh:385
+DMAPDATASETMUSICR D2                                                            | 3460 resources/include/bindings/dmapdata.zh:385
+RETURNFUNC; Func[void dmapdata::SetMusic(char32[])] Body End                    | 3461 resources/include/bindings/dmapdata.zh:385
 POP REFDROPSETDATA; Func[int dropsetdata::Choose()] Body Start                  | 3462 resources/include/bindings/dropsetdata.zh:31
 SETR D2 DROPSETCHOOSE                                                           | 3463 resources/include/bindings/dropsetdata.zh:31
 RETURNFUNC; Func[int dropsetdata::Choose()] Body End                            | 3464 resources/include/bindings/dropsetdata.zh:31
@@ -6517,12 +6517,18 @@ debug data:
       - const ComboTriggerFlag TRIGFLAG_CANCEL_TRIGGER @ Constant[1560000]
       - const ComboTriggerFlag TRIGFLAG_SET_GRAVITY @ Constant[1570000]
       - const ComboTriggerFlag TRIGFLAG_REVERT_GRAVITY @ Constant[1580000]
-      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1590000]
+      - const ComboTriggerFlag TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER @ Constant[1590000]
+      - const ComboTriggerFlag TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER @ Constant[1600000]
+      - const ComboTriggerFlag TRIGFLAG_VIEWPORT_REQ_ONSCREEN @ Constant[1610000]
+      - const ComboTriggerFlag TRIGFLAG_VIEWPORT_REQ_OFFSCREEN @ Constant[1620000]
+      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1630000]
     [CLASS] combotrigger <IDX:159>
       - int BossPal @ Reg[CMBTRIGBOSSPAL]
       - int Bunny @ Reg[CMBTRIGBUNNY]
       - bool[] Button @ Reg[CMBTRIGBUTTON]
       - int CSetChange @ Reg[CMBTRIGCSETCHANGE]
+      - int ChanceDenominator @ Reg[CMBTRIGGER_CHANCE_NUMERATOR]
+      - int ChanceNumerator @ Reg[CMBTRIGGER_CHANCE_NUMERATOR]
       - int ComboChange @ Reg[CMBTRIGCHANGECMB]
       - int Cooldown @ Reg[CMBTRIGCOOLDOWN]
       - int Copycat @ Reg[CMBTRIGCOPYCAT]
@@ -6593,6 +6599,7 @@ debug data:
       - bool[] UnreqLevelState @ Reg[CMBTRIGUNREQLVLSTATE]
       - bool[] UnreqScreenExState @ Reg[CMBTRIGUNREQSCREXSTATE]
       - bool[] UnreqScreenState @ Reg[CMBTRIGUNREQSCRSTATE]
+      - int ViewportRange @ Reg[CMBTRIGGER_VIEWPORT_RANGE]
       - int WavyTimer @ Reg[CMBTRIGWAVYTIME]
       - int WeaponLevel @ Reg[CMBTRIGWPNLEVEL]
       [FUNCTION] GetLabel <PC:3405-3408 IDX:160> <INTERNAL>
@@ -6701,6 +6708,7 @@ debug data:
       - int[] MapCSet @ Reg[DMAPDATALARGEMAPCSET]
       - untyped[] MapInitD @ Reg[DMAPDATAMAPINITD]
       - int MapScript @ Reg[DMAPDATAMAPSCRIPT]
+      - int MapSubscreen @ Reg[DMAPDATASUBSCRM]
       - int[] MapTile @ Reg[DMAPDATALARGEMAPTILE]
       - int[] MiniMapCSet @ Reg[DMAPDATAMINIMAPCSET]
       - int[] MiniMapTile @ Reg[DMAPDATAMINIMAPTILE]

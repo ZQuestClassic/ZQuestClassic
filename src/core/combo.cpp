@@ -665,6 +665,9 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			if (trigger_flags.get(TRIGFLAG_COUNTERLT))
 				conditions << indent << "< " << ctr_str << "\n";
 		}
+
+		if (chance_numerator < chance_denominator)
+			conditions << indent << chance_numerator << " in " << chance_denominator << " random chance";
 	}
 
 	// Other Effects

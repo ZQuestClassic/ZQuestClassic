@@ -2115,6 +2115,15 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		}
 	}
 	
+	if (trig.chance_numerator < trig.chance_denominator || !trig.chance_numerator)
+	{
+		if (trig.chance_numerator <= 0 || trig.chance_denominator <= 0)
+			return false; // sanity check / account for '0 in N'
+		if (zc_rand(trig.chance_denominator - 1) >= trig.chance_numerator)
+			return false; // random roll failed (1 in 5 -> pick(0 <= n < 5) < 1 -> fail on >=)
+	}
+
+	// Everything checking for 'side_effects' should be below here
 	if(zfix ctrcost = get_cmb_trigctrcost(trig))
 	{
 		bool inf_ctr = false;
@@ -2140,6 +2149,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 				return false;
 		}
 	}
+
 	return true;
 }
 

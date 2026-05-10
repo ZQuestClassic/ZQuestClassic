@@ -672,6 +672,23 @@ class combotrigger {
 	// @zasm_var CMBTRIGGER_VIEWPORT_RANGE
 	internal int ViewportRange;
 	
+	// There is an N in [ChanceDenominator] chance of the combo triggering.
+	// Default '1 in 1' means no chance involved.
+	// A 0 numerator means the combo won't ever trigger.
+	//
+	// @value 0 to [MAX_INT]
+	// @versionadded 3.0
+	// @zasm_var CMBTRIGGER_CHANCE_NUMERATOR
+	internal int ChanceNumerator;
+	
+	// There is a [ChanceNumerator] in N chance of the combo triggering.
+	// Default '1 in 1' means no chance involved.
+	//
+	// @value 1 to [MAX_INT]
+	// @versionadded 3.0
+	// @zasm_var CMBTRIGGER_CHANCE_NUMERATOR
+	internal int ChanceDenominator;
+	
 	// Gets the label for this trigger.
 	//
 	// If the buffer provided is too small, it will *automatically be resized to
