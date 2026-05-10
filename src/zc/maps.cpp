@@ -7884,7 +7884,6 @@ void onload_gswitch_timers() //Reset all timers that were counting down, no trig
 
 /****  View Map  ****/
 
-int32_t mapres = 0;
 int32_t view_map_show_mode = 3;
 
 bool displayOnMap(int32_t x, int32_t y)
@@ -7908,8 +7907,6 @@ bool displayOnMap(int32_t x, int32_t y)
 void ViewMap()
 {
 	ViewingMap = true;
-
-	BITMAP* mappic = NULL;
 	static double scales[17] =
 	{
 		0.03125, 0.04419, 0.0625, 0.08839, 0.125, 0.177, 0.25, 0.3535,
@@ -7939,7 +7936,7 @@ void ViewMap()
 	
 	bool done=false, redraw=true;
 	
-	mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
+	BITMAP* mappic = create_bitmap_ex(8,256*16,176*8);
 	
 	if(!mappic)
 	{
@@ -7965,12 +7962,28 @@ void ViewMap()
 	
 	bool do_new_dark = get_qr(qr_NEW_DARKROOM);
 	bool do_dark = !get_qr(qr_MAP_SPOILS_DARKROOMS);
+	bool stacked_dark_trans = get_qr(qr_NEWDARK_TRANS_STACKING);
 	BITMAP* old_darkscr_bmp = darkscr_bmp;
 	BITMAP* old_darkscr_bmp_trans = darkscr_bmp_trans;
+	
 	if (do_dark && do_new_dark)
 	{
-		darkscr_bmp = create_bitmap_ex(8, darkscr_bmp->w, darkscr_bmp->h);
-		darkscr_bmp_trans = create_bitmap_ex(8, darkscr_bmp_trans->w, darkscr_bmp_trans->h);
+		darkscr_bmp = create_bitmap_ex(8, 256*16, 176*8);
+		darkscr_bmp_trans = create_bitmap_ex(8, 256*16, 176*8);
+		if (!darkscr_bmp || !darkscr_bmp_trans)
+		{
+			if (darkscr_bmp)
+				destroy_bitmap(darkscr_bmp);
+			if (darkscr_bmp_trans)
+				destroy_bitmap(darkscr_bmp_trans);
+			darkscr_bmp = old_darkscr_bmp;
+			darkscr_bmp_trans = old_darkscr_bmp_trans;
+			enter_sys_pal();
+			InfoDialog("View Map","Not enough memory.").show();
+			exit_sys_pal();
+			return;
+		}
+		clear_darkroom_bitmaps();
 	}
 	
 	for(int32_t y=0; y<8; y++)
@@ -7978,17 +7991,36 @@ void ViewMap()
 		for(int32_t x=0; x<16; x++)
 		{
 			if (!displayOnMap(x, y))
+			{
+				if (do_dark && do_new_dark)
+				{
+					int dx = x * 256;
+					int dy = y * 176;
+					rectfill(darkscr_bmp, dx, dy, dx+256-1, dy+176-1, 0);
+					rectfill(darkscr_bmp_trans, dx, dy, dx+256-1, dy+176-1, 0);
+				}
 				continue;
+			}
 
 			int screen = map_scr_xy_to_index(x, y);
 			auto scrs = loadscr2(screen);
 			mapscr* scr = &scrs[0];
 			if (!scr->is_valid())
+			{
+				if (do_dark && do_new_dark)
+				{
+					int dx = x * 256;
+					int dy = y * 176;
+					rectfill(darkscr_bmp, dx, dy, dx+256-1, dy+176-1, 0);
+					rectfill(darkscr_bmp_trans, dx, dy, dx+256-1, dy+176-1, 0);
+				}
 				continue;
+			}
+			
 			if (do_dark && !do_new_dark && (scr->flags & fDARK))
 			{
 				clear_to_color(screen_bmp, BLACK);
-				stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+				blit(screen_bmp, mappic, 0, 0, x*256, y*176, 256, 176);
 				continue;
 			}
 			clear_bitmap(screen_bmp);
@@ -8068,35 +8100,119 @@ void ViewMap()
 			if (!get_qr(qr_NEWDARK_L6))
 				do_ffc_layer(screen_bmp, 7, screen_handles[0], xx, yy);
 			
-			if (do_dark && do_new_dark && (scr->flags & fDARK))
+			if (do_dark && do_new_dark)
 			{
-				clear_darkroom_bitmaps();
-				dither_offx = x * 256 - xx;
-				dither_offy = y * 176 - yy;
-				if (scr->flags & fDARK_DITHER)
-					ditherrectfill(darkscr_bmp, 0, 0, 256, 176, 0, game->get_dither_type(), game->get_dither_arg());
-				calc_darkroom_combos(screen_handles, 0, 0);
-				calc_darkroom_ffcs(scr, 0, 0);
-				color_map = trans_table2;
-				if (scr->flags & fDARK_TRANS)
+				dither_offx = -xx;
+				dither_offy = -yy;
+				int dx = x * 256;
+				int dy = y * 176;
+				if (scr->flags & fDARK)
 				{
-					draw_trans_sprite(screen_bmp, darkscr_bmp, 0, 0);
-					if (get_qr(qr_NEWDARK_TRANS_STACKING))
-						draw_trans_sprite(screen_bmp, darkscr_bmp_trans, 0, 0);
+					int rx = x, ry = y, rw = 1, rh = 1;
+					if (int rid = get_region_id(cur_map, screen))
+					{
+						while (rx > 0)
+						{
+							if (rid != get_region_id(cur_map, map_scr_xy_to_index(rx-1, ry)))
+								break;
+							--rx;
+							++rw;
+						}
+						while (ry > 0)
+						{
+							if (rid != get_region_id(cur_map, map_scr_xy_to_index(rx, ry-1)))
+								break;
+							--ry;
+							++rh;
+						}
+						while (rx+rw-1 < 16)
+						{
+							if (rid != get_region_id(cur_map, map_scr_xy_to_index(rx+rw, ry)))
+								break;
+							++rw;
+						}
+						while (ry+rh-1 < 8)
+						{
+							if (rid != get_region_id(cur_map, map_scr_xy_to_index(rx, ry+rh)))
+								break;
+							++rh;
+						}
+					}
+					rx *= 256;
+					ry *= 176;
+					rw *= 256;
+					rh *= 176;
+					set_clip_rect(darkscr_bmp, rx, ry, rx+rw-1, ry+rh-1);
+					set_clip_rect(darkscr_bmp_trans, rx, ry, rx+rw-1, ry+rh-1);
+					
+					if (scr->flags & fDARK_DITHER)
+						ditherrectfill(darkscr_bmp, dx, dy, 256, 176, 0, game->get_dither_type(), game->get_dither_arg());
+					calc_darkroom_combos(screen_handles, dx, dy);
+					calc_darkroom_ffcs(scr, dx, dy);
+					if (scr->flags & fDARK_TRANS)
+					{
+						if (!stacked_dark_trans) // clear transparency that shouldn't stack
+							rectfill(darkscr_bmp_trans, dx, dy, 256, 176, 0);
+					}
+					
+					set_clip_rect(darkscr_bmp, 0, 0, darkscr_bmp->w-1, darkscr_bmp->h-1);
+					set_clip_rect(darkscr_bmp_trans, 0, 0, darkscr_bmp_trans->w-1, darkscr_bmp_trans->h-1);
 				}
 				else
 				{
-					masked_blit(darkscr_bmp, screen_bmp, 0, 0, 0, 0, 256, 176);
-					draw_trans_sprite(screen_bmp, darkscr_bmp_trans, 0, 0);
+					rectfill(darkscr_bmp, dx, dy, dx+256-1, dy+176-1, 0);
+					rectfill(darkscr_bmp_trans, dx, dy, dx+256-1, dy+176-1, 0);
 				}
-				color_map = trans_table;
 			}
-			
-			if (get_qr(qr_NEWDARK_L6))
+			else if (get_qr(qr_NEWDARK_L6)) // has to be drawn after the darkness actually draws
 				do_ffc_layer(screen_bmp, 7, screen_handles[0], xx, yy);
 			
-			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+			blit(screen_bmp, mappic, 0, 0, x*256, y*176, 256, 176);
 		}
+	}
+	if (do_dark && do_new_dark)
+	{
+		color_map = trans_table2;
+		draw_trans_sprite(mappic, darkscr_bmp, 0, 0);
+		
+		for(int32_t y=0; y<8; y++)
+		{
+			for(int32_t x=0; x<16; x++)
+			{
+				if (!displayOnMap(x, y))
+					continue;
+
+				int screen = map_scr_xy_to_index(x, y);
+				auto scrs = loadscr2(screen);
+				mapscr* scr = &scrs[0];
+				if (!scr->is_valid())
+					continue;
+				if (!(scr->flags & fDARK))
+					continue;
+				if (scr->flags & fDARK_TRANS)
+					continue;
+				masked_blit(darkscr_bmp, mappic, x*256, y*176, x*256, y*176, 256, 176);
+			}
+		}
+		draw_trans_sprite(mappic, darkscr_bmp_trans, 0, 0);
+		color_map = trans_table;
+		
+		if (get_qr(qr_NEWDARK_L6)) // hate that this is necessary....
+			for(int32_t y=0; y<8; y++)
+			{
+				for(int32_t x=0; x<16; x++)
+				{
+					if (!displayOnMap(x, y))
+						continue;
+
+					int screen = map_scr_xy_to_index(x, y);
+					auto scrs = loadscr2(screen);
+					mapscr* scr = &scrs[0];
+					if (!scr->is_valid())
+						continue;
+					do_ffc_layer(mappic, 7, {scr, scr, screen, 0}, x*256, y*176 - playing_field_offset);
+				}
+			}
 	}
 	dither_offx = saved_dither_offx;
 	dither_offy = saved_dither_offy;

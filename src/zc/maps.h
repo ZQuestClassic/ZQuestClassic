@@ -446,7 +446,6 @@ void onload_gswitch_timers();
 //
 
 /****  View Map  ****/
-extern int32_t mapres;
 bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
