@@ -235,7 +235,8 @@ void ComboTriggerDialog::updateWarnings()
 		warnings.emplace_back("Can't unset ExState -1!");
 	if(local_ref.trigger_flags.get(TRIGFLAG_UNSETEXDOOR) && local_ref.exdoor_dir < 0)
 		warnings.emplace_back("Can't unset ExDoor '(None)' dir!");
-	
+	if (local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN) && local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN))
+		warnings.emplace_back("Combo cannot be on-screen and off-screen at the same time!");
 	
 	
 	warnbtn->setDisabled(warnings.empty());
@@ -1078,7 +1079,18 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						Row(
 							Column(
 								Rows<3>(
-									Label(text = "Proximity:", fitParent = true),
+									Label(text = "Viewport Range:", fitParent = true, rightPadding = 0_px),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -5000, high = 5000, val = local_ref.viewport_cond_range,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.viewport_cond_range = (int16_t)val;
+										}),
+									IBTN_T("Viewport Range","Used by the 'In View' and 'Out of View' flags"),
+									Label(text = "Proximity:", fitParent = true, rightPadding = 0_px),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
@@ -1091,7 +1103,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN_T("Proximity Requirement","If the value is >0, the combo "
 										" will only trigger if the Hero is within that number of pixels of the combo."
 										"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."),
-									Label(text = "Cooldown:", fitParent = true),
+									Label(text = "Cooldown:", fitParent = true, rightPadding = 0_px),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
@@ -1121,7 +1133,15 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 										" for the combo to trigger (if any are checked).")
 								)
 							),
-							Rows_Columns<2, 3>(
+							Rows<4>(
+								IBTN("Can only trigger if the combo is partly within the viewport,"
+									" with the 'Viewport Range' added to each edge of the viewport"
+									" (positive values going away from the screen)."),
+								TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_ONSCREEN, "Req. On Screen"),
+								IBTN("Can only trigger if the combo is entirely outside the viewport,"
+									" with the 'Viewport Range' added to each edge of the viewport"
+									" (positive values going away from the screen)."),
+								TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN, "Req. Off Screen"),
 								IBTN("Can only trigger if the room is darkened."),
 								TRIGFLAG(TRIGFLAG_COND_DARK, "Req. Darkness"),
 								IBTN("Can only trigger if the room is NOT darkened."),

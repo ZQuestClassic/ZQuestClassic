@@ -281,12 +281,18 @@ int32_t combotrigger_get_register(int32_t reg)
 				ret = trig->trig_gravity;
 			else ret = -10000;
 			break;
-			break;
 		}
 		case CMBTRIGGER_TERMINAL_VELOCITY:
 		{
 			if (trig)
 				ret = trig->trig_terminal_v;
+			else ret = -10000;
+			break;
+		}
+		case CMBTRIGGER_VIEWPORT_RANGE:
+		{
+			if (trig)
+				ret = trig->viewport_cond_range * 10000;
 			else ret = -10000;
 			break;
 		}
@@ -745,6 +751,11 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		case CMBTRIGGER_TERMINAL_VELOCITY:
 		{
 			trig->trig_terminal_v = zslongToFix(value);
+			break;
+		}
+		case CMBTRIGGER_VIEWPORT_RANGE:
+		{
+			trig->viewport_cond_range = vbound(value/10000, -32768, 32767);
 			break;
 		}
 		case CMBTRIGGROUP:

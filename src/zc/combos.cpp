@@ -1954,6 +1954,22 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	
 	bool is_active_screen = is_in_current_region(scr);
 
+	// viewport range
+	{
+		bool on_screen = trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN);
+		bool off_screen = trig.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN);
+		if (on_screen && off_screen)
+			return false;
+		if (on_screen || off_screen)
+		{
+			rect_t rect = rect_t(viewport);
+			rect.expand(trig.viewport_cond_range);
+			bool inside = rect.intersects_with(comb_handle.get_rect(false));
+			if (on_screen != inside)
+				return false;
+		}
+	}
+
 	if(trig.triggeritem) //Item requirement
 	{
 		hasitem = game->get_item(trig.triggeritem) && !item_disabled(trig.triggeritem)

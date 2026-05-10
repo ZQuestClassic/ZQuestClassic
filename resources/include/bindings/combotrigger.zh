@@ -170,6 +170,14 @@ enum ComboTriggerFlag
 	// Triggers when a pushblock is about to click into place at this combo's position, on any layer
 	// @versionadded 3.0
 	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
+	// If checked, the trigger will only trigger if some part of the combo is
+	// inside the [combotrigger->ViewportRange] from the edge of the viewport.
+	// @versionadded 3.0
+	TRIGFLAG_VIEWPORT_REQ_ONSCREEN,
+	// If checked, the trigger will only trigger if all of the combo is
+	// outside the [combotrigger->ViewportRange] from the edge of the viewport.
+	// @versionadded 3.0
+	TRIGFLAG_VIEWPORT_REQ_OFFSCREEN,
 	TRIGFLAG_MAX
 };
 
@@ -656,6 +664,13 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGGER_TERMINAL_VELOCITY
 	internal int TerminalVelocity;
+	
+	// The margins away from the screen added to the viewport when calculating
+	// [TRIGFLAG_VIEWPORT_REQ_ONSCREEN] and [TRIGFLAG_VIEWPORT_REQ_OFFSCREEN].
+	//
+	// @versionadded 3.0
+	// @zasm_var CMBTRIGGER_VIEWPORT_RANGE
+	internal int ViewportRange;
 	
 	// Gets the label for this trigger.
 	//

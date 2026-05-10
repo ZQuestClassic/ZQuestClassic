@@ -121,6 +121,8 @@ struct combo_trigger
 	int32_t play_music = -2;
 	int8_t set_music_refresh = -1;
 	
+	int16_t viewport_cond_range;
+	
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();
@@ -361,6 +363,8 @@ enum ComboTriggerFlag
 	TRIGFLAG_REVERT_GRAVITY,
 	TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,
 	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
+	TRIGFLAG_VIEWPORT_REQ_ONSCREEN,
+	TRIGFLAG_VIEWPORT_REQ_OFFSCREEN,
 	
 	TRIGFLAG_MAX
 };

@@ -50,6 +50,7 @@ struct rpos_handle_t
 	cpos_info& info() const;
 	std::pair<zfix, zfix> xy() const;
 	std::pair<zfix, zfix> center_xy() const;
+	rect_t get_rect(bool hbox) const;
 
 	ZC_FORCE_INLINE int32_t data() const
 	{
@@ -91,6 +92,7 @@ struct ffc_handle_t
 	cpos_info& info() const;
 	std::pair<zfix, zfix> xy() const;
 	std::pair<zfix, zfix> center_xy() const;
+	rect_t get_rect(bool hbox) const;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
@@ -128,6 +130,7 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 	cpos_info& info() const;
 	std::pair<zfix, zfix> xy() const;
 	std::pair<zfix, zfix> center_xy() const;
+	rect_t get_rect(bool hbox) const;
 	
 	int data() const;
 	void set_data(int32_t value) const;

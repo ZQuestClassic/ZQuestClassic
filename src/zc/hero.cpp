@@ -28541,51 +28541,6 @@ struct nearby_scrolling_screen_t
 	screen_handles_t screen_handles;
 };
 
-struct rect_t
-{
-	int l, r, t, b;
-
-	rect_t() = default;
-	explicit rect_t(const viewport_t& viewport) : l(viewport.left()), r(viewport.right()), t(viewport.top()), b(viewport.bottom()) {}
-
-	void union_with(const rect_t& other)
-	{
-		l = std::min(l, other.l);
-		r = std::max(r, other.r);
-		t = std::min(t, other.t);
-		b = std::max(b, other.b);
-	}
-
-	void intersect_with(const rect_t& other)
-	{
-		l = std::max(l, other.l);
-		r = std::min(r, other.r);
-		t = std::max(t, other.t);
-		b = std::min(b, other.b);
-
-		if (l > r || t > b)
-			l = r = t = b = 0;
-	}
-
-	bool intersects_with(const rect_t& other) const
-	{
-		return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
-	}
-
-	int left() const {return l;}
-	int right() const {return r;}
-	int top() const {return t;}
-	int bottom() const {return b;}
-	
-	void expand(int dist)
-	{
-		l -= dist;
-		r += dist;
-		t -= dist;
-		b += dist;
-	}
-};
-
 struct nearby_scrolling_screens_t
 {
 	std::vector<nearby_scrolling_screen_t> screens;
