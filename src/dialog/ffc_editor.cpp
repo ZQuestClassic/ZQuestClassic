@@ -382,10 +382,10 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Label(text = "Changer-Specific Flags", colSpan = 2),
 						CHECKB("Swap w/ Next FFC", ffSWAPNEXT, "If enabled, FFCs that collide with this changer will:\n"
 							"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
-							" next combo in the list after it."),
+							" next ffc in the list after it."),
 						CHECKB("Swap w/ Prev FFC", ffSWAPPREV, "If enabled, FFCs that collide with this changer will:\n"
 							"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
-							" previous combo in the list before it. Overrides 'Swap w/ Next FFC'."),
+							" previous ffc in the list before it. Overrides 'Swap w/ Next FFC'."),
 						CHECKB("Become Next Combo", ffCHANGENEXT, "If enabled, FFCs that collide with this changer will:\n"
 							"Change its' combo to the next combo in the combo list."),
 						CHECKB("Become Prev Combo", ffCHANGEPREV, "If enabled, FFCs that collide with this changer will:\n"
