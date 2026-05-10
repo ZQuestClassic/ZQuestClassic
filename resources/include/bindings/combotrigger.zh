@@ -189,6 +189,12 @@ enum ComboTriggerFlag
 	// If true, the [combotrigger->SFX] will be stopped instead of being played.
 	// @versionadded 3.0
 	TRIGFLAG_SFX_KILL,
+	// If true, the [combotrigger->ComboChange] will be an exact combo ID to change to, instead of a relative value.
+	// @versionadded 3.0
+	TRIGFLAG_CMB_CHANGE_ABSOLUTE,
+	// If true, the [combotrigger->CSetChange] will be an exact combo ID to change to, instead of a relative value.
+	// @versionadded 3.0
+	TRIGFLAG_CSET_CHANGE_ABSOLUTE,
 	TRIGFLAG_MAX
 };
 
@@ -262,13 +268,18 @@ class combotrigger {
 	// The amount the combo will change by when triggered.
 	//
 	// Ex. `1` acts as '->Next', `-1` acts as '->Prev'.
-	//
 	// If `0`, no change occurs.
+	//
+	// If [TRIGFLAG_CMB_CHANGE_ABSOLUTE] is set, then this
+	// is instead an EXACT combo ID to change to.
 	//
 	// @zasm_var CMBTRIGCHANGECMB
 	internal int ComboChange;
 
 	// The amount the cset will change by when triggered.
+	//
+	// If [TRIGFLAG_CSET_CHANGE_ABSOLUTE] is set, then this
+	// is instead an EXACT cset to change to.
 	//
 	// @zasm_var CMBTRIGCSETCHANGE
 	internal int CSetChange;

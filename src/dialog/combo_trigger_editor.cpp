@@ -249,6 +249,10 @@ void ComboTriggerDialog::updateWarnings()
 	}
 	else if (local_ref.trigger_flags.get(TRIGFLAG_SFX_KILL) && local_ref.trigsfx <= 0)
 		warnings.emplace_back("Kill SFX flag set, but no SFX selected to kill.");
+	if (local_ref.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE) && local_ref.trigchange < 0)
+		warnings.emplace_back("Changing to a negative combo is invalid.");
+	if (local_ref.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE) && local_ref.trigcschange < 0)
+		warnings.emplace_back("Changing to a negative cset is invalid.");
 	
 	warnbtn->setDisabled(warnings.empty());
 }
@@ -664,7 +668,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							),
 							Row(padding = 0_px,
 								Column(vAlign = 0.0,
-									Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
+									Rows<4>(framed = true, padding = DEFAULT_PADDING*1.5, hAlign = 1.0,
 										Label(text = "Combo Change:", fitParent = true),
 										TextField(
 											fitParent = true,
@@ -677,7 +681,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											}),
 										IBTN_T("Combo Change","If the value is not 0, the combo will"
 											" change by that much when triggered."
-											"\nEx. '1' causes '->Next', '-1' causes '->Prev'."),
+											"\nEx. '1' causes '->Next', '-1' causes '->Prev'."
+											"\nIf 'Absolute' is checked, this will instead change to a specific combo ID."),
+										TRIGFLAG(TRIGFLAG_CMB_CHANGE_ABSOLUTE, "Absolute"),
 										Label(text = "CSet Change:", fitParent = true),
 										TextField(
 											fitParent = true,
@@ -690,7 +696,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 											}),
 										IBTN_T("CSet Change","If the value is not 0, the cset will"
 											" change by that much when triggered."
-											"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.")
+											"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'."
+											"\nIf 'Absolute' is checked, this will instead change to a specific cset."),
+										TRIGFLAG(TRIGFLAG_CSET_CHANGE_ABSOLUTE, "Absolute")
 									),
 									Rows_Columns<2,5>(framed = true, hAlign = 1.0,
 										IBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
