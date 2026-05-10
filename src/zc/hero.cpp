@@ -29008,7 +29008,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			dest_screen = screen_index_direction(dest_screen, (direction)scrolldir);
 		}
 	}
-
+	
+	if (viewport_mode != ViewportMode::CenterAndBound || get_viewport_sprite() != &Hero)
+	{
+		set_viewport_sprite(&Hero);
+		viewport_mode = ViewportMode::CenterAndBound;
+		update_viewport();
+	}
+	
 	int old_region_scr_dx = region_scr_dx;
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
