@@ -9514,6 +9514,8 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 		return 133;
 	if(!p_putc(tmp_trig.set_music_refresh, f))
 		return 134;
+	if(!p_iputw(tmp_trig.viewport_cond_range, f))
+		return 135;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)

@@ -877,6 +877,11 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_getc(&temp_trigger.set_music_refresh, f))
 			return qe_invalid;
 	}
+	if (s_version >= 68)
+	{
+		if(!p_igetw(&temp_trigger.viewport_cond_range, f))
+			return qe_invalid;
+	}
 	return 0;
 }
 

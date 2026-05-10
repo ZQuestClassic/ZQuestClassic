@@ -503,6 +503,28 @@ enum class ViewportMode
 	Last = Script,
 };
 
+struct rect_t
+{
+	int l, r, t, b;
+
+	rect_t() = default;
+	rect_t(int x, int y, int w, int h) : l(x), r(x+w-1), t(y), b(y+h-1) {}
+	explicit rect_t(const viewport_t& viewport) : l(viewport.left()), r(viewport.right()), t(viewport.top()), b(viewport.bottom()) {}
+
+	void union_with(const rect_t& other);
+
+	void intersect_with(const rect_t& other);
+
+	bool intersects_with(const rect_t& other) const;
+
+	int left() const;
+	int right() const;
+	int top() const;
+	int bottom() const;
+	
+	void expand(int dist);
+};
+
 struct CheckListInfo
 {
 	std::string name, info;

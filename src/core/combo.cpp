@@ -512,6 +512,11 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 				conditions << indent << fmt::format("Player Jump {} {}\n", req_sign, req_player_jump);
 		}
 
+		string vp_margin = viewport_cond_range ? "" : fmt::format(" (margin {})", viewport_cond_range);
+		if (trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN))
+			conditions << indent << "Combo is on-screen" << vp_margin << "\n";
+		if (trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN))
+			conditions << indent << "Combo is off-screen" << vp_margin << "\n";
 		if (trigger_flags.get(TRIGFLAG_COND_DARK))
 			conditions << indent << "Room is dark\n";
 		if (trigger_flags.get(TRIGFLAG_COND_NODARK))

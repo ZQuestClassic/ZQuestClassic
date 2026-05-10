@@ -151,6 +151,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case CMBTRIGGERTRIGSTR:
 		case CMBTRIGGER_GRAVITY:
 		case CMBTRIGGER_TERMINAL_VELOCITY:
+		case CMBTRIGGER_VIEWPORT_RANGE:
 		case CMBTRIGGROUP:
 		case CMBTRIGGROUPVAL:
 		case CMBTRIGGSTATE:

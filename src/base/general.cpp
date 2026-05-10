@@ -220,3 +220,40 @@ int32_t viewport_t::bottom() const
 {
 	return y + h;
 }
+
+void rect_t::union_with(const rect_t& other)
+{
+	l = std::min(l, other.l);
+	r = std::max(r, other.r);
+	t = std::min(t, other.t);
+	b = std::max(b, other.b);
+}
+
+void rect_t::intersect_with(const rect_t& other)
+{
+	l = std::max(l, other.l);
+	r = std::min(r, other.r);
+	t = std::max(t, other.t);
+	b = std::min(b, other.b);
+
+	if (l > r || t > b)
+		l = r = t = b = 0;
+}
+
+bool rect_t::intersects_with(const rect_t& other) const
+{
+	return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
+}
+
+int rect_t::left() const {return l;}
+int rect_t::right() const {return r;}
+int rect_t::top() const {return t;}
+int rect_t::bottom() const {return b;}
+
+void rect_t::expand(int dist)
+{
+	l -= dist;
+	r += dist;
+	t -= dist;
+	b += dist;
+}

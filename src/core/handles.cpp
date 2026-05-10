@@ -34,6 +34,12 @@ std::pair<zfix, zfix> rpos_handle_t::center_xy() const
 	return {cx + 8, cy + 8};
 }
 
+rect_t rpos_handle_t::get_rect(bool) const
+{
+	auto [cx, cy] = xy();
+	return {cx, cy, 16, 16};
+}
+
 void rpos_handle_t::set_data(int32_t value) const
 {
 	scr->data[pos] = value;
@@ -113,6 +119,13 @@ std::pair<zfix, zfix> ffc_handle_t::xy() const
 std::pair<zfix, zfix> ffc_handle_t::center_xy() const
 {
 	return {ffc->x + ffc->hit_width / 2, ffc->y + ffc->hit_height / 2};
+}
+
+rect_t ffc_handle_t::get_rect(bool hbox) const
+{
+	if (hbox)
+		return {ffc->x, ffc->y, ffc->hit_width, ffc->hit_height};
+	return {ffc->x, ffc->y, ffc->txsz * 16, ffc->tysz * 16};
 }
 
 int32_t ffc_handle_t::data() const
@@ -316,3 +329,14 @@ int32_t combined_handle_t::local_id() const
 IMPL_COMBINED_HANDLE_GET(info, cpos_info&)
 IMPL_COMBINED_HANDLE_GET(xy, zfix_pair)
 IMPL_COMBINED_HANDLE_GET(center_xy, zfix_pair)
+
+rect_t combined_handle_t::get_rect(bool hbox) const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+	{
+		auto& rpos_handle = std::get<rpos_handle_t>(*this);
+		return rpos_handle.get_rect(hbox);
+	}
+
+	return std::get<ffc_handle_t>(*this).get_rect(hbox);
+}
