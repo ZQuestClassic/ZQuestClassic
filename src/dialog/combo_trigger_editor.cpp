@@ -237,7 +237,8 @@ void ComboTriggerDialog::updateWarnings()
 		warnings.emplace_back("Can't unset ExDoor '(None)' dir!");
 	if (local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_ONSCREEN) && local_ref.trigger_flags.get(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN))
 		warnings.emplace_back("Combo cannot be on-screen and off-screen at the same time!");
-	
+	if (local_ref.chance_numerator > local_ref.chance_denominator)
+		warnings.emplace_back(fmt::format("{} in {} chance is >100%", local_ref.chance_numerator, local_ref.chance_denominator));
 	
 	warnbtn->setDisabled(warnings.empty());
 }
@@ -1152,6 +1153,28 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								TRIGFLAG(TRIGFLAG_PLAYER_STANDING, "Req. Player Standing"),
 								IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
 								TRIGFLAG(TRIGFLAG_PLAYER_NOTSTANDING, "Req. Player Not Standing")
+							)
+						),
+						Frame(title = "Chance",
+							info = "Rolls a random number using the global RNG, to give a chance of the combo successfully triggering.",
+							Row(
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 214748, val = local_ref.chance_numerator,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.chance_numerator = val;
+									}),
+								Label(text = " in "),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 214748, val = local_ref.chance_denominator,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.chance_denominator = val;
+									})
 							)
 						)
 					)

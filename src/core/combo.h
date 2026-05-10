@@ -122,6 +122,7 @@ struct combo_trigger
 	int8_t set_music_refresh = -1;
 	
 	int16_t viewport_cond_range;
+	int32_t chance_numerator = 1, chance_denominator = 1;
 	
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;

@@ -9516,6 +9516,10 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 		return 134;
 	if(!p_iputw(tmp_trig.viewport_cond_range, f))
 		return 135;
+	if(!p_iputl(tmp_trig.chance_numerator, f))
+		return 136;
+	if(!p_iputl(tmp_trig.chance_denominator, f))
+		return 137;
 	return 0;
 }
 int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)

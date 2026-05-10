@@ -3386,6 +3386,8 @@ enum ASM_DEFINE
 #define EWPNBURNLIGHTOFFSET            0x16B4
 #define DMAPDATASUBSCRM                0x16B5
 #define CMBTRIGGER_VIEWPORT_RANGE      0x16B6
+#define CMBTRIGGER_CHANCE_NUMERATOR    0x16B7
+#define CMBTRIGGER_CHANCE_DENOMINATOR  0x16B8
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
