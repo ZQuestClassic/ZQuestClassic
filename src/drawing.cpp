@@ -349,11 +349,19 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 {
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
-	for(int32_t ty = 0; ty < hei; ++ty)
+	int sx = 0, sy = 0;
+	if (dest->clip)
+	{
+		wid = zc_min(dest->cr, wid);
+		hei = zc_min(dest->cb, hei);
+		sx = zc_max(dest->cl, sx);
+		sy = zc_max(dest->ct, sy);
+	}
+	for(int32_t ty = sy; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = src ? bmp_read_line(src, ty) : 0;
 		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int32_t tx = 0; tx < wid; ++tx)
+		for(int32_t tx = sx; tx < wid; ++tx)
 		{
 			if((!src || bmp_read8(read_addr+tx)) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
