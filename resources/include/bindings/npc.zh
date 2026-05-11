@@ -184,6 +184,9 @@ enum NPCFlags
 	NPCF_NOT_BEATABLE, // Doesn't Count as beatable Enemy.
 	NPCF_SPAWNFLICKER, // Flicker in when spawning
 	NPCF_SPAWNINSTANT, // Spawn instantly
+	// No Contact Damage
+	// @versionadded 3.0
+	NPCF_NO_CONTACT_DAMAGE = 7,
 	// some unused indexes
 	NPCF_SHIELD_FRONT = 24, // Shielded on Front
 	NPCF_SHIELD_LEFT, // Shielded on Left

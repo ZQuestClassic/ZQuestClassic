@@ -1393,8 +1393,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		TabRef(name = "Flags", TabPanel(
 			ptr = &guy_tabs[8],
 			TabRef(name = "Basic", Row(
-				Column(hAlign = 1.0, fitParent = true,
+				Columns<8>(hAlign = 1.0, fitParent = true,
 					GuyFlag(guy_bhit, "Damaged By Power 0 weapons"),
+					GuyFlag(guy_no_contact_damage, "No Contact Damage"),
 					GuyFlag(guy_invisible, "Does not draw"),
 					GuyFlag(guy_never_return, "Never Returns After Death"),
 					GuyFlag(guy_doesnt_count, "Doesn't Count as Beatable Enemy"),
