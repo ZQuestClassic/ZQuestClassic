@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-09 08:16:27</td>
+      <td>2026-05-11 02:29:54</td>
     </tr>
   </table>
 </div>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l125">POS_TO_RPOS(int, int) (line 125)</a></td><td>called 6282581821 times, returned 6282581821 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l117">POS_TO_RPOS(int, int, int) (line 117)</a></td><td>called 6318611879 times, returned 6318611879 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l112">RPOS_TO_POS(rpos_t) (line 112)</a></td><td>called 896741180 times, returned 896741180 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l112">RPOS_TO_POS(rpos_t) (line 112)</a></td><td>called 896741586 times, returned 896741586 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l98">get_region_relative_dx(int) (line 98)</a></td><td>called 8044338538 times, returned 8044338538 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l94">get_region_relative_dx(int, int) (line 94)</a></td><td>called 8044632561 times, returned 8044632561 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l106">get_region_relative_dy(int) (line 106)</a></td><td>called 8044338540 times, returned 8044338540 times</td><td>100.0%</td></tr>
@@ -896,7 +896,7 @@
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">896741180</td>
+      <td class="linecount coveredLine">896741586</td>
       <td class="src coveredLine"><span class="n">ZC_FORCE_INLINE</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">RPOS_TO_POS</span><span class="p">(</span><span class="n">rpos_t</span><span class="w"> </span><span class="n">rpos</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -917,7 +917,7 @@
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">896741180</td>
+      <td class="linecount coveredLine">896741586</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">static_cast</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">rpos</span><span class="p">)</span><span class="o">%</span><span class="mi">176</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -3256,234 +3256,227 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mapres</span><span class="p">;</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">displayOnMap</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l450" href="#l450">450</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">displayOnMap</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ViewMap</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l451" href="#l451">451</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">ViewMap</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onViewMap</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l452" href="#l452">452</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onViewMap</span><span class="p">();</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l453" href="#l453">453</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">is_push</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l454" href="#l454">454</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">is_push</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l455" href="#l455">455</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">ScreenItemState</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l456" href="#l456">456</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="n">ScreenItemState</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l457" href="#l457">457</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="n">None</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l458" href="#l458">458</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">None</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">WhenKillEnemies</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l459" href="#l459">459</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">WhenKillEnemies</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">WhenTriggerSecrets</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l460" href="#l460">460</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">WhenTriggerSecrets</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">MustGiveToEnemy</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l461" href="#l461">461</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">MustGiveToEnemy</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">CarriedByEnemy</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l462" href="#l462">462</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">CarriedByEnemy</span><span class="p">,</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l463" href="#l463">463</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l464" href="#l464">464</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">screen_state_t</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l465" href="#l465">465</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">screen_state_t</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l466" href="#l466">466</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ScreenItemState</span><span class="w"> </span><span class="n">item_state</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l467" href="#l467">467</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ScreenItemState</span><span class="w"> </span><span class="n">item_state</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded_enemies</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l468" href="#l468">468</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded_enemies</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">did_enemy_secret</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l469" href="#l469">469</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">did_enemy_secret</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">triggered_secrets</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l470" href="#l470">470</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">triggered_secrets</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">open_doors</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l471" href="#l471">471</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">open_doors</span><span class="p">;</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l472" href="#l472">472</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l473" href="#l473">473</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">screen_state_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">get_screen_states</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l474" href="#l474">474</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">screen_state_t</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">get_screen_states</span><span class="p">();</span></td>
+      <td class="src "><span class="n">screen_state_t</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">get_screen_state</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l475" href="#l475">475</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">screen_state_t</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">get_screen_state</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">clear_screen_states</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l476" href="#l476">476</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">clear_screen_states</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">screen_item_set_state</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">ScreenItemState</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l477" href="#l477">477</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">screen_item_set_state</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="n">ScreenItemState</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l478" href="#l478">478</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mark_visited</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l479" href="#l479">479</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">mark_visited</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l480" href="#l480">480</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l481" href="#l481">481</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l482" href="#l482">482</a></td>
+      <td class="lineno"><a id="l481" href="#l481">481</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
