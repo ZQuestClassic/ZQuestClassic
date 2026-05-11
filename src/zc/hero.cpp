@@ -2853,7 +2853,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 				else if(action==sidedrowning)
 				{
-					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+					herotile(&tile, &flip, &extend, ls_sidedrown, up, zinit.heroAnimationStyle);
 					if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 				else if (action == sideswimming || action == sideswimhit)
@@ -2980,7 +2980,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 				else if (action == sidedrowning)
 				{
-					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+					herotile(&tile, &flip, &extend, ls_sidedrown, up, zinit.heroAnimationStyle);
 					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if(action==lavadrowning)
@@ -3090,7 +3090,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 				else if(action == sidedrowning)
 				{
-						herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+						herotile(&tile, &flip, &extend, ls_sidedrown, up, zinit.heroAnimationStyle);
 						if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if (action == sideswimming || action == sideswimhit)
