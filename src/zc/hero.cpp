@@ -7324,10 +7324,8 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	}
 	else if(superman || !scriptcoldet || fallclk)
 		return 0;
-	//!TODO SOLIDPUSH Enemy flag to make them not deal contact damage
-	//!Add a flag check to this if:
 	else if (!(enemyptr->stunclk==0 && enemyptr->frozenclock==0 && (!get_qr(qr_SAFEENEMYFADE) || enemyptr->fading != fade_flicker)
-			&& (enemyptr->d->type != eeGUY || enemyptr->dmisc1)))
+			&& (enemyptr->d->type != eeGUY || enemyptr->dmisc1)) || (enemyptr->flags & guy_no_contact_damage))
 	{
 		return -1;
 	}
