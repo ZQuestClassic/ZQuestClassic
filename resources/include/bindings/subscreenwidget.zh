@@ -1,5 +1,6 @@
 enum SubscreenItemButton
 {
+	// @versionadded 3.0
 	ITMBTN_NONE = -1,
 	ITMBTN_A,
 	ITMBTN_B,
@@ -8,6 +9,7 @@ enum SubscreenItemButton
 	NUM_ITMBTN
 };
 
+// @versionadded 3.0
 enum ConditionType
 {
 	CONDTY_NONE,
@@ -169,6 +171,7 @@ class subscreenwidget {
 	//
 	// @index [enum ItemID]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQOWNITEMS
 	internal bool RequiredOwnedItems[];
 
@@ -176,6 +179,7 @@ class subscreenwidget {
 	//
 	// @index [enum ItemID]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQUNOWNITEMS
 	internal bool RequiredUnownedItems[];
 	
@@ -184,6 +188,7 @@ class subscreenwidget {
 	//
 	// @length 256
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_DMAP_FLOOR
 	internal bool RequiredDMapFloors[];
 	
@@ -192,6 +197,7 @@ class subscreenwidget {
 	//
 	// @length [NUM_LEVELS]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_DMAP_LEVEL
 	internal bool RequiredDMapLevels[];
 	
@@ -200,6 +206,7 @@ class subscreenwidget {
 	//
 	// @length [MAX_DMAPS]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_DMAP
 	internal bool RequiredDMaps[];
 	
@@ -208,6 +215,7 @@ class subscreenwidget {
 	//
 	// @length [Game->MapCount]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_MAP
 	internal bool RequiredMaps[];
 	
@@ -216,6 +224,7 @@ class subscreenwidget {
 	//
 	// @length 128
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_SCREEN
 	internal bool RequiredScreens[];
 	
@@ -228,6 +237,7 @@ class subscreenwidget {
 	//
 	// @value [enum CounterIndex]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQCOUNTER
 	internal int RequiredCounter;
 
@@ -237,12 +247,14 @@ class subscreenwidget {
 	//
 	// @value [enum ConditionType]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQCOUNTERCOND
 	internal int RequiredCounterCond;
 
 	// The counter value this widget requires to be active/visible.
 	// The [RequiredCounter] must relate to this value based on the [RequiredCounterCond].
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQCOUNTERVAL
 	internal int RequiredCounterValue;
 
@@ -251,12 +263,14 @@ class subscreenwidget {
 	//
 	// @value [enum LevelItemBitflags]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQLITEMS
 	internal int RequiredLItems;
 
 	// The Level that [RequiredLItems] are checked for. If set to '-1', uses the
 	// current level.
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQLITEMLEVEL
 	internal int RequiredLItemLevel;
 	
@@ -265,22 +279,26 @@ class subscreenwidget {
 	//
 	// @index 0-31
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_LEVEL_STATE
 	internal bool RequiredLStates[];
 	
 	// The Level that [RequiredLStates] are checked for. If set to '-1', uses the
 	// current level.
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_LEVEL_STATE_LEVEL
 	internal int RequiredLStateLevel;
 	
 	// The Map to require screen states or exstates for.
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_SCRSTATE_MAP
 	internal int RequiredScreenStateMap;
 	
 	// The Map to require screen states or exstates for. If '-1', uses the current map+screen, ignoring [RequiredScreenStateMap].
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_SCRSTATE_SCREEN
 	internal int RequiredScreenStateScreen;
 	
@@ -289,6 +307,7 @@ class subscreenwidget {
 	//
 	// @index [enum ScreenState]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_SCRSTATE_STATE
 	internal bool RequiredScreenStates[];
 	
@@ -297,11 +316,13 @@ class subscreenwidget {
 	//
 	// @index 0-31
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQ_SCRSTATE_EXSTATE
 	internal bool RequiredScreenExStates[];
 	
 	// If set to 'true', the widget will not be active/visible.
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGREQSCRIPTDISABLED
 	internal bool ScriptDisabled;
 
@@ -575,6 +596,7 @@ class subscreenwidget {
 	// - [SUBWIDG_COUNTER]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
+	// @versionadded 2.55.8
 	// @zasm_var SUBWIDGTY_COLOR_TXT2
 	internal int ColorFullText;
 
@@ -598,6 +620,7 @@ class subscreenwidget {
 	// - [SUBWIDG_COUNTER]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
+	// @versionadded 2.55.8
 	// @zasm_var SUBWIDGTY_COLOR_SHD2
 	internal int ColorFullShadow;
 
@@ -623,6 +646,7 @@ class subscreenwidget {
 	// - [SUBWIDG_COUNTER]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
+	// @versionadded 2.55.8
 	// @zasm_var SUBWIDGTY_COLOR_BG2
 	internal int ColorFullBG;
 
@@ -740,6 +764,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_MMAP]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGTY_COLOR_VISITED
 	internal int ColorVisited;
 
@@ -749,6 +774,7 @@ class subscreenwidget {
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGTY_ITEMCLASS
 	internal int ItemType;
 
@@ -955,6 +981,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGTY_TOTAL
 	internal int Total;
 
@@ -970,6 +997,7 @@ class subscreenwidget {
 	//
 	// - [SUBWIDG_MMAP]
 	//
+	// @versionadded 3.0
 	// @zasm_var SUBWIDGTY_LITEMS
 	internal int LItems;
 
@@ -1042,6 +1070,7 @@ class subscreenwidget {
 	// Checks the requirements / conditions of this widget.
 	// See [RequiredOwnedItems], [RequiredUnownedItems], [RequiredCounter], [RequiredLItems], [ScriptDisabled]
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_CHECK_CONDITIONS D2
@@ -1049,6 +1078,7 @@ class subscreenwidget {
 
 	// Checks that the widget is visible- meaning, it both passes [CheckConditions] and [VisibleFlags].
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_CHECK_VISIBLE D2

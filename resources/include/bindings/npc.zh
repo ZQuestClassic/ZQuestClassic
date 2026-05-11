@@ -175,6 +175,7 @@ enum NPCMiscBitflags
 	NPCMF_HAMMERBREAKS             = 0x2000, // Hammer Can break Shield.
 };
 
+// @versionadded 3.0
 enum NPCFlags
 {
 	NPCF_0POWERWEAPS, // Damaged by 0-Power Weapons.
@@ -398,6 +399,7 @@ class npc {
 	
 	// The flags of the enemy.
 	// @index [enum NPCFlags]
+	// @versionadded 3.0
 	// @zasm_var NPCFLAGS
 	internal bool Flags[];
 
@@ -471,6 +473,7 @@ class npc {
 	// The sfx (Quest->Audio->SFXData) used whenever the npc fires its weapon.
 	// If WeaponSFX <= 0 no sound will be played.
 	//
+	// @versionadded 3.0
 	// @zasm_var NPCFIRESFX
 	internal int WeaponSFX;
 
@@ -641,6 +644,7 @@ class npc {
 	//   BREAKSHIELD D2
 	internal void BreakShield();
 
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   REPAIRSHIELD D2

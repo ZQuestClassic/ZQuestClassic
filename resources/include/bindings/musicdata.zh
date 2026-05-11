@@ -1,3 +1,4 @@
+// @versionadded 3.0
 // @zasm_ref REFMUSIC
 class musicdata {
 	// @delete
@@ -109,6 +110,8 @@ class musicdata {
 // Can be used on [combotrigger::Music] as a value indicating "don't play music".
 // [musicdata::ID] will read '-2'.
 // Should otherwise not be used.
+//
+// @versionadded 3.0
 const musicdata MUSIC_TRIGGER_NONE = <musicdata>(-2L);
 // Special [musicdata] pointer.
 // Can be used on [Screen->Music] or [mapdata::Music] to use the dmap's music.
@@ -116,6 +119,8 @@ const musicdata MUSIC_TRIGGER_NONE = <musicdata>(-2L);
 // Can call [MUSIC_INHERIT->Play()] to play the current screen's music.
 // [musicdata::ID] will read '-1'.
 // Should otherwise not be used.
+//
+// @versionadded 3.0
 const musicdata MUSIC_INHERIT = <musicdata>(-1L);
 // Special [musicdata] pointer. Uninitialized musicdata pointers are equivalent to this pointer.
 // Can be used on [Screen->Music], [mapdata::Music], [dmapdata::Music], or [combotrigger::Music] to stop all music.
@@ -123,4 +128,6 @@ const musicdata MUSIC_INHERIT = <musicdata>(-1L);
 // [musicdata::ID] will read '-1'.
 // All variables can be read from, and will return `0` ([GetPath] will give an empty string)
 // Should otherwise not be used; writing to any variables (or calling [SetPath]) is an error.
+//
+// @versionadded 3.0
 const musicdata MUSIC_SILENCE = <musicdata>NULL;

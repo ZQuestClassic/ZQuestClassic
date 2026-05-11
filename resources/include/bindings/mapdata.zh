@@ -174,7 +174,10 @@ enum ScreenState
 	ST_SECRET             = 13, // Screen Secrets have been made permanent
 	ST_VISITED            = 14, // If set, this screen will appear on the Overworld Map
 	ST_LIGHTBEAM          = 15, // If set, the light triggers on the screen have been triggered
-	ST_NO_ENEMIES_RETURN  = 16, // If set, enemies on this screen will not spawn.
+	// If set, enemies on this screen will not spawn.
+	//
+	// @versionadded 3.0
+	ST_NO_ENEMIES_RETURN  = 16,
 };
 
 // Represents map screen(s).
@@ -237,6 +240,7 @@ class mapdata {
 	//
 	// May only be written to for canonical mapdata ([Game->LoadMapData]).
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATAREGIONID
 	internal int RegionID;
 
@@ -442,6 +446,7 @@ class mapdata {
 	// Which parts of the screen state that won't reset via 'Reset Room' combos.
 	//
 	// @index [enum ScreenState]
+	// @versionadded 3.0
 	// @zasm_var MAPDATANORESETARR
 	internal bool NoResetState[];
 	
@@ -455,6 +460,7 @@ class mapdata {
 	// target screen.
 	//
 	// @index [enum ScreenState]
+	// @versionadded 3.0
 	// @zasm_var MAPDATANOCARRYARR
 	internal bool NoCarryState[];
 
@@ -466,11 +472,13 @@ class mapdata {
 	
 	// Which of the 32 ExStates should be carried over to the target screen
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATAEXCARRY
 	internal bool ExStateCarry[];
 	
 	// Which of the 32 ExStates should be reset by 'Reset Room' combos
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATAEXRESET
 	internal bool ExStateReset[];
 
@@ -672,6 +680,7 @@ class mapdata {
 	// NULL / [MUSIC_SILENCE] represents silence.
 	// [MUSIC_INHERIT] as a special value represents using the current dmap's Music.
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATA_MUSIC
 	internal musicdata Music;
 
@@ -683,6 +692,7 @@ class mapdata {
 
 	// The boolean flags for the screen.
 	//
+	// @versionadded 2.55.10
 	// @index [enum ScreenFlag]
 	// @zasm_var MAPDATA_FLAG
 	internal bool Flag[];
@@ -705,11 +715,13 @@ class mapdata {
 
 	// If [SFL_CUSTOM_GRAV] is set, this gravity applies on the screen.
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATA_GRAVITY_STRENGTH
 	internal int GravityStrength;
 
 	// If [SFL_CUSTOM_GRAV] is set, this terminal velocity applies on the screen.
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATA_TERMINAL_VELOCITY
 	internal int TerminalVelocity;
 	

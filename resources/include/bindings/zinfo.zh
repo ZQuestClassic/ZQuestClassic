@@ -6,6 +6,7 @@ class ZInfo {
 	// Copies the name of the specified item class into the buffer.
 	//
 	// @param [ItemType] itemclass_id
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   POP D3

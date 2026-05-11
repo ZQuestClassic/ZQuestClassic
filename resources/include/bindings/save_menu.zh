@@ -1,4 +1,6 @@
 // Used with [save_menu::Flags].
+//
+// @versionadded 3.0
 enum SaveMenuFlags
 {
 	SMENU_CONFIRM_A, // If checked, the A button can confirm, in addition to START.
@@ -8,6 +10,8 @@ enum SaveMenuFlags
 	SMENU_DONT_KILL_SFX, // If checked, the menu opening will not stop SFX that are playing.
 };
 // Used with [save_menu::OptionFlags].
+//
+// @versionadded 3.0
 @Bitflags("int")
 enum SaveMenuOptionFlags
 {
@@ -22,6 +26,7 @@ enum SaveMenuOptionFlags
 // 
 // Load with [Game->LoadSaveMenu].
 //
+// @versionadded 3.0
 // @zasm_ref REFSAVEMENU
 class save_menu
 {

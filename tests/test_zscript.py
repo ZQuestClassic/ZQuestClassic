@@ -22,6 +22,8 @@ from pathlib import Path
 
 from common import ZCTestCase, parse_json
 
+CI = 'CI' in os.environ
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--update', action='store_true', default=False, help='Update ZASM snapshots'
@@ -192,6 +194,14 @@ class TestZScript(ZCTestCase):
                     f'{script_subpath.stem}_expected.txt'
                 )
                 self.expect_snapshot(expected_path, output, args.update)
+
+    def test_zscript_version_docs(self):
+        if CI:
+            raise unittest.SkipTest('TODO: get this working in CI')
+
+        subprocess.check_call(
+            [sys.executable, root_dir / 'scripts/lint_zscript_versions.py']
+        )
 
 
 if __name__ == '__main__':

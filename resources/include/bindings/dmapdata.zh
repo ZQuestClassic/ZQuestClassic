@@ -33,8 +33,14 @@ enum DMapFlag
 	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
-	DMFS_EXTENDEDVIEWPORT,    //If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen.
-	DMFS_CUSTOM_GRAVITY,      // use dmap-specific [dmapdata::GravityStrength|Gravity Strength] and [dmapdata::TerminalVelocity|Terminal Velocity]
+	// If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen.
+	//
+	// @versionadded 3.0
+	DMFS_EXTENDEDVIEWPORT,
+	// use dmap-specific [dmapdata::GravityStrength|Gravity Strength] and [dmapdata::TerminalVelocity|Terminal Velocity]
+	//
+	// @versionadded 3.0
+	DMFS_CUSTOM_GRAVITY,
 	DMFS_MAX
 };
 
@@ -98,6 +104,7 @@ class dmapdata {
 
 	// The Floor Number of this dmap.
 	//
+	// @versionadded 3.0
 	// @zasm_var DMAPDATAFLOOR
 	internal int Floor;
 
@@ -119,6 +126,7 @@ class dmapdata {
 	// The Music set to play on this dmap.
 	// NULL / MUSIC_SILENCE represents silence.
 	//
+	// @versionadded 3.0
 	// @zasm_var DMAPDATA_MUSIC
 	internal musicdata Music;
 	
@@ -223,11 +231,13 @@ class dmapdata {
 	
 	// If [DMFS_CUSTOM_GRAVITY] is set, this gravity applies on the dmap.
 	//
+	// @versionadded 3.0
 	// @zasm_var DMAPDATA_GRAVITY_STRENGTH
 	internal int GravityStrength;
 
 	// If [DMFS_CUSTOM_GRAVITY] is set, this terminal velocity applies on the dmap.
 	//
+	// @versionadded 3.0
 	// @zasm_var DMAPDATA_TERMINAL_VELOCITY
 	internal int TerminalVelocity;
 

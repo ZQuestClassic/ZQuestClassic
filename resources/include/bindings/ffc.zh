@@ -55,6 +55,7 @@ class ffc {
 	
 	// The FFC's index within the current screen (0-indexed).
 	//
+	// @versionadded 3.0
 	// @zasm_var FFCINDEX
 	internal const int ScreenFFCIndex;
 
@@ -65,6 +66,7 @@ class ffc {
 
 	// The layer the FFC draws on. Unused if [FFCF_OVERLAY] is set.
 	//
+	// @versionadded 3.0
 	// @zasm_var FFCLAYER
 	internal int Layer;
 

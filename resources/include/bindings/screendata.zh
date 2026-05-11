@@ -165,7 +165,10 @@ enum ScreenFlag
 	SFL_ENEMIES_ITEM = 1, // Killing enemies spawns screen item.
 	SFL_ENEMIES_SECRETS = 15, // Enemies->Secrets.
 	SFL_ENEMIES_SECRETS_PERM = 28, // Enemies->Secrets (perm).
-	SFL_ENEMIES_STAY_DEAD = 71, // Enemies->Stay Dead - once all enemies are killed they will not respawn again
+	// Enemies->Stay Dead - once all enemies are killed they will not respawn again
+	//
+	// @versionadded 3.0
+	SFL_ENEMIES_STAY_DEAD = 71,
 	SFL_ENEMIES_CHAIN_TRIGGERS = 70, // Chain 'Enemies->' Triggers.
 	SFL_TRAPS_IGNORE_SOLID = 14, // Traps Ignore Solidity.
 	SFL_ENEMIES_LEADER = 85, // Ringleader. The first enemy listed in the screen's enemy list will be a 'Ringleader'. When this enemy dies, all other enemies will die.
@@ -189,7 +192,11 @@ enum ScreenFlag
 	SFL_SCRIPT_5 = 60,
 	
 	// Gravity
-	SFL_CUSTOM_GRAV = 74, // use screen-specific [screendata::GravityStrength|Gravity Strength] and [screendata::TerminalVelocity|Terminal Velocity]
+	//
+	// use screen-specific [screendata::GravityStrength|Gravity Strength] and [screendata::TerminalVelocity|Terminal Velocity]
+	//
+	// @versionadded 3.0
+	SFL_CUSTOM_GRAV = 74,
 };
 
 // Screen Flag groups, used with [Screen->Flags].
@@ -256,8 +263,14 @@ enum ScreenFlagWarp
 	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
 	SFW_SPRITECARRY, //Sprites carry over. 
 	SFW_DISABLE_MIRROR, //Disable Magic Mirror
-	SFW_MAZE_CAN_GET_LOST, //Maze Can Get Lost
-	SFW_MAZE_LOOPY, //Maze Loopy
+	// Maze Can Get Lost
+	//
+	// @versionadded 3.0
+	SFW_MAZE_CAN_GET_LOST,
+	// Maze Loopy
+	//
+	// @versionadded 3.0
+	SFW_MAZE_LOOPY,
 	
 	SFW_LAST
 };
@@ -563,6 +576,7 @@ class screendata {
 	//
 	// This only refers to the screen denoted by [Index].
 	//
+	// @versionadded 2.55.10
 	// @index [enum ScreenFlag]
 	// @zasm_var SCREEN_FLAG
 	internal bool Flag[];
@@ -589,11 +603,13 @@ class screendata {
 
 	// If [SFL_CUSTOM_GRAV] is set, this gravity applies on the screen.
 	//
+	// @versionadded 3.0
 	// @zasm_var SCREENDATA_GRAVITY_STRENGTH
 	internal int GravityStrength;
 
 	// If [SFL_CUSTOM_GRAV] is set, this terminal velocity applies on the screen.
 	//
+	// @versionadded 3.0
 	// @zasm_var SCREENDATA_TERMINAL_VELOCITY
 	internal int TerminalVelocity;
 
@@ -808,6 +824,7 @@ class screendata {
 	// Which parts of the screen state that won't reset via 'Reset Room' combos.
 	//
 	// @index [enum ScreenState]
+	// @versionadded 3.0
 	// @zasm_var SCREENDATANORESETARR
 	internal bool NoResetState[];
 	
@@ -822,6 +839,7 @@ class screendata {
 	// target screen.
 	//
 	// @index [enum ScreenState]
+	// @versionadded 3.0
 	// @zasm_var SCREENDATANOCARRYARR
 	internal bool NoCarryState[];
 
@@ -835,11 +853,13 @@ class screendata {
 	
 	// Which of the 32 ExStates should be carried over to the target screen
 	//
+	// @versionadded 3.0
 	// @zasm_var SCREENDATAEXCARRY
 	internal bool ExStateCarry[];
 	
 	// Which of the 32 ExStates should be reset by 'Reset Room' combos
 	//
+	// @versionadded 3.0
 	// @zasm_var SCREENDATAEXRESET
 	internal bool ExStateReset[];
 
@@ -957,6 +977,7 @@ class screendata {
 	// NULL / [MUSIC_SILENCE] represents silence.
 	// [MUSIC_INHERIT] as a special value represents using the current dmap's Music.
 	//
+	// @versionadded 3.0
 	// @zasm_var SCREENDATA_MUSIC
 	internal musicdata Music;
 	
@@ -1423,6 +1444,7 @@ class screendata {
 	// that layer of the entire region will be drawn.
 	// Only combos will be drawn, FFCs are excluded.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   DRAWMAPDATA
 	//   POPARGS D5 0.0005
@@ -1465,6 +1487,7 @@ class screendata {
 	// You may specify a color to 'int lit' to use a lit mode. This tints the
 	// entire bitmap using that color index of the main palette.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   TILEBLIT
 	//   POPARGS D5 0.0017
@@ -1494,6 +1517,7 @@ class screendata {
 	// You may specify a color to 'int lit' to use a lit mode. This tints the
 	// entire bitmap using that color index of the main palette.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   COMBOBLIT
 	//   POPARGS D5 0.0017

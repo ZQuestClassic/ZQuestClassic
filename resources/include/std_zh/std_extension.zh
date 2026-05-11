@@ -577,6 +577,7 @@ void EToLWeapon(eweapon a, lweapon b) { EWeaponToLWeapon(a,b);}
 lweapon EtoLWeapon(eweapon a){return EtoLWeapon(a);}
 
 // @param [EWeaponType] type
+// @versionadded 3.0
 int EtoLWeaponType(int type)
 {
 	return EWeaponToLWeaponType(type);
@@ -701,6 +702,7 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 //Converts the ID (type) of a given weapon to its opposite class. 
 //Returns -1 if the type is illegal.
 // @param [EWeaponType] type
+// @versionadded 3.0
 int EWeaponToLWeaponType(int type)
 {
 	switch(type)
@@ -1054,6 +1056,7 @@ void LtoEWeapon(lweapon a, eweapon b) { LWeaponToEWeapon(a,b);}
 eweapon LtoEWeapon(lweapon a){return LtoEWeapon(a);}
 
 // @param [LWeaponType] type
+// @versionadded 3.0
 int LtoEWeaponType(int type)
 {
 	return LWeaponToEWeaponType(type);
@@ -1177,6 +1180,7 @@ eweapon LWeaponToEWeapon(lweapon a){
 //Converts the ID (type) of a given weapon to its opposite class. 
 //Returns -1 if the type is illegal.
 // @param [LWeaponType] type
+// @versionadded 3.0
 int LWeaponToEWeaponType(int type)
 {
 	switch(type)

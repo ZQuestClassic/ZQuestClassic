@@ -140,6 +140,8 @@ enum QR
 	//
 	// If disabled, and the rule 'BS-Zelda Animation Quirks' is disabled, the Hero gains a -2 y offset when in dungeons.Having either this or
 	// 'BS-Zelda Animation Quirks' enabled will disable this -2 y offset in dungeons.
+	//
+	// @versionadded 3.0
 	qr_HERODUNGEONPOSFIX,
 
 	// 'Items Held Above Hero's Head Continue To Animate'
@@ -197,6 +199,8 @@ enum QR
 	// weapons. Though Candle and Book-created fire weapons are determined by the item editor for those items now, this rule still affects
 	// script-created Hero fire weapons. If disabled, the Hero will take damage from script created Hero fire weapons, even though they are Hero
 	// weapons and not enemy weapons.
+	//
+	// @versionadded 3.0
 	qr_FIREPROOFHERO,
 
 	// 'Scripted Bomb LWeapons Hurt Hero'
@@ -328,6 +332,8 @@ enum QR
 	// 'Invincible Hero Flickers'
 	//
 	// If enabled, the Hero will flicker when invincible or after taking damage instead of flashing colors.
+	//
+	// @versionadded 3.0
 	qr_HEROFLICKER,
 
 	// 'Shadows Flicker'
@@ -357,8 +363,14 @@ enum QR
 	//
 	// If enabled, pushed blocks will use the CSet of their combo when pushed. Otherwise, if disabled, they will use CSet 9.
 	qr_PUSHBLOCKCSETFIX,
-	qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP, // @deprecated
-	qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP, // @deprecated
+	// @deprecated
+	//
+	// @versionadded 3.0
+	qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP,
+	// @deprecated
+	//
+	// @versionadded 3.0
+	qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP,
 
 	// 'Combo Cycling On Layers'
 	//
@@ -642,6 +654,8 @@ enum QR
 	//
 	// Normally, the Hero can be hurt by their own fire weapons even if they are invincible from some source, like the clock item or scripts.
 	// Enabling this rule disables this, making them actually invincible.
+	//
+	// @versionadded 3.0
 	qr_FIREPROOFHERO2,
 
 	// 'No Position Offset Of Screen Items'
@@ -796,6 +810,8 @@ enum QR
 	// In older versions, Ganon Rooms used to call the function that reset the dmap's intro clock. This normally wouldn't do anything as it checks
 	// if you've already visited the dmap, but in certain circumstances this could allow Ganon to repeat the dmap's intro string. Enabling this
 	// will recreate this behavior.
+	//
+	// @versionadded 3.0
 	qr_GANONINTRO,
 	qr_MELEEMAGICCOST, // @deprecated
 
@@ -832,7 +848,10 @@ enum QR
 	// Otherwise, if disabled, they will be hidden from your inventory and be unselectable if you run out of ammo, until you get more ammo for it.
 	qr_NEVERDISABLEAMMOONSUBSCREEN,
 	qr_ITEMSCRIPTSKEEPRUNNING, // 'Item Scripts Continue To Run'
-	qr_SCRIPTSRUNINHEROSTEPFORWARD, // 'Scripts Draw When Stepping Forward In Dungeons'
+	// 'Scripts Draw When Stepping Forward In Dungeons'
+	//
+	// @versionadded 3.0
+	qr_SCRIPTSRUNINHEROSTEPFORWARD,
 
 	// 'Fix Scripts Running During Scrolling'
 	//
@@ -840,7 +859,10 @@ enum QR
 	// frame of scrolling. It also will not run prewaitdraw scripts at the end of scrolling (for when dmap did not change).
 	qr_FIXSCRIPTSDURINGSCROLLING,
 	qr_SCRIPTDRAWSINWARPS, // 'Scripts Draw During Warps'
-	qr_DYINGENEMYESDONTHURTHERO, // @deprecated
+	// @deprecated
+	//
+	// @versionadded 3.0
+	qr_DYINGENEMYESDONTHURTHERO,
 
 	// 'Triforce in Cellar Warps Hero Out'
 	//
@@ -1004,6 +1026,8 @@ enum QR
 	// 'Mirrors Use Weapon Center for Collision'
 	//
 	// If enabled, mirror/prism combos activate when the center of a weapon hits them, instead of when the edge hits them.
+	//
+	// @versionadded 3.0
 	qr_MIRRORS_USE_WEAPON_CENTER,
 
 	// 'Custom Combos Work On Layers 1 And 2'
@@ -1074,6 +1098,8 @@ enum QR
 	// 'Weapons Cannot Stunlock Enemies (block)'
 	//
 	// If enabled, enemies that are already stunned block any further stunning attacks. This prevents re-stunning them to keep them stunlocked.
+	//
+	// @versionadded 3.0
 	qr_NO_STUNLOCK_BLOCK,
 
 	// 'Higher Maximum Playtime'
@@ -1477,7 +1503,10 @@ enum QR
 	// ladder takes priority. If this rule is disabled, the flippers take priority. Note that flippers always take priority when entering into
 	// water from the left or right, regardless of this rule.
 	qr_OLD_210_WATER,
-	qr_8WAY_SHOT_SFX_DEP, // @deprecated
+	// @deprecated
+	//
+	// @versionadded 3.0
+	qr_8WAY_SHOT_SFX_DEP,
 
 	// 'BS Zelda uses walking sprites for swimming'
 	//
@@ -2124,29 +2153,39 @@ enum QR
 	//
 	// If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise, it will be in 'HP'. (Has no effect if
 	// 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)
+	//
+	// @versionadded 3.0
 	qr_SCRIPT_CONTHP_IS_HEARTS,
 
 	// 'Allow Multiple Platform FFCs'
 	//
 	// If checked, more than one FFC with the 'Platform' flag can move the Hero in a single frame. Otherwise, the first 'Platform' FFC to move the
 	// Hero will prevent other platforms from moving the Hero that frame.
+	//
+	// @versionadded 3.0
 	qr_MULTI_PLATFORM_FFC,
 
 	// 'Separate Tap SFX for bombable walls'
 	//
 	// If checked, bombable walls will use a separate SFX 'Sword Tap (Hollow)' when tapped against, instead of the default 'Sword Tap' sound.
 	// (sounds set in the Misc SFX menu)
+	//
+	// @versionadded 3.0
 	qr_SEPARATE_BOMBABLE_TAPPING_SFX,
 
 	// 'Broken Subscreen Ammo Costs'
 	//
 	// If enabled, bombs/super bombs will check the bomb/sbomb counters to be usable, regardless of what their Cost Counters are set to.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_BOMB_AMMO_COSTS,
 
 	// 'Conveyors work on all layers + ffcs'
 	//
 	// Conveyor combos work on all layers + ffcs. If multiple conveyors overlap, only the highest layer conveyor will apply. (FFCs count as above
 	// all layers for this)
+	//
+	// @versionadded 3.0
 	qr_CONVEYORS_ALL_LAYERS,
 
 	// 'Broken WarpEx Music'
@@ -2156,16 +2195,22 @@ enum QR
 	// occur (Always resetting if it's off, and always continuing if it's on).
 	//
 	// If disabled, the reset and continue flags will work separately, not using the old behavior.
+	//
+	// @versionadded 3.0
 	qr_OLD_BROKEN_WARPEX_MUSIC,
 
 	// 'Broken Lifting/Swimming'
 	//
 	// If enabled, lifted objects won't be dropped when swimming, even when lift gloves are set to not allow lifting while swimming.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_LIFTSWIM,
 
 	// 'Broken Push (Generic) locking'
 	//
 	// If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag (ex. 'clicking into place' for a block trigger)
+	//
+	// @versionadded 3.0
 	qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
 
 	// 'Broken Enemy Fire/Arrow Reflecting'
@@ -2173,50 +2218,68 @@ enum QR
 	// If enabled, Enemy Fire/Arrows won't reflect off of Hero shields, even when the reflect flag is set.
 	//
 	// Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by Hero shields, regardless of block/reflect flags.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_FLAME_ARROW_REFLECTING,
 
 	// 'Enemy Fire Lights New Dark Rooms'
 	//
 	// If enabled, enemy fire weapons will emit light by default, as Hero fire does.
+	//
+	// @versionadded 3.0
 	qr_EW_FIRE_EMITS_LIGHT,
 
 	// 'New Darkness Trans Layer Stacking'
 	//
 	// If enabled, new dark rooms with multiple transparent layers will stack the transparency. Otherwise, the transparency will not stack, drawing
 	// only one layer.
+	//
+	// @versionadded 3.0
 	qr_NEWDARK_TRANS_STACKING,
 
 	// 'Old 'Hero->Warp' Return Square'
 	//
 	// If checked, 'Hero->Warp()' uses the return square of the current screen's Sidewarp A. Otherwise, it uses return square A.
+	//
+	// @versionadded 3.0
 	qr_OLD_HERO_WARP_RETSQUARE,
 
 	// 'Broken Pushblock Top-Half Solids'
 	//
 	// If enabled, blocks will ignore the top half combo solidity when being pushed.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS,
 
 	// 'Pushblock Flag Cloning'
 	//
 	// If enabled, pushblocks will clone any non-'Push' placed flag (only numbered 59 or higher, except `Push (Generic)` which does all) on them to
 	// every square they stop in.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_PUSHBLOCK_FLAG_CLONING,
 
 	// 'Old Landing SFX'
 	//
 	// If enabled, water will use the old hardcoded splash sound when landing in it. Otherwise, the landing sound set for each combo will be used
 	// instead.
+	//
+	// @versionadded 3.0
 	qr_OLD_LANDING_SFX,
 
 	// ''Burning' triggers don't count as 'weapon triggers''
 	//
 	// If enabled, weapons triggering the 'Burning' trigger causes will not count as 'weapon triggers' for purposes of other trigger flags such as
 	// 'Kill Triggering Weapon' and 'Weapon Separate Triggers'
+	//
+	// @versionadded 3.0
 	qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
 
 	// 'Blocks Drown In Liquid'
 	//
 	// Pushable blocks can drown in liquid, similarly to the hero.
+	//
+	// @versionadded 3.0
 	qr_BLOCKS_DROWN,
 
 	// 'Strings on Layer 6 Draw Above Layer 7'
@@ -2226,11 +2289,15 @@ enum QR
 	// If disabled, these strings draw directly UNDER the subscreen instead.
 	//
 	// Has no effect at all if `Subscreen Appears Above Sprites` is unchecked.$#0#123$
+	//
+	// @versionadded 3.0
 	qr_LAYER6_STRINGS_OVER_SUBSCREEN,
 
 	// 'Pushblocks Fall In Sideview'
 	//
 	// Pushable blocks fall in sideview (after being pushed only)
+	//
+	// @versionadded 3.0
 	qr_PUSHBLOCKS_FALL_IN_SIDEVIEW,
 
 	// 'Broken Sideview Icy Floor'
@@ -2246,6 +2313,8 @@ enum QR
 	//
 	// If disabled, these colors still may look different in the editor than the player- but they will be the closest matching color in the
 	// player's palette to the color in the editor.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_SYSTEM_COLORS,
 	qr_WEAPONS_EXTRA_SPAWN_FRAME, // 'Weapons Scripts run an extra frame on spawning'
 
@@ -2257,32 +2326,44 @@ enum QR
 	// 'Lifted Weapons Run Scripts'
 	//
 	// If enabled, weapons in the player's hands run their weapon script.
+	//
+	// @versionadded 3.0
 	qr_LIFTED_WEAPONS_RUN_SCRIPTS,
 
 	// 'Bomb Booms Clear Script'
 	//
 	// If enabled, when a bomb explodes, it will stop it's script.
+	//
+	// @versionadded 3.0
 	qr_BOMB_BOOMS_CLEAR_SCRIPTS,
 
 	// 'Improved Autorotate'
 	//
 	// If enabled, weapons set to 'auto-rotate' will apply the right-dir sprite when using UseSprite, burn sprites, etc.
+	//
+	// @versionadded 3.0
 	qr_BETTER_ENGINE_AUTOROTATE,
 
 	// 'EWeapon Rocks hard-codedly break on solids'
 	//
 	// If checked, EWeapon Rocks will always break when they hit a solid. Otherwise, they only break if they have the weapon flag for breaking when
 	// they hit a solid checked.
+	//
+	// @versionadded 3.0
 	qr_EW_ROCKS_HARDCODED_BREAK_ON_SOLID,
 
 	// 'Weapons that break on solids use imprecise hitbox'
 	//
 	// If checked, weapons use a hardcoded hitbox for weapon collisions, instead of their actual set hitbox.
+	//
+	// @versionadded 3.0
 	qr_IMPRECISE_WEAPON_SOLIDITY_CHECKS,
 
 	// 'Weapons Cannot Stunlock Enemies (ignore)'
 	//
 	// If enabled, enemies that are already stunned ignore any further stunning attacks. This prevents re-stunning them to keep them stunlocked.
+	//
+	// @versionadded 3.0
 	qr_NO_STUNLOCK_IGNORE,
 
 	// 'Pitfall BlockHoles use wrong Next combo'
@@ -2299,6 +2380,8 @@ enum QR
 	// 'Old Weapon Reflection'
 	//
 	// If checked, some weapon types will not be reflected by mirror/prism combos, regardless of the 'Reflect Flags' of the combos.
+	//
+	// @versionadded 3.0
 	qr_OLD_WEAPON_REFLECTION,
 
 	// 'Old Non-Player Falling/Drowning'
@@ -2310,34 +2393,46 @@ enum QR
 	// 'Old Terminal Velocity'
 	//
 	// If enabled, terminal velocity is not applied as an absolute max speed.
+	//
+	// @versionadded 3.0
 	qr_OLD_TERMINAL_VELOCITY,
 
 	// 'Improved Player Jump/Fall Animation'
 	//
 	// If enabled, the Player's jump/fall animation will play at a consistent speed without pausing, and will loop instead of overflowing into the
 	// walking animation.
+	//
+	// @versionadded 3.0
 	qr_BETTER_PLAYER_JUMP_ANIM,
 
 	// 'Armos/Grave combo types work on layers'
 	//
 	// If enabled, armos and grave combos will work on layers.
+	//
+	// @versionadded 3.0
 	qr_ARMOS_GRAVE_ON_LAYERS,
 
 	// 'Game->LevelStates[] and GlobalStates[] don't trigger switches'
 	//
 	// If checked, setting 'Game->LevelStates[]' and 'Game->GlobalStates[] will NOT trigger the effects of these states changing. (Note: Even with
 	// this unchecked, 'Game->LevelStates[]' only causes changes when the current level's index is written to)
+	//
+	// @versionadded 3.0
 	qr_OLD_SCRIPT_LEVEL_GLOBAL_STATES,
 
 	// 'Broken Armos/Graves with Large Hitbox Player'
 	//
 	// If enabled, and 'Large Hitbox' for the Player is enabled, armos/graves will not activate from below, and will only activate from the sides
 	// if you are near their top side.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_ARMOS_GRAVE_BIGHITBOX_COLLISION,
 
 	// 'Player Draws Under Layer 1 While Diving'
 	//
 	// If enabled, the Player will be drawn under layer 1 while diving.
+	//
+	// @versionadded 3.0
 	qr_HERO_DIVE_UNDER_LAYER_1,
 
 	// 'Classic Drawing Order'
@@ -2352,6 +2447,8 @@ enum QR
 	//
 	// - Several special script 'layer timings', notably sprite related ones such as 'SPLAYER_LWEAP_ABOVE_DRAW', will no longer be used, as said
 	// 'timings' don't exist anymore.
+	//
+	// @versionadded 3.0
 	qr_CLASSIC_DRAWING_ORDER,
 
 	// 'Y-Sort Sprites'
@@ -2360,12 +2457,16 @@ enum QR
 	//
 	// When enabled, sprites which share the same Z coordinate will additionally have their draws ordered by their Y-value, such that sprites lower
 	// on the screen (higher Y values) are drawn over sprites higher on the screen.$#0#469$
+	//
+	// @versionadded 3.0
 	qr_YSORT_SPRITES,
 
 	// 'Old Weapon Animate Timings'
 	//
 	// If enabled, weapons animate when they are drawn (instead of when they are processed); and they draw their shadow during their own draw,
 	// instead of separately.
+	//
+	// @versionadded 3.0
 	qr_OLD_WEAPON_DRAW_ANIMATE_TIMING,
 
 	// 'Old Pitfall Sensitivity'
@@ -2376,16 +2477,22 @@ enum QR
 	// 'Active Shields and Roc Items on Buttons don't run scripts'
 	//
 	// If enabled, shields with 'Active Use' checked, and Roc Items with 'Button' set to non-zero, will not run their Action Script.
+	//
+	// @versionadded 3.0
 	qr_ACTIVE_SHIELD_PASSIVE_ROC_NO_SCRIPT,
 
 	// 'Map Button Closes Subscreen'
 	//
 	// If enabled, the Map button will close the active subscreen.
+	//
+	// @versionadded 3.0
 	qr_MAP_BUTTON_CLOSES_SUBSCREEN,
 
 	// 'Only 'Visit' Screens On Mappable DMaps'
 	//
 	// If enabled, screens only have their 'Visited' state set if the current dmap has the flag to allow viewing the map checked.
+	//
+	// @versionadded 3.0
 	qr_ONLY_MARK_SCREENS_VISITED_IF_MAP_VIEWABLE,
 
 	// 'Active/Map Subscreens Always 168 Tall'
@@ -2394,23 +2501,34 @@ enum QR
 	// black.
 	//
 	// Otherwise, the Active/Map subscreen will match the height based on the 'Hide Bottom 8 Pixels' setting.
+	//
+	// @versionadded 3.0
 	qr_ACTIVE_SUB_IGNORE_8PX,
 
 	// 'Mirror/Prism Combos Work On FFCs'
 	//
 	// Mirror and Prism combos work on FFCs. NOTE: This DOES NOT work for Light Beams, only weapons.
+	//
+	// @versionadded 3.0
 	qr_MIRROR_PRISM_FFCS,
 
 	// 'Weapons Better Screen Edge Hitbox'
 	//
 	// If enabled, will not die from hitting the screen edge until they are actually offscreen fully.
+	//
+	// @versionadded 3.0
 	qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX,
 
 	// ''DrawCombo' ignores the 'frame' parameter'
 	//
 	// If checked, the 'DrawCombo' function will always treat the value of 'frame' as '-1'.
+	//
+	// @versionadded 3.0
 	qr_DRAWCOMBO_IGNORES_FRAME,
-	qr_SCRIPTS_6_BIT_COLOR, // 'Scripts use 6-bit color (0-63) instead of 8-bit (0-255)'
+	// 'Scripts use 6-bit color (0-63) instead of 8-bit (0-255)'
+	//
+	// @versionadded 3.0
+	qr_SCRIPTS_6_BIT_COLOR,
 
 	// 'Broken Hero Position Exposed To Scripts When Scrolling'
 	//
@@ -2433,12 +2551,16 @@ enum QR
 	// 'Inverted Dark Combo Triggers'
 	//
 	// If enabled, the combo trigger conditions for darkness / no darkness are inverted.
+	//
+	// @versionadded 3.0
 	qr_INVERTED_DARK_COMBO_TRIGGERS,
 
 	// 'Scripts Screen->DrawLight Functions Have No Offset'
 	//
 	// If enabled, the Screen->DrawLight functions never add the playing field offset, and the draw command is done instantly. When disabled, those
 	// functions respect Screen->DrawOrigin, and use the SPLAYER_DARKROOM_UNDER draw timing.
+	//
+	// @versionadded 3.0
 	qr_SCRIPTS_SCREEN_DRAW_LIGHT_NO_OFFSET,
 
 	// 'Rope enemies speed is not configurable'
@@ -2450,18 +2572,24 @@ enum QR
 	//
 	// If enabled, some internal arrays will bound the index used to the valid range for the array. When disabled, internal arrays will never bound
 	// their index. Additionally, all internal arrays will support negative indices.
+	//
+	// @versionadded 3.0
 	qr_OLD_SCRIPTS_INTERNAL_ARRAYS_BOUND_INDEX,
 
 	// 'Scripts return non-zero for out-of-bounds access of some arrays'
 	//
 	// If enabled, some arrays will return a non-zero value (typically -1) when accessing an out-of-bounds index (though most return zero). When
 	// disabled, all out-of-bounds accesses return zero.
+	//
+	// @versionadded 3.0
 	qr_OLD_SCRIPTS_ARRAYS_NON_ZERO_DEFAULT_VALUE,
 
 	// 'Scripts use legacy binary encoding for messagedata strings'
 	//
 	// If enabled, reading or writing the contents of messagedata strings will use the legacy binary encoding. When disabled, the more capable
 	// ascii encoding is used.
+	//
+	// @versionadded 3.0
 	qr_OLD_SCRIPTS_MESSAGE_DATA_BINARY_ENCODING,
 
 	// 'Old (Buggy) ZScript Volume Access'
@@ -2485,29 +2613,39 @@ enum QR
 	// 'Broken Sideview Sprite Jump'
 	//
 	// If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview and cannot be made to jump off via script.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 
 	// ''DrawTile' tall draws wrap poorly'
 	//
 	// If checked, 'DrawTile' draws taller than 1 tile will wrap each tile to the next row, instead of wrapping the entire block to the row after
 	// the block.
+	//
+	// @versionadded 3.0
 	qr_DRAWTILE_TALL_DRAWS_WRAP_POORLY,
 
 	// 'Buggy Wind w/ multiple on-screen'
 	//
 	// If multiple wind lweapons are on screen and the player is in one, the player will lose track of which wind they are in, and teleport between
 	// them.
+	//
+	// @versionadded 3.0
 	qr_BUGGY_MULTIPLE_WIND,
 
 	// 'No enemy death event for segmented enemy cores'
 	//
 	// If enabled, some enemy types 'core' enemy / main body will not issue a death event for generic scripts.
+	//
+	// @versionadded 3.0
 	qr_NO_DEATH_EVENTS_FOR_SEGMENTED_ENEMY_CORES,
 
 	// 'Broken Combo Change + 'Copycat' triggers'
 	//
 	// If enabled, triggering a combo that changes the combo and triggers a copycat, the combo it changes into will be IMMEDIATELY triggered by the
 	// same copycat effect.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_COPYCAT_SELF_TRIGGER,
 
 	// 'Broken Liquid Passive Damage'
@@ -2516,12 +2654,16 @@ enum QR
 	//
 	// It will also EITHER not emit player damage events OR not use the hit sound properly, depending on if the water is shallow or not and if 'New
 	// Shallow Water Detection' is enabled or not.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_WATER_PASSIVE_DAMAGE,
 
 	// 'Broken Combo Trigger Self-Triggering'
 	//
 	// If enabled, some combo trigger effects may cause the same trigger to trigger again. This may have negative effects, such as double-charging
 	// a cost, or toggling a state on and back off instead of just on.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_SELF_TRIGGERING_TRIGGERS,
 
 	// '2.50 Division Truncation'
@@ -2572,11 +2714,16 @@ enum QR
 	// 'Binary Operations use true 32-bit Int'
 	//
 	// COMPAT - treats all binary operations as 'long' type
+	//
+	// @versionadded 3.0
 	qr_PARSER_BINARY_32BIT,
 	qr_ALWAYS_DEALLOCATE_ARRAYS, // @deprecated
 	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, // 'Hero OnDeath script runs AFTER engine death animation'
 	qr_DISALLOW_SETTING_RAFTING, // 'Don't Allow Setting Action to Rafting'
-	qr_WEAPONS_EXTRA_DEATH_FRAME, // 'Weapons Live One Extra Frame With WDS_DEAD'
+	// 'Weapons Live One Extra Frame With WDS_DEAD'
+	//
+	// @versionadded 3.0
+	qr_WEAPONS_EXTRA_DEATH_FRAME,
 	qr_250WRITEEDEFSCRIPT, // 'Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences'
 	qr_SETENEMYWEAPONSPRITESONWPNCHANGE, // 'Writing npc->Weapon Sets its Weapon Sprite'
 	qr_BROKENCHARINTDRAWING, // 'Broken DrawInteger and DrawCharacter Scaling'
@@ -2604,6 +2751,8 @@ enum QR
 	// this behavior to simulate Slash->Next before it was a thing, and even after Slash->Next was introduced, it was used as a way to avoid making
 	// another slash->Next setup by just putting a flag over it, saving combo space/keeping organization. The new behavior (used if this rule is
 	// disabled) will ignore the secret flag, treating it as just a regular Slash combo.
+	//
+	// @versionadded 3.0
 	qr_OLD_SLASHNEXT_SECRETS,
 	qr_STEP_IS_FLOAT, // 'Sprite->Step uses new, precise values'
 	qr_OLDMAPDATAFLAGS, // @deprecated
@@ -2633,12 +2782,19 @@ enum QR
 	// 'Fairy Rings Remove Shield Jinxes'
 	//
 	// If enabled, fairy ring flags will heal shield jinxes when the Hero steps on them.
+	//
+	// @versionadded 3.0
 	qr_SHIELDBUBBLE,
-	qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, // 'Writing npc->Weapon Sets its Weapon Sound'
+	// 'Writing npc->Weapon Sets its Weapon Sound'
+	//
+	// @versionadded 3.0
+	qr_SETENEMYWEAPONSOUNDSONWPNCHANGE,
 
 	// 'Broken Conveyors'
 	//
 	// If enabled, conveyors will affect the hero when rafting.
+	//
+	// @versionadded 3.0
 	qr_BROKEN_CONVEYORS,
 
 	// 'Game->Suspend[susptFFCSCRIPTS] suspends screen scripts'
@@ -2646,6 +2802,8 @@ enum QR
 	// If checked, setting 'Game->Suspend[susptFFCSCRIPTS]' will suspend screen scripts.
 	//
 	// If disabled only the ffcscripts will be suspended.
+	//
+	// @versionadded 3.0
 	qr_ZS_OLD_SUSPEND_FFC,
 	qr_MAX
 };

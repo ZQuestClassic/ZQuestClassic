@@ -9,6 +9,7 @@ enum ExtendMode
 	EXT_NOSHADOW                   = 4, // Extended. NPC has no shadow.
 };
 
+// @versionadded 3.0
 enum MoveFlag
 {
 	MV_OBEYS_GRAVITY,

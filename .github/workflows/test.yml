@@ -84,6 +84,8 @@ jobs:
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
         with:
           enableCrossOsArchive: true
+      # For test_zscript_version_docs.
+      - run: git fetch origin releases/2.55
 
       - name: Setup Python
         uses: actions/setup-python@v6

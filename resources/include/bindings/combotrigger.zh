@@ -123,82 +123,213 @@ enum ComboTriggerFlag
 	TRIGFLAG_REFARROW, //Weapons->LWeapons->Refl. Arrow - Triggered by Reflected Arrow LWeapons
 	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire - Triggered by Reflected Fire LWeapons
 	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2 - Triggered by Reflected Fire 2 LWeapons
-	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness - Toggle the screen being a dark room
-	TRIGFLAG_REQ_DARKNESS, //Conditions->Req. Darkness - Can only trigger if the screen is a dark room
-	TRIGFLAG_REQ_NO_DARKNESS, //Conditions->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
-	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All - Require all the specified LItems to trigger the combo
-	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All - Require not all (some is ok) of the specified LItems to trigger the combo
-	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If [TRIGFLAG_LITEM_UNSET] is also on, toggles them instead.
-	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If [TRIGFLAG_LITEM_SET] is also on, toggles them instead.
-	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
+	// Effects->Toggle Darkness - Toggle the screen being a dark room
+	//
+	// @versionadded 3.0
+	TRIGFLAG_TOGGLE_DARKNESS,
+	// Conditions->Req. Darkness - Can only trigger if the screen is a dark room
+	//
+	// @versionadded 3.0
+	TRIGFLAG_REQ_DARKNESS,
+	// Conditions->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
+	//
+	// @versionadded 3.0
+	TRIGFLAG_REQ_NO_DARKNESS,
+	// Counters/Items->Require All - Require all the specified LItems to trigger the combo
+	//
+	// @versionadded 3.0
+	TRIGFLAG_LITEM_REQUIRE,
+	// Counters/Items->Require Not All - Require not all (some is ok) of the specified LItems to trigger the combo
+	//
+	// @versionadded 3.0
+	TRIGFLAG_LITEM_INV_REQUIRE,
+	// Counters/Items->'->Set' - Grants the specified LItems. If [TRIGFLAG_LITEM_UNSET] is also on, toggles them instead.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_LITEM_SET,
+	// Counters/Items->'->Unset' - Removes the specified LItems. If [TRIGFLAG_LITEM_SET] is also on, toggles them instead.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_LITEM_UNSET,
+	// Graphics->'->Clear Tint' - Clears the palette tint.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_TINT_CLEAR,
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
-	TRIGFLAG_COUNTER_WEALTH_MEDAL, //Counter/Items->'Apply Discount' - Wealth Medal items discount the counter cost
-	TRIGFLAG_SCREEN_LOAD, // Triggers when screen/region loads, after levelstates and exstates are applied
-	TRIGFLAG_UNSET_EXSTATE, // Unsets the [ExState] when triggered.
-	TRIGFLAG_UNSET_EXDOOR, // Unsets the [ExDoorDir] when triggered.
-	TRIGFLAG_REQ_HERO_STANDING, // Can only trigger if the [Hero] is standing on ground. (Counts standing in sideview as well)
-	TRIGFLAG_REQ_HERO_NOT_STANDING, // Can only trigger if the [Hero] is NOT standing on ground. (Counts standing in sideview as well)
-	TRIGFLAG_INVERT_HERO_Z, // Inverts the condition of [ReqPlayerZ]
-	TRIGFLAG_COUNTER_GRADUAL, // Makes [TRIGFLAG_COUNTER_EAT] drain/fill gradually instead of all at once.
-	TRIGFLAG_COUNTER_PERCENT, // Makes [combotrigger->CounterAmount] a percentage instead of an amount.
-	TRIGFLAG_NO_COPYCAT_CAUSE, // Makes [combotrigger->Copycat] not trigger this combo; it will only be used as an effect when another cause triggers this combo.
-	TRIGFLAG_HERO_LAND_HERE, // Triggers when the [Hero] lands on this combo (after the combo's 'Landing' SFX plays)
-	TRIGFLAG_HERO_LAND_ANYWHERE, // Triggers when the [Hero] lands on the ground from the air, anywhere on the screen.
-	TRIGFLAG_SET_HERO_X_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroX].
-	TRIGFLAG_SET_HERO_X_RELATIVE_CMB, // When triggered, sets [Hero->X] to [combotrigger->DestHeroX] plus this combo's X position.
-	TRIGFLAG_SET_HERO_Y_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroY].
-	TRIGFLAG_SET_HERO_Y_RELATIVE_CMB, // When triggered, sets [Hero->X] to [combotrigger->DestHeroY] plus this combo's Y position.
-	TRIGFLAG_SET_HERO_Z_ABSOLUTE, // When triggered, sets [Hero->X] to [combotrigger->DestHeroZ].
-	TRIGFLAG_CTYPE_CAUSES, // Triggers based on combotype-specific causes (ex. player falls down a pit / drowns)
-	TRIGFLAG_HERO_JUMP_GE, // Requires that [Hero->Jump] is >= [combotrigger->ReqHeroJump] to trigger.
-	TRIGFLAG_HERO_JUMP_LE, // Requires that [Hero->Jump] is <= [combotrigger->ReqHeroJump] to trigger.
-	TRIGFLAG_HERO_X_GE, // Requires that [Hero->X] is >= [combotrigger->ReqHeroX] to trigger.
-	TRIGFLAG_HERO_X_LE, // Requires that [Hero->X] is <= [combotrigger->ReqHeroX] to trigger.
-	TRIGFLAG_HERO_X_RELATIVE, // [TRIGFLAG_HERO_X_GE] / [TRIGFLAG_HERO_X_LE] use '[combotrigger->ReqHeroX]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
-	TRIGFLAG_HERO_Y_GE, // Requires that [Hero->Y] is >= [combotrigger->ReqHeroY] to trigger.
-	TRIGFLAG_HERO_Y_LE, // Requires that [Hero->Y] is <= [combotrigger->ReqHeroY] to trigger.
-	TRIGFLAG_HERO_Y_RELATIVE, // [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE] use '[combotrigger->ReqHeroY]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
-	TRIGFLAG_HERO_FORCE_VX, // When triggered, sets [Hero->IceVx] to [combotrigger->ForceIceVx].
-	TRIGFLAG_HERO_FORCE_VY, // When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
-	TRIGFLAG_UNIGNITE_WEAPONS, // Changes [TRIGFLAG_IGNITE_WEAPONS_ANY],[TRIGFLAG_IGNITE_WEAPONS_STRONG],[TRIGFLAG_IGNITE_WEAPONS_MAGIC],[TRIGFLAG_IGNITE_WEAPONS_DIVINE] to 'Unignite' the weapon instead
-	TRIGFLAG_CANCEL_TRIGGER, // Makes triggers below this trigger on the same combo with the same cause NOT be triggered by this cause
-	TRIGFLAG_SET_GRAVITY, // When triggered, sets [Screen->GravityStrength] and [Screen->TerminalVelocity] to [combotrigger->GravityStrength] and [combotrigger->TerminalVelocity] respectively.
-	TRIGFLAG_REVERT_GRAVITY, // When triggered, resets [Screen->GravityStrength] and [Screen->TerminalVelocity] to the original values of the screen.
+	// Counter/Items->'Apply Discount' - Wealth Medal items discount the counter cost
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COUNTER_WEALTH_MEDAL,
+	// Triggers when screen/region loads, after levelstates and exstates are applied
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SCREEN_LOAD,
+	// Unsets the [ExState] when triggered.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_UNSET_EXSTATE,
+	// Unsets the [ExDoorDir] when triggered.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_UNSET_EXDOOR,
+	// Can only trigger if the [Hero] is standing on ground. (Counts standing in sideview as well)
+	//
+	// @versionadded 3.0
+	TRIGFLAG_REQ_HERO_STANDING,
+	// Can only trigger if the [Hero] is NOT standing on ground. (Counts standing in sideview as well)
+	//
+	// @versionadded 3.0
+	TRIGFLAG_REQ_HERO_NOT_STANDING,
+	// Inverts the condition of [ReqPlayerZ]
+	//
+	// @versionadded 3.0
+	TRIGFLAG_INVERT_HERO_Z,
+	// Makes [TRIGFLAG_COUNTER_EAT] drain/fill gradually instead of all at once.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COUNTER_GRADUAL,
+	// Makes [combotrigger->CounterAmount] a percentage instead of an amount.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COUNTER_PERCENT,
+	// Makes [combotrigger->Copycat] not trigger this combo; it will only be used as an effect when another cause triggers this combo.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_NO_COPYCAT_CAUSE,
+	// Triggers when the [Hero] lands on this combo (after the combo's 'Landing' SFX plays)
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_LAND_HERE,
+	// Triggers when the [Hero] lands on the ground from the air, anywhere on the screen.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_LAND_ANYWHERE,
+	// When triggered, sets [Hero->X] to [combotrigger->DestHeroX].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_HERO_X_ABSOLUTE,
+	// When triggered, sets [Hero->X] to [combotrigger->DestHeroX] plus this combo's X position.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_HERO_X_RELATIVE_CMB,
+	// When triggered, sets [Hero->X] to [combotrigger->DestHeroY].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_HERO_Y_ABSOLUTE,
+	// When triggered, sets [Hero->X] to [combotrigger->DestHeroY] plus this combo's Y position.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_HERO_Y_RELATIVE_CMB,
+	// When triggered, sets [Hero->X] to [combotrigger->DestHeroZ].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_HERO_Z_ABSOLUTE,
+	// Triggers based on combotype-specific causes (ex. player falls down a pit / drowns)
+	//
+	// @versionadded 3.0
+	TRIGFLAG_CTYPE_CAUSES,
+	// Requires that [Hero->Jump] is >= [combotrigger->ReqHeroJump] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_JUMP_GE,
+	// Requires that [Hero->Jump] is <= [combotrigger->ReqHeroJump] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_JUMP_LE,
+	// Requires that [Hero->X] is >= [combotrigger->ReqHeroX] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_X_GE,
+	// Requires that [Hero->X] is <= [combotrigger->ReqHeroX] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_X_LE,
+	// [TRIGFLAG_HERO_X_GE] / [TRIGFLAG_HERO_X_LE] use '[combotrigger->ReqHeroX]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_X_RELATIVE,
+	// Requires that [Hero->Y] is >= [combotrigger->ReqHeroY] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_Y_GE,
+	// Requires that [Hero->Y] is <= [combotrigger->ReqHeroY] to trigger.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_Y_LE,
+	// [TRIGFLAG_HERO_Y_GE] / [TRIGFLAG_HERO_Y_LE] use '[combotrigger->ReqHeroY]' relative to the combo's position. For FFCs, uses a position based on the center of the hitbox.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_Y_RELATIVE,
+	// When triggered, sets [Hero->IceVx] to [combotrigger->ForceIceVx].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_FORCE_VX,
+	// When triggered, sets [Hero->IceVy] to [combotrigger->ForceIceVy].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_HERO_FORCE_VY,
+	// Changes [TRIGFLAG_IGNITE_WEAPONS_ANY],[TRIGFLAG_IGNITE_WEAPONS_STRONG],[TRIGFLAG_IGNITE_WEAPONS_MAGIC],[TRIGFLAG_IGNITE_WEAPONS_DIVINE] to 'Unignite' the weapon instead
+	//
+	// @versionadded 3.0
+	TRIGFLAG_UNIGNITE_WEAPONS,
+	// Makes triggers below this trigger on the same combo with the same cause NOT be triggered by this cause
+	//
+	// @versionadded 3.0
+	TRIGFLAG_CANCEL_TRIGGER,
+	// When triggered, sets [Screen->GravityStrength] and [Screen->TerminalVelocity] to [combotrigger->GravityStrength] and [combotrigger->TerminalVelocity] respectively.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SET_GRAVITY,
+	// When triggered, resets [Screen->GravityStrength] and [Screen->TerminalVelocity] to the original values of the screen.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_REVERT_GRAVITY,
 	// Triggers when a pushblock is about to click into place replacing this combo
+	//
 	// @versionadded 3.0
 	TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,
 	// Triggers when a pushblock is about to click into place at this combo's position, on any layer
+	//
 	// @versionadded 3.0
 	TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
 	// If true, the trigger will only trigger if some part of the combo is
 	// inside the [combotrigger->ViewportRange] from the edge of the viewport.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_VIEWPORT_REQ_ONSCREEN,
 	// If true, the trigger will only trigger if all of the combo is
 	// outside the [combotrigger->ViewportRange] from the edge of the viewport.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_VIEWPORT_REQ_OFFSCREEN,
 	// If true, the [combotrigger->SFX] will loop until stopped.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_SFX_LOOP,
 	// If true, the [combotrigger->SFX] will not be restarted if it was already playing.
 	// This allows changing the [combotrigger->SFXFrequency], [combotrigger->SFXPan], etc
 	// of an already-playing SFX.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_SFX_NO_RESTART,
 	// If true, the [combotrigger->SFX] will be stopped instead of being played.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_SFX_KILL,
 	// If true, the [combotrigger->ComboChange] will be an exact combo ID to change to, instead of a relative value.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_CMB_CHANGE_ABSOLUTE,
 	// If true, the [combotrigger->CSetChange] will be an exact combo ID to change to, instead of a relative value.
+	//
 	// @versionadded 3.0
 	TRIGFLAG_CSET_CHANGE_ABSOLUTE,
 	// Triggers when the player swims in it
+	//
 	// @versionadded 3.0
 	TRIGFLAG_SWIMTRIG,
 	// Triggers when the player swims in it (more sensitively)
+	//
 	// @versionadded 3.0
 	TRIGFLAG_SWIMSENSTRIG,
 	TRIGFLAG_MAX
@@ -206,6 +337,7 @@ enum ComboTriggerFlag
 
 // Load with [combodata::Triggers] or [combodata::GetTrigger]
 //
+// @versionadded 3.0
 // @zasm_ref REFCOMBOTRIGGER
 class combotrigger {
 	// @delete
@@ -252,13 +384,11 @@ class combotrigger {
 	// values 0-255 will specify a specific pan. 128 is centered.
 	//
 	// @value -1 <= N <= 255
-	// @versionadded 3.0
 	// @zasm_var CMBTRIGGER_SFX_PAN
 	internal int SFXPan;
 	
 	// The volume to use for the [SFX], as a percentage of the base volume.
 	//
-	// @versionadded 3.0
 	// @value 0 <= N <= 255
 	// @zasm_var CMBTRIGGER_SFX_VOLUME
 	internal int SFXVolume;
@@ -266,7 +396,6 @@ class combotrigger {
 	// The frequency to use for the [SFX]. -1 will use the default for the SFX,
 	// otherwise this value will be used in Hz.
 	//
-	// @versionadded 3.0
 	// @value -1 or higher
 	// @zasm_var CMBTRIGGER_SFX_FREQUENCY
 	internal int SFXFrequency;
@@ -719,7 +848,6 @@ class combotrigger {
 	// The margins away from the screen added to the viewport when calculating
 	// [TRIGFLAG_VIEWPORT_REQ_ONSCREEN] and [TRIGFLAG_VIEWPORT_REQ_OFFSCREEN].
 	//
-	// @versionadded 3.0
 	// @zasm_var CMBTRIGGER_VIEWPORT_RANGE
 	internal int ViewportRange;
 	
@@ -728,7 +856,6 @@ class combotrigger {
 	// A 0 numerator means the combo won't ever trigger.
 	//
 	// @value 0 to [MAX_INT]
-	// @versionadded 3.0
 	// @zasm_var CMBTRIGGER_CHANCE_NUMERATOR
 	internal int ChanceNumerator;
 	
@@ -736,7 +863,6 @@ class combotrigger {
 	// Default '1 in 1' means no chance involved.
 	//
 	// @value 1 to [MAX_INT]
-	// @versionadded 3.0
 	// @zasm_var CMBTRIGGER_CHANCE_NUMERATOR
 	internal int ChanceDenominator;
 	

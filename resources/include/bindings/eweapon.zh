@@ -177,6 +177,7 @@ class eweapon {
 	// downward velocity, and [BounceAdd].
 	// Must be >= 0.
 	//
+	// @versionadded 3.0
 	// @zasm_var EWPN_BOUNCE_MULT
 	internal int BounceMult;
 	
@@ -185,6 +186,7 @@ class eweapon {
 	// Using a negative value will dampen the bounce, and is recommended to prevent
 	// the weapon from bouncing many tiny rapid bounces as it's velocity gets small.
 	//
+	// @versionadded 3.0
 	// @zasm_var EWPN_BOUNCE_ADD
 	internal int BounceAdd;
 	
@@ -195,6 +197,7 @@ class eweapon {
 	// it does not account for other things that may disable the weapon from
 	// activating triggers (ex. the Hammer being above the player's head).
 	//
+	// @versionadded 3.0
 	// @zasm_var EWPN_NO_TRIGGERS
 	internal bool DisableTriggers;
 
@@ -205,6 +208,7 @@ class eweapon {
 	// have their collision disabled so they cannot hit further targets-
 	// and the PierceCount set on a lit bomb will apply to the bomb's blast.
 	//
+	// @versionadded 3.0
 	// @zasm_var EWPNPIERCE
 	internal int PierceCount;
 
@@ -296,6 +300,7 @@ class eweapon {
 	// The burning light offsets associated with sprites of the weapon.
 	//
 	// @index [enum WeaponSpriteIndex]
+	// @versionadded 3.0
 	// @zasm_var EWPNBURNLIGHTOFFSET
 	internal int BurnLightOffset[];
 

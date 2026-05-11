@@ -210,6 +210,7 @@ class npcdata {
 	// The type, or 'npc class' of the npc.
 	//
 	// @value [enum NPCType]
+	// @versionadded 3.0
 	// @zasm_var NPCDATATYPE
 	internal int Type;
 
@@ -435,6 +436,7 @@ class npcdata {
 	// The sfx used when the npc fires its weapon.
 	// If 0 or less, no sound will be played.
 	//
+	// @versionadded 3.0
 	// @zasm_var NPCDATAFIRESFX
 	internal int WeaponSFX;
 
@@ -451,6 +453,7 @@ class npcdata {
 	//
 	// @value [enum SizeOverrideBitflags]
 
+	// @versionadded 3.0
 	// @zasm_var NPCDATASIZEFLAG
 	internal bool SizeFlags;
 
@@ -519,12 +522,14 @@ class npcdata {
 	// The [npc]'s default movement flags.
 	//
 	// @value [enum MoveFlag]
+	// @versionadded 3.0
 	// @zasm_var NPCDATAMOVEFLAGS
 	internal bool MoveFlags[];
 	
 	// The fired [eweapon]'s default movement flags.
 	//
 	// @value [enum MoveFlag]
+	// @versionadded 3.0
 	// @zasm_var NPCDATAWMOVEFLAGS
 	internal bool WeaponMoveFlags[];
 

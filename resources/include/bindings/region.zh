@@ -82,6 +82,8 @@ class Region {
 
 	// Returns true if the given screen index is inside the current region.
 	// When not in a region, only returns true if screen is equal to [Game->CurScreen].
+	//
+	// @versionadded 3.0
 	bool IncludesScreen(int screen)
 	{
 		if (this->ID)
@@ -102,6 +104,8 @@ class Region {
 	// Returns 0 if a screen is not in the current region.
 	//
 	// Example: If the current region is 4x4 and the origin is screen 5, `RelativeScreenX(8) == 3`.
+	//
+	// @versionadded 3.0
 	int RelativeScreenX(int screen)
 	{
 		if (this->ID)
@@ -117,6 +121,8 @@ class Region {
 	// Returns 0 if a screen is not in the current region.
 	//
 	// Example: If the current region is 4x4 and the origin is screen 5, `RelativeScreenY(8) == 3`.
+	//
+	// @versionadded 3.0
 	int RelativeScreenY(int screen)
 	{
 		if (this->ID)
@@ -129,6 +135,8 @@ class Region {
 	}
 
 	// Given a screen index, returns the world offset in the x direction for the current region.
+	//
+	// @versionadded 3.0
 	int WorldOffsetX(int screen)
 	{
 		if (this->ID)
@@ -138,6 +146,8 @@ class Region {
 	}
 
 	// Given a screen index, returns the world offset in the y direction for the current region.
+	//
+	// @versionadded 3.0
 	int WorldOffsetY(int screen)
 	{
 		if (Region->ID)

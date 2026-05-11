@@ -158,6 +158,9 @@ class Enum(Symbol):
     prefix: str
     members: list[EnumMember]
 
+    def is_anonymous(self) -> bool:
+        return self.name + '_' == self.prefix
+
 
 @dataclass
 class Parameters:

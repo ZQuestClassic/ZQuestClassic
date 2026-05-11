@@ -1,3 +1,4 @@
+// @versionadded 3.0
 enum ViewportMode
 {
 	// Position the viewport such that the [Viewport::Target] is in the middle of it (but bounded by the edges of the current region).
@@ -20,6 +21,7 @@ class Viewport {
 
 	// Defaults to [VIEW_MODE_CENTER_AND_BOUND], and is reset at the beginning of scrolling.
 	//
+	// @versionadded 3.0
 	// @zasm_var VIEWPORT_MODE
 	internal ViewportMode Mode;
 
@@ -28,6 +30,7 @@ class Viewport {
 	//
 	// Defaults to [Hero], and is reset at the beginning of scrolling.
 	//
+	// @versionadded 3.0
 	// @zasm_var VIEWPORT_TARGET
 	internal sprite Target;
 
@@ -66,6 +69,8 @@ class Viewport {
 	//
 	// Note: this function ignores the fact that the bottom 8 pixels may not be visible
 	// given [qr_HIDE_BOTTOM_8_PIXELS].
+	//
+	// @versionadded 3.0
 	bool Contains(int x, int y)
 	{
 		return x >= this->X && x < this->X + this->Width && y >= this->Y && y < this->Y + this->Height;

@@ -59,12 +59,45 @@ enum TransitionFlag
 
 enum SubscreenWidgetType
 {
-	SUBWIDG_NULL, SUBWIDG_FRAME, SUBWIDG_TEXT, SUBWIDG_LINE, SUBWIDG_RECT,
-	SUBWIDG_TIME, SUBWIDG_MMETER, SUBWIDG_LMETER, SUBWIDG_BTNITM, SUBWIDG_COUNTER,
-	SUBWIDG_OLDCTR, SUBWIDG_MMAPTITLE, SUBWIDG_MMAP, SUBWIDG_LMAP, SUBWIDG_BGCOLOR,
-	SUBWIDG_ITEMSLOT, SUBWIDG_MCGUFF_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE,
-	SUBWIDG_SELECTOR, SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_TEXTBOX, SUBWIDG_SELECTEDTEXT,
-	SUBWIDG_MISCGAUGE, SUBWIDG_BTNCOUNTER, SUBWIDG_COUNTERPERCBAR, SUBWIDG_ITEMCOOLDOWNGAUGE, SUBWIDG_ITEMCOOLDOWNTEXT,
+	SUBWIDG_NULL,
+	SUBWIDG_FRAME,
+	SUBWIDG_TEXT,
+	SUBWIDG_LINE,
+	SUBWIDG_RECT,
+
+	SUBWIDG_TIME,
+	SUBWIDG_MMETER,
+	SUBWIDG_LMETER,
+	SUBWIDG_BTNITM,
+	SUBWIDG_COUNTER,
+
+	SUBWIDG_OLDCTR,
+	SUBWIDG_MMAPTITLE,
+	SUBWIDG_MMAP,
+	SUBWIDG_LMAP,
+	SUBWIDG_BGCOLOR,
+
+	SUBWIDG_ITEMSLOT,
+	SUBWIDG_MCGUFF_FRAME,
+	SUBWIDG_MCGUFF,
+	SUBWIDG_TILEBLOCK,
+	SUBWIDG_MINITILE,
+
+	SUBWIDG_SELECTOR,
+	SUBWIDG_LGAUGE,
+	SUBWIDG_MGAUGE,
+	SUBWIDG_TEXTBOX,
+	SUBWIDG_SELECTEDTEXT,
+
+	SUBWIDG_MISCGAUGE,
+	SUBWIDG_BTNCOUNTER,
+	// @versionadded 3.0
+	SUBWIDG_COUNTERPERCBAR,
+	// @versionadded 3.0
+	SUBWIDG_ITEMCOOLDOWNGAUGE,
+	// @versionadded 3.0
+	SUBWIDG_ITEMCOOLDOWNTEXT,
+
 	SUBWIDG_MAX
 };
 
@@ -82,16 +115,46 @@ enum SubscreenWidgetGenFlag
 	SUBW_GENFL_SELECTABLE, // If the widget is "selectable" by the subscreen cursor
 	SUBW_GENFL_PGMODE_NOWRAP, // If going left from the leftmost page or right from the rightmost page should do nothing instead of wrapping, when changing pages
 	SUBW_GENFL_SELECTOR_OVERRIDE, // If this widget uses a customly overridden subscreen selector cursor graphic
-	SUBW_GENFL_REQ_COUNTER_MAX, // If the counter requirement should use the "max" of the counter, instead of it's plain value
-	SUBW_GENFL_REQ_COUNTER_PERC, // If the counter requirement should use the "percentage of max" of the counter, instead of it's plain value (overrides [SUBW_GENFL_REQ_COUNTER_MAX])
-	SUBW_GENFL_REQ_INVERT_LITEM, // If the level item requirement should require *not having any of the LItems*, instead of having all of the level items
-	SUBW_GENFL_PGGOTO_SWAPMAPSUBSCR, // If the widget's page swapping changes between the active and map subscreens.
-	SUBW_GENFL_REQ_INVERT_SCRSTATE, // If the screen state/exstate requirements should require *not having any states* instead of having all states.
-	SUBW_GENFL_REQ_ANY_ITEM, // If the 'required items' requirement should be satisfied by any one of the items, instead of needing them all.
-	SUBW_GENFL_REQ_ANY_LITEM, // If the level item requirement should be satisified with any level item, instead of needing them all.
-	SUBW_GENFL_REQ_ANY_SCRSTATE, // If the screen state/exstate requirements should be satisfied with any of the states, instead of needing them all.
-	SUBW_GENFL_REQ_INVERT_LSTATE, // If the level state requirement should require *not having any of the lavel states*, instead of having all the level states.
-	SUBW_GENFL_REQ_ANY_LSTATE, // If the level state requirement should be satisified with any level state, instead of needing them all.
+	// If the counter requirement should use the "max" of the counter, instead of it's plain value
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_COUNTER_MAX,
+	// If the counter requirement should use the "percentage of max" of the counter, instead of it's plain value (overrides [SUBW_GENFL_REQ_COUNTER_MAX])
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_COUNTER_PERC,
+	// If the level item requirement should require *not having any of the LItems*, instead of having all of the level items
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_INVERT_LITEM,
+	// If the widget's page swapping changes between the active and map subscreens.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_PGGOTO_SWAPMAPSUBSCR,
+	// If the screen state/exstate requirements should require *not having any states* instead of having all states.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_INVERT_SCRSTATE,
+	// If the 'required items' requirement should be satisfied by any one of the items, instead of needing them all.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_ANY_ITEM,
+	// If the level item requirement should be satisified with any level item, instead of needing them all.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_ANY_LITEM,
+	// If the screen state/exstate requirements should be satisfied with any of the states, instead of needing them all.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_ANY_SCRSTATE,
+	// If the level state requirement should require *not having any of the lavel states*, instead of having all the level states.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_INVERT_LSTATE,
+	// If the level state requirement should be satisified with any level state, instead of needing them all.
+	//
+	// @versionadded 3.0
+	SUBW_GENFL_REQ_ANY_LSTATE,
 	SUBW_GENFL_MAX
 };
 
@@ -101,7 +164,10 @@ enum SubscreenPageMode
 	SUB_PGMODE_NEXT, //next page
 	SUB_PGMODE_PREV, //previous page
 	SUB_PGMODE_TARG, //specified page
-	SUB_PGMODE_CURRENT, //transition to same page
+	// transition to same page
+	//
+	// @versionadded 3.0
+	SUB_PGMODE_CURRENT,
 	SUB_PGMODE_MAX
 };
 
@@ -205,7 +271,9 @@ enum // Flags for SUBWIDG_COUNTER
 {
 	SUBW_COUNTER_FLAG_SHOW0,
 	SUBW_COUNTER_FLAG_ONLYSEL,
+	// @versionadded 3.0
 	SUBW_COUNTER_FLAG_MAXCTR,
+	// @versionadded 3.0
 	SUBW_COUNTER_FLAG_FRACTION,
 	SUBW_COUNTER_NUMFLAGS
 };
@@ -225,7 +293,10 @@ enum // Flags for [SUBWIDG_MMAP]
 	SUBW_MMAP_FLAG_SHOWMAP, // If the map itself is drawn
 	SUBW_MMAP_FLAG_SHOWPLAYER, // If the player marker is drawn
 	SUBW_MMAP_FLAG_SHOWCOMPASS, // If the compass marker is drawn
-	SUBW_MMAP_VISITED_REQ_MAP, // If visited rooms are only drawn once map is obtained
+	// If visited rooms are only drawn once map is obtained
+	//
+	// @versionadded 3.0
+	SUBW_MMAP_VISITED_REQ_MAP,
 	SUBW_MMAP_NUMFLAGS
 };
 enum // Flags for SUBWIDG_LMAP
@@ -244,7 +315,9 @@ enum // Flags for SUBWIDG_ITEMSLOT
 {
 	SUBW_ITEMSLOT_FLAG_INVIS,
 	SUBW_ITEMSLOT_FLAG_NON_EQUIPPABLE,
+	// @versionadded 3.0
 	SUBW_ITEMSLOT_MOVE_IGNORE_SPEC_SELTEXT,
+	// @versionadded 3.0
 	SUBW_ITEMSLOT_MOVE_IGNORE_SPEC_DISPLAY,
 	SUBW_ITEMSLOT_FLAG_NO_INTERACT_WO_ITEM,
 	SUBW_ITEMSLOT_FLAG_NO_INTERACT_WO_EQUIP,
@@ -317,15 +390,21 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 {
 	SUBW_BTNCOUNTER_FLAG_SHOW0,
 	SUBW_BTNCOUNTER_FLAG_NOCOLLAPSE,
+	// @versionadded 3.0
 	SUBW_BTNCOUNTER_FLAG_MAXCTR,
+	// @versionadded 3.0
 	SUBW_BTNCOUNTER_FLAG_FRACTION,
 	SUBW_BTNCOUNTER_NUMFLAGS
 };
 enum // Flags for SUBWIDG_COUNTERPERCBAR
 {
+	// @versionadded 3.0
 	SUBW_COUNTERPERCBAR_TRANSP,
+	// @versionadded 3.0
 	SUBW_COUNTERPERCBAR_VERTICAL,
+	// @versionadded 3.0
 	SUBW_COUNTERPERCBAR_INVERT,
+	// @versionadded 3.0
 	SUBW_COUNTERPERCBAR_NUMFLAGS
 };
 
@@ -618,6 +697,7 @@ class subscreendata {
 	// Opens the specified subscreen (at the next moment possible).
 	// Only works on Active / Map subscreens.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP REFSUBSCREENDATA
 	//   SUBDATA_OPEN
@@ -627,6 +707,7 @@ class subscreendata {
 	// that is currently running during a subscreendata script (i.e.
 	// 'this->Close()')
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP REFSUBSCREENDATA
 	//   SUBDATA_CLOSE

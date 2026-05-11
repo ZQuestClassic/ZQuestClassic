@@ -440,13 +440,21 @@ enum
 // MIDI values, used for [musicdata::MIDI]
 enum
 {
+	// @versionadded 3.0
 	BUILTIN_MIDI_TRIFORCE = -7,
+	// @versionadded 3.0
 	BUILTIN_MIDI_TITLE = -6,
+	// @versionadded 3.0
 	BUILTIN_MIDI_OVERWORLD = -5,
+	// @versionadded 3.0
 	BUILTIN_MIDI_LEVEL9 = -4,
+	// @versionadded 3.0
 	BUILTIN_MIDI_GAMEOVER = -3,
+	// @versionadded 3.0
 	BUILTIN_MIDI_ENDING = -2,
+	// @versionadded 3.0
 	BUILTIN_MIDI_DUNGEON = -1,
+	// @versionadded 3.0
 	BUILTIN_MIDI_NONE = 0,
 };
 

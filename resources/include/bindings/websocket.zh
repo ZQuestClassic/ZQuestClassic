@@ -1,3 +1,4 @@
+// @versionadded 3.0
 enum WebsocketState {
     WEBSOCKET_STATE_CONNECTING = 0L,
     WEBSOCKET_STATE_OPEN = 1L,
@@ -5,12 +6,14 @@ enum WebsocketState {
     WEBSOCKET_STATE_CLOSED = 3L
 };
 
+// @versionadded 3.0
 enum WebsocketType {
     WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,  // send text data
     WEBSOCKET_MESSAGE_TYPE_BINARY = 2L // send binary data
 };
 
 // @tutorial /tutorials/websockets
+// @versionadded 3.0
 // @zasm_ref REFWEBSOCKET
 class websocket {
 	// @zasm

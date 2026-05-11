@@ -23,7 +23,9 @@ enum AnimationBitflags
 	AF_CYCLE                       = 0x02,
 	AF_CYCLENOCSET                 = 0x04,
 	AF_TRANSPARENT                 = 0x08,
+	// @versionadded 3.0
 	AF_CYCLEUNDERCOMBO             = 0x10,
+	// @versionadded 3.0
 	AF_EDITOR_ONLY                 = 0x20,
 };
 
@@ -31,7 +33,9 @@ enum ComboGeneralFlag
 {
 	GENFLAG_HOOKSHOTTABLE,
 	GENFLAG_SWITCHHOOKABLE,
+	// @versionadded 3.0
 	GENFLAG_WALK_ON_TOP,
+	// @versionadded 3.0
 	GENFLAG_WALK_ON_TOP_DRAW_OFFSET,
 	GENFLAG_MAX
 };
@@ -315,11 +319,13 @@ class combodata {
 	
 	// The radius of light that will be emitted by the lifted weapon.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODLIFTLIGHTRAD
 	internal int LiftLightRadius;
 	
 	// The [LightShape] the lifted weapon will use, if light is emitted.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODLIFTLIGHTSHAPE
 	internal int LiftLightShape;
 
@@ -341,21 +347,25 @@ class combodata {
 	
 	// The combo's triggers.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGGERS
 	internal const combotrigger Triggers[];
 	
 	// The number of triggers the combo has. Writing to this instantly resizes [Triggers].
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODNUMTRIGGERS
 	internal int NumTriggers;
 	
 	// If true, don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODONLYGEN
 	internal bool OnlyGenTriggers;
 	
 	// The Z-height of the combo for [GENFLAG_WALK_ON_TOP]. A value of '0' represents infinite height.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBOD_Z_HEIGHT
 	internal int ZHeight;
 	
@@ -363,17 +373,20 @@ class combodata {
 	// Designed for 'walking up stairs' type effects.
 	// Can't be negative.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBOD_Z_STEP_HEIGHT
 	internal int ZStepHeight;
 	
 	// If >0 and the player is diving with flippers of at least this level,
 	// the player will ignore the solidity of this combo.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBOD_DIVE_UNDER_LEVEL
 	internal int DiveUnderLevel;
 
 	// Gets the first trigger of this combo whose name exactly matches 'buf'.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   POP REFCOMBOTRIGGER
@@ -563,6 +576,7 @@ class combodata {
 	// flags.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::LItems] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGLITEMS
 	internal int TrigLItems;
 
@@ -572,6 +586,7 @@ class combodata {
 	// that level.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::DMapLvl] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGDMAPLVL
 	internal int TrigDMapLvl;
 
@@ -580,6 +595,7 @@ class combodata {
 	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::TintR] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGTINTR
 	internal int TrigTintR;
 
@@ -588,6 +604,7 @@ class combodata {
 	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::TintG] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGTINTG
 	internal int TrigTintG;
 
@@ -596,30 +613,35 @@ class combodata {
 	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::TintB] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGTINTB
 	internal int TrigTintB;
 
 	// The level palette to change to when triggered. -1 for none.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::LvlPal] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGLVLPAL
 	internal int TrigLvlPal;
 
 	// The boss palette to change to when triggered. -1 for none.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::BossPal] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGBOSSPAL
 	internal int TrigBossPal;
 
 	// The quake timer to set when triggered. -1 for none.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::QuakeTimer] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGQUAKETIME
 	internal int TrigQuakeTimer;
 
 	// The wavy timer to set when triggered. -1 for none.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::WavyTimer] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGWAVYTIME
 	internal int TrigWavyTimer;
 
@@ -627,6 +649,7 @@ class combodata {
 	// cured', 0 to cure.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::SwordJinx] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGSWORDJINX
 	internal int TrigSwordJinx;
 
@@ -634,6 +657,7 @@ class combodata {
 	// cured', 0 to cure.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::ItemJinx] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGITEMJINX
 	internal int TrigItemJinx;
 
@@ -641,6 +665,7 @@ class combodata {
 	// cured', 0 to cure.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::ShieldJinx] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGSHIELDJINX
 	internal int TrigShieldJinx;
 
@@ -648,6 +673,7 @@ class combodata {
 	// to cure.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::Stun] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGSTUN
 	internal int TrigStun;
 
@@ -655,6 +681,7 @@ class combodata {
 	// 0 to cure.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::Bunny] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGBUNNY
 	internal int TrigBunny;
 
@@ -662,6 +689,7 @@ class combodata {
 	// trigger flag to take effect.
 	//
 	// @deprecated Use [Triggers] / [combotrigger::PushTime] instead!
+	// @versionadded 3.0
 	// @zasm_var COMBODTRIGPUSHTIME
 	internal int TrigPushTime;
 }

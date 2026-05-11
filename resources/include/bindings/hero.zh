@@ -42,6 +42,7 @@ enum HeroAction
 	LA_MAX
 };
 
+// @versionadded 3.0
 enum HeroSliding
 {
 	SLD_NONE,
@@ -94,6 +95,7 @@ enum WarpEffect
 @Bitflags("int")
 enum WarpBitflags
 {
+	// @versionadded 3.0
 	WARP_FLAG_NONE                 = 0x000,
 	WARP_FLAG_SCRIPTDRAW           = 0x001,
 	WARP_FLAG_PLAYSOUNDS           = 0x002,
@@ -181,6 +183,7 @@ class hero {
 	//   If non-zero, the item cannot be used.
 	//
 	// @index [enum ItemID]
+	// @versionadded 3.0
 	// @zasm_var HEROITEMCOOLDOWN
 	internal int ItemCooldown[];
 
@@ -586,11 +589,13 @@ class hero {
 
 	// @value [enum HeroSliding]
 
+	// @versionadded 3.0
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
 	// The icy combo the Hero is sliding on.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROICECMB
 	internal const int IceCombo;
 
@@ -600,6 +605,7 @@ class hero {
 	// If the specified combo is not an Icy Floor combo that affects the Hero,
 	// no sliding will occur.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROSCRICECMB
 	internal int ScriptIceCombo;
 
@@ -607,6 +613,7 @@ class hero {
 	// Has no effect unless the Hero is [Sliding].
 	// If the Hero is not [Sliding], the engine will clear these to `0`.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROICEVX
 	internal int IceVx;
 
@@ -614,6 +621,7 @@ class hero {
 	// Has no effect unless the Hero is [Sliding].
 	// If the Hero is not Sliding, the engine will clear these to `0`.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROICEVY
 	internal int IceVy;
 
@@ -629,6 +637,7 @@ class hero {
 	// be somewhere between the IceCombo's deceleration and half of the Hero's
 	// step speed.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROICEENTRYFRAMES
 	internal int IceEntryFrames;
 
@@ -644,6 +653,7 @@ class hero {
 	// be somewhere between the IceCombo's deceleration and half of the Hero's
 	// step speed.
 	//
+	// @versionadded 3.0
 	// @zasm_var HEROICEENTRYMAXFRAMES
 	internal int IceEntryMaxFrames;
 
@@ -652,21 +662,25 @@ class hero {
 	
 	// X-offset for the player's item collection hitbox.
 	//
+	// @versionadded 3.0
 	// @zasm_var HERO_ITEMBOX_XOFF
 	internal int ItemBoxXOffset;
 	
 	// Y-offset for the player's item collection hitbox.
 	//
+	// @versionadded 3.0
 	// @zasm_var HERO_ITEMBOX_YOFF
 	internal int ItemBoxYOffset;
 	
 	// Width of the player's item collection hitbox.
 	//
+	// @versionadded 3.0
 	// @zasm_var HERO_ITEMBOX_WIDTH
 	internal int ItemBoxWidth;
 	
 	// Height of the player's item collection hitbox.
 	//
+	// @versionadded 3.0
 	// @zasm_var HERO_ITEMBOX_HEIGHT
 	internal int ItemBoxHeight;
 	
@@ -727,6 +741,7 @@ class hero {
 	//              If 'x < 0' and 'y >= 0', y is a [WarpIndex] for a warp return square.
 	// @param sound: the sound to play
 	// @param forcedir: if >-1, the player is forced to face this [Direction] after the warp.
+	// @versionadded 3.0
 	// @zasm
 	//   WARPEX 9
 	//   POPARGS D5 0.0009

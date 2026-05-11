@@ -4,10 +4,13 @@ enum GravityIndex
 	GR_STRENGTH,
 	GR_TERMINALV,
 	GR_SPRLAYER,
+	// @versionadded 3.0
 	GR_AIRDRAG
 };
 
 // Used with [Game->LayerZThresholds]
+//
+// @versionadded 3.0
 enum LayerZIndex
 {
 	LAYERZ_GROUND,
@@ -78,8 +81,11 @@ enum MiscSfx
 	MISCSFX_SUBSCR_CURSOR_MOVE,
 	MISCSFX_REFILL,
 	MISCSFX_RUPEEDRAIN,
+	// @versionadded 3.0
 	MISCSFX_SWORDTAP,
+	// @versionadded 3.0
 	MISCSFX_SWORDTAP_HOLLOW,
+	// @versionadded 3.0
 	MISCSFX_HERO_LANDS,
 	MISCSFX_MAX
 };
@@ -119,16 +125,34 @@ enum GenericIndex
 	GEN_FLICKER_FRAMES       = 24, //How many frames Link / enemies flicker for with the flicker damage effect
 	GEN_FLICKER_COLOR        = 25, //Color used for the flicker effect
 	GEN_FLICKER_TRANSP       = 26, //Number of transparency passes for the flicker effect
+	// @versionadded 3.0
 	GEN_LIGHT_WAVE_RATE      = 27,
+	// @versionadded 3.0
 	GEN_LIGHT_WAVE_SIZE      = 28,
-	GEN_REGION_MAPPING       = 29, //Which [RegionMapping] (method of mapping) is used for regions
-	GEN_ITEM_SPAWN_FLICKER   = 30, // The duration of flickering after an item spawns
-	GEN_ITEM_TIMEOUT_DUR     = 31, // The duration before disappearing items vanish
-	GEN_ITEM_TIMEOUT_FLICKER = 32, // The duration disappearing items flicker before they vanish
-	GEN_ITEM_FLICKER_SPEED   = 33, // The speed items flicker at
+	// Which [RegionMapping] (method of mapping) is used for regions
+	//
+	// @versionadded 3.0
+	GEN_REGION_MAPPING       = 29,
+	// The duration of flickering after an item spawns
+	//
+	// @versionadded 3.0
+	GEN_ITEM_SPAWN_FLICKER   = 30,
+	// The duration before disappearing items vanish
+	//
+	// @versionadded 3.0
+	GEN_ITEM_TIMEOUT_DUR     = 31,
+	// The duration disappearing items flicker before they vanish
+	//
+	// @versionadded 3.0
+	GEN_ITEM_TIMEOUT_FLICKER = 32,
+	// The speed items flicker at
+	//
+	// @versionadded 3.0
+	GEN_ITEM_FLICKER_SPEED   = 33,
 	GEN_MAX                  = 34
 };
 
+// @versionadded 3.0
 enum RegionMapping
 {
 	REGION_MAPPING_PHYSICAL,
@@ -149,23 +173,59 @@ enum MouseCursor
 @Bitflags("int")
 enum LevelItemBitflags
 {
-	LI_MCGUFFIN                    = 0x0001, // The McGuffin of this Level has been obtained.
+	// The McGuffin of this Level has been obtained.
+	//
+	// @versionadded 3.0
+	LI_MCGUFFIN                    = 0x0001,
 	LI_TRIFORCE                    = LI_MCGUFFIN, // @deprecated
 	LI_MAP                         = 0x0002, // The Dungeon Map of this Level has been obtained.
 	LI_COMPASS                     = 0x0004, // The Compass of this Level has been obtained.
 	LI_BOSS                        = 0x0008, // A "Dungeon Boss" enemy has been slain.
 	LI_BOSSKEY                     = 0x0010, // The Boss Key of this Level has been obtained.
-	LI_CUSTOM01                    = 0x0020, // The Custom01 flag of this Level has been set.
-	LI_CUSTOM02                    = 0x0040, // The Custom02 flag of this Level has been set.
-	LI_CUSTOM03                    = 0x0080, // The Custom03 flag of this Level has been set.
-	LI_CUSTOM04                    = 0x0100, // The Custom04 flag of this Level has been set.
-	LI_CUSTOM05                    = 0x0200, // The Custom05 flag of this Level has been set.
-	LI_CUSTOM06                    = 0x0400, // The Custom06 flag of this Level has been set.
-	LI_CUSTOM07                    = 0x0800, // The Custom07 flag of this Level has been set.
-	LI_CUSTOM08                    = 0x1000, // The Custom08 flag of this Level has been set.
-	LI_CUSTOM09                    = 0x2000, // The Custom09 flag of this Level has been set.
-	LI_CUSTOM10                    = 0x4000, // The Custom10 flag of this Level has been set.
-	LI_CUSTOM11                    = 0x8000, // The Custom11 flag of this Level has been set.
+	// The Custom01 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM01                    = 0x0020,
+	// The Custom02 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM02                    = 0x0040,
+	// The Custom03 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM03                    = 0x0080,
+	// The Custom04 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM04                    = 0x0100,
+	// The Custom05 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM05                    = 0x0200,
+	// The Custom06 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM06                    = 0x0400,
+	// The Custom07 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM07                    = 0x0800,
+	// The Custom08 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM08                    = 0x1000,
+	// The Custom09 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM09                    = 0x2000,
+	// The Custom10 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM10                    = 0x4000,
+	// The Custom11 flag of this Level has been set.
+	//
+	// @versionadded 3.0
+	LI_CUSTOM11                    = 0x8000,
 };
 
 // Used with [Game->GameOverScreen].
@@ -198,6 +258,8 @@ enum GameOverScreenElementIndex
 };
 
 // Used with [Game->GameOverStrings].
+//
+// @versionadded 3.0
 enum GameOverStringIndex
 {
 	GOSTR_CONTINUE                 = 0, // (Continue:Retry:Save) Screen.
@@ -398,11 +460,13 @@ class Game {
 
 	// The [save_menu] ID used when pressing F6. If 0, the default F6 menu will be used.
 	//
+	// @versionadded 3.0
 	// @zasm_var GAME_SAVEMENU_F6
 	internal int SaveMenuF6;
 	
 	// The [save_menu] ID used when dying. If 0, the default game over menu will be used.
 	//
+	// @versionadded 3.0
 	// @zasm_var GAME_SAVEMENU_GAMEOVER
 	internal int SaveMenuGameOver;
 
@@ -524,6 +588,7 @@ class Game {
 
 	// True if running in test mode ('Quest->Test' from the editor).
 	//
+	// @versionadded 3.0
 	// @zasm_var DEBUGTESTING
 	internal const bool Testing;
 
@@ -631,6 +696,7 @@ class Game {
 	// See 'Init Data->Vars->Draw Order'
 	//
 	// @index [LayerZIndex]
+	// @versionadded 3.0
 	// @zasm_var GAMELAYERZTHRESHOLDS
 	internal int LayerZThresholds[];
 
@@ -720,6 +786,7 @@ class Game {
 
 	// True if the map subscreen is currently open.
 	//
+	// @versionadded 3.0
 	// @zasm_var GAMEMSUBOPEN
 	internal const bool MapSubscreenOpen;
 
@@ -748,6 +815,7 @@ class Game {
 
 	// Returns the total number of overlay subscreens
 	//
+	// @versionadded 3.0
 	// @zasm_var GAMENUMMSUB
 	internal int NumMapSubscreens;
 
@@ -935,6 +1003,7 @@ class Game {
 	// Closes the program, without saving.
 	//
 	// @exit
+	// @versionadded 3.0
 	// @zasm
 	//   GAMEEXIT
 	internal void Exit();
@@ -1296,6 +1365,7 @@ class Game {
 	//   LOADSTACK
 	internal stack LoadStack();
 
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   WEBSOCKET_LOAD D2
@@ -1328,6 +1398,7 @@ class Game {
 	//
 	// Range 1-32
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   LOADSAVEMENU D2
@@ -1454,6 +1525,7 @@ class Game {
 	//
 	// Use id `-1` to load the current map subscreen.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   LOADSUBDATARV D2 3

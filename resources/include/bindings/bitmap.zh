@@ -278,6 +278,7 @@ class bitmap {
 	// that layer of the entire region will be drawn.
 	// Only combos will be drawn, FFCs are excluded.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   BMPDRAWMAPDATA
 	//   POPARGS D5 0.0006
@@ -371,6 +372,7 @@ class bitmap {
 	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
 	//              bitmap using that color index of the main palette.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   BMPTILEBLIT
 	//   POPARGS D5 0.0018
@@ -395,6 +397,7 @@ class bitmap {
 	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
 	//              bitmap using that color index of the main palette.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   BMPCOMBOBLIT
 	//   POPARGS D5 0.0018

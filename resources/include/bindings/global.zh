@@ -452,6 +452,7 @@ internal constexpr int Ceiling(int val);
 
 // Truncates [n] to the nearest integer, rounding towards 0.
 //
+// @versionadded 3.0
 // @zasm
 //   POP D2
 //   TRUNCATE D2
@@ -466,6 +467,7 @@ internal constexpr int Round(int n);
 
 // Truncates [n] to the nearest integer, rounding away from 0.
 //
+// @versionadded 3.0
 // @zasm
 //   POP D2
 //   ROUNDAWAY D2
@@ -600,6 +602,7 @@ internal int atoi(char32[] str);
 
 // Converts a string containing a number to its numeric value, as a 'long' value.
 //
+// @versionadded 3.0
 // @zasm
 //   POP D3
 //   ATOL D2 D3
@@ -752,6 +755,7 @@ internal constexpr int RadToDeg(int radians);
 //
 // @deprecated_alias WrapAngle
 // @alias WrapRad
+// @versionadded 3.0
 // @zasm
 //   POP D2
 //   WRAPRADIANS D2
@@ -958,11 +962,13 @@ internal int GetGlobalRAM(int index);
 //   SETR GLOBALRAMD D3
 internal void SetGlobalRAM(int index, int val);
 
+// @versionadded 3.0
 // @zasm
 //   POP D2
 //   REF_COUNT D2
 internal long RefCount(untyped object_ptr);
 
+// @versionadded 3.0
 // @zasm
 //   GC
 internal void GC();

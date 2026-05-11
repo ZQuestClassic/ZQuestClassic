@@ -78,7 +78,10 @@ enum MusicRefreshMode
 	MR_DMAP,   // Refresh when the dmap changes.
 	MR_LEVEL,  // Refresh when the level changes.
 	MR_NEVER,  // Never refresh on a screen transition.
-	MR_REGION, // Refresh when the region changes
+	// Refresh when the region changes
+	//
+	// @versionadded 3.0
+	MR_REGION,
 };
 
 // Used with [Audio->MusicRefreshFlags].
@@ -106,6 +109,7 @@ class Audio {
 	
 	// Returns the number of [musicdata]s that exist in the quest.
 	//
+	// @versionadded 3.0
 	// @zasm_var NUM_MUSICS
 	internal const int NumMusics;
 	
@@ -116,6 +120,7 @@ class Audio {
 	// or changing [dmapdata::Music] for the current dmap if the current screen's music is [MUSIC_INHERIT],
 	// will result in the currently playing music changing to match.
 	//
+	// @versionadded 3.0
 	// @zasm_var ENGINE_MUSIC_ACTIVE
 	internal const bool EngineMusicActive;
 
@@ -204,6 +209,7 @@ class Audio {
 	// Index -1 will play the music of the current screen/dmap, as the engine would.
 	// Otherwise, the index should be > 0 and <= [NumMusics].
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP REFMUSIC
 	//   DIVV REFMUSIC 10000
@@ -214,6 +220,7 @@ class Audio {
 	// Returns [MUSIC_SILENCE] without error for ID 0.
 	// Fails (returning MUSIC_SILENCE, with error) if the ID is < 0 or > [NumMusics]
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   LOADMUSICDATA D2
@@ -222,6 +229,7 @@ class Audio {
 	// Gets the musicdata whose name exactly matches `name`.
 	// If no such object exists, returns `NULL`.
 	//
+	// @versionadded 3.0
 	// @zasm
 	//   POP D2
 	//   GETMUSICDATABYNAME D2
