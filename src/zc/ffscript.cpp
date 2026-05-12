@@ -11692,6 +11692,16 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr), idx) ? 10000 : 0);
 				break;
 			}
+			case FFCTRIGGER:
+			{
+				int32_t idx = get_register(sarg1) / 10000;
+				ffcdata* ffc = ResolveFFC(GET_REF(ffcref));
+				if (ffc)
+					set_register(sarg1, do_trigger_combo(get_ffc_handle(ffc), idx) ? 10000 : 0);
+				else
+					set_register(sarg1, 0);
+				break;
+			}
 			
 			case SWITCHNPC:
 			{
