@@ -1361,7 +1361,7 @@ save_t* get_unset_save_slot()
 	return nullptr;
 }
 
-static int last_slot_pos;
+static int last_slot_index;
 static void select_game(bool skip = false)
 {
 	if(standalone_mode || skip)
@@ -1377,7 +1377,7 @@ static void select_game(bool skip = false)
 	else
 	{
 		state.target = CursorTarget::SaveSlot;
-		state.selected_save_index = last_slot_pos;
+		state.selected_save_index = last_slot_index;
 		state.validate_bounds(saves_count());
 	}
 
@@ -1743,10 +1743,13 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
+	bool should_show_titlescreen = !SkipTitle && load_qstpath.empty() && lsave == 0 && !Quit;
+
 	if (saves_current_selection() != -1)
 	{
-		last_slot_pos = saves_current_selection() % 3;
+		last_slot_index = saves_current_selection();
 		saves_unload(saves_current_selection());
+		should_show_titlescreen = false;
 	}
 
 	if (replay_is_active())
@@ -1754,7 +1757,7 @@ void titlescreen(int32_t lsave)
 
 	updateShowBottomPixels();
 
-	if (!SkipTitle && load_qstpath.empty() && lsave == 0 && !Quit)
+	if (should_show_titlescreen)
 	{
 		actual_titlescreen();
 	}
