@@ -58,7 +58,7 @@ struct SaveMenu
 	bool is_empty() const;
 	bool is_valid() const;
 	void clear();
-	optional<byte> run(optional<byte> cursor = nullopt) const;
+	optional<byte> run(optional<byte> cursor = nullopt, bool continue_point = false) const;
 	bool tick(optional<byte>& cursor, word& clk) const;
 	void draw(BITMAP* dest, optional<byte> cursor, word clk) const;
 	bool operator==(SaveMenu const& other) const = default;

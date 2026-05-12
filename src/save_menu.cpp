@@ -29,8 +29,9 @@ void SaveMenu::clear()
 	*this = SaveMenu();
 }
 
-optional<byte> SaveMenu::run(optional<byte> cursor) const
+optional<byte> SaveMenu::run(optional<byte> cursor, bool continue_point) const
 {
+	(void)continue_point;
 	word clk = 0;
 #ifdef IS_PLAYER
 	bool is_dead = Quit == qGAMEOVER;
@@ -92,6 +93,13 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 
 			if (opt.flags & SMENU_OPT_SAVE)
 			{
+				if (continue_point)
+				{
+					game->set_continue_scrn(Hero.current_screen >= 0x80 ? home_screen : Hero.current_screen);
+					game->set_continue_dmap(cur_dmap);
+					lastentrance_dmap = cur_dmap;
+					lastentrance = game->get_continue_scrn();
+				}
 				if (Quit)
 				{
 					// If we're quitting, we must save the game in the outermost game loop
