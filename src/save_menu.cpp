@@ -90,10 +90,20 @@ optional<byte> SaveMenu::run(optional<byte> cursor) const
 				Quit = 0;
 			else running = true;
 
-			// We must save the game in the outermost game loop (init_and_run_main_zplayer_loop) for
-			// replays to work.
 			if (opt.flags & SMENU_OPT_SAVE)
-				pending_save_from_save_menu = true;
+			{
+				if (Quit)
+				{
+					// If we're quitting, we must save the game in the outermost game loop
+					// (init_and_run_main_zplayer_loop) for replays to work.
+					pending_save_from_save_menu = true;
+				}
+				else
+				{
+					// Otherwise just save it here.
+					save_game(false);
+				}
+			}
 		}
 		else if (Quit)
 			running = false;
