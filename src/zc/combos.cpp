@@ -1704,10 +1704,11 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 			game->set_magic(magic);
 	}
 	uint save_menu = cmb.c_attributes[10].getTrunc() - 1;
+	bool continue_point = (scr->flags4&fSAVEROOM) != 0;
 	if (save_menu >= NUM_SAVE_MENUS || !QMisc.save_menus[save_menu].is_valid())
-		save_game((scr->flags4&fSAVEROOM) != 0, save_type);
+		save_game(continue_point, save_type);
 	else
-		QMisc.save_menus[save_menu].run();
+		QMisc.save_menus[save_menu].run(nullopt, continue_point);
 }
 
 static byte copycat_id = 0;

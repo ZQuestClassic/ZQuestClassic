@@ -1962,7 +1962,7 @@ void save_game(bool savepoint)
 	FFCore.runOnSaveEngine();
 	if(savepoint)
 	{
-		game->set_continue_scrn(home_screen);
+		game->set_continue_scrn(Hero.current_screen >= 0x80 ? home_screen : Hero.current_screen);
 		game->set_continue_dmap(cur_dmap);
 		lastentrance_dmap = cur_dmap;
 		lastentrance = game->get_continue_scrn();
@@ -2092,7 +2092,7 @@ bool save_game(bool savepoint, int32_t type)
 				FFCore.runOnSaveEngine();
 				if(savepoint)
 				{
-					game->set_continue_scrn(home_screen);
+					game->set_continue_scrn(Hero.current_screen >= 0x80 ? home_screen : Hero.current_screen);
 					game->set_continue_dmap(cur_dmap);
 					lastentrance_dmap = cur_dmap;
 					lastentrance = game->get_continue_scrn();
