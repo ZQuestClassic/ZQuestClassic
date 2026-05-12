@@ -1104,6 +1104,9 @@ static GUI::ListData compatRulesList
 		" for old darkrooms, they will simply be blacked-out." },
 	{ "BS Overworld Ignores Map", qr_BS_OW_IGNORES_MAP_ITEM,
 		"When enabled, BS Overworlds will show rooms marked on the map even without that level's Map item." },
+	{ "Broken Enemy Sideview Platform Hitbox", qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX,
+		"When enabled, enemies will use their old hit detection for sideview hitboxes, which doesn't properly"
+		" check the correct size of the hitbox, or account for hit offsets." },
 };
 
 static GUI::ListData enemiesRulesList
