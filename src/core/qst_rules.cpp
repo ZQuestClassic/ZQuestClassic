@@ -847,6 +847,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_MAP_SPOILS_DARKROOMS, 1);
 		set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
 	}
+	if (compatrule_version < 111)
+		set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
