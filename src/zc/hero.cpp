@@ -1586,6 +1586,7 @@ void HeroClass::init()
     justmoved = 0;
     hookshot_frozen=false;
     onpassivedmg=false;
+	immortal = 0;
     dir = up;
     damageovertimeclk = 0;
     newconveyorclk = 0;
