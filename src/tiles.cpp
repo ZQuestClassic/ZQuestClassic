@@ -37,6 +37,16 @@ static byte *unpack_oldnewtilebuf = nullptr;
 
 byte unpackbuf[256];
 
+static bool can_use_sse2()
+{
+	return (cpu_capabilities & CPU_SSE2) != 0;
+}
+
+static bool can_use_ssse3()
+{
+	return (cpu_capabilities & CPU_SSSE3) != 0;
+}
+
 bool isblanktile(tiledata *buf, int32_t i)
 {
     //  byte *tilestart=tilebuf+(i*128);
@@ -2296,7 +2306,8 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 	const byte *bytes = get_tile_bytes(tile>>2, 0);
 	const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
 
-	bool use_fast_draw = (x >= cl) && (y >= ct) && (x + w <= cr) && (y + w <= cb);
+	bool can_draw_fast = (flip & 1) ? can_use_ssse3() : can_use_sse2();
+	bool use_fast_draw = can_draw_fast && (x >= cl) && (y >= ct) && (x + w <= cr) && (y + w <= cb);
 	if (use_fast_draw)
 		draw_tile8_transparent_fast(dest, si, x, y, cset, flip);
 	else
@@ -2341,7 +2352,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     const byte *bytes = get_tile_bytes(tile, flip&5);
 
-    bool use_fast_draw = (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+    bool use_fast_draw = can_use_sse2() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
 	if (use_fast_draw)
 	{
 		draw_tile16_opaque_fast(dest, bytes, x, y, cset, flip);
@@ -2732,7 +2743,7 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 
 	const byte* si = get_tile_bytes(tile, flip&5);
 
-	bool use_fast_draw = (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+	bool use_fast_draw = can_use_sse2() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
 	if (use_fast_draw)
 		draw_tile16_cs2_fast(dest, si, x, y, cset, flip, over);
 	else
