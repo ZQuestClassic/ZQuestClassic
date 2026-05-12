@@ -1637,9 +1637,10 @@ static void actual_titlescreen()
 	int counter = 0;
 	while (!Quit)
 	{
-		if (keypressed() || button_pressed())
+		if (keypressed() || button_pressed() || CHECK_SHIFT || CHECK_CTRL_CMD || CHECK_ALT)
 		{
 			sfx(WAV_CHIME);
+			clear_keybuf();
 			break;
 		}
 
