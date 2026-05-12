@@ -1072,7 +1072,7 @@ portal* loadportal(savedportal& p)
 	(void)p;
 	portal* retp = nullptr;
 #ifndef IS_EDITOR
-	if(cur_dmap == p.srcdmap && cur_screen == p.srcscr)
+	if(cur_dmap == p.srcdmap && is_in_current_region(p.srcscr))
 	{
 		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
 			p.warpfx, p.sfx, p.spr);

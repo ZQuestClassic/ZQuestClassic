@@ -7677,25 +7677,16 @@ bool HeroClass::handle_portal_collide(portal* p)
 					tLastEntranceDMap = lastentrance_dmap,
 					tContScr = game->get_continue_scrn(),
 					tContDMap = game->get_continue_dmap();
-			int32_t sourcescr = cur_screen, sourcedmap = cur_dmap;
-			zfix tx = x, ty = y, tz = z;
-			x = p->x;
-			y = p->y;
+			int32_t sourcescr = get_screen_for_world_xy(x, y), sourcedmap = cur_dmap;
+			zfix tx = x % 256_zf, ty = y % 256_zf, tz = z;
 			
 			int32_t weff = p->weffect,
 				wsfx = p->wsfx;
 
-			region_t dest_region;
-			{
-				int rx, ry;
-				calculate_region(DMaps[p->destdmap].map, p->destscr, dest_region, rx, ry);
-			}
-
 			int32_t savep = p->saved_data;
 			//After this line, 'p' becomes INVALID!
-			// Target the destination origin screen, so that x/y are interpreted as region coordinates.
-			FFCore.warp_player(wtIWARP, p->destdmap, dest_region.origin_screen,
-				p->x, p->y, weff, wsfx, 0, -1);
+			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
+				p->x % 256_zf, p->y % 176_zf, weff, wsfx, 0, -1);
 			
 			if(mirrorBonk()) //Invalid landing, warp back!
 			{
@@ -7704,11 +7695,8 @@ bool HeroClass::handle_portal_collide(portal* p)
 				lastentrance_dmap = tLastEntranceDMap;
 				game->set_continue_scrn(tContScr);
 				game->set_continue_dmap(tContDMap);
-				x = tx;
-				y = ty;
 				z = tz;
-				// sourcescr (cur_screen) is the origin screen.
-				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, x, y, weff,
+				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, tx, ty, weff,
 					wsfx, 0, -1);
 				handle_portal_prox(&mirror_portal);
 				portals.forEach([&](sprite& p)
@@ -10620,20 +10608,21 @@ int HeroClass::onWater(bool drownonly)
 
 bool HeroClass::mirrorBonk()
 {
-	zfix tx = x, ty = y, tz = z;
+	if (x < 0 || y < 0 || x+15 >= cur_region.width || y+15 >= cur_region.height)
+		return true;
 	WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
 	info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
 	execute(info);
-	bool fail = info.isUnwalkable();
-	
-	if(!fail) //not solid, but check for water/pits...
-	{
-		if(onWater(true))
-			fail = true;
-		if(pitslide() || fallclk)
-			fail = true;
-		fallclk = 0;
-	}
+	if (info.isUnwalkable())
+		return true;
+	//not solid, but check for water/pits...
+	zfix tx = x, ty = y, tz = z;
+	bool fail = false;
+	if(onWater(true))
+		fail = true;
+	if(!fail && (pitslide() || fallclk))
+		fail = true;
+	fallclk = 0;
 	x = tx; y = ty; z = tz;
 	return fail;
 }
@@ -10692,7 +10681,8 @@ void HeroClass::doMirror(int32_t mirrorid)
 	else
 	{
 		int32_t destdmap = DMaps[cur_dmap].mirrorDMap;
-		int32_t offscr = cur_screen - DMaps[cur_dmap].xoff;
+		int32_t sourcescr = get_screen_for_world_xy(x, y), sourcedmap = cur_dmap;
+		int32_t offscr = sourcescr - DMaps[cur_dmap].xoff;
 		if(destdmap < 0)
 			return;
 		int32_t destscr = DMaps[destdmap].xoff + offscr;
@@ -10707,19 +10697,12 @@ void HeroClass::doMirror(int32_t mirrorid)
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
 				tPortalDMap = game->saved_mirror_portal.srcdmap;
-		int32_t sourcescr = cur_screen, sourcedmap = cur_dmap;
-		zfix tx = x, ty = y, tz = z;
+		zfix tx = x % 256_zf, ty = y % 176_zf, tz = z;
 		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
-
-		region_t dest_region;
-		{
-			int rx, ry;
-			calculate_region(DMaps[destdmap].map, destscr, dest_region, rx, ry);
-		}
-
+		
 		// Warp to new dmap. Target the destination origin screen, so that x/y are interpreted as region coordinates.
-		FFCore.warp_player(wtIWARP, destdmap, dest_region.origin_screen, x, y, mirror.misc1,
+		FFCore.warp_player(wtIWARP, destdmap, destscr, tx, ty, mirror.misc1,
 			mirror.usesound, 0, -1);
 		
 		//Check for valid landing location
@@ -10730,18 +10713,15 @@ void HeroClass::doMirror(int32_t mirrorid)
 			lastentrance_dmap = tLastEntranceDMap;
 			game->set_continue_scrn(tContScr);
 			game->set_continue_dmap(tContDMap);
-			x = tx;
-			y = ty;
 			z = tz;
 			game->saved_mirror_portal.srcdmap = tPortalDMap;
-			// sourcescr (cur_screen) is the origin screen.
-			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, x, y, mirror.misc1,
+			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, tx, ty, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
 		else if(mirror.flags & item_flag1) //Place portal!
 		{
 			//Place the portal
-			game->set_portal(sourcedmap, destdmap, offscr, x.getZLong(), y.getZLong(), mirror.usesound, mirror.misc1, mirror.wpn_sprites[0]);
+			game->set_portal(sourcedmap, destdmap, offscr, (x % 256_zf).getZLong(), (y % 176_zf).getZLong(), mirror.usesound, mirror.misc1, mirror.wpn_sprites[0]);
 			//Since it was placed after loading this screen, load the portal object now
 			game->load_portal();
 			//Don't immediately trigger the warp back
