@@ -14318,7 +14318,7 @@ bool HeroClass::try_drown()
 	if(ladderx || laddery) return false;
 	if (walk_through_walls) return false;
 	if (!get_qr(qr_DROWN)) return false;
-	if(action == drowning || action == lavadrowning) return true;
+	if(action == drowning || action == lavadrowning || action == sidedrowning) return true;
 	int water = onWater(true);
 	if(!water) return false;
 	drownCombo = water;
