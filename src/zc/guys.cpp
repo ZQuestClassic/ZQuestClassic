@@ -1633,11 +1633,30 @@ bool enemy::isOnSideviewPlatform()
 		return false;
 	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
-	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
+	if (get_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX))
 	{
-		if(_walkflag(nx,y+usehei,1)) return true;
-		if(IGNORE_SIDEVIEW_PLATFORMS || ((int32_t(y)+usehei)%16)!=0) continue;
-		if(checkSVLadderPlatform(nx,y+usehei)) return true;
+		for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
+		{
+			if(_walkflag(nx,y+usehei,1)) return true;
+			if(IGNORE_SIDEVIEW_PLATFORMS || ((int32_t(y)+usehei)%16)!=0) continue;
+			if(checkSVLadderPlatform(nx,y+usehei)) return true;
+		}
+	}
+	else
+	{
+		int lx = x + hxofs + 4;
+		int rx = x + hxofs + usewid - 4;
+		int svp_y = y + hyofs + usehei;
+		bool sv_platform = !(IGNORE_SIDEVIEW_PLATFORMS || (svp_y % 16));
+		for(int32_t nx = lx; nx < rx; nx += 4)
+		{
+			if(_walkflag(nx, svp_y, 1)) return true;
+			if (sv_platform && checkSVLadderPlatform(nx, svp_y))
+				return true;
+		}
+		if(_walkflag(rx, svp_y, 1)) return true;
+		if (sv_platform && checkSVLadderPlatform(rx, svp_y))
+			return true;
 	}
 	return false;
 }
