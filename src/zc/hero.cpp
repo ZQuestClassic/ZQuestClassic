@@ -7684,11 +7684,18 @@ bool HeroClass::handle_portal_collide(portal* p)
 			
 			int32_t weff = p->weffect,
 				wsfx = p->wsfx;
-			
+
+			region_t dest_region;
+			{
+				int rx, ry;
+				calculate_region(DMaps[p->destdmap].map, p->destscr, dest_region, rx, ry);
+			}
+
 			int32_t savep = p->saved_data;
 			//After this line, 'p' becomes INVALID!
-			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
-				-1, -1, weff, wsfx, 0, -1);
+			// Target the destination origin screen, so that x/y are interpreted as region coordinates.
+			FFCore.warp_player(wtIWARP, p->destdmap, dest_region.origin_screen,
+				p->x, p->y, weff, wsfx, 0, -1);
 			
 			if(mirrorBonk()) //Invalid landing, warp back!
 			{
@@ -7700,7 +7707,8 @@ bool HeroClass::handle_portal_collide(portal* p)
 				x = tx;
 				y = ty;
 				z = tz;
-				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
+				// sourcescr (cur_screen) is the origin screen.
+				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, x, y, weff,
 					wsfx, 0, -1);
 				handle_portal_prox(&mirror_portal);
 				portals.forEach([&](sprite& p)
@@ -10703,9 +10711,15 @@ void HeroClass::doMirror(int32_t mirrorid)
 		zfix tx = x, ty = y, tz = z;
 		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
-		
-		//Warp to new dmap
-		FFCore.warp_player(wtIWARP, destdmap, destscr, -1, -1, mirror.misc1,
+
+		region_t dest_region;
+		{
+			int rx, ry;
+			calculate_region(DMaps[destdmap].map, destscr, dest_region, rx, ry);
+		}
+
+		// Warp to new dmap. Target the destination origin screen, so that x/y are interpreted as region coordinates.
+		FFCore.warp_player(wtIWARP, destdmap, dest_region.origin_screen, x, y, mirror.misc1,
 			mirror.usesound, 0, -1);
 		
 		//Check for valid landing location
@@ -10720,7 +10734,8 @@ void HeroClass::doMirror(int32_t mirrorid)
 			y = ty;
 			z = tz;
 			game->saved_mirror_portal.srcdmap = tPortalDMap;
-			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
+			// sourcescr (cur_screen) is the origin screen.
+			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, x, y, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
 		else if(mirror.flags & item_flag1) //Place portal!
