@@ -62,24 +62,109 @@ sys.path.append(str(script_dir))
 import zscript_doc_parser as parser
 
 
+import urllib.request
+
+
 @dataclass
 class VersionInfo:
     added: str = None
     changed: str = None
 
 
-def get_git_file(ref, path):
-    try:
-        return subprocess.check_output(
-            ['git', 'show', f'{ref}:{path}'],
-            encoding='utf-8',
-            stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-        return None
+class ContentProvider:
+    def list_files(self, dir_path):
+        raise NotImplementedError()
+
+    def get_file(self, file_path):
+        raise NotImplementedError()
 
 
-def parse_255_builtins():
+class GitProvider(ContentProvider):
+    def __init__(self, ref):
+        self.ref = ref
+
+    def list_files(self, dir_path):
+        try:
+            output = subprocess.check_output(
+                ['git', 'ls-tree', '-r', '--name-only', self.ref, dir_path],
+                encoding='utf-8',
+                stderr=subprocess.DEVNULL,
+            )
+            return output.splitlines()
+        except subprocess.CalledProcessError:
+            return []
+
+    def get_file(self, file_path):
+        try:
+            return subprocess.check_output(
+                ['git', 'show', f'{self.ref}:{file_path}'],
+                encoding='utf-8',
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError:
+            return None
+
+
+class HttpProvider(ContentProvider):
+    def __init__(self, branch):
+        self.branch = branch
+        self.base_url = f"https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/{branch}"
+        self.tree = None
+
+    def _get_tree(self):
+        if self.tree is not None:
+            return self.tree
+        api_url = f"https://api.github.com/repos/ZQuestClassic/ZQuestClassic/git/trees/{self.branch}?recursive=1"
+        try:
+            with urllib.request.urlopen(api_url) as response:
+                data = json.loads(response.read().decode())
+                self.tree = [item['path'] for item in data.get('tree', [])]
+        except Exception as e:
+            print(f"Warning: Failed to fetch tree from GitHub API: {e}")
+            self.tree = []
+        return self.tree
+
+    def list_files(self, dir_path):
+        tree = self._get_tree()
+        # Ensure dir_path ends with / for correct matching
+        prefix = dir_path if dir_path.endswith('/') else dir_path + '/'
+        return [f for f in tree if f.startswith(prefix)]
+
+    def get_file(self, file_path):
+        url = f"{self.base_url}/{file_path}"
+        try:
+            with urllib.request.urlopen(url) as response:
+                return response.read().decode('utf-8')
+        except Exception:
+            return None
+
+
+def get_content_provider():
+    # Check for remote or local git branches.
+    potential_refs = ['upstream/releases/2.55', 'origin/releases/2.55', 'releases/2.55']
+    for ref in potential_refs:
+        try:
+            subprocess.check_output(
+                ['git', 'rev-parse', '--verify', ref], stderr=subprocess.DEVNULL
+            )
+            # If it's a remote ref, try to fetch it to ensure we have it locally
+            if ref.startswith('origin/') or ref.startswith('upstream/'):
+                remote, branch = ref.split('/', 1)
+                print(f"Fetching {branch} from {remote}...")
+                subprocess.run(
+                    ['git', 'fetch', remote, branch],
+                    stderr=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                )
+            return GitProvider(ref)
+        except subprocess.CalledProcessError:
+            continue
+
+    print("No git branch found for 2.55, falling back to HTTP...")
+    return HttpProvider('releases/2.55')
+
+
+def parse_255_builtins(provider):
     """
     Parses built-in symbols from 2.55 C++ source files.
     Returns a dict mapping class name to a dict of name -> list of (min_arity, max_arity, is_varg).
@@ -136,26 +221,12 @@ def parse_255_builtins():
     class_symbols = {}
 
     # Get all .cpp files in 2.55 symbols directory
-    try:
-        output = subprocess.check_output(
-            [
-                'git',
-                'ls-tree',
-                '-r',
-                '--name-only',
-                'releases/2.55',
-                'src/parser/symbols',
-            ],
-            encoding='utf-8',
-        )
-        symbol_files = [
-            line.split('/')[-1] for line in output.splitlines() if line.endswith('.cpp')
-        ]
-    except subprocess.CalledProcessError:
-        symbol_files = []
+    symbol_files = provider.list_files('src/parser/symbols')
+    symbol_files = [f for f in symbol_files if f.endswith('.cpp')]
 
-    for filename in symbol_files:
-        content = get_git_file('releases/2.55', f'src/parser/symbols/{filename}')
+    for filepath in symbol_files:
+        filename = filepath.split('/')[-1]
+        content = provider.get_file(filepath)
         if not content:
             continue
 
@@ -313,36 +384,24 @@ def parse_255_builtins():
     return class_symbols
 
 
-def parse_255_headers():
+def parse_255_headers(provider):
     """
     Parses global symbols from all 2.55 header files.
     Returns a dict of name -> set of arities.
     """
     symbols = {}
 
-    try:
-        output = subprocess.check_output(
-            [
-                'git',
-                'ls-tree',
-                '-r',
-                '--name-only',
-                'releases/2.55',
-                'resources/include',
-                'resources/headers',
-            ],
-            encoding='utf-8',
-        )
-        headers = [
-            line
-            for line in output.splitlines()
-            if line.endswith('.zh') or line.endswith('.zs') or line.endswith('.cfg')
-        ]
-    except subprocess.CalledProcessError:
-        headers = []
+    headers = provider.list_files('resources/include') + provider.list_files(
+        'resources/headers'
+    )
+    headers = [
+        h
+        for h in headers
+        if h.endswith('.zh') or h.endswith('.zs') or h.endswith('.cfg')
+    ]
 
     for h in headers:
-        content = get_git_file('releases/2.55', h)
+        content = provider.get_file(h)
         if not content:
             continue
 
@@ -890,8 +949,9 @@ def main():
     args = arg_parser.parse_args()
 
     print("Fetching 2.55 symbols...")
-    builtins_255 = parse_255_builtins()
-    headers_255 = parse_255_headers()
+    provider = get_content_provider()
+    builtins_255 = parse_255_builtins(provider)
+    headers_255 = parse_255_headers(provider)
     all_global_names_255_lower = build_255_globals_map(headers_255, builtins_255)
 
     print("Fetching current 3.0 symbols...")

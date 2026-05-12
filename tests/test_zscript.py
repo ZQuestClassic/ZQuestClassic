@@ -196,9 +196,6 @@ class TestZScript(ZCTestCase):
                 self.expect_snapshot(expected_path, output, args.update)
 
     def test_zscript_version_docs(self):
-        if CI:
-            raise unittest.SkipTest('TODO: get this working in CI')
-
         subprocess.check_call(
             [sys.executable, root_dir / 'scripts/lint_zscript_versions.py']
         )
