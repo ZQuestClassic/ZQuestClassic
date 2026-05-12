@@ -708,6 +708,15 @@ ffc_handle_t get_ffc_handle(ffc_id_t id)
 	return {scr, screen, id, i, ffc};
 }
 
+ffc_handle_t get_ffc_handle(ffcdata* ffc)
+{
+	uint8_t screen = ffc->screen_spawned;
+	uint8_t i = ffc->index % MAXFFCS;
+	mapscr* scr = get_scr(screen);
+	ffc_id_t id = ffc_id_t(get_region_screen_offset(screen) * MAXFFCS + i);
+	return {scr, screen, id, i, ffc};
+}
+
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y)
 {
 	x += get_region_relative_dx(screen) * 256;

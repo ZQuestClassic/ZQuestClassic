@@ -135,4 +135,14 @@ class ffc {
 
 	// @zasm_var FFCLASTCHANGERY
 	internal int LastChangerY;
+	
+	// Attempts to trigger the ffc's combo with it's trigger number 'trig_index'.
+	// Returns true on success, false on failure.
+	//
+	// @versionadded 3.0
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   FFCTRIGGER D2
+	internal bool Trigger(int trig_index = 0);
 }

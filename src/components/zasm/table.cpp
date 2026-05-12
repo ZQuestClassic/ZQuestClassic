@@ -888,6 +888,7 @@ static constexpr script_command command_list[]=
 	{ "SUBDATA_CLOSE", SUBDATA_CLOSE, 0, {}, 0, 0 },
 	{ "DRAWMAPDATA", DRAWMAPDATA, 0, {}, 0, 0 },
 	{ "BMPDRAWMAPDATA", BMPDRAWMAPDATA, 0, {}, 0, 0 },
+	{ "FFCTRIGGER", FFCTRIGGER, 1, { REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
