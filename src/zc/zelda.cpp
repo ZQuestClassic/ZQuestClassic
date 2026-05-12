@@ -4640,7 +4640,6 @@ reload_for_replay_file:
 	
 	while(Quit!=qEXIT)
 	{
-		update_quest_control_path(""); // revert quest-specific keybinds, go back to general keybinds
 		// this is here to continually fix the keyboard repeat
 		set_keyboard_rate(250,33);
 		walk_through_walls = false;
@@ -4648,6 +4647,7 @@ reload_for_replay_file:
 		clear_bitmap(lightbeam_bmp);
 		if(Quit!=qCONT)
 		{
+			update_quest_control_path(""); // revert quest-specific keybinds, go back to general keybinds
 			game_mouse_index = ZCM_BLANK; //Force game mouse to blank
 			game_mouse();
 			MouseSprite::clear(ZCM_CUSTOM); //Delete any custom cursor between quests
