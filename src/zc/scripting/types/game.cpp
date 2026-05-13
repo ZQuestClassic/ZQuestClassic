@@ -545,6 +545,10 @@ int32_t game_get_register(int32_t reg)
 		case GLOBALRAM:
 			ret = ArrayH::getElement(GET_D(rINDEX), GET_D(rINDEX2) / 10000);
 			break;
+		case SCRIPTRAMD:
+		case GLOBALRAMD:
+			ret = ArrayH::getElement(GET_D(rINDEX), 0);
+			break;
 		case INCQST:
 		{
 			int32_t newqst = 0;
