@@ -62,3 +62,11 @@ bool replay_compat_dropset_reroll_rng_bug()
 {
 	return check_2_55(15);
 }
+
+// New respawn points didn't account for damage combos or conveyors when deciding whether a
+// spot was "safe". The new code adds those checks, so older replays must keep the old
+// (incomplete) safety check to stay valid.
+bool replay_compat_respawn_point_missing_dmg_conveyor_bug()
+{
+	return check_2_55(15);
+}

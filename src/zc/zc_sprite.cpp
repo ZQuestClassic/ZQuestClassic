@@ -73,7 +73,7 @@ bool is_conveyor(int32_t type)
 	return cc.conveyor_x_speed || cc.conveyor_y_speed;
 }
 
-int32_t get_conveyor(int32_t x, int32_t y)
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates)
 {
 	x = vbound(x, 0, (16*16)-1);
 	y = vbound(y, 0, (11*16)-1);
@@ -102,7 +102,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	if(cmbid < 0) return -1;
 	newcombo const& cmb = combobuf[cmbid];
 	bool custom_spd = (cmb.usrflags&cflag2);
-	if(custom_spd || conveyclk<=0)
+	if(!check_rates || custom_spd || conveyclk<=0)
 	{
 		for (int i = found_layer; i <= 1; ++i)
 		{
@@ -121,8 +121,11 @@ int32_t get_conveyor(int32_t x, int32_t y)
 				}
 			}
 		}
-		auto rate = custom_spd ? zc_max(cmb.attribytes[0], 1) : 3;
-		if(custom_spd && (newconveyorclk % rate)) return -1;
+		if (check_rates)
+		{
+			auto rate = custom_spd ? zc_max(cmb.attribytes[0], 1) : 3;
+			if(custom_spd && (newconveyorclk % rate)) return -1;
+		}
 		return cmbid;
 	}
 	return -1;
@@ -132,7 +135,7 @@ void sprite::check_conveyor()
 {
     int32_t deltax=0;
     int32_t deltay=0;
-    int32_t cmbid = get_conveyor(x+8,y+8);
+    int32_t cmbid = get_conveyor(x+8,y+8,true);
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);

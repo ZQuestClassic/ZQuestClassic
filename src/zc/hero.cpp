@@ -49,6 +49,9 @@ extern int32_t draw_screen_clip_rect_x2;
 extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;
 
+bool is_conveyor(int32_t type);
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates);
+
 int32_t hero_count = -1;
 int32_t hero_animation_speed = 1; //lower is faster animation
 static int32_t z3step = 2;
@@ -413,7 +416,46 @@ void HeroClass::set_respawn_point(bool setwarp)
 			if(check_pitslide(true) != -1) break; //On a pit
 			if (ladderx+laddery) break; //on the ladder
 			if (onWater(false)) break;
-			
+
+			if (!replay_compat_respawn_point_missing_dmg_conveyor_bug()) // some things originally missed
+			{
+				// NOTE (2.55 backport): main also breaks on 'sliding' (slidey ice) state and on
+				// sideview-solid conveyors (qr_BROKEN_SV_SOLID_CONVEYORS). Neither the 'sliding'
+				// member nor that QR exist on this branch, so those checks are omitted here.
+				if (inlikelike || pull_hero || autostep) break;
+
+				// Damage Combos
+				int32_t dmg_x1 = (int32_t)x+8-(tmpscr->csensitive);
+				int32_t dmg_x2 = (int32_t)x+8+(tmpscr->csensitive-1);
+				int32_t dmg_y1 = (int32_t)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
+				int32_t dmg_y2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
+
+				int32_t dmg_poses[4][2] = {
+					{dmg_x1,dmg_y1},
+					{dmg_x1,dmg_y2},
+					{dmg_x2,dmg_y1},
+					{dmg_x2,dmg_y2}
+					};
+				for (int lyr = get_qr(qr_DMGCOMBOLAYERFIX) ? 2 : 0; lyr >= 0; --lyr)
+				{
+					for (auto& dpos : dmg_poses)
+					{
+						// MAPCOMBO2 layer semantics: -1 is the base screen, 0 is layer 1.
+						if (isdamage_type(combobuf[MAPCOMBO2(lyr - 1, dpos[0], dpos[1])].type))
+						{
+							is_safe = false;
+							break;
+						}
+					}
+					if(!is_safe) break;
+				}
+				if(!is_safe) break;
+
+				// Conveyors
+				int32_t conveyor_id = get_conveyor(x+7, y+(bigHitbox?8:12), false);
+				if (conveyor_id >= 0)
+					break;
+			}
 			int poses[4] = {
 				COMBOPOS(x,y+(bigHitbox?0:8)),
 				COMBOPOS(x,y+15),
@@ -32222,7 +32264,7 @@ void HeroClass::reset_ladder()
 }
 
 bool is_conveyor(int32_t type);
-int32_t get_conveyor(int32_t x, int32_t y);
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates);
 
 void HeroClass::check_conveyor()
 {
@@ -32245,7 +32287,7 @@ void HeroClass::check_conveyor()
 	WalkflagInfo info;
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
-	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
+	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12),true);
 	if(cmbid < 0) 
 	{
 		if (conveyclk <= 0)
