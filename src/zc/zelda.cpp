@@ -1990,10 +1990,20 @@ int32_t init_game()
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 
-	if (game->get_regionmapping() == REGION_MAPPING_FULL && is_in_scrolling_region())
-		for_every_base_screen_in_region([&](mapscr*, unsigned int x, unsigned int y) {
-			mark_visited(cur_screen + x + y*16);
-		});
+	if (is_in_scrolling_region())
+	{
+		switch (game->get_regionmapping())
+		{
+			case REGION_MAPPING_FULL:
+				for_every_base_screen_in_region([&](mapscr*, unsigned int x, unsigned int y) {
+					mark_visited(cur_screen + x + y*16);
+				});
+				break;
+			case REGION_MAPPING_PHYSICAL:
+				mark_visited(Hero.current_screen);
+				break;
+		}
+	}
 	else mark_visited(cur_screen);
 
 	Hero.init();
