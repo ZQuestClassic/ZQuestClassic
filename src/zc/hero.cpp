@@ -9787,17 +9787,29 @@ heroanimate_skip_liftwpn:;
 			newcombo const& watercmb = combobuf[water];
 			
 			int32_t damage = 4;
+			int inv_timer = 48;
+			int stun_timer = 0;
 			if (watercmb.type == cWATER)
+			{
 				damage = watercmb.attributes[0]/10000L;
+				inv_timer = watercmb.attributes[1]/10000L;
+				stun_timer = watercmb.attributes[2]/10000L;
+				if (!inv_timer)
+					inv_timer = 48;
+			}
 			else water = 0;
 			
-			if(cheat_superman && damage > 0)
+			if (cheat_superman && damage > 0)
 				damage = 0;
-			if(damage)
+			
+			// TODO! generic event "Drown 2" here to change damage/inv/stun
+			if (damage)
 				game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
+			if (stun_timer < 0 || (stun_timer > lstunclock && lstunclock >= 0))
+				lstunclock = stun_timer;
 			drownCombo = 0;
 			go_respawn_point();
-			hclk=48;
+			hclk = zc_max(inv_timer, 0);
 		}
 		
 		break;
@@ -14191,24 +14203,31 @@ bool HeroClass::pitfall()
 				fallCombo = 0;
 			
 			int32_t dmg = game->get_hp_per_heart()/4;
+			int inv_timer = 0;
+			int stun_timer = 0;
 			bool dmg_perc = false;
 			bool warp = false;
 			
 			action=none; FFCore.setHeroAction(none);
 			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
-			if(cmb)
+			if (cmb)
 			{
 				dmg = cmb->attributes[0]/10000L;
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
+				inv_timer = cmb->attributes[1]/10000L;
+				stun_timer = cmb->attributes[2]/10000L;
 			}
-			if(cheat_superman && dmg > 0)
+			if (cheat_superman && dmg > 0)
 				dmg = 0;
-			if(dmg) //Damage
-			{
-				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
+			if (!inv_timer && dmg > 0)
+				inv_timer = 48;
+			// TODO! generic event "Fall 2" here to change damage/inv/stun
+			if (dmg) //Damage
 				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-int64_t(dmg))),0,game->get_maxlife()));
-			}
+			hclk = zc_max(inv_timer, 0);
+			if (stun_timer < 0 || (stun_timer > lstunclock && lstunclock >= 0))
+				lstunclock = stun_timer;
 			if(warp) //Warp
 			{
 				sdir = dir;

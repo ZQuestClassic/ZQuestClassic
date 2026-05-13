@@ -846,6 +846,11 @@ void ComboEditorDialog::loadComboType()
 			h_flag[3] = "Solid areas of the combo are treated as non-solid Shallow Liquid combo";
 			l_attribute[0] = "Drown Damage:";
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
+			l_attribute[1] = "Inv. Frames";
+			h_attribute[1] = "The duration, in frames, the player will be invincible after drowning."
+				" If 0, the default of 48 will be used instead. If < 0, 0 will be used instead.";
+			l_attribute[2] = "Stun Frames";
+			h_attribute[2] = "The duration, in frames, the player will be stunned after drowning.";
 			l_attribyte[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
 			l_attribyte[4] = "Drown SFX:";
@@ -1638,6 +1643,12 @@ void ComboEditorDialog::loadComboType()
 			h_flag[4] = "Don't suck in the player at all";
 			l_attribute[0] = "Damage:";
 			h_attribute[0] = "The amount of damage, in HP, to take when falling. Negative values heal.";
+			l_attribute[1] = "Inv. Frames";
+			h_attribute[1] = "The duration, in frames, the player will be invincible after falling."
+				" If 0, the default will be used instead (48 if damage >0, 0 otherwise)."
+				" If < 0, 0 will be used instead.";
+			l_attribute[2] = "Stun Frames";
+			h_attribute[2] = "The duration, in frames, the player will be stunned after falling.";
 			l_attribyte[0] = "Fall SFX:";
 			h_attribyte[0] = "The SFX to play when falling";
 			if(FL(cflag1)) //Warp enabled
