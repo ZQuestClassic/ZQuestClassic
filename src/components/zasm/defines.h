@@ -3395,6 +3395,7 @@ enum ASM_DEFINE
 #define HERO_HAMMER_POS                0x16BC
 #define LWPN_NO_TRIGGERS               0x16BD
 #define EWPN_NO_TRIGGERS               0x16BE
+#define HEROFORCEDRESPAWN              0x16BF
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

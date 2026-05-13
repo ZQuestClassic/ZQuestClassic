@@ -2412,6 +2412,11 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			scr->screen_gravity = trig.trig_gravity;
 			scr->screen_terminal_v = trig.trig_terminal_v;
 		}
+		
+		if (trig.trigger_flags.get(TRIGFLAG_RESPAWN_HERE))
+			Hero.force_respawn_point(handle);
+		if (trig.trigger_flags.get(TRIGFLAG_RESET_RESPAWN))
+			Hero.forced_respawn_point = false;
 	}
 
 	if (trig.trigcschange)

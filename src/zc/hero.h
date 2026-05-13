@@ -262,6 +262,7 @@ public:
 	// Respawn point when drowning/etc
 	zfix respawn_x, respawn_y;
 	uint16_t respawn_dmap, respawn_scr;
+	bool forced_respawn_point;
 	
 	zfix convey_forcex, convey_forcey;
 	
@@ -288,6 +289,7 @@ public:
 	int32_t active_shield_id;
 	word coyotetime;
 	
+	void force_respawn_point(combined_handle_t const& handle);
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
 	bool can_pitfall(bool ignore_hover = false);

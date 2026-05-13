@@ -431,34 +431,44 @@ class hero {
 	// @zasm_var HEROISWARPING
 	internal const bool IsWarping;
 
-	// The X-coordinate at which the Hero will respawn upon drowning or such.
+	// If true, the engine will not update [RespawnX], [RespawnY],
+	// [RespawnDMap], or [RespawnScreen].
+	//
+	// Combo triggers [TRIGFLAG_RESPAWN_HERE] and [TRIGFLAG_RESET_RESPAWN]
+	// change this value.
+	//
+	// @versionadded 3.0
+	// @zasm_var HEROFORCEDRESPAWN
+	internal bool ForcedHazardRespawn;
+	
+	// The Hazard Respawn X-coordinate, where the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
-	// safe ground.
+	// safe ground, unless [ForcedHazardRespawn] is true.
 	//
 	// @zasm_var HERORESPAWNX
 	internal int RespawnX;
 
-	// The Y-coordinate at which the Hero will respawn upon drowning or such.
+	// The Hazard Respawn Y-coordinate, where the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
-	// safe ground.
+	// safe ground, unless [ForcedHazardRespawn] is true.
 	//
 	// @zasm_var HERORESPAWNY
 	internal int RespawnY;
 
-	// The DMap at which the Hero will respawn upon drowning or such.
+	// The Hazard Respawn DMap, where the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
-	// safe ground.
+	// safe ground, unless [ForcedHazardRespawn] is true.
 	//
 	// @zasm_var HERORESPAWNDMAP
 	internal int RespawnDMap;
 
-	// The screen at which the Hero will respawn upon drowning or such.
+	// The Hazard Respawn screen, where the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
-	// safe ground.
+	// safe ground, unless [ForcedHazardRespawn] is true.
 	//
 	// @zasm_var HERORESPAWNSCR
 	internal int RespawnScreen;

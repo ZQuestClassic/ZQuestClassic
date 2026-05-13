@@ -447,6 +447,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case HERORESPAWNSCR:
 		case HERORESPAWNX:
 		case HERORESPAWNY:
+		case HEROFORCEDRESPAWN:
 		case HEROSCRICECMB:
 		case HEROSCRIPTCSET:
 		case HEROSHADOWXOFS:

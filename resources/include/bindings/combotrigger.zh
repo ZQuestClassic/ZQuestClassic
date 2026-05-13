@@ -332,6 +332,15 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_SWIMSENSTRIG,
+	// If true, the player's Hazard Respawn will be set to the combo's position.
+	// Also sets [Player->ForcedHazardRespawn] to true.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_RESPAWN_HERE,
+	// If true, sets [Player->ForcedHazardRespawn] to false.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_RESET_RESPAWN,
 	TRIGFLAG_MAX
 };
 
