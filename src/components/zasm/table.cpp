@@ -947,10 +947,6 @@ static constexpr script_variable variable_list[]=
 	{ "YD", YD, 0},
 	{ "XD2", XD2, 0},
 	{ "YD2", YD2, 0},
-	{ "FLAG", FLAG, 0},
-	{ "WIDTH", WIDTH, 0},
-	{ "HEIGHT", HEIGHT, 0},
-	{ "LINK", LINK, 0},
 	{ "FFFLAGSD", FFFLAGSD, 0},
 	{ "FFCWIDTH", FFCWIDTH, 0},
 	{ "FFCHEIGHT", FFCHEIGHT, 0},
@@ -1373,9 +1369,6 @@ static constexpr script_variable variable_list[]=
 	// { "__RESERVED_FOR_PLAYPITWARPSFX", __RESERVED_FOR_PLAYPITWARPSFX, 0},
 	// { "__RESERVED_FOR_WARPEFFECT", __RESERVED_FOR_WARPEFFECT, 0},
 	// { "__RESERVED_FOR_PLAYWARPSOUND", __RESERVED_FOR_PLAYWARPSOUND, 0},
-	{ "LINKUSINGITEM", LINKUSINGITEM, 0},
-	{ "LINKUSINGITEMA", LINKUSINGITEMA, 0},
-	{ "LINKUSINGITEMB", LINKUSINGITEMB, 0},
 // { "DMAPLEVELPAL", DMAPLEVELPAL, 0},
 // { "LINKZHEIGHT", LINKZHEIGHT, 0},
 // { "ITEMINDEX", ITEMINDEX, 0},
@@ -2822,11 +2815,11 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case LOADD:
 		case MARK_TYPE_STACK:
 		case REF_REMOVE:
+		case STORE_OBJECT:
 		case STORE:
 		case STORED:
 		case STOREDV:
 		case STOREV:
-		case STORE_OBJECT:
 		{
 			static T r = {{rSFRAME, REG_R}};
 			return r;
@@ -2953,9 +2946,10 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case HEROMOVE:
 		case HEROMOVEATANGLE:
 		case HEROMOVEXY:
+		case LOADMUSICDATA:
 		case LOADPORTAL:
-		case LOADSAVEMENU:
 		case LOADRNG:
+		case LOADSAVEMENU:
 		case LOADSAVPORTAL:
 		case LOADSTACK:
 		case LOADSUBDATARV:
@@ -2974,13 +2968,14 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case RNGRAND1:
 		case RNGRSEED:
 		case SAVEDPORTALGENERATE:
+		case SAVEMENU_OPEN:
 		case SCREENDOSPAWN:
 		case SPRINTFA:
 		case SPRINTFV:
 		case SPRINTFVARG:
 		case STRINGWIDTHR:
-		case SUBPAGE_FIND_WIDGET:
 		case SUBPAGE_FIND_WIDGET_BY_LABEL:
+		case SUBPAGE_FIND_WIDGET:
 		case SUBPAGE_MOVE_SEL:
 		case SUBPAGE_NEW_WIDG:
 		case WEBSOCKET_LOAD:
@@ -2988,8 +2983,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case WRAPRADIANS:
 		case ZCLASS_FREE:
 		case ZCLASS_READ:
-		case SAVEMENU_OPEN:
-		case LOADMUSICDATA:
 		{
 			static T r = {{rEXP1, REG_W}};
 			return r;
@@ -3061,12 +3054,12 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case CMBTRIGGERREQPLAYERDIR:
 		case CMBTRIGREQGLOBALSTATE:
 		case CMBTRIGREQLVLSTATE:
+		case CMBTRIGREQSCREXSTATE:
+		case CMBTRIGREQSCRSTATE:
 		case CMBTRIGUNREQGLOBALSTATE:
 		case CMBTRIGUNREQLVLSTATE:
-		case CMBTRIGREQSCRSTATE:
-		case CMBTRIGUNREQSCRSTATE:
-		case CMBTRIGREQSCREXSTATE:
 		case CMBTRIGUNREQSCREXSTATE:
+		case CMBTRIGUNREQSCRSTATE:
 		case COMBOCD:
 		case COMBODATAD:
 		case COMBODATAINITD:
@@ -3110,8 +3103,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case DMAPOFFSET:
 		case DROPSETCHANCES:
 		case DROPSETITEMS:
-		case EWPNBURNLIGHTRADIUS:
 		case EWPNBURNLIGHTOFFSET:
+		case EWPNBURNLIGHTRADIUS:
 		case EWPNFLAGS:
 		case EWPNINITD:
 		case EWPNMISCD:
@@ -3121,6 +3114,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case FFINITDD:
 		case FFMISCD:
 		case FFRULE:
+		case GAME_SAVED_PORTALS:
 		case GAMEBOTTLEST:
 		case GAMECOUNTERD:
 		case GAMEDCOUNTERD:
@@ -3141,7 +3135,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case GAMESCROLLING:
 		case GAMESUSPEND:
 		case GAMETRIGGROUPS:
-		case GAME_SAVED_PORTALS:
 		case GDD:
 		case GENDATADATA:
 		case GENDATAEVENTSTATE:
@@ -3153,8 +3146,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case HEROLIFTFLAGS:
 		case HEROMOVEFLAGS:
 		case HEROSTEPS:
-		case IDATAATTRIB:
 		case IDATAATTRIB_L:
+		case IDATAATTRIB:
 		case IDATABURNINGLIGHTRAD:
 		case IDATABURNINGSPR:
 		case IDATAFLAGS:
@@ -3177,13 +3170,14 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LINKHITBY:
 		case LINKITEMD:
 		case LINKMISCD:
-		case LWPNBURNLIGHTRADIUS:
 		case LWPNBURNLIGHTOFFSET:
+		case LWPNBURNLIGHTRADIUS:
 		case LWPNFLAGS:
 		case LWPNINITD:
 		case LWPNMISCD:
 		case LWPNMOVEFLAGS:
 		case LWPNSPRITES:
+		case MAPDATA_FLAG:
 		case MAPDATACOMBOCD:
 		case MAPDATACOMBODATAD:
 		case MAPDATACOMBODD:
@@ -3248,7 +3242,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATATWARPRETSQR:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
-		case MAPDATA_FLAG:
 		case MESSAGEDATAFLAGSARR:
 		case MESSAGEDATAMARGINS:
 		case MOUSEARR:
@@ -3278,7 +3271,20 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case PALDATAR:
 		case RAWKEY:
 		case READKEY:
+		case SAVEMENU_FLAGS:
+		case SAVEMENU_OPT_COLOR_PICKED:
+		case SAVEMENU_OPT_COLOR_TEXT:
+		case SAVEMENU_OPT_FLAGS:
+		case SAVEMENU_OPT_FONTS:
+		case SAVEMENU_OPT_FRZSCR:
 		case SCRDOORD:
+		case SCREEN_EWEAPONS:
+		case SCREEN_FFCS:
+		case SCREEN_FLAG:
+		case SCREEN_ITEMS:
+		case SCREEN_LWEAPONS:
+		case SCREEN_NPCS:
+		case SCREEN_PORTALS:
 		case SCREENDATADOOR:
 		case SCREENDATAENEMY:
 		case SCREENDATAEXCARRY:
@@ -3318,13 +3324,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SCREENSCRDATA:
 		case SCREENSIDEWARPID:
 		case SCREENSTATED:
-		case SCREEN_EWEAPONS:
-		case SCREEN_FFCS:
-		case SCREEN_FLAG:
-		case SCREEN_ITEMS:
-		case SCREEN_LWEAPONS:
-		case SCREEN_NPCS:
-		case SCREEN_PORTALS:
 		case SCRIPTRAMD:
 		case SDD:
 		case SETGAMEOVERELEMENT:
@@ -3333,9 +3332,9 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SHOPDATAITEM:
 		case SHOPDATAPRICE:
 		case SHOPDATASTRING:
-		case SPRITEDATAFLAGS:
 		case SPRITE_MISCD:
 		case SPRITE_MOVE_FLAGS:
+		case SPRITEDATAFLAGS:
 		case SUBDATABTNLEFT:
 		case SUBDATABTNRIGHT:
 		case SUBDATAFLAGS:
@@ -3363,16 +3362,16 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGPOSES:
 		case SUBWIDGPOSFLAG:
 		case SUBWIDGPRESSINITD:
-		case SUBWIDGREQOWNITEMS:
-		case SUBWIDGREQUNOWNITEMS:
 		case SUBWIDGREQ_DMAP_FLOOR:
-		case SUBWIDGREQ_SCRSTATE_STATE:
-		case SUBWIDGREQ_SCRSTATE_EXSTATE:
-		case SUBWIDGREQ_LEVEL_STATE:
 		case SUBWIDGREQ_DMAP_LEVEL:
 		case SUBWIDGREQ_DMAP:
+		case SUBWIDGREQ_LEVEL_STATE:
 		case SUBWIDGREQ_MAP:
 		case SUBWIDGREQ_SCREEN:
+		case SUBWIDGREQ_SCRSTATE_EXSTATE:
+		case SUBWIDGREQ_SCRSTATE_STATE:
+		case SUBWIDGREQOWNITEMS:
+		case SUBWIDGREQUNOWNITEMS:
 		case SUBWIDGSELECTORASPD:
 		case SUBWIDGSELECTORCSET:
 		case SUBWIDGSELECTORDELAY:
@@ -3387,12 +3386,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGTY_COUNTERS:
 		case SUBWIDGTY_CSET:
 		case SUBWIDGTY_TILE:
-		case SAVEMENU_FLAGS:
-		case SAVEMENU_OPT_FLAGS:
-		case SAVEMENU_OPT_COLOR_TEXT:
-		case SAVEMENU_OPT_COLOR_PICKED:
-		case SAVEMENU_OPT_FONTS:
-		case SAVEMENU_OPT_FRZSCR:
 		{
 			return {rINDEX};
 		}
@@ -3473,6 +3466,9 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case BOTTLEPERCENT:
 			return REFBOTTLETYPE;
 
+		case COMBOD_DIVE_UNDER_LEVEL:
+		case COMBOD_Z_HEIGHT:
+		case COMBOD_Z_STEP_HEIGHT:
 		case COMBODACLK:
 		case COMBODAKIMANIMY:
 		case COMBODANIMFLAGS:
@@ -3542,6 +3538,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODTRIGGERLIGHTBEAM:
 		case COMBODTRIGGERLSTATE:
 		case COMBODTRIGGERPROX:
+		case COMBODTRIGGERS:
 		case COMBODTRIGGERSFX:
 		case COMBODTRIGGERTIMER:
 		case COMBODTRIGITEMJINX:
@@ -3563,12 +3560,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODUSRFLAGARR:
 		case COMBODUSRFLAGS:
 		case COMBODWALK:
-		case COMBOD_DIVE_UNDER_LEVEL:
-		case COMBOD_Z_HEIGHT:
-		case COMBOD_Z_STEP_HEIGHT:
-		case COMBODTRIGGERS:
 			return REFCOMBODATA;
 
+		case CMBTRIG_MUSIC_REFRESH:
+		case CMBTRIG_PLAY_MUSIC:
 		case CMBTRIGBOSSPAL:
 		case CMBTRIGBUNNY:
 		case CMBTRIGBUTTON:
@@ -3584,6 +3579,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGEXSTATE:
 		case CMBTRIGFLAGS:
 		case CMBTRIGGENSCRIPT:
+		case CMBTRIGGER_GRAVITY:
+		case CMBTRIGGER_TERMINAL_VELOCITY:
 		case CMBTRIGGERDESTHEROX:
 		case CMBTRIGGERDESTHEROY:
 		case CMBTRIGGERDESTHEROZ:
@@ -3605,8 +3602,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGGERREQPLAYERY:
 		case CMBTRIGGERREQPLAYERZ:
 		case CMBTRIGGERTRIGSTR:
-		case CMBTRIGGER_GRAVITY:
-		case CMBTRIGGER_TERMINAL_VELOCITY:
 		case CMBTRIGGROUP:
 		case CMBTRIGGROUPVAL:
 		case CMBTRIGGSTATE:
@@ -3623,6 +3618,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGREQGLOBALSTATE:
 		case CMBTRIGREQITEM:
 		case CMBTRIGREQLVLSTATE:
+		case CMBTRIGREQSCREXSTATE:
+		case CMBTRIGREQSCRSTATE:
+		case CMBTRIGREQSTATEMAP:
+		case CMBTRIGREQSTATESCREEN:
 		case CMBTRIGSFX:
 		case CMBTRIGSHIELDJINX:
 		case CMBTRIGSPAWNENEMY:
@@ -3635,21 +3634,18 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGTINTR:
 		case CMBTRIGUNREQGLOBALSTATE:
 		case CMBTRIGUNREQLVLSTATE:
-		case CMBTRIGREQSCRSTATE:
-		case CMBTRIGUNREQSCRSTATE:
-		case CMBTRIGREQSCREXSTATE:
 		case CMBTRIGUNREQSCREXSTATE:
-		case CMBTRIGREQSTATEMAP:
-		case CMBTRIGREQSTATESCREEN:
+		case CMBTRIGUNREQSCRSTATE:
 		case CMBTRIGWAVYTIME:
 		case CMBTRIGWPNLEVEL:
-		case CMBTRIG_PLAY_MUSIC:
-		case CMBTRIG_MUSIC_REFRESH:
 			return REFCOMBOTRIGGER;
 
 		case DIRECTORYSIZE:
 			return REFDIRECTORY;
 
+		case DMAPDATA_GRAVITY_STRENGTH:
+		case DMAPDATA_MUSIC:
+		case DMAPDATA_TERMINAL_VELOCITY:
 		case DMAPDATAASUBSCRIPT:
 		case DMAPDATACHARTED:
 		case DMAPDATACOMPASS:
@@ -3657,16 +3653,15 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATADISABLEDITEMS:
 		case DMAPDATAFLAGARR:
 		case DMAPDATAFLAGS:
+		case DMAPDATAFLOOR:
 		case DMAPDATAGRID:
 		case DMAPDATAINTROSTRINGID:
 		case DMAPDATALARGEMAPCSET:
 		case DMAPDATALARGEMAPTILE:
-		case DMAPDATAFLOOR:
 		case DMAPDATALEVEL:
 		case DMAPDATALOOPEND:
 		case DMAPDATALOOPSTART:
 		case DMAPDATAMAP:
-		case DMAPINITD:
 		case DMAPDATAMAPINITD:
 		case DMAPDATAMAPSCRIPT:
 		case DMAPDATAMIDI:
@@ -3680,16 +3675,14 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATASIDEVIEW:
 		case DMAPDATASUBINITD:
 		case DMAPDATASUBSCRA:
+		case DMAPDATASUBSCRM:
 		case DMAPDATASUBSCRO:
 		case DMAPDATASUBSCRP:
-		case DMAPDATASUBSCRM:
 		case DMAPDATATYPE:
 		case DMAPDATAXFADEIN:
 		case DMAPDATAXFADEOUT:
-		case DMAPDATA_GRAVITY_STRENGTH:
-		case DMAPDATA_TERMINAL_VELOCITY:
+		case DMAPINITD:
 		case DMAPSCRIPT:
-		case DMAPDATA_MUSIC:
 			return REFDMAPDATA;
 
 		case DROPSETCHANCES:
@@ -3699,13 +3692,16 @@ std::optional<int> get_register_ref_dependency(int reg)
 			return REFDROPSETDATA;
 
 		case EWEAPONSCRIPTUID:
+		case EWPN_BOUNCE_ADD:
+		case EWPN_BOUNCE_MULT:
+		case EWPN_NO_TRIGGERS:
 		case EWPNANGLE:
 		case EWPNANGULAR:
 		case EWPNASPEED:
 		case EWPNAUTOROTATE:
 		case EWPNBEHIND:
-		case EWPNBURNLIGHTRADIUS:
 		case EWPNBURNLIGHTOFFSET:
+		case EWPNBURNLIGHTRADIUS:
 		case EWPNCOLLDET:
 		case EWPNCSET:
 		case EWPNDEAD:
@@ -3751,6 +3747,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNOTILE:
 		case EWPNPARENT:
 		case EWPNPARENTUID:
+		case EWPNPIERCE:
 		case EWPNPOWER:
 		case EWPNROTATION:
 		case EWPNSCALE:
@@ -3764,7 +3761,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNSTEP:
 		case EWPNTILE:
 		case EWPNTIMEOUT:
-		case EWPNPIERCE:
 		case EWPNTOTALDYOFFS:
 		case EWPNTXSZ:
 		case EWPNTYPE:
@@ -3779,9 +3775,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case EWPNZ:
 		case EWPNZOFS:
 		case EWSWHOOKED:
-		case EWPN_BOUNCE_MULT:
-		case EWPN_BOUNCE_ADD:
-		case EWPN_NO_TRIGGERS:
 			return REFEWPN;
 
 		case DATA:
@@ -3888,8 +3881,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 
 		case IDATAAMOUNT:
 		case IDATAASPEED:
-		case IDATAATTRIB:
 		case IDATAATTRIB_L:
+		case IDATAATTRIB:
 		case IDATABUNNYABLE:
 		case IDATABURNINGLIGHTRAD:
 		case IDATABURNINGSPR:
@@ -3980,13 +3973,16 @@ std::optional<int> get_register_ref_dependency(int reg)
 			return REFITEMDATA;
 
 		case LWEAPONSCRIPTUID:
+		case LWPN_BOUNCE_ADD:
+		case LWPN_BOUNCE_MULT:
+		case LWPN_NO_TRIGGERS:
 		case LWPNANGLE:
 		case LWPNANGULAR:
 		case LWPNASPEED:
 		case LWPNAUTOROTATE:
 		case LWPNBEHIND:
-		case LWPNBURNLIGHTRADIUS:
 		case LWPNBURNLIGHTOFFSET:
+		case LWPNBURNLIGHTRADIUS:
 		case LWPNCOLLDET:
 		case LWPNCSET:
 		case LWPNDEAD:
@@ -4031,6 +4027,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNOCSET:
 		case LWPNOTILE:
 		case LWPNPARENT:
+		case LWPNPIERCE:
 		case LWPNPOWER:
 		case LWPNROTATION:
 		case LWPNSCALE:
@@ -4045,7 +4042,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNSTEP:
 		case LWPNTILE:
 		case LWPNTIMEOUT:
-		case LWPNPIERCE:
 		case LWPNTOTALDYOFFS:
 		case LWPNTXSZ:
 		case LWPNTYPE:
@@ -4062,11 +4058,12 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case LWPNZ:
 		case LWPNZOFS:
 		case LWSWHOOKED:
-		case LWPN_BOUNCE_MULT:
-		case LWPN_BOUNCE_ADD:
-		case LWPN_NO_TRIGGERS:
 			return REFLWPN;
 
+		case MAPDATA_FLAG:
+		case MAPDATA_GRAVITY_STRENGTH:
+		case MAPDATA_MUSIC:
+		case MAPDATA_TERMINAL_VELOCITY:
 		case MAPDATABOSSSFX:
 		case MAPDATACATCHALL:
 		case MAPDATACOLOUR:
@@ -4173,10 +4170,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MAPDATAWARPRETURNC:
 		case MAPDATAWARPRETX:
 		case MAPDATAWARPRETY:
-		case MAPDATA_FLAG:
-		case MAPDATA_GRAVITY_STRENGTH:
-		case MAPDATA_TERMINAL_VELOCITY:
-		case MAPDATA_MUSIC:
 			return REFMAPDATA;
 
 		case MESSAGEDATACSET:
@@ -4397,6 +4390,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ROOMDATA:
 		case ROOMTYPE:
 		case SCRDOORD:
+		case SCREEN_FLAG:
+		case SCREENDATA_GRAVITY_STRENGTH:
+		case SCREENDATA_MUSIC:
+		case SCREENDATA_TERMINAL_VELOCITY:
 		case SCREENDATABOSSSFX:
 		case SCREENDATACATCHALL:
 		case SCREENDATACOLOUR:
@@ -4461,8 +4458,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREENDATAWARPRETURNC:
 		case SCREENDATAWARPRETX:
 		case SCREENDATAWARPRETY:
-		case SCREENDATA_GRAVITY_STRENGTH:
-		case SCREENDATA_TERMINAL_VELOCITY:
 		case SCREENEFLAGSD:
 		case SCREENEXSTATED:
 		case SCREENFLAGSD:
@@ -4474,11 +4469,9 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREENSECRETSTRIGGERED:
 		case SCREENSIDEWARPID:
 		case SCREENSTATED:
-		case SCREEN_FLAG:
 		case SDD:
 		case UNDERCOMBO:
 		case UNDERCSET:
-		case SCREENDATA_MUSIC:
 			return REFSCREEN;
 
 		case SHOPDATAHASITEM:
@@ -4502,17 +4495,17 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_FALL_CLK:
 		case SPRITE_FALL_CMB:
 		case SPRITE_FLIP:
-		case SPRITE_GRAVITY:
 		case SPRITE_GRAVITY_STRENGTH:
+		case SPRITE_GRAVITY:
 		case SPRITE_HIT_HEIGHT:
 		case SPRITE_HIT_OFFSET_X:
 		case SPRITE_HIT_OFFSET_Y:
 		case SPRITE_HIT_WIDTH:
 		case SPRITE_HIT_ZHEIGHT:
 		case SPRITE_JUMP:
+		case SPRITE_LIGHT_OFFSET:
 		case SPRITE_LIGHT_RADIUS:
 		case SPRITE_LIGHT_SHAPE:
-		case SPRITE_LIGHT_OFFSET:
 		case SPRITE_MISCD:
 		case SPRITE_MOVE_FLAGS:
 		case SPRITE_ROTATION:
@@ -4525,15 +4518,15 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_SPAWN_SCREEN:
 		case SPRITE_SWHOOKED:
 		case SPRITE_TERMINAL_VELOCITY:
-		case SPRITE_TILE:
 		case SPRITE_TILE_H:
 		case SPRITE_TILE_W:
-		case SPRITE_X:
+		case SPRITE_TILE:
 		case SPRITE_X_OFFSET:
-		case SPRITE_Y:
+		case SPRITE_X:
 		case SPRITE_Y_OFFSET:
-		case SPRITE_Z:
+		case SPRITE_Y:
 		case SPRITE_Z_OFFSET:
+		case SPRITE_Z:
 			return REFSPRITE;
 
 		case SPRITEDATACSETS:
@@ -4596,6 +4589,10 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBPGWIDGETS:
 			return REFSUBSCREENPAGE;
 
+		case SUBWIDG_DISPH:
+		case SUBWIDG_DISPW:
+		case SUBWIDG_DISPX:
+		case SUBWIDG_DISPY:
 		case SUBWIDGBTNPG:
 		case SUBWIDGBTNPRESS:
 		case SUBWIDGDISPITM:
@@ -4612,6 +4609,17 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGPOSFLAG:
 		case SUBWIDGPRESSINITD:
 		case SUBWIDGPRESSSCRIPT:
+		case SUBWIDGREQ_DMAP_FLOOR:
+		case SUBWIDGREQ_DMAP_LEVEL:
+		case SUBWIDGREQ_DMAP:
+		case SUBWIDGREQ_LEVEL_STATE_LEVEL:
+		case SUBWIDGREQ_LEVEL_STATE:
+		case SUBWIDGREQ_MAP:
+		case SUBWIDGREQ_SCREEN:
+		case SUBWIDGREQ_SCRSTATE_EXSTATE:
+		case SUBWIDGREQ_SCRSTATE_MAP:
+		case SUBWIDGREQ_SCRSTATE_SCREEN:
+		case SUBWIDGREQ_SCRSTATE_STATE:
 		case SUBWIDGREQCOUNTER:
 		case SUBWIDGREQCOUNTERCOND:
 		case SUBWIDGREQCOUNTERVAL:
@@ -4620,17 +4628,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGREQOWNITEMS:
 		case SUBWIDGREQSCRIPTDISABLED:
 		case SUBWIDGREQUNOWNITEMS:
-		case SUBWIDGREQ_DMAP_FLOOR:
-		case SUBWIDGREQ_LEVEL_STATE_LEVEL:
-		case SUBWIDGREQ_SCRSTATE_MAP:
-		case SUBWIDGREQ_SCRSTATE_SCREEN:
-		case SUBWIDGREQ_SCRSTATE_STATE:
-		case SUBWIDGREQ_SCRSTATE_EXSTATE:
-		case SUBWIDGREQ_LEVEL_STATE:
-		case SUBWIDGREQ_DMAP_LEVEL:
-		case SUBWIDGREQ_DMAP:
-		case SUBWIDGREQ_MAP:
-		case SUBWIDGREQ_SCREEN:
 		case SUBWIDGSELECTORASPD:
 		case SUBWIDGSELECTORCSET:
 		case SUBWIDGSELECTORDELAY:
@@ -4647,13 +4644,11 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGTRANSPGFLAGS:
 		case SUBWIDGTRANSPGSFX:
 		case SUBWIDGTRANSPGTY:
-		case SUBWIDGTYPE:
 		case SUBWIDGTY_ALIGN:
 		case SUBWIDGTY_ANIMVAL:
 		case SUBWIDGTY_BUTTON:
 		case SUBWIDGTY_COLOR_BG:
 		case SUBWIDGTY_COLOR_BG2:
-		case SUBWIDGTY_COLOR_VISITED:
 		case SUBWIDGTY_COLOR_CMPBLNK:
 		case SUBWIDGTY_COLOR_CMPOFF:
 		case SUBWIDGTY_COLOR_FILL:
@@ -4664,6 +4659,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGTY_COLOR_SHD2:
 		case SUBWIDGTY_COLOR_TXT:
 		case SUBWIDGTY_COLOR_TXT2:
+		case SUBWIDGTY_COLOR_VISITED:
 		case SUBWIDGTY_CONTAINER:
 		case SUBWIDGTY_CORNER:
 		case SUBWIDGTY_COSTIND:
@@ -4699,53 +4695,50 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGTY_TOTAL:
 		case SUBWIDGTY_UNITS:
 		case SUBWIDGTY_VSPACE:
+		case SUBWIDGTYPE:
 		case SUBWIDGW:
 		case SUBWIDGX:
 		case SUBWIDGY:
-		case SUBWIDG_DISPH:
-		case SUBWIDG_DISPW:
-		case SUBWIDG_DISPX:
-		case SUBWIDG_DISPY:
 			return REFSUBSCREENWIDG;
 		
-		case SAVEMENU_CURSORTILE:
-		case SAVEMENU_CURSORCSET:
 		case SAVEMENU_BGCOLOR:
-		case SAVEMENU_SFX_CURSOR:
-		case SAVEMENU_SFX_CHOOSE:
-		case SAVEMENU_HSPACE:
-		case SAVEMENU_VSPACE:
-		case SAVEMENU_OPTX:
-		case SAVEMENU_OPTY:
-		case SAVEMENU_TEXT_ALIGN:
-		case SAVEMENU_TEXT_BOX_ALIGN:
-		case SAVEMENU_CLOSE_FRAMES:
+		case SAVEMENU_BGCSET:
+		case SAVEMENU_BGTH:
+		case SAVEMENU_BGTILE:
+		case SAVEMENU_BGTW:
 		case SAVEMENU_CLOSE_FLASH_RATE:
-		case SAVEMENU_MUSIC:
-		case SAVEMENU_MIDI:
-		case SAVEMENU_NUM_OPTIONS:
+		case SAVEMENU_CLOSE_FRAMES:
+		case SAVEMENU_CURSORCSET:
+		case SAVEMENU_CURSORTILE:
 		case SAVEMENU_FLAGS:
-		case SAVEMENU_OPT_FLAGS:
-		case SAVEMENU_OPT_COLOR_TEXT:
+		case SAVEMENU_HSPACE:
+		case SAVEMENU_ID:
+		case SAVEMENU_MIDI:
+		case SAVEMENU_MUSIC:
+		case SAVEMENU_NUM_OPTIONS:
 		case SAVEMENU_OPT_COLOR_PICKED:
+		case SAVEMENU_OPT_COLOR_TEXT:
+		case SAVEMENU_OPT_FLAGS:
 		case SAVEMENU_OPT_FONTS:
 		case SAVEMENU_OPT_FRZSCR:
-		case SAVEMENU_ID:
-		case SAVEMENU_BGTILE:
-		case SAVEMENU_BGCSET:
-		case SAVEMENU_BGTW:
-		case SAVEMENU_BGTH:
+		case SAVEMENU_OPTX:
+		case SAVEMENU_OPTY:
+		case SAVEMENU_SFX_CHOOSE:
+		case SAVEMENU_SFX_CURSOR:
+		case SAVEMENU_TEXT_ALIGN:
+		case SAVEMENU_TEXT_BOX_ALIGN:
+		case SAVEMENU_VSPACE:
 			return REFSAVEMENU;
 		
 		case MUSICDATA_ID:
-		case MUSICDATA_MIDI:
+		case MUSICDATA_IS_ACTIVE:
 		case MUSICDATA_IS_ENHANCED:
-		case MUSICDATA_TRACK:
-		case MUSICDATA_LOOPSTART:
 		case MUSICDATA_LOOPEND:
+		case MUSICDATA_LOOPSTART:
+		case MUSICDATA_MIDI:
+		case MUSICDATA_TRACK:
 		case MUSICDATA_XFADEIN:
 		case MUSICDATA_XFADEOUT:
-		case MUSICDATA_IS_ACTIVE:
 			return REFMUSIC;
 
 		case WEBSOCKET_HAS_MESSAGE:
