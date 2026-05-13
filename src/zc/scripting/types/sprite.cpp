@@ -63,13 +63,13 @@ int32_t sprite_get_register(int32_t reg)
 
 			if (s)
 				return s->screen_spawned * 10000;
-			break;
+			return 0;
 		}
 		case SPRITE_CURRENT_SCREEN:
 		{
 			if (s)
 				return s->current_screen * 10000;
-			break;
+			return 0;
 		}
 		case SPRITE_X:
 		{
