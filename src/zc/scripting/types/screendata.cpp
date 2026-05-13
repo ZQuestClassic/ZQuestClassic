@@ -17,6 +17,21 @@ extern int32_t sarg3;
 
 int32_t screendata_get_register(int32_t reg)
 {
+	switch (reg)
+	{
+		case SCREENDATANUMFF:
+		{
+			int id = GET_D(rINDEX) / 10000;
+			if (auto ffc = ResolveFFCWithID(id))
+				return ffc->data != 0 ? 10000 : 0;
+			return 0;
+		}
+		case SHOWNMSG:
+			return ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
+		case WAVY:
+			return wavy*10000;
+	}
+
 	int32_t ret = 0;
 	mapscr* scr = get_scr(GET_REF(screenref));
 
@@ -241,13 +256,6 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr); break;	//B
 		case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry); break;	//W
 		case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset); break;	//W
-		case SCREENDATANUMFF: 	
-		{
-			int id = GET_D(rINDEX) / 10000;
-			if (auto ffc = ResolveFFCWithID(id))
-				ret = ffc->data != 0 ? 10000 : 0;
-			break;
-		}
 		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_INT16(oceansfx); break;	//B
 		case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern); break;	//b
 		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room);	break;		//b
@@ -295,7 +303,7 @@ int32_t screendata_get_register(int32_t reg)
 		}
 		case SCREENSCRDATASIZE:
 		{
-			int index = map_screen_index(cur_map, ri->screenref);
+			int index = map_screen_index(cur_map, GET_REF(screenref));
 			if (index < 0) break;
 			ret = 10000*game->scriptDataSize(index);
 			break;
@@ -317,20 +325,13 @@ int32_t screendata_get_register(int32_t reg)
 		case SCREEN_INDEX:
 			ret = ri->screenref*10000;
 			break;
-		case SHOWNMSG:
-		{
-			ret = ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
-			break;
-		}
 		case UNDERCOMBO:
 			ret = scr->undercombo*10000;
 			break;
 		case UNDERCSET:
 			ret = scr->undercset*10000;
 			break;
-		case WAVY:
-			ret = wavy*10000;
-			break;
+		
 
 		default:
 			NOTREACHED();
@@ -566,7 +567,7 @@ void screendata_set_register(int32_t reg, int32_t value)
 		}
 		case SCREENSCRDATASIZE:
 		{
-			int index = map_screen_index(cur_map, ri->screenref);
+			int index = map_screen_index(cur_map, GET_REF(screenref));
 			if (index < 0) break;
 
 			game->scriptDataResize(index, value/10000);

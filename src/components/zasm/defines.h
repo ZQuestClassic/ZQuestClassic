@@ -1270,10 +1270,10 @@ enum ASM_DEFINE
 #define YD                   0x0010
 #define XD2                  0x0011
 #define YD2                  0x0012
-#define FLAG                 0x0013
-#define WIDTH                0x0014
-#define HEIGHT               0x0015
-#define LINK                 0x0016
+#define DELETED_FLAG         0x0013 // Never used.
+#define DELETED_WIDTH        0x0014 // Never used.
+#define DELETED_HEIGHT       0x0015 // Never used.
+#define DELETED_LINK         0x0016 // Never used.
 //#define COMBOD(n)          ((0x0017)+((n)*3)) ~loads spare here...
 //#define COMBOC(n)          ((0x0018)+((n)*3))
 //#define COMBOF(n)          ((0x0019)+((n)*3))
@@ -1320,9 +1320,9 @@ enum ASM_DEFINE
 #define __RESERVED_FOR_LINKRETSQUARE             0x024B
 #define __RESERVED_FOR_LINKWARPSOUND             0x024C
 //LINKWARPMUSIC
-#define LINKUSINGITEM             0x024D
-#define LINKUSINGITEMA             0x024E
-#define LINKUSINGITEMB             0x024F
+#define LINKUSINGITEM_DELETED             0x024D // Never used
+#define LINKUSINGITEMA_DELETED             0x024E // Never used
+#define LINKUSINGITEMB_DELETED             0x024F // Never used
 #define __RESERVED_FOR_PLAYWARPSOUND             0x0250
 #define __RESERVED_FOR_WARPEFFECT             0x0251
 #define __RESERVED_FOR_PLAYPITWARPSFX             0x0252

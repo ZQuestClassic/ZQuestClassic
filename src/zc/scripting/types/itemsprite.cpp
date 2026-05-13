@@ -82,6 +82,8 @@ int32_t itemsprite_get_register(int32_t reg)
 	{
 		case ITEMCOUNT:
 			return items.Count() * 10000;
+		case SPRITEMAXITEM:
+			return items.getMax() * 10000;
 	}
 
 	int32_t ret = 0;
@@ -171,13 +173,6 @@ int32_t itemsprite_get_register(int32_t reg)
 				ret=((int32_t)s->lvl)*10000;
 			}
 			break;
-			
-		case SPRITEMAXITEM:
-		{
-			//No bounds check, as this is a universal function and works from NULL pointers!
-			ret = items.getMax() * 10000;
-			break;
-		}
 		
 		case ITEMSCRIPTUID:
 			if (s)
@@ -566,6 +561,13 @@ int32_t itemsprite_get_register(int32_t reg)
 
 void itemsprite_set_register(int32_t reg, int32_t value)
 {
+	switch (reg)
+	{
+		case SPRITEMAXITEM:
+			items.setMax(vbound((value/10000),1,MAX_ITEM_SPRITES));
+			return;
+	}
+
 	item* s = checkItem(GET_REF(itemref));
 
 	switch (reg)
@@ -585,13 +587,6 @@ void itemsprite_set_register(int32_t reg, int32_t value)
 			}
 			
 			break;
-			
-		case SPRITEMAXITEM:
-		{
-			//No bounds check, as this is a universal function and works from NULL pointers!
-			items.setMax(vbound((value/10000),1,MAX_ITEM_SPRITES));
-			break;
-		}
 		
 		case ITEMX:
 			if (s)

@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cctype>
 #include <deque>
 #include <limits>
 #include <memory>
@@ -12840,9 +12841,11 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			
 			case REF_INC:
 			{
+				int thiskey = GET_REF(thiskey);
+
 				if (sarg1 == -1)
 				{
-					script_object_ref_inc(ri->thiskey);
+					script_object_ref_inc(thiskey);
 					break;
 				}
 
@@ -12859,9 +12862,11 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case REF_DEC:
 			{
+				int thiskey = GET_REF(thiskey);
+
 				if (sarg1 == -1)
 				{
-					script_object_ref_dec(ri->thiskey);
+					script_object_ref_dec(thiskey);
 					break;
 				}
 
@@ -16818,7 +16823,7 @@ int debug_get_d(int r)
 	return ri->d[r];
 }
 
-int debug_set_d(int r, int v)
+int debug_set_d(int r, int)
 {
 	debug_deps_cur_regs[r] |= REG_W;
 	return ri->d[r];
@@ -16861,6 +16866,50 @@ static void reset_test_ri(refInfo* ri)
 	ri->sp = MAX_STACK_SIZE - 100;
 	ri->screenref = cur_screen;
 	ri->msgdataref = -1;
+}
+
+// This matches "Sort lines" command in VS Code.
+static bool natural_less(const std::string& a, const std::string& b)
+{
+	auto it_a = a.begin();
+	auto it_b = b.begin();
+
+	while (it_a != a.end() && it_b != b.end())
+	{
+		if (std::isdigit(static_cast<unsigned char>(*it_a)) && std::isdigit(static_cast<unsigned char>(*it_b)))
+		{
+			// Parse numbers
+			std::string num_a_str, num_b_str;
+			while (it_a != a.end() && std::isdigit(static_cast<unsigned char>(*it_a)))
+				num_a_str += *it_a++;
+			while (it_b != b.end() && std::isdigit(static_cast<unsigned char>(*it_b)))
+				num_b_str += *it_b++;
+
+			if (num_a_str.length() != num_b_str.length())
+				return num_a_str.length() < num_b_str.length();
+
+			if (num_a_str != num_b_str)
+				return num_a_str < num_b_str;
+		}
+		else
+		{
+			char ca = static_cast<char>(std::tolower(static_cast<unsigned char>(*it_a)));
+			char cb = static_cast<char>(std::tolower(static_cast<unsigned char>(*it_b)));
+			if (ca != cb)
+				return ca < cb;
+			++it_a;
+			++it_b;
+		}
+	}
+
+	if (it_a == a.end() && it_b == b.end())
+		return false;
+	if (it_a == a.end())
+		return *it_b != '_';
+	if (it_b == b.end())
+		return *it_a == '_';
+
+	return it_a == a.end() && it_b != b.end();
 }
 
 void print_d_register_deps()
@@ -16930,7 +16979,7 @@ void print_d_register_deps()
 
 	for (auto& [value, labels] : value_to_labels | std::views::reverse)
 	{
-		std::sort(labels.begin(), labels.end());
+		std::sort(labels.begin(), labels.end(), natural_less);
 		for (auto& label : labels)
 			fmt::println("\t\tcase {}:", label);
 		fmt::println("\t\t{{");
@@ -16952,7 +17001,7 @@ void print_d_register_deps()
 
 	for (auto& [value, labels] : value_to_labels2)
 	{
-		std::sort(labels.begin(), labels.end());
+		std::sort(labels.begin(), labels.end(), natural_less);
 		for (auto& label : labels)
 			fmt::println("\t\tcase {}:", label);
 		fmt::println("\t\t\treturn {};", value);
@@ -17109,7 +17158,7 @@ void print_d_register_deps()
 
 	for (auto& [value, labels] : value_to_labels | std::views::reverse)
 	{
-		std::sort(labels.begin(), labels.end());
+		std::sort(labels.begin(), labels.end(), natural_less);
 		for (auto& label : labels)
 			fmt::println("\t\tcase {}:", label);
 		fmt::println("\t\t{{");
@@ -17125,7 +17174,7 @@ void print_d_register_deps()
 	fmt::println("\treturn {{}};");
 	fmt::println("}}");
 
-	exit(0);
+	zc_exit(0);
 }
 
 #endif

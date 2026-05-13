@@ -3004,6 +3004,12 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			return r;
 		}
 
+		case ZCLASS_CONSTRUCT:
+		{
+			static T r = {{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}};
+			return r;
+		}
+
 		case POP:
 		case POPARGS:
 		case PUSHARGSR:
@@ -3018,12 +3024,6 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case ZCLASS_MARK_TYPE:
 		{
 			static T r = {{CLASS_THISKEY, REG_W}};
-			return r;
-		}
-
-		case ZCLASS_CONSTRUCT:
-		{
-			static T r = {{rEXP1, REG_R}, {CLASS_THISKEY, REG_W}};
 			return r;
 		}
 	}
@@ -3244,6 +3244,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MAPDATAWARPRETY:
 		case MESSAGEDATAFLAGSARR:
 		case MESSAGEDATAMARGINS:
+		case MESSAGEDATASEGMENTS:
 		case MOUSEARR:
 		case MUSICUPDATEFLAGS:
 		case NPCBEHAVIOUR:
@@ -3386,6 +3387,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGTY_COUNTERS:
 		case SUBWIDGTY_CSET:
 		case SUBWIDGTY_TILE:
+		case WEBSOCKET_URL:
 		{
 			return {rINDEX};
 		}
@@ -3579,8 +3581,14 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGEXSTATE:
 		case CMBTRIGFLAGS:
 		case CMBTRIGGENSCRIPT:
+		case CMBTRIGGER_CHANCE_DENOMINATOR:
+		case CMBTRIGGER_CHANCE_NUMERATOR:
 		case CMBTRIGGER_GRAVITY:
+		case CMBTRIGGER_SFX_FREQUENCY:
+		case CMBTRIGGER_SFX_PAN:
+		case CMBTRIGGER_SFX_VOLUME:
 		case CMBTRIGGER_TERMINAL_VELOCITY:
+		case CMBTRIGGER_VIEWPORT_RANGE:
 		case CMBTRIGGERDESTHEROX:
 		case CMBTRIGGERDESTHEROY:
 		case CMBTRIGGERDESTHEROZ:
@@ -3655,6 +3663,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATAFLAGS:
 		case DMAPDATAFLOOR:
 		case DMAPDATAGRID:
+		case DMAPDATAID:
 		case DMAPDATAINTROSTRINGID:
 		case DMAPDATALARGEMAPCSET:
 		case DMAPDATALARGEMAPTILE:
@@ -4198,6 +4207,17 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MESSAGEDATAY:
 			return REFMSGDATA;
 
+		case MUSICDATA_ID:
+		case MUSICDATA_IS_ACTIVE:
+		case MUSICDATA_IS_ENHANCED:
+		case MUSICDATA_LOOPEND:
+		case MUSICDATA_LOOPSTART:
+		case MUSICDATA_MIDI:
+		case MUSICDATA_TRACK:
+		case MUSICDATA_XFADEIN:
+		case MUSICDATA_XFADEOUT:
+			return REFMUSIC;
+
 		case NPCBEHAVIOUR:
 		case NPCBGSFX:
 		case NPCBOSSPAL:
@@ -4299,6 +4319,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCYOFS:
 		case NPCZ:
 		case NPCZOFS:
+		case SPRITEMAXNPC:
 			return REFNPC;
 
 		case NPCDATAANIM:
@@ -4375,6 +4396,35 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case PORTALY:
 			return REFPORTAL;
 
+		case SAVEMENU_BGCOLOR:
+		case SAVEMENU_BGCSET:
+		case SAVEMENU_BGTH:
+		case SAVEMENU_BGTILE:
+		case SAVEMENU_BGTW:
+		case SAVEMENU_CLOSE_FLASH_RATE:
+		case SAVEMENU_CLOSE_FRAMES:
+		case SAVEMENU_CURSORCSET:
+		case SAVEMENU_CURSORTILE:
+		case SAVEMENU_FLAGS:
+		case SAVEMENU_HSPACE:
+		case SAVEMENU_ID:
+		case SAVEMENU_MIDI:
+		case SAVEMENU_MUSIC:
+		case SAVEMENU_NUM_OPTIONS:
+		case SAVEMENU_OPT_COLOR_PICKED:
+		case SAVEMENU_OPT_COLOR_TEXT:
+		case SAVEMENU_OPT_FLAGS:
+		case SAVEMENU_OPT_FONTS:
+		case SAVEMENU_OPT_FRZSCR:
+		case SAVEMENU_OPTX:
+		case SAVEMENU_OPTY:
+		case SAVEMENU_SFX_CHOOSE:
+		case SAVEMENU_SFX_CURSOR:
+		case SAVEMENU_TEXT_ALIGN:
+		case SAVEMENU_TEXT_BOX_ALIGN:
+		case SAVEMENU_VSPACE:
+			return REFSAVEMENU;
+
 		case SAVEDPORTALDESTDMAP:
 		case SAVEDPORTALDSTSCREEN:
 		case SAVEDPORTALPORTAL:
@@ -4387,10 +4437,27 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SAVEDPORTALY:
 			return REFSAVPORTAL;
 
+		case CREATELWPNDX:
+		case EWPNCOUNT:
+		case GETRENDERTARGET:
+		case LIT:
+		case LWPNCOUNT:
+		case NPCCOUNT:
+		case PORTALCOUNT:
+		case PUSHBLOCKCOMBO:
+		case PUSHBLOCKCSET:
+		case PUSHBLOCKLAYER:
+		case PUSHBLOCKX:
+		case PUSHBLOCKY:
+		case QUAKE:
+		case REGION_NUM_COMBOS:
 		case ROOMDATA:
 		case ROOMTYPE:
 		case SCRDOORD:
+		case SCREEN_DRAW_ORIGIN_TARGET:
+		case SCREEN_DRAW_ORIGIN:
 		case SCREEN_FLAG:
+		case SCREEN_INDEX:
 		case SCREENDATA_GRAVITY_STRENGTH:
 		case SCREENDATA_MUSIC:
 		case SCREENDATA_TERMINAL_VELOCITY:
@@ -4408,6 +4475,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREENDATAEXDOOR:
 		case SCREENDATAEXITDIR:
 		case SCREENDATAEXRESET:
+		case SCREENDATAFFINITIALISED:
 		case SCREENDATAFLAGS:
 		case SCREENDATAGUY:
 		case SCREENDATAGUYCOUNT:
@@ -4465,6 +4533,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREENLENSHIDES:
 		case SCREENLENSSHOWS:
 		case SCREENSCRDATA:
+		case SCREENSCRDATASIZE:
 		case SCREENSCRIPT:
 		case SCREENSECRETSTRIGGERED:
 		case SCREENSIDEWARPID:
@@ -4700,46 +4769,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGX:
 		case SUBWIDGY:
 			return REFSUBSCREENWIDG;
-		
-		case SAVEMENU_BGCOLOR:
-		case SAVEMENU_BGCSET:
-		case SAVEMENU_BGTH:
-		case SAVEMENU_BGTILE:
-		case SAVEMENU_BGTW:
-		case SAVEMENU_CLOSE_FLASH_RATE:
-		case SAVEMENU_CLOSE_FRAMES:
-		case SAVEMENU_CURSORCSET:
-		case SAVEMENU_CURSORTILE:
-		case SAVEMENU_FLAGS:
-		case SAVEMENU_HSPACE:
-		case SAVEMENU_ID:
-		case SAVEMENU_MIDI:
-		case SAVEMENU_MUSIC:
-		case SAVEMENU_NUM_OPTIONS:
-		case SAVEMENU_OPT_COLOR_PICKED:
-		case SAVEMENU_OPT_COLOR_TEXT:
-		case SAVEMENU_OPT_FLAGS:
-		case SAVEMENU_OPT_FONTS:
-		case SAVEMENU_OPT_FRZSCR:
-		case SAVEMENU_OPTX:
-		case SAVEMENU_OPTY:
-		case SAVEMENU_SFX_CHOOSE:
-		case SAVEMENU_SFX_CURSOR:
-		case SAVEMENU_TEXT_ALIGN:
-		case SAVEMENU_TEXT_BOX_ALIGN:
-		case SAVEMENU_VSPACE:
-			return REFSAVEMENU;
-		
-		case MUSICDATA_ID:
-		case MUSICDATA_IS_ACTIVE:
-		case MUSICDATA_IS_ENHANCED:
-		case MUSICDATA_LOOPEND:
-		case MUSICDATA_LOOPSTART:
-		case MUSICDATA_MIDI:
-		case MUSICDATA_TRACK:
-		case MUSICDATA_XFADEIN:
-		case MUSICDATA_XFADEOUT:
-			return REFMUSIC;
 
 		case WEBSOCKET_HAS_MESSAGE:
 		case WEBSOCKET_MESSAGE_TYPE:

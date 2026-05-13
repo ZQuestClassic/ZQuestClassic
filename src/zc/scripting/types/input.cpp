@@ -25,6 +25,13 @@ int32_t input_get_register(int32_t reg)
 			break;
 		}
 
+		case SIMULATEKEYPRESS:
+		{
+			scripting_log_error_with_context("Not supported.");
+			ret = 0;
+		}
+		break;
+
 		default:
 			NOTREACHED();
 	}

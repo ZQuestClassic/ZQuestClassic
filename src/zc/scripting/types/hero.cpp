@@ -531,6 +531,13 @@ int32_t hero_get_register(int32_t reg)
 		case PRESSAXISUP:
 			ret=button_press[14]?10000:0;
 			break;
+		case LINKOTILE:
+			ret=FFCore.getHeroOTile(GET_D(rINDEX)/10000, GET_D(rINDEX2) / 10000);
+			break;
+		case SETITEMSLOT:
+			scripting_log_error_with_context("Not supported.");
+			ret = 0;
+			break;
 
 		default:
 			NOTREACHED();

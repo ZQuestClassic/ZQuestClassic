@@ -5,6 +5,7 @@
 #include "allegro5/display.h"
 #include "allegro/gfx.h"
 #include "base/ints.h"
+#include "base/zapp.h"
 
 #include <cstdint>
 
@@ -30,7 +31,8 @@ struct user_bitmap : public user_abstract_obj
 
 	~user_bitmap()
 	{
-		destroy_bitmap(u_bmp);
+		if (!is_exiting())
+			destroy_bitmap(u_bmp);
 	}
 
 	void destroy()
