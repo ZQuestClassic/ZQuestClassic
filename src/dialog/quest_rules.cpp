@@ -217,6 +217,9 @@ static GUI::ListData comboRulesList
 	{ "Classic Respawn Points", qr_OLD_RESPAWN_POINTS,
 		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
 		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
+	{ "Respawn Half-Gridlock", qr_RESPAWN_POINTS_HALF_GRID,
+		"If checked, the player's respawn point checks will snap to the nearest half-grid (8px) position."
+		" Does nothing if 'Classic Respawn Points' is enabled." + QRHINT({qr_OLD_RESPAWN_POINTS}) },
 	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL, 
 		"Before scrolling the screen, checks the destination screen"
 		" and position to see if it's solid. If so, scrolling is cancelled."
