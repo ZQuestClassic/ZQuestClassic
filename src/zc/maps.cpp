@@ -1185,6 +1185,50 @@ void handle_region_load_trigger()
 	else handle_screen_load_trigger(create_screen_handles_one(get_scr(Hero.current_screen)));
 }
 
+static void _handle_screen_unload_trigger(const combined_handle_t& handle)
+{
+	auto cid = handle.data();
+	auto* cmb = &handle.combo();
+	bool done = false;
+	std::set<int32_t> visited;
+	while(!done)
+	{
+		if(visited.contains(cid))
+		{
+			Z_error("Combo '%d' was part of an infinite trigger loop, breaking out of loop", cid);
+			break; // prevent infinite loop
+		}
+		visited.insert(cid);
+		
+		done = true; // don't loop again unless something changes
+		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
+			return trig.trigger_flags.get(TRIGFLAG_SCREENUNLOAD);
+		});
+		if(handle.data() != cid)
+		{
+			cid = handle.data();
+			cmb = &handle.combo();
+			done = false; // loop again for the new combo
+		}
+	}
+}
+static void handle_screen_unload_trigger(const screen_handles_t& screen_handles)
+{
+	for_every_combo_in_screen(screen_handles, _handle_screen_unload_trigger);
+}
+void handle_region_unload_trigger()
+{
+	if (is_in_scrolling_region())
+	{
+		for (int screen = 0; screen < 128; screen++)
+		{
+			if (is_in_current_region(screen))
+				handle_screen_unload_trigger(create_screen_handles_one(get_scr(screen)));
+		}
+	}
+	else handle_screen_unload_trigger(create_screen_handles_one(get_scr(Hero.current_screen)));
+}
+
 static void apply_screen_state_remove_combos(const screen_handles_t& screen_handles, uint32_t flags, bool do_layers)
 {
 	// TODO: not sure if can do here.

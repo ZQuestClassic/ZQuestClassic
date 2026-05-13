@@ -153,7 +153,7 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		TRIGFLAG_STRONGFIRE,TRIGFLAG_MAGICFIRE,TRIGFLAG_DIVINEFIRE,
 		TRIGFLAG_TRIGLEVELSTATE,TRIGFLAG_TRIGGLOBALSTATE,TRIGFLAG_TGROUP_LESS,TRIGFLAG_TGROUP_GREATER,
 		TRIGFLAG_PUSHEDTRIG,TRIGFLAG_DIVETRIG,TRIGFLAG_DIVESENSTRIG,TRIGFLAG_LWREFARROW,TRIGFLAG_LWREFFIRE,
-		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_PLAYERLANDHERE,
+		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_SCREENUNLOAD,TRIGFLAG_PLAYERLANDHERE,
 		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
 		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
 		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,})) return true;
@@ -609,27 +609,31 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(TRIGFLAG_SWIMSENSTRIG, "Swim-> (Sensitive)"),
 							//
 							IBTN("Triggers when screen/region loads, after levelstates and exstates are applied"),
-							TRIGFLAG(TRIGFLAG_SCREENLOAD,"Triggers when screen loads"),
+							TRIGFLAG(TRIGFLAG_SCREENLOAD,"Screen Loads->"),
 							IBTN("Triggers every frame automatically"),
 							TRIGFLAG(TRIGFLAG_AUTOMATIC,"Always Triggered"),
-							IBTN("Triggers when all enemies are defeated"),
-							TRIGFLAG(TRIGFLAG_ENEMIESKILLED, "Enemies->"),
+							IBTN("Triggers when screen/region is unloading. For warps, this is"
+								" after the warp effect; for scrolling, this is"
+								" before scrolling."),
+							TRIGFLAG(TRIGFLAG_SCREENUNLOAD, "Screen Unloads->"),
 							IBTN("Triggers when room shutters would open"),
 							TRIGFLAG(TRIGFLAG_SHUTTER,"Shutter->"),
-							IBTN("Triggered when the player lands on this combo (after the general tab 'Landing' SFX plays)"),
-							TRIGFLAG(TRIGFLAG_PLAYERLANDHERE, "Land Here->"),
-							IBTN("Triggered when the player lands from the air (anywhere on the screen)"),
-							TRIGFLAG(TRIGFLAG_PLAYERLANDANYWHERE, "Land Anywhere->"),
 							IBTN("Triggers when screen secrets trigger"),
 							TRIGFLAG(TRIGFLAG_SECRETSTR, "Secrets->"),
 							IBTN("Triggers when the combo's inherent type-based *cause* occurs"
 								" (Ex. the Player falling down a Pitfall or drowning in Liquid)."
 								" Not available for all combo types; will be greyed out when unavailable."),
 							ctcause_tflag = TRIGFLAG(TRIGFLAG_CMBTYPECAUSES, "ComboType Causes->"),
+							IBTN("Triggered when the player lands on this combo (after the general tab 'Landing' SFX plays)"),
+							TRIGFLAG(TRIGFLAG_PLAYERLANDHERE, "Land Here->"),
+							IBTN("Triggered when the player lands from the air (anywhere on the screen)"),
+							TRIGFLAG(TRIGFLAG_PLAYERLANDANYWHERE, "Land Anywhere->"),
 							IBTN("Triggered when a pushblock is about to click into place at this combo's position, on any layer."),
 							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,"Block (Same Layer)->"),
 							IBTN("Triggered when a pushblock is about to click into place replacing this combo."),
-							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,"Block (Any Layer)->")
+							TRIGFLAG(TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,"Block (Any Layer)->"),
+							IBTN("Triggers when all enemies are defeated"),
+							TRIGFLAG(TRIGFLAG_ENEMIESKILLED, "Enemies->")
 						)
 					)
 				)),
