@@ -825,6 +825,11 @@ bool trigger_warp(const combined_handle_t& handle)
 	{
 		wx = Hero.getX().getInt();
 		wy = Hero.getY().getInt();
+
+		int rx, ry;
+		region_t dest_region;
+		calculate_region(DMaps[tdm].map, tscr, dest_region, rx, ry);
+		tscr = dest_region.origin_screen;
 	}
 	switch(wtype)
 	{
