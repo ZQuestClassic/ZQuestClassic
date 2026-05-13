@@ -765,9 +765,14 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "While touching this flag, attempting to use a Mirror item will fail.";
 			break;
 		}
+		case mfUNSAFEGROUND_SENS:
+		{
+			flaghelp = "While touching this flag at any corner of your solidity hitbox, the 'last safe position' will not be updated";
+			break;
+		}
 		case mfUNSAFEGROUND:
 		{
-			flaghelp = "While touching this flag, the 'last safe position' will not be updated";
+			flaghelp = "While touching this flag near the center of your solidity hitbox, the 'last safe position' will not be updated";
 			break;
 		}
 	}

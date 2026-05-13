@@ -562,11 +562,30 @@ void HeroClass::set_respawn_point(bool setwarp)
 				if (conveyor_id >= 0)
 					break;
 			}
-			rpos_t unsafe_rposes[] = {
+			rpos_t unsafe_sens_rposes[] = {
 				COMBOPOS_REGION_B(x,y+(bigHitbox?0:8)),
 				COMBOPOS_REGION_B(x,y+15),
 				COMBOPOS_REGION_B(x+15,y+(bigHitbox?0:8)),
 				COMBOPOS_REGION_B(x+15,y+15)
+				};
+			for(auto rpos : unsafe_sens_rposes)
+			{
+				if (rpos == rpos_t::None)
+					continue;
+
+				if(HASFLAG_ANY(mfUNSAFEGROUND_SENS, rpos)) //"Unsafe Ground" flag touching the player
+				{
+					is_safe = false;
+					break;
+				}
+			}
+			if(!is_safe) break;
+			const int sens = 1;
+			rpos_t unsafe_rposes[] = {
+				COMBOPOS_REGION_B(x+7-sens,y+(bigHitbox?7:11)-sens),
+				COMBOPOS_REGION_B(x+7-sens,y+(bigHitbox?8:12)+sens),
+				COMBOPOS_REGION_B(x+8+sens,y+(bigHitbox?7:11)-sens),
+				COMBOPOS_REGION_B(x+8+sens,y+(bigHitbox?8:12)+sens)
 				};
 			for(auto rpos : unsafe_rposes)
 			{

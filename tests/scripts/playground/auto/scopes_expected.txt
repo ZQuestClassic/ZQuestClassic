@@ -4481,6 +4481,9 @@ debug data:
       - const ComboFlag CF_NO_ENEMIES_SPAWN @ Constant[1630000]
       - const ComboFlag CF_ALL_ENEMIES_SPAWN @ Constant[1640000]
       - const ComboFlag CF_SECRETS_NEXT @ Constant[1650000]
+      - const ComboFlag CF_NO_MIRROR @ Constant[1660000]
+      - const ComboFlag CF_UNSAFE_GROUND_SENS @ Constant[1670000]
+      - const ComboFlag CF_UNSAFE_GROUND @ Constant[1680000]
     [ENUM] int ComboLiftFlag <IDX:5>
       - const ComboLiftFlag LF_LIFTABLE @ Constant[0]
       - const ComboLiftFlag LF_DROPSET @ Constant[10000]

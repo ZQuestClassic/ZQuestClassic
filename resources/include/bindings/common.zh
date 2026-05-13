@@ -808,6 +808,15 @@ enum ComboFlag
 	CF_NO_ENEMIES_SPAWN            = 163, // No Enemies Spawn.
 	CF_ALL_ENEMIES_SPAWN           = 164, // All Enemies Spawn.
 	CF_SECRETS_NEXT                = 165, // Secrets->Next.
+	// No Mirror
+	// @versionadded 3.0
+	CF_NO_MIRROR                   = 166,
+	// Unsafe Ground (Sensitive)
+	// @versionadded 3.0
+	CF_UNSAFE_GROUND_SENS          = 167,
+	// Unsafe Ground
+	// @versionadded 3.0
+	CF_UNSAFE_GROUND               = 168,
 };
 
 // Used with the blit drawing functions.
