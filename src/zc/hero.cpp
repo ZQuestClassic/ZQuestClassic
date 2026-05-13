@@ -61,6 +61,9 @@ extern int32_t draw_screen_clip_rect_x2;
 extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;
 
+bool is_conveyor(int32_t type);
+int32_t get_conveyor(int32_t x, int32_t y, bool check_rates);
+
 int32_t hero_count = -1;
 extern int32_t hero_animation_speed; //lower is faster animation
 static int32_t z3step = 2;
@@ -516,14 +519,56 @@ void HeroClass::set_respawn_point(bool setwarp)
 			if(check_pitslide(true) != -1) break; //On a pit
 			if (ladderx+laddery) break; //on the ladder
 			if (onWater(false)) break;
-			
-			rpos_t rposes[] = {
+			if (replay_version_check(54)) // some things originally missed
+			{
+				if (sliding) break; // slidey ice
+				if (inlikelike || pull_hero || is_autowalking()) break;
+				
+				// Damage Combos
+				int32_t dmg_x1 = (int32_t)x+8-(hero_scr->csensitive);
+				int32_t dmg_x2 = (int32_t)x+8+(hero_scr->csensitive-1);
+				int32_t dmg_y1 = (int32_t)y+(bigHitbox?8:12)-(bigHitbox?hero_scr->csensitive:(hero_scr->csensitive+1)/2);
+				int32_t dmg_y2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?hero_scr->csensitive-1:((hero_scr->csensitive+1)/2)-1);
+				
+				rpos_t dmg_rposes[] = {
+					COMBOPOS_REGION_B(dmg_x1,dmg_y1),
+					COMBOPOS_REGION_B(dmg_x1,dmg_y2),
+					COMBOPOS_REGION_B(dmg_x2,dmg_y1),
+					COMBOPOS_REGION_B(dmg_x2,dmg_y2)
+					};
+				for (int lyr = get_qr(qr_DMGCOMBOLAYERFIX) ? 2 : 0; lyr >= 0; --lyr)
+				{
+					for (auto rpos : dmg_rposes)
+					{
+						if (rpos == rpos_t::None)
+							continue;
+						if (isdamage_type(get_rpos_handle(rpos, lyr).ctype()))
+						{
+							is_safe = false;
+							break;
+						}
+					}
+					if(!is_safe) break;
+				}
+				if(!is_safe) break;
+				
+				// Conveyors
+				int32_t conveyor_id = get_conveyor(x+7, y+(bigHitbox?8:12), false);
+				if (conveyor_id < 0 && !get_qr(qr_BROKEN_SV_SOLID_CONVEYORS) && (isSideViewHero() && on_sideview_solid_oldpos(this)))
+				{
+					for (int xo = 0; xo < 16 && conveyor_id < 0; xo += 4)
+						conveyor_id = get_conveyor(x + xo, y + 16, false);
+				}
+				if (conveyor_id >= 0)
+					break;
+			}
+			rpos_t unsafe_rposes[] = {
 				COMBOPOS_REGION_B(x,y+(bigHitbox?0:8)),
 				COMBOPOS_REGION_B(x,y+15),
 				COMBOPOS_REGION_B(x+15,y+(bigHitbox?0:8)),
 				COMBOPOS_REGION_B(x+15,y+15)
 				};
-			for(auto rpos : rposes)
+			for(auto rpos : unsafe_rposes)
 			{
 				if (rpos == rpos_t::None)
 					continue;
@@ -32898,9 +32943,6 @@ void HeroClass::reset_ladder()
 		}
 	}
 }
-
-bool is_conveyor(int32_t type);
-int32_t get_conveyor(int32_t x, int32_t y, bool check_rates);
 
 bool HeroClass::uses_sideview_platforms() const
 {
