@@ -154,6 +154,9 @@ int32_t hero_get_register(int32_t reg)
 			ret = Hero.respawn_y.getZLong();
 			break;
 		}
+		case HEROFORCEDRESPAWN:
+			ret = Hero.forced_respawn_point ? 10000 : 0;
+			break;
 		case HEROSCRICECMB:
 			ret = Hero.script_ice_combo*10000; break;
 		case HEROSCRIPTCSET:
@@ -726,6 +729,9 @@ void hero_set_register(int32_t reg, int32_t value)
 			Hero.respawn_y = zslongToFix(value);
 			break;
 		}
+		case HEROFORCEDRESPAWN:
+			Hero.forced_respawn_point = bool(value);
+			break;
 		case HEROSCRICECMB:
 			Hero.script_ice_combo = vbound(value/10000,-1,MAXCOMBOS); break;
 		case HEROSCRIPTCSET:

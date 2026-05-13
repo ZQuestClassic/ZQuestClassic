@@ -484,6 +484,16 @@ void HeroClass::update_current_screen()
 		mark_visited(new_screen); // Mark each screen the hero steps foot in as visited
 }
 
+void HeroClass::force_respawn_point(combined_handle_t const& handle)
+{
+	forced_respawn_point = true;
+	auto [cx, cy] = handle.center_xy();
+	respawn_x = cx - 8;
+	respawn_y = cy - 8;
+	respawn_scr = cur_screen;
+	respawn_dmap = cur_dmap;
+}
+
 void HeroClass::set_respawn_point(bool setwarp)
 {
 	zfix oldx = x, oldy = y;
@@ -501,6 +511,12 @@ void HeroClass::set_respawn_point(bool setwarp)
 		raftwarpy = y;
 	}
 	
+	if (forced_respawn_point)
+	{
+		x = oldx;
+		y = oldy;
+		return;
+	}
 	if (get_qr(qr_RESPAWN_POINTS_HALF_GRID))
 	{
 		x = TRUNCATE_HALF_TILE(x.getTrunc() + 4);
@@ -1810,6 +1826,7 @@ void HeroClass::init()
     hookshot_frozen=false;
     onpassivedmg=false;
 	immortal = 0;
+	forced_respawn_point = false;
     dir = up;
     damageovertimeclk = 0;
     newconveyorclk = 0;

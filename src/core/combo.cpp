@@ -808,6 +808,13 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		else if (trigger_flags.get(TRIGFLAG_SET_GRAVITY))
 			effects << indent << fmt::format("Set screen's gravity = {} px/frame^2 and terminal velocity = {} px/frame\n",
 				trig_gravity, trig_terminal_v);
+		
+		if (trigger_flags.all({TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN}))
+			effects << indent << "Set Hazard Respawn here\n";
+		else if (trigger_flags.get(TRIGFLAG_RESPAWN_HERE))
+			effects << indent << "Set Hazard Respawn here and keep it here\n";
+		else if (trigger_flags.get(TRIGFLAG_RESET_RESPAWN))
+			effects << indent << "Unset Hazard Respawn\n";
 
 		vector<string> misc_effects;
 
@@ -850,19 +857,19 @@ if (var > -2) \
 		effects << indent << fmt::format("Inflict " name "{} frames\n", var); \
 }
 		STATUS_EFFECT(trig_swjinxtime, "Sword Jinx")
-			STATUS_EFFECT(trig_itmjinxtime, "Item Jinx")
-			STATUS_EFFECT(trig_shieldjinxtime, "Shield Jinx")
-			STATUS_EFFECT(trig_stuntime, "Stun")
-			STATUS_EFFECT(trig_bunnytime, "Bunny")
+		STATUS_EFFECT(trig_itmjinxtime, "Item Jinx")
+		STATUS_EFFECT(trig_shieldjinxtime, "Shield Jinx")
+		STATUS_EFFECT(trig_stuntime, "Stun")
+		STATUS_EFFECT(trig_bunnytime, "Bunny")
 
 #undef STATUS_EFFECT
 
-			if (trigger_flags.get(TRIGFLAG_SETPLAYER_X_ABS))
-				effects << indent << fmt::format("Set player X to {}\n", dest_player_x);
-			else if (trigger_flags.get(TRIGFLAG_SETPLAYER_X_REL_CMB))
-				effects << indent << fmt::format("Set player X to {} (relative to combo)\n", dest_player_x);
-			else if (dest_player_x)
-				effects << indent << fmt::format("Add {} to player X\n", dest_player_x);
+		if (trigger_flags.get(TRIGFLAG_SETPLAYER_X_ABS))
+			effects << indent << fmt::format("Set player X to {}\n", dest_player_x);
+		else if (trigger_flags.get(TRIGFLAG_SETPLAYER_X_REL_CMB))
+			effects << indent << fmt::format("Set player X to {} (relative to combo)\n", dest_player_x);
+		else if (dest_player_x)
+			effects << indent << fmt::format("Add {} to player X\n", dest_player_x);
 
 		if (trigger_flags.get(TRIGFLAG_SETPLAYER_Y_ABS))
 			effects << indent << fmt::format("Set player Y to {}\n", dest_player_y);
