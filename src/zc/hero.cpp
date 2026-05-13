@@ -9674,20 +9674,33 @@ heroanimate_skip_liftwpn:;
 			newcombo const& watercmb = combobuf[water];
 			
 			int32_t damage = 4;
+			int inv_timer = 48;
+			int stun_timer = 0;
 			if (watercmb.type == cWATER)
+			{
 				damage = watercmb.c_attributes[0].getTrunc();
+				inv_timer = watercmb.c_attributes[1].getTrunc();
+				stun_timer = watercmb.c_attributes[2].getTrunc();
+				if (!inv_timer)
+					inv_timer = 48;
+			}
 			else water = 0;
 			
-			if(cheat_superman && damage > 0)
+			if (cheat_superman && damage > 0)
 				damage = 0;
-			if(damage)
+			
+			// TODO! generic event "Drown 2" here to change damage/inv/stun
+			if (damage)
 				game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
+			hclk = zc_max(inv_timer, 0);
+			check_on_hit();
+			if (stun_timer < 0 || (stun_timer > lstunclock && lstunclock >= 0))
+				lstunclock = stun_timer;
 			drownCombo = 0;
-			if(comb_handle)
+			
+			if (comb_handle)
 				do_trigger_ctype_causes(*comb_handle);
 			go_respawn_point();
-			hclk=48;
-			check_on_hit();
 		}
 		
 		break;
@@ -14251,28 +14264,32 @@ bool HeroClass::pitfall()
 				fallCombo = 0;
 			
 			int32_t dmg = game->get_hp_per_heart()/4;
+			int inv_timer = 0;
+			int stun_timer = 0;
 			bool dmg_perc = false;
 			bool warp = false;
 			
 			action=none; FFCore.setHeroAction(none);
 			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
-			if(cmb)
+			if (cmb)
 			{
 				dmg = cmb->c_attributes[0].getTrunc();
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
+				inv_timer = cmb->c_attributes[1].getTrunc();
+				stun_timer = cmb->c_attributes[2].getTrunc();
 			}
-			if(cheat_superman && dmg > 0)
+			if (cheat_superman && dmg > 0)
 				dmg = 0;
-			if(dmg) //Damage
-			{
-				if(dmg > 0)
-				{
-					hclk=48; //IFrames only if damaged, not if healed
-					check_on_hit();
-				}
+			if (!inv_timer && dmg > 0)
+				inv_timer = 48;
+			// TODO! generic event "Fall 2" here to change damage/inv/stun
+			if (dmg) //Damage
 				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-int64_t(dmg))),0,game->get_maxlife()));
-			}
+			hclk = zc_max(inv_timer, 0);
+			check_on_hit();
+			if (stun_timer < 0 || (stun_timer > lstunclock && lstunclock >= 0))
+				lstunclock = stun_timer;
 			
 			if(comb_handle)
 				do_trigger_ctype_causes(*comb_handle);
@@ -14281,9 +14298,7 @@ bool HeroClass::pitfall()
 			{
 				sdir = dir;
 				if(cmb->usrflags&cflag2) //Direct Warp
-				{
 					setpit();
-				}
 				dowarp(hero_scr, 0, vbound(cmb->c_attributes[9].getTrunc(),0,3), 0);
 			}
 			else //Reset to screen entry
