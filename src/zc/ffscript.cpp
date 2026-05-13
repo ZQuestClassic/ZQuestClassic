@@ -7890,6 +7890,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				Hero.set_dive(0);
 			}
 			doWarpEffect(warpEffect, true);
+			handle_region_unload_trigger();
 			warp_setup_new_dmap(dmap, false, DMaps[cur_dmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
@@ -7946,6 +7947,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
+			handle_region_unload_trigger();
 			warp_setup_new_dmap(dmap, true);
 			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 			

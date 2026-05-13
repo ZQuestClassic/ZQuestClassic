@@ -385,6 +385,8 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			misc_cause.emplace_back("Swim-> (Sensitive)");
 		if (trigger_flags.get(TRIGFLAG_SCREENLOAD))
 			misc_cause.emplace_back("On screen load");
+		if (trigger_flags.get(TRIGFLAG_SCREENUNLOAD))
+			misc_cause.emplace_back("On screen unload");
 		if (trigger_flags.get(TRIGFLAG_AUTOMATIC))
 			misc_cause.emplace_back("Always");
 		if (trigger_flags.get(TRIGFLAG_ENEMIESKILLED))

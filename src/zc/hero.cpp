@@ -26054,6 +26054,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
 			blackscr(30,b2?false:true);
+			handle_region_unload_trigger();
 			loadscr(wdmap, destscr, up, false);
 			scr = hero_scr;
 			//preloaded freeform combos
@@ -26094,6 +26095,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				fade(DMaps[cur_dmap].color, true, false);
 			
 			blackscr(30,true);
+			handle_region_unload_trigger();
 
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
@@ -26161,6 +26163,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		else
 			fade(DMaps[cur_dmap].color,true,false);
 		blackscr(30,true);
+		handle_region_unload_trigger();
 		bool no_x80_dir = true;
 		loadscr(wdmap, 0x81, down, false, no_x80_dir);
 		scr = hero_scr;
@@ -26228,6 +26231,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			music_stop();
 		kill_sfx();
 		blackscr(30,false);
+		handle_region_unload_trigger();
 		warp_setup_new_dmap(wdmap, true);
 		int destscr = wscr + DMaps[cur_dmap].xoff;
 		loadscr(cur_dmap, destscr, -1, overlay);
@@ -26553,6 +26557,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			blackscr(30,b2?false:true);
 		}
 		
+		handle_region_unload_trigger();
 		warp_setup_new_dmap(wdmap, false, DMaps[cur_dmap].color);
 		
 		auto prev_region = cur_region;
@@ -26718,6 +26723,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				blackscr(30,b2?false:true);
 			}
 			
+			handle_region_unload_trigger();
 			int32_t c = DMaps[cur_dmap].color;
 			warp_update_dmap_and_level(wdmap);
 			init_dmap();
@@ -27020,6 +27026,7 @@ void HeroClass::exitcave()
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
+	handle_region_unload_trigger();
     loadscr(cur_dmap, home_screen, 255, false);                                   // bogus direction
     x = hero_scr->warpreturnx[0];
     y = hero_scr->warpreturny[0];
@@ -27546,6 +27553,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     blackscr(30,true);
     ringcolor(false);
     
+	handle_region_unload_trigger();
     if(sc==PASSAGEWAY && abs(x-warpx)>16) // How did Hero leave the passageway?
     {
         cur_dmap=stepoutdmap;
@@ -28071,6 +28079,7 @@ void HeroClass::checkscroll()
 				if (maze_state.transition_wipe)
 					closescreen(maze_state.transition_wipe - 1);
 
+				handle_region_unload_trigger();
 				loadscr(cur_dmap, current_screen, -1, false);
 				maze_state.scr = get_scr(maze_screen);
 
@@ -28993,6 +29002,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	{
 		return;
 	}
+
+	handle_region_unload_trigger();
 
 	// If on a slope in sideview mode, move along that slope a bit.
 	zfix sideview_scrolling_slope;

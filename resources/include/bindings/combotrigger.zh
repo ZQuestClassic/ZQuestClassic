@@ -341,6 +341,12 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_RESET_RESPAWN,
+	// Triggers when the screen unloads.
+	// Occurs after warp FX for warps, and before scrolling for scrolls.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_SCREENUNLOAD,
+	
 	TRIGFLAG_MAX
 };
 

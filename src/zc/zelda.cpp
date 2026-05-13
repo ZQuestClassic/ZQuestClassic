@@ -2295,6 +2295,7 @@ int32_t init_game()
 
 int32_t cont_game()
 {
+	handle_region_unload_trigger();
 	init_game_vars(true);
 	replay_step_comment("cont_game");
 	GameLoaded = true;
@@ -2448,6 +2449,7 @@ void restart_level()
 	Hero.finish_auto_walk();
 	blackscr(16,true);
 	map_bkgsfx(false);
+	handle_region_unload_trigger();
 	
 	if(dlevel && !get_qr(qr_LEVEL_RESTART_CONT_POINT))
 	{
