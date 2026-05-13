@@ -234,7 +234,7 @@ const char map_flag_default_string[mfMAX][255] =
 	"-Trigger LW_SCRIPT3 (Unimplemented)", "-Trigger LW_SCRIPT4 (Unimplemented)", "-Trigger LW_SCRIPT5 (Unimplemented)", "-Trigger LW_SCRIPT6 (Unimplemented)", "-Trigger LW_SCRIPT7 (Unimplemented)", "-Trigger LW_SCRIPT8 (Unimplemented)", "-Trigger LW_SCRIPT9 (Unimplemented)", "-Trigger LW_SCRIPT10 (Unimplemented)",
 	"Script 32", "Script 33", "Script 34", "Script 35", "Script 36", "Script 37", "Script 38", "Script 39",
 	"Script 40", "Script 41", "Script 42", "Script 43", "Script 44", "Script 45", "Script 46", "Script 47",
-	"Script 48", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","Unsafe Ground","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
+	"Script 48", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","Unsafe Ground (Sens)","Unsafe Ground","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
 	"-mf180","-mf181","-mf182","-mf183","-mf184","-mf185","-mf186","-mf187","-mf188","-mf189", "-mf190","-mf191","-mf192","-mf193","-mf194","-mf195","-mf196","-mf197","-mf198","-mf199",
 	"-mf200","-mf201","-mf202","-mf203","-mf204","-mf205","-mf206","-mf207","-mf208","-mf209", "-mf210","-mf211","-mf212","-mf213","-mf214","-mf215","-mf216","-mf217","-mf218","-mf219",
 	"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",
