@@ -388,6 +388,12 @@ void HeroClass::set_respawn_point(bool setwarp)
 		raftwarpx = x;
 		raftwarpy = y;
 	}
+	
+	if (get_qr(qr_RESPAWN_POINTS_HALF_GRID))
+	{
+		x = (x.getTrunc() + 4) & ~7; // truncate to nearest half-tile (8px)
+		y = (y.getTrunc() + 4) & ~7;
+	}
 	do
 	{
 		if(!get_qr(qr_OLD_RESPAWN_POINTS))
