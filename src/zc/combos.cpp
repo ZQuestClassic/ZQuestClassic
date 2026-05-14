@@ -3048,6 +3048,8 @@ void trig_trigger_groups()
 		int cid = handle.data();
 
 		bool recheck = false;
+		std::set<int> visited_cids;
+		visited_cids.insert(cid);
 		do
 		{
 			if (!combo_cache.minis[cid].tgroup)
@@ -3063,7 +3065,7 @@ void trig_trigger_groups()
 				if(!ok && trig.trigger_flags.get(TRIGFLAG_TGROUP_GREATER))
 					ok = cpos_trig_group_count(trig.trig_group) > trig.trig_group_val;
 				if(!ok) continue;
-				
+
 				bool earlyret = false;
 				if(do_trigger_combo(handle, idx))
 					if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
@@ -3078,10 +3080,14 @@ void trig_trigger_groups()
 					else timer.updateData(cid2);
 				}
 				else timer.updateData(cid2);
-				
+
 				if(earlyret) break;
 				if (cid != cid2)
 				{
+					// Prevent infinite oscillation: if this cid was already visited, stop.
+					if (visited_cids.count(cid2))
+						break;
+					visited_cids.insert(cid2);
 					cid = cid2;
 					recheck = true;
 					break;
