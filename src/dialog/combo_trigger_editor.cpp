@@ -1319,7 +1319,9 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								IBTN("The 'Consume Amount' will be drained/granted gradually, instead of at once."),
 								TRIGFLAG(TRIGFLAG_COUNTER_GRADUAL,"...Gradual"),
 								IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
-								TRIGFLAG(TRIGFLAG_CTRNONLYTRIG,"Consume w/o trig")
+								TRIGFLAG(TRIGFLAG_CTRNONLYTRIG,"Consume w/o trig"),
+								IBTN("The 'Consume Amount' will occur even if the current amount is insufficient."),
+								TRIGFLAG(TRIGFLAG_COUNTER_PARTIAL_CONSUME,"Partial Consume")
 							)
 						)
 					),

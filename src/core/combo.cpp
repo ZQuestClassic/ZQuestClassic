@@ -428,6 +428,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 	}
 	bool ctr_discounted = trigger_flags.get(TRIGFLAG_COUNTERDISCOUNT) && trigctramnt > 0;
 	bool ctr_perc = trigger_flags.get(TRIGFLAG_COUNTER_PERCENT);
+	bool ctr_partial = trigger_flags.get(TRIGFLAG_COUNTER_PARTIAL_CONSUME);
 	bool ctr_consume = trigger_flags.get(TRIGFLAG_COUNTEREAT);
 	bool ctr_consume_no_trig = trigger_flags.get(TRIGFLAG_CTRNONLYTRIG);
 	bool ctr_gradual = trigger_flags.get(TRIGFLAG_COUNTER_GRADUAL);
@@ -973,6 +974,10 @@ if (var > -2) \
 				effects << indent << "Consume " << ctr_str;
 				if (ctr_gradual)
 					effects << " (gradually)";
+				if (ctr_partial)
+					effects << " regardless of having enough";
+				else
+					effects << " if enough is owned";
 				effects << "\n";
 			}
 

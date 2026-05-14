@@ -3435,14 +3435,14 @@ POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           
 POP REFCOMBOTRIGGER                                                             | 3406 resources/include/bindings/combodata.zh:394
 COMBOD_GET_TRIGGER D2                                                           | 3407 resources/include/bindings/combodata.zh:394
 RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3408 resources/include/bindings/combodata.zh:394
-POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:902
-POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:902
-CMBTRIG_GET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:902
-RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:902
-POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3413 resources/include/bindings/combotrigger.zh:910
-POP REFCOMBOTRIGGER                                                             | 3414 resources/include/bindings/combotrigger.zh:910
-CMBTRIG_SET_LABEL D2                                                            | 3415 resources/include/bindings/combotrigger.zh:910
-RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3416 resources/include/bindings/combotrigger.zh:910
+POP D2; Func[void combotrigger::GetLabel(char32[])] Body Start                  | 3409 resources/include/bindings/combotrigger.zh:907
+POP REFCOMBOTRIGGER                                                             | 3410 resources/include/bindings/combotrigger.zh:907
+CMBTRIG_GET_LABEL D2                                                            | 3411 resources/include/bindings/combotrigger.zh:907
+RETURNFUNC; Func[void combotrigger::GetLabel(char32[])] Body End                | 3412 resources/include/bindings/combotrigger.zh:907
+POP D2; Func[void combotrigger::SetLabel(char32[])] Body Start                  | 3413 resources/include/bindings/combotrigger.zh:915
+POP REFCOMBOTRIGGER                                                             | 3414 resources/include/bindings/combotrigger.zh:915
+CMBTRIG_SET_LABEL D2                                                            | 3415 resources/include/bindings/combotrigger.zh:915
+RETURNFUNC; Func[void combotrigger::SetLabel(char32[])] Body End                | 3416 resources/include/bindings/combotrigger.zh:915
 POP D2; Func[directory directory::directory(char32[])] Body Start               | 3417 resources/include/bindings/directory.zh:6
 LOADDIRECTORYR D2                                                               | 3418 resources/include/bindings/directory.zh:6
 RETURNFUNC; Func[directory directory::directory(char32[])] Body End             | 3419 resources/include/bindings/directory.zh:6
@@ -6540,7 +6540,8 @@ debug data:
       - const ComboTriggerFlag TRIGFLAG_SCREENUNLOAD @ Constant[1720000]
       - const ComboTriggerFlag TRIGFLAG_PROX_USE_SOL_HITBOX @ Constant[1730000]
       - const ComboTriggerFlag TRIGFLAG_PROX_USE_SQUARE @ Constant[1740000]
-      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1750000]
+      - const ComboTriggerFlag TRIGFLAG_COUNTER_PARTIAL_CONSUME @ Constant[1750000]
+      - const ComboTriggerFlag TRIGFLAG_MAX @ Constant[1760000]
     [CLASS] combotrigger <IDX:159>
       - int BossPal @ Reg[CMBTRIGBOSSPAL]
       - int Bunny @ Reg[CMBTRIGBUNNY]

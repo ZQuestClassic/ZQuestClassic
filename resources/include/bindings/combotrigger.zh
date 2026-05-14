@@ -355,6 +355,11 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_PROX_USE_SQUARE,
+	// Makes [TRIGFLAG_COUNTER_EAT] drain even if the player doesn't have
+	// the specified amount of the counter.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COUNTER_PARTIAL_CONSUME,
 	
 	TRIGFLAG_MAX
 };
