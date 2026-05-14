@@ -10500,9 +10500,11 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 int32_t HeroClass::push_move(zfix dx, zfix dy)
 {
 	int32_t ret = 0;
+	bool fixed_solpush = !get_qr(qr_BROKEN_PLAYER_SOLIDPUSH);
 	while(dx || dy)
 	{
-		if(check_pitslide() != -1)
+		auto pitcheck = check_pitslide();
+		if(fixed_solpush ? pitcheck == -2 : pitcheck != -1)
 			break;
 		if(dy)
 		{
@@ -10539,6 +10541,16 @@ bool HeroClass::setSolid(bool set)
 void HeroClass::solid_push(solid_object* obj)
 {
 	if(obj == this) return; //can't push self
+	if (!get_qr(qr_BROKEN_PLAYER_SOLIDPUSH))
+	{
+		if (action == falling || action == drowning)
+			return;
+	}
+	//!TODO diving should respect dive_under_level
+	// and get_standing_z_state() should be respected too
+	// need to handle that for all solid collision checks though,
+	// and only the player cares about those so needs player-specific
+	// AND ffc-specific code . . .
 	
 	zfix dx, dy;
 	int32_t hdir = -1;
