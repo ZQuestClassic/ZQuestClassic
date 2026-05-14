@@ -65,6 +65,13 @@ int32_t DropDownList::getSelectedValue() const
 
 void DropDownList::setIndex()
 {
+	if (listData->empty())
+	{
+		selectedIndex = -1;
+		selectedValue = 0;
+		return;
+	}
+
 	// Find a valid selection. We'll take the first thing with a matching
 	// value. If nothing matches exactly, take the one that's closest to
 	// the selected value.
@@ -124,20 +131,21 @@ void DropDownList::applyFont(FONT* newFont)
 void DropDownList::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
-	// An empty list might logically be valid, but there's currently
-	// no way to get a value from it.
-	assert(listData);
-	assert(listData->size() > 0);
+	ASSERT(listData);
 	if(selectedIndex < 0)
 		setIndex();
 
+	// Use 0 when there's no valid selection (empty list): passing -1 would cause
+	// _handle_jwin_scrollable_scroll to change d1 to 0 on MSG_START, which triggers
+	// a spurious geCHANGE_SELECTION and an infinite refresh_dlg loop.
+	int32_t init_index = selectedIndex < 0 ? 0 : selectedIndex;
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<jwin_droplist_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		selectedIndex, selectedIndex, // d1, d2,
+		init_index, init_index, // d1, d2,
 		&jwinListData, nullptr, nullptr // dp, dp2, dp3
 	});
 }
@@ -150,6 +158,7 @@ int32_t DropDownList::onEvent(int32_t event, MessageDispatcher& sendMessage)
 		case geDCLICK:
 			break; // Explicitly ignored
 		case geCHANGE_SELECTION:
+			if(listData->empty()) break;
 			if(onSelectFunc)
 				onSelectFunc(listData->getValue(alDialog->d1));
 			if(message >= 0)
