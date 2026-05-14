@@ -1645,7 +1645,10 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
 void zmap::put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr)
 {
     int32_t x=0,y=0;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS || type < 0 || type >= 9)
+        return;
     
     switch(side)
     {
@@ -1746,8 +1749,10 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
 {
     int32_t x=((pos&15)<<4)+xofs;
     int32_t y=(pos&0xF0)+yofs;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
-    
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS)
+        return;
     
     switch(side)
     {
@@ -2866,7 +2871,9 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
         {  77,   78,   224,   80 }  // right
     };
 
-	auto door_set = DoorComboSets[screens[cursor.screen].door_combo_set];
+    int dcs_index = (screens ? screens[cursor.screen].door_combo_set : 0);
+    if (dcs_index >= MAXDOORCOMBOSETS) dcs_index = 0;
+	auto& door_set = DoorComboSets[dcs_index];
 	bool walk_trans = get_bit(door_set.flags, df_walktrans);
 
     int32_t doortype[4];

@@ -5532,9 +5532,10 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 // TODO: separate setting door data and drawing door
 void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type, bool redraw, bool even_walls)
 {
-	if (type > 8) return;
+	if (!scr || type > 8) return;
 
 	int32_t d=scr->door_combo_set;
+	if (d >= MAXDOORCOMBOSETS) return;
 
 	switch(type)
 	{
@@ -5688,6 +5689,8 @@ void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type
 
 static void over_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t offx, int32_t offy)
 {
+	if (!scr || scr->door_combo_set >= MAXDOORCOMBOSETS) return;
+
 	int32_t door_combo_set = scr->door_combo_set;
 	int32_t x = (pos&15)<<4;
 	int32_t y = (pos&0xF0);
