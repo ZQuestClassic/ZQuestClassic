@@ -10701,7 +10701,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
 		
-		// Warp to new dmap. Target the destination origin screen, so that x/y are interpreted as region coordinates.
+		//Warp to new dmap.
 		FFCore.warp_player(wtIWARP, destdmap, destscr, tx, ty, mirror.misc1,
 			mirror.usesound, 0, -1);
 		
