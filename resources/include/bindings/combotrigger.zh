@@ -346,6 +346,15 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_SCREENUNLOAD,
+	// Proximity respects player solidity hitbox size
+	//
+	// @versionadded 3.0
+	TRIGFLAG_PROX_USE_SOL_HITBOX,
+	// Proximity uses a square area instead of circle area
+	// i.e. it checks distance on each axis separately, rather than diagonal distance.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_PROX_USE_SQUARE,
 	
 	TRIGFLAG_MAX
 };

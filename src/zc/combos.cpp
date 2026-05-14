@@ -1988,7 +1988,17 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	}
 	if(trig.trigprox) //Proximity requirement
 	{
-		word d = dist(hero_x, hero_y, combo_x, combo_y).getInt();
+		zfix hx = hero_x + 8;
+		zfix hy = hero_y + ((trig.trigger_flags.get(TRIGFLAG_PROX_USE_SOL_HITBOX) && !Hero.bigHitbox) ? 12 : 8);
+		dword d;
+		if (trig.trigger_flags.get(TRIGFLAG_PROX_USE_SQUARE))
+		{
+			int hd = abs(hx - center_x).getInt();
+			int vd = abs(hy - center_y).getInt();
+			d = zc_max(hd, vd);
+		}
+		else
+			d = dist(hx, hy, center_x, center_y).getInt();
 		if(trig.trigger_flags.get(TRIGFLAG_INVERTPROX)) //trigger outside the radius
 		{
 			if(d < trig.trigprox || !is_active_screen) //inside, cancel

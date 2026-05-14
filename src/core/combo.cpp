@@ -457,10 +457,14 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		}
 		if (trigprox)
 		{
-			string negator;
+			string negator, suffix, shape = "circle";
 			if (trigger_flags.get(TRIGFLAG_INVERTPROX))
 				negator = " not";
-			conditions << indent << fmt::format("Player is{} within {} pixels radius\n", negator, trigprox);
+			if (trigger_flags.get(TRIGFLAG_PROX_USE_SOL_HITBOX))
+				suffix = " (respecting player hitbox size)";
+			if (trigger_flags.get(TRIGFLAG_PROX_USE_SQUARE))
+				shape = "square";
+			conditions << indent << fmt::format("Player is{} within {} {} pixels radius{}\n", negator, trigprox, shape, suffix);
 		}
 		if (req_player_dir)
 		{
