@@ -2974,7 +2974,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 					x += sens_offset;
 					w -= sens_offset*2;
 				}
-				breaking = Hero.collide(x,0,w,255);
+				breaking = Hero.collide(x,0,w,world_h);
 			}
 		}
 		else if(!sens_offset || (sens_offset*2 < w && sens_offset*2 < h))
