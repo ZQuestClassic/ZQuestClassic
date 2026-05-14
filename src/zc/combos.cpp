@@ -3587,26 +3587,33 @@ void trig_trigger_groups()
 		for(auto pos = 0; pos < 176; ++pos)
 		{
 			cpos_info& timer = cpos_get(lyr, pos);
-			int cid = scr->data[pos];
-			newcombo const& cmb = combobuf[cid];
-			
-			if(
-				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-					&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
-				|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-					&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
-				)
+			// Prevent infinite oscillation: track which combos we've already triggered at
+			// this position so a combo pair that keeps swapping back and forth can't loop
+			// forever via the recheck path below.
+			std::set<int> visited_cids;
+			while (true)
 			{
-				do_trigger_combo(lyr,pos);
-				int cid2 = scr->data[pos];
-				bool recheck = timer.data != cid2;
-				timer.updateData(cid2);
+				int cid = scr->data[pos];
+				if (!visited_cids.insert(cid).second)
+					break;
+				newcombo const& cmb = combobuf[cid];
 
-				if (recheck) //check same pos again
+				if(
+					((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+						&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
+					|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+						&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
+					)
 				{
-					--pos;
-					continue;
+					do_trigger_combo(lyr,pos);
+					int cid2 = scr->data[pos];
+					bool recheck = timer.data != cid2;
+					timer.updateData(cid2);
+
+					if (recheck) //check same pos again
+						continue;
 				}
+				break;
 			}
 		}
 	}
