@@ -14404,6 +14404,11 @@ bool HeroClass::pitfall()
 			action=falling; FFCore.setHeroAction(falling);
 			spins = 0;
 			charging = 0;
+			if (replay_version_check(54))
+			{
+				attackclk = 0;
+				reset_hookshot();
+			}
 			drop_liftwpn();
 			return true;
 		}
