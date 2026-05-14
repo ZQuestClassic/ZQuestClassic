@@ -4548,9 +4548,12 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
-	int32_t d=tmpscr[t].door_combo_set;
 	if (type > 8) return;
-	
+
+	int32_t d=tmpscr[t].door_combo_set;
+	if (d >= MAXDOORCOMBOSETS) return;
+
+
 	switch(type)
 	{
 	case dt_wall:
@@ -4703,6 +4706,8 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 
 void over_door(mapscr* scr,BITMAP *dest, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
 {
+	if (!scr || scr->door_combo_set >= MAXDOORCOMBOSETS) return;
+
 	int32_t d=scr->door_combo_set;
 	int32_t x=(pos&15)<<4;
 	int32_t y=(pos&0xF0);

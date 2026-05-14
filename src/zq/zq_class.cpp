@@ -1551,7 +1551,10 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
 void zmap::put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr)
 {
     int32_t x=0,y=0;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS || type < 0 || type >= 9)
+        return;
     
     switch(side)
     {
@@ -1652,8 +1655,10 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
 {
     int32_t x=((pos&15)<<4)+xofs;
     int32_t y=(pos&0xF0)+yofs;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
-    
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS)
+        return;
     
     switch(side)
     {
