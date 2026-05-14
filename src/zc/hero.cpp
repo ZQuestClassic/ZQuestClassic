@@ -23798,10 +23798,13 @@ void HeroClass::handleSpotlights()
 		// The world is dark and full of terrors.
 		if (!found_any_light) return;
 		
-		switch (typeMap[(int)beam_hero_rpos])
+		if (beam_hero_rpos != rpos_t::None)
 		{
-			case SPTYPE_SOLID: case cBLOCKALL:
-				beam_hero_rpos = rpos_t::None; //Blocked from hitting player
+			switch (typeMap[(int)beam_hero_rpos])
+			{
+				case SPTYPE_SOLID: case cBLOCKALL:
+					beam_hero_rpos = rpos_t::None; //Blocked from hitting player
+			}
 		}
 
 		for_every_rpos([&](const rpos_handle_t& rpos_handle) {
@@ -23858,7 +23861,7 @@ void HeroClass::handleSpotlights()
 	}
 	else
 	{
-		if(had_spotlight)
+		if(had_spotlight || istrig.size() != (size_t)region_num_rpos)
 		{
 			istrig.clear();
 			istrig.resize(region_num_rpos);
