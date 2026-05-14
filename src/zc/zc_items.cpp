@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "zc/zelda.h"
+#include "zc/replay_compat.h"
 #include "zc/guys.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
@@ -62,98 +63,81 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 	}
 }
 
-int32_t select_dropitem(int32_t item_set)
+int select_dropitem(int item_set)
 {
-    int32_t total_chance=0;
-    
-    for(int32_t k=0; k<11; ++k)
-    {
-        int32_t current_chance=item_drop_sets[item_set].chance[k];
-        
-        if(k>0)
-        {
-            int32_t current_item=item_drop_sets[item_set].item[k-1];
-            
-            if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
-            {
-                current_chance=0;
-            }
-            
-            if((!get_qr(qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
-            {
-                current_chance=0;
-            }
-			
-			if(get_qr(qr_SMARTDROPS))
-			{
-				if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
-				{
-					current_chance = 0;
-				}
-			}
-			if(get_qr(qr_SMARTER_DROPS))
-			{
-				if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
-				{
-					current_chance = 0;
-				}
-			}
-        }
-        
-        total_chance+=current_chance;
-    }
-    
-    if(total_chance==0)
-        return -1;
-        
-    int32_t item_chance=(zc_oldrand()%total_chance)+1;
-    
-    int32_t drop_item=-1;
-    
-    for(int32_t k=10; k>=0; --k)
-    {
-    
-        int32_t current_chance=item_drop_sets[item_set].chance[k];
-        int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
-        
-        if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
-        {
-            current_chance=0;
-        }
-        
-        if((!get_qr(qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
-        {
-            current_chance=0;
-        }
-        
-		if(get_qr(qr_SMARTDROPS))
+	auto const& dropset = item_drop_sets[item_set];
+	int chances[11] = {0};
+	int total_chance = 0;
+
+	for(int k = 0; k < 11; ++k)
+	{
+		int current_chance = dropset.chance[k];
+		if (!current_chance) continue;
+
+		if (k > 0) // 0 is nothing chance
 		{
-			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
+			int current_item = dropset.item[k-1];
+			auto const& itm = itemsbuf[current_item];
+			bool remove = false;
+
+			// Remove magic if magic disabled
+			if ((!get_qr(qr_ENABLEMAGIC) || game->get_maxmagic() <= 0) && itm.family == itype_magic)
+				remove = true;
+			// Remove arrows if arrows disabled
+			else if (!get_qr(qr_TRUEARROWS) && itm.family == itype_arrowammo)
+				remove = true;
+			// remove items that increment a counter with 0 max
+			else if (get_qr(qr_SMARTDROPS)
+				&& itm.amount > 0 && game->get_maxcounter(itm.count) == 0)
+					remove = true;
+			// remove items that increment an already full counter
+			else if (get_qr(qr_SMARTER_DROPS)
+				&& itm.amount > 0 && game->get_counter(itm.count) >= game->get_maxcounter(itm.count))
+					remove = true;
+
+			if (remove)
 			{
+				// removed items become 'Nothing'
+				if (get_qr(qr_SMARTDROPS_NOTHING))
+				{
+					// Add their chance to the nothing chance
+					// before clearing the chance to 0
+					chances[0] += current_chance;
+					total_chance += current_chance;
+				}
 				current_chance = 0;
 			}
 		}
-		
-		if(get_qr(qr_SMARTER_DROPS)) //OH SHIT EMILY
-		{											//DEEDEE 'BOUT TO DAB ON YOU
-			if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
-			{
-				current_chance = 0;	//Item droprate being set to 0 faster than I can chug an entire coffee (read: fast)
-			}
+
+		chances[k] = current_chance;
+		total_chance += current_chance;
+	}
+
+	if (replay_compat_dropset_reroll_rng_bug())
+	{
+		// older replays: still consume an rng roll below even when only 'Nothing'
+		// remains, so only early-exit when there's no chance at all
+		if (total_chance == 0)
+			return -1;
+	}
+	// only nothing chance, so early exit with nothing
+	else if (total_chance <= chances[0])
+		return -1;
+
+	int rolled_chance = zc_oldrand() % total_chance; // 0 to n-1
+
+	for (int k = 10; k > 0; --k)
+	{
+		if (chances[k])
+		{
+			if (rolled_chance < chances[k])
+				return dropset.item[k-1];
+			else
+				rolled_chance -= chances[k];
 		}
-		
-        if(current_chance>0&&item_chance<=current_chance)
-        {
-            drop_item=current_item;
-            break;
-        }
-        else
-        {
-            item_chance-=current_chance;
-        }
-    }
-    
-    return drop_item;
+	}
+
+	return -1;
 }
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
