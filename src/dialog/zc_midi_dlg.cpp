@@ -76,7 +76,11 @@ std::shared_ptr<GUI::Widget> ZCMidiDlg::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
+
+	// TODO: ideally should disable the Quest Midi Info dialog option.
+	if (list_midis.empty())
+		return nullptr;
+
 	window = Window(
 		title = "MIDI Info",
 		onClose = message::OK,
