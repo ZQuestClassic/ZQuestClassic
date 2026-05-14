@@ -1551,7 +1551,10 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
 void zmap::put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr)
 {
     int32_t x=0,y=0;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS || type < 0 || type >= 9)
+        return;
     
     switch(side)
     {
@@ -1652,8 +1655,10 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
 {
     int32_t x=((pos&15)<<4)+xofs;
     int32_t y=(pos&0xF0)+yofs;
-    mapscr *doorscreen=(prv_mode?get_prvscr():screens+scr);
-    
+    mapscr *doorscreen = (prv_mode && scr == prv_scr) ? get_prvscr() : (screens ? screens + scr : nullptr);
+
+    if (!doorscreen || doorscreen->door_combo_set >= MAXDOORCOMBOSETS)
+        return;
     
     switch(side)
     {
@@ -2748,8 +2753,13 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(!XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 		_zmap_drawlayer(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, true, HL_LAYER(2));
 	
+	int dcs_index = (screens ? screens[currscr].door_combo_set : 0);
+	if (dcs_index >= MAXDOORCOMBOSETS) dcs_index = 0;
+	DoorComboSet const& door_set = DoorComboSets[dcs_index];
+	bool walk_trans = get_bit(door_set.flags, df_walktrans);
+
 	int32_t doortype[4];
-	
+
 	for(int32_t i=0; i<4; i++)
 	{
 		switch(basescr->door[i])
@@ -2791,18 +2801,18 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 		
 	case dWALK:
-		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		if(walk_trans)
 		{
 			overcombo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0]);
+					  door_set.walkthroughcombo[0],
+					  door_set.walkthroughcset[0]);
 		}
 		else
 		
 		{
 			put_combo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0],0,0);
+					  door_set.walkthroughcombo[0],
+					  door_set.walkthroughcset[0],0,0);
 		}
 		
 		break;
@@ -2822,17 +2832,17 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 		
 	case dWALK:
-		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		if(walk_trans)
 		{
 			overcombo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1]);
+					  door_set.walkthroughcombo[1],
+					  door_set.walkthroughcset[1]);
 		}
 		else
 		{
 			put_combo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1],0,0);
+					  door_set.walkthroughcombo[1],
+					  door_set.walkthroughcset[1],0,0);
 		}
 		
 		break;
@@ -2852,17 +2862,17 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 		
 	case dWALK:
-		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		if(walk_trans)
 		{
 			overcombo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2]);
+					  door_set.walkthroughcombo[2],
+					  door_set.walkthroughcset[2]);
 		}
 		else
 		{
 			put_combo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2],0,0);
+					  door_set.walkthroughcombo[2],
+					  door_set.walkthroughcset[2],0,0);
 		}
 		
 		break;
@@ -2883,17 +2893,17 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 		
 	case dWALK:
-		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		if(walk_trans)
 		{
 			overcombo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3]);
+					  door_set.walkthroughcombo[3],
+					  door_set.walkthroughcset[3]);
 		}
 		else
 		{
 			put_combo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
-					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3],0,0);
+					  door_set.walkthroughcombo[3],
+					  door_set.walkthroughcset[3],0,0);
 		}
 		
 		break;
