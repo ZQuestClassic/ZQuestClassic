@@ -1,0 +1,188 @@
+https://zquestclassic.com/releases/2.55.14
+
+# Features
+
+zc: Press B to backspace in name entry grid mode
+
+zc: Improve grid name entry mode
+  * Show on-screen controls for insert, backspace, confirm
+  * Press 'Tab' to use keyboard to type name
+
+zc: Gzip compress uploaded replays
+zc: Update replay versions on save load
+  Previously, save files associated with replay file were permanently
+  pinned to their initial replay version. This prevented older saves from
+  benefiting from subsequent engine bug fixes. The replay version now
+  dynamically updates when a save file is continued, seamlessly bringing
+  new fixes to ongoing playthroughs without breaking existing replays.
+
+zq: Add 'Open Tile Page' to Combo Pages right-click menu
+zq: Add 'Select' to combo page right-click menu
+  On using "Select":
+  
+  - Your current Combo + CSet you are drawing with are changed to the
+    right-clicked combo.
+  - Your current Drawing Mode is changed to Normal.
+  - The active Combo Column will scroll to the selected combo.
+  - The combo page dialog closes itself (so you can go use the selected
+    combo quickly). Useful to quickly start using a combo / section of
+    combos via the pages interface.
+
+zq: "DMap Levels" quest report, lists which DMaps are tied to each level
+zq: Show screen state carryovers in 'What Links Here' tool
+zq: Improve quest auto-backup and timed auto-saves
+  * Enable auto-backup by default.
+  * Save all backups and auto-saves to a `YourQuest.qst.backups/` folder.
+  * Include timestamps and ZC version numbers in backup filenames for
+    easier identification and recovery.
+  * Implement read-only protection to prevent accidentally saving over
+    files loaded from a backup folder.
+
+zq: Typable searchbar in some old lister dialogs (ex. level palettes)
+
+# Bug Fixes
+
+Prevent crash from listers using too much memory
+Prevent crash when loading music with non-ASCII filenames
+[mac] prevent crash from deeply nested dialogs
+Prevent rare crash by checking if time mutex exists
+Compat issues with quests before 2.53 related to owning mcguffin items
+
+zc: Check water correctly when scrolling down
+  When scrolling down while swimming, the player could sometimes
+  incorrectly use a walking animation rather than swimming.
+  
+  This regressed in 2.55.12.
+
+zc: Minor index logic error related to subscreens
+zc: 'Show Hitbox' cheat hitboxes being slightly misaligned
+zc: Show cheat hitboxes for invisible enemies
+zc: Prevent crash when combos trigger
+  Regressed in 2.55.13.
+
+zc: Melee weapon hitboxes lingering forever based on 'Live One Extra Frame' rule
+zc: Graphical errors in older quests
+  Many older quests were incorrectly drawing the player, held items, or
+  some enemies and weapons over the subscreen.
+  
+  Regressed in 2.55 alpha 120 (93f25b690).
+
+zc: 'slashable' combos (tall grass, etc) wrongly 'cutting' via triggers tab
+  Due to some old half-finished code, slashables were responding to all weapons set in their
+  combo triggers tab, even with `->ComboType Effects` not checked. This behavior has been
+  fixed, now requiring `->ComboType Effects` to trigger.
+  
+  Old quests loaded will automatically update any affected combos to behave as they did previously.
+
+zc: Hero sometimes drowning when drown QR is off
+zc: Newer Hero Movement buggy collision re: damage combos along the top of the screen
+  Hitting the corner of any solid horizontally was wrongly checking the TOP of the screen for damage combos.
+
+zc: 0-damage brang/hshot items not obeying script-changed damage values
+  If a script changed the damage of the weapon but not the item, enemies
+  who don't have "Damaged by Power 0 Weapons" checked would take the
+  ITEM's damage amount rather than the WEAPON's. This also affected
+  generic scripts changing the damage in an enemy hit event.
+
+zc: Spinning Tiles not becoming the next combo
+  No idea when this initially "broke", or if it *ever worked at all*,
+  but the help text says it is supposed to, so fixed it with a compat rule.
+
+zc: Statue shooters / spintiles / etc not working properly with triggers
+  triggers changing combos wasn't calling `screen_combo_modify_preroutine()`/`postroutine()`
+
+zc: Sprite light radius ignoring hit offsets
+zc: Prevent soft-lock in whirlwind over water
+  This regressed in 2.55.13 (b27da2ea2).
+
+zq: Prevent long label from visually breaking combo editor
+zq: Delete invalid command history
+  When reducing the map count, the command undo/redo history were
+  retaining entries for old maps. If attempting to undo/redo a command
+  from a deleted map, the editor would crash.
+  
+  Now, those entries are deleted when the map count reduces.
+
+zq: Prevent screen palette truncating to byte (0xFF)
+zq: Rename `Undercombo` -> `Undercombo` in many places for consistency
+zq: Don't show compat QR confirmation when creating new quest
+  When creating a new quest from an older tileset, don't show a confusing
+  confirmation dialog about disabling compat QRs. It won't hurt a new
+  quest to disable these QRs, and this dialog is likely to confuse new
+  users.
+
+zq: Show correct combos from adjacent screens
+  When the screen editor displays combos from adjacent screens, it was
+  randomly showing the wrong combos.
+  
+  Regressed in 2.55 alpha 109 (be515839b).
+
+std_zh: Set `MAX_DEFENSE` to correct value
+  It should be 41, but it was 42.
+
+zscript: Broken bitmap draws
+  Some bitmap drawing methods were broken, such as masked draws used in a
+  boss fight in Nayru's Odyssey. For that quest, it caused the boss to
+  always be invisible.
+  
+  This regressed in 2.55.10.
+  
+  https://discord.com/channels/876899628556091432/1490714916439593141
+
+zscript: `npcdata->InitD[]` / `WeaponInitD[]` being *10000
+zscript: Class destructors ending prematurely
+  When a destructor calls a user function, the script engine incorrectly
+  ended the destructor after that function call, skipping anything that
+  came after.
+
+zscript: Skip JIT compiler for larger scripts
+  If the experimental JIT feature is on, now really large scripts are
+  not compiled. It takes too long to compile large scripts in 2.55 so now
+  we don't bother.
+
+zscript: Some included headers using bad DrawCombo frame parameter
+  this fixes combo draws not animating properly in ghost, tango, and EmilyMisc.zh
+
+zscript: Add newlines missing in some error messages
+zscript: Change `Region->OriginScreenIndex` to `int` instead of `long`
+zscript: Add getters for `ffc::LastChangerX` and `ffc::LastChangerY`
+  These were never implemented.
+
+
+# Refactors
+
+
+[mac] unify F-keys for reset/quit
+  Previously on Mac, reset/quit were mapped to different keys than on
+  other platforms because historically F9/10 were reserved by the OS.
+  However, that is no longer the case on modern Macs.
+  
+  These function keys on Mac now match other platforms:
+  
+  * Reset is now F9 (was F7)
+  * Quit is now F10 (was F8)
+  * Screensaver and Palette Toggle have been moved back to F7 and F8,
+    respectively
+
+Speed up subscreen draws by simplifying string operations
+zc: Turn off replay_debug by default
+  This makes replay files significantly smaller by disabling debug mode,
+  which stores a hash for every graphics frame in the replay file. This is
+  no longer needed for replays recorded by players so it's time to disable
+  it.
+
+zq: Format map, screen locations more consistently
+  * Format map + screen pairs using a common format: decimal for map, hex
+    with a `0x` prefix for screen, and spaces for legibility. Example:
+    `19 : 0x5A`.
+  * Fix an issue in quest report tools that incorrectly used hex to format
+    the map component.
+
+zscript: Increase ZASM hang threshold
+  Every set number of ZASM instructions, the scripting engine checks if
+  the player hit F9 or F10 to allow them to quit during an infinite loop.
+  The default was to check every 1000 instructions, but that is way too
+  frequent. Now, the engine checks every 100k instructions. This reduces
+  the amount of unnecessary overhead related to checking for key events.
+
+zupdater: Disable on Mac, Linux
