@@ -1156,6 +1156,8 @@ static GUI::ListData itemRulesList
 		" by 1 or more, but that counter is already at or above its max capacity."
 		" This would, for example, prevent arrows from dropping if you already have"
 		" max arrows, potentially rerolling it with a more useful item."},
+	{ "Rerolled Drops Always Roll 'Nothing'", qr_SMARTDROPS_NOTHING,
+		"If enabled, drops that would be 'rerolled' instead become 'Nothing' drops."},
 	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
 		"If enabled, Items will fall through combos flagged with the 'Sideview Platform' flag"
 		" or the 'Sideview Ladder' flag. If disabled, they will land on and not fall through"

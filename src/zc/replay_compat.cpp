@@ -54,3 +54,11 @@ bool replay_compat_whistle_stuck_bug()
 {
 	return check_2_55(14);
 }
+
+// Dropsets that roll into 'Nothing' (e.g. via the SMARTDROPS_NOTHING qr or when all real
+// drops are removed) used to still consume a zc_oldrand() roll before returning nothing.
+// The new code early-exits without rolling, so older replays must keep the extra roll.
+bool replay_compat_dropset_reroll_rng_bug()
+{
+	return check_2_55(15);
+}

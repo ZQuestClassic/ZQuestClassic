@@ -10,5 +10,6 @@ bool replay_compat_hookshot_snap_player_bug();
 bool replay_compat_old_movement_off_by_one_bug();
 bool replay_compat_charging_during_scroll_bug();
 bool replay_compat_whistle_stuck_bug();
+bool replay_compat_dropset_reroll_rng_bug();
 
 #endif
