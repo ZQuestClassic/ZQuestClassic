@@ -671,6 +671,7 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_ITEM_CONVEYORS_IGNORE_HITBOX, "qr_ITEM_CONVEYORS_IGNORE_HITBOX" },
 		{ qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX, "qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX" },
 		{ qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX, "qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX" },
+		{ qr_SMARTDROPS_NOTHING, "qr_SMARTDROPS_NOTHING" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
