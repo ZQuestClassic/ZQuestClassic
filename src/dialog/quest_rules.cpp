@@ -1019,6 +1019,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Enemy Sideview Platform Hitbox", qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX,
 		"When enabled, enemies will use their old hit detection for sideview hitboxes, which doesn't properly"
 		" check the correct size of the hitbox, or account for hit offsets." },
+	{ "Broken Solids Pushing Player", qr_BROKEN_PLAYER_SOLIDPUSH,
+		"When enabled, moving solid objects won't be able to push the player into pitfall combos,"
+		" but WILL be able to push them while they are drowning/falling." },
 };
 
 static GUI::ListData enemiesRulesList
