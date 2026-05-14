@@ -3587,9 +3587,52 @@ void trig_trigger_groups()
 		for(auto pos = 0; pos < 176; ++pos)
 		{
 			cpos_info& timer = cpos_get(lyr, pos);
-			int cid = scr->data[pos];
+			// Prevent infinite oscillation: track which combos we've already triggered at
+			// this position so a combo pair that keeps swapping back and forth can't loop
+			// forever via the recheck path below.
+			std::set<int> visited_cids;
+			while (true)
+			{
+				int cid = scr->data[pos];
+				if (!visited_cids.insert(cid).second)
+					break;
+				newcombo const& cmb = combobuf[cid];
+
+				if(
+					((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+						&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
+					|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+						&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
+					)
+				{
+					do_trigger_combo(lyr,pos);
+					int cid2 = scr->data[pos];
+					bool recheck = timer.data != cid2;
+					timer.updateData(cid2);
+
+					if (recheck) //check same pos again
+						continue;
+				}
+				break;
+			}
+		}
+	}
+	for(word ffc = 0; ffc < c; ++ffc)
+	{
+		ffcdata& f = ffscr->ffcs[ffc];
+		cpos_info& timer = f.info;
+		// Prevent infinite oscillation, same as the layer/position loop above.
+		visited_cids.clear();
+		while (true)
+		{
+			if (f.flags & ffCHANGER)
+				break; //changers don't contribute
+			int cid = f.data;
+			if (std::find(visited_cids.begin(), visited_cids.end(), cid) != visited_cids.end())
+				break;
+			visited_cids.push_back(cid);
 			newcombo const& cmb = combobuf[cid];
-			
+
 			if(
 				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
 					&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
@@ -3597,48 +3640,18 @@ void trig_trigger_groups()
 					&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
 				)
 			{
-				do_trigger_combo(lyr,pos);
-				int cid2 = scr->data[pos];
+				do_trigger_combo_ffc(ffc);
+				int cid2 = f.data;
 				bool recheck = timer.data != cid2;
-				timer.updateData(cid2);
 
-				if (recheck) //check same pos again
-				{
-					--pos;
+				if(f.flags & ffCHANGER)
+					timer.updateData(-1);
+				else timer.updateData(cid2);
+
+				if(recheck) //check same ffc again
 					continue;
-				}
 			}
-		}
-	}
-	for(word ffc = 0; ffc < c; ++ffc)
-	{
-		ffcdata& f = ffscr->ffcs[ffc];
-		if (f.flags & ffCHANGER)
-			continue; //changers don't contribute
-		cpos_info& timer = f.info;
-		int cid = f.data;
-		newcombo const& cmb = combobuf[cid];
-		
-		if(
-			((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-				&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
-			|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-				&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
-			)
-		{
-			do_trigger_combo_ffc(ffc);
-			int cid2 = f.data;
-			bool recheck = timer.data != cid2;
-			
-			if(f.flags & ffCHANGER)
-				timer.updateData(-1);
-			else timer.updateData(cid2);
-			
-			if(recheck) //check same pos again
-			{
-				--ffc;
-				continue;
-			}
+			break;
 		}
 	}
 }
