@@ -2144,6 +2144,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		bool inf_ctr = false;
 		bool perc_ctr = trig.trigger_flags.get(TRIGFLAG_COUNTER_PERCENT);
+		bool partial = trig.trigger_flags.get(TRIGFLAG_COUNTER_PARTIAL_CONSUME);
 		zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
 		zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
 		if(perc_ctr)
@@ -2151,7 +2152,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		
 		if(side_effects && is_active_screen && trig.trigger_flags.get(TRIGFLAG_CTRNONLYTRIG) && trig.trigger_flags.get(TRIGFLAG_COUNTEREAT))
 		{
-			if(ctrval >= ctrcost && !inf_ctr)
+			if (!inf_ctr && (partial || ctrval >= ctrcost))
 				modify_ssc_ctr(trig.trigctr, -ctrcost, trig.trigger_flags.get(TRIGFLAG_COUNTER_GRADUAL));
 		}
 		if(trig.trigger_flags.get(TRIGFLAG_COUNTERGE))
@@ -2273,11 +2274,12 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			{
 				bool inf_ctr = false;
 				bool perc_ctr = trig.trigger_flags.get(TRIGFLAG_COUNTER_PERCENT);
+				bool partial = trig.trigger_flags.get(TRIGFLAG_COUNTER_PARTIAL_CONSUME);
 				zfix ctrval = get_ssc_ctr(trig.trigctr, &inf_ctr);
 				zfix ctrmax = get_ssc_ctrmax(trig.trigctr);
 				if (perc_ctr)
 					ctrcost = (ctrcost / 100) * ctrmax;
-				if (ctrval >= ctrcost && !inf_ctr)
+				if (!inf_ctr && (partial || ctrval >= ctrcost))
 					modify_ssc_ctr(trig.trigctr, -ctrcost, trig.trigger_flags.get(TRIGFLAG_COUNTER_GRADUAL));
 			}
 		}
