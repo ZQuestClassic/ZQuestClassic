@@ -434,7 +434,7 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink 
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool water_walkflag(int32_t x,int32_t y);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
-bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
+bool solpush_walkflag(int32_t x, int32_t y, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, const screen_handles_t& screen_handles);
