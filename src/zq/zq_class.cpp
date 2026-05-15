@@ -3074,12 +3074,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 			if(basescr->flags9 & fDARK_TRANS)
 			{
 				draw_trans_sprite(dest, tmpbuf, 0, 0);
+				if(get_qr(qr_NEWDARK_TRANS_STACKING))
+					draw_trans_sprite(dest, tmpbuf2, 0, 0);
 			}
 			else
 			{
 				masked_blit(tmpbuf,dest,0,0,0,0,tmpbuf->w,tmpbuf->h);
+				draw_trans_sprite(dest, tmpbuf2, 0, 0);
 			}
-			draw_trans_sprite(dest, tmpbuf2, 0, 0);
 			color_map = trans_table;
 			//
 			destroy_bitmap(tmpDark);
