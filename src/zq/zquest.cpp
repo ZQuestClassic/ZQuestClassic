@@ -749,15 +749,53 @@ zfix HeroModifiedY()
 
 int onOldHelp();
 
-static NewMenu import_250_menu
-{
-	{ "&DMaps", onImport_DMaps },
-	{ "&Combo Table", onImport_Combos },
-	{ "&Combo Alias", onImport_ComboAlias },
-};
+/*
+
+This is a summary of every export file type we have.
+
+Combo/Alias
+- .zcombo — one or more combos with a proper header (zversion, section_version, index, count).
+- .zca — combo aliases, written as a raw QST section dump (starts with ID_COMBOALIASES magic, no standalone header). Old/inconsistent format.
+- .zalias — combo aliases, written with a proper standalone header (like .zcombo). Newer parallel to .zca for the same data — both exist.
+
+Tiles
+- .ztile — single tile, used inside the tile editor.
+- .ztileset — a range of tile pages, used for bulk tile export. CLI: -export-tiles / -import-tiles.
+
+Enemies/NPCs
+- .guy — all enemy/NPC definitions in one file (full dump).
+- .znpc — single NPC. Import/export from right-click menu in enemy lister. CLI: -export-npc / -import-npc.
+
+Doors
+- .zdoors — single door combo set. CLI: -export-doorset / -import-doorset.
+
+Maps/DMaps
+- .map — individual screen/map layout.
+- .zdmap — DMap data (overworld/dungeon map collections).
+
+Palettes
+- .zpl — color palettes.
+
+Strings
+- .zqs — quest string/message table (binary).
+- .tsv — strings as tab-separated values (text). CLI: -export-strings.
+
+Graphics Pack
+- .zgp — multi-asset graphics pack (bundles tiles, palettes, combos together).
+
+A few things worth noting:
+
+- .zca vs .zalias: both store combo aliases but with incompatible formats — .zca is a raw QST section dump,
+  .zalias has a proper file header. This is duplication. We should probably remove .zalias.
+- .ztile vs .ztileset: .ztile is the tile-editor single-tile format; .ztileset is the page-range bulk format.
+   They likely have different headers.
+- Most formats use the pattern: int32 zversion, int32 zbuild, word section_version, word cversion as a header.
+
+*/
 
 static NewMenu import_graphics
 {
+	{ "&Graphics Pack", onImport_ZGP },
 	{ "&Palettes", onImport_Pals },
 	{},
 	{ "Tileset (&Full)", onImport_Tiles },
@@ -768,8 +806,7 @@ static NewMenu import_graphics
 	{ "Combo Pack (Full, 1:1)", onImport_Combopack },
 	{ "Combo Pack to... (Dest)", onImport_Combopack_To },
 	{},
-	{ "Combo &Alias Pack", onImport_Comboaliaspack },
-	{ "Combo A&lias Pack to...", onImport_Comboaliaspack_To },
+	{ "Combo &Alias", onImport_ComboAlias },
 	{},
 	{ "&Doorsets", onImport_Doorset },
 };
@@ -783,16 +820,6 @@ static NewMenu import_menu
 	{ "String Table (deprecated)", onImport_Msgs },
 	{},
 	{ "&Graphics", &import_graphics },
-	{},
-	{ "2.50 (Broken)", &import_250_menu },
-};
-
-static NewMenu export_250_menu
-{
-	{ "&DMaps", onExport_DMaps },
-	{ "&Combo Table", onExport_Combos },
-	{ "&Combo Alias", onExport_ComboAlias },
-	{ "&Graphics Pack", onExport_ZGP },
 };
 
 static NewMenu zq_help_menu
@@ -804,6 +831,7 @@ static NewMenu zq_help_menu
 
 static NewMenu export_graphics
 {
+	{ "&Graphics Pack", onExport_ZGP },
 	{ "&Palettes", onExport_Pals },
 	{},
 	{ "Tileset (&Full)", onExport_Tiles },
@@ -812,7 +840,7 @@ static NewMenu export_graphics
 	{ "&Combo Set", onExport_Combos },
 	{ "Combo Pack", onExport_Combopack },
 	{},
-	{ "Combo &Alias Pack", onExport_Comboaliaspack },
+	{ "Combo &Alias", onExport_ComboAlias },
 	{},
 	{ "&Doorsets", onExport_Doorset },
 };
@@ -830,8 +858,6 @@ static NewMenu export_menu
 	{ "String Table (deprecated)", onExport_Msgs },
 	{},
 	{ "&Graphics", &export_graphics },
-	{},
-	{ "2.50 (Broken)", &export_250_menu },
 };
 
 
@@ -2393,147 +2419,6 @@ void savesomedmaps([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 		pack_fclose(f);
 	}
 }
-
-static DIALOG save_comboaliasfiles_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-
-
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Alias Pack", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    //for future tabs
-    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    //4
-    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
-    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
-    //6
-    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
-    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
-    //8
-    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-void savesomecomboaliases([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t initialval)
-{
-	
-	char firsttile[8], tilecount[8];
-	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
-	//int32_t ret;
-	
-	
-	
-	save_comboaliasfiles_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
-	
-	save_comboaliasfiles_dlg[5].dp = firsttile;
-	save_comboaliasfiles_dlg[7].dp = tilecount;
-	
-	large_dialog(save_comboaliasfiles_dlg);
-	
-	int32_t ret = do_zqdialog(save_comboaliasfiles_dlg,-1);
-	jwin_center_dialog(save_comboaliasfiles_dlg);
-	
-	if(ret == 8)
-	{
-		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
-		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
-		if(prompt_for_new_file_compat("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
-		{  
-			char name[PATH_MAX];
-			extract_name(temppath,name,FILENAMEALL);
-			PACKFILE *f=zalleg_pack_fopen_password(temppath,F_WRITE, "");
-			if(f)
-			{
-				writecomboaliasfile(f,first_tile_id,the_tile_count);
-				pack_fclose(f);
-				InfoDialog("Success!",fmt::format("Saved {}",name)).show();
-			}
-		}
-	}
-}
-
-
-static DIALOG read_comboaliaspack_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-
-
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Pack To:", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    //for future tabs
-    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-    //4
-    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
-    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
-    //6
-    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
-    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
-    //8
-    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-void writesomecomboaliases_to([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t initialval)
-{
-	
-	char firsttile[8];;
-	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
-		//int32_t ret;
-	
-	
-	
-	read_comboaliaspack_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	//sprintf(tilecount,"%d",1);
-	
-	read_comboaliaspack_dlg[5].dp = firsttile;
-	
-	large_dialog(read_comboaliaspack_dlg);
-	
-	int32_t ret = do_zqdialog(read_comboaliaspack_dlg,-1);
-	jwin_center_dialog(read_comboaliaspack_dlg);
-	
-	if(ret == 8)
-	{
-		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
-		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(prompt_for_existing_file_compat("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
-		{  
-			char name[256];
-			extract_name(temppath,name,FILENAMEALL);
-			PACKFILE *f=zalleg_pack_fopen_password(temppath,F_READ, "");
-			if(f)
-			{
-				
-				if (!readcomboaliasfile_to_location(f,first_tile_id))
-				{
-					al_trace("Could not read from .zcombo packfile %s\n", name);
-					InfoDialog("ZALIAS File: Error","Could not load the specified combo aliases.").show();
-				}
-				else
-				{
-					InfoDialog("ZALIAS File: Success!","Loaded the source combos to your combo alias table!").show();
-					mark_save_dirty();
-				}
-				pack_fclose(f);
-			}
-		}
-	}
-}
-
 
 
 

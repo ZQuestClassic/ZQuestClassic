@@ -2,6 +2,7 @@
 #define ZQ_CUSTOM_H_
 
 #include "items.h"
+#include "zalleg/packfile.h"
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
@@ -26,5 +27,8 @@ void center_zq_custom_dialogs();
 
 int32_t onMiscSprites();
 int32_t onMiscSFX();
+
+int32_t readonenpc(PACKFILE *f, int32_t index);
+int32_t writeonenpc(PACKFILE *f, int32_t i);
 
 #endif

@@ -8,6 +8,7 @@ import json
 import os
 import platform
 import shutil
+import struct
 import subprocess
 import sys
 import unittest
@@ -281,6 +282,147 @@ class TestZEditor(unittest.TestCase):
             '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6',
         )
         self.assertEqual(len(tsv), 37)
+
+    def run_zeditor(self, args):
+        allegro_log_path = tmp_dir / 'allegro.log'
+        if allegro_log_path.exists():
+            allegro_log_path.unlink()
+        try:
+            run_target.check_run(
+                'zeditor',
+                ['-headless', *args],
+                env={**os.environ, 'ALLEGRO_LEGACY_TRACE': str(allegro_log_path)},
+            )
+        except Exception as e:
+            if allegro_log_path.exists():
+                e.add_note(allegro_log_path.read_text())
+            raise e
+
+    def test_roundtrip_tiles(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'tiles_work.qst'
+        export1 = tmp_dir / 'tiles1.ztileset'
+        export2 = tmp_dir / 'tiles2.ztileset'
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-tiles', src_qst, export1, '0', '5'])
+        self.run_zeditor(['-import-tiles', work_qst, export1, '0'])
+        self.run_zeditor(['-export-tiles', work_qst, export2, '0', '5'])
+
+        self.assertEqual(
+            export1.read_bytes(),
+            export2.read_bytes(),
+            'tile export after import+save differs from original export',
+        )
+
+    def test_roundtrip_guys(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'guys_work.qst'
+        export1 = tmp_dir / 'guys1.guy'
+        export2 = tmp_dir / 'guys2.guy'
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-guys', src_qst, export1])
+        self.run_zeditor(['-import-guys', work_qst, export1])
+        self.run_zeditor(['-export-guys', work_qst, export2])
+
+        self.assertEqual(
+            export1.read_bytes(),
+            export2.read_bytes(),
+            'guys export after import+save differs from original export',
+        )
+
+    def test_roundtrip_npc(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'npc_work.qst'
+        export1 = tmp_dir / 'npc1.znpc'
+        export2 = tmp_dir / 'npc2.znpc'
+        npc_index = 5
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-npc', src_qst, export1, str(npc_index)])
+        self.run_zeditor(['-import-npc', work_qst, export1, str(npc_index)])
+        self.run_zeditor(['-export-npc', work_qst, export2, str(npc_index)])
+
+        self.assertEqual(
+            export1.read_bytes(),
+            export2.read_bytes(),
+            'npc export after import+save differs from original export',
+        )
+
+    def test_roundtrip_doorset(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'doorset_work.qst'
+        export1 = tmp_dir / 'doorset1.zdoors'
+        export2 = tmp_dir / 'doorset2.zdoors'
+        doorset_index = 0
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-doorset', src_qst, export1, str(doorset_index)])
+        self.run_zeditor(['-import-doorset', work_qst, export1, str(doorset_index)])
+        self.run_zeditor(['-export-doorset', work_qst, export2, str(doorset_index)])
+
+        self.assertEqual(
+            export1.read_bytes(),
+            export2.read_bytes(),
+            'doorset export after import+save differs from original export',
+        )
+
+    def test_import_npc_rejects_old_format(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'npc_reject_work.qst'
+        old_format_npc = tmp_dir / 'old_format.znpc'
+
+        # V_GUYS_ZNPC_MIN is 57; write a file with section_version=56 to trigger rejection.
+        # Format: int32 zversion, int32 zbuild, uint16 section_version, uint16 cversion
+        old_format_npc.write_bytes(struct.pack('<iiHH', 0x0255, 0, 56, 0))
+
+        shutil.copy(qst, work_qst)
+        with self.assertRaises(Exception):
+            self.run_zeditor(['-import-npc', work_qst, old_format_npc, '5'])
+
+        allegro_log = (tmp_dir / 'allegro.log').read_text()
+        self.assertIn(
+            'Cannot read .znpc packfile with old format (V_GUYS 56 < 57)',
+            allegro_log,
+        )
+
+    def test_roundtrip_combo(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        src_qst = root_dir / 'tests/replays/classic_1st/classic_1st.qst'
+        work_qst = tmp_dir / 'combo_work.qst'
+        export1 = tmp_dir / 'combo1.zcombo'
+        export2 = tmp_dir / 'combo2.zcombo'
+        start_combo = 0
+        count = 10
+
+        shutil.copy(root_dir / 'tests/replays/playground/playground.qst', work_qst)
+        self.run_zeditor(['-export-combo', src_qst, export1, str(start_combo), str(count)])
+        self.run_zeditor(['-import-combo', work_qst, export1, str(start_combo)])
+        self.run_zeditor(['-export-combo', work_qst, export2, str(start_combo), str(count)])
+
+        self.assertEqual(
+            export1.read_bytes(),
+            export2.read_bytes(),
+            'combo export after import+save differs from original export',
+        )
 
     def test_package_export(self):
         if (

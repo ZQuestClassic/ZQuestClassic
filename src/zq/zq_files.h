@@ -50,10 +50,6 @@ int32_t onExport_Combopack();
 int32_t onImport_Combopack_To();
 int32_t onImport_Combopack();
 
-int32_t onImport_Comboaliaspack();
-int32_t onImport_Comboaliaspack_To();
-int32_t onExport_Comboaliaspack();
-
 void center_zq_files_dialogs();
 
 int32_t writezdoorsets(PACKFILE *f, int32_t first, int32_t count);

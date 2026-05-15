@@ -255,9 +255,6 @@ void writesomecombos_to(const char *prompt,int32_t initialval);
 void writesomecombos(const char *prompt,int32_t initialval);
 void loadcombopack(const char *prompt,int32_t initialval);
 
-void savesomecomboaliases(const char *prompt,int32_t initialval);
-void writesomecomboaliases_to(const char *prompt,int32_t initialval);
-
 int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max);
 int32_t readsomedmaps(PACKFILE *f);
 //need readsomedmaps_to, with a starting index, in the future

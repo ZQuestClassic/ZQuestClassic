@@ -1418,8 +1418,488 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		combobuf[0].type = 0;
 		combobuf[0].flag = 0;
 	}
-	
+
 	setup_combo_animations();
 	setup_combo_animations2();
+	return 0;
+}
+
+int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
+{
+	if(!p_iputw(V_WEAP_DATA,f))
+		new_return(1);
+
+	if (!p_iputw(data.flags, f))
+		new_return(2);
+
+	if (!p_iputl(data.moveflags, f))
+		new_return(3);
+
+	if (!p_iputw(data.wflags, f))
+		new_return(4);
+
+	for (int32_t q = 0; q < WPNSPR_MAX; ++q)
+	{
+		if (!p_iputw(data.burnsprs[q], f))
+			new_return(5);
+		if (!p_putc(data.light_rads[q], f))
+			new_return(6);
+		if (!p_iputl(data.light_offsets[q], f))
+			new_return(31);
+	}
+	if (!p_putc(data.glow_shape, f))
+		new_return(7);
+
+	if (!p_iputl(data.override_flags, f))
+		new_return(8);
+	if (!p_iputl(data.tilew, f))
+		new_return(9);
+	if (!p_iputl(data.tileh, f))
+		new_return(10);
+	if (!p_iputl(data.hxsz, f))
+		new_return(11);
+	if (!p_iputl(data.hysz, f))
+		new_return(12);
+	if (!p_iputl(data.hzsz, f))
+		new_return(13);
+	if (!p_iputl(data.hxofs, f))
+		new_return(14);
+	if (!p_iputl(data.hyofs, f))
+		new_return(15);
+	if (!p_iputl(data.xofs, f))
+		new_return(16);
+	if (!p_iputl(data.yofs, f))
+		new_return(17);
+
+	if (!p_iputzf(data.step, f))
+		new_return(18);
+
+	if (!p_putc(data.unblockable, f))
+		new_return(19);
+
+	if (!p_iputl(data.timeout, f))
+		new_return(20);
+
+	if (!p_putc(data.imitate_weapon, f))
+		new_return(21);
+	if (!p_putc(data.default_defense, f))
+		new_return(22);
+
+	if (!p_putc(data.lift_level, f))
+		new_return(23);
+	if (!p_putc(data.lift_time, f))
+		new_return(24);
+	if (!p_iputzf(data.lift_height, f))
+		new_return(25);
+
+	if (!p_iputw(data.script, f))
+		new_return(26);
+	for(uint q = 0; q < 8; ++q)
+		if(!p_iputl(data.initd[q], f))
+			new_return(27);
+	if (!p_iputw(data.pierce_count, f))
+		new_return(28);
+	if (!p_iputzf(data.bounce_mult, f))
+		new_return(29);
+	if (!p_iputzf(data.bounce_add, f))
+		new_return(30);
+	return 0;
+}
+
+int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
+{
+	if(!p_putcstr(tmp_trig.label,f))
+		return 22;
+	if(!p_putbitstr(tmp_trig.trigger_flags,f))
+		return 22;
+	if(!p_iputl(tmp_trig.triggerlevel,f))
+		return 23;
+	if(!p_putc(tmp_trig.triggerbtn,f))
+		return 34;
+	if(!p_iputw(tmp_trig.triggeritem,f))
+		return 35;
+	if(!p_iputw(tmp_trig.trigtimer,f))
+		return 36;
+	if(!p_iputw(tmp_trig.trigsfx,f))
+		return 37;
+	if(!p_iputl(tmp_trig.trigchange,f))
+		return 38;
+	if(!p_iputw(tmp_trig.trigprox,f))
+		return 39;
+	if(!p_iputw(tmp_trig.trigctr,f))
+		return 40;
+	if(!p_iputl(tmp_trig.trigctramnt,f))
+		return 41;
+	if(!p_putc(tmp_trig.triglbeam,f))
+		return 42;
+	if(!p_putc(tmp_trig.trigcschange,f))
+		return 43;
+	if(!p_iputl(tmp_trig.spawnitem,f))
+		return 44;
+	if(!p_iputw(tmp_trig.spawnenemy,f))
+		return 45;
+	if(!p_putc(tmp_trig.exstate,f))
+		return 46;
+	if(!p_iputl(tmp_trig.spawnip,f))
+		return 47;
+	if(!p_putc(tmp_trig.trigcopycat,f))
+		return 48;
+	if(!p_putc(tmp_trig.trigcooldown,f))
+		return 49;
+	if(!p_iputw(tmp_trig.prompt_cid,f))
+		return 50;
+	if(!p_putc(tmp_trig.prompt_cs,f))
+		return 51;
+	if(!p_iputw(tmp_trig.prompt_x,f))
+		return 52;
+	if(!p_iputw(tmp_trig.prompt_y,f))
+		return 53;
+	if(!p_putc(tmp_trig.trig_lstate,f))
+		return 69;
+	if(!p_putc(tmp_trig.trig_gstate,f))
+		return 70;
+	if(!p_iputl(tmp_trig.trig_statetime,f))
+		return 71;
+	if(!p_iputw(tmp_trig.trig_genscr,f))
+		return 72;
+	if(!p_putc(tmp_trig.trig_group,f))
+		return 76;
+	if(!p_iputw(tmp_trig.trig_group_val,f))
+		return 77;
+	if(!p_putc(tmp_trig.exdoor_dir,f))
+		return 89;
+	if(!p_putc(tmp_trig.exdoor_ind,f))
+		return 90;
+	if(!p_iputw(tmp_trig.trig_levelitems,f))
+		return 91;
+	if(!p_iputw(tmp_trig.trigdmlevel,f))
+		return 92;
+	for(int q = 0; q < 3; ++q)
+		if(!p_iputw(tmp_trig.trigtint[q],f))
+			return 93;
+	if(!p_iputw(tmp_trig.triglvlpalette,f))
+		return 94;
+	if(!p_iputw(tmp_trig.trigbosspalette,f))
+		return 95;
+	if(!p_iputw(tmp_trig.trigquaketime,f))
+		return 96;
+	if(!p_iputw(tmp_trig.trigwavytime,f))
+		return 97;
+	if(!p_iputw(tmp_trig.trig_swjinxtime,f))
+		return 98;
+	if(!p_iputw(tmp_trig.trig_itmjinxtime,f))
+		return 99;
+	if(!p_iputw(tmp_trig.trig_stuntime,f))
+		return 100;
+	if(!p_iputw(tmp_trig.trig_bunnytime,f))
+		return 101;
+	if(!p_putc(tmp_trig.trig_pushtime,f))
+		return 102;
+	if (!p_iputw(tmp_trig.trig_shieldjinxtime, f))
+		return 103;
+	if(!p_iputl(tmp_trig.req_level_state, f))
+		return 104;
+	if(!p_iputl(tmp_trig.unreq_level_state, f))
+		return 105;
+	if(!p_putbitstr(tmp_trig.req_global_state, f))
+		return 106;
+	if(!p_putbitstr(tmp_trig.unreq_global_state, f))
+		return 107;
+	if(!p_iputw(tmp_trig.fail_prompt_cid, f))
+		return 108;
+	if(!p_putc(tmp_trig.fail_prompt_cs, f))
+		return 109;
+	if(!p_iputl(tmp_trig.trig_msgstr, f))
+		return 110;
+	if(!p_iputl(tmp_trig.fail_msgstr, f))
+		return 111;
+	if(!p_iputzf(tmp_trig.player_bounce, f))
+		return 112;
+	if(!p_iputzf(tmp_trig.req_player_z, f))
+		return 113;
+	if(!p_putc(tmp_trig.req_player_dir, f))
+		return 114;
+	if(!p_iputzf(tmp_trig.dest_player_x, f))
+		return 115;
+	if(!p_iputzf(tmp_trig.dest_player_y, f))
+		return 116;
+	if(!p_iputzf(tmp_trig.dest_player_z, f))
+		return 117;
+	if(!p_iputzf(tmp_trig.req_player_jump, f))
+		return 118;
+	if(!p_iputzf(tmp_trig.req_player_x, f))
+		return 119;
+	if(!p_iputzf(tmp_trig.req_player_y, f))
+		return 120;
+	if(!p_putc(tmp_trig.dest_player_dir, f))
+		return 121;
+	if(!p_iputl(tmp_trig.force_ice_combo, f))
+		return 122;
+	if(!p_iputzf(tmp_trig.force_ice_vx, f))
+		return 123;
+	if(!p_iputzf(tmp_trig.force_ice_vy, f))
+		return 124;
+	if(!p_iputzf(tmp_trig.trig_gravity, f))
+		return 125;
+	if(!p_iputzf(tmp_trig.trig_terminal_v, f))
+		return 126;
+	if(!p_putbitstr(tmp_trig.req_screen_state, f))
+		return 127;
+	if(!p_putbitstr(tmp_trig.unreq_screen_state, f))
+		return 128;
+	if(!p_putbitstr(tmp_trig.req_screen_ex_state, f))
+		return 129;
+	if(!p_putbitstr(tmp_trig.unreq_screen_ex_state, f))
+		return 130;
+	if(!p_putc(tmp_trig.trigstatemap, f))
+		return 131;
+	if(!p_putc(tmp_trig.trigstatescreen, f))
+		return 132;
+	if(!p_iputl(tmp_trig.play_music, f))
+		return 133;
+	if(!p_putc(tmp_trig.set_music_refresh, f))
+		return 134;
+	if(!p_iputw(tmp_trig.viewport_cond_range, f))
+		return 135;
+	if(!p_iputl(tmp_trig.chance_numerator, f))
+		return 136;
+	if(!p_iputl(tmp_trig.chance_denominator, f))
+		return 137;
+	if(!p_iputw(tmp_trig.sfx_pan, f))
+		return 138;
+	if(!p_putc(tmp_trig.sfx_volume, f))
+		return 139;
+	if(!p_iputl(tmp_trig.sfx_frequency, f))
+		return 140;
+	return 0;
+}
+
+int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
+{
+	word combo_has_flags = 0;
+	for(auto q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+	{
+		if(tmp_cmb.c_attributes[q])
+		{
+			combo_has_flags |= CHAS_ATTRIB;
+			break;
+		}
+	}
+	if (!tmp_cmb.triggers.empty())
+		combo_has_flags |= CHAS_TRIG;
+	if(tmp_cmb.usrflags || tmp_cmb.genflags)
+		combo_has_flags |= CHAS_FLAG;
+	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
+		|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
+		|| tmp_cmb.animflags)
+		combo_has_flags |= CHAS_ANIM;
+	if(tmp_cmb.script || tmp_cmb.label.size())
+		combo_has_flags |= CHAS_SCRIPT;
+	else for(auto q = 0; q < 8; ++q)
+	{
+		if(tmp_cmb.initd[q])
+		{
+			combo_has_flags |= CHAS_SCRIPT;
+			break;
+		}
+	}
+	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
+		|| tmp_cmb.type || tmp_cmb.csets)
+		combo_has_flags |= CHAS_BASIC;
+	if(tmp_cmb.liftcmb || tmp_cmb.liftcs || tmp_cmb.liftdmg
+		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
+		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
+		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
+		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
+		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
+		|| tmp_cmb.lift_parent_item || !tmp_cmb.lift_weap_data.is_blank())
+		combo_has_flags |= CHAS_LIFT;
+	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
+		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
+		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap
+		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
+		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning || tmp_cmb.z_height || tmp_cmb.z_step_height
+		|| tmp_cmb.dive_under_level)
+		combo_has_flags |= CHAS_GENERAL;
+	if(!tmp_cmb.misc_weap_data.is_blank())
+		combo_has_flags |= CHAS_MISC_WEAP_DATA;
+
+	if(!p_iputw(combo_has_flags,f))
+	{
+		return 50;
+	}
+	if(!combo_has_flags) return 0;
+	if(combo_has_flags&CHAS_BASIC)
+	{
+		if(!p_iputl(tmp_cmb.o_tile,f))
+			return 6;
+
+		if(!p_putc(tmp_cmb.flip,f))
+			return 7;
+
+		if(!p_putc(tmp_cmb.walk,f))
+			return 8;
+
+		if(!p_putc(tmp_cmb.type,f))
+			return 9;
+
+		if(!p_putc(tmp_cmb.flag,f))
+			return 15;
+
+		if(!p_putc(tmp_cmb.csets,f))
+			return 10;
+	}
+	if(combo_has_flags&CHAS_SCRIPT)
+	{
+		p_putcstr(tmp_cmb.label, f);
+
+		if(!p_iputw(tmp_cmb.script,f))
+			return 26;
+		for ( int32_t q = 0; q < 8; q++ )
+			if(!p_iputl(tmp_cmb.initd[q],f))
+				return 27;
+	}
+	if(combo_has_flags&CHAS_ANIM)
+	{
+		if(!p_putc(tmp_cmb.frames,f))
+			return 11;
+
+		if(!p_putc(tmp_cmb.speed,f))
+			return 12;
+
+		if(!p_iputw(tmp_cmb.nextcombo,f))
+			return 13;
+
+		if(!p_putc(tmp_cmb.nextcset,f))
+			return 14;
+
+		if(!p_putc(tmp_cmb.skipanim,f))
+			return 16;
+
+		if(!p_putc(tmp_cmb.skipanimy,f))
+			return 18;
+
+		if(!p_putc(tmp_cmb.animflags,f))
+			return 19;
+	}
+	if(combo_has_flags&CHAS_ATTRIB)
+	{
+		if (!p_iputw(NUM_COMBO_ATTRIBUTES, f))
+			return 25;
+		for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			if(!p_iputzf(tmp_cmb.c_attributes[q],f))
+				return 20;
+	}
+	if(combo_has_flags&CHAS_FLAG)
+	{
+		if(!p_iputl(tmp_cmb.usrflags,f))
+			return 21;
+		if(!p_iputw(tmp_cmb.genflags,f))
+			return 33;
+	}
+	if(combo_has_flags&CHAS_TRIG)
+	{
+		byte sz = zc_min(tmp_cmb.triggers.size(), 255);
+		if(!p_putc(sz,f))
+			return 34;
+		for(byte q = 0; q < sz; ++q)
+		{
+			auto ret = writecombo_triggers_loop(f, tmp_cmb.triggers[q]);
+			if(ret) return ret;
+		}
+		if(!p_putc(tmp_cmb.only_gentrig,f))
+			return 35;
+	}
+	if(combo_has_flags&CHAS_LIFT)
+	{
+		if(!p_iputw(tmp_cmb.liftcmb,f))
+			return 54;
+		if(!p_putc(tmp_cmb.liftcs,f))
+			return 55;
+		if(!p_iputw(tmp_cmb.liftundercmb,f))
+			return 56;
+		if(!p_putc(tmp_cmb.liftundercs,f))
+			return 57;
+		if(!p_putc(tmp_cmb.liftdmg,f))
+			return 58;
+		if(!p_putc(tmp_cmb.liftlvl,f))
+			return 59;
+		if(!p_putc(tmp_cmb.liftitm,f))
+			return 60;
+		if(!p_putc(tmp_cmb.liftflags,f))
+			return 61;
+		if(!p_putc(tmp_cmb.liftgfx,f))
+			return 62;
+		if(!p_iputw(tmp_cmb.liftsprite,f))
+			return 63;
+		if(!p_iputw(tmp_cmb.liftsfx,f))
+			return 64;
+		if(!p_iputw(tmp_cmb.liftbreaksprite,f))
+			return 65;
+		if(!p_putc(tmp_cmb.liftbreaksfx,f))
+			return 66;
+		if(!p_putc(tmp_cmb.lifthei,f))
+			return 67;
+		if(!p_putc(tmp_cmb.lifttime,f))
+			return 68;
+		if(!p_iputw(tmp_cmb.lift_parent_item,f))
+			return 78;
+		if(auto ret = write_weap_data(tmp_cmb.lift_weap_data, f))
+			return ret;
+	}
+	if(combo_has_flags&CHAS_GENERAL)
+	{
+		if(!p_putc(tmp_cmb.speed_mult,f))
+			return 73;
+		if(!p_putc(tmp_cmb.speed_div,f))
+			return 74;
+		if(!p_iputzf(tmp_cmb.speed_add,f))
+			return 75;
+		if(!p_iputw(tmp_cmb.sfx_appear,f))
+			return 79;
+		if(!p_iputw(tmp_cmb.sfx_disappear,f))
+			return 80;
+		if(!p_iputw(tmp_cmb.sfx_loop,f))
+			return 81;
+		if(!p_iputw(tmp_cmb.sfx_walking,f))
+			return 82;
+		if(!p_iputw(tmp_cmb.sfx_standing,f))
+			return 83;
+		if(!p_iputw(tmp_cmb.spr_appear,f))
+			return 84;
+		if(!p_iputw(tmp_cmb.spr_disappear,f))
+			return 85;
+		if(!p_iputw(tmp_cmb.spr_walking,f))
+			return 86;
+		if(!p_iputw(tmp_cmb.spr_standing,f))
+			return 87;
+		if(!p_iputw(tmp_cmb.sfx_tap,f))
+			return 88;
+		if(!p_iputw(tmp_cmb.sfx_landing,f))
+			return 89;
+		if(!p_iputw(tmp_cmb.spr_falling,f))
+			return 90;
+		if(!p_iputw(tmp_cmb.spr_drowning,f))
+			return 91;
+		if(!p_iputw(tmp_cmb.spr_lava_drowning,f))
+			return 92;
+		if(!p_iputw(tmp_cmb.sfx_falling,f))
+			return 93;
+		if(!p_iputw(tmp_cmb.sfx_drowning,f))
+			return 94;
+		if(!p_iputw(tmp_cmb.sfx_lava_drowning,f))
+			return 95;
+		if(!p_iputzf(tmp_cmb.z_height,f))
+			return 96;
+		if(!p_iputzf(tmp_cmb.z_step_height,f))
+			return 97;
+		if(!p_putc(tmp_cmb.dive_under_level,f))
+			return 98;
+	}
+	if(combo_has_flags&CHAS_MISC_WEAP_DATA)
+	{
+		if(auto ret = write_weap_data(tmp_cmb.misc_weap_data, f))
+			return ret;
+	}
 	return 0;
 }

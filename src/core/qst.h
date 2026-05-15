@@ -185,6 +185,8 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path = NUL
 int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata = 0);
 int32_t readrules(PACKFILE *f, zquestheader *Header);
 int32_t readstrings(PACKFILE *f, zquestheader *Header);
+int32_t write_door_entry(PACKFILE *f, int32_t i);
+int32_t read_door_entry(PACKFILE *f, int32_t i, int32_t zelda_version, bool skip);
 int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header);
 int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int index);
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps);
@@ -196,6 +198,7 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 int32_t readitems(PACKFILE *f, word version, word build);
 int32_t read_single_spritedata(PACKFILE *f, zquestheader *Header, word s_version, word index);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);
+int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquestheader *Header, int32_t i, guydata& tempguy);
 int32_t readguys(PACKFILE *f, zquestheader *Header);
 int32_t readherosprites(PACKFILE *f, zquestheader *Header);
 int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites);
@@ -204,6 +207,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header);
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos);
 int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build);
 int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets);
+int32_t read_tile_entry(PACKFILE *f, tiledata *buf, int32_t i, byte *temp_tile, bool skip = false);
 int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init);
 int32_t readmidis(PACKFILE *f, zquestheader *Header, zctune *tunes);
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
@@ -218,6 +222,9 @@ int32_t readsubscreens(PACKFILE *f);
 int32_t read_one_old_subscreen(PACKFILE* f, subscreen_group* g, word s_version);
 
 int32_t read_weap_data(weapon_data& data, PACKFILE* f);
+int32_t write_weap_data(weapon_data const& data, PACKFILE* f);
+int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig);
+int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb);
 
 void init_msgstr(MsgStr *str);
 
