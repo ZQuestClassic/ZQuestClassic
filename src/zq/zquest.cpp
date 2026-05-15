@@ -5706,12 +5706,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					if(tmp->flags9 & fDARK_TRANS)
 					{
 						draw_trans_sprite(menu1, tmpbuf, mapscreen_x, mapscreen_y);
+						if (get_qr(qr_NEWDARK_TRANS_STACKING))
+							draw_trans_sprite(menu1, tmpbuf2, mapscreen_x, mapscreen_y);
 					}
 					else
 					{
 						masked_blit(tmpbuf,menu1,0,0,mapscreen_x,mapscreen_y,tmpbuf->w,tmpbuf->h);
+						draw_trans_sprite(menu1, tmpbuf2, mapscreen_x, mapscreen_y);
 					}
-					draw_trans_sprite(menu1, tmpbuf2, mapscreen_x, mapscreen_y);
 					color_map = &trans_table;
 					//
 					destroy_bitmap(tmpDark);
