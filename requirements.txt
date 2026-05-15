@@ -19,7 +19,7 @@ colorlog==6.8.2
 cryptography==42.0.5
 cutie==0.3.2
 Deprecated==1.2.14
-discord.py==2.3.2
+discord.py==2.7.1
 docutils==0.21.2
 Flask==3.0.3
 frozenlist==1.4.1
