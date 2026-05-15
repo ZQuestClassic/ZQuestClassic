@@ -6345,20 +6345,20 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 	return _walkflag(x,y,cnt);
 }
 
-bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign)
+bool solpush_walkflag(int32_t x, int32_t y, solid_object const* ign)
 {
 	// 16 pixel buffer to account for slopes that are on bordering screens.
 	if(x<0 || y<0 || x>=256+16 || y>=176+16)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)
-	if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
+	if(mblock2.clk && mblock2.hit(x, y, 0, 1, 1, 16))
 		return true;
 	
-	if (collide_object(x, y,cnt*8, 1, ign))
+	if (collide_object(x, y, 1, 1, ign))
 		return true;
 		
-	return _walkflag(x,y,cnt);
+	return _walkflag(x,y,1);
 }
 
 void map_bkgsfx(bool on)
