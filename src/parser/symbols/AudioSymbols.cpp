@@ -12,8 +12,6 @@ static AccessorTable AudioTable[] =
 	{ "ContinueSound",           0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "AdjustMusicVolume",       0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "AdjustSFXVolume",         0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "PauseCurMIDI",            0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO },{} },
-	{ "ResumeCurMIDI",           0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO },{} },
 	{ "PlayMIDI",                0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "PlayEnhancedMusic",       0,          ZTID_BOOL,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
@@ -166,31 +164,6 @@ void AudioSymbols::generateCode()
 		function->giveCode(code);
 	}
 	
-	//void PauseCurMIDI(game)
-	{
-		Function* function = getFunction("PauseCurMIDI");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop pointer, and ignore it
-		ASSERT_NUL();
-		addOpcode2 (code, new OPauseMusic());
-		LABELBACK(label);
-		RETURN();
-		function->giveCode(code);
-	}
-	
-	//void ResumeCurMIDI(game)
-	{
-		Function* function = getFunction("ResumeCurMIDI");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop pointer, and ignore it
-		ASSERT_NUL();
-		addOpcode2 (code, new OResumeMusic());
-		LABELBACK(label);
-		RETURN();
-		function->giveCode(code);
-	}
 	//void PlayMIDI(game, int32_t)
 	{
 		Function* function = getFunction("PlayMIDI");
