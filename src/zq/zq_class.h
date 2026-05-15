@@ -555,6 +555,7 @@ int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, w
 int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos);
 int32_t writecomboaliases(PACKFILE *f, word version, word build);
 
+int32_t write_tile_entry(PACKFILE *f, tiledata *buf, int32_t i);
 int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles);
 
 int32_t write_one_dmap(PACKFILE* f, int index);
@@ -578,6 +579,8 @@ int32_t write_single_item(PACKFILE *f, word index);
 int32_t writeitems(PACKFILE *f, zquestheader *Header);
 int32_t write_single_spritedata(PACKFILE *f, word index);
 int32_t writeweapons(PACKFILE *f, zquestheader *Header);
+int32_t writeguy_single(PACKFILE *f, guydata& guy);
+int32_t writeguys(PACKFILE *f, zquestheader *Header);
 int32_t writemisccolors(PACKFILE *f, zquestheader *Header);
 int32_t writegameicons(PACKFILE *f, zquestheader *Header);
 int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header);

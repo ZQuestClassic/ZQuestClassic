@@ -210,10 +210,6 @@ int32_t onExport_Combopack();
 int32_t onImport_Combopack_To();
 int32_t onImport_Combopack();
 
-int32_t onImport_Comboaliaspack();
-int32_t onImport_Comboaliaspack_To();
-int32_t onExport_Comboaliaspack();
-
 int32_t writezdoorsets(PACKFILE *f, int32_t first, int32_t count);
 int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststart);
 int32_t writeonezdoorset(PACKFILE *f, int32_t index);
