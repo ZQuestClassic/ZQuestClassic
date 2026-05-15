@@ -13,7 +13,7 @@ class musicdata {
 	internal const int ID;
 	
 	// Returns true if this music is 'active'. The active music is whichever music is currently playing,
-	// though it remains 'active' even if the music is paused via ex. [Audio::PauseCurMIDI].
+	// though it remains 'active' even if the music is paused via ex.
 	//
 	// Always returns false for [MUSIC_SILENCE].
 	//

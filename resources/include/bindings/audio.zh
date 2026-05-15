@@ -192,18 +192,6 @@ class Audio {
 	//   ADJUSTSFXVOLUMER D2
 	internal void AdjustSFXVolume(int percent);
 
-	// Pauses the currently playing MIDI so that it may be resumed later.
-	//
-	// @zasm
-	//   PAUSEMUSIC
-	internal void PauseCurMIDI();
-
-	// Resumes the previously paused MIDI.
-	//
-	// @zasm
-	//   RESUMEMUSIC
-	internal void ResumeCurMIDI();
-
 	// Plays the Music [music_index]. See [MusicRefresh] for details on when the engine will change the music back.
 	// Index 0 will stop currently playing music.
 	// Index -1 will play the music of the current screen/dmap, as the engine would.
