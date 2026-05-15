@@ -10455,9 +10455,9 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	}
 	if(dx < 0)
 	{
-		if(!(solpush_walkflag(x+dx,y+(bigHitbox?0:8),1,this)
-			|| solpush_walkflag(x+dx,y+8,1,this)
-			|| (y.getInt()&7?solpush_walkflag(x+dx,y+16,1,this):0)))
+		if(!(solpush_walkflag(x+dx,y+(bigHitbox?0:8),this)
+			|| solpush_walkflag(x+dx,y+8,this)
+			|| (y.getInt()&7?solpush_walkflag(x+dx,y+15,this):0)))
 		{
 			x += dx;
 			return true;
@@ -10466,9 +10466,9 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	}
 	else if(dx > 0)
 	{
-		if(!(solpush_walkflag(x+15+dx,y+(bigHitbox?0:8),1,this)
-			|| solpush_walkflag(x+15+dx,y+8,1,this)
-			|| (y.getInt()&7?solpush_walkflag(x+15+dx,y+16,1,this):0)))
+		if(!(solpush_walkflag(x+15+dx,y+(bigHitbox?0:8),this)
+			|| solpush_walkflag(x+15+dx,y+8,this)
+			|| (y.getInt()&7?solpush_walkflag(x+15+dx,y+15,this):0)))
 		{
 			x += dx;
 			return true;
@@ -10477,8 +10477,9 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	}
 	else if(dy < 0)
 	{
-		if(!(solpush_walkflag(x,y+(bigHitbox?0:8)+dy,2,this)
-			|| (x.getInt()&7?solpush_walkflag(x+16,y+(bigHitbox?0:8)+dy,1,this):0)))
+		if(!(solpush_walkflag(x,y+(bigHitbox?0:8)+dy,this)
+			|| solpush_walkflag(x+8,y+(bigHitbox?0:8)+dy,this)
+			|| (x.getInt()&7?solpush_walkflag(x+15,y+(bigHitbox?0:8)+dy,this):0)))
 		{
 			y += dy;
 			return true;
@@ -10487,8 +10488,9 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	}
 	else if(dy > 0)
 	{
-		if(!(solpush_walkflag(x,y+15+dy,2,this)
-			|| (x.getInt()&7?solpush_walkflag(x+16,y+15+dy,1,this):0)))
+		if(!(solpush_walkflag(x,y+15+dy,this)
+			|| solpush_walkflag(x+8,y+15+dy,this)
+			|| (x.getInt()&7?solpush_walkflag(x+15,y+15+dy,this):0)))
 		{
 			y += dy;
 			return true;
