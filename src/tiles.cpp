@@ -29,6 +29,10 @@ extern zfix  HeroModifiedY();
 
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 
+static int32_t unpack_oldtile = -5;
+static int32_t unpack_oldflip = -5;
+static byte *unpack_oldnewtilebuf = nullptr;
+
 byte unpackbuf[256];
 
 static bool can_use_sse2()
@@ -588,24 +592,23 @@ static const byte* get_tile_bytes(int32_t tile, int32_t flip)
 // unpacks from tilebuf to unpackbuf
 void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, [[maybe_unused]] bool force)
 {
-    static byte *si, *di;
-    static byte *oldnewtilebuf=buf[tile].data;
-    static int32_t i, j, oldtile=-5, oldflip=-5;
-    
+    byte *si, *di;
+    int32_t i, j;
+
     // This is only still here because of a crash during grabbing. See get_tile_bytes.
     // Disabled for player because it causes a flaky failure for:
     //  python tests/run_replay_tests.py --filter freedom_in_chains --frame 143580
     // ...on mac only.
 #if IS_EDITOR
-    if(tile==oldtile&&(flip&5)==(oldflip&5)&&oldnewtilebuf==buf[tile].data&&!force)
+    if(tile==unpack_oldtile&&(flip&5)==(unpack_oldflip&5)&&unpack_oldnewtilebuf==buf[tile].data&&!force)
     {
         return;
     }
 #endif
-    
-    oldtile=tile;
-    oldflip=flip;
-    oldnewtilebuf=buf[tile].data;
+
+    unpack_oldtile=tile;
+    unpack_oldflip=flip;
+    unpack_oldnewtilebuf=buf[tile].data;
     
     switch(flip&5)
     {
@@ -747,6 +750,7 @@ void pack_tile(tiledata *buf, byte *src,int32_t tile)
 
 void pack_tiledata(byte *dest, byte *src, byte format)
 {
+    unpack_oldtile = -5;
     byte *di = dest;
     
     switch(format)
