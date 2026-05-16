@@ -10863,23 +10863,38 @@ void HeroClass::handle_passive_buttons()
 
 void HeroClass::for_each_rpos_stood_on(std::function<void(const rpos_handle_t&)> proc)
 {
-	auto rpos = COMBOPOS_REGION_B(x+8, y+(sideview_mode()?16:12));
-	auto rpos2 = sideview_mode() ? COMBOPOS_REGION_B(x+8, y+12) : rpos_t::None;
+	auto tx = x+8;
+	auto ty = y+(sideview_mode()?16:12);
+	auto ty2 = y+12;
+	auto rpos = COMBOPOS_REGION_B(tx, ty);
+	auto rpos2 = sideview_mode() ? COMBOPOS_REGION_B(tx, ty2) : rpos_t::None;
 	if (rpos != rpos_t::None || rpos2 != rpos_t::None)
 	{
-		for (int layer = 0; layer < 7; ++layer)
+		for (int layer = 6; layer >= 0; --layer)
 		{
 			if (rpos != rpos_t::None)
 			{
 				auto handle = get_rpos_handle(rpos, layer);
 				if (!sideview_mode() || !(handle.combo().genflags & cflag5))
 					proc(handle);
+				if (handle.ctype() == cBRIDGE && _effectflag_layer(tx, ty, layer-1))
+				{
+					rpos = rpos_t::None;
+					if (rpos2 == rpos_t::None)
+						break;
+				}
 			}
 			if (rpos2 != rpos_t::None)
 			{
 				auto handle = get_rpos_handle(rpos2, layer);
 				if (handle.combo().genflags & cflag5) // sideview_mode() already checked above
 					proc(handle);
+				if (handle.ctype() == cBRIDGE && _effectflag_layer(tx, ty2, layer-1))
+				{
+					rpos2 = rpos_t::None;
+					if (rpos == rpos_t::None)
+						break;
+				}
 			}
 		}
 	}
@@ -10901,7 +10916,7 @@ void HeroClass::land_on_ground()
 	for_each_rpos_stood_on([&](const rpos_handle_t& handle)
 		{
 			auto& cmb = handle.combo();
-			byte csfx = cmb.sfx_landing;
+			word csfx = cmb.sfx_landing;
 			if (csfx && !get_qr(qr_OLD_LANDING_SFX))
 			{
 				sfx(csfx, pan(x));
