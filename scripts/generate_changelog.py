@@ -394,6 +394,8 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if m:
             body = body[0 : m.start()].strip()
         body = re.sub(r'^Co-authored-by: .+', '', body, flags=re.MULTILINE).strip()
+        body = re.sub(r'^Signed-off-by: .+', '', body, flags=re.MULTILINE).strip()
+        body = re.sub(r'^Agent: .+', '', body, flags=re.MULTILINE).strip()
         body = re.sub(
             r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE
         ).strip()
