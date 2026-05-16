@@ -73,7 +73,7 @@ else()
 endif()
 
 if(WANT_GIT_HOOKS)
-	if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+	if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 		if(UNIX)
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/commit-msg")
 			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg")
