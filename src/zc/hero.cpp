@@ -24623,7 +24623,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 	mapscr* scrs[4]={};
 	rpos_t rposes[4];
 	rpos_handle_t rpos_handles[4];
-	bool bridge_covered[4] = {false};
 	int32_t type=0;
 	int32_t water=0;
 	int32_t index = 0;
@@ -24661,18 +24660,19 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int ys[4] = {y1, y2, y1, y2};
 		for (int q = 0; q < 4; ++q)
 		{
+			bool bridge_covered = false;
 			rposes[q] = COMBOPOS_REGION(xs[q], ys[q]);
-			bridge_covered[q] = false;
-			for (int lyr = 6; lyr > 0; --lyr)
-			{
-				auto handle = get_rpos_handle(rposes[q], lyr);
-				if (handle.ctype() != cBRIDGE)
-					continue;
-				if (!_effectflag_layer(xs[q], ys[q], lyr-1))
-					continue;
-				bridge_covered[q] = true;
-				break;
-			}
+			if (!get_qr(qr_OLD_BRIDGE_COMBO_COVER))
+				for (int lyr = 6; lyr > 0; --lyr)
+				{
+					auto handle = get_rpos_handle(rposes[q], lyr);
+					if (handle.ctype() != cBRIDGE)
+						continue;
+					if (!_effectflag_layer(xs[q], ys[q], lyr-1))
+						continue;
+					bridge_covered = true;
+					break;
+				}
 			rpos_handles[q] = get_rpos_handle(rposes[q], 0);
 			cids[q] = rpos_handles[q].data();
 			scrs[q] = rpos_handles[q].scr;
