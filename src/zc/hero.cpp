@@ -24411,7 +24411,9 @@ static std::map<rpos_t, int> getRposes(int32_t x1, int32_t y1, int32_t x2, int32
 			int lyr = 6;
 			if (rposes.contains(tmp))
 				lyr = rposes[tmp];
-			for (; lyr > 0; --lyr)
+			if (get_qr(qr_OLD_BRIDGE_COMBO_COVER))
+				lyr = 0;
+			else for (; lyr > 0; --lyr)
 			{
 				auto handle = get_rpos_handle(tmp, lyr);
 				if (handle.ctype() != cBRIDGE)
