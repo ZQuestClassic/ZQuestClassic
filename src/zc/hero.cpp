@@ -8319,10 +8319,12 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
-		for(int q = 0; q < 7; ++q)
+		auto tx = x+8;
+		auto ty = y+(sideview_mode()?16:12);
+		auto cpos = COMBOPOS(tx,ty);
+		for(int layer = 6; layer >= 0; --layer)
 		{
-			mapscr* lyr = FFCore.tempScreens[q];
+			mapscr* lyr = FFCore.tempScreens[layer];
 			auto cid = lyr->data[cpos];
 			newcombo const& cmb = combobuf[cid];
 			byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
@@ -8343,6 +8345,8 @@ heroanimate_skip_liftwpn:;
 						spr->run_sprite(cspr);
 				}
 			}
+			if (layer <= 2 && cmb.type == cBRIDGE && (get_qr(qr_OLD_BRIDGE_COMBOS) ? _walkflag_layer(tx, ty, 1, lyr) : _effectflag_layer(tx, ty, 1, lyr)))
+				break;
 		}
 	}
 	
