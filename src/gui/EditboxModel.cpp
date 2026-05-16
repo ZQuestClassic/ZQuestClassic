@@ -98,8 +98,8 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int32_t x, i
 	while(offset < s.size())
 	{
 		int32_t c = ugetc(txt+offset);
-		
-		int32_t width = uwidth(txt);
+
+		int32_t width = uwidth(txt+offset);
 		offset+=width;
 		char temp[50];
 		
