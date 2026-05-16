@@ -10,7 +10,8 @@ namespace GUI
 {
 
 List::List():
-	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), msg_r(-1), msg_d(-1), isABC(false)
+	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), msg_r(-1), msg_d(-1), isABC(false),
+	scrollPtr(nullptr)
 {
 	setPreferredWidth(20_em);
 	setPreferredHeight(12_em);
@@ -107,6 +108,11 @@ void List::setIndex()
 	selectedValue = minVal;
 }
 
+void List::setScrollPtr(size_t* ptr)
+{
+	scrollPtr = ptr;
+}
+
 void List::setIsABC(bool abc)
 {
 	isABC = abc;
@@ -137,13 +143,21 @@ void List::realize(DialogRunner& runner)
 	if(selectedIndex < 0)
 		setIndex();
 
+	// Determine the initial scroll offset (d2).
+	// If a scroll-position pointer is provided and has been saved before
+	// (i.e. != (size_t)-1 sentinel), restore it; otherwise fall back to
+	// selectedIndex so the selected item is visible on the first open.
+	int32_t init_scroll = selectedIndex;
+	if(scrollPtr && *scrollPtr != static_cast<size_t>(-1))
+		init_scroll = static_cast<int32_t>(*scrollPtr);
+
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		isABC ? newGUIProc<jwin_abclist_proc> : newGUIProc<jwin_list_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		selectedIndex, selectedIndex, // d1, d2,
+		selectedIndex, init_scroll, // d1, d2,
 		&jwinListData, nullptr, nullptr // dp, dp2, dp3
 	});
 }

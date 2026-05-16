@@ -38,6 +38,12 @@ public:
 
 	int32_t getSelectedIndex() const;
 
+	/* Sets a pointer for saving/restoring the scroll position (d2).
+	 * Initialize *ptr to (size_t)-1 so the first open centers on the
+	 * selected item; subsequent opens will restore the saved scroll offset.
+	 */
+	void setScrollPtr(size_t* ptr);
+
 	void setOnSelectFunc(std::function<void(int32_t)> newFunc)
 	{
 		onSelectFunc = newFunc;
@@ -50,7 +56,7 @@ public:
 	{
 		onDClickFunc = newFunc;
 	}
-	
+
 	void setIsABC(bool abc);
 
 	template<typename T>
@@ -68,20 +74,22 @@ public:
 	{
 		msg_d = static_cast<int32_t>(m);
 	}
-	
+
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();
+public:
+	DialogRef alDialog;
 private:
 	// A bit ugly because there was already a ListData struct in jwin
 	::ListData jwinListData;
 	const ::GUI::ListData* listData;
 	int32_t selectedIndex, selectedValue;
-	DialogRef alDialog;
 	int32_t message, msg_r, msg_d;
 	std::function<void(int32_t)> onSelectFunc;
 	std::function<void(int32_t,int32_t,int32_t)> onRClickFunc;
 	std::function<void(int32_t,int32_t,int32_t)> onDClickFunc;
 	bool isABC;
+	size_t* scrollPtr;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

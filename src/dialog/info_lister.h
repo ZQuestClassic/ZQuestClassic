@@ -58,13 +58,22 @@ protected:
 	void set_config(std::string const& name, double value);
 	
 	std::string titleTxt;
-	GUI::ListData lister;
 	int selected_val, start_val;
 	size_t frozen_start, frozen_end;
 	bool selecting, use_preview, editable, alphabetized, use_mappreview, use_alpha;
-	
+
 	std::string cfg_key;
-	
+	GUI::ListData lister;
+
+	// Global registry for list state per cfg_key.
+	// scroll: (size_t)-1 means "not yet saved; scroll to selected item on first open".
+	// selection: -1 means "not yet saved; default to start_val".
+	struct ListerState {
+		size_t scroll = static_cast<size_t>(-1);
+		int selection = -1;
+	};
+	static std::map<std::string, ListerState> lister_registry;
+
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;
 	std::shared_ptr<GUI::TileFrame> widgPrev;

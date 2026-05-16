@@ -39,6 +39,8 @@ static string get_info(bool sel, bool advpaste, bool saveload = true, bool copyp
 
 int lister_sel_val = -1;
 
+std::map<std::string, BasicListerDialog::ListerState> BasicListerDialog::lister_registry;
+
 std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 {
 	using namespace GUI::Builder;
@@ -48,6 +50,9 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	lister_sel_val = start_val;
 	
 	widgList.reset(); // make sure calling `resort` from `preinit` is safe
+
+	if(!selecting && lister_registry.count(cfg_key) && lister_registry[cfg_key].selection != -1)
+		selected_val = lister_registry[cfg_key].selection;
 	btnrow2.reset();
 	
 	frozen_start = frozen_end = 0; // expected to be re-set by preinit as needed
@@ -94,6 +99,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			selectedValue = selected_val,
 			rowSpan = 3, fitParent = true,
 			focused = true,
+			scrollPtr = selecting ? nullptr : &lister_registry[cfg_key].scroll,
 			onSelectFunc = [&](int32_t val)
 			{
 				if(selected_val == val)
@@ -216,6 +222,12 @@ void BasicListerDialog::set_config(string const& name, double value)
 
 bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
+	if(!selecting && widgList && widgList->alDialog)
+	{
+		lister_registry[cfg_key].scroll = static_cast<size_t>(widgList->alDialog->d2);
+		lister_registry[cfg_key].selection = selected_val;
+	}
+
 	bool refresh = false;
 	auto m = msg.message;
 	if(m == message::CONFIRM)
@@ -1224,6 +1236,7 @@ void DMapListerDialog::postinit()
 {
 	window->setHelp(get_info(selecting, true));
 }
+
 static int16_t copied_dmap_id = -1;
 void DMapListerDialog::update(bool)
 {
