@@ -33,6 +33,13 @@ extern script_bitmaps scb;
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
+extern refInfo *ri;
+extern script_bitmaps scb;
+extern ScriptType curScriptType;
+extern word curScriptNum;
+extern int32_t curScriptIndex;
+extern bool script_funcrun;
+
 static int32_t secondary_draw_origin_xoff;
 static int32_t secondary_draw_origin_yoff;
 
@@ -10786,7 +10793,16 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
-	
+
+	// For each draw, we will restore the script context that queued it so any Z_scripterrlog
+	// triggered inside the command reports the originating script and PC.
+	// So first we must save the existing globals.
+	ScriptType oldScriptType = curScriptType;
+	word oldScriptNum = curScriptNum;
+	int32_t oldScriptIndex = curScriptIndex;
+	bool oldScriptFuncrun = script_funcrun;
+	refInfo* oldRi = ri;
+
 	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
 		auto& command = script_drawing_commands[i];
@@ -10837,6 +10853,17 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 				continue;
 			}
 		}
+
+		// Restore script context.
+		refInfo loggingRi;
+		loggingRi.pc = command.pc;
+		loggingRi.thiskey = command.thiskey;
+
+		curScriptType = command.script_type;
+		curScriptNum = command.script_num;
+		curScriptIndex = command.script_index;
+		script_funcrun = command.script_funcrun;
+		ri = &loggingRi;
 
 		switch(sdci[0])
 		{
@@ -11086,7 +11113,13 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			case BMPMASKBLIT: do_bmpmaskblit(bmp, sdci, xoffset, yoffset); break;
 		}
 	}
-	
+
+	// Restore global script context.
+	curScriptType = oldScriptType;
+	curScriptNum = oldScriptNum;
+	curScriptIndex = oldScriptIndex;
+	script_funcrun = oldScriptFuncrun;
+	ri = oldRi;
 	
 	color_map=&trans_table;
 }

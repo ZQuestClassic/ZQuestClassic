@@ -292,6 +292,15 @@ public:
 
 	DrawOrigin secondary_draw_origin;
 	int32_t secondary_draw_origin_target;
+
+	// Script metadata captured at queue time so deferred draw errors
+	// log the originating script rather than whatever ran last.
+	ScriptType script_type;
+	word script_num;
+	int32_t script_index;
+	int32_t pc;
+	bool script_funcrun;
+	uint32_t thiskey;
 };
 
 
