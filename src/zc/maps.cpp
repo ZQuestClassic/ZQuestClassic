@@ -1023,21 +1023,11 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
+	if (has_bridge_above(x, y, 0))
+		return cNONE;
 	int32_t b=1;
 	if(x&8) b<<=2;
 	if(y&8) b<<=1;
-
-	for (int32_t i = 0; i <= 1; ++i)
-	{
-		if (get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x, y, i)) return cNONE;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x, y, i)) return cNONE;
-		}
-	}
 	
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
 	if (cmb.type == cWATER && (cmb.walk&b) && ((cmb.walk>>4)&b))
@@ -1063,17 +1053,8 @@ int32_t FFORCOMBO(int32_t x, int32_t y)
 
 int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 {
-	for (int32_t i = 0; i <= 1; ++i)
-	{
-		if (get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
-		}
-	}
+	if (!MAPFFCOMBO(x,y) && has_bridge_above(x, y, 0))
+		return cNONE;
 	int32_t b=1;
     
 	if(x&8) b<<=2;
@@ -1406,20 +1387,8 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 {
-	if(layer < 1)
-	{
-		for (int32_t i = layer+1; i <= 1; ++i)
-		{
-			if (get_qr(qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
-			}
-		}
-	}
+	if (has_bridge_above(x, y, layer+1))
+		return cNONE;
 	if(layer==-1) return COMBOTYPE(x,y);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
@@ -2268,27 +2237,16 @@ bool ispitfall(int32_t x, int32_t y)
 	{
 		return ispitfall(c) ? true : false;
 	}
+	if (has_bridge_above(x, y, 2))
+		return false;
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return true;
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1)) return false;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1)) return false;
-	}
+	if (has_bridge_at(x, y, 2))
+		return false;
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return true;
-
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0)) return false;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0)) return false;
-	}
+	if (has_bridge_at(x, y, 1))
+		return false;
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return true;
 	return false;
@@ -2300,28 +2258,16 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	{
 		return ispitfall(c) ? c : 0;
 	}
+	if (has_bridge_above(x, y, 2))
+		return 0;
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return c;
-
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1)) return 0;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1)) return 0;
-	}
+	if (has_bridge_at(x, y, 2))
+		return 0;
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return c;
-
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0)) return 0;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0)) return 0;
-	}
+	if (has_bridge_at(x, y, 1))
+		return 0;
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return c;
 	return 0;
@@ -2332,32 +2278,16 @@ optional<combined_handle_t> get_pitfall_handle(int32_t x, int32_t y) //Return th
 	{
 		return ispitfall(c) ? getFFCAt(x,y) : nullopt;
 	}
+	if (has_bridge_above(x, y, 2))
+		return nullopt;
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 2);
-
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1))
-			return nullopt;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1))
-			return nullopt;
-	}
+	if (has_bridge_at(x, y, 2))
+		return nullopt;
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 1);
-
-	if (get_qr(qr_OLD_BRIDGE_COMBOS))
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0))
-			return nullopt;
-	}
-	else
-	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0))
-			return nullopt;
-	}
+	if (has_bridge_at(x, y, 1))
+		return nullopt;
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return get_rpos_handle_for_world_xy(x, y, 0);
 	return nullopt;
@@ -2377,38 +2307,18 @@ bool check_icy(newcombo const& cmb, int type)
 }
 int get_icy(int x, int y, int type)
 {
+	if (has_bridge_above(x, y, 2))
+		return 0;
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(check_icy(combobuf[c], type)) return c;
 
-	int screen = get_screen_for_world_xy(x, y);
-
-	mapscr* scr = get_scr_layer_valid(screen, 2);
-	if (scr)
-	{
-		if (get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, scr)) return 0;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, scr)) return 0;
-		}
-	}
+	if (has_bridge_at(x, y, 2))
+		return 0;
 	c = MAPCOMBOL(1,x,y);
 	if(check_icy(combobuf[c], type)) return c;
 
-	scr = get_scr_layer_valid(screen, 1);
-	if (scr)
-	{
-		if (get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, scr)) return 0;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, scr)) return 0;
-		}
-	}
+	if (has_bridge_at(x, y, 1))
+		return 0;
 	c = MAPCOMBO(x,y);
 	if(check_icy(combobuf[c], type)) return c;
 	return 0;
@@ -3248,6 +3158,28 @@ endhe:
 }
 
 // x,y are world coordinates.
+// returns true if a Bridge combo exists with filled effect square
+//   at the specified position, on exactly the specified layer.
+bool has_bridge_at(int x, int y, int layer)
+{
+	auto handle = get_rpos_handle_for_world_xy(x, y, layer);
+	if (handle.ctype() != cBRIDGE)
+		return false;
+	return get_qr(qr_OLD_BRIDGE_COMBOS) ? _walkflag_layer(x, y, layer-1) : _effectflag_layer(x, y, layer-1);
+}
+
+// x,y are world coordinates.
+// returns true if a Bridge combo exists with filled effect square
+//   at the specified position, on a higher layer than 'target_layer'.
+bool has_bridge_above(int x, int y, int target_layer)
+{
+	for (int lyr = 6; lyr > target_layer; --lyr)
+		if (has_bridge_at(x, y, lyr))
+			return true;
+	return false;
+}
+
+// x,y are world coordinates.
 // Returns true if there is a flag (either combo, screen, or ffc) at (x, y).
 // Out parameters will be set if the flag is Trigger->Self, which modifies how secrets will be triggered.
 static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpos, bool& out_single16)
@@ -3258,8 +3190,19 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpo
     bool found_nflag = false;
 	bool single16 = false;
 	rpos_t rpos = rpos_t::None;
+	
+	int bottom_layer = -1;
+	if (!get_qr(qr_OLD_BRIDGE_COMBO_COVER))
+		for (int layer = 6; layer > 0; --layer)
+		{
+			if (has_bridge_at(x, y, layer))
+			{
+				bottom_layer = layer-1;
+				break;
+			}
+		}
 
-	for (int32_t layer = -1; layer < 6; layer++)
+	for (int32_t layer = bottom_layer; layer < 6; layer++)
 	{
 		if (MAPFLAG2(layer, x, y) == flag)
 		{
@@ -3268,7 +3211,7 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpo
 		}
 	}
 
-	for (int32_t layer = -1; layer < 6; layer++)
+	for (int32_t layer = bottom_layer; layer < 6; layer++)
 	{
 		if (MAPCOMBOFLAG2(layer, x, y) == flag)
 		{
@@ -4092,26 +4035,14 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		int32_t ty2=((i&1)<<3)+y - viewport.y;
 		for (int32_t j = lyr-1; j <= 1; j++)
 		{
-			if (get_qr(qr_OLD_BRIDGE_COMBOS))
+			if (has_bridge_at(tx2, ty2, j+1))
 			{
-				if (combobuf[MAPCOMBO2(j,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,j)) 
-				{
-					bridgedetected |= (1<<i);
-				}
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(j,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,j)) 
-				{
-					bridgedetected |= (1<<i);
-				}
+				bridgedetected |= (1<<i);
+				break;
 			}
 		}
-		if ((bridgedetected & (1<<i))) 
-		{
-			if (i >= 3) break;
-			else continue;
-		}
+		if ((bridgedetected & (1<<i)))
+			continue;
 		bool doladdercheck = true;
 		
 		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
@@ -4213,19 +4144,10 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 		int32_t ty2=((i&1)<<3)+y;
 		for (int32_t m = lyr-1; m <= 1; m++)
 		{
-			if (get_qr(qr_OLD_BRIDGE_COMBOS))
+			if (has_bridge_at(tx2, ty2, m+1))
 			{
-				if (m >= 0 && combobuf[MAPCOMBO2(m, tx2, ty2)].type == cBRIDGE && !_walkflag_layer(tx2, ty2, m)) 
-				{
-					bridgedetected |= (1<<i);
-				}
-			}
-			else
-			{
-				if (m >= 0 && combobuf[MAPCOMBO2(m, tx2, ty2)].type == cBRIDGE && _effectflag_layer(tx2, ty2, m)) 
-				{
-					bridgedetected |= (1<<i);
-				}
+				bridgedetected |= (1<<i);
+				break;
 			}
 		}
 		if ((bridgedetected & (1<<i)))
@@ -7268,6 +7190,7 @@ static bool effectflag(int32_t x, int32_t y, int32_t layer)
 	const newcombo& c2 = combobuf[s2->data[pos]];
 	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
 				   (iswater_type(c2.type))) && DRIEDLAKE);
+	if (dried) return false;
 	int32_t b=1;
 	if(x&8) b<<=2;
 	if(y&8) b<<=1;
@@ -7275,7 +7198,6 @@ static bool effectflag(int32_t x, int32_t y, int32_t layer)
 	int32_t cwalkflag = (c.walk>>4);
 	if (layer == 0) cwalkflag = (c1.walk>>4);
 	if (layer == 1) cwalkflag = (c2.walk>>4);
-	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != s0 && layer < 0)
 	{
 		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
@@ -7285,7 +7207,7 @@ static bool effectflag(int32_t x, int32_t y, int32_t layer)
 		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
 	}
 	
-	return (cwalkflag&b) ? !dried : false;
+	return (cwalkflag&b) ? true : false;
 }
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
