@@ -24608,16 +24608,17 @@ void HeroClass::checkspecial2(int32_t *ls)
 	mapscr* flag2_scr=nullptr;
 	mapscr* flag3_scr=nullptr;
 	mapscr* scrs[4]={};
+	rpos_t rposes[4];
 	rpos_handle_t rpos_handles[4];
+	bool bridge_covered[4] = {false};
 	int32_t type=0;
 	int32_t water=0;
 	int32_t index = 0;
 	
 	bool setsave=false;
 	int32_t warpsfx2 = 0;
-	if (RaftPass) goto RaftingStuff;
-
 	int32_t x1,x2,y1,y2;
+
 	x1 = tx;
 	x2 = tx+15;
 	y1 = ty;
@@ -24632,46 +24633,90 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	int32_t types[4];
-	types[0]=types[1]=types[2]=types[3]=-1;
+	types[0] = types[1] = types[2] = types[3] = -1;
+	int sflags[4];
+	int cflags[4];
 	int32_t cids[4];
 	int32_t ffcids[4];
-	cids[0]=cids[1]=cids[2]=cids[3]=-1;
-	ffcids[0]=ffcids[1]=ffcids[2]=ffcids[3]=-1;
+	cids[0] = cids[1] = cids[2] = cids[3] = -1;
+	ffcids[0] = ffcids[1] = ffcids[2] = ffcids[3] = -1;
+	
+	auto update_poses = [&](int tx1, int ty1, int tx2, int ty2)
+	{
+		x1 = tx1; x2 = tx2; y1 = ty1; y2 = ty2;
+		int xs[4] = {x1, x1, x2, x2};
+		int ys[4] = {y1, y2, y1, y2};
+		for (int q = 0; q < 4; ++q)
+		{
+			rposes[q] = COMBOPOS_REGION(xs[q], ys[q]);
+			bridge_covered[q] = false;
+			for (int lyr = 6; lyr > 0; --lyr)
+			{
+				auto handle = get_rpos_handle(rposes[q], lyr);
+				if (handle.ctype() != cBRIDGE)
+					continue;
+				if (!_effectflag_layer(xs[q], ys[q], lyr-1))
+					continue;
+				bridge_covered[q] = true;
+				break;
+			}
+			rpos_handles[q] = get_rpos_handle(rposes[q], 0);
+			cids[q] = rpos_handles[q].data();
+			scrs[q] = rpos_handles[q].scr;
+			if (bridge_covered[q])
+			{
+				types[q] = cNONE;
+				sflags[q] = mfNONE;
+				cflags[q] = mfNONE;
+			}
+			else
+			{
+				types[q] = rpos_handles[q].ctype();
+				sflags[q] = rpos_handles[q].sflag();
+				cflags[q] = rpos_handles[q].cflag();
+				if (combobuf[cids[q]].only_gentrig)
+					types[q] = cNONE;
+			}
+		}
+	};
+	auto update_ffcs = [&]()
+	{
+		int xs[4] = {x1, x1, x2, x2};
+		int ys[4] = {y1, y2, y1, y2};
+		for (int q = 0; q < 4; ++q)
+		{
+			if (auto ffc_handle = getFFCAt(xs[q], ys[q]))
+			{
+				types[q] = ffc_handle->ctype();
+				cids[q] = ffc_handle->data();
+				scrs[q] = ffc_handle->scr;
+				if (combobuf[cids[q]].only_gentrig)
+					types[q] = cNONE;
+			}
+		}
+	};
+	if (RaftPass) goto RaftingStuff;
+	update_poses(x1, y1, x2, y2);
+
 	//
 	// First, let's find flag1 (combo flag), flag2 (inherent flag) and flag3 (FFC flag)...
 	//
-
-	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
-	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
-	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
-	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
-
-	types[0] = rpos_handles[0].sflag();
-	types[1] = rpos_handles[1].sflag();
-	types[2] = rpos_handles[2].sflag();
-	types[3] = rpos_handles[3].sflag();
-
 	flag_scr = rpos_handles[0].scr;
 
 	//MAPFFCOMBO
 	
-	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-		flag = types[0];
+	if(sflags[0]==sflags[1]&&sflags[2]==sflags[3]&&sflags[1]==sflags[2])
+		flag = sflags[0];
 	// 2.10 compatibility...
-	else if(y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
-		flag = types[0];
-		
-		
-	types[0] = rpos_handles[0].cflag();
-	types[1] = rpos_handles[1].cflag();
-	types[2] = rpos_handles[2].cflag();
-	types[3] = rpos_handles[3].cflag();
+	else if(y.getInt()%16==8 && sflags[0]==sflags[2] && (sflags[0]==mfFAIRY || sflags[0]==mfMAGICFAIRY || sflags[0]==mfALLFAIRY))
+		flag = sflags[0];
+	
 	flag2_scr = rpos_handles[0].scr;
 	
-	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-		flag2 = types[0];
-	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
-		flag2 = types[0];
+	if(cflags[0]==cflags[1]&&cflags[2]==cflags[3]&&cflags[1]==cflags[2])
+		flag2 = cflags[0];
+	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && cflags[0]==cflags[2] && (cflags[0]==mfFAIRY || cflags[0]==mfMAGICFAIRY || cflags[0]==mfALLFAIRY))
+		flag2 = cflags[0];
 
 	{
 		auto ffc_handle_1 = getFFCAt(x1, y1);
@@ -24679,10 +24724,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 		auto ffc_handle_3 = getFFCAt(x2, y1);
 		auto ffc_handle_4 = getFFCAt(x2, y2);
 
-		types[0] = ffc_handle_1 ? ffc_handle_1->cflag() : 0;
-		types[1] = ffc_handle_2 ? ffc_handle_2->cflag() : 0;
-		types[2] = ffc_handle_3 ? ffc_handle_3->cflag() : 0;
-		types[3] = ffc_handle_4 ? ffc_handle_4->cflag() : 0;
+		cflags[0] = ffc_handle_1 ? ffc_handle_1->cflag() : 0;
+		cflags[1] = ffc_handle_2 ? ffc_handle_2->cflag() : 0;
+		cflags[2] = ffc_handle_3 ? ffc_handle_3->cflag() : 0;
+		cflags[3] = ffc_handle_4 ? ffc_handle_4->cflag() : 0;
 
 		if (ffc_handle_1)
 			flag3_scr = ffc_handle_1->scr;
@@ -24696,10 +24741,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 
 	//
 	
-	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
-		flag3 = types[0];
-	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
-		flag3 = types[0];
+	if(cflags[0]==cflags[1]&&cflags[2]==cflags[3]&&cflags[1]==cflags[2])
+		flag3 = cflags[0];
+	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && cflags[0]==cflags[2] && (cflags[0]==mfFAIRY || cflags[0]==mfMAGICFAIRY || cflags[0]==mfALLFAIRY))
+		flag3 = cflags[0];
 		
 	//
 	// Now, let's check for warp combos...
@@ -24707,47 +24752,13 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	//
 	
-	cids[0] = rpos_handles[0].data();
-	cids[1] = rpos_handles[1].data();
-	cids[2] = rpos_handles[2].data();
-	cids[3] = rpos_handles[3].data();
-	
-	types[0] = rpos_handles[0].ctype();
-	if (auto ffc_handle = getFFCAt(x1, y1))
-	{
-		types[0] = ffc_handle->ctype();
-		cids[0] = ffc_handle->data();
-	}
-	
-	types[1] = rpos_handles[1].ctype();
-	if (auto ffc_handle = getFFCAt(x1, y2))
-	{
-		types[1] = ffc_handle->ctype();
-		cids[1] = ffc_handle->data();
-	}
-
-	types[2] = rpos_handles[2].ctype();
-	if (auto ffc_handle = getFFCAt(x2, y1))
-	{
-		types[2] = ffc_handle->ctype();
-		cids[2] = ffc_handle->data();
-	}
-
-	types[3] = rpos_handles[3].ctype();
-	if (auto ffc_handle = getFFCAt(x2, y2))
-	{
-		types[3] = ffc_handle->ctype();
-		cids[3] = ffc_handle->data();
-	}
+	update_ffcs();
 
 	// Change B, C and D warps into A, for the comparison below...
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].only_gentrig)
-		{
-			types[i] = cNONE;
+		if (types[i] == cNONE)
 			continue;
-		}
 		if(types[i]==cCAVE)
 		{
 			index=0;
@@ -25059,63 +25070,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	// Now, let's check for Save combos...
 	//
-	x1 = tx+4;
-	x2 = tx+11;
-	y1 = ty+4;
-	y2 = ty+11;
-
-	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
-	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
-	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
-	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
-
-	cids[0] = rpos_handles[0].data();
-	cids[1] = rpos_handles[1].data();
-	cids[2] = rpos_handles[2].data();
-	cids[3] = rpos_handles[3].data();
-
-	types[0] = rpos_handles[0].ctype();
-	if (auto ffc_handle = getFFCAt(x1, y1))
-	{
-		types[0] = ffc_handle->ctype();
-		cids[0] = ffc_handle->data();
-	}
-	
-	types[1] = rpos_handles[1].ctype();
-	if (auto ffc_handle = getFFCAt(x1, y2))
-	{
-		types[1] = ffc_handle->ctype();
-		cids[1] = ffc_handle->data();
-	}
-
-	types[2] = rpos_handles[2].ctype();
-	if (auto ffc_handle = getFFCAt(x2, y1))
-	{
-		types[2] = ffc_handle->ctype();
-		cids[2] = ffc_handle->data();
-	}
-
-	types[3] = rpos_handles[3].ctype();
-	if (auto ffc_handle = getFFCAt(x2, y2))
-	{
-		types[3] = ffc_handle->ctype();
-		cids[3] = ffc_handle->data();
-	}
+	update_poses(tx + 4, ty + 4, tx + 11, ty + 11);
+	update_ffcs();
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].only_gentrig)
+		if (types[i]==cSAVE || types[i]==cSAVE2)
 		{
-			if(types[i] == cSAVE || types[i] == cSAVE2)
-			{
-				types[i] = cNONE;
-				setsave = false;
-				break;
-			}
+			setsave=true;
+			break;
 		}
-		if(types[i]==cSAVE) setsave=true;
-		
-		if(types[i]==cSAVE2) setsave=true;
 	}
 	
 	if(setsave && types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
@@ -25140,64 +25104,13 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	// Pits (aka direct warps) have a bigger 'hitbox' than stairs...
-	x1 = tx+7;
-	x2 = tx+8;
-	y1 = ty+7+(bigHitbox?0:4);
-	y2 = ty+8+(bigHitbox?0:4);
-	
-	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
-	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
-	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
-	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
-
-	cids[0] = rpos_handles[0].data();
-	cids[1] = rpos_handles[1].data();
-	cids[2] = rpos_handles[2].data();
-	cids[3] = rpos_handles[3].data();
-	
-	types[0] = rpos_handles[0].ctype();
-	scrs[0] = rpos_handles[0].scr;
-	if (auto ffc_handle = getFFCAt(x1, y1))
-	{
-		types[0] = ffc_handle->ctype();
-		cids[0] = ffc_handle->data();
-		scrs[0] = ffc_handle->scr;
-	}
-	
-	types[1] = rpos_handles[1].ctype();
-	scrs[1] = rpos_handles[1].scr;
-	if (auto ffc_handle = getFFCAt(x1, y2))
-	{
-		types[1] = ffc_handle->ctype();
-		cids[1] = ffc_handle->data();
-		scrs[1] = ffc_handle->scr;
-	}
-
-	types[2] = rpos_handles[2].ctype();
-	scrs[2] = rpos_handles[2].scr;
-	if (auto ffc_handle = getFFCAt(x2, y1))
-	{
-		types[2] = ffc_handle->ctype();
-		cids[2] = ffc_handle->data();
-		scrs[2] = ffc_handle->scr;
-	}
-
-	types[3] = rpos_handles[3].ctype();
-	scrs[3] = rpos_handles[3].scr;
-	if (auto ffc_handle = getFFCAt(x2, y2))
-	{
-		types[3] = ffc_handle->ctype();
-		cids[3] = ffc_handle->data();
-		scrs[3] = ffc_handle->scr;
-	}
+	update_poses(tx + 7, ty + 7 + (bigHitbox ? 0 : 4), tx + 8, ty + 8 + (bigHitbox ? 0 : 4));
+	update_ffcs();
 
 	for(int32_t i=0; i<4; i++)
 	{
-		if(combobuf[cids[i]].only_gentrig)
-		{
-			types[i] = cNONE;
+		if (types[i] == cNONE)
 			continue;
-		}
 		if(types[i]==cPIT) 
 		{
 			index=0;
