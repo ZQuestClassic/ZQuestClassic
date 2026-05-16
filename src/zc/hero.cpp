@@ -24395,28 +24395,41 @@ void HeroClass::checkspecial()
 	});
 }
 
-// Returns 4 rpos indicated by all combinations of the coordinates, replacing duplicates with rpos_t::None
-static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+// Returns 4 rpos indicated by all combinations of the coordinates, removing duplicates
+// Indicate layers not blocked by bridges as bits
+static std::map<rpos_t, int> getRposes(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-	std::array<rpos_t, 4> rposes;
-	rpos_t tmp;
-
-	rposes[0] = COMBOPOS_REGION_B(x1,y1);
+	std::map<rpos_t, int> rposes;
+	int xs[] = {x1, x2};
+	int ys[] = {y1, y2};
 	
-	tmp = COMBOPOS_REGION_B(x1,y2);
-	if (tmp == rposes[0])
-		rposes[1] = rpos_t::None;
-	else rposes[1] = tmp;
-	
-	tmp = COMBOPOS_REGION_B(x2,y1);
-	if (tmp == rposes[0] || tmp == rposes[1])
-		rposes[2] = rpos_t::None;
-	else rposes[2] = tmp;
-	
-	tmp = COMBOPOS_REGION_B(x2,y2);
-	if (tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
-		rposes[3] = rpos_t::None;
-	else rposes[3] = tmp;
+	for (auto x : xs)
+	{
+		for (auto y : ys)
+		{
+			auto tmp = COMBOPOS_REGION_B(x, y);
+			int lyr = 6;
+			if (rposes.contains(tmp))
+				lyr = rposes[tmp];
+			for (; lyr > 0; --lyr)
+			{
+				auto handle = get_rpos_handle(tmp, lyr);
+				if (handle.ctype() != cBRIDGE)
+					continue;
+				if (!_effectflag_layer(x, y, lyr-1))
+					continue;
+				break; // hit a bridge
+			}
+			rposes[tmp] = lyr;
+		}
+	}
+	for (auto [rpos, blyr] : rposes)
+	{
+		int lyrbits = 0b1111111;
+		for (int lyr = blyr-1; lyr >= 0; --lyr)
+			lyrbits &= ~(1 << lyr);
+		rposes[rpos] = lyrbits;
+	}
 
 	return rposes;
 }
@@ -24930,71 +24943,76 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//Generic Step
 	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_qr(qr_MSGFREEZE)))
 	{
-		auto rposes = diagonalMovement||NO_GRIDLOCK ?
-			getRposes(tx+4, ty+4, tx+11, ty+11) :
-			getRposes(tx+4, ty+4, tx+11, ty+11);
+		auto stepRposes = getRposes(tx+4, ty+4, tx+11, ty+11);
 		auto sensRposes = getRposes(tx, ty+(bigHitbox?0:8), tx+15, ty+15);
 		int32_t xPoses[4] = {tx + 4, tx + 11, tx, tx + 15};
 		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
 		
-		bool hasStep[4] = {false};
+		bool foundNonStep = false;
 		bool swim_triggers = isSwimming();
-		for(auto p = 0; p < 4; ++p)
+		for (auto [rpos, lyrbits] : stepRposes)
 		{
-			if (rposes[p] == rpos_t::None) continue;
-
-			for (auto lyr = 0; lyr < 7; ++lyr)
+			bool foundStep = false;
+			for (auto lyr = 6; lyr >= 0; --lyr)
 			{
-				auto rpos_handle = get_rpos_handle(rposes[p], lyr);
+				if (!(lyrbits & (1 << lyr)))
+					continue;
+				auto rpos_handle = get_rpos_handle(rpos, lyr);
 				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr->flags2 & fAIRCOMBOS))
 					continue;
-				auto& cmb = rpos_handle.combo();
-				for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+				for (int q = 0; q < 4; ++q)
 				{
-					auto& trig = cmb.triggers[idx];
-					if (trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS,
-						TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG}) // `Step->` meshes with `Swim->` as well
-						|| types[p] == cSTEP)
+					if (rposes[q] == rpos && types[q] == cSTEP)
 					{
-						hasStep[p] = true;
+						foundStep = true;
 						break;
 					}
 				}
-				if(hasStep[p])
+				auto& cmb = rpos_handle.combo();
+				for(size_t idx = 0; idx < cmb.triggers.size() && !foundStep; ++idx)
+				{
+					auto& trig = cmb.triggers[idx];
+					if (trig.trigger_flags.any({TRIGFLAG_STEP,TRIGFLAG_STEPSENS,
+						TRIGFLAG_SWIMTRIG,TRIGFLAG_SWIMSENSTRIG})) // `Step->` meshes with `Swim->` as well
+					{
+						foundStep = true;
+					}
+				}
+				if (foundStep)
 					break;
 			}
-		}
-		bool canNormalStep = true;
-		for(auto p = 0; p < 4; ++p)
-		{
-			if(rposes[p] == rpos_t::None) continue;
-			if(!hasStep[p])
+			if (!foundStep)
 			{
-				canNormalStep = false;
+				foundNonStep = true;
 				break;
 			}
 		}
-		for (auto p = 0; p < 4; ++p)
+		for (auto [rpos, lyrbits] : stepRposes)
 		{
-			for (auto lyr = 0; lyr < 7; ++lyr)
+			for (auto lyr = 6; lyr >= 0; --lyr)
 			{
-				if (rposes[p] != rpos_t::None)
-				{
-					auto rpos_handle = get_rpos_handle(rposes[p], lyr);
-					bool did_trig = canNormalStep && trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_STEP) ||
-							(swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMTRIG));
-					});
-					if (did_trig && rposes[p] == sensRposes[p]) continue;
-				}
-				if (sensRposes[p] != rpos_t::None)
-				{
-					auto rpos_handle = get_rpos_handle(sensRposes[p], lyr);
-					trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-						return trig.trigger_flags.get(TRIGFLAG_STEPSENS)
-							|| (swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMSENSTRIG));
-					});
-				}
+				if (!(lyrbits & (1 << lyr)))
+					continue;
+				auto rpos_handle = get_rpos_handle(rpos, lyr);
+				bool did_trig = !foundNonStep && trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_STEP) ||
+						(swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMTRIG));
+				});
+				if (did_trig && sensRposes.contains(rpos))
+					sensRposes[rpos] &= ~(1 << lyr); // don't trigger this layer/pos again
+			}
+		}
+		for (auto [rpos, lyrbits] : sensRposes)
+		{
+			for (auto lyr = 6; lyr >= 0; --lyr)
+			{
+				if (!(lyrbits & (1 << lyr)))
+					continue;
+				auto rpos_handle = get_rpos_handle(rpos, lyr);
+				trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_STEPSENS)
+						|| (swim_triggers && trig.trigger_flags.get(TRIGFLAG_SWIMSENSTRIG));
+				});
 			}
 		}
 
@@ -25022,26 +25040,32 @@ void HeroClass::checkspecial2(int32_t *ls)
 
 	if(isDiving()) //Dive-> triggerflag
 	{
-		rpos_t rpos = COMBOPOS_REGION(x+8,y+8);
+		rpos_t crpos = COMBOPOS_REGION(x+8,y+8);
 		int x1=x,x2=x+15,y1=y+(bigHitbox?0:8),y2=y+15;
 		int xposes[] = {x1,x1,x2,x2};
 		int yposes[] = {y1,y2,y1,y2};
 		auto rposes = getRposes(x1,y1,x2,y2);
-		for(auto lyr = 0; lyr < 7; ++lyr)
+		bool hit_center_bridge = false;
+		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
-			bool didtrig = false;
-			auto rpos_handle = get_rpos_handle(rpos, lyr);
+			auto rpos_handle = get_rpos_handle(crpos, lyr);
 			auto& cmb = rpos_handle.combo();
 			auto cid = rpos_handle.data();
-			didtrig = trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
-				return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
-			});
-			for(auto q = 0; q < 4; ++q)
+			if (!hit_center_bridge)
 			{
-				if(rposes[q] == rpos_t::None) continue;
-				if(rposes[q] == rpos && didtrig) continue;
+				bool didtrig = trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
+					return trig.trigger_flags.get(TRIGFLAG_DIVETRIG);
+				});
+				if (didtrig)
+					rposes[crpos] &= ~(1 << lyr);
+				if (cmb.type == cBRIDGE && _effectflag_layer(x+8, y+8, lyr-1))
+					hit_center_bridge = true;
+			}
+			for (auto [rpos, lyrbits] : rposes)
+			{
+				if (!(lyrbits & (1 << lyr))) continue;
 
-				auto rpos_handle_2 = get_rpos_handle(rposes[q], lyr);
+				auto rpos_handle_2 = get_rpos_handle(rpos, lyr);
 				trig_each_combo_trigger(rpos_handle_2, [&](combo_trigger const& trig){
 					return trig.trigger_flags.get(TRIGFLAG_DIVESENSTRIG);
 				});
