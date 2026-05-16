@@ -402,6 +402,7 @@ ZCGUI_BUILDER_START(List)
 	ZCGUI_ACCEPT_PROP(onDClickFunc, setOnDClickFunc, std::function<void(int32_t,int32_t,int32_t)>)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t)>)
 	ZCGUI_ACCEPT_PROP(isABC, setIsABC, bool)
+	ZCGUI_ACCEPT_PROP(scrollPtr, setScrollPtr, size_t*)
 
 	ZCGUI_SUGGEST_PROP(onClick, onSelectionChanged)
 ZCGUI_BUILDER_END()

@@ -26,6 +26,8 @@ static const std::string def_info_sel =
 
 int lister_sel_val = -1;
 
+std::map<std::string, BasicListerDialog::ListerState> BasicListerDialog::lister_registry;
+
 std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 {
 	using namespace GUI::Builder;
@@ -33,7 +35,10 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	using namespace GUI::Key;
 	
 	lister_sel_val = start_val;
-	
+
+	if(!selecting && lister_registry.count(titleTxt) && lister_registry[titleTxt].selection != -1)
+		selected_val = lister_registry[titleTxt].selection;
+
 	preinit();
 	
 	std::shared_ptr<GUI::Grid> g;
@@ -58,6 +63,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 				widgList = List(data = lister, isABC = true,
 					selectedValue = selected_val,
 					rowSpan = 2, fitParent = true,
+					scrollPtr = selecting ? nullptr : &lister_registry[titleTxt].scroll,
 					onSelectFunc = [&](int32_t val)
 					{
 						if(selected_val == val)
@@ -80,7 +86,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			btnrow = Row(padding = 0_px)
 		)
 	);
-	
+
 	//Generate the btnrow
 	{
 		bool okfocused = !editable;
@@ -122,6 +128,12 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 
 bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
+	if(!selecting && widgList && widgList->alDialog)
+	{
+		lister_registry[titleTxt].scroll = static_cast<size_t>(widgList->alDialog->d2);
+		lister_registry[titleTxt].selection = selected_val;
+	}
+
 	bool refresh = false;
 	auto m = msg.message;
 	if(m == message::CONFIRM)

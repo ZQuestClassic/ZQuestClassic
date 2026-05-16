@@ -10,6 +10,7 @@
 #include <string>
 #include <set>
 #include <string_view>
+#include <map>
 
 extern int lister_sel_val;
 
@@ -42,7 +43,17 @@ protected:
 	GUI::ListData lister;
 	int selected_val, start_val;
 	bool selecting, use_preview, editable;
-	
+
+	// Global registry for list state per lister, keyed by titleTxt (2.55 has no
+	// cfg_key; each lister type uses a distinct, static title).
+	// scroll: (size_t)-1 means "not yet saved; scroll to selected item on first open".
+	// selection: -1 means "not yet saved; default to start_val".
+	struct ListerState {
+		size_t scroll = static_cast<size_t>(-1);
+		int selection = -1;
+	};
+	static std::map<std::string, ListerState> lister_registry;
+
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;
 	std::shared_ptr<GUI::TileFrame> widgPrev;
