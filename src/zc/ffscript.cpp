@@ -6874,6 +6874,12 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 	script_drawing_commands[j] = {};
 	script_drawing_commands[j][0] = script_command;
 	script_drawing_commands[j][DRAWCMD_CURRENT_TARGET] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+	script_drawing_commands[j].script_type = curScriptType;
+	script_drawing_commands[j].script_num = curScriptNum;
+	script_drawing_commands[j].script_index = curScriptIndex;
+	script_drawing_commands[j].pc = ri->pc;
+	script_drawing_commands[j].script_funcrun = script_funcrun;
+	script_drawing_commands[j].thiskey = ri->thiskey;
 
 	switch(script_command)
 	{
