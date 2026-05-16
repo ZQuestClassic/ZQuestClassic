@@ -6972,7 +6972,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     ListData *data = (ListData *)d->dp;
     if(msg == MSG_START) wipe_abc_keypresses();
-    
+
 	if(msg == MSG_CHAR && (key_shifts&KB_CTRL_CMD_FLAG))
 		return D_O_K;
 	
