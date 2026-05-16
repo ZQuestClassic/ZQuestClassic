@@ -30,13 +30,23 @@ static int a5_keyboard_keycode_map[256];
 // local edit
 static void update_key_shifts(ALLEGRO_EVENT* event) {
     _key_shifts = 0;
+
+    // local edit - On Windows, AltGr is reported as Ctrl+Alt. If we propagate
+    // KB_CTRL_FLAG in that case, MSG_CHAR handlers like jwin_edit_proc will
+    // suppress character input (treating it as a Ctrl shortcut) and break
+    // typing characters that require AltGr (e.g. '$' on Swedish QWERTY).
+    bool is_ctrl_mod = (event->keyboard.modifiers & ALLEGRO_KEYMOD_CTRL) != 0;
+    bool is_alt_mod = (event->keyboard.modifiers & ALLEGRO_KEYMOD_ALT) != 0;
+    bool is_altgr_mod = (event->keyboard.modifiers & ALLEGRO_KEYMOD_ALTGR) != 0;
+    bool is_altgr = is_altgr_mod || (is_ctrl_mod && is_alt_mod);
+
     if ((ALLEGRO_KEYMOD_SHIFT & event->keyboard.modifiers) != 0) {
         _key_shifts |= KB_SHIFT_FLAG;
     }
-    if ((ALLEGRO_KEYMOD_CTRL & event->keyboard.modifiers) != 0) {
+    if (is_ctrl_mod && !is_altgr) {
         _key_shifts |= KB_CTRL_FLAG;
     }
-    if ((ALLEGRO_KEYMOD_ALT & event->keyboard.modifiers) != 0) {
+    if (is_alt_mod || is_altgr_mod) {
         _key_shifts |= KB_ALT_FLAG;
     }
     if ((ALLEGRO_KEYMOD_LWIN & event->keyboard.modifiers) != 0) {
@@ -124,10 +134,50 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     update_key_shifts(&event);
                     if(event.keyboard.unichar >= 0)
                     {
-                        if ((ALLEGRO_KEYMOD_ALT & event.keyboard.modifiers) != 0) {
-                            _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
-                        } else {
-                            _handle_key_press(event.keyboard.unichar, a5_keyboard_keycode_map[event.keyboard.keycode]);
+                        // local edit - don't break AltGr key modifiers.
+                        bool is_alt = (event.keyboard.modifiers & ALLEGRO_KEYMOD_ALT) != 0;
+                        bool is_ctrl = (event.keyboard.modifiers & ALLEGRO_KEYMOD_CTRL) != 0;
+                        bool is_altgr = (event.keyboard.modifiers & ALLEGRO_KEYMOD_ALTGR) != 0;
+                        bool is_cmd = (event.keyboard.modifiers & ALLEGRO_KEYMOD_COMMAND) != 0;
+
+                        int key = event.keyboard.keycode;
+                        int unichar = event.keyboard.unichar;
+                        int scancode = a5_keyboard_keycode_map[key];
+
+                        // If AltGr is held, it is character input.
+                        // On Windows, AltGr often reports as Ctrl+Alt.
+                        if (is_altgr || (is_alt && is_ctrl)) {
+                            _handle_key_press(unichar, scancode);
+                        }
+                        // If Alt or Cmd is held (without Ctrl), it might be a shortcut or a Mac Option-character.
+                        else if (is_alt || is_cmd) {
+                            bool is_shortcut = true;
+
+                            // Heuristic: If the produced character is different from the natural
+                            // key character, it's likely intentional character input (like Mac Option-key).
+                            if (key >= ALLEGRO_KEY_A && key <= ALLEGRO_KEY_Z) {
+                                if (unichar != (97 + key - ALLEGRO_KEY_A) &&
+                                    unichar != (65 + key - ALLEGRO_KEY_A))
+                                    is_shortcut = false;
+                            }
+                            else if (key >= ALLEGRO_KEY_0 && key <= ALLEGRO_KEY_9) {
+                                if (unichar != (48 + key - ALLEGRO_KEY_0))
+                                    is_shortcut = false;
+                            }
+                            else if (unichar >= 128) {
+                                // Any non-ASCII character produced with Alt/Cmd is likely intentional.
+                                is_shortcut = false;
+                            }
+
+                            if (is_shortcut) {
+                                _handle_key_press(0, scancode);
+                            } else {
+                                _handle_key_press(unichar, scancode);
+                            }
+                        }
+                        else {
+                            // Normal typing (no Alt/Cmd) or Ctrl-shortcuts (which don't usually produce unichars).
+                            _handle_key_press(unichar, scancode);
                         }
                     }
                     break;
