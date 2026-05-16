@@ -24461,6 +24461,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			int comboid = 0;
 			mapscr* scr;
+			bool bridge_covered = false;
 			if (k > 0)
 			{
 				auto ffc_handle = getFFCAt(x+j, y+i);
@@ -24475,12 +24476,23 @@ void HeroClass::checkspecial2(int32_t *ls)
 				auto rpos_handle = get_rpos_handle_for_world_xy(x+j, y+i, 0);
 				comboid = rpos_handle.data();
 				scr = rpos_handle.scr;
+				if (!get_qr(qr_OLD_BRIDGE_COMBO_COVER))
+					for (int lyr = 6; lyr > 0; --lyr)
+					{
+						auto handle = get_rpos_handle_for_world_xy(x+j, y+i, lyr);
+						if (handle.ctype() != cBRIDGE)
+							continue;
+						if (!_effectflag_layer(x+j, y+i, lyr-1))
+							continue;
+						bridge_covered = true;
+						break;
+					}
 			}
 			newcombo const& cmb = combobuf[comboid];
+			if (cmb.only_gentrig || bridge_covered)
+				continue;
 			int32_t stype = cmb.type;
 			int32_t warpsound = cmb.c_attributes[8].getTrunc();
-			if(cmb.only_gentrig)
-				stype = cNONE;
 			if(stype==cSWARPA)
 			{
 				if(scr->flags5&fDIRECTSWARP)
