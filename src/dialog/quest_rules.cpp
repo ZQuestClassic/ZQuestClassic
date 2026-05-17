@@ -1306,7 +1306,9 @@ static GUI::ListData itemRulesList
 	{ "Only highest level item passive script runs", qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
 		"If you have multiple items of the same itemclass with passive item scripts,"
 		" only the highest-level item's script will run. In case of tie, all tied-highest"
-		" scripts will run." }
+		" scripts will run." },
+	{ "Allow Jumping While Charging", qr_ALLOW_JUMP_WHILE_CHARGING,
+		"Allow the player to jump while charging up a charged attack." },
 };
 
 static GUI::ListData miscRulesList

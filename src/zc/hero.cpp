@@ -1176,7 +1176,7 @@ void HeroClass::setZ(int32_t new_z)
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Hero jump while charging sword
+            if (charging && !get_qr(qr_ALLOW_JUMP_WHILE_CHARGING))
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -1218,7 +1218,7 @@ void HeroClass::setFakeZ(int32_t new_z)
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Hero jump while charging sword
+            if (charging && !get_qr(qr_ALLOW_JUMP_WHILE_CHARGING))
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -1321,7 +1321,7 @@ void HeroClass::setZfix(zfix new_z)
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Hero jump while charging sword
+            if (charging && !get_qr(qr_ALLOW_JUMP_WHILE_CHARGING))
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -1363,7 +1363,7 @@ void HeroClass::setFakeZfix(zfix new_z)
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Hero jump while charging sword
+            if (charging && !get_qr(qr_ALLOW_JUMP_WHILE_CHARGING))
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -10970,9 +10970,10 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(jumpid < 0)
 		jumpid = current_item_id(itype_rocs,true,true);
 	
-	if(invalid_item_id(jumpid)) return false;
-	if(inlikelike || charging) return false;
-	if(!checkitem_jinx(jumpid)) return false;
+	if (invalid_item_id(jumpid)) return false;
+	if (charging && !get_qr(qr_ALLOW_JUMP_WHILE_CHARGING)) return false;
+	if (inlikelike) return false;
+	if (!checkitem_jinx(jumpid)) return false;
 	
 	itemdata const& itm = itemsbuf.get(jumpid);
 	
