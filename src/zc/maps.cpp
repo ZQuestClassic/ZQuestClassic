@@ -3173,7 +3173,7 @@ bool has_bridge_at(int x, int y, int layer)
 //   at the specified position, on a higher layer than 'target_layer'.
 bool has_bridge_above(int x, int y, int target_layer)
 {
-	for (int lyr = 6; lyr > target_layer; --lyr)
+	for (int lyr = get_qr(qr_OLD_BRIDGE_COMBO_COVER) ? 2 : 6; lyr > target_layer; --lyr)
 		if (has_bridge_at(x, y, lyr))
 			return true;
 	return false;

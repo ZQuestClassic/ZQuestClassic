@@ -18200,8 +18200,9 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2, [[maybe_unuse
 			bool wtrx = (iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = get_item_data(ldrid).flags & item_flag1;
+			bool bridgex = has_bridge_above(dx, dy, 0);
 			
-			if (has_bridge_above(dx, dy, 0))
+			if (bridgex)
 				wtrx = false;
 			
 			if(wtrx)
@@ -18238,6 +18239,9 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2, [[maybe_unuse
 					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
 				}
 			}
+			
+			if (bridgex)
+				wtrx = false;
 			
 			bool walkwater = (get_qr(qr_DROWN) && !iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy));
 			
@@ -21071,10 +21075,12 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             bool wtrx8 = (iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = get_item_data(ldrid).flags & item_flag1;
+			bool bridgex = has_bridge_above(wx, wy, 0);
+			bool bridgex8 = has_bridge_above(wx+8, wy, 0);
             
-			if (has_bridge_above(wx, wy, 0))
+			if (bridgex)
 				wtrx = false;
-			if (has_bridge_above(wx+8, wy, 0))
+			if (bridgex8)
 				wtrx8 = false;
 			
             if(wtrx || wtrx8)
@@ -21118,6 +21124,11 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 				}
 			}
             
+			if (bridgex)
+				wtrx = false;
+			if (bridgex8)
+				wtrx8 = false;
+			
             bool walkwater = (get_qr(qr_DROWN) && !iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy));
             
             if((diagonalMovement||NO_GRIDLOCK))

@@ -1115,7 +1115,8 @@ static GUI::ListData compatRulesList
 		" but WILL be able to push them while they are drowning/falling." },
 	{ "Bridges Cover Less Stuff", qr_OLD_BRIDGE_COMBO_COVER,
 		"When enabled, Bridge combos won't cover certain things, like Warp/Step/Save/Slash combos,"
-		" Step->/Dive-> combo triggers, Fairy Ring / Weapon placed flags, etc." },
+		" Step->/Dive-> combo triggers, Fairy Ring / Weapon placed flags, etc."
+		" Also, bridges on layers above 2 will not affect most things." },
 };
 
 static GUI::ListData enemiesRulesList
