@@ -86,21 +86,8 @@ int32_t get_conveyor(int32_t x, int32_t y, bool check_rates)
 	bool custom_spd = (cmb.usrflags&cflag2);
 	if(!check_rates || custom_spd || conveyclk<=0)
 	{
-		for (int i = found_layer; i <= 1; ++i)
-		{
-			auto tcid = MAPCOMBO2(i,x,y);
-			if(combobuf[tcid].type == cBRIDGE)
-			{
-				if (get_qr(qr_OLD_BRIDGE_COMBOS))
-				{
-					if (!_walkflag_layer(x,y,i)) return -1;
-				}
-				else
-				{
-					if (_effectflag_layer(x,y,i,1,true)) return -1;
-				}
-			}
-		}
+		if (found_layer < 6 && has_bridge_above(x, y, found_layer))
+			return -1;
 		if (check_rates)
 		{
 			auto rate = custom_spd ? zc_max(cmb.c_attributes[8].getTrunc(), 1) : 3;

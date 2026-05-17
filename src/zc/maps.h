@@ -384,6 +384,8 @@ void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& s
 
 void update_freeform_combos();
 void update_slopes();
+bool has_bridge_at(int x, int y, int layer);
+bool has_bridge_above(int x, int y, int target_layer);
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 optional<int> nextscr(int screen, int dir);

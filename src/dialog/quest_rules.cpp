@@ -1113,6 +1113,10 @@ static GUI::ListData compatRulesList
 	{ "Broken Solids Pushing Player", qr_BROKEN_PLAYER_SOLIDPUSH,
 		"When enabled, moving solid objects won't be able to push the player into pitfall combos,"
 		" but WILL be able to push them while they are drowning/falling." },
+	{ "Bridges Cover Less Stuff", qr_OLD_BRIDGE_COMBO_COVER,
+		"When enabled, Bridge combos won't cover certain things, like Warp/Step/Save/Slash combos,"
+		" Step->/Dive-> combo triggers, Fairy Ring / Weapon placed flags, etc."
+		" Also, bridges on layers above 2 will not affect most things." },
 };
 
 static GUI::ListData enemiesRulesList

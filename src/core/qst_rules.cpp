@@ -851,6 +851,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
 	if (compatrule_version < 112)
 		set_qr(qr_BROKEN_PLAYER_SOLIDPUSH, 1);
+	if (compatrule_version < 113)
+		set_qr(qr_OLD_BRIDGE_COMBO_COVER, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
