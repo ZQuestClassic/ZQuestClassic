@@ -1449,7 +1449,10 @@ static GUI::ListData miscRulesList
 		"If enabled, the warp flag to disable restarting the dmap script when warping to the same dmap will be flipped"
 		" so that having the flag on will restart the dmap script and having it off won't restart when warping to the same dmap."},
 	{ "Fast Counter Drain", qr_FASTCOUNTERDRAIN,
-		"If enabled, counters drain/refill at quadruple speed."}
+		"If enabled, counters drain/refill at quadruple speed."},
+	{ "Subscreen Minimap uses dmap-based state instead of map-based", qr_MINIMAP_VISITED_CHARTED,
+		"If enabled, the Visited color for minimap widgets will use the dmap Charted state,"
+		" instead of the Visited screen state." },
 };
 
 static GUI::ListData nesfixesRulesList

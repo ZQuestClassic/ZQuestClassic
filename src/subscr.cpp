@@ -2307,7 +2307,19 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
 					x_2 += 1;
 			}
 
-			bool visited = !oob && get_bmaps((dmid << 7) | scrid);
+			bool visited = false;
+			if (!oob)
+			{
+				if (get_qr(qr_MINIMAP_VISITED_CHARTED))
+					visited = get_bmaps((dmid << 7) | scrid);
+				else
+				{
+#ifndef IS_EDITOR
+					auto mi = mapind(cur_map, scrid);
+					visited = game->maps.get(mi) & mVISITED;
+#endif
+				}
+			}
 			auto fg_color = (visited && vis_color > -1) ? vis_color : unvis_color;
 
 			if (bg_color > -1)
