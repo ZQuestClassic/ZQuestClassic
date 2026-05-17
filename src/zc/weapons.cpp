@@ -706,7 +706,7 @@ int32_t weapon::seekEnemy2(int32_t j)
 
 void weapon::convertType(bool toLW)
 {
-	if(XOR(isLWeapon, toLW)) return; //Already the right type
+	if((bool)isLWeapon == toLW) return; //Already the right type
 	isLWeapon = toLW;
 	script = 0;
 	for(int32_t q = 0; q < 8; ++q)
