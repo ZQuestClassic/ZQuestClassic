@@ -1882,13 +1882,13 @@ bool SubscrWidget::check_conditions() const
 	}
 	if ((req_scrstate_map || req_scrstate_scr < 0) && (req_scrstate || req_exstate))
 	{
-		int m = req_scrstate_scr < 0 ? cur_map : req_scrstate_map;
+		int m = req_scrstate_scr < 0 ? cur_map : req_scrstate_map-1;
 		int s = req_scrstate_scr < 0 ? target_screen : req_scrstate_scr;
-		if (m > 0 && unsigned(s) < MAPSCRSNORMAL)
+		if (unsigned(m) < map_count && unsigned(s) < MAPSCRSNORMAL)
 		{
 			bool invert = (genflags&SUBSCRFLAG_REQ_INVERT_SCRSTATE);
 			bool any_state = (genflags&SUBSCRFLAG_REQ_ANY_SCRSTATE);
-			auto mi = mapind(m-1, s);
+			auto mi = mapind(m, s);
 			auto sstate = game->maps.get(mi) & req_scrstate;
 			auto exstate = game->xstates.get(mi) & req_exstate;
 			if (any_state)
