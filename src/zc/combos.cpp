@@ -1082,7 +1082,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	sfx(cmb.attribytes[3]); //opening sfx
 	
 	bool itemflag = false;
-	for(int32_t i=0; i<3; i++)
+	for(int32_t i = get_qr(qr_OLD_CHEST_COLLISION) ? 2 : 6; i >= 0; --i)
 	{
 		if(FFCore.tempScreens[i]->sflag[pos]==mfARMOS_ITEM)
 		{
