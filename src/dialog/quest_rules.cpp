@@ -1309,6 +1309,10 @@ static GUI::ListData itemRulesList
 		" scripts will run." },
 	{ "Allow Jumping While Charging", qr_ALLOW_JUMP_WHILE_CHARGING,
 		"Allow the player to jump while charging up a charged attack." },
+	{ "Quake Hammer In Air", qr_QUAKE_HAMMER_IN_AIR,
+		"When enabled, charged hammer attacks can be released in the air. Otherwise,"
+		" the charge will not release while airborne, requiring landing to unleash"
+		" the attack." },
 };
 
 static GUI::ListData miscRulesList

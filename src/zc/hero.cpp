@@ -13005,8 +13005,12 @@ bool HeroClass::doattack()
 	}
 	else if(attack==wHammer)
 	{
-		if(!(attackclk==HAMMERCHARGEFRAME && isWpnPressed(itype_hammer)))
+		if (attackclk!=HAMMERCHARGEFRAME)
 			doCharge=false;
+		else if (charging >= normalcharge && (z > 0 || fakez > 0) && !get_qr(qr_QUAKE_HAMMER_IN_AIR))
+			; // keep charging even if button released while in the air
+		else if (!isWpnPressed(itype_hammer))
+			doCharge = false;
 		else if(charging<=normalcharge)
 		{
 			if(scrollid<0 || !(checkbunny(scrollid) && checkmagiccost(scrollid)))
