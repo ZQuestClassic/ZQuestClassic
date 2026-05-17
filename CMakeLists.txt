@@ -1108,7 +1108,7 @@ endif()
 # See docs/versioning.md
 set(gen_version_header_deps scripts/generate_version_header.py)
 find_program(GIT_EXECUTABLE NAMES git)
-if(GIT_EXECUTABLE)
+if(GIT_EXECUTABLE AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 	execute_process(
         COMMAND "${GIT_EXECUTABLE}" rev-parse --git-dir
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
