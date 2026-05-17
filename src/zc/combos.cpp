@@ -920,20 +920,14 @@ bool trigger_chest(const combined_handle_t& handle)
 	}
 	else if(handle.is_rpos())
 	{
-		auto pos = handle.get_rpos().pos;
-		for (int32_t i = 0; i < 3; i++)
+		auto rpos = handle.get_rpos().rpos;
+		for (int i = get_qr(qr_OLD_CHEST_COLLISION) ? 2 : 6; i >= 0; --i)
 		{
-			mapscr* layer_scr = get_scr_layer_valid(screen, i);
-			if (!layer_scr)
-				continue;
-
-			if (layer_scr->sflag[pos] == mfARMOS_ITEM)
+			auto tmp_handle = get_rpos_handle(rpos, i);
+			if (tmp_handle.sflag() == mfARMOS_ITEM || tmp_handle.cflag() == mfARMOS_ITEM)
 			{
-				itemflag = true; break;
-			}
-			if (combobuf[layer_scr->data[pos]].flag == mfARMOS_ITEM)
-			{
-				itemflag = true; break;
+				itemflag = true;
+				break;
 			}
 		}
 	}
