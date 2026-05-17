@@ -855,6 +855,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_OLD_BRIDGE_COMBO_COVER, 1);
 		set_qr(qr_MINIMAP_VISITED_CHARTED, 1);
+		set_qr(qr_QUAKE_HAMMER_IN_AIR, 1);
 	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
