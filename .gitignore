@@ -135,6 +135,7 @@ compare-report/
 .coverage
 .gha-cache-dir/
 __pycache__
+.cache
 ./packages/
 resources/modules/classic/fontsdat
 output/
