@@ -1625,6 +1625,8 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 
 bool enemy::isOnSideviewPlatform()
 {
+	if ((moveflags & FLAG_IGNORE_SOLIDITY) && (moveflags & FLAG_USE_NEW_MOVEMENT))
+		return false;
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
