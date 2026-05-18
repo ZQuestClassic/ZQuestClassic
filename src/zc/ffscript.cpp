@@ -7041,6 +7041,10 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 			set_drawing_command_args(j, 15);
 			break;
 			
+		case DRAWMINITILE:
+			set_drawing_command_args(j, 7);
+			break;
+			
 		case DRAWTILECLOAKEDR:
 			set_drawing_command_args(j, 7);
 			break;
@@ -7303,6 +7307,7 @@ static void do_drawing_command(int32_t script_command, bool is_screen_draw)
 		case BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+11); break;
 		case BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+8); break;
 		case BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+15); break;
+		case BMPDRAWMINITILE:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+7); break;
 		case BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+7); break;
 		case BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+16); break;
 		case BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][DRAWCMD_BMP_TARGET] = SH::read_stack(ri->sp+7); break;
@@ -11200,6 +11205,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case LINESARRAY:
 			case COMBOARRAYR:
 			case DRAWTILER:
+			case DRAWMINITILE:
 			case DRAWTILECLOAKEDR:
 			case DRAWCOMBOR:
 			case DRAWCOMBOCLOAKEDR:
@@ -11235,6 +11241,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case BMPSPLINER:
 			case BMPPUTPIXELR:
 			case BMPDRAWTILER:
+			case BMPDRAWMINITILE:
 			case BMPDRAWTILECLOAKEDR:
 			case BMPDRAWCOMBOR:
 			case BMPDRAWCOMBOCLOAKEDR:
