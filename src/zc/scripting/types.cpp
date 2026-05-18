@@ -445,6 +445,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case HEROPULLDIR:
 		case HERORESPAWNDMAP:
 		case HERORESPAWNSCR:
+		case HERORESPAWNDMSCR:
 		case HERORESPAWNX:
 		case HERORESPAWNY:
 		case HEROFORCEDRESPAWN:
