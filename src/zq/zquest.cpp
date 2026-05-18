@@ -6798,6 +6798,23 @@ void refresh(int32_t flags, bool update)
 			show_screen_error(buf,i++,vc(15));
 		}
 		
+		if (Map.CurrScr()->flags & fDARK)
+		{
+			sprintf(buf, "Dark");
+			if (get_qr(qr_NEW_DARKROOM))
+			{
+				bool dithered = Map.CurrScr()->flags9 & fDARK_DITHER;
+				bool transp = Map.CurrScr()->flags9 & fDARK_TRANS;
+				if (dithered && transp)
+					strcat(buf, " (Dith+Transp)");
+				else if (dithered)
+					strcat(buf, " (Dithered)");
+				else if (transp)
+					strcat(buf, " (Transparent)");
+			}
+			show_screen_error(buf, i++, vc(15));
+		}
+		
 		if (auto sid = Map.CurrScr()->oceansfx; unsigned(sid-1) < quest_sounds.size())
 		{
 			sprintf(buf,"Ambient Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
@@ -19665,6 +19682,7 @@ int32_t main(int32_t argc,char **argv)
 	ActiveLayerHighlight = zc_get_config("zquest","hl_active_lyr",0);
 	DragCenterOfSquares = zc_get_config("zquest","drag_squares_from_center",0);
 	SmartFFCPlacement = zc_get_config("zquest","smart_ffc_placement",0);
+	SETFLAG(Flags, cNODARK, !zc_get_config("zquest", "show_dithered_dark", 0));
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
