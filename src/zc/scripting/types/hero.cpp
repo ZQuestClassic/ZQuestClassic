@@ -184,6 +184,9 @@ int32_t hero_get_register(int32_t reg)
 		case HEROSTEPRATE:
 			ret = Hero.getStepRate() * 10000;
 			break;
+		case HERO_TMP_STEPBOOST:
+			ret = Hero.tmp_step_boost * 10000;
+			break;
 		case HEROSWITCHMAXTIMER:
 		{
 			ret = Hero.switchhookmaxtime * 10000;
@@ -757,12 +760,15 @@ void hero_set_register(int32_t reg, int32_t value)
 			break;
 		case HEROSTEPRATE:
 			if(!(get_qr(qr_NEW_HERO_MOVEMENT) || get_qr(qr_NEW_HERO_MOVEMENT2)))
-			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.\n", "Hero->Step", "enable", "New Hero Movement");
-			}
+				scripting_log_error_with_context("To use this you must enable New Hero Movement or Newer Hero Movement!");
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.heroStep = Hero.getStepRate();
+			break;
+		case HERO_TMP_STEPBOOST:
+			if (!(get_qr(qr_NEW_HERO_MOVEMENT) || get_qr(qr_NEW_HERO_MOVEMENT2)))
+				scripting_log_error_with_context("To use this you must enable New Hero Movement or Newer Hero Movement!");
+			Hero.tmp_step_boost = value / 10000;
 			break;
 		case HEROSWITCHMAXTIMER:
 		case HEROSWITCHTIMER:

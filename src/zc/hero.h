@@ -271,7 +271,7 @@ public:
 	byte warp_sound;
 	bool diagonalMovement;
 	bool bigHitbox;
-	int32_t steprate;
+	int32_t steprate, tmp_step_boost;
 	int32_t swimuprate;
 	int32_t swimsiderate;
 	int32_t swimdownrate;
@@ -527,6 +527,7 @@ public:
 	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
+	virtual void post_animate();
 	void maybeOpenActiveSubscreen();
 	bool push_pixel(zfix dx, zfix dy);
 	int32_t push_move(zfix dx, zfix dy);

@@ -1844,6 +1844,7 @@ void HeroClass::init()
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
+	tmp_step_boost = 0;
 	shove_offset = zinit.shove_offset;
 	
 	itembox_xofs = zinit.hero_itembox_xofs;
@@ -10430,6 +10431,12 @@ heroanimate_skip_liftwpn:;
 	return false;
 }
 
+void HeroClass::post_animate()
+{
+	sprite::post_animate();
+	tmp_step_boost = 0;
+}
+
 bool HeroClass::push_pixel(zfix dx, zfix dy)
 {
 	ASSERT(abs(dx) <= 1 && abs(dy) <= 1);
@@ -14487,7 +14494,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 			{
 				zfix perc = zfix(ice_entry_count)/ice_entry_mcount;
 				perc *= perc; //square the portion, for a better transition
-				zfix normal_rate = zfix(steprate)/100/2;
+				zfix normal_rate = zfix(steprate + tmp_step_boost)/100/2;
 				decel = (perc*normal_rate)+((1-perc)*decel);
 			}
 		}
@@ -19839,7 +19846,7 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
     if(inlikelike || lstunclock > 0 || is_conveyor_stunned || movedir < 0)
         return;
 	
-	zfix base_movepix(zfix(steprate) / 100);
+	zfix base_movepix(zfix(steprate + tmp_step_boost) / 100);
 	zfix movepix(base_movepix);
 	zfix up_step(zfix(game->get_sideswim_up()) / 100);
 	zfix left_step(zfix(game->get_sideswim_side()) / 100);
@@ -20327,7 +20334,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
     bool slowcharging = charging>0 && (get_item_data(getWpnPressed(itype_sword)).flags & item_flag10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.hero_swim_speed>60);
-	zfix rate(steprate);
+	zfix rate(steprate + tmp_step_boost);
 	int32_t shieldid = getCurrentActiveShield();
 	if (valid_item_id(shieldid))
 	{
@@ -20657,7 +20664,7 @@ void HeroClass::autowalk_move()
 	}
 	if(!pix_dist)
 	{
-		pix_dist = steprate / 100_zf;
+		pix_dist = (steprate + tmp_step_boost) / 100_zf;
 		vector<zfix*> vec = { &pix_dist };
 		mod_steps(vec);
 		if(!pix_dist) // ensure not stuck
