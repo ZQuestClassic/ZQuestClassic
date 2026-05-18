@@ -21715,7 +21715,6 @@ void FFScript::init([[maybe_unused]] bool for_continue)
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	temp_no_stepforward = 0;
-	nostepforward = 0;
 	
 	coreflags = 0;
 	skip_ending_credits = 0;

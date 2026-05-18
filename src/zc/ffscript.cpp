@@ -13864,7 +13864,6 @@ void FFScript::init(bool for_continue)
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	temp_no_stepforward = 0;
 	queued_subscreen = nullptr;
-	nostepforward = 0;
 	numscriptdraws = 0;
 	skipscriptdraws = false;
 	max_ff_rules = qr_MAX;

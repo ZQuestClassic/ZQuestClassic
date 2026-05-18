@@ -1980,8 +1980,6 @@ void HeroClass::init()
 		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
 	}
-	FFCore.nostepforward = 0;
-
 	for (int i = 0; i < 4; i++)
 		lastdir[i] = 0xFF;
 
@@ -26893,8 +26891,36 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
     
 	x = x.getInt();
 	y = y.getInt();
+
+	bool do_scripts = get_qr(qr_SCRIPTSRUNINHEROSTEPFORWARD);
+
     while(s>=0)
     {
+		if (do_scripts)
+		{
+			script_drawing_commands.Clear();
+			FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+
+			if(DMaps[cur_dmap].script != 0 && FFCore.doscript(ScriptType::DMap))
+			{
+				ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script, cur_dmap);
+			}
+			if(DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+			{
+				ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
+			}
+			if(FFCore.waitdraw(ScriptType::DMap) && DMaps[cur_dmap].script != 0 && FFCore.doscript(ScriptType::DMap))
+			{
+				ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script, cur_dmap);
+				FFCore.waitdraw(ScriptType::DMap) = false;
+			}
+			if(FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+			{
+				ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
+				FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
+			}
+		}
+
         if(diagonalMovement)
         {
             if((dir<left?x.getInt()&7:y.getInt()&7)&&adjust==true)
@@ -27028,9 +27054,20 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         
         clear_darkroom_bitmaps();
         update_viewport();
-        draw_screen();
+
+        bool show_hero = true;
+        bool runGeneric = do_scripts;
+        draw_screen(show_hero, runGeneric);
         if (canSideviewLadder()) setOnSideviewLadder(true);
+
+        if (do_scripts)
+        {
+            FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+        }
+
         advanceframe(true);
+        if (replay_version_check(56))
+            load_control_state();
         
         if(Quit)
             return;
