@@ -4554,7 +4554,7 @@ void openscreen(int32_t shape)
 	}
 	else
 	{
-		Hero.setDontDraw(true);
+		Hero.set_engine_invis(true);
 		show_subscreen_dmap_dots=false;
 		show_subscreen_numbers=false;
 		show_subscreen_life=false;
@@ -4582,7 +4582,7 @@ void openscreen(int32_t shape)
 		}
 	}
 	
-	Hero.setDontDraw(false);
+	Hero.set_engine_invis(false);
 	show_subscreen_items=true;
 	show_subscreen_dmap_dots=true;
 	show_subscreen_numbers=true;
@@ -4602,7 +4602,7 @@ void closescreen(int32_t shape)
 	}
 	else
 	{
-		Hero.setDontDraw(true);
+		Hero.set_engine_invis(true);
 		show_subscreen_dmap_dots=false;
 		show_subscreen_numbers=false;
 		//	show_subscreen_items=false;
@@ -4631,7 +4631,7 @@ void closescreen(int32_t shape)
 		}
 	}
 	
-	Hero.setDontDraw(false);
+	Hero.set_engine_invis(false);
 	show_subscreen_items=true;
 	show_subscreen_dmap_dots=true;
 }

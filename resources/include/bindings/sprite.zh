@@ -137,6 +137,14 @@ class sprite {
 	// @zasm_var SPRITE_SCRIPT_TILE
 	internal int ScriptTile;
 
+	// The sprite is invisible for this many frames.
+	// If < -1, invisibility does not run out. If == -1, this is
+	// "engine invisibility", and the engine might clear it at any time.
+	//
+	// @versionadded 3.0
+	// @zasm_var SPRITE_INVIS_CLK
+	internal int InvisibleTimer;
+
 	// If the sprite should be extended (large). Set to 3 to extend, 0 otherwise.
 	//
 	// [ffc]: Not used.

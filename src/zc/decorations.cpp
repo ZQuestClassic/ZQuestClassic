@@ -541,7 +541,7 @@ bool dTallGrass::animate(int32_t)
 
 void dTallGrass::draw(BITMAP *dest)
 {
-	if(HeroGetDontDraw())
+	if(HeroIsInvisible())
 		return;
 		
 	int32_t t=0;
@@ -605,7 +605,7 @@ bool dRipples::animate(int32_t)
 
 void dRipples::draw(BITMAP *dest)
 {
-	if(HeroGetDontDraw())
+	if(HeroIsInvisible())
 		return;
 	
 	int32_t t=0;

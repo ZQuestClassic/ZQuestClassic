@@ -123,6 +123,7 @@ sprite::sprite(): solid_object()
 	spr_spawn_anim_frm = 0;
 	hide_hitbox = false;
 	behind = false;
+	invis_timer = 0;
 }
 
 sprite::sprite(sprite const & other):
@@ -155,7 +156,7 @@ sprite::sprite(sprite const & other):
 	glowRad(other.glowRad), glowShape(other.glowShape),
 	glowOffset(other.glowOffset),
 	ignore_delete(other.ignore_delete),
-	behind(other.behind)
+	behind(other.behind), invis_timer(other.invis_timer)
 {
     uid = 0;
 	parent = nullptr;
@@ -248,6 +249,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	switch_hooked = false;
 	ignore_delete = 0;
 	can_flicker = true;
+	invis_timer = 0;
 	
 	//Defaults for old hardcoded sprites
 	spr_shadow = iwShadow;
@@ -326,6 +328,8 @@ void sprite::post_animate()
 {
 	updateSolid();
 	solid_update();
+	if (invis_timer > 0)
+		--invis_timer;
 }
 int32_t sprite::real_x(zfix fx)
 {
@@ -1007,10 +1011,8 @@ void sprite::draw(BITMAP* dest)
 {
 	//Handle glowing sprites
 	handle_sprlighting();
-	if(!show_sprites)
-	{
+	if(!show_sprites || invis_timer)
 		return;
-	}
 	zfix tyoffs = yofs;
 #ifdef IS_PLAYER
 	if(switch_hooked)
