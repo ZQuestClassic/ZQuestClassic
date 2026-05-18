@@ -9990,27 +9990,32 @@ void domouse()
 
 		auto& sqr = favorites_list.subsquare(col, row);
 
-		char buf[180];
+		string buf;
 		if (favorite_combos[f] == -1)
-			sprintf(buf, "Fav Combo %d\nEmpty", f);
+			buf = fmt::format("Fav Combo {}\nEmpty", f);
 		else
 		{
 			switch (favorite_combo_modes[f])
 			{
-			case dm_alias:
-				sprintf(buf, "Fav Combo %d\nAlias %d", f, favorite_combos[f]);
-				break;
-			case dm_cpool:
-				sprintf(buf, "Fav Combo %d\nPool %d", f, favorite_combos[f]);
-				break;
-			case dm_auto:
-				sprintf(buf, "Fav Combo %d\nAutocombo %d", f, favorite_combos[f]);
-				break;
-			default:
-				sprintf(buf, "Fav Combo %d\nCombo %d", f, favorite_combos[f]);
+				case dm_alias:
+					buf = fmt::format("Fav Combo {}\nAlias {}", f, favorite_combos[f]);
+					break;
+				case dm_cpool:
+					buf = fmt::format("Fav Combo {}\nPool {}", f, favorite_combos[f]);
+					break;
+				case dm_auto:
+					buf = fmt::format("Fav Combo {}\nAutocombo {}", f, favorite_combos[f]);
+					break;
+				default:
+				{
+					buf = fmt::format("Fav Combo {}\nCombo {}", f, favorite_combos[f]);
+					auto const& cmb = combobuf[favorite_combos[f]];
+					if (!cmb.label.empty())
+						buf += fmt::format("\nLabel: {}", cmb.label);
+				}
 			}
 		}
-		update_tooltip(x, y, sqr, buf);
+		update_tooltip(x, y, sqr, buf.c_str());
 	}
 
 	size_and_pos const& real_mini = zoomed_minimap ? real_minimap_zoomed : real_minimap;
