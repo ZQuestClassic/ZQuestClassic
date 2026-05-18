@@ -73,6 +73,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_COMPILE_VOL] = zc_get_config("Compiler", "compile_audio_volume", 100);
 	opts[OPT_DISABLE_LPAL_SHORTCUT] = DisableLPalShortcuts;
 	opts[OPT_DISABLE_COMPILE_CONSOLE] = DisableCompileConsole;
+	opts[OPT_SHOW_DARK_MARKER] = (Flags&cNODARK) ? 0 : 1;
 	opts[OPT_SKIP_LAYER_WARNING] = skipLayerWarning;
 	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
 	opts[OPT_CUSTOMFONT] = zc_get_config("ZQ_GUI","custom_fonts",1);
@@ -361,6 +362,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_NO_HIGHLIGHT_LAYER0:
 			NoHighlightLayer0 = v!=0;
 			zc_set_config("zquest","no_highlight_layer0",v);
+			break;
+		case OPT_SHOW_DARK_MARKER:
+			SETFLAG(Flags, cNODARK, !v);
+			zc_set_config("zquest","show_dithered_dark",v);
 			break;
 	}
 }
@@ -824,7 +829,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
 					ROW_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
 					ROW_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
-					ROW_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window")
+					ROW_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
+					ROW_CHECK_I(OPT_SHOW_DARK_MARKER, "Show Darkness Corner Dither", "If enabled, the upper-left of a dark screen will show a dithered indicator.")
 				),
 				Rows<3>(vAlign = 0.0,
 					ROW_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
