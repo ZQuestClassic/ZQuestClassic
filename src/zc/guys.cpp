@@ -4492,7 +4492,7 @@ bool enemy::hit(weapon *w)
 
 	if (replay_version_check(0, 14))
 	{
-		if(!w->scriptcoldet || w->fallclk || w->drownclk)
+		if(w->script_no_colldet || w->fallclk || w->drownclk)
 			return false;
 		return sprite::hit(w);
 	}
@@ -12728,7 +12728,7 @@ void eAquamentus::draw(BITMAP *dest)
 
 bool eAquamentus::hit(weapon *w)
 {
-	if(!w->scriptcoldet || w->fallclk || w->drownclk) return false;
+	if(w->script_no_colldet || w->fallclk || w->drownclk) return false;
 	
 	switch(w->id)
 	{

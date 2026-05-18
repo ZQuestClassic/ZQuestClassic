@@ -97,7 +97,7 @@ public:
     int32_t extend;
     // Scripting additions
     int32_t miscellaneous[32];
-    bool scriptcoldet;
+    int script_no_colldet;
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
     dword scriptflag;
     word script;

@@ -45,11 +45,11 @@ void run(int enemyID)
 void SpawnAnimation(ffc this, npc ghost)
 {
 	 int combo=this->Data;
-	 bool collDet=ghost->CollDetection;
+	 int collDet = ghost->NoCollisionTimer;
 	 int xOffset=ghost->DrawXOffset;
 	
 	 Ghost_SetPosition(this, ghost);
-	 ghost->CollDetection=false;
+	 ghost->NoCollisionTimer = -1;
 	
 	 // Alternate drawing offscreen and in place for 64 frames
 	 for(int i=0; i<32; i++)
@@ -58,11 +58,15 @@ void SpawnAnimation(ffc this, npc ghost)
 		 ghost->DrawXOffset=32768;
 		 Ghost_SetPosition(this, ghost);
 		 Ghost_WaitframeLight(this, ghost);
+		if (collDet > 0)
+			--collDet;
 		
 		 this->Data=combo;
 		 ghost->DrawXOffset=xOffset;
 		 Ghost_SetPosition(this, ghost);
 		 Ghost_WaitframeLight(this, ghost);
+		if (collDet > 0)
+			--collDet;
 		
 		 // The combo has to be removed shortly before the animation
 		 // finishes; otherwise, it's possible to spawn two of them.
@@ -74,7 +78,7 @@ void SpawnAnimation(ffc this, npc ghost)
 	 }
 	
 	 this->Data=combo;
-	 ghost->CollDetection=collDet;
+	 ghost->NoCollisionTimer = collDet;
 	 ghost->DrawXOffset=xOffset;
 }
 }

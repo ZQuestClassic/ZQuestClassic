@@ -406,6 +406,7 @@ class npc {
 	// @zasm_var NPCFLAGS
 	internal bool Flags[];
 
+	// @deprecated use [sprite::NoCollisionTimer] instead!
 	// @zasm_var NPCCOLLDET
 	internal bool CollDetection;
 

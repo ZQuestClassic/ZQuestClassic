@@ -153,6 +153,7 @@ class lweapon {
 	// If the weapon's collision is enabled. Set to false to disable collision
 	// entirely.
 	//
+	// @deprecated use [sprite::NoCollisionTimer] instead!
 	// @zasm_var LWPNCOLLDET
 	internal bool CollDetection;
 

@@ -46,7 +46,7 @@ int32_t eweapon_get_register(int32_t reg)
 			ret=s->behind*10000;
 			break;
 		case EWPNCOLLDET:
-			ret=(s->scriptcoldet)*10000;
+			ret = s->script_no_colldet ? 0 : 10000;
 			break;
 		case EWPNCSET:
 			ret=s->cs*10000;
@@ -383,7 +383,7 @@ void eweapon_set_register(int32_t reg, int32_t value)
 			s->behind=(value!=0);
 			break;
 		case EWPNCOLLDET:
-			(s->scriptcoldet)=value;
+			s->script_no_colldet = value ? 0 : -1;
 			break;
 		case EWPNCSET:
 			s->cs=(value/10000)&15;

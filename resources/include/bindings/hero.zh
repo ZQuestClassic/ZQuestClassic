@@ -261,6 +261,7 @@ class hero {
 	// @zasm_var HERONOSTEPFORWARD
 	internal bool NoStepForward;
 
+	// @deprecated use [sprite::NoCollisionTimer] instead!
 	// @zasm_var LINKINVINC
 	internal bool CollDetection;
 

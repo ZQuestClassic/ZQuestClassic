@@ -108,7 +108,7 @@ void Ghost_SwapNPC(npc oldGhost, npc newGhost, bool copyHP)
     newGhost->HitHeight=oldGhost->HitHeight;
     newGhost->HitXOffset=oldGhost->HitXOffset;
     newGhost->HitYOffset=oldGhost->HitYOffset;
-    newGhost->CollDetection=oldGhost->CollDetection;
+    newGhost->NoCollisionTimer = oldGhost->NoCollisionTimer;
 
     for(int i=0; i<16; i++)
         newGhost->Misc[i]=oldGhost->Misc[i];
@@ -117,7 +117,7 @@ void Ghost_SwapNPC(npc oldGhost, npc newGhost, bool copyHP)
         newGhost->HP=oldGhost->HP;
 
     // Move the old ghost out of the way
-    oldGhost->CollDetection=false;
+    oldGhost->NoCollisionTimer = -1;
     oldGhost->X=Region->Width;
     oldGhost->Y=Region->Height;
 }

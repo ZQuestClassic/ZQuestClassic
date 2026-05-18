@@ -236,13 +236,13 @@ bool Collision(item i, int cmb) { return Collision(cmb,i); }
 //Set checkcoldetection to true if you wish to return false from an lweapon with ColDetection disabled. 
 bool Collision(lweapon l, int cmb, bool checkcoldetection) 
 { 
-	if ( checkcoldetection && !l->CollDetection ) return false;
+	if ( checkcoldetection && l->NoCollisionTimer ) return false;
 	else return Collision(cmb,l); 
 }
 
 bool Collision(int cmb, lweapon l, bool checkcoldetection) 
 { 
-	if ( checkcoldetection && !l->CollDetection ) return false;
+	if ( checkcoldetection && l->NoCollisionTimer ) return false;
 	else return Collision(cmb,l); 
 }
 
@@ -250,13 +250,13 @@ bool Collision(int cmb, lweapon l, bool checkcoldetection)
 //Set checkcoldetection to true if you wish to return false from an eweapon with ColDetection disabled. 
 bool Collision(eweapon e, int cmb, bool checkcoldetection) 
 {
-	if ( checkcoldetection && !e->CollDetection ) return false;
+	if ( checkcoldetection && e->NoCollisionTimer ) return false;
 	else return Collision(cmb,e); 
 }
 
 bool Collision(int cmb, eweapon e, bool checkcoldetection) 
 {
-	if ( checkcoldetection && !e->CollDetection ) return false;
+	if ( checkcoldetection && e->NoCollisionTimer ) return false;
 	else return Collision(cmb,e); 
 }
 
@@ -264,13 +264,13 @@ bool Collision(int cmb, eweapon e, bool checkcoldetection)
 //Set checkcoldetection to true if you wish to return false from an NPC with ColDetection disabled. 
 bool Collision(npc n, int cmb, bool checkcoldetection) 
 { 
-	if ( checkcoldetection && !n->CollDetection ) return false;
+	if ( checkcoldetection && n->NoCollisionTimer ) return false;
 	else return Collision(cmb,n); 
 }
 
 bool Collision(int cmb, npc n, bool checkcoldetection) 
 { 
-	if ( checkcoldetection && !n->CollDetection ) return false;
+	if ( checkcoldetection && n->NoCollisionTimer ) return false;
 	else return Collision(cmb,n); 
 }
 
@@ -278,7 +278,7 @@ bool Collision(int cmb, npc n, bool checkcoldetection)
 //Set checkcoldetection to true if you wish to return false from an NPC with ColDetection disabled. 
 bool Collision(int cmb, bool checkcoldetection) 
 {
-	if ( checkcoldetection && !Hero->CollDetection ) return false;
+	if ( checkcoldetection && Hero->NoCollisionTimer ) return false;
 	else return Collision(cmb); 
 }
 
@@ -343,7 +343,7 @@ bool Collision(int cmb,  int a1, int b1, int c1, int d1, int a2, int b2, int c2,
 //Set checkcoldetection true if you wish weapons without collision to automatically return false.
 bool CollisionDir(int cmb, lweapon l, int dir, bool checkcoldetection) 
 {
-	if ( checkcoldetection && !l->CollDetection ) return false;
+	if ( checkcoldetection && l->NoCollisionTimer ) return false;
 	if ( l->Dir != dir ) return false;
 	return Collision(cmb,l);
 }
@@ -355,7 +355,7 @@ bool CollisionDir(int cmb, lweapon l, int dir, bool checkcoldetection)
 //Set checkcoldetection true if you wish weapons without collision to automatically return false.
 bool CollisionDir(int cmb, lweapon l, int dir, bool facingspecificdir, bool checkcoldetection) 
 {
-	if ( checkcoldetection && !l->CollDetection ) return false;
+	if ( checkcoldetection && l->NoCollisionTimer ) return false;
 	if ( facingspecificdir && l->Dir != dir ) return false;
 	if ( !facingspecificdir && l->Dir == dir ) return false;
 	return Collision(cmb,l);
@@ -626,7 +626,7 @@ lweapon EWeaponToLWeapon(eweapon a)
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;
@@ -683,7 +683,7 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;
@@ -1103,7 +1103,7 @@ void LWeaponToEWeapon(lweapon a, eweapon b){
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;
@@ -1159,7 +1159,7 @@ eweapon LWeaponToEWeapon(lweapon a){
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;

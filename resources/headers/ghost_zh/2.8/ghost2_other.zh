@@ -284,7 +284,7 @@ void Ghost_SpawnAnimationPuff(ffc this, npc ghost)
     
     lweapon graphic;
     int combo=this->Data;
-    bool collDet=ghost->CollDetection;
+    int collDet = ghost->NoCollisionTimer;
     int xOffset=ghost->DrawXOffset;
     
     if(this->TileWidth!=Ghost_TileWidth)
@@ -306,7 +306,7 @@ void Ghost_SpawnAnimationPuff(ffc this, npc ghost)
     Ghost_SetPosition(this, ghost);
     
     this->Data=0;
-    ghost->CollDetection=false;
+    ghost->NoCollisionTimer = -1;
     ghost->DrawXOffset=32768;
     
     for(int i=0; i<this->TileWidth; i++)
@@ -314,7 +314,7 @@ void Ghost_SpawnAnimationPuff(ffc this, npc ghost)
         for(int j=0; j<this->TileHeight; j++)
         {
             graphic=Screen->CreateLWeapon(LW_SCRIPT10);
-            graphic->CollDetection=false;
+            graphic->NoCollisionTimer = -1;
             graphic->UseSprite(GH_SPAWN_SPRITE);
             graphic->X=this->X+16*i;
             graphic->Y=this->Y+16*j;
@@ -333,10 +333,12 @@ void Ghost_SpawnAnimationPuff(ffc this, npc ghost)
     {
         Ghost_SetPosition(this, ghost);
         Ghost_WaitframeLight(this, ghost);
+		if (collDet > 0)
+			--collDet;
     }
     
     this->Data=combo;
-    ghost->CollDetection=collDet;
+    ghost->NoCollisionTimer = collDet;
     ghost->DrawXOffset=xOffset;
 }
 
@@ -346,7 +348,7 @@ void Ghost_SpawnAnimationFlicker(ffc this, npc ghost)
         return;
     
     int combo=this->Data;
-    bool collDet=ghost->CollDetection;
+    int collDet = ghost->NoCollisionTimer;
     int xOffset=ghost->DrawXOffset;
     
     if(this->TileWidth!=Ghost_TileWidth)
@@ -366,7 +368,7 @@ void Ghost_SpawnAnimationFlicker(ffc this, npc ghost)
     }
     
     Ghost_SetPosition(this, ghost);
-    ghost->CollDetection=false;
+    ghost->NoCollisionTimer = -1;
     
     // Alternate drawing offscreen and in place for 64 frames
     for(int i=0; i<32; i++)
@@ -375,15 +377,19 @@ void Ghost_SpawnAnimationFlicker(ffc this, npc ghost)
         ghost->DrawXOffset=32768;
         Ghost_SetPosition(this, ghost);
         Ghost_WaitframeLight(this, ghost);
+		if (collDet > 0)
+			--collDet;
         
         this->Data=combo;
         ghost->DrawXOffset=xOffset;
         Ghost_SetPosition(this, ghost);
         Ghost_WaitframeLight(this, ghost);
+		if (collDet > 0)
+			--collDet;
     }
     
     this->Data=combo;
-    ghost->CollDetection=collDet;
+    ghost->NoCollisionTimer = collDet;
     ghost->DrawXOffset=xOffset;
 }
 
@@ -576,7 +582,7 @@ void __Ghost_Explode(ffc this, npc ghost, bool flash)
         explosion=Screen->CreateLWeapon(LW_BOMBBLAST);
         explosion->X=baseX+Rand(16*Ghost_TileWidth)-8;
         explosion->Y=baseY+Rand(16*Ghost_TileHeight)-8;
-        explosion->CollDetection=false;
+        explosion->NoCollisionTimer = -1;
         
         for(int j=0; j<16; j++)
         {
@@ -658,7 +664,7 @@ void __DeathAnimStart(ffc this, npc ghost)
     this->Ax=0;
     this->Ay=0;
     ghost->HP=1;
-    ghost->CollDetection=false;
+    ghost->NoCollisionTimer = -1;
     ghost->SFX=0;
 }
 
