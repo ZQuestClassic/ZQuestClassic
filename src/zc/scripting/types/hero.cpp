@@ -144,6 +144,14 @@ int32_t hero_get_register(int32_t reg)
 			ret = Hero.respawn_scr * 10000;
 			break;
 		}
+		case HERORESPAWNDMSCR:
+		{
+			int offs = 0;
+			if (unsigned(Hero.respawn_dmap) < MAXDMAPS)
+				offs = DMaps[Hero.respawn_dmap].xoff;
+			ret = (Hero.respawn_scr - offs) * 10000;
+			break;
+		}
 		case HERORESPAWNX:
 		{
 			ret = Hero.respawn_x.getZLong();
@@ -719,6 +727,14 @@ void hero_set_register(int32_t reg, int32_t value)
 		case HERORESPAWNSCR:
 		{
 			Hero.respawn_scr = vbound(value/10000, 0, 0x7F);
+			break;
+		}
+		case HERORESPAWNDMSCR:
+		{
+			int offs = 0;
+			if (unsigned(Hero.respawn_dmap) < MAXDMAPS)
+				offs = DMaps[Hero.respawn_dmap].xoff;
+			Hero.respawn_scr = vbound((value/10000) + offs, 0, 0x7F);
 			break;
 		}
 		case HERORESPAWNX:

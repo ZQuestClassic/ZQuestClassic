@@ -473,12 +473,23 @@ class hero {
 	internal int RespawnDMap;
 
 	// The Hazard Respawn screen, where the Hero will respawn upon drowning or such.
+	// This value is absolute, not accounting for dmap offsets.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
 	// safe ground, unless [ForcedHazardRespawn] is true.
 	//
 	// @zasm_var HERORESPAWNSCR
 	internal int RespawnScreen;
+
+	// The Hazard Respawn screen, where the Hero will respawn upon drowning or such.
+	// This value is relative to the dmap offset of [RespawnDMap].
+	//
+	// The engine may overwrite this value upon changing screens or standing on
+	// safe ground, unless [ForcedHazardRespawn] is true.
+	//
+	// @versionadded 3.0
+	// @zasm_var HERORESPAWNDMSCR
+	internal int RespawnDMapScreen;
 
 	// The timer for the switchhook effect. If > 0, a switch effect is active.
 	//
