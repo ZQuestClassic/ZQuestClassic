@@ -839,6 +839,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MISCGAUGE] - 4 values
 	// - [SUBWIDG_ITEMCOOLDOWNGAUGE] - 4 values
 	//
+	// @value [enum CornerIndex]
 	// @zasm_var SUBWIDGTY_CORNER
 	internal int Corner[];
 

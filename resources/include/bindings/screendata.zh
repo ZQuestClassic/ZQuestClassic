@@ -1336,7 +1336,13 @@ class screendata {
 	internal void DrawInteger(int layer, int x, int y, int font, int color,
 							  int bg_color, int width, int height, int value,
 							  int num_decimal_places = 0, int opacity = OP_OPAQUE);
-
+	
+	// Draws a tile block of 'block_w' x 'block_h', where the top-left tile is 'tile',
+	// with the specified drawing parameters. 'transparency' determines if color 0
+	// should be transparent or actually drawn.
+	// If 'xscale'/'yscale' are >-1, they specify a width/height in pixels to scale
+	// the draw to.
+	//
 	// @zasm
 	//   DRAWTILER
 	//   POPARGS D5 0.0015
@@ -1344,6 +1350,16 @@ class screendata {
 						   int block_h, int cset, int xscale = -1, int yscale = -1,
 						   int rx = 0, int ry = 0, int rot_degrees = 0,
 						   int flip = 0, bool transparency = true, int opacity = OP_OPAQUE);
+	
+	// Draws a quarter-tile portion of the specified tile with the
+	// specified drawing parameters.
+	//
+	// @versionadded 3.0
+	// @zasm
+	//   DRAWMINITILE
+	//   POPARGS D5 0.0007
+	internal void DrawMiniTile(int layer, int x, int y, int tile,
+		CornerIndex quarter, int cset, int opacity = OP_OPAQUE);
 
 	// As DrawTile(), but draws with a cloaked effect.
 	//

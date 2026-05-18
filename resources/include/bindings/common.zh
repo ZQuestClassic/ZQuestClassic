@@ -981,3 +981,13 @@ enum SizeOverrideBitflags
 	SZFLAG_DRAW_Z_OFFSET           = 0x0200, // Enemies only.
 	SZFLAG_ALL                     = 0x03FF,
 };
+
+// Constants indicating the 4 corners of a tile.
+// @versionadded 3.0
+enum CornerIndex
+{
+	CORNER_UL,
+	CORNER_UR,
+	CORNER_BL,
+	CORNER_BR,
+};

@@ -1281,6 +1281,25 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     }
 }
 
+void do_draw_minitile(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
+{
+	/* layer, x, y, tile, corner, cset, opacity */
+	
+	int32_t opacity = sdci[7]/10000;
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
+	int tile = sdci[4]/10000;
+	int corner = sdci[5]/10000;
+	int cset = sdci[6]/10000;
+	
+	int minitile = (tile << 2) + corner;
+	
+	if(opacity < 128)
+		overtiletranslucent8(bmp, minitile, x, y, cset, 0, opacity);
+	else
+		overtile8(bmp, minitile, x, y, cset, 0);
+}
+
 void do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
@@ -1525,16 +1544,18 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 
 void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
-    /* layer, x, y, tile, color opacity */
-    
-    int32_t opacity = sdci[6]/10000;
+	/* layer, x, y, tile, cset, opacity */
+	
+	int32_t opacity = sdci[6]/10000;
 	int x = xoffset+(sdci[2]/10000);
 	int y = yoffset+(sdci[3]/10000);
-    
-    if(opacity < 128)
-        overtiletranslucent16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
-    else
-        overtile16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
+	int tile = sdci[4]/10000;
+	int cset = sdci[5]/10000;
+	
+	if(opacity < 128)
+		overtiletranslucent16(bmp, tile, x, y, cset, 0, opacity);
+	else
+		overtile16(bmp, tile, x, y, cset, 0);
 }
 
 void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t*, int32_t xoffset, int32_t yoffset)
@@ -4725,6 +4746,36 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
 }
 
+void bmp_do_draw_minitile(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
+{
+	/* layer, x, y, tile, corner, cset, opacity */
+	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
+	
+	int32_t opacity = sdci[7]/10000;
+	if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+	{
+		Z_scripterrlog("bitmap->DrawMiniTile() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
+		return;
+	}
+	BITMAP *refbmp = resolveScriptingBitmap(sdci[DRAWCMD_BMP_TARGET]);
+	if ( refbmp == NULL ) return;
+	
+	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
+
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
+	int tile = sdci[4]/10000;
+	int corner = sdci[5]/10000;
+	int cset = sdci[6]/10000;
+	
+	int minitile = (tile << 2) + corner;
+	
+	if(opacity < 128)
+		overtiletranslucent8(refbmp, minitile, x, y, cset, 0, opacity);
+	else
+		overtile8(refbmp, minitile, x, y, cset, 0);
+}
+
 void bmp_do_drawtilecloakedr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//sdci[1]=layer
@@ -5006,27 +5057,29 @@ void bmp_do_drawcombocloakedr(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t y
 
 void bmp_do_fasttiler(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
-    /* layer, x, y, tile, color opacity */
+	/* layer, x, y, tile, cset, opacity */
 	//sdci[DRAWCMD_BMP_TARGET] Bitmap Pointer
-    
-    int32_t opacity = sdci[6]/10000;
-    if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
-    {
-	Z_scripterrlog("bitmap->FastTile() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
-	return;
-    }
+	
+	int32_t opacity = sdci[6]/10000;
+	if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
+	{
+		Z_scripterrlog("bitmap->FastTile() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
+		return;
+	}
 	BITMAP *refbmp = resolveScriptingBitmap(sdci[DRAWCMD_BMP_TARGET]);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 
 	int x = xoffset+(sdci[2]/10000);
 	int y = yoffset+(sdci[3]/10000);
-    
-    if(opacity < 128)
-        overtiletranslucent16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
-    else
-        overtile16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
+	int tile = sdci[4]/10000;
+	int cset = sdci[5]/10000;
+	
+	if(opacity < 128)
+		overtiletranslucent16(refbmp, tile, x, y, cset, 0, opacity);
+	else
+		overtile16(refbmp, tile, x, y, cset, 0);
 }
 
 void do_bmpwritetile(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -12099,6 +12152,11 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 				do_drawtiler(bmp, sdci, xoffset, yoffset);
 			}
 			break;
+			case DRAWMINITILE:
+			{
+				do_draw_minitile(bmp, sdci, xoffset, yoffset);
+			}
+			break;
 			
 			case DRAWTILECLOAKEDR:
 			{
@@ -12224,6 +12282,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			case BMPSPLINER: bmp_do_spliner(bmp, sdci, xoffset, yoffset); break;
 			case BMPPUTPIXELR: bmp_do_putpixelr(bmp, sdci, xoffset, yoffset); break;
 			case BMPDRAWTILER: bmp_do_drawtiler(bmp, sdci, xoffset, yoffset); break;
+			case BMPDRAWMINITILE: bmp_do_draw_minitile(bmp, sdci, xoffset, yoffset); break;
 			case BMPDRAWTILECLOAKEDR: bmp_do_drawtilecloakedr(bmp, sdci, xoffset, yoffset); break;
 			case BMPDRAWCOMBOR: bmp_do_drawcombor(bmp, sdci, xoffset, yoffset); break;
 			case BMPDRAWCOMBOCLOAKEDR: bmp_do_drawcombocloakedr(bmp, sdci, xoffset, yoffset); break;
