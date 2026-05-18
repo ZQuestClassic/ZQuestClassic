@@ -1376,7 +1376,7 @@ namespace Emily
 		Game->Suspend[susptPALCYCLE] = true;
 		Game->Suspend[susptGUYS] = true;
 		Game->Suspend[susptSUBSCREENSCRIPTS] = true;
-		Hero->Invisible = true;
+		Hero->InvisibleTimer = -1;
 		dmapdata dm = Game->LoadDMapData(SCRNSHOT_DMAP);
 		int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
 		dm->Map = map;
@@ -1487,7 +1487,7 @@ namespace Emily
 		dm->Type = olddm[3];
 		dm->Palette = olddm[4];
 		Hero->WarpEx(WT_IWARP, olddmap, oldscr, oldx, oldy, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
-		Hero->Invisible = false;
+		Hero->InvisibleTimer = 0;
 		Hero->ItemJinx = 0;
 		Hero->SwordJinx = 0;
 		Game->Suspend[susptCOMBOANIM] = false;
@@ -1507,7 +1507,7 @@ namespace Emily
 		Game->Suspend[susptPALCYCLE] = true;
 		Game->Suspend[susptGUYS] = true;
 		Game->Suspend[susptSUBSCREENSCRIPTS] = true;
-		Hero->Invisible = true;
+		Hero->InvisibleTimer = -1;
 		dmapdata dm = Game->LoadDMapData(SCRNSHOT_DMAP);
 		int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
 		dm->Level = Game->CurLevel;
@@ -1622,7 +1622,7 @@ namespace Emily
 		dm->Type = olddm[3];
 		dm->Palette = olddm[4];
 		Hero->WarpEx(WT_IWARP, olddmap, oldscr, oldx, oldy, WARPEFFECT_NONE, 0, WARP_FLAG_SCRIPTDRAW);
-		Hero->Invisible = false;
+		Hero->InvisibleTimer = 0;
 		Hero->ItemJinx = 0;
 		Hero->SwordJinx = 0;
 		Game->Suspend[susptCOMBOANIM] = false;

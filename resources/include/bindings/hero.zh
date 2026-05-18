@@ -246,6 +246,8 @@ class hero {
 	// @zasm_var HEROHEALTHBEEP
 	internal int HealthBeep;
 
+	// If the player is invisible or not.
+	// @deprecated Use [InvisibleTimer] instead!
 	// @zasm_var LINKINVIS
 	internal bool Invisible;
 

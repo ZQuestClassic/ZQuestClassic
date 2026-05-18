@@ -1176,9 +1176,9 @@ void HeroCheckItems(int32_t index)
 {
     Hero.checkitems(index);
 }
-byte HeroGetDontDraw()
+int HeroIsInvisible()
 {
-    return Hero.getDontDraw();
+    return Hero.invis_timer;
 }
 zfix  GuyX(int32_t j)
 {
@@ -2248,7 +2248,7 @@ int32_t init_game()
 	if(!get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);
 	
 	
-	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+	Hero.set_engine_invis(false);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	dointro();
@@ -2769,7 +2769,7 @@ void do_magic_casting()
             if(get_qr(qr_MORESOUNDS))
                 sfx(magic_item.usesound,pan(int32_t(Hero.getX())));
                 
-            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(1); }
+            Hero.set_engine_invis(true);
             
             for(int32_t i=0; i<16; ++i)
             {
@@ -2830,7 +2830,7 @@ void do_magic_casting()
 				//action=none;
 				magicitem=-1;
 				magiccastclk=0;
-				if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+				Hero.set_engine_invis(false);
 			}
         }
     }
@@ -4823,7 +4823,7 @@ reload_for_replay_file:
 			
 			case qINCQST:
 			{
-				Hero.setDontDraw(true);
+				Hero.invis_timer = -1;
 				//Hero.setCharging(0);//don't have the sword out during the ending. 
 				//Hero.setSwordClk(0);
 				show_subscreen_dmap_dots=true;
@@ -4841,7 +4841,7 @@ reload_for_replay_file:
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
 		doClearTint();
-		Hero.setDontDraw(0);
+		Hero.invis_timer = 0;
 		if(Quit != qCONT)
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));

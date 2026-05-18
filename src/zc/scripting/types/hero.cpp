@@ -444,7 +444,7 @@ int32_t hero_get_register(int32_t reg)
 			ret=(int32_t)(game->get_magic())*10000;
 			break;
 		case LINKINVIS:
-			ret = (((int32_t)(Hero.getDontDraw())) ? 10000 : 0);
+			ret = Hero.invis_timer ? 10000 : 0;
 			break;
 		case LINKINVINC:
 			ret = (int32_t)(Hero.scriptcoldet)*10000;
@@ -1072,7 +1072,7 @@ void hero_set_register(int32_t reg, int32_t value)
 			Hero.scriptcoldet=(value/10000);
 			break;
 		case LINKINVIS:
-			Hero.setDontDraw((value ? 2 : 0));
+			Hero.invis_timer = value ? -2 : 0;
 			break;
 		case LINKITEMA:
 		{

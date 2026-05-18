@@ -267,7 +267,6 @@ public:
 	zfix convey_forcex, convey_forcey;
 	
 	zfix falling_oldy; // Used by the Stomp Boots in sideview
-	byte dontdraw;
 	byte warp_sound;
 	bool diagonalMovement;
 	bool bigHitbox;
@@ -629,8 +628,7 @@ public:
 	void setHeldItem(int32_t newitem);
 	bool isDiving();
 	bool isSwimming();
-	void setDontDraw(byte new_dontdraw);
-	byte getDontDraw();
+	void set_engine_invis(bool new_invis);
 	void setHClk(int32_t newhclk);
 	int32_t getHClk();
 	void setDivineProtectionShieldClk(int32_t newclk);

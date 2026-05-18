@@ -1600,7 +1600,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 		xofs=0;
 		whirlwind=0;
 		lstep=0;
-		if ( dontdraw < 2 ) { dontdraw=0; }
+		set_engine_invis(false);
 	}
 	else if(action==freeze||action==sideswimfreeze) // Might be in enemy wind
 	{
@@ -1619,7 +1619,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 		if(foundWind)
 		{
 			xofs=0;
-			if ( dontdraw < 2 ) { dontdraw=false; }
+			set_engine_invis(false);
 			wind->misc=-1;
 			x=wind->x;
 			y=wind->y;
@@ -1776,14 +1776,12 @@ bool HeroClass::isSwimming()
             (hopclk==0xFF));
 }
 
-void HeroClass::setDontDraw(byte new_dontdraw)
+void HeroClass::set_engine_invis(bool new_invis)
 {
-    dontdraw=new_dontdraw;
-}
-
-byte HeroClass::getDontDraw()
-{
-    return dontdraw;
+	if (invis_timer == 0 && new_invis)
+		invis_timer = -1;
+	else if (invis_timer == -1 && !new_invis)
+		invis_timer = 0;
 }
 
 void HeroClass::setHClk(int32_t newhclk)
@@ -1820,7 +1818,7 @@ void HeroClass::init()
 	tliftclk = 0;
 	liftheight = 0;
 	liftflags = 0;
-    if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw hero == 0
+    set_engine_invis(false);
     hookshot_used=false;
     justmoved = 0;
     hookshot_frozen=false;
@@ -2525,7 +2523,7 @@ weapon* find_first_wtype(int wtype)
 void HeroClass::draw(BITMAP* dest)
 {
 	int32_t oxofs = xofs, oyofs = yofs;
-	bool invisible=(dontdraw>0) || (hero_scr->flags3&fINVISHERO);
+	bool invisible = invis_timer || (hero_scr->flags3&fINVISHERO);
 	
 	{
 		if(action==dying)
@@ -8720,7 +8718,7 @@ heroanimate_skip_liftwpn:;
 	{
 		lbunnyclock = 0;
 	}
-
+	
 	bool is_broken_behavior = replay_is_active() && replay_get_meta_str("sav") == "link_to_the_zelda_2_of_3.sav";
 	bool fall_check = (fall == 0 || z > 0) && (fakefall == 0 || fakez > 0);
 	if (is_broken_behavior)
@@ -9837,7 +9835,7 @@ heroanimate_skip_liftwpn:;
 				xofs=0;
 				whirlwind=0;
 				lstep=0;
-				if ( dontdraw < 2 ) dontdraw=0;
+				set_engine_invis(false);
 				set_respawn_point();
 			}
 		}
@@ -10783,7 +10781,7 @@ void HeroClass::doMirror(int32_t mirrorid)
             div_prot_item=div_prot_temp;
             magicitem=-1;
             magiccastclk=0;
-            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+            set_engine_invis(false);
 		}
 	}
 	else
@@ -25845,7 +25843,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
 			scr = hero_scr;
-			if ( dontdraw < 2 ) {  dontdraw=1; }
+			set_engine_invis(true);
 			draw_screen(false);
 			fade(0xB,true,true);
 			darkroom = false;
@@ -25867,7 +25865,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				reposition_sword();
 			}
 			lighting(false, true);
-			if ( dontdraw < 2 ) { dontdraw=0; }
+			set_engine_invis(false);
 			stepforward(diagonalMovement?16:18, false);
 		}
 		if (get_qr(qr_SCREEN80_OWN_MUSIC) && (updatemusic || !musicnocut))
@@ -25914,7 +25912,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		scr = hero_scr;
 		//preloaded freeform combos
 		ffscript_engine(true);
-		if ( dontdraw < 2 ) { dontdraw=1; }
+		set_engine_invis(true);
 		draw_screen(false);
 		lighting(false, true);
 		if (get_qr(qr_NEW_DARKROOM))
@@ -25951,7 +25949,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		{
 			reposition_sword();
 		}
-		if ( dontdraw < 2 ) { dontdraw=0; }
+		set_engine_invis(false);
 		stepforward(diagonalMovement?16:18, false);
 		newscr_clk=frame;
 		activated_timed_warp=false;
@@ -32327,7 +32325,7 @@ void HeroClass::heroDeathAnimation()
             
 			if(f==208)
 			{
-				if ( dontdraw < 2 ) { dontdraw = 1; }
+				set_engine_invis(true);
 			}
 			if(get_qr(qr_FADE))
 			{
@@ -32536,7 +32534,7 @@ void HeroClass::heroDeathAnimation()
 
 	destroy_bitmap(subscrbmp);
 	action=none; FFCore.setHeroAction(none);
-	if ( dontdraw < 2 ) { dontdraw=0; }
+	set_engine_invis(false);
 }
 
 void HeroClass::ganon_intro()

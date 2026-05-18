@@ -1237,6 +1237,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SPRITE_HIT_OFFSET_Y:
 		case SPRITE_HIT_WIDTH:
 		case SPRITE_HIT_ZHEIGHT:
+		case SPRITE_INVIS_CLK:
 		case SPRITE_JUMP:
 		case SPRITE_LIGHT_RADIUS:
 		case SPRITE_LIGHT_SHAPE:

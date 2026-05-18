@@ -165,6 +165,10 @@ int32_t sprite_get_register(int32_t reg)
 				return s->dir * 10000;
 			return 0;
 		}
+		case SPRITE_INVIS_CLK:
+			if (s)
+				return s->invis_timer * 10000;
+			return 0;
 		case SPRITE_TILE:
 		{
 			if (s)
@@ -585,6 +589,10 @@ void sprite_set_register(int32_t reg, int32_t value)
 			}
 			break;
 		}
+		case SPRITE_INVIS_CLK:
+			if (s)
+				s->invis_timer = value / 10000;
+			break;
 		case SPRITE_TILE:
 		{
 			int tile = value / 10000;
