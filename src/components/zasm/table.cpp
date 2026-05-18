@@ -2713,6 +2713,7 @@ static constexpr script_variable variable_list[]=
 	{ "HERO_HAMMER_POS", HERO_HAMMER_POS, 0 },
 	{ "LWPN_NO_TRIGGERS", LWPN_NO_TRIGGERS, 0 },
 	{ "EWPN_NO_TRIGGERS", EWPN_NO_TRIGGERS, 0 },
+	{ "HERO_TMP_STEPBOOST", HERO_TMP_STEPBOOST, 0 },
 	{"", -1},
 };
 

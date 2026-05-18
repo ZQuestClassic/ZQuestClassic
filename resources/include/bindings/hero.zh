@@ -215,6 +215,13 @@ class hero {
 	//
 	// @zasm_var HEROSTEPRATE
 	internal int Step;
+	
+	// This amount will be added to [Step] this frame.
+	// Resets to 0 each frame after the Hero's movement.
+	//
+	// @versionadded 3.0
+	// @zasm_var HERO_TMP_STEPBOOST
+	internal int TempStepBoost;
 
 	// The offset from corners that the Hero's movement will 'shove' them
 	// around. Ranges from 0-16

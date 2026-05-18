@@ -457,6 +457,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case HEROSLIDING:
 		case HEROSTANDING:
 		case HEROSTEPRATE:
+		case HERO_TMP_STEPBOOST:
 		case HEROSWITCHMAXTIMER:
 		case HEROSWITCHTIMER:
 		case HEROTOTALDYOFFS:
