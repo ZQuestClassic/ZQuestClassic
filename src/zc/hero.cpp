@@ -1908,7 +1908,7 @@ void HeroClass::init()
     id=0;
     inlikelike=0;
     superman=inwallm=false;
-    scriptcoldet=true;
+    script_no_colldet=0;
     blowcnt=whirlwind=specialcave=0;
     hopclk=fallclk=0;
 	set_dive(0);
@@ -6493,7 +6493,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	//if ( parent.flags&item_flags3 ) //can damage Hero
 	//if ( parent.misc1 > 0 ) //damages Hero by this amount. 
 	if (!(valid_parent ? ((parent.type == itype_candle || parent.type == itype_book) && (parent.flags & item_flag3)): get_qr(qr_FIREPROOFHERO))
-		&& scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+		&& !script_no_colldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 	{
 		if(w->id==wFire && (superman ? ((diagonalMovement||NO_GRIDLOCK)?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))
 			&& parent.type != itype_divinefire)
@@ -6596,7 +6596,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	
 	if (valid_parent ? (parent.flags & item_flag2) : get_qr(qr_OUCHBOMBS))
 	{
-		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
+		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && !script_no_colldet && !fallclk)
 		{
 			bool didhit = w->hit(this);
 			if(didhit)
@@ -6895,7 +6895,7 @@ void HeroClass::checkhit()
 			if (hithero(hit2) == 0) return;
 		}
 	} while (hit2 != -1);
-	if (superman || !scriptcoldet || fallclk) return;
+	if (superman || script_no_colldet || fallclk) return;
 	hit2 = LwpnHit();
 	
 	if(hit2!=-1)
@@ -7395,7 +7395,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		
 		return -1;
 	}
-	else if(superman || !scriptcoldet || fallclk)
+	else if(superman || script_no_colldet || fallclk)
 		return 0;
 	else if (!(enemyptr->stunclk==0 && enemyptr->frozenclock==0 && (!get_qr(qr_SAFEENEMYFADE) || enemyptr->fading != fade_flicker)
 			&& (enemyptr->d->type != eeGUY || enemyptr->dmisc1)) || (enemyptr->flags & guy_no_contact_damage))
@@ -32218,7 +32218,7 @@ void HeroClass::heroDeathAnimation()
 				music_stop();
 				
 				attackclk=hclk=superman=0;
-				scriptcoldet = true;
+				script_no_colldet = 0;
 			    
 				for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
 			    

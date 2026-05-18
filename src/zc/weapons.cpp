@@ -6579,7 +6579,7 @@ void weapon::hit_pierce(enemy* e, int32_t ehitType, bool old_hit)
 			onhit(false, 0, -1, e, ehitType, false);
 		return;
 	}
-	if(!scriptcoldet || fallclk || drownclk)
+	if(script_no_colldet || fallclk || drownclk)
 		return; // not hit
 	switch(id)
 	{
@@ -6601,7 +6601,7 @@ void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 
 void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType, bool was_pierced)
 {
-	if(!scriptcoldet || fallclk || drownclk)
+	if(script_no_colldet || fallclk || drownclk)
 	{
 		// These won't hit anything, but they can still go too far offscreen...
 		// Unless the compatibility rule is set.
@@ -6767,7 +6767,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
     case ewBomb: case ewSBomb:
         step=0;
 		if(was_pierced)
-			scriptcoldet = false; // stay alive but not hitting anything
+			script_no_colldet = -1; // stay alive but not hitting anything
         break;
         
     case ewLitBomb: case ewLitSBomb:
@@ -6799,7 +6799,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
         
 	case wBomb: case wSBomb:
 		if(was_pierced)
-			scriptcoldet = false; // stay alive but not hitting anything
+			script_no_colldet = -1; // stay alive but not hitting anything
 		break;
     case wWhistle: case wBait: case wFire:
 		if(was_pierced)
@@ -7022,7 +7022,7 @@ void weapon::kill_weapon_special()
 // override hit detection to check for invicibility, etc
 bool weapon::hit()
 {
-    if(!scriptcoldet || fallclk || drownclk) return false;
+    if(script_no_colldet || fallclk || drownclk) return false;
 	if(no_collision()) return false;
     
 	if(id==wBugNet) return false;

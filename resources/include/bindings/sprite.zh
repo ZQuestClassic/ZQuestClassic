@@ -329,6 +329,13 @@ class sprite {
 	//
 	// @zasm_var SPRITE_LIGHT_OFFSET
 	internal int LightOffset;
+	
+	// The sprite has no collision for this many frames.
+	// If < 0, does not run out.
+	//
+	// @versionadded 3.0
+	// @zasm_var SPRITE_NOCOLL_CLK
+	internal int NoCollisionTimer;
 
 	// The shape of light emitted by this sprite.
 	//

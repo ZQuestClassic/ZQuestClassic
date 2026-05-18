@@ -763,7 +763,7 @@ lweapon Duplicate(lweapon a)
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;
@@ -816,7 +816,7 @@ eweapon Duplicate(eweapon a)
 	b->Step = a->Step;
 	b->Angle = a->Angle;
 	b->Angular = a->Angular;
-	b->CollDetection = a->CollDetection;
+	b->NoCollisionTimer = a->NoCollisionTimer;
 	b->DeadState = a->DeadState;
 	b->Flash = a->Flash;
 	b->Flip = a->Flip;

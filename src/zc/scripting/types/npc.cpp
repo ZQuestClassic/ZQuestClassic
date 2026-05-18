@@ -771,7 +771,13 @@ int32_t npc_get_register(int32_t reg)
 			GET_NPC_VAR_INT(starting_hp) break;
 			
 		case NPCCOLLDET:
-			GET_NPC_VAR_INT(scriptcoldet) break;
+		{
+			if (!npc)
+				ret = -10000;
+			else
+				ret = npc->script_no_colldet ? 0 : 10000;
+			break;
+		}
 		
 		case NPCENGINEANIMATE:
 			GET_NPC_VAR_INT(do_animation) break;
@@ -1659,7 +1665,9 @@ void npc_set_register(int32_t reg, int32_t value)
 			SET_NPC_VAR_INT(hzsz) break;
 			
 		case NPCCOLLDET:
-			SET_NPC_VAR_INT(scriptcoldet) break;
+			if (npc)
+				npc->script_no_colldet = value ? 0 : -1;
+			break;
 			
 		case NPCENGINEANIMATE:
 			SET_NPC_VAR_INT(do_animation) break;

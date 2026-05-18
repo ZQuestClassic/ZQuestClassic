@@ -447,7 +447,7 @@ int32_t hero_get_register(int32_t reg)
 			ret = Hero.invis_timer ? 10000 : 0;
 			break;
 		case LINKINVINC:
-			ret = (int32_t)(Hero.scriptcoldet)*10000;
+			ret = Hero.script_no_colldet ? 0 : 10000;
 			break;
 		case LINKLADDERX:
 			ret=(int32_t)(Hero.getLadderX())*10000;
@@ -1069,7 +1069,7 @@ void hero_set_register(int32_t reg, int32_t value)
 			Hero.setHClk( (int32_t)vbound((value/10000), 0, 214747) );
 			break;
 		case LINKINVINC:
-			Hero.scriptcoldet=(value/10000);
+			Hero.script_no_colldet = value ? 0 : -1;
 			break;
 		case LINKINVIS:
 			Hero.invis_timer = value ? -2 : 0;

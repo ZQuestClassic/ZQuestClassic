@@ -40,7 +40,7 @@ int32_t lweapon_get_register(int32_t reg)
 			ret=s->behind*10000;
 			break;
 		case LWPNCOLLDET:
-			ret=(s->scriptcoldet)*10000;
+			ret = s->script_no_colldet ? 0 : 10000;
 			break;
 		case LWPNCSET:
 			ret=s->cs*10000;
@@ -389,7 +389,7 @@ void lweapon_set_register(int32_t reg, int32_t value)
 			s->behind=(value!=0);
 			break;
 		case LWPNCOLLDET:
-			(s->scriptcoldet) = value;
+			s->script_no_colldet = value ? 0 : -1;
 			break;
 		case LWPNCSET:
 			s->cs=(value/10000)&15;

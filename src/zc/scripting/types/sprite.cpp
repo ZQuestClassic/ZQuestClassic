@@ -376,6 +376,12 @@ int32_t sprite_get_register(int32_t reg)
 				return s->glowOffset * 10000;
 			return 0;
 		}
+		case SPRITE_NOCOLL_CLK:
+		{
+			if (s)
+				return s->script_no_colldet * 10000;
+			break;
+		}
 		case SPRITE_SWHOOKED:
 		{
 			if (s)
@@ -875,6 +881,12 @@ void sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (s)
 				s->glowOffset = value / 10000;
+			break;
+		}
+		case SPRITE_NOCOLL_CLK:
+		{
+			if (s)
+				s->script_no_colldet = value / 10000;
 			break;
 		}
 		case SPRITE_SWHOOKED:

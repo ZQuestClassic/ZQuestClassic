@@ -2718,6 +2718,7 @@ static constexpr script_variable variable_list[]=
 	{ "EWPN_NO_TRIGGERS", EWPN_NO_TRIGGERS, 0 },
 	{ "HERO_TMP_STEPBOOST", HERO_TMP_STEPBOOST, 0 },
 	{ "SPRITE_INVIS_CLK", SPRITE_INVIS_CLK, 0 },
+	{ "SPRITE_NOCOLL_CLK", SPRITE_NOCOLL_CLK, 0 },
 	{"", -1},
 };
 
@@ -4581,6 +4582,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_LIGHT_OFFSET:
 		case SPRITE_LIGHT_RADIUS:
 		case SPRITE_LIGHT_SHAPE:
+		case SPRITE_NOCOLL_CLK:
 		case SPRITE_MISCD:
 		case SPRITE_MOVE_FLAGS:
 		case SPRITE_ROTATION:
