@@ -129,14 +129,12 @@ namespace combo_caches
 	struct minicombo_cpos_update
 	{
 		byte type;
-		byte sfx_loop;
 		bool trigtimer;
 
 		minicombo_cpos_update() = default;
 		minicombo_cpos_update(const newcombo& combo)
 		{
 			type = combo.type;
-			sfx_loop = combo.sfx_loop;
 			trigtimer = false;
 			for(auto& trig : combo.triggers)
 			{
