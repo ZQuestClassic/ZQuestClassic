@@ -3704,6 +3704,9 @@ void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f)
 static int cpos_spotlight_count = 0;
 static int trig_groups[256];
 static cpos_info combo_posinfos[7][176];
+static std::map<word, word> combo_loop_sfx;
+static std::set<word> queue_stop_loop_sfx;
+static std::set<word> queue_start_loop_sfx;
 
 cpos_info& cpos_get(int32_t layer, int32_t pos)
 {
@@ -3722,6 +3725,18 @@ static void cpos_reset_cache()
 {
 	cpos_spotlight_count = 0;
 	memset(trig_groups, 0, sizeof(trig_groups));
+	
+	queue_start_loop_sfx.clear();
+	for (auto [sfx_id, count] : combo_loop_sfx)
+	{
+		// queue currently looping sfx to stop
+		// don't stop immediately, as they may be started again
+		// before the next cpos_update(), in which case they should
+		// not cut-out / start over.
+		if (count)
+			queue_stop_loop_sfx.insert(sfx_id);
+	}
+	combo_loop_sfx.clear();
 }
 static void cpos_update_cache(newcombo const& cmb, int add)
 {
@@ -3729,6 +3744,31 @@ static void cpos_update_cache(newcombo const& cmb, int add)
 		cpos_spotlight_count += add;
 	if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
 		trig_groups[cmb.trig_group] += add;
+
+	// handle tracking looping sfx
+	if (auto sfx_id = cmb.sfx_loop)
+	{
+		auto count = combo_loop_sfx[sfx_id];
+		// keep count of how many combos are looping the same sfx
+		combo_loop_sfx[sfx_id] = count + add;
+		if (count && !(count+add))
+		{
+			// If the sfx was being looped and now isn't anymore,
+			// queue it to stop. Don't stop it immediately, incase
+			// another combo appears that loops it before the next
+			// cpos_update() call.
+			queue_stop_loop_sfx.insert(sfx_id);
+			queue_start_loop_sfx.erase(sfx_id);
+		}
+		else if (!count && (count+add))
+		{
+			// If the sfx wasn't being looped by any combos, but
+			// now is, queue it to start- and if it was queued to stop,
+			// undo that.
+			queue_stop_loop_sfx.erase(sfx_id);
+			queue_start_loop_sfx.insert(sfx_id);
+		}
+	}
 }
 void cpos_update_cache(int32_t oldid, int32_t newid)
 {
@@ -3797,9 +3837,7 @@ void cpos_update() //updates with side-effects
 				timer.sfx_onchange = 0;
 				timer.spr_onchange = 0;
 			}
-			if(cmb.sfx_loop)
-				sfx_no_repeat(cmb.sfx_loop);
-			
+
 			if(cmb.trigtimer)
 			{
 				if(++timer.clk >= cmb.trigtimer)
@@ -3847,9 +3885,7 @@ void cpos_update() //updates with side-effects
 			timer.sfx_onchange = 0;
 			timer.spr_onchange = 0;
 		}
-		if(cmb.sfx_loop)
-			sfx_no_repeat(cmb.sfx_loop);
-		
+
 		if(cmb.trigtimer)
 		{
 			if(++timer.clk >= cmb.trigtimer)
@@ -3867,5 +3903,12 @@ void cpos_update() //updates with side-effects
 	
 	//Handle trigger groups
 	trig_trigger_groups();
+	
+	for (auto sfx_id : queue_stop_loop_sfx)
+		stop_sfx(sfx_id);
+	queue_stop_loop_sfx.clear();
+	for (auto sfx_id : queue_start_loop_sfx)
+		cont_sfx(sfx_id);
+	queue_start_loop_sfx.clear();
 }
 
