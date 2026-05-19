@@ -4389,6 +4389,8 @@ int main(int argc, char **argv)
 		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 	
+	if (is_headless())
+		console_enabled = false;
 	if ( console_enabled )
 	{
 		FFCore.ZScriptConsole(true);
