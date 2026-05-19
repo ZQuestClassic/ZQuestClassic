@@ -1,4 +1,5 @@
 #include "base/general.h"
+#include "base/util.h"
 #include "core/handles.h"
 #include "core/qrs.h"
 #include "core/dmap.h"
@@ -3031,6 +3032,7 @@ void trig_trigger_groups()
 	auto& combo_cache = combo_caches::trigger_group;
 
 	bool include_ffcs = true;
+	std::vector<int> visited_cids;
 	for_every_combo([&](const auto& handle) {
 		// changers don't contribute
 		if constexpr (requires { handle.ffc; })
@@ -3042,8 +3044,8 @@ void trig_trigger_groups()
 		int cid = handle.data();
 
 		bool recheck = false;
-		std::set<int> visited_cids;
-		visited_cids.insert(cid);
+		visited_cids.clear();
+		visited_cids.push_back(cid);
 		do
 		{
 			if (!combo_cache.minis[cid].tgroup)
@@ -3079,9 +3081,9 @@ void trig_trigger_groups()
 				if (cid != cid2)
 				{
 					// Prevent infinite oscillation: if this cid was already visited, stop.
-					if (visited_cids.count(cid2))
+					if (util::contains(visited_cids, cid2))
 						break;
-					visited_cids.insert(cid2);
+					visited_cids.push_back(cid2);
 					cid = cid2;
 					recheck = true;
 					break;
