@@ -3581,6 +3581,8 @@ void trig_trigger_groups()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
+	// Reused across all positions to avoid per-position allocation (perf: 60e417fa3b).
+	std::vector<int> visited_cids;
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
@@ -3590,12 +3592,13 @@ void trig_trigger_groups()
 			// Prevent infinite oscillation: track which combos we've already triggered at
 			// this position so a combo pair that keeps swapping back and forth can't loop
 			// forever via the recheck path below.
-			std::set<int> visited_cids;
+			visited_cids.clear();
 			while (true)
 			{
 				int cid = scr->data[pos];
-				if (!visited_cids.insert(cid).second)
+				if (std::find(visited_cids.begin(), visited_cids.end(), cid) != visited_cids.end())
 					break;
+				visited_cids.push_back(cid);
 				newcombo const& cmb = combobuf[cid];
 
 				if(
