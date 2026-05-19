@@ -26901,24 +26901,45 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 			script_drawing_commands.Clear();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 
+			if (!FFCore.system_suspend[susptGLOBALGAME] && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
+			{
+				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			}
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
+			if(!FFCore.system_suspend[susptHEROACTIVE] && FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+			{
+				ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
+			}
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 			if(DMaps[cur_dmap].script != 0 && FFCore.doscript(ScriptType::DMap))
 			{
 				ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script, cur_dmap);
 			}
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
 			if(DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 			{
 				ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 			}
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 			if(FFCore.waitdraw(ScriptType::DMap) && DMaps[cur_dmap].script != 0 && FFCore.doscript(ScriptType::DMap))
 			{
-				ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script, cur_dmap);
+				ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 				FFCore.waitdraw(ScriptType::DMap) = false;
 			}
-			if(FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+
+			if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_SCRIPT);
+
+			if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 			{
-				ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
-				FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
+				for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
+					if (scr->script != 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
+					{
+						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					}
+				});
 			}
+			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		}
 
         if(diagonalMovement)
