@@ -218,7 +218,10 @@ enum //Special Subscreen Color Values
 	SUB_COLOR_HERODOT     = -32,
 	SUB_COLOR_MSGTXT      = -33,
 	SUB_COLOR_TRANSPARENT = -34,
-	SUB_COLOR_MIN         = -35
+	// Uses a default color value specific to the widget + color type.
+	// @versionadded 3.0
+	SUB_COLOR_DEFAULT     = -35,
+	SUB_COLOR_MIN         = -36
 };
 enum //Special Subscreen Tile Values
 {
@@ -297,6 +300,16 @@ enum // Flags for [SUBWIDG_MMAP]
 	//
 	// @versionadded 3.0
 	SUBW_MMAP_VISITED_REQ_MAP,
+	// If rooms are drawn even when the dmap has a specified map tile.
+	//
+	// @versionadded 3.0
+	SUBW_MMAP_DRAW_OVER_MAPTILE,
+	// If enabled, the map BG (dmap-specific tile and generic bgs both included)
+	// will not be drawn. Room colors will still be drawn if [SUBW_MMAP_FLAG_SHOWMAP]
+	// is enabled.
+	//
+	// @versionadded 3.0
+	SUBW_MMAP_ONLY_ROOMS,
 	SUBW_MMAP_NUMFLAGS
 };
 enum // Flags for SUBWIDG_LMAP

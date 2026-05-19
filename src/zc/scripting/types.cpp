@@ -1344,6 +1344,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SUBWIDGTY_COLOR_TXT:
 		case SUBWIDGTY_COLOR_TXT2:
 		case SUBWIDGTY_COLOR_VISITED:
+		case SUBWIDGTY_COLOR_UNVISITED:
 		case SUBWIDGTY_CONTAINER:
 		case SUBWIDGTY_COSTIND:
 		case SUBWIDGTY_DELAY:

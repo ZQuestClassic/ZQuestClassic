@@ -2719,6 +2719,7 @@ static constexpr script_variable variable_list[]=
 	{ "HERO_TMP_STEPBOOST", HERO_TMP_STEPBOOST, 0 },
 	{ "SPRITE_INVIS_CLK", SPRITE_INVIS_CLK, 0 },
 	{ "SPRITE_NOCOLL_CLK", SPRITE_NOCOLL_CLK, 0 },
+	{ "SUBWIDGTY_COLOR_UNVISITED", SUBWIDGTY_COLOR_UNVISITED, 0 },
 	{"", -1},
 };
 
@@ -4737,6 +4738,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SUBWIDGTY_COLOR_TXT:
 		case SUBWIDGTY_COLOR_TXT2:
 		case SUBWIDGTY_COLOR_VISITED:
+		case SUBWIDGTY_COLOR_UNVISITED:
 		case SUBWIDGTY_CONTAINER:
 		case SUBWIDGTY_CORNER:
 		case SUBWIDGTY_COSTIND:
