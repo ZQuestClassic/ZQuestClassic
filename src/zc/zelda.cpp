@@ -2250,6 +2250,10 @@ int32_t init_game()
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
+	FFCore.initZScriptHeroScripts();
+	FFCore.initZScriptDMapScripts();
+	FFCore.initZScriptItemScripts();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	openscreen();
 	dointro();
 	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
@@ -2290,10 +2294,6 @@ int32_t init_game()
 		}	
 	}
 	
-	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptScriptedActiveSubscreen();
 	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 
 #ifdef DEBUG_REGISTER_DEPS
