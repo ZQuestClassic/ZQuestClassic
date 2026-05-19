@@ -3809,7 +3809,10 @@ void cpos_update() //updates with side-effects
 			continue;
 		}
 		int cid = f.data;
-		timer.updateData(cid);
+		// Even though `updateData` already does this check, avoiding a function call
+		// has been observed to be a performance boost.
+		if (cid != timer.data)
+			timer.updateData(cid);
 		zfix wx = f.x + (f.txsz-1)*8;
 		zfix wy = f.y + (f.tysz-1)*8;
 		
