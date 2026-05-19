@@ -3402,6 +3402,7 @@ enum ASM_DEFINE
 #define HERORESPAWNDMSCR               0x16C1
 #define SPRITE_INVIS_CLK               0x16C2
 #define SPRITE_NOCOLL_CLK              0x16C3
+#define SUBWIDGTY_COLOR_UNVISITED      0x16C4
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

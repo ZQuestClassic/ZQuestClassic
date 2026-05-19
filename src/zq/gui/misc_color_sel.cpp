@@ -49,7 +49,9 @@ static const ListData miscColList
 	{ "Big Map BG", 13 },
 	{ "Big Map FG", 14 },
 	{ "Hero's Pos", 15 },
-	{ "Message Text", 16 }
+	{ "Message Text", 16 },
+	{ "Transparent", 17 },
+	{ "Default", 18 },
 };
 
 MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)

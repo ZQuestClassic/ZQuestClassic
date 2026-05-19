@@ -887,6 +887,18 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 				case ssctHERODOT:
 					ret=QMisc.colors.hero_dot;
 					break;
+				
+				case ssctTRANSPARENT:
+					ret = -1;
+					break;
+				
+				case ssctDEFAULT:
+					// is_default_color() is used to check for this value for
+					// special widget-specific behavior, INSTEAD of calling 'get_color()'.
+					// Fallback to transparent if a user uses this value on colors that
+					// have no specified 'default' behavior.
+					ret = -1;
+					break;
 					
 				default:
 					ret=(zc_oldrand()*1000)%256;
@@ -1013,6 +1025,10 @@ void SubscrColorInfo::set_int_cset(int32_t val)
 		type = ssctMISC;
 		color = (-val)-1;
 	}
+}
+bool SubscrColorInfo::is_default_color() const
+{
+	return type == ssctMISC && color == ssctDEFAULT;
 }
 
 int32_t SubscrColorInfo::read(PACKFILE *f, [[maybe_unused]] word s_version)
@@ -3497,71 +3513,79 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unused]] Su
 	auto const& thedmap = DMaps[dmid];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
-	int vis_color = ((flags&SUBSCR_MMAP_VISITED_REQ_MAP) && !has_item(itype_map, -1)) ? -1 : c_room_vis.get_color();
+	bool has_map = has_item(itype_map, -1);
+	
 	zcolors const& c = QMisc.colors;
 	int32_t type = (thedmap.type&dmfTYPE);
 
 	auto tx = x+xofs, ty = y+yofs;
 	if (flags & SUBSCR_MMAP_SHOWMAP)
 	{
-		bool has_map = has_item(itype_map, -1);
-
-		switch (type)
+		int vis_color = -1, unvis_color = -1, bg_color = -1;
+		if (has_map || !(flags&SUBSCR_MMAP_VISITED_REQ_MAP))
+			vis_color = c_room_vis.get_color();
+		int maptile = 0, mapcset = 0;
+		if (!(flags & SUBSCR_MMAP_ONLY_ROOMS))
 		{
-			case dmOVERW:
-			case dmBSOVERW:
+			switch (type)
 			{
-				int32_t maptile = (!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_map) ? thedmap.minimap_tile[1] : thedmap.minimap_tile[0];
-				int32_t mapcset = (!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_map) ? thedmap.minimap_cset[1] : thedmap.minimap_cset[0];
-				//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-				if (maptile)
+				case dmOVERW:
+				case dmBSOVERW:
 				{
-					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
+					auto idx = (!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_map) ? 1 : 0;
+					maptile = thedmap.minimap_tile[idx];
+					mapcset = thedmap.minimap_cset[idx];
+					
+					if (maptile)
+						draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
+					else if (c.overworld_map_tile)
+						draw_block(dest, tx, ty, c.overworld_map_tile, c.overworld_map_cset, 5, 3);
+					else if (c.overw_bg != 255)
+						rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.overw_bg);
+					break;
 				}
-				else if (c.overworld_map_tile)
+				case dmDNGN:
+				case dmCAVE:
 				{
-					draw_block(dest, tx, ty, c.overworld_map_tile, c.overworld_map_cset, 5, 3);
+					auto idx = has_map ? 1 : 0;
+					maptile = thedmap.minimap_tile[idx];
+					mapcset = thedmap.minimap_cset[idx];
+					
+					if (maptile)
+						draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
+					else if (c.dungeon_map_tile)
+						draw_block(dest, tx, ty, c.dungeon_map_tile, c.dungeon_map_cset, 5, 3);
+					else if (c.dngn_bg != 255)
+						rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.dngn_bg);
+					break;
 				}
-				else if (c.overw_bg != 255)
-				{
-					rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.overw_bg);
-				}
-
-				if (!thedmap.minimap_tile[0] && ((thedmap.type & dmfTYPE) == dmBSOVERW))
-				{
-					auto unvis_color = (get_qr(qr_BS_OW_IGNORES_MAP_ITEM) || has_map) ? c.bs_goal : -1;
-					drawgrid(dest, tx + 8, ty + 8, unvis_color, c.bs_dk, vis_color);
-				}
-
-				break;
 			}
-			case dmDNGN:
-			case dmCAVE:
+		}
+		
+		if (type != dmOVERW && (!maptile || (flags & SUBSCR_MMAP_DRAW_OVER_MAPTILE)))
+		{
+			bool unvis_needs_map = true;
+			switch (type)
 			{
-				int32_t maptile = has_map ? thedmap.minimap_tile[1] : thedmap.minimap_tile[0];
-				int32_t mapcset = has_map ? thedmap.minimap_cset[1] : thedmap.minimap_cset[0];
-				//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-				if (maptile)
-				{
-					draw_block(dest, tx, ty, maptile, mapcset, 5, 3);
-				}
-				else if (c.dungeon_map_tile)
-				{
-					draw_block(dest, tx, ty, c.dungeon_map_tile, c.dungeon_map_cset, 5, 3);
-				}
-				else if (c.dngn_bg != 255)
-				{
-					rectfill(dest, tx + 8, ty + 8, tx + 71, ty + 39, c.dngn_bg);
-				}
-				//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-				if (!thedmap.minimap_tile[has_map ? 1 : 0])
-				{
-					auto unvis_color = has_map ? ((thedmap.flags & dmfMINIMAPCOLORFIX) ? c.cave_fg : c.dngn_fg) : -1;
-					drawgrid(dest, tx + 8, ty + 8, unvis_color, -1, vis_color);
-				}
-
-				break;
+				case dmBSOVERW:
+					if (get_qr(qr_BS_OW_IGNORES_MAP_ITEM) || has_map)
+					{
+						unvis_needs_map = false;
+						unvis_color = c.bs_goal;
+					}
+					bg_color = c.bs_dk;
+					break;
+				case dmDNGN:
+				case dmCAVE:
+					if (has_map)
+						unvis_color = (thedmap.flags & dmfMINIMAPCOLORFIX) ? c.cave_fg : c.dngn_fg;
+					break;
 			}
+			if (!c_room_unvis.is_default_color() && (has_map || !unvis_needs_map))
+				unvis_color = c_room_unvis.get_color();
+			if (!c_room_bg.is_default_color())
+				bg_color = c_room_bg.get_color();
+			drawgrid(dest, tx + 8, ty + 8, unvis_color, bg_color, vis_color);
 		}
 	}
 
@@ -3629,6 +3653,8 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
 	c_room_vis = other->c_room_vis;
+	c_room_unvis = other->c_room_unvis;
+	c_room_bg = other->c_room_bg;
 	return true;
 }
 int32_t SW_MMap::read(PACKFILE *f, word s_version)
@@ -3658,7 +3684,14 @@ int32_t SW_MMap::read(PACKFILE *f, word s_version)
 		return ret;
 	if (s_version >= 19)
 	{
-		if(auto ret = c_room_vis.read(f,s_version))
+		if (auto ret = c_room_vis.read(f, s_version))
+			return ret;
+	}
+	if (s_version >= 20)
+	{
+		if (auto ret = c_room_unvis.read(f, s_version))
+			return ret;
+		if (auto ret = c_room_bg.read(f, s_version))
 			return ret;
 	}
 	return 0;
@@ -3676,6 +3709,10 @@ int32_t SW_MMap::write(PACKFILE *f) const
 	if(auto ret = c_cmp_off.write(f))
 		return ret;
 	if(auto ret = c_room_vis.write(f))
+		return ret;
+	if (auto ret = c_room_unvis.write(f))
+		return ret;
+	if (auto ret = c_room_bg.write(f))
 		return ret;
 	return 0;
 }

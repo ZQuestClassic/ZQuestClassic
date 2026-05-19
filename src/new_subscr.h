@@ -101,6 +101,7 @@ struct SubscrColorInfo
 	void set_int_cset(int32_t val);
 	int32_t get_int_color() const;
 	void set_int_color(int32_t val);
+	bool is_default_color() const;
 	void load_old(subscreen_object const& old, int indx);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
@@ -253,11 +254,11 @@ enum // special colors
 	ssctTEXT, ssctCAPTION, ssctOVERWBG, ssctDNGNBG, ssctDNGNFG,
 	ssctCAVEFG, ssctBSDK, ssctBSGOAL, ssctCOMPASSLT, ssctCOMPASSDK,
 	ssctSUBSCRBG, ssctSUBSCRSHADOW, ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG,
-	ssctHERODOT, ssctMSGTEXT, ssctMAX
+	ssctHERODOT, ssctMSGTEXT, ssctTRANSPARENT, ssctDEFAULT, ssctMAX
 };
 #define NUM_SYS_COLORS 16
-#define SUB_COLOR_TRANSPARENT (-34)
-#define MIN_SUBSCR_COLOR (-ssctMAX-NUM_SYS_COLORS-1) //== SUB_COLOR_TRANSPARENT at the moment
+#define SUB_COLOR_TRANSPARENT -(ssctTRANSPARENT+1+NUM_SYS_COLORS)
+#define MIN_SUBSCR_COLOR -(ssctMAX+NUM_SYS_COLORS)
 #define MAX_SUBSCR_COLOR 255
 enum // special csets
 {
@@ -731,10 +732,13 @@ private:
 #define SUBSCR_MMAP_SHOWPLR           SUBSCRFLAG_SPEC_02
 #define SUBSCR_MMAP_SHOWCMP           SUBSCRFLAG_SPEC_03
 #define SUBSCR_MMAP_VISITED_REQ_MAP   SUBSCRFLAG_SPEC_04
-#define SUBSCR_NUMFLAG_MMAP           4
+#define SUBSCR_MMAP_DRAW_OVER_MAPTILE SUBSCRFLAG_SPEC_05
+#define SUBSCR_MMAP_ONLY_ROOMS        SUBSCRFLAG_SPEC_06
+#define SUBSCR_NUMFLAG_MMAP           6
 struct SW_MMap : public SubscrWidget
 {
-	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off, c_room_vis = {ssctSYSTEM, -1};
+	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off, c_room_vis = {ssctSYSTEM, -1},
+		c_room_unvis = {ssctMISC, ssctDEFAULT}, c_room_bg = {ssctMISC, ssctDEFAULT};
 	word compass_litems = (1 << li_mcguffin);
 	
 	SW_MMap() = default;

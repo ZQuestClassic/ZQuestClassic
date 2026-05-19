@@ -4186,23 +4186,23 @@ POP D2                                                                          
 POP REFSTACK                                                                    | 4157 resources/include/bindings/stack.zh:120
 STACKSET D2 D3                                                                  | 4158 resources/include/bindings/stack.zh:120
 RETURNFUNC; Func[void stack::Set(long, untyped)] Body End                       | 4159 resources/include/bindings/stack.zh:120
-POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4160 resources/include/bindings/subscreendata.zh:680
-POP REFSUBSCREENDATA                                                            | 4161 resources/include/bindings/subscreendata.zh:680
-SUBDATA_GET_NAME D2                                                             | 4162 resources/include/bindings/subscreendata.zh:680
-RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4163 resources/include/bindings/subscreendata.zh:680
-POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4164 resources/include/bindings/subscreendata.zh:688
-POP REFSUBSCREENDATA                                                            | 4165 resources/include/bindings/subscreendata.zh:688
-SUBDATA_SET_NAME D2                                                             | 4166 resources/include/bindings/subscreendata.zh:688
-RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4167 resources/include/bindings/subscreendata.zh:688
-SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4168 resources/include/bindings/subscreendata.zh:695
-POPARGS D5 0.0003                                                               | 4169 resources/include/bindings/subscreendata.zh:695
-RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4170 resources/include/bindings/subscreendata.zh:695
-POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4171 resources/include/bindings/subscreendata.zh:704
-SUBDATA_OPEN                                                                    | 4172 resources/include/bindings/subscreendata.zh:704
-RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4173 resources/include/bindings/subscreendata.zh:704
-POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4174 resources/include/bindings/subscreendata.zh:714
-SUBDATA_CLOSE                                                                   | 4175 resources/include/bindings/subscreendata.zh:714
-RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4176 resources/include/bindings/subscreendata.zh:714
+POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4160 resources/include/bindings/subscreendata.zh:693
+POP REFSUBSCREENDATA                                                            | 4161 resources/include/bindings/subscreendata.zh:693
+SUBDATA_GET_NAME D2                                                             | 4162 resources/include/bindings/subscreendata.zh:693
+RETURNFUNC; Func[void subscreendata::GetName(char32[])] Body End                | 4163 resources/include/bindings/subscreendata.zh:693
+POP D2; Func[void subscreendata::SetName(char32[])] Body Start                  | 4164 resources/include/bindings/subscreendata.zh:701
+POP REFSUBSCREENDATA                                                            | 4165 resources/include/bindings/subscreendata.zh:701
+SUBDATA_SET_NAME D2                                                             | 4166 resources/include/bindings/subscreendata.zh:701
+RETURNFUNC; Func[void subscreendata::SetName(char32[])] Body End                | 4167 resources/include/bindings/subscreendata.zh:701
+SUBDATA_SWAP_PAGES; Func[void subscreendata::SwapPages(int, int)] Body Start    | 4168 resources/include/bindings/subscreendata.zh:708
+POPARGS D5 0.0003                                                               | 4169 resources/include/bindings/subscreendata.zh:708
+RETURNFUNC; Func[void subscreendata::SwapPages(int, int)] Body End              | 4170 resources/include/bindings/subscreendata.zh:708
+POP REFSUBSCREENDATA; Func[void subscreendata::Open()] Body Start               | 4171 resources/include/bindings/subscreendata.zh:717
+SUBDATA_OPEN                                                                    | 4172 resources/include/bindings/subscreendata.zh:717
+RETURNFUNC; Func[void subscreendata::Open()] Body End                           | 4173 resources/include/bindings/subscreendata.zh:717
+POP REFSUBSCREENDATA; Func[void subscreendata::Close()] Body Start              | 4174 resources/include/bindings/subscreendata.zh:727
+SUBDATA_CLOSE                                                                   | 4175 resources/include/bindings/subscreendata.zh:727
+RETURNFUNC; Func[void subscreendata::Close()] Body End                          | 4176 resources/include/bindings/subscreendata.zh:727
 SUBPAGE_FIND_WIDGET_BY_LABEL; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body Start | 4177 resources/include/bindings/subscreenpage.zh:48
 POPARGS D5 0.0002                                                               | 4178 resources/include/bindings/subscreenpage.zh:48
 RETURNFUNC; Func[subscreenwidget subscreenpage::GetWidget(char32[])] Body End   | 4179 resources/include/bindings/subscreenpage.zh:48
@@ -4221,36 +4221,36 @@ RETURNFUNC; Func[int subscreenpage::SelectorMove(int, int, int)] Body End       
 POP REFSUBSCREENPAGE; Func[void subscreenpage::Delete()] Body Start             | 4192 resources/include/bindings/subscreenpage.zh:91
 SUBPAGE_DELETE                                                                  | 4193 resources/include/bindings/subscreenpage.zh:91
 RETURNFUNC; Func[void subscreenpage::Delete()] Body End                         | 4194 resources/include/bindings/subscreenpage.zh:91
-POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4195 resources/include/bindings/subscreenwidget.zh:1014
-POP REFSUBSCREENWIDG                                                            | 4196 resources/include/bindings/subscreenwidget.zh:1014
-SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4197 resources/include/bindings/subscreenwidget.zh:1014
-RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4198 resources/include/bindings/subscreenwidget.zh:1014
-POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4199 resources/include/bindings/subscreenwidget.zh:1024
-POP REFSUBSCREENWIDG                                                            | 4200 resources/include/bindings/subscreenwidget.zh:1024
-SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4201 resources/include/bindings/subscreenwidget.zh:1024
-RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4202 resources/include/bindings/subscreenwidget.zh:1024
-POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4203 resources/include/bindings/subscreenwidget.zh:1035
-POP REFSUBSCREENWIDG                                                            | 4204 resources/include/bindings/subscreenwidget.zh:1035
-SUBWIDG_GET_LABEL D2                                                            | 4205 resources/include/bindings/subscreenwidget.zh:1035
-RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4206 resources/include/bindings/subscreenwidget.zh:1035
-POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4207 resources/include/bindings/subscreenwidget.zh:1043
-POP REFSUBSCREENWIDG                                                            | 4208 resources/include/bindings/subscreenwidget.zh:1043
-SUBWIDG_SET_LABEL D2                                                            | 4209 resources/include/bindings/subscreenwidget.zh:1043
-RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4210 resources/include/bindings/subscreenwidget.zh:1043
-POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4211 resources/include/bindings/subscreenwidget.zh:1058
-POP REFSUBSCREENWIDG                                                            | 4212 resources/include/bindings/subscreenwidget.zh:1058
-SUBWIDG_TY_GETTEXT D2                                                           | 4213 resources/include/bindings/subscreenwidget.zh:1058
-RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4214 resources/include/bindings/subscreenwidget.zh:1058
-POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4215 resources/include/bindings/subscreenwidget.zh:1069
-POP REFSUBSCREENWIDG                                                            | 4216 resources/include/bindings/subscreenwidget.zh:1069
-SUBWIDG_TY_SETTEXT D2                                                           | 4217 resources/include/bindings/subscreenwidget.zh:1069
-RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4218 resources/include/bindings/subscreenwidget.zh:1069
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4219 resources/include/bindings/subscreenwidget.zh:1078
-SUBWIDG_CHECK_CONDITIONS D2                                                     | 4220 resources/include/bindings/subscreenwidget.zh:1078
-RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4221 resources/include/bindings/subscreenwidget.zh:1078
-POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4222 resources/include/bindings/subscreenwidget.zh:1086
-SUBWIDG_CHECK_VISIBLE D2                                                        | 4223 resources/include/bindings/subscreenwidget.zh:1086
-RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4224 resources/include/bindings/subscreenwidget.zh:1086
+POP D2; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body Start     | 4195 resources/include/bindings/subscreenwidget.zh:1024
+POP REFSUBSCREENWIDG                                                            | 4196 resources/include/bindings/subscreenwidget.zh:1024
+SUBWIDG_GET_SELTEXT_OVERRIDE D2                                                 | 4197 resources/include/bindings/subscreenwidget.zh:1024
+RETURNFUNC; Func[void subscreenwidget::GetSelTextOverride(char32[])] Body End   | 4198 resources/include/bindings/subscreenwidget.zh:1024
+POP D2; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body Start     | 4199 resources/include/bindings/subscreenwidget.zh:1034
+POP REFSUBSCREENWIDG                                                            | 4200 resources/include/bindings/subscreenwidget.zh:1034
+SUBWIDG_SET_SELTEXT_OVERRIDE D2                                                 | 4201 resources/include/bindings/subscreenwidget.zh:1034
+RETURNFUNC; Func[void subscreenwidget::SetSelTextOverride(char32[])] Body End   | 4202 resources/include/bindings/subscreenwidget.zh:1034
+POP D2; Func[void subscreenwidget::GetLabel(char32[])] Body Start               | 4203 resources/include/bindings/subscreenwidget.zh:1045
+POP REFSUBSCREENWIDG                                                            | 4204 resources/include/bindings/subscreenwidget.zh:1045
+SUBWIDG_GET_LABEL D2                                                            | 4205 resources/include/bindings/subscreenwidget.zh:1045
+RETURNFUNC; Func[void subscreenwidget::GetLabel(char32[])] Body End             | 4206 resources/include/bindings/subscreenwidget.zh:1045
+POP D2; Func[void subscreenwidget::SetLabel(char32[])] Body Start               | 4207 resources/include/bindings/subscreenwidget.zh:1053
+POP REFSUBSCREENWIDG                                                            | 4208 resources/include/bindings/subscreenwidget.zh:1053
+SUBWIDG_SET_LABEL D2                                                            | 4209 resources/include/bindings/subscreenwidget.zh:1053
+RETURNFUNC; Func[void subscreenwidget::SetLabel(char32[])] Body End             | 4210 resources/include/bindings/subscreenwidget.zh:1053
+POP D2; Func[void subscreenwidget::GetText(char32[])] Body Start                | 4211 resources/include/bindings/subscreenwidget.zh:1068
+POP REFSUBSCREENWIDG                                                            | 4212 resources/include/bindings/subscreenwidget.zh:1068
+SUBWIDG_TY_GETTEXT D2                                                           | 4213 resources/include/bindings/subscreenwidget.zh:1068
+RETURNFUNC; Func[void subscreenwidget::GetText(char32[])] Body End              | 4214 resources/include/bindings/subscreenwidget.zh:1068
+POP D2; Func[void subscreenwidget::SetText(char32[])] Body Start                | 4215 resources/include/bindings/subscreenwidget.zh:1079
+POP REFSUBSCREENWIDG                                                            | 4216 resources/include/bindings/subscreenwidget.zh:1079
+SUBWIDG_TY_SETTEXT D2                                                           | 4217 resources/include/bindings/subscreenwidget.zh:1079
+RETURNFUNC; Func[void subscreenwidget::SetText(char32[])] Body End              | 4218 resources/include/bindings/subscreenwidget.zh:1079
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckConditions()] Body Start  | 4219 resources/include/bindings/subscreenwidget.zh:1088
+SUBWIDG_CHECK_CONDITIONS D2                                                     | 4220 resources/include/bindings/subscreenwidget.zh:1088
+RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              | 4221 resources/include/bindings/subscreenwidget.zh:1088
+POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4222 resources/include/bindings/subscreenwidget.zh:1096
+SUBWIDG_CHECK_VISIBLE D2                                                        | 4223 resources/include/bindings/subscreenwidget.zh:1096
+RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4224 resources/include/bindings/subscreenwidget.zh:1096
 POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4225 resources/include/bindings/websocket.zh:22
 WEBSOCKET_LOAD D2                                                               | 4226 resources/include/bindings/websocket.zh:22
 RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4227 resources/include/bindings/websocket.zh:22
@@ -12258,10 +12258,12 @@ debug data:
     - const int SUBW_MMAPTITLE_FLAG_ONELINE @ Constant[10000]
     - const int SUBW_MMAPTITLE_FLAG_REQMAP @ Constant[0]
     - const int SUBW_MMAPTITLE_NUMFLAGS @ Constant[20000]
+    - const int SUBW_MMAP_DRAW_OVER_MAPTILE @ Constant[40000]
     - const int SUBW_MMAP_FLAG_SHOWCOMPASS @ Constant[20000]
     - const int SUBW_MMAP_FLAG_SHOWMAP @ Constant[0]
     - const int SUBW_MMAP_FLAG_SHOWPLAYER @ Constant[10000]
-    - const int SUBW_MMAP_NUMFLAGS @ Constant[40000]
+    - const int SUBW_MMAP_NUMFLAGS @ Constant[60000]
+    - const int SUBW_MMAP_ONLY_ROOMS @ Constant[50000]
     - const int SUBW_MMAP_VISITED_REQ_MAP @ Constant[30000]
     - const int SUBW_MMETER_NUMFLAGS @ Constant[0]
     - const int SUBW_OLDCTR_FLAG_USEX @ Constant[0]
@@ -12289,13 +12291,14 @@ debug data:
     - const int SUB_COLOR_CAVE_FG @ Constant[-220000]
     - const int SUB_COLOR_COMPASS_D @ Constant[-260000]
     - const int SUB_COLOR_COMPASS_L @ Constant[-250000]
+    - const int SUB_COLOR_DEFAULT @ Constant[-350000]
     - const int SUB_COLOR_DUNG_BG @ Constant[-200000]
     - const int SUB_COLOR_DUNG_FG @ Constant[-210000]
     - const int SUB_COLOR_HERODOT @ Constant[-320000]
     - const int SUB_COLOR_LMAP_BG @ Constant[-300000]
     - const int SUB_COLOR_LMAP_FG @ Constant[-310000]
     - const int SUB_COLOR_MCGUFF_FRM @ Constant[-290000]
-    - const int SUB_COLOR_MIN @ Constant[-350000]
+    - const int SUB_COLOR_MIN @ Constant[-360000]
     - const int SUB_COLOR_MSGTXT @ Constant[-330000]
     - const int SUB_COLOR_OVERW_BG @ Constant[-190000]
     - const int SUB_COLOR_SUBSCR_BG @ Constant[-270000]
@@ -12516,6 +12519,7 @@ debug data:
       - int ColorRoom @ Reg[SUBWIDGTY_COLOR_ROOM]
       - int ColorShadow @ Reg[SUBWIDGTY_COLOR_SHD]
       - int ColorText @ Reg[SUBWIDGTY_COLOR_TXT]
+      - int ColorUnvisited @ Reg[SUBWIDGTY_COLOR_UNVISITED]
       - int ColorVisited @ Reg[SUBWIDGTY_COLOR_VISITED]
       - int Container @ Reg[SUBWIDGTY_CONTAINER]
       - int[] Corner @ Reg[SUBWIDGTY_CORNER]

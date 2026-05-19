@@ -637,6 +637,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BGCOLOR]
 	// - [SUBWIDG_COUNTERPERCBAR]
 	// - [SUBWIDG_ITEMCOOLDOWNTEXT]
+	// - [SUBWIDG_MMAP]: [SUB_COLOR_DEFAULT] uses different Misc Colors depending on the dmap.
 	//
 	// @zasm_var SUBWIDGTY_COLOR_BG
 	internal int ColorBG;
@@ -767,6 +768,15 @@ class subscreenwidget {
 	// @versionadded 3.0
 	// @zasm_var SUBWIDGTY_COLOR_VISITED
 	internal int ColorVisited;
+
+	// The widget's color index used to indicate non-visited rooms.
+	// Used for visited rooms too, if [ColorVisited] is transparent.
+	//
+	// - [SUBWIDG_MMAP]: [SUB_COLOR_DEFAULT] uses different Misc Colors depending on the dmap.
+	//
+	// @versionadded 3.0
+	// @zasm_var SUBWIDGTY_COLOR_UNVISITED
+	internal int ColorUnvisited;
 
 	// The itemclass used by the widget (0 <= ItemType < IC_MAXUSABLE)
 	//

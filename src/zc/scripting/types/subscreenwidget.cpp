@@ -313,6 +313,9 @@ int32_t subscreenwidget_get_register(int32_t reg)
 					case widgCOUNTERPERCBAR:
 						ret = 10000*((SW_CounterPercentBar*)widg)->c_bg.get_int_color();
 						break;
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_room_bg.get_int_color();
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -588,6 +591,23 @@ int32_t subscreenwidget_get_register(int32_t reg)
 				{
 					case widgMMAP:
 						ret = 10000*((SW_MMap*)widg)->c_room_vis.get_int_color();
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_UNVISITED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_room_unvis.get_int_color();
 						break;
 					default:
 						bad_subwidg_type(false, ty);
@@ -1549,6 +1569,9 @@ void subscreenwidget_set_register(int32_t reg, int32_t value)
 					case widgCOUNTERPERCBAR:
 						((SW_CounterPercentBar*)widg)->c_bg.set_int_color(val);
 						break;
+					case widgMMAP:
+						((SW_MMap*)widg)->c_room_bg.set_int_color(val);
+						break;
 					default:
 						bad_subwidg_type(false, ty);
 						break;
@@ -1836,6 +1859,24 @@ void subscreenwidget_set_register(int32_t reg, int32_t value)
 				{
 					case widgMMAP:
 						((SW_MMap*)widg)->c_room_vis.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type(false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_UNVISITED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			{
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_room_unvis.set_int_color(val);
 						break;
 					default:
 						bad_subwidg_type(false, ty);
