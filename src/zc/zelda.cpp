@@ -4263,6 +4263,8 @@ void init_and_run_main_zplayer_loop()
 	
 	load_game_configs();
 	
+	if (is_headless())
+		console_enabled = false;
 	if ( console_enabled )
 	{
 		FFCore.ZScriptConsole(true);
