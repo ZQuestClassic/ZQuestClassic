@@ -2291,12 +2291,17 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
 			int x_1 = x2 * 8, x_2 = x_1 + 6;
 			int y_1 = y2 * 4, y_2 = y_1 + 2;
 			bool left = false, right = false;
-			if (!oob && reg.get_region_id(scrid) != 0)
+			bool map_marked = dl & (0x80 >> x2);
+			if (map_marked && !oob && reg.get_region_id(scrid) != 0)
 			{
-				//bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid - 0x10);
-				bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid + 0x10);
-				left = (scrid & 0xF) && reg.is_same_region(scrid, scrid - 1);
-				right = (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid + 1);
+				//bool top = scrid >= 0x10 && reg.is_same_region(scrid, scrid - 0x10)
+					//&& (thedmap.grid[si-1] & (0x80 >> x2));
+				bool bottom = scrid < 0x70 && reg.is_same_region(scrid, scrid + 0x10)
+					&& (thedmap.grid[si+1] & (0x80 >> x2));
+				left = x2 > 0 && (scrid & 0xF) && reg.is_same_region(scrid, scrid - 1)
+					&& (dl & (0x80 >> (x2-1)));
+				right = x2 < 7 && (scrid & 0xF) < 0xF && reg.is_same_region(scrid, scrid + 1)
+					&& (dl & (0x80 >> (x2+1)));;
 
 				// no if(top) because it would be '-= 0' currently
 				if (bottom)
@@ -2330,7 +2335,7 @@ void drawgrid(BITMAP* dest, int32_t x, int32_t y, int32_t unvis_color, int32_t b
 				if (!right)
 					x_2 -= 2;
 			}
-			if ((dl & (0x80 >> x2)) && fg_color > -1)
+			if (map_marked && fg_color > -1)
 				rectfill(dest, x_1 + x, y_1 + y, x_2 + x, y_2 + y, fg_color);
 		}
 
