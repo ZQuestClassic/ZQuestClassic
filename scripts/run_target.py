@@ -58,7 +58,10 @@ def _get_debug_method():
                     '__TEST__',
                 ]
             subprocess.check_call(
-                lldb_wrapper_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                lldb_wrapper_args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=30,
             )
         except Exception as e:
             print_run_target(str(e))

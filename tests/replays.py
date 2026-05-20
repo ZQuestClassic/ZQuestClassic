@@ -557,9 +557,9 @@ def _run_replay_test(
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
     do_timeout = ctx.timeout
 
-    timeout = 60
+    timeout = int(60 * estimate_divisor)
     if replay_file.name == 'yuurand.zplay':
-        timeout = 180
+        timeout = int(180 * estimate_divisor)
 
     if 'build_emscripten' in str(ctx.build_folder):
         player_interface = WebPlayerInterface()
@@ -705,7 +705,7 @@ def _run_replay_test(
             if watcher:
                 watcher.observer.stop()
             if player_interface:
-                player_interface.wait_for_finish()
+                player_interface.stop()
 
     yield (key, 'finish', result)
 
@@ -947,7 +947,7 @@ def run_replays(
         for runs in test_results.runs:
             for run in runs:
                 if run not in replay_runs:
-                    shutil.rmtree(test_results_dir / run.directory)
+                    shutil.rmtree(test_results_dir / run.directory, ignore_errors=True)
 
         test_results.runs = [replay_runs]
 
