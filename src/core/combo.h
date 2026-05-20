@@ -383,7 +383,11 @@ enum ComboTriggerFlag
 	TRIGFLAG_PROX_USE_SOL_HITBOX,
 	TRIGFLAG_PROX_USE_SQUARE,
 	TRIGFLAG_COUNTER_PARTIAL_CONSUME,
-	
+	// Trigger condition: only occurs during Map View (spacebar map).
+	TRIGFLAG_MAPVIEW_ONLY,
+	// Trigger condition: never occurs during Map View (spacebar map).
+	TRIGFLAG_MAPVIEW_NEVER,
+
 	TRIGFLAG_MAX
 };
 
