@@ -150,6 +150,8 @@ int32_t mapind(int32_t map, int32_t screen);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
 extern int32_t view_map_show_mode;
+// True while the spacebar map view is rendering a screen via loadscr2.
+extern bool g_is_map_view;
 
 struct maze_state_t {
 	bool active;

@@ -1093,130 +1093,180 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Conditions", Frame(
+				TabRef(name = "Conditions", Frame(fitParent = true,
 					info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
-					Column(topPadding = DEFAULT_PADDING + 5_px,
-						Frame(title = "Player Position", topPadding = DEFAULT_PADDING*2.5,
-							Rows<9>(
-								Label(text = "Player X:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.req_player_x.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.req_player_x = zslongToFix(val);
-									}),
-								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(TRIGFLAG_REQ_X_GE, "Req X >=", 1, true),
-								IBTN("The combo will only trigger if the Hero's X value is >= 'Player X'."),
-								TRIGFLAG(TRIGFLAG_REQ_X_LE, "Req X <=", 1, true),
-								IBTN("The combo will only trigger if the Hero's X value is <= 'Player X'."),
-								TRIGFLAG(TRIGFLAG_REQ_X_REL, "...Relative", 1, true),
-								IBTN("'Player X' is treated as relative to where the player's X would be if"
-									" the player were standing centered on the combo."),
-								//
-								Label(text = "Player Y:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.req_player_y.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.req_player_y = zslongToFix(val);
-									}),
-								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(TRIGFLAG_REQ_Y_GE, "Req Y >=", 1, true),
-								IBTN("The combo will only trigger if the Hero's Y value is >= 'Player Y'."),
-								TRIGFLAG(TRIGFLAG_REQ_Y_LE, "Req Y <=", 1, true),
-								IBTN("The combo will only trigger if the Hero's Y value is <= 'Player Y'."),
-								TRIGFLAG(TRIGFLAG_REQ_Y_REL, "...Relative", 1, true),
-								IBTN("'Player Y' is treated as relative to where the player's Y would be if"
-									" the player were standing centered on the combo."),
-								Label(text = "Player Z:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.req_player_z.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.req_player_z = zslongToFix(val);
-									}),
-								IBTN_T("Player Z Requirement","The combo"
-									" will only trigger if the Hero's Z value is >= this value."),
-								TRIGFLAG(TRIGFLAG_INVERT_PLAYER_Z, "Invert Z Req", 1, true),
-								IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
-								_d, _d, _d, _d,
-								//
-								Label(text = "Player Jump:", fitParent = true),
-								TextField(
-									fitParent = true, vPadding = 0_px,
-									maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
-									places = 4,
-									val = local_ref.req_player_jump.getZLong(),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.req_player_jump = zslongToFix(val);
-									}),
-								IBTN("Does nothing on it's own, see flags to the right"),
-								TRIGFLAG(TRIGFLAG_REQ_JUMP_GE, "Req Jump >=", 1, true),
-								IBTN("The combo will only trigger if the Hero's Jump value is >= 'Player Jump'."),
-								TRIGFLAG(TRIGFLAG_REQ_JUMP_LE, "Req Jump <=", 1, true),
-								IBTN("The combo will only trigger if the Hero's Jump value is <= 'Player Jump'."),
-								_d, _d,
-								//
-								Label(text = "Proximity:", fitParent = true, rightPadding = 0_px),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 5000, val = local_ref.trigprox,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.trigprox = (word)val;
-									}),
-								IBTN_T("Proximity Requirement","If the value is >0, the combo "
-									" will only trigger if the Hero is within that number of pixels of the combo."),
-								TRIGFLAG(TRIGFLAG_INVERTPROX,"Invert Prox. Req", 1, true),
-								IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
-								TRIGFLAG(TRIGFLAG_PROX_USE_SOL_HITBOX,"Use S. Hitbox", 1, true),
-								IBTN("'Proximity:' uses the Hero's solidity hitbox instead of visual size."
-									" This makes it closer to their feet if 'Large Hitbox' is off." + QRHINT({qr_LTTPCOLLISION})),
-								TRIGFLAG(TRIGFLAG_PROX_USE_SQUARE,"Square Area", 1, true),
-								IBTN("'Proximity:' uses distance on each axis separately (i.e. checks for a square instead of a circle)")
+					TabPanel(ptr = &trig_tabs[3], topPadding = DEFAULT_PADDING + 5_px,
+						TabRef(name = "General", 
+							Column(topPadding = DEFAULT_PADDING + 5_px,
+								Row(
+									Column(
+										Rows<3>(
+											Label(text = "Viewport Range:", fitParent = true, rightPadding = 0_px),
+											TextField(
+												fitParent = true,
+												vPadding = 0_px,
+												type = GUI::TextField::type::INT_DECIMAL,
+												low = -5000, high = 5000, val = local_ref.viewport_cond_range,
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.viewport_cond_range = (int16_t)val;
+												}),
+											IBTN_T("Viewport Range","Used by the 'In View' and 'Out of View' flags"),
+											Label(text = "Cooldown:", fitParent = true, rightPadding = 0_px),
+											TextField(
+												fitParent = true,
+												vPadding = 0_px,
+												type = GUI::TextField::type::INT_DECIMAL,
+												low = 0, high = 255, val = local_ref.trigcooldown,
+												onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+												{
+													local_ref.trigcooldown = val;
+												}),
+											IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
+												" be unable to be triggered for 'n' frames after being triggered.")
+										),
+										Frame(title = "Chance",
+											info = "Rolls a random number using the global RNG, to give a chance of the combo successfully triggering.",
+											Row(
+												TextField(
+													fitParent = true,
+													type = GUI::TextField::type::INT_DECIMAL,
+													low = 0, high = 214748, val = local_ref.chance_numerator,
+													onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+													{
+														local_ref.chance_numerator = val;
+													}),
+												Label(text = " in "),
+												TextField(
+													fitParent = true,
+													type = GUI::TextField::type::INT_DECIMAL,
+													low = 1, high = 214748, val = local_ref.chance_denominator,
+													onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+													{
+														local_ref.chance_denominator = val;
+													})
+											)
+										)
+									),
+									Rows<4>(
+										IBTN("Can only trigger if the combo is partly within the viewport,"
+											" with the 'Viewport Range' added to each edge of the viewport"
+											" (positive values going away from the screen)."),
+										TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_ONSCREEN, "Req. On Screen"),
+										IBTN("Can only trigger if the combo is entirely outside the viewport,"
+											" with the 'Viewport Range' added to each edge of the viewport"
+											" (positive values going away from the screen)."),
+										TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN, "Req. Off Screen"),
+										IBTN("Can only trigger if the room is darkened."),
+										TRIGFLAG(TRIGFLAG_COND_DARK, "Req. Darkness"),
+										IBTN("Can only trigger if the room is NOT darkened."),
+										TRIGFLAG(TRIGFLAG_COND_NODARK, "Req. No Darkness"),
+										IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
+										TRIGFLAG(TRIGFLAG_PLAYER_STANDING, "Req. Player Standing"),
+										IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
+										TRIGFLAG(TRIGFLAG_PLAYER_NOTSTANDING, "Req. Player Not Standing"),
+										IBTN("Can only trigger when in Map View (spacebar map)."),
+										TRIGFLAG(TRIGFLAG_MAPVIEW_ONLY, "Map View Only"),
+										IBTN("Does not trigger in Map View (spacebar map)."),
+										TRIGFLAG(TRIGFLAG_MAPVIEW_NEVER, "Not Map View")
+									)
+								)
 							)
 						),
-						Row(
-							Column(
-								Rows<3>(
-									Label(text = "Viewport Range:", fitParent = true, rightPadding = 0_px),
+						TabRef(name = "Player Position",
+							Column(topPadding = DEFAULT_PADDING + 5_px,
+								Rows<9>(
+									Label(text = "Player X:", fitParent = true),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+										places = 4,
+										val = local_ref.req_player_x.getZLong(),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.req_player_x = zslongToFix(val);
+										}),
+									IBTN("Does nothing on it's own, see flags to the right"),
+									TRIGFLAG(TRIGFLAG_REQ_X_GE, "Req X >=", 1, true),
+									IBTN("The combo will only trigger if the Hero's X value is >= 'Player X'."),
+									TRIGFLAG(TRIGFLAG_REQ_X_LE, "Req X <=", 1, true),
+									IBTN("The combo will only trigger if the Hero's X value is <= 'Player X'."),
+									TRIGFLAG(TRIGFLAG_REQ_X_REL, "...Relative", 1, true),
+									IBTN("'Player X' is treated as relative to where the player's X would be if"
+										" the player were standing centered on the combo."),
+									//
+									Label(text = "Player Y:", fitParent = true),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+										places = 4,
+										val = local_ref.req_player_y.getZLong(),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.req_player_y = zslongToFix(val);
+										}),
+									IBTN("Does nothing on it's own, see flags to the right"),
+									TRIGFLAG(TRIGFLAG_REQ_Y_GE, "Req Y >=", 1, true),
+									IBTN("The combo will only trigger if the Hero's Y value is >= 'Player Y'."),
+									TRIGFLAG(TRIGFLAG_REQ_Y_LE, "Req Y <=", 1, true),
+									IBTN("The combo will only trigger if the Hero's Y value is <= 'Player Y'."),
+									TRIGFLAG(TRIGFLAG_REQ_Y_REL, "...Relative", 1, true),
+									IBTN("'Player Y' is treated as relative to where the player's Y would be if"
+										" the player were standing centered on the combo."),
+									Label(text = "Player Z:", fitParent = true),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+										places = 4,
+										val = local_ref.req_player_z.getZLong(),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.req_player_z = zslongToFix(val);
+										}),
+									IBTN_T("Player Z Requirement","The combo"
+										" will only trigger if the Hero's Z value is >= this value."),
+									TRIGFLAG(TRIGFLAG_INVERT_PLAYER_Z, "Invert Z Req", 1, true),
+									IBTN("'Player Z:' requires that the Hero be < the specified Z, instead of >=."),
+									_d, _d, _d, _d,
+									//
+									Label(text = "Player Jump:", fitParent = true),
+									TextField(
+										fitParent = true, vPadding = 0_px,
+										maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
+										places = 4,
+										val = local_ref.req_player_jump.getZLong(),
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.req_player_jump = zslongToFix(val);
+										}),
+									IBTN("Does nothing on it's own, see flags to the right"),
+									TRIGFLAG(TRIGFLAG_REQ_JUMP_GE, "Req Jump >=", 1, true),
+									IBTN("The combo will only trigger if the Hero's Jump value is >= 'Player Jump'."),
+									TRIGFLAG(TRIGFLAG_REQ_JUMP_LE, "Req Jump <=", 1, true),
+									IBTN("The combo will only trigger if the Hero's Jump value is <= 'Player Jump'."),
+									_d, _d,
+									//
+									Label(text = "Proximity:", fitParent = true, rightPadding = 0_px),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = -5000, high = 5000, val = local_ref.viewport_cond_range,
+										low = 0, high = 5000, val = local_ref.trigprox,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
-											local_ref.viewport_cond_range = (int16_t)val;
+											local_ref.trigprox = (word)val;
 										}),
-									IBTN_T("Viewport Range","Used by the 'In View' and 'Out of View' flags"),
-									Label(text = "Cooldown:", fitParent = true, rightPadding = 0_px),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_ref.trigcooldown,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trigcooldown = val;
-										}),
-									IBTN_T("Trigger Cooldown", "If the value is >0, the combo will"
-										" be unable to be triggered for 'n' frames after being triggered.")
+									IBTN_T("Proximity Requirement","If the value is >0, the combo "
+										" will only trigger if the Hero is within that number of pixels of the combo."),
+									TRIGFLAG(TRIGFLAG_INVERTPROX,"Invert Prox. Req", 1, true),
+									IBTN("'Proximity:' requires the Hero to be far away, instead of close"),
+									TRIGFLAG(TRIGFLAG_PROX_USE_SOL_HITBOX,"Use S. Hitbox", 1, true),
+									IBTN("'Proximity:' uses the Hero's solidity hitbox instead of visual size."
+										" This makes it closer to their feet if 'Large Hitbox' is off." + QRHINT({qr_LTTPCOLLISION})),
+									TRIGFLAG(TRIGFLAG_PROX_USE_SQUARE,"Square Area", 1, true),
+									IBTN("'Proximity:' uses distance on each axis separately (i.e. checks for a square instead of a circle)")
 								),
-								Rows<3>(
+								Rows<3>(hAlign = 0.0,
 									Label(text = "Player Facing:", fitParent = true),
 									Button(
 										width = 1.5_em, padding = 0_px, forceFitH = true,
@@ -1232,46 +1282,6 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN_T("Player Facing","Player must be facing one of these directions"
 										" for the combo to trigger (if any are checked).")
 								)
-							),
-							Rows<4>(
-								IBTN("Can only trigger if the combo is partly within the viewport,"
-									" with the 'Viewport Range' added to each edge of the viewport"
-									" (positive values going away from the screen)."),
-								TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_ONSCREEN, "Req. On Screen"),
-								IBTN("Can only trigger if the combo is entirely outside the viewport,"
-									" with the 'Viewport Range' added to each edge of the viewport"
-									" (positive values going away from the screen)."),
-								TRIGFLAG(TRIGFLAG_VIEWPORT_REQ_OFFSCREEN, "Req. Off Screen"),
-								IBTN("Can only trigger if the room is darkened."),
-								TRIGFLAG(TRIGFLAG_COND_DARK, "Req. Darkness"),
-								IBTN("Can only trigger if the room is NOT darkened."),
-								TRIGFLAG(TRIGFLAG_COND_NODARK, "Req. No Darkness"),
-								IBTN("Can only trigger if the player is standing on the ground. Handles 'standing' in sideview as well."),
-								TRIGFLAG(TRIGFLAG_PLAYER_STANDING, "Req. Player Standing"),
-								IBTN("Can only trigger if the player is NOT standing on the ground. Handles 'standing' in sideview as well."),
-								TRIGFLAG(TRIGFLAG_PLAYER_NOTSTANDING, "Req. Player Not Standing")
-							)
-						),
-						Frame(title = "Chance",
-							info = "Rolls a random number using the global RNG, to give a chance of the combo successfully triggering.",
-							Row(
-								TextField(
-									fitParent = true,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 214748, val = local_ref.chance_numerator,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.chance_numerator = val;
-									}),
-								Label(text = " in "),
-								TextField(
-									fitParent = true,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 1, high = 214748, val = local_ref.chance_denominator,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.chance_denominator = val;
-									})
 							)
 						)
 					)

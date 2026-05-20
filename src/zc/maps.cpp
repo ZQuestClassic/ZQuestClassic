@@ -77,6 +77,7 @@ void maps_init_game_vars()
 	maze_state = {};
 	dither_offx = 0;
 	dither_offy = 0;
+	g_is_map_view = false;
 }
 
 static region_ids_t current_region_ids;
@@ -112,6 +113,10 @@ static bool is_same_region_id(int region_origin_scr, int map, int scr)
 
 bool is_in_current_region(int map, int screen)
 {
+	// TODO: pretty hacky. See longer comment in the function below.
+	if (g_is_map_view)
+		return false;
+
 	if (map != cur_map)
 		return false;
 
@@ -123,6 +128,15 @@ bool is_in_current_region(int map, int screen)
 
 bool is_in_current_region(int screen)
 {
+	// TODO: pretty hacky. Probably covers all cases of handling screen state / triggering for
+	// non-active screens, but can't be too certain. Map view obviously can show the same screen
+	// as an active screen (though it's a different mapscr object) - but I don't think anything else
+	// does in practice. MAPCOMBO3_impl usually is called on a neighboring, distinct screen; though
+	// with side warps that could happen to be the same screen as an active one.
+	// tldr; do something better. but this is fine for now.
+	if (g_is_map_view)
+		return false;
+
 	return screen == cur_screen || (screen >= 0 && screen < 128 && screen_in_current_region[screen]);
 }
 
@@ -1253,21 +1267,19 @@ static void apply_screen_state_remove_combos(const screen_handles_t& screen_hand
 	}
 }
 
-static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, uint32_t flags, bool secrets_do_replay_comment)
+static void apply_state_changes_to_screen_handles(const screen_handles_t& screen_handles, int32_t map, int32_t screen, uint32_t flags, bool secrets_do_replay_comment, bool do_layers)
 {
-	auto screen_handles = create_screen_handles_one(&scr);
-
 	if ((flags & mSECRET) && canPermSecret(cur_dmap, screen))
 	{
-		reveal_hidden_stairs(&scr, screen, false);
-		bool do_layers = false;
+		reveal_hidden_stairs(screen_handles[0].base_scr, screen, false);
 		bool from_active_screen = false;
-		trigger_secrets_for_screen_internal(screen_handles, do_layers, from_active_screen, -3, secrets_do_replay_comment);
+		bool high16only = false;
+		trigger_secrets_for_screen_internal(screen_handles, from_active_screen, high16only, -1, secrets_do_replay_comment);
 	}
 	if (flags & mLIGHTBEAM)
 	{
 		for_every_rpos_in_screen(screen_handles, [&](const rpos_handle_t& rpos_handle) {
-			if (rpos_handle.layer != screen_handles[0].layer)
+			if (!do_layers && rpos_handle.layer != screen_handles[0].layer)
 				return;
 
 			if (rpos_handle.ctype() == cLIGHTTARGET)
@@ -1282,14 +1294,19 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	toggle_switches(game->lvlswitches.get(lvl), true, screen_handles);
 	toggle_gswitches_load(screen_handles);
 
-	bool do_layers = false;
 	apply_screen_state_remove_combos(screen_handles, flags, do_layers);
 
 	int mi = mapind(map, screen);
 	clear_xdoors_mi(screen_handles, mi);
 	clear_xstatecombos_mi(screen_handles, mi);
-	
+
 	handle_screen_load_trigger(screen_handles);
+}
+
+static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, uint32_t flags, bool secrets_do_replay_comment)
+{
+	auto screen_handles = create_screen_handles_one(&scr);
+	apply_state_changes_to_screen_handles(screen_handles, map, screen, flags, secrets_do_replay_comment, false);
 }
 
 std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
@@ -6814,64 +6831,12 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 		screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
 
 	int mi = mapind(cur_map, screen);
-	
-	if(canPermSecret(-1,screen))
-	{
-		if(game->maps.get(mi)&mSECRET)			   // if special stuff done before
-		{
-			reveal_hidden_stairs(scr, screen, false);
-			bool from_active_screen = false;
-			bool do_replay_comment = true;
-			trigger_secrets_for_screen_internal(screen_handles, from_active_screen, false, -1, do_replay_comment);
-		}
-		if(game->maps.get(mi)&mLIGHTBEAM) // if special stuff done before
-		{
-			for (int layer = 0; layer <= 6; layer++)
-			{
-				mapscr* tscr = &scrs[layer];
-				for (int pos = 0; pos < 176; pos++)
-				{
-					newcombo const* cmb = &combobuf[tscr->data[pos]];
-					if(cmb->type == cLIGHTTARGET)
-					{
-						if(!(cmb->usrflags&cflag1)) //Unlit version
-						{
-							tscr->data[pos] += 1;
-						}
-					}
-				}
-			}
-		}
-	}
+	uint32_t flags = game->maps.get(mi);
 
-	if(game->maps.get(mi)&mLOCKBLOCK)			  // if special stuff done before
-	{
-		remove_lockblocks(screen_handles);
-	}
-	
-	if(game->maps.get(mi)&mBOSSLOCKBLOCK)		  // if special stuff done before
-	{
-		remove_bosslockblocks(screen_handles);
-	}
-	
-	if(game->maps.get(mi)&mCHEST)			  // if special stuff done before
-	{
-		remove_chests(screen_handles);
-	}
-	
-	if(game->maps.get(mi)&mLOCKEDCHEST)			  // if special stuff done before
-	{
-		remove_lockedchests(screen_handles);
-	}
-	
-	if(game->maps.get(mi)&mBOSSCHEST)			  // if special stuff done before
-	{
-		remove_bosschests(screen_handles);
-	}
+	g_is_map_view = true;
+	apply_state_changes_to_screen_handles(screen_handles, cur_map, screen, flags, true, true);
+	g_is_map_view = false;
 
-	clear_xdoors(screen_handles);
-	clear_xstatecombos(screen_handles);
-	
 	// check doors
 	if (isdungeon(screen))
 	{
@@ -7863,6 +7828,7 @@ void onload_gswitch_timers() //Reset all timers that were counting down, no trig
 /****  View Map  ****/
 
 int32_t view_map_show_mode = 3;
+bool g_is_map_view = false;
 
 bool displayOnMap(int32_t x, int32_t y)
 {

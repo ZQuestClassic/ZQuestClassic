@@ -1934,8 +1934,9 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 {
 	auto& cmb = comb_handle.combo();
 	if(cmb.triggers.size() <= idx) return false;
-	
+
 	auto& trig = cmb.triggers[idx];
+	if (trig.trigger_flags.get(g_is_map_view  ? TRIGFLAG_MAPVIEW_NEVER : TRIGFLAG_MAPVIEW_ONLY)) return false;
 	auto [combo_x, combo_y] = comb_handle.xy();
 	auto [center_x, center_y] = comb_handle.center_xy();
 	zfix hero_x = Hero.getX(), hero_y = Hero.getY();
