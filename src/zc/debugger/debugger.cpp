@@ -762,7 +762,6 @@ void Debugger::FetchChildren(Variable& var)
 			var.children.push_back(child);
 		}
 
-		auto class_symbols = zasm_debug_data.getChildSymbols(class_scope);
 		auto symbols = zasm_debug_data.getChildSymbols(class_scope);
 		for (auto symbol : symbols)
 		{
@@ -860,9 +859,6 @@ std::string Debugger::ValueToStringSummary(DebugValue value)
 					remaining &= ~flag;
 				}
 			}
-
-			if (isFixed)
-				remaining /= FIXED_ONE;
 
 			if (remaining != 0)
 			{

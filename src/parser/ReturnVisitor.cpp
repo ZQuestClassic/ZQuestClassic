@@ -172,7 +172,9 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				if(done)
 					function.setFlag(FUNCFLAG_NIL);
 			}
-			if(!done) //Visit the function's statements
+			// In debug mode, still visit nil function bodies so their AST nodes are marked
+			// reachable and BuildVisitors generates ZASM for them (used by the debugger evaluator).
+			if(!done || debug_data_should_emit_inlined_functions()) //Visit the function's statements
 			{
 				size_t indx = 0;
 				bool earlyterm = false;

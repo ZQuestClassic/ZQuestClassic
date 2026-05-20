@@ -12,6 +12,8 @@
 #include <exception>
 #include <functional>
 
+using namespace std::literals::string_literals;
+
 std::function<void()> test_update;
 
 struct TestTask;
@@ -524,6 +526,30 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "MIDI_OVERWORLD", "-2.0000"); // anonymous enums are same as constants
 	verify_expression(debugger, "BITDX_TRANS", "(BlitModeBitflags) BITDX_TRANS");
 	verify_expression(debugger, "BITDX_TRANS | BITDX_PIVOT | BITDX_HFLIP", "(BlitModeBitflags) BITDX_TRANS | BITDX_PIVOT | BITDX_HFLIP");
+	// ValueToStringSummary for fixed-point bitflags with unrecognized bits.
+	{
+		const DebugType* blitflags_type = nullptr;
+		for (size_t i = 0; i < zasm_debug_data.scopes.size(); i++)
+		{
+			if (zasm_debug_data.scopes[i].tag == TAG_ENUM &&
+				zasm_debug_data.scopes[i].name == "BlitModeBitflags")
+			{
+				for (auto& t : zasm_debug_data.types)
+				{
+					if (t.tag == TYPE_BITFLAGS && t.extra == (int32_t)i)
+					{
+						blitflags_type = &t;
+						break;
+					}
+				}
+				break;
+			}
+		}
+		assertEqual(blitflags_type != nullptr, true);
+		// BITDX_TRANS (1 int unit = 10000 raw) | unrecognized bit 0x10 (16 int units = 160000 raw) = 170000 raw.
+		DebugValue val{170000, blitflags_type};
+		assertEqual(debugger->ValueToStringSummary(val), "(BlitModeBitflags) BITDX_TRANS | 0x10"s);
+	}
 	verify_expression(debugger, "NUM_COMBO_POS", "176.0000");
 	verify_expression(debugger, "OP_OPAQUE", "128.0000");
 	verify_expression(debugger, "Hero->Step", "150.0000");
@@ -654,6 +680,20 @@ static TestTask run_scopes_replay_coroutine()
 	debugger->RemoveBreakpoints();
 	add_breakpoint(debugger, "scopes.zs", "Test::End()");
 	co_await PlayAndWaitForPause(debugger);
+
+	// Separator rules: '.' for script/class members, '::' for namespaces.
+	verify_expression(debugger, "scopes.SCRIPT_SCOPED_GLOBAL", "123.0000");
+	verify_expression(debugger, "scopes.scriptFunction()", "100.0000");
+	verify_expression(debugger, "A::cl", "null"); // never set
+	verify_expression_invalid(debugger, "scopes::SCRIPT_SCOPED_GLOBAL", "Unknown variable: scopes::SCRIPT_SCOPED_GLOBAL");
+	verify_expression_invalid(debugger, "scopes::scriptFunction()", "No matching function: scopes::scriptFunction");
+	verify_expression_invalid(debugger, "A.cl", "Unknown variable: A.cl");
+	verify_expression(debugger, "A::DataBag.StaticClassFunction()", "123.0000");
+	verify_expression(debugger, "A::DataBag::StaticClassFunction()", "123.0000");
+
+	// Functions that return a compile-time constant are optimized as nil functions and inlined (see
+	// ReturnVisitor::analyzeFunctionInternals). Ensure the debugger can still call it.
+	verify_expression(debugger, "returnOne()", "1.0000");
 
 	verify_variable(debugger, "this", "genericdata"); // not hidden
 	verify_expression(debugger, "this", "genericdata {Data = {}, DataSize = 0.0000, EventListen = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, ExitState = {false, false, false, false, false}, InitD = {0, 0, 0, 0, 0, 0, 0, 0}, ReloadState = {false, false, false, false, false}, Running = true}");

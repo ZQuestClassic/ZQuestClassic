@@ -320,7 +320,7 @@ std::shared_ptr<ExprNode> ExpressionParser::parsePrimary()
 	else if (isalpha(c) || c == '_')
 	{
 		size_t start = pos;
-		while (isalnum(peek()) || peek() == '_' || peek() == ':')
+		while (isalnum(peek()) || peek() == '_' || peek() == ':' || peek() == '.')
 			pos++;
 		std::string id = input.substr(start, pos - start);
 
@@ -771,10 +771,7 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 			throw std::runtime_error("Variable is not writable (Storage type " + std::to_string(sym->storage) + ")");
 
 		if (holds_reference)
-		{
-			DebugValue previous_value = readSymbol(sym);
 			vm.increaseObjectReference(val, sym);
-		}
 	}
 	else if (target->type == E_MEMBER)
 	{

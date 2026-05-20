@@ -340,6 +340,19 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		assertGreaterThan(audio_adjust_fn_scope->start_pc, (pc_t)0);
 		assertGreaterThan(audio_adjust_fn_scope->end_pc, (pc_t)0);
 
+		// Separator rules: '.' for script/class members, '::' for namespaces/enums.
+		// Script-scoped variables require '.':
+		resolveSymbol(debugData, "scopes.SCRIPT_SCOPED_GLOBAL", file_scope);
+		assertTrue(debugData.resolveSymbol("scopes::SCRIPT_SCOPED_GLOBAL", file_scope) == nullptr);
+		// Namespace variables require '::' (not '.'):
+		resolveSymbol(debugData, "A::cl", file_scope);
+		assertTrue(debugData.resolveSymbol("A.cl", file_scope) == nullptr);
+		// Static class methods accept both '.' and '::':
+		auto static_class_fns = debugData.resolveFunctions("A::DataBag.StaticClassFunction", file_scope);
+		assertSize(static_class_fns, 1);
+		assertEqual(debugData.getFunctionSignature(static_class_fns[0]), "int A::DataBag::StaticClassFunction()"s);
+		assertSize(debugData.resolveFunctions("A::DataBag::StaticClassFunction", file_scope), 1);
+
 		return true;
 	});
 
@@ -660,6 +673,12 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			val = eval("2L * 3");
 			assertEqual(val.raw_value, (int32_t)(((int64_t)2 * (3 * FIXED_ONE)) / FIXED_ONE));
 			assertTrue(val.type->isFixed(debugData));
+
+			val = eval("2 * 3 * 4");
+			assertEqual(val.raw_value, 24 * FIXED_ONE);
+
+			val = eval("24 / 2 / 3");
+			assertEqual(val.raw_value, 4 * FIXED_ONE);
 		}
 
 		// Variables.

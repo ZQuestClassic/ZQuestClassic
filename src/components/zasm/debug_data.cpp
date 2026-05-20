@@ -74,15 +74,26 @@ std::vector<std::string_view> split_identifier(std::string_view str)
 	tokens.reserve(5);
 
 	size_t start = 0;
-	size_t end = str.find("::");
-
-	while (end != std::string_view::npos)
+	size_t i = 0;
+	while (i < str.size())
 	{
-		tokens.push_back(str.substr(start, end - start));
-		start = end + 2;
-		end = str.find("::", start);
+		if (str[i] == ':' && i + 1 < str.size() && str[i + 1] == ':')
+		{
+			tokens.push_back(str.substr(start, i - start));
+			start = i + 2;
+			i += 2;
+		}
+		else if (str[i] == '.')
+		{
+			tokens.push_back(str.substr(start, i - start));
+			start = i + 1;
+			i += 1;
+		}
+		else
+		{
+			i++;
+		}
 	}
-
 	tokens.push_back(str.substr(start));
 	return tokens;
 }
@@ -899,6 +910,20 @@ DebugData::ResolveResult DebugData::resolveEntity(const std::string& identifier,
 		if (current_res.scope_idx == -1)
 			return {};
 
+		// Validate separator against the scope being accessed:
+		//   TAG_SCRIPT  → only '.' is valid (mirrors ZScript dot syntax for script members)
+		//   TAG_CLASS   → both '.' and '::' are valid
+		//   everything else (namespace, enum, …) → only '::' is valid
+		{
+			const char* sep_start = tokens[token_idx - 1].data() + tokens[token_idx - 1].size();
+			bool used_dot = (*sep_start == '.');
+			DebugScopeTag tag = scopes[current_res.scope_idx].tag;
+			if (tag == TAG_SCRIPT && !used_dot)
+				return {};
+			if (tag != TAG_SCRIPT && tag != TAG_CLASS && used_dot)
+				return {};
+		}
+
 		current_res = find_member(current_res.scope_idx, tokens[token_idx]);
 		if (!current_res.sym && current_res.scope_idx == -1)
 			return {};
@@ -1006,12 +1031,26 @@ std::vector<const DebugScope*> DebugData::resolveFunctions(const std::string& id
 		// A. Resolve the container (e.g., "MyClass") using standard rules
 		// We use the existing resolveScope to find the container.
 		// We construct the parent path by removing the last token.
-		std::string parent_path = identifier.substr(0, identifier.rfind(tokens.back()) - 2); 
-		// (Note: simple string logic above implies '::' separator length is 2. 
-		//  Better to join tokens[0]...tokens[n-1])
+		std::string parent_path;
+		for (size_t i = 0; i + 1 < tokens.size(); i++)
+		{
+			if (i > 0) parent_path += "::";
+			parent_path += std::string(tokens[i]);
+		}
 
 		const DebugScope* container = resolveScope(parent_path, current_scope);
 		if (!container) return {};
+
+		// Mirror the same separator rules as resolveEntity Phase 2.
+		{
+			const char* sep_start = tokens[tokens.size() - 2].data() + tokens[tokens.size() - 2].size();
+			bool used_dot = (*sep_start == '.');
+			DebugScopeTag tag = container->tag;
+			if (tag == TAG_SCRIPT && !used_dot)
+				return {};
+			if (tag != TAG_SCRIPT && tag != TAG_CLASS && used_dot)
+				return {};
+		}
 
 		int32_t container_idx = getScopeIndex(container);
 		

@@ -1261,6 +1261,7 @@ void ScriptAssembler::link_functions()
 	std::set<int32_t> usedLabels;
 	GetLabels getlabel(usedLabels);
 	getlabel.execute(rval, nullptr);
+
 	std::set<int32_t> unprocessedLabels(usedLabels);
 
 	// Grab labels used by each function until we run out of functions.
@@ -1285,6 +1286,12 @@ void ScriptAssembler::link_functions()
 		{
 			// Include code for binding functions, for use by the debugger.
 			if (!fn->isInternal() && fn->isBinding())
+				usedLabels.insert(fn->getLabel());
+			// Include code for user nil functions (optimized to return a compile-time constant).
+			// These are never called via OCallFunc (call sites inline the constant), so they'd
+			// otherwise be missing from debug data.
+			if (!fn->isInternal() && !fn->is_aliased() && !fn->prototype
+				&& fn->getFlag(FUNCFLAG_NIL) && !fn->getCode().empty())
 				usedLabels.insert(fn->getLabel());
 		}
 	}
@@ -1344,6 +1351,12 @@ void ScriptAssembler::optimize()
 
 void ScriptAssembler::optimize_function(Function* fn)
 {
+	// Nil user functions have their call sites inlined, but their code is preserved for the debugger.
+	// Skip optimization entirely: the NOP trimmer uses label_index which is built from run-script
+	// labels, so intra-function return labels appear unused and get stripped, breaking the GOTO.
+	if (!fn->isInternal() && fn->getFlag(FUNCFLAG_NIL))
+		return;
+
 	auto code = fn->takeCode();
 	bool only_remove_nops = fn->isBinding();
 	optimize_code(code, only_remove_nops);

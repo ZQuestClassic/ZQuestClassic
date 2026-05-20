@@ -47,6 +47,11 @@ namespace A
 {
 	class DataBag
 	{
+		static int StaticClassFunction()
+		{
+			return 123;
+		}
+
 		int var1;
 		int var2;
 		
@@ -355,11 +360,42 @@ int DebugFunctionVarargs(int first, ...int[] rest)
 	return sum; // end of DebugFunctionVarargs
 }
 
+void AccessScriptScopedMembers()
+{
+	Test::AssertEqual(scopes.SCRIPT_SCOPED_GLOBAL, 123);
+	Test::AssertEqual(scopes.scriptFunction(), 100);
+}
+
+// If we decided to optimize this, it should still be available in the debugger.
+int returnOne()
+{
+	return 1;
+}
+
 generic script scopes
 {
+	int SCRIPT_SCOPED_GLOBAL = 123;
+
+	int scriptFunction()
+	{
+		// Avoid any possible optimization.
+		return Game->Version ? 100 : 0;
+	}
+
 	void run()
 	{
 		Test::Init();
+
+		// Test::AssertEqual(scopes::SCRIPT_SCOPED_GLOBAL, 123); // invalid - can't use :: for script scoped members
+		Test::AssertEqual(scopes.SCRIPT_SCOPED_GLOBAL, 123);
+		Test::AssertEqual(SCRIPT_SCOPED_GLOBAL, 123);
+		Test::AssertEqual(scopes.scriptFunction(), 100);
+		Test::AssertEqual(scriptFunction(), 100);
+		// Static class functions can use . and :: - for some reason...
+		Test::AssertEqual(A::DataBag::StaticClassFunction(), 123);
+		Test::AssertEqual(A::DataBag.StaticClassFunction(), 123);
+		AccessScriptScopedMembers();
+		Test::AssertEqual(returnOne(), 1);
 
 		Test::Assert(globalThings);
 		A::A_fn();
