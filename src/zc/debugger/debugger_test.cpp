@@ -535,6 +535,9 @@ static TestTask run_scopes_replay_coroutine()
 	verify_expression(debugger, "b", "bitmap {Height = 32.0000, Width = 32.0000}");
 	verify_expression(debugger, "b->Width", "32.0000");
 
+	// Engine objects in untyped arrays must resolve to their proper debug type.
+	verify_expression(debugger, "arr_rng[0]", "randgen {}");
+
 	verify_expression(debugger, "Hero->Step = 100", "100.0000");
 	verify_expression(debugger, "Hero->Step", "100.0000");
 	verify_expression(debugger, "f->X = 12.0000", "12.0000");

@@ -820,7 +820,7 @@ DebugValue ExpressionEvaluator::evalBinaryOp(const std::string& op, DebugValue l
 	if (lType->isString(debugData) || rType->isString(debugData))
 		throw std::runtime_error("Binary operations on strings not supported.");
 
-	bool resultIsFixed = l.type->isFixed(debugData) || l.type->isFixed(debugData);
+	bool resultIsFixed = l.type->isFixed(debugData) || r.type->isFixed(debugData);
 
 	if (lType->tag == TYPE_BITFLAGS)
 	{

@@ -54,7 +54,7 @@ const DebugType* getDebugTypeOfUntypedArrayElement(script_object_type engine_typ
 		// TODO: this returns the type for untyped[]. Could probably do better.
 		return source_array_type;
 	}
-	else if (engine_type == script_object_type::bitmap)
+	else
 	{
 		std::string name;
 		switch (engine_type)

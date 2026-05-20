@@ -289,6 +289,8 @@ void DebugInternalObjects()
 	Waitframe();
 	Test::Assert(f);
 	Test::Assert(n);
+	const randgen rng = new randgen();
+	untyped[] arr_rng = {rng};
 	Test::Assert(b); // end of DebugInternalObjects
 }
 

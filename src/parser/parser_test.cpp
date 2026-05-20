@@ -641,6 +641,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			assertEqual(val.raw_value, 10001);
 			assertTrue(val.type->isFixed(debugData));
 
+			// Mixed math (Long + Fixed = Fixed) - commutative case must also produce Fixed type.
+			val = eval("1L + 1");
+			assertEqual(val.raw_value, 10001);
+			assertTrue(val.type->isFixed(debugData));
+
 			// Division.
 			val = eval("10 / 2");
 			assertEqual(val.raw_value, 5 * FIXED_ONE);
@@ -650,6 +655,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 			// Multiplication.
 			val = eval("10 * 2L");
 			assertEqual(val.raw_value, ((10 * FIXED_ONE) * 2) / FIXED_ONE);
+
+			// Long * Fixed must use fixed-point multiply, not plain integer multiply.
+			val = eval("2L * 3");
+			assertEqual(val.raw_value, (int32_t)(((int64_t)2 * (3 * FIXED_ONE)) / FIXED_ONE));
+			assertTrue(val.type->isFixed(debugData));
 		}
 
 		// Variables.
