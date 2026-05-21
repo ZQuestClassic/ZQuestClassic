@@ -3637,7 +3637,7 @@ void weapon::limited_animate()
 		case wLitSBomb:
 		case wSBomb:
 		{
-			if(!misc)
+			if(misc <= 0)
 				break;
 			
 			bool fixboom = !get_qr(qr_BROKEN_MOVING_BOMBS);
@@ -4884,7 +4884,7 @@ bool weapon::animate(int32_t index)
 		case ewLitSBomb:
 		case ewSBomb:
 		{
-			if(!misc)
+			if(misc <= 0)
 			{
 				break;
 			}
@@ -7837,7 +7837,7 @@ void weapon::draw(BITMAP *dest)
 		case ewBomb:
 		case ewSBomb:
 		{
-			if(!misc || clk<misc-2) break;
+			if(misc <= 0 || clk<misc-2) break;
 			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
 			{
 				// draw the explosion
