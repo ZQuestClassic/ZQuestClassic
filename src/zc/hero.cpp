@@ -86,7 +86,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 #define CANFORCEFACEUP	(get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 #define NO_GRIDLOCK		(get_qr(qr_DISABLE_4WAY_GRIDLOCK)||get_qr(qr_NEW_HERO_MOVEMENT2))
-#define NEW_MOVEMENT		(get_qr(qr_NEW_HERO_MOVEMENT)||get_qr(qr_NEW_HERO_MOVEMENT2))
+#define NEW_MOVEMENT        (get_qr(qr_NEW_HERO_MOVEMENT) || (replay_version_check(52) && get_qr(qr_NEW_HERO_MOVEMENT2)))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_qr(qr_BROKEN_Z3_ANIMATION))
 
 zfix HeroClass::get_standing_z_state() const
@@ -10444,11 +10444,14 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 		bool r2 = push_pixel(dx,0);
 		return r && r2;
 	}
+
+	int check_offset = replay_version_check(52) ? 15 : 16;
+
 	if(dx < 0)
 	{
 		if(!(solpush_walkflag(x+dx,y+(bigHitbox?0:8),this)
 			|| solpush_walkflag(x+dx,y+8,this)
-			|| (y.getInt()&7?solpush_walkflag(x+dx,y+15,this):0)))
+			|| (y.getInt()&7?solpush_walkflag(x+dx,y+check_offset,this):0)))
 		{
 			x += dx;
 			return true;
@@ -10459,7 +10462,7 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	{
 		if(!(solpush_walkflag(x+15+dx,y+(bigHitbox?0:8),this)
 			|| solpush_walkflag(x+15+dx,y+8,this)
-			|| (y.getInt()&7?solpush_walkflag(x+15+dx,y+15,this):0)))
+			|| (y.getInt()&7?solpush_walkflag(x+15+dx,y+check_offset,this):0)))
 		{
 			x += dx;
 			return true;
@@ -10470,7 +10473,7 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	{
 		if(!(solpush_walkflag(x,y+(bigHitbox?0:8)+dy,this)
 			|| solpush_walkflag(x+8,y+(bigHitbox?0:8)+dy,this)
-			|| (x.getInt()&7?solpush_walkflag(x+15,y+(bigHitbox?0:8)+dy,this):0)))
+			|| (x.getInt()&7?solpush_walkflag(x+check_offset,y+(bigHitbox?0:8)+dy,this):0)))
 		{
 			y += dy;
 			return true;
@@ -10481,7 +10484,7 @@ bool HeroClass::push_pixel(zfix dx, zfix dy)
 	{
 		if(!(solpush_walkflag(x,y+15+dy,this)
 			|| solpush_walkflag(x+8,y+15+dy,this)
-			|| (x.getInt()&7?solpush_walkflag(x+15,y+15+dy,this):0)))
+			|| (x.getInt()&7?solpush_walkflag(x+check_offset,y+15+dy,this):0)))
 		{
 			y += dy;
 			return true;
@@ -14446,7 +14449,8 @@ bool HeroClass::try_drown()
 	if(ladderx || laddery) return false;
 	if (walk_through_walls) return false;
 	if (!get_qr(qr_DROWN)) return false;
-	if(action == drowning || action == lavadrowning || action == sidedrowning) return true;
+	if (action == drowning || action == lavadrowning) return true;
+	if (replay_version_check(52) && action == sidedrowning) return true;
 	int water = onWater(true);
 	if(!water) return false;
 	drownCombo = water;

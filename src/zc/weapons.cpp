@@ -4,6 +4,7 @@
 #include "ffc.h"
 #include "zc/weapons.h"
 #include "zc/guys.h"
+#include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "zalleg/zsys.h"
@@ -706,7 +707,15 @@ int32_t weapon::seekEnemy2(int32_t j)
 
 void weapon::convertType(bool toLW)
 {
-	if((bool)isLWeapon == toLW) return; //Already the right type
+	if (replay_version_check(52))
+	{
+		if((bool)isLWeapon == toLW) return; // Already the right type
+	}
+	else
+	{
+		if(XOR(isLWeapon, toLW)) return; // buggy check.
+	}
+
 	isLWeapon = toLW;
 	script = 0;
 	for(int32_t q = 0; q < 8; ++q)
