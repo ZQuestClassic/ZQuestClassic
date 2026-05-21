@@ -873,6 +873,11 @@ byte weapon::get_burnstate() const
 	return WPNSPR_BASE;
 }
 
+void weapon::on_freeze()
+{
+	cleanup_sfx();
+}
+
 // Let's dispose of some sound effects!
 void weapon::cleanup_sfx()
 {
@@ -897,9 +902,16 @@ void weapon::cleanup_sfx()
     {
         //I am reasonably confident that I fixed these expressions. ~pkmnfrk
 			//No, you didn't. Now I have. -V
-        if(id==ewBrang && Ewpns.idCount(ewBrang) > 1)
-            return;
-            
+        if(id==ewBrang)
+        {
+            for(int32_t i=0; i<Ewpns.Count(); i++)
+            {
+                weapon *w = (weapon*)Ewpns.spr(i);
+                if(w->id == ewBrang && w->getUID() != getUID() && !w->is_frozen)
+                    return;
+            }
+        }
+
         if(id==wWind && Lwpns.idCount(wWind) > 1)
             return;
     }
@@ -990,7 +1002,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	screen_spawned=current_screen=get_screen_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	level=Type;
-	isolated_freeze_viewport = true;
+	isolated_freeze_viewport = !replay_version_check(56);
 	power=pow;
 	parentitem=Parentitem;
 	parentid=prntid;
@@ -5589,12 +5601,15 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 				{
 					stop_sfx(WAV_BRANG);
 				}
-				
+
 				dead = 1;
 			}
+
+			if(dead == -1 && clk >= 0 && get_qr(qr_MORESOUNDS))
+				cont_sfx(specialsfx, pan(x));
 		}
 	}
-	
+
 	// move sprite, check clipping
 	if(dead==-1 && clk>=0)
 	{

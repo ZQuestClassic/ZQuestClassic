@@ -2416,16 +2416,29 @@ void sprite_list::animate()
 	{
 		sprite* spr = sprites[active_iterator];
 
+#ifdef IS_PLAYER
+		// TODO: maybe someday make this "freeze" rect size configurable:
+		//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
+		spr->is_within_freeze_viewport = !is_in_scrolling_region() || is_sprite_in_view(freeze_rect, spr);
+#endif
+
 		bool freeze_sprite = false;
 		if (spr->canfreeze)
 		{
 			freeze_sprite = freeze_guys;
 #ifdef IS_PLAYER
-			// TODO: maybe someday make this "freeze" rect size configurable:
-			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
 			if (is_in_scrolling_region())
-				freeze_sprite |= !is_sprite_in_view(freeze_rect, spr);
+				freeze_sprite |= !spr->is_within_freeze_viewport;
 #endif
+		}
+
+		if (freeze_sprite != spr->is_frozen)
+		{
+			spr->is_frozen = freeze_sprite;
+			if (freeze_sprite)
+				spr->on_freeze();
+			else
+				spr->on_unfreeze();
 		}
 
 		if (!freeze_sprite)

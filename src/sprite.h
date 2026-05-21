@@ -87,6 +87,8 @@ public:
     // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_guys`
     // is true (which is when the player is holding up an item); or when they are out of the viewport.
     bool canfreeze;
+    bool is_frozen = false;
+    bool is_within_freeze_viewport = true;
     double angle; // TODO: bad for replays
     int32_t lasthit, lasthitclk;
     int32_t dummy_int[10];
@@ -157,6 +159,8 @@ public:
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int32_t index);
 	virtual void post_animate();
+	virtual void on_freeze() {}
+	virtual void on_unfreeze() {}
 	//virtual void solid_push(solid_object* pusher);
 	
 	virtual bool hardcoded_sideview_hitbox() const;

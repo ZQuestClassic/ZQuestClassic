@@ -163,6 +163,7 @@ public:
 	bool hardcoded_sideview_hitbox() const;
 	newcombo const* check_conveyor();
     void limited_animate();
+    virtual void on_freeze();
     virtual bool animate(int32_t index);
 	std::set<rpos_t> getBombPositions();
 	bool collide_solid() const;
