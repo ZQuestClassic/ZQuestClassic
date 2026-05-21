@@ -881,7 +881,7 @@ def run_replays(
     timeout=True,
     retries=0,
     on_update=Callable[[], RunReplayTestsProgress],
-):
+) -> ReplayTestResults:
     test_results = ReplayTestResults(
         runs_on=runs_on,
         arch=arch,

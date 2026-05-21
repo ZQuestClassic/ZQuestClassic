@@ -61,6 +61,7 @@ from time import sleep
 import cutie
 
 from common import get_recent_release_tag, get_release_platform
+from lib.replay_helpers import read_replay_meta
 from compare_replays import (
     collect_many_test_results_from_ci,
     collect_many_test_results_from_dir,
@@ -71,6 +72,7 @@ from github import Github
 from replays import (
     Replay,
     RunReplayTestsProgress,
+    ReplayTestResults,
     RunResult,
     configure_estimate_multiplier,
     estimate_fps,
@@ -598,7 +600,7 @@ def prompt_for_gh_auth():
     return Github(token), repo
 
 
-def prompt_to_create_compare_report():
+def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestResults]):
     if not cutie.prompt_yes_or_no(
         'Would you like to generate a compare report?', default_is_yes=True
     ):
@@ -671,25 +673,41 @@ def prompt_to_create_compare_report():
                 ).strip()
                 most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
             except e as Exception:
-                print('error finding latest stable version, using 2.55.9 instead')
+                print('error finding latest stable version, using 2.55.14 instead')
                 print(e)
-                most_recent_stable = '2.55.9'
+                most_recent_stable = '2.55.14'
+
+            choices = [
+                (f'Most recent nightly ({most_recent_nightly})', most_recent_nightly),
+                (f'Most recent stable ({most_recent_stable})', most_recent_stable),
+            ]
+
+            failed_replay_zc_versions = set()
+            for test_result in failing_test_results_list:
+                for run in test_result.runs[-1]:
+                    if run.success:
+                        continue
+
+                    meta = read_replay_meta(Path(run.path))
+                    zc_version = meta.get('zc_version_updated') or meta.get(
+                        'zc_version_created'
+                    )
+                    if not zc_version:
+                        continue
+
+                    zc_version = zc_version.replace('.local', '')
+                    if zc_version in failed_replay_zc_versions:
+                        continue
+
+                    choices.append(
+                        (f'Failed replay ZC version ({zc_version})', zc_version)
+                    )
+                    failed_replay_zc_versions.add(zc_version)
 
             print('Select a release build to use: ')
-            selected_index = cutie.select(
-                [
-                    # TODO
-                    # 'Most recent passing build from CI',
-                    f'Most recent nightly ({most_recent_nightly})',
-                    f'Most recent stable ({most_recent_stable})',
-                ]
-            )
+            selected_index = cutie.select([c[0] for c in choices])
             print()
-
-            if selected_index == 0:
-                tag = most_recent_nightly
-            elif selected_index == 1:
-                tag = most_recent_stable
+            tag = choices[selected_index][1]
 
         release_platform = get_release_platform()
         build_dir = archives.download(tag, release_platform)
@@ -736,7 +754,7 @@ def prompt_to_create_compare_report():
         )
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
 
-    test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
+    test_runs.extend(failing_test_results_list)
 
     create_compare_report(test_runs)
     start_webserver()
@@ -750,7 +768,8 @@ if test_results_dir.exists() and next(
     if is_ci:
         print('this is unexpected')
         exit(1)
-    prompt_to_create_compare_report()
+    many_test_results = collect_many_test_results_from_dir(test_results_dir)
+    prompt_to_create_compare_report(many_test_results)
     exit(0)
 
 
@@ -1030,7 +1049,9 @@ if mode == 'assert':
             and interactive
             and sys.stdout.isatty()
         ):
-            prompt_to_create_compare_report()
+            prompt_to_create_compare_report(
+                collect_many_test_results_from_dir(test_results_dir)
+            )
         exit(2)
 else:
     # We should still return a failing exit code if any replay failed to run, or had an
