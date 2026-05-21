@@ -3647,6 +3647,7 @@ void weapon::limited_animate()
 				id = parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				weap_timeout = 0;
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
@@ -4898,6 +4899,7 @@ bool weapon::animate(int32_t index)
 			{
 				id = (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				weap_timeout = 0;
 				hxofs=2000;
 			}
 			
@@ -7322,11 +7324,12 @@ offscreenCheck:
     case ewBomb:
         step=0;
         break;
-        
+
     case ewLitBomb:
         step=0;
         misc=50;
         clk=misc-3;
+        weap_timeout = 0;
         hxofs=hyofs=-7;
         hit_width=hit_height=30;
         break;
@@ -7339,6 +7342,7 @@ offscreenCheck:
         step=0;
         misc=50;
         clk=misc-3;
+        weap_timeout = 0;
         hxofs=hyofs=-16;
         hit_width=hit_height=48;
         break;
@@ -7579,6 +7583,7 @@ void weapon::kill_weapon_special()
 			{
 				misc = 50;
 				clk = misc - 3;
+				weap_timeout = 0;
 			}
 			
 			// broke already by exploding
