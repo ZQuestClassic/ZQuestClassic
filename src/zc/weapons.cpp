@@ -3253,6 +3253,7 @@ void weapon::limited_animate()
 				id = valid_item_id(parentitem) ? ((itemsbuf.get(parentitem).type==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				weap_timeout = 0;
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
@@ -4283,6 +4284,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			{
 				id = (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb);
 				misc_wflags &= ~(WFLAG_BREAK_ON_SOLID|WFLAG_BREAK_WHEN_LANDING);
+				weap_timeout = 0;
 				hxofs=2000;
 			}
 			
@@ -6777,9 +6779,10 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 			// the collision that booms should count against the pierce
 			--pierce_count;
 		}
-        step=0;
-        misc=50;
-        clk=misc-3;
+		step = 0;
+		misc = 50;
+		clk = misc-3;
+		weap_timeout = 0;
 		if(id == ewLitBomb)
 		{
 			hxofs=hyofs=-7;
@@ -7008,6 +7011,7 @@ void weapon::kill_weapon_special()
 			{
 				misc = 50;
 				clk = misc - 3;
+				weap_timeout = 0;
 			}
 			
 			// broke already by exploding
