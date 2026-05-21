@@ -5314,17 +5314,23 @@ int32_t onLife()
 int32_t onHeartC()
 {
 	if (auto num = call_get_num("Heart Containers", game->get_maxlife()/game->get_hp_per_heart(), 65535/game->get_hp_per_heart(), 1))
+	{
 		cheats_enqueue(Cheat::MaxLife, *num * game->get_hp_per_heart());
-	onLife();
+		
+		if (auto num2 = call_get_num("Life", game->get_life()/game->get_hp_per_heart(), *num, 1))
+			cheats_enqueue(Cheat::Life, *num2 * game->get_hp_per_heart());
+	}
 	return D_O_K;
 }
 
 int32_t onMagicC()
 {
 	if (auto num = call_get_num("Magic Containers", game->get_maxmagic()/game->get_mp_per_block(), 65535/game->get_mp_per_block(), 0))
+	{
 		cheats_enqueue(Cheat::MaxMagic, *num * game->get_mp_per_block());
-	if (auto num = call_get_num("Magic", game->get_magic()/game->get_mp_per_block(), game->get_maxmagic()/game->get_mp_per_block(), 0))
-		cheats_enqueue(Cheat::Magic, *num * game->get_mp_per_block());
+		if (auto num2 = call_get_num("Magic", game->get_magic()/game->get_mp_per_block(), *num, 0))
+			cheats_enqueue(Cheat::Magic, *num2 * game->get_mp_per_block());
+	}
 	return D_O_K;
 }
 
