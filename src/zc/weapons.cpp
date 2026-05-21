@@ -3242,7 +3242,7 @@ void weapon::limited_animate()
 		case wLitSBomb:
 		case wSBomb:
 		{
-			if(!misc)
+			if(misc <= 0)
 				break;
 			
 			bool fixboom = !get_qr(qr_BROKEN_MOVING_BOMBS);
@@ -4269,7 +4269,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		case ewLitSBomb:
 		case ewSBomb:
 		{
-			if(!misc)
+			if(misc <= 0)
 			{
 				break;
 			}
@@ -7246,7 +7246,7 @@ void weapon::animate_graphics()
 		case wBomb: case wSBomb:
 		case ewBomb: case ewSBomb:
 		{
-			if(!misc || clk<misc-2) break;
+			if(misc <= 0 || clk<misc-2) break;
 			if (!suspt)
 			{
 				// draw the explosion
@@ -7485,7 +7485,7 @@ void weapon::draw(BITMAP *dest)
 		case ewBomb:
 		case ewSBomb:
 		{
-			if(!misc || clk<misc-2) break;
+			if(misc <= 0 || clk<misc-2) break;
 			int x0 = x - viewport.x;
 			int y0 = y - viewport.y;
 			overtile16(dest,tile,x0+((clk&1)?7:-7),y0+yofs-fakez-13-(z+zofs),cs,0);
