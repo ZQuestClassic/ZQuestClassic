@@ -300,6 +300,19 @@ do { \
 	} \
 } while(0)
 
+// On main this lives in zalleg/zalleg.cpp; only drawing.cpp needs it on this branch.
+static void zalleg_update_bmp_size(BITMAP** bmp_ptr, int w, int h)
+{
+	BITMAP* bmp = *bmp_ptr;
+	if (bmp)
+	{
+		if (bmp->w == w && bmp->h == h)
+			return;
+		destroy_bitmap(bmp);
+	}
+	*bmp_ptr = create_bitmap_ex(8, w, h);
+}
+
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color)
 {
 	int32_t wid = zc_min(dest->w, src->w);
@@ -451,13 +464,40 @@ void custom_bmp_dither(BITMAP* dest, BITMAP* src, std::function<bool(int,int,int
 	}
 }
 
-void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
+void dithercircfill(BITMAP* dest, int32_t cx, int32_t cy, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
-	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_bitmap(tmp);
-	circlefill(tmp, x, y, rad, 1);
-	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
-	destroy_bitmap(tmp);
+	int32_t wid = dest->w;
+	int32_t hei = dest->h;
+
+	int32_t x1 = zc_max(cx - rad, 0);
+	int32_t y1 = zc_max(cy - rad, 0);
+	int32_t x2 = zc_min(cx + rad, dest->w - 1);
+	int32_t y2 = zc_min(cy + rad, dest->h - 1);
+	if (dest->clip)
+	{
+		x1 = zc_max(x1, dest->cl);
+		y1 = zc_max(y1, dest->ct);
+		x2 = zc_min(x2, dest->cr - 1);
+		y2 = zc_min(y2, dest->cb - 1);
+	}
+
+	// +rad/2 gets this closer (but not quite exact) to how circlefill works.
+	int32_t rad_sq = rad * rad + rad/2;
+	DO_DITHER_OPTIMIZED(ditherType, ditherArg, wid, hei, check_func,
+	{
+		for (int32_t ty = y1; ty <= y2; ++ty)
+		{
+			int32_t dy = ty - cy;
+			int32_t dy_sq = dy * dy;
+			uint8_t* write_addr = (uint8_t*)dest->line[ty];
+			for (int32_t tx = x1; tx <= x2; ++tx)
+			{
+				int32_t dx = tx - cx;
+				if (dx * dx + dy_sq <= rad_sq && check_func(tx + xoffs, ty + yoffs))
+					write_addr[tx] = (uint8_t)color;
+			}
+		}
+	});
 }
 void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 	byte dType, byte dArg, int xoffs, int yoffs, optional<int> inv_color)
@@ -840,11 +880,11 @@ void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, 
 
 void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
 {
-	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_bitmap(tmp);
-	lampcone(tmp, sx, sy, range, dir, 1);
-	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
-	destroy_bitmap(tmp);
+	static BITMAP* dither_tmp_bmp;
+	zalleg_update_bmp_size(&dither_tmp_bmp, dest->w, dest->h);
+	clear_bitmap(dither_tmp_bmp);
+	lampcone(dither_tmp_bmp, sx, sy, range, dir, 1);
+	ditherblit(dest, dither_tmp_bmp, color, ditherType, ditherArg, xoffs, yoffs);
 }
 
 void monocolor(BITMAP* dest, byte col, byte transp_passes)
