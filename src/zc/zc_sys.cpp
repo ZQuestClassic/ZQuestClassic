@@ -3045,13 +3045,13 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					if(scr->flags&fWHISTLE)
 					{
 						tempitem=getItemID(itype_whistle,1);
-						int32_t tempitemx=-16+offx;
-						int32_t tempitemy=-16+offy-playing_field_offset;
+						int32_t tempitemx=-16;
+						int32_t tempitemy=-16;
 						
 						if (blink_on)
 						{
-							tempitemx=scr->stairx+offx;
-							tempitemy=scr->stairy+offy;
+							tempitemx=scr->stairx+offx+viewport.x;
+							tempitemy=scr->stairy+offy+viewport.y;
 						}
 						
 						draw_lens_hint_item(dest, tempitemx, tempitemy, tempitem, 0);
