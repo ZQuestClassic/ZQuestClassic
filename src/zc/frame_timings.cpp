@@ -1,4 +1,5 @@
 // Logs to allegro.log a simple summary of how expensive each frame was to process.
+// Also emits markers for a profiler (OSX only).
 
 #include "zc/frame_timings.h"
 #include "allegro/debug.h"
@@ -9,10 +10,20 @@
 #include <limits>
 #include <vector>
 
+#ifdef __APPLE__
+#include <os/signpost.h>
+#endif
+
 static std::vector<uint32_t> timings;
 static std::chrono::time_point<std::chrono::steady_clock> last_time;
 static bool has_registered_exit_handler;
 static bool is_enabled;
+
+#ifdef __APPLE__
+static os_log_t profilerLog;
+static os_signpost_id_t spid;
+static bool profiler_interval_active;
+#endif
 
 void frame_timings_init(bool enable)
 {
@@ -36,6 +47,13 @@ void frame_timings_init(bool enable)
 		std::atexit(frame_timings_end);
 	}
 
+#ifdef __APPLE__
+	profilerLog = os_log_create("com.zquestclassic.app", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
+	spid = os_signpost_id_generate(profilerLog);
+	os_signpost_interval_begin(profilerLog, spid, "Frame", "frame 1");
+	profiler_interval_active = true;
+#endif
+
 	al_trace("DEBUG: -frame-timings is on\n");
 }
 
@@ -51,12 +69,25 @@ void frame_timings_poll()
 	else
 		timings.push_back(std::numeric_limits<uint32_t>::max());
 	last_time = now;
+
+#ifdef __APPLE__
+	os_signpost_interval_end(profilerLog, spid, "Frame");
+	os_signpost_interval_begin(profilerLog, spid, "Frame", "frame %zu", timings.size() + 1);
+#endif
 }
 
 void frame_timings_end()
 {
 	if (timings.empty())
 		return;
+
+#ifdef __APPLE__
+	if (profiler_interval_active)
+	{
+		os_signpost_interval_end(profilerLog, spid, "Frame");
+		profiler_interval_active = false;
+	}
+#endif
 
 	#define MICRO(ms) ((int)(ms*1000))
 	int thresholds[5] = {MICRO(1), MICRO(5), MICRO(10), MICRO(16.666), MICRO(30)};
