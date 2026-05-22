@@ -268,7 +268,7 @@ int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
-int32_t home_screen,frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+int32_t home_screen,global_frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 dword light_wave_clk = 0;
 bool scrolling_using_new_region_coords;
 int32_t cur_screen=0;
@@ -1573,10 +1573,10 @@ void init_game_vars(bool is_cont_game = false)
 		ALLOFF(true,true,true);
 	}
 
-	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
+	// Various things use the global_frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
 	// same way, even if manually started in the ZC UI.
-    frame = 0;
+	global_frame = 0;
 
 	origin_scr = nullptr;
 	hero_scr = nullptr;
@@ -2261,7 +2261,7 @@ int32_t init_game()
 		loadguys();
 	}
 
-	newscr_clk = frame;
+	newscr_clk = global_frame;
 	
 	if(isdungeon() && cur_dmap>0) // cur_dmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
 	{
@@ -2444,7 +2444,7 @@ int32_t cont_game()
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
-		newscr_clk=frame;
+		newscr_clk=global_frame;
 		activated_timed_warp=false;
 		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
@@ -2549,7 +2549,7 @@ void restart_level()
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
-		newscr_clk=frame;
+		newscr_clk=global_frame;
 		activated_timed_warp=false;
 		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
@@ -3102,7 +3102,7 @@ void do_dcounters()
         }
         
 		word sfx_to_use = 0;
-        if(frame&1)
+        if(global_frame&1)
         {
             if(game->get_dcounter(i)>0)
             {
@@ -3496,12 +3496,12 @@ void game_loop()
 				if (drawPassiveSubscreenSeparate)
 				{
 					// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
-					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1, true);
-					draw_lens_hint_sprite(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1);
+					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
+					draw_lens_hint_sprite(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
 				}
 				else
 				{
-					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, -1);
+					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
 				}
 			}
 		}
@@ -3554,7 +3554,7 @@ void game_loop()
 				auto const& itm = get_item_data(itemid);
 				int32_t fskip = itm.misc2;
 				
-				if(fskip == 0 || frame % fskip == 0)
+				if(fskip == 0 || global_frame % fskip == 0)
 					game->set_life(zc_min(game->get_life() + itm.misc1, game->get_maxlife()));
 			}
 			if(!freezemsg && current_item(itype_magicring))
@@ -3563,7 +3563,7 @@ void game_loop()
 				auto const& itm = get_item_data(itemid);
 				int32_t fskip = itm.misc2;
 				
-				if(fskip == 0 || frame % fskip == 0)
+				if(fskip == 0 || global_frame % fskip == 0)
 				{
 					game->set_magic(zc_min(game->get_magic() + itm.misc1, game->get_maxmagic()));
 				}
@@ -3574,7 +3574,7 @@ void game_loop()
 				auto const& itm = get_item_data(itemid);
 				int32_t fskip = itm.misc2;
 				
-				if(fskip == 0 || frame % fskip == 0)
+				if(fskip == 0 || global_frame % fskip == 0)
 				{
 					game->set_rupies(zc_min(game->get_rupies() + itm.misc1, game->get_maxcounter(1)));
 				}
@@ -3588,7 +3588,7 @@ void game_loop()
 				{
 					int32_t fskip = itm.misc2;
 					
-					if(fskip == 0 || frame % fskip == 0)
+					if(fskip == 0 || global_frame % fskip == 0)
 					{
 						game->set_bombs(zc_min(game->get_bombs() + itm.misc1, game->get_maxbombs()));
 					}
@@ -3599,7 +3599,7 @@ void game_loop()
 						
 						fskip = itm.misc2 * ratio;
 						
-						if(fskip == 0 || frame % fskip == 0)
+						if(fskip == 0 || global_frame % fskip == 0)
 						{
 							game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itm.misc1 / ratio, 1), game->get_maxbombs() / ratio));
 						}
@@ -3612,7 +3612,7 @@ void game_loop()
 				auto const& itm = get_item_data(itemid);
 				int32_t fskip = itm.misc2;
 				
-				if (fskip == 0 || frame % fskip == 0)
+				if (fskip == 0 || global_frame % fskip == 0)
 				{
 					game->set_arrows(zc_min(game->get_arrows() + itm.misc1, game->get_maxarrows()));
 				}
@@ -3634,7 +3634,7 @@ void game_loop()
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset += (int32_t)(zc::math::Sin((double)(--quakeclk*2-frame)) * 4);
+				playing_field_offset += (int32_t)(zc::math::Sin((double)(--quakeclk*2-global_frame)) * 4);
 			}
 			
 		if ( previous_DMap != cur_dmap )
@@ -3655,7 +3655,7 @@ void runDrunkRNG(){
 	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
 	//Index 0-10 refer to control_state[0]-[10]
 	for(int32_t i = 0; i<sizeof(drunk_toggle_state); i++){
-		if((!(frame%((zc_oldrand(&drunk_rng)%100)+1)))&&(zc_oldrand(&drunk_rng)%MAXDRUNKCLOCK<Hero.DrunkClock())){
+		if((!(global_frame%((zc_oldrand(&drunk_rng)%100)+1)))&&(zc_oldrand(&drunk_rng)%MAXDRUNKCLOCK<Hero.DrunkClock())){
 			drunk_toggle_state[i] = (zc_oldrand(&drunk_rng)%2)?true:false;
 		} else {
 			drunk_toggle_state[i] = false;
@@ -5113,10 +5113,10 @@ bool checkmagiccost(int32_t itemid, bool checkTime)
 		return false;
 	itemdata const& id = itemsbuf.get(itemid);
 	bool ret = true;
-	if(!checkTime || !id.magiccosttimer[0] || !(frame%id.magiccosttimer[0]))
+	if(!checkTime || !id.magiccosttimer[0] || !(global_frame%id.magiccosttimer[0]))
 		ret = checkCost(id.cost_counter[0], id.cost_amount[0]);
 	if(!ret) return false;
-	if(!checkTime || !id.magiccosttimer[1] || !(frame%id.magiccosttimer[1]))
+	if(!checkTime || !id.magiccosttimer[1] || !(global_frame%id.magiccosttimer[1]))
 		ret = checkCost(id.cost_counter[1], id.cost_amount[1]);
 	return ret;
 }
@@ -5125,7 +5125,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 {
 	if(!game) return;
 	if(!amnt) return;
-	if(tmr > 0 && !ignoreTimer && (frame%tmr))
+	if(tmr > 0 && !ignoreTimer && (global_frame%tmr))
 		return;
 	bool cost = amnt > 0;
 	switch(ctr)

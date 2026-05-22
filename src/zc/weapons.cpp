@@ -2662,6 +2662,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 		}
 		case wPhantom:
 		{
+			bool kill_flash = false;
 			if(spr)
 				ret = *spr;
 			else
@@ -2690,6 +2691,8 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 						
 					case pMESSAGEMORE:
 						ret = iwMore;
+						if (get_qr(qr_NO_FLASHING_MSG_MORE))
+							kill_flash = true;
 						break;
 						
 					case pDIVINEPROTECTIONROCKET2:
@@ -2716,6 +2719,8 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 			}
 			if(ret)
 				LOADGFX(*ret);
+			if (kill_flash)
+				flash = 0;
 			break;
 		}
 		default:
@@ -7173,12 +7178,12 @@ void weapon::animate_graphics()
 			if(!BSZ)
 			{
 				cs = (id==wBeam || id==wRefBeam) ? 6 : o_cset&15;
-				cs += frame&3;
+				cs += global_frame&3;
 			}
 			else
 			{
 				if(id==wBeam || id==wRefBeam)
-					cs = ((frame>>2)&1)+7;
+					cs = ((global_frame>>2)&1)+7;
 				else
 				{
 					cs = o_cset&15;
@@ -7243,7 +7248,7 @@ void weapon::animate_graphics()
 		case wBeam: case wRefBeam:
 		{
 			if(dead == -1) break;
-			int32_t f = frame&3;
+			int32_t f = global_frame&3;
 			update_weapon_frame(((frames?frames:1)*2),ref_o_tile);
 			
 			if(o_type)
@@ -7478,7 +7483,7 @@ void weapon::draw(BITMAP *dest)
 			{
 				// draw the beam shards
 				int32_t ofs=23-dead;
-				int32_t f = frame&3;
+				int32_t f = global_frame&3;
 				
 				int beam_x = x - viewport.x;
 				int beam_y = y + playing_field_offset - viewport.y;
@@ -7540,7 +7545,7 @@ void weapon::draw(BITMAP *dest)
 				case pDIVINEPROTECTIONROCKETRETURN2:
 				case pDIVINEPROTECTIONROCKETTRAIL2:
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1 ? 1 : 0)&&!(frame&1))
+					if (valid_item_id(parentitem) && (itemsbuf.get(parentitem).flags & item_flag1 ? 1 : 0)&&!(global_frame&1))
 						return;
 					break;
 			}

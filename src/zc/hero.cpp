@@ -770,7 +770,7 @@ void HeroClass::ClearhitHeroUIDs()
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) 	
 	{
 		/*
-		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 
+		if ( lastHitBy[q][1] == (global_frame-1) ) //Verify if this is needed at all now. 
 		{
 			//Z_scripterrlog("frame is: %d\n", frame);
 			//Z_scripterrlog("Player->HitBy frame is: %d\n", lastHitBy[q][1]);
@@ -1518,7 +1518,7 @@ int32_t HeroClass::getFlashingCSet()
 	{
 		if (superman && getCanFlicker())
 		{
-			temp_cs += (((~frame) >> 1) & 3);
+			temp_cs += (((~global_frame) >> 1) & 3);
 		}
 		else if (hclk && (DivineProtectionShieldClk <= 0) && getCanFlicker())
 		{
@@ -1535,7 +1535,7 @@ bool HeroClass::is_hitflickerframe()
 	int32_t fr = game->get_spriteflickerspeed();
 	if (fr == 0)
 		return true;
-	return frame % (fr * 2) >= fr;
+	return global_frame % (fr * 2) >= fr;
 }
 int32_t  HeroClass::getAction() // Used by ZScript
 {
@@ -2484,7 +2484,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     
     if(charging> (valid_item_id(itemid2) ? itemsbuf.get(itemid2).misc1 : 64))
     {
-        cs2=(BSZ ? (frame&3)+6 : ((frame>>2)&1)+7);
+        cs2=(BSZ ? (global_frame&3)+6 : ((global_frame>>2)&1)+7);
     }
     
     w->x = x+wx;
@@ -2624,7 +2624,7 @@ void HeroClass::draw(BITMAP* dest)
 						// Stone of Agony
 						if(agony)
 						{
-							w->y-=!(frame%zc_max(60-agony_item.misc1,2))?1:0;
+							w->y-=!(global_frame%zc_max(60-agony_item.misc1,2))?1:0;
 						}
 					}
 					
@@ -2694,7 +2694,7 @@ void HeroClass::draw(BITMAP* dest)
 					// Stone of Agony
 					if(agony)
 					{
-						yofs-=!(frame%zc_max(60-agony_item.misc1,3))?1:0;
+						yofs-=!(global_frame%zc_max(60-agony_item.misc1,3))?1:0;
 					}
 
 					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
@@ -2850,7 +2850,7 @@ void HeroClass::draw(BITMAP* dest)
 				// Stone of Agony
 				if(agony)
 				{
-					wy-=!(frame%zc_max(60-agony_item.misc1,3))?1:0;
+					wy-=!(global_frame%zc_max(60-agony_item.misc1,3))?1:0;
 				}
 				
 				w->x = x+wx;
@@ -2926,7 +2926,7 @@ void HeroClass::draw(BITMAP* dest)
 					if(inwater)
 					{
 						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
-						if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
+						if(advancetile) tile+=((global_frame>>3) & 1)*(extend==2?2:1);
 					}
 					else
 					{
@@ -2936,12 +2936,12 @@ void HeroClass::draw(BITMAP* dest)
 				else if(action==lavadrowning)
 				{
 					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-					if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					if(advancetile) tile+=((global_frame>>3) & 1)*(extend==2?2:1);
 				}
 				else if(action==sidedrowning)
 				{
 					herotile(&tile, &flip, &extend, ls_sidedrown, up, zinit.heroAnimationStyle);
-					if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					if(advancetile) tile+=((global_frame>>3) & 1)*(extend==2?2:1);
 				}
 				else if (action == sideswimming || action == sideswimhit)
 				{
@@ -2978,7 +2978,7 @@ void HeroClass::draw(BITMAP* dest)
 					if(isDiving())
 					{
 						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
-						if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
+						if(advancetile) tile+=((global_frame>>3) & 1)*(extend==2?2:1);
 					}
 				}
 				else if(charging > 0 && attack != wHammer)
@@ -3304,7 +3304,7 @@ void HeroClass::draw(BITMAP* dest)
 		// Stone of Agony
 		if(agony)
 		{
-			yofs-=!(frame%zc_max(60-agony_item.misc1,3))?1:0;
+			yofs-=!(global_frame%zc_max(60-agony_item.misc1,3))?1:0;
 		}
 		
 		if(is_hitflickerframe())
@@ -7575,7 +7575,7 @@ void HeroClass::addsparkle(int32_t wpn)
         
     int32_t itemtype = itm.type;
     
-    if(itemtype!=itype_cbyrna && frame%4)
+    if(itemtype!=itype_cbyrna && global_frame%4)
         return;
         
     int32_t wpn2 = itm.wpn_sprites[(itemtype==itype_cbyrna) ? 3 : 1];
@@ -7628,7 +7628,7 @@ void HeroClass::addsparkle(int32_t wpn)
 // For wPhantoms
 void HeroClass::addsparkle2(int32_t type1, int32_t type2)
 {
-    if(frame%4) return;
+    if(global_frame%4) return;
     
     int32_t arrow = -1;
     
@@ -9860,7 +9860,7 @@ heroanimate_skip_liftwpn:;
 		
 		bool shouldbreak = (action == sideswimhit || action == swimhit); //!DIMITODO: "Can walk while hurt" compat needs to be added here.
 		
-		if((frame&1) && !shouldbreak)
+		if((global_frame&1) && !shouldbreak)
 			herostep();
 		
 		if (_walkflag(x+7,y+(bigHitbox?6:11),1,get_standing_z_state())
@@ -9970,7 +9970,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(hopclk!=0xFF) ilswim=false;
 	
-	if((!loaded_guys) && (frame - newscr_clk >= 1))
+	if((!loaded_guys) && (global_frame - newscr_clk >= 1))
 	{
 		if(hero_scr->room==rGANON)
 		{
@@ -9982,7 +9982,7 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
-	if(frame - newscr_clk >= 2)
+	if(global_frame - newscr_clk >= 2)
 	{
 		loadenemies();
 	}
@@ -10348,7 +10348,7 @@ heroanimate_skip_liftwpn:;
 	}
 	else if (getInput(btnS, INPUT_PRESS | INPUT_HERO_ACTION))
 	{
-		int32_t tmp_subscr_clk = frame;
+		int32_t tmp_subscr_clk = global_frame;
 		
 		int32_t save_type = 0;
 		switch(lsave)
@@ -10363,7 +10363,7 @@ heroanimate_skip_liftwpn:;
 			{
 				conveyclk=3;
 				dosubscr(false);
-				newscr_clk += frame - tmp_subscr_clk;
+				newscr_clk += global_frame - tmp_subscr_clk;
 			}
 			break;
 		}
@@ -13481,7 +13481,7 @@ void HeroClass::do_hopping()
         {
             herostep();
             
-            if(!isDiving() || (frame&1))
+            if(!isDiving() || (global_frame&1))
             {
                 switch(dir)
                 {
@@ -13738,7 +13738,7 @@ void HeroClass::do_hopping()
                     
                 int32_t xofs2 = x.getInt()&15;
                 int32_t yofs2 = y.getInt()&15;
-                int32_t s = 1 + (frame&1);
+                int32_t s = 1 + (global_frame&1);
                 
                 switch(dir)
                 {
@@ -20002,7 +20002,7 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 		if(++hero_count > (16*hero_animation_speed))
 			hero_count=0;
 	}
-	else if(!(frame & 1))
+	else if(!(global_frame & 1))
 	{
 		herostep();
 	}
@@ -20307,7 +20307,7 @@ void HeroClass::moveOld(int32_t d2)
         if(++hero_count > (16*hero_animation_speed))
             hero_count=0;
     }
-    else if(!(frame & 1))
+    else if(!(global_frame & 1))
     {
         herostep();
     }
@@ -20580,7 +20580,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		if(++hero_count > (16*hero_animation_speed))
 			hero_count=0;
 	}
-	else if(!(frame & 1))
+	else if(!(global_frame & 1))
 	{
 		herostep();
 	}
@@ -25955,7 +25955,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 		set_engine_invis(false);
 		stepforward(diagonalMovement?16:18, false);
-		newscr_clk=frame;
+		newscr_clk=global_frame;
 		activated_timed_warp=false;
 		stepoutindex=index;
 		stepoutscreen = warp_screen_2;
@@ -26609,7 +26609,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		SetSwim();
 	}
 	
-	newscr_clk=frame;
+	newscr_clk=global_frame;
 	activated_timed_warp=false;
 	eat_buttons();
 	
@@ -26826,7 +26826,7 @@ void HeroClass::exitcave()
 		playLevelMusic();
     currcset=DMaps[cur_dmap].color;
     dointro();
-    newscr_clk=frame;
+    newscr_clk=global_frame;
     activated_timed_warp=false;
     dir=down;
     set_respawn_point();
@@ -27380,7 +27380,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         walkdown2(false);
     }
     
-    newscr_clk=frame;
+    newscr_clk=global_frame;
     activated_timed_warp=false;
     didstuff=0;
 	usecounts.clear();
@@ -29805,7 +29805,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			if (is_unsmooth_vertical_scrolling) y += 3;
 			yofs = playing_field_offset;
 
-			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
+			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || global_frame&1))
 			{
 				drawshadow(framebuf, get_qr(qr_TRANSSHADOWS) != 0);
 			}
@@ -30106,7 +30106,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			sprite->yofs = playing_field_offset;
 	}
 
-	newscr_clk = frame;
+	newscr_clk = global_frame;
 	activated_timed_warp=false;
 	loadside = scrolldir^1;
 	FFCore.clear_combo_scripts();
@@ -32636,9 +32636,9 @@ void HeroClass::ganon_intro()
         if(getInput(btnS, INPUT_PRESS))
         {
             conveyclk=3;
-            int32_t tmp_subscr_clk = frame;
+            int32_t tmp_subscr_clk = global_frame;
             dosubscr(false);
-            newscr_clk += frame - tmp_subscr_clk;
+            newscr_clk += global_frame - tmp_subscr_clk;
         }
         
     }

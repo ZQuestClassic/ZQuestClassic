@@ -7046,7 +7046,7 @@ void enemy::update_enemy_frame()
 		}
 		else
 		{
-			if(frame&4)
+			if(global_frame&4)
 			{
 				++tile;
 			}
@@ -7112,7 +7112,7 @@ void enemy::update_enemy_frame()
 				}
 			}
 			
-			tile+=((frame>>1)&3);
+			tile+=((global_frame>>1)&3);
 		}
 	}
 	break;
@@ -7773,7 +7773,7 @@ waves2:
 //  if(d->flags & guy_flashing)
 	if(flags & guy_flashing)
 	{
-		cs = (frame&3) + 6;
+		cs = (global_frame&3) + 6;
 	}
 	
 	if(flags&guy_transparent)
@@ -9147,7 +9147,7 @@ bool eWallM::animate(int32_t index)
 	hxofs=1000;
 	if(misc==0) //inside wall, ready to spawn?
 	{
-		if(frame-wallm_load_clk>80 && clk>=0)
+		if(global_frame-wallm_load_clk>80 && clk>=0)
 		{
 			int32_t wall=hero_on_wall();
 			int32_t wallm_cnt=0;
@@ -9169,7 +9169,7 @@ bool eWallM::animate(int32_t index)
 				misc=1; //emerging from the wall?
 				clk2=0;
 				clk3=wall^1;
-				wallm_load_clk=frame;
+				wallm_load_clk=global_frame;
 				
 				if(wall<=down)
 				{
@@ -13530,7 +13530,7 @@ void eGanon::draw_flash(BITMAP *dest)
 {
 
 	int32_t c = clk-(clk>>2);
-	cs = (frame&3)+6;
+	cs = (global_frame&3)+6;
 	overtile16(dest,194,x+8-viewport.x,y+8-clk+playing_field_offset-viewport.y,cs,0);
 	overtile16(dest,194,x+8-viewport.x,y+8+clk+playing_field_offset-viewport.y,cs,2);
 	overtile16(dest,195,x+8-clk-viewport.x,y+8+playing_field_offset-viewport.y,cs,0);
@@ -18405,7 +18405,7 @@ void load_default_enemies(mapscr* scr)
 	int screen = scr->screen;
 	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
 
-	wallm_load_clk=frame-80;
+	wallm_load_clk=global_frame-80;
 	
 	if(scr->flags11&efZORA)
 	{
@@ -21639,7 +21639,7 @@ int32_t enemy::getFlashingCSet()
 	{
 		//Special cset for the flashing animation
 		if (flags & guy_flashing)
-			return (frame & 3) + 6;
+			return (global_frame & 3) + 6;
 		return cs;
 	}
 
@@ -21663,7 +21663,7 @@ bool enemy::is_hitflickerframe(bool olddrawing)
 	int32_t fr = game->get_spriteflickerspeed();
 	if (fr == 0)
 		return true;
-	return frame % (fr * 2) < fr;
+	return global_frame % (fr * 2) < fr;
 }
 
 const char *old_guy_string[OLDMAXGUYS] =

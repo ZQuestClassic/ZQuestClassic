@@ -76,7 +76,7 @@ static ArrayRegistrar MOUSEARR_registrar(MOUSEARR, []{
 					return get_mouse_state(0) * 10000;
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-global_frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					return (get_mouse_state(1)-tempoffset) * 10000;
 				}
@@ -102,7 +102,7 @@ static ArrayRegistrar MOUSEARR_registrar(MOUSEARR, []{
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-global_frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					auto [x, y] = rti_game.local_to_world(mouse_x, value / 10000 + tempoffset);
 					position_mouse(x, y);

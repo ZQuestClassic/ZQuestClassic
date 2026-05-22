@@ -1117,6 +1117,8 @@ static GUI::ListData compatRulesList
 		"When enabled, Bridge combos won't cover certain things, like Warp/Step/Save/Slash combos,"
 		" Step->/Dive-> combo triggers, Fairy Ring / Weapon placed flags, etc."
 		" Also, bridges on layers above 2 will not affect most things." },
+	{ "Message 'More...' ignores flashing settings", qr_NO_FLASHING_MSG_MORE,
+		"When enabled, the 'More...' icon for strings will never flash." },
 };
 
 static GUI::ListData enemiesRulesList

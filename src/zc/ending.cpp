@@ -536,14 +536,14 @@ void ending()
 	
 	do
 	{
-		if(frame&1)
+		if(global_frame&1)
 		{
 			overtile16(framebuf,176,120,129,9,0);
 		}
 		
-		overtile16(framebuf,175,120,129,((frame&8)>>3)+7,0);
+		overtile16(framebuf,175,120,129,((global_frame&8)>>3)+7,0);
 		
-		if(!(frame&1))
+		if(!(global_frame&1))
 		{
 			overtile16(framebuf,176,120,129,9,0);
 		}

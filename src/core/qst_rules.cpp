@@ -857,6 +857,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_MINIMAP_VISITED_CHARTED, 1);
 		set_qr(qr_QUAKE_HAMMER_IN_AIR, 1);
 	}
+	if (compatrule_version < 114)
+	{
+		set_qr(qr_NO_FLASHING_MSG_MORE, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

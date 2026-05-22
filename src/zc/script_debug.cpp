@@ -73,7 +73,7 @@ void ScriptDebugHandle::update_file()
 
 	if (output_split == OutputSplit::ByFrame)
 	{
-		int counter = replay_is_active() ? replay_get_frame() : frame;
+		int counter = replay_is_active() ? replay_get_frame() : global_frame;
 		if (!file || counter != file_counter)
 		{
 			if (file)

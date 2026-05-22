@@ -2197,8 +2197,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 3: Don't show armos/chest/dive items
 	//Lens flag 4: Show Raft Paths
 	//Lens flag 5: Show Invisible Enemies
-	bool disable_hints = lens_item.flags & item_flag2;
-	bool hints = !disable_hints && (layer && (lens_item.flags & item_flag1));
+	bool disable_secrets = lens_item.flags & item_flag2;
+	bool hints = !disable_secrets && layer && (lens_item.flags & item_flag1);
 	
 	int32_t strike_hint_table[11]=
 	{
@@ -2208,8 +2208,10 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	};
 	
 	{
-		int32_t blink_rate=flash_reduction_enabled()?6:1;
-		int32_t tempitem, tempweapon=0;
+		int blink_rate = flash_reduction_enabled() ? (1<<5) : 1;
+		int blink_clk = global_frame;
+		bool blink_on = blink_clk & blink_rate;
+		int32_t tempitem = 0;
 		strike_hint=strike_hint_table[strike_hint_counter];
 		
 		if(strike_hint_timer>32)
@@ -2224,6 +2226,9 @@ void draw_lens_under(BITMAP *dest, bool layer)
 			mapscr* scr = rpos_handle.scr;
 			auto [x, y] = rpos_handle.xy();
 			y += playing_field_offset;
+			auto cx = x;
+			auto cy = y;
+			optional<word> force_spr;
 
 			int32_t tempitemx=-16, tempitemy=-16;
 			int32_t tempweaponx=-16, tempweapony=-16;
@@ -2245,7 +2250,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				{
 					if(!hints)
 					{
-						if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sSTRIKE],scr->secretcset[sSTRIKE]);
+						if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sSTRIKE],scr->secretcset[sSTRIKE]);
 					}
 					else
 					{
@@ -2255,186 +2260,6 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				
 				switch(checkflag)
 				{
-					case 0:
-					case mfZELDA:
-					case mfPUSHED:
-					case mfENEMY0:
-					case mfENEMY1:
-					case mfENEMY2:
-					case mfENEMY3:
-					case mfENEMY4:
-					case mfENEMY5:
-					case mfENEMY6:
-					case mfENEMY7:
-					case mfENEMY8:
-					case mfENEMY9:
-					case mfSINGLE:
-					case mfSINGLE16:
-					case mfNOENEMY:
-					case mfTRAP_H:
-					case mfTRAP_V:
-					case mfTRAP_4:
-					case mfTRAP_LR:
-					case mfTRAP_UD:
-					case mfNOGROUNDENEMY:
-					case mfNOBLOCKS:
-					case mfSCRIPT1:
-					case mfSCRIPT2:
-					case mfSCRIPT3:
-					case mfSCRIPT4:
-					case mfSCRIPT5:
-					case mfSCRIPT6:
-					case mfSCRIPT7:
-					case mfSCRIPT8:
-					case mfSCRIPT9:
-					case mfSCRIPT10:
-					case mfSCRIPT11:
-					case mfSCRIPT12:
-					case mfSCRIPT13:
-					case mfSCRIPT14:
-					case mfSCRIPT15:
-					case mfSCRIPT16:
-					case mfSCRIPT17:
-					case mfSCRIPT18:
-					case mfSCRIPT19:
-					case mfSCRIPT20:
-					case mfPITHOLE:
-					case mfPITFALLFLOOR:
-					case mfLAVA:
-					case mfICE:
-					case mfICEDAMAGE:
-					case mfDAMAGE1:
-					case mfDAMAGE2:
-					case mfDAMAGE4:
-					case mfDAMAGE8:
-					case mfDAMAGE16:
-					case mfDAMAGE32:
-					case mfFREEZEALL:
-					case mfFREZEALLANSFFCS:
-					case mfFREEZEFFCSOLY:
-					case mfSCRITPTW1TRIG:
-					case mfSCRITPTW2TRIG:
-					case mfSCRITPTW3TRIG:
-					case mfSCRITPTW4TRIG:
-					case mfSCRITPTW5TRIG:
-					case mfSCRITPTW6TRIG:
-					case mfSCRITPTW7TRIG:
-					case mfSCRITPTW8TRIG:
-					case mfSCRITPTW9TRIG:
-					case mfSCRITPTW10TRIG:
-					case mfTROWEL:
-					case mfTROWELNEXT:
-					case mfTROWELSPECIALITEM:
-					case mfSLASHPOT:
-					case mfLIFTPOT:
-					case mfLIFTORSLASH:
-					case mfLIFTROCK:
-					case mfLIFTROCKHEAVY:
-					case mfDROPITEM:
-					case mfSPECIALITEM:
-					case mfDROPKEY:
-					case mfDROPLKEY:
-					case mfDROPCOMPASS:
-					case mfDROPMAP:
-					case mfDROPBOSSKEY:
-					case mfSPAWNNPC:
-					case mfSWITCHHOOK:
-					case mfSIDEVIEWLADDER:
-					case mfSIDEVIEWPLATFORM:
-					case mfNOENEMYSPAWN:
-					case mfENEMYALL:
-					case mfNOMIRROR:
-					case mfUNSAFEGROUND_SENS:
-					case mfUNSAFEGROUND:
-					case mf169:
-					case mf170:
-					case mf171:
-					case mf172:
-					case mf173:
-					case mf174:
-					case mf175:
-					case mf176:
-					case mf177:
-					case mf178:
-					case mf179:
-					case mf180:
-					case mf181:
-					case mf182:
-					case mf183:
-					case mf184:
-					case mf185:
-					case mf186:
-					case mf187:
-					case mf188:
-					case mf189:
-					case mf190:
-					case mf191:
-					case mf192:
-					case mf193:
-					case mf194:
-					case mf195:
-					case mf196:
-					case mf197:
-					case mf198:
-					case mf199:
-					case mf200:
-					case mf201:
-					case mf202:
-					case mf203:
-					case mf204:
-					case mf205:
-					case mf206:
-					case mf207:
-					case mf208:
-					case mf209:
-					case mf210:
-					case mf211:
-					case mf212:
-					case mf213:
-					case mf214:
-					case mf215:
-					case mf216:
-					case mf217:
-					case mf218:
-					case mf219:
-					case mf220:
-					case mf221:
-					case mf222:
-					case mf223:
-					case mf224:
-					case mf225:
-					case mf226:
-					case mf227:
-					case mf228:
-					case mf229:
-					case mf230:
-					case mf231:
-					case mf232:
-					case mf233:
-					case mf234:
-					case mf235:
-					case mf236:
-					case mf237:
-					case mf238:
-					case mf239:
-					case mf240:
-					case mf241:
-					case mf242:
-					case mf243:
-					case mf244:
-					case mf245:
-					case mf246:
-					case mf247:
-					case mf248:
-					case mf249:
-					case mf250:
-					case mf251:
-					case mf252:
-					case mf253:
-					case mf254:
-					case mfEXTENDED:
-						break;
-						
 					case mfPUSHUD:
 					case mfPUSHLR:
 					case mfPUSH4:
@@ -2456,14 +2281,12 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfPUSHDINS:
 					case mfPUSHLINS:
 					case mfPUSHRINS:
-						if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
-									  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
+						if(!hints && (blink_clk & 16))
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->undercombo,scr->undercset);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->undercombo,scr->undercset);
 						}
 						
-						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+						if(blink_on)
 						{
 							if(hints)
 							{
@@ -2501,8 +2324,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2523,8 +2345,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem < 0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2538,7 +2359,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfANYFIRE:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sBCANDLE],scr->secretcset[sBCANDLE]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sBCANDLE],scr->secretcset[sBCANDLE]);
 						}
 						else
 						{
@@ -2546,8 +2367,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2561,7 +2381,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSTRONGFIRE:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sRCANDLE],scr->secretcset[sRCANDLE]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sRCANDLE],scr->secretcset[sRCANDLE]);
 						}
 						else
 						{
@@ -2569,8 +2389,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2584,7 +2403,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMAGICFIRE:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sWANDFIRE],scr->secretcset[sWANDFIRE]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sWANDFIRE],scr->secretcset[sWANDFIRE]);
 						}
 						else
 						{
@@ -2592,22 +2411,16 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=wFire;
-							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
-							}
-							else
-							{
 								tempweaponx=x;
 								tempweapony=y;
 							}
 							
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, wFire, 0, up, -1, force_spr);
 						}
 						
 						break;
@@ -2615,7 +2428,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfDIVINEFIRE:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sDIVINEFIRE],scr->secretcset[sDIVINEFIRE]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sDIVINEFIRE],scr->secretcset[sDIVINEFIRE]);
 						}
 						else
 						{
@@ -2623,8 +2436,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2638,7 +2450,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfARROW:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sARROW],scr->secretcset[sARROW]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sARROW],scr->secretcset[sARROW]);
 						}
 						else
 						{
@@ -2646,8 +2458,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2661,7 +2472,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSARROW:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sSARROW],scr->secretcset[sSARROW]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sSARROW],scr->secretcset[sSARROW]);
 						}
 						else
 						{
@@ -2669,8 +2480,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2684,7 +2494,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfGARROW:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sGARROW],scr->secretcset[sGARROW]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sGARROW],scr->secretcset[sGARROW]);
 						}
 						else
 						{
@@ -2692,8 +2502,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2707,22 +2516,17 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfBOMB:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sBOMB],scr->secretcset[sBOMB]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sBOMB],scr->secretcset[sBOMB]);
 						}
 						else
 						{
-							//tempitem=getItemID(itype_bomb,1);
-							tempweapon = wLitBomb;
-							
-							//if (tempitem<0) break;
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempweaponx=x;
 								tempweapony=y;
 							}
 							
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, wLitBomb, 0, up, -1, force_spr);
 						}
 						
 						break;
@@ -2730,22 +2534,17 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSBOMB:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sSBOMB],scr->secretcset[sSBOMB]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sSBOMB],scr->secretcset[sSBOMB]);
 						}
 						else
 						{
-							//tempitem=getItemID(itype_sbomb,1);
-							//if (tempitem<0) break;
-							tempweapon = wLitSBomb;
-							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempweaponx=x;
 								tempweapony=y;
 							}
 							
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, wLitSBomb, 0, up, -1, force_spr);
 						}
 						
 						break;
@@ -2753,16 +2552,16 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfARMOS_SECRET:
 						if(!hints)
 						{
-							if (!disable_hints)
-								putcombo(dest,x,y,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
+							if (!disable_secrets)
+								putcombo(dest,cx,cy,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
 						}
 						break;
 						
 					case mfBRANG:
 						if(!hints)
 						{
-							if (!disable_hints)
-								putcombo(dest,x,y,scr->secretcombo[sBRANG],scr->secretcset[sBRANG]);
+							if (!disable_secrets)
+								putcombo(dest,cx,cy,scr->secretcombo[sBRANG],scr->secretcset[sBRANG]);
 						}
 						else
 						{
@@ -2770,8 +2569,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2784,8 +2582,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 					case mfMBRANG:
 						if(!hints)
-				{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sMBRANG],scr->secretcset[sMBRANG]);
+						{
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sMBRANG],scr->secretcset[sMBRANG]);
 						}
 						else
 						{
@@ -2793,8 +2591,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2808,7 +2605,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfFBRANG:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sFBRANG],scr->secretcset[sFBRANG]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sFBRANG],scr->secretcset[sFBRANG]);
 						}
 						else
 						{
@@ -2816,8 +2613,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2831,7 +2627,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWANDMAGIC:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sWANDMAGIC],scr->secretcset[sWANDMAGIC]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sWANDMAGIC],scr->secretcset[sWANDMAGIC]);
 						}
 						else
 						{
@@ -2839,23 +2635,19 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=get_item_data(tempitem).wpn_sprites[2];
+							force_spr = get_item_data(tempitem).wpn_sprites[2];
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
-							}
-							else
-							{
 								tempweaponx=x;
 								tempweapony=y;
 								update_lens_hint_weapon(wMagic);
 							}
 							
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, wMagic);
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, wMagic, 0, up, -1, force_spr, wMagic);
 						}
 						
 						break;
@@ -2863,7 +2655,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFMAGIC:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sREFMAGIC],scr->secretcset[sREFMAGIC]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sREFMAGIC],scr->secretcset[sREFMAGIC]);
 						}
 						else
 						{
@@ -2871,23 +2663,17 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=ewMagic;
-							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if (blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
-							}
-							else
-							{
 								tempweaponx=x;
 								tempweapony=y;
 								update_lens_hint_weapon(ewMagic);
 							}
 							
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, ewMagic);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, ewMagic, 0, up, -1, force_spr, ewMagic);
 						}
 						
 						break;
@@ -2895,7 +2681,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFFIREBALL:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sREFFIREBALL],scr->secretcset[sREFFIREBALL]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sREFFIREBALL],scr->secretcset[sREFFIREBALL]);
 						}
 						else
 						{
@@ -2903,10 +2689,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							tempweapon=ewFireball;
-							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2916,7 +2699,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							}
 							
 							draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
-							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, tempweapon, 0, up, -1, false, ewFireball);
+							draw_lens_hint_sprite(dest, tempweaponx, tempweapony, ewFireball, 0, up, -1, force_spr, ewFireball);
 						}
 						
 						break;
@@ -2924,7 +2707,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORD:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sSWORD],scr->secretcset[sSWORD]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sSWORD],scr->secretcset[sSWORD]);
 						}
 						else
 						{
@@ -2932,8 +2715,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2947,7 +2729,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORD:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sWSWORD],scr->secretcset[sWSWORD]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sWSWORD],scr->secretcset[sWSWORD]);
 						}
 						else
 						{
@@ -2955,8 +2737,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2970,7 +2751,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORD:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sMSWORD],scr->secretcset[sMSWORD]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sMSWORD],scr->secretcset[sMSWORD]);
 						}
 						else
 						{
@@ -2978,8 +2759,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -2993,7 +2773,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORD:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sXSWORD],scr->secretcset[sXSWORD]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sXSWORD],scr->secretcset[sXSWORD]);
 						}
 						else
 						{
@@ -3001,8 +2781,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3016,7 +2795,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORDBEAM:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sSWORDBEAM],scr->secretcset[sSWORDBEAM]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sSWORDBEAM],scr->secretcset[sSWORDBEAM]);
 						}
 						else
 						{
@@ -3024,8 +2803,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3039,7 +2817,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORDBEAM:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sWSWORDBEAM],scr->secretcset[sWSWORDBEAM]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sWSWORDBEAM],scr->secretcset[sWSWORDBEAM]);
 						}
 						else
 						{
@@ -3047,8 +2825,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3062,7 +2839,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORDBEAM:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sMSWORDBEAM],scr->secretcset[sMSWORDBEAM]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sMSWORDBEAM],scr->secretcset[sMSWORDBEAM]);
 						}
 						else
 						{
@@ -3070,8 +2847,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3085,7 +2861,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORDBEAM:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sXSWORDBEAM],scr->secretcset[sXSWORDBEAM]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sXSWORDBEAM],scr->secretcset[sXSWORDBEAM]);
 						}
 						else
 						{
@@ -3093,8 +2869,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3108,7 +2883,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHOOKSHOT:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sHOOKSHOT],scr->secretcset[sHOOKSHOT]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sHOOKSHOT],scr->secretcset[sHOOKSHOT]);
 						}
 						else
 						{
@@ -3116,8 +2891,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3131,7 +2905,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWAND:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sWAND],scr->secretcset[sWAND]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sWAND],scr->secretcset[sWAND]);
 						}
 						else
 						{
@@ -3139,8 +2913,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3154,7 +2927,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHAMMER:
 						if(!hints)
 						{
-							if (!disable_hints)putcombo(dest,x,y,scr->secretcombo[sHAMMER],scr->secretcset[sHAMMER]);
+							if (!disable_secrets) putcombo(dest,cx,cy,scr->secretcombo[sHAMMER],scr->secretcset[sHAMMER]);
 						}
 						else
 						{
@@ -3162,8 +2935,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 							
 							if(tempitem<0) break;
 							
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
-									|| ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
+							if(blink_on)
 							{
 								tempitemx=x;
 								tempitemy=y;
@@ -3185,55 +2957,36 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						break;
 					}
 						
-					case 16:
-					case 17:
-					case 18:
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-					case 27:
-					case 28:
-					case 29:
-					case 30:
-					case 31:
+					case mfSECRETS01: case mfSECRETS02: case mfSECRETS03: case mfSECRETS04:
+					case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
+					case mfSECRETS09: case mfSECRETS10: case mfSECRETS11: case mfSECRETS12:
+					case mfSECRETS13: case mfSECRETS14: case mfSECRETS15: case mfSECRETS16:
 						if(!hints)
-							if (!disable_hints)
-								putcombo(dest,x,y,scr->secretcombo[checkflag-16+4],scr->secretcset[checkflag-16+4]);
-									 
+							if (!disable_secrets)
+								putcombo(dest,cx,cy,scr->secretcombo[checkflag-mfSECRETS01+4],scr->secretcset[checkflag-mfSECRETS01+4]); 
 						break;
 					case mfSECRETSNEXT:
 						if(!hints)
-							if (!disable_hints)
-								putcombo(dest,x,y,rpos_handle.data()+1,rpos_handle.cset());
-									 
+							if (!disable_secrets)
+								putcombo(dest,cx,cy,rpos_handle.data()+1,rpos_handle.cset());	 
 						break;
 					
 					case mfSTRIKE:
-						if (!disable_hints)
-						{
-							goto special;
-						}
-						else
-						{
-							break;
-						}
+						if (!disable_secrets && layer && blink_on)
+							rectfill(dest,cx,cy,cx+15,cy+15,WHITE);
+						break;
+					case mfRAFT:
+					case mfRAFT_BOUNCE:
+					case mfRAFT_BRANCH:
+						if ((lens_item.flags & item_flag4) && layer && blink_on)
+							rectfill(dest,cx,cy,cx+15,cy+15,WHITE);
+						break;
 						
-					default: goto special;
-					
-					special:
-						if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(lens_item.flags & item_flag4)))
-						{
-							if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
-							{
-								rectfill(dest,x,y,x+15,y+15,WHITE);
-							}
-						}
-						
+					case mfLENSMARKER:
+					case mfBLOCKTRIGGER:
+					case mfBLOCKHOLE:
+						if(layer && blink_on)
+							rectfill(dest,cx,cy,cx+15,cy+15,WHITE);
 						break;
 				}
 			}
@@ -3285,7 +3038,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 			{
 				if (!hints)
 				{
-					if (!disable_hints)
+					if (!disable_secrets)
 						putcombo(dest,scr->stairx+offx,scr->stairy+offy,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
 				}
 				else
@@ -3296,8 +3049,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						int32_t tempitemx=-16+offx;
 						int32_t tempitemy=-16+offy-playing_field_offset;
 						
-						if ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
-								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
+						if (blink_on)
 						{
 							tempitemx=scr->stairx+offx;
 							tempitemy=scr->stairy+offy;
@@ -3347,7 +3099,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
 	int32_t amp2 = viewport.visible_height(show_bottom_8px);
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
-	int32_t i=frame%amp2;
+	int32_t i=global_frame%amp2;
 	
 	for(int32_t j=0; j<viewport.visible_height(show_bottom_8px); j++)
 	{
@@ -4279,7 +4031,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	poll_keyboard();
 	update_keys();
 	
-	++frame;
+	++global_frame;
 	
 	if (replay_is_replaying())
 		replay_do_cheats();

@@ -3597,7 +3597,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_unused]] Su
 			{
 				int32_t c2 = c_cmp_off.get_color();
 
-				if(frame&16)
+				if(global_frame&16)
 				{
 					if((game->lvlitems.get(get_dlevel()) & compass_litems) != compass_litems) // if you don't have all of them, keep blinking
 						c2 = c_cmp_blink.get_color();

@@ -20034,7 +20034,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			alignment_arrow_timer=0;
 		}
-		++frame;
+		++global_frame;
 		
 		file_menu.disable_uid(MENUID_FILE_SAVE, saved||OverwriteProtection);
 		file_menu.disable_uid(MENUID_FILE_REVERT, saved||OverwriteProtection);

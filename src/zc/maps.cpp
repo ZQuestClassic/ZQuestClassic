@@ -5013,7 +5013,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 	{
 		if(drawguys)
 		{
-			if(get_qr(qr_NOFLICKER) || (frame&1))
+			if(get_qr(qr_NOFLICKER) || (global_frame&1))
 			{
 				// Just clips sprites if in a repeating, smooth maze.
 				bool do_clip = maze_state.active && maze_state.loopy;
@@ -5045,7 +5045,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 				}
 				do_primitives(dest, SPLAYER_LWEAP_BEHIND_DRAW);
 
-				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
+				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||global_frame&1))
 				{
 					if (do_clip)
 						guys.drawshadow_smooth_maze(dest,get_qr(qr_TRANSSHADOWS)!=0);
@@ -5114,7 +5114,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 				}
 				do_primitives(dest, SPLAYER_LWEAP_BEHIND_DRAW);
 				
-				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
+				if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||global_frame&1))
 				{
 					guys.drawshadow(dest,get_qr(qr_TRANSSHADOWS)!=0,true);
 				}
@@ -5162,7 +5162,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 			}
 			if(!hero_draw_done)
 			{
-				if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
+				if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||global_frame&1))
 				{
 					Hero.drawshadow(dest,get_qr(qr_TRANSSHADOWS)!=0);
 				}
@@ -5208,7 +5208,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		if(drawguys)
 		{
 			chainlinks.forEach(add_sprite);
-			bool show_enemy_shadows = (get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1));
+			bool show_enemy_shadows = (get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||global_frame&1));
 			auto add_spr_shadow = [&](sprite& spr)
 				{
 					sorted_sprites.insert(&spr);
@@ -5228,7 +5228,7 @@ void draw_screen(bool showhero, bool runGeneric, bool drawPassiveSubscreenSepara
 		if(showhero && !hero_draw_done)
 		{
 			sorted_sprites.insert(&Hero);
-			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
+			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||global_frame&1))
 			{
 				tempsprite_shadow* shadow = new tempsprite_shadow(&Hero);
 				sorted_sprites.insert(shadow);
@@ -8298,8 +8298,8 @@ void ViewMap()
 		
 		if(view_map_show_mode&1)
 		{
-			line(framebuf,x-7,y-7,x+7,y+7,(frame&3)+252);
-			line(framebuf,x+7,y-7,x-7,y+7,(frame&3)+252);
+			line(framebuf,x-7,y-7,x+7,y+7,(global_frame&3)+252);
+			line(framebuf,x+7,y-7,x-7,y+7,(global_frame&3)+252);
 		}
 		
 		if(view_map_show_mode&2 || r)

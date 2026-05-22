@@ -2967,7 +2967,7 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	 * so we need to increment that here, as flashing items use it for their draw.
 	 * -Em
 	 */ //!TODO SUBSCR change this to subscr_item_clk?
-	++frame;
+	++global_frame;
 	#endif
 	
 	subscr->draw(dest,xofs,yofs,pos2,showtime);

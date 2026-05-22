@@ -16,7 +16,7 @@ using std::map;
 
 extern bool     freeze_guys;
 extern int32_t fadeclk;
-extern int32_t frame;
+extern int32_t global_frame;
 extern bool BSZ;
 extern int32_t conveyclk;
 extern byte newconveyorclk;
