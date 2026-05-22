@@ -860,6 +860,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 114)
 	{
 		set_qr(qr_NO_FLASHING_MSG_MORE, 1);
+		set_qr(qr_BROKEN_LENS_HINTS_SECRETS, 1);
 	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
