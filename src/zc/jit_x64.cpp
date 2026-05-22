@@ -487,15 +487,6 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	{
 		if (state.use_cached_regs)
 		{
-			for (auto& [reg, is_constant, value, amount] : state.cached_d_reg_stack)
-			{
-				if (!is_constant && value == r)
-				{
-					state.cached_d_regs.erase(r);
-					break;
-				}
-			}
-
 			if (state.cached_d_regs.contains(r))
 			{
 				auto& cached_reg = state.cached_d_regs[r];
@@ -1115,7 +1106,7 @@ static x86::Gp compile_modv(CompilationState& state, x86::Compiler& cc, x86::Gp 
 		zero(cc, val);
 
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
+		cc.invoke(&invokeNode, log_error_mod_0, FuncSignatureT<void>(state.calling_convention));
 		return val;
 	}
 
@@ -1245,7 +1236,13 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			if (state.use_cached_regs)
 			{
-				state.cached_d_reg_stack.push_back({.reg=get_z_register(state, cc, arg1), .value=arg1, .amount=arg2});
+				if(arg2 < 1) break; //do nothing
+				// Must copy the register value, as PUSHR does. If we stored the cached D-register
+				// virtual register directly, a later arithmetic instruction (e.g. ADDR modifying the
+				// same register in-place) would corrupt the stack cache entry before the flush.
+				x86::Gp copy = cc.newInt32();
+				cc.mov(copy, get_z_register(state, cc, arg1));
+				state.cached_d_reg_stack.push_back({.reg=copy, .amount=arg2});
 				break;
 			}
 

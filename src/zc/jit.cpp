@@ -229,6 +229,12 @@ void jit_startup(bool precompile)
 	al_unlock_mutex(compiled_scripts_mutex);
 
 	auto scripts = collect_scripts();
+	if (scripts.empty())
+	{
+		if (!compiled_scripts.empty())
+			al_trace("[jit] re-using compiled scripts\n");
+		return;
+	}
 
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
