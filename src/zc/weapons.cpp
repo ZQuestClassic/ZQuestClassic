@@ -54,6 +54,7 @@ static bool CanComboTrigger(weapon *w)
 	return false;
 }
 
+#define NOTRIG_COMPAT (replay_version_check(56) && no_triggers())
 bool weapon::no_triggers() const
 {
 	if (no_collision()) return true;
@@ -74,6 +75,7 @@ bool weapon::no_triggers() const
 
 bool weapon::no_collision() const
 {
+	if (replay_version_check(56) && fake_weapon) return true;
 	if(!step && (misc_wflags & WFLAG_NO_COLL_WHEN_STILL)) return true;
 	return false;
 }
@@ -3346,31 +3348,33 @@ void weapon::limited_animate()
 						
 						if(tx==-8 || tx==8)
 							f2 = f1;
-							
-						for(int32_t ty=-f2; ty<=f2; ty+=32)
-						{
-							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
-							
-							if(id==wSBomb || id==wLitSBomb)
+						
+						if (!NOTRIG_COMPAT)
+							for(int32_t ty=-f2; ty<=f2; ty+=32)
 							{
-								trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
+								trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
+								
+								if(id==wSBomb || id==wLitSBomb)
+								{
+									trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
+								}
+								
+								trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
 							}
-							
-							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
-						}
 					}
 				}
 				else
 				{
 					bool sbomb = (id==wSBomb || id==wLitSBomb);
 					std::set<rpos_t> rposes = getBombPositions();
-					for (rpos_t rpos : rposes)
-					{
-						auto [x, y] = COMBOXY_REGION(rpos);
-						trigger_secrets_if_flag(x,y,mfBOMB,true);
-						if(sbomb) trigger_secrets_if_flag(x,y,mfSBOMB,true);
-						trigger_secrets_if_flag(x,y,mfSTRIKE,true);
-					}
+					if (!NOTRIG_COMPAT)
+						for (rpos_t rpos : rposes)
+						{
+							auto [x, y] = COMBOXY_REGION(rpos);
+							trigger_secrets_if_flag(x,y,mfBOMB,true);
+							if(sbomb) trigger_secrets_if_flag(x,y,mfSBOMB,true);
+							trigger_secrets_if_flag(x,y,mfSTRIKE,true);
+						}
 				}
 			}
 			
@@ -4066,10 +4070,11 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		
 		case wBeam: case wRefBeam:
 		{
-			for(int32_t i2=0; i2<=zc_min(level-1,3) && dead!=23; i2++)
-			{
-				if(trigger_secrets_if_flag(x,y,mfSWORDBEAM+i2,true)) dead=23;
-			}
+			if (!NOTRIG_COMPAT)
+				for(int32_t i2=0; i2<=zc_min(level-1,3) && dead!=23; i2++)
+				{
+					if(trigger_secrets_if_flag(x,y,mfSWORDBEAM+i2,true)) dead=23;
+				}
 			
 			if(blocked())
 			{
@@ -4371,12 +4376,12 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 				dead=4;
 			}
 			
-			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true))
+			if(!NOTRIG_COMPAT && trigger_secrets_if_flag(x,y,mfSTRIKE,true))
 			{
 				if (dead < 0) dead=4;
 			}
 			
-			if(id == wArrow)
+			if(id == wArrow && !NOTRIG_COMPAT)
 			{
 				if(trigger_secrets_if_flag(x,y,mfARROW,true))
 				{
@@ -4492,42 +4497,29 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			
 			int32_t branglevel = brangitm.level;
 			
-			switch ( branglevel )
+			if (!NOTRIG_COMPAT)
 			{
-				case 0:
-				case 1:
+				switch ( branglevel )
 				{
-					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval; break;
+					default:
+					case 3:
+						if(trigger_secrets_if_flag(x,y,mfFBRANG,true)) dead=deadval;
+					[[fallthrough]];
+					case 2:
+						if(trigger_secrets_if_flag(x,y,mfMBRANG,true)) dead=deadval;
+					case 1:
+					case 0:
+						if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval;
+						break;
 				}
-				case 2: 
-				{
-					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval;
-					if(trigger_secrets_if_flag(x,y,mfMBRANG,true)) dead=deadval;
-					break;
-				}
-				case 3:
-				{
-					goto brang_level_3_or_higher;
-				}
-				default: //level higher than 3
-				{
-					goto brang_level_3_or_higher;
-				}
-				brang_level_3_or_higher: 
-				{
-					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval;
-					if(trigger_secrets_if_flag(x,y,mfMBRANG,true)) dead=deadval;
-					if(trigger_secrets_if_flag(x,y,mfFBRANG,true)) dead=deadval;
-					break;
-				}
+				
+				if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=deadval;
+				
+				if(triggerfire(x,y,this,true,
+					brangitm.flags & item_flag8,brangitm.flags & item_flag9,
+					brangitm.flags & item_flag10,brangitm.flags & item_flag11))
+					dead=deadval;
 			}
-			
-			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=deadval;
-			
-			if(triggerfire(x,y,this,true,
-				brangitm.flags & item_flag8,brangitm.flags & item_flag9,
-				brangitm.flags & item_flag10,brangitm.flags & item_flag11))
-				dead=deadval;
 			
 			if(blocked())
 			{
@@ -4786,9 +4778,12 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 					dead=1;
 				}
 				//If it hits a block object, retract it.
-				if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=1;
-				
-				if(trigger_secrets_if_flag(x,y,mfHOOKSHOT,true)) dead=1;
+				if (!NOTRIG_COMPAT)
+				{
+					if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=1;
+					
+					if(trigger_secrets_if_flag(x,y,mfHOOKSHOT,true)) dead=1;
+				}
 			
 				//Look for grab combos based on direction.
 				int32_t tx = -1, ty = -1, tx2 = -1, ty2 = -1, ty3 = -1;
@@ -5287,11 +5282,14 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 					step = zslongToFix(book.misc3*100);
 			}
 			
-			if(trigger_secrets_if_flag(x,y,id==wMagic ? mfWANDMAGIC : mfREFMAGIC,true))
-				dead=0;
-			
-			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true))
-				dead=0;
+			if (!NOTRIG_COMPAT)
+			{
+				if(trigger_secrets_if_flag(x,y,id==wMagic ? mfWANDMAGIC : mfREFMAGIC,true))
+					dead=0;
+				
+				if(trigger_secrets_if_flag(x,y,mfSTRIKE,true))
+					dead=0;
+			}
 		   
 			bool brokebook = get_qr(qr_BROKENBOOKCOST);
 			auto id = linkedItem;
@@ -5362,9 +5360,12 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 		{
 			if(!get_qr(qr_OLD_WEAPON_REFLECTION))
 				do_mirror();
-			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfREFFIREBALL,true))) dead=0;
-			
-			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfSTRIKE,true))) dead=0;
+			if (!NOTRIG_COMPAT && id == wRefFireball)
+			{
+				if (trigger_secrets_if_flag(x,y,mfREFFIREBALL,true)) dead = 0;
+				
+				if (trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead = 0;
+			}
 			
 			if(blocked())
 			{
