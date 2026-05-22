@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-20 04:06:01</td>
+      <td>2026-05-22 07:30:25</td>
     </tr>
   </table>
 </div>
@@ -89,7 +89,7 @@
     <tr><td><a href="#l441">draw_cursor(int, int) (line 441)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l217">framerect(BITMAP*, int, int, int, int, int) (line 217)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1249">game_details(save_t*) (line 1249)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1798">game_over(int) (line 1798)</a></td><td>called 939 times, returned 939 times</td><td>70.0%</td></tr>
+    <tr><td><a href="#l1798">game_over(int) (line 1798)</a></td><td>called 939 times, returned 939 times</td><td>72.0%</td></tr>
     <tr><td><a href="#l231">get_logo() (line 231)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1088">get_quest_info(zquestheader*, char*) (line 1088)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1356">get_unset_save_slot() (line 1356)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -99,7 +99,7 @@
     <tr><td><a href="#l1701">prompt_for_uploading_replays() (line 1701)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l202">register_mode() (line 202)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l450">register_name(TitleMenuState&amp;) (line 450)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1963">save_game(bool) (line 1963)</a></td><td>called 36 times, returned 36 times</td><td>37.0%</td></tr>
+    <tr><td><a href="#l1963">save_game(bool) (line 1963)</a></td><td>called 234 times, returned 234 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l1983">save_game(bool, int) (line 1983)</a></td><td>called 26 times, returned 26 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l1365">select_game(bool) (line 1365)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l195">select_mode() (line 195)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -14130,7 +14130,7 @@
       <td class="lineno"><a id="l1963" href="#l1963">1963</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">save_game</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">savepoint</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -14151,7 +14151,7 @@
       <td class="lineno"><a id="l1966" href="#l1966">1966</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">FFCore</span><span class="p">.</span><span class="n">runOnSaveEngine</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -14160,12 +14160,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 36 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 234 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">36</td>
+      <td class="linecount partialCoveredLine">234</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">savepoint</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -14221,7 +14221,7 @@
       <td class="lineno"><a id="l1975" href="#l1975">1975</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">game</span><span class="o">-&gt;</span><span class="n">save_objects</span><span class="p">(</span><span class="n">ZScriptVersion</span><span class="o">::</span><span class="n">gc_arrays</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
@@ -14235,7 +14235,7 @@
       <td class="lineno"><a id="l1977" href="#l1977">1977</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">flushItemCache</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -14249,7 +14249,7 @@
       <td class="lineno"><a id="l1979" href="#l1979">1979</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">saves_write</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -14258,19 +14258,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 36 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 234 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">36</td>
+      <td class="linecount partialCoveredLine">234</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">replay_get_mode</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ReplayMode</span><span class="o">::</span><span class="n">Record</span><span class="p">)</span><span class="w"> </span><span class="n">replay_save</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1981" href="#l1981">1981</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36</td>
+      <td class="linecount coveredLine">234</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
