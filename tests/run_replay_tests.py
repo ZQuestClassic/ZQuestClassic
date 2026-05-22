@@ -1010,7 +1010,12 @@ for result in test_results.runs[-1]:
             print(title.center(length, '='))
             print('=' * length)
             print()
-            sys.stdout.buffer.write(path.read_bytes())
+            # Print just the last few lines.
+            num_lines = 50
+            lines = path.read_bytes().splitlines(keepends=True)
+            if len(lines) > num_lines:
+                sys.stdout.buffer.write(b'[...]\n')
+            sys.stdout.buffer.write(b''.join(lines[-num_lines:]))
 
         print_nicely('STDERR', run_dir / 'stderr.txt')
         print_nicely('STDOUT', run_dir / 'stdout.txt')
