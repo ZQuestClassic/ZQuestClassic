@@ -9702,8 +9702,8 @@ heroanimate_skip_liftwpn:;
 			if (watercmb.type == cWATER)
 			{
 				damage = watercmb.c_attributes[0].getTrunc();
-				inv_timer = watercmb.c_attributes[1].getTrunc();
-				stun_timer = watercmb.c_attributes[2].getTrunc();
+				inv_timer = watercmb.c_attributes[3].getTrunc();
+				stun_timer = watercmb.c_attributes[4].getTrunc();
 				if (!inv_timer)
 					inv_timer = 48;
 			}
@@ -14338,8 +14338,8 @@ bool HeroClass::pitfall()
 				dmg = cmb->c_attributes[0].getTrunc();
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
-				inv_timer = cmb->c_attributes[1].getTrunc();
-				stun_timer = cmb->c_attributes[2].getTrunc();
+				inv_timer = cmb->c_attributes[3].getTrunc();
+				stun_timer = cmb->c_attributes[4].getTrunc();
 			}
 			if (cheat_superman && dmg > 0)
 				dmg = 0;
