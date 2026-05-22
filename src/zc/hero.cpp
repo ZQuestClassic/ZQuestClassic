@@ -32195,6 +32195,7 @@ void HeroClass::heroDeathAnimation()
 	int32_t deathclk=0,deathfrm=0;
     
 	action=none; FFCore.setHeroAction(dying); //mayhaps a new action of 'gameover'? -Z
+	lensclk = 0; // stop using the lens during death anim
 	
 	kill_sfx();  //call before the onDeath script.
 	
