@@ -85,6 +85,7 @@ class RunResult:
     path: str
     success: bool = False
     stopped: bool = False
+    rng_desync: bool = False
     exit_code: int = None
     duration: float = None
     fps: int = None
@@ -122,6 +123,8 @@ class ReplayTestResults:
                 # New property.
                 if 'path' not in run:
                     run['path'] = ''
+                if 'rng_desync' not in run:
+                    run['rng_desync'] = None
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 
@@ -591,6 +594,7 @@ def _run_replay_test(
                 result.num_frames = int(w.result['replay_log_frames'])
                 result.stopped = w.result['stopped']
                 result.success = w.result['stopped'] and w.result['success']
+                result.rng_desync = w.result.get('rng_desync', False)
 
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
