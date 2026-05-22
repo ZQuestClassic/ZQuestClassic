@@ -2199,7 +2199,9 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 4: Show Raft Paths
 	//Lens flag 5: Show Invisible Enemies
 	bool disable_secrets = lens_item.flags & item_flag2;
-	bool hints = !disable_secrets && layer && (lens_item.flags & item_flag1);
+	bool hints = layer && (lens_item.flags & item_flag1);
+	if (get_qr(qr_BROKEN_LENS_HINTS_SECRETS) && disable_secrets)
+		hints = false;
 	
 	int32_t strike_hint_table[11]=
 	{

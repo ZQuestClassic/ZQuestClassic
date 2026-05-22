@@ -1119,6 +1119,8 @@ static GUI::ListData compatRulesList
 		" Also, bridges on layers above 2 will not affect most things." },
 	{ "Message 'More...' ignores flashing settings", qr_NO_FLASHING_MSG_MORE,
 		"When enabled, the 'More...' icon for strings will never flash." },
+	{ "Lens 'Disable Secrets' disables hints too", qr_BROKEN_LENS_HINTS_SECRETS,
+		"When enabled, the lens 'Disable Secrets' flag will also disable the Show Hints flag." },
 };
 
 static GUI::ListData enemiesRulesList
