@@ -1,7 +1,7 @@
 #include "sprite.h"
 
 int32_t fadeclk=-1;
-int32_t frame=8;
+int32_t global_frame=8;
 bool BSZ=false;
 int32_t conveyclk=0;
 byte newconveyorclk=0;

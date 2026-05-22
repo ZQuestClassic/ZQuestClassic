@@ -2325,7 +2325,7 @@ void replay_sync_rng()
             return;
     }
 
-    frame = 0;
+    global_frame = 0;
 }
 
 int replay_get_mouse(int index)

@@ -8101,7 +8101,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 		else {Hero.setAction(swimming); FFCore.setHeroAction(swimming);}
 	}
 		
-	newscr_clk=frame;
+	newscr_clk=global_frame;
 	activated_timed_warp=false;
 	eat_buttons();
 		

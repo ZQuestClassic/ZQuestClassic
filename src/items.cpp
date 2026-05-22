@@ -237,7 +237,7 @@ bool item::animate(int32_t)
 	{
 		cs = o_cset;
 		
-		if(frame&8)
+		if(global_frame&8)
 		{
 			cs >>= 4;
 		}
@@ -755,20 +755,70 @@ bool itembundle_safe(int32_t itmid, bool skipError)
 
 struct LensHintData
 {
-	int aclk;
-	int aframe;
-	bool empty() const
+	int aclk, last_aclk;
+	word aframe, last_aframe;
+	word csclk, last_csclk;
+	int last_frame;
+	void get(int& out_aclk, word& out_aframe, word* out_csclk = nullptr) const
 	{
-		return !(aclk || aframe);
+		if (global_frame == last_frame)
+		{
+			out_aclk = last_aclk;
+			out_aframe = last_aframe;
+			if (out_csclk)
+				*out_csclk = last_csclk;
+		}
+		else
+		{
+			out_aclk = aclk;
+			out_aframe = aframe;
+			if (out_csclk)
+				*out_csclk = csclk;
+		}
+	}
+	void update(int new_aclk, word new_aframe, word new_csclk = 0)
+	{
+		if (global_frame != last_frame)
+		{
+			last_aclk = aclk;
+			last_aframe = aframe;
+			last_csclk = csclk;
+			aclk = new_aclk;
+			aframe = new_aframe;
+			csclk = new_csclk;
+			last_frame = global_frame;
+		}
 	}
 	bool operator==(LensHintData const& other) const = default;
 };
 struct LensOffsetData
 {
+	int last_dir, last_x, last_y;
 	int dir, x, y;
-	bool empty() const
+	int last_frame;
+	std::tuple<int, int, int> get() const
 	{
-		return !(dir || x || y);
+		if (global_frame == last_frame)
+			return {last_dir, last_x, last_y};
+		else
+			return {dir, x, y};
+	}
+	void update(int new_dir, int new_x, int new_y)
+	{
+		if (global_frame != last_frame)
+		{
+			last_x = x;
+			last_y = y;
+			last_dir = dir;
+			x = new_x;
+			y = new_y;
+			dir = new_dir;
+			last_frame = global_frame;
+		}
+	}
+	bool needs_update() const
+	{
+		return global_frame != last_frame;
 	}
 	bool operator==(LensOffsetData const& other) const = default;
 };
@@ -781,8 +831,7 @@ void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, in
 	LensHintData data = lens_hint_item.get(item_id);
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.yofs=0;
-	temp.aclk = data.aclk;
-	temp.aframe = data.aframe;
+	data.get(temp.aclk, temp.aframe);
 	temp.hide_hitbox = true;
 	
 	if(flash)
@@ -805,14 +854,11 @@ void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, in
 	}
 	
 	temp.animate(0);
-	temp.draw(dest);
-	data.aclk = temp.aclk;
-	data.aframe = temp.aframe;
+	if (!(x < 0 && y < 0))
+		temp.draw(dest);
+	data.update(temp.aclk, temp.aframe);
 	
-	if (data.empty())
-		lens_hint_item.erase(item_id);
-	else
-		lens_hint_item[item_id] = data;
+	lens_hint_item[item_id] = data;
 }
 void update_lens_hint_weapon(int weapon_id)
 {
@@ -830,82 +876,77 @@ void update_lens_hint_weapon(int weapon_id)
 			return;
 	}
 	auto& offset = lens_hint_weapon_offsets[weapon_id];
+	if (!offset.needs_update()) return;
+	auto [dir, x, y] = offset.get();
 	switch (weapon_id)
 	{
 		case wMagic:
 		{
-			--offset.y;
-			if(offset.y < -8)
-				offset.y = 8;
+			--y;
+			if(y < -8)
+				y = 8;
 			break;
 		}
 		case ewMagic:
 		{
-			if(offset.dir == up)
-				--offset.y;
+			if(dir == up)
+				--y;
 			else
-				++offset.y;
+				++y;
 			
-			if(offset.y > 8)
-				offset.dir = up;
+			if(y > 8)
+				dir = up;
 			
-			if(offset.y <= 0)
-				offset.dir = down;
+			if(y <= 0)
+				dir = down;
 			break;
 		}
 		case ewFireball:
 		{
-			++offset.x;
+			++x;
 			
-			if(offset.x > 8)
+			if(x > 8)
 			{
-				offset.x = -8;
-				offset.y = 8;
+				x = -8;
+				y = 8;
 			}
 			
-			if(offset.x > 0)
-				++offset.y;
+			if(x > 0)
+				++y;
 			else
-				--offset.y;
+				--y;
 			break;
 		}
 	}
+	offset.update(dir, x, y);
 }
-void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, bool peek, int weapon_id)
+void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, optional<word> force_spr, int weapon_id)
 {
+	if (x < 0 && y < 0) return;
 #ifdef IS_PLAYER
-	// In all honesty, these look buggy AF if more than one of the same
-	// is on-screen, because each one is one frame advanced in the animation
-	// from the previous. Should ideally overhaul these hints to update animation
-	// globally instead of during each draw, so the animations don't do this.
-	// Out of scope for current changes, so leaving for future fixing. -Em
 	LensHintData data = lens_hint_sprite.get(sprite_id);
 	if (weapon_id > -1)
 	{
 		auto const& offset = lens_hint_weapon_offsets.get(weapon_id);
+		auto [ndir, xoff, yoff] = offset.get();
 		if (weapon_id == ewMagic)
-			dir = offset.dir;
-		x += offset.x;
-		y += offset.y;
+			dir = ndir;
+		x += xoff;
+		y += yoff;
 	}
-	weapon temp((zfix)x,(zfix)y,(zfix)0,sprite_id,type,0,dir,-1,parentid,true);
+	weapon temp((zfix)x,(zfix)y,(zfix)0,sprite_id,type,0,dir,-1,parentid,true,0,0,0,0,force_spr ? *force_spr : -1);
 	temp.ignoreHero = true;
 	temp.fake_weapon = true;
 	temp.yofs = 0;
-	temp.clk2 = data.aclk;
-	temp.aframe = data.aframe;
+	data.get(temp.clk2, temp.aframe, &temp.csclk);
 	temp.script = 0; // ensure no scripts
 	temp.animate(0);
 	temp.draw(dest);
 	
-	if (peek) return;
-	data.aclk = temp.clk2;
-	data.aframe = temp.aframe;
+	temp.draw(dest);
+	data.update(temp.clk2, temp.aframe, temp.csclk);
 	
-	if (data.empty())
-		lens_hint_sprite.erase(sprite_id);
-	else
-		lens_hint_sprite[sprite_id] = data;
+	lens_hint_sprite[sprite_id] = data;
 #else
 	(void)dest;
 	(void)x;
@@ -914,7 +955,7 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 	(void)type;
 	(void)dir;
 	(void)parentid;
-	(void)peek;
+	(void)force_spr;
 	(void)weapon_id;
 #endif
 }

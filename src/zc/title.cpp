@@ -932,7 +932,7 @@ static bool register_name(TitleMenuState& state)
 		int32_t x2=letter_grid_x + grid_x*letter_grid_spacing;
 		int32_t y2=letter_grid_y + grid_y*letter_grid_spacing;
 		
-		if(frame&8)
+		if(global_frame&8)
 		{
 			int32_t tx=(zc_min(x,7)<<3)+72;
 			

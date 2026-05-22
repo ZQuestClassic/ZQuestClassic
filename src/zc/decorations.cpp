@@ -691,7 +691,7 @@ void dDivineProtectionShield::realdraw(BITMAP *dest, int32_t draw_what)
 	bool flickering = (divine_prot.flags & item_flag4) != 0;
 	bool translucent = (divine_prot.flags & item_flag3) != 0;
 	
-	if(((HeroDivineProtectionShieldClk()&0x20)||(HeroDivineProtectionShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
+	if(((HeroDivineProtectionShieldClk()&0x20)||(HeroDivineProtectionShieldClk()&0xF00))&&(!flickering ||((misc==1)?(global_frame&1):(!(global_frame&1)))))
 	{
 		drawstyle=translucent?1:0;
 		x=HeroX()-8;

@@ -70,7 +70,8 @@ class item : public sprite
 {
 public:
     int32_t pickup,clk2;
-    int32_t aclk,aframe;
+    int32_t aclk;
+	word aframe;
     char PriceIndex;
     bool flash,twohand,anim;
     bool dummy;
@@ -128,7 +129,7 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk);
 
 void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash);
 void update_lens_hint_weapon(int weapon_id);
-void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, bool peek = false, int weapon_id = -1);
+void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, optional<word> force_spr = nullopt, int weapon_id = -1);
 void reset_lens_hints();
 
 void dummyitem_animate(item* dummy, int32_t clk);
