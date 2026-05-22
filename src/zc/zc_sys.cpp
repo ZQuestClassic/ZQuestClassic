@@ -2187,6 +2187,7 @@ int32_t bunny_tile_mod()
 	return 0;
 }
 
+std::set<rpos_t> lens_pushblocks_hidden;
 // Hints are drawn on a separate layer to combo reveals.
 // TODO: move out of zc_sys.cpp, weird place for this code.
 void draw_lens_under(BITMAP *dest, bool layer)
@@ -2206,6 +2207,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		mfSWORD, mfREFMAGIC, mfHOOKSHOT,
 		mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
 	};
+	
+	lens_pushblocks_hidden.clear();
 	
 	{
 		int blink_rate = flash_reduction_enabled() ? (1<<5) : 1;
@@ -2281,38 +2284,32 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfPUSHDINS:
 					case mfPUSHLINS:
 					case mfPUSHRINS:
-						if(!hints && (blink_clk & 16))
-						{
-							if (!disable_secrets) putcombo(dest,cx,cy,scr->undercombo,scr->undercset);
-						}
-						
 						if(blink_on)
 						{
-							if(hints)
+							if (hints)
 							{
 								switch (rpos_handle.ctype())
 								{
-								case cPUSH_HEAVY:
-								case cPUSH_HW:
-									tempitem=getItemIDPower(itype_bracelet,1);
-									tempitemx=x, tempitemy=y;
-									
-									if(tempitem>-1)
-										draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
+									case cPUSH_HEAVY:
+									case cPUSH_HW:
+										tempitem=getItemIDPower(itype_bracelet,1);
+										if(tempitem>-1)
+											draw_lens_hint_item(dest,x,y,tempitem, 0);
+										break;
 										
-									break;
-									
-								case cPUSH_HEAVY2:
-								case cPUSH_HW2:
-									tempitem=getItemIDPower(itype_bracelet,2);
-									tempitemx=x, tempitemy=y;
-									
-									if(tempitem>-1)
-										draw_lens_hint_item(dest,tempitemx,tempitemy,tempitem, 0);
-										
-									break;
+									case cPUSH_HEAVY2:
+									case cPUSH_HW2:
+										tempitem=getItemIDPower(itype_bracelet,2);
+										if(tempitem>-1)
+											draw_lens_hint_item(dest,x,y,tempitem, 0);
+										break;
 								}
 							}
+						}
+						else if(!hints && !disable_secrets)
+						{
+							lens_pushblocks_hidden.insert(rpos_handle.rpos);
+							putcombo(dest,cx,cy,scr->undercombo,scr->undercset);
 						}
 						
 						break;

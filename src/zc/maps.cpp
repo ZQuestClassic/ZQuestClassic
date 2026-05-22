@@ -54,6 +54,8 @@ static bool current_region_rpos_handles_dirty;
 static int current_region_screen_count;
 static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136];
 
+extern std::set<rpos_t> lens_pushblocks_hidden;
+
 viewport_t viewport;
 static int viewport_sprite_uid;
 ViewportMode viewport_mode;
@@ -3875,6 +3877,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
 						auto rpos = screenscrolling || ViewingMap ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+						if (lensclk && lens_pushblocks_hidden.contains(rpos))
+							continue;
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);
 					}
 				}
