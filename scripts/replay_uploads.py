@@ -180,12 +180,23 @@ def init_updated_replay(key: str):
 
     lines = original_replay_path.read_text().splitlines()
     new_lines = []
+    qst_hash = key.split('/')[0]
 
+    meta = replay_helpers.read_replay_meta(original_replay_path)
+    meta['debug'] = 'true'  # Not all uploaded replays are in debug mode.
+    meta['qst'] = f'{qst_hash}.qst'
+    meta['replay_upload_key'] = key
+
+    for key, value in meta.items():
+        new_lines.append(f'M {key} {value}')
+
+    reading_meta = True
     for line in lines:
-        if line.startswith('M qst '):
-            qst_hash = key.split('/')[0]
-            new_lines.append(f'M qst {qst_hash}.qst')
-            continue
+        if reading_meta:
+            if line.startswith('M'):
+                continue
+            else:
+                reading_meta = False
 
         # TODO: if we make these replays viewable publicly, should first remove key
         # events. It's rare that a quest needs them.
