@@ -2229,8 +2229,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 			mapscr* scr = rpos_handle.scr;
 			auto [x, y] = rpos_handle.xy();
 			y += playing_field_offset;
-			auto cx = x;
-			auto cy = y;
+			auto cx = x - viewport.x;
+			auto cy = y - viewport.y;
 			optional<word> force_spr;
 
 			int32_t tempitemx=-16, tempitemy=-16;
