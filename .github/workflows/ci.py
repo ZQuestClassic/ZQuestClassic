@@ -588,6 +588,9 @@ def unit_tests(ctx: CiContext, args):
     logger.info("Discovering and running unittests...")
     run_python_cmd("-m unittest discover tests", env=env)
 
+    logger.info("Running pytest unit tests...")
+    run_python_cmd("-m pytest tests/test_replay_harness.py", env=env)
+
 
 # -----------------------------------------------------------------------------
 # coverage.yml

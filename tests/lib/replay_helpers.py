@@ -23,7 +23,7 @@ def read_last_contentful_line(file: Path):
             f.seek(-2, os.SEEK_CUR)
     except OSError:
         f.seek(0)
-    return f.readline().decode()
+    return f.readline().decode().replace('\r\n', '\n')
 
 
 @functools.cache

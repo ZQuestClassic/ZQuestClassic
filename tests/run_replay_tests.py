@@ -74,8 +74,11 @@ from replays import (
     RunReplayTestsProgress,
     ReplayTestResults,
     RunResult,
+    apply_test_filter,
     configure_estimate_multiplier,
     estimate_fps,
+    get_shards,
+    group_arg,
     load_replays,
     run_replays,
 )
@@ -275,85 +278,6 @@ class ReplayTimeoutException(Exception):
     pass
 
 
-def group_arg(raw_values: list[str], allow_concat=False):
-    default_arg = None
-    arg_by_replay = {}
-    if raw_values:
-        for raw_value in raw_values:
-            if '=' in raw_value:
-                for replay, value in [raw_value.split('=')]:
-                    replay_full_path = replays_dir / replay
-
-                    # If absolute path can't be found, use a looser match of just the filename.
-                    if replay_full_path not in tests:
-                        for test in tests:
-                            if test.name == Path(replay).name:
-                                replay_full_path = test
-                                break
-
-                    if replay_full_path not in tests:
-                        raise Exception(f'unknown test {replay}')
-                    if replay_full_path in arg_by_replay:
-                        if not allow_concat:
-                            raise Exception('cannot include of the same key')
-                        arg_by_replay[replay_full_path] += f' {value}'
-                    else:
-                        arg_by_replay[replay_full_path] = value
-            else:
-                if default_arg != None:
-                    raise Exception('can only define one default value')
-                default_arg = raw_value
-
-    return (arg_by_replay, default_arg)
-
-
-# Lazy unit testing.
-def test_r(replay: str):
-    return replays_dir / replay
-
-
-def test_expect_error(cb):
-    try:
-        cb()
-    except:
-        return
-    raise Exception('expected error')
-
-
-if 'LAZY_TEST' in os.environ:
-    assert group_arg([]) == ({}, None)
-    assert group_arg(['1']) == ({}, '1')
-    test_expect_error(lambda: group_arg(['1', '2']))
-    assert group_arg(['classic_1st.zplay=10']) == (
-        {test_r('classic_1st.zplay'): '10'},
-        None,
-    )
-    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == (
-        {test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'},
-        None,
-    )
-    assert group_arg(['1', 'classic_1st.zplay=10']) == (
-        {test_r('classic_1st.zplay'): '10'},
-        '1',
-    )
-    test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
-    test_expect_error(
-        lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20'])
-    )
-    assert group_arg(
-        ['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True
-    ) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
-    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == (
-        {
-            test_r('classic_1st.zplay'): '10',
-            test_r('credits.zplay'): '20',
-        },
-        '3',
-    )
-    print('LAZY_TEST done! exiting')
-    exit(0)
-
-
 def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
     arg_by_replay, default_arg = grouped_arg
     if replay_file in arg_by_replay:
@@ -404,9 +328,9 @@ if args.test_results_folder:
 else:
     test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
 test_results_path = test_results_dir / 'test_results.json'
-grouped_max_duration_arg = group_arg(args.max_duration)
-grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
-grouped_frame_arg = group_arg(args.frame)
+grouped_max_duration_arg = group_arg(args.max_duration, tests, replays_dir)
+grouped_snapshot_arg = group_arg(args.snapshot, tests, replays_dir, allow_concat=True)
+grouped_frame_arg = group_arg(args.frame, tests, replays_dir)
 
 if args.concurrency:
     concurrency = args.concurrency
@@ -440,32 +364,10 @@ if is_web:
     print('webserver started')
 
 
-def apply_test_filter(filter: str):
-    filter_as_path = Path(filter)
-
-    exact_match = next((t for t in tests if t == filter_as_path.absolute()), None)
-    if exact_match:
-        return [exact_match]
-
-    exact_match = next((t for t in tests if t == replays_dir / filter_as_path), None)
-    if exact_match:
-        return [exact_match]
-
-    if filter_as_path.is_relative_to(replays_dir):
-        filter_as_path = filter_as_path.relative_to(replays_dir)
-
-    filtered = []
-    for test in tests:
-        rel = test.relative_to(replays_dir)
-        if filter_as_path.as_posix() in rel.as_posix():
-            filtered.append(test)
-    return filtered
-
-
 if args.filter:
     filtered_tests = set()
     for filter in args.filter:
-        some_tests = apply_test_filter(filter)
+        some_tests = apply_test_filter(tests, replays_dir, filter)
         if not some_tests:
             raise Exception(f'bad filter: {filter}')
         filtered_tests.update(some_tests)
@@ -476,7 +378,6 @@ skip_tests = [
     'nargads_trail_crystal_crusades_11_of_24.zplay',
     'nargads_trail_crystal_crusades_19_of_24.zplay',
     'nargads_trail_crystal_crusades_20_of_24.zplay',
-
     # TODO: fails on Windows. Haven't investigated.
     'terror_of_necromancy_demo6_06_of_54.zplay',
 ]
@@ -534,26 +435,11 @@ for replay in replays:
 replays.sort(key=lambda replay: -estimated_durations[replay.name])
 
 
-# https://stackoverflow.com/a/6856593/2788187
-def get_shards(replays: list[Replay], n: int) -> list[list[Replay]]:
-    result = [[] for i in range(n)]
-    sums = {i: 0 for i in range(n)}
-    c = 0
-    for replay in replays:
-        for i in sums:
-            if c == sums[i]:
-                result[i].append(replay)
-                break
-        sums[i] += estimated_durations[replay.name]
-        c = min(sums.values())
-    return result
-
-
 if args.shard and args.print_shards:
     ss = 1
     format_template = "{: <5} {: <10} {: <20}"
     print(format_template.format('shard', 'dur (s)', 'replays'), '\n')
-    for shard in get_shards(replays, num_shards):
+    for shard in get_shards(replays, estimated_durations, num_shards):
         total_duration = sum(estimated_durations[replay.name] for replay in shard)
         row = [
             str(ss),
@@ -564,7 +450,7 @@ if args.shard and args.print_shards:
         ss += 1
 
 if args.shard:
-    replays = get_shards(replays, num_shards)[shard_index - 1]
+    replays = get_shards(replays, estimated_durations, num_shards)[shard_index - 1]
     if not replays:
         print('nothing to run for this shard')
         exit(0)

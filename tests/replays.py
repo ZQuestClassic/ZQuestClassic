@@ -253,7 +253,7 @@ def estimate_fps(replay: Replay):
     return fps / estimate_divisor
 
 
-def apply_test_filter(tests: list[Path], filter: str):
+def apply_test_filter(tests: list[Path], replays_dir: Path, filter: str):
     filter_as_path = Path(filter)
 
     exact_match = next((t for t in tests if t == filter_as_path.absolute()), None)
@@ -273,6 +273,60 @@ def apply_test_filter(tests: list[Path], filter: str):
         if filter_as_path.as_posix() in rel.as_posix():
             filtered.append(test)
     return filtered
+
+
+def group_arg(
+    raw_values: list[str],
+    tests: list[Path],
+    replays_dir: Path,
+    allow_concat=False,
+):
+    default_arg = None
+    arg_by_replay = {}
+    if raw_values:
+        for raw_value in raw_values:
+            if '=' in raw_value:
+                for replay, value in [raw_value.split('=')]:
+                    replay_full_path = replays_dir / replay
+
+                    # If absolute path can't be found, use a looser match of just the filename.
+                    if replay_full_path not in tests:
+                        for test in tests:
+                            if test.name == Path(replay).name:
+                                replay_full_path = test
+                                break
+
+                    if replay_full_path not in tests:
+                        raise Exception(f'unknown test {replay}')
+                    if replay_full_path in arg_by_replay:
+                        if not allow_concat:
+                            raise Exception('cannot include of the same key')
+                        arg_by_replay[replay_full_path] += f' {value}'
+                    else:
+                        arg_by_replay[replay_full_path] = value
+            else:
+                if default_arg != None:
+                    raise Exception('can only define one default value')
+                default_arg = raw_value
+
+    return (arg_by_replay, default_arg)
+
+
+# https://stackoverflow.com/a/6856593/2788187
+def get_shards(
+    replays: list[Replay], estimated_durations: dict, n: int
+) -> list[list[Replay]]:
+    result = [[] for i in range(n)]
+    sums = {i: 0 for i in range(n)}
+    c = 0
+    for replay in replays:
+        for i in sums:
+            if c == sums[i]:
+                result[i].append(replay)
+                break
+        sums[i] += estimated_durations[replay.name]
+        c = min(sums.values())
+    return result
 
 
 def time_format(ms: int):
