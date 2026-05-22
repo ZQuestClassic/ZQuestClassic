@@ -940,8 +940,10 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 	temp.yofs = 0;
 	data.get(temp.clk2, temp.aframe, &temp.csclk);
 	temp.script = 0; // ensure no scripts
-	temp.animate(0);
-	temp.draw(dest);
+	if (replay_version_check(0, 56))
+		temp.animate(0);
+	else if(!get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING))
+		temp.animate_graphics();
 	
 	temp.draw(dest);
 	data.update(temp.clk2, temp.aframe, temp.csclk);
