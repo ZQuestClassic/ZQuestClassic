@@ -11,7 +11,7 @@ from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-tmp_dir = script_dir / '.tmp/test_ci'
+tmp_dir = root_dir / '.tmp/test_ci'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
