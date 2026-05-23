@@ -36,39 +36,57 @@ static std::unordered_map<pal_table_cache_key, std::unique_ptr<pal_table_cache_e
 static constexpr int pal_table_cache_max_memory_mb = 10;
 static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
 
+// Direct cache for the most-recently-used entry — avoids the hash map lookup
+// on consecutive calls with the same palette (common in steady-state gameplay
+// and for the repeated loadlvlpal calls inside the fade loop).
+static pal_table_cache_key last_key;
+static pal_table_cache_entry* last_entry;
+
 void refresh_rgb_tables()
 {
-	if (pal_table_cache.size() > pal_table_cache_max_size)
-		pal_table_cache.erase(pal_table_cache.begin());
-
+	// Key on 6-bit values (>> 2) because both create_rgb_table and
+	// create_zc_trans_table divide components by 4 before any computation.
+	// Palettes that differ only within a 4-unit 8-bit band produce identical
+	// tables, so keying on 6-bit values gives correct cache hits for small
+	// palette changes such as fine-grained fades.
 	pal_table_cache_key key;
 	for (int i = 0; i < PAL_SIZE; i++)
-		key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
+		key[i] = (RAMpal[i].r >> 2) | (uint32_t(RAMpal[i].g >> 2) << 8) | (uint32_t(RAMpal[i].b >> 2) << 16);
 
-	auto cache_it = pal_table_cache.find(key);
-	if (cache_it == pal_table_cache.end())
+	pal_table_cache_entry* entry;
+
+	if (last_entry && key == last_key)
 	{
-		auto new_entry = std::make_unique<pal_table_cache_entry>();
-
-		create_rgb_table(&new_entry->rgb_table, RAMpal, NULL);
-		rgb_table = &new_entry->rgb_table;
-		rgb_map = rgb_table;
-
-		create_zc_trans_table(&new_entry->trans_table, RAMpal, 128, 128, 128);
-		memcpy(&new_entry->trans_table2, &new_entry->trans_table, sizeof(COLOR_MAP));
-
-		trans_table = &new_entry->trans_table;
-		trans_table2 = &new_entry->trans_table2;
-
-		pal_table_cache[key] = std::move(new_entry);
+		entry = last_entry;
 	}
 	else
 	{
-		rgb_table = &cache_it->second->rgb_table;
-	 rgb_map = rgb_table;
-		trans_table = &cache_it->second->trans_table;
-		trans_table2 = &cache_it->second->trans_table2;
+		if (pal_table_cache.size() > (size_t)pal_table_cache_max_size)
+			pal_table_cache.erase(pal_table_cache.begin());
+
+		auto cache_it = pal_table_cache.find(key);
+		if (cache_it == pal_table_cache.end())
+		{
+			auto new_entry = std::make_unique<pal_table_cache_entry>();
+
+			create_rgb_table(&new_entry->rgb_table, RAMpal, NULL);
+			rgb_map = &new_entry->rgb_table;
+
+			create_zc_trans_table(&new_entry->trans_table, RAMpal, 128, 128, 128);
+			memcpy(&new_entry->trans_table2, &new_entry->trans_table, sizeof(COLOR_MAP));
+
+			cache_it = pal_table_cache.emplace(key, std::move(new_entry)).first;
+		}
+
+		entry = cache_it->second.get();
+		last_key = key;
+		last_entry = entry;
 	}
+
+	rgb_table = &entry->rgb_table;
+	rgb_map = rgb_table;
+	trans_table = &entry->trans_table;
+	trans_table2 = &entry->trans_table2;
 
 	for (int i = 0; i < PAL_SIZE; i++)
 	{
