@@ -3481,27 +3481,55 @@ void updatescr(bool allowwavy)
 
 		static constexpr int pal_table_cache_max_memory_mb = 10;
 		static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
-		if (pal_table_cache.size() > pal_table_cache_max_size)
-			pal_table_cache.clear();
+
+		// Direct cache for the most-recently-used entry - avoids the map lookup
+		// on consecutive calls with the same palette (common in steady-state
+		// gameplay).
+		// NOTE: the upstream commit also keyed on 6-bit values (>> 2) to coalesce
+		// fade frames, relying on create_rgb_table/create_zc_trans_table dividing
+		// 8-bit components by 4. This 2.55 branch uses a 6-bit palette that those
+		// functions consume at full precision, so that coalescing would change the
+		// generated tables; the key is left at full precision here.
+		static pal_table_cache_key last_key;
+		static const pal_table_cache_entry* last_entry = nullptr;
 
 		pal_table_cache_key key;
 		for (int i = 0; i < PAL_SIZE; i++)
 			key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
-		auto cache_it = pal_table_cache.find(key);
-		if (cache_it == pal_table_cache.end())
+
+		const pal_table_cache_entry* entry;
+		if (last_entry && key == last_key)
 		{
-			create_rgb_table(&rgb_table, RAMpal, NULL);
-			create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-			pal_table_cache[key] = {rgb_table, trans_table};
-			trans_table2 = trans_table;
+			entry = last_entry;
 		}
 		else
 		{
-			rgb_table = cache_it->second.rgb_table;
-			trans_table = cache_it->second.trans_table;
-			trans_table2 = cache_it->second.trans_table;
+			if (pal_table_cache.size() > (size_t)pal_table_cache_max_size)
+			{
+				pal_table_cache.clear();
+				last_entry = nullptr; // invalidated by clear()
+			}
+
+			auto cache_it = pal_table_cache.find(key);
+			if (cache_it == pal_table_cache.end())
+			{
+				// Build into the globals first: create_zc_trans_table reads the
+				// global rgb_map (which points at rgb_table), so rgb_table must be
+				// current before it runs.
+				create_rgb_table(&rgb_table, RAMpal, NULL);
+				create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+				cache_it = pal_table_cache.emplace(key, pal_table_cache_entry{rgb_table, trans_table}).first;
+			}
+
+			entry = &cache_it->second;
+			last_key = key;
+			last_entry = entry;
 		}
-		
+
+		rgb_table = entry->rgb_table;
+		trans_table = entry->trans_table;
+		trans_table2 = entry->trans_table;
+
 		for(int32_t q=0; q<PAL_SIZE; q++)
 		{
 			trans_table2.data[0][q] = q;
