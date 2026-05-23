@@ -729,6 +729,7 @@ class mapdata {
 	//
 	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
+	// @versionadded 3.0
 	// @zasm_var MAPDATACOMBODATAD
 	internal const combodata ComboData[];
 

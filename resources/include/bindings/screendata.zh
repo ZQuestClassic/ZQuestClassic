@@ -451,6 +451,7 @@ class screendata {
 	// The [combodata] of each of the [NUM_COMBO_POS] combo positions on the screen.
 	// Read-only, modify by editing the [ComboD] ID.
 	//
+	// @versionadded 3.0
 	// @zasm_var COMBODATAD
 	internal const combodata ComboData[];
 	

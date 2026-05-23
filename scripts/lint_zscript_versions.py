@@ -603,7 +603,13 @@ def get_symbol_status(
         ln = name.lower()
         if ln in all_global_names_255_lower:
             arities = all_global_names_255_lower[ln]
-            if not class_obj or len(name) > 8:
+            # Don't let class/type names (combodata, mapdata, etc.) in the
+            # implicit globals list falsely match same-lowercase class member
+            # names (e.g. Screen->ComboData matching the 'combodata' type entry).
+            is_class_type_name = class_obj and any(
+                k.lower() == ln for k in builtins_255.keys()
+            )
+            if (not class_obj or len(name) > 8) and not is_class_type_name:
                 if (None in arities and symbol_arity_range[0] is None) or (
                     symbol_arity_range[0] in arities
                 ):
