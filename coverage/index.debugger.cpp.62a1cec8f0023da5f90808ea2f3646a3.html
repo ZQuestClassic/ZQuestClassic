@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-22 15:46:37</td>
+      <td>2026-05-23 02:26:12</td>
     </tr>
   </table>
 </div>
@@ -113,12 +113,12 @@
     <tr><td><a href="#l1209">zscript_debugger_clear() (line 1209)</a></td><td>called 731 times, returned 731 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1246">zscript_debugger_close() (line 1246)</a></td><td>called 1 time, returned 1 time</td><td>66.0%</td></tr>
     <tr><td><a href="#l1115">zscript_debugger_exec(unsigned int) (line 1115)</a></td><td>called 170474 times, returned 170474 times</td><td>86.0%</td></tr>
-    <tr><td><a href="#l1199">zscript_debugger_get_if_open() (line 1199)</a></td><td>called 71501178 times, returned 71501178 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1199">zscript_debugger_get_if_open() (line 1199)</a></td><td>called 71499516 times, returned 71499516 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1218">zscript_debugger_init() (line 1218)</a></td><td>called 731 times, returned 731 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1204">zscript_debugger_is_open() (line 1204)</a></td><td>called 2701608001 times, returned 2701608001 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1204">zscript_debugger_is_open() (line 1204)</a></td><td>called 2701463665 times, returned 2701463665 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1186">zscript_debugger_open() (line 1186)</a></td><td>called 6 times, returned 6 times</td><td>80.0%</td></tr>
     <tr><td><a href="#l1178">zscript_debugger_reset() (line 1178)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1233">zscript_debugger_update() (line 1233)</a></td><td>called 22989023 times, returned 22989023 times</td><td>71.0%</td></tr>
+    <tr><td><a href="#l1233">zscript_debugger_update() (line 1233)</a></td><td>called 22987291 times, returned 22987291 times</td><td>71.0%</td></tr>
   </table>
 </details>
 
@@ -10229,7 +10229,7 @@
       <td class="lineno"><a id="l1199" href="#l1199">1199</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">71501178</td>
+      <td class="linecount coveredLine">71499516</td>
       <td class="src coveredLine"><span class="n">Debugger</span><span class="o">*</span><span class="w"> </span><span class="n">zscript_debugger_get_if_open</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -10243,7 +10243,7 @@
       <td class="lineno"><a id="l1201" href="#l1201">1201</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">71501178</td>
+      <td class="linecount coveredLine">71499516</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">debugger</span><span class="p">.</span><span class="n">get</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -10264,7 +10264,7 @@
       <td class="lineno"><a id="l1204" href="#l1204">1204</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2701608001</td>
+      <td class="linecount coveredLine">2701463665</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">zscript_debugger_is_open</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -10278,7 +10278,7 @@
       <td class="lineno"><a id="l1206" href="#l1206">1206</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2701608001</td>
+      <td class="linecount coveredLine">2701463665</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">debugger</span><span class="p">.</span><span class="n">get</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
@@ -10490,7 +10490,7 @@
       <td class="lineno"><a id="l1233" href="#l1233">1233</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">22989023</td>
+      <td class="linecount coveredLine">22987291</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">zscript_debugger_update</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -10507,18 +10507,18 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 409 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 22988614 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 22986882 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">22989023</td>
+      <td class="linecount coveredLine">22987291</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">debugger</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1236" href="#l1236">1236</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">22988614</td>
+      <td class="linecount coveredLine">22986882</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -10588,7 +10588,7 @@
       <td class="lineno"><a id="l1244" href="#l1244">1244</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">22989023</td>
+      <td class="linecount coveredLine">22987291</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
