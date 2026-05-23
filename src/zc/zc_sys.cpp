@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <math.h>
-#include <map>
+#include <unordered_map>
 #include <filesystem>
 #include <ctype.h>
 #include <sstream>
@@ -1827,8 +1827,8 @@ int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bun
 	}
 }
 
-std::map<int32_t, int32_t> itemcache;
-std::map<int32_t, int32_t> itemcache_cost;
+std::unordered_map<int32_t, int32_t> itemcache;
+std::unordered_map<int32_t, int32_t> itemcache_cost;
 
 void removeFromItemCache(int32_t itemclass)
 {
@@ -1882,30 +1882,52 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	
 	int result = -1;
 	int highestlevel = -1;
-	
+
 	size_t sz = MAXITEMS;
 	if (itemtype != 0)
 		sz = itemsbuf.capacity();
 	sz = zc_min(sz, game->items_owned.length());
+	sz = zc_min(sz, itemsbuf.capacity()); // ensure raw pointer access is always in-bounds
+
+	// Raw pointers bypass the double bounds-check inside bounded_vec::at on every
+	// iteration. sz is already bounded by both containers' sizes, so direct
+	// indexing is safe.
+	const itemdata* items_raw = itemsbuf.inner().data();
+	// items_owned and items_off are bitstrings: one bit per item, packed into bytes.
+	// .inner().inner() unwraps bitstring -> bounded_vec -> std::vector to get the raw bytes.
+	const byte* owned_raw = game->items_owned.inner().inner().data();
+	const byte* off_raw = game->items_off.inner().inner().data();
+	// items_off may have fewer bytes allocated than items_owned; indices beyond
+	// its allocation are treated as 0 (not disabled), matching bounded_vec's default.
+	const size_t off_bytes_sz = game->items_off.inner().inner().size();
+
 	for(size_t i=0; i<sz; i++)
 	{
-		auto const& itm = itemsbuf.get(i);
-		if(game->get_item(i) && itm.type==itemtype && !item_disabled(i))
-		{
-			if(checkmagic && itemtype != itype_magicring)
-				if(!checkmagiccost(i))
-					continue;
-			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
-				if(!(itm.flags & item_jinx_immune))
-					continue;
-			if(check_bunny && !checkbunny(i))
+		// Each bit in the bitstring represents one item. Item i lives in byte i/8,
+		// at bit position i%8. Use i>>3 and i&7 (equivalent, same codegen).
+		if(!((owned_raw[i >> 3] >> (i & 7)) & 1))
+			continue;
+		const itemdata& itm = items_raw[i];
+		if(itm.type != itemtype)
+			continue;
+		// Equivalent to item_disabled(i); valid_item_id is always true here (i < sz <= MAXITEMS).
+		// Guard the byte index because items_off may be shorter than items_owned.
+		if((i >> 3) < off_bytes_sz && ((off_raw[i >> 3] >> (i & 7)) & 1))
+			continue;
+
+		if(checkmagic && itemtype != itype_magicring)
+			if(!checkmagiccost(i))
 				continue;
-			
-			if(itm.level >= highestlevel)
-			{
-				highestlevel = itm.level;
-				result=i;
-			}
+		if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
+			if(!(itm.flags & item_jinx_immune))
+				continue;
+		if(check_bunny && !checkbunny(i))
+			continue;
+
+		if(itm.level >= highestlevel)
+		{
+			highestlevel = itm.level;
+			result=i;
 		}
 	}
 	
