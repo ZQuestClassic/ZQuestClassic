@@ -65,7 +65,7 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@3ea4dc59b06f3baa8c01ba891fbfc2dbfdce5bc8
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11.4'
           cache: pip
@@ -77,7 +77,7 @@ jobs:
         run: sudo pip install gcovr
       - run: mkdir -p .tmp
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -143,7 +143,7 @@ jobs:
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Updater cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
@@ -157,7 +157,7 @@ jobs:
         run: bash tests/generate_coverage_report.sh
         env:
           GCOV: llvm-cov-14 gcov
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: inputs.config == 'Coverage'
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
@@ -173,13 +173,13 @@ jobs:
             cd .tmp/test_results
             bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}

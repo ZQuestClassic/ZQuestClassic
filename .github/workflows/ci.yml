@@ -77,14 +77,14 @@ jobs:
         with:
           # Need history to find baseline commit.
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11.4'
           cache: pip
       - run: pip install -r requirements.txt
 
       - run: mkdir test-results
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: test-results
           pattern: replay-*
@@ -127,7 +127,7 @@ jobs:
           )
 
       # Upload as artifact, so that if publishing to surge fails the report is still accessible.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: report
@@ -167,7 +167,7 @@ jobs:
 
       # Setup build cache via ccache.
       - name: ccache cache files
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .ccache
           key: web-ccache-${{ github.run_id }}
@@ -207,14 +207,14 @@ jobs:
       - run: BUILD_FOLDER=build_emscripten/Release xvfb-run --auto-servernum python -Xutf8 tests/test_zeditor.py
       - run: BUILD_FOLDER=build_emscripten/Release xvfb-run --auto-servernum python -Xutf8 tests/test_zplayer.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: emscripten cmake
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: web test results
