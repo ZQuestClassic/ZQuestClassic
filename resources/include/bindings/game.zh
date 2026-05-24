@@ -1488,7 +1488,7 @@ class Game {
 	// @zasm
 	//   CURRENTITEMID
 	//   POPARGS D5 0.0002
-	internal int CurrentItemID(int itemtype, int bitflags = 1L);
+	internal int CurrentItemID(int itemtype, int bitflags = CIID_FLAG_CHECKCOST);
 
 	// Loads the [subscreendata] pointer for the specified
 	// active subscreen.
