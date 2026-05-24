@@ -27035,6 +27035,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
             }
         }
         
+		handleSpotlights();
         clear_darkroom_bitmaps();
         update_viewport();
         draw_screen();
