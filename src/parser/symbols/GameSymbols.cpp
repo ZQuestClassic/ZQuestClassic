@@ -211,7 +211,7 @@ static AccessorTable gameTable[] =
 	{ "getOverrideItems[]",         0,         ZTID_FLOAT,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setOverrideItems[]",         0,          ZTID_VOID,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "CurrentItemID",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 0x01 } },
+	{ "CurrentItemID",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 10000 } },
 	
 	{ "getActiveSubscreenOpen",     0,          ZTID_BOOL,   GAMEASUBOPEN,         FL_INL,  { ZTID_GAME },{} },
 	{ "setActiveSubscreenOpen",     0,          ZTID_VOID,   GAMEASUBOPEN,      FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
