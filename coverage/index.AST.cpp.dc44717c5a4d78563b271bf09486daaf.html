@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-23 02:26:12</td>
+      <td>2026-05-24 03:47:23</td>
     </tr>
   </table>
 </div>
@@ -110,7 +110,7 @@
     <tr><td><a href="#l1394">ZScript::ASTDataDecl::ASTDataDecl(ZScript::ASTDataDecl const&amp;) (line 1394)</a></td><td>called 52850 times, returned 52850 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l1388">ZScript::ASTDataDecl::ASTDataDecl(ZScript::LocationData const&amp;) (line 1388)</a></td><td>called 9316629 times, returned 9316629 times</td><td>38.0%</td></tr>
     <tr><td><a href="#l1422">ZScript::ASTDataDecl::execute(ZScript::ASTVisitor&amp;, void*) (line 1422)</a></td><td>called 11429087 times, returned 11429087 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1485">ZScript::ASTDataDecl::getScope() const (line 1485)</a></td><td>called 150623 times, returned 150623 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1485">ZScript::ASTDataDecl::getScope() const (line 1485)</a></td><td>called 150643 times, returned 150643 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1407">ZScript::ASTDataDecl::operator=(ZScript::ASTDataDecl const&amp;) (line 1407)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1452">ZScript::ASTDataDecl::resolveType(ZScript::Scope*, ZScript::CompileErrorHandler*) (line 1452)</a></td><td>called 13556914 times, returned 13556914 times</td><td>86.0%</td></tr>
     <tr><td><a href="#l1474">ZScript::ASTDataDecl::resolve_ornull(ZScript::Scope*, ZScript::CompileErrorHandler*) (line 1474)</a></td><td>called 10407403 times, returned 10407403 times</td><td>100.0%</td></tr>
@@ -123,7 +123,7 @@
     <tr><td><a href="#l1272">ZScript::ASTDataDeclList::ASTDataDeclList(ZScript::LocationData const&amp;) (line 1272)</a></td><td>called 2767897 times, returned 2767897 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l1323">ZScript::ASTDataDeclList::addDeclaration(ZScript::ASTDataDecl*) (line 1323)</a></td><td>called 6205881 times, returned 6205881 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l1311">ZScript::ASTDataDeclList::execute(ZScript::ASTVisitor&amp;, void*) (line 1311)</a></td><td>called 6703905 times, returned 6703905 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1316">ZScript::ASTDataDeclList::getScope() const (line 1316)</a></td><td>called 37281 times, returned 37281 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l1316">ZScript::ASTDataDeclList::getScope() const (line 1316)</a></td><td>called 37301 times, returned 37301 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l1290">ZScript::ASTDataDeclList::operator=(ZScript::ASTDataDeclList const&amp;) (line 1290)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1340">ZScript::ASTDataEnum::ASTDataEnum(ZScript::ASTDataEnum const&amp;) (line 1340)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1334">ZScript::ASTDataEnum::ASTDataEnum(ZScript::LocationData const&amp;) (line 1334)</a></td><td>called 184499 times, returned 184499 times</td><td>50.0%</td></tr>
@@ -11312,7 +11312,7 @@
       <td class="lineno"><a id="l1316" href="#l1316">1316</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37281</td>
+      <td class="linecount coveredLine">37301</td>
       <td class="src coveredLine"><span class="n">Scope</span><span class="o">*</span><span class="w"> </span><span class="n">ASTDataDeclList</span><span class="o">::</span><span class="n">getScope</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -11329,11 +11329,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 37281 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 37301 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">37281</td>
+      <td class="linecount partialCoveredLine">37301</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">declarations_</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -11347,14 +11347,14 @@
       <td class="lineno"><a id="l1320" href="#l1320">1320</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37281</td>
+      <td class="linecount coveredLine">37301</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">declarations_</span><span class="p">.</span><span class="n">front</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getScope</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1321" href="#l1321">1321</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37281</td>
+      <td class="linecount coveredLine">37301</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -12734,7 +12734,7 @@
       <td class="lineno"><a id="l1485" href="#l1485">1485</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">150623</td>
+      <td class="linecount coveredLine">150643</td>
       <td class="src coveredLine"><span class="n">Scope</span><span class="o">*</span><span class="w"> </span><span class="n">ASTDataDecl</span><span class="o">::</span><span class="n">getScope</span><span class="p">()</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -12748,7 +12748,7 @@
       <td class="lineno"><a id="l1487" href="#l1487">1487</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">150623</td>
+      <td class="linecount coveredLine">150643</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">manager</span><span class="o">-&gt;</span><span class="n">scope</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
