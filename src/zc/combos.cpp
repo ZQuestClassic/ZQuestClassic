@@ -1785,16 +1785,21 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 	
 	if (trig.trigcschange)
 	{
-		handle.set_cset((ocs + trig.trigcschange) & 0xF);
+		if (trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
+			handle.set_cset(trig.trigcschange & 0xF);
+		else handle.set_cset((ocs + trig.trigcschange) & 0xF);
 	}
 	if (trig.trigchange)
 	{
 		if (is_active_screen)
 			screen_combo_modify_preroutine(handle);
-		handle.modify_data(trig.trigchange);
+		if (trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
+			handle.set_data(BOUND_COMBO(trig.trigchange));
+		else handle.set_data(BOUND_COMBO(cid + trig.trigchange));
 		if (is_active_screen)
 			screen_combo_modify_postroutine(handle);
 	}
+	
 	if (trig.trigger_flags.get(TRIGFLAG_RESETANIM))
 	{
 		auto& rcmb = combobuf[handle.data()];
