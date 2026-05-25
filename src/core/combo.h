@@ -151,8 +151,8 @@ struct newcombo
 	byte skipanimy;
 	byte animflags;
 	zfix c_attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
-	int32_t usrflags; // combodata->Flags
-	int16_t genflags; // general flags
+	uint32_t usrflags; // combodata->Flags
+	uint16_t genflags; // general flags
 	lift_flags liftflags;
 	byte liftlvl;
 	word liftsfx;
@@ -197,6 +197,71 @@ struct newcombo
 	
 	void advpaste(newcombo const& other, bitstring const& pasteflags);
 };
+
+// Define "view" structs to help access combo's c_attributes. Usage:
+//     ComboView_CutsceneEffect_Camera cv{cmb};
+//     zfix& speed = cv.speed()
+
+// Macro helpers.
+
+#define MAKE_VIEW_ATTR(idx, name) \
+	zfix& name() \
+	{ \
+		return attr[idx]; \
+	} \
+	const zfix& name() const \
+	{ \
+		return attr[idx]; \
+	}
+
+#define DEFINE_VIEW(ViewName, AttrList) \
+	struct ComboView_##ViewName \
+	{ \
+		zfix* attr; \
+		ComboView_##ViewName(newcombo& cmb) : attr(cmb.c_attributes) \
+		{ \
+		} \
+		ComboView_##ViewName(const newcombo& cmb) : attr(const_cast<zfix*>(cmb.c_attributes)) \
+		{ \
+		} \
+		AttrList(MAKE_VIEW_ATTR) \
+	};
+
+// (index, name) macros.
+
+#define CAMERA_ATTRS(X) \
+	X(0, speed) \
+	X(1, idle_time) \
+	X(2, interpolation_mode) \
+	X(3, sub_type) \
+	X(4, dest_x) \
+	X(5, dest_y) \
+	X(6, causes_mode)
+
+#define PLAYER_WALK_ATTRS(X) \
+	X(0, dest_x) \
+	X(1, dest_y) \
+	X(2, move_speed)
+
+// Generate the structs.
+DEFINE_VIEW(CutsceneEffect_Camera, CAMERA_ATTRS)
+DEFINE_VIEW(CutsceneEffect_PlayerWalk, PLAYER_WALK_ATTRS)
+
+// TODO: If we like the above approach, refactor existing code to use this.
+// Though I like the "View" structs, I don't like the macros and may prefer to define
+// these in a YAML file and then generate the C++ via Python. For example:
+//
+// combos:
+//   CutsceneEffect_Camera:
+//     attributes:
+//       1: speed # default to creating zfix accessor
+//       # Dictionary format can specify the type that the underlying zfix is interpreted as.
+//       2:
+//         name: freeze
+//         type: bool
+//       3:
+//         name: camera_mode
+//         type: CameraModeEnum
 
 #define AF_FRESH                        0x01
 #define AF_CYCLE                        0x02

@@ -1,9 +1,11 @@
 #include "combowizard.h"
+#include "base/general.h"
 #include "info.h"
 #include "alertfunc.h"
 #include "zalleg/zsys.h"
 #include "tiles.h"
 #include "gui/builder.h"
+#include "zc/maps.h"
 #include "zc_list_data.h"
 #include "items.h"
 #include "zc/weapons.h"
@@ -804,7 +806,30 @@ void ComboWizardDialog::endUpdate()
 			break;
 		}
 		case cCUTSCENEEFFECT:
+		{
+			switch (local_ref.c_attributes[8].getTrunc())
+			{
+				case CUTEFF_PLAYER_WALK:
+					break;
+				case CUTEFF_CAMERA:
+				{
+					ComboView_CutsceneEffect_Camera cv{local_ref};
+					zfix& sub_type = cv.sub_type();
+					zfix& dest_x = cv.dest_x();
+					zfix& dest_y = cv.dest_y();
+					if (sub_type.getTrunc() == (int)CameraEffectSubType::ReturnToHero)
+					{
+						// Has no x/y offset
+						dest_x = 0;
+						dest_y = 0;
+						// Always 'returns'
+						SETFLAG(local_ref.usrflags, cflag2, true);
+					}
+					break;
+				}
+			}
 			break;
+		}
 		case cSAVE: case cSAVE2:
 		{
 			if (!(local_ref.usrflags & cflag1))
@@ -862,8 +887,13 @@ void combo_default(newcombo& ref, bool typeonly)
 {
 	if(typeonly)
 	{
+		// c_attributes[8] selects the cutscene sub-effect; preserve it across the reset so switching
+		// to a sub-effect initializes that sub-effect's defaults instead of reverting to sub-effect 0.
+		zfix cutscene_subtype = ref.c_attributes[8];
 		memset(ref.c_attributes, 0, sizeof(ref.c_attributes));
 		ref.usrflags = 0;
+		if(ref.type == cCUTSCENEEFFECT)
+			ref.c_attributes[8] = cutscene_subtype;
 	}
 	else
 	{
@@ -947,13 +977,31 @@ void combo_default(newcombo& ref, bool typeonly)
 			{
 				default:
 					ref.c_attributes[8] = CUTEFF_PLAYER_WALK;
-				[[fallthrough]];
+					[[fallthrough]];
 				case CUTEFF_PLAYER_WALK:
-					ref.c_attributes[0] = ref.c_attributes[1] = 0;
-					ref.c_attributes[2] = 0;
+				{
+					ComboView_CutsceneEffect_PlayerWalk cv{ref};
+					cv.dest_x() = 0;
+					cv.dest_y() = 0;
+					cv.move_speed() = 0;
 					SETFLAG(ref.usrflags, cflag1, true);
 					SETFLAG(ref.usrflags, cflag2, false);
 					break;
+				}
+				case CUTEFF_CAMERA:
+				{
+					ComboView_CutsceneEffect_Camera cv{ref};
+					cv.idle_time() = 0;
+					cv.interpolation_mode() = 0;
+					cv.speed() = 2;
+					cv.sub_type() = (int)CameraEffectSubType::RelativeToCombo;
+					cv.dest_x() = 0;
+					cv.dest_y() = 0;
+					cv.causes_mode() = (int)CameraEffectCausesMode::OnFinish;
+					SETFLAG(ref.usrflags, cflag1, true); // freeze
+					SETFLAG(ref.usrflags, cflag2, true); // return to hero
+					break;
+				}
 			}
 			break;
 		}
@@ -4563,26 +4611,35 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			zfix& effect_type = local_ref.c_attributes[8];
 			effect_type.doTrunc();
 			lists[0] = GUI::ListData({
-				{ "Player Walk", CUTEFF_PLAYER_WALK, "The player auto-walks to the destination (angularly) (when triggered via '->ComboType Effects')."
+				{
+					"Player Walk", CUTEFF_PLAYER_WALK, "The player auto-walks to the destination (angularly) (when triggered via '->ComboType Effects')."
 					"\nTriggers 'ComboType Causes->' when the player finishes the auto-walk (either because they reached their destination,"
 					" or because they reached the edge of the screen on their way to the destination, triggering just before scrolling occurs)"
 					"\nNOTE: The player will walk ignoring solidity and most combo types in a straight line to the destination."
-					"\nRequires 'Newer Hero Movement'." + QRHINT({qr_NEW_HERO_MOVEMENT2}) }
+					"\nRequires 'Newer Hero Movement'." + QRHINT({qr_NEW_HERO_MOVEMENT2})
+				},
+				{
+					"Camera", CUTEFF_CAMERA, "The camera pans to center on this combo's position (when triggered via '->ComboType Effects')."
+					"\nTriggers 'ComboType Causes->' when the camera finishes moving (when it reaches the target, or, if 'Return to Hero' is set, once it returns to the Hero)."
+					"\nTo chain camera movements, use the 'ComboType Causes->' trigger to start another Camera combo's effect (for example, to pan back to the Hero with its own follow-up trigger)."
+					"\nOnly has a visible effect inside scrolling regions large enough for the viewport to move."
+				}
 			});
 			std::shared_ptr<GUI::Grid> g;
 			switch(effect_type.getTrunc())
 			{
 				case CUTEFF_PLAYER_WALK:
 				{
+					ComboView_CutsceneEffect_PlayerWalk cv{local_ref};
 					auto rel_flags = cflag1|cflag2;
 					lists[1] = GUI::ListData({
 						{ "Absolute", 0 },
 						{ "Relative to Combo", cflag1 },
 						{ "Relative to Player", cflag2 }
 					});
-					int32_t& dest_x = local_ref.c_attributes[0].val;
-					int32_t& dest_y = local_ref.c_attributes[1].val;
-					int32_t& move_speed = local_ref.c_attributes[2].val;
+					int32_t& dest_x = cv.dest_x().val;
+					int32_t& dest_y = cv.dest_y().val;
+					int32_t& move_speed = cv.move_speed().val;
 					g = Rows<3>(
 						Label(text = "Dest X:", hAlign = 1.0),
 						TextField(
@@ -4626,6 +4683,164 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					);
 					break;
 				}
+				case CUTEFF_CAMERA:
+				{
+					ComboView_CutsceneEffect_Camera cv{local_ref};
+					int32_t& speed = cv.speed().val;
+					int32_t& idle_time = cv.idle_time().val;
+					int32_t& interpolation_mode = cv.interpolation_mode().val;
+					zfix& sub_type = cv.sub_type();
+					int32_t& dest_x = cv.dest_x().val;
+					int32_t& dest_y = cv.dest_y().val;
+					zfix& causes_mode = cv.causes_mode();
+					
+					sub_type.doTrunc();
+					causes_mode.doTrunc();
+
+					lists[1] = GUI::ListData({
+						{ "Linear", (int)CameraEffectInterpolationMode::Linear },
+						{ "EaseIn", (int)CameraEffectInterpolationMode::EaseIn },
+						{ "EaseOut", (int)CameraEffectInterpolationMode::EaseOut },
+						{ "EaseInOut", (int)CameraEffectInterpolationMode::EaseInOut },
+						{ "Smoothstep", (int)CameraEffectInterpolationMode::Smoothstep },
+						{ "Smootherstep", (int)CameraEffectInterpolationMode::Smootherstep },
+						{ "EaseOutCubic", (int)CameraEffectInterpolationMode::EaseOutCubic },
+						{ "EaseOutBack", (int)CameraEffectInterpolationMode::EaseOutBack }
+					});
+					
+					lists[2] = GUI::ListData({
+						{ "Relative to Combo", (int)CameraEffectSubType::RelativeToCombo,
+							"Position is an offset from centered on this combo." },
+						{ "Relative to Hero", (int)CameraEffectSubType::RelativeToHero,
+							"Position is an offset from centered on the Hero's position when the effect triggers."
+							" Does NOT follow the Hero if they continue to move!"
+							"\nIf a script modifies the viewport target sprite,"
+							" that sprite will be used instead of the Hero." },
+						{ "Relative to Viewport", (int)CameraEffectSubType::RelativeToViewport,
+							"Position is an offset from the current viewport." },
+						{ "Absolute", (int)CameraEffectSubType::Absolute,
+							"Position is an absolute coordinate in the region." },
+						{ "Return To Hero", (int)CameraEffectSubType::ReturnToHero,
+							"Position is unused, camera returns to following the Hero." },
+					});
+					
+					lists[3] = GUI::ListData({
+						{ "On Finish", (int)CameraEffectCausesMode::OnFinish,
+							"'ComboType Causes->' triggers when the entire camera effect ends." },
+						{ "Before Return", (int)CameraEffectCausesMode::BeforeReturn,
+							"'ComboType Causes->' triggers after idle frames, before 'Return to Hero'."
+							" If 'Return to Hero' is not set, acts same as 'On Finish'." },
+						{ "Before Idle", (int)CameraEffectCausesMode::BeforeIdle,
+							"'ComboType Causes->' triggers after the pan, before the idle frames."
+							" If 'Idle Time' is '0', acts the same as 'Before Return'." },
+					});
+					
+					bool ret_hero = sub_type == (int)CameraEffectSubType::ReturnToHero;
+					bool no_pos = ret_hero;
+
+					g = Rows<3>(
+						Label(text = "Subtype", hAlign = 1.0),
+						DropDownList(data = lists[2],
+							fitParent = true, selectedValue = sub_type,
+							onSelectFunc = [&](int32_t val)
+							{
+								sub_type = val;
+								refresh_dlg();
+							}
+						),
+						INFOBTN_REF(lists[2].findInfo(sub_type)),
+						
+						Label(text = "X Position", disabled = no_pos, hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = dest_x, disabled = no_pos,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								dest_x = val;
+							}),
+						INFOBTN("The X target, as determined by Subtype."),
+						
+						Label(text = "Y Position", disabled = no_pos, hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = dest_y, disabled = no_pos,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								dest_y = val;
+							}),
+						INFOBTN("The Y target, as determined by Subtype."),
+						
+						Label(text = "Speed (px/frame)", hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = speed,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								speed = val;
+							}),
+						INFOBTN("How fast the camera moves toward the target, in pixels per frame."
+							" The travel time is derived from this speed and the distance to the target."
+							" Must be greater than 0."),
+
+						Label(text = "Idle time (frames)", hAlign = 1.0),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = idle_time,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								idle_time = val;
+							}),
+						INFOBTN("How many frames the camera waits at the target before finishing (or,"
+							" if 'Return to Hero' is set, before panning back). '0' means no wait."),
+
+						Label(text = "Interpolation", hAlign = 1.0),
+						DropDownList(data = lists[1],
+							fitParent = true, selectedValue = interpolation_mode / 10000,
+							onSelectFunc = [&](int32_t val)
+							{
+								interpolation_mode = val * 10000;
+							}),
+						INFOBTN("The easing curve for the camera's movement. 'Linear' moves at a constant speed;"
+							" the 'Ease' options accelerate and/or decelerate;"
+							" 'EaseOutBack' overshoots the target slightly before settling."),
+						
+						Label(text = "Causes Mode", hAlign = 1.0),
+						DropDownList(data = lists[3],
+							fitParent = true, selectedValue = causes_mode.getTrunc(),
+							onSelectFunc = [&](int32_t val)
+							{
+								causes_mode = val;
+							}),
+						INFOBTN_REF(lists[3].findInfo(causes_mode)),
+						
+						Checkbox(text = "Freeze", _EX_RBOX, colSpan = 2,
+							checked = (local_ref.usrflags&cflag1),
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag1,state);
+							}),
+						INFOBTN("If checked, the game is frozen (the Hero, enemies, etc. stop) while"
+							" the camera effect runs, and unfreezes once it finishes."),
+
+						Checkbox(text = "Return to Hero", _EX_RBOX, colSpan = 2,
+							checked = (local_ref.usrflags&cflag2),
+							disabled = ret_hero,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags, cflag2, state);
+							}),
+						INFOBTN("If checked, after reaching the target (and waiting out any 'Idle time'),"
+							" the camera pans back to the Hero before finishing. Otherwise it stays at"
+							" the target, and you can use a second Camera combo to move it again."
+							"\nIf a script modifies the viewport target sprite,"
+							" that sprite will be used instead of the Hero.")
+					);
+					break;
+				}
 				default: // bad type, default and reload
 				{
 					effect_type = CUTEFF_PLAYER_WALK;
@@ -4641,8 +4856,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						fitParent = true, selectedValue = effect_type,
 						onSelectFunc = [&](int32_t val)
 						{
+							// Save the current type's settings before switching, so toggling
+							// back and forth preserves each type's configuration.
 							alt_refs[effect_type] = local_ref;
-							
 							effect_type = val;
 							
 							auto ref_it = alt_refs.find(val);
@@ -4650,6 +4866,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref = ref_it->second;
 							else
 								combo_default(local_ref, true);
+							refresh_dlg();
 						}),
 					INFOBTN_REF(lists[0].findInfo(effect_type))
 				)

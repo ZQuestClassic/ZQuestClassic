@@ -83,7 +83,10 @@ void viewport_set_register(int32_t reg, int32_t value)
 		case VIEWPORT_TARGET:
 		{
 			if (auto s = ResolveBaseSprite(value))
+			{
 				set_viewport_sprite(s);
+				update_viewport();
+			}
 		}
 		break;
 		case VIEWPORT_WIDTH:

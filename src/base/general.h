@@ -433,6 +433,7 @@ enum class ScriptType {
 enum cutscene_effect_types : byte
 {
 	CUTEFF_PLAYER_WALK,
+	CUTEFF_CAMERA,
 	CUTEFF_MAX
 };
 

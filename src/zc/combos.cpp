@@ -1,5 +1,6 @@
 #include "base/general.h"
 #include "base/util.h"
+#include "core/combo.h"
 #include "core/handles.h"
 #include "core/qrs.h"
 #include "core/dmap.h"
@@ -339,14 +340,158 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 	}
 }
 
+static bool validate_interpolation_mode(CameraEffectInterpolationMode mode)
+{
+	return mode >= CameraEffectInterpolationMode::First && mode <= CameraEffectInterpolationMode::Last;
+}
+static bool validate_causes_mode(CameraEffectCausesMode mode)
+{
+	return mode >= CameraEffectCausesMode::First && mode <= CameraEffectCausesMode::Last;
+}
+
+static void start_cutscene_camera_effect(const combined_handle_t& handle)
+{
+	auto& cmb = handle.combo();
+	const ComboView_CutsceneEffect_Camera cv{cmb};
+
+	zfix speed = cv.speed();
+	if (speed <= 0)
+	{
+		Z_error("Invalid speed (must be > 0), ignoring camera effect. Got: %s\n", speed.str_trim().c_str());
+		return;
+	}
+
+	// Define the start point as the center of the current clamped viewport.
+	int start_x = viewport.x + viewport.w / 2;
+	int start_y = viewport.y + viewport.h / 2;
+	
+	// Figure out where the target is
+	zfix target_x, target_y;
+	bool instant_revert = false;
+	
+	auto sub_type = cv.sub_type().getTrunc();
+	switch ((CameraEffectSubType)sub_type)
+	{
+		case CameraEffectSubType::RelativeToCombo:
+		{
+			auto [cx, cy] = handle.center_xy();
+			target_x = cx + cv.dest_x();
+			target_y = cy + cv.dest_y();
+			break;
+		}
+		case CameraEffectSubType::RelativeToHero:
+		{
+			// Technically not always the hero, but same goes for Return to Hero flag
+			sprite* spr = get_viewport_sprite();
+			target_x = (spr->x + spr->txsz*16/2) + cv.dest_x();
+			target_y = (spr->y + spr->tysz*16/2) + cv.dest_y();
+			break;
+		}
+		case CameraEffectSubType::RelativeToViewport:
+		{
+			target_x = start_x + cv.dest_x();
+			target_y = start_y + cv.dest_y();
+			break;
+		}
+		case CameraEffectSubType::Absolute:
+		{
+			target_x = cv.dest_x();
+			target_y = cv.dest_y();
+			break;
+		}
+		case CameraEffectSubType::ReturnToHero:
+		{
+			target_x = start_x;
+			target_y = start_y;
+			instant_revert = true;
+			break;
+		}
+		default:
+		{
+			Z_error("Invalid sub_type, ignoring camera effect. Got: %d\n", sub_type);
+			return;
+		}
+	}
+
+	// Simulate where the viewport will end up after clamping.
+	viewport_t final_viewport = viewport;
+	calculate_viewport(final_viewport, cur_dmap, cur_screen, world_w, world_h, target_x, target_y);
+
+	// Define the destination as the center of that clamped viewport.
+	zfix dest_x = final_viewport.x + final_viewport.w / 2;
+	zfix dest_y = final_viewport.y + final_viewport.h / 2;
+
+	zfix dx = dest_x - start_x;
+	zfix dy = dest_y - start_y;
+	zfix total_distance = sqrt(dx * dx + dy * dy);
+	int duration_in_frames = total_distance / speed;
+	if (duration_in_frames <= 0)
+		duration_in_frames = 1;
+
+	auto interpolation_mode = (CameraEffectInterpolationMode)cv.interpolation_mode().getTrunc();
+	if (!validate_interpolation_mode(interpolation_mode))
+	{
+		Z_error("Invalid interpolation mode, ignoring camera effect. Got: %d\n", (int)interpolation_mode);
+		return;
+	}
+	auto causes_mode = (CameraEffectCausesMode)cv.causes_mode().getTrunc();
+	if (!validate_causes_mode(causes_mode))
+	{
+		Z_error("Invalid causes mode, ignoring camera effect. Got: %d\n", (int)causes_mode);
+		return;
+	}
+
+	int idle_frames = cv.idle_time().getTrunc();
+	if (idle_frames < 0)
+	{
+		Z_error("Invalid idle frames, ignoring camera effect. Got: %d\n", idle_frames);
+		return;
+	}
+
+	bool freeze_game = cmb.usrflags & cflag1;
+	bool return_to_hero = instant_revert || (cmb.usrflags & cflag2);
+	
+	// swap causes_modes based on other parameters
+	// BeforeIdle with no idle time runs BeforeReturn
+	if (causes_mode == CameraEffectCausesMode::BeforeIdle && !idle_frames)
+		causes_mode = CameraEffectCausesMode::BeforeReturn;
+	// BeforeReturn with no return runs OnFinish
+	if (causes_mode == CameraEffectCausesMode::BeforeReturn && !return_to_hero)
+		causes_mode = CameraEffectCausesMode::OnFinish;
+
+	set_camera_effect({
+		.handle = handle,
+		.cid = handle.data(),
+		.speed = speed,
+		.start_x = start_x,
+		.start_y = start_y,
+		.dest_x = dest_x,
+		.dest_y = dest_y,
+		.duration_in_frames = duration_in_frames,
+		.interpolation_mode = interpolation_mode,
+		.idle_frames = idle_frames,
+		.return_to_hero = return_to_hero,
+		.freeze_game = freeze_game,
+		.causes_mode = causes_mode,
+		.state = {
+			.stage = CameraState::Stage::Running,
+			.x = start_x,
+			.y = start_y,
+		},
+	});
+}
+
 void do_cutscene_effect(const combined_handle_t& handle)
 {
 	auto& cmb = handle.combo();
-	if(cmb.type != cCUTSCENEEFFECT) return;
+
 	switch(cmb.c_attributes[8].getTrunc())
 	{
 		case CUTEFF_PLAYER_WALK:
 			Hero.start_auto_walk(handle);
+			break;
+		case CUTEFF_CAMERA:
+			start_cutscene_camera_effect(handle);
 			break;
 	}
 }
@@ -2090,7 +2235,7 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 	{
 		if (trig.trigstatemap > map_count)
 		{
-			Z_error("Combo trigger expected map '%d', but map count is '%d'", trig.trigstatemap, map_count);
+			Z_error("Combo trigger expected map '%d', but map count is '%d'\n", trig.trigstatemap, map_count);
 			return false;
 		}
 		state_scr = &TheMaps[(trig.trigstatemap-1) * MAPSCRS + trig.trigstatescreen];

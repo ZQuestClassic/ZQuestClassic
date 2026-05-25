@@ -9,6 +9,7 @@
 #include <cstring>
 #include <assert.h>
 #include <math.h>
+#include <optional>
 #include <vector>
 #include <deque>
 #include <string>
@@ -412,8 +413,271 @@ void set_viewport_sprite(sprite* spr)
 	viewport_sprite_uid = spr->uid;
 }
 
+static std::optional<CameraEffect> active_camera_effect;
+
+void set_camera_effect(CameraEffect camera_effect)
+{
+	active_camera_effect = camera_effect;
+}
+
+std::optional<CameraEffect> get_active_camera_effect()
+{
+	return active_camera_effect;
+}
+
+bool has_active_camera_effect()
+{
+	return active_camera_effect.has_value();
+}
+
+void clear_camera_effect()
+{
+	active_camera_effect = std::nullopt;
+}
+
+enum class CameraEffectResult
+{
+	Continue, // The effect is still running this frame.
+	Idling, // The effect is beginning it's idle timer
+	Returning, // The effect is starting to return this frame
+	Finished, // The effect reached its end; the caller should clear it and fire its triggers.
+	Parked, // The effect reached its target with no return; fire triggers but keep holding position.
+};
+
+// Advance the active camera effect by exactly one frame. This mutates effect.state and applies
+// the resulting position to `viewport`. It deliberately does NOT clear the effect or fire any
+// triggers itself — the caller (tick_camera_effect) owns that, so the clear can happen before the
+// trigger runs and so we never destroy `effect` out from under this function.
+static CameraEffectResult apply_camera_effect(CameraEffect& effect)
+{
+	auto& state = effect.state;
+
+	if (state.stage == CameraState::Stage::Done)
+		return CameraEffectResult::Finished;
+	if (state.stage == CameraState::Stage::Parked)
+		return CameraEffectResult::Continue;
+
+	auto begin_returning = [&]()
+	{
+		state.stage = CameraState::Stage::Returning;
+		state.num_frames_since_start = 0;
+		effect.start_x = state.x;
+		effect.start_y = state.y;
+
+		// Calculate where the target is right now.
+		// Technically not always the hero, if scripts have modified the target.
+		auto temp_viewport = viewport;
+		sprite* spr = get_viewport_sprite();
+		int target_x = spr->x + spr->txsz*16/2;
+		int target_y = spr->y + spr->tysz*16/2;
+		calculate_viewport(temp_viewport, cur_dmap, cur_screen, world_w, world_h, target_x, target_y);
+
+		zfix return_dest_x = temp_viewport.x + temp_viewport.w/2;
+		zfix return_dest_y = temp_viewport.y + temp_viewport.h/2;
+
+		// Calculate distance and duration for the return trip.
+		zfix dx = return_dest_x - effect.start_x;
+		zfix dy = return_dest_y - effect.start_y;
+		zfix dist = sqrt(dx * dx + dy * dy);
+
+		int duration_in_frames = dist / effect.speed;
+		if (duration_in_frames <= 0)
+			duration_in_frames = 1;
+
+		effect.duration_in_frames = duration_in_frames;
+	};
+
+	if (state.stage == CameraState::Stage::Idle)
+	{
+		state.idle_clock -= 1;
+		if (state.idle_clock <= 0)
+		{
+			if (effect.return_to_hero)
+			{
+				begin_returning();
+				return CameraEffectResult::Returning;
+			}
+			else
+			{
+				state.stage = CameraState::Stage::Parked;
+				return CameraEffectResult::Parked;
+			}
+		}
+		// Still within the idle window — hold position.
+		return CameraEffectResult::Continue;
+	}
+
+	zfix dest_x;
+	zfix dest_y;
+	if (state.stage == CameraState::Stage::Running)
+	{
+		dest_x = effect.dest_x;
+		dest_y = effect.dest_y;
+	}
+	else if (state.stage == CameraState::Stage::Returning)
+	{
+		auto temp_viewport = viewport;
+		sprite* spr = get_viewport_sprite();
+		int target_x = spr->x + spr->txsz*16/2;
+		int target_y = spr->y + spr->tysz*16/2;
+		calculate_viewport(temp_viewport, cur_dmap, cur_screen, world_w, world_h, target_x, target_y);
+		dest_x = temp_viewport.x + temp_viewport.w/2;
+		dest_y = temp_viewport.y + temp_viewport.h/2;
+	}
+	else
+		return CameraEffectResult::Continue;
+
+	// Advance the timer and calculate completion percentage (0.0 to 1.0).
+	state.num_frames_since_start += 1;
+	zfix t = (zfix)state.num_frames_since_start / effect.duration_in_frames;
+	if (t > 1_zf)
+		t = 1_zf;
+
+	// Apply configured easing curve.
+	zfix eased_t;
+	switch (effect.interpolation_mode)
+	{
+		case CameraEffectInterpolationMode::EaseIn:
+			eased_t = t * t;
+			break;
+		case CameraEffectInterpolationMode::EaseOut:
+			eased_t = 1_zf - ((1_zf - t) * (1_zf - t));
+			break;
+		case CameraEffectInterpolationMode::EaseInOut:
+			if (t < (1_zf / 2))
+				eased_t = 2_zf * t * t;
+			else
+				eased_t = 1_zf - ((t * -2 + 2_zf) * (t * -2 + 2_zf)) / 2_zf;
+			break;
+		case CameraEffectInterpolationMode::Smoothstep:
+			eased_t = t * t * (3_zf - 2_zf * t);
+			break;
+		case CameraEffectInterpolationMode::Smootherstep:
+			eased_t = t * t * t * (t * (t * 6_zf - 15_zf) + 10_zf);
+			break;
+		case CameraEffectInterpolationMode::EaseOutCubic:
+		{
+			zfix inv = 1_zf - t;
+			eased_t = 1_zf - (inv * inv * inv);
+			break;
+		}
+		case CameraEffectInterpolationMode::EaseOutBack:
+		{
+			// c1 dictates how far past the target it overshoots. 
+			zfix c1 = 1.70158_zf;
+			zfix c3 = c1 + 1_zf;
+			zfix inv = t - 1_zf;
+			eased_t = 1_zf + c3 * (inv * inv * inv) + c1 * (inv * inv);
+			break;
+		}
+		case CameraEffectInterpolationMode::Linear:
+		default:
+			eased_t = t;
+			break;
+	}
+
+	// Lerp between origin and destination.
+	state.x = effect.start_x + (dest_x - effect.start_x) * eased_t;
+	state.y = effect.start_y + (dest_y - effect.start_y) * eased_t;
+
+	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, state.x, state.y);
+
+	// Process end of transition.
+	if (t >= 1_zf)
+	{
+		if (state.stage == CameraState::Stage::Running)
+		{
+			if (effect.idle_frames > 0)
+			{
+				state.stage = CameraState::Stage::Idle;
+				state.idle_clock = effect.idle_frames;
+				return CameraEffectResult::Idling;
+			}
+			else if (effect.return_to_hero)
+			{
+				begin_returning();
+				return CameraEffectResult::Returning;
+			}
+			else
+			{
+				state.stage = CameraState::Stage::Parked;
+				return CameraEffectResult::Parked;
+			}
+		}
+		else
+		{
+			state.stage = CameraState::Stage::Done;
+			return CameraEffectResult::Finished;
+		}
+	}
+
+	return CameraEffectResult::Continue;
+}
+
+// Advance the active camera effect by one frame. Call this exactly once per frame from the game
+// loop. When the effect ends, this clears it *before* firing its `ComboType Causes->` triggers, so
+// a chained trigger that starts another camera effect isn't immediately wiped by the clear.
+void tick_camera_effect()
+{
+	if (!active_camera_effect)
+		return;
+
+	// A script taking control of the viewport cancels the effect.
+	if (viewport_mode == ViewportMode::Script)
+	{
+		clear_camera_effect();
+		update_viewport();
+		return;
+	}
+
+	auto res = apply_camera_effect(active_camera_effect.value());
+	if (res == CameraEffectResult::Continue)
+		return;
+	combined_handle_t handle = active_camera_effect->handle;
+	auto const& cmb = handle.combo();
+	bool valid_causes_combo = handle.data() == active_camera_effect->cid
+		&& (cmb.type == cCUTSCENEEFFECT && cmb.c_attributes[8].getTrunc() == CUTEFF_CAMERA);
+	auto causes_mode = active_camera_effect->causes_mode;
+	if (res == CameraEffectResult::Finished)
+	{
+		// clear before causes, incase the causes triggers a new camera effect
+		clear_camera_effect();
+		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::OnFinish)
+			do_trigger_ctype_causes(handle);
+	}
+	else if (res == CameraEffectResult::Parked)
+	{
+		// Don't clear — effect keeps holding the viewport at the target position.
+		// A chained cause that starts a new camera effect will implicitly replace this one.
+		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::OnFinish)
+			do_trigger_ctype_causes(handle);
+	}
+	else if (res == CameraEffectResult::Returning)
+	{
+		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::BeforeReturn)
+			do_trigger_ctype_causes(handle);
+	}
+	else if (res == CameraEffectResult::Idling)
+	{
+		if (valid_causes_combo && causes_mode == CameraEffectCausesMode::BeforeIdle)
+			do_trigger_ctype_causes(handle);
+	}
+}
+
+// Recompute `viewport` from the current camera/sprite position. Safe to call any number of times
+// per frame: it never advances the camera effect's animation clock (tick_camera_effect does that).
 void update_viewport()
 {
+	if (viewport_mode == ViewportMode::Script)
+		clear_camera_effect();
+
+	if (active_camera_effect)
+	{
+		auto& state = active_camera_effect->state;
+		calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, state.x, state.y);
+		return;
+	}
+
 	sprite* spr = get_viewport_sprite();
 	int x = spr->x + spr->txsz*16/2;
 	int y = spr->y + spr->tysz*16/2;
@@ -6419,6 +6683,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	{
 		set_viewport_sprite(&Hero);
 		viewport_mode = ViewportMode::CenterAndBound;
+		clear_camera_effect();
 		update_viewport();
 	}
 
