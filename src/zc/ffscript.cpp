@@ -7704,8 +7704,8 @@ void FFScript::AlloffLimited(int32_t flagset)
 		refreshpal=true;
 		usebombpal=false;
 	}
-	
-	
+
+	clear_camera_effect();
 }
 
 void doWarpEffect(int32_t warpEffect, bool out)
