@@ -1222,7 +1222,7 @@ DMapListerDialog::DMapListerDialog(int index, bool selecting) :
 {
 	use_preview = false;
 	use_mappreview = true; //ugly hack but it works.
-	alphabetized = get_config("alphabetized", true); //doesnt work???
+	alphabetized = get_config("alphabetized", false);
 }
 
 void DMapListerDialog::preinit()
