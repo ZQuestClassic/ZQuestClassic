@@ -5162,7 +5162,8 @@ void zmap::update_combo_cycling()
             continue;
             
         prvscr.data[i]=newdata[i];
-        prvscr.cset[i]=newcset[i];
+		if (newcset[i] > -1)
+			prvscr.cset[i]=newcset[i];
     }
     
 	word maxffc = prvscr.numFFC();
@@ -5248,7 +5249,8 @@ void zmap::update_combo_cycling()
                     continue;
                     
                 prvlayers[j].data[i]=newdata[i];
-                prvlayers[j].cset[i]=newcset[i];
+				if (newcset[i] > -1)
+					prvlayers[j].cset[i]=newcset[i];
             }
         }
     }
