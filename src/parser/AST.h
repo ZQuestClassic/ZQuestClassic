@@ -1061,7 +1061,6 @@ namespace ZScript
 		optional<zfix> increment_val;
 	private:
 		BitMode bitmode = BIT_NONE;
-		int32_t nextVal;
 	};
 
 	// Declares a single variable or constant. May or may not be inside an

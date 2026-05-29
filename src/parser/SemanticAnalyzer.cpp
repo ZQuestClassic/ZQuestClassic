@@ -21,7 +21,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: RecursiveVisitor(program), returnType(NULL), deprecateGlobals(false)
+	: RecursiveVisitor(program), returnType(NULL)
 {
 	scope = &program.getScope();
 	caseFile(program.getRoot());

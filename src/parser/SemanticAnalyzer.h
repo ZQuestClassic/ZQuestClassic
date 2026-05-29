@@ -101,8 +101,6 @@ namespace ZScript
 
 		std::vector<Function*> inlineStack;
 		
-		bool deprecateGlobals;
-
 		////////////////////////////////////////////////////////////////
 		// Helper Functions.
 

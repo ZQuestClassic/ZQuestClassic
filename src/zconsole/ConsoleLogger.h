@@ -295,7 +295,6 @@ protected:
 
 class CConsoleLoggerEx : public CConsoleLogger
 {
-	int32_t	m_dwCurrentAttributes;
 	enum enumCommands
 	{
 		COMMAND_PRINT,

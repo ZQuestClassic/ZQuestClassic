@@ -1332,7 +1332,7 @@ void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 // ASTDataEnum
 
 ASTDataEnum::ASTDataEnum(LocationData const& location)
-	: ASTDataDeclList(location), nextVal(0)
+	: ASTDataDeclList(location)
 {
 	baseType = new ASTDataType(DataType::CFLOAT, location);
 }
