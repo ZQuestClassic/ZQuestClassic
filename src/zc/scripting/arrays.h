@@ -720,10 +720,9 @@ public:
 		{
 			T_Element result = m_getFunc(obj, i);
 			if constexpr (std::is_same<T_Element, bool>::value)
-				result = result ? (m_mul10000 ? 10000 : 1) : 0;
+				values.push_back(result ? (m_mul10000 ? 10000 : 1) : 0);
 			else
-				result = result * (m_mul10000 ? 10000 : 1);
-			values.push_back(result);
+				values.push_back(result * (m_mul10000 ? 10000 : 1));
 		}
 
 		return values;
@@ -745,7 +744,7 @@ public:
 		}
 
 		T_Element result = m_getFunc(obj, index);
-		
+
 		if constexpr (std::is_same<T_Element, bool>::value)
 			return result ? (m_mul10000 ? 10000 : 1) : 0;
 		else
