@@ -1152,18 +1152,18 @@ bool prompt_for_quest_path(std::string current_qstpath)
 	bool jump_to_file_select = false;
 	if (current_qstpath.empty())
 	{
-		sprintf(qstpath, "%s", qstdir);
+		snprintf(qstpath, 2048, "%s", qstdir);
 		jump_to_file_select = true;
 	}
 	else if (is_relative_filename(current_qstpath.c_str()))
 	{
 		// TODO: make `qstpath` use type fs::path
 		auto qstpath_fs = fs::path(qstdir) / fs::path(current_qstpath);
-		sprintf(qstpath, "%s", qstpath_fs.string().c_str());
+		snprintf(qstpath, 2048, "%s", qstpath_fs.string().c_str());
 	}
 	else
 	{
-		sprintf(qstpath, "%s", current_qstpath.c_str());
+		snprintf(qstpath, 2048, "%s", current_qstpath.c_str());
 	}
 	char relpath[2048];
 	relativize_path(relpath, qstpath);

@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 	}
 
 	char szPipename[64];
-	sprintf(szPipename,"\\\\.\\pipe\\%s",argv[1]);
+	snprintf(szPipename, sizeof(szPipename), "\\\\.\\pipe\\%s", argv[1]);
 
 	while (1)
 	{

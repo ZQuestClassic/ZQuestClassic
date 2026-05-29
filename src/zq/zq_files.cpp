@@ -128,38 +128,38 @@ int32_t d_rulesettext_proc(int32_t msg, DIALOG *d, int32_t)
 	switch(ruleset)
 	{
 		case rulesetNES: // Original NES
-			sprintf(buf,  "Emulates the behaviour, the quirks,");
-			sprintf(buf2, "bugs, and oddities found in the NES");
-			sprintf(buf3, "game 'The Legend of Zelda'.");
-			sprintf(buf4, "All but a few rules are off.");
+			snprintf(buf,  sizeof(buf),  "Emulates the behaviour, the quirks,");
+			snprintf(buf2, sizeof(buf2), "bugs, and oddities found in the NES");
+			snprintf(buf3, sizeof(buf3), "game 'The Legend of Zelda'.");
+			snprintf(buf4, sizeof(buf4), "All but a few rules are off.");
 			break;
-			
+
 		case rulesetFixedNES: // Fixed NES
-			sprintf(buf,  "Corrects a large number of oddities");
-			sprintf(buf2, "found in the original NES engine, ");
-			sprintf(buf3, "such as bomb interactions. ");
-			sprintf(buf4, "Enables all 'NES Fixes' Rules");
+			snprintf(buf,  sizeof(buf),  "Corrects a large number of oddities");
+			snprintf(buf2, sizeof(buf2), "found in the original NES engine, ");
+			snprintf(buf3, sizeof(buf3), "such as bomb interactions. ");
+			snprintf(buf4, sizeof(buf4), "Enables all 'NES Fixes' Rules");
 			break;
-			
+
 		case rulesetBSZ: // BS Zelda
-			sprintf(buf,  "Adds expanded animations befitting a");
-			sprintf(buf2, "Super Famicom era game: Expanded");
-			sprintf(buf3, "enemy tiles, fast scrolling, new push-");
-			sprintf(buf4, "blocks, transition wipes, etc.");
+			snprintf(buf,  sizeof(buf),  "Adds expanded animations befitting a");
+			snprintf(buf2, sizeof(buf2), "Super Famicom era game: Expanded");
+			snprintf(buf3, sizeof(buf3), "enemy tiles, fast scrolling, new push-");
+			snprintf(buf4, sizeof(buf4), "blocks, transition wipes, etc.");
 			break;
-			
+
 		case rulesetZ3: // Zelda 3-esque
-			sprintf(buf,  "As 16-bit, plus diagonal movement,");
-			sprintf(buf2, "new message strings, magic use, real");
-			sprintf(buf3, "arrows, more sounds, drowning, ");
-			sprintf(buf4, "modern boomerang/item interaction.");
+			snprintf(buf,  sizeof(buf),  "As 16-bit, plus diagonal movement,");
+			snprintf(buf2, sizeof(buf2), "new message strings, magic use, real");
+			snprintf(buf3, sizeof(buf3), "arrows, more sounds, drowning, ");
+			snprintf(buf4, sizeof(buf4), "modern boomerang/item interaction.");
 			break;
-		
+
 		case rulesetModern: // 255
-			sprintf(buf,  "Enables all new 2.55 features including");
-			sprintf(buf2, "new Hero movement/step speed, new");
-			sprintf(buf3, "combo animations, scripting extensions,");
-			sprintf(buf4, "and other engine enhancements.");
+			snprintf(buf,  sizeof(buf),  "Enables all new 2.55 features including");
+			snprintf(buf2, sizeof(buf2), "new Hero movement/step speed, new");
+			snprintf(buf3, sizeof(buf3), "combo animations, scripting extensions,");
+			snprintf(buf4, sizeof(buf4), "and other engine enhancements.");
 			break;
 	}
 	
@@ -458,7 +458,7 @@ int32_t onSaveAs()
 	{
 		strcpy(filepath,temppath);
 		update_recent_quest(temppath);
-		sprintf(buf,"ZC Editor - [%s]", get_filename(filepath));
+		snprintf(buf, sizeof(buf), "ZC Editor - [%s]", get_filename(filepath));
 		set_window_title(buf);
 		InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
 		saved = autosaved = true;

@@ -202,7 +202,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
 	using namespace GUI::Props;
 
 	char str[10];
-	sprintf(str, "%03d", val);
+	snprintf(str, sizeof(str), "%03d", val);
 
 	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
 		maxheight = 2.25_em,
@@ -219,7 +219,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
 	using namespace GUI::Props;
 
 	char str[10];
-	sprintf(str, "%02d", val);
+	snprintf(str, sizeof(str), "%02d", val);
 
 	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
 		maxheight = 2.25_em,
@@ -236,7 +236,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_05(int val)
 	using namespace GUI::Props;
 
 	char str[10];
-	sprintf(str, "%d", val);
+	snprintf(str, sizeof(str), "%d", val);
 
 	return Button(maxwidth = 4_em, padding = 0_px, margins = 0_px,
 		maxheight = 2.25_em,

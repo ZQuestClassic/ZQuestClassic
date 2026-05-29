@@ -524,9 +524,9 @@ void jumpText(int32_t r, int32_t g, int32_t b)
 		c2[q] = 0;
 		c3[q] = 0;
 	}
-	sprintf(c1, "%d", r);
-	sprintf(c2, "%d", g);
-	sprintf(c3, "%d", b);
+	snprintf(c1, 4, "%d", r);
+	snprintf(c2, 4, "%d", g);
+	snprintf(c3, 4, "%d", b);
 	object_message(&edit_cset_dlg[10], MSG_DRAW, 0);
 	object_message(&edit_cset_dlg[11], MSG_DRAW, 0);
 	object_message(&edit_cset_dlg[12], MSG_DRAW, 0);
@@ -557,7 +557,7 @@ void onInsertColor_Hex()
 void jumpHex(int32_t r, int32_t g, int32_t b)
 {
 	char* hexbuf = (char*)edit_cset_dlg[21].dp;
-	sprintf(hexbuf, "%06X", (r<<16)|(g<<8)|(b<<0));
+	snprintf(hexbuf, 7, "%06X", (r<<16)|(g<<8)|(b<<0));
 	object_message(&edit_cset_dlg[21], MSG_DRAW, 0);
 }
 
@@ -948,11 +948,11 @@ void edit_cycles(int32_t level)
     for(int32_t i=0; i<3; i++)
     {
         palcycle c = ( level < NUM_PAL_CYCLES ) ? QMisc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
-        sprintf(buf[i*5  ],"%d",c.first>>4);
-        sprintf(buf[i*5+1],"%X",c.first&15);
-        sprintf(buf[i*5+2],"%X",c.count&15);
-        sprintf(buf[i*5+3],"%d",c.count>>4);
-        sprintf(buf[i*5+4],"%d",c.speed);
+        snprintf(buf[i*5  ],sizeof(buf[0]),"%d",c.first>>4);
+        snprintf(buf[i*5+1],sizeof(buf[0]),"%X",c.first&15);
+        snprintf(buf[i*5+2],sizeof(buf[0]),"%X",c.count&15);
+        snprintf(buf[i*5+3],sizeof(buf[0]),"%d",c.count>>4);
+        snprintf(buf[i*5+4],sizeof(buf[0]),"%d",c.speed);
     }
     
     for(int32_t i=0; i<15; i++)
@@ -1316,7 +1316,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	{
 		if(i<count)
 		{
-			sprintf(buf[i],"%2d",label[i]);
+			snprintf(buf[i],sizeof(buf[0]),"%2d",label[i]);
 		}
 		else
 		{
@@ -1511,7 +1511,7 @@ int32_t onColors_Levels()
 	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",get_zc_font(font_lfont), copyPal))!=-1)
 	{
 		char buf[40];
-		sprintf(buf,"Level %X Palettes",index);
+		snprintf(buf,sizeof(buf),"Level %X Palettes",index);
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
 		zc_set_palette(RAMpal);

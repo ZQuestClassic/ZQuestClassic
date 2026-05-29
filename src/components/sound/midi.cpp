@@ -228,7 +228,7 @@ char *timestr(double sec)
         sec=0;
     }
     
-    sprintf(buf,"%02d:%02.0f",min,sec);
+    snprintf(buf, 16, "%02d:%02.0f",min,sec);
     return buf;
 }
 

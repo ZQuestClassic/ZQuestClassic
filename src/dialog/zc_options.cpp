@@ -258,7 +258,7 @@ void ZCOptionsDialog::preview_font()
 	tempfont = scale_font(get_zc_font(prevfont), scale);
 	fprev->setFont(tempfont);
 	char buf[512];
-	sprintf(buf, "Font Preview: %s (%d) [x%d]", get_zc_fontname(prevfont), prevfont, scale);
+	snprintf(buf, sizeof(buf), "Font Preview: %s (%d) [x%d]", get_zc_fontname(prevfont), prevfont, scale);
 	fprev_lab->setText(buf);
 }
 void ZCOptionsDialog::preview_font(int fontind, int scale)

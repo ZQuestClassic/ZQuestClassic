@@ -1947,7 +1947,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(d->h < 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
 		return jwin_edit_proc(msg, d, c);
 	static char nullbuf[2];
-	sprintf(nullbuf, " ");
+	snprintf(nullbuf, sizeof(nullbuf), " ");
 	int32_t f, l, p, w, x, y, fg, bg;
 	int32_t lastSpace = -1;
 	char *s;
@@ -2635,7 +2635,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	char *s;
 	char buf[2];
 	static char nullbuf[2];
-	sprintf(nullbuf, " ");
+	snprintf(nullbuf, sizeof(nullbuf), " ");
 	
 	if(d->dp==NULL)
 	{
@@ -3482,15 +3482,15 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 		switch(ntype)
 		{
 			case nswapDEC:
-				sprintf(str, "%d", b);
+				snprintf(str, 4, "%d", b);
 				break;
 			case nswapHEX:
-				sprintf(str, "%X", b);
+				snprintf(str, 4, "%X", b);
 				break;
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	
+
 	if(d->fg != b)
 	{
 		d->fg = b; //Store numeric data
@@ -3586,17 +3586,14 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(str[0] != '-')
 				{
-					char buf[16] = {0};
-					strcpy(buf, str);
-					sprintf(str, "-%s", buf);
+					memmove(str+1, str, strlen(str)+1);
+					str[0] = '-';
 					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "%s", buf+1);
+				memmove(str, str+1, strlen(str));
 				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -3617,17 +3614,14 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(str[0] != '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "-%s", buf);
+				memmove(str+1, str, strlen(str)+1);
+				str[0] = '-';
 				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
 		{
-			char buf[16] = {0};
-			strcpy(buf, str);
-			sprintf(str, "%s", buf+1);
+			memmove(str, str+1, strlen(str));
 			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -3637,18 +3631,18 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		switch(ntype)
 		{
 			case nswapDEC:
-				sprintf(str, "%d", b);
+				snprintf(str, maxlen+1, "%d", b);
 				break;
 			case nswapHEX:
 				if(b<0)
-					sprintf(str, "-%X", -b);
-				else sprintf(str, "%X", b);
+					snprintf(str, maxlen+1, "-%X", -b);
+				else snprintf(str, maxlen+1, "%X", b);
 				break;
 		}
 		d->d2 = 0xFFFF0000|strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
-	
+
 	if(d->fg != b)
 	{
 		d->fg = b; //Store numeric data
@@ -3787,17 +3781,14 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(str[0] != '-')
 				{
-					char buf[16] = {0};
-					strcpy(buf, str);
-					sprintf(str, "-%s", buf);
+					memmove(str+1, str, strlen(str)+1);
+					str[0] = '-';
 					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "%s", buf+1);
+				memmove(str, str+1, strlen(str));
 				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -3818,17 +3809,14 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(str[0] != '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "-%s", buf);
+				memmove(str+1, str, strlen(str)+1);
+				str[0] = '-';
 				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
 		{
-			char buf[16] = {0};
-			strcpy(buf, str);
-			sprintf(str, "%s", buf+1);
+			memmove(str, str+1, strlen(str));
 			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -3839,23 +3827,23 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case nswapDEC:
 				if(b < 0)
-					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+					snprintf(str, maxlen+1, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
 			case nswapHEX:
 				if(b<0)
-					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+					snprintf(str, maxlen+1, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
 			case nswapLDEC:
-				sprintf(str, "%d", b);
+				snprintf(str, maxlen+1, "%d", b);
 				break;
 			case nswapLHEX:
 				if(b<0)
-					sprintf(str, "-%X", -b);
-				else sprintf(str, "%X", b);
+					snprintf(str, maxlen+1, "-%X", -b);
+				else snprintf(str, maxlen+1, "%X", b);
 				break;
 		}
 		d->d2 = 0xFFFF0000|strlen(str);
@@ -4032,17 +4020,14 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(str[0] != '-')
 				{
-					char buf[16] = {0};
-					strcpy(buf, str);
-					sprintf(str, "-%s", buf);
+					memmove(str+1, str, strlen(str)+1);
+					str[0] = '-';
 					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "%s", buf+1);
+				memmove(str, str+1, strlen(str));
 				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4063,17 +4048,14 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(str[0] != '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "-%s", buf);
+				memmove(str+1, str, strlen(str)+1);
+				str[0] = '-';
 				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
 		{
-			char buf[16] = {0};
-			strcpy(buf, str);
-			sprintf(str, "%s", buf+1);
+			memmove(str, str+1, strlen(str));
 			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4084,13 +4066,13 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case nswapDEC:
 				if(b < 0)
-					sprintf(str, "-%ld", abs(b/10000L));
-				else sprintf(str, "%ld", b/10000L);
+					snprintf(str, maxlen+1, "-%ld", abs(b/10000L));
+				else snprintf(str, maxlen+1, "%ld", b/10000L);
 				break;
 			case nswapHEX:
 				if(b<0)
-					sprintf(str, "-%lX", abs(b/10000L));
-				else sprintf(str, "%lX", b/10000L);
+					snprintf(str, maxlen+1, "-%lX", abs(b/10000L));
+				else snprintf(str, maxlen+1, "%lX", b/10000L);
 				break;
 		}
 		d->d2 = 0xFFFF0000|strlen(str);
@@ -4258,17 +4240,14 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(str[0] != '-')
 				{
-					char buf[16] = {0};
-					strcpy(buf, str);
-					sprintf(str, "-%s", buf);
+					memmove(str+1, str, strlen(str)+1);
+					str[0] = '-';
 					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "%s", buf+1);
+				memmove(str, str+1, strlen(str));
 				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4289,17 +4268,14 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(str[0] != '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "-%s", buf);
+				memmove(str+1, str, strlen(str)+1);
+				str[0] = '-';
 				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
 		{
-			char buf[16] = {0};
-			strcpy(buf, str);
-			sprintf(str, "%s", buf+1);
+			memmove(str, str+1, strlen(str));
 			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4310,23 +4286,23 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case nswapDEC:
 				if(b < 0)
-					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+					snprintf(str, maxlen+1, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
 			case nswapHEX:
 				if(b<0)
-					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+					snprintf(str, maxlen+1, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
 			case nswapLDEC:
-				sprintf(str, "%d", b);
+				snprintf(str, maxlen+1, "%d", b);
 				break;
 			case nswapLHEX:
 				if(b<0)
-					sprintf(str, "-%X", -b);
-				else sprintf(str, "%X", b);
+					snprintf(str, maxlen+1, "-%X", -b);
+				else snprintf(str, maxlen+1, "%X", b);
 				break;
 		}
 		d->d2 = 0xFFFF0000|strlen(str);
@@ -4535,17 +4511,14 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(str[0] != '-')
 				{
-					char buf[16] = {0};
-					strcpy(buf, str);
-					sprintf(str, "-%s", buf);
+					memmove(str+1, str, strlen(str)+1);
+					str[0] = '-';
 					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "%s", buf+1);
+				memmove(str, str+1, strlen(str));
 				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4566,17 +4539,14 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(str[0] != '-')
 			{
-				char buf[16] = {0};
-				strcpy(buf, str);
-				sprintf(str, "-%s", buf);
+				memmove(str+1, str, strlen(str)+1);
+				str[0] = '-';
 				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
 		{
-			char buf[16] = {0};
-			strcpy(buf, str);
-			sprintf(str, "%s", buf+1);
+			memmove(str, str+1, strlen(str));
 			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -4587,23 +4557,23 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case nswapDEC:
 				if(b < 0)
-					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+					snprintf(str, maxlen+1, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
 			case nswapHEX:
 				if(b<0)
-					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+					snprintf(str, maxlen+1, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else snprintf(str, maxlen+1, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
 			case nswapLDEC:
-				sprintf(str, "%d", b);
+				snprintf(str, maxlen+1, "%d", b);
 				break;
 			case nswapLHEX:
 				if(b<0)
-					sprintf(str, "-%X", -b);
-				else sprintf(str, "%X", b);
+					snprintf(str, maxlen+1, "-%X", -b);
+				else snprintf(str, maxlen+1, "%X", b);
 				break;
 		}
 		d->d2 = 0xFFFF0000|strlen(str);
@@ -6559,12 +6529,12 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 			char buf[32]={0};
 			for(int32_t col = 0; col < 16; ++col)
 			{
-				sprintf(buf, "%X", col);
+				snprintf(buf, sizeof(buf), "%X", col);
 				gui_textout_ln(screen, buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), scheme[jcBOXFG], scheme[jcBOX], 1);
 			}
 			for(int32_t row = 0; row < numcsets; ++row)
 			{
-				sprintf(buf, "%s 0x%02X", rowpref(row, alt), row*16);
+				snprintf(buf, sizeof(buf), "%s 0x%02X", rowpref(row, alt), row*16);
 				gui_textout_ln(screen, buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, scheme[jcBOXFG], scheme[jcBOX], 2);
 			}
 			
@@ -8947,7 +8917,7 @@ int32_t onSnapshot2()
     
     do
     {
-        sprintf(buf, "zelda%03d.bmp", ++num);
+        snprintf(buf, sizeof(buf), "zelda%03d.bmp", ++num);
     }
     while(num<999 && exists(buf));
     
@@ -9078,7 +9048,7 @@ void box_out(const char *msg)
 	
 	if(box_log)
 	{
-		sprintf(box_log_msg+box_msg_pos, "%s", msg);
+		snprintf(box_log_msg+box_msg_pos, sizeof(box_log_msg)-box_msg_pos, "%s", msg);
 	}
 	
 	box_x += text_length(box_message_font, msg);

@@ -938,7 +938,7 @@ void EditboxScriptView::drawExtraComponents()
 	rectfill(linetext, 0,0,linetext->w, linetext->h, scheme[jcMEDLT]);
 	CursorPos cp = model->findCursor();
 	char temp[60];
-	sprintf(temp, "Line %d", cp.lineno+1);
+	snprintf(temp, sizeof(temp), "Line %d", cp.lineno+1);
 	//center text
 	FONT* linefont = get_custom_font(CFONT_GUI);
 	int32_t textheight = text_height(linefont);

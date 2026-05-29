@@ -1379,11 +1379,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		if(is_relative_filename(g->get_qstpath()))
 		{
 			auto qstpath_fs = fs::path(qstdir) / fs::path(g->get_qstpath());
-			sprintf(qstpath, "%s", qstpath_fs.string().c_str());
+			snprintf(qstpath, 2048, "%s", qstpath_fs.string().c_str());
 		}
 		else
 		{
-			sprintf(qstpath,"%s", g->get_qstpath());
+			snprintf(qstpath, 2048, "%s", g->get_qstpath());
 		}
 
 		// ZC paths are retarded.
@@ -1400,7 +1400,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 			if(exists(g->get_qstpath())) //not found? -try this place first:
 			{
-				sprintf(qstpath,"%s", g->get_qstpath());
+				snprintf(qstpath, 2048, "%s", g->get_qstpath());
 				Z_error("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
@@ -1426,7 +1426,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 					if(exists(gQstPath.c_str())) //Quick! Try it now!
 					{
-						sprintf(qstpath,"%s", gQstPath.c_str());
+						snprintf(qstpath, 2048, "%s", gQstPath.c_str());
 						Z_error("Set quest path to \"%s\".\n", qstpath);
 						break;
 					}
@@ -1450,7 +1450,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
 						{
-							sprintf(qstpath,"%s", fn.c_str());
+							snprintf(qstpath, 2048, "%s", fn.c_str());
 							Z_error("Set quest path to \"%s\".\n", qstpath);
 							break;
 						}
@@ -1462,7 +1462,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 	if (replay_is_active() && !testingqst_name.empty())
 	{
-		sprintf(qstpath, "%s", testingqst_name.c_str());
+		snprintf(qstpath, 2048, "%s", testingqst_name.c_str());
 	}
 	
 	if(!exists(qstpath)) ret = qe_notfound;
@@ -1908,7 +1908,7 @@ int32_t init_game()
 		if(pos==string::npos) pos=0;
 		else ++pos;
 		size_t dotpos = str.find_last_of(".");
-		sprintf(qst_files_path,"Files/%s",str.substr(pos, dotpos-pos).c_str());
+		snprintf(qst_files_path, sizeof(qst_files_path), "Files/%s",str.substr(pos, dotpos-pos).c_str());
 		util::regulate_path(qst_files_path);
 	}
 

@@ -21,7 +21,7 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 	char resbuf[32];
 	resx = al_get_display_width(all_get_display());
 	resy = al_get_display_height(all_get_display());
-	sprintf(resbuf, "Res: %dx%d", resx, resy);
+	snprintf(resbuf, sizeof(resbuf), "Res: %dx%d", resx, resy);
 	std::shared_ptr<GUI::Grid> resbtn_grid;
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "Video Mode",

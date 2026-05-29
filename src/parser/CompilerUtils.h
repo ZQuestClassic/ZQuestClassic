@@ -31,14 +31,6 @@ std::string to_string(Type val)
 
 int32_t const formatBufferSize = 4096;
 
-/*
-namespace ZScript
-{
-	// as sprintf, but for strings.
-	int32_t const formatBufferSize = 4096;
-	std::string formatStr(std::string const* format, ...);
-}
-*/
 
 class XTableHelper
 {

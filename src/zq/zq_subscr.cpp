@@ -2414,7 +2414,7 @@ void update_subscr_dlg(bool start)
 	}
 	if(!nopages)
 	{
-		sprintf(pgbuf, "Page %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
+		snprintf(pgbuf, sizeof(pgbuf), "Page %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
 		SETFLAG(subscreen_dlg[47].flags,D_DISABLED,subscr_edit.curpage<1);
 		SETFLAG(subscreen_dlg[48].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 		SETFLAG(subscreen_dlg[50].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES);
@@ -2621,8 +2621,8 @@ void update_sso_name()
 	}
 	strcpy(str_oname,onamestr.c_str());
 	if(subscr_copied_widget)
-		sprintf(str_cpyname, "Copied:  '%s' from pg %d", subscr_copied_widget->getTypeName().c_str(), copied_widget_page);
-	else sprintf(str_cpyname, "Copied:  Nothing");
+		snprintf(str_cpyname, sizeof(str_cpyname), "Copied:  '%s' from pg %d", subscr_copied_widget->getTypeName().c_str(), copied_widget_page);
+	else snprintf(str_cpyname, sizeof(str_cpyname), "Copied:  Nothing");
 	update_subscr_dlg(false);
 	broadcast_dialog_message(MSG_DRAW, 0);
 }

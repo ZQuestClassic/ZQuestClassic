@@ -599,13 +599,13 @@ std::string const& get_color_name(int r, int g, int b)
 		if(qind > 1)
 			qbuf[0] = ' ';
 		qbuf[qind] = 0;
-		sprintf(buf, "%s%s", closename->c_str(), qbuf);
+		snprintf(buf, sizeof(buf), "%s%s", closename->c_str(), qbuf);
 		addname(ind, buf, true);
 		return colornames[ind];
 	}
 	else
 	{
-		sprintf(buf, "Unnamed 'R%02d G%02d B%02d'", r,g,b);
+		snprintf(buf, sizeof(buf), "Unnamed 'R%02d G%02d B%02d'", r,g,b);
 		addname(ind, buf, true);
 		return colornames[ind];
 	}

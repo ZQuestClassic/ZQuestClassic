@@ -2702,7 +2702,7 @@ static string format_counter(int value, int max_value, byte mindigits, byte maxd
 	
 	char valstring[80];
 	char formatstring[80];
-	sprintf(formatstring, "%%0%dd", mindigits);
+	snprintf(formatstring, sizeof(formatstring), "%%0%dd", mindigits);
 	string ret;
 	if (!as_max)
 	{
@@ -2712,7 +2712,7 @@ static string format_counter(int value, int max_value, byte mindigits, byte maxd
 			if(value >= mval)
 				value = mval-1;
 		}
-		sprintf(valstring, formatstring, value);
+		snprintf(valstring, sizeof(valstring), formatstring, value);
 		ret += valstring;
 	}
 	if (as_frac)
@@ -2725,7 +2725,7 @@ static string format_counter(int value, int max_value, byte mindigits, byte maxd
 			if(max_value >= mval)
 				max_value = mval-1;
 		}
-		sprintf(valstring, formatstring, max_value);
+		snprintf(valstring, sizeof(valstring), formatstring, max_value);
 		ret += valstring;
 	}
 	return ret;

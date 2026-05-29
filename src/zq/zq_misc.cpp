@@ -791,7 +791,7 @@ char const* getSnapName()
 	
 	do
 	{
-		sprintf(snapbuf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
+		snprintf(snapbuf, sizeof(snapbuf), "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(snapbuf));
 	
@@ -857,9 +857,9 @@ int32_t checksave()
     char *name = get_filename(filepath);
 
     if(name[0]==0)
-        sprintf(buf,"Save this quest file?");
+        snprintf(buf, sizeof(buf), "Save this quest file?");
     else
-        sprintf(buf,"Save changes to %s?",name);
+        snprintf(buf, sizeof(buf), "Save changes to %s?",name);
 	
 	int ret = 0;
 	AlertFuncDialog("ZQuest",
@@ -919,8 +919,8 @@ int32_t onAbout()
     {
 		char buf2[80]={0};
 		char buf3[80]={0};
-		sprintf(buf1,"ZQuest %s - DEBUG", getVersionString());
-        sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
+		snprintf(buf1, sizeof(buf1), "ZQuest %s - DEBUG", getVersionString());
+        snprintf(buf3, sizeof(buf3), "This qst file: %04X",header.internal&0xFFFF);
         InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }
     else

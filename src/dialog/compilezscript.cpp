@@ -227,7 +227,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_compile_time - start_compile_time).count();
 	
 	char buf[1024] = {0};
-	sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
+	snprintf(buf, sizeof(buf), "ZScript compilation: Returned code '%d' (%s)\n"
 		"Compile took %d ms%s",
 		code, code ? "failure" : "success",
 		compile_time_ms,
@@ -244,7 +244,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	else if (DisableCompileConsole)
 	{
 		char buf3[256] = {0};
-		sprintf(buf3, "Compile took %d ms", compile_time_ms);
+		snprintf(buf3, sizeof(buf3), "Compile took %d ms", compile_time_ms);
 		box_out(buf3);
 		box_eol();
 		box_out("Compilation failed.");
@@ -380,9 +380,9 @@ CompileZScriptDialog::CompileZScriptDialog()
 void CompileZScriptDialog::updateLabels()
 {
 	char buf[64];
-	sprintf(buf, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
+	snprintf(buf, sizeof(buf), "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 	labels[0]->setText(buf);
-	sprintf(buf, "%d Bytes in Buffer", (int32_t)(zScript.size()));
+	snprintf(buf, sizeof(buf), "%d Bytes in Buffer", (int32_t)(zScript.size()));
 	labels[1]->setText(buf);
 }
 

@@ -15773,7 +15773,7 @@ void FFScript::do_trace(bool v)
 	int32_t temp = SH::get_arg(sarg1, v);
 	
 	char tmp[100];
-	sprintf(tmp, (temp < 0 ? "%06d" : "%05d"), temp);
+	snprintf(tmp, sizeof(tmp), (temp < 0 ? "%06d" : "%05d"), temp);
 	string s2(tmp);
 	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4) + "\n";
 	handle_trace(s2);
@@ -15783,7 +15783,7 @@ void FFScript::do_tracel(bool v)
 	int32_t temp = SH::get_arg(sarg1, v);
 
 	char tmp[32];
-	sprintf(tmp, "%d\n", temp);
+	snprintf(tmp, sizeof(tmp), "%d\n", temp);
 	handle_trace(tmp);
 }
 
@@ -16057,28 +16057,28 @@ std::string FFScript::GetScriptDataName(ScriptType script_type, int script_num)
 			switch(script_num)
 			{
 				case GLOBAL_SCRIPT_INIT:
-					sprintf(buf, "Global Init(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global Init(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_GAME:
-					sprintf(buf, "Global Active(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global Active(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_END:
-					sprintf(buf, "Global Exit(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global Exit(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_ONSAVELOAD:
-					sprintf(buf, "Global SaveLoad(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global SaveLoad(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_ONLAUNCH:
-					sprintf(buf, "Global Launch(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global Launch(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_ONCONTGAME:
-					sprintf(buf, "Global ContGame(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global ContGame(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_F6:
-					sprintf(buf, "Global F6Menu(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global F6Menu(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 				case GLOBAL_SCRIPT_ONSAVE:
-					sprintf(buf, "Global Save(%s)", globalmap[script_num].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Global Save(%s)", globalmap[script_num].scriptname.c_str());
 					break;
 			}
 			break;
@@ -16089,76 +16089,76 @@ std::string FFScript::GetScriptDataName(ScriptType script_type, int script_num)
 			switch(script_num)
 			{
 				case SCRIPT_HERO_INIT:
-					sprintf(buf, "Hero Init(%s)", playermap[script_num-1].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Hero Init(%s)", playermap[script_num-1].scriptname.c_str());
 					break;
 				case SCRIPT_HERO_ACTIVE:
-					sprintf(buf, "Hero Active(%s)", playermap[script_num-1].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Hero Active(%s)", playermap[script_num-1].scriptname.c_str());
 					break;
 				case SCRIPT_HERO_DEATH:
-					sprintf(buf, "Hero Death(%s)", playermap[script_num-1].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Hero Death(%s)", playermap[script_num-1].scriptname.c_str());
 					break;
 				case SCRIPT_HERO_WIN:
-					sprintf(buf, "Hero Win(%s)", playermap[script_num-1].scriptname.c_str());
+					snprintf(buf, sizeof(buf), "Hero Win(%s)", playermap[script_num-1].scriptname.c_str());
 					break;
 			}
 			break;
 		}
 		
 		case ScriptType::Lwpn:
-			sprintf(buf, "LWeapon(%u, %s)", script_num,lwpnmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "LWeapon(%u, %s)", script_num,lwpnmap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::Ewpn:
-			sprintf(buf, "EWeapon(%u, %s)", script_num,ewpnmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "EWeapon(%u, %s)", script_num,ewpnmap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::NPC:
-			sprintf(buf, "NPC(%u, %s)", script_num,npcmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "NPC(%u, %s)", script_num,npcmap[script_num-1].scriptname.c_str());
 			break;
 			
 		case ScriptType::FFC:
-			sprintf(buf, "FFC(%u, %s)", script_num,ffcmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "FFC(%u, %s)", script_num,ffcmap[script_num-1].scriptname.c_str());
 			break;
 			
 		case ScriptType::Item:
-			sprintf(buf, "Item(%u, %s)", script_num,itemmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "Item(%u, %s)", script_num,itemmap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::OnMap:
-			sprintf(buf, "DMapMap(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "DMapMap(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
 			break;
 		case ScriptType::ScriptedActiveSubscreen:
-			sprintf(buf, "DMapASub(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "DMapASub(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
 			break;
 		case ScriptType::ScriptedPassiveSubscreen:
-			sprintf(buf, "DMapPSub(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "DMapPSub(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
 			break;
 		case ScriptType::DMap:
-			sprintf(buf, "DMap(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "DMap(%u, %s)", script_num,dmapmap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::ItemSprite:
-			sprintf(buf, "ItemSprite(%u, %s)", script_num,itemspritemap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "ItemSprite(%u, %s)", script_num,itemspritemap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::Screen:
-			sprintf(buf, "Screen(%u, %s)", script_num,screenmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "Screen(%u, %s)", script_num,screenmap[script_num-1].scriptname.c_str());
 			break;
 		
 		case ScriptType::Combo:
-			sprintf(buf, "Combo(%u, %s)", script_num,comboscriptmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "Combo(%u, %s)", script_num,comboscriptmap[script_num-1].scriptname.c_str());
 			break;
 			
 		case ScriptType::Generic:
-			sprintf(buf, "Generic(%u, %s)", script_num,genericmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "Generic(%u, %s)", script_num,genericmap[script_num-1].scriptname.c_str());
 			break;
 			
 		case ScriptType::GenericFrozen:
-			sprintf(buf, "GenericFRZ(%u, %s)", script_num,genericmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "GenericFRZ(%u, %s)", script_num,genericmap[script_num-1].scriptname.c_str());
 			break;
 			
 		case ScriptType::EngineSubscreen:
-			sprintf(buf, "Subscreen(%u, %s)", script_num,subscreenmap[script_num-1].scriptname.c_str());
+			snprintf(buf, sizeof(buf), "Subscreen(%u, %s)", script_num,subscreenmap[script_num-1].scriptname.c_str());
 			break;
 	}
 
@@ -16178,7 +16178,7 @@ void FFScript::PrintTracePrefix(bool force_show_context, bool is_error)
 		time (&sysRTC);
 		tm_struct = localtime (&sysRTC);
 
-		sprintf(buf, "[%d:%d:%d] ", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
+		snprintf(buf, sizeof(buf), "[%d:%d:%d] ", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
 
 		parts.push_back(buf);
 	}
@@ -16189,7 +16189,7 @@ void FFScript::PrintTracePrefix(bool force_show_context, bool is_error)
 		if(script_funcrun)
 		{
 			char buf[256] = {0};
-			sprintf(buf, "Destructor(%d,%s)", ri->thiskey, destructstr?destructstr->c_str():"UNKNOWN");
+			snprintf(buf, sizeof(buf), "Destructor(%d,%s)", ri->thiskey, destructstr?destructstr->c_str():"UNKNOWN");
 			parts.push_back(buf);
 		}
 		else

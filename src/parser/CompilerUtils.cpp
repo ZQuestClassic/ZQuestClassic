@@ -10,7 +10,7 @@ std::string XTableHelper::formatStr(std::string const* format, ...)
 	
 	va_list args;
 	va_start(args, format);
-	vsprintf(buffer, format->c_str(), args);
+	vsnprintf(buffer, formatBufferSize, format->c_str(), args);
 	va_end(args);
 
 	return std::string(buffer);

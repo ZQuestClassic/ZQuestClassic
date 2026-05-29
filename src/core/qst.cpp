@@ -160,7 +160,7 @@ char *ordinal(int32_t num)
     else
         end = (char *)ending[3];
         
-    sprintf(ord_str,"%d%s",num%10000,end);
+    snprintf(ord_str, sizeof(ord_str), "%d%s",num%10000,end);
     return ord_str;
 }
 
@@ -481,7 +481,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 			if(ret==5)                                              //old encryption?
 			{
 				current_method++;
-				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				snprintf(percent_done, sizeof(percent_done), "%d%%", (current_method*100)/ENC_METHOD_MAX);
 				box_out(percent_done);
 				box_load_x();
 				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_211B9, strstr(filename, ".dat#")!=NULL, passwd);
@@ -490,7 +490,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 			if(ret==5)                                              //old encryption?
 			{
 				current_method++;
-				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				snprintf(percent_done, sizeof(percent_done), "%d%%", (current_method*100)/ENC_METHOD_MAX);
 				box_out(percent_done);
 				box_load_x();
 				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(filename, ".dat#")!=NULL, passwd);
@@ -499,7 +499,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 			if(ret==5)                                              //old encryption?
 			{
 				current_method++;
-				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				snprintf(percent_done, sizeof(percent_done), "%d%%", (current_method*100)/ENC_METHOD_MAX);
 				box_out(percent_done);
 				box_load_x();
 				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B105, strstr(filename, ".dat#")!=NULL, passwd);
@@ -508,7 +508,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 			if(ret==5)                                              //old encryption?
 			{
 				current_method++;
-				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				snprintf(percent_done, sizeof(percent_done), "%d%%", (current_method*100)/ENC_METHOD_MAX);
 				box_out(percent_done);
 				box_load_x();
 				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B104, strstr(filename, ".dat#")!=NULL, passwd);

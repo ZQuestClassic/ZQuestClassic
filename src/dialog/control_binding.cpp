@@ -542,7 +542,7 @@ bool ControlBindingDialog::check_no_duplicate_keys() const
 			{
 				if(u_keys[q] == u_keys[p] && u_keys[q] != 0)
 				{
-					sprintf(buf, "Key '%s' conflicts with '%s'", get_u_key_name(q).c_str(), get_u_key_name(p).c_str());
+					snprintf(buf, sizeof(buf), "Key '%s' conflicts with '%s'", get_u_key_name(q).c_str(), get_u_key_name(p).c_str());
 					uniqueError.emplace_back(buf);
 				}
 			}
@@ -558,7 +558,7 @@ bool ControlBindingDialog::check_no_duplicate_keys() const
 			{
 				if(u_btns[q] == u_btns[p] && u_btns[q] != 0)
 				{
-					sprintf(buf, "Button '%s' conflicts with '%s'", get_u_btn_name(q).c_str(), get_u_btn_name(p).c_str());
+					snprintf(buf, sizeof(buf), "Button '%s' conflicts with '%s'", get_u_btn_name(q).c_str(), get_u_btn_name(p).c_str());
 					uniqueError.emplace_back(buf);
 				}
 			}

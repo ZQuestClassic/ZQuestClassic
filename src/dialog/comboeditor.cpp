@@ -379,10 +379,10 @@ std::string getComboTypeHelpText(int32_t id)
 			int32_t d = -combo_class_buf[id].modify_hp_amount/8;
 			char buf2[80];
 			if(d==1)
-				sprintf(buf2,"1/2 of a heart.");
+				snprintf(buf2, sizeof(buf2), "1/2 of a heart.");
 			else
-				sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
-			sprintf(buf,"If the Hero touches this combo without Boots that protect against Damage Combo Level %d, they are damaged for %s.",lvl,buf2);
+				snprintf(buf2, sizeof(buf2), "%d heart%s.", d/2, d == 2 ? "" : "s");
+			snprintf(buf, sizeof(buf), "If the Hero touches this combo without Boots that protect against Damage Combo Level %d, they are damaged for %s.",lvl,buf2);
 			typehelp = buf;
 			break;
 		}

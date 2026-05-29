@@ -454,7 +454,7 @@ process_killer launch_process(std::string file, const std::vector<std::string>& 
 	PROCESS_INFORMATION pi;
 
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
+	snprintf(path_buf, sizeof(path_buf), "\"%s\"", file.c_str());
 	for (auto q : args)
 	{
 		strcat(path_buf, " \"");
@@ -541,7 +541,7 @@ process_manager* launch_piped_process(std::string file, [[maybe_unused]] std::st
 	si.hStdInput = pm->wr_2;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
+	snprintf(path_buf, sizeof(path_buf), "\"%s\"", file.c_str());
 	for (auto q : args)
 	{
 		strcat(path_buf, " \"");
@@ -647,7 +647,7 @@ bool run_and_get_output(std::string file, const std::vector<std::string>& args, 
 	return true;
 #else
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
+	snprintf(path_buf, sizeof(path_buf), "\"%s\"", file.c_str());
 	for (auto q : args)
 	{
 		strcat(path_buf, " \"");

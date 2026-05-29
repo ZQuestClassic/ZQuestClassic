@@ -19517,7 +19517,7 @@ void putprices(bool sign)
 		if(prices[i]!=0 && prices[i]<100000)
 		{
 			char buf[8];
-			sprintf(buf,sign?"%+3d":"%3d",prices[i]);
+			snprintf(buf, sizeof(buf), sign?"%+3d":"%3d",prices[i]);
 			
 			int32_t l=(int32_t)strlen(buf);
 			set_clip_state(pricesdisplaybuf, 0);

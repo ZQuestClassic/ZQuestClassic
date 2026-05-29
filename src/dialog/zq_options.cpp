@@ -673,7 +673,7 @@ void OptionsDialog::preview_font()
 	if(to_destroy)
 		destroy_font(to_destroy);
 	char buf[512];
-	sprintf(buf, "Font Preview: %s (%d) [x%d]", get_zc_fontname(prevfont), prevfont, scale);
+	snprintf(buf, sizeof(buf), "Font Preview: %s (%d) [x%d]", get_zc_fontname(prevfont), prevfont, scale);
 	fprev_lab->setText(buf);
 }
 void OptionsDialog::preview_font(int fontind, int scale)

@@ -8,9 +8,9 @@ void mark_save_dirty();
 void call_header_dlg()
 {
 	char alphastr[64] = {0};
-	sprintf(alphastr, " %s", header.getAlphaVerStr());
+	snprintf(alphastr, sizeof(alphastr), " %s", header.getAlphaVerStr());
 	char zver_str[256];
-	sprintf(zver_str,"%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
+	snprintf(zver_str, sizeof(zver_str), "%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
 	std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };
 	HeaderDialog(header.getVerStr(), startvals,
 		[](std::string_view vals[4])

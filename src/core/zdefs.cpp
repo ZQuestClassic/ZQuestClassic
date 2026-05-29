@@ -30,7 +30,7 @@ const char months[13][13] =
 char *VerStrFromHex(int32_t version)
 {
     static char ver_str[15];
-    sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
+    snprintf(ver_str, sizeof(ver_str), "v%d.%02X",version>>8,version&0xFF);
     return ver_str;
 }
 
@@ -606,7 +606,7 @@ string get_dbreport_string()
 		<< "ZQuest Classic Editor"
 		<< "\nVersion: " << getVersionString();
 		
-	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
+	snprintf(buf, sizeof(buf), "Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	
 	oss << "\n" << buf
@@ -628,7 +628,7 @@ string get_qr_hexstr(byte* qrs, bool hash, bool disctags)
 	for (size_t i = 0; i < QUESTRULES_NEW_SIZE; ++i)
 	{
 		char hex_buf[3];
-		sprintf(hex_buf, "%02X", qrs[i]);
+		snprintf(hex_buf, sizeof(hex_buf), "%02X", qrs[i]);
 		oss << hex_buf;
 	}
 	if(hash)
@@ -681,7 +681,7 @@ bool load_qr_hexstr(string hexstr, byte* dest_ptr)
 	for(size_t i = 0; i < len; ++i)
 	{
 		char hex_buf[3];
-		sprintf(hex_buf, "%s", hexstr.substr(i*2,2).c_str());
+		snprintf(hex_buf, sizeof(hex_buf), "%s", hexstr.substr(i*2,2).c_str());
 		dest_ptr[i] = (byte)util::zc_xtoi(hex_buf);
 	}
 	if(dest_ptr == quest_rules)
@@ -729,9 +729,9 @@ string generate_zq_about()
 	char buf1[256];
 	std::ostringstream oss;
 	oss << "ZQuest Classic Editor" << '\n';
-	sprintf(buf1,"Version: %s", getVersionString());
+	snprintf(buf1, sizeof(buf1), "Version: %s", getVersionString());
 	oss << buf1 << '\n';
-	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+	snprintf(buf1, sizeof(buf1), "Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
 	
 	return oss.str();
@@ -761,11 +761,11 @@ char const* zquestheader::getAlphaStr(bool ignoreNightly) const
 	static char buf[40] = "";
 	char format[20] = "%s";
 	if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
-	if(new_version_id_release) sprintf(buf, format, "Release");
-	else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
-	else if(new_version_id_beta) sprintf(buf, format, "Beta");
-	else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
-	else sprintf(buf, format, "Unknown");
+	if(new_version_id_release) snprintf(buf, sizeof(buf), format, "Release");
+	else if(new_version_id_gamma) snprintf(buf, sizeof(buf), format, "Gamma");
+	else if(new_version_id_beta) snprintf(buf, sizeof(buf), format, "Beta");
+	else if(new_version_id_alpha) snprintf(buf, sizeof(buf), format, "Alpha");
+	else snprintf(buf, sizeof(buf), format, "Unknown");
 	return buf;
 }
 
@@ -784,14 +784,14 @@ char const* zquestheader::getAlphaVerStr() const
 	if(new_version_is_nightly)
 	{
 		if(getAlphaVer() < 0)
-			sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
-		else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
+			snprintf(buf, sizeof(buf), "Nightly (%s ?\?)", getAlphaStr(true));
+		else snprintf(buf, sizeof(buf), "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
 	}
 	else
 	{
 		if(getAlphaVer() < 0)
-			sprintf(buf, "%s ?\?", getAlphaStr(true));
-		else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
+			snprintf(buf, sizeof(buf), "%s ?\?", getAlphaStr(true));
+		else snprintf(buf, sizeof(buf), "%s %d", getAlphaStr(true), getAlphaVer());
 	}
 	return buf;
 }
@@ -809,13 +809,13 @@ char const* zquestheader::getVerStr() const
 		{
 			case 0x255:
 				if(new_version_id_fourth > 0)
-					sprintf(buf, "%d.%d.%d.%d %s", version_major, version_minor,
+					snprintf(buf, sizeof(buf), "%d.%d.%d.%d %s", version_major, version_minor,
 						version_patch, new_version_id_fourth, getAlphaVerStr());
-				else sprintf(buf, "%d.%d.%d %s", version_major, version_minor,
+				else snprintf(buf, sizeof(buf), "%d.%d.%d %s", version_major, version_minor,
 						version_patch, getAlphaVerStr());
 				break;
 			case 0x254:
-				sprintf(buf, "2.54 Build %d", build);
+				snprintf(buf, sizeof(buf), "2.54 Build %d", build);
 				break;
 			case 0x250:
 			{
@@ -852,22 +852,22 @@ char const* zquestheader::getVerStr() const
 					case 33:
 						strcpy(buf, "2.53.1"); break;
 					default:
-						sprintf(buf, "?%x?, Build %d", zelda_version, build); break;
+						snprintf(buf, sizeof(buf), "?%x?, Build %d", zelda_version, build); break;
 				}
 				break;
 			}
 			case 0x211:
-				sprintf(buf, "2.11, Beta %d", build);
+				snprintf(buf, sizeof(buf), "2.11, Beta %d", build);
 				break;
 			case 0x210:
 			{
 				if(build)
-					sprintf(buf, "2.10.x Beta/Build %d", build);
+					snprintf(buf, sizeof(buf), "2.10.x Beta/Build %d", build);
 				else strcpy(buf, "2.10.x");
 				break;
 			}
 			case 0x192:
-				sprintf(buf, "1.92, Beta %d", build);
+				snprintf(buf, sizeof(buf), "1.92, Beta %d", build);
 				break;
 			case 0x190:
 			case 0x188:
@@ -880,19 +880,19 @@ char const* zquestheader::getVerStr() const
 			case 0x181:
 			case 0x180:
 				if (build)
-					sprintf(buf, "1.%x, Beta/Build %d", zelda_version - 0x100, build);
+					snprintf(buf, sizeof(buf), "1.%x, Beta/Build %d", zelda_version - 0x100, build);
 				else
-					sprintf(buf, "1.%x", zelda_version - 0x100);
+					snprintf(buf, sizeof(buf), "1.%x", zelda_version - 0x100);
 				break;
 			case 0:
 				buf[0] = 0;
 				break;
 			default:
-				sprintf(buf, "Unknown version: '%X, build %d'", zelda_version, build);
+				snprintf(buf, sizeof(buf), "Unknown version: '%X, build %d'", zelda_version, build);
 				break;
 		}
 	}
-	else sprintf(buf, "%d.%d.%d", version_major, version_minor, version_patch);
+	else snprintf(buf, sizeof(buf), "%d.%d.%d", version_major, version_minor, version_patch);
 	return buf;
 }
 

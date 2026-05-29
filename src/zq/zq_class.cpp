@@ -108,7 +108,7 @@ void reset_dmap(int32_t index)
     bound(index,0,MAXDMAPS-1);
 	DMaps[index].clear();
 	DMaps[index].title = "";
-    sprintf(DMaps[index].intro, "                                                                        ");
+    snprintf(DMaps[index].intro, sizeof(DMaps[index].intro), "                                                                        ");
 }
 
 void reset_dmaps()
@@ -274,7 +274,7 @@ bool zmap::clearall(bool validate)
     for(int32_t i=0; i<map_count; i++)
     {
         setCurrMap(i);
-        sprintf(tbuf, "%d", i);
+        snprintf(tbuf, sizeof(tbuf), "%d", i);
         clearmap(true);
     }
     
@@ -6568,7 +6568,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     {
         for(int32_t j=0; j<16; ++j)
         {
-            sprintf(response+j*2, "%02x", md5sum[j]);
+            snprintf(response+j*2, sizeof(response) - j*2, "%02x", md5sum[j]);
         }
         
         if(i&1)
@@ -6590,7 +6590,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     if(get_debug() && (CHECK_CTRL_CMD)) //...what is this doing?
     {
-        sprintf(prompt,"%s",response);
+        snprintf(prompt, sizeof(prompt), "%s", response);
     }
     
     pwd_dlg[6].dp=prompt;
@@ -6719,7 +6719,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			
 			if (show_progress)
 			{
-				sprintf(buf,"ZC Editor - [%s]", get_filename(filename));
+				snprintf(buf, sizeof(buf), "ZC Editor - [%s]", get_filename(filename));
 				set_window_title(buf);
 			}
 		}
@@ -9823,7 +9823,7 @@ int32_t writestrings_text(PACKFILE *f)
         fake_pack_writing=(writecycle==0);
         char ebuf[32];
         
-        sprintf(ebuf,"Total strings: %d\n", msg_count-1);
+        snprintf(ebuf, sizeof(ebuf), "Total strings: %d\n", msg_count-1);
         
         if(!pfwrite(&ebuf,(int32_t)strlen(ebuf),f))
         {
@@ -9838,9 +9838,9 @@ int32_t writestrings_text(PACKFILE *f)
                 continue;
                 
             if(MsgStrings[str].nextstring != 0)
-                sprintf(ebuf,"\n\n___%d(->%d)___\n", str,MsgStrings[str].nextstring);
+                snprintf(ebuf, sizeof(ebuf), "\n\n___%d(->%d)___\n", str,MsgStrings[str].nextstring);
             else
-                sprintf(ebuf,"\n\n___%d___\n", str);
+                snprintf(ebuf, sizeof(ebuf), "\n\n___%d___\n", str);
                 
             if(!pfwrite(&ebuf,(int32_t)strlen(ebuf),f))
             {
@@ -13989,7 +13989,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 			replace_extension(keyfilename, kfname, ext, 2047);
 			PACKFILE *fp = zalleg_pack_fopen_password(keyfilename, F_WRITE, "");
 			char msg[80] = {0};
-			sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+			snprintf(msg, sizeof(msg), "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
 			msg[78]=13;
 			msg[79]=10;
 			pfwrite(msg, 80, fp);

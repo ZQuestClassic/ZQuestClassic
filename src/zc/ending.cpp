@@ -275,12 +275,12 @@ void ending()
 	
 	for(int32_t x=0; x<3; x++)
 	{
-		sprintf(tmpmsg[x], "%.24s", MsgStrings[QMisc.endstring].s.c_str()+(24*x));
+		snprintf(tmpmsg[x], sizeof(tmpmsg[x]), "%.24s", MsgStrings[QMisc.endstring].s.c_str()+(24*x));
 	}
-	
+
 	for(int32_t x=0; x<3; x++)
 	{
-		sprintf(tmpmsg[x+3], "%.24s", MsgStrings[QMisc.endstring+1].s.c_str()+(24*x));
+		snprintf(tmpmsg[x+3], sizeof(tmpmsg[x+3]), "%.24s", MsgStrings[QMisc.endstring+1].s.c_str()+(24*x));
 	}
 	
 	if(QMisc.endstring==0)

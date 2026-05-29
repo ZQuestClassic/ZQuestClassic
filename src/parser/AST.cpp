@@ -304,15 +304,15 @@ pair<string, string> ASTFloat::parseValue() const
 			char temp2[60];
 			if(is_long)
 			{
-				sprintf(temp, "%ld", abs(val2 / 10000L));
-				sprintf(temp2, "%04ld", abs(val2 % 10000L));
+				snprintf(temp, sizeof(temp), "%ld", abs(val2 / 10000L));
+				snprintf(temp2, sizeof(temp2), "%04ld", abs(val2 % 10000L));
 				intpart = temp;
 				if(val2 < 0) intpart = "-" + intpart;
 				fpart = temp2;
 			}
 			else
 			{
-				sprintf(temp, "%d", val2);
+				snprintf(temp, sizeof(temp), "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}
@@ -358,15 +358,15 @@ pair<string, string> ASTFloat::parseValue() const
 			char temp2[60];
 			if(is_long)
 			{
-				sprintf(temp, "%ld", abs(val2 / 10000L));
-				sprintf(temp2, "%04ld", abs(val2 % 10000L));
+				snprintf(temp, sizeof(temp), "%ld", abs(val2 / 10000L));
+				snprintf(temp2, sizeof(temp2), "%04ld", abs(val2 % 10000L));
 				intpart = temp;
 				if(val2 < 0) intpart = "-" + intpart;
 				fpart = temp2;
 			}
 			else
 			{
-				sprintf(temp, "%d", val2);
+				snprintf(temp, sizeof(temp), "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}
@@ -427,16 +427,16 @@ pair<string, string> ASTFloat::parseValue() const
 			if(is_long)
 			{
 				char temp[60];
-				sprintf(temp, "%d", abs(val2/10000));
+				snprintf(temp, sizeof(temp), "%d", abs(val2/10000));
 				intpart = temp;
 				if(val2 < 0) intpart = "-" + intpart;
-				sprintf(temp, "%04d", abs(val2%10000));
+				snprintf(temp, sizeof(temp), "%04d", abs(val2%10000));
 				fpart = temp;
 			}
 			else
 			{
 				char temp[60];
-				sprintf(temp, "%d", val2);
+				snprintf(temp, sizeof(temp), "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}

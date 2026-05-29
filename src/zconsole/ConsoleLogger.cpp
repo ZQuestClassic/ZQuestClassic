@@ -64,7 +64,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		// (you can modify it to use PID , zc_rand() ,...
 		uint32_t now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
-		sprintf((char*)logger_name,"logger%p_%lu",this,now);
+		snprintf((char*)logger_name, sizeof(m_name) - (size_t)((char*)logger_name - m_name), "logger%p_%lu", this, now);
 	}
 	else
 	{	// just use the given name
@@ -99,14 +99,14 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	if (!helper_executable) {
 		helper_executable = DEFAULT_HELPER_EXE;
 	}
-	sprintf(cmdline,"%s %s",helper_executable,logger_name);
+	snprintf(cmdline, sizeof(cmdline), "%s %s", helper_executable, logger_name);
 	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	if (!bRet)
 	{	// on failure - try to get the path from the environment
 		char *path = getenv("ConsoleLoggerHelper");
 		if (path)
 		{
-			sprintf(cmdline,"%s %s",path,logger_name);
+			snprintf(cmdline, sizeof(cmdline), "%s %s", path, logger_name);
 			bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 		}
 		if (!bRet)
@@ -143,7 +143,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	char buffer[128];
 	// Send title
 	if (!lpszWindowTitle)	lpszWindowTitle=m_name+9;
-	sprintf(buffer,"TITLE: %s\r\n",lpszWindowTitle);
+	snprintf(buffer, sizeof(buffer), "TITLE: %s\r\n", lpszWindowTitle);
 	WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
 	if (cbWritten!=strlen(buffer))
 	{
@@ -156,7 +156,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	if (buffer_size_x!=-1 && buffer_size_y!=-1)
 	{	// Send buffer-size
-		sprintf(buffer,"BUFFER-SIZE: %dx%d\r\n",buffer_size_x,buffer_size_y);
+		snprintf(buffer, sizeof(buffer), "BUFFER-SIZE: %dx%d\r\n", buffer_size_x, buffer_size_y);
 		WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
 		if (cbWritten!=strlen(buffer))
 		{

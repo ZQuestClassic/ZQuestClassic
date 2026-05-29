@@ -167,7 +167,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 	using namespace GUI::Key;
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit DMap (%d)", dmapslot);
+	snprintf(titlebuf, sizeof(titlebuf), "Edit DMap (%d)", dmapslot);
 	window = Window(
 		title = titlebuf,
 		onClose = message::CANCEL,

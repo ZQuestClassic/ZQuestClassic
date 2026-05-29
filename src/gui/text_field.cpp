@@ -222,24 +222,24 @@ void TextField::setVal(int32_t val)
 	{
 		case type::TEXT:
 		case type::INT_DECIMAL:
-			sprintf(buf, "%d", val);
+			snprintf(buf, sizeof(buf), "%d", val);
 			break;
 		case type::INT_HEX:
-			sprintf(buf, "%X", val);
+			snprintf(buf, sizeof(buf), "%X", val);
 			break;
 		case type::SWAP_BYTE:
 			startVal = vbound(val, 0, 255);
-			sprintf(buf, "%d", startVal);
+			snprintf(buf, sizeof(buf), "%d", startVal);
 			break;
 		case type::SWAP_SSHORT:
 			startVal = vbound(val, -32768, 32767);
-			sprintf(buf, "%d", startVal);
+			snprintf(buf, sizeof(buf), "%d", startVal);
 			break;
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT2:
 			startVal = val;
 			if(!(startVal%10000))
-				sprintf(buf, "%d", startVal/10000);
+				snprintf(buf, sizeof(buf), "%d", startVal/10000);
 			else
 			{
 				strcpy(buf, zslongToFix(startVal).str().c_str());
@@ -260,15 +260,15 @@ void TextField::setVal(int32_t val)
 		case type::SWAP_ZSINT_NO_DEC:
 		{
 			startVal = val * 10000;
-			sprintf(buf,"%d",val);
+			snprintf(buf, sizeof(buf), "%d", val);
 			break;
 		}
 		case type::FIXED_DECIMAL:
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
 			char templ[32] = {0};
-			sprintf(templ, "%%s%%d.%%0%dd", fixedPlaces);
-			sprintf(buf, templ, val < 0 ? "-" : "", abs(val)/scale, abs(val)%scale);
+			snprintf(templ, sizeof(templ), "%%s%%d.%%0%dd", fixedPlaces);
+			snprintf(buf, sizeof(buf), templ, val < 0 ? "-" : "", abs(val)/scale, abs(val)%scale);
 			for(size_t q = strlen(buf)-1; q > 0; --q)
 			{
 				if(buf[q] == '0')

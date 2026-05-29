@@ -66,7 +66,7 @@ const char* zs_formatter(const char* format, int32_t arg, int32_t mindig, dword 
 				char argbuf[32] = {0};
 				bool neg = arg < 0;
 				if(mindig)
-					sprintf(argbuf,mindigbuf,arg / 10000);
+					snprintf(argbuf, sizeof(argbuf), mindigbuf, arg / 10000);
 				else util::zc_itoa(arg / 10000, argbuf);
 				
 				if(tempbool) //add decimal places
@@ -92,7 +92,7 @@ const char* zs_formatter(const char* format, int32_t arg, int32_t mindig, dword 
 			{
 				char argbuf[32] = {0};
 				if(mindig)
-					sprintf(argbuf, mindigbuf, arg);
+					snprintf(argbuf, sizeof(argbuf), mindigbuf, arg);
 				else util::zc_itoa(arg, argbuf);
 				
 				ret = argbuf;
@@ -135,7 +135,7 @@ const char* zs_formatter(const char* format, int32_t arg, int32_t mindig, dword 
 			{
 				char argbuf[32] = {0};
 				if(mindig)
-					sprintf(argbuf,mindigbuf,arg / 10000);
+					snprintf(argbuf, sizeof(argbuf), mindigbuf, arg / 10000);
 				else util::zc_itoa( (arg/10000), argbuf, 16 ); //base 16; hex
 				
 				for ( int32_t inx = 0; inx < 16; ++inx ) //set chosen caps

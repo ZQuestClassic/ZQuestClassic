@@ -15,8 +15,8 @@ static void db_print(char const* fname, int l, std::string const& extra)
 	{
 		char replstr[128] = {0};
 		char buf[512] = {0};
-		if(replay_is_replaying()) sprintf(replstr, "%06d ", replay_get_frame());
-		sprintf(buf, "%s %s%s LINE %d\n", extra.c_str(), replstr, fname, l);
+		if(replay_is_replaying()) snprintf(replstr, sizeof(replstr), "%06d ", replay_get_frame());
+		snprintf(buf, sizeof(buf), "%s %s%s LINE %d\n", extra.c_str(), replstr, fname, l);
 		fwrite(buf, 1, strlen(buf), f);
 		fclose(f);
 	}

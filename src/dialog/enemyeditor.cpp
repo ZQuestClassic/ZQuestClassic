@@ -1135,7 +1135,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	"Halt Rate: How often this enemy considers stopping after moving to a new combo\nRanges from 0 (never) to 16 (always)."
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
+	snprintf(titlebuf, sizeof(titlebuf), "Enemy %d: %s", index, guy_string[index]);
 
 	// ATTRIBUTE SWITCHERS
 	std::shared_ptr<GUI::Grid> attributes1_tab = Rows<4>();

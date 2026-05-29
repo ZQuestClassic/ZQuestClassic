@@ -920,7 +920,7 @@ void load_recent_quests()
 	char buf[512] = {0};
 	for(auto q = 0; q < 10; ++q)
 	{
-		sprintf(ptr, "%d", q); //increment the configname value
+		snprintf(ptr, sizeof(configname) - (ptr - configname), "%d", q); //increment the configname value
 		char const* qst_str = zc_get_config("recent",configname,nullptr);
 		if(qst_str[0])
 		{
@@ -949,7 +949,7 @@ void write_recent_quests()
 	char* ptr = &configname[strlen(configname)];
 	for(auto q = 0; q < 10; ++q)
 	{
-		sprintf(ptr, "%d", q); //increment the configname value
+		snprintf(ptr, sizeof(configname) - (ptr - configname), "%d", q); //increment the configname value
 		zc_set_config("recent",configname,(rec_menu_fullpaths[q][0]!='-') ? rec_menu_fullpaths[q] : nullptr);
 	}
 }
@@ -1897,16 +1897,16 @@ void savesometiles([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 	
 	char firsttile[8], tilecount[8];
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+	snprintf(tilecount,sizeof(tilecount),"%d",1);
 	//int32_t ret;
-	
-	
-	
+
+
+
 	save_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
+
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+	snprintf(tilecount,sizeof(tilecount),"%d",1);
 	
 	save_tiles_dlg[5].dp = firsttile;
 	save_tiles_dlg[7].dp = tilecount;
@@ -1963,15 +1963,13 @@ void writesometiles_to([[maybe_unused]] const char *prompt, [[maybe_unused]] int
 	
 	char firsttile[8];;
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
-		//int32_t ret;
-	
-	
-	
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+
+
+
 	read_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	//sprintf(tilecount,"%d",1);
+
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
 	
 	read_tiles_dlg[5].dp = firsttile;
 	
@@ -2037,16 +2035,16 @@ void savesomecombos([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_
 	
 	char firsttile[8], tilecount[8];
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+	snprintf(tilecount,sizeof(tilecount),"%d",1);
 	//int32_t ret;
-	
-	
-	
+
+
+
 	save_combofiles_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	sprintf(tilecount,"%d",1);
+
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+	snprintf(tilecount,sizeof(tilecount),"%d",1);
 	
 	save_combofiles_dlg[5].dp = firsttile;
 	save_combofiles_dlg[7].dp = tilecount;
@@ -2105,16 +2103,15 @@ void writesomecombos([[maybe_unused]] const char *prompt, [[maybe_unused]] int32
 	
 	char firsttile[8];
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
 		//int32_t ret;
-	
-	
-	
+
+
+
 	load_comboset_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	//sprintf(tilecount,"%d",1);
-	
+
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
+
 	load_comboset_dlg[5].dp = firsttile;
 	
 	byte nooverwrite = 0;
@@ -2183,18 +2180,17 @@ static DIALOG load_combopack_dlg[] =
 
 void loadcombopack([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t initialval)
 {
-	
+
 	char firsttile[8];
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
 		//int32_t ret;
-	
-	
-	
+
+
+
 	load_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firsttile,"%d",0);
-	//sprintf(tilecount,"%d",1);
+
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
 	
 	load_combopack_dlg[5].dp = firsttile;
 	
@@ -2276,23 +2272,21 @@ void writesomecombos_to([[maybe_unused]] const char *prompt, [[maybe_unused]] in
 	char firsttile[8];
 	char skiptile[8];
 	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
-	sprintf(firsttile,"%d",0);
+	snprintf(firsttile,sizeof(firsttile),"%d",0);
 		//int32_t ret;
-	
-	
-	
+
+
+
 	read_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(skiptile,"%d",0);
-	//sprintf(tilecount,"%d",1);
-	
+
+	snprintf(skiptile,sizeof(skiptile),"%d",0);
+
 	read_combopack_dlg[5].dp = firsttile;
-	
+
 	byte nooverwrite = 0;
 	int32_t skipover = 0;
-	
-	sprintf(skiptile,"%d",0);
-	//sprintf(tilecount,"%d",1);
+
+	snprintf(skiptile,sizeof(skiptile),"%d",0);
 	
 	read_combopack_dlg[12].dp = skiptile;
 	
@@ -2365,16 +2359,16 @@ void savesomedmaps([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 	
 	char firstdmap[8], lastdmap[8];
 	int32_t first_dmap_id = 0; int32_t last_dmap_id = 0;
-	sprintf(firstdmap,"%d",0);
-	sprintf(lastdmap,"%d",1);
+	snprintf(firstdmap,sizeof(firstdmap),"%d",0);
+	snprintf(lastdmap,sizeof(lastdmap),"%d",1);
 	//int32_t ret;
-	
-	
-	
+
+
+
 	save_dmaps_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firstdmap,"%d",0);
-	sprintf(lastdmap,"%d",0);
+
+	snprintf(firstdmap,sizeof(firstdmap),"%d",0);
+	snprintf(lastdmap,sizeof(lastdmap),"%d",0);
 	
 	save_dmaps_dlg[5].dp = firstdmap;
 	save_dmaps_dlg[7].dp = lastdmap;
@@ -2449,13 +2443,13 @@ void do_exportdoorset([[maybe_unused]] const char *prompt, [[maybe_unused]] int3
 {
 	char firstdoor[8], doorct[8];
 	int32_t first_doorset_id = 0; int32_t the_doorset_count = 1;
-	sprintf(firstdoor,"%d",0);
-	sprintf(doorct,"%d",1);
+	snprintf(firstdoor,sizeof(firstdoor),"%d",0);
+	snprintf(doorct,sizeof(doorct),"%d",1);
 	//int32_t ret;
 	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
-	
-	sprintf(firstdoor,"%d",0);
-	sprintf(doorct,"%d",1);
+
+	snprintf(firstdoor,sizeof(firstdoor),"%d",0);
+	snprintf(doorct,sizeof(doorct),"%d",1);
 	
 	save_doorset_dlg[5].dp = firstdoor;
 	save_doorset_dlg[7].dp = doorct;
@@ -2519,9 +2513,9 @@ void do_importdoorset([[maybe_unused]] const char *prompt, [[maybe_unused]] int3
 	char firstdoor[8], doorct[8], destid[8];
 	int32_t first_doorset_id = 0; int32_t the_doorset_count = 1;
 	int32_t the_dest_id = 0;
-	sprintf(firstdoor,"%d",0);
-	sprintf(doorct,"%d",1);
-	sprintf(destid,"%d",0);
+	snprintf(firstdoor,sizeof(firstdoor),"%d",0);
+	snprintf(doorct,sizeof(doorct),"%d",1);
+	snprintf(destid,sizeof(destid),"%d",0);
 		//int32_t ret;
 	
 	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
@@ -2606,8 +2600,9 @@ void fix_layers(mapscr *tempscr, bool showwarning)
 	{
 		if(tempscr->layermap[i]>map_count)
 		{
-			strcat(buf, "%d ");
-			sprintf(buf, buf, i+1);
+			char tmp[80];
+			snprintf(tmp, sizeof(tmp), "%s%d ", buf, i+1);
+			snprintf(buf, sizeof(buf), "%s", tmp);
 			tempscr->layermap[i]=0;
 		}
 	}
@@ -2632,13 +2627,13 @@ const char *autobackuplist(int32_t index, int32_t *list_size)
         
         if(index==0)
         {
-            sprintf(autobackup_str_buf,"Disabled");
+            snprintf(autobackup_str_buf,sizeof(autobackup_str_buf),"Disabled");
         }
         else
         {
-            sprintf(autobackup_str_buf,"%2d",index);
+            snprintf(autobackup_str_buf,sizeof(autobackup_str_buf),"%2d",index);
         }
-        
+
         return autobackup_str_buf;
     }
     
@@ -2655,11 +2650,11 @@ const char *autosavelist(int32_t index, int32_t *list_size)
         
         if(index==0)
         {
-            sprintf(autosave_str_buf,"Disabled");
+            snprintf(autosave_str_buf,sizeof(autosave_str_buf),"Disabled");
         }
         else
         {
-            sprintf(autosave_str_buf,"%2d Minute%c",index,index>1?'s':0);
+            snprintf(autosave_str_buf,sizeof(autosave_str_buf),"%2d Minute%c",index,index>1?'s':0);
         }
         
         return autosave_str_buf;
@@ -2674,7 +2669,7 @@ const char *autosavelist2(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,9);
-        sprintf(autosave_str_buf,"%2d",index+1);
+        snprintf(autosave_str_buf,sizeof(autosave_str_buf),"%2d",index+1);
         return autosave_str_buf;
     }
     
@@ -3520,7 +3515,7 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     {
         bound(index,0,255);
         std::string name = zcmusic_get_track_name(zcmusic, index);
-        sprintf(track_number_str_buf,"%02d %s",index+1, name.c_str());
+        snprintf(track_number_str_buf,sizeof(track_number_str_buf),"%02d %s",index+1, name.c_str());
         return track_number_str_buf;
     }
     
@@ -3575,7 +3570,7 @@ int32_t playMusic()
 	char *ext;
 	bool ismidi=false;
 	char allmusic_types[256];
-	sprintf(allmusic_types, "%s;mid", zcmusic_types);
+	snprintf(allmusic_types, sizeof(allmusic_types), "%s;mid", zcmusic_types);
 	
 	if(prompt_for_existing_file_compat("Load Music",(char*)allmusic_types,NULL,midipath,false))
 	{
@@ -4079,28 +4074,18 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     blit(graypic,screen,0,0,0,0,screen->w,screen->h);
     destroy_bitmap(graypic);
-#ifdef __GNUC__
-	#pragma GCC diagnostic ignored "-Wformat-overflow"
-#endif
-    char extbuf[2][80];
-    memset(extbuf[0],0,80);
-    memset(extbuf[1],0,80);
-    sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
-    strcpy(extbuf[1], snapshotformat_str[0][1]);
-    
+    std::string extbuf0 = std::string("View Image (") + snapshotformat_str[0][1];
+    std::string extbuf1 = snapshotformat_str[0][1];
+
     for(int32_t i=1; i<ssfmtMAX; ++i)
     {
-        sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
-        sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
+        extbuf0 += std::string(", ") + snapshotformat_str[i][1];
+        extbuf1 += std::string(";") + snapshotformat_str[i][1];
     }
-    
-    sprintf(extbuf[0], "%s)", extbuf[0]);
-#ifdef __GNUC__
-	#pragma GCC diagnostic pop
-#endif
-    
-    int32_t gotit = prompt_for_existing_file_compat(extbuf[0],extbuf[1],NULL,imagepath,true);
-    
+    extbuf0 += ")";
+
+    int32_t gotit = prompt_for_existing_file_compat(extbuf0,extbuf1,NULL,imagepath,true);
+
     if(!gotit)
     {
         zc_set_palette(temppal);
@@ -4149,28 +4134,18 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
 }
 int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
 {
-#ifdef __GNUC__
-	#pragma GCC diagnostic ignored "-Wformat-overflow"
-#endif
-    char extbuf[2][80];
-    memset(extbuf[0],0,80);
-    memset(extbuf[1],0,80);
-    sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
-    strcpy(extbuf[1], snapshotformat_str[0][1]);
-    
+    std::string extbuf0 = std::string("View Image (") + snapshotformat_str[0][1];
+    std::string extbuf1 = snapshotformat_str[0][1];
+
     for(int32_t i=1; i<ssfmtMAX; ++i)
     {
-        sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
-        sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
+        extbuf0 += std::string(", ") + snapshotformat_str[i][1];
+        extbuf1 += std::string(";") + snapshotformat_str[i][1];
     }
-    
-    sprintf(extbuf[0], "%s)", extbuf[0]);
-#ifdef __GNUC__
-	#pragma GCC diagnostic pop
-#endif
-    
-    int32_t gotit = prompt_for_existing_file_compat(extbuf[0],extbuf[1],NULL,imagepath,true);
-    
+    extbuf0 += ")";
+
+    int32_t gotit = prompt_for_existing_file_compat(extbuf0,extbuf1,NULL,imagepath,true);
+
     if(!gotit)
         return 1;
     
@@ -4701,7 +4676,7 @@ char _pathstr[40]="North,North,North,North";
 
 char *pathstr(byte path[])
 {
-    sprintf(_pathstr,"%s,%s,%s,%s",mazedirstr[path[0]],mazedirstr[path[1]],
+    snprintf(_pathstr,sizeof(_pathstr),"%s,%s,%s,%s",mazedirstr[path[0]],mazedirstr[path[1]],
             mazedirstr[path[2]],mazedirstr[path[3]]);
     return _pathstr;
 }
@@ -4718,11 +4693,11 @@ char *ticksstr(int32_t tics)
     
     if(mins>0)
     {
-        sprintf(_ticksstr,"%d:%02d.%02d",mins, secs, tics);
+        snprintf(_ticksstr,sizeof(_ticksstr),"%d:%02d.%02d",mins, secs, tics);
     }
     else
     {
-        sprintf(_ticksstr,"%d.%02d seconds",secs, tics);
+        snprintf(_ticksstr,sizeof(_ticksstr),"%d.%02d seconds",secs, tics);
     }
     
     return _ticksstr;
@@ -4948,26 +4923,26 @@ void tile_warp_notification(int32_t which, char *buf)
     switch(Map.CurrScr()->tilewarptype[which])
     {
     case wtCAVE:
-        sprintf(buf,"Tile Warp %c: Cave/Item Cellar",letter);
+        snprintf(buf,2048,"Tile Warp %c: Cave/Item Cellar",letter);
         break;
-        
+
     default:
     {
         char buf2[30];
-        
+
         if(strlen(DMaps[Map.CurrScr()->tilewarpdmap[which]].name)==0)
         {
-            sprintf(buf2,"%d",Map.CurrScr()->tilewarpdmap[which]);
+            snprintf(buf2,sizeof(buf2),"%d",Map.CurrScr()->tilewarpdmap[which]);
         }
         else
-            sprintf(buf2,"%d-%s",Map.CurrScr()->tilewarpdmap[which],DMaps[Map.CurrScr()->tilewarpdmap[which]].name);
-            
-        sprintf(buf,"Tile Warp %c: %s, 0x%02X", letter, buf2, Map.CurrScr()->tilewarpscr[which]);
+            snprintf(buf2,sizeof(buf2),"%d-%s",Map.CurrScr()->tilewarpdmap[which],DMaps[Map.CurrScr()->tilewarpdmap[which]].name);
+
+        snprintf(buf,2048,"Tile Warp %c: %s, 0x%02X", letter, buf2, Map.CurrScr()->tilewarpscr[which]);
         break;
     }
-    
+
     case wtNOWARP:
-        sprintf(buf,"Tile Warp %c: Cancel Warp", letter);
+        snprintf(buf,2048,"Tile Warp %c: Cancel Warp", letter);
         break;
     }
 }
@@ -4976,35 +4951,35 @@ void side_warp_notification(int32_t which, int32_t dir, char *buf)
 {
     char letter = 'A'+which;
     char buf3[16];
-    
+
     if(dir==0 && Map.CurrScr()->timedwarptics)
-        sprintf(buf3,"%s, Timed",mazedirstr[dir]);
+        snprintf(buf3,sizeof(buf3),"%s, Timed",mazedirstr[dir]);
     else if(dir==4)
-        sprintf(buf3,"Timed");
+        snprintf(buf3,sizeof(buf3),"Timed");
     else
         strcpy(buf3, mazedirstr[dir]);
-        
+
     switch(Map.CurrScr()->sidewarptype[which])
     {
     case wtCAVE:
-        sprintf(buf,"Side Warp %c (%s): Cave/Item Cellar",letter, buf3);
+        snprintf(buf,2048,"Side Warp %c (%s): Cave/Item Cellar",letter, buf3);
         break;
-        
+
     default:
     {
         // Destination DMap name
         if(strlen(DMaps[Map.CurrScr()->sidewarpdmap[which]].name)==0)
         {
-            sprintf(buf,"Side Warp %c (%s): %d, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which], Map.CurrScr()->sidewarpscr[which]);
+            snprintf(buf,2048,"Side Warp %c (%s): %d, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which], Map.CurrScr()->sidewarpscr[which]);
         }
         else
-            sprintf(buf,"Side Warp %c (%s): %d-%s, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which],DMaps[Map.CurrScr()->sidewarpdmap[which]].name, Map.CurrScr()->sidewarpscr[which]);
-            
+            snprintf(buf,2048,"Side Warp %c (%s): %d-%s, 0x%02X", letter, buf3, Map.CurrScr()->sidewarpdmap[which],DMaps[Map.CurrScr()->sidewarpdmap[which]].name, Map.CurrScr()->sidewarpscr[which]);
+
         break;
     }
-    
+
     case wtNOWARP:
-        sprintf(buf,"Side Warp %c (%s): Cancel Warp", letter, buf3);
+        snprintf(buf,2048,"Side Warp %c (%s): Cancel Warp", letter, buf3);
         break;
     }
 }
@@ -5935,7 +5910,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			for(int32_t btn=0; btn<mappage_count; ++btn)
 			{
 				char tbuf[15];
-				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
+				snprintf(tbuf, sizeof(tbuf), "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 				draw_layer_button(screen,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
 			}
 		}
@@ -6326,7 +6301,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			comboprev_buf2[0] = 0;
 			if(draw_mode == dm_cpool)
 			{
-				sprintf(comboprev_buf,"Pool: %d\nCSet: %d",combo_pool_pos,CSet);
+				snprintf(comboprev_buf,sizeof(comboprev_buf),"Pool: %d\nCSet: %d",combo_pool_pos,CSet);
 				int x = combo_preview_text1.x+(combo_preview_text1.w*combo_preview_text1.xscale);
 				textbox_out(screen,txfont,x,combo_preview_text1.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],comboprev_buf,2,&combo_preview_text1);
 			}
@@ -6335,9 +6310,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				GUI::ListData ac_types = GUI::ZCListData::autocombotypes();
 				std::string type_name = ac_types.findText(combo_autos[combo_auto_pos].getType());
 				if (is_compact)
-					sprintf(comboprev_buf, "AC: %d CS: %d\n%s", combo_auto_pos, CSet, type_name.c_str());
+					snprintf(comboprev_buf, sizeof(comboprev_buf), "AC: %d CS: %d\n%s", combo_auto_pos, CSet, type_name.c_str());
 				else
-					sprintf(comboprev_buf, "Auto: %d CSet: %d\n%s\nEntries: %d", combo_auto_pos, CSet, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
+					snprintf(comboprev_buf, sizeof(comboprev_buf), "Auto: %d CSet: %d\n%s\nEntries: %d", combo_auto_pos, CSet, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
 				int x = combo_preview_text1.x + (combo_preview_text1.w * combo_preview_text1.xscale);
 				textbox_out(screen, txfont, x, combo_preview_text1.y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], comboprev_buf, 2, &combo_preview_text1);
 			}
@@ -6348,7 +6323,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				char shortbuf[512];
 				char buf[256];
 				strcpy(buf,combo_class_buf[combobuf[Combo].type].name);
-				sprintf(comboprev_buf,"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
+				snprintf(comboprev_buf,sizeof(comboprev_buf),"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
 				int ind = strlen(buf)-1;
 				int x2 = x;
 				if(x2 - text_length(txfont, buf) <= combolist_window.x)
@@ -6368,12 +6343,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				if(is_compact)
 				{
 					char b2[256];
-					sprintf(b2, "Combo %d CS %d", Combo, CSet);
+					snprintf(b2, sizeof(b2), "Combo %d CS %d", Combo, CSet);
 					if(x-text_length(txfont, b2) <= combolist_window.x)
-						sprintf(b2, "Cmb %d CS %d", Combo, CSet);
-					sprintf(shortbuf,"%s\n%s",b2,buf);
+						snprintf(b2, sizeof(b2), "Cmb %d CS %d", Combo, CSet);
+					snprintf(shortbuf,sizeof(shortbuf),"%s\n%s",b2,buf);
 				}
-				else sprintf(shortbuf,"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
+				else snprintf(shortbuf,sizeof(shortbuf),"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
 				textbox_out(screen,txfont,x,combo_preview_text1.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],shortbuf,2,&combo_preview_text1);
 			}
 			
@@ -6426,7 +6401,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					char shortbuf[512];
 					char buf[256];
 					strcpy(buf,combo_class_buf[combobuf[NextCombo].type].name);
-					sprintf(comboprev_buf2, "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
+					snprintf(comboprev_buf2, sizeof(comboprev_buf2), "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
 					int ind = strlen(buf)-1;
 					int x2 = combo_preview_text2.x;
 					if(x2 + text_length(txfont, buf) > zq_screen_w-2)
@@ -6443,7 +6418,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						strcat(buf, "..");
 					}
 					
-					sprintf(shortbuf, "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
+					snprintf(shortbuf, sizeof(shortbuf), "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
 					textbox_out(screen,txfont,combo_preview_text2.x,combo_preview_text2.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],shortbuf,0,&combo_preview_text2);
 				}
 			}
@@ -6649,12 +6624,12 @@ void refresh(int32_t flags, bool update)
 		{
 			std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1], true);
 			if(is_compact)
-				sprintf(tbuf, "%s%d %s", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
-			else sprintf(tbuf, "%s%d (%s)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
+				snprintf(tbuf, sizeof(tbuf), "%s%d %s", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
+			else snprintf(tbuf, sizeof(tbuf), "%s%d (%s)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, screen_str.c_str());
 		}
 		else
 		{
-			sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
+			snprintf(tbuf, sizeof(tbuf), "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
 		}
 		
 		int32_t spacing_offs = is_compact ? 2 : 10;
@@ -6728,7 +6703,7 @@ void refresh(int32_t flags, bool update)
 		// Start with general information
 		if(Map.CurrScr()->flags3&fINVISHERO)
 		{
-			sprintf(buf,"Invisible Hero");
+			snprintf(buf,sizeof(buf),"Invisible Hero");
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -6739,12 +6714,12 @@ void refresh(int32_t flags, bool update)
 			//This fixes Screen Info not displaying properly when changing maps. -Z 
 			//Needed to refresh the screen info. -Z ( 26th March, 2019 )
 			int32_t m = Map.getLayerTargetMultiple();
-			sprintf(buf,"Used as a layer by screen %s", formatMapScreenPair(Map.getLayerTargetMap(), Map.getLayerTargetScr()).c_str());
+			snprintf(buf,sizeof(buf),"Used as a layer by screen %s", formatMapScreenPair(Map.getLayerTargetMap(), Map.getLayerTargetScr()).c_str());
 			char buf2[24];
-			
+
 			if(m>0)
 			{
-				sprintf(buf2," and %d other%s",m,m>1?"s":"");
+				snprintf(buf2,sizeof(buf2)," and %d other%s",m,m>1?"s":"");
 				strcat(buf,buf2);
 			}
 			
@@ -6753,19 +6728,19 @@ void refresh(int32_t flags, bool update)
 		
 		if(Map.CurrScr()->nextmap)
 		{
-			sprintf(buf,"Screen State carries over to %s",formatMapScreenPair(Map.CurrScr()->nextmap, Map.CurrScr()->nextscr).c_str());
+			snprintf(buf,sizeof(buf),"Screen State carries over to %s",formatMapScreenPair(Map.CurrScr()->nextmap, Map.CurrScr()->nextscr).c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if(Map.CurrScr()->timedwarptics)
 		{
-			sprintf(buf,"%s%sTimed Warp: %s",(Map.CurrScr()->flags4&fTIMEDDIRECT)?"Direct ":"",(Map.CurrScr()->flags5&fRANDOMTIMEDWARP)?"Random ":"",ticksstr(Map.CurrScr()->timedwarptics));
+			snprintf(buf,sizeof(buf),"%s%sTimed Warp: %s",(Map.CurrScr()->flags4&fTIMEDDIRECT)?"Direct ":"",(Map.CurrScr()->flags5&fRANDOMTIMEDWARP)?"Random ":"",ticksstr(Map.CurrScr()->timedwarptics));
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if(Map.CurrScr()->flags&fMAZE)
 		{
-			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),mazedirstr[Map.CurrScr()->exitdir]);
+			snprintf(buf,sizeof(buf),"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),mazedirstr[Map.CurrScr()->exitdir]);
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -6773,34 +6748,34 @@ void refresh(int32_t flags, bool update)
 		
 		if(Map.CurrScr()->flags4&fAUTOSAVE)
 		{
-			sprintf(buf,"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
+			snprintf(buf,sizeof(buf),"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
 			show_screen_error(buf,i++,vc(15));
 			continuescreen = ((Map.CurrScr()->flags6&fCONTINUEHERE)!=0);
 			savecombo = true;
 		}
 		else if(Map.CurrScr()->flags6&fCONTINUEHERE)
 		{
-			sprintf(buf,"Continue Screen");
+			snprintf(buf,sizeof(buf),"Continue Screen");
 			show_screen_error(buf,i++,vc(15));
 			continuescreen = true;
 		}
 		
 		if(isSideViewGravity())
 		{
-			sprintf(buf,"Sideview Gravity");
+			snprintf(buf,sizeof(buf),"Sideview Gravity");
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM))
 		{
-			sprintf(buf,"Treat As %s%s Screen", (Map.CurrScr()->flags6&fCAVEROOM) ? "Interior":"NES Dungeon",
+			snprintf(buf,sizeof(buf),"Treat As %s%s Screen", (Map.CurrScr()->flags6&fCAVEROOM) ? "Interior":"NES Dungeon",
 					(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM)) == (fCAVEROOM|fDUNGEONROOM) ? " or NES Dungeon":"");
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if (Map.CurrScr()->flags & fDARK)
 		{
-			sprintf(buf, "Dark");
+			snprintf(buf, sizeof(buf), "Dark");
 			if (get_qr(qr_NEW_DARKROOM))
 			{
 				bool dithered = Map.CurrScr()->flags9 & fDARK_DITHER;
@@ -6817,13 +6792,13 @@ void refresh(int32_t flags, bool update)
 		
 		if (auto sid = Map.CurrScr()->oceansfx; unsigned(sid-1) < quest_sounds.size())
 		{
-			sprintf(buf,"Ambient Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
+			snprintf(buf,sizeof(buf),"Ambient Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if (auto sid = Map.CurrScr()->bosssfx; unsigned(sid-1) < quest_sounds.size())
 		{
-			sprintf(buf,"Boss Roar Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
+			snprintf(buf,sizeof(buf),"Boss Roar Sound: %s", quest_sounds[sid-1].sfx_name.c_str());
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -6834,13 +6809,13 @@ void refresh(int32_t flags, bool update)
 			char shortbuf[72];
 			strip_extra_spaces(buf);
 			shorten_string(shortbuf, buf, get_zc_font(font_lfont_l), 72, 280);
-			sprintf(buf,"String %s",shortbuf);
+			snprintf(buf,sizeof(buf),"String %s",shortbuf);
 			show_screen_error(buf,i++,vc(15));
 		}
 		
 		if((Map.CurrScr()->flags&fWHISTLE) || (Map.CurrScr()->flags7&fWHISTLEWATER))
 		{
-			sprintf(buf,"Whistle ->%s%s%s",(Map.CurrScr()->flags&fWHISTLE)?" Stairs":"",
+			snprintf(buf,sizeof(buf),"Whistle ->%s%s%s",(Map.CurrScr()->flags&fWHISTLE)?" Stairs":"",
 				    (Map.CurrScr()->flags&fWHISTLE && Map.CurrScr()->flags7&fWHISTLEWATER)?", ":"",
 			        (Map.CurrScr()->flags7&fWHISTLEWATER)?"Dry Lake":"");
 			show_screen_error(buf,i++,vc(15));
@@ -6852,37 +6827,37 @@ void refresh(int32_t flags, bool update)
 			{
 				int id = Map.CurrScr()->catchall;
 				if (valid_item_id(id))
-					sprintf(buf,"Special Item is %s",itemsbuf.get(id).name.c_str());
-				else sprintf(buf, "Invalid Special Item '%d'", id);
+					snprintf(buf,sizeof(buf),"Special Item is %s",itemsbuf.get(id).name.c_str());
+				else snprintf(buf, sizeof(buf), "Invalid Special Item '%d'", id);
 				show_screen_error(buf,i++, vc(15));
 				break;
 			}
-				
+
 			case rINFO:
 			{
 				int32_t shop = Map.CurrScr()->catchall;
-				sprintf(buf,"Pay For Info: -%d, -%d, -%d",
+				snprintf(buf,sizeof(buf),"Pay For Info: -%d, -%d, -%d",
 						QMisc.info[shop].price[0],QMisc.info[shop].price[1],QMisc.info[shop].price[2]);
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
-			
+
 			case rMONEY:
-				sprintf(buf,"Secret Money: %d Rupees",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"Secret Money: %d Rupees",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
-				
+
 			case rGAMBLE:
 				show_screen_error("Gamble Room",i++, vc(15));
 				break;
-				
+
 			case rREPAIR:
-				sprintf(buf,"Door Repair: -%d Rupees",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"Door Repair: -%d Rupees",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
-				
+
 			case rRP_HC:
-				sprintf(buf,"Take %s or %s", itemsbuf.get(iRPotion).name.c_str(), itemsbuf.get(iHeartC).name.c_str());
+				snprintf(buf,sizeof(buf),"Take %s or %s", itemsbuf.get(iRPotion).name.c_str(), itemsbuf.get(iHeartC).name.c_str());
 				show_screen_error(buf,i++, vc(15));
 				break;
 				
@@ -6901,9 +6876,9 @@ void refresh(int32_t flags, bool update)
 				if (unsigned(shop_id) >= NUM_SHOPS)
 					break;
 				auto const& shop = QMisc.shop[shop_id];
-				sprintf(buf,"%sShop: ",
+				snprintf(buf,sizeof(buf),"%sShop: ",
 					Map.CurrScr()->room == rP_SHOP ? "Potion " : "");
-						
+
 				for(int32_t j=0; j<3; j++)
 				{
 					if(shop.hasitem[j])
@@ -6911,7 +6886,7 @@ void refresh(int32_t flags, bool update)
 						strcat(buf, itemsbuf.get(shop.item[j]).name.c_str());
 						strcat(buf, ":");
 						char pricebuf[8];
-						sprintf(pricebuf, "%d", shop.price[j]);
+						snprintf(pricebuf, sizeof(pricebuf), "%d", shop.price[j]);
 						strcat(buf, pricebuf);
 						
 						if(j<2 && shop.hasitem[j+1]) strcat(buf,", ");
@@ -6925,14 +6900,14 @@ void refresh(int32_t flags, bool update)
 			case rBOTTLESHOP:
 			{
 				int32_t shop = Map.CurrScr()->catchall;
-				sprintf(buf,"Bottle Shop: ");
-						
+				snprintf(buf,sizeof(buf),"Bottle Shop: ");
+
 				for(int32_t j=0; j<3; j++) if(QMisc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
 				{
 					strcat(buf,QMisc.bottle_types[QMisc.bottle_shop_types[shop].fill[j]-1].name);
 					strcat(buf,":");
 					char pricebuf[8];
-					sprintf(pricebuf,"%d",QMisc.bottle_shop_types[shop].price[j]);
+					snprintf(pricebuf,sizeof(pricebuf),"%d",QMisc.bottle_shop_types[shop].price[j]);
 					strcat(buf,pricebuf);
 					
 					if(j<2 && QMisc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
@@ -6948,7 +6923,7 @@ void refresh(int32_t flags, bool update)
 				if (unsigned(shop_id) >= NUM_SHOPS)
 					break;
 				auto const& shop = QMisc.shop[shop_id];
-				sprintf(buf,"Take Only One: %s%s%s%s%s",
+				snprintf(buf,sizeof(buf),"Take Only One: %s%s%s%s%s",
 					shop.item[0] < 1 ? "" : itemsbuf.get(shop.item[0]).name.c_str(), shop.item[0] > 0 ? ", " : "",
 					shop.item[1] < 1 ? "" : itemsbuf.get(shop.item[1]).name.c_str(), (shop.item[1] > 0 && shop.item[2] > 0) ? ", " : "",
 					shop.item[2] < 1 ? "" : itemsbuf.get(shop.item[2]).name.c_str());
@@ -6957,17 +6932,17 @@ void refresh(int32_t flags, bool update)
 			break;
 			
 			case rBOMBS:
-				sprintf(buf,"More Bombs: -%d Rupees",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"More Bombs: -%d Rupees",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
-				
+
 			case rARROWS:
-				sprintf(buf,"More Arrows: -%d Rupees",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"More Arrows: -%d Rupees",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
-				
+
 			case rSWINDLE:
-				sprintf(buf,"Leave Life or %d Rupees",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"Leave Life or %d Rupees",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
 				
@@ -6992,7 +6967,7 @@ void refresh(int32_t flags, bool update)
 				break;
 				
 			case rWARP:
-				sprintf(buf,"3-Stair Warp: Warp Ring %d",Map.CurrScr()->catchall);
+				snprintf(buf,sizeof(buf),"3-Stair Warp: Warp Ring %d",Map.CurrScr()->catchall);
 				show_screen_error(buf,i++, vc(15));
 				break;
 		}
@@ -8498,8 +8473,8 @@ static void doxypos(byte &px2, byte &py2, int32_t color, SnapMode snap_mode,
 				char b2[200] = {0};
 				if(showxypos_dummy)
 					strcpy(b1, "DUMMY MEASURING");
-				else sprintf(b1, "%d %d",oldpx,oldpy);
-				sprintf(b2, "%d %d (%d %d)",x-viz_off_x,y-viz_off_y,showxypos_cursor_x-viz_off_x,showxypos_cursor_y-viz_off_y);
+				else snprintf(b1, sizeof(b1), "%d %d",oldpx,oldpy);
+				snprintf(b2, sizeof(b2), "%d %d (%d %d)",x-viz_off_x,y-viz_off_y,showxypos_cursor_x-viz_off_x,showxypos_cursor_y-viz_off_y);
 				
 				int len[2] = {text_length(font,b1),text_length(font,b2)};
 				
@@ -9853,7 +9828,7 @@ void domouse()
 			if(square.rect(x,y))
 			{
 				char msg[160];
-				sprintf(msg,
+				snprintf(msg, sizeof(msg), "%s",
 						j==0 ? "Item Location" :
 						j==1 ? "Stairs Secret\nTriggered when a Trigger Push Block is pushed." :
 						j==2 ? "Arrival Square\nPlayer's location when they begin/resume the game." :
@@ -9869,7 +9844,7 @@ void domouse()
 			if(wret.rect(x,y))
 			{
 				char msg[160];
-				sprintf(msg,"Warp Return Square %c\nPlayer's destination after warping to this screen.",(char)('A'+j));
+				snprintf(msg, sizeof(msg), "Warp Return Square %c\nPlayer's destination after warping to this screen.",(char)('A'+j));
 				update_tooltip(x,y,wret,msg);
 			}
 		}
@@ -9878,7 +9853,7 @@ void domouse()
 		if(enemy_prev_pos.rect(x,y))
 		{
 			char msg[160];
-			sprintf(msg,"Enemies that appear on this screen.");
+			snprintf(msg, sizeof(msg), "Enemies that appear on this screen.");
 			update_tooltip(x,y,enemy_prev_pos,msg);
 		}
 		
@@ -9902,7 +9877,7 @@ void domouse()
 			{
 				auto c2=ind+combo_alistpos[j];
 				char msg[80];
-				sprintf(msg, "Combo alias %d", c2);
+				snprintf(msg, sizeof(msg), "Combo alias %d", c2);
 				update_tooltip(x,y,sqr.subsquare(ind), msg);
 			}
 		}
@@ -9917,7 +9892,7 @@ void domouse()
 			{
 				auto c2=ind+combo_pool_listpos[j];
 				char msg[80];
-				sprintf(msg, "Combo Pool %d", c2);
+				snprintf(msg, sizeof(msg), "Combo Pool %d", c2);
 				update_tooltip(x,y,sqr.subsquare(ind), msg);
 			}
 		}
@@ -9941,7 +9916,7 @@ void domouse()
 			{
 				auto c2 = ind + combo_auto_listpos[j];
 				char msg[80];
-				sprintf(msg, "Auto Combo %d", c2);
+				snprintf(msg, sizeof(msg), "Auto Combo %d", c2);
 				update_tooltip(x, y, sqr.subsquare(ind), msg);
 			}
 		}
@@ -10023,7 +9998,7 @@ void domouse()
 	if(ind > -1)
 	{
 		char buf[80];
-		sprintf(buf,"0x%02X (%d)", ind, ind);
+		snprintf(buf, sizeof(buf), "0x%02X (%d)", ind, ind);
 		ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
 		ttip_set_highlight_thickness(minimap_tooltip_id, zoomed_minimap ? 2 : 1);
 		// Make sure always above the other tooltip items to the right of the map (even in big map mode).
@@ -10270,27 +10245,27 @@ void domouse()
 
 				if (Map.getViewSize() > 1)
 				{
-					sprintf(tbuf, "%d", i);
+					snprintf(tbuf, sizeof(tbuf), "%d", i);
 				}
 				else if (i != 0 && mapscreen_valid_layers[i - 1])
 				{
 					std::string screen_str = formatMapScreenPair(Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1], true);
 					if (is_compact)
 					{
-						sprintf(tbuf, "%s%d %s",
+						snprintf(tbuf, sizeof(tbuf), "%s%d %s",
 							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
 							i, screen_str.c_str());
 					}
 					else
 					{
-						sprintf(tbuf, "%s%d (%s)",
+						snprintf(tbuf, sizeof(tbuf), "%s%d (%s)",
 							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
 							i, screen_str.c_str());
 					}
 				}
 				else
 				{
-					sprintf(tbuf, "%d", i);
+					snprintf(tbuf, sizeof(tbuf), "%d", i);
 				}
 				
 				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf))
@@ -11213,7 +11188,7 @@ int32_t d_viewpal_proc(int32_t msg, DIALOG *d, int32_t c)
 		for(int32_t i = 0; i<256; ++i)
 			if(isinRect(x,y,(int32_t)(((i&31)<<3)*palscale),(int32_t)(((i&0xE0)>>2)*palscale), (int32_t)((((i&31)<<3)+7)*palscale),(int32_t)((((i&0xE0)>>2)+7)*palscale)))
 			{
-				sprintf(buf, "0x%02X (%03d)     ", i, i); //Extra spaces to increase drawn width, so it draws the blank area
+				snprintf(buf, 16, "0x%02X (%03d)     ", i, i); //Extra spaces to increase drawn width, so it draws the blank area
 				break;
 			}
 	}
@@ -12069,7 +12044,7 @@ int32_t onSecretCombo()
 	if(!s) return D_O_K;
     
     char secretcombonumstr[27];
-    sprintf(secretcombonumstr,"Secret Combos for Layer %d", CurrentLayer);
+    snprintf(secretcombonumstr,sizeof(secretcombonumstr),"Secret Combos for Layer %d", CurrentLayer);
     secret_dlg[0].dp = secretcombonumstr;
     
     secret_dlg[92].d1 = s->secretcombo[sBCANDLE];
@@ -12473,7 +12448,7 @@ const char *numberlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,number_list_size-1);
-        sprintf(number_str_buf,"%d",index+(number_list_zero?0:1));
+        snprintf(number_str_buf,sizeof(number_str_buf),"%d",index+(number_list_zero?0:1));
         return number_str_buf;
     }
     
@@ -12490,7 +12465,7 @@ const char *dmaplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,dmap_list_size-1);
-        sprintf(dmap_str_buf,"%3d-%s",index+(dmap_list_zero?0:1), DMaps[index].name);
+        snprintf(dmap_str_buf,sizeof(dmap_str_buf),"%3d-%s",index+(dmap_list_zero?0:1), DMaps[index].name);
         return dmap_str_buf;
     }
     
@@ -12503,10 +12478,10 @@ const char *gotomaplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,map_count-1);
-        sprintf(number_str_buf,"%d",index+1);
+        snprintf(number_str_buf,sizeof(number_str_buf),"%d",index+1);
         return number_str_buf;
     }
-    
+
     *list_size = map_count;
     return NULL;
 }
@@ -12516,7 +12491,7 @@ const char *levelnumlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,0xFFF);
-        sprintf(number_str_buf,"%.3X - %s",index,palnames[index]);
+        snprintf(number_str_buf,sizeof(number_str_buf),"%.3X - %s",index,palnames[index]);
         return number_str_buf;
     }
     
@@ -12532,7 +12507,7 @@ const char *shoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,shop_list_size-1);
-        sprintf(shop_str_buf,"%3d:  %s",index,QMisc.shop[index].name);
+        snprintf(shop_str_buf,sizeof(shop_str_buf),"%3d:  %s",index,QMisc.shop[index].name);
         return shop_str_buf;
     }
     
@@ -12548,7 +12523,7 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottle_list_size-1);
-		sprintf(bottle_str_buf,"%2d:  %s",index+1,QMisc.bottle_types[index].name);
+		snprintf(bottle_str_buf,sizeof(bottle_str_buf),"%2d:  %s",index+1,QMisc.bottle_types[index].name);
         return bottle_str_buf;
     }
     
@@ -12564,7 +12539,7 @@ const char *bottleshoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottleshop_list_size-1);
-		sprintf(bottleshop_str_buf,"%3d:  %s",index,QMisc.bottle_shop_types[index].name);
+		snprintf(bottleshop_str_buf,sizeof(bottleshop_str_buf),"%3d:  %s",index,QMisc.bottle_shop_types[index].name);
         return bottleshop_str_buf;
     }
     
@@ -12580,7 +12555,7 @@ const char *infolist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,info_list_size-1);
-        sprintf(info_str_buf,"%3d:  %s",index,QMisc.info[index].name);
+        snprintf(info_str_buf,sizeof(info_str_buf),"%3d:  %s",index,QMisc.info[index].name);
         return info_str_buf;
     }
     
@@ -12735,8 +12710,8 @@ int32_t onUsedCombos()
         }
     }
     
-    sprintf(combolist_text, " ");
-    
+    snprintf(combolist_text, sizeof(combolist_text), " ");
+
     for(int32_t layer=0; layer<7; ++layer)
     {
         if(counter[layer]>0)
@@ -12745,27 +12720,27 @@ int32_t onUsedCombos()
             {
                 strcat(combolist_text, "\n");
             }
-            
-            sprintf(temptext, "Combos on layer %d\n-----------------\n", layer);
+
+            snprintf(temptext, sizeof(temptext), "Combos on layer %d\n-----------------\n", layer);
             strcat(combolist_text, temptext);
-            
+
             for(int32_t i=0; i<counter[layer]; i++)
             {
                 if((i<counter[layer]-1) && (((usedcombos[layer][i][1]==usedcombos[layer][i+1][1]&&(usedcombos[layer][i][0]+1==usedcombos[layer][i+1][0])) && ((i==0) || ((usedcombos[layer][i][1]!=usedcombos[layer][i-1][1])||((usedcombos[layer][i][0]-1!=usedcombos[layer][i-1][0])))))))
                 {
-                    sprintf(temptext, "%5d ", usedcombos[layer][i][0]);
+                    snprintf(temptext, sizeof(temptext), "%5d ", usedcombos[layer][i][0]);
                     strcat(combolist_text, temptext);
                 }
                 else if(((i>0) && (((usedcombos[layer][i][1]==usedcombos[layer][i-1][1])&&((usedcombos[layer][i][0]-1==usedcombos[layer][i-1][0]))) && ((i==counter[layer]-1) || ((usedcombos[layer][i][1]!=usedcombos[layer][i+1][1])||((usedcombos[layer][i][0]+1!=usedcombos[layer][i+1][0])))))))
                 {
-                    sprintf(temptext, "- %5d (%3d)\n", usedcombos[layer][i][0],usedcombos[layer][i][1]);
+                    snprintf(temptext, sizeof(temptext), "- %5d (%3d)\n", usedcombos[layer][i][0],usedcombos[layer][i][1]);
                     strcat(combolist_text, temptext);
                 }
                 else if(((i==0) && ((usedcombos[layer][i][1]!=usedcombos[layer][i+1][1])||((usedcombos[layer][i][0]+1!=usedcombos[layer][i+1][0]))))||
                         ((i==counter[layer]-1) && ((usedcombos[layer][i][1]!=usedcombos[layer][i-1][1])||((usedcombos[layer][i][0]-1!=usedcombos[layer][i-1][0]))))||
                         ((i>0) && (i<counter[layer]-1) && ((usedcombos[layer][i][1]!=usedcombos[layer][i+1][1])||((usedcombos[layer][i][0]+1!=usedcombos[layer][i+1][0]))) && ((usedcombos[layer][i][1]!=usedcombos[layer][i-1][1])||((usedcombos[layer][i][0]-1!=usedcombos[layer][i-1][0])))))
                 {
-                    sprintf(temptext, "    %5d     (%3d)\n", usedcombos[layer][i][0],usedcombos[layer][i][1]);
+                    snprintf(temptext, sizeof(temptext), "    %5d     (%3d)\n", usedcombos[layer][i][0],usedcombos[layer][i][1]);
                     strcat(combolist_text, temptext);
                 }
             }
@@ -13141,13 +13116,13 @@ static DIALOG tp_dlg[] =
 int32_t onTriPieces()
 {
     tp_dlg[0].dp2=get_zc_font(font_lfont);
-    char temptext[8][2];
-    
+    char temptext[8][4];
+
     for(int32_t i=0; i<8; i++)
     {
         tp_dlg[i+3].d1 = QMisc.triforce[i];
         //    ((char*)(tp_dlg[i+3].dp))[0] = QMisc.triforce[i]+'0';
-        sprintf(temptext[i], "%d", QMisc.triforce[i]);
+        snprintf(temptext[i], sizeof(temptext[i]), "%d", QMisc.triforce[i]);
         tp_dlg[i+3].dp=temptext[i];
     }
     
@@ -13635,7 +13610,7 @@ const char *warprlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,3);
-        sprintf(warpr_buf,"%c",index+0x41);
+        snprintf(warpr_buf,sizeof(warpr_buf),"%c",index+0x41);
         return warpr_buf;
     }
     
@@ -13695,7 +13670,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 	if(bufval != val)
 	{
 		redraw = true;
-		sprintf(buf, "%X", val);
+		snprintf(buf, 8, "%X", val);
 	}
 	if(d->d2 != *dmap_ptr)
 	{
@@ -13741,7 +13716,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(d->d1 != val)
 				{
 					d->d1 = val;
-					sprintf(buf, "%02X", val);
+					snprintf(buf, 8, "%02X", val);
 					redraw2 = true;
 				}
 			}
@@ -13810,7 +13785,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 					break;
 			}
 			if(redraw)
-				sprintf(buf, "%02X", val);
+				snprintf(buf, 8, "%02X", val);
 			break;
 		}
 	}
@@ -14023,7 +13998,7 @@ int32_t d_dmapscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
     case MSG_CLICK:
-        sprintf((char*)((d+2)->dp),"%X%X",vbound((gui_mouse_y()-d->y)/4,0,7),vbound((gui_mouse_x()-d->x)/(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?4:8),0,(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?15:7)));
+        snprintf((char*)((d+2)->dp),8,"%X%X",vbound((gui_mouse_y()-d->y)/4,0,7),vbound((gui_mouse_x()-d->x)/(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?4:8),0,(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?15:7)));
         object_message(d+2, MSG_DRAW, 0);
         break;
     }
@@ -14105,7 +14080,7 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     if(msg==MSG_DRAW)
     {
         int32_t tics=vbound(atoi((char*)d->dp),0,65535);
-        sprintf((char*)(d+1)->dp,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
+        snprintf((char*)(d+1)->dp,32,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
         object_message(d+1,MSG_DRAW,c);
     }
     
@@ -14154,7 +14129,7 @@ struct tw_data
 		tilewarp_dlg[4].d1 = twtype[ind];
 		tilewarp_dlg[5].d1 = twdmap[ind];
 		char* buf = (char*)tilewarp_dlg[6].dp;
-		sprintf(buf,"%02X",twscr[ind]);
+		snprintf(buf,8,"%02X",twscr[ind]);
 		tilewarp_dlg[11].d1 = wret[ind];
 		SETFLAG(tilewarp_dlg[12].flags, D_SELECTED, get_bit(&oflags,ind));
 		for(int q = 0; q < 4; ++q)
@@ -14323,7 +14298,7 @@ struct sw_data
 		sidewarp_dlg[4].d1 = swtype[ind];
 		sidewarp_dlg[5].d1 = swdmap[ind];
 		char* buf = (char*)sidewarp_dlg[6].dp;
-		sprintf(buf,"%02X",swscr[ind]);
+		snprintf(buf,8,"%02X",swscr[ind]);
 		sidewarp_dlg[11].d1 = wret[ind];
 		SETFLAG(sidewarp_dlg[12].flags, D_SELECTED, get_bit(&oflags,ind));
 		for(int q = 0; q < 4; ++q)
@@ -14581,13 +14556,13 @@ void EditInfoType(int32_t index)
     
     int32_t str1, str2, str3;
     
-    sprintf(caption,"Info Data %d",index);
+    snprintf(caption,sizeof(caption),"Info Data %d",index);
     editinfo_dlg[0].dp = caption;
     editinfo_dlg[0].dp2 = get_zc_font(font_lfont);
-    
-    sprintf(ps1,"%d",QMisc.info[index].price[0]);
-    sprintf(ps2,"%d",QMisc.info[index].price[1]);
-    sprintf(ps3,"%d",QMisc.info[index].price[2]);
+
+    snprintf(ps1,sizeof(ps1),"%d",QMisc.info[index].price[0]);
+    snprintf(ps2,sizeof(ps2),"%d",QMisc.info[index].price[1]);
+    snprintf(ps3,sizeof(ps3),"%d",QMisc.info[index].price[2]);
     strncpy(infoname,QMisc.info[index].name,32);
     infoname[32] = 0;
     editinfo_dlg[8].dp  = ps1;
@@ -14730,19 +14705,19 @@ void EditShopType(int32_t index)
 	char caption[40];
 	auto& shop = QMisc.shop[index];
 	
-	sprintf(caption,"Shop Data %d",index);
+	snprintf(caption,sizeof(caption),"Shop Data %d",index);
 	editshop_dlg[0].dp = caption;
 	editshop_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	sprintf(ps1,"%d",shop.price[0]);
-	sprintf(ps2,"%d",shop.price[1]);
-	sprintf(ps3,"%d",shop.price[2]);
-	
-	sprintf(info1,"%d",shop.str[0]);
-	sprintf(info2,"%d",shop.str[1]);
-	sprintf(info3,"%d",shop.str[2]);
-	
-	sprintf(shopname,"%s",shop.name);
+
+	snprintf(ps1,sizeof(ps1),"%d",shop.price[0]);
+	snprintf(ps2,sizeof(ps2),"%d",shop.price[1]);
+	snprintf(ps3,sizeof(ps3),"%d",shop.price[2]);
+
+	snprintf(info1,sizeof(info1),"%d",shop.str[0]);
+	snprintf(info2,sizeof(info2),"%d",shop.str[1]);
+	snprintf(info3,sizeof(info3),"%d",shop.str[2]);
+
+	snprintf(shopname,sizeof(shopname),"%s",shop.name);
 	editshop_dlg[8].dp  = ps1;
 	editshop_dlg[10].dp = ps2;
 	editshop_dlg[12].dp = ps3;
@@ -14879,7 +14854,7 @@ const char *itemdropsetlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,item_drop_set_list_size-1);
-        sprintf(item_drop_set_str_buf,"%3d:  %s",index,item_drop_sets[index].name);
+        snprintf(item_drop_set_str_buf,sizeof(item_drop_set_str_buf),"%3d:  %s",index,item_drop_sets[index].name);
         return item_drop_set_str_buf;
     }
     
@@ -14983,14 +14958,14 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
         
         {
             int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
-            sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, t2 <= 11 ? " ":"");
+            snprintf((char*)edititemdropset_dlg[9].dp,5,"%d%%%s",t2, t2 <= 11 ? " ":"");
             object_message(&edititemdropset_dlg[9],MSG_DRAW,c);
         }
         
         for(int32_t i=0; i<10; ++i)
         {
             int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[14+(i*3)].dp) / zc_max(t,1));
-            sprintf((char*)edititemdropset_dlg[16+(i*3)].dp,"%d%%%s",t2, t2 <= 11 ? " ":"");
+            snprintf((char*)edititemdropset_dlg[16+(i*3)].dp,5,"%d%%%s",t2, t2 <= 11 ? " ":"");
             object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
         }
         
@@ -15007,27 +14982,27 @@ void EditItemDropSet(int32_t index)
     char caption[40];
     char percent_str[11][5];
     
-    sprintf(caption,"Item Drop Set Data %d",index);
+    snprintf(caption,sizeof(caption),"Item Drop Set Data %d",index);
     edititemdropset_dlg[0].dp = caption;
     edititemdropset_dlg[0].dp2=get_zc_font(font_lfont);
-    
-    sprintf(itemdropsetname,"%s",item_drop_sets[index].name);
+
+    snprintf(itemdropsetname,sizeof(itemdropsetname),"%s",item_drop_sets[index].name);
     edititemdropset_dlg[5].dp = itemdropsetname;
-    
-    sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
+
+    snprintf(chance[0],sizeof(chance[0]),"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
-    
+
     ListData item_list = bii_list.getJWin(&a4fonts[font_lfont_l]);
-	
-    sprintf(percent_str[0],"    ");
+
+    snprintf(percent_str[0],sizeof(percent_str[0]),"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
-    
+
 	for(int32_t i=0; i<10; ++i)
 	{
-		sprintf(chance[i+1],"%d",item_drop_sets[index].chance[i+1]);
+		snprintf(chance[i+1],sizeof(chance[i+1]),"%d",item_drop_sets[index].chance[i+1]);
 		edititemdropset_dlg[14+(i*3)].dp  = chance[i+1];
 		edititemdropset_dlg[15+(i*3)].dp  = (void *) &item_list;
-		sprintf(percent_str[i+1],"    ");
+		snprintf(percent_str[i+1],sizeof(percent_str[i+1]),"    ");
 		edititemdropset_dlg[16+(i*3)].dp  = percent_str[i+1];
 		
 		auto id = -1;
@@ -15044,7 +15019,7 @@ void EditItemDropSet(int32_t index)
     {
         mark_save_dirty();
         
-        sprintf(item_drop_sets[index].name,"%s",itemdropsetname);
+        snprintf(item_drop_sets[index].name,64,"%s",itemdropsetname);
         
         item_drop_sets[index].chance[0]=atoi(chance[0]);
         
@@ -15111,12 +15086,12 @@ void EditWarpRingScr(int32_t ring,int32_t index)
 {
 	char caption[40],buf[10];
 	restore_mouse();
-	
-	sprintf(caption,"Ring %d  Warp %d",ring,index+1);
+
+	snprintf(caption,sizeof(caption),"Ring %d  Warp %d",ring,index+1);
 	warpring_warp_dlg[0].dp = (void *)caption;
 	warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
+
+	snprintf(buf,sizeof(buf),"%02X",QMisc.warp[ring].scr[index]);
 	warpring_warp_dlg[3].d1 = QMisc.warp[ring].dmap[index];
 	warpring_warp_dlg[4].dp = buf;
 	warpring_warp_dlg[8].dp = buf;
@@ -15209,7 +15184,7 @@ const char *wclist(int32_t index, int32_t *list_size)
         if(index>6)
             index=6;
             
-        sprintf(buf,"%d",index+3);
+        snprintf(buf,sizeof(buf),"%d",index+3);
         return buf;
     }
     
@@ -15266,7 +15241,7 @@ int32_t select_warp()
 void EditWarpRing(int32_t ring)
 {
     char buf[40];
-    sprintf(buf,"Ring %d Warps",ring);
+    snprintf(buf,sizeof(buf),"Ring %d Warps",ring);
     warpring_dlg[0].dp = buf;
     warpring_dlg[0].dp2 = get_zc_font(font_lfont);
     curr_ring = ring;
@@ -15868,13 +15843,11 @@ int32_t onOrgComboAliases()
 {
 	char cSrc[8];
 	char cDest[8];
-	sprintf(cSrc,"%d", getcurrentcomboalias());
+	snprintf(cSrc,sizeof(cSrc),"%d", getcurrentcomboalias());
 	strcpy(cDest,cSrc);
 	int32_t iSrc = 0;
 	int32_t iDest = 0;
 	
-	//sprintf(cSrc,"0");
-	//sprintf(cDest,"0");
 	orgcomboa_dlg[0].dp2=get_zc_font(font_lfont);
 	orgcomboa_dlg[6].dp= cSrc;
 	orgcomboa_dlg[7].dp= cDest;
@@ -15948,8 +15921,8 @@ int32_t onNewComboAlias()
     
     word temp_combos[16*11*7];
     byte temp_csets[16*11*7];
-    sprintf(cwidth, "%d", combo->width+1);
-    sprintf(cheight, "%d", combo->height+1);
+    snprintf(cwidth, sizeof(cwidth), "%d", combo->width+1);
+    snprintf(cheight, sizeof(cheight), "%d", combo->height+1);
     int32_t old_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
     int32_t old_width=combo->width;
     int32_t old_height=combo->height;
@@ -16973,27 +16946,27 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				int32_t t_w = 0;
 				char buf[1024];
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "ZASM Version: %d", meta.zasm_v);
+				snprintf(buf, sizeof(buf), "ZASM Version: %d", meta.zasm_v);
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Metadata Version: %d", meta.meta_v);
+				snprintf(buf, sizeof(buf), "Metadata Version: %d", meta.meta_v);
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "FFScript Version: %d", meta.ffscript_v);
+				snprintf(buf, sizeof(buf), "FFScript Version: %d", meta.ffscript_v);
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Script Name: %s", meta.script_name.c_str());
+				snprintf(buf, sizeof(buf), "Script Name: %s", meta.script_name.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Author: %s", meta.author.c_str());
+				snprintf(buf, sizeof(buf), "Author: %s", meta.author.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
+				snprintf(buf, sizeof(buf), "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				for(auto q = 0; q < NUM_ZMETA_ATTRIBUTES; ++q)
@@ -17001,7 +16974,7 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 					if(!meta.attributes[q].size())
 						continue;
 					memset(buf, 0, sizeof(buf));
-					sprintf(buf, "Attributes[%d]: %s", q, meta.attributes[q].c_str());
+					snprintf(buf, sizeof(buf), "Attributes[%d]: %s", q, meta.attributes[q].c_str());
 					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 					d->w = zc_max(d->w, t_w);
 				}
@@ -17019,7 +16992,7 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
 					{
 						memset(buf, 0, sizeof(buf));
-						sprintf(buf, "%s", oss.str().c_str());
+						snprintf(buf, sizeof(buf), "%s", oss.str().c_str());
 						t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
 						d->w = zc_max(d->w, t_w);
 						oss.str("");
@@ -17029,15 +17002,15 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				}
 				oss << ");";
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "%s", oss.str().c_str());
+				snprintf(buf, sizeof(buf), "%s", oss.str().c_str());
 				t_w = txtout(target, buf, d->x + (indentrun ? run_indent : 0), d->y + ((++ind)*(text_height(font) + 3)), disabled) + (indentrun ? run_indent : 0);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Compiler Version: %d.%d.%d.%d", meta.compiler_v1, meta.compiler_v2, meta.compiler_v3, meta.compiler_v4);
+				snprintf(buf, sizeof(buf), "Compiler Version: %d.%d.%d.%d", meta.compiler_v1, meta.compiler_v2, meta.compiler_v3, meta.compiler_v4);
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Parser-generated: %s", (meta.flags & ZMETA_AUTOGEN)!=0 ? "TRUE" : "FALSE");
+				snprintf(buf, sizeof(buf), "Parser-generated: %s", (meta.flags & ZMETA_AUTOGEN)!=0 ? "TRUE" : "FALSE");
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				d->h = (++ind) * (text_height(font) + 3) -3;
@@ -17447,10 +17420,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTFFC-1; i++)
 	{
 		if(ffcmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 				ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17480,10 +17453,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTITEM-1; i++)
 	{
 		if(itemmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(itemmap[i].scriptname) != scripts.end())
 				itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17498,10 +17471,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTGUYS-1; i++)
 	{
 		if(npcmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(npcmap[i].scriptname) != scripts.end())
 				npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17516,10 +17489,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 	{
 		if(ewpnmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 				ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17534,10 +17507,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; i++)
 	{
 		if(lwpnmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 				lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17567,10 +17540,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; i++)
 	{
 		if(screenmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(screenmap[i].scriptname) != scripts.end())
 				screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17585,10 +17558,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSDMAP-1; i++)
 	{
 		if(dmapmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 				dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17603,10 +17576,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
 	{
 		if(itemspritemap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 				itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17621,10 +17594,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA-1; i++)
 	{
 		if(comboscriptmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 				comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17639,10 +17612,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSGENERIC-1; i++)
 	{
 		if(genericmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(genericmap[i].scriptname) != scripts.end())
 				genericmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -17657,10 +17630,10 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	for(int32_t i = 0; i < NUMSCRIPTSSUBSCREEN-1; i++)
 	{
 		if(subscreenmap[i].isEmpty())
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 		else
 		{
-			sprintf(temp, "Slot %d:", i+1);
+			snprintf(temp, sizeof(temp), "Slot %d:", i+1);
 			if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
 				subscreenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
@@ -18415,7 +18388,7 @@ auto_do_slots:
 		int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_assign_time - start_assign_time).count();
 		al_trace("Assign Slots took %d ms\n", compile_time_ms);
 		char buf[256] = {0};
-		sprintf(buf, "ZScripts successfully loaded into script slots"
+		snprintf(buf, sizeof(buf), "ZScripts successfully loaded into script slots"
 			"\nAssign Slots took %d ms", compile_time_ms);
 		auto sfx_id = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,MAX_SFX);
 		auto sfx_vol = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,MAX_SFX);
@@ -18789,7 +18762,7 @@ int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c)
         {
             int32_t color_col=vbound(((gui_mouse_x()-d->x-8)/mul),0,15);
             int32_t color_row=vbound(((gui_mouse_y()-d->y-10)/mul),0,11);
-            sprintf((char*)misccolors_dlg[hexclicked].dp,"%X%X",color_row,color_col);
+            snprintf((char*)misccolors_dlg[hexclicked].dp,3,"%X%X",color_row,color_col);
             object_message(misccolors_dlg+hexclicked,MSG_DRAW,0);
         }
         
@@ -18840,8 +18813,8 @@ int32_t onMiscColors()
     
     for(int32_t i=0; i<16; i++)
     {
-        sprintf(buf[i],"%02X",*(si++));
-        sprintf(buf[16], "%02X", QMisc.colors.msgtext);
+        snprintf(buf[i],sizeof(buf[i]),"%02X",*(si++));
+        snprintf(buf[16], sizeof(buf[16]), "%02X", QMisc.colors.msgtext);
         misccolors_dlg[i+20].dp = buf[i];
         misccolors_dlg[55].dp = buf[16];
     }

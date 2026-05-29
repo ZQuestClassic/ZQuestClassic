@@ -3296,10 +3296,10 @@ int32_t onGUISnapshot()
 	int32_t num=0;
 	do
 	{
-		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
+		snprintf(buf, sizeof(buf), "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
-	
+
 	if (!al_save_bitmap(buf, al_get_backbuffer(all_get_display())))
 		InfoDialog("Error", "Failed to save snapshot").show();
 	
@@ -3317,7 +3317,7 @@ int32_t onNonGUISnapshot()
 	
 	do
 	{
-		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
+		snprintf(buf, sizeof(buf), "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
 
@@ -3360,7 +3360,7 @@ int32_t onSaveMapPic()
 	
 	do
 	{
-		sprintf(buf, "%szc_screen%05d.png", get_snap_str(), ++num);
+		snprintf(buf, sizeof(buf), "%szc_screen%05d.png", get_snap_str(), ++num);
 	}
 	while(num<99999 && exists(buf));
 	
@@ -4903,11 +4903,11 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,"ZQuest Classic Player");
+	snprintf(buf1, sizeof(buf1), "ZQuest Classic Player");
 	oss << buf1 << '\n';
-	sprintf(buf1,"Version: %s", getVersionString());
+	snprintf(buf1, sizeof(buf1), "Version: %s", getVersionString());
 	oss << buf1 << '\n';
-	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+	snprintf(buf1, sizeof(buf1), "Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
 	
 	InfoDialog("About ZC", oss.str()).show();

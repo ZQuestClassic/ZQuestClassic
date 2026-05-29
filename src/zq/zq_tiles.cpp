@@ -478,9 +478,9 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 	{
 		char buf[64];
 		if(numCols<4)
-			sprintf(buf, "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
+			snprintf(buf, sizeof(buf), "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
 		else
-			sprintf(buf, "Fit to 4 columns?"); // Meh, whatever.
+			snprintf(buf, sizeof(buf), "Fit to 4 columns?"); // Meh, whatever.
 		if (alert_confirm("Wrapping", buf))
 			smartWrap=true;
 	}
@@ -1569,7 +1569,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 		if(ind > -1)
 		{
 			char xbuf[16];
-			sprintf(xbuf, "x: %d", temp_x);
+			snprintf(xbuf, sizeof(xbuf), "x: %d", temp_x);
 			textprintf_ex(screen2,font,status_info.x,status_info.y+(3*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",xbuf);
 			textprintf_ex(screen2,font,status_info.x+text_length(font,xbuf)+8,status_info.y+(3*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
 			unpack_tile(newtilebuf, tile, 0, false);
@@ -1614,13 +1614,13 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool creat
 				highlight_sqr(screen2, hlcol, csqr.x-extraborder, csqr.y-extraborder, csqr.w+extraborder*2, csqr.h+extraborder*2, 1); //highlight border
 			}
 			
-			sprintf(buf, "%02d %02d %02d %c(0x%02X %d)",c.r,c.g,c.b,separator,realcol,color);
+			snprintf(buf, sizeof(buf), "%02d %02d %02d %c(0x%02X %d)",c.r,c.g,c.b,separator,realcol,color);
 			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(2*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			strcpy(buf, get_color_name(realcol, is8b).c_str());
 			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
-			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r,tpal[realcol].g,tpal[realcol].b);
+			snprintf(buf, sizeof(buf), "#%02X%02X%02X", tpal[realcol].r,tpal[realcol].g,tpal[realcol].b);
 			gui_textout_ln(screen2,font,buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			rect(screen2, hov_prev.x, hov_prev.y, hov_prev.x+hov_prev.w-1, hov_prev.y+hov_prev.h-1, jwin_pal[jcTEXTFG]);
@@ -4181,11 +4181,11 @@ const char *bitlist(int32_t index, int32_t *list_size)
 		
 		if(index==imported)
 		{
-			sprintf(bitstrbuf,"Imported");
+			snprintf(bitstrbuf, sizeof(bitstrbuf), "Imported");
 		}
 		else
 		{
-			sprintf(bitstrbuf,"%d",4<<index);
+			snprintf(bitstrbuf, sizeof(bitstrbuf), "%d", 4<<index);
 		}
 		
 		return bitstrbuf;
@@ -4265,7 +4265,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	BITMAP *status;
 	status = create_bitmap_ex(8,240,140);
 	clear_bitmap(status);
-	sprintf(updatestring, "%d", LeechUpdate);
+	snprintf(updatestring, sizeof(updatestring), "%d", LeechUpdate);
 	leech_dlg[0].dp2=get_zc_font(font_lfont);
 	leech_dlg[6].dp=updatestring;
 	
@@ -5558,12 +5558,12 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	
 	char tbuf[8];
 	tbuf[0]=0;
-	
+
 	if(tile2!=tile)
 	{
-		sprintf(tbuf,"-%d",tile2);
+		snprintf(tbuf, sizeof(tbuf), "-%d", tile2);
 	}
-	
+
 	// Current tile and CSet text
 	textprintf_ex(screen2,tfont,55*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cs: %d",cs);
 	textprintf_right_ex(screen2,tfont,99*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile:");
@@ -7450,20 +7450,20 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	
 	char buf2[80], buf3[80], buf4[80];
-	sprintf(buf2, " ");
-	sprintf(buf3, " ");
-	sprintf(buf4, " ");
-	
+	snprintf(buf2, sizeof(buf2), " ");
+	snprintf(buf3, sizeof(buf3), " ");
+	snprintf(buf4, sizeof(buf4), " ");
+
 	// warn if range extends beyond last tile
-	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
-	
+	snprintf(buf4, sizeof(buf4), "Some tiles will not be %s", move?"moved.":"copied.");
+
 	if(dest_last>=NEWMAXTILES)
 	{
 		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy")).show();
 		return false;
 	}
-	
-	
+
+
 	TileMoveUndo on_undo;
 	// Overwrite warnings
 	TileMoveProcess dest{rect, dest_left, dest_top, dest_width, dest_height, dest_first, dest_last};
@@ -7535,13 +7535,13 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 bool do_movetile_united(tile_move_data const& tmd)
 {
 	char buf2[80], buf3[80], buf4[80];
-	sprintf(buf2, " ");
-	sprintf(buf3, " ");
-	sprintf(buf4, " ");
-	
+	snprintf(buf2, sizeof(buf2), " ");
+	snprintf(buf3, sizeof(buf3), " ");
+	snprintf(buf4, sizeof(buf4), " ");
+
 	// warn if range extends beyond last tile
-	sprintf(buf4, "Some tiles will not be %s", tmd.move?"moved.":"copied.");
-	
+	snprintf(buf4, sizeof(buf4), "Some tiles will not be %s", tmd.move?"moved.":"copied.");
+
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", tmd.move ? "Move" : "Copy")).show();
@@ -7877,13 +7877,13 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	
 	char buf2[80], buf3[80], buf4[80];
-	sprintf(buf2, " ");
-	sprintf(buf3, " ");
-	sprintf(buf4, " ");
-	
+	snprintf(buf2, sizeof(buf2), " ");
+	snprintf(buf3, sizeof(buf3), " ");
+	snprintf(buf4, sizeof(buf4), " ");
+
 	// warn if range extends beyond last tile
-	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
-	
+	snprintf(buf4, sizeof(buf4), "Some tiles will not be %s", move?"moved.":"copied.");
+
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		InfoDialog("Destination Error", fmt::format("The destination extends beyond the last available tile row. {} operation cancelled.", move ? "Move" : "Copy")).show();
@@ -8244,16 +8244,16 @@ void do_delete_tiles(int32_t firsttile, int32_t lasttile, bool rect_sel)
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 {
 	char buf[40];
-	
+
 	if(tile==tile2)
 	{
-		sprintf(buf,"Delete tile %d?",tile);
+		snprintf(buf, sizeof(buf), "Delete tile %d?", tile);
 	}
 	else
 	{
-		sprintf(buf,"Delete tiles %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
+		snprintf(buf, sizeof(buf), "Delete tiles %d-%d?", zc_min(tile,tile2), zc_max(tile,tile2));
 	}
-	
+
 	if (alert_confirm("Confirm Delete",buf))
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
@@ -8534,7 +8534,7 @@ static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_s
 	else assert(false);
 
 	char buf[80];
-	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",num_bits);
+	snprintf(buf, sizeof(buf), "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",num_bits);
 	
 	if (skip_prompt || alert_confirm("Convert Tile?",buf))
 	{
@@ -9432,12 +9432,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
 						char buf[64];
-						
+
 						if(count>1)
-							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+							snprintf(buf, sizeof(buf), "Remove tiles %d - %d?", tile, copy-1);
 						else
-							sprintf(buf,"Remove tile %d?",tile);
-							
+							snprintf(buf, sizeof(buf), "Remove tile %d?", tile);
+
 						if (alert_confirm("Remove Tiles", std::string(buf)
 							+"\nThis will offset the tiles that follow!"
 							+(warn?"\nRemoving tiles ignores rectangular selections!":"")))
@@ -9491,12 +9491,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 						{
 							char buf[64];
-							
+
 							if(count>1)
-								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+								snprintf(buf, sizeof(buf), "Remove tiles %d - %d?", tile, copy-1);
 							else
-								sprintf(buf,"Remove tile %d?",tile);
-								
+								snprintf(buf, sizeof(buf), "Remove tile %d?", tile);
+
 							if (alert_confirm("Remove Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nRemoving tiles ignores rectangular selections!":"")))
@@ -9512,12 +9512,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						else
 						{
 							char buf[64];
-							
+
 							if(count>1)
-								sprintf(buf,"Insert %d blank tiles?",count);
+								snprintf(buf, sizeof(buf), "Insert %d blank tiles?", count);
 							else
-								sprintf(buf,"Insert a blank tile?");
-								
+								snprintf(buf, sizeof(buf), "Insert a blank tile?");
+
 							if (alert_confirm("Insert Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nInserting tiles ignores rectangular selections!":"")))
@@ -9566,7 +9566,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				{
 					int32_t frames=1;
 					char buf[80];
-					sprintf(buf, "%d", frames);
+					snprintf(buf, sizeof(buf), "%d", frames);
 					create_relational_tiles_dlg[0].dp2=get_zc_font(font_lfont);
 					create_relational_tiles_dlg[2].dp=buf;
 					
@@ -9907,7 +9907,7 @@ REDRAW:
 			if(type==2)
 			{
 				char cbuf[16];
-				sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
+				snprintf(cbuf, sizeof(cbuf), "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
 				gui_textout_ln(screen, get_zc_font(font_lfont_l), cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			}
 		}
@@ -10277,10 +10277,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	
 	char cbuf[8];
 	cbuf[0]=0;
-	
+
 	if(tile2!=tile)
 	{
-		sprintf(cbuf,"-%d",tile2);
+		snprintf(cbuf, sizeof(cbuf), "-%d", tile2);
 	}
 	
 	textprintf_ex(screen2,tfont,(73*mul),(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"combo: CSet %d", cs);
@@ -11088,12 +11088,12 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 				{
 					char buf[64];
-					
+
 					if(numSelected>1)
-						sprintf(buf,"Remove combos %d - %d?",tile, copy-1);
+						snprintf(buf, sizeof(buf), "Remove combos %d - %d?", tile, copy-1);
 					else
-						sprintf(buf,"Remove combo %d?",tile);
-						
+						snprintf(buf, sizeof(buf), "Remove combo %d?", tile);
+
 					if (alert_confirm("Confirm Remove",fmt::format("{}\nThis will offset all of the combos that follow!",buf)))
 					{
 						move_combos(tile,tile2,copy, copycnt);
@@ -11105,12 +11105,12 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				else
 				{
 					char buf[64];
-					
+
 					if(numSelected>1)
-						sprintf(buf,"Insert %d blank combos?",numSelected);
+						snprintf(buf, sizeof(buf), "Insert %d blank combos?", numSelected);
 					else
-						sprintf(buf,"Insert a blank combo?");
-						
+						snprintf(buf, sizeof(buf), "Insert a blank combo?");
+
 					if (alert_confirm("Confirm Insert",fmt::format("{}\nThis will offset all of the combos that follow!", buf)))
 					{
 						move_combos(copy,tile2,tile, copycnt);
@@ -11127,16 +11127,16 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			case KEY_DEL:
 			{
 				char buf[40];
-				
+
 				if(tile==tile2)
 				{
-					sprintf(buf,"Delete combo %d?",tile);
+					snprintf(buf, sizeof(buf), "Delete combo %d?", tile);
 				}
 				else
 				{
-					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
+					snprintf(buf, sizeof(buf), "Delete combos %d-%d?", zc_min(tile,tile2), zc_max(tile,tile2));
 				}
-				
+
 				if(alert_confirm("Confirm Delete",buf))
 				{
 					go_combos();

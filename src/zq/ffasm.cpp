@@ -434,7 +434,7 @@ int32_t parse_script_string(std::vector<ffscript>& zasm, std::string const& scri
 			extract_name(temppath,name,FILENAME8_3);
 			char vstrbuf[64] = {0};
 			if(has_str || has_vec)
-				sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
+				snprintf(vstrbuf, sizeof(vstrbuf), " (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
 			InfoDialog("Error", fmt::format(
 				"Unable to parse instruction {}"
 				"\nThe error was: {}"

@@ -32,7 +32,7 @@ char *time_str_long(dword time)
     dword mins = (time/3600)%60;
     dword hours = time/216000;
     
-    sprintf(s,"%u:%02u:%02u.%02u",hours,mins,secs,decs);
+    snprintf(s, 16, "%u:%02u:%02u.%02u",hours,mins,secs,decs);
     return s;
 }
 
@@ -44,7 +44,7 @@ char *time_str_med(dword time)
     dword mins = (time/3600)%60;
     dword hours = time/216000;
     
-    sprintf(s,"%u:%02u:%02u",hours,mins,secs);
+    snprintf(s, 16, "%u:%02u:%02u",hours,mins,secs);
     return s;
 }
 
@@ -55,7 +55,7 @@ char *time_str_short(dword time)
     dword mins = (time/3600)%60;
     dword hours = time/216000;
     
-    sprintf(s,"%u:%02u",hours,mins);
+    snprintf(s, 16, "%u:%02u",hours,mins);
     return s;
 }
 
@@ -66,7 +66,7 @@ char *time_str_short2(dword time)
     dword mins = (time/3600)%60;
     dword hours = time/216000;
     
-    sprintf(s,"%02u%s%02u",hours,(time%60)<30?":":";",mins);
+    snprintf(s, 16, "%02u%s%02u",hours,(time%60)<30?":":";",mins);
     return s;
 }
 
@@ -150,7 +150,7 @@ char *zc_make_relative_filename(char *dest, const char *path, const char *filena
     
     if(dest[0]==0) //can't make relative path
     {
-        sprintf(tpath, "%s", path);
+        snprintf(tpath, size+1, "%s", path);
         int32_t temp = ugetc(tpath);
     
         if(ugetat(tpath, 1) == DEVICE_SEPARATOR)

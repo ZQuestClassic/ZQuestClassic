@@ -244,7 +244,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		Z_message("SFX.Dat...");
 
 		char sfxdat_sig[52];
-		sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
+		snprintf(sfxdat_sig, sizeof(sfxdat_sig), "SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 
 		if((sfxdata=load_datafile("sfx.dat"))==NULL)
 		{
@@ -299,7 +299,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	packfile_password(datapwd);
 
 	char fontsdat_sig[52]={0};
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	snprintf(fontsdat_sig, sizeof(fontsdat_sig), "Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 
 	size_t fontsdat_cnt = 0;
 	if((fontsdata=load_datafile_count("modules/classic/classic_fonts.dat", fontsdat_cnt))==NULL)

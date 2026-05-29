@@ -176,7 +176,7 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 		{},
 		{ "Set As Template", [&]()
 			{
-				sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
+				snprintf(static_cast<char*>(strlist_dlg[22].dp), 6, "%d", msg_at_pos(index));
 				strlist_dlg[22].flags |= D_DIRTY;
 			} },
 	};
@@ -262,13 +262,13 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	}
 	else if(index == msg_count)
 	{
-		sprintf(u, "%3d: <New String>", index);
+		snprintf(u, sizeof(u), "%3d: <New String>", index);
 		return u;
 	}
-	
+
 	auto prevIndex = addtomsglist(MsgStrings[index].listpos-1);
 	bool indent = index>0 && prevIndex>=0 && MsgStrings[prevIndex].nextstring == index;
-	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
+	snprintf(u, sizeof(u), pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
 	char *s=strcat(u,": ");
 	
 	char *t = new char[71];
@@ -377,7 +377,7 @@ const char *msgslist3(int32_t index, int32_t *list_size)
 	if(index > -1 && index >= msg_count - 1)
 	{
 		static char b[80] = {0};
-		sprintf(b, "%3d: <New String>", msg_count-1);
+		snprintf(b, sizeof(b), "%3d: <New String>", msg_count-1);
 		return b;
 	}
 	return msgslistImpl(index, list_size, true, true);
@@ -413,14 +413,14 @@ int32_t onStrings()
 	int32_t morex=zinit.msg_more_x;
 	int32_t morey=zinit.msg_more_y;
 	int32_t msgspeed = zinit.msg_speed;
-	sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
-	sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
-	sprintf(msgspeed_string, "%d", zinit.msg_speed);
+	snprintf(msgmore_xstring, sizeof(msgmore_xstring), "%d", zinit.msg_more_x);
+	snprintf(msgmore_ystring, sizeof(msgmore_ystring), "%d", zinit.msg_more_y);
+	snprintf(msgspeed_string, sizeof(msgspeed_string), "%d", zinit.msg_speed);
 	static int32_t tid = 0;
-	sprintf(template_string, "%d", tid);
-	
+	snprintf(template_string, sizeof(template_string), "%d", tid);
+
 	char tempbuf[50];
-	sprintf(tempbuf, "0");
+	snprintf(tempbuf, sizeof(tempbuf), "0");
 	
 	strlist_dlg[17].d1=0;
 	build_bistringcat_list();

@@ -16,19 +16,19 @@ bool init_palnames()
         switch(x)
         {
         case 0:
-            sprintf(palnames[x],"Overworld");
+            snprintf(palnames[x], PALNAMESIZE, "Overworld");
             break;
-            
+
         case 10:
-            sprintf(palnames[x],"Caves");
+            snprintf(palnames[x], PALNAMESIZE, "Caves");
             break;
-            
+
         case 11:
-            sprintf(palnames[x],"Passageways");
+            snprintf(palnames[x], PALNAMESIZE, "Passageways");
             break;
-            
+
         default:
-            sprintf(palnames[x],"%c",0);
+            snprintf(palnames[x], PALNAMESIZE, "%c",0);
             break;
         }
     }

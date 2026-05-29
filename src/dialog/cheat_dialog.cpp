@@ -95,7 +95,7 @@ bool SetCheatDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				field->setText("");
 				char buf[80];
-				sprintf(buf, "Cheat level %d unlocked!",found);
+				snprintf(buf, sizeof(buf), "Cheat level %d unlocked!",found);
 				errlabel->setText(buf);
 				for(auto q = 0; q < 5; ++q)
 					radios[q]->setChecked(q==found);

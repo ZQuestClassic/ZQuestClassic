@@ -26,8 +26,8 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 	
 	{
 		tempDMap.clear();
-		sprintf(legacy_title,"                    ");
-		sprintf(tempDMap.intro,"                                                                        ");
+		snprintf(legacy_title, sizeof(legacy_title), "                    ");
+		snprintf(tempDMap.intro, sizeof(tempDMap.intro), "                                                                        ");
 		
 		if(!p_getc(&tempDMap.map,f))
 		{
@@ -115,7 +115,7 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 		{
 			if(tempDMap.level>0&&tempDMap.level<10)
 			{
-				sprintf(legacy_title,"LEVEL-%d             ", tempDMap.level);
+				snprintf(legacy_title, sizeof(legacy_title), "LEVEL-%d             ", tempDMap.level);
 			}
 			tempDMap.title.assign(legacy_title);
 			

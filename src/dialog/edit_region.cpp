@@ -238,7 +238,7 @@ std::shared_ptr<GUI::Widget> EditMapSettingsDialog::view()
 	auto problematic_qrs_should_be_on = get_problematic_qrs(qrs_must_be_on, true);
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit Map Settings (%d)", mapslot + 1);
+	snprintf(titlebuf, sizeof(titlebuf), "Edit Map Settings (%d)", mapslot + 1);
 	std::shared_ptr<GUI::Grid> reg_col;
 	window = Window(
 		title = titlebuf,

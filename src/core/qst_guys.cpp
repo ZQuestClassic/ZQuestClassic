@@ -1112,7 +1112,7 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	{
 	for ( int32_t q = 0; q < 8; q++ )
 	{
-		sprintf(tempguy.initD_label[q],"InitD[%d]",q);
+		snprintf(tempguy.initD_label[q], sizeof(tempguy.initD_label[q]), "InitD[%d]",q);
 	}
 	}
 	if ( guyversion >= 40 && guyversion < 54)
@@ -1933,9 +1933,9 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             if(guyversion < 23 && i >= OLDBETAMAXGUYS)
             {
                 memset(tempname, 0, sizeof(char)*64);
-                sprintf(tempname, "e%03d", i);
+                snprintf(tempname, sizeof(tempname), "e%03d", i);
                 strcpy(guy_string[i], tempname);
-                
+
                 continue;
             }
             
@@ -1953,12 +1953,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				// so let's update to the newer naming convection. -Gleeok
 				char tmpbuf[64];
 				memset(tmpbuf, 0, sizeof(char)*64);
-				sprintf(tmpbuf, "zz%03d", i);
-				
+				snprintf(tmpbuf, sizeof(tmpbuf), "zz%03d", i);
+
 				if(memcmp(tempname, tmpbuf, size_t(5)) == 0)
 				{
 					memset(tempname, 0, sizeof(char)*64);
-					sprintf(tempname, "e%03d", i);
+					snprintf(tempname, sizeof(tempname), "e%03d", i);
 				}
 			}
 			
@@ -1977,7 +1977,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     {
 		for(int32_t i=0; i<eMAXGUYS; i++)
 		{
-			sprintf(guy_string[i],"zz%03d",i);
+			snprintf(guy_string[i], 64, "zz%03d",i);
 		}
 		
 		for(int32_t i=0; i<OLDMAXGUYS; i++)

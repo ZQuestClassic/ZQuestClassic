@@ -35,7 +35,7 @@ std::shared_ptr<GUI::Widget> BottleTypeDialog::view()
 	using namespace GUI::Props;
 	
 	char titlebuf[256];
-	sprintf(titlebuf, "Bottle Type (%d): %s", index+1, tempBottle.name);
+	snprintf(titlebuf, sizeof(titlebuf), "Bottle Type (%d): %s", index+1, tempBottle.name);
 	window = Window(
 		title = titlebuf,
 		minwidth = 30_em,
@@ -56,7 +56,7 @@ std::shared_ptr<GUI::Widget> BottleTypeDialog::view()
 						std::string name(str);
 						strncpy(tempBottle.name, name.c_str(), 31);
 						char buf[256];
-						sprintf(buf, "Bottle Type (%d): %s", index+1, name.c_str());
+						snprintf(buf, sizeof(buf), "Bottle Type (%d): %s", index+1, name.c_str());
 						window->setTitle(buf);
 					}
 				)

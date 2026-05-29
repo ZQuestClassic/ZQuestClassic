@@ -2746,8 +2746,8 @@ void update_old_item(word s_version, word index, word version, word build)
 		{
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				snprintf(tempitem.initD_label[q], sizeof(tempitem.initD_label[q]), "InitD[%d]",q);
+				snprintf(tempitem.sprite_initD_label[q], sizeof(tempitem.sprite_initD_label[q]), "InitD[%d]",q);
 				tempitem.sprite_initiald[q] = 0;
 			}
 			tempitem.sprite_script = 0;

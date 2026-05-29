@@ -1207,7 +1207,7 @@ int32_t edit_dcs(int32_t index)
 {
     char door_combo_set_name[21];
     working_dcs=DoorComboSets[index];
-    sprintf(door_combo_set_name,"%s",DoorComboSetNames[index].c_str());
+    snprintf(door_combo_set_name, sizeof(door_combo_set_name), "%s",DoorComboSetNames[index].c_str());
     doorcomboset_dlg[0].dp2 = get_zc_font(font_lfont);
     doorcomboset_dlg[6].dp = door_combo_set_name;
     

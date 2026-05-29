@@ -9,13 +9,13 @@ string la_toString(int32_t value)
 {
     char temp[128];
     string sign = value < 0 ? "-" : "";
-    sprintf(temp,"%d", abs(value/10000));
+    snprintf(temp, sizeof(temp), "%d", abs(value/10000));
     string first = string(temp);
-    
+
     if(value % 10000 == 0)
         return sign + first;
-        
-    sprintf(temp,"%d", abs(value%10000));
+
+    snprintf(temp, sizeof(temp), "%d", abs(value%10000));
     string second = string(temp);
     
     while(second.length() < 4)
@@ -52,7 +52,7 @@ string LiteralVarArgument::toString() const
 string GlobalArgument::toString() const
 {
     char temp[40];
-    sprintf(temp, "GD%d", ID);
+    snprintf(temp, sizeof(temp), "GD%d", ID);
     return string(temp);
 }
 
@@ -60,11 +60,11 @@ string LabelArgument::toString() const
 {
 	char buf[40];
 	if(!haslineno)
-		sprintf(buf, "l%d", ID);
+		snprintf(buf, sizeof(buf), "l%d", ID);
 	else if(altstr)
-		sprintf(buf, "%d.%04d", lineno / 10000, abs(lineno % 10000));
+		snprintf(buf, sizeof(buf), "%d.%04d", lineno / 10000, abs(lineno % 10000));
 	else
-		sprintf(buf, "%d", lineno);
+		snprintf(buf, sizeof(buf), "%d", lineno);
 	return string(buf);
 }
 
