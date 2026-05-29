@@ -2259,27 +2259,6 @@ static const GUI::ListData listdata_lift_gfx
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 18_em
 
-static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	
-	return TextField(
-		type = GUI::TextField::type::INT_DECIMAL,
-		maxLength = 5,
-		val = *data,
-		low = min,
-		high = max,
-		fitParent = true,
-		onValChangedFunc = [data](GUI::TextField::type,std::string_view,int32_t val)
-		{
-			*data = val;
-		}
-	);
-}
-
-#define NUM_FIELD(member,_min,_max) NUM_FIELD_IMPL(&local_comboref.member, _min, _max)
-
 std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte min, byte max)
 {
 	using namespace GUI::Builder;

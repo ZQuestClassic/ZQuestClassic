@@ -54,11 +54,6 @@ const char *shadowstyle_str[sstsMAX] =
     "None", "Shadow", "Shadow (U)", "Shadow (O)", "Shadow (+)", "Shadow (X)", "Shadowed", "Shadowed (U)", "Shadowed (O)", "Shadowed (+)", "Shadowed (X)"
 };
 
-static bool skipchar(char c)
-{
-	return c == 0 || c == '-';
-}
-
 GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 {
 	map<std::string, int32_t> ids;

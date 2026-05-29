@@ -61,7 +61,7 @@ bool zasm_array_set(int zasm_var, int ref, int index, int value, script_object_t
 bool zasm_array_supports(int zasm_var);
 
 template <typename T, size_t N>
-static constexpr size_t comptime_array_size(T (&)[N])
+constexpr size_t comptime_array_size(T (&)[N])
 {
 	return N;
 }
@@ -87,7 +87,7 @@ using field_type_t = typename field_type<FP>::type;
 namespace transforms
 {
 	template<int min_inclusive, int max_exclusive>
-	static std::optional<int> validate(int value)
+	std::optional<int> validate(int value)
 	{
 		if (value < min_inclusive || value >= max_exclusive)
 		{
@@ -99,7 +99,7 @@ namespace transforms
 	}
 
 	template<int max_exclusive>
-	static std::optional<int> validate(int value)
+	std::optional<int> validate(int value)
 	{
 		if (value < 0 || value >= max_exclusive)
 		{
@@ -111,29 +111,29 @@ namespace transforms
 	}
 
 	template<int low, int high>
-	static std::optional<int> vbound(int value)
+	std::optional<int> vbound(int value)
 	{
 		return ::vbound(value, low, high);
 	}
 
-	static int vboundByte(int value)
+	inline int vboundByte(int value)
 	{
 		return ::vbound(value, 0, 255);
 	}
 
-	static int vboundWord(int value)
+	inline int vboundWord(int value)
 	{
 		return ::vbound(value, 0, 65535);
 	}
 
-	static int vboundInt(int value)
+	inline int vboundInt(int value)
 	{
 		return ::vbound(value, -214747, 214747);
 	}
 }
 
 template <typename T>
-static int convert_value(int value, bool mul10000)
+int convert_value(int value, bool mul10000)
 {
 	if constexpr (std::is_same<T, bool>::value)
 		return value;
@@ -141,7 +141,7 @@ static int convert_value(int value, bool mul10000)
 		return mul10000 ? value / 10000 : value;
 }
 
-static int bound_index(int index, int low, int high)
+inline int bound_index(int index, int low, int high)
 {
 	if (index >= low && index <= high)
 		return index;
@@ -155,7 +155,7 @@ template<typename>
 struct always_false : std::false_type {};
 
 template<typename T>
-static T* resolveScriptingObject(int ref)
+T* resolveScriptingObject(int ref)
 {
 	if constexpr (std::is_same<T, user_genscript>::value)
 		return checkGenericScr(ref);

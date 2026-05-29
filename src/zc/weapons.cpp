@@ -173,13 +173,6 @@ int FindComboTriggerMatch(weapon *w, int combo_id, int start_idx)
 	return -1;
 }
 
-static int32_t COMBOAT(int32_t x, int32_t y) 
-{
-	x = vbound(x,255,0);
-	y = vbound(y,175,0);
-	return (y & 240)+(x>>4);
-}
-
 
 void killgenwpn(weapon* w)
 {

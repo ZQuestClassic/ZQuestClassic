@@ -99,7 +99,7 @@ namespace ZScript
 		ZTID_END = ZTID_SCRIPT_TYPE_END
 	};
 
-	static std::string getDataTypeName(DataTypeId id)
+	inline std::string getDataTypeName(DataTypeId id)
 	{
 		switch(id)
 		{
@@ -144,7 +144,7 @@ namespace ZScript
 		}
 	}
 	
-	static DataTypeId getTypeId(std::string name)
+	inline DataTypeId getTypeId(std::string name)
 	{
 		if(int32_t v = atoi(name.c_str()))
 			return v;

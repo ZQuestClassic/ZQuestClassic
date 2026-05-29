@@ -273,20 +273,20 @@ static void flush_cache(CompilationState& state, x86::Compiler& cc, uint8_t regi
 	flush_stack_cache(state, cc);
 }
 
-static void write_some_cached_registers(CompilationState& state, x86::Compiler& cc, uint8_t register_mask)
-{
-	if (state.cached_d_regs.empty())
-		return;
+// static void write_some_cached_registers(CompilationState& state, x86::Compiler& cc, uint8_t register_mask)
+// {
+// 	if (state.cached_d_regs.empty())
+// 		return;
 
-	if (DEBUG_JIT_PRINT_ASM)
-		cc.setInlineComment("write cached registers");
+// 	if (DEBUG_JIT_PRINT_ASM)
+// 		cc.setInlineComment("write cached registers");
 
-	for (auto& [r, cached_reg] : state.cached_d_regs)
-	{
-		if (cached_reg.dirty && (register_mask & (1 << r)))
-			cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), cached_reg.reg);
-	}
-}
+// 	for (auto& [r, cached_reg] : state.cached_d_regs)
+// 	{
+// 		if (cached_reg.dirty && (register_mask & (1 << r)))
+// 			cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), cached_reg.reg);
+// 	}
+// }
 
 static void flush_cache_for_dependent_registers(CompilationState& state, x86::Compiler& cc, int r)
 {

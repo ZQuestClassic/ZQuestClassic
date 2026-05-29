@@ -392,21 +392,6 @@ char const* getGFXDriverStr(int32_t id)
 //}
 
 char theme_saved_filepath[4096] = {0};
-static bool set_zq_theme()
-{
-	zc_set_config("Theme","theme_filename",theme_saved_filepath, App::zquest);
-	return false;
-}
-static bool set_zc_theme()
-{
-	zc_set_config("Theme","theme_filename",theme_saved_filepath, App::zelda);
-	return false;
-}
-static bool set_zcl_theme()
-{
-	zc_set_config("Theme","theme_filename",theme_saved_filepath);
-	return false;
-}
 
 bool LauncherDialog::load_theme(char const* themefile)
 {
