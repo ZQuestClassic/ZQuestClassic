@@ -261,6 +261,15 @@ void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* t
 	handle_lighting(cx, cy, cmb.c_attributes[9].getTrunc(), cmb.c_attributes[8].getTrunc(), dir, dest, transdest);
 }
 
+// In clang, [[gnu::always_inline]] is ignored on template lambdas (e.g. [&]<int T>(...) ATTR {}),
+// so suppress the resulting -Wignored-attributes for the macros below.
+// See: https://godbolt.org/z/Yqx357rfx
+// I assume ZC_LAMBDA_FORCE_INLINE works here on MSVC.
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 // Note: I tried using a templated function, but the compiler stopped inlining / optimizing and
 // drastically slowed down the code.
 #define DO_DITHER_OPTIMIZED(dType, dArg, wid, hei, check_func, body) \
@@ -663,6 +672,10 @@ void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 		}
 	});
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color)
 {
