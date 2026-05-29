@@ -1117,11 +1117,8 @@ static void draw_tile16_unified_translucent(BITMAP* dest, int cl, int ct, int cr
 }
 
 
-void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
+void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    opacity=opacity;
-    
     if(x<-7 || y<-7)
         return;
         
@@ -1161,7 +1158,6 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
             {
                 if(x+i<dest->w)
                 {
-                    //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                     *(di) = trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                 }
@@ -1194,7 +1190,6 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
             {
                 if(x+i<dest->w)
                 {
-                    //          *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                     *(di) = trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                 }
@@ -1214,11 +1209,8 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
     }
 }
 
-void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
+void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    opacity=opacity;
-    
     if(x<-7 || y<-7)
         return;
         
@@ -1266,7 +1258,6 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(*si)
                     {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *(di) = trans_table->data[(*di)][((*si) + cset)];
                     }
                     
@@ -1303,7 +1294,6 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(*si)
                     {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *(di) = trans_table->data[(*di)][((*si) + cset)];
                     }
                     
@@ -1325,11 +1315,8 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
     }
 }
 
-void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
+void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    opacity=opacity;
-    
     if(x<-15 || y<-15)
         return;
         
@@ -1375,7 +1362,6 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                     
                 for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
                 {
-                    //          *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                     *di=trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                     flip&1 ? --si : ++si;
@@ -1387,7 +1373,6 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(x+i<dest->w)
                     {
-                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *di=trans_table->data[(*di)][((*si) + cset)];
                         ++di;
                     }
@@ -1416,7 +1401,6 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                     
                 for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
                 {
-                    //          *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                     *di=trans_table->data[(*di)][((*si) + cset)];
                     ++di;
                     flip&1 ? --si : ++si;
@@ -1428,7 +1412,6 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
                 {
                     if(x+i<dest->w)
                     {
-                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *di=trans_table->data[(*di)][((*si) + cset)];
                         ++di;
                     }
@@ -1443,11 +1426,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
     }
 }
 
-void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
+void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,[[maybe_unused]] int32_t opacity)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    opacity=opacity;
-
 	int cl = 0;
 	int ct = 0;
 	int cr = dest->w;
@@ -1519,8 +1499,6 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                 {
                     if(*si)
                     {
-                        //            *di=*si+cset;
-                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *di=trans_table->data[(*di)][((*si) + cset)];
                     }
                     
@@ -1537,7 +1515,6 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                         if(*si)
                         {
                             //              *di=*si+cset;
-                            //              *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                             *di=trans_table->data[(*di)][((*si) + cset)];
                         }
                         
@@ -1567,8 +1544,6 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                 {
                     if(*si)
                     {
-                        //            *di=*si+cset;
-                        //            *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                         *di=trans_table->data[(*di)][((*si) + cset)];
                     }
                     
@@ -1585,7 +1560,6 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
                         if(*si)
                         {
                             //              *di=*si+cset;
-                            //              *di=(opacity==255)?((*si) + cset):trans_table->data[(*di)][((*si) + cset)];
                             *di=trans_table->data[(*di)][((*si) + cset)];
                         }
                         

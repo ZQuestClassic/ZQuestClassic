@@ -1060,6 +1060,8 @@ set(zc_clang_errors
 	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
+	# TODO: these are pretty annoying to fix and are low-value
+	-Wno-self-assign
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
