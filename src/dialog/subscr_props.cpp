@@ -34,16 +34,16 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
-	list_buttons_none(GUI::ZCListData::buttons(true)),
 	list_items(GUI::ZCListData::items(true)),
-	list_items_no_none(GUI::ZCListData::items(true, false)),
-	list_counters(GUI::ZCListData::ss_counters(true)), //All counters
-	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
-	list_itemclass(GUI::ZCListData::itemclass(true)),
-	list_genscr(GUI::ZCListData::generic_script()),
+	list_counters(GUI::ZCListData::ss_counters(true)),
+	list_counters2(GUI::ZCListData::ss_counters(true,true)),
+	list_itemclass(GUI::ZCListData::itemclass(true)), //All counters
+	list_genscr(GUI::ZCListData::generic_script()), //All counters, no (None)
 	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_dmaps(GUI::ZCListData::dmaps(true)),
 	list_costinds(GUI::ListData::numbers(false, 0, 2)),
-	list_dmaps(GUI::ZCListData::dmaps(true))
+	list_items_no_none(GUI::ZCListData::items(true, false)),
+	list_buttons_none(GUI::ZCListData::buttons(true))
 {
 	byte pg = subscr_edit.curpage, ind = index;
 	start_default_btnslot = 0;

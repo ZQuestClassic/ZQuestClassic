@@ -14,8 +14,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 namespace GUI
 {
 
-Window::Window(): content(nullptr), title(""), closeMessage(-1), use_vsync(false),
-	inner_menu(nullptr)
+Window::Window(): content(nullptr), inner_menu(nullptr), title(""), closeMessage(-1),
+	use_vsync(false)
 {
 	helptext = "";
 	setPadding(0_px);

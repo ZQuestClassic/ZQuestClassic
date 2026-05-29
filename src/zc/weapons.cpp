@@ -720,88 +720,88 @@ void weapon::convertType(bool toLW)
 weapon::weapon(weapon const & other):
      //Struct Element			Type		Purpose
     sprite(other),
-    power(other.power), 		//int32_t
-    level(other.level), 			//int32_t
-    dead(other.dead),			//int32_t
-    clk2(other.clk2),			//int32_t
-    misc2(other.misc2),			//int32_t
-    ignorecombo(other.ignorecombo),	//int32_t
-    ignoreffc(other.ignoreffc),
-    fake_weapon(other.fake_weapon),
-    isLit(other.isLit),			//bool		Does it light the screen?
-    parentid(other.parentid),		//int32_t		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
-    parentitem(other.parentitem),	//int32_t		Item that created it. -1 for none. 
-    dragging(other.dragging),		//int32_t draggong		?
-    step(other.step),			//zfix		Speed of movement
-    bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
-    ignoreHero(other.ignoreHero),	//bool		?
-    flash(other.flash),			//word		Is it flashing?
-    wid(other.wid),			//word		ID
-    aframe(other.aframe),		//word		Anim frame
-    csclk(other.csclk),			//word		CSet flash clk (?)
-    o_speed(other.o_speed),		//int32_t		Original anim (?) speed.
-    o_type(other.o_type),		//int32_t		The weapon ID (type)
-    frames(other.frames),		//int32_t		Frames of the anim cycle
-    o_flip(other.o_flip),		//int32_t		The original flip/orientationn
-    ref_o_tile(other.ref_o_tile),	//int32_t
+    minX(other.minX), 		//int32_t
+    maxX(other.maxX), 			//int32_t
+    minY(other.minY),			//int32_t
+    maxY(other.maxY),			//int32_t
+    power(other.power),			//int32_t
+    dead(other.dead),	//int32_t
+    clk2(other.clk2),
+    misc2(other.misc2),
+    level(other.level),			//bool		Does it light the screen?
+    ignorecombo(other.ignorecombo),		//int32_t		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
+    ignoreffc(other.ignoreffc),	//int32_t		Item that created it. -1 for none. 
+    fake_weapon(other.fake_weapon),		//int32_t draggong		?
+    isLit(other.isLit),			//zfix		Speed of movement
+    parentid(other.parentid),		//bool		Boomerang, or hookshot bounce. 
+    parentitem(other.parentitem),	//bool		?
+    dragging(other.dragging),			//word		Is it flashing?
+    step(other.step),			//word		ID
+    bounce(other.bounce),		//word		Anim frame
+    ignoreHero(other.ignoreHero),			//word		CSet flash clk (?)
+    flash(other.flash),		//int32_t		Original anim (?) speed.
+    wid(other.wid),		//int32_t		The weapon ID (type)
+    aframe(other.aframe),		//int32_t		Frames of the anim cycle
+    csclk(other.csclk),		//int32_t		The original flip/orientationn
+    o_speed(other.o_speed),	//int32_t
+	o_type(other.o_type),
+    frames(other.frames),			//int32_t		Misc var.
+	o_flip(other.o_flip),
+    ref_o_tile(other.ref_o_tile),	//int32_t		A flagset that determines of the weapon can collect an item.
 	script_wrote_otile(other.script_wrote_otile),
-    temp1(other.temp1),			//int32_t		Misc var.
+	temp1(other.temp1),
 	autorotate(other.autorotate),
-    linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
-	unblockable(other.unblockable),
-	misc_wflags(other.misc_wflags),
-	last_burnstate(other.last_burnstate),
-    minX(other.minX),			//int32_t		How close can the weapon get tot he edge of the screen
-    maxX(other.maxX),			//int32_t		...before being deleted or bouncing
-    minY(other.minY),			//int32_t		...
-    maxY(other.maxY),			//int32_t		...
+    linkedItem(other.linkedItem),			//int32_t		How close can the weapon get tot he edge of the screen
+    unblockable(other.unblockable),			//int32_t		...before being deleted or bouncing
+    misc_wflags(other.misc_wflags),			//int32_t		...
+    last_burnstate(other.last_burnstate),			//int32_t		...
 	
     //! dimi Wand
     /*
     //!dimi: These 5 exist both here and in the header file. If you remove these, don't forget to
     remove them over there as well.
     */
-    count1(other.count1), 		//int32_t		dimi Wand 
-    count2(other.count2), 		//int32_t		dimi Wand 
-    count3(other.count3), 		//int32_t		dimi Wand
-    count4(other.count4), 		//int32_t		dimi Wand
-    count5(other.count5), 		//int32_t		dimi Wand
+    death_spawnitem(other.death_spawnitem), 		//int32_t		dimi Wand 
+    death_spawndropset(other.death_spawndropset), 		//int32_t		dimi Wand 
+    death_item_pflags(other.death_item_pflags), 		//int32_t		dimi Wand
+    death_sprite(other.death_sprite), 		//int32_t		dimi Wand
+    death_sfx(other.death_sfx), 		//int32_t		dimi Wand
 	
     //Weapon Editor -Z
-    useweapon(other.useweapon),		//byte		The weapon editor weapon type.
-    usedefense(other.usedefense),	//byte		The defence type to evaluate in do_enemy_hit()
-    weaprange(other.weaprange),		//int32_t		The range or distance of the weapon before removing it. 
-    weapduration(other.weapduration),	//int32_t		The number of frames that must elapse before removing it
+    has_shadow(other.has_shadow),		//byte		The weapon editor weapon type.
+    lift_level(other.lift_level),	//byte		The defence type to evaluate in do_enemy_hit()
+    lift_time(other.lift_time),		//int32_t		The range or distance of the weapon before removing it. 
+    lift_height(other.lift_height),	//int32_t		The number of frames that must elapse before removing it
    	//word		The weapon action script. 
-    tilemod(other.tilemod),		//int32_t		The Tile Mod to use when the weapon is active. 
-    drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
-    family_class(other.family_class),	//byte		Item Class
-    family_level(other.family_level),	//byte		Item Level
-    flags(other.flags),			//word		A misc flagset. 
-    collectflags(other.collectflags),	//int32_t		A flagset that determines of the weapon can collect an item.
-    duplicates(other.duplicates),	//int32_t		A flagset that determines of the weapon can collect an item.
-    quantity_iterator(other.quantity_iterator),	//int32_t		A flagset that determines of the weapon can collect an item.
+    count1(other.count1),		//int32_t		The Tile Mod to use when the weapon is active. 
+    count2(other.count2),		//byte		The layer onto which we draw the weapon.
+    count3(other.count3),	//byte		Item Class
+    count4(other.count4),	//byte		Item Level
+    count5(other.count5),			//word		A misc flagset. 
+    useweapon(other.useweapon),	//int32_t		A flagset that determines of the weapon can collect an item.
+    usedefense(other.usedefense),	//int32_t		A flagset that determines of the weapon can collect an item.
+    linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
 //Enemy Editor Weapon Sprite
-    wpnsprite(other.wpnsprite),
-    specialinfo(other.specialinfo),
-    ScriptGenerated(other.ScriptGenerated),
-    isLWeapon(other.isLWeapon),
-	linkedItem(other.linkedItem),
+    quantity_iterator(other.quantity_iterator),
+    weaprange(other.weaprange),
+    weapduration(other.weapduration),
+    tilemod(other.tilemod),
+	drawlayer(other.drawlayer),
 	//script(other.script),
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
+	family_class(other.family_class),
+	family_level(other.family_level),
+	
+	
+	flags(other.flags),
+	collectflags(other.collectflags),
+	duplicates(other.duplicates),
+	wpnsprite(other.wpnsprite),
+	ScriptGenerated(other.ScriptGenerated),
+	isLWeapon(other.isLWeapon),
 	weapon_dying_frame(other.weapon_dying_frame),
 	weap_timeout(other.weap_timeout),
-	
-	
-	death_spawnitem(other.death_spawnitem),
-	death_spawndropset(other.death_spawndropset),
-	death_item_pflags(other.death_item_pflags),
-	death_sprite(other.death_sprite),
-	death_sfx(other.death_sfx),
-	has_shadow(other.has_shadow),
-	lift_level(other.lift_level),
-	lift_time(other.lift_time),
-	lift_height(other.lift_height)
+	specialinfo(other.specialinfo)
     
 	
 	//End Weapon editor non-arrays. 

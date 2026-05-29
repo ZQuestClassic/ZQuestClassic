@@ -270,7 +270,7 @@ namespace ZScript
 	class LabelArgument : public Argument
 	{
 	public:
-		LabelArgument(int32_t id, bool altstr = false) : ID(id), altstr(altstr), haslineno(false) {}
+		LabelArgument(int32_t id, bool altstr = false) : ID(id), haslineno(false), altstr(altstr) {}
 		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{

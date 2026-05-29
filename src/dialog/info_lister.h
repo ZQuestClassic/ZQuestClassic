@@ -27,9 +27,9 @@ public:
 		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
 		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
 	BasicListerDialog(std::string title, std::string cfg_key, GUI::ListData lister, int start_val = 0, bool selecting = false) :
-		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val), frozen_start(0), frozen_end(0),
-		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
-		use_mappreview(false), use_alpha(true), cfg_key(cfg_key){};
+		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_start(0), frozen_end(0), selecting(selecting),
+		use_preview(false), editable(true), alphabetized(false), use_mappreview(false),
+		use_alpha(true), cfg_key(cfg_key), lister(lister){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);

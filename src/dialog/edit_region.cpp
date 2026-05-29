@@ -191,8 +191,8 @@ static bool validate_regions(const regions_data& data)
 }
 
 EditMapSettingsDialog::EditMapSettingsDialog(int32_t slot) :
-	mapslot(slot), the_regions_data(&Regions[slot]), local_regions_data(Regions[slot]),
-	region_valid(false),
+	mapslot(slot), region_valid(false), the_regions_data(&Regions[slot]),
+	local_regions_data(Regions[slot]),
 	list_lpals(GUI::ZCListData::lpals())
 {
 	for (int q = 0; q < MAPSCRS; ++q)

@@ -148,15 +148,15 @@ sprite::sprite(sprite const & other):
 	fallclk(other.fallclk), fallCombo(other.fallCombo),
 	o_tile(other.o_tile), o_cset(other.o_cset), drownclk(other.drownclk),
 	drownCombo(other.drownCombo), can_flicker(other.can_flicker),
+	behind(other.behind), invis_timer(other.invis_timer),
 	spr_shadow(other.spr_shadow), spr_death(other.spr_death),
-	spr_spawn(other.spr_spawn), spr_death_anim_clk(other.spr_death_anim_clk),
+	spr_spawn(other.spr_spawn),
+	spr_death_anim_clk(other.spr_death_anim_clk),
 	spr_spawn_anim_clk(other.spr_spawn_anim_clk),
-	spr_death_anim_frm(other.spr_death_anim_frm),
-	spr_spawn_anim_frm(other.spr_spawn_anim_frm),
-	glowRad(other.glowRad), glowShape(other.glowShape),
-	glowOffset(other.glowOffset),
-	ignore_delete(other.ignore_delete),
-	behind(other.behind), invis_timer(other.invis_timer)
+	spr_death_anim_frm(other.spr_death_anim_frm), spr_spawn_anim_frm(other.spr_spawn_anim_frm),
+	glowRad(other.glowRad),
+	glowShape(other.glowShape),
+	glowOffset(other.glowOffset), ignore_delete(other.ignore_delete)
 {
     uid = 0;
 	parent = nullptr;

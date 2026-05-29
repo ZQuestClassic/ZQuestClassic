@@ -43,7 +43,7 @@ static const GUI::ListData rulesetsList
 };
 
 PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t,byte*)> setRuleset, byte* dest_qrs):
-	setRuleset(setRuleset), dest_qrs(dest_qrs)
+	dest_qrs(dest_qrs), setRuleset(setRuleset)
 {}
 
 std::shared_ptr<GUI::Widget> PickRulesetDialog::view()

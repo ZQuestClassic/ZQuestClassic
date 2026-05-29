@@ -13,10 +13,10 @@ void call_warp_cheat_picker()
 }
 
 WarpCheatPicker::WarpCheatPicker() :
+	list_dmaps(GUI::ZCListData::dmaps(true)),
 	dest_dmap(cheat_goto_dmap),
 	dest_screen(cheat_goto_screen),
-	adjusted_screen(cheat_goto_screen),
-	list_dmaps(GUI::ZCListData::dmaps(true))
+	adjusted_screen(cheat_goto_screen)
 {}
 
 std::shared_ptr<GUI::Widget> WarpCheatPicker::view()

@@ -218,6 +218,7 @@ GUI::ListData createShadowTypesListData();
 SCCDialog::SCCDialog() :
 	list_sccs(SCCListData()),
 	list_shtype(createShadowTypesListData()),
+	list_strings(GUI::ZCListData::strings()),
 	list_items(GUI::ZCListData::items(true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_dmaps(GUI::ZCListData::dmaps(true)),
@@ -229,8 +230,7 @@ SCCDialog::SCCDialog() :
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	list_bottletypes(GUI::ZCListData::bottletype()),
-	list_strings(GUI::ZCListData::strings())
+	list_bottletypes(GUI::ZCListData::bottletype())
 {
 	memset(args, 0, sizeof(args));
 

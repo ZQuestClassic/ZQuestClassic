@@ -128,20 +128,6 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_deftypes(GUI::ZCListData::deftypes()),
-	list_dirs4n(GUI::ZCListData::dirs(4,true)),
-	list_0_7(GUI::ListData::numbers(false,0,8)),
-	list_light_shapes(GUI::ZCListData::light_shapes()),
-	list_strings(GUI::ZCListData::strings(true)),
-	list_items(GUI::ZCListData::items(true)),
-	list_items_0none(GUI::ZCListData::items(true).filter(
-		[&](GUI::ListItem& itm)
-		{
-			if(itm.value == 0) //Remove item 0
-				return false;
-			if(itm.value == -1) //Change the none value to 0
-				itm.value = 0;
-			return true;
-		})),
 	list_lift_parent_items(GUI::ZCListData::items(true).filter(
 		[&](GUI::ListItem& itm)
 		{
@@ -173,6 +159,20 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 				itm.value = 0;
 				itm.text = "(None) (000)";
 			}
+			return true;
+		})),
+	list_dirs4n(GUI::ZCListData::dirs(4,true)),
+	list_0_7(GUI::ListData::numbers(false,0,8)),
+	list_light_shapes(GUI::ZCListData::light_shapes()),
+	list_strings(GUI::ZCListData::strings(true)),
+	list_items(GUI::ZCListData::items(true)),
+	list_items_0none(GUI::ZCListData::items(true).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if(itm.value == 0) //Remove item 0
+				return false;
+			if(itm.value == -1) //Change the none value to 0
+				itm.value = 0;
 			return true;
 		}))
 {}

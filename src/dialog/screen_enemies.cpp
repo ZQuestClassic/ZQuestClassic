@@ -22,9 +22,9 @@ void call_screenenemies_dialog()
 }
 
 ScreenEnemiesDialog::ScreenEnemiesDialog() :
-	thescr(Map.CurrScr()),
-	last_enemy(0), focus_list(false),
 	copied_enemy_id(-1),
+	last_enemy(0), thescr(Map.CurrScr()),
+	focus_list(false),
 	list_patterns(GUI::ZCListData::patterntypes())
 {
 	memcpy(oldenemy, Map.CurrScr()->enemy, sizeof(oldenemy));

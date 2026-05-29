@@ -15,7 +15,7 @@ bool call_tilepicker_dlg(string const& title, vector<vector<TilePickerData>>& da
 }
 
 TilePickerDialog::TilePickerDialog(string const& title, bool& confirm, vector<vector<TilePickerData>>& data):
-	d_title(title), confirm(confirm), data(data)
+	d_title(title), data(data), confirm(confirm)
 {}
 
 static optional<vector<vector<TilePickerData>>> copied_tiledata;

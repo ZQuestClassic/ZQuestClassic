@@ -14,15 +14,15 @@ extern const GUI::ListData ruletemplatesList;
 InfoDialog::InfoDialog(string const& title, string const& text):
 	d_title(title),
 	d_text(text), d_subtext(nullopt),
-	_has_run_postinit(false),
-	d_dest_qrs(nullptr), d_text_align(1)
+	d_text_align(1),
+	_has_run_postinit(false), d_dest_qrs(nullptr)
 {}
 
 InfoDialog::InfoDialog(string const& title, vector<string> const& lines):
 	d_title(title),
 	d_text(""), d_subtext(nullopt),
-	_has_run_postinit(false),
-	d_dest_qrs(nullptr), d_text_align(1)
+	d_text_align(1),
+	_has_run_postinit(false), d_dest_qrs(nullptr)
 {
 	d_text = fmt::format("{}", fmt::join(lines, "\n"));
 }

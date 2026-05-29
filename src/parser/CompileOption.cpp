@@ -82,7 +82,7 @@ namespace // file local
 		CompileOptionValue defaultValue;
 		int32_t defaultqr, type;
 		Entry(string name = "", int32_t defaultQR = 0, int32_t type = 0, int32_t defaultValue = 0L)
-			: name(name), defaultValue(defaultValue), type(type), defaultqr(defaultQR) {}
+			: name(name), defaultValue(defaultValue), defaultqr(defaultQR), type(type) {}
 	};
 
 	// Table holding option data.

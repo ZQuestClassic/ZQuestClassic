@@ -508,12 +508,12 @@ std::optional<string> Constant::getName() const {return node.getName();}
 FunctionSignature::FunctionSignature(string const& name,
 	vector<DataType const*> const& parameterTypes, DataType const* returnType )
 	: name(name), prefix(false), destructor(false), vargs(false),
-	parameterTypes(parameterTypes), returnType(returnType)
+	returnType(returnType), parameterTypes(parameterTypes)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function, bool useret)
 	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)), vargs(function.getFlag(FUNCFLAG_VARARGS)),
-	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
+	returnType(useret ? function.returnType : nullptr), parameterTypes(function.paramTypes)
 {
 	if (function.getClass())
 		name = function.getClass()->getName() + "::" + name;
@@ -591,11 +591,11 @@ Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<shared_ptr<const string>> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
-	  paramTypes(paramTypes), paramNames(paramNames), numOptionalParams(), id(id),
-	  node(NULL), data_decl_source_node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
-	  internal_flags(internal_flags), prototype(prototype),
-	  defaultReturn(defaultReturn), label(std::nullopt), prologue_end_label(std::nullopt), flags(flags),
-	  aliased_func(nullptr), paramDatum(), templ_bound_ts()
+	  paramTypes(paramTypes), paramNames(paramNames), paramDatum(), templ_bound_ts(),
+	  numOptionalParams(), id(id), node(NULL), thisVar(NULL), aliased_func(nullptr),
+	  data_decl_source_node(NULL), prototype(prototype),
+	  defaultReturn(defaultReturn), prologue_end_label(std::nullopt), label(std::nullopt), flags(flags),
+	  internal_flags(internal_flags), internalScope(NULL), externalScope(NULL)
 {
 	assert(returnType);
 }

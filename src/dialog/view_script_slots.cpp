@@ -12,8 +12,8 @@ void call_view_script_slots()
 
 ViewScriptSlotsDialog::ViewScriptSlotsDialog() :
 	last_script_type(int(ScriptType::FFC)), last_slot(1),
-	list_scripttypes(GUI::ZCListData::scripttypes()),
-	alphabetize(false), skipempty(false)
+	alphabetize(false),
+	skipempty(false), list_scripttypes(GUI::ZCListData::scripttypes())
 {
 	RebuildLists();
 }

@@ -927,8 +927,8 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTNodeList<ASTStmt>* incr_list, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increments(incr_list->take()),
-	  body(body), elseBlock(elseBlock), scope(nullptr),
-	  ends_loop(true), ends_else(true)
+	  body(body), elseBlock(elseBlock), ends_loop(true),
+	  ends_else(true), scope(nullptr)
 {
 	delete incr_list;
 }
@@ -947,8 +947,8 @@ ASTStmtForEach::ASTStmtForEach(
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), identifier(identifier), indxdecl(nullptr), arrdecl(nullptr),
 		decl(nullptr), arrExpr(expr), body(body),
-		elseBlock(elseBlock), scope(nullptr),
-	  ends_loop(true), ends_else(true)
+		elseBlock(elseBlock), ends_loop(true),
+	  ends_else(true), scope(nullptr)
 {}
 
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
@@ -962,10 +962,10 @@ uint ASTStmtRangeLoop::next_comment_id = 0;
 
 ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, ASTString* iden,
 	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
-		increment(increment), body(body), range(range),
-		elseBlock(nullptr), scope(nullptr), overflow(OVERFLOW_ALLOW),
-	  ends_loop(true), ends_else(true)
+	: ASTStmt(location), iden(iden), overflow(OVERFLOW_ALLOW), type(type),
+		decl(nullptr), range(range), increment(increment),
+		body(body), elseBlock(nullptr), ends_loop(true),
+	  ends_else(true), scope(nullptr)
 {}
 
 void ASTStmtRangeLoop::execute(ASTVisitor& visitor, void* param)
@@ -980,8 +980,8 @@ uint ASTStmtWhile::next_comment_id = 0;
 ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
-		elseBlock(elseBlock), inverted(false),
-	  ends_loop(true), ends_else(true)
+		elseBlock(elseBlock), ends_loop(true),
+	  ends_else(true), inverted(false)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -996,8 +996,8 @@ uint ASTStmtDo::next_comment_id = 0;
 ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
-		elseBlock(elseBlock), inverted(false),
-	  ends_loop(true), ends_else(true)
+		elseBlock(elseBlock), ends_loop(true),
+	  ends_else(true), inverted(false)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
@@ -1387,8 +1387,8 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), identifier(NULL), list(NULL),
-	  manager(NULL), baseType(NULL), flags(0), initializer_(NULL),
-	  resolvedType(NULL)
+	  manager(NULL), baseType(NULL), resolvedType(NULL), flags(0),
+	  initializer_(NULL)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)

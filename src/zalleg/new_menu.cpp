@@ -304,7 +304,7 @@ GuiMenu::GuiMenu(std::initializer_list<MenuItem>&& entries)
 }
 GuiMenu::GuiMenu(optional<uint> chop, bool borderless)
 	: chop_index(chop), borderless(borderless),
-	entries(), state(), menu_font(),
+	state(), entries(), menu_font(),
 	xpos(0), ypos(0)
 {}
 GuiMenu::GuiMenu(optional<uint> chop, bool borderless,std::initializer_list<MenuItem>&& entries)

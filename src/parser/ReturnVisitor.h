@@ -33,7 +33,7 @@ namespace ZScript
 		optional<bool> terminated;
 		
 		VisitNode(AST* host, VisitNode* parent = nullptr)
-			: node(host), parent(parent), flags(0)
+			: node(host), flags(0), parent(parent)
 		{}
 		VisitNode* create(AST* node)
 		{

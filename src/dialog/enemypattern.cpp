@@ -14,8 +14,8 @@ void call_enemypattern_dialog()
 }
 
 EnemyPatternDialog::EnemyPatternDialog(mapscr* scr) :
-	thescr(scr),
-	last_pattern(int32_t(scr->pattern))
+	last_pattern(int32_t(scr->pattern)),
+	thescr(scr)
 {}
 
 std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()

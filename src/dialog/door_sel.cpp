@@ -36,9 +36,9 @@ bool call_doorseldialog()
 }
 
 DoorSelDialog::DoorSelDialog(mapscr const& ref) :
-	screen(ref),
 	list_doortypes(GUI::ZCListData::doortypes()),
-	list_doorsets(GUI::ZCListData::doorsets())
+	list_doorsets(GUI::ZCListData::doorsets()),
+	screen(ref)
 {
 	door_combo_set = (old_door_combo_set = screen.door_combo_set);
 	for (int q = 0; q < 4; q++)

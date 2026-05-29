@@ -22,7 +22,7 @@ bool call_midi_editor(int32_t index)
 }
 
 MidiEditorDialog::MidiEditorDialog(zctune const& ref, int32_t index) :
-	index(index), local_midiref(ref)
+	local_midiref(ref), index(index)
 {}
 
 MidiEditorDialog::MidiEditorDialog(int32_t index) :

@@ -50,10 +50,10 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_mapsub(GUI::ZCListData::subscreens(sstMAP, true, true)),
 	list_strings(GUI::ZCListData::strings()),
 	list_lpals(GUI::ZCListData::lpals()),
+	list_music(GUI::ZCListData::music_names(true, false)),
 	list_disabled_items(GUI::ZCListData::disabled_items(local_dmap.disabled_items)),
 	list_items(GUI::ZCListData::items(false, false)),
-	list_dmapscript(GUI::ZCListData::dmap_script()),
-	list_music(GUI::ZCListData::music_names(true, false))
+	list_dmapscript(GUI::ZCListData::dmap_script())
 {}
 
 bool sm_dmap(int dmaptype)

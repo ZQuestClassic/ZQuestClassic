@@ -2036,8 +2036,8 @@ void QRDialog::reloadQRs()
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab), cur_tab(0), qr_subtabs(),
-	save_gameover_menu(QMisc.savemenu_game_over), save_f6_menu(QMisc.savemenu_f6),
-	list_savemenus(GUI::ZCListData::savemenus(true, true, true))
+	list_savemenus(GUI::ZCListData::savemenus(true, true, true)), save_f6_menu(QMisc.savemenu_f6),
+	save_gameover_menu(QMisc.savemenu_game_over)
 {
 	reloadQRs();
 }
