@@ -29,7 +29,7 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 	int32_t dummy;
 	//int32_t ret;
 	const size_t WAV_COUNT = 256;
-	SAMPLE samples[WAV_COUNT] = {0};
+	SAMPLE samples[WAV_COUNT] = {};
 	
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 411 (such as the 'Lost Isle Build'),

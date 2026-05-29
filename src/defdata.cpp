@@ -189,6 +189,11 @@ comboclass default_combo_classes[cMAX+1] =
 	BLANK_CCLASS("")
 };
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+
 itemdata default_items[iLast]=
 {
 // The first 7 values should be 0! (Because qst.dat overwrites them.)
@@ -317,6 +322,10 @@ itemdata default_items[iLast]=
 	{0,0,0,0,0,0,0, itype_perilring,        1,               2,              item_gamedata,                                                          0,    -1,     0,                               0,                   0,                  WAV_SCALE,               0,    {     0,    0,    0,    0,    0,    0,    0,    0     },      0,                 0,                 0,                0,    0,    0,    0,    0,    0,    0,        0,      1,                                                              0,                       0,                                                     0,                              0,    0,    0,    0,    0,    0,     {0,0},    0                  },
 	{0,0,0,0,0,0,0, itype_whimsicalring,    1,               0xFF,           item_gamedata,                                                          0,    -1,     0,                               0,                   0,                  WAV_SCALE,               0,    {     0,    0,    0,    0,    0,    0,    0,    0     },      0,                 0,                 0,                0,    0,    0,    0,    0,    0,    0,        0,      0xF,                                                            0,                       0,                                                     0,                              0,    0,    0,    0,    0,    0,     {0,0},    0                  }
 };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 // TODO: we should use the actual enums to set these flags.
 guydata default_guys[OLDMAXGUYS] =

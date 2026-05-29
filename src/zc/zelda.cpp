@@ -251,8 +251,8 @@ int16_t    lensclk = 0;
 int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
 // Temporary storage for "has hero interacted with this position recently". Used for slash triggering, wands, hammer pounds, etc.
 // No need to have a copy per screen in regions, since hero cannot touch tiles with the same index at the same time.
-byte screengrid[22]={0};
-byte screengrid_layer[2][22]={0};
+byte screengrid[22];
+byte screengrid_layer[2][22];
 bool halt=false;
 bool screenscrolling=false;
 PALETTE tempbombpal;

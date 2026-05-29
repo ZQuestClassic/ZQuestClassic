@@ -3302,7 +3302,7 @@ word SW_MMapTitle::getW() const
 	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		return w;
 	word ret = (flags&SUBSCR_MMAPTIT_ONELINE)?100:50;
-	char bufs[2][21] = {0};
+	char bufs[2][21] = {};
 	auto linecnt = get_strs(bufs[0],bufs[1]);
 	if(linecnt)
 	{
@@ -3398,7 +3398,7 @@ void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, [[maybe_un
 	auto y1 = y+yofs, y2 = y1+8;
 	if(flags&SUBSCR_MMAPTIT_ONELINE)
 		y2 = y1;
-	char bufs[2][21] = {0};
+	char bufs[2][21] = {};
 	auto linecnt = get_strs(bufs[0],bufs[1]);
 	if(linecnt == 1)
 	{

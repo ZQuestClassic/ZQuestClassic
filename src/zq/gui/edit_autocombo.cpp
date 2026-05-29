@@ -789,8 +789,8 @@ void AutoComboDialog::refreshTilingGrid(byte w, byte h)
 	byte oldw = (temp_autocombo.getArg() & 0xF) + 1;
 	byte oldh = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
 
-	byte temp_type[8][8] = { 0 };
-	int32_t temp_grid[8][8] = { 0 };
+	byte temp_type[8][8] = {};
+	int32_t temp_grid[8][8] = {};
 	for (int32_t xi = 0; xi < oldw; ++xi)
 	{
 		for (int32_t yi = 0; yi < oldh; ++yi)
