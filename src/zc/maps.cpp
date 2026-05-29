@@ -4847,12 +4847,9 @@ static void draw_sprites(BITMAP* dest, set<sprite*, SpriteSorter>& sprite_set, s
 			// Draw enemies holding the Hero directly above the Hero
 			for(int32_t i=0; i<guys.Count(); i++)
 			{
-				if(((enemy*)guys.spr(i))->type == eeWALK)
-					if(((eStalfos*)guys.spr(i))->hashero)
-						guys.spr(i)->draw(dest);
-				else if(((enemy*)guys.spr(i))->type == eeWALLM)
-					if(((eWallM*)guys.spr(i))->hashero)
-						guys.spr(i)->draw(dest);
+				auto e = ((enemy*)guys.spr(i));
+				if (e->hashero && (e->type == eeWALK || e->type == eeWALLM))
+					e->draw(dest);
 			}
 		}
 		else if(spr == &mblock2) // Draw the moving pushblock
