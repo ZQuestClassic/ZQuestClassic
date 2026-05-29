@@ -10405,6 +10405,9 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
+		if (walk && lift_wpn && get_qr(qr_NO_SCROLL_WHILE_CARRYING))
+			walk = false; // prevent softlock at screen edge
+		
 		if(walk)
 		{
 			hclk=0;
