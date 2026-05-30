@@ -269,6 +269,7 @@ DEFINE_VIEW(CutsceneEffect_PlayerWalk, PLAYER_WALK_ATTRS)
 #define AF_TRANSPARENT                  0x08
 #define AF_CYCLEUNDERCOMBO              0x10
 #define AF_EDITOR_ONLY                  0x20
+#define AF_OVERHEAD                     0x40
 
 enum ComboTriggerFlag
 {

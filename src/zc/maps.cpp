@@ -4154,7 +4154,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					if(combo_class_buf[combobuf[scr->data[i]].type].overhead)
+					auto const& cmb = combobuf[scr->data[i]];
+					if ((cmb.animflags & AF_OVERHEAD) || combo_class_buf[cmb.type].overhead)
 					{
 						auto rpos = screenscrolling || ViewingMap ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);

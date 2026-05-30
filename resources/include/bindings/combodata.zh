@@ -19,14 +19,23 @@ enum ComboSolidityBitflags
 @Bitflags("int")
 enum AnimationBitflags
 {
+	// 'Refresh Animation on Room Entry'
 	AF_FRESH                       = 0x01,
+	// 'Refresh Animation when cycled to'
 	AF_CYCLE                       = 0x02,
+	// 'Cycle Ignores CSet'
 	AF_CYCLENOCSET                 = 0x04,
+	// 'Toggle Transparency'
 	AF_TRANSPARENT                 = 0x08,
+	// 'Cycle To Screen Undercombo'
 	// @versionadded 3.0
 	AF_CYCLEUNDERCOMBO             = 0x10,
+	// 'Only Visible In Editor'
 	// @versionadded 3.0
 	AF_EDITOR_ONLY                 = 0x20,
+	// 'Overhead'
+	// @versionadded 3.0
+	AF_OVERHEAD                    = 0x40,
 };
 
 enum ComboGeneralFlag

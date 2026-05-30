@@ -2487,7 +2487,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			TabPanel(
 				ptr = &cmb_tabs[0],
 				TabRef(name = "Basic", Row(
-					Rows<2>(
+					Rows<3>(
 						Label(text = "Label:", hAlign = 1.0),
 						TextField(
 							fitParent = true, minwidth = 200_px, maxwidth = 500_px,
@@ -2498,6 +2498,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							{
 								local_comboref.label = text;
 							}),
+						INFOBTN("An arbitrary label for this combo. If unique, scripts can use this to"
+							" find this combo's ID. Displayed in some tooltips."),
 						Label(text = "CSet 2:", hAlign = 1.0),
 						TextField(
 							fitParent = true,
@@ -2509,18 +2511,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								local_comboref.csets |= val&0xF;
 								updateAnimation();
 							}),
+						INFOBTN("This much is added to the cset in all corners selected in the 'CSet2' box."),
 						Label(text = "A. Frames:", hAlign = 1.0),
 						ANIM_FIELD(frames, 0, 255),
+						INFOBTN("Animation is this many tiles long. 0 is treated the same as 1."),
 						Label(text = "A. Speed:", hAlign = 1.0),
 						ANIM_FIELD(speed, 0, 255),
+						INFOBTN("This many frames pass between each tile change of the animation."),
 						Label(text = "A. SkipX:", hAlign = 1.0),
 						ANIM_FIELD(skipanim, 0, 255),
+						INFOBTN("When the tile changes, skip this many extra tiles."),
 						Label(text = "A. SkipY:", hAlign = 1.0),
 						ANIM_FIELD(skipanimy, 0, 255),
+						INFOBTN("When the tile changes rows, skip this many extra rows."),
 						Label(text = "Flip:", hAlign = 1.0),
 						l_flip = Label(text = std::to_string(local_comboref.flip), hAlign = 0.0),
+						_d,
 						Label(text = "CSet:", hAlign = 1.0),
-						l_cset = Label(text = std::to_string(CSet), hAlign = 0.0)
+						l_cset = Label(text = std::to_string(CSet), hAlign = 0.0),
+						_d
 					),
 					Column(padding = 0_px,
 						Rows<6>(
@@ -2623,55 +2632,77 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										" corners of the combo.").show();
 								})
 						),
-						Checkbox(
-							text = "Refresh Animation on Room Entry", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_FRESH,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_FRESH,state);
-							}
-						),
-						Checkbox(
-							text = "Restart Animation when Cycled To", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_CYCLE,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_CYCLE,state);
-							}
-						),
-						Checkbox(
-							text = "Cycle To Screen Undercombo", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_CYCLEUNDERCOMBO,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_CYCLEUNDERCOMBO,state);
-								updateCSet();
-							}
-						),
-						Checkbox(
-							text = "Cycle Ignores CSet", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_CYCLENOCSET,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
-								updateCSet();
-							}
-						),
-						Checkbox(
-							text = "Toggle Transparent", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_TRANSPARENT,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
-							}
-						),
-						Checkbox(
-							text = "Only Visible In Editor", hAlign = 0.0,
-							checked = local_comboref.animflags & AF_EDITOR_ONLY,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_comboref.animflags,AF_EDITOR_ONLY,state);
-							}
+						Rows<4>(
+							INFOBTN("If this combo's animation restarts when a new room is entered."),
+							Checkbox(
+								text = "Refresh Animation on Room Entry", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_FRESH,
+								colSpan = 3,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_FRESH,state);
+								}
+							),
+							INFOBTN("If this combo's animation restarts when another combo 'cycles' to this one."),
+							Checkbox(
+								text = "Restart Animation when Cycled To", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLE,
+								colSpan = 3,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLE,state);
+								}
+							),
+							INFOBTN("If this combo will cycle to the screen's Undercombo instead of a specific combo."),
+							Checkbox(
+								text = "Cycle To Screen Undercombo", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLEUNDERCOMBO,
+								colSpan = 3,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLEUNDERCOMBO,state);
+									updateCSet();
+								}
+							),
+							INFOBTN("If this combo, when cycling, will stay the same cset as it was before."),
+							Checkbox(
+								text = "Cycle Ignores CSet", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLENOCSET,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
+									updateCSet();
+								}
+							),
+							INFOBTN("If this combo should be the opposite transparency as the layer it is placed on."),
+							Checkbox(
+								text = "Toggle Transparent", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_TRANSPARENT,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
+								}
+							),
+							INFOBTN("If this combo should be invisible when playing the quest."),
+							Checkbox(
+								text = "Only Visible In Editor", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_EDITOR_ONLY,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_EDITOR_ONLY,state);
+								}
+							),
+							INFOBTN("If this combo should be drawn 'Overhead' (just above layer 4)."
+								"\nOnly works when placed on layer 0, or layer 1+2 as well based on quest rule:"
+								+ QRHINT({qr_OVERHEAD_COMBOS_L1_L2})),
+							Checkbox(
+								text = "Overhead", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_OVERHEAD,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags, AF_OVERHEAD, state);
+								}
+							)
 						)
 					)
 				)),
