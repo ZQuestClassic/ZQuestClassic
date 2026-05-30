@@ -34,6 +34,8 @@ struct ffdata
 	byte fhei : 6;
 	int32_t script;
 	std::array<int, 8> initd;
+	int32_t viewport_suspend_range;
+	int32_t viewport_despawn_range;
 	
 	ffdata();
 	ffdata(mapscr* scr, int32_t ind);

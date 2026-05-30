@@ -273,7 +273,6 @@ bool has_active_camera_effect();
 void clear_camera_effect();
 void tick_camera_effect();
 void update_viewport();
-viewport_t get_sprite_freeze_rect();
 mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);
 int get_screen_for_world_xy(int x, int y);

@@ -975,6 +975,13 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 		if (!p_igetzf(&(data.bounce_add), f))
 			return qe_invalid;
 	}
+	if (v_weapon_data >= 4)
+	{
+		if (!p_igetl(&(data.viewport_suspend_range), f))
+			return qe_invalid;
+		if (!p_igetl(&(data.viewport_despawn_range), f))
+			return qe_invalid;
+	}
 	return 0;
 }
 
@@ -1048,6 +1055,11 @@ int32_t get_qst_buffers()
     
     if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
         return 0;
+
+	for(int32_t i=0; i<OLDMAXGUYS; i++)
+	{
+		default_guys[i].weap_data.viewport_suspend_range = 48;
+	}
         
     return 1;
 }

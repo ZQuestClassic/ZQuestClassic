@@ -3403,6 +3403,8 @@ enum ASM_DEFINE
 #define SPRITE_INVIS_CLK               0x16C2
 #define SPRITE_NOCOLL_CLK              0x16C3
 #define SUBWIDGTY_COLOR_UNVISITED      0x16C4
+#define SPRITE_VIEWPORT_SUSPEND_RANGE  0x16C5
+#define SPRITE_VIEWPORT_DESPAWN_RANGE  0x16C6
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

@@ -143,16 +143,16 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
 #define V_COMBOS          68
 #define V_CSETS            6 //palette data
-#define V_MAPS            39
+#define V_MAPS            40
 #define V_DMAPS           26
 #define V_DOORS            1
-#define V_ITEMS           68
+#define V_ITEMS           69
 #define V_WEAPONS          9
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        48
-#define V_GUYS            57
+#define V_GUYS            58
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5
 #define V_CHEATS           1
@@ -170,7 +170,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 // not 'real' sections, just separate version numbers
 #define V_COMPATRULE       114
 
-#define V_WEAP_DATA        3
+#define V_WEAP_DATA        4
 
 //= V_SHOPS is under V_MISC
 
@@ -1188,7 +1188,12 @@ struct guydata
 	word specialsfx;
 	
 	weapon_data weap_data;
-	
+
+	// How far (in pixels) past the viewport the enemy's engine logic runs before suspending. Disabled if 0.
+	int32_t viewport_suspend_range = 48;
+	// How far (in pixels) past the viewport the enemy can travel before despawning. Disabled if 0.
+	int32_t viewport_despawn_range = 0;
+
 	void clear();
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02

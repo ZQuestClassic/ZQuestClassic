@@ -3,6 +3,7 @@
 
 #include "core/combo.h"
 #include "core/handles.h"
+#include "core/weapon_data.h"
 #include "core/zdefs.h"
 #include "base/zfix.h"
 #include "core/flags.h"
@@ -133,7 +134,7 @@ public:
     byte specialinfo;
 	int16_t pierce_count = -1;
 	zfix bounce_mult, bounce_add;
-	
+
 	int shd_aclk, shd_aframe;
     word specialsfx;
 	
@@ -193,5 +194,20 @@ void killgenwpn(weapon* w);
 void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, bool single16);
 void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
-	       
+const weapon_data* get_weapon_data_for_id(int id, int parentitem, int parentid, bool isLWeapon);
+struct weapon_size_t
+{
+	int xofs = 0, yofs = 0;
+	int txsz = 1, tysz = 1;
+	int hxofs = 0, hyofs = 0;
+	int hit_width = 16, hit_height = 16;
+	optional<int> hzsz;
+
+	std::pair<rect_t, rect_t> to_rects(int x, int y) const;
+};
+
+bool compute_do_size(weapon_data const& data, int weap_id, bool lw);
+weapon_size_t calculate_weapon_size(weapon_data const& data, int weap_id, int dir, bool lw);
+
+
 #endif

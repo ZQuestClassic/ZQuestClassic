@@ -218,11 +218,6 @@ bool item::animate(int32_t)
 				if (moveflags & move_can_waterdrown)
 					drownCombo = check_water();
 		}
-		// Maybe it fell off the bottom in sideview, or was moved by a script.
-		if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
-		{
-			return true;
-		}
 		if(base_item.type == itype_fairy && base_item.misc3)
 			movefairynew(x,y,*this);
 	}
@@ -475,6 +470,9 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	}
 	//if ( itm.flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itm.zofs;
 	script = itm.sprite_script;
+	
+	viewport_suspend_range = itm.viewport_suspend_range;
+	viewport_despawn_range = itm.viewport_despawn_range;
 }
 
 // easy way to draw an item

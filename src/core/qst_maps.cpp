@@ -2127,7 +2127,15 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			}
 			else if(!p_getc(&(tempffc.layer),f))
 				return qe_invalid;
-			
+
+			if(version >= 40)
+			{
+				if(!p_igetl(&(tempffc.viewport_suspend_range),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempffc.viewport_despawn_range),f))
+					return qe_invalid;
+			}
+
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
 				tempffc.script = 0;

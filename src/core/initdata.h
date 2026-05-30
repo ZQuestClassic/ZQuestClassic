@@ -100,7 +100,7 @@ struct zinitdata
 	
 	byte bottle_slot[NUM_BOTTLE_SLOTS];
 	word sprite_z_thresholds[SPRITE_THRESHOLD_MAX];
-	
+
 	bool get_item(size_t ind) const {return items.get(ind);}
 	void set_item(size_t ind, bool st) {items.set(ind,st);}
 	

@@ -378,6 +378,44 @@ class sprite {
 	// @zasm_var SPRITE_SHADOW_YOFS
 	internal int ShadowYOffset;
 
+	// How far (in pixels) past the viewport edge this sprite's engine logic runs before it is suspended.
+	// Only active in scrolling regions.
+	//
+	// Disabled if 0 (the sprite is never suspended).
+	//
+	// [Hero]: Does not apply.
+	//
+	// @versionadded 3.0
+	// @default 48 for eweapons and npcs, 0 for all other sprites
+	// @zasm_var SPRITE_VIEWPORT_SUSPEND_RANGE
+	internal int ViewportSuspendRange;
+
+	// How far (in pixels) past the viewport edge this sprite can travel before
+	// being removed. Considers both visual tile size and hitbox ([HitWidth], [HitHeight]).
+	//
+	// Disabled if 0. Note that 0 only disables despawning via *this* field; the
+	// sprite may still be removed by its type's normal off-screen handling:
+	//
+	//   - Weapons: removed once entirely off the viewport, via the standard weapon
+	//     screen-edge clipping. The exact margin depends on the weapon type and the
+	//     screen-edge quest rules; weapons are also removed at the region bounds.
+	//   - Enemies: killed when out of bounds, unless the enemy is immortal, has a
+	//     movement flag letting it leave the screen, or is exempted by the
+	//     out-of-bounds-enemies quest rule / enemy editor flag.
+	//   - Items: removed when they travel well outside the region (roughly 256px to
+	//     the sides, 176px above, and 176px below the region bounds).
+	//
+	// To avoid despawning even from these default behaviors, set this variable to a very
+	// high number.
+	//
+	// [Hero]: Does not apply.
+	// [ffc]: Does not apply for changers or stationary FFCs.
+	//
+	// @versionadded 3.0
+	// @default 0
+	// @zasm_var SPRITE_VIEWPORT_DESPAWN_RANGE
+	internal int ViewportDespawnRange;
+
 	// An array of 32 misc values for scripts to use.
 	//
 	// [ffc]: only 16 values.

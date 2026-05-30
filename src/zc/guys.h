@@ -54,6 +54,7 @@ public:
 	int32_t frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
 	byte movestatus, item_set, posframe;
 	bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
+	bool dying_despawn;
 	zfix  step, floor_y;
 
 	guy_flags flags;

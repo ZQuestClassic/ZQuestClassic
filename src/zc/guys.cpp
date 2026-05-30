@@ -516,8 +516,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	if(frate == 0)
 		frate = 256;
 		
-	leader = itemguy = dying = scored = false;
-	canfreeze = count_enemy = true;
+	leader = itemguy = dying = scored = dying_despawn = false;
+	can_freeze_from_holdup = count_enemy = true;
 	mainguy = !(flags & guy_doesnt_count);
 	dir = zc_oldrand()&3;
 	
@@ -561,6 +561,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	
 	specialsfx = d->specialsfx;
 	weap_data = d->weap_data;
+	viewport_suspend_range = d->viewport_suspend_range;
+	viewport_despawn_range = d->viewport_despawn_range;
 }
 
 enemy::~enemy()
@@ -1090,20 +1092,22 @@ bool enemy::Dead(int32_t index)
 			deathexstate = -1;
 		}
 		--clk2;
-		
-		if((get_qr(qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
-		   && hp>-1000) // not killed by ringleader
-			death_sfx();
-			
-		if(clk2==0)
+		if (!dying_despawn)
 		{
-			if(flags&guy_never_return)
-				never_return(screen_spawned, index);
+			if (hp > -1000) // not dying to ringleader / etc
+				if(get_qr(qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
+					death_sfx();
 				
-			if(leader)
-				kill_em_all();
-				
-			leave_item();
+			if(clk2==0)
+			{
+				if(flags&guy_never_return)
+					never_return(screen_spawned, index);
+					
+				if(leader)
+					kill_em_all();
+					
+				leave_item();
+			}
 		}
 		
 		stop_bgsfx(index);
@@ -1206,17 +1210,20 @@ bool enemy::animate(int32_t index)
 	// Maybe they fell off the bottom in sideview, or were moved by a script.
 	
 	//Check offscreen settings. I wrote it this way for clarity and to simplify testing. -Z
-	if ( immortal )
+	if (viewport_despawn_range <= 0)
 	{
-	//skip, as it can go out of bounds, from immortality
-	}
-	else if (   (moveflags & move_ignore_screenedge) || (( (get_qr(qr_OUTOFBOUNDSENEMIES)) != bool(editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez))   )
-	{
-	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
-	}
-	else if (OUTOFBOUNDS(id, x, y))
-	{
-		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
+		if ( immortal )
+		{
+		//skip, as it can go out of bounds, from immortality
+		}
+		else if (   (moveflags & move_ignore_screenedge) || (( (get_qr(qr_OUTOFBOUNDSENEMIES)) != bool(editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez))   )
+		{
+		//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
+		}
+		else if (OUTOFBOUNDS(id, x, y))
+		{
+			hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
+		}
 	}
 	//fall down
 	handle_termv();
@@ -7879,7 +7886,7 @@ ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
 guy::guy(zfix X,zfix Y,int32_t Id,int32_t Clk,bool mg) : enemy(X,Y,Id,Clk)
 {
 	mainguy=mg;
-	canfreeze=false;
+	can_freeze_from_holdup=false;
 	dir=down;
 	yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	hxofs=2;

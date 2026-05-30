@@ -1877,6 +1877,14 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 			tempguy.weap_data.wflags |= WFLAG_BREAK_ON_SOLID;
 	}
 
+	if(guyversion >= 58)
+	{
+		if(!p_igetl(&(tempguy.viewport_suspend_range), f))
+			return qe_invalid;
+		if(!p_igetl(&(tempguy.viewport_despawn_range), f))
+			return qe_invalid;
+	}
+
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
 		tempguy.script = 0;

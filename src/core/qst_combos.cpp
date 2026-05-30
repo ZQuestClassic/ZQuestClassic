@@ -1503,6 +1503,10 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 		new_return(29);
 	if (!p_iputzf(data.bounce_add, f))
 		new_return(30);
+	if (!p_iputl(data.viewport_suspend_range, f))
+		new_return(31);
+	if (!p_iputl(data.viewport_despawn_range, f))
+		new_return(32);
 	return 0;
 }
 

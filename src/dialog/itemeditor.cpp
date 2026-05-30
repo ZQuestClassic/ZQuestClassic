@@ -1927,13 +1927,41 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						))
 					)),
-					TabRef(name = "MoveFlags", Row(
-						Frame(title = "Item", hAlign = 1.0, fitParent = true,
+					TabRef(name = "Misc", Row(
+						Frame(title = "MoveFlags", hAlign = 1.0, fitParent = true,
 							info = "Movement Flags that apply to the Item itself on the ground",
 							Column(hAlign = 1.0, fitParent = true,
 								MoveFlag(move_obeys_grav, "Obeys Gravity"),
 								MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
 								MoveFlag(move_can_waterdrown, "Can Drown In Liquid")
+							)
+						),
+						Frame(title = "Ranges",
+							Rows<3>(
+								Label(text = "Suspend:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 214747,
+									val = local_itemref.viewport_suspend_range,
+									fitParent = true,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.viewport_suspend_range = val;
+									}
+								),
+								INFOBTN_T("Suspend Range", "Distance outside the viewport the item suspends its behavior. Disabled if 0."),
+								Label(text = "Despawn:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 214747,
+									val = local_itemref.viewport_despawn_range,
+									fitParent = true,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.viewport_despawn_range = val;
+									}
+								),
+								INFOBTN_T("Despawn Range", "Distance outside the viewport the item despawns. Disabled if 0.")
 							)
 						)
 					))

@@ -1256,6 +1256,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case SPRITE_TILE:
 		case SPRITE_TILE_H:
 		case SPRITE_TILE_W:
+		case SPRITE_VIEWPORT_DESPAWN_RANGE:
+		case SPRITE_VIEWPORT_SUSPEND_RANGE:
 		case SPRITE_X:
 		case SPRITE_X_OFFSET:
 		case SPRITE_Y:

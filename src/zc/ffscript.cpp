@@ -13219,6 +13219,9 @@ int32_t ffscript_engine(const bool preload)
 				
 			if((ffc_handle.ffc->flags&ffc_ignoreholdup)==0 && Hero.getHoldClk()>0)
 				return;
+			
+			if (ffc_handle.ffc->is_beyond_viewport_suspend_range())
+				return;
 
 			ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);
 		});

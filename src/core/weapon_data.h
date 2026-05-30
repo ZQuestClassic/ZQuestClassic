@@ -49,7 +49,12 @@ struct weapon_data
 	int32_t initd[INITIAL_D];
 	
 	int16_t pierce_count = -1;
-	
+
+	// How far (in pixels) past the viewport this weapon's engine logic runs before suspending. Disabled if 0.
+	int32_t viewport_suspend_range = 0;
+	// How far (in pixels) past the viewport the weapon can travel before despawning. Disabled if 0.
+	int32_t viewport_despawn_range = 0;
+
 	void clear();
 	bool is_blank() const;
 	void clear_lifting();
