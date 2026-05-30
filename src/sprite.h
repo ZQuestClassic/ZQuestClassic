@@ -85,8 +85,8 @@ public:
     byte onplatid = 0;
     bool angular;
     // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_guys`
-    // is true (which is when the player is holding up an item); or when they are out of the viewport.
-    bool canfreeze;
+    // is true (which is when the player is holding up an item)
+    bool can_freeze_from_holdup;
     bool is_frozen = false;
     bool is_within_freeze_viewport = true;
     double angle; // TODO: bad for replays
@@ -143,7 +143,12 @@ public:
 	int32_t ignore_delete;
 	
 	zfix custom_gravity, custom_terminal_v;
-    
+
+	// How far (in pixels) past the viewport this sprite's engine logic runs before suspending. Disabled if 0.
+	int32_t viewport_suspend_range = 0;
+	// How far (in pixels) past the viewport this sprite can travel before despawning. Disabled if 0.
+	int32_t viewport_despawn_range = 0;
+
     sprite();
     sprite(sprite const & other);
     sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs);
@@ -208,7 +213,12 @@ public:
 	
 	//Script helper funcs
 	virtual optional<ScriptType> get_scrtype() const {return nullopt;}
-	
+
+	bool is_beyond_viewport_suspend_range() const;
+	bool is_beyond_viewport_despawn_range() const;
+	bool is_beyond_region_despawn_range() const;
+
+	viewport_t get_suspend_rect() const;
 };
 
 enum //run_script modes

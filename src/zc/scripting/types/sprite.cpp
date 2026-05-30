@@ -418,6 +418,18 @@ int32_t sprite_get_register(int32_t reg)
 				return s->shadowyofs * 10000;
 			return 0;
 		}
+		case SPRITE_VIEWPORT_SUSPEND_RANGE:
+		{
+			if (s)
+				return s->viewport_suspend_range * 10000;
+			return 0;
+		}
+		case SPRITE_VIEWPORT_DESPAWN_RANGE:
+		{
+			if (s)
+				return s->viewport_despawn_range * 10000;
+			return 0;
+		}
 
 		default: NOTREACHED();
 	}
@@ -950,6 +962,18 @@ void sprite_set_register(int32_t reg, int32_t value)
 		{
 			if (s)
 				s->shadowyofs = value / 10000;
+			break;
+		}
+		case SPRITE_VIEWPORT_SUSPEND_RANGE:
+		{
+			if (s)
+				s->viewport_suspend_range = value / 10000;
+			break;
+		}
+		case SPRITE_VIEWPORT_DESPAWN_RANGE:
+		{
+			if (s)
+				s->viewport_despawn_range = value / 10000;
 			break;
 		}
 

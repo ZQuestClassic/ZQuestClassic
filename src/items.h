@@ -239,6 +239,11 @@ struct itemdata
 	
 	int32_t cooldown;
 	
+	// How far (in pixels) past the viewport the item's logic runs before suspending. Disabled if 0.
+	int32_t viewport_suspend_range = 0;
+	// How far (in pixels) past the viewport the item can travel before despawning. Disabled if 0.
+	int32_t viewport_despawn_range = 0;
+	
 	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
 	int32_t misc(size_t ind) const

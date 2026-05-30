@@ -569,7 +569,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 				)),
 				TabRef(name = "Misc", Column(
 					Row(
-						Rows_Columns<3, 4>(
+						Rows_Columns<3, 5>(
 							Label(text = "Lift Level:", hAlign = 1.0),
 							NUM_FIELD(lift_level, 0, 255),
 							INFOBTN("If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level."
@@ -579,7 +579,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 							INFOBTN("The time, in frames, to lift the weapon above the Hero's head."),
 							Label(text = "Lift Height:", hAlign = 1.0),
 							TextField(
-								fitParent = true, vPadding = 0_px,
+								fitParent = true,
 								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
 								places = 4,
 								val = local_ref.lift_height.getZLong(),
@@ -588,7 +588,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 									local_ref.lift_height = zslongToFix(val);
 								}),
 							INFOBTN("The Z height above the Hero's head to lift the weapon."),
-							Checkbox(text = "Set Step Speed:",
+							Checkbox(text = "Set Step Speed:", vPadding = 0_px,
 								checked = local_ref.flags & wdata_set_step,
 								onToggleFunc = [&](bool state)
 								{
@@ -597,7 +597,7 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								}
 							),
 							step_tf = TextField(
-								fitParent = true, vPadding = 0_px,
+								fitParent = true,
 								maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL,
 								places = 4,
 								val = local_ref.step.getZLong() * 100,
@@ -618,9 +618,9 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 								" type's default piercing behaviors."
 								"\nNote: Some weapon types may ignore this (ex. melee weapons)."
 								" Bomb type weapons don't use this, but their blast will."),
-							Label(text = "Bounce Mult", hAlign = 1.0),
+							Label(text = "Bounce Mult:", hAlign = 1.0),
 							TextField(
-								fitParent = true, vPadding = 0_px,
+								fitParent = true,
 								maxLength = 11, type = GUI::TextField::type::NOSWAP_ZSINT,
 								swap_type = nswapDEC,
 								low = 0, high = MAX_SIGNED_32,
@@ -632,9 +632,9 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 							),
 							INFOBTN("When the weapon lands, it will bounce back up with this multiplier times the velocity it landed with."
 								"\nBouncing with >0 velocity will NOT trigger 'Stop on Landing' / 'Break on Landing'."),
-							Label(text = "Bounce Add", hAlign = 1.0),
+							Label(text = "Bounce Add:", hAlign = 1.0),
 							TextField(
-								fitParent = true, vPadding = 0_px,
+								fitParent = true,
 								maxLength = 11, type = GUI::TextField::type::NOSWAP_ZSINT,
 								swap_type = nswapDEC,
 								val = local_ref.bounce_add.getZLong(),
@@ -646,7 +646,13 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 							INFOBTN("When the weapon lands, this amount of px/frame will be added after the Bounce Mult."
 								" Using a negative will allow decaying the bounce, and is recommended to prevent many tiny"
 								" bounces when the velocity gets small, and allow the weapon to properly 'land'."
-								"\nBouncing with >0 velocity will NOT trigger 'Stop on Landing' / 'Break on Landing'.")
+								"\nBouncing with >0 velocity will NOT trigger 'Stop on Landing' / 'Break on Landing'."),
+							Label(text = "Suspend Range:", hAlign = 1.0),
+							NUM_FIELD(viewport_suspend_range, 0, 214747),
+							INFOBTN("Distance outside the viewport the weapon suspends its behavior. Disabled if 0."),
+							Label(text = "Despawn Range:", hAlign = 1.0),
+							NUM_FIELD(viewport_despawn_range, 0, 214747),
+							INFOBTN("Distance outside the viewport the weapon despawns. Disabled if 0.")
 						)
 					),
 					Rows<3>(

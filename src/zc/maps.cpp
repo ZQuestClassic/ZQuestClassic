@@ -684,22 +684,6 @@ void update_viewport()
 	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, x, y);
 }
 
-// TODO: should add a moveflag to sprites to configure the size of this rect (or effectively disable
-// freezing if the rect returns is large enough). See:
-// https://discord.com/channels/876899628556091432/1358483603700449581
-// https://discord.com/channels/876899628556091432/1130384911983980554
-// 
-viewport_t get_sprite_freeze_rect()
-{
-	viewport_t freeze_rect = viewport;
-	int tile_buffer = 3;
-	freeze_rect.w += 16 * tile_buffer * 2;
-	freeze_rect.h += 16 * tile_buffer * 2;
-	freeze_rect.x -= 16 * tile_buffer;
-	freeze_rect.y -= 16 * tile_buffer;
-	return freeze_rect;
-}
-
 mapscr* determine_hero_screen_from_coords()
 {
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
@@ -3663,6 +3647,9 @@ void update_freeform_combos()
 			// Frozen because Hero's holding up an item?
 			if(Hero.getHoldClk()>0 && (thisffc.flags&ffc_ignoreholdup)==0)
 				return;
+			
+			if (thisffc.is_beyond_viewport_suspend_range())
+				return;
 				
 			// Check for changers
 			if (thisffc.link==0)
@@ -3705,17 +3692,18 @@ void update_freeform_combos()
 			ffcdata* linked_ffc = thisffc.link ? get_ffc_handle(thisffc.link - 1).ffc : nullptr;
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
+				thisffc.prev_changer_x = thisffc.x.getZLong();
+				thisffc.prev_changer_y = thisffc.y.getZLong();
 				if(thisffc.link && (thisffc.link-1) != ffc_handle.id)
 				{
-					thisffc.prev_changer_x = thisffc.x.getZLong();
-					thisffc.prev_changer_y = thisffc.y.getZLong();
-					thisffc.x += linked_ffc->vx;
-					thisffc.y += linked_ffc->vy;
+					if (!linked_ffc->is_beyond_viewport_suspend_range())
+					{
+						thisffc.x += linked_ffc->vx;
+						thisffc.y += linked_ffc->vy;
+					}
 				}
 				else
 				{
-					thisffc.prev_changer_x = thisffc.x.getZLong();
-					thisffc.prev_changer_y = thisffc.y.getZLong();
 					thisffc.x += thisffc.vx;
 					thisffc.y += thisffc.vy;
 					thisffc.vx += thisffc.ax;
@@ -3811,6 +3799,11 @@ void update_freeform_combos()
 					zc_ffc_set(thisffc, 0);
 					thisffc.flags&=~ffc_carryover;
 				}
+			}
+			if (thisffc.data && thisffc.is_beyond_viewport_despawn_range())
+			{
+				zc_ffc_set(thisffc, 0);
+				thisffc.flags&=~ffc_carryover;
 			}
 			thisffc.solid_update();
 			thisffc.update_current_screen();

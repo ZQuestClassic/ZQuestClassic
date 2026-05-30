@@ -1,3 +1,4 @@
+#include "solidobject.h"
 #include "zalleg/pal_tables.h"
 #include "base/util.h"
 #include "core/zdefs.h"
@@ -60,7 +61,7 @@ sprite::sprite(): solid_object()
     hzsz=1;
     yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     dir=down;
-    angular=canfreeze=false;
+    angular=can_freeze_from_holdup=false;
     drawstyle=0;
     extend=0;
     wpnsprite = 0;
@@ -133,7 +134,7 @@ sprite::sprite(sprite const & other):
     c_clk(other.c_clk), clk(other.clk), misc(other.misc), xofs(other.xofs),
     yofs(other.yofs), zofs(other.zofs), hzsz(other.hzsz), txsz(other.txsz),
     tysz(other.tysz), id(other.id), slopeid(other.slopeid),
-    onplatid(other.onplatid), angular(other.angular), canfreeze(other.canfreeze),
+    onplatid(other.onplatid), angular(other.angular), can_freeze_from_holdup(other.can_freeze_from_holdup),
     angle(other.angle), lasthit(other.lasthit), lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle), extend(other.extend), wpnsprite(other.wpnsprite),
 	scriptflag(other.scriptflag), script(other.script),
@@ -156,7 +157,10 @@ sprite::sprite(sprite const & other):
 	spr_death_anim_frm(other.spr_death_anim_frm), spr_spawn_anim_frm(other.spr_spawn_anim_frm),
 	glowRad(other.glowRad),
 	glowShape(other.glowShape),
-	glowOffset(other.glowOffset), ignore_delete(other.ignore_delete)
+	glowOffset(other.glowOffset), ignore_delete(other.ignore_delete),
+	custom_gravity(other.custom_gravity), custom_terminal_v(other.custom_terminal_v),
+	viewport_suspend_range(other.viewport_suspend_range),
+	viewport_despawn_range(other.viewport_despawn_range)
 {
     uid = 0;
 	parent = nullptr;
@@ -201,7 +205,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     tysz=1;
     id=-1;
     dir=down;
-    angular=canfreeze=false;
+    angular=can_freeze_from_holdup=false;
     extend=0;
     
     scriptflag=0;
@@ -2360,9 +2364,10 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 
 extern char *guy_string[];
 
-static bool is_sprite_in_view(const viewport_t& freeze_rect, sprite* spr)
+#ifdef IS_PLAYER
+static bool is_sprite_in_view(sprite* spr)
 {
-	if (freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16))
+	if (!spr->is_beyond_viewport_suspend_range())
 		return true;
 
 	if (spr->isolated_freeze_viewport)
@@ -2377,7 +2382,7 @@ static bool is_sprite_in_view(const viewport_t& freeze_rect, sprite* spr)
 	if (spr->parent)
 	{
 		auto parent = spr->parent;
-		if (freeze_rect.intersects_with(parent->x.getInt(), parent->y.getInt(), parent->txsz*16, parent->tysz*16))
+		if (!parent->is_beyond_viewport_suspend_range())
 			return true;
 
 		// Check siblings.
@@ -2386,7 +2391,7 @@ static bool is_sprite_in_view(const viewport_t& freeze_rect, sprite* spr)
 			if (child->isolated_freeze_viewport)
 				continue;
 
-			if (child != spr && freeze_rect.intersects_with(child->x.getInt(), child->y.getInt(), child->txsz*16, child->tysz*16))
+			if (child != spr && !child->is_beyond_viewport_suspend_range())
 				return true;
 		}
 	}
@@ -2397,40 +2402,33 @@ static bool is_sprite_in_view(const viewport_t& freeze_rect, sprite* spr)
 		if (child->isolated_freeze_viewport)
 			continue;
 
-		if (freeze_rect.intersects_with(child->x.getInt(), child->y.getInt(), child->txsz*16, child->tysz*16))
+		if (!child->is_beyond_viewport_suspend_range())
 			return true;
 	}
 
 	return false;
 }
+#endif
 
 void sprite_list::animate()
 {
 	active_iterator = 0;
-
-#ifdef IS_PLAYER
-	viewport_t freeze_rect = get_sprite_freeze_rect();
-#endif
 
 	while(active_iterator<count)
 	{
 		sprite* spr = sprites[active_iterator];
 
 #ifdef IS_PLAYER
-		// TODO: maybe someday make this "freeze" rect size configurable:
-		//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
-		spr->is_within_freeze_viewport = !is_in_scrolling_region() || is_sprite_in_view(freeze_rect, spr);
+		spr->is_within_freeze_viewport = !is_in_scrolling_region() || is_sprite_in_view(spr);
 #endif
 
 		bool freeze_sprite = false;
-		if (spr->canfreeze)
-		{
+		if (spr->can_freeze_from_holdup)
 			freeze_sprite = freeze_guys;
 #ifdef IS_PLAYER
-			if (is_in_scrolling_region())
-				freeze_sprite |= !spr->is_within_freeze_viewport;
+		if (is_in_scrolling_region())
+			freeze_sprite |= !spr->is_within_freeze_viewport;
 #endif
-		}
 
 		if (freeze_sprite != spr->is_frozen)
 		{
@@ -2445,7 +2443,30 @@ void sprite_list::animate()
 		{
 			setCurObject(spr);
 			auto tmp_iter = active_iterator;
-			if (spr->animate(active_iterator) || delete_active_iterator)
+
+			bool should_remove = spr->animate(active_iterator) || delete_active_iterator;
+
+#ifdef IS_PLAYER
+			// Check despawn ranges. Note that weapon has some complicated lifecycle reasons for being excluded here,
+			// although these ranges still cause despawning via weapon::clip.
+			if (!should_remove && !dynamic_cast<weapon*>(spr))
+			{
+				bool should_despawn = spr->is_beyond_viewport_despawn_range() || spr->is_beyond_region_despawn_range();
+				if (should_despawn)
+				{
+					// Enemies need to go through the death sequence (set deathexstate, stop bgsfx).
+					if (auto e = dynamic_cast<enemy*>(spr))
+					{
+						e->hp = -1000;
+						e->dying_despawn = true;
+					}
+					else
+						should_remove = true;
+				}
+			}
+#endif
+
+			if (should_remove)
 			{
 #ifdef IS_PLAYER
 				if (replay_is_active() && dynamic_cast<enemy*>(spr) != nullptr)
@@ -2485,14 +2506,18 @@ void sprite_list::solid_push(solid_object* pusher)
 void sprite_list::run_script(int32_t mode)
 {
 	active_iterator = 0;
-	
+
 	while(active_iterator<count)
 	{
 		sprite* spr = sprites[active_iterator];
 
 		bool freeze_sprite = false;
-		if (spr->canfreeze)
+		if (spr->can_freeze_from_holdup)
 			freeze_sprite = freeze_guys;
+#ifdef IS_PLAYER
+		if (is_in_scrolling_region())
+			freeze_sprite |= !spr->is_within_freeze_viewport;
+#endif
 
 		if (!freeze_sprite)
 		{
@@ -2503,7 +2528,7 @@ void sprite_list::run_script(int32_t mode)
 				delete_active_iterator = false;
 			}
 		}
-		
+
 		++active_iterator;
 	}
 	active_iterator = -1;
@@ -2824,6 +2849,71 @@ void sprite::update_current_screen()
 	
 	if (is_in_current_region(new_screen))
 		current_screen = new_screen;
+#endif
+}
+
+bool sprite::is_beyond_viewport_suspend_range() const
+{
+#ifdef IS_PLAYER
+	// 0 (or negative) disables suspending: the sprite always stays active.
+	if (viewport_suspend_range <= 0)
+		return false;
+
+	viewport_t freeze_rect = get_suspend_rect();
+	return !freeze_rect.intersects_with(x.getInt(), y.getInt(), txsz*16, tysz*16);
+#else
+	return false;
+#endif
+}
+
+bool sprite::is_beyond_viewport_despawn_range() const
+{
+#ifdef IS_PLAYER
+	// 0 (or negative) disables despawning.
+	if (viewport_despawn_range <= 0)
+		return false;
+
+	if (auto e = dynamic_cast<const enemy*>(this))
+	{
+		if (e->immortal)
+			return false;
+	}
+
+	// true iff tile area and hitbox area are entirely out of viewport
+	rect_t despawn_rect = rect_t(viewport).expanded(viewport_despawn_range);
+	return !despawn_rect.intersects_with(x + xofs, y + yofs, txsz*16, tysz*16)
+		&& !despawn_rect.intersects_with(x + hxofs, y + hyofs, hit_width, hit_height);
+#endif
+
+	return false;
+}
+
+// This is currently not configurable.
+bool sprite::is_beyond_region_despawn_range() const
+{
+#ifdef IS_PLAYER
+	if (dynamic_cast<const item*>(this))
+	{
+		if (y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
+			return true;
+		return false;
+	}
+#endif
+
+	return false;
+}
+
+viewport_t sprite::get_suspend_rect() const
+{
+#ifdef IS_PLAYER
+	viewport_t rect = viewport;
+	rect.w += viewport_suspend_range * 2;
+	rect.h += viewport_suspend_range * 2;
+	rect.x -= viewport_suspend_range;
+	rect.y -= viewport_suspend_range;
+	return rect;
+#else
+	return viewport_t{};
 #endif
 }
 

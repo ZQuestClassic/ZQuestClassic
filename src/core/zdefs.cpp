@@ -1573,6 +1573,7 @@ bool valid_str(char const* ptr, char cancel)
 void guydata::clear()
 {
 	*this = guydata();
+	weap_data.viewport_suspend_range = 48;
 }
 
 MIDI* copy_midi(MIDI* src)

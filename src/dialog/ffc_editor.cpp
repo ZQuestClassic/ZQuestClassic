@@ -35,7 +35,7 @@ ffdata::ffdata()
 
 void ffdata::clear()
 {
-	memset(this, 0, sizeof(ffdata));
+	memset((void*)this, 0, sizeof(ffdata));
 	fwid = fhei = 15;
 	layer = 1;
 }
@@ -63,6 +63,8 @@ void ffdata::load(mapscr* scr, int32_t ind)
 	script = ffc.script;
 	for(auto q = 0; q < 8; ++q)
 		initd[q] = ffc.initd[q];
+	viewport_suspend_range = ffc.viewport_suspend_range;
+	viewport_despawn_range = ffc.viewport_despawn_range;
 }
 void ffdata::save(int32_t screen, int32_t ind)
 {
@@ -87,6 +89,8 @@ void ffdata::save(int32_t screen, int32_t ind)
 		.flags = flags,
 		.initd = initd,
 		.layer = layer,
+		.viewport_suspend_range = viewport_suspend_range,
+		.viewport_despawn_range = viewport_despawn_range,
 	});
 }
 
@@ -110,6 +114,8 @@ ffdata& ffdata::operator=(ffdata const& other)
 	fhei = other.fhei;
 	script = other.script;
 	initd = other.initd;
+	viewport_suspend_range = other.viewport_suspend_range;
+	viewport_despawn_range = other.viewport_despawn_range;
 	return *this;
 }
 
@@ -300,7 +306,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						)
 					),
 					Column(vAlign = 0.0,
-						Rows_Columns<3, 4>(hAlign = 0.0,
+						Rows_Columns<3, 6>(hAlign = 0.0,
 							Label(text = "Combo W:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -352,7 +358,10 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 								"\nIt will be drawn with tiles from the tile page, rather than the combo page."
 								" If the FFC is larger than 1x1 tiles and the combo is animated,"
 								" the combo needs to use 'A.SkipX' and 'A.SkipY' values to animate as desired."),
-							
+							//
+							Label(text = "Suspend Range:", hAlign = 1.0, colSpan = 4),
+							Label(text = "Despawn Range:", hAlign = 1.0, colSpan = 4),
+							//
 							Label(text = "A. Delay:", hAlign = 1.0),
 							TextField(
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -384,7 +393,30 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 								{
 									ffc.link = val;
 								}),
-							INFOBTN_T("FFC Link", "The Linked FFC, if > 0 the ffc will use the movement of the Linked FFC.")
+							INFOBTN_T("FFC Link", "The Linked FFC, if > 0 the ffc will use the movement of the Linked FFC."),
+							//
+							DummyWidget(),
+							DummyWidget(),
+							DummyWidget(),
+							//
+							TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 214747, val = ffc.viewport_suspend_range,
+								leftPadding = 0_px, fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									ffc.viewport_suspend_range = val;
+								}),
+							INFOBTN_T("Suspend Range", "Distance outside the viewport the FFC suspends its behavior. Disabled if 0."),
+							TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 214747, val = ffc.viewport_despawn_range,
+								leftPadding = 0_px, fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									ffc.viewport_despawn_range = val;
+								}),
+							INFOBTN_T("Despawn Range", "Distance outside the viewport the FFC despawns. Disabled if 0.")
 						),
 						TabPanel(ptr = &ffctabs[1],
 							TabRef(name = "Basic",

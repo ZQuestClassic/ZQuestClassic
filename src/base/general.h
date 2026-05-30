@@ -515,7 +515,7 @@ struct rect_t
 	void union_with(const rect_t& other);
 
 	void intersect_with(const rect_t& other);
-
+	bool intersects_with(int x, int y, int w, int h) const;
 	bool intersects_with(const rect_t& other) const;
 
 	int left() const;
@@ -524,6 +524,7 @@ struct rect_t
 	int bottom() const;
 	
 	void expand(int dist);
+	rect_t expanded(int dist) const;
 };
 
 struct CheckListInfo

@@ -240,6 +240,10 @@ void rect_t::intersect_with(const rect_t& other)
 		l = r = t = b = 0;
 }
 
+bool rect_t::intersects_with(int x, int y, int w, int h) const
+{
+	return intersects_with(rect_t(x, y, w, h));
+}
 bool rect_t::intersects_with(const rect_t& other) const
 {
 	return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
@@ -256,4 +260,11 @@ void rect_t::expand(int dist)
 	r += dist;
 	t -= dist;
 	b += dist;
+}
+
+rect_t rect_t::expanded(int dist) const
+{
+	rect_t r(*this);
+	r.expand(dist);
+	return r;
 }

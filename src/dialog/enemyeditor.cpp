@@ -1274,7 +1274,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							)
 						),
 						Frame(title = "Stats",
-							Rows_Columns<3, 5>(hAlign = 1.0,
+							Rows_Columns<3, 7>(hAlign = 1.0,
 								Label(text = "HP:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How many hit points this enemy has."),
 								NumberField(&local_guyref.hp, 0, 32767, 5),
@@ -1289,13 +1289,15 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									text = "Use Boss CSet",
 									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
 									checked = local_guyref.cset == 14,
-									colSpan = 3,
-									rowSpan = 2,
+									colSpan = 3, rowSpan = 2, vAlign = 1.0, hAlign = 1.0,
 									onToggleFunc = [&](bool state)
 									{
 										local_guyref.cset = state ? 14 : 8;
 									}
 								),
+								Label(text = "Suspend Range:", hAlign = 1.0, colSpan = 4, rightPadding = 0_px),
+								Label(text = "Despawn Range:", hAlign = 1.0, colSpan = 4, rightPadding = 0_px),
+								
 								Label(text = TURNFREQHALTRATE, hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN(TURNFREQHALTRATEHINT),
 								NumberField(&local_guyref.hrate, 0, MAXHALT, 4),
@@ -1314,7 +1316,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								Label(text = "Boss CSet:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("If enabled the enemy will use CSet 14, and load the specified ESP to CSet 14"
 										"\nNote that this has no effect if Use Boss CSet to the left is unchecked."),
-								NumberField(&local_guyref.bosspal, -1, 29, 2)
+								NumberField(&local_guyref.bosspal, -1, 29, 2),
+								
+								INFOBTN("Distance outside the viewport the enemy suspends its behavior. Disabled if 0."),
+								NumberField(&local_guyref.viewport_suspend_range, 0, 214747, 10),
+								INFOBTN("Distance outside the viewport the enemy despawns. Disabled if 0."),
+								NumberField(&local_guyref.viewport_despawn_range, 0, 214747, 10)
 							)
 						)
 					),

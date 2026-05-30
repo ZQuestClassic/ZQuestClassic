@@ -4294,7 +4294,9 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
 		.initd = initd_arr,
-		.layer = ffc.layer
+		.layer = ffc.layer,
+		.viewport_suspend_range = ffc.viewport_suspend_range,
+		.viewport_despawn_range = ffc.viewport_despawn_range,
 	};
 }
 
@@ -4324,6 +4326,8 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffcs[i].layer = data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
+	mapscr_ptr->ffcs[i].viewport_suspend_range = data.viewport_suspend_range;
+	mapscr_ptr->ffcs[i].viewport_despawn_range = data.viewport_despawn_range;
 }
 
 void set_ffc_command::undo()
@@ -4343,6 +4347,8 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].link = prev_data.link;
 	mapscr_ptr->ffcs[i].script = prev_data.script;
 	mapscr_ptr->ffcs[i].flags = prev_data.flags;
+	mapscr_ptr->ffcs[i].viewport_suspend_range = prev_data.viewport_suspend_range;
+	mapscr_ptr->ffcs[i].viewport_despawn_range = prev_data.viewport_despawn_range;
 	mapscr_ptr->ffEffectWidth(i, prev_data.ew);
 	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
@@ -9173,6 +9179,11 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 
 		if(!p_putc(tempffc.layer,f))
 			return qe_invalid;
+
+		if (!p_iputl(tempffc.viewport_suspend_range, f))
+			return qe_invalid;
+		if (!p_iputl(tempffc.viewport_despawn_range, f))
+			return qe_invalid;
 	}
 	
 	if(!p_putlstr(screen.usr_notes, f))
@@ -10773,6 +10784,10 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 		return 103;
 	if(auto ret = write_weap_data(guy.weap_data, f))
 		return ret;
+	if (!p_iputl(guy.viewport_suspend_range, f))
+		return 104;
+	if (!p_iputl(guy.viewport_despawn_range, f))
+		return 105;
 	return 0;
 }
 
@@ -13474,7 +13489,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(85);
 		if (!p_putc(zinit.hero_itembox_height, f))
 			new_return(86);
-		
+
 		if(writecycle==0)
 		{
 			section_size=writesize;

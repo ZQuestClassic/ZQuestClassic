@@ -801,10 +801,12 @@ weapon::weapon(weapon const & other):
 	isLWeapon(other.isLWeapon),
 	weapon_dying_frame(other.weapon_dying_frame),
 	weap_timeout(other.weap_timeout),
-	specialinfo(other.specialinfo)
-    
-	
-	//End Weapon editor non-arrays. 
+	specialinfo(other.specialinfo),
+	pierce_count(other.pierce_count),
+	bounce_mult(other.bounce_mult),
+	bounce_add(other.bounce_add)
+
+	//End Weapon editor non-arrays.
 
 {
 	script = other.script;
@@ -1058,7 +1060,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			// Note: wInd uses type for special properties.
 			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
 	}
-	
+
 	enemy* e = nullptr;
 	if ( isLW ) goto skip_eweapon_script;
 	if(parentid > -1)
@@ -1102,7 +1104,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	
 	if(id>wEnemyWeapons)
 	{
-		canfreeze=true;
+		can_freeze_from_holdup=true;
+		viewport_suspend_range = 48;
 		
 		if(id!=ewBrang)
 		{
@@ -1313,7 +1316,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(isDummy || itemid < 0)
 				itemid = getCanonicalItemID(family_class);
 			
-			itemdata const& hshot = get_item_data(valid_item_id(parentitem) ? parentitem : current_item_id(family_class));
+			// itemdata const& hshot = get_item_data(valid_item_id(parentitem) ? parentitem : current_item_id(family_class));
 			step = 4;
 			clk2=256;
 			
@@ -1793,33 +1796,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		light_offsets[q] = 0;
 	}
 	
-	optional<word> wpnspr;
-	
-	weapon_data const* wdata = nullptr;
-	switch(id)
-	{
-		case wMagic:
-		{
-			auto itemid = current_item_id(itype_book);
-			if (invalid_item_id(itemid))
-				itemid = parentitem;
-			if (invalid_item_id(itemid))
-				itemid = directWpn > -1 ? directWpn : current_item_id(itype_wand);
-			if (valid_item_id(itemid))
-				wdata = &itemsbuf.get(itemid).weap_data;
-			break;
-		}
-		case wSSparkle: case wFSparkle:
-			if(!get_qr(qr_SPARKLES_INHERIT_PROPERTIES))
-				break;
-		[[fallthrough]];
-		default:
-			if (valid_item_id(parentitem)) //weapons created by items
-				wdata = &parent.weap_data;
-			else if (e && !isLWeapon) //weapons created by enemies
-				wdata = &e->weap_data;
-	}
 	light_rads[WPNSPR_BASE] = glowRad;
+
+	optional<word> wpnspr;
+	weapon_data const* wdata = get_weapon_data_for_id(id, parentitem, parentid, isLWeapon);
 	if(wdata)
 	{
 		load_weap_data(*wdata, &wpnspr);
@@ -2740,6 +2720,84 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 	return ret;
 }
 
+std::pair<rect_t, rect_t> weapon_size_t::to_rects(int x, int y) const
+{
+	return {{xofs + x, yofs + y, txsz * 16, tysz * 16},
+	        {hxofs + x, hyofs + y, hit_width, hit_height}};
+}
+
+bool compute_do_size(weapon_data const& data, int weap_id, bool lw)
+{
+	if (!data.override_flags) return false;
+
+	switch (weap_id)
+	{
+		case wBeam: case wRefBeam: case wSSparkle: case wFSparkle:
+		case wHookshot: case wHSHandle: case wHSChain: case wPhantom:
+			return false;
+		case wSword: case wWand: case wHammer: case wCByrna: case wWhistle:
+		case wWind: case wArrow: case wRefArrow: case wFire: case wRefFire:
+		case wRefFire2: case wLitBomb: case wBomb: case wLitSBomb: case wSBomb:
+		case wBait: case wMagic: case wBrang: case wThrown:
+		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
+		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
+		case wIce:
+			return true;
+		default:
+			return !lw;
+	}
+}
+
+weapon_size_t calculate_weapon_size(weapon_data const& data, int weap_id, int dir, bool lw)
+{
+	weapon_size_t sz;
+	if (!compute_do_size(data, weap_id, lw))
+		return sz;
+
+	if (data.override_flags & OVERRIDE_DRAW_X_OFFSET) sz.xofs = data.xofs;
+	if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET) sz.yofs = data.yofs + (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset);
+	if (data.override_flags & OVERRIDE_TILE_WIDTH) sz.txsz = data.tilew;
+	if (data.override_flags & OVERRIDE_TILE_HEIGHT) sz.tysz = data.tileh;
+	if (data.override_flags & OVERRIDE_HIT_X_OFFSET) sz.hxofs = data.hxofs;
+	if (data.override_flags & OVERRIDE_HIT_Y_OFFSET) sz.hyofs = data.hyofs;
+	if (data.override_flags & OVERRIDE_HIT_WIDTH) sz.hit_width = data.hxsz;
+	if (data.override_flags & OVERRIDE_HIT_HEIGHT) sz.hit_height = data.hysz;
+	if (data.override_flags & OVERRIDE_HIT_Z_HEIGHT) sz.hzsz = data.hzsz;
+
+	switch (weap_id)
+	{
+		case wSword:
+			switch (dir)
+			{
+				case up:
+					if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET)
+						sz.yofs -= 16;
+					break;
+				case left:
+					if (data.override_flags & OVERRIDE_DRAW_X_OFFSET)
+						sz.xofs -= 16;
+					break;
+			}
+			break;
+		case wArrow: case wRefArrow:
+			switch (dir)
+			{
+				case left:
+				case l_down:
+				case right:
+					if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET)
+						sz.yofs += 1;
+			}
+			break;
+		case wFire: case wRefFire: case wRefFire2:
+			if (BSZ && (data.override_flags & OVERRIDE_DRAW_Y_OFFSET))
+				sz.yofs += 2;
+			break;
+	}
+
+	return sz;
+}
+
 void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 {
 	switch(id)
@@ -2783,82 +2841,38 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 	
 	glowShape = data.glow_shape;
 	
-	bool do_size = data.override_flags;
 	bool do_extend = false;
-	
 	switch(id)
 	{
-		case wBeam: case wRefBeam: case wSSparkle: case wFSparkle:
-		case wHookshot: case wHSHandle: case wHSChain: case wPhantom:
-			do_size = false;
-			break;
 		case wSword: case wWand: case wHammer: case wCByrna: case wWhistle:
 		case wWind: case wArrow: case wRefArrow: case wFire: case wRefFire:
 		case wRefFire2: case wLitBomb: case wBomb: case wLitSBomb: case wSBomb:
 		case wBait: case wMagic: case wBrang: case wThrown:
-			do_extend = do_size;
+			do_extend = data.override_flags;
 			break;
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case wIce:
 			if(!get_qr(qr_CUSTOM_WEAPON_BROKEN_SIZE))
-				do_extend = do_size;
-			break;
-		default:
-			if(isLWeapon)
-				do_size = false;
+				do_extend = data.override_flags;
 			break;
 	}
-	
+
 	if(do_extend)
 		extend = 3;
-	
-	if(do_size)
+
+	if (compute_do_size(data, id, isLWeapon))
 	{
-		if (data.override_flags & OVERRIDE_TILE_WIDTH) txsz = data.tilew;
-		if (data.override_flags & OVERRIDE_TILE_HEIGHT) tysz = data.tileh;
-		if (data.override_flags & OVERRIDE_HIT_WIDTH) hit_width = data.hxsz;
-		if (data.override_flags & OVERRIDE_HIT_HEIGHT) hit_height = data.hysz;
-		if (data.override_flags & OVERRIDE_HIT_Z_HEIGHT) hzsz = data.hzsz;
-		if (data.override_flags & OVERRIDE_HIT_X_OFFSET) hxofs = data.hxofs;
-		if (data.override_flags & OVERRIDE_HIT_Y_OFFSET) hyofs = data.hyofs;
-		if (data.override_flags & OVERRIDE_DRAW_X_OFFSET) xofs = data.xofs;
-		if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET) yofs = data.yofs + (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset);
-		
-		switch(id)
-		{
-			case wSword:
-				switch(dir)
-				{
-					case up:
-						if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET)
-							yofs -= 16;
-						break;
-					case left:
-						if (data.override_flags & OVERRIDE_DRAW_X_OFFSET)
-							xofs -= 16;
-						break;
-				}
-				break;
-			case wHammer: case wCByrna: case wWhistle: case wWind: case wLitBomb:
-			case wBomb: case wLitSBomb: case wSBomb: case wBait: case wMagic:
-			case wBrang:
-				break;
-			case wArrow: case wRefArrow:
-				switch(dir)
-				{
-					case left:
-					case l_down:
-					case right:
-						if(data.override_flags & OVERRIDE_DRAW_Y_OFFSET)
-							yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) + 1;
-				}
-				break;
-			case wFire: case wRefFire: case wRefFire2:
-				if(BSZ && (data.override_flags & OVERRIDE_DRAW_Y_OFFSET))
-					yofs += 2;
-				break;
-		}
+		auto sz = calculate_weapon_size(data, id, dir, isLWeapon);
+		if (data.override_flags & OVERRIDE_DRAW_X_OFFSET) xofs = sz.xofs;
+		if (data.override_flags & OVERRIDE_DRAW_Y_OFFSET) yofs = sz.yofs;
+		if (data.override_flags & OVERRIDE_TILE_WIDTH) txsz = sz.txsz;
+		if (data.override_flags & OVERRIDE_TILE_HEIGHT) tysz = sz.tysz;
+		if (data.override_flags & OVERRIDE_HIT_X_OFFSET) hxofs = sz.hxofs;
+		if (data.override_flags & OVERRIDE_HIT_Y_OFFSET) hyofs = sz.hyofs;
+		if (data.override_flags & OVERRIDE_HIT_WIDTH) hit_width = sz.hit_width;
+		if (data.override_flags & OVERRIDE_HIT_HEIGHT) hit_height = sz.hit_height;
+		if (sz.hzsz) hzsz = *sz.hzsz;
 	}
 	
 	if(data.flags & wdata_set_step)
@@ -2927,6 +2941,8 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 	pierce_count = data.pierce_count;
 	bounce_mult = data.bounce_mult;
 	bounce_add = data.bounce_add;
+	viewport_suspend_range = data.viewport_suspend_range;
+	viewport_despawn_range = data.viewport_despawn_range;
 }
 
 bool weapon::isHeroWeapon()
@@ -2996,15 +3012,17 @@ bool weapon::isScriptGenerated()
 // Returns true if the weapon is outside the world bounds, give or a
 // take a few pixels depending on the weapon/if in a dungeon.
 // Also, does a viewport bounds check for player weapons.
+//
+// Note: if `viewport_despawn_range > 0` then this function mostly defers to `is_beyond_viewport_despawn_range()`.
 bool weapon::clip()
 {
-    int32_t c[4];
-    int32_t d2=isdungeon(screen_spawned);
-    int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
-    int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
-	
 	if (get_qr(qr_WEAPON_BETTER_SCREEN_EDGE_HITBOX))
 	{
+		if (viewport_despawn_range > 0)
+			return is_beyond_viewport_despawn_range();
+
+		// Note: this QR explicitly has no region boundary check.
+
 		// true iff tile area and hitbox area are entirely out of viewport
 		return ((x + xofs + txsz*16 < viewport.left()
 			|| y + yofs + tysz*16 < viewport.top()
@@ -3016,15 +3034,28 @@ bool weapon::clip()
 			|| x + hxofs > viewport.right()
 			|| y + hyofs > viewport.bottom()));
 	}
-	
-    if (id<wEnemyWeapons)
-    {
-        if (x+txsz*16<viewport.left()||y+tysz*16<viewport.top()||x>viewport.right()||y>viewport.bottom())
-            return true;
-    }
-	
+
+	int32_t c[4];
+	int32_t d2=isdungeon(screen_spawned);
+	int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
+	int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
+
+	// Region boundary check.
 	if (x<0 || y<0 || x>world_w - 16 || y>world_h)
 		return true;
+
+	if (viewport_despawn_range > 0)
+		return is_beyond_viewport_despawn_range();
+
+	if (id<wEnemyWeapons)
+    {
+		// Default lweapon clip at the screen edge.
+		if (x + txsz*16 < viewport.left()
+			|| y + tysz*16 < viewport.top()
+			|| x           > viewport.right()
+			|| y           > viewport.bottom())
+			return true;
+    }
 
     if(id>wEnemyWeapons && id!=ewBrang)
     {
@@ -7738,3 +7769,39 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	last_burnstate = 0;
 }
 
+const weapon_data* get_weapon_data_for_id(int id, int parentitem, int parentid, bool isLWeapon)
+{
+	itemdata const& parent = get_item_data(parentitem);
+
+	enemy* e = nullptr;
+	if (!isLWeapon && parentid > -1)
+		e = (enemy*)guys.getByUID(parentid);
+
+	weapon_data const* wdata = nullptr;
+
+	switch (id)
+	{
+		case wMagic:
+		{
+			auto itemid = current_item_id(itype_book);
+			if (invalid_item_id(itemid))
+				itemid = parentitem;
+			if (invalid_item_id(itemid))
+				itemid = directWpn > -1 ? directWpn : current_item_id(itype_wand);
+			if (valid_item_id(itemid))
+				wdata = &itemsbuf.get(itemid).weap_data;
+			break;
+		}
+		case wSSparkle: case wFSparkle:
+			if(!get_qr(qr_SPARKLES_INHERIT_PROPERTIES))
+				break;
+		[[fallthrough]];
+		default:
+			if (valid_item_id(parentitem)) //weapons created by items
+				wdata = &parent.weap_data;
+			else if (e && !isLWeapon) //weapons created by enemies
+				wdata = &e->weap_data;
+	}
+
+	return wdata;
+}

@@ -6,6 +6,8 @@
 #include "core/dmap.h"
 #include "core/zdefs.h"
 #include "ffc.h"
+#include "zc/replay.h"
+#include "zc/weapons.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/zelda.h"
@@ -1725,11 +1727,12 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	wpn->unblockable = cmb.c_attributes[12].getTrunc() & WPNUNB_ALL;
 	
 	wpn->script = cmb.c_attributes[13].getTrunc();
-	if(cmb.usrflags & cflag10)
+	if (cmb.usrflags & cflag10)
 		wpn->load_weap_data(cmb.misc_weap_data);
 	
 	if(!((lw ? lwpnmap : ewpnmap)[wpn->script-1].hasScriptData())) // validate script
 		wpn->script = 0;
+
 	return wpn;
 }
 
@@ -1738,7 +1741,6 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	if(cmb.type != cSHOOTER) return false;
 	if(!cmb.c_attributes[9].getTrunc()) return false; //no weapon
 	if(wx >= world_w || wx < -15 || wy >= world_h || wy < -15) return false;
-	if (!get_sprite_freeze_rect().contains_point(wx, wy)) return false;
 
 	bool proxstop = cmb.usrflags&cflag4;
 	bool invprox = cmb.usrflags&cflag9;
@@ -1789,6 +1791,49 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 		}
 	}
 	else dir = vbound(zdegrees.getTrunc(), -1, 15);
+
+	if (replay_get_version() == 51 && replay_get_meta_str("qst") == "terror_of_necromancy_demo6.qst")
+	{
+		viewport_t freeze_rect = viewport;
+		freeze_rect.w += 48*2;
+		freeze_rect.h += 48*2;
+		freeze_rect.x -= 48;
+		freeze_rect.y -= 48;
+		if (!freeze_rect.contains_point(wx, wy)) return false;
+	}
+	// Before firing, check if the spawned weapon data would be suspended or despawned.
+	else if (is_in_scrolling_region())
+	{
+		uint weapid = cmb.c_attributes[9].getTrunc();
+		bool lw = weapid < wEnemyWeapons;
+		if (weapid >= wScript1 && weapid <= wScript10)
+			lw = (cmb.usrflags & cflag5) != 0;
+		int pitem = lw ? cmb.c_attributes[14].getTrunc() : -1;
+		if (lw && (!pitem || invalid_item_id(pitem))) pitem = -1;
+
+		if (const weapon_data* wpn_data = (cmb.usrflags & cflag10) ? &cmb.misc_weap_data : get_weapon_data_for_id(weapid, pitem, -1, lw))
+		{
+			if (wpn_data->viewport_suspend_range > 0 || wpn_data->viewport_despawn_range > 0)
+			{
+				auto [trect, hrect] = calculate_weapon_size(*wpn_data, weapid, dir, lw).to_rects(wx.getInt(), wy.getInt());
+				rect_t view_rect(viewport);
+
+				if (wpn_data->viewport_suspend_range > 0)
+				{
+					rect_t suspend_rect = view_rect.expanded(wpn_data->viewport_suspend_range);
+					if (!suspend_rect.intersects_with(trect) && !suspend_rect.intersects_with(hrect))
+						return false;
+				}
+
+				if (wpn_data->viewport_despawn_range > 0)
+				{
+					rect_t despawn_rect = view_rect.expanded(wpn_data->viewport_despawn_range);
+					if (!despawn_rect.intersects_with(trect) && !despawn_rect.intersects_with(hrect))
+						return false;
+				}
+			}
+		}
+	}
 	
 	uint shotsfx = cmb.c_attributes[8].getTrunc();
 	auto shotcount = zc_max(1,cmb.c_attributes[11].getTrunc());
