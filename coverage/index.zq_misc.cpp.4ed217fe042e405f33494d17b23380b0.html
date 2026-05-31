@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-29 07:04:14</td>
+      <td>2026-05-31 19:57:59</td>
     </tr>
   </table>
 </div>
@@ -5767,7 +5767,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">snapbuf</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%szquest_screen%05d.%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">get_snap_str</span><span class="p">(),</span><span class="w"> </span><span class="o">++</span><span class="n">num</span><span class="p">,</span><span class="w"> </span><span class="n">snapshotformat_str</span><span class="p">[</span><span class="n">SnapshotFormat</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">snapbuf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">snapbuf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%szquest_screen%05d.%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">get_snap_str</span><span class="p">(),</span><span class="w"> </span><span class="o">++</span><span class="n">num</span><span class="p">,</span><span class="w"> </span><span class="n">snapshotformat_str</span><span class="p">[</span><span class="n">SnapshotFormat</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l795" href="#l795">795</a></td>
@@ -6238,7 +6238,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">sprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="s">&quot;Save this quest file?&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">snprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;Save this quest file?&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l861" href="#l861">861</a></td>
@@ -6252,7 +6252,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">sprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="s">&quot;Save changes to %s?&quot;</span><span class="p">,</span><span class="n">name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">snprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;Save changes to %s?&quot;</span><span class="p">,</span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l863" href="#l863">863</a></td>
@@ -6672,14 +6672,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">buf1</span><span class="p">,</span><span class="s">&quot;ZQuest %s - DEBUG&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">getVersionString</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">buf1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf1</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;ZQuest %s - DEBUG&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">getVersionString</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l923" href="#l923">923</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">sprintf</span><span class="p">(</span><span class="n">buf3</span><span class="p">,</span><span class="s">&quot;This qst file: %04X&quot;</span><span class="p">,</span><span class="n">header</span><span class="p">.</span><span class="n">internal</span><span class="o">&amp;</span><span class="mh">0xFFFF</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">snprintf</span><span class="p">(</span><span class="n">buf3</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf3</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;This qst file: %04X&quot;</span><span class="p">,</span><span class="n">header</span><span class="p">.</span><span class="n">internal</span><span class="o">&amp;</span><span class="mh">0xFFFF</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l924" href="#l924">924</a></td>

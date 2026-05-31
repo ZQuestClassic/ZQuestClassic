@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-29 07:04:14</td>
+      <td>2026-05-31 19:57:59</td>
     </tr>
   </table>
 </div>
@@ -3779,7 +3779,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">sprintf</span><span class="p">(</span><span class="n">vstrbuf</span><span class="p">,</span><span class="s">&quot; (%s%s%s)&quot;</span><span class="p">,</span><span class="n">has_str</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;str&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">has_str</span><span class="o">&amp;&amp;</span><span class="n">has_vec</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">has_vec</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;vec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">snprintf</span><span class="p">(</span><span class="n">vstrbuf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">vstrbuf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot; (%s%s%s)&quot;</span><span class="p">,</span><span class="n">has_str</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;str&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">has_str</span><span class="o">&amp;&amp;</span><span class="n">has_vec</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">has_vec</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;vec&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l438" href="#l438">438</a></td>

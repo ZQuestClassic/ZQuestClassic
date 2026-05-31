@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-29 07:04:14</td>
+      <td>2026-05-31 19:57:59</td>
     </tr>
   </table>
 </div>
@@ -18154,7 +18154,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">pgbuf</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Page %d/%zd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">subscr_edit</span><span class="p">.</span><span class="n">curpage</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">subscr_edit</span><span class="p">.</span><span class="n">pages</span><span class="p">.</span><span class="n">size</span><span class="p">());</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">pgbuf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">pgbuf</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;Page %d/%zd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">subscr_edit</span><span class="p">.</span><span class="n">curpage</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">subscr_edit</span><span class="p">.</span><span class="n">pages</span><span class="p">.</span><span class="n">size</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2418" href="#l2418">2418</a></td>
@@ -19603,14 +19603,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Copied:  &#39;%s&#39; from pg %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">subscr_copied_widget</span><span class="o">-&gt;</span><span class="n">getTypeName</span><span class="p">().</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">copied_widget_page</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">snprintf</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;Copied:  &#39;%s&#39; from pg %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">subscr_copied_widget</span><span class="o">-&gt;</span><span class="n">getTypeName</span><span class="p">().</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">copied_widget_page</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2625" href="#l2625">2625</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="n">sprintf</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Copied:  Nothing&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="n">snprintf</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">str_cpyname</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;Copied:  Nothing&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2626" href="#l2626">2626</a></td>
