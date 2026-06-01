@@ -702,6 +702,28 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, [[maybe_unused]]
 			}
 			else cwalkflag |= c2.walk & 0xF;
 		}
+		if (get_qr(qr_BRIDGES_ABOVE_2))
+		{
+			for (int lyr = 3; lyr <= 6; ++lyr)
+			{
+				if (s0->layermap[lyr-1] <= 0)
+					continue;
+				mapscr* m = get_scr_for_world_xy_layer(dx, dy, lyr);
+				if (!m || !m->valid)
+					continue;
+				newcombo const& cmb = combobuf[m->data[cpos]];
+				if (cmb.type == cBRIDGE)
+				{
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (cmb.walk & 0xF0)>>4;
+						int newsolid = 0; // no solidity above layer 2
+						cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+					}
+					else cwalkflag &= cmb.walk;
+				}
+			}
+		}
 		if(cwalkflag & b)
 			return true;
 	}

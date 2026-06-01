@@ -3921,12 +3921,14 @@ void do_mapdataissolid()
 		}
 		else if (result.type == mapdata_type::TemporaryScrollingRegion && result.layer == 0)
 		{
-			mapscr* s0 = GetScrollingMapscr(0, x, y);
-			mapscr* s1 = GetScrollingMapscr(1, x, y);
-			mapscr* s2 = GetScrollingMapscr(2, x, y);
-			if (!s1->valid) s1 = s0;
-			if (!s2->valid) s2 = s0;
-			bool result = _walkflag_new(s0, s1, s2, x, y, 0_zf, true);
+			std::array<const mapscr*, 7> screens;
+			for (int lyr = 0; lyr < 7; ++lyr)
+			{
+				screens[lyr] = GetScrollingMapscr(lyr, x, y);
+				if (lyr && !screens[lyr]->valid)
+					screens[lyr] = screens[0];
+			}
+			bool result = _walkflag_new(screens, x, y, 0_zf, true);
 			set_register(sarg1, result ? 10000 : 0);
 		}
 		else

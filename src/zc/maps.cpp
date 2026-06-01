@@ -2372,6 +2372,8 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					if(tx2&8) b+=2;
 					if(ty2&8) b+=1;
 				}
+				if (has_bridge_above(tx2, ty2, 2))
+					return 0;
 				for (int32_t m = layer; m <= 1; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
@@ -3429,6 +3431,8 @@ endhe:
 //   at the specified position, on exactly the specified layer.
 bool has_bridge_at(int x, int y, int layer)
 {
+	if (layer > 2 && !get_qr(qr_BRIDGES_ABOVE_2))
+		return false;
 	auto handle = get_rpos_handle_for_world_xy(x, y, layer);
 	if (handle.ctype() != cBRIDGE)
 		return false;
@@ -3440,7 +3444,8 @@ bool has_bridge_at(int x, int y, int layer)
 //   at the specified position, on a higher layer than 'target_layer'.
 bool has_bridge_above(int x, int y, int target_layer)
 {
-	for (int lyr = get_qr(qr_OLD_BRIDGE_COMBO_COVER) ? 2 : 6; lyr > target_layer; --lyr)
+	int maxlayer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
+	for (int lyr = maxlayer; lyr > target_layer; --lyr)
 		if (has_bridge_at(x, y, lyr))
 			return true;
 	return false;
@@ -4295,114 +4300,16 @@ void do_layer_primitives(BITMAP *bmp, int32_t layer)
 }
 
 // Called by do_walkflags
-void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
-{
-	newcombo const &c = combobuf[cmbdat];
-	
-	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
-	
-	int32_t xx = x-xofs;
-	int32_t yy = y+playing_field_offset-yofs;
-	
-	int32_t bridgedetected = 0;
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		int32_t tx=((i&2)<<2)+xx - viewport.x;
-		int32_t ty=((i&1)<<3)+yy - viewport.y;
-		int32_t tx2=((i&2)<<2)+x - viewport.x;
-		int32_t ty2=((i&1)<<3)+y - viewport.y;
-		for (int32_t j = lyr-1; j <= 1; j++)
-		{
-			if (has_bridge_at(tx2, ty2, j+1))
-			{
-				bridgedetected |= (1<<i);
-				break;
-			}
-		}
-		if ((bridgedetected & (1<<i)))
-			continue;
-		bool doladdercheck = true;
-		
-		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
-		{
-			for(int32_t k=0; k<8; k+=2)
-				for(int32_t j=0; j<8; j+=2)
-					if(((k+j)/2)%2)
-						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,makecol(85,85,255));
-		}
-		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
-		{
-			if (get_qr(qr_NO_SOLID_SWIM)) doladdercheck = false;
-			if((lyr==0 || (get_qr(qr_WATER_ON_LAYER_1) && lyr == 1) || (get_qr(qr_WATER_ON_LAYER_2) && lyr == 2)) && get_qr(qr_DROWN))
-				rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
-			else rectfill(dest,tx,ty,tx+7,ty+7,makecol(170,170,170));
-		}
-		
-		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE) && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER))))  // Check for dried lake (watertype && not water)
-		{
-			if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
-			{
-				for(int32_t k=0; k<8; k+=2)
-					for(int32_t j=0; j<8; j+=2)
-						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,((k+j)/2)%2 ? makecol(165,105,8) : makecol(170,170,170));
-			}
-			else
-			{
-				int32_t color = makecol(178,36,36);
-				
-				if(isstepable(cmbdat)&& (!doladdercheck))
-					color=makecol(165,105,8);
-				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(xx,yy))
-					color=makecol(170,170,170);
-					
-				rectfill(dest,tx,ty,tx+7,ty+7,color);
-			}
-		}
-	}
-	
-	// Draw damage combos
-	bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,xx,yy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO2(0,xx,yy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO2(1,xx,yy)].type].modify_hp_amount;
-			   
-	if(dmg)
-	{
-		int32_t color = makecol(255,255,0);
-		if (bridgedetected <= 0)
-		{
-			for(int32_t k=0; k<16; k+=2)
-				for(int32_t j=0; j<16; j+=2)
-				if(((k+j)/2)%2)
-				{
-					int32_t x0 = x - viewport.x;
-					int32_t y0 = y - viewport.y;
-					rectfill(dest,x0+k,y0+j,x0+k+1,y0+j+1,color);
-				}
-		}
-		else
-		{
-			for(int32_t i=0; i<4; i++)
-			{
-				if (!(bridgedetected & (1<<i)))
-				{
-					int32_t tx=((i&2)<<2)+x - viewport.x;
-					int32_t ty=((i&1)<<3)+y - viewport.y;
-					for(int32_t k=0; k<8; k+=2)
-						for(int32_t j=0; j<8; j+=2)
-							if((k+j)%4 < 2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
-				}
-			}
-		}
-	}
-}
-static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
+static void put_walkflags_a5(int32_t x, int32_t y, const screen_handles_t& screen_handles, int32_t lyr, int pos)
 {
 	ALLEGRO_COLOR col_solid = al_map_rgba(178,36,36,info_opacity);
 	ALLEGRO_COLOR col_water1 = al_map_rgba(85,85,255,info_opacity);
 	ALLEGRO_COLOR col_lhook = al_map_rgba(170,170,170,info_opacity);
 	ALLEGRO_COLOR col_stepable = al_map_rgba(165,105,8,info_opacity);
 	ALLEGRO_COLOR col_dmg = al_map_rgba(255,255,0,info_opacity);
+	mapscr* scr = screen_handles[lyr].scr;
+	if (!scr) return;
+	int cmbdat = scr->data[pos];
 	newcombo const &c = combobuf[cmbdat];
 	
 	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
@@ -4410,37 +4317,56 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 	int32_t xx = x-viewport.x;
 	int32_t yy = y+playing_field_offset-viewport.y;
 	
-	int32_t bridgedetected = 0;
-	
 	// Draw damage combos
 	bool dmg = combo_class_buf[c.type].modify_hp_amount;
 	
+	int bridge_layer[4] = {-1, -1, -1, -1};
+	int max_bridge_layer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
 	for(int32_t i=0; i<4; i++)
 	{
 		int32_t tx=((i&2)<<2)+xx;
 		int32_t ty=((i&1)<<3)+yy;
 		int32_t tx2=((i&2)<<2)+x;
 		int32_t ty2=((i&1)<<3)+y;
-		for (int32_t m = lyr-1; m <= 1; m++)
+		for (int32_t m = max_bridge_layer; m >= 0; --m)
 		{
-			if (has_bridge_at(tx2, ty2, m+1))
+			mapscr* s = screen_handles[m].scr;
+			if (!s) continue;
+			newcombo const& cmb = combobuf[s->data[pos]];
+			if (cmb.type == cBRIDGE)
 			{
-				bridgedetected |= (1<<i);
-				break;
+				if (get_qr(qr_OLD_BRIDGE_COMBOS))
+				{
+					if (!(cmb.walk & (1 << i)))
+					{
+						bridge_layer[i] = m;
+						break;
+					}
+				}
+				else
+				{
+					if (cmb.walk & (0x10 << i))
+					{
+						bridge_layer[i] = m;
+						break;
+					}
+				}
 			}
 		}
-		if ((bridgedetected & (1<<i)))
+		if (bridge_layer[i] >= (get_qr(qr_OLD_BRIDGE_COMBOS) ? lyr : lyr+1))
 			continue;
 		bool doladdercheck = true;
+		bool eff = c.walk & (1 << (i + 4));
+		bool sol = c.walk & (1 << i);
 		
-		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		if (eff && ((sol && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
 		{
 			for(int32_t k=0; k<8; k+=2)
 				for(int32_t j=0; j<8; j+=2)
 					if(((k+j)/2)%2)
 						al_draw_filled_rectangle(tx+k,ty+j,tx+k+2,ty+j+2,col_water1);
 		}
-		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
+		if (iswater_type(c.type) && !DRIEDLAKE && !(eff && ((sol && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 		{
 			if (get_qr(qr_NO_SOLID_SWIM)) doladdercheck = false;
 			if((lyr==0 || (get_qr(qr_WATER_ON_LAYER_1) && lyr == 1) || (get_qr(qr_WATER_ON_LAYER_2) && lyr == 2)) && get_qr(qr_DROWN))
@@ -4448,7 +4374,7 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 			else al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_lhook);
 		}
 		
-		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE) && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER))))  // Check for dried lake (watertype && not water)
+		if(sol && !(iswater_type(c.type) && DRIEDLAKE) && !(eff && ((sol && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER))))  // Check for dried lake (watertype && not water)
 		{
 			if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
 			{
@@ -4469,7 +4395,7 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 			}
 		}
 		
-		if(dmg)
+		if (dmg && eff)
 		{
 			for(int32_t k=0; k<8; k+=2)
 				for(int32_t j=0; j<8; j+=2)
@@ -4553,24 +4479,9 @@ void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 
 	start_info_bmp();
 
-	mapscr* scr = screen_handles[0].base_scr;
-	for(int32_t i=0; i<176; i++)
-	{
-		put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], 0);
-	}
-
-	for(int32_t k=0; k<2; k++)
-	{
-		scr = screen_handles[k + 1].scr;
-
-		if (scr)
-		{
-			for(int32_t i=0; i<176; i++)
-			{
-				put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], k%2+1);
-			}
-		}
-	}
+	for (int lyr = 0; lyr < 3; ++lyr)
+		for (int pos = 0; pos < 176; ++pos)
+			put_walkflags_a5(((pos & 15) << 4) + x, (pos & 0xF0) + y, screen_handles, 0, pos);
 
 	end_info_bmp();
 }
@@ -7313,13 +7224,13 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& standing_z_state, bool is_temp_screens)
+bool _walkflag_new(std::array<const mapscr*, 7> screens, zfix_round zx, zfix_round zy, zfix const& standing_z_state, bool is_temp_screens)
 {
 	int x = zx.getRound(), y = zy.getRound();
 	int pos = COMBOPOS(x % 256, y % 176);
-	const newcombo& c = combobuf[s0->data[pos]];
-	const newcombo& c1 = combobuf[s1->data[pos]];
-	const newcombo& c2 = combobuf[s2->data[pos]];
+	const newcombo& c = combobuf[screens[0]->data[pos]];
+	const newcombo& c1 = combobuf[screens[1]->data[pos]];
+	const newcombo& c2 = combobuf[screens[2]->data[pos]];
 	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
 				   (iswater_type(c2.type))) && DRIEDLAKE);
 	int32_t b=1;
@@ -7329,7 +7240,7 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 	int32_t cwalkflag = c.walk;
 	if(is_temp_screens && standing_on_z(c,standing_z_state)) cwalkflag &= (c.walk>>4)^0xF;
 	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-	if (s1 != s0)
+	if (screens[1] != screens[0])
 	{
 		if(is_temp_screens && standing_on_z(c1,standing_z_state)) cwalkflag &= (c1.walk>>4)^0xF;
 		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
@@ -7346,7 +7257,7 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 		else if ((iswater_type(c1.type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
-	if (s2 != s0)
+	if (screens[2] != screens[0])
 	{
 		if(is_temp_screens && standing_on_z(c2,standing_z_state)) cwalkflag &= (c2.walk>>4)^0xF;
 		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
@@ -7363,6 +7274,21 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 		else if ((iswater_type(c2.type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
+	int maxlayer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
+	for (int lyr = 3; lyr <= maxlayer; ++lyr)
+	{
+		if (screens[lyr] == screens[0])
+			continue;
+		newcombo const& cmb = combobuf[screens[lyr]->data[pos]];
+		if (cmb.type == cBRIDGE)
+		{
+			int cwalk = cmb.walk;
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
+				cwalk >>= 4;
+			if (cwalk & b)
+				return false;
+		}
+	}
 	
 	if((cwalkflag&b) && !dried)
 		return true;
@@ -7376,12 +7302,14 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& standing_z_state)
 {
 	int x = zx.getRound(), y = zy.getRound();
-	mapscr* s0 = get_scr_for_world_xy_layer(x, y, 0);
-	mapscr* s1 = get_scr_for_world_xy_layer(x, y, 1);
-	mapscr* s2 = get_scr_for_world_xy_layer(x, y, 2);
-	if (!s1->valid) s1 = s0;
-	if (!s2->valid) s2 = s0;
-	return _walkflag_new(s0, s1, s2, zx, zy, standing_z_state, true);
+	std::array<const mapscr*, 7> screens;
+	for (int q = 0; q < 7; ++q)
+	{
+		screens[q] = get_scr_for_world_xy_layer(x, y, q);
+		if (q > 0 && !screens[q]->valid)
+			screens[q] = screens[0];
+	}
+	return _walkflag_new(screens, zx, zy, standing_z_state, true);
 }
 
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& standing_z_state)
@@ -7403,36 +7331,38 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& standing_z_stat
 
 static bool effectflag(int32_t x, int32_t y, int32_t layer)
 {
-	mapscr* s0 = get_scr_for_world_xy(x, y);
-	mapscr* s1 = get_scr_for_world_xy_layer(x, y, 1);
-	mapscr* s2 = get_scr_for_world_xy_layer(x, y, 2);
-	if (!s1->valid) s1 = s0;
-	if (!s2->valid) s2 = s0;
-
-	int pos = COMBOPOS(x % 256, y % 176);
-	const newcombo& c = combobuf[s0->data[pos]];
-	const newcombo& c1 = combobuf[s1->data[pos]];
-	const newcombo& c2 = combobuf[s2->data[pos]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
-	if (dried) return false;
-	int32_t b=1;
-	if(x&8) b<<=2;
-	if(y&8) b<<=1;
-
-	int32_t cwalkflag = (c.walk>>4);
-	if (layer == 0) cwalkflag = (c1.walk>>4);
-	if (layer == 1) cwalkflag = (c2.walk>>4);
-	if (s1 != s0 && layer < 0)
-	{
-		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
-	}
-	if (s2 != s0 && layer < 1)
-	{
-		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
-	}
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	layer += 1;
 	
-	return (cwalkflag&b) ? true : false;
+	int32_t b = 1;
+	if (x&8) b <<= 2;
+	if (y&8) b <<= 1;
+	int pos = COMBOPOS(x % 256, y % 176);
+	
+	int maxlayer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
+	for (int lyr = maxlayer; lyr > layer; --lyr)
+	{
+		mapscr* m = get_scr_for_world_xy_layer(x, y, lyr);
+		if (!m || !m->valid)
+			continue;
+		newcombo const& cmb = combobuf[m->data[pos]];
+		if (cmb.type == cBRIDGE)
+		{
+			int cwalk = cmb.walk;
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
+				cwalk >>= 4;
+			if (cwalk & b)
+				return false;
+		}
+	}
+	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
+	if (!m || !m->valid)
+		return false;
+	int cid = m->data[pos];
+	newcombo const& cmb = combobuf[cid];
+	if (DRIEDLAKE && iswater_type(cmb.type))
+		return false;
+	return (cmb.walk >> 4) & b;
 }
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
@@ -7471,25 +7401,22 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 		if (y >= max_y) return false;
 	}
 	
-	const mapscr *s1, *s2;
-	s1 = s2 = m;
-
-	if ( m->layermap[0] > 0 && m->layermap[0] <= map_count )
+	std::array<const mapscr*, 7> screens;
+	screens[0] = m;
+	for (int q = 1; q < 7; ++q)
 	{
-		const mapscr* s = get_canonical_scr(m->layermap[0] - 1, m->layerscreen[0]);
-		if (s->is_valid())
-			s1 = s;
-	}
-	
-	if ( m->layermap[1] > 0 && m->layermap[1] <= map_count )
-	{
-		const mapscr* s = get_canonical_scr(m->layermap[1] - 1, m->layerscreen[1]);
-		if (s->is_valid())
-			s2 = s;
+		int lyrmap = m->layermap[q-1], lyrscr = m->layerscreen[q-1];
+		screens[q] = m;
+		if (lyrmap > 0 && lyrmap <= map_count)
+		{
+			const mapscr* s = get_canonical_scr(lyrmap-1, lyrscr);
+			if (s->is_valid())
+				screens[q] = s;
+		}
 	}
 
 	zfix unused;
-	return _walkflag_new(m, s1, s2, x, y, unused, false) || (cnt != 1 && _walkflag_new(m, s1, s2, x + 8, y, unused, false));
+	return _walkflag_new(screens, x, y, unused, false) || (cnt != 1 && _walkflag_new(screens, x + 8, y, unused, false));
 }
 
 bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)
@@ -7560,13 +7487,7 @@ bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* 
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool notLink)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	mapscr* m = get_scr_for_world_xy_layer(x, y, layer + 1);
-	if (!m->is_valid()) return false;
-	return _effectflag_layer(x, y, cnt, m, notLink);
-}
-
-bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
-{
+	
 	int max_x = world_w;
 	int max_y = world_h;
 	if (!get_qr(qr_LTTPWALK) && !notLink)
@@ -7579,36 +7500,7 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 	if (x >= max_x - 8 && cnt == 2) return false;
 	if (y >= max_y) return false;
 
-	if (!m) return true;
-	
-	int pos = COMBOPOS(x%256, y%176);
-	const newcombo* c = &combobuf[m->data[pos]];
-	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
-	int32_t b=1;
-	
-	if(x&8) b<<=2;
-	
-	if(y&8) b<<=1;
-	
-	if(((c->walk>>4)&b) && !dried)
-		return true;
-		
-	if(cnt==1) return false;
-	
-	++pos;
-	
-	if(!(x&8))
-		b<<=2;
-	else
-	{
-		c  = &combobuf[m->data[pos]];
-		dried = ((iswater_type(c->type)) && DRIEDLAKE);
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	
-	return ((c->walk>>4)&b) ? !dried : false;
+	return effectflag(x, y, layer) || (cnt == 2 && effectflag(x + 8, y, layer));
 }
 
 bool water_walkflag(int32_t x, int32_t y, int32_t cnt)

@@ -27553,7 +27553,8 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 			int32_t walk = c.walk;
 			if (smarter_scroll)
 			{
-				for (int32_t m = 0; m <= 1; m++)
+				int maxlayer = get_qr(qr_BRIDGES_ABOVE_2) ? 6 : 2;
+				for (int32_t m = 0; m < maxlayer; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, local_screen, m, local_cx, local_cy, true)];
 					if (cmb.type == cBRIDGE)
