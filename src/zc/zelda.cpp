@@ -1636,6 +1636,7 @@ void init_game_vars(bool is_cont_game = false)
 	sle_x=sle_y=0;
 	Bwpn = Awpn = Xwpn = Ywpn = {};
 	FFCore.kb_typing_mode = false;
+	FFCore.nostepforward = 0;
 	activated_timed_warp=false;
 	light_wave_clk = 0;
 	clockclk=0;
