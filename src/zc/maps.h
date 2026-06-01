@@ -477,7 +477,6 @@ void do_ffc_layer(BITMAP* bmp, int32_t layer, const screen_handle_t& screen_hand
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer_primitives(BITMAP *bmp, int32_t layer);
-void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles ,int32_t x, int32_t y);
 void do_walkflags(int32_t x, int32_t y);
 void do_effectflags(mapscr* scr, int32_t x, int32_t y);
@@ -501,7 +500,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen);
 void loadscr_old(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay);
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y);
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y);
-bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
+bool _walkflag_new(std::array<const mapscr*, 7> screens, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1, bool notLink = false);
@@ -511,7 +510,6 @@ bool _walkflag_layer(zfix_round x,zfix_round y, int32_t layer=-1, int32_t cnt=1)
 bool _walkflag_layer(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
 bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m);
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer=-1, int32_t cnt=1, bool notLink = false);
-bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink = false);
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool water_walkflag(int32_t x,int32_t y);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);

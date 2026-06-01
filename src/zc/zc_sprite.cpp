@@ -73,7 +73,7 @@ int32_t get_conveyor(int32_t x, int32_t y, bool check_rates)
 
 		int cid = layer_scr->data[pos];
 		if(is_conveyor(combobuf[cid].type)
-			&& _effectflag_layer(x,y,1,layer_scr,true))
+			&& _effectflag_layer(x,y,q-1,1,true))
 		{
 			found_layer = q;
 			cmbid = cid;
