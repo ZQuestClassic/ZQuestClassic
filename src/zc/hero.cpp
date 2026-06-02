@@ -22225,7 +22225,8 @@ void HeroClass::checkchest(int32_t type)
 	if(found<0)
 	{
 		bool done_1 = false, done_2 = false;
-		for(int32_t i = 5; i >= 0; --i)
+		int maxlayer = get_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2) ? 6 : 2;
+		for(int32_t i = maxlayer-1; i >= 0; --i)
 		{
 			if (!done_1)
 			{

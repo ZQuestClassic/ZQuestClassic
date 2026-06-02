@@ -500,6 +500,8 @@ static GUI::ListData comboRulesList
 		" instead of the default 'Sword Tap' sound. (sounds set in the Misc SFX menu)" },
 	{ "Bridge Combos Work Above Layer 2", qr_BRIDGES_ABOVE_2,
 		"If checked, Bridge combos will work even above layer 2." },
+	{ "Chests, Signposts, Lockblocks Work Above Layer 2", qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2,
+		"If checked, Chest, Signpost, and Lockblock combos will work even above layer 2." },
 };
 
 static GUI::ListData compatRulesList
