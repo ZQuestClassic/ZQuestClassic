@@ -476,6 +476,8 @@ static GUI::ListData comboRulesList
 	{ "Separate Tap SFX for bombable walls", qr_SEPARATE_BOMBABLE_TAPPING_SFX,
 		"If checked, bombable walls will use a separate SFX 'Sword Tap (Hollow)' when tapped against,"
 		" instead of the default 'Sword Tap' sound. (sounds set in the Misc SFX menu)" },
+	{ "Chests, Signposts, Lockblocks Work Above Layer 2", qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2,
+		"If checked, Chest, Signpost, and Lockblock combos will work even above layer 2." },
 };
 
 static GUI::ListData compatRulesList

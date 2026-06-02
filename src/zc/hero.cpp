@@ -21968,7 +21968,8 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(found<0)
 	{
-		for(int32_t i=0; i<6; i++)
+		int maxlayer = get_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2) ? 6 : 2;
+		for(int32_t i=0; i<maxlayer; i++)
 		{
 			cmb = &combobuf[MAPCOMBO2(i,bx,by)];
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))

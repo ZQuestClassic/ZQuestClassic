@@ -3496,6 +3496,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
 		set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
 		set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
+		set_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2, 1);
 	}
 
 	*Header = tempheader;
