@@ -862,6 +862,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_NO_FLASHING_MSG_MORE, 1);
 		set_qr(qr_BROKEN_LENS_HINTS_SECRETS, 1);
 	}
+	if (compatrule_version < 115)
+	{
+		set_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2, 1);
+	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
