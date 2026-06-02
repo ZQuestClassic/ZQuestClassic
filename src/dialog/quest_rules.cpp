@@ -490,7 +490,7 @@ static GUI::ListData comboRulesList
 		"Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on."
 		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
 	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
-		"Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on."
+		"Solid damage combos check closer to the edge of the Hero's hitbox. Does not affect sideview damage combos you step on."
 		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) },
 	{ "Allow Multiple Platform FFCs", qr_MULTI_PLATFORM_FFC, 
 		"If checked, more than one FFC with the 'Platform' flag can move the Hero in a single frame."
