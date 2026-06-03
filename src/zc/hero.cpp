@@ -20661,8 +20661,16 @@ void HeroClass::start_auto_walk(const combined_handle_t& target)
 	}
 	else if(cmb.usrflags & cflag2)
 	{
-		dx += x;
-		dy += y;
+		if (FFCore.ScrollingData[SCROLLDATA_DIR] > -1) // properly handle scrolling positions
+		{
+			dx += FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X];
+			dy += FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y];
+		}
+		else
+		{
+			dx += x;
+			dy += y;
+		}
 	}
 	
 	reset_hookshot();
