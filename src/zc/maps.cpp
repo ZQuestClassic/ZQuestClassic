@@ -2095,6 +2095,11 @@ bool getxdoor(int32_t screen, uint dir, uint ind)
 	int mi = mapind(cur_map, screen);
 	return getxdoor_mi(mi,dir,ind);
 }
+bool getxdoor(mapscr* scr, uint dir, uint ind)
+{
+	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	return getxdoor_mi(mi,dir,ind);
+}
 
 void set_doorstate_mi(uint mi, uint dir)
 {

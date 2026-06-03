@@ -96,6 +96,7 @@ struct combo_trigger
 	dword req_level_state, unreq_level_state;
 	bitstring req_global_state, unreq_global_state, req_screen_state,
 		unreq_screen_state, req_screen_ex_state, unreq_screen_ex_state;
+	bitstring req_screen_ex_door[4], unreq_screen_ex_door[4];
 	int16_t trigdmlevel = -1;
 	byte trigstatemap, trigstatescreen;
 	int16_t trigtint[3]; //r,g,b range [-255,255]

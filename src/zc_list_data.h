@@ -94,6 +94,7 @@ namespace GUI::ZCCheckListData
 	std::vector<CheckListInfo> const& buttons();
 	std::vector<CheckListInfo> const& screen_state();
 	std::vector<CheckListInfo> const& ex_state();
+	std::vector<CheckListInfo> const& ex_doors();
 }
 
 #endif

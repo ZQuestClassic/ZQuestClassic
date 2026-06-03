@@ -1578,4 +1578,9 @@ vector<CheckListInfo> const& GUI::ZCCheckListData::ex_state()
 	static vector<CheckListInfo> vec = numbers(0, 31);
 	return vec;
 }
+vector<CheckListInfo> const& GUI::ZCCheckListData::ex_doors()
+{
+	static vector<CheckListInfo> vec = numbers(0, 7);
+	return vec;
+}
 

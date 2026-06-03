@@ -597,6 +597,30 @@ int32_t combotrigger_get_register(int32_t reg)
 			else ret = -2;
 			break;
 		}
+		case CMBTRIG_REQ_SCREXDOOR:
+		{
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
+			else
+				ret = trig->req_screen_ex_door[dir].get(ind) ? 10000 : 0;
+			break;
+		}
+		case CMBTRIG_UNREQ_SCREXDOOR:
+		{
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
+			else
+				ret = trig->unreq_screen_ex_door[dir].get(ind) ? 10000 : 0;
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -971,6 +995,30 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		{
 			if (value == -2 || value == -1 || value == 0 || checkMusic(value))
 				trig->play_music = value;
+			break;
+		}
+		case CMBTRIG_REQ_SCREXDOOR:
+		{
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
+			else
+				trig->req_screen_ex_door[dir].set(ind, value);
+			break;
+		}
+		case CMBTRIG_UNREQ_SCREXDOOR:
+		{
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				scripting_log_error_with_context("Invalid dir '{}'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				scripting_log_error_with_context("Invalid index '{}'; must be 0-7\n", ind);
+			else
+				trig->unreq_screen_ex_door[dir].set(ind, value);
 			break;
 		}
 

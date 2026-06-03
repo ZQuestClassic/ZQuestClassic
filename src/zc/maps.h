@@ -375,6 +375,7 @@ bool getxmapflag_mi(int32_t mi, uint32_t flag);
 void setxdoor_mi(uint mi, uint dir, uint ind, bool state = true);
 bool getxdoor_mi(uint mi, uint dir, uint ind);
 bool getxdoor(int32_t screen, uint dir, uint ind);
+bool getxdoor(mapscr* scr, uint dir, uint ind);
 
 void set_doorstate_mi(uint mi,uint dir);
 void set_doorstate(uint screen, uint dir);
