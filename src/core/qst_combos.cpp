@@ -892,6 +892,16 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_igetl(&temp_trigger.sfx_frequency, f))
 			return qe_invalid;
 	}
+	if (s_version >= 69)
+	{
+		for (int dir = 0; dir < 4; ++dir)
+		{
+			if(!p_getbitstr(&temp_trigger.req_screen_ex_door[dir], f))
+				return 141;
+			if(!p_getbitstr(&temp_trigger.unreq_screen_ex_door[dir], f))
+				return 142;
+		}
+	}
 	return 0;
 }
 
@@ -1675,6 +1685,13 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 		return 139;
 	if(!p_iputl(tmp_trig.sfx_frequency, f))
 		return 140;
+	for (int dir = 0; dir < 4; ++dir)
+	{
+		if(!p_putbitstr(tmp_trig.req_screen_ex_door[dir], f))
+			return 141;
+		if(!p_putbitstr(tmp_trig.unreq_screen_ex_door[dir], f))
+			return 142;
+	}
 	return 0;
 }
 

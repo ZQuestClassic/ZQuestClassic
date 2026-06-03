@@ -2285,19 +2285,32 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 		}
 		state_scr = &TheMaps[(trig.trigstatemap-1) * MAPSCRS + trig.trigstatescreen];
 	}
-	for (int q = 0; q < mMAXIND; ++q)
+	if (!(trig.req_screen_state.empty() && trig.unreq_screen_state.empty()))
+		for (int q = 0; q < mMAXIND; ++q)
+		{
+			if (trig.req_screen_state.get(q) && !getmapflag(state_scr, 1 << q))
+				return false;
+			if (trig.unreq_screen_state.get(q) && getmapflag(state_scr, 1 << q))
+				return false;
+		}
+	if (!(trig.req_screen_ex_state.empty() && trig.unreq_screen_ex_state.empty()))
+		for (int q = 0; q < 32; ++q)
+		{
+			if(trig.req_screen_ex_state.get(q) && !getxmapflag(state_scr, 1 << q))
+				return false;
+			if(trig.unreq_screen_ex_state.get(q) && getxmapflag(state_scr, 1 << q))
+				return false;
+		}
+	for (int dir = 0; dir < 4; ++dir)
 	{
-		if(trig.req_screen_state.get(q) && !getmapflag(state_scr, 1 << q))
-			return false;
-		if(trig.unreq_screen_state.get(q) && getmapflag(state_scr, 1 << q))
-			return false;
-	}
-	for (int q = 0; q < 32; ++q)
-	{
-		if(trig.req_screen_ex_state.get(q) && !getxmapflag(state_scr, 1 << q))
-			return false;
-		if(trig.unreq_screen_ex_state.get(q) && getxmapflag(state_scr, 1 << q))
-			return false;
+		if (!(trig.req_screen_ex_door[dir].empty() && trig.unreq_screen_ex_door[dir].empty()))
+			for (int q = 0; q < 8; ++q)
+			{
+				if (trig.req_screen_ex_door[dir].get(q) && !getxdoor(state_scr, dir, q))
+					return false;
+				if (trig.unreq_screen_ex_door[dir].get(q) && getxdoor(state_scr, dir, q))
+					return false;
+			}
 	}
 
 	if (is_active_screen || trig.trigdmlevel > -1)

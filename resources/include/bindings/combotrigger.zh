@@ -650,15 +650,51 @@ class combotrigger {
 	// @length 32
 	// @zasm_var CMBTRIGUNREQSCREXSTATE
 	internal bool UnreqScreenExState[];
+	
+	// Get if a specified exdoor state is required to be ON for this trigger to activate
+	//
+	// @zasm
+	//   PEEKATV REFCOMBOTRIGGER 0.0002
+	//   SETR D2 CMBTRIG_REQ_SCREXDOOR
+	//   POPARGS D5 0.0003
+	internal int GetReqExDoor(int dir, int index);
+	
+	// Set if a specified exdoor state is required to be ON for this trigger to activate
+	//
+	// @zasm
+	//   POP D2
+	//   PEEKATV REFCOMBOTRIGGER 0.0002
+	//   SETR CMBTRIG_REQ_SCREXDOOR D2
+	//   POPARGS D5 0.0003
+	internal void SetReqExDoor(int dir, int index, bool state);
+	
+	// Get if a specified exdoor state is required to be OFF for this trigger to activate
+	//
+	// @zasm
+	//   PEEKATV REFCOMBOTRIGGER 0.0002
+	//   SETR D2 CMBTRIG_UNREQ_SCREXDOOR
+	//   POPARGS D5 0.0003
+	internal int GetUnreqExDoor(int dir, int index);
+	
+	// Set if a specified exdoor state is required to be OFF for this trigger to activate
+	//
+	// @zasm
+	//   POP D2
+	//   PEEKATV REFCOMBOTRIGGER 0.0002
+	//   SETR CMBTRIG_UNREQ_SCREXDOOR D2
+	//   POPARGS D5 0.0003
+	internal void SetUnreqExDoor(int dir, int index, bool state);
 
-	// The 'Map' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState].
+	// The 'Map' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState],
+	// [GetReqExDoor], [SetReqExDoor], [GetUnreqExDoor], [SetUnreqExDoor].
 	//
 	// 0 represents the 'current map + screen', otherwise a valid map indicates that map.
 	//
 	// @zasm_var CMBTRIGREQSTATEMAP
 	internal int StateMap;
 
-	// The 'Screen' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState].
+	// The 'Screen' used by [ReqScreenState], [UnreqScreenState], [ReqScreenExState], [UnreqScreenExState],
+	// [GetReqExDoor], [SetReqExDoor], [GetUnreqExDoor], [SetUnreqExDoor].
 	//
 	// If [StateMap] is 0, this value is ignored (the 'current map + screen' is used).
 	// Otherwise, this screen on the [StateMap] will be used.

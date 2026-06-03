@@ -1920,6 +1920,113 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 								IBTN("These screen ExStates must NOT be set for this trigger to activate."
 									"\nUse the 'P' button to pick the flags for this value.")
 							)
+						),
+						Frame(title = "Screen ExDoors",
+							Rows<6>(
+								_d,
+								Label(text = "U"),
+								Label(text = "D"),
+								Label(text = "L"),
+								Label(text = "R"),
+								_d,
+								//
+								Label(text = "Req:"),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.req_screen_ex_door[up];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Req ExDoors[Up]'",states,flags,4))
+											return;
+										local_ref.req_screen_ex_door[up] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.req_screen_ex_door[down];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Req ExDoors[Down]'",states,flags,4))
+											return;
+										local_ref.req_screen_ex_door[down] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.req_screen_ex_door[left];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Req ExDoors[Left]'",states,flags,4))
+											return;
+										local_ref.req_screen_ex_door[left] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.req_screen_ex_door[right];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Req ExDoors[Right]'",states,flags,4))
+											return;
+										local_ref.req_screen_ex_door[right] = flags;
+									}
+								),
+								INFOBTN("These screen ExDoors must be set for this trigger to activate."
+									"\nUse the 'P' button to pick the flags for this value for each direction."),
+								//
+								Label(text = "Unreq:"),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.unreq_screen_ex_door[up];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Unreq ExDoors[Up]'",states,flags,4))
+											return;
+										local_ref.unreq_screen_ex_door[up] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.unreq_screen_ex_door[down];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Unreq ExDoors[Down]'",states,flags,4))
+											return;
+										local_ref.unreq_screen_ex_door[down] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.unreq_screen_ex_door[left];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Unreq ExDoors[Left]'",states,flags,4))
+											return;
+										local_ref.unreq_screen_ex_door[left] = flags;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "P", hAlign = 1.0, onPressFunc = [&]()
+									{
+										auto flags = local_ref.unreq_screen_ex_door[right];
+										auto& states = GUI::ZCCheckListData::ex_doors();
+										if(!call_checklist_dialog("Select 'Unreq ExDoors[Right]'",states,flags,4))
+											return;
+										local_ref.unreq_screen_ex_door[right] = flags;
+									}
+								),
+								INFOBTN("These screen ExDoors must NOT be set for this trigger to activate."
+									"\nUse the 'P' button to pick the flags for this value for each direction.")
+								//
+							)
 						)
 					)
 				))

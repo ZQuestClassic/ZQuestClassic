@@ -671,6 +671,41 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 
 			conditions << indent << fmt::format("Screen ExState{} [{}] disabled for {}\n", s, state_str, statescreen_str);
 		}
+		for (int dir = 0; dir < 4; ++dir)
+		{
+			if (!req_screen_ex_door[dir].empty())
+			{
+				states.str(""); // reset str
+				int count = 0;
+				for (int q = 0; q < 8; ++q)
+					if (req_screen_ex_door[dir].get(q))
+					{
+						++count;
+						states << q << ", ";
+					}
+				auto state_str = states.str();
+				TRIM_TRAILING_CHARS(state_str);
+				string s = count != 1 ? "s" : "";
+
+				conditions << indent << fmt::format("Screen ExDoor[{}]{} [{}] enabled for {}\n", dirstr[dir], s, state_str, statescreen_str);
+			}
+			if (!unreq_screen_ex_door[dir].empty())
+			{
+				states.str(""); // reset str
+				int count = 0;
+				for (int q = 0; q < 8; ++q)
+					if (unreq_screen_ex_door[dir].get(q))
+					{
+						++count;
+						states << q << ", ";
+					}
+				auto state_str = states.str();
+				TRIM_TRAILING_CHARS(state_str);
+				string s = count != 1 ? "s" : "";
+
+				conditions << indent << fmt::format("Screen ExDoor[{}]{} [{}] disabled for {}\n", dirstr[dir], s, state_str, statescreen_str);
+			}
+		}
 
 		if (trigctramnt)
 		{
