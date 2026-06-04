@@ -187,8 +187,8 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 	     ody = obj->y - obj->old_y,
 	     obj_x = obj->x + obj->hxofs + obj->sxofs,
 	     obj_y = obj->y + obj->hyofs + obj->syofs,
-	     obj_ox = obj->old_x + obj->hxofs + obj->sxsz_ofs,
-	     obj_oy = obj->old_y + obj->hyofs + obj->sysz_ofs;
+	     obj_ox = obj->old_x + obj->hxofs + obj->sxofs,
+	     obj_oy = obj->old_y + obj->hyofs + obj->syofs;
 	int32_t obj_w = obj->hit_width + obj->sxsz_ofs,
 	        obj_h = obj->hit_height + obj->sysz_ofs;
 	
