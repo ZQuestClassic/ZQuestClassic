@@ -1025,6 +1025,10 @@ static GUI::ListData compatRulesList
 	{ "Broken Solids Pushing Player", qr_BROKEN_PLAYER_SOLIDPUSH,
 		"When enabled, moving solid objects won't be able to push the player into pitfall combos,"
 		" but WILL be able to push them while they are drowning/falling." },
+	{ "Broken FFC Solids in Sideview", qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION,
+		"When enabled, the code used for ffc 'platform's in sideview uses broken collision checks,"
+		" and player ceiling / floor collision will not properly account for off-grid solidity, possibly"
+		" clipping the player into solid ffcs." },
 };
 
 static GUI::ListData enemiesRulesList
