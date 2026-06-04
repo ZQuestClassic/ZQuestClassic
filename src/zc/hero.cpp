@@ -6683,6 +6683,10 @@ void HeroClass::checkhit()
 						{
 							action=none; FFCore.setHeroAction(none);
 						}
+						else if (!get_qr(qr_KNOCKBACK_THROUGH_PLATFORMS) && sideview_mode() && on_sideview_solid_oldpos(this))
+						{
+							action=none; FFCore.setHeroAction(none);
+						}
 						else if (val == -1) ++y;
 						
 						break;
