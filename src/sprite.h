@@ -217,8 +217,6 @@ public:
 	bool is_beyond_viewport_suspend_range() const;
 	bool is_beyond_viewport_despawn_range() const;
 	bool is_beyond_region_despawn_range() const;
-
-	viewport_t get_suspend_rect() const;
 };
 
 enum //run_script modes

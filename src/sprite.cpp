@@ -2859,8 +2859,29 @@ bool sprite::is_beyond_viewport_suspend_range() const
 	if (viewport_suspend_range <= 0)
 		return false;
 
-	viewport_t freeze_rect = get_suspend_rect();
-	return !freeze_rect.intersects_with(x.getInt(), y.getInt(), txsz*16, tysz*16);
+	if (replay_version_check(57))
+	{
+		// true iff tile area and hitbox area are entirely out of viewport
+		rect_t freeze_rect = rect_t(viewport).expanded(viewport_suspend_range);
+		if (freeze_rect.intersects_with(x + xofs, y + yofs, txsz*16, tysz*16))
+			return false;
+		if (freeze_rect.intersects_with(x + hxofs, y + hyofs, hit_width, hit_height))
+			return false;
+	}
+	else
+	{
+		// Older replays used viewport_t::intersects_with(x,y,w,h)
+		viewport_t freeze_rect = viewport;
+		freeze_rect.x -= viewport_suspend_range;
+		freeze_rect.y -= viewport_suspend_range;
+		freeze_rect.w += 2 * viewport_suspend_range;
+		freeze_rect.h += 2 * viewport_suspend_range;
+		// They also checked only the tile size, and ignored the draw offset
+		if (freeze_rect.intersects_with(x, y, txsz*16, tysz*16))
+			return false;
+	}
+
+	return true;
 #else
 	return false;
 #endif
@@ -2901,20 +2922,6 @@ bool sprite::is_beyond_region_despawn_range() const
 #endif
 
 	return false;
-}
-
-viewport_t sprite::get_suspend_rect() const
-{
-#ifdef IS_PLAYER
-	viewport_t rect = viewport;
-	rect.w += viewport_suspend_range * 2;
-	rect.h += viewport_suspend_range * 2;
-	rect.x -= viewport_suspend_range;
-	rect.y -= viewport_suspend_range;
-	return rect;
-#else
-	return viewport_t{};
-#endif
 }
 
 //Moving Block 

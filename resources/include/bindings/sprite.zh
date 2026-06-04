@@ -379,7 +379,7 @@ class sprite {
 	internal int ShadowYOffset;
 
 	// How far (in pixels) past the viewport edge this sprite's engine logic runs before it is suspended.
-	// Only active in scrolling regions.
+	// Only active in scrolling regions. Considers both visual tile size and hitbox ([HitWidth], [HitHeight]).
 	//
 	// Disabled if 0 (the sprite is never suspended).
 	//
