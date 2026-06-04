@@ -688,6 +688,9 @@ void do_dev_qrs_zscript_command(std::string const& fname)
 		{ qr_QUAKE_HAMMER_IN_AIR, "qr_QUAKE_HAMMER_IN_AIR" },
 		{ qr_NO_FLASHING_MSG_MORE, "qr_NO_FLASHING_MSG_MORE" },
 		{ qr_BROKEN_LENS_HINTS_SECRETS, "qr_BROKEN_LENS_HINTS_SECRETS" },
+		{ qr_BRIDGES_ABOVE_2, "qr_BRIDGES_ABOVE_2" },
+		{ qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2, "qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2" },
+		{ qr_KNOCKBACK_THROUGH_PLATFORMS, "qr_KNOCKBACK_THROUGH_PLATFORMS" },
 	};
 	static std::map<std::string, std::string> qr_compat_names = {
 		{ "qr_WEAPONS_EXTRA_FRAME", qr_const_names[qr_WEAPONS_EXTRA_DEATH_FRAME]}
