@@ -366,7 +366,8 @@ bool HeroClass::isStanding(bool forJump)
 {
 	if(z || fakez) return false;
 	if(isSideViewHero() && !on_sideview_solid_oldpos(this)
-		&& !ladderx && !laddery && !getOnSideviewLadder())
+		&& !ladderx && !laddery && !getOnSideviewLadder()
+		&& !on_ffc_platform())
 		return false;
 	if(hoverclk) return false;
 	if(nomove_action(action)) return false;
