@@ -99,7 +99,15 @@ void ffcdata::solid_update(bool push)
 		zfix dy = (y - old_y);
 		if ((flags & ffc_platform) && Hero.on_ffc_platform(*this, true))
 		{
-			Hero.movexy(dx, dy, false, false, false);
+			if (get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION))
+				Hero.movexy(dx, dy, false, false, false);
+			else
+			{
+				bool t = getTempNonsolid();
+				setTempNonsolid(true);
+				Hero.push_move(dx, dy);
+				setTempNonsolid(t);
+			}
 		}
 		else if (hooked)
 		{

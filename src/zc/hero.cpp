@@ -174,17 +174,19 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 			return false;
 		platform_ffc = nullptr;
 	}
+	bool broken_platform = get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION);
 	if(sideview_mode())
 	{
 		if((ffc.flags & (ffc_solid|ffc_platform|ffc_changer)) != (ffc_solid|ffc_platform))
 			return false;
 		zfix fx = old ? ffc.old_x : ffc.x, fy = old ? ffc.old_y : ffc.y;
+		zfix hx = old && !broken_platform ? old_x : x, hy = old && !broken_platform ? old_y : y;
 		static const zfix tol = 0.5_zf;
-		if((y+16-fy).getAbs() > tol)
+		if((hy+16-fy).getAbs() > tol)
 			return false;
-		if(fx > x+12)
+		if(fx > hx+12)
 			return false;
-		if(fx+ffc.hit_width <= x+4)
+		if(fx+ffc.hit_width <= hx+4)
 			return false;
 	}
 	else
@@ -194,8 +196,9 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 		if(z)
 			return false;
 		static const int tol = 3;
+		zfix hx = old && !broken_platform ? old_x : x, hy = old && !broken_platform ? old_y : y;
 		if(!(old
-			? ffc.collide_old(x + 8-tol, y + (bigHitbox ? 8 : 12), tol*2, tol*2)
+			? ffc.collide_old(hx + 8-tol, hy + (bigHitbox ? 8 : 12), tol*2, tol*2)
 			: ffc.collide(x + 8-tol, y + (bigHitbox ? 8 : 12)-tol, tol*2, tol*2)))
 			return false;
 	}
@@ -8282,55 +8285,73 @@ heroanimate_skip_liftwpn:;
 		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning, sideswimming or cheating.
 		if (!(walk_through_walls && getInput(btnUp, INPUT_HERO_ACTION)) && !drownclk && action != rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall > 0) && !getOnSideviewLadder())
 		{
-			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
+			zfix ydiff = int(fall/(spins && fall<0 ? 200:100));
 			falling_oldy = y; // Stomp Boots-related variable
+			bool broken_subpixel = get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION);
 			
 			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (TRUNCATE_TILE(y.getInt()+ydiff+15) != TRUNCATE_TILE(y.getInt()+15)) && !platform_fallthrough())
 			{
-				ydiff -= (y.getInt()+ydiff)%16;
+				if (broken_subpixel)
+					ydiff -= (y.getInt()+ydiff).getInt() % 16;
+				else
+					ydiff -= (y+ydiff) % 16_zf;
 			}
-			if(ydiff && !get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
+			if (ydiff)
 			{
-				if(ydiff > 0)
+				if (!broken_subpixel)
 				{
-					for(auto q = 0; q < ydiff; ++q)
+					movexy(0,ydiff,false,true,false);
+					ydiff = y - falling_oldy;
+				}
+				else
+				{
+					if(!get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
 					{
-						if(on_sideview_solid_oldpos(this, false, 0, 0, q))
+						if(ydiff > 0)
 						{
-							ydiff = q;
-							break;
+							for(auto q = 0; q < ydiff; ++q)
+							{
+								if(on_sideview_solid_oldpos(this, false, 0, 0, q))
+								{
+									ydiff = q;
+									break;
+								}
+							}
+						}
+						else if(ydiff < 0)
+						{
+							for(auto q = 0; q > ydiff; --q)
+							{
+								if(_walkflag(x+4,y+(bigHitbox?0:8)+q-1,1)
+									|| _walkflag(x+12,y+(bigHitbox?0:8)+q,1))
+								{
+									ydiff = q;
+									break;
+								}
+							}
 						}
 					}
+					y += ydiff;
 				}
-				else if(ydiff < 0)
+			}
+			if (ydiff)
+			{
+				hs_starty += ydiff.getInt();
+				
+				for(int32_t j=0; j<chainlinks.Count(); j++)
 				{
-					for(auto q = 0; q > ydiff; --q)
-					{
-						if(_walkflag(x+4,y+(bigHitbox?0:8)+q-1,1)
-							|| _walkflag(x+12,y+(bigHitbox?0:8)+q,1))
-						{
-							ydiff = q;
-							break;
-						}
-					}
+					chainlinks.spr(j)->y += ydiff;
 				}
-			}
-			y+=ydiff;
-			hs_starty+=ydiff;
-			
-			for(int32_t j=0; j<chainlinks.Count(); j++)
-			{
-				chainlinks.spr(j)->y+=ydiff;
-			}
-			
-			if(Lwpns.idFirst(wHookshot)>-1)
-			{
-				Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=ydiff;
-			}
-			
-			if(Lwpns.idFirst(wHSHandle)>-1)
-			{
-				Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=ydiff;
+				
+				if(Lwpns.idFirst(wHookshot)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHookshot))->y += ydiff;
+				}
+				
+				if(Lwpns.idFirst(wHSHandle)>-1)
+				{
+					Lwpns.spr(Lwpns.idFirst(wHSHandle))->y += ydiff;
+				}
 			}
 		}
 		else if(IsSideSwim() && action != sidewaterhold1 && action != sidewaterhold2 && action != sideswimcasting && action != sideswimfreeze)
@@ -8490,7 +8511,10 @@ heroanimate_skip_liftwpn:;
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
-					y -= y.getInt()%8; //fix coords
+					if (get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION))
+						y -= y.getInt()%8; //fix coords
+					else if (y <= 0)
+						y = 0;
 					// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 					if ( !get_qr(qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 					{
@@ -10558,7 +10582,11 @@ void HeroClass::solid_push(solid_object* obj)
 	
 	zfix dx, dy;
 	int32_t hdir = -1;
-	solid_push_int(obj,dx,dy,hdir,!on_ffc_platform());
+	bool broken_ffc_platform = get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION);
+	if (!broken_ffc_platform)
+		if (ffcdata* ffc = dynamic_cast<ffcdata*>(obj); ffc && (on_ffc_platform(*ffc, true) || on_ffc_platform(*ffc, false)))
+			return;
+	solid_push_int(obj,dx,dy,hdir,!broken_ffc_platform || !on_ffc_platform());
 	
 	if(!dx && !dy) return;
 	

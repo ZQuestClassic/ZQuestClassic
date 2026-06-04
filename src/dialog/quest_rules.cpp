@@ -1128,6 +1128,10 @@ static GUI::ListData compatRulesList
 		"When enabled, the 'More...' icon for strings will never flash." },
 	{ "Lens 'Disable Secrets' disables hints too", qr_BROKEN_LENS_HINTS_SECRETS,
 		"When enabled, the lens 'Disable Secrets' flag will also disable the Show Hints flag." },
+	{ "Broken FFC Solids in Sideview", qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION,
+		"When enabled, the code used for ffc 'platform's in sideview uses broken collision checks,"
+		" and player ceiling / floor collision will not properly account for off-grid solidity, possibly"
+		" clipping the player into solid ffcs." },
 };
 
 static GUI::ListData enemiesRulesList
