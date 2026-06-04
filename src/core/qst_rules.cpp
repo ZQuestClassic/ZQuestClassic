@@ -865,6 +865,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 115)
 	{
 		set_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2, 1);
+		set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
 	}
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);

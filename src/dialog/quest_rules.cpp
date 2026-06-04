@@ -370,6 +370,9 @@ static GUI::ListData comboRulesList
 	{ "Pressing Down Will Not Grab Sideview Ladders", qr_DOWN_DOESNT_GRAB_LADDERS, 
 		"If enabled, the Hero can't grab onto Sideview Ladders by"
 		" pressing down; only pressing up can grab sideview ladders." },
+	{ "Knockback knocks Hero through Sideview Platforms", qr_KNOCKBACK_THROUGH_PLATFORMS,
+		"When enabled, the Hero's knockback collision check doesn't account for sideview platforms,"
+		" knocking the player through them rather than stopping on them." },
 	{ "Custom Combos Work On Layers 1 And 2", qr_CUSTOMCOMBOSLAYERS1AND2, 
 		"If enabled, Layers 1 and 2 will also be checked for custom"
 		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
