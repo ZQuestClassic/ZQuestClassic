@@ -3494,6 +3494,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
 		set_qr(qr_BROKEN_PLAYER_SOLIDPUSH, 1);
 		set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
+		set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
 	}
 
 	*Header = tempheader;
