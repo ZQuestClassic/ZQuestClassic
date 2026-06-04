@@ -504,12 +504,13 @@ enum class ViewportMode
 	Last = Script,
 };
 
+// Bounds are half-open: [l, r) x [t, b). r = l+w, b = t+h (exclusive right/bottom).
 struct rect_t
 {
 	int l, r, t, b;
 
 	rect_t() = default;
-	rect_t(int x, int y, int w, int h) : l(x), r(x+w-1), t(y), b(y+h-1) {}
+	rect_t(int x, int y, int w, int h) : l(x), r(x+w), t(y), b(y+h) {}
 	explicit rect_t(const viewport_t& viewport) : l(viewport.left()), r(viewport.right()), t(viewport.top()), b(viewport.bottom()) {}
 
 	void union_with(const rect_t& other);

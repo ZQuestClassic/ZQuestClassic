@@ -192,7 +192,6 @@ bool viewport_t::contains_point(int x0, int y0) const
 
 bool viewport_t::contains_or_on(const viewport_t& other) const
 {
-	// The `=` equality portions of all these conditions makes this more than just a "contains" check.
 	return other.right() <= right() && other.left() >= left() && other.top() >= top() && other.bottom() <= bottom();
 }
 
