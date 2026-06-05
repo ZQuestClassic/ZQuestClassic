@@ -89,6 +89,7 @@ struct process_killer
 //virtual handling for io
 struct io_manager
 {
+	virtual ~io_manager() = default;
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL) = 0;
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL) = 0;
 	virtual bool is_alive() const = 0;
@@ -121,8 +122,8 @@ struct process_manager : public io_manager, public process_killer
 		write_handle(NULL), read_handle(NULL),
 		wr_2(NULL), re_2(NULL), kill_on_destructor(true)
 	{}
-	~process_manager();
-	
+	virtual ~process_manager();
+
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
 	//}
@@ -130,12 +131,12 @@ struct process_manager : public io_manager, public process_killer
 	//{ Unix
 	int write_handle;
 	int read_handle;
-	
+
 	process_manager() : io_manager(), process_killer(),
 		kill_on_destructor(true)
 	{}
-	
-	~process_manager();
+
+	virtual ~process_manager();
 	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
