@@ -2119,7 +2119,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		undo_is_floatsel = false;
 	}
 	
-	int32_t temp_x=-1, temp_y=-1;
 	bool bdown=false;
 	int32_t done=0;
 	drawing=0;
@@ -3131,9 +3130,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			bdown=false;
 			drawing=0;
 		}
-		
-		temp_x=(gui_mouse_x()-zoomtile.x)/zoomtile.xscale;
-		temp_y=(gui_mouse_y()-zoomtile.y)/zoomtile.yscale;
 		
 		{
 			redraw=true;
