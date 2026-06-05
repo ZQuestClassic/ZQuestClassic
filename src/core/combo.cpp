@@ -417,7 +417,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		}
 	}
 	
-	string dmlevel = trigdmlevel < 0 ? "current level" : ("level " + trigdmlevel);
+	string dmlevel = trigdmlevel < 0 ? "current level" : fmt::format("level {}", trigdmlevel);
 	string statescreen_str = trigstatemap <= 0 ? "current screen" : fmt::format("map {} screen {}", trigstatemap, trigstatescreen);
 	std::ostringstream litems;
 	string litem_str;
