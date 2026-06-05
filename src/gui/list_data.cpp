@@ -2,7 +2,7 @@
 #include "gui/list_data.h"
 #include <map>
 
-using std::map, std::string, std::set, std::function, std::move;
+using std::map, std::string, std::set, std::function;
 namespace GUI
 {
 
@@ -24,7 +24,7 @@ ListData::ListData(::ListData const& jwinldata, int32_t valoffs) : _invalid(fals
 	for(size_t index = 0; index < size_t(sz); ++index)
 	{
 		string str(jwinldata.listFunc(index, NULL));
-		listItems.emplace_back(move(str), int32_t(index)+valoffs);
+		listItems.emplace_back(std::move(str), int32_t(index)+valoffs);
 	}
 }
 
