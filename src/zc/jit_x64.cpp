@@ -390,7 +390,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 
 		// Call external get_register_and_restore_sp.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignatureT<int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, stackIndex);
 		invokeNode->setRet(0, val);
@@ -401,7 +401,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 
 		// Call external get_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register, FuncSignature::build<int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setRet(0, val);
 	}
@@ -459,7 +459,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 		// Call external get_register_and_restore_sp.
 		x86::Gp val32 = cc.newInt32();
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignatureT<int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, stackIndex);
 		invokeNode->setRet(0, val32);
@@ -472,7 +472,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 		// Call external get_register.
 		x86::Gp val32 = cc.newInt32();
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register, FuncSignature::build<int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setRet(0, val32);
 		cc.movsxd(val, val32);
@@ -529,7 +529,7 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 
 		// Call external set_register_and_restore_sp.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register_and_restore_sp, FuncSignatureT<void, int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_register_and_restore_sp, FuncSignature::build<void, int32_t, int32_t, uint32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 		invokeNode->setArg(2, stackIndex);
@@ -541,7 +541,7 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 
 		// Call external set_guarded_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_guarded_register, FuncSignatureT<void, int32_t, int32_t, pc_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_guarded_register, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
@@ -552,7 +552,7 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 
 		// Call external set_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_register, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 	}
@@ -898,14 +898,14 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler& 
 	InvokeNode *invokeNode;
 	if (count == 1)
 	{
-		cc.invoke(&invokeNode, run_script_jit_one, FuncSignatureT<int32_t, JittedScriptInstance*, pc_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, run_script_jit_one, FuncSignature::build<int32_t, JittedScriptInstance*, pc_t, uint32_t>(state.calling_convention));
 		invokeNode->setArg(0, scriptInstancePtr);
 		invokeNode->setArg(1, state.pc);
 		invokeNode->setArg(2, stackIndex);
 	}
 	else
 	{
-		cc.invoke(&invokeNode, run_script_jit_sequence, FuncSignatureT<int32_t, JittedScriptInstance*, pc_t, uint32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, run_script_jit_sequence, FuncSignature::build<int32_t, JittedScriptInstance*, pc_t, uint32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, scriptInstancePtr);
 		invokeNode->setArg(1, state.pc);
 		invokeNode->setArg(2, stackIndex);
@@ -1106,7 +1106,7 @@ static x86::Gp compile_modv(CompilationState& state, x86::Compiler& cc, x86::Gp 
 		zero(cc, val);
 
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, log_error_mod_0, FuncSignatureT<void>(state.calling_convention));
+		cc.invoke(&invokeNode, log_error_mod_0, FuncSignature::build<void>(state.calling_convention));
 		return val;
 	}
 
@@ -1358,7 +1358,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			InvokeNode *invokeNode;
 			void script_remove_object_ref(int32_t offset);
-			cc.invoke(&invokeNode, script_remove_object_ref, FuncSignatureT<void, int32_t>(state.calling_convention));
+			cc.invoke(&invokeNode, script_remove_object_ref, FuncSignature::build<void, int32_t>(state.calling_convention));
 			invokeNode->setArg(0, offset);
 		}
 		break;
@@ -1380,7 +1380,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 
 			InvokeNode *invokeNode;
 			void script_store_object(uint32_t offset, uint32_t new_id);
-			cc.invoke(&invokeNode, script_store_object, FuncSignatureT<void, uint32_t, uint32_t>(state.calling_convention));
+			cc.invoke(&invokeNode, script_store_object, FuncSignature::build<void, uint32_t, uint32_t>(state.calling_convention));
 			invokeNode->setArg(0, offset);
 			invokeNode->setArg(1, val);
 		}
@@ -1662,7 +1662,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			cc.jnz(do_modulo);
 
 			InvokeNode *invokeNode;
-			cc.invoke(&invokeNode, log_error_mod_0, FuncSignatureT<void>(state.calling_convention));
+			cc.invoke(&invokeNode, log_error_mod_0, FuncSignature::build<void>(state.calling_convention));
 			cc.jmp(do_set_register);
 
 			cc.bind(do_modulo);
@@ -1743,7 +1743,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			cc.jnz(do_division);
 
 			InvokeNode *invokeNode;
-			cc.invoke(&invokeNode, log_error_div_0, FuncSignatureT<void>(state.calling_convention));
+			cc.invoke(&invokeNode, log_error_div_0, FuncSignature::build<void>(state.calling_convention));
 
 			x86::Gp sign = cc.newInt64();
 			cc.mov(sign, dividend);
@@ -1945,7 +1945,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 	for (auto& [pc, label] : state.resume_labels)
 		resume_annotation->addLabel(label);
 
-	auto fnNode = cc.addFunc(FuncSignatureT<int, JittedExecutionContext*>(state.calling_convention));
+	auto fnNode = cc.addFunc(FuncSignature::build<int, JittedExecutionContext*>(state.calling_convention));
 	state.ptrCtx = cc.newIntPtr("ctx");
 	fnNode->setArg(0, state.ptrCtx);
 
@@ -2162,7 +2162,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 			x86::Gp sp = get_tmp_sp(state, cc);
 
 			InvokeNode *invokeNode;
-			cc.invoke(&invokeNode, debug_pre_command, FuncSignatureT<void, int32_t, uint32_t>(state.calling_convention));
+			cc.invoke(&invokeNode, debug_pre_command, FuncSignature::build<void, int32_t, uint32_t>(state.calling_convention));
 			invokeNode->setArg(0, i);
 			invokeNode->setArg(1, sp);
 		}
