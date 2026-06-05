@@ -14,7 +14,7 @@ struct itemdata;
 struct newcombo;
 using std::map;
 
-extern bool     freeze_guys;
+extern bool freeze_holdup;
 extern int32_t fadeclk;
 extern int32_t global_frame;
 extern bool BSZ;
@@ -84,7 +84,7 @@ public:
     zfix slopeid;
     byte onplatid = 0;
     bool angular;
-    // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_guys`
+    // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_holdup`
     // is true (which is when the player is holding up an item)
     bool can_freeze_from_holdup;
     bool is_frozen = false;
