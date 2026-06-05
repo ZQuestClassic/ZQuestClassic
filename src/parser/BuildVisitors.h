@@ -63,6 +63,7 @@ namespace ZScript
 		virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param);
 		virtual void caseCustomDataTypeDef(ASTDataTypeDef& host, void* param);
+		using RecursiveVisitor::caseCustomDataTypeDef;
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -268,6 +269,7 @@ namespace ZScript
 		LValBOHelper(Program& program, Scope* scope);
 		LValBOHelper(Program& program, BuildOpcodes* bo);
 		virtual void caseDefault(void *param);
+		using ASTVisitor::caseDefault;
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
