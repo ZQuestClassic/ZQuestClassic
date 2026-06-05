@@ -161,7 +161,9 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 	return expr;
 }
 
+#ifdef _MSC_VER
 #pragma warning( disable : 4065 )
+#endif
 %}
 
 %code requires {
