@@ -84,8 +84,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	const char* tmpfilename = "ZQ_BUFFER";
 	FILE *tempfile = fopen(tmpfilename,"w");
 
-	char consolefilename[L_tmpnam];
-	std::tmpnam(consolefilename);
+	std::string consolefilename = (fs::temp_directory_path() / "zq_console_tmp.txt").string();
 
 	if(!tempfile)
 	{
@@ -102,7 +101,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	auto start_compile_time = std::chrono::steady_clock::now();
 	bool hasWarnErr = false;
 #ifdef __EMSCRIPTEN__
-	int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
+	int32_t code = em_compile_zscript(tmpfilename, consolefilename.c_str(), quest_rules_hex.c_str());
 #else
 	int32_t code = -9999;
 	parser_console.kill();
@@ -148,7 +147,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	try
 	{
 		pm->read(&syncthing, sizeof(int32_t));
-		console = fopen(consolefilename, "r");
+		console = fopen(consolefilename.c_str(), "r");
 		bool running = true;
 		if (console) 
 		{

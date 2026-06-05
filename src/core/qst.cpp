@@ -428,8 +428,8 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	bool compressed = unencrypted_result.compressed;
 	bool encrypted = unencrypted_result.encrypted;
 
-	char tmpfilename[L_tmpnam];
-	temp_name(tmpfilename);
+	char tmpfilename[512];
+	temp_name(tmpfilename, sizeof(tmpfilename));
 	char percent_done[30];
 	int32_t current_method=0;
     
@@ -1908,8 +1908,8 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		set_bit(skip_flags, skip_maps, 1);
 	}
 
-    char tmpfilename[L_tmpnam];
-    temp_name(tmpfilename);
+    char tmpfilename[512];
+    temp_name(tmpfilename, sizeof(tmpfilename));
     bool catchup=false;
     byte tempbyte;
 

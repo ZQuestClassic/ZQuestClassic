@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <cstring>
+#include <filesystem>
+#ifdef _WIN32
+#include <process.h>
+#define getpid _getpid
+#else
+#include <unistd.h>
+#endif
 #include "base/zapp.h"
 #include "zalleg/zalleg.h"
 #include <allegro/internal/aintern.h>
@@ -99,10 +106,12 @@ void extract_name(char const* path,char *name,int32_t type)
     name[n]=0;
 }
 
-void temp_name(char temporaryname[])
+void temp_name(char temporaryname[], size_t bufsize)
 {
-    // TODO: remove temp_name, use std::tmpnam() directly
-    std::tmpnam(temporaryname);
+    static int counter = 0;
+    namespace fs = std::filesystem;
+    auto path = fs::temp_directory_path() / ("zc_tmp_" + std::to_string(getpid()) + "_" + std::to_string(counter++));
+    snprintf(temporaryname, bufsize, "%s", path.string().c_str());
 }
 
 int32_t bound(int32_t &x,int32_t low,int32_t high)
@@ -928,9 +937,10 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 		// We must be reading the compressed contents of an allegro dataobject file. ex: `classic_qst.dat#NESQST_NEW_QST`.
 		// Let's extract the content and re-open as a separate file, so allegro will uncompress correctly.
 
-		char tmpfilename[L_tmpnam];
-		std::tmpnam(tmpfilename);
-		FILE* tf = fopen(tmpfilename, "wb");
+		namespace fs = std::filesystem;
+		static int tmpcount = 0;
+		std::string tmpfilename = (fs::temp_directory_path() / ("zc_dat_tmp_" + std::to_string(getpid()) + "_" + std::to_string(tmpcount++))).string();
+		FILE* tf = fopen(tmpfilename.c_str(), "wb");
 		PACKFILE* pf = zalleg_pack_fopen_password(filename, F_READ_PACKED, packfile_password);
 
 		int c;
@@ -945,7 +955,7 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 		
 		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
 		// We should put qsu in the dat file, or use a separate .qst file for new qst.
-		result.decoded_pf = zalleg_pack_fopen_password(tmpfilename, F_READ_PACKED, "");
+		result.decoded_pf = zalleg_pack_fopen_password(tmpfilename.c_str(), F_READ_PACKED, "");
 		return result;
 	}
 	else

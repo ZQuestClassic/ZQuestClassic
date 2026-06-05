@@ -8,6 +8,7 @@
 #include "base/ints.h"
 #include "core/zdefs.h"
 #include "gui/jwin.h"
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 
@@ -36,7 +37,7 @@ char *time_str_med(dword time);
 char *time_str_long(dword time);
 
 void extract_name(char const* path,char *name,int32_t type);
-void temp_name(char temporaryname[]);
+void temp_name(char temporaryname[], size_t bufsize);
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int32_t size);
 void chop_path(char *path);
 bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2);

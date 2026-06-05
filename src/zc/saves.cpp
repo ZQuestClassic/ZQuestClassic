@@ -1698,8 +1698,8 @@ static bool load_from_save_file(ReadMode read_mode, fs::path filename, std::vect
 	std::string error;
 	int32_t ret;
 	PACKFILE *pf=NULL;
-	char tmpfilename[L_tmpnam];
-	temp_name(tmpfilename);
+	char tmpfilename[512];
+	temp_name(tmpfilename, sizeof(tmpfilename));
 
 	auto filenameStr = filename.string();
 	auto filenameCStr = filenameStr.c_str();
