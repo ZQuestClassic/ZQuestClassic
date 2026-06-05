@@ -61,9 +61,9 @@ public:
 	using message_queue = std::queue<std::pair<websocketpp::frame::opcode::value, std::string>>;
 
 	connection_metadata(int id, websocketpp::connection_hdl hdl, std::string uri)
-		: m_id(id)
+		: m_status("Connecting")
+		, m_id(id)
 		, m_hdl(hdl)
-		, m_status("Connecting")
 		, m_uri(uri)
 		, m_server("N/A")
 	{}
