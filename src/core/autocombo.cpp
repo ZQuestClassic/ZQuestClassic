@@ -55,8 +55,6 @@ void combo_auto::updateValid()
 	bool canDupe = false;
 	bool canCombo0 = false;
 
-	bool hasCombo0 = false;
-
 	invalid_reasons = 0;
 	switch(type)
 	{
@@ -110,8 +108,6 @@ void combo_auto::updateValid()
 					break;
 				}
 			}
-			if (c2.cid == 0)
-				hasCombo0 = true;
 		}
 	}
 

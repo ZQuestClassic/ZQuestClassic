@@ -47,7 +47,7 @@ int32_t subscreenwidget_get_register(int32_t reg)
 		}
 		case SUBWIDGINDEX:
 		{
-			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			if(checkSubWidg(GET_REF(subscreenwidgref)))
 			{
 				auto [_sub,_ty,_pgid,ind] = from_subref(GET_REF(subscreenwidgref));
 				ret = 10000*ind;
@@ -56,7 +56,7 @@ int32_t subscreenwidget_get_register(int32_t reg)
 		}
 		case SUBWIDGPAGE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(GET_REF(subscreenwidgref)))
+			if(checkSubWidg(GET_REF(subscreenwidgref)))
 			{
 				auto [sub,ty,pgid,_ind] = from_subref(GET_REF(subscreenwidgref));
 				ret = get_subref(sub,ty,pgid,0);

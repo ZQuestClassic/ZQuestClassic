@@ -41,7 +41,9 @@ bool item::animate(int32_t)
 	update_current_screen();
 	
 	itemdata const& base_item = get_item_data(id);
+#ifndef IS_EDITOR
 	int dispid = id;
+#endif
 	itemdata const* disp_item = &base_item;
 	if (base_item.type == itype_progressive_itm)
 	{
@@ -51,7 +53,9 @@ bool item::animate(int32_t)
 		else if (id2 != id)
 		{
 			disp_item = &itemsbuf.get(id2);
+#ifndef IS_EDITOR
 			dispid = id2;
+#endif
 		}
 		
 		if(id2 != linked_parent) //Update item

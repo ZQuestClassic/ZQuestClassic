@@ -35,9 +35,9 @@ int32_t subscreenpage_get_register(int32_t reg)
 				ret = pg->size() * 10000;
 			break;
 		}
-		case SUBPGSUBDATA: 
+		case SUBPGSUBDATA:
 		{
-			if(SubscrPage* pg = checkSubPage(GET_REF(subscreenpageref)))
+			if(checkSubPage(GET_REF(subscreenpageref)))
 			{
 				auto [sub,ty,_pgid,_ind] = from_subref(GET_REF(subscreenpageref));
 				ret = get_subref(sub,ty,0,0);

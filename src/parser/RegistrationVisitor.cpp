@@ -446,7 +446,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	{
 		//Don't allow use of a name that already exists
 		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(name, host.location));
-		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		if(lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(&host, host.getName()));
@@ -675,7 +675,7 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 	{
 		//Don't allow use of a name that already exists
 		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(host.name, host.location));
-		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		if(lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(

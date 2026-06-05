@@ -349,7 +349,6 @@ void do_npc_newdir8()
 int32_t npc_collision()
 {
 	int32_t _obj_type = (GET_D(rINDEX) / 10000);
-	int32_t _obj_ptr = (GET_D(rINDEX2));
 
 	int32_t isColl = 0;
 	if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
@@ -357,43 +356,17 @@ int32_t npc_collision()
 		switch(_obj_type)
 		{
 			case obj_type_lweapon:
-			{
-				isColl = 0;
-				break;
-			}
 			case obj_type_eweapon:
-			{
-				isColl = 0;
-				break;
-			}
 			case obj_type_npc:
-			{
-				isColl = 0;
-				break;
-			}
 			case obj_type_player:
-			{
-				isColl = 0;
-				break;
-			}
 			case obj_type_ffc:
-			{
-				_obj_ptr *= 10000; _obj_ptr -= 1;
-				isColl = 0;
-				break;
-			}
 			case obj_type_combo_pos:
-			{
-				_obj_ptr *= 10000;
-				isColl = 0;
-				break;
-			}
 			case obj_type_item:
 			{
 				isColl = 0;
 				break;
 			}
-			default: 
+			default:
 			{
 				Z_scripterrlog("Invalid object type (%d) passed to npc->Collision(int32_t type, int32_t ptr)\n", _obj_type);
 				isColl = 0;

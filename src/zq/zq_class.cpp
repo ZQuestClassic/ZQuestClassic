@@ -6197,11 +6197,8 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
 #endif
 
     //Protection against compiling a release version with password protection off.
-    static bool passguard = false;
-    
 #if ( !(defined _DEBUG) || (defined _RELEASE || defined NDEBUG || defined _NDEBUG) )
 #define MUST_HAVE_PASSWORD
-    passguard = true;
 #endif
     
 #if ( !(defined MUST_HAVE_PASSWORD) || defined _NPASS )

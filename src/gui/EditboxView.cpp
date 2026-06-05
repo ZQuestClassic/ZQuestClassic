@@ -591,9 +591,6 @@ bool EditboxVScrollView::mouseClick(int32_t x, int32_t y)
 
 bool EditboxVScrollView::mouseDrag(int32_t x, int32_t  y)
 {
-	int32_t textheight;
-	textheight = text_height(textfont);
-	
 	if(model->getSelection().isSelecting())
 	{
 		return BasicEditboxView::mouseDrag(x,y);
@@ -770,8 +767,6 @@ void EditboxNoWrapView::init()
 void EditboxNoWrapView::drawExtraComponents()
 {
 	EditboxVScrollView::drawExtraComponents();
-	int32_t textheight;
-	textheight = text_height(textfont);
 	//draw the scrollbar
 	draw_arrow_button_horiz(dbuf, leftarrow_x-host->x, leftarrow_y-host->y, 16, 16, true, leftarrow_state*3);
 	draw_arrow_button_horiz(dbuf, rightarrow_x-host->x, rightarrow_y-host->y, 16, 16, false, rightarrow_state*3);

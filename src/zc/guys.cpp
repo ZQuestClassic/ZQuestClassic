@@ -9992,8 +9992,6 @@ bool eBoulder::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	zfix *vert;
-	vert = (moveflags & move_use_fake_z) ? &fakez : get_qr(qr_ENEMIESZAXIS) ? &z : &y;
 	
 	if(++clk2==0)                                             // start it
 	{

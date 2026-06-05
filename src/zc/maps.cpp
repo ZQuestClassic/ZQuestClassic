@@ -1389,7 +1389,6 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 static void _handle_screen_load_trigger(const combined_handle_t& handle)
 {
 	auto cid = handle.data();
-	auto* cmb = &handle.combo();
 	bool done = false;
 	std::set<int32_t> visited;
 	while(!done)
@@ -1400,7 +1399,7 @@ static void _handle_screen_load_trigger(const combined_handle_t& handle)
 			break; // prevent infinite loop
 		}
 		visited.insert(cid);
-		
+
 		done = true; // don't loop again unless something changes
 		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENLOAD);
@@ -1408,7 +1407,6 @@ static void _handle_screen_load_trigger(const combined_handle_t& handle)
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
-			cmb = &handle.combo();
 			done = false; // loop again for the new combo
 		}
 	}
@@ -1433,7 +1431,6 @@ void handle_region_load_trigger()
 static void _handle_screen_unload_trigger(const combined_handle_t& handle)
 {
 	auto cid = handle.data();
-	auto* cmb = &handle.combo();
 	bool done = false;
 	std::set<int32_t> visited;
 	while(!done)
@@ -1444,7 +1441,7 @@ static void _handle_screen_unload_trigger(const combined_handle_t& handle)
 			break; // prevent infinite loop
 		}
 		visited.insert(cid);
-		
+
 		done = true; // don't loop again unless something changes
 		trig_each_combo_trigger(handle, [&](combo_trigger const& trig){
 			return trig.trigger_flags.get(TRIGFLAG_SCREENUNLOAD);
@@ -1452,7 +1449,6 @@ static void _handle_screen_unload_trigger(const combined_handle_t& handle)
 		if(handle.data() != cid)
 		{
 			cid = handle.data();
-			cmb = &handle.combo();
 			done = false; // loop again for the new combo
 		}
 	}

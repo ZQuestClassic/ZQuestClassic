@@ -2185,33 +2185,27 @@ void loadcombopack([[maybe_unused]] const char *prompt, [[maybe_unused]] int32_t
 {
 
 	char firsttile[8];
-	int32_t first_tile_id = 0; int32_t the_tile_count = 1;
 	snprintf(firsttile,sizeof(firsttile),"%d",0);
-		//int32_t ret;
-
-
+	//int32_t ret;
 
 	load_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
 
 	snprintf(firsttile,sizeof(firsttile),"%d",0);
-	
+
 	load_combopack_dlg[5].dp = firsttile;
-	
+
 	byte nooverwrite = 0;
-	
-	
+
 	large_dialog(load_combopack_dlg);
-	
+
 	int32_t ret = do_zqdialog(load_combopack_dlg,-1);
 	jwin_center_dialog(load_combopack_dlg);
-	
+
 	if(ret == 8)
 	{
 		if (load_combopack_dlg[10].flags & D_SELECTED) nooverwrite = 1;
-	
+
 		al_trace("Nooverwrite is: %d\n", nooverwrite);
-		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
-		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(prompt_for_existing_file_compat("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
 			char name[256];
@@ -4792,16 +4786,6 @@ void draw_sqr_btn(size_and_pos const& sqr, int icon, int flags, FONT* f = nullpt
 void drawpanel()
 {
 	mapscr *scr=Map.CurrScr();
-	int32_t NextCombo = combobuf[Combo].nextcombo;
-	int32_t NextCSet = combobuf[Combo].nextcset;
-	if(combobuf[Combo].animflags & AF_CYCLEUNDERCOMBO)
-	{
-		NextCombo = scr->undercombo;
-		NextCSet = scr->undercset;
-	}
-	if(combobuf[Combo].animflags & AF_CYCLENOCSET)
-		NextCSet = CSet;
-	
 	FONT* tfont = font;
 	if(prv_mode)
 	{
@@ -6239,10 +6223,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					jwin_draw_frame(screen,pos.x-2,pos.y-2,(pos.w*pos.xscale)+4,(pos.h*pos.yscale)+4,FR_DEEP);
 				}
 				
-				int32_t drawmap, drawscr;
-				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
 					auto per_page = (combolist[j].w * combolist[j].h);
@@ -6271,10 +6251,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		break;
 		case rCOMBO:
 		{
-			int32_t drawmap, drawscr;
-			drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-			drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-			
 			// Combo preview
 			int32_t cid = Combo; int8_t cs = CSet;
 			if(draw_mode == dm_alias)
@@ -6747,20 +6723,18 @@ void refresh(int32_t flags, bool update)
 			show_screen_error(buf,i++,vc(15));
 		}
 		
-		bool continuescreen = false, savecombo = false;
-		
+		bool savecombo = false;
+
 		if(Map.CurrScr()->flags4&fAUTOSAVE)
 		{
 			snprintf(buf,sizeof(buf),"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
 			show_screen_error(buf,i++,vc(15));
-			continuescreen = ((Map.CurrScr()->flags6&fCONTINUEHERE)!=0);
 			savecombo = true;
 		}
 		else if(Map.CurrScr()->flags6&fCONTINUEHERE)
 		{
 			snprintf(buf,sizeof(buf),"Continue Screen");
 			show_screen_error(buf,i++,vc(15));
-			continuescreen = true;
 		}
 		
 		if(isSideViewGravity())
@@ -15625,7 +15599,7 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t 
 {
     if(!combo->combo)
     {
-        int32_t cur_layer, temp_layer;
+        int32_t temp_layer;
         
         int32_t cw=combo->width+1;
         int32_t ch=combo->height+1;
@@ -15656,20 +15630,18 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t 
             for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
             {
                 int32_t k=0;
-                cur_layer=0;
                 temp_layer=combo->layermask;
-                
+
                 while((temp_layer!=0)&&(k<z))
                 {
                     if(temp_layer&1)
                     {
                         k++;
                     }
-                    
-                    cur_layer++;
+
                     temp_layer = temp_layer>>1;
                 }
-                
+
                 for(int32_t y2=0; (y2<dh)&&((y2>>4)<=combo->height); y2+=16)
                 {
                     for(int32_t x2=0; (x2<dw)&&((x2>>4)<=combo->width); x2+=16)
@@ -15847,9 +15819,6 @@ int32_t onOrgComboAliases()
 	char cDest[8];
 	snprintf(cSrc,sizeof(cSrc),"%d", getcurrentcomboalias());
 	strcpy(cDest,cSrc);
-	int32_t iSrc = 0;
-	int32_t iDest = 0;
-	
 	orgcomboa_dlg[0].dp2=get_zc_font(font_lfont);
 	orgcomboa_dlg[6].dp= cSrc;
 	orgcomboa_dlg[7].dp= cDest;
@@ -15857,8 +15826,6 @@ int32_t onOrgComboAliases()
 	large_dialog(orgcomboa_dlg);
 	do
 	{
-		iSrc = atoi((char*)orgcomboa_dlg[6].dp);
-		iDest = atoi((char*)orgcomboa_dlg[7].dp);
 		ret = do_zqdialog(orgcomboa_dlg,-1);
 		
 		if(ret!=1) return ret;
@@ -21760,7 +21727,7 @@ void FFScript::updateIncludePaths()
 {
 	includePaths.clear();
 	int32_t pos = 0; int32_t pathnumber = 0;
-	for ( int32_t q = 0; includePathString[pos]; ++q )
+	while ( includePathString[pos] )
 	{
 		int32_t dest = 0;
 		char buf[2048] = {0};

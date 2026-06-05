@@ -106,8 +106,8 @@ optional<int> get_next_keypress(bool check_mod_keys)
 {
 	if (keypressed())
 	{
-		int val, scancode;
-		val = ureadkey(&scancode);
+		int scancode;
+		ureadkey(&scancode);
 		
 		return scancode;
 	}

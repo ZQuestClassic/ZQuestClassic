@@ -2119,7 +2119,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		undo_is_floatsel = false;
 	}
 	
-	int32_t tile_x=-1, tile_y=-1;
 	int32_t temp_x=-1, temp_y=-1;
 	bool bdown=false;
 	int32_t done=0;
@@ -2223,7 +2222,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		int32_t temp_mouse_y=gui_mouse_y();
 		//rest(4);
 		bool redraw=false;
-		bool did_wand_select=false;
 		
 		if(keypressed())
 		{
@@ -2751,7 +2749,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			
 			selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
-			did_wand_select=false;
 		}
 		
 		bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
@@ -3139,8 +3136,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		temp_y=(gui_mouse_y()-zoomtile.y)/zoomtile.yscale;
 		
 		{
-			tile_x=temp_x;
-			tile_y=temp_y;
 			redraw=true;
 		}
 		

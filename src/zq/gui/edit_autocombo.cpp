@@ -823,11 +823,9 @@ void AutoComboDialog::refreshWidgets()
 	temp_arg = temp_autocombo.getArg();
 
 	byte tiling_w = 1;
-	byte tiling_h = 1;
 	if (temp_autocombo.getType() == AUTOCOMBO_TILING)
 	{
 		tiling_w = (temp_autocombo.getArg() & 0xF) + 1;
-		tiling_h = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
 	}
 
 	size_t per_row = 4;

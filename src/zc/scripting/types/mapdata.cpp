@@ -326,7 +326,7 @@ int32_t mapdata_get_register(int32_t reg)
 		case MAPDATAEXDOOR:
 		{
 			ret = 0;
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi < 0) break;
@@ -348,7 +348,7 @@ int32_t mapdata_get_register(int32_t reg)
 		case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy); break;		//b
 		case MAPDATAGUYCOUNT:
 		{
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi > -1)
@@ -438,7 +438,7 @@ int32_t mapdata_get_register(int32_t reg)
 		case MAPDATASCRDATASIZE:
 		{
 			ret = -10000;
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int index = get_ref_map_index(GET_REF(mapdataref));
 				if (index < 0) break;
@@ -705,7 +705,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y); break;	//B
 		case MAPDATAEXDOOR:
 		{
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi < 0) break;
@@ -724,7 +724,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 		case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy); break;		//b
 		case MAPDATAGUYCOUNT:
 		{
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int mi = get_mi(GET_REF(mapdataref));
 				if(mi > -1)
@@ -814,7 +814,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 		case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room);	break;		//b
 		case MAPDATASCRDATASIZE:
 		{
-			if (mapscr *m = ResolveMapdataScr(GET_REF(mapdataref)))
+			if (ResolveMapdataScr(GET_REF(mapdataref)))
 			{
 				int index = get_ref_map_index(GET_REF(mapdataref));
 				if (index < 0) break;

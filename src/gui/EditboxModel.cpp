@@ -569,8 +569,6 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 	int32_t startoffset = 0;
 	int32_t startindex = 0;
 	int32_t endindex = 0;
-	int32_t lineno;
-	lineno=0;
 	int32_t endoffset;
 	
 	for(endoffset = 0; endoffset != int32_t(str.size()); endindex++)

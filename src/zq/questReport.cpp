@@ -475,16 +475,14 @@ void integrityCheckEnemiesItem()
     mapscr *ts=NULL;
     char buf[255];
     
-    bool problem_found=false;
     bool type_found=false;
-    
+
     for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
         for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            problem_found=true;
             ts=&TheMaps[m*MAPSCRS+s];
-            
+
             if(integrityBoolEnemiesItem(ts))
             {
                 if(!type_found)
@@ -492,7 +490,7 @@ void integrityCheckEnemiesItem()
                     quest_report_str+="The following screens have the Enemies->Item flag set, but there are no enemies in the screen:\n";
                     type_found = true;
                 }
-                
+
                 buf[0]=0;
                 snprintf(buf, sizeof(buf), "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;
@@ -552,16 +550,14 @@ void integrityCheckEnemiesSecret()
     mapscr *ts=NULL;
     char buf[255];
     
-    bool problem_found=false;
     bool type_found=false;
-    
+
     for(int32_t m=0; m<Map.getMapCount(); ++m)
     {
         for(int32_t s=0; s<MAPSCRS; ++s)
         {
-            problem_found=true;
             ts=&TheMaps[m*MAPSCRS+s];
-            
+
             if(integrityBoolEnemiesSecret(ts))
             {
                 if(!type_found)
@@ -569,7 +565,7 @@ void integrityCheckEnemiesSecret()
                     quest_report_str+="The following screens have the Enemies->Secret flag set, but there are no enemies in the room. This may not indicate a problem:\n";
                     type_found = true;
                 }
-                
+
                 buf[0]=0;
                 snprintf(buf, sizeof(buf), "%s %10s\n", palname_spaced(ts->color), formatMapScreenPair(m + 1, s).c_str());
                 quest_report_str+=buf;

@@ -11295,7 +11295,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				uint32_t bitref = SH::read_stack(ri->sp+2);
 				SET_D(rEXP2, bitref);
-				if(user_bitmap* b = checkBitmap(bitref,false,true))
+				if(checkBitmap(bitref,false,true))
 					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated, attempt to allocate it first
 				{
@@ -11311,7 +11311,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				int ref = SH::read_stack(ri->sp+3);
 				SET_D(rEXP2, ref);
-				if(user_bitmap* b = checkBitmap(ref,false,true))
+				if(checkBitmap(ref,false,true))
 					do_drawing_command(scommand, false);
 				else //If the pointer isn't allocated
 				{
@@ -12527,7 +12527,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			}
 			case SUBDATA_CLOSE:
 			{
-				if(ZCSubscreen* sub = checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
+				if(checkSubData(GET_REF(subscreendataref), {sstACTIVE, sstMAP}))
 				{
 					if (type != ScriptType::EngineSubscreen
 						|| ri->subscreendataref != get_subref(-1, i))

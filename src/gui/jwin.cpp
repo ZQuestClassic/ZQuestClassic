@@ -2629,7 +2629,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(d->h >= 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
 		return jwin_vedit_proc(msg, d, c);
-	int32_t f, l, p, w, x, y, fg, bg, fg2 = -1, bg2 = -1, fg3, bg3;
+	int32_t f, l, p, w, x, y, fg, bg, fg2 = -1, bg2 = -1, bg3;
 	int32_t b;
 	int32_t scroll;
 	char *s;
@@ -2724,21 +2724,18 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				bg2 = scheme[jcDISABLED_BG];
 				fg = scheme[jcDISABLED_FG];
 				bg = -1;
-				fg3 = fg;
 				bg3 = bg2;
 			}
 			else if(d->flags & D_READONLY)
 			{
 				fg = scheme[jcALT_TEXTFG];
 				bg = scheme[jcALT_TEXTBG];
-				fg3 = fg;
 				bg3 = bg;
 			}
 			else
 			{
 				fg = scheme[jcTEXTFG];
 				bg = scheme[jcTEXTBG];
-				fg3 = fg;
 				bg3 = bg;
 			}
 			
@@ -7701,7 +7698,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
         ((int16_t *)src_bmp->line[0])[i] = c;
     }
     
-    uint8_t tempcolor, origcolor;
+    uint8_t tempcolor;
     
     for(int32_t j=0; j<=y2-y1; ++j)
     {
@@ -7729,7 +7726,6 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
                                diff[0][i+2][2]+
                                cdiff[2],0,255);
                 //        bmp->line[j][i+x1]=bound(makecol8_map(int32_t(cdiff[0]),int32_t(cdiff[1]),int32_t(cdiff[2]),&table),dest_color1,dest_color2);
-                origcolor=makecol8_map(mr,mg,mb,&table);
                 //        tempcolor=bound(makecol8_map(cdiff[0],cdiff[1],cdiff[2],&table),origcolor-1,origcolor+1);
                 tempcolor=makecol8_map(cdiff[0],cdiff[1],cdiff[2],&table);
                 dest_bmp->line[j][i]=tempcolor;
@@ -7778,7 +7774,6 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
                                diff[0][i+2][2]+
                                cdiff[2],0,255);
                 //        bmp->line[j][i+x1]=bound(makecol8_map(int32_t(cdiff[0]),int32_t(cdiff[1]),int32_t(cdiff[2]),&table),dest_color1,dest_color2);
-                origcolor=makecol8_map(mr,mg,mb,&table);
                 //        tempcolor=bound(makecol8_map(cdiff[0],cdiff[1],cdiff[2],&table),origcolor-1,origcolor+1);
                 tempcolor=makecol8_map(cdiff[0],cdiff[1],cdiff[2],&table);
                 dest_bmp->line[j][i]=tempcolor;

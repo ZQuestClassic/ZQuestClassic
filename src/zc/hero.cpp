@@ -2229,10 +2229,9 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     // Place a sword weapon at the right spot.
     int32_t wy=1;
     int32_t wx=1;
-    int32_t f=0,t,cs2;
-    
+    int32_t f=0,t;
+
     t = w->o_tile;
-    cs2 = w->o_cset;
     slashxofs=0;
     slashyofs=0;
     
@@ -2401,7 +2400,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wy-=9;
                 wx-=3;
                 t = spr2.tile;
-                cs2 = spr2.csets&15;
+
                 f=0;
             }
             
@@ -2418,7 +2417,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wy+=15;
                 wx+=2;
                 t = spr2.tile;
-                cs2 = spr2.csets&15;
+
                 ++t;
                 f=0;
             }
@@ -2437,7 +2436,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wy+=3;
                 slashxofs-=1;
                 t = spr2.tile;
-                cs2 = spr2.csets&15;
+
                 t+=2;
                 f=0;
             }
@@ -2465,7 +2464,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wx+=15;
                 slashxofs+=1;
                 t = spr2.tile;
-                cs2 = spr2.csets&15;
+
                 
                 if(spins>0 || (itm.flags & item_flag8))
                 {
@@ -2482,13 +2481,6 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             
             break;
         }
-    }
-    
-    int32_t itemid2 = current_item_id(itype_chargering);
-    
-    if(charging> (valid_item_id(itemid2) ? itemsbuf.get(itemid2).misc1 : 64))
-    {
-        cs2=(BSZ ? (global_frame&3)+6 : ((global_frame>>2)&1)+7);
     }
     
     w->x = x+wx;
@@ -2729,7 +2721,7 @@ void HeroClass::draw(BITMAP* dest)
 			{
 				int32_t wy=1;
 				int32_t wx=1;
-				int32_t f=0,t,cs2;
+				int32_t f=0,t;
 				weapon *w=NULL;
 				bool found = false;
 				
@@ -2752,8 +2744,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 				
 				t = w->o_tile;
-				cs2 = w->o_cset;
-				
+
 				switch(dir)
 				{
 				case up:
@@ -4804,13 +4795,6 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
 	if(combobuf[cid].only_gentrig)
 		type = cNONE;
-    byte dontignore = 0;
-    byte dontignoreffc = 0;
-    
-	    if (isCuttableType(type) && FindComboTriggerMatch(w, cid) > -1)
-	    {
-		dontignore = 1;
-	    }
 	if(w->useweapon != wSword) return;
 
     auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
@@ -8254,10 +8238,8 @@ heroanimate_skip_liftwpn:;
 	else if(sideview_mode())  // Sideview gravity
 	{
 		//Handle falling through a platform
-		bool platformfell = false;
 		if (on_sideview_solid_oldpos(this,true,3) && !on_sideview_solid_oldpos(this,false,3))
 		{
-			if (!(!on_sideview_slope(Hero.x, Hero.y, Hero.old_x, Hero.old_y) && (on_sideview_slope(Hero.x, Hero.y + 1, Hero.old_x, Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && getInput(btnDown, INPUT_HERO_ACTION))) platformfell = true;
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
 			if(jumping < 0) jumping = 0;
@@ -19279,14 +19261,14 @@ bool HeroClass::premove()
 			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = up;
 			if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = down;
 		}
-		
+
 		if((yoff==0)||diagonalMovement)
 		{
 			if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = left;
 			if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = right;
 		}
 	}
-	
+
 	switch(dir)
 	{
 	case up:
@@ -21581,7 +21563,6 @@ void HeroClass::checkpushblock()
 			continue;
 		
 		bool doit=false;
-		bool changecombo=false;
 		
 		int blockdir = dir;
 		if(blockdir > 3) blockdir = Y_DIR(dir);
@@ -21641,7 +21622,6 @@ void HeroClass::checkpushblock()
 					((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
 					f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
 			{
-				changecombo=true;
 				doit=true;
 			}
 		}
@@ -21866,7 +21846,6 @@ void HeroClass::oldchecklockblock()
 	
 	bool found1=false;
 	bool found2=false;
-	int32_t foundlayer = -1;
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
@@ -21878,7 +21857,6 @@ void HeroClass::oldchecklockblock()
 		if (!ignore_layer_0)
 		{
 			found1=true;
-			foundlayer = 0;
 		}
 	}
 	else if (cmb2.type==cLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2,by,1, -1) && !has_bridge_above(bx2, by, 0))
@@ -21887,14 +21865,12 @@ void HeroClass::oldchecklockblock()
 		if (!ignore_layer_0)
 		{
 			found2=true;
-			foundlayer = 0;
 		}
 	}
-	
+
 	// Layers
 	if(!(found1 || found2))
 	{
-		foundlayer = -1;
 		for(int32_t i=0; i<2; i++)
 		{
 			cid1 = MAPCOMBO2(i, bx, by);
@@ -21904,13 +21880,11 @@ void HeroClass::oldchecklockblock()
 			if(cmb.type==cLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx,by,1, i) && !has_bridge_above(bx, by, i+1))
 			{
 				found1=true;
-				foundlayer = i+1;
 				break;
 			}
 			else if(cmb2.type==cLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2,by,1, i) && !has_bridge_above(bx2, by, i+1))
 			{
 				found2=true;
-				foundlayer = i+1;
 				break;
 			}
 		}
@@ -21989,7 +21963,6 @@ void HeroClass::oldcheckbosslockblock()
 
 	bool found1 = false;
 	bool found2 = false;
-	int32_t foundlayer = -1;
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
@@ -22003,7 +21976,6 @@ void HeroClass::oldcheckbosslockblock()
 		if (!ignore_layer_0)
 		{
 			found1=true;
-			foundlayer = 0;
 			cmb_screen_index = get_screen_for_world_xy(bx, by);
 		}
 	}
@@ -22013,16 +21985,13 @@ void HeroClass::oldcheckbosslockblock()
 		if (!ignore_layer_0)
 		{
 			found2=true;
-			foundlayer = 0;
 			cmb_screen_index = get_screen_for_world_xy(bx2, by);
 		}
 	}
 
-
 	// Layers
 	if (!(found1 || found2))
 	{
-		foundlayer = -1;
 		for (int32_t i = 0; i < 2; i++)
 		{
 			cid1 = MAPCOMBO2(i, bx, by);
@@ -22032,14 +22001,12 @@ void HeroClass::oldcheckbosslockblock()
 			if (cmb.type == cBOSSLOCKBLOCK && !(cmb.only_gentrig) && _effectflag(bx, by, 1, i) && !has_bridge_above(bx, by, i+1))
 			{
 				found1 = true;
-				foundlayer = i;
 				cmb_screen_index = get_screen_for_world_xy(bx, by);
 				break;
 			}
 			else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.only_gentrig) && _effectflag(bx2, by, 1, i) && !has_bridge_above(bx2, by, i+1))
 			{
 				found2 = true;
-				foundlayer = i;
 				cmb_screen_index = get_screen_for_world_xy(bx2, by);
 				break;
 			}
@@ -22602,7 +22569,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	newcombo const& cmb = combobuf[foundffc ? foundffc->data() : found];
 	
 	byte signInput = 0;
-	bool didsign = false, didprompt = false;
+	bool didprompt = false;
 	if(cmb.type == cSIGNPOST && !(cmb.only_gentrig))
 	{
 		switch(dir)
@@ -22645,7 +22612,6 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
 		
 		trigger_sign(cmb, foundffc ? foundffc->screen : found_screen);
-		didsign = true;
 	}
 endsigns:
 	auto& cpos = cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr));
@@ -31485,16 +31451,6 @@ bool HeroClass::checkitems(int32_t index)
 				boughtsomething=true;
 				//make the other shop items untouchable after
 				//you buy something
-				int32_t count = 0;
-				
-				for(int32_t i=0; i<3; i++)
-				{
-					if(QMisc.shop[item_scr->catchall].hasitem[i] != 0)
-					{
-						++count;
-					}
-				}
-				
 				for(int32_t i=0; i<items.Count(); i++)
 				{
 					if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
@@ -33556,14 +33512,11 @@ HeroClass::WalkflagInfo HeroClass::WalkflagInfo::operator !()
 
 void HeroClass::explode(int32_t type)
 {
-	static int32_t tempx, tempy;
 	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(herotilebuf, unpackbuf, 256);
-	tempx=Hero.getX();
-	tempy=Hero.getY();
 	for(int32_t i=0; i<16; ++i)
 	{
                 for(int32_t j=0; j<16; ++j)

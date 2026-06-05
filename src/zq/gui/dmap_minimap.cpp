@@ -15,7 +15,6 @@ namespace GUI
 {
 	int32_t new_xmaplist_proc(int32_t msg, DIALOG* d, [[maybe_unused]] int32_t c)
 	{
-		static bool xmap_drawn = false;
 		int32_t ret = D_O_K;
 
 		DMapMinimap* widg = (DMapMinimap*)d->dp3;
@@ -62,7 +61,6 @@ namespace GUI
 
 			jwin_draw_frame(screen, (x - frame_thickness) + 1, (y - frame_thickness) + 1, 180, 84, FR_DEEP);
 			drawxmap(widg->rti->bitmap, widg->cur_map-1, widg->offset, widg->small_dmap, x, y);
-			xmap_drawn = true;
 		}
 
 		return ret;
