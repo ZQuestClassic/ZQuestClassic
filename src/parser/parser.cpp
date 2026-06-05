@@ -120,9 +120,6 @@ void zparser_warn_out(std::string message)
 	diag.range.end.character = yylloc.last_column - 1;
 }
 
-static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
-static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
-static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
 void _console_print(char const* str, int32_t code)
 {
