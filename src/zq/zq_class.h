@@ -127,6 +127,7 @@ public:
     // The map, screen, and zoom settings that the user was on when command was created.
 	MapCursor cursor;
 
+    virtual ~user_input_command() = default;
     virtual void execute() = 0;
     virtual void undo() = 0;
     // Rough estimate of how much memory retained by the command, in terms of sizeof(mapscr).
