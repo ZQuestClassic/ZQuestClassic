@@ -27,7 +27,7 @@ namespace AutoPattern
 		apcombo* ap = add(exscreen, expos, true);
 		if (!ap)
 			return false;
-		int32_t oldconn;
+		int32_t oldconn = 0;
 		for (int32_t i = 0; i < 4; ++i)
 		{
 			if (ap->adj[i] && ap->adj[i]->connflags & (1 << oppositeDir[i]))
