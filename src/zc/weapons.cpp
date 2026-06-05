@@ -6515,7 +6515,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			{
 				if (!ffcIsAt(ffc_handle, checkx, checky))
 					return true;
-				if (ignoreffc != -1 && ignoreffc == ffc_handle.id)
+				if (ignoreffc != ffc_id_t(-1) && ignoreffc == ffc_handle.id)
 				{
 					was_ignored = true;
 					return true;
