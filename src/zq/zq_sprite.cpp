@@ -6,6 +6,7 @@ bool BSZ=false;
 int32_t conveyclk=0;
 byte newconveyorclk=0;
 bool freeze_guys=false;
+bool freeze_message = false, freeze_general = false, freeze_ffc = false;
 
 void sprite::handle_sprlighting()
 {

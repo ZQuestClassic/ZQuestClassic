@@ -3,6 +3,7 @@
 #include "base/dmap.h"
 #include "zc/zc_ffc.h"
 #include "zc/zelda.h"
+#include "zc/replay_compat.h"
 #include "sprite.h"
 #include "zc/decorations.h"
 #include "zc/combos.h"
@@ -3812,7 +3813,12 @@ void cpos_update() //updates with side-effects
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	
+	// Don't tick combos/ffcs while the screen is frozen (e.g. shooter/crumble combos).
+	// Replay-gated so older replays keep the old (always-tick) behavior.
+	bool freeze_combo_cpos = !replay_compat_frozen_combos_tick_bug() && (freeze_general || freeze_message || freeze_guys);
+	bool freeze_ffc_cpos = !replay_compat_frozen_combos_tick_bug() && (freeze_ffc || freeze_message || freeze_guys);
+
+	if (!freeze_combo_cpos)
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
@@ -3852,6 +3858,7 @@ void cpos_update() //updates with side-effects
 			handle_cpos_type(cmb,timer,lyr,pos);
 		}
 	}
+	if (!freeze_ffc_cpos)
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		ffcdata& f = ffscr->ffcs[ffc];

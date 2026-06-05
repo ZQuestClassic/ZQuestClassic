@@ -12,5 +12,6 @@ bool replay_compat_charging_during_scroll_bug();
 bool replay_compat_whistle_stuck_bug();
 bool replay_compat_dropset_reroll_rng_bug();
 bool replay_compat_respawn_point_missing_dmg_conveyor_bug();
+bool replay_compat_frozen_combos_tick_bug();
 
 #endif

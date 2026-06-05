@@ -353,6 +353,7 @@ bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,watch= false;
+bool freeze_message = false, freeze_general = false, freeze_ffc = false;
 bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 
 bool down_control_states[controls::btnLast] = {false};
@@ -3221,22 +3222,21 @@ void game_loop()
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
 		
+		// Three kinds of freezes: freeze_general, freeze_message, freeze_ffc
 		
-		// Three kinds of freezes: freeze, freezemsg, freezeff
-		
-		// freezemsg if message is being printed && qr_MSGFREEZE is on,
+		// freeze_message if message is being printed && qr_MSGFREEZE is on,
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
-		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
+		freeze_message = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
 			&& (get_qr(qr_MSGFREEZE)));
 		if (!get_qr(qr_SCRIPTDRAWSFROZENMSG))
-			FFCore.skipscriptdraws = freezemsg;
-		if(!freezemsg || get_qr(qr_SCRIPTDRAWSFROZENMSG))
+			FFCore.skipscriptdraws = freeze_message;
+		if(!freeze_message || get_qr(qr_SCRIPTDRAWSFROZENMSG))
 		{
 			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		
-		if(fadeclk>=0 && !freezemsg)
+		if(fadeclk>=0 && !freeze_message)
 		{
 			if(fadeclk==0 && currscr<128)
 				blockpath=false;
@@ -3245,26 +3245,26 @@ void game_loop()
 		}
 		
 		// Messages also freeze FF combos.
-		bool freezeff = freezemsg;
-		
-		bool freeze = false;
-		
+		freeze_ffc = freeze_message;
+
+		freeze_general = false;
+
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze_general=true;
+
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freeze_ffc=true;
 		}
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze_general=true;
+
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freeze_ffc=true;
 		}
-		
-		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
+
+		if(!freeze_guys && !freeze_general && !freeze_message && !FFCore.system_suspend[susptGUYS])
 		{
 			for(int32_t i=0; i<176; i++)
 			{
@@ -3298,41 +3298,41 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
 
 		update_slopes();
-		if(!freezeff)
+		if(!freeze_ffc)
 		{
 			update_freeform_combos();
 		}
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
-		// Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-		if (!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
+		// Arbitrary Rule 637: neither 'freeze_general' nor 'freeze_ffc' freeze the global script.
+		if (!FFCore.system_suspend[susptGLOBALGAME] && !freeze_message && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freeze_message && FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freeze_message && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
-		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freeze_message && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			FFCore.combo_script_engine(false);    
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBOSCRIPT);
 		
 		
-		if(!freeze && !freezemsg)
+		if(!freeze_general && !freeze_message)
 		{
 			#if LOGGAMELOOP > 0
 			al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
@@ -3470,7 +3470,7 @@ void game_loop()
 			if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COLLISIONS_PALETTECYCLE);
 		}
-		else if(freezemsg)
+		else if(freeze_message)
 		{
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_ANIMATE);
 			for(int32_t i=0; i<guys.Count(); i++)
@@ -3577,7 +3577,7 @@ void game_loop()
 			}
 		}
 		
-		if(!freeze)
+		if(!freeze_general)
 		{
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "putintro()\n");
@@ -3611,7 +3611,7 @@ void game_loop()
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_STRINGS);
 		
-		if(!freeze)
+		if(!freeze_general)
 		{
 			if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
 			{
@@ -3626,9 +3626,8 @@ void game_loop()
 			do_dcounters();
 			
 		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
 		#endif
-			if(!freezemsg && current_item(itype_heartring))
+			if(!freeze_message && current_item(itype_heartring))
 			{
 				int32_t itemid = current_item_id(itype_heartring);
 				int32_t fskip = itemsbuf[itemid].misc2;
@@ -3637,9 +3636,9 @@ void game_loop()
 					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
 			}
 			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
+		al_trace("game_loop is calling: %s\n", "if(!freeze_message && current_item(itype_magicring))\n");
 		#endif
-			if(!freezemsg && current_item(itype_magicring))
+			if(!freeze_message && current_item(itype_magicring))
 			{
 				int32_t itemid = current_item_id(itype_magicring);
 				int32_t fskip = itemsbuf[itemid].misc2;
@@ -3650,9 +3649,9 @@ void game_loop()
 				}
 			}
 			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
+		al_trace("game_loop is calling: %s\n", "if(!freeze_message && current_item(itype_wallet))\n");
 		#endif
-			if(!freezemsg && current_item(itype_wallet))
+			if(!freeze_message && current_item(itype_wallet))
 			{
 				int32_t itemid = current_item_id(itype_wallet);
 				int32_t fskip = itemsbuf[itemid].misc2;
@@ -3663,9 +3662,9 @@ void game_loop()
 				}
 			}
 			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
+		al_trace("game_loop is calling: %s\n", "if(!freeze_message && current_item(itype_bombbag))\n");
 		#endif
-			if(!freezemsg && current_item(itype_bombbag))
+			if(!freeze_message && current_item(itype_bombbag))
 			{
 				int32_t itemid = current_item_id(itype_bombbag);
 				
@@ -3692,9 +3691,9 @@ void game_loop()
 				}
 			}
 			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
+		al_trace("game_loop is calling: %s\n", "if(!freeze_message && current_item(itype_quiver))\n");
 		#endif
-			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
+			if(!freeze_message && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
 			{
 				int32_t itemid = current_item_id(itype_quiver);
 				int32_t fskip = itemsbuf[itemid].misc2;
