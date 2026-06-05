@@ -3439,143 +3439,147 @@ void cpos_force_update() //updates without side-effects
 void cpos_update() //updates with side-effects
 {
 	auto& combo_cache = combo_caches::cpos_update;
+	bool freeze_combo_cpos = replay_version_check(58) && (freeze_general || freeze_message || freeze_holdup);
+	bool freeze_ffc_cpos = replay_version_check(58) && (freeze_ffc || freeze_message || freeze_holdup);
 
-	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		cpos_info& timer = rpos_handle.info();
-		int cid = rpos_handle.data();
+	if (!freeze_combo_cpos)
+		for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+			cpos_info& timer = rpos_handle.info();
+			int cid = rpos_handle.data();
 
-		// Even though `updateData` already does this check, avoiding a function call
-		// has been observed to be a performance boost.
-		if (cid != timer.data)
-			timer.updateData(cid);
+			// Even though `updateData` already does this check, avoiding a function call
+			// has been observed to be a performance boost.
+			if (cid != timer.data)
+				timer.updateData(cid);
 
-		if(!timer.appeared)
-		{
-			auto& cmb = combobuf[cid];
-			auto [x, y] = rpos_handle.xy();
-			timer.appeared = true;
-			if(cmb.sfx_appear)
-				sfx(cmb.sfx_appear);
-			if(cmb.spr_appear)
-				decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, cmb.spr_appear));
-			if(timer.sfx_onchange) //last combo's sfx_disappear
-				sfx(timer.sfx_onchange);
-			if(timer.spr_onchange) //last combo's spr_disappear
-				decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, timer.spr_onchange));
-			timer.sfx_onchange = 0;
-			timer.spr_onchange = 0;
-		}
-
-		auto& mini_cmb = combo_cache.minis[cid];
-		bool do_trigger_timer = mini_cmb.trigtimer;
-		newcombo const* cmb = nullptr;
-		if(do_trigger_timer)
-			cmb = &combobuf[cid];
-		size_t max_trig = zc_max(cmb ? cmb->triggers.size() : 0, timer.trig_data.capacity());
-		for(size_t idx = 0; idx < max_trig; ++idx)
-		{
-			if(do_trigger_timer && idx < cmb->triggers.size())
+			if(!timer.appeared)
 			{
-				auto& trig = cmb->triggers[idx];
-				if (trig.trigtimer)
+				auto& cmb = combobuf[cid];
+				auto [x, y] = rpos_handle.xy();
+				timer.appeared = true;
+				if(cmb.sfx_appear)
+					sfx(cmb.sfx_appear);
+				if(cmb.spr_appear)
+					decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, cmb.spr_appear));
+				if(timer.sfx_onchange) //last combo's sfx_disappear
+					sfx(timer.sfx_onchange);
+				if(timer.spr_onchange) //last combo's spr_disappear
+					decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, timer.spr_onchange));
+				timer.sfx_onchange = 0;
+				timer.spr_onchange = 0;
+			}
+
+			auto& mini_cmb = combo_cache.minis[cid];
+			bool do_trigger_timer = mini_cmb.trigtimer;
+			newcombo const* cmb = nullptr;
+			if(do_trigger_timer)
+				cmb = &combobuf[cid];
+			size_t max_trig = zc_max(cmb ? cmb->triggers.size() : 0, timer.trig_data.capacity());
+			for(size_t idx = 0; idx < max_trig; ++idx)
+			{
+				if(do_trigger_timer && idx < cmb->triggers.size())
 				{
-					cpos_trig_info& trig_info = timer.trig_data[idx];
-					if(++trig_info.clk >= trig.trigtimer)
+					auto& trig = cmb->triggers[idx];
+					if (trig.trigtimer)
 					{
-						trig_info.clk = 0;
-						if(do_trigger_combo(rpos_handle, idx))
-							if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-								break;
-						timer.updateData(rpos_handle.data());
-						if(rpos_handle.data() != cid)
-							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
+						cpos_trig_info& trig_info = timer.trig_data[idx];
+						if(++trig_info.clk >= trig.trigtimer)
+						{
+							trig_info.clk = 0;
+							if(do_trigger_combo(rpos_handle, idx))
+								if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+									break;
+							timer.updateData(rpos_handle.data());
+							if(rpos_handle.data() != cid)
+								do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
+						}
 					}
 				}
-			}
-			if (idx < timer.trig_data.capacity())
-			{
-				cpos_trig_info& trig_info = timer.trig_data[idx];
-				if (trig_info.cooldown) --trig_info.cooldown;
-			}
-		}
-		handle_cpos_type(mini_cmb.type,timer,rpos_handle);
-	});
-
-	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-		if (ffc_handle.ffc->flags & ffc_changer)
-			return; //changers don't contribute
-
-		ffcdata& f = *ffc_handle.ffc;
-		cpos_info& timer = f.info;
-		if (f.flags & ffc_changer)
-		{
-			//changers don't contribute
-			timer.updateData(-1);
-			return;
-		}
-		int cid = f.data;
-		// Even though `updateData` already does this check, avoiding a function call
-		// has been observed to be a performance boost.
-		if (cid != timer.data)
-			timer.updateData(cid);
-		zfix wx = f.x + (f.txsz-1)*8;
-		zfix wy = f.y + (f.tysz-1)*8;
-		
-		if(!timer.appeared)
-		{
-			auto& cmb = combobuf[cid];
-			zfix wx = ffc_handle.ffc->x;
-			zfix wy = ffc_handle.ffc->y;
-			wx += (ffc_handle.scr->ffTileWidth(ffc_handle.i)-1)*8;
-			wy += (ffc_handle.scr->ffTileHeight(ffc_handle.i)-1)*8;
-			timer.appeared = true;
-			if(cmb.sfx_appear)
-				sfx(cmb.sfx_appear);
-			if(cmb.spr_appear)
-				decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, cmb.spr_appear));
-			if(timer.sfx_onchange) //last combo's sfx_disappear
-				sfx(timer.sfx_onchange);
-			if(timer.spr_onchange) //last combo's spr_disappear
-				decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, timer.spr_onchange));
-			timer.sfx_onchange = 0;
-			timer.spr_onchange = 0;
-		}
-
-		auto& mini_cmb = combo_cache.minis[cid];
-		bool do_trigger_timer = mini_cmb.trigtimer;
-		newcombo const* cmb;
-		if(do_trigger_timer)
-			cmb = &combobuf[cid];
-		
-		for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
-		{
-			if (do_trigger_timer && idx < cmb->triggers.size())
-			{
-				auto& trig = cmb->triggers[idx];
-				if (trig.trigtimer)
+				if (idx < timer.trig_data.capacity())
 				{
 					cpos_trig_info& trig_info = timer.trig_data[idx];
-					if (++trig_info.clk >= trig.trigtimer)
-					{
-						trig_info.clk = 0;
-						if(do_trigger_combo(ffc_handle, idx))
-							if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
-								break;
-						timer.updateData(f.data);
-						if (f.data != cid)
-							do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
-					}
+					if (trig_info.cooldown) --trig_info.cooldown;
 				}
 			}
-			if (idx < timer.trig_data.capacity())
+			handle_cpos_type(mini_cmb.type,timer,rpos_handle);
+		});
+
+	if (!freeze_ffc_cpos)
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			if (ffc_handle.ffc->flags & ffc_changer)
+				return; //changers don't contribute
+
+			ffcdata& f = *ffc_handle.ffc;
+			cpos_info& timer = f.info;
+			if (f.flags & ffc_changer)
 			{
-				cpos_trig_info& trig_info = timer.trig_data[idx];
-				if (trig_info.cooldown) --trig_info.cooldown;
+				//changers don't contribute
+				timer.updateData(-1);
+				return;
 			}
-		}
-		if(mini_cmb.type == cSHOOTER)
-			handle_shooter(combobuf[cid], timer, wx, wy);
-	});
+			int cid = f.data;
+			// Even though `updateData` already does this check, avoiding a function call
+			// has been observed to be a performance boost.
+			if (cid != timer.data)
+				timer.updateData(cid);
+			zfix wx = f.x + (f.txsz-1)*8;
+			zfix wy = f.y + (f.tysz-1)*8;
+			
+			if(!timer.appeared)
+			{
+				auto& cmb = combobuf[cid];
+				zfix wx = ffc_handle.ffc->x;
+				zfix wy = ffc_handle.ffc->y;
+				wx += (ffc_handle.scr->ffTileWidth(ffc_handle.i)-1)*8;
+				wy += (ffc_handle.scr->ffTileHeight(ffc_handle.i)-1)*8;
+				timer.appeared = true;
+				if(cmb.sfx_appear)
+					sfx(cmb.sfx_appear);
+				if(cmb.spr_appear)
+					decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, cmb.spr_appear));
+				if(timer.sfx_onchange) //last combo's sfx_disappear
+					sfx(timer.sfx_onchange);
+				if(timer.spr_onchange) //last combo's spr_disappear
+					decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, timer.spr_onchange));
+				timer.sfx_onchange = 0;
+				timer.spr_onchange = 0;
+			}
+
+			auto& mini_cmb = combo_cache.minis[cid];
+			bool do_trigger_timer = mini_cmb.trigtimer;
+			newcombo const* cmb;
+			if(do_trigger_timer)
+				cmb = &combobuf[cid];
+			
+			for(size_t idx = 0; idx < MAX_COMBO_TRIGGERS; ++idx)
+			{
+				if (do_trigger_timer && idx < cmb->triggers.size())
+				{
+					auto& trig = cmb->triggers[idx];
+					if (trig.trigtimer)
+					{
+						cpos_trig_info& trig_info = timer.trig_data[idx];
+						if (++trig_info.clk >= trig.trigtimer)
+						{
+							trig_info.clk = 0;
+							if(do_trigger_combo(ffc_handle, idx))
+								if(trig.trigger_flags.get(TRIGFLAG_CANCEL_TRIGGER))
+									break;
+							timer.updateData(f.data);
+							if (f.data != cid)
+								do_trigger_timer = false; // 'break', but only out of the trigtimer part of the loop
+						}
+					}
+				}
+				if (idx < timer.trig_data.capacity())
+				{
+					cpos_trig_info& trig_info = timer.trig_data[idx];
+					if (trig_info.cooldown) --trig_info.cooldown;
+				}
+			}
+			if(mini_cmb.type == cSHOOTER)
+				handle_shooter(combobuf[cid], timer, wx, wy);
+		});
 
 	trig_trigger_groups();
 	
