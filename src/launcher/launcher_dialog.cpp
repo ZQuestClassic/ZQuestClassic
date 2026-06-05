@@ -33,7 +33,8 @@ bool handle_close_btn_quit()
 		close_button_quit = false;
 		return exiting_program;
 		#else
-		return (exiting_program = true);
+		exiting_program = true;
+		return true;
 		#endif
 	}
 	return false;

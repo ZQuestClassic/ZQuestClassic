@@ -693,7 +693,10 @@ void set_debug(bool d)
 bool handle_quit()
 {
 	if(onExit()==D_CLOSE)
-		return (exiting_program = true);
+	{
+		exiting_program = true;
+		return true;
+	}
 	return false;
 }
 bool handle_close_btn_quit()
@@ -21937,7 +21940,7 @@ void update_hw_screen()
 	if (is_headless())
 		return;
 
-	framecnt++;
+	framecnt = framecnt + 1;
 
 	zalleg_process_display_events();
 	if (update_hw_pal)

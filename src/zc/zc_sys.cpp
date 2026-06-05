@@ -3713,7 +3713,8 @@ bool handle_close_btn_quit()
 		close_button_quit=false;
 		f_Quit(qEXIT);
 	}
-	return (exiting_program = Quit==qEXIT);
+	exiting_program = (Quit==qEXIT);
+	return Quit==qEXIT;
 }
 
 void syskeys()
@@ -6500,10 +6501,10 @@ bool zc_readrawkey(int32_t k, bool ignoreDisable)
 {
 	if(zc_getrawkey(k, ignoreDisable))
 	{
-		_key[k]=key[k]=key_current_frame[k]=0;
+		_key[k]=0; key[k]=0; key_current_frame[k]=0;
 		return true;
 	}
-	_key[k]=key[k]=key_current_frame[k]=0;
+	_key[k]=0; key[k]=0; key_current_frame[k]=0;
 	return false;
 }
 

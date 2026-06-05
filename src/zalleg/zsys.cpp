@@ -1003,10 +1003,11 @@ void dclick_check(void)
     }
     
     // timeout?
-    if(dclick_time++ > 10)
+    if(dclick_time > 10)
     {
         dclick_status = DCLICK_NOT;
     }
+    dclick_time = dclick_time + 1;
 }
 
 END_OF_FUNCTION(dclick_check)

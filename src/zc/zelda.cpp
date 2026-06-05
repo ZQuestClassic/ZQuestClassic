@@ -487,7 +487,7 @@ void update_hw_screen()
 		return;
 	}
 
-	framecnt++;
+	framecnt = framecnt + 1;
 
 	zalleg_process_display_events();
 	if (update_hw_pal && hw_palette)
