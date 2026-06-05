@@ -1900,7 +1900,7 @@ void enemy::FireWeapon()
 	 */
 	
 	if (wpn < 1) return;
-	if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 && wpn > wScript10) )  // Summoning doesn't require weapons
+	if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 || wpn > wScript10) )  // Summoning doesn't require weapons
 		return;
 
 	if (!is_within_freeze_viewport)
