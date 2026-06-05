@@ -199,6 +199,8 @@ uint32_t DebugData::getTypeID(const DebugType* type) const
 		case TYPE_CHAR32:
 		case TYPE_RGB:
 			return type->tag;
+		default:
+			break;
 	}
 
 	return (int32_t)(type - &types[0]) + DEBUG_TYPE_TAG_TABLE_START;
