@@ -100,7 +100,7 @@ Frame( \
 	col_sel[num-1] = MiscColorSel( \
 		c1 = var.type, \
 		c2 = var.color, \
-		onUpdate = [=](int32_t c1, int32_t c2) \
+		onUpdate = [=, this](int32_t c1, int32_t c2) \
 		{ \
 			var.type = c1; \
 			var.color = c2; \
@@ -114,7 +114,7 @@ Frame( \
 	col_sel[num-1] = MiscColorSel( \
 		c1 = var.type, \
 		c2 = var.color, \
-		onUpdate = [=](int32_t c1, int32_t c2) \
+		onUpdate = [=, this](int32_t c1, int32_t c2) \
 		{ \
 			var.type = c1; \
 			var.color = c2; \
@@ -128,7 +128,7 @@ Frame( \
 	cs_sel[num-1] = MiscCSetSel( \
 		c1 = var.type, \
 		c2 = var.color, \
-		onUpdate = [=](int32_t c1, int32_t c2) \
+		onUpdate = [=, this](int32_t c1, int32_t c2) \
 		{ \
 			var.type = c1; \
 			var.color = c2; \
@@ -140,7 +140,7 @@ Frame( \
 DropDownList(data = list_font, \
 	fitParent = true, \
 	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
+	onSelectFunc = [=, this](int32_t val) \
 	{ \
 		var = val; \
 		if(fonttf) fonttf->setFont(get_zc_font(val)); \
@@ -158,7 +158,7 @@ Frame(fitParent = true, Column(fitParent = true, \
 		minicorner = vMTInfo.crn(), \
 		showvals = false, \
 		showT0 = true, \
-		onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t crn) \
+		onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t crn) \
 		{ \
 			vMTInfo.setTileCrn(t,crn); \
 			vMTInfo.cset = c; \
@@ -171,7 +171,7 @@ Frame(fitParent = true, Column(fitParent = true, \
 def_eqp_cboxes[ind] = Checkbox( \
 	text = fmt::format("Default {} Equipment",btnstr), hAlign = 0.0, \
 	checked = set_default_btnslot&btn_flags[ind], \
-	onToggleFunc = [=](bool state) \
+	onToggleFunc = [=, this](bool state) \
 	{ \
 		if(state) \
 			set_default_btnslot = btn_flags[ind]; \
@@ -361,7 +361,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Checkbox(
 							text = "Active Up", hAlign = 0.0,
 							checked = local_subref->posflags & sspUP,
-							onToggleFunc = [=](bool state)
+							onToggleFunc = [=, this](bool state)
 							{
 								SETFLAG(local_subref->posflags,sspUP,state);
 							}
@@ -370,7 +370,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Checkbox(
 							text = "Active Down", hAlign = 0.0,
 							checked = local_subref->posflags & sspDOWN,
-							onToggleFunc = [=](bool state)
+							onToggleFunc = [=, this](bool state)
 							{
 								SETFLAG(local_subref->posflags,sspDOWN,state);
 							}
@@ -379,7 +379,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Checkbox(
 							text = "Active Scrolling", hAlign = 0.0,
 							checked = local_subref->posflags & sspSCROLLING,
-							onToggleFunc = [=](bool state)
+							onToggleFunc = [=, this](bool state)
 							{
 								SETFLAG(local_subref->posflags,sspSCROLLING,state);
 							}
@@ -388,7 +388,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Checkbox(
 							text = "Hide for String", hAlign = 0.0,
 							checked = local_subref->posflags & sspNOMSGSTR,
-							onToggleFunc = [=](bool state)
+							onToggleFunc = [=, this](bool state)
 							{
 								SETFLAG(local_subref->posflags,sspNOMSGSTR,state);
 							}
@@ -411,7 +411,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				fitParent = true,
 				type = GUI::TextField::type::INT_DECIMAL,
 				low = 0, high = 999, val = loadw,
-				onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val)
+				onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_subref->w = val;
 					update_wh();
@@ -421,7 +421,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				fitParent = true,
 				type = GUI::TextField::type::INT_DECIMAL,
 				low = 0, high = 999, val = loadh,
-				onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val)
+				onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_subref->h = val;
 					update_wh();
@@ -656,7 +656,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						//flip = local_subref->d2,
 						tilewid = 2, tilehei = 2,
 						showvals = false,
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->tile = t;
 							if(w->cs.type != ssctMISC)
@@ -729,7 +729,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							TextField(maxLength = 1,
 								fitParent = true,
 								text = std::string(1,(char)w->infchar),
-								onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+								onValChangedFunc = [=, this](GUI::TextField::type,std::string_view str,int32_t)
 								{
 									std::string txt(str);
 									if(txt.size())
@@ -787,7 +787,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							TextField(maxLength = 1,
 								fitParent = true,
 								text = std::string(1,(char)w->infchar),
-								onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+								onValChangedFunc = [=, this](GUI::TextField::type,std::string_view str,int32_t)
 								{
 									std::string txt(str);
 									if(txt.size())
@@ -826,7 +826,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					TextField(maxLength = 1,
 						fitParent = true,
 						text = std::string(1,(char)w->infchar),
-						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						onValChangedFunc = [=, this](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string name(str);
 							if(name.size())
@@ -849,7 +849,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						fitParent = true,
 						forceFitW = true,
 						selectedValue = w->iid,
-						onSelectFunc = [=](int32_t val)
+						onSelectFunc = [=, this](int32_t val)
 						{
 							w->iid = val;
 							updateAttr();
@@ -1358,7 +1358,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minicorner = crn,
 						showvals = false,
 						showT0 = true,
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t crn)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t crn)
 						{
 							if(w->special_tile != -1)
 							{
@@ -1379,7 +1379,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					ddls[0] = DropDownList(data = special_tile_list,
 						fitParent = true,
 						selectedValue = w->special_tile,
-						onSelectFunc = [=](int32_t val)
+						onSelectFunc = [=, this](int32_t val)
 						{
 							if(val == w->special_tile) return;
 							auto oldval = w->special_tile;
@@ -1473,7 +1473,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minheight = 15_px,
 						fitParent = true,
 						useFont = get_zc_font(w->fontid),
-						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						onValChangedFunc = [=, this](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string txt(str);
 							w->text = txt;
@@ -1507,7 +1507,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minheight = 15_px,
 						fitParent = true,
 						useFont = get_zc_font(w->fontid),
-						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						onValChangedFunc = [=, this](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string txt(str);
 							w->text = txt;
@@ -1531,7 +1531,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						showvals = false,
 						tilewid = std::min(local_subref->w, (word)TB_LA),
 						tilehei = std::min(local_subref->h, (word)TB_LA),
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->tile = t;
 							if(w->cs.type != ssctMISC)
@@ -1565,7 +1565,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						tilehei = (w->flags&SUBSCR_TRIFR_LGPC) ? 7 : 3,
 						deftile = QMisc.colors.triframe_tile,
 						defcs = QMisc.colors.triframe_cset,
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->frame_tile = t;
 							w->frame_cset = c;
@@ -1583,7 +1583,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						tilehei = (w->flags&SUBSCR_TRIFR_LGPC) ? 3 : 1,
 						deftile = QMisc.colors.triforce_tile,
 						defcs = QMisc.colors.triforce_cset,
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->piece_tile = t;
 							w->piece_cset = c;
@@ -1598,7 +1598,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Checkbox(
 							text = "Large Pieces", hAlign = 0.0,
 							checked = w->flags & SUBSCR_TRIFR_LGPC,
-							onToggleFunc = [=](bool state)
+							onToggleFunc = [=, this](bool state)
 							{
 								SETFLAG(w->flags, SUBSCR_TRIFR_LGPC, state);
 								tswatches[0]->setTileWid(state ? 7 : 6);
@@ -1626,7 +1626,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						// tilehei = local_subref->d7 ? 3 : 1,
 						deftile = QMisc.colors.triforce_tile,
 						defcs = QMisc.colors.triforce_cset,
-						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
+						onSelectFunc = [=, this](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->tile = t;
 							if(w->cs.type != ssctMISC)
@@ -1928,7 +1928,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							Checkbox(
 								text = "Req Any Item", hAlign = 0.0,
 								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_ITEM,
-								onToggleFunc = [=](bool state)
+								onToggleFunc = [=, this](bool state)
 								{
 									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_ITEM,state);
 								})

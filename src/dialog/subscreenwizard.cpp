@@ -15,7 +15,7 @@ Frame( \
 	misccolorsel[num-1] = MiscColorSel( \
 		c1 = basec1, \
 		c2 = basec2, \
-		onUpdate = [=](int32_t c1, int32_t c2) \
+		onUpdate = [=, this](int32_t c1, int32_t c2) \
 		{ \
 			basec1 = c1; \
 			basec2 = c2; \

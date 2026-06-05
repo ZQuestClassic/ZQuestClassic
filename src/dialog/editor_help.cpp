@@ -423,7 +423,7 @@ void call_help_dialog()
 Button( \
 	text = str, \
 	fitParent = true, \
-	onPressFunc = [=]() \
+	onPressFunc = [=, this]() \
 	{ \
 		cur_help = target_help; \
 		refresh_dlg(); \

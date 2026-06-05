@@ -167,7 +167,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			cboxes->add(Checkbox(
 					hAlign = 0.0, checked = false,
 					text = ruletemplatesList.getText(q),
-					onToggleFunc = [=](bool state)
+					onToggleFunc = [=, this](bool state)
 					{
 						on_templates[q] = state;
 					}

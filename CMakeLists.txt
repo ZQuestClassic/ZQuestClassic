@@ -1062,6 +1062,7 @@ set(zc_clang_errors
 	-Wno-switch
 	# TODO: these are pretty annoying to fix and are low-value
 	-Wno-self-assign
+	-Wno-unused-lambda-capture
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
@@ -1076,6 +1077,7 @@ set(zc_gcc_errors
 	-Wno-switch
 	# TODO
 	# -Wunused-result
+	-Wno-unused-lambda-capture
 )
 set(zc_msvc_errors
 	/we4100 # unreferenced formal parameter

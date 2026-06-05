@@ -92,7 +92,7 @@ void MenuItem::exec() const
 		return;
 	if(flags & MFL_EXIT_PRE_PROC)
 	{
-		on_zqdialog_close([=]()
+		on_zqdialog_close([=, this]()
 			{
 				if(onCall)
 					onCall();

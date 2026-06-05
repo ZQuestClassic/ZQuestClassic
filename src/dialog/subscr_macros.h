@@ -7,7 +7,7 @@ TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = var, \
-	onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val) \
+	onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		var = val; \
 	})
@@ -17,7 +17,7 @@ TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = var+offs, \
-	onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val) \
+	onValChangedFunc = [=, this](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		var = val-offs; \
 	})
@@ -28,7 +28,7 @@ Checkbox( \
 	colSpan = cspan, \
 	text = txt, hAlign = 0.0, \
 	checked = var & bit, \
-	onToggleFunc = [=](bool state) \
+	onToggleFunc = [=, this](bool state) \
 	{ \
 		SETFLAG(var, bit, state); \
 	} \
@@ -39,7 +39,7 @@ Checkbox( \
 	__VA_ARGS__, \
 	text = txt, \
 	checked = var & bit, \
-	onToggleFunc = [=](bool state) \
+	onToggleFunc = [=, this](bool state) \
 	{ \
 		SETFLAG(var, bit, state); \
 	} \
@@ -49,7 +49,7 @@ Checkbox( \
 DropDownList(data = lister, \
 	fitParent = true, \
 	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
+	onSelectFunc = [=, this](int32_t val) \
 	{ \
 		var = val; \
 	} \
@@ -59,7 +59,7 @@ DropDownList(data = lister, \
 DropDownList(data = lister, \
 	fitParent = true, \
 	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
+	onSelectFunc = [=, this](int32_t val) \
 	{ \
 		var = val; \
 		proc(); \
@@ -71,7 +71,7 @@ DropDownList(data = lister, \
 	fitParent = true, \
 	__VA_ARGS__, \
 	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
+	onSelectFunc = [=, this](int32_t val) \
 	{ \
 		var = val; \
 	} \
