@@ -566,7 +566,7 @@ void TextField::realize(DialogRunner& runner)
 	assert(maxLength > 0);
 
 	using ProcType = int32_t(*)(int32_t, DIALOG*, int32_t);
-	ProcType proc;
+	ProcType proc = nullptr;
 	if(isSwapType())
 	{
 		bool hascb = false;

@@ -8526,7 +8526,7 @@ void show_blank_tile(int32_t t)
 
 static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, int format, bool shift, bool alt, bool skip_prompt = false)
 {
-	int num_bits;
+	int num_bits = 0;
 	if (format == tf4Bit)
 		num_bits = 4;
 	else if (format == tf8Bit)
