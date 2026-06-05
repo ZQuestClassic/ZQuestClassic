@@ -272,6 +272,7 @@ int32_t onOptions();
 void fix_drawing_mode_menu();
 int32_t onDrawingMode();
 int32_t onDrawingModeNormal();
+void on_scroll_cpane();
 int32_t onDrawingModeAlias();
 int32_t onDrawingModePool();
 int32_t onDrawingModeAuto();

@@ -11424,8 +11424,6 @@ REDRAW:
 					} },
 				{ "Select", [&]()
 					{
-						void on_scroll_cpane();
-						int32_t onDrawingModeNormal();
 						Combo = tile;
 						CSet = cs;
 						done = 1;
