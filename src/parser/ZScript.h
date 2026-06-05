@@ -117,7 +117,6 @@ namespace ZScript
 
 	private:
 		Function* runFunc;
-		Program& program;
 	};
 
 	class UserScript : public Script
@@ -206,7 +205,6 @@ namespace ZScript
 		DataType* classType;
 
 	private:
-		Program& program;
 		ASTClass& node;
 		ClassScope* scope;
 		UserClass* baseClass;

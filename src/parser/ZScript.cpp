@@ -162,8 +162,9 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 // ZScript::UserClass
 
 UserClass::UserClass(Program& program, ASTClass& node, UserClass* base_class)
-	: classType(nullptr), program(program), node(node), baseClass(base_class)
+	: classType(nullptr), node(node), baseClass(base_class)
 {
+	(void)program;
 	members.push_back(0);
 }
 
@@ -196,8 +197,10 @@ UserClass* ZScript::createClass(
 // ZScript::Script
 
 Script::Script(Program& program)
-	: runFunc(NULL), program(program)
-{}
+	: runFunc(NULL)
+{
+	(void)program;
+}
 
 Script::~Script()
 {
