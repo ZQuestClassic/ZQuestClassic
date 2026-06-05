@@ -10085,7 +10085,7 @@ void domouse()
 		
 		if(compactbtn.rect(x,y))
 		{
-			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"));
+			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"))
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
