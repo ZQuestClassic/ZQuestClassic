@@ -890,7 +890,7 @@ void combo_default(newcombo& ref, bool typeonly)
 		// c_attributes[8] selects the cutscene sub-effect; preserve it across the reset so switching
 		// to a sub-effect initializes that sub-effect's defaults instead of reverting to sub-effect 0.
 		zfix cutscene_subtype = ref.c_attributes[8];
-		memset(ref.c_attributes, 0, sizeof(ref.c_attributes));
+		for(auto& attr : ref.c_attributes) attr = zfix(0);
 		ref.usrflags = 0;
 		if(ref.type == cCUTSCENEEFFECT)
 			ref.c_attributes[8] = cutscene_subtype;
