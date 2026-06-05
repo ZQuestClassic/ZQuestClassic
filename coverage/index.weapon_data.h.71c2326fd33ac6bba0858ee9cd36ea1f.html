@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-31 22:39:15</td>
+      <td>2026-06-05 20:22:50</td>
     </tr>
   </table>
 </div>
@@ -41,8 +41,8 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>7</td>
-      <td>7</td>
+      <td>9</td>
+      <td>9</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>38</td>
-      <td>66</td>
-      <td class="coverage-low">57.6%</td>
+      <td>40</td>
+      <td>70</td>
+      <td class="coverage-low">57.1%</td>
     </tr>
   </table>
 </div>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l20">weapon_data::operator=(weapon_data const&amp;) (line 20)</a></td><td>called 25664149 times, returned 25664149 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::operator=(weapon_data&amp;&amp;) (line 20)</a></td><td>called 168953322 times, returned 168953322 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l57">weapon_data::operator==(weapon_data const&amp;) const (line 57)</a></td><td>called 620282 times, returned 620282 times</td><td>90.0%</td></tr>
+    <tr><td><a href="#l62">weapon_data::operator==(weapon_data const&amp;) const (line 62)</a></td><td>called 620282 times, returned 620282 times</td><td>91.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::weapon_data() (line 20)</a></td><td>called 2011808 times, returned 2011808 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::weapon_data(weapon_data const&amp;) (line 20)</a></td><td>called 254772852 times, returned 254772852 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l20">weapon_data::weapon_data(weapon_data&amp;&amp;) (line 20)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -455,41 +455,76 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// How far (in pixels) past the viewport this weapon&#39;s engine logic runs before suspending. Disabled if 0.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_blank</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">2011808</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">viewport_suspend_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_lifting</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// How far (in pixels) past the viewport the weapon can travel before despawning. Disabled if 0.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2011808</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">viewport_despawn_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_blank</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_lifting</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_blank_lifting</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">38/66</summary>
+        <summary class="linebranchSummary">40/70</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 310166 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 310116 times.</div>
@@ -555,72 +590,76 @@
           <div class="takenBranch">&check; Branch 61 taken 310166 times.</div>
           <div class="takenBranch">&check; Branch 62 taken 2481328 times.</div>
           <div class="takenBranch">&check; Branch 63 taken 310166 times.</div>
-          <div class="notTakenBranch">&cross; Branch 64 not taken.</div>
-          <div class="takenBranch">&check; Branch 65 taken 2481328 times.</div>
+          <div class="takenBranch">&check; Branch 64 taken 2481328 times.</div>
+          <div class="notTakenBranch">&cross; Branch 65 not taken.</div>
+          <div class="takenBranch">&check; Branch 66 taken 310166 times.</div>
+          <div class="notTakenBranch">&cross; Branch 67 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 68 not taken.</div>
+          <div class="takenBranch">&check; Branch 69 taken 310166 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">7754100</td>
+      <td class="linecount partialCoveredLine">8064266</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">weapon_data</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l58" href="#l58">58</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l59" href="#l59">59</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">def_data</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l60" href="#l60">60</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">def_lifting_data</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l61" href="#l61">61</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="n">private</span><span class="o">:</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l62" href="#l62">62</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">make_blank_lifting</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">def_data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">def_lifting_data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="n">private</span><span class="o">:</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">weapon_data</span><span class="w"> </span><span class="n">make_blank_lifting</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l70" href="#l70">70</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

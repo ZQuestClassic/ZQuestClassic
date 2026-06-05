@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-05-31 22:39:15</td>
+      <td>2026-06-05 20:22:50</td>
     </tr>
   </table>
 </div>
@@ -128,14 +128,14 @@
     <tr><td><a href="#l663">gamedata::get_dmagic() (line 663)</a></td><td>called 5704140 times, returned 5704140 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l367">gamedata::get_drupy() (line 367)</a></td><td>called 334 times, returned 334 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l774">gamedata::get_ene_dmgmult() (line 774)</a></td><td>called 17966 times, returned 17966 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l315">gamedata::get_generic(unsigned char) const (line 315)</a></td><td>called 1125122650 times, returned 1125122650 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l315">gamedata::get_generic(unsigned char) const (line 315)</a></td><td>called 1125125598 times, returned 1125125598 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l548">gamedata::get_hasplayed() const (line 548)</a></td><td>called 1802 times, returned 1802 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l713">gamedata::get_hcp_per_hc() (line 713)</a></td><td>called 367072 times, returned 367072 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l764">gamedata::get_hero_dmgmult() (line 764)</a></td><td>called 316247 times, returned 316247 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l744">gamedata::get_hp_per_heart() const (line 744)</a></td><td>called 621489004 times, returned 621489004 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l980">gamedata::get_item_flicker_speed() (line 980)</a></td><td>called 120713877 times, returned 120713877 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l953">gamedata::get_item_spawn_flicker() (line 953)</a></td><td>called 1569071 times, returned 1569071 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l962">gamedata::get_item_timeout_dur() (line 962)</a></td><td>called 2799695 times, returned 2799695 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l962">gamedata::get_item_timeout_dur() (line 962)</a></td><td>called 2801169 times, returned 2801169 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l971">gamedata::get_item_timeout_flicker() (line 971)</a></td><td>called 667122 times, returned 667122 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l445">gamedata::get_keys() (line 445)</a></td><td>called 26297531 times, returned 26297531 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l332">gamedata::get_life() const (line 332)</a></td><td>called 355964985 times, returned 355964985 times</td><td>100.0%</td></tr>
@@ -2805,7 +2805,7 @@
       <td class="lineno"><a id="l315" href="#l315">315</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1125122650</td>
+      <td class="linecount coveredLine">1125125598</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">gamedata::get_generic</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -2819,7 +2819,7 @@
       <td class="lineno"><a id="l317" href="#l317">317</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1125122650</td>
+      <td class="linecount coveredLine">1125125598</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_generic</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -7443,7 +7443,7 @@
       <td class="lineno"><a id="l962" href="#l962">962</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2799695</td>
+      <td class="linecount coveredLine">2801169</td>
       <td class="src coveredLine"><span class="n">word</span><span class="w"> </span><span class="nf">gamedata::get_item_timeout_dur</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -7459,12 +7459,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2799695 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2801169 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">2799695</td>
+      <td class="linecount partialCoveredLine">2801169</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">zc_max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">get_generic</span><span class="p">(</span><span class="n">genITEM_TIMEOUT_TIME</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
