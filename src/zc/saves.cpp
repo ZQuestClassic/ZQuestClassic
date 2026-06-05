@@ -809,8 +809,10 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			if(!p_getc(&(game.saved_mirror_portal.srcscr),f))
 				return 67;
 			if(section_version >= 32)
+			{
 				if(!p_getc(&(game.saved_mirror_portal.destscr),f))
 					return 67;
+			}
 			else game.saved_mirror_portal.destscr = game.saved_mirror_portal.srcscr;
 			if(!p_igetl(&(game.saved_mirror_portal.x), f))
 				return 68;
