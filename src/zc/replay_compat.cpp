@@ -70,3 +70,11 @@ bool replay_compat_respawn_point_missing_dmg_conveyor_bug()
 {
 	return check_2_55(15);
 }
+
+// Shooter/crumble (and other timed) combos used to keep ticking in cpos_update() even while
+// the screen was frozen (freeze/freezemsg/freezeff). The new code skips ticking when frozen,
+// so older replays must keep ticking to stay valid.
+bool replay_compat_frozen_combos_tick_bug()
+{
+	return check_2_55(15);
+}

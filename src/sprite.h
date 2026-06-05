@@ -17,6 +17,7 @@ using std::map;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern bool     freeze_guys;
+extern bool freeze_message, freeze_general, freeze_ffc;
 extern int32_t fadeclk;
 extern int32_t frame;
 extern bool BSZ;
