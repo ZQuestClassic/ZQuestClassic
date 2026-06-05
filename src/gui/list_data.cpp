@@ -12,7 +12,7 @@ ListData::ListData(size_t numItems,
 {
 	listItems.reserve(numItems);
 	for(size_t index = 0; index < numItems; ++index)
-		listItems.emplace_back(move(getString(index)), getValue(index));
+		listItems.emplace_back(getString(index), getValue(index));
 }
 
 ListData::ListData(::ListData const& jwinldata, int32_t valoffs) : _invalid(false)
