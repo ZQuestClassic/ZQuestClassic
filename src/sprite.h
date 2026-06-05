@@ -14,7 +14,7 @@ struct itemdata;
 struct newcombo;
 using std::map;
 
-extern bool freeze_holdup;
+extern bool freeze_holdup, freeze_message, freeze_general, freeze_ffc;
 extern int32_t fadeclk;
 extern int32_t global_frame;
 extern bool BSZ;

@@ -327,7 +327,7 @@ extern int32_t Maxfps;
 extern bool GameLoaded;
 extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys;
-extern bool freeze_holdup;
+extern bool freeze_holdup, freeze_message, freeze_general, freeze_ffc;
 extern bool drawguys,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
 extern bool SystemKeys,NESquit,volkeys,boughtsomething;
