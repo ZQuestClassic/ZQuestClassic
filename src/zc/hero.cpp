@@ -14837,8 +14837,6 @@ void HeroClass::moveheroOld()
 		}
 	}
 	
-	int32_t wx=x;
-	int32_t wy=y;
 	if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
@@ -14846,33 +14844,14 @@ void HeroClass::moveheroOld()
 			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = up;
 			if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = down;
 		}
-		
+
 		if((yoff==0)||diagonalMovement)
 		{
 			if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = left;
 			if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = right;
 		}
 	}
-	
-	switch(dir)
-	{
-	case up:
-		wy-=16;
-		break;
-		
-	case down:
-		wy+=16;
-		break;
-		
-	case left:
-		wx-=16;
-		break;
-		
-	case right:
-		wx+=16;
-		break;
-	}
-	
+
 	do_lens();
 	
 	WalkflagInfo info;
@@ -19251,8 +19230,6 @@ bool HeroClass::premove()
 		}
 	}
 	
-	int32_t wx=x;
-	int32_t wy=y;
 	if(conv_forcedir > -1 && !spins) dir = conv_forcedir;
 	else if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
@@ -19269,25 +19246,6 @@ bool HeroClass::premove()
 		}
 	}
 
-	switch(dir)
-	{
-	case up:
-		wy-=16;
-		break;
-		
-	case down:
-		wy+=16;
-		break;
-		
-	case left:
-		wx-=16;
-		break;
-		
-	case right:
-		wx+=16;
-		break;
-	}
-	
 	do_lens();
 	
 	bool no_jinx = true;
