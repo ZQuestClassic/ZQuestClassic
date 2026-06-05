@@ -7691,7 +7691,8 @@ void FFScript::AlloffLimited(int32_t flagset)
 		Hero.setClock(false);
 	}
 	
-	watch=freeze_guys=loaded_guys=blockpath=false;
+	watch=loaded_guys=blockpath=false;
+	freeze_holdup = false;
 
 	activation_counters.fill({});
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {

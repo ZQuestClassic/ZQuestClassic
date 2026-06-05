@@ -9648,7 +9648,7 @@ heroanimate_skip_liftwpn:;
 	}
 	
 	// get user input or do other animation
-	freeze_guys=false;										// reset this flag, set it again if holding
+	freeze_holdup = false; // reset this flag, set it again if holding
 	
 	if(action != landhold1 && action != landhold2 && action != waterhold1 && action != waterhold2 && action != sidewaterhold1 && action != sidewaterhold2 && fairyclk==0 && holdclk>0)
 	{
@@ -9791,7 +9791,7 @@ heroanimate_skip_liftwpn:;
 			post_item_collect();
 		}
 		else
-			freeze_guys=true;
+			freeze_holdup = true;
 			
 		break;
 	}
@@ -9812,7 +9812,7 @@ heroanimate_skip_liftwpn:;
 			post_item_collect();
 		}
 		else
-			freeze_guys=true;
+			freeze_holdup = true;
 			
 		break;
 	}
@@ -31632,7 +31632,7 @@ bool HeroClass::checkitems(int32_t index)
 				music_stop();
 			
 			holditem=holdid; // NES consistency: when combining blue potions, hold up the blue potion.
-			freeze_guys=true;
+			freeze_holdup = true;
 			//show the info string
 			int32_t shop_pstr = 0;
 			if (PriceIndex > -1) 

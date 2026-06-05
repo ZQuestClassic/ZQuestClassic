@@ -312,8 +312,9 @@ int window_min_width = 320, window_min_height = 240;
 bool Playing, ViewingMap, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
 bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
-bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
+bool refreshpal,blockpath = false,loaded_guys= false,
     drawguys= false,watch= false;
+bool freeze_holdup = false;
 bool BSZ= false;
 
 bool region_is_lit, scrolling_region_is_lit, darkroom, naturaldark;
@@ -1078,7 +1079,8 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         get_screen_state(scr->screen).loaded_enemies = false;
     });
 
-    watch=freeze_guys=loaded_guys=blockpath=false;
+    watch=loaded_guys=blockpath=false;
+	freeze_holdup = false;
     maze_state = {};
     stop_sfx(WAV_BRANG);
     
@@ -1689,7 +1691,8 @@ void init_game_vars(bool is_cont_game = false)
 	wallm_load_clk = 0;
 	vhead = 0;
 
-	watch = freeze_guys = loaded_guys = blockpath = false;
+	watch = loaded_guys = blockpath = false;
+	freeze_holdup = false;
 	fairy_cnt = 0;
 	sle_clk = 0;
 	didpit = false;
@@ -3260,7 +3263,7 @@ void game_loop()
 			}, true);
 		}
 
-		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
+		if (!freeze_holdup && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
 			for (auto counters : activation_counters)
 				for (auto q : counters)

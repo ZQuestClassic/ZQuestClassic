@@ -2424,7 +2424,7 @@ void sprite_list::animate()
 
 		bool freeze_sprite = false;
 		if (spr->can_freeze_from_holdup)
-			freeze_sprite = freeze_guys;
+			freeze_sprite = freeze_holdup;
 #ifdef IS_PLAYER
 		if (is_in_scrolling_region())
 			freeze_sprite |= !spr->is_within_freeze_viewport;
@@ -2513,7 +2513,7 @@ void sprite_list::run_script(int32_t mode)
 
 		bool freeze_sprite = false;
 		if (spr->can_freeze_from_holdup)
-			freeze_sprite = freeze_guys;
+			freeze_sprite = freeze_holdup;
 #ifdef IS_PLAYER
 		if (is_in_scrolling_region())
 			freeze_sprite |= !spr->is_within_freeze_viewport;

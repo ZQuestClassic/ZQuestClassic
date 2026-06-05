@@ -5,7 +5,7 @@ int32_t global_frame=8;
 bool BSZ=false;
 int32_t conveyclk=0;
 byte newconveyorclk=0;
-bool freeze_guys=false;
+bool freeze_holdup = false;
 
 void sprite::handle_sprlighting()
 {
