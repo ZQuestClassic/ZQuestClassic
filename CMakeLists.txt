@@ -1063,6 +1063,7 @@ set(zc_clang_errors
 	# TODO: these are pretty annoying to fix and are low-value
 	-Wno-self-assign
 	-Wno-unused-lambda-capture
+	-Wno-nan-infinity-disabled
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
