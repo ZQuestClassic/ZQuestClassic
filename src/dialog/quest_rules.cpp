@@ -2158,7 +2158,6 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	}
 	else
 	{
-		size_t subtab_ind = 0;
 		window = Window(
 			title = "Quest Options",
 			onClose = message::CANCEL,
@@ -2252,7 +2251,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Anim",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[0],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2264,7 +2263,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Combo",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[1],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2276,7 +2275,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Compat",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[2],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2288,7 +2287,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Enemy",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[3],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2300,7 +2299,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Item",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[4],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2312,7 +2311,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Misc",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[5],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2324,7 +2323,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "NESFix",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[6],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2336,7 +2335,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Hero",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[7],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2348,7 +2347,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Subscreen",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[8],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,
@@ -2360,7 +2359,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Weapon",
 						QRPanel(
-							ptr = &qr_subtabs[subtab_ind++],
+							ptr = &qr_subtabs[9],
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							onCloseInfo = message::REFR_INFO,

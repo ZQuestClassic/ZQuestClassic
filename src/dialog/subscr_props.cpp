@@ -933,7 +933,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				}
 				SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
 				std::shared_ptr<GUI::Grid> tmp_gs[2];
-				int g = 0;
 				extra_grids["Gauge"] = Row(padding = 0_px,
 					tmp_gs[0] = Column(padding = 0_px,
 						Rows<2>(padding = 0_px,
@@ -1032,17 +1031,17 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								INFOBTN("If >1, displays multiple gauge pieces height-wise."),
 								//
 								Label(text = "HSpace:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->hspace, -128, 127),
+								gauge_gw[0] = NUM_FIELD(w->hspace, -128, 127),
 								INFOBTN("Extra space between gauge pieces width-wise."),
 								Label(text = "VSpace:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->vspace, -128, 127),
+								gauge_gw[1] = NUM_FIELD(w->vspace, -128, 127),
 								INFOBTN("Extra space between gauge pieces height-wise."),
 								//
 								Label(text = "Grid XOffset:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->grid_xoff, -999, 999),
+								gauge_gw[2] = NUM_FIELD(w->grid_xoff, -999, 999),
 								INFOBTN("Each row is offset by this much x."),
 								Label(text = "Grid YOffset:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->grid_yoff, -999, 999),
+								gauge_gw[3] = NUM_FIELD(w->grid_yoff, -999, 999),
 								INFOBTN("Each column is offset by this much y.")
 							)
 						),
@@ -1095,13 +1094,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									}
 								),
 								INFOBTN("If the grid order should go right-to-left instead of left-to-right"),
-								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_RTOL, "Grid Right to Left", 1),
+								gauge_gw[4] = CBOX(w->flags, SUBSCR_GAUGE_GRID_RTOL, "Grid Right to Left", 1),
 								INFOBTN("If the grid order should go top-to-bottom instead of bottom-to-top"),
-								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
+								gauge_gw[5] = CBOX(w->flags, SUBSCR_GAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
 								INFOBTN("If the grid should grow in the columns before the rows"),
-								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
+								gauge_gw[6] = CBOX(w->flags, SUBSCR_GAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
 								INFOBTN("If the grid should alternate direction when finishing a row (or column)"),
-								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
+								gauge_gw[7] = CBOX(w->flags, SUBSCR_GAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
 							)
 						)
 					)
