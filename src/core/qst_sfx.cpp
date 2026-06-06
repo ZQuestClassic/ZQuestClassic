@@ -227,7 +227,6 @@ int32_t readsfx_old(PACKFILE *f, word s_version)
 		// free(temp_sample.data);
 	}
 	
-	int blanks = 0;
 	quest_sounds.reserve(wavcount);
 	for (uint q = 1; q < wavcount; ++q)
 	{

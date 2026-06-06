@@ -41,7 +41,7 @@ void combo_auto::addEntry(int32_t cid, byte ct, int32_t of, int32_t eo) //add a 
 {
 	if (eo < 0)
 		eo = of + autocombo_entry::base_engrave_offset(type);
-	autocombo_entry e = combos.emplace_back(cid,ct,of,eo);
+	combos.emplace_back(cid,ct,of,eo);
 }
 
 void combo_auto::removeEntry()

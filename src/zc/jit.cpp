@@ -62,7 +62,7 @@ void jit_printf(const char *format, ...)
 	char buffer[1024];
 	va_list argList;
 	va_start(argList, format);
-	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
 	al_trace("%s", buffer);
 }
 
@@ -71,7 +71,7 @@ void jit_error(const char *format, ...)
 	char buffer[1024];
 	va_list argList;
 	va_start(argList, format);
-	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
 	al_trace("%s", buffer);
 	if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL)
 		abort();

@@ -723,8 +723,7 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, const char *s, int32_t x, int32_t y
     int32_t max_len = 0;
     int32_t hline_pos;
     int32_t xx = x;
-	bool is_scr = bmp == screen;
-    
+
 	while(s[c])
     {
         len = 0;
@@ -1214,8 +1213,6 @@ int icon_proportion(int icon,int s1,int s2)
 }
 void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int icon, int32_t flags, bool show_dotted_rect)
 {
-    int32_t g = (flags & D_SELECTED) ? 1 : 0;
-    
     if(flags & D_SELECTED)
         jwin_draw_button(dest, x, y, w, h, 2, 0);
     else if(!(flags & D_GOTFOCUS))
@@ -2517,7 +2514,6 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					//Move the text out of the way of the pasting
 					int paste_len = cb.size();
 					int paste_start = scursor;
-					int paste_end = paste_start+paste_len;
 					ind = strlen(s);
 					ind2 = ind+paste_len;
 					while(ind2 > d->d1)
@@ -3068,7 +3064,6 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					//Move the text out of the way of the pasting
 					int paste_len = cb.size();
 					int paste_start = scursor;
-					int paste_end = paste_start+paste_len;
 					ind = strlen(s);
 					ind2 = ind+paste_len;
 					while(ind2 > d->d1)
@@ -3651,7 +3646,6 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(msg == MSG_CHAR && queued_neg)
 	{
 		auto scursor = d->d2 & 0xFFFF;
-		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
 		if(!scursor)
 		{
 			rev_d2 = true;
@@ -3873,7 +3867,6 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(msg == MSG_CHAR && queued_neg)
 	{
 		auto scursor = d->d2 & 0xFFFF;
-		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
 		if(!scursor)
 		{
 			rev_d2 = true;
@@ -4090,7 +4083,6 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(msg == MSG_CHAR && queued_neg)
 	{
 		auto scursor = d->d2 & 0xFFFF;
-		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
 		if(!scursor)
 		{
 			rev_d2 = true;
@@ -4098,7 +4090,6 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 			ref_d2 = d->d2;
 		}
 	}
-	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
 	switch(ntype)
 	{
 		case nswapDEC:
@@ -4332,7 +4323,6 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(msg == MSG_CHAR && queued_neg)
 	{
 		auto scursor = d->d2 & 0xFFFF;
-		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
 		if(!scursor)
 		{
 			rev_d2 = true;
@@ -4603,7 +4593,6 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	if(msg == MSG_CHAR && queued_neg)
 	{
 		auto scursor = d->d2 & 0xFFFF;
-		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
 		if(!scursor)
 		{
 			rev_d2 = true;
@@ -6170,7 +6159,6 @@ int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c)
 	int32_t irange;
 	int32_t slx, sly, slh, slw;
 	fixed slratio, slmax, slpos;
-	BITMAP *gui_bmp = screen;
 	int32_t msx, msy;
 	int32_t retval = D_O_K;
 	int32_t upkey, downkey;
@@ -6905,10 +6893,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			data->listFunc(-1, &max);
 
-			int32_t cur = d->d1;
-			int32_t charpos = 0; int32_t listpos = 0; int32_t lastmatch = -1;
-			int32_t lmindx = 0;
-			
 			bool foundmatch = false;
 			bool numsearch = true;
 			for ( int32_t q = 0; q < 1023; ++q ) 

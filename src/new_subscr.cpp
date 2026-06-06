@@ -1197,7 +1197,6 @@ int32_t SubscrSelectorInfo::write(PACKFILE *f) const
 	byte sz = 2;
 	if(!p_putc(sz,f))
 		new_return(1);
-	SubscrSelectorTileInfo dummy;
 	for(byte q = 0; q < sz; ++q)
 	{
 		SubscrSelectorTileInfo const& info = tileinfo[q];
@@ -1584,7 +1583,6 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 	if(s_version >= 14)
 	{
 		word count;
-		byte bcount;
 		if(!p_igetw(&count,f))
 			return qe_invalid;
 		req_owned_items.clear();
@@ -4859,7 +4857,6 @@ int16_t SW_GaugePiece::getX() const
 }
 int16_t SW_GaugePiece::getY() const
 {
-	auto sz = ((flags&SUBSCR_GAUGE_FULLTILE)?16:8);
 	return y + (grid_yoff < 0 ? gauge_hei*grid_yoff : 0);
 }
 word SW_GaugePiece::getW() const
@@ -4940,12 +4937,11 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 }
 void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, [[maybe_unused]] SubscrPage& page) const
 {
-	auto b = zq_ignore_item_ownership;
-	
+	[[maybe_unused]] auto b = zq_ignore_item_ownership;
 	bool inf = infinite();
 	if(flags & (inf ? SUBSCR_GAUGE_INFITM_BAN : SUBSCR_GAUGE_INFITM_REQ))
 		return;
-	
+
 	int anim_offs = 0;
 	bool animate = true;
 	auto ctr = get_ctr();

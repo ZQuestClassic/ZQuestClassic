@@ -826,9 +826,8 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *, int32_t xoffset, int32_t yoffs
     if(v.empty())
         return;
     
-    int32_t* pos = &v[0];
     int32_t sz = v.size();
-    
+
     for ( int32_t q = 0; q < sz; q+=10 )
     {
 	
@@ -1085,10 +1084,9 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     if(v.empty())
         return;
     
-    int32_t* pos = &v[0];
     int32_t sz = v.size();
-    
-    
+
+
 	int32_t x1 = 0;
 	int32_t y1 = 0;
     
@@ -1578,12 +1576,11 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t*, int32_t xoffset, int32_t yo
     if(v.empty())
         return;
     
-    int32_t* pos = &v[0];
     int32_t sz = v.size();
-    
+
     for ( int32_t q = 0; q < sz; q+=5 )
     {
-	    
+
 	    if(v.at(q+4) < 128)
 		overtiletranslucent16(bmp, v.at(q+2), xoffset+(v.at(q)), yoffset+(v.at(q+1)), v.at(q+3), 0, v.at(q+4));
 	    else
@@ -1638,9 +1635,8 @@ void do_fastcombosr(BITMAP *bmp, int32_t i, int32_t*, int32_t xoffset, int32_t y
 	if(v.empty())
 		return;
 	
-	int32_t* pos = &v[0];
 	int32_t sz = v.size();
-	
+
 	for ( int32_t q = 0; q < sz; q+=5 )
 	{
 		auto cid = v.at(q+2);
@@ -5226,7 +5222,6 @@ void bmp_do_fastcombor(BITMAP*, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t opacity = sdci[6] / 10000;
     int32_t x1 = sdci[2] / 10000;
     int32_t y1 = sdci[3] / 10000;
-    int32_t index = sdci[4]/10000;
     if ( sdci[DRAWCMD_BMP_TARGET] <= 0 )
     {
 	Z_scripterrlog("bitmap->FastCombo() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[DRAWCMD_BMP_TARGET]);
@@ -6369,8 +6364,7 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, [[maybe_unused]] int32_t xoffset,
 	
 	//rendering mode 7 args
 	double srcX = sdci[3]/10000.0;
-	double srcY = sdci[4]/10000.0; 
-	double destX = sdci[5]/10000.0;
+	double srcY = sdci[4]/10000.0;
 	double destY = sdci[6]/10000.0;
 	
 	double destW = sdci[7]/10000.0;
@@ -11375,7 +11369,7 @@ void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 }
 
 
-void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, int32_t yoffset, bool isOffScreen)
+void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, int32_t yoffset, [[maybe_unused]] bool isOffScreen)
 {
     //sdci[1]=layer
     //sdci[2]=map
@@ -11398,7 +11392,6 @@ void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, 
     int32_t y = sdci[6]/10000;
     int32_t rotation = sdci[7]/10000;
 
-	byte noclip = 0;//(sdci[8]!=0);
     int32_t opacity = sdci[8]/10000;
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
@@ -11421,10 +11414,8 @@ void do_bmpdrawlayerr(BITMAP*, int32_t *sdci, [[maybe_unused]] int32_t xoffset, 
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
         
-    const int32_t maxX = isOffScreen ? 512 : 256;
-    const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_mapscr(b, l, x, y, transparent);
@@ -11575,11 +11566,10 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
-    int32_t opacity = sdci[9]/10000;
-    
+
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
-    
+
     if(!m) //no need to log it.
         return;
 
@@ -11588,19 +11578,18 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
+
     const mapscr & l = *m;
-    
+
     BITMAP* b = bmp;
-    
+
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
+
+
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_map_solid(b, l, x1, y1);
@@ -11670,11 +11659,10 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[7]/10000;
 	byte noclip = (sdci[8]!=0);
-    int32_t opacity = sdci[9]/10000;
-    
+
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
-    
+
     if(!m) //no need to log it.
         return;
 
@@ -11683,19 +11671,18 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
+
     const mapscr & l = *m;
-    
+
     BITMAP* b = bmp;
-    
+
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
+
+
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_map_solidity(b, l, x1, y1);
@@ -11746,11 +11733,10 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     int32_t rotation = sdci[7]/10000;
 
 	byte noclip = (sdci[8]!=0);
-    int32_t opacity = sdci[9]/10000;
-    
+
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
-    
+
     if(!m) //no need to log it.
         return;
 
@@ -11770,8 +11756,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_map_cflag(b, l, x1, y1);
@@ -11821,7 +11806,6 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     int32_t rotation = sdci[7]/10000;
 
     byte noclip = (sdci[8]!=0);
-    int32_t opacity = sdci[9]/10000;
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
@@ -11844,8 +11828,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_map_combotype(b, l, x1, y1);
@@ -11894,11 +11877,10 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
-    int32_t opacity = sdci[9]/10000;
-    
+
     uint32_t index = (uint32_t)map_screen_index(map, screen);
     const mapscr* m = getmapscreen(map, screen, sourceLayer);
-    
+
     if(!m) //no need to log it.
         return;
 
@@ -11918,8 +11900,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
         
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
+
     if(rotation != 0) // rotate
     {
         draw_map_comboiflag(b, l, x1, y1);

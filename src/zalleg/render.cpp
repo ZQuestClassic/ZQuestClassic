@@ -596,7 +596,7 @@ namespace MouseSprite
 			ALLEGRO_COLOR black = al_map_rgb(0,0,0);
 			set_bitmap_create_flags(true);
 			ALLEGRO_BITMAP* bmp = al_create_bitmap(16,16);
-			auto* lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+			al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
 			for(int y = 0; y < 16; ++y)
 			{
 				for(int x = 0; x < 16; ++x)

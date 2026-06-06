@@ -1360,7 +1360,6 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	word section_version=0;
 	word combos_used=0;
 	int32_t dummy;
-	byte padding;
 	newcombo temp_combo;
 	
 	if (!should_skip)

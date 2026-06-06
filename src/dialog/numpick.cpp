@@ -12,7 +12,6 @@ VectorPickDialog<Sz>::VectorPickDialog(bounded_vec<Sz,int32_t>& vec, bool zsint)
 	: local_vec(vec), dest_vec(vec), zsint(zsint), pg(0)
 {}
 
-static int32_t scroll_pos_vec1 = 0;
 template<typename Sz>
 std::shared_ptr<GUI::Widget> VectorPickDialog<Sz>::view()
 {
@@ -169,7 +168,6 @@ MapPickDialog<Sz>::MapPickDialog(bounded_map<Sz,int32_t>& mp, bool zsint)
 	: local_map(mp), dest_map(mp), zsint(zsint), pg(0)
 {}
 
-static int32_t scroll_pos_map1 = 0;
 template<typename Sz>
 std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 {

@@ -216,7 +216,6 @@ zfix check_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty, boo
 			{
 				lineangle += PI/2;
 			}
-			bool staircheck = false;
 			zfix sinangle = zc::math::Sin(lineangle);
 			zfix cosangle = zc::math::Cos(lineangle);
 			if (s.x2 == s.x1) sinangle = 0;

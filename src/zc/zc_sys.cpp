@@ -5726,8 +5726,6 @@ void game_pal()
 	update_hw_pal = true;
 }
 
-static char bar_str[] = "";
-
 void music_pause()
 {
 	//al_pause_duh(tmplayer);

@@ -1427,9 +1427,6 @@ void enemy::solid_push(solid_object *obj)
 	bool t = obj->getTempNonsolid();
 	obj->setTempNonsolid(true);
 	
-	int32_t ydir = dy > 0 ? down : up;
-	int32_t xdir = dx > 0 ? right : left;
-	
 	auto special = isflier(id) ? spw_floater : spw_none;
 	if(!movexy(dx,dy,special,true,true))
 	{
@@ -2273,8 +2270,6 @@ int32_t conv_edef_unblockable(int32_t edef, byte unblockable)
 int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable) //May need *wpn to set return on brangs and hookshots
 {
 	if(switch_hooked) return 0;
-	int32_t tempx = x;
-	int32_t tempy = y;
 	int32_t the_defence = 0;
 	if ( edef < 0 ) //we are using a specific base default defence for a weapon
 	{
@@ -2729,8 +2724,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				}
 				
 					// add segments of segmented enemies
-				int32_t c=0;
-				
 				switch(guysbuf[new_id&0xFFF].type)
 				{
 					case eeMOLD:
@@ -7665,7 +7658,6 @@ waves2:
 	case a4FRMPOS8DIR:
 	{
 		tilerows = 2;
-		int32_t n = tile;
 		basetile = n_frame_n_dir(4,8,0);
 		//        tile+=f2;
 		tile+=posframe;
@@ -13766,8 +13758,6 @@ bool eMoldorm::animate(int32_t index)
 			
 			if(segment->hp <= 0)
 			{
-				int32_t offset=1;
-				
 				for(int32_t j=i; j<index+segcnt; j++)
 				{
 					// Triple-check
@@ -15416,11 +15406,6 @@ bool ePatra::animate(int32_t index)
 	double basesize = 84;
 	if (dmisc10) basesize = 90;
 	double halfsize = basesize / 2;
-	double quartersize = halfsize / 2;
-	double twothirdsize = (basesize / 3)*2;
-	double onethirdsize = (basesize / 3);
-
-	
 	if(clk==0)
 	{
 		removearmos(x,y);
@@ -19920,8 +19905,6 @@ void clr_msg_data()
 	memset(msg_menu_data, 0, sizeof(msg_menu_data));
 }
 
-static char namebuf[9] = {0};
-static char* nameptr = NULL;
 static int32_t ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
 bool runMenuCursor()
 {

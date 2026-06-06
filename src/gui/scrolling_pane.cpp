@@ -320,7 +320,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 							case bar:
 							default:
 							{
-								int tmph = th - 32;
 								//tpos = (sp->contentHeight * (gui_mouse_y() - bar_click_pos) + tmph / 2) / tmph;
 								_calc_scroll_bar_backwards(th, th, sp->contentHeight, tpos, gui_mouse_y() - bar_click_pos);
 								tpos = vbound(tpos, sp->maxScrollPosY, 0);
@@ -449,7 +448,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 							case bar:
 							default:
 							{
-								int tmpw = tw - 32;
 								//tpos = (sp->contentWidth * (gui_mouse_x() - bar_click_pos) + tmpw / 2) / tmpw;
 								_calc_scroll_bar_backwards(tw, tw, sp->contentWidth, tpos, gui_mouse_x() - bar_click_pos);
 								tpos = vbound(tpos, sp->maxScrollPosX, 0);

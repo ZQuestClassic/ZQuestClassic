@@ -21,7 +21,6 @@ void reset_itemname(int32_t id)
 int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word version, word build)
 {
     byte padding, tempbyte;
-    int32_t dummy;
     word dummy_word;
 	
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);

@@ -222,10 +222,8 @@ void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 	}
 	
 	int32_t r, g, b, direction=1;
-	int32_t c;
 	byte r1, r2, g1, g2, b1, b2;
 	int w = x2-x1+1;
-	int32_t temp;
 	int32_t red_rand_strength=0, green_rand_strength=0, blue_rand_strength=0;
 	
 	lfsrInit();

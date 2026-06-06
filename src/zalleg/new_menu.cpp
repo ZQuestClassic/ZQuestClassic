@@ -787,7 +787,6 @@ MenuRet NewMenu::run_loop()
 			return ret;
 		bool earlyret = false;
 		mb = gui_mouse_b();
-		auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
 		if(msel != msel2)
@@ -946,7 +945,6 @@ void NewMenu::run(bool allow_focus)
 	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
 	if(msel != state.sel_ind)
 		state.just_mdown = false;
@@ -1271,7 +1269,6 @@ MenuRet TopMenu::run_loop()
 		bool earlyret = false;
 		rest(1);
 		mb = gui_mouse_b();
-		auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
 		if(msel != msel2)
@@ -1430,7 +1427,6 @@ void TopMenu::run(bool allow_focus)
 	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
 	
 	if(msel != state.sel_ind)

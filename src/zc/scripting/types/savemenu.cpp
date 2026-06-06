@@ -319,8 +319,6 @@ std::optional<int32_t> savemenu_run_command(word command)
 	extern word curScriptNum;
 	extern int32_t curScriptIndex;
 
-	ScriptType type = curScriptType;
-	int32_t i = curScriptIndex;
 	switch (command)
 	{
 		case SAVEMENU_GETNAME:

@@ -13,8 +13,6 @@ namespace {
 
 static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zinitdata& temp_zinit)
 {
-	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
-
 	byte padding, tempbyte;
 	
 	// Legacy item properties (now integrated into itemdata)

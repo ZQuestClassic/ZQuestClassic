@@ -384,9 +384,7 @@ namespace util
 			"abcdefghijklmnopqrstuvwxyz";
 		int32_t n = 0, neg = 0;
 		uint32_t v;
-		char* p, *q;
-		char c;
-		if (base == 10 && value < 0) 
+		if (base == 10 && value < 0)
 		{
 			value = -value;
 			neg = 1;
@@ -936,7 +934,6 @@ namespace util
 					complete = true;
 					break;
 				}
-				size_t ind = 0;
 				while(str[q] == ',' && q+1 < len) ++q;
 				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
 				{}

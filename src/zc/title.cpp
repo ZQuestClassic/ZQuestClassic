@@ -1194,8 +1194,7 @@ bool prompt_for_quest_path(std::string current_qstpath)
 	while(jump_to_file_select || (ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
 	{
 		jump_to_file_select = false;
-		
-		int32_t  sel=0;
+
 		static EXT_LIST list[] =
 		{
 			{ (char *)"ZC Quests (*.qst)", (char *)"qst" },

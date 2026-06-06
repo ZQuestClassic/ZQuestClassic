@@ -1191,7 +1191,7 @@ static bool check_keyfile(char const* path, char const* ext, bool hashed, char c
 		return false;
 	bool ret = false;
 	
-	char password[QSTPWD_LEN] = {0}, pwd[32] = {0};
+	char password[QSTPWD_LEN] = {0};
 	PACKFILE *fp = zalleg_pack_fopen_password(keyfilename, F_READ,"");
 	char msg[80] = {0};
 	pfread(msg, 80, fp);

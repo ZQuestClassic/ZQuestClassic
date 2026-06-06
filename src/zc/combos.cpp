@@ -580,8 +580,6 @@ static void trigger_cswitch_block(const combined_handle_t& handle)
 			continue;
 		if(!rpos_handle.data()) //Don't increment empty space
 			continue;
-		mapscr* scr_2 = rpos_handle.scr;
-		
 		rpos_handle.modify_data(cmbofs);
 		rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
 		int newcid2 = rpos_handle.data();
@@ -657,8 +655,7 @@ void trigger_cuttable(const combined_handle_t& handle)
 	auto& cmb = handle.combo();
 	auto type = cmb.type;
 	if(!isCuttableType(type)) return;
-	
-	int pos = handle.local_id();
+
 	mapscr* scr = handle.get_mapscr();
 	auto flag = handle.sflag();
 	auto flag2 = cmb.flag;

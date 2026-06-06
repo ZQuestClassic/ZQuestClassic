@@ -257,7 +257,6 @@ std::string zs_sprintf(const char* format, int32_t num_args, std::function<int32
 					}
 				}
 				bool bin = (format[0] == 'b' || format[0] == 'B');
-				bool hex = (format[0] == 'x' || format[0] == 'X');
 				if(bin)
 				{
 					if(min_digits > 32)
@@ -274,7 +273,6 @@ std::string zs_sprintf(const char* format, int32_t num_args, std::function<int32
 					min_digits = 10;
 				}
 				
-				bool tempbool = false;
 				switch( format[0] )
 				{
 					case 'd':

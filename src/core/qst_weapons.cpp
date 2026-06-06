@@ -80,7 +80,6 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 
     word weapons_to_read=256;
     int32_t dummy;
-    byte padding;
     word s_version=0;
     
     

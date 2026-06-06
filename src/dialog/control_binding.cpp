@@ -241,7 +241,6 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 		int *u_keys[num_u_key];
 		load_u_keys(u_keys, local_scheme);
 		
-		size_t num_keys = num_u_key;
 		size_t col_per_button = read_only ? 1 : 3;
 		size_t columns = 3 + 2 * col_per_button;
 		keylist = GUI::Internal::makeRows(columns);
@@ -302,7 +301,6 @@ std::shared_ptr<GUI::Widget> ControlBindingDialog::view()
 		int *u_btns[num_u_btn];
 		load_u_btns(u_btns, local_scheme);
 		
-		size_t num_keys = num_u_btn;
 		size_t col_per_button = gamepad_read_only ? 1 : 2;
 		size_t columns = 3 + 2 * col_per_button;
 		btnlist = GUI::Internal::makeRows(columns);

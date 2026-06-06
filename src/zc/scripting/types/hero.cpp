@@ -744,7 +744,6 @@ void hero_set_register(int32_t reg, int32_t value)
 		}
 		case HERORESPAWNY:
 		{
-			zfix zy = zslongToFix(value);
 			Hero.respawn_y = zslongToFix(value);
 			break;
 		}

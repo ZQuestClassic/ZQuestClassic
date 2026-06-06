@@ -203,8 +203,6 @@ std::optional<int32_t> musicdata_run_command(word command)
 	extern word curScriptNum;
 	extern int32_t curScriptIndex;
 
-	ScriptType type = curScriptType;
-	int32_t i = curScriptIndex;
 	int ref = command == PLAY_MUSIC ? get_register(sarg1) : GET_REF(musicref);
 	switch (command)
 	{

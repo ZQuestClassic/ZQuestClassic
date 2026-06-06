@@ -13051,7 +13051,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 		
 		if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
 		{
-			auto v = earlyretval;
+			[[maybe_unused]] auto v = earlyretval;
 			earlyretval = -1;
 			return earlyretval;
 		}

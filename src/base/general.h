@@ -462,10 +462,10 @@ enum
 enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 static const char* dirstr[] = {"up","down","left","right","up-left","up-right","down-left","down-right"};
 static const char* dirstr_proper[] = {"Up","Down","Left","Right","Up-Left","Up-Right","Down-Left","Down-Right"};
-const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
-const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
-const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
-const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
+inline constexpr direction oppositeDir[] = {down, up, right, left, r_down, l_down, r_up, l_up};
+inline constexpr direction normalDir[] = {up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
+inline constexpr direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
+inline constexpr direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
 direction X_DIR(int32_t dir);
 direction Y_DIR(int32_t dir);
 direction XY_DIR(int32_t xdir, int32_t ydir);

@@ -51,7 +51,6 @@ void DDPanel::loadList(GUI::ListData dd_data)
 			std::shared_ptr<Label> ddlabel = std::make_shared<Label>();
 			ibtn->setText("?");
 			
-			int32_t indexVal = dd_data.getValue(q);
 			std::string const& name = dd_data.getText(q);
 			std::string const& infotext = dd_data.getInfo(q);
 			ddlabel->setText(name);

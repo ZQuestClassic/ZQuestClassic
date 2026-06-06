@@ -4004,8 +4004,6 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			//case r_down:y+=.354; x+=.354; break;
 		}
 	
-	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
-	
 	switch(id)
 	{
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:

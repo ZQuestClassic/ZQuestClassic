@@ -562,7 +562,7 @@ process_manager* launch_piped_process(std::string file, [[maybe_unused]] std::st
 	pm->init_process(pi.hProcess);
 	return pm;
 #else
-	int32_t pdes_r[2], pdes_w[2], pid;
+	int32_t pdes_r[2], pdes_w[2];
 	posix_spawn_file_actions_t file_actions;
 	int s;
 

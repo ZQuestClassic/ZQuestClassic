@@ -17,7 +17,6 @@ void call_zc_options_dlg()
 
 void ZCOptionsDialog::loadOptions()
 {
-	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
 		opts[q+OPT_FIRSTFONT] = zc_get_config("ZQ_GUI",
@@ -313,8 +312,7 @@ std::shared_ptr<GUI::Widget> ZCOptionsDialog::view()
 							
 							for(int q = OPT_FIRSTFONT; q <= OPT_LASTFONT; ++q)
 							{
-								int realq = q-OPT_FIRSTFONT;
-								opts[q] = get_def_fontid(q-OPT_FIRSTFONT);
+										opts[q] = get_def_fontid(q-OPT_FIRSTFONT);
 								opt_changed[q] = true;
 							}
 							

@@ -208,8 +208,6 @@ static void configure_render_tree()
 	
 	if (rti_menu.visible)
 	{
-		int w = rti_menu.width;
-		int h = rti_menu.height;
 		float xscale = gui_xscale;
 		float yscale = gui_yscale;
 		rti_menu.set_transform({

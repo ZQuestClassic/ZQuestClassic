@@ -2713,8 +2713,6 @@ void sprite_list::forEach(std::function<bool(sprite&)> proc)
 void sprite::explode(int32_t type)
 {
 	byte spritetilebuf[256];
-	int32_t ltile=0;
-	int32_t lflip=0;
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(spritetilebuf, unpackbuf, 256);	
 	
