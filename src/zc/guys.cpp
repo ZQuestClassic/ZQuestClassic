@@ -16485,10 +16485,10 @@ bool ePatra::animate(int32_t index)
 				if (clk5 >= dmisc19)
 				{
 					if ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-					(dmisc20 == 2 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > ((int64_t)48 + (int64_t(12)*flycnt2))) ||
+					((dmisc20 == 2 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > ((int64_t)48 + (int64_t(12)*flycnt2))) ||
 					(dmisc20 == 4 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > ((int64_t)48 + 96)) ||
-					(dmisc20 != 2 && dmisc20 != 4 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > 48)))
-					|| dmisc18 == -1)  
+					(dmisc20 != 2 && dmisc20 != 4 && (basesize*((int64_t)dmisc6 - zc::math::SafeMod(misc, dmisc6))) > 48))))
+					|| dmisc18 == -1)
 						dofire = true;
 				}
 			}
