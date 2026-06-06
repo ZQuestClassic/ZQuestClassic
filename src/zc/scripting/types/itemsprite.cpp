@@ -526,6 +526,12 @@ int32_t itemsprite_get_register(int32_t reg)
 				ret = int32_t(s->from_dropset) * 10000;
 			}
 			break;
+		case ITEMPICKUPEXSTATE:
+			if (s)
+			{
+				ret = int32_t(s->pickupexstate) * 10000;
+			}
+			break;
 		case ITMSWHOOKED:
 			if (s)
 			{
@@ -1118,6 +1124,12 @@ void itemsprite_set_register(int32_t reg, int32_t value)
 			if (s)
 			{
 				s->from_dropset=vbound(value/10000,-1,255);
+			}
+			break;
+		case ITEMPICKUPEXSTATE:
+			if (s)
+			{
+				s->pickupexstate = vbound(value / 10000, -1, 31);
 			}
 			break;
 		case ITMSWHOOKED:

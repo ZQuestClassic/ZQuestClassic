@@ -566,6 +566,13 @@ class npc {
 	// @zasm_var NPCDEATHSPR
 	internal int DeathSprite;
 
+	// If >-1, this ExState will be set when the npc dies, on the screen the
+	// npc spawned on ([sprite::SpawnScreen]).
+	//
+	// @versionadded 3.0
+	// @zasm_var NPCDEATHEXSTATE
+	internal int DeathExState;
+
 	// If set false, the npc will neither flash, nor flicker when invincible.
 	//
 	// @zasm_var NPCCANFLICKER

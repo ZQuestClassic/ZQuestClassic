@@ -117,6 +117,13 @@ class itemsprite {
 	// @zasm_var ITEMDROPPEDBY
 	internal int DroppedBy;
 
+	// If >-1, this ExState will be set when the item is collected, on the screen the
+	// item spawned on ([sprite::SpawnScreen]).
+	//
+	// @versionadded 3.0
+	// @zasm_var ITEMPICKUPEXSTATE
+	internal int PickupExState;
+
 	// If set to true, the item will automatically be collected by the [Hero] as
 	// soon as possible.
 	//

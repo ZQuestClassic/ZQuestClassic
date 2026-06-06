@@ -2724,6 +2724,8 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITE_VIEWPORT_DESPAWN_RANGE", SPRITE_VIEWPORT_DESPAWN_RANGE, 0 },
 	{ "CMBTRIG_REQ_SCREXDOOR", CMBTRIG_REQ_SCREXDOOR, 0 },
 	{ "CMBTRIG_UNREQ_SCREXDOOR", CMBTRIG_UNREQ_SCREXDOOR, 0 },
+	{ "ITEMPICKUPEXSTATE", ITEMPICKUPEXSTATE, 0 },
+	{ "NPCDEATHEXSTATE", NPCDEATHEXSTATE, 0 },
 	{"", -1},
 };
 
@@ -3898,6 +3900,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case ITEMZ:
 		case ITEMZOFS:
 		case ITMSWHOOKED:
+		case ITEMPICKUPEXSTATE:
 			return REFITEM;
 
 		case IDATAAMOUNT:
@@ -4331,6 +4334,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCYOFS:
 		case NPCZ:
 		case NPCZOFS:
+		case NPCDEATHEXSTATE:
 		case SPRITEMAXNPC:
 			return REFNPC;
 
