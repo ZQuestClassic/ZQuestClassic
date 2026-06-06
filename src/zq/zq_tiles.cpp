@@ -6945,7 +6945,9 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 			for(size_t idx = 0; idx < cmb.triggers.size(); ++idx)
 			{
 				auto& trig = cmb.triggers[idx];
-				if(trig.trigchange)
+				if (trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
+					combo_links.add_to(q, trig.trigchange);
+				else if (trig.trigchange)
 					combo_links.add_to(q, q+trig.trigchange);
 			}
 			bool next = cmb.flag == mfSECRETSNEXT;

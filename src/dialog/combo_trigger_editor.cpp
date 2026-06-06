@@ -174,7 +174,8 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		TRIGFLAG_SETPLAYER_Y_REL_CMB,TRIGFLAG_SETPLAYER_Z_ABS,
 		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER,
 		TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY,
-		TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN, })) return true;
+		TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN,
+		TRIGFLAG_CMB_CHANGE_ABSOLUTE, TRIGFLAG_CSET_CHANGE_ABSOLUTE, })) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;

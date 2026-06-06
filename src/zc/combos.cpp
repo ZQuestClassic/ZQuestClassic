@@ -1970,13 +1970,13 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 	auto& trig = cmb.triggers[idx];
 	bool is_active_screen = is_in_current_region(handle.base_scr());
 	
-	if (trig.trigcschange)
+	if (trig.trigcschange || trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
 	{
 		if (trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
 			handle.set_cset(trig.trigcschange & 0xF);
 		else handle.set_cset((ocs + trig.trigcschange) & 0xF);
 	}
-	if (trig.trigchange)
+	if (trig.trigchange || trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
 	{
 		if (is_active_screen)
 			screen_combo_modify_preroutine(handle);
@@ -2632,14 +2632,14 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			Hero.forced_respawn_point = false;
 	}
 
-	if (trig.trigcschange)
+	if (trig.trigcschange || trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
 	{
 		used_bit = true;
 		if (trig.trigger_flags.get(TRIGFLAG_CSET_CHANGE_ABSOLUTE))
 			handle.set_cset(trig.trigcschange & 0xF);
 		else handle.set_cset((ocs + trig.trigcschange) & 0xF);
 	}
-	if (trig.trigchange)
+	if (trig.trigchange || trig.trigger_flags.get(TRIGFLAG_CMB_CHANGE_ABSOLUTE))
 	{
 		used_bit = true;
 		if (is_active_screen)
