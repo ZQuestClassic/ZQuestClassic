@@ -3812,13 +3812,18 @@ bool HeroClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
-						int screen = get_screen_for_world_xy(wx, wy);
-						mapscr* scr = get_scr_for_world_xy(wx, wy);
+						int item_screen = ptr->screen_spawned;
+						mapscr* item_scr = get_scr_maybe(cur_map, item_screen);
+						if (!item_scr)
+						{
+							item_screen = get_screen_for_world_xy(ptr->x, ptr->y);
+							item_scr = get_scr(item_screen);
+						}
+						
 						int32_t pickup = ptr->pickup;
 						int32_t id2 = ptr->id;
 						int32_t pstr = ptr->pstring;
 						int32_t pstr_flags = ptr->pickup_string_flags;
-						int32_t pstr_screen = ptr->screen_spawned;
 						if(!dofairy)
 						{
 							std::vector<int32_t> &ev = FFCore.eventData;
@@ -3842,16 +3847,16 @@ bool HeroClass::checkstab()
 						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag(scr, mITEM);
+							setmapflag(item_scr, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(item_scr, (item_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
-							setxmapflag(screen, 1<<ptr->pickupexstate);
+							setxmapflag(item_screen, 1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if (scr->flags9&fITEMSECRETPERM) setmapflag(scr, mSECRET);
-							trigger_secrets_for_screen(TriggerSource::ItemsSecret, scr, false);
+							if (item_scr->flags9&fITEMSECRETPERM) setmapflag(item_scr, mSECRET);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_scr, false);
 						}
 						//!DIMI
 						
@@ -3887,7 +3892,7 @@ bool HeroClass::checkstab()
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(get_scr(pstr_screen), pstr);
+								donewmsg(item_scr, pstr);
 								break;
 							}
 						}
