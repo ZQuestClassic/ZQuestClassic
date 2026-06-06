@@ -15,6 +15,15 @@
 #include <string>
 #include <vector>
 
+struct ValueStringOptions
+{
+	bool newlines = false;
+	bool elide_arrays = false;
+	bool exclude_deprecated = false;
+	bool compact_fields = false;
+	bool elide_zero_values = false;
+};
+
 struct FileNode
 {
 	std::string name;
@@ -189,10 +198,11 @@ struct Debugger
 
 	// Stringify values.
 	std::string ValueToStringSummary(DebugValue value);
-	std::string ValueToStringFull(DebugValue value, bool newlines);
+	std::string ValueToStringFull(DebugValue value, ValueStringOptions opts = {});
+	std::string ValueToStringTooltip(DebugValue value);
 
 private:
-	std::string ValueToStringHelper(DebugValue value, bool newlines, int depth, std::set<int>& seen);
+	std::string ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, std::set<int>& seen);
 	Variable CreateVariableFromValue(const std::string& name, DebugValue value);
 	void RenderVariableNode(Variable& var, std::vector<Variable*>& parents);
 };

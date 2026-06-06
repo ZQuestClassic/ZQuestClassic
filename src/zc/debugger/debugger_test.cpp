@@ -240,8 +240,7 @@ static void verify_expression(Debugger* debugger, std::string expression, std::s
 	if (!value)
 		throw std::runtime_error(fmt::format("Assertion failed: `{}` is invalid. Error: {}", expression, value.error()));
 
-	bool newlines = false;
-	std::string actual = debugger->ValueToStringFull(*value, newlines);
+	std::string actual = debugger->ValueToStringFull(*value);
 	if (actual != expected_value)
 		throw std::runtime_error(fmt::format("Assertion failed: expected `{}` to evaluate to `{}`, but got `{}`", expression, expected_value, actual));
 }
@@ -251,8 +250,7 @@ static void verify_expression_invalid(Debugger* debugger, std::string expression
 	auto value = debugger->Evaluate(expression, false);
 	if (value)
 	{
-		bool newlines = false;
-		std::string actual = debugger->ValueToStringFull(*value, newlines);
+		std::string actual = debugger->ValueToStringFull(*value);
 		throw std::runtime_error(fmt::format("Assertion failed: expected `{}` to be invalid, but got '{}'", expression, actual));
 	}
 

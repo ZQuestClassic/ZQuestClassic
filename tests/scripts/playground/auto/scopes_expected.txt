@@ -5563,7 +5563,7 @@ debug data:
       - bool[] MusicRefreshFlags @ Reg[MUSICUPDATEFLAGS]
       - const int NumMusics @ Reg[NUM_MUSICS]
       - int PanStyle @ Reg[AUDIOPAN]
-      - int[] Volume @ Reg[AUDIOVOLUME]
+      - int[] Volume @ Reg[AUDIOVOLUME] <DEPRECATED>
       [FUNCTION] AdjustMusicVolume <PC:841-843 IDX:51> <INTERNAL>
         - const Audio this @ Reg[CLASS_THISKEY] <HIDDEN>
         - int percent @ Stack[0]
@@ -6381,9 +6381,9 @@ debug data:
       - int ASpeed @ Reg[COMBODASPEED]
       - int AnimFlags @ Reg[COMBODANIMFLAGS]
       - int[] Attributes @ Reg[COMBODATTRIBUTES]
-      - int[] Attribytes @ Reg[COMBODATTRIBYTES]
-      - int[] Attrishorts @ Reg[COMBODATTRISHORTS]
-      - int CSet @ Reg[COMBODCSET]
+      - int[] Attribytes @ Reg[COMBODATTRIBYTES] <DEPRECATED>
+      - int[] Attrishorts @ Reg[COMBODATTRISHORTS] <DEPRECATED>
+      - int CSet @ Reg[COMBODCSET] <DEPRECATED>
       - int CSet2 @ Reg[COMBODCSET]
       - int CSet2Flags @ Reg[COMBODCSET2FLAGS]
       - int DiveUnderLevel @ Reg[COMBOD_DIVE_UNDER_LEVEL]
@@ -6427,48 +6427,48 @@ debug data:
       - int SkipAnimX @ Reg[COMBODSKIPANIM]
       - int SkipAnimY @ Reg[COMBODAKIMANIMY]
       - int Tile @ Reg[COMBODTILE]
-      - int TrigBossPal @ Reg[COMBODTRIGBOSSPAL]
-      - int TrigBunny @ Reg[COMBODTRIGBUNNY]
-      - bool[] TrigButton @ Reg[COMBODTRIGGERBUTTON]
-      - int TrigCSetChange @ Reg[COMBODTRIGCSETCHANGE]
-      - int TrigChange @ Reg[COMBODTRIGGERCHANGECMB]
-      - int TrigCooldown @ Reg[COMBODTRIGGERCOOLDOWN]
-      - int TrigCopycat @ Reg[COMBODTRIGGERCOPYCAT]
-      - int TrigCounter @ Reg[COMBODTRIGGERCTR]
-      - int TrigCtrAmount @ Reg[COMBODTRIGGERCTRAMNT]
-      - int TrigDMapLvl @ Reg[COMBODTRIGDMAPLVL]
-      - int TrigExDoorDir @ Reg[COMBODTRIGEXDOORDIR]
-      - int TrigExDoorIndex @ Reg[COMBODTRIGEXDOORIND]
-      - int TrigExState @ Reg[COMBODTRIGEXSTATE]
-      - bool[] TrigFlags @ Reg[COMBODTRIGGERFLAGS2]
-      - int TrigGStateTimer @ Reg[COMBODTRIGGERGTIMER]
-      - int TrigGenScript @ Reg[COMBODTRIGGERGENSCRIPT]
-      - int TrigGlobalState @ Reg[COMBODTRIGGERGSTATE]
-      - int TrigGroup @ Reg[COMBODTRIGGERGROUP]
-      - int TrigGroupVal @ Reg[COMBODTRIGGERGROUPVAL]
-      - int TrigItem @ Reg[COMBODTRIGGERITEM]
-      - int TrigItemJinx @ Reg[COMBODTRIGITEMJINX]
-      - int TrigLItems @ Reg[COMBODTRIGLITEMS]
-      - int TrigLevel @ Reg[COMBODTRIGGERLEVEL]
-      - int TrigLevelState @ Reg[COMBODTRIGGERLSTATE]
-      - int TrigLightBeam @ Reg[COMBODTRIGGERLIGHTBEAM]
-      - int TrigLvlPal @ Reg[COMBODTRIGLVLPAL]
-      - int TrigProximity @ Reg[COMBODTRIGGERPROX]
-      - int TrigPushTime @ Reg[COMBODTRIGPUSHTIME]
-      - int TrigQuakeTimer @ Reg[COMBODTRIGQUAKETIME]
-      - int TrigSFX @ Reg[COMBODTRIGGERSFX]
-      - int TrigShieldJinx @ Reg[COMBODTRIGSHIELDJINX]
-      - int TrigSpawnEnemy @ Reg[COMBODTRIGSPAWNENEMY]
-      - int TrigSpawnItem @ Reg[COMBODTRIGSPAWNITEM]
-      - int TrigSpawnItemPickup @ Reg[COMBODTRIGITEMPICKUP]
-      - int TrigStun @ Reg[COMBODTRIGSTUN]
-      - int TrigSwordJinx @ Reg[COMBODTRIGSWORDJINX]
-      - int TrigTimer @ Reg[COMBODTRIGGERTIMER]
-      - int TrigTintB @ Reg[COMBODTRIGTINTB]
-      - int TrigTintG @ Reg[COMBODTRIGTINTG]
-      - int TrigTintR @ Reg[COMBODTRIGTINTR]
-      - int TrigWavyTimer @ Reg[COMBODTRIGWAVYTIME]
-      - int[] TriggerFlags @ Reg[COMBODTRIGGERFLAGS]
+      - int TrigBossPal @ Reg[COMBODTRIGBOSSPAL] <DEPRECATED>
+      - int TrigBunny @ Reg[COMBODTRIGBUNNY] <DEPRECATED>
+      - bool[] TrigButton @ Reg[COMBODTRIGGERBUTTON] <DEPRECATED>
+      - int TrigCSetChange @ Reg[COMBODTRIGCSETCHANGE] <DEPRECATED>
+      - int TrigChange @ Reg[COMBODTRIGGERCHANGECMB] <DEPRECATED>
+      - int TrigCooldown @ Reg[COMBODTRIGGERCOOLDOWN] <DEPRECATED>
+      - int TrigCopycat @ Reg[COMBODTRIGGERCOPYCAT] <DEPRECATED>
+      - int TrigCounter @ Reg[COMBODTRIGGERCTR] <DEPRECATED>
+      - int TrigCtrAmount @ Reg[COMBODTRIGGERCTRAMNT] <DEPRECATED>
+      - int TrigDMapLvl @ Reg[COMBODTRIGDMAPLVL] <DEPRECATED>
+      - int TrigExDoorDir @ Reg[COMBODTRIGEXDOORDIR] <DEPRECATED>
+      - int TrigExDoorIndex @ Reg[COMBODTRIGEXDOORIND] <DEPRECATED>
+      - int TrigExState @ Reg[COMBODTRIGEXSTATE] <DEPRECATED>
+      - bool[] TrigFlags @ Reg[COMBODTRIGGERFLAGS2] <DEPRECATED>
+      - int TrigGStateTimer @ Reg[COMBODTRIGGERGTIMER] <DEPRECATED>
+      - int TrigGenScript @ Reg[COMBODTRIGGERGENSCRIPT] <DEPRECATED>
+      - int TrigGlobalState @ Reg[COMBODTRIGGERGSTATE] <DEPRECATED>
+      - int TrigGroup @ Reg[COMBODTRIGGERGROUP] <DEPRECATED>
+      - int TrigGroupVal @ Reg[COMBODTRIGGERGROUPVAL] <DEPRECATED>
+      - int TrigItem @ Reg[COMBODTRIGGERITEM] <DEPRECATED>
+      - int TrigItemJinx @ Reg[COMBODTRIGITEMJINX] <DEPRECATED>
+      - int TrigLItems @ Reg[COMBODTRIGLITEMS] <DEPRECATED>
+      - int TrigLevel @ Reg[COMBODTRIGGERLEVEL] <DEPRECATED>
+      - int TrigLevelState @ Reg[COMBODTRIGGERLSTATE] <DEPRECATED>
+      - int TrigLightBeam @ Reg[COMBODTRIGGERLIGHTBEAM] <DEPRECATED>
+      - int TrigLvlPal @ Reg[COMBODTRIGLVLPAL] <DEPRECATED>
+      - int TrigProximity @ Reg[COMBODTRIGGERPROX] <DEPRECATED>
+      - int TrigPushTime @ Reg[COMBODTRIGPUSHTIME] <DEPRECATED>
+      - int TrigQuakeTimer @ Reg[COMBODTRIGQUAKETIME] <DEPRECATED>
+      - int TrigSFX @ Reg[COMBODTRIGGERSFX] <DEPRECATED>
+      - int TrigShieldJinx @ Reg[COMBODTRIGSHIELDJINX] <DEPRECATED>
+      - int TrigSpawnEnemy @ Reg[COMBODTRIGSPAWNENEMY] <DEPRECATED>
+      - int TrigSpawnItem @ Reg[COMBODTRIGSPAWNITEM] <DEPRECATED>
+      - int TrigSpawnItemPickup @ Reg[COMBODTRIGITEMPICKUP] <DEPRECATED>
+      - int TrigStun @ Reg[COMBODTRIGSTUN] <DEPRECATED>
+      - int TrigSwordJinx @ Reg[COMBODTRIGSWORDJINX] <DEPRECATED>
+      - int TrigTimer @ Reg[COMBODTRIGGERTIMER] <DEPRECATED>
+      - int TrigTintB @ Reg[COMBODTRIGTINTB] <DEPRECATED>
+      - int TrigTintG @ Reg[COMBODTRIGTINTG] <DEPRECATED>
+      - int TrigTintR @ Reg[COMBODTRIGTINTR] <DEPRECATED>
+      - int TrigWavyTimer @ Reg[COMBODTRIGWAVYTIME] <DEPRECATED>
+      - int[] TriggerFlags @ Reg[COMBODTRIGGERFLAGS] <DEPRECATED>
       - const combotrigger[] Triggers @ Reg[COMBODTRIGGERS]
       - int Type @ Reg[COMBODTYPE]
       - int UserFlags @ Reg[COMBODUSRFLAGS]
@@ -6771,7 +6771,7 @@ debug data:
   [FILE] resources/include/bindings/debug.zh <IDX:166>
     - const Debug Debug @ Constant[0]
     [CLASS] Debug <IDX:167>
-      - const bool Testing @ Reg[DEBUGTESTING]
+      - const bool Testing @ Reg[DEBUGTESTING] <DEPRECATED>
   [FILE] resources/include/bindings/directory.zh <IDX:168>
     [CLASS] directory <IDX:169>
       - const int Size @ Reg[DIRECTORYSIZE]
@@ -6863,7 +6863,7 @@ debug data:
       - int[] InitD @ Reg[DMAPINITD]
       - int IntroStringID @ Reg[DMAPDATAINTROSTRINGID]
       - int Level @ Reg[DMAPDATALEVEL]
-      - int MIDI @ Reg[DMAPDATAMIDI]
+      - int MIDI @ Reg[DMAPDATAMIDI] <DEPRECATED>
       - int Map @ Reg[DMAPDATAMAP]
       - int[] MapCSet @ Reg[DMAPDATALARGEMAPCSET]
       - untyped[] MapInitD @ Reg[DMAPDATAMAPINITD]
@@ -6874,11 +6874,11 @@ debug data:
       - int[] MiniMapTile @ Reg[DMAPDATAMINIMAPTILE]
       - int MirrorDMap @ Reg[DMAPDATAMIRRDMAP]
       - musicdata Music @ Reg[DMAPDATA_MUSIC]
-      - int MusicCrossfadeIn @ Reg[DMAPDATAXFADEIN]
-      - int MusicCrossfadeOut @ Reg[DMAPDATAXFADEOUT]
-      - int MusicLoopEnd @ Reg[DMAPDATALOOPEND]
-      - int MusicLoopStart @ Reg[DMAPDATALOOPSTART]
-      - int MusicTrack @ Reg[DMAPDATAMUISCTRACK]
+      - int MusicCrossfadeIn @ Reg[DMAPDATAXFADEIN] <DEPRECATED>
+      - int MusicCrossfadeOut @ Reg[DMAPDATAXFADEOUT] <DEPRECATED>
+      - int MusicLoopEnd @ Reg[DMAPDATALOOPEND] <DEPRECATED>
+      - int MusicLoopStart @ Reg[DMAPDATALOOPSTART] <DEPRECATED>
+      - int MusicTrack @ Reg[DMAPDATAMUISCTRACK] <DEPRECATED>
       - int Offset @ Reg[DMAPDATAOFFSET]
       - int OverlaySubscreen @ Reg[DMAPDATASUBSCRO]
       - int PSubScript @ Reg[DMAPDATAPSUBSCRIPT]
@@ -6957,7 +6957,7 @@ debug data:
       - int BounceMult @ Reg[EWPN_BOUNCE_MULT]
       - int[] BurnLightOffset @ Reg[EWPNBURNLIGHTOFFSET]
       - int[] BurnLightRadius @ Reg[EWPNBURNLIGHTRADIUS]
-      - bool CollDetection @ Reg[EWPNCOLLDET]
+      - bool CollDetection @ Reg[EWPNCOLLDET] <DEPRECATED>
       - int Damage @ Reg[EWPNPOWER] <HIDDEN>
       - int DeadState @ Reg[EWPNDEAD]
       - int DeathDropset @ Reg[EWPNDEATHDROPSET]
@@ -6983,7 +6983,7 @@ debug data:
       - int OriginalCSet @ Reg[EWPNOCSET]
       - int OriginalTile @ Reg[EWPNOTILE]
       - npc Parent @ Reg[EWPNPARENT]
-      - int ParentUID @ Reg[EWPNPARENTUID]
+      - int ParentUID @ Reg[EWPNPARENTUID] <DEPRECATED>
       - int PierceCount @ Reg[EWPNPIERCE]
       - int Power @ Reg[EWPNPOWER]
       - int Script @ Reg[EWPNSCRIPT]
@@ -6992,7 +6992,7 @@ debug data:
       - int Timeout @ Reg[EWPNTIMEOUT]
       - const int TotalDYOffset @ Reg[EWPNTOTALDYOFFS]
       - int Type @ Reg[EWPNTYPE]
-      - const int UID @ Reg[EWEAPONSCRIPTUID]
+      - const int UID @ Reg[EWEAPONSCRIPTUID] <DEPRECATED>
       - int Unblockable @ Reg[EWPNUNBL]
       - int Vx @ Reg[EWPNVX]
       - int Vy @ Reg[EWPNVY]
@@ -7436,10 +7436,10 @@ debug data:
       - const int Beta @ Reg[ZELDABETA]
       - const int BetaType @ Reg[ZELDABETATYPE]
       - int[] BottleState @ Reg[GAMEBOTTLEST]
-      - const int Build @ Reg[ZELDABUILD]
-      - bool[] ButtonHeld @ Reg[BUTTONHELD]
-      - bool[] ButtonInput @ Reg[BUTTONINPUT]
-      - bool[] ButtonPress @ Reg[BUTTONPRESS]
+      - const int Build @ Reg[ZELDABUILD] <DEPRECATED>
+      - bool[] ButtonHeld @ Reg[BUTTONHELD] <DEPRECATED>
+      - bool[] ButtonInput @ Reg[BUTTONINPUT] <DEPRECATED>
+      - bool[] ButtonPress @ Reg[BUTTONPRESS] <DEPRECATED>
       - int Cheat @ Reg[GAMECHEAT]
       - bool ClickToFreezeEnabled @ Reg[GAMECLICKFREEZE]
       - int ContinueDMap @ Reg[GAMECONTDMAP]
@@ -7451,19 +7451,19 @@ debug data:
       - const int CurMap @ Reg[CURMAP]
       - const int CurScreen @ Reg[CURSCR]
       - int[] DCounter @ Reg[GAMEDCOUNTERD]
-      - int[] DMapCompass @ Reg[DMAPCOMPASSD]
-      - int[] DMapContinue @ Reg[DMAPCONTINUED]
-      - int[] DMapFlags @ Reg[DMAPFLAGSD]
-      - int[] DMapLevel @ Reg[DMAPLEVELD]
-      - int[] DMapMIDI @ Reg[DMAPMIDID]
-      - const int[] DMapMap @ Reg[DMAPMAP]
-      - const int[] DMapOffset @ Reg[DMAPOFFSET]
-      - int[] DMapPalette @ Reg[DMAPLEVELPAL]
+      - int[] DMapCompass @ Reg[DMAPCOMPASSD] <DEPRECATED>
+      - int[] DMapContinue @ Reg[DMAPCONTINUED] <DEPRECATED>
+      - int[] DMapFlags @ Reg[DMAPFLAGSD] <DEPRECATED>
+      - int[] DMapLevel @ Reg[DMAPLEVELD] <DEPRECATED>
+      - int[] DMapMIDI @ Reg[DMAPMIDID] <DEPRECATED>
+      - const int[] DMapMap @ Reg[DMAPMAP] <DEPRECATED>
+      - const int[] DMapOffset @ Reg[DMAPOFFSET] <DEPRECATED>
+      - int[] DMapPalette @ Reg[DMAPLEVELPAL] <DEPRECATED>
       - bool DisableActiveSubscreen @ Reg[NOACTIVESUBSC]
       - bool[] DisableItem @ Reg[DISABLEDITEM]
       - untyped[] EventData @ Reg[GAMEEVENTDATA]
       - bool[] FFRules @ Reg[FFRULE]
-      - int[] GSwitch @ Reg[GAMEGSWITCH]
+      - int[] GSwitch @ Reg[GAMEGSWITCH] <DEPRECATED>
       - int[] GameOverScreen @ Reg[SETGAMEOVERELEMENT]
       - int[] GameOverStrings @ Reg[SETGAMEOVERSTRING]
       - untyped[] Generic @ Reg[GAMEGENERICD]
@@ -7473,10 +7473,10 @@ debug data:
       - const bool HasPlayed @ Reg[GAMEHASPLAYED]
       - const int HeroScreen @ Reg[HERO_SCREEN]
       - const int HighestStringID @ Reg[GAMENUMMESSAGES]
-      - const bool[] JoypadPress @ Reg[JOYPADPRESS]
+      - const bool[] JoypadPress @ Reg[JOYPADPRESS] <DEPRECATED>
       - int[] LItems @ Reg[GAMELITEMSD]
       - int[] LKeys @ Reg[GAMELKEYSD]
-      - long[] LSwitches @ Reg[GAMELSWITCH]
+      - long[] LSwitches @ Reg[GAMELSWITCH] <DEPRECATED>
       - int LastEntranceDMap @ Reg[GAMEENTRDMAP]
       - int LastEntranceScreen @ Reg[GAMEENTRSCR]
       - int[] LayerZThresholds @ Reg[GAMELAYERZTHRESHOLDS]
@@ -7496,7 +7496,7 @@ debug data:
       - int NumPassiveSubscreens @ Reg[GAMENUMPSUB]
       - const int NumSavedPortals @ Reg[SAVEDPORTALCOUNT]
       - int[] OverrideItems @ Reg[GAMEOVERRIDEITEMS]
-      - const bool[] ReadKey @ Reg[READKEY]
+      - const bool[] ReadKey @ Reg[READKEY] <DEPRECATED>
       - int SaveMenuF6 @ Reg[GAME_SAVEMENU_F6]
       - int SaveMenuGameOver @ Reg[GAME_SAVEMENU_GAMEOVER]
       - const savedportal[] SavedPortals @ Reg[GAME_SAVED_PORTALS]
@@ -8525,13 +8525,13 @@ debug data:
       - bool Climbing @ Reg[LINKCLIMBING]
       - bool ClockActive @ Reg[CLOCKACTIVE]
       - int ClockTimer @ Reg[CLOCKCLK]
-      - bool CollDetection @ Reg[LINKINVINC]
+      - bool CollDetection @ Reg[LINKINVINC] <DEPRECATED>
       - int CoyoteTime @ Reg[HEROCOYOTETIME]
       - int[] Defense @ Reg[LINKDEFENCE]
       - bool Diagonal @ Reg[LINKDIAG]
       - int Drunk @ Reg[LINKDRUNK]
       - int Eaten @ Reg[LINKEATEN]
-      - int Equipment @ Reg[LINKEQUIP]
+      - int Equipment @ Reg[LINKEQUIP] <DEPRECATED>
       - const int FlashingCSet @ Reg[HEROFLASHINGCSET]
       - int FlickerColor @ Reg[HEROFLICKERCOLOR]
       - int FlickerTransparencyPasses @ Reg[HEROFLICKERTRANSP]
@@ -8575,7 +8575,7 @@ debug data:
       - bool InputUp @ Reg[INPUTUP]
       - bool InvFlicker @ Reg[LINKCANFLICKER]
       - int InvFrames @ Reg[LINKINVFRAME]
-      - bool Invisible @ Reg[LINKINVIS]
+      - bool Invisible @ Reg[LINKINVIS] <DEPRECATED>
       - const bool IsWarping @ Reg[HEROISWARPING]
       - bool[] Item @ Reg[LINKITEMD]
       - int ItemA @ Reg[LINKITEMA]
@@ -8933,16 +8933,16 @@ debug data:
       - bool[] Button @ Reg[BUTTONINPUT]
       - bool[] DisableButton @ Reg[DISABLEBUTTON]
       - bool[] DisableKey @ Reg[DISABLEKEY]
-      - bool[] Hold @ Reg[BUTTONHELD]
+      - bool[] Hold @ Reg[BUTTONHELD] <DEPRECATED>
       - const bool[] Joypad @ Reg[JOYPADPRESS]
       - bool[] Key @ Reg[KEYINPUT]
       - const int[] KeyBindings @ Reg[KEYBINDINGS]
       - bool[] KeyPress @ Reg[KEYPRESS]
-      - bool[] KeyRaw @ Reg[RAWKEY]
+      - bool[] KeyRaw @ Reg[RAWKEY] <DEPRECATED>
       - int ModifierKeys @ Reg[KEYMODIFIERS]
       - untyped[] Mouse @ Reg[MOUSEARR]
       - bool[] Press @ Reg[BUTTONPRESS]
-      - const bool[] ReadKey @ Reg[READKEY]
+      - const bool[] ReadKey @ Reg[READKEY] <DEPRECATED>
   [FILE] resources/include/bindings/itemdata.zh <IDX:584>
     [ENUM] long BlockBitflags <IDX:585>
       - const BlockBitflags L_BLOCKFLAG_ROCK @ Constant[1]
@@ -9410,7 +9410,7 @@ debug data:
       - int PickupStringFlags @ Reg[ITEMPSTRINGFLAGS]
       - int Script @ Reg[ITEMSPRITESCRIPT]
       - int Type @ Reg[ITEMTYPE]
-      - const int UID @ Reg[ITEMSCRIPTUID]
+      - const int UID @ Reg[ITEMSCRIPTUID] <DEPRECATED>
       [FUNCTION] Explode <PC:3817-3820 IDX:601> <INTERNAL>
         - const itemsprite this @ Stack[1] <HIDDEN>
         - int mode @ Stack[0]
@@ -9476,7 +9476,7 @@ debug data:
       - int BounceMult @ Reg[LWPN_BOUNCE_MULT]
       - int[] BurnLightOffset @ Reg[LWPNBURNLIGHTOFFSET]
       - int[] BurnLightRadius @ Reg[LWPNBURNLIGHTRADIUS]
-      - bool CollDetection @ Reg[LWPNCOLLDET]
+      - bool CollDetection @ Reg[LWPNCOLLDET] <DEPRECATED>
       - int Damage @ Reg[LWPNPOWER] <HIDDEN>
       - int DeadState @ Reg[LWPNDEAD]
       - int DeathDropset @ Reg[LWPNDEATHDROPSET]
@@ -9512,7 +9512,7 @@ debug data:
       - int Timeout @ Reg[LWPNTIMEOUT]
       - const int TotalDYOffset @ Reg[LWPNTOTALDYOFFS]
       - int Type @ Reg[LWPNTYPE]
-      - const int UID @ Reg[LWEAPONSCRIPTUID]
+      - const int UID @ Reg[LWEAPONSCRIPTUID] <DEPRECATED>
       - int Unblockable @ Reg[LWPNUNBL]
       - int Vx @ Reg[LWPNVX]
       - int Vy @ Reg[LWPNVY]
@@ -9698,16 +9698,16 @@ debug data:
       - int[] ComboI @ Reg[MAPDATACOMBOID]
       - int[] ComboS @ Reg[MAPDATACOMBOSD]
       - int[] ComboT @ Reg[MAPDATACOMBOTD]
-      - untyped[] D @ Reg[MAPDATAMISCD]
+      - untyped[] D @ Reg[MAPDATAMISCD] <DEPRECATED>
       - untyped[] Data @ Reg[MAPDATASCRDATA]
       - int DataSize @ Reg[MAPDATASCRDATASIZE]
       - int[] Door @ Reg[MAPDATADOOR]
       - int DoorComboSet @ Reg[MAPDATADOORCOMBOSET]
-      - const int[] EFlags @ Reg[MAPDATASCREENEFLAGSD]
+      - const int[] EFlags @ Reg[MAPDATASCREENEFLAGSD] <DEPRECATED>
       - int[] Enemy @ Reg[MAPDATAENEMY]
-      - int EnemyFlags @ Reg[MAPDATAENEMYFLAGS]
-      - int EntryX @ Reg[MAPDATAENTRYX]
-      - int EntryY @ Reg[MAPDATAENTRYY]
+      - int EnemyFlags @ Reg[MAPDATAENEMYFLAGS] <DEPRECATED>
+      - int EntryX @ Reg[MAPDATAENTRYX] <DEPRECATED>
+      - int EntryY @ Reg[MAPDATAENTRYY] <DEPRECATED>
       - bool[] ExState @ Reg[MAPDATAEXSTATED]
       - bool[] ExStateCarry @ Reg[MAPDATAEXCARRY]
       - bool[] ExStateReset @ Reg[MAPDATAEXRESET]
@@ -9730,11 +9730,11 @@ debug data:
       - int[] FFCX @ Reg[MAPDATAFFX]
       - int[] FFCY @ Reg[MAPDATAFFY]
       - bool[] Flag @ Reg[MAPDATA_FLAG]
-      - int[] Flags @ Reg[MAPDATAFLAGS]
+      - int[] Flags @ Reg[MAPDATAFLAGS] <DEPRECATED>
       - int GravityStrength @ Reg[MAPDATA_GRAVITY_STRENGTH]
       - int Guy @ Reg[MAPDATAGUY]
       - int GuyCount @ Reg[MAPDATAGUYCOUNT]
-      - int HasItem @ Reg[MAPDATAHASITEM]
+      - int HasItem @ Reg[MAPDATAHASITEM] <DEPRECATED>
       - untyped[] InitD @ Reg[MAPDATAINITDARRAY]
       - int Item @ Reg[MAPDATAITEM]
       - int ItemSFX @ Reg[MAPDATAHOLDUPSFX]
@@ -9745,9 +9745,9 @@ debug data:
       - int[] LayerOpacity @ Reg[MAPDATALAYEROPACITY]
       - int[] LayerScreen @ Reg[MAPDATALAYERSCREEN]
       - bool[] LensHides @ Reg[MAPDATALENSHIDES]
-      - int LensLayer @ Reg[MAPDATALENSLAYER]
+      - int LensLayer @ Reg[MAPDATALENSLAYER] <DEPRECATED>
       - bool[] LensShows @ Reg[MAPDATALENSSHOWS]
-      - int MIDI @ Reg[MAPDATASCREENMIDI]
+      - int MIDI @ Reg[MAPDATASCREENMIDI] <DEPRECATED>
       - const int Map @ Reg[MAPDATAMAP]
       - int[] MazePath @ Reg[MAPDATAPATH]
       - musicdata Music @ Reg[MAPDATA_MUSIC]
@@ -9762,7 +9762,7 @@ debug data:
       - int Pattern @ Reg[MAPDATAPATTERN]
       - int RegionID @ Reg[MAPDATAREGIONID]
       - int RoomType @ Reg[MAPDATAROOM]
-      - const int[] SFlags @ Reg[MAPDATASCREENFLAGSD]
+      - const int[] SFlags @ Reg[MAPDATASCREENFLAGSD] <DEPRECATED>
       - const int Screen @ Reg[MAPDATASCREEN]
       - int Script @ Reg[MAPDATASCRIPT]
       - bool[] ScriptDraws @ Reg[MAPDATASCRIPTDRAWS]
@@ -9772,7 +9772,7 @@ debug data:
       - int SecretSFX @ Reg[MAPDATASECRETSFX]
       - int[] SideWarpDMap @ Reg[MAPDATASIDEWARPDMAP]
       - int[] SideWarpID @ Reg[MAPDATASIDEWARPID]
-      - int SideWarpIndex @ Reg[MAPDATASIDEWARPINDEX]
+      - int SideWarpIndex @ Reg[MAPDATASIDEWARPINDEX] <DEPRECATED>
       - int[] SideWarpOverlay @ Reg[MAPDATASIDEWARPOVFLAGS]
       - int[] SideWarpReturnSquare @ Reg[MAPDATASWARPRETSQR]
       - int[] SideWarpScreen @ Reg[MAPDATASIDEWARPSC]
@@ -9837,7 +9837,7 @@ debug data:
       - const MessageSegmentType MSG_SEGMENT_TYPE_COMMAND @ Constant[20000]
     [CLASS] messagedata <IDX:636>
       - int CSet @ Reg[MESSAGEDATACSET]
-      - int Flag @ Reg[MESSAGEDATAFLAGS]
+      - int Flag @ Reg[MESSAGEDATAFLAGS] <DEPRECATED>
       - bool[] Flags @ Reg[MESSAGEDATAFLAGSARR]
       - int Font @ Reg[MESSAGEDATAFONT]
       - int HSpace @ Reg[MESSAGEDATAHSPACE]
@@ -9857,7 +9857,7 @@ debug data:
       - const int TextHeight @ Reg[MESSAGEDATATEXTHEI]
       - const int TextWidth @ Reg[MESSAGEDATATEXTWID]
       - int Tile @ Reg[MESSAGEDATATILE]
-      - bool Transparent @ Reg[MESSAGEDATATRANS]
+      - bool Transparent @ Reg[MESSAGEDATATRANS] <DEPRECATED>
       - int VSpace @ Reg[MESSAGEDATAVSPACE]
       - int Width @ Reg[MESSAGEDATAW]
       - int X @ Reg[MESSAGEDATAX]
@@ -10149,7 +10149,7 @@ debug data:
       - untyped[] Attributes @ Reg[NPCDD]
       - bool[] BFlags @ Reg[NPCBEHAVIOUR]
       - int BossPal @ Reg[NPCBOSSPAL]
-      - bool CollDetection @ Reg[NPCCOLLDET]
+      - bool CollDetection @ Reg[NPCCOLLDET] <DEPRECATED>
       - bool Core @ Reg[NPCISCORE]
       - int Damage @ Reg[NPCDP]
       - int DeathSprite @ Reg[NPCDEATHSPR]
@@ -10181,12 +10181,12 @@ debug data:
       - int Invincible @ Reg[NPCSUPERMAN]
       - int ItemSet @ Reg[NPCITEMSET]
       - int Max @ Reg[SPRITEMAXNPC]
-      - int MiscFlags @ Reg[NPCMFLAGS]
+      - int MiscFlags @ Reg[NPCMFLAGS] <DEPRECATED>
       - int MoveStatus @ Reg[NPCMOVESTATUS]
       - bool NoScriptKnockback @ Reg[NPCNOSCRIPTKB]
       - bool NoSlide @ Reg[NPCNOSLIDE]
       - int OriginalTile @ Reg[NPCOTILE]
-      - int ParentUID @ Reg[NPCPARENTUID]
+      - int ParentUID @ Reg[NPCPARENTUID] <DEPRECATED>
       - int Random @ Reg[NPCRANDOM]
       - int Rate @ Reg[NPCRATE]
       - bool Ringleader @ Reg[NPCRINGLEAD]
@@ -10201,7 +10201,7 @@ debug data:
       - int Stun @ Reg[NPCSTUN]
       - const int TotalDYOffset @ Reg[NPCTOTALDYOFFS]
       - int Type @ Reg[NPCTYPE]
-      - const int UID @ Reg[NPCSCRIPTUID]
+      - const int UID @ Reg[NPCSCRIPTUID] <DEPRECATED>
       - int Weapon @ Reg[NPCWEAPON]
       - int WeaponDamage @ Reg[NPCWDP]
       - int WeaponSFX @ Reg[NPCFIRESFX]
@@ -11264,7 +11264,7 @@ debug data:
       - int[] FrozenScripts @ Reg[SAVEMENU_OPT_FRZSCR]
       - int HSpace @ Reg[SAVEMENU_HSPACE]
       - const int ID @ Reg[SAVEMENU_ID]
-      - int MIDI @ Reg[SAVEMENU_MIDI]
+      - int MIDI @ Reg[SAVEMENU_MIDI] <DEPRECATED>
       - musicdata Music @ Reg[SAVEMENU_MUSIC]
       - const int NumOptions @ Reg[SAVEMENU_NUM_OPTIONS]
       - SaveMenuOptionFlags[] OptionFlags @ Reg[SAVEMENU_OPT_FLAGS]
@@ -11577,24 +11577,24 @@ debug data:
       - int DoorComboSet @ Reg[SCREENDATADOORCOMBOSET]
       - DrawOrigin DrawOrigin @ Reg[SCREEN_DRAW_ORIGIN]
       - sprite DrawOriginTarget @ Reg[SCREEN_DRAW_ORIGIN_TARGET]
-      - const int[] EFlags @ Reg[SCREENEFLAGSD]
+      - const int[] EFlags @ Reg[SCREENEFLAGSD] <DEPRECATED>
       - const eweapon[] EWeapons @ Reg[SCREEN_EWEAPONS]
       - int[] Enemy @ Reg[SCREENDATAENEMY]
-      - int EnemyFlags @ Reg[SCREENDATAENEMYFLAGS]
-      - int EntryX @ Reg[SCREENDATAENTRYX]
-      - int EntryY @ Reg[SCREENDATAENTRYY]
+      - int EnemyFlags @ Reg[SCREENDATAENEMYFLAGS] <DEPRECATED>
+      - int EntryX @ Reg[SCREENDATAENTRYX] <DEPRECATED>
+      - int EntryY @ Reg[SCREENDATAENTRYY] <DEPRECATED>
       - bool[] ExState @ Reg[SCREENEXSTATED]
       - bool[] ExStateCarry @ Reg[SCREENDATAEXCARRY]
       - bool[] ExStateReset @ Reg[SCREENDATAEXRESET]
       - int ExitDir @ Reg[SCREENDATAEXITDIR]
       - const ffc[] FFCs @ Reg[SCREEN_FFCS]
       - bool[] Flag @ Reg[SCREEN_FLAG]
-      - const int[] Flags @ Reg[SCREENFLAGSD]
+      - const int[] Flags @ Reg[SCREENFLAGSD] <DEPRECATED>
       - const int GetRenderTarget @ Reg[GETRENDERTARGET]
       - int GravityStrength @ Reg[SCREENDATA_GRAVITY_STRENGTH]
       - int Guy @ Reg[SCREENDATAGUY]
       - int GuyCount @ Reg[SCREENDATAGUYCOUNT]
-      - int HasItem @ Reg[SCREENDATAHASITEM]
+      - int HasItem @ Reg[SCREENDATAHASITEM] <DEPRECATED>
       - const int Index @ Reg[SCREEN_INDEX]
       - untyped[] InitD @ Reg[SCREENINITD]
       - int Item @ Reg[SCREENDATAITEM]
@@ -11608,10 +11608,10 @@ debug data:
       - int[] LayerOpacity @ Reg[SCREENDATALAYEROPACITY]
       - int[] LayerScreen @ Reg[SCREENDATALAYERSCREEN]
       - bool[] LensHides @ Reg[SCREENLENSHIDES]
-      - int LensLayer @ Reg[SCREENDATALENSLAYER]
+      - int LensLayer @ Reg[SCREENDATALENSLAYER] <DEPRECATED>
       - bool[] LensShows @ Reg[SCREENLENSSHOWS]
       - bool Lit @ Reg[LIT]
-      - int MIDI @ Reg[SCREENDATASCREENMIDI]
+      - int MIDI @ Reg[SCREENDATASCREENMIDI] <DEPRECATED>
       - int[] MazePath @ Reg[SCREENDATAPATH]
       - int MovingBlockCSet @ Reg[PUSHBLOCKCSET]
       - int MovingBlockCombo @ Reg[PUSHBLOCKCOMBO]
@@ -11622,9 +11622,9 @@ debug data:
       - const npc[] NPCs @ Reg[SCREEN_NPCS]
       - int NextMap @ Reg[SCREENDATANEXTMAP]
       - int NextScreen @ Reg[SCREENDATANEXTSCREEN]
-      - int NoCarry @ Reg[SCREENDATANOCARRY]
+      - int NoCarry @ Reg[SCREENDATANOCARRY] <DEPRECATED>
       - bool[] NoCarryState @ Reg[SCREENDATANOCARRYARR]
-      - int NoReset @ Reg[SCREENDATANORESET]
+      - int NoReset @ Reg[SCREENDATANORESET] <DEPRECATED>
       - bool[] NoResetState @ Reg[SCREENDATANORESETARR]
       - const int NumEWeapons @ Reg[EWPNCOUNT]
       - const int NumItems @ Reg[ITEMCOUNT]
@@ -11638,7 +11638,7 @@ debug data:
       - int Quake @ Reg[QUAKE]
       - int RoomData @ Reg[ROOMDATA]
       - int RoomType @ Reg[ROOMTYPE]
-      - int[] ScreenFlags @ Reg[SCREENDATAFLAGS]
+      - int[] ScreenFlags @ Reg[SCREENDATAFLAGS] <DEPRECATED>
       - int Script @ Reg[SCREENSCRIPT]
       - bool[] ScriptDraws @ Reg[SCREENDATASCRIPTDRAWS]
       - int[] SecretCSet @ Reg[SCREENDATASECRETCSET]
@@ -11649,7 +11649,7 @@ debug data:
       - const int ShowingMessage @ Reg[SHOWNMSG]
       - int[] SideWarpDMap @ Reg[SCREENDATASIDEWARPDMAP]
       - int[] SideWarpID @ Reg[SCREENSIDEWARPID]
-      - int SideWarpIndex @ Reg[SCREENDATASIDEWARPINDEX]
+      - int SideWarpIndex @ Reg[SCREENDATASIDEWARPINDEX] <DEPRECATED>
       - bool[] SideWarpOverlay @ Reg[SCREENDATASIDEWARPOVFLAGS]
       - int[] SideWarpReturnSquare @ Reg[SCREENDATASWARPRETSQR]
       - int[] SideWarpScreen @ Reg[SCREENDATASIDEWARPSC]

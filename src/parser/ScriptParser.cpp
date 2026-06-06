@@ -2744,6 +2744,8 @@ bool ScriptAssembler::fill_debug_scope_locals(Scope* scope, int32_t scopeIdx, Sc
 
 			if (auto node = dynamic_cast<const ASTDataDecl*>(var->getNode()); node && node->getFlag(ASTDataDecl::FL_HIDDEN))
 				symbol.flags |= SYM_FLAG_HIDDEN;
+			if (auto getter = lookupGetter(*cs, symbol.name); getter && getter->getFlag(FUNCFLAG_DEPRECATED))
+				symbol.flags |= SYM_FLAG_DEPRECATED;
 
 			ctx.debug_data.symbols.push_back(symbol);
 			ctx.symbol_types.push_back(&var->type);

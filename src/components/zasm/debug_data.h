@@ -64,6 +64,7 @@ enum DebugSymbolFlags : uint8_t
 	SYM_FLAG_NONE = 0,
 	SYM_FLAG_HIDDEN = 1,
 	SYM_FLAG_VARARGS = 2,
+	SYM_FLAG_DEPRECATED = 4,
 };
 
 struct DebugSymbol

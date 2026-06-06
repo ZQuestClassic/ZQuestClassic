@@ -368,7 +368,7 @@ void Debugger::AddConsoleDebugValue(std::string expression, DebugValue value)
     auto var = CreateVariableFromValue(expression, value);
 
     console_logs.push_back(ConsoleMessage{
-        .body = ValueToStringFull(value, true),
+        .body = ValueToStringFull(value, {.newlines = true}),
         .variable = std::make_unique<Variable>(std::move(var)),
     });
 
@@ -806,6 +806,8 @@ expected<DebugValue, std::string> Debugger::Evaluate(std::string expression, boo
 	}
 }
 
+// Returns a one-line summary of a value without recursing into arrays or class members.
+// Scalars print their value; arrays print "Array[n]"; class instances print the type name.
 std::string Debugger::ValueToStringSummary(DebugValue value)
 {
 	value.type = value.type->asNonConst(zasm_debug_data);
@@ -918,14 +920,47 @@ std::string Debugger::ValueToStringSummary(DebugValue value)
 	return fmt::format("{}", value.raw_value);
 }
 
-std::string Debugger::ValueToStringFull(DebugValue value, bool newlines)
+// Returns a full recursive expansion of a value: scalars as in ValueToStringSummary, arrays with
+// all elements listed, class instances with all member fields expanded.
+// opts controls multiline formatting, array elision after 3 elements, and skipping deprecated
+// members.
+std::string Debugger::ValueToStringFull(DebugValue value, ValueStringOptions opts)
 {
 	std::set<int> seen;
 	int depth = 0;
-	return ValueToStringHelper(value, newlines, depth, seen);
+	return ValueToStringHelper(value, opts, depth, seen);
 }
 
-std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int depth, std::set<int>& seen)
+std::string Debugger::ValueToStringTooltip(DebugValue value)
+{
+	ValueStringOptions opts{.newlines = true, .elide_arrays = true, .exclude_deprecated = true, .compact_fields = false, .elide_zero_values = false};
+	auto* type = value.type->asNonConst(zasm_debug_data);
+	if (type->isArray(zasm_debug_data))
+		opts.elide_arrays = false;
+	if (type->isClass(zasm_debug_data))
+	{
+		const DebugScope* scope = &zasm_debug_data.scopes[type->extra];
+		std::vector<const DebugSymbol*> symbols;
+		while (true)
+		{
+			auto more = zasm_debug_data.getChildSymbols(scope);
+			symbols.insert(symbols.end(), more.begin(), more.end());
+			if (scope->inheritance_index == -1)
+				break;
+			scope = &zasm_debug_data.scopes[scope->inheritance_index];
+		}
+		int eligible_count = 0;
+		for (auto sym : symbols)
+			if (!(sym->flags & SYM_FLAG_DEPRECATED))
+				eligible_count++;
+		opts.elide_zero_values = eligible_count > 20;
+		opts.compact_fields = eligible_count > 100;
+	}
+
+	return ValueToStringFull(value, opts);
+}
+
+std::string Debugger::ValueToStringHelper(DebugValue value, ValueStringOptions opts, int depth, std::set<int>& seen)
 {
 	value.type = value.type->asNonConst(zasm_debug_data);
 	int raw_value = value.raw_value;
@@ -952,9 +987,12 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 		if (!values) return "invalid (Array)";
 		if (values->empty()) return "{}";
 
+		if (opts.elide_arrays)
+			return ValueToStringSummary(value);
+
 		std::string result = "{";
 
-		if (newlines)
+		if (opts.newlines)
 		{
 			// Determine if this is a "Simple" array (numbers/bools) that can be packed tightly on one
 			// line.
@@ -975,7 +1013,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 
 			for (size_t i = 0; i < values->size(); i++)
 			{
-				std::string item_str = ValueToStringHelper(values->at(i), newlines, depth + 1, seen);
+				std::string item_str = ValueToStringHelper(values->at(i), opts, depth + 1, seen);
 				if (i < values->size() - 1) item_str += ", ";
 
 				// If it's a complex type, it usually has its own newlines, so we just append.
@@ -994,7 +1032,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 				else
 				{
 					result += item_str;
-					if (i < values->size() - 1) 
+					if (i < values->size() - 1)
 					{
 						result += "\n" + indent;
 						current_line_len = indent.length();
@@ -1007,7 +1045,7 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 		{
 			std::vector<std::string> parts;
 			for (size_t i = 0; i < values->size(); i++)
-				parts.push_back(ValueToStringHelper(values->at(i), false, depth + 1, seen));
+				parts.push_back(ValueToStringHelper(values->at(i), opts, depth + 1, seen));
 
 			result += fmt::format("{}", fmt::join(parts, ", "));
 			result += "}";
@@ -1052,23 +1090,83 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 
 		std::string result = std::string(class_scope->name) + " {";
 
-		if (newlines)
+		if (opts.newlines)
 		{
 			std::string indent( (depth + 1) * 2, ' ');
 			std::string closing_indent( depth * 2, ' ');
+			const int max_col = 50;
 
-			for (size_t i = 0; i < symbols.size(); i++)
+			// Collect all field strings so we know which ones are single-line.
+			struct Field { std::string name; std::string value_str; };
+			std::vector<Field> fields;
+
+			auto is_zero_or_default = [&](DebugValue v) {
+				auto type = v.type->asNonConst(zasm_debug_data);
+				if (type->isArray(zasm_debug_data))
+				{
+					if (!v.raw_value) return true;
+					auto elems = vm.readArray(v);
+					return elems && elems->empty();
+				}
+				if (type->isClass(zasm_debug_data))
+				{
+					const DebugScope* cs = &zasm_debug_data.scopes[type->extra];
+					return IsNull(v.raw_value, cs->name);
+				}
+				return v.raw_value == 0;
+			};
+
+			int elided_zero_count = 0;
+			for (auto symbol : symbols)
 			{
-				auto symbol = symbols[i];
+				if (opts.exclude_deprecated && (symbol->flags & SYM_FLAG_DEPRECATED))
+					continue;
 				if (auto v = vm.readObjectMember(value, symbol))
 				{
 					DebugValue& member_value = v.value();
-					result += "\n" + indent;
-					result += symbol->name + " = " + ValueToStringHelper(member_value, newlines, depth + 1, seen);
-					if (i < symbols.size() - 1) result += ",";
+					if (opts.elide_zero_values && is_zero_or_default(member_value))
+					{
+						elided_zero_count++;
+						continue;
+					}
+					fields.push_back({symbol->name, ValueToStringHelper(member_value, opts, depth + 1, seen)});
 				}
 			}
 
+			int current_line_len = 0;
+			for (size_t i = 0; i < fields.size(); i++)
+			{
+				auto& field = fields[i];
+				std::string item = field.name + " = " + field.value_str;
+				if (i < fields.size() - 1) item += ",";
+
+				bool is_multiline = item.find('\n') != std::string::npos;
+
+				if (!opts.compact_fields || is_multiline || current_line_len == 0)
+				{
+					result += "\n" + indent;
+					current_line_len = (int)indent.size();
+				}
+				else if (current_line_len + 1 + (int)item.size() > max_col)
+				{
+					result += "\n" + indent;
+					current_line_len = (int)indent.size();
+				}
+				else
+				{
+					result += " ";
+					current_line_len += 1;
+				}
+
+				result += item;
+				current_line_len += (int)item.size();
+
+				if (is_multiline)
+					current_line_len = 0;
+			}
+
+			if (elided_zero_count > 0)
+				result += "\n" + indent + fmt::format("... {} elided vars (0, false, null, or an empty array)", elided_zero_count);
 			result += "\n" + closing_indent + "}";
 		}
 		else
@@ -1078,11 +1176,13 @@ std::string Debugger::ValueToStringHelper(DebugValue value, bool newlines, int d
 			{
 				if (symbol->flags & SYM_FLAG_HIDDEN)
 					continue;
+				if (opts.exclude_deprecated && (symbol->flags & SYM_FLAG_DEPRECATED))
+					continue;
 
 				if (auto v = vm.readObjectMember(value, symbol))
 				{
 					DebugValue& member_value = v.value();
-					std::string val_str = ValueToStringHelper(member_value, false, depth + 1, seen);
+					std::string val_str = ValueToStringHelper(member_value, opts, depth + 1, seen);
 					parts.push_back(symbol->name + " = " + val_str);
 				}
 			}

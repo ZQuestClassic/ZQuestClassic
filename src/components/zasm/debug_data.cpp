@@ -716,6 +716,8 @@ std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 	};
 
 	std::string extra_info;
+	if (symbol->flags & SYM_FLAG_DEPRECATED)
+		extra_info += " <DEPRECATED>";
 	if (symbol->flags & SYM_FLAG_HIDDEN)
 		extra_info += " <HIDDEN>";
 	if (symbol->flags & SYM_FLAG_VARARGS)
@@ -1389,15 +1391,7 @@ std::string DebugData::internalToStringForDebugging() const
 		{
 			for (const auto* sym : scope_symbols[scope_idx])
 			{
-				std::string extra_info;
-				if (sym->flags & SYM_FLAG_HIDDEN)
-					extra_info += " <HIDDEN>";
-				if (sym->flags & SYM_FLAG_VARARGS)
-					extra_info += " <VARARG>";
-
-				std::string type_name = getTypeName(sym->type_id);
-
-				// Example: - int myVar @ Stack[4]
+				// Example: - int myVar @ Stack[4] <DEPRECATED>
 				ss << fmt::format("{}  - {}\n", pad, getDebugSymbolName(sym));
 			}
 		}

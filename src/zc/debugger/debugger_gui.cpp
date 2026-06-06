@@ -477,7 +477,7 @@ void RenderDebugVariable(Debugger* debugger, Variable& var, std::vector<Variable
 				ImGui::SetClipboardText(var.name.c_str());
 
 			if (ImGui::MenuItem("Copy value"))
-				ImGui::SetClipboardText(debugger->ValueToStringFull(DebugValue{var.value.raw_value, var.value.type}, true).c_str());
+				ImGui::SetClipboardText(debugger->ValueToStringFull(DebugValue{var.value.raw_value, var.value.type}, {.newlines = true}).c_str());
 
 			if (var.symbol && ImGui::MenuItem("Reveal declaration"))
 				RevealDeclaration();
@@ -1555,7 +1555,7 @@ void Debugger::InitGui()
 			if (value != prev_value)
 			{
 				prev_value = value;
-				prev_str = ValueToStringFull(value, true);
+				prev_str = ValueToStringTooltip(value);
 			}
 
 			auto var = CreateVariableFromValue("", value);
@@ -1566,7 +1566,7 @@ void Debugger::InitGui()
 		if (var->value != prev_value)
 		{
 			prev_value = var->value;
-			prev_str = ValueToStringFull(var->value, true);
+			prev_str = ValueToStringTooltip(var->value);
 		}
 
 		DrawVariableTooltip(this, var, prev_str);
