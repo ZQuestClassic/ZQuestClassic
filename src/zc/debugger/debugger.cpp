@@ -34,14 +34,20 @@ std::unique_ptr<Debugger> debugger;
 
 int GetClassNullValue(std::string_view class_name)
 {
-	if (class_name == "musicdata")
-		return -1;
-	if (class_name == "Audio")
-		return -1;
-	if (class_name == "FileSystem")
-		return -1;
-	if (class_name == "Game")
-		return -1;
+	// Singleton globals have no @zasm_ref and use raw_value=0 as a valid instance; -1 is their null.
+	if (class_name == "musicdata") return -1;
+	if (class_name == "Audio")     return -1;
+	if (class_name == "Debug")     return -1;
+	if (class_name == "FileSystem") return -1;
+	if (class_name == "Game")      return -1;
+	if (class_name == "Graphics")  return -1;
+	if (class_name == "hero")      return -1;
+	if (class_name == "Input")     return -1;
+	if (class_name == "Region")    return -1;
+	if (class_name == "screendata") return -1;
+	if (class_name == "Text")      return -1;
+	if (class_name == "Viewport")  return -1;
+	if (class_name == "ZInfo")     return -1;
 
 	return 0;
 }
