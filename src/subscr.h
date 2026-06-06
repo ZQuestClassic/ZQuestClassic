@@ -65,7 +65,7 @@ extern int new_sub_indexes[sstMAX];
 extern bool subscreen_open;
 extern int active_sub_yoff;
 
-const byte tripiece[2][8][3] =
+inline constexpr byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
     //  112,128,2, 112,128,1, 128,128,3, 128,128,0
@@ -92,18 +92,18 @@ const byte tripiece[2][8][3] =
         {56,56,0}
     }
 };
-const byte bmap_original[2][16] =
+inline constexpr byte bmap_original[2][16] =
 {
     {0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0},
     {0,3,0,0,0,3,0,0,0,0,3,0,0,0,3,0}
 };
-const byte bmap_bs[2][12] =
+inline constexpr byte bmap_bs[2][12] =
 {
     {0,0,1,0,0,1,0,0,1,0,1,0},
     {0,3,0,0,3,0,0,3,0,3,0,0}
 };
-const int32_t fringe[8] = { 6,2,4,7,6,8,7,5 };
-const byte bmaptiles_old[8*5] =
+inline constexpr int32_t fringe[8] = { 6,2,4,7,6,8,7,5 };
+inline constexpr byte bmaptiles_old[8*5] =
 {
     0, 1, 2, 3, 2, 3, 3, 4,
     20,21,22,23,22,23,23,24,
@@ -112,7 +112,7 @@ const byte bmaptiles_old[8*5] =
     40,41,42,43,42,43,43,44
 };
 
-const byte bmaptiles_original[5][8] =
+inline constexpr byte bmaptiles_original[5][8] =
 {
     {0, 1, 2, 3, 2, 3, 3, 4},
     {20,21,22,23,22,23,23,24},
@@ -121,7 +121,7 @@ const byte bmaptiles_original[5][8] =
     {40,41,42,43,42,43,43,44}
 };
 
-const byte bmaptiles_bs[5][6] =
+inline constexpr byte bmaptiles_bs[5][6] =
 {
     {0, 1, 2, 3, 3, 4},
     {20,21,22,23,23,24},

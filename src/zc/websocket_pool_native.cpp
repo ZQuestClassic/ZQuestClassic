@@ -390,8 +390,6 @@ WebSocketMessageType websocket_pool_message_type(int connection_id)
 std::pair<WebSocketMessageType, std::string> websocket_pool_receive(int connection_id)
 {
 	connection_metadata<client_no_tls>::message_queue* messages = nullptr;
-	if (false)
-		;
 #ifdef HAS_SSL
 	if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
 		messages = &c->m_messages;
@@ -419,8 +417,6 @@ std::pair<WebSocketMessageType, std::string> websocket_pool_receive(int connecti
 WebSocketStatus websocket_pool_status(int connection_id)
 {
 	std::string status;
-	if (false)
-		;
 #ifdef HAS_SSL
 	if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
 		status = c->get_status();

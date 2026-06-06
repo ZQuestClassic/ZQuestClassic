@@ -1603,8 +1603,12 @@ MIDI* copy_midi(MIDI* src)
 	}
 	LOCK_DATA(dest, sizeof(MIDI));
 	for (uint q = 0; q < MIDI_TRACKS; ++q)
+	{
 		if (dest->track[q].data)
+		{
 			LOCK_DATA(dest->track[q].data, dest->track[q].len);
+		}
+	}
 	return dest;
 }
 

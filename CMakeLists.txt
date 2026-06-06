@@ -14,6 +14,7 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
+include(CheckCXXCompilerFlag)
 
 option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they do not exist yet" ON)
 
@@ -814,7 +815,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE core zcsound zconsolelogger zcgui worker_pool websocket nlohmann_json::nlohmann_json poolSTL_tbb)
+target_link_libraries(zplayer PRIVATE core zcsound zconsolelogger zcgui worker_pool websocket nlohmann_json::nlohmann_json poolSTL_tbb imgui_color_text_edit)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
@@ -1048,40 +1049,91 @@ if(BUILD_ZUPDATER)
 	list(APPEND zc_apps zupdater)
 endif()
 
+check_cxx_compiler_flag(-Wno-nan-infinity-disabled COMPILER_SUPPORTS_WNO_NAN_INFINITY_DISABLED)
+
 set(zc_clang_errors
 	-Werror=array-bounds
+	-Werror=dangling-else
+	-Werror=delete-non-abstract-non-virtual-dtor
+	-Werror=deprecated-declarations
+	-Werror=deprecated-this-capture
+	-Werror=deprecated-volatile
+	-Werror=dynamic-class-memaccess
+	-Werror=empty-body
 	-Werror=format
+	-Werror=ignored-attributes
 	-Werror=inconsistent-missing-override
+	-Werror=missing-braces
+	-Werror=overloaded-virtual
+	-Werror=pessimizing-move
 	-Werror=return-type
+	-Werror=sometimes-uninitialized
+	-Werror=string-plus-int
+	-Werror=tautological-constant-compare
+	-Werror=tautological-constant-out-of-range-compare
+	-Werror=tautological-overlap-compare
 	-Werror=type-limits
+	-Werror=uninitialized
+	-Werror=unknown-pragmas
+	-Werror=unqualified-std-cast-call
 	-Werror=unreachable-code
+	-Werror=unsequenced
+	-Werror=unused-but-set-variable
+	-Werror=unused-const-variable
 	-Werror=unused-parameter
-	# -Werror=reorder
-	# -Werror=unused
-	-Wno-write-strings
-	-Wno-switch
+	-Werror=unused-private-field
+	-Werror=vexing-parse
+
 	# TODO: these are pretty annoying to fix and are low-value
 	-Wno-self-assign
+	-Wno-switch
 	-Wno-unused-lambda-capture
-	-Wno-nan-infinity-disabled
+	-Wno-write-strings
 )
+if(COMPILER_SUPPORTS_WNO_NAN_INFINITY_DISABLED)
+	list(APPEND zc_clang_errors -Wno-nan-infinity-disabled)
+endif()
 set(zc_gcc_errors
 	-Werror=array-bounds
+	-Werror=dangling-else
+	-Werror=deprecated-declarations
 	-Werror=format
+	
+	# TODO: gcc catches more than clang, still need to fix these
+	# -Werror=empty-body
+	# -Werror=ignored-attributes
+	# -Werror=missing-braces
+	# -Werror=return-type
+	# -Werror=type-limits
+	# -Werror=uninitialized
+	# -Werror=unknown-pragmas
+	# -Werror=unreachable-code
+	# -Werror=unused-but-set-variable
+	# -Werror=unused-const-variable
+	# -Werror=unused-parameter
+
+	# C++ only flags.
+	$<$<COMPILE_LANGUAGE:CXX>:-Werror=class-memaccess>
+	$<$<COMPILE_LANGUAGE:CXX>:-Werror=delete-non-virtual-dtor>
+	# $<$<COMPILE_LANGUAGE:CXX>:-Werror=overloaded-virtual>
+	$<$<COMPILE_LANGUAGE:CXX>:-Werror=pessimizing-move>
+
 	# GCC currently gives some false positives for format-overflow.
 	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108091
 	-Wno-error=format-overflow
-	-Werror=return-type
-	-Werror=unreachable-code
-	# -Werror=unused
-	-Wno-write-strings
+
+	# TODO: these are pretty annoying to fix and are low-value
 	-Wno-switch
-	# TODO
-	# -Wunused-result
-	-Wno-unused-lambda-capture
+	-Wno-write-strings
 )
 set(zc_msvc_errors
+	/we4068 # unknown pragma
 	/we4100 # unreferenced formal parameter
+	/we4390 # empty controlled statement
+	/we4700 # uninitialized local variable used
+	/we4715 # not all control paths return a value
+	# /we4702 # unreachable code
+	# /we4996 # deprecated declaration
 	# /we5038
 	# /we4265
 )

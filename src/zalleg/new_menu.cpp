@@ -688,8 +688,8 @@ optional<uint> NewMenu::get_y(uint indx) const
 }
 MenuRet NewMenu::pop(uint x, uint y, GuiMenu* parent)
 {
-	x = MID(0, x, zq_screen_w-width()-1);
-	y = MID(0, y, zq_screen_h-height()-1);
+	x = (uint)MID(0, (int)x, (int)(zq_screen_w-width()-1));
+	y = (uint)MID(0, (int)y, (int)(zq_screen_h-height()-1));
 	return GuiMenu::pop(x, y, parent);
 }
 void NewMenu::pop_sub(uint indx, GuiMenu* parent)

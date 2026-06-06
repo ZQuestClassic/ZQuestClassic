@@ -44,7 +44,6 @@ src/zc/scripting/string_utils.cpp
 src/zc/debugger/debugger.cpp
 src/zc/debugger/debugger_gui.cpp
 src/zc/debugger/vm.cpp
-third_party/ImGuiColorTextEdit/src/TextEditor.cpp
 
 src/zc/scripting/types/audio.cpp
 src/zc/scripting/types/bitmap.cpp

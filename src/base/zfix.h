@@ -66,8 +66,9 @@ enum roundType
 class zfix
 {
 public:
+	virtual ~zfix() = default;
 	ZLong val;
-	
+
 	int32_t sign() const
 	{
 		if(val < 0) return -1;

@@ -915,7 +915,9 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
         else if (type == TypeKeyUp || type == TypeKeyDown)
         {
             if (version >= 5)
+            {
                 ASSERT(found_key_map);
+            }
 
             if (!line.empty() && line.front() == ' ')
                 line.remove_prefix(1);

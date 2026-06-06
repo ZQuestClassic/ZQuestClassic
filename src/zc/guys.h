@@ -624,6 +624,7 @@ public:
 	eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk); // : enemy((zfix)176,(zfix)64,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
+	using enemy::hit;
 	virtual bool hit(weapon *w);
 };
 

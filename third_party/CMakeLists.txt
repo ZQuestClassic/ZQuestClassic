@@ -430,3 +430,11 @@ if(WANT_VENDORED_JSON)
 else()
 	find_package(nlohmann_json REQUIRED)
 endif()
+
+add_library(imgui_color_text_edit STATIC
+	ImGuiColorTextEdit/src/TextEditor.cpp
+)
+target_include_directories(imgui_color_text_edit PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ImGuiColorTextEdit/src>
+)
+target_link_libraries(imgui_color_text_edit PRIVATE imgui)
