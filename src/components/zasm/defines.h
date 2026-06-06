@@ -3407,6 +3407,8 @@ enum ASM_DEFINE
 #define SPRITE_VIEWPORT_DESPAWN_RANGE  0x16C6
 #define CMBTRIG_REQ_SCREXDOOR          0x16C7
 #define CMBTRIG_UNREQ_SCREXDOOR        0x16C8
+#define ITEMPICKUPEXSTATE              0x16C9
+#define NPCDEATHEXSTATE                0x16CA
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

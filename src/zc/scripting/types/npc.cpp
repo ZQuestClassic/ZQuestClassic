@@ -1277,6 +1277,9 @@ int32_t npc_get_register(int32_t reg)
 		case NPCFIRESFX:
 			GET_NPC_VAR_INT(firesfx) break;
 
+		case NPCDEATHEXSTATE:
+			GET_NPC_VAR_INT(deathexstate) break;
+
 		default: NOTREACHED();
 	}
 
@@ -1902,6 +1905,13 @@ void npc_set_register(int32_t reg, int32_t value)
 			if (npc)
 			{
 				npc->firesfx = vbound(value / 10000, 0, 255);
+			}
+			break;
+
+		case NPCDEATHEXSTATE:
+			if (npc)
+			{
+				npc->deathexstate = vbound(value / 10000, -1, 31);
 			}
 			break;
 

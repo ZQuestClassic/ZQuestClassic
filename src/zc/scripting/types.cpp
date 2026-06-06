@@ -719,6 +719,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case ITEMZ:
 		case ITEMZOFS:
 		case ITMSWHOOKED:
+		case ITEMPICKUPEXSTATE:
 		case SPRITEMAXITEM:
 			return EngineSubsystem::itemsprite;
 
@@ -1030,6 +1031,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCYOFS:
 		case NPCZ:
 		case NPCZOFS:
+		case NPCDEATHEXSTATE:
 		case SPRITEMAXNPC:
 			return EngineSubsystem::npc;
 
