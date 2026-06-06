@@ -1889,8 +1889,9 @@ bool zmap::misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir)
 			{
 				int m = base_scr->layermap[layer-1]-1;
 				int s = base_scr->layerscreen[layer-1];
-				if (m >= 0 && m < map_count && s >= 0 && s < MAPSCRS)
-					scr = AbsoluteScr(m, s);
+				scr = AbsoluteScr(m, s);
+				if (!scr)
+					continue;
 			}
 			int cid = scr->data[idxs[idx]];
 			newcombo const& cmb = combobuf[cid];
