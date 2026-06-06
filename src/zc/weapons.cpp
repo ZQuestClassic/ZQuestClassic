@@ -7295,7 +7295,7 @@ void weapon::animate_graphics()
 				cs = o_cset>>4;
 			if ( do_animation ) 
 			{
-				if(o_type==3 || o_type == 4 && (f&2))
+				if(o_type==3 || (o_type == 4 && (f&2)))
 					++tile;
 			}
 			break;

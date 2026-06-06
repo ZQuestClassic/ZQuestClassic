@@ -15612,7 +15612,7 @@ bool ePatra::animate(int32_t index)
 		}
 		if (((((dmisc18 > 0 || ((editorflags & ENEMY_FLAG10) && !flycnt && !flycnt2)) && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
 		(dmisc18 == 0 && !(zc_oldrand()&127)) //Old hardcoded firing chance
-		|| (dmisc18 == -1 && loopcnt > 0 && (clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES))
+		|| (dmisc18 == -1 && loopcnt > 0 && ((clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES)))
 		|| (clk4 == 10 && (editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES)))))
 		&& (clk6 >= 0) //if not in the middle of firing...
 		&& clk6 >= dmisc19) //if over the set cooldown between shots...
@@ -15697,7 +15697,7 @@ bool ePatra::animate(int32_t index)
 		if ((dmisc18 > 0 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 		(dmisc18 == 0 && !(zc_oldrand()&127)) || 
 		(dmisc18 == -1 && (loopcnt > 0 || dmisc20 == 4) && ((clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES)) && dmisc20 != 2 && dmisc20 != 4)
-		|| (clk2 == 10 && dmisc20 != 4 && ((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES) || dmisc20 == 2))
+		|| (clk2 == 10 && dmisc20 != 4 && (((editorflags & ENEMY_FLAG3) && get_qr(qr_NEWENEMYTILES)) || dmisc20 == 2))
 		|| (((((zc::math::SafeMod(misc, dmisc6) == 0 && (loopcnt == 0 && !dmisc21)) || loopcnt > 1 || loopcnt == -1) && clk2 <= 53 && clk2 >= 51 && (editorflags & ENEMY_FLAG3)) || (!(editorflags & ENEMY_FLAG3) && loopcnt > 0 && clk2 == 1)) && dmisc20 == 4))))
 		{
 			if (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_qr(qr_NEWENEMYTILES)) 
@@ -21079,7 +21079,7 @@ static void msg_tick_end(bool disappear)
 		goto disappear;
 
 	// Done printing the string
-	if (do_end_str || !do_run_menu && (msg_it->done() || bottom_margin_clip()) && !linkedmsgclk)
+	if (do_end_str || (!do_run_menu && (msg_it->done() || bottom_margin_clip()) && !linkedmsgclk))
 	{
 		if(!do_end_str)
 		{

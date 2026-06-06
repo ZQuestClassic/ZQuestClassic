@@ -1050,7 +1050,7 @@ bool movingblock::animate(int32_t)
 				});
 			}
 			
-			if(!fallclk && !drownclk || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
+			if((!fallclk && !drownclk) || (bhole && !get_qr(qr_BROKEN_BLOCKHOLE_PITFALLS)))
 			{
 				end_rpos_handle.set_data(bcombo);
 				end_rpos_handle.set_cset(oldcset);

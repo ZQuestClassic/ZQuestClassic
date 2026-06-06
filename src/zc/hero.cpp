@@ -1384,13 +1384,13 @@ void HeroClass::setFall(zfix new_fall)
 {
 	fall = new_fall;
 	justmoved = 2;
-	if (!jumping && fall || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
+	if ((!jumping && fall) || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
 		jumping = -1;
 }
 void HeroClass::setFakeFall(zfix new_fall)
 {
 	fakefall = new_fall;
-	if (!jumping && fakefall || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
+	if ((!jumping && fakefall) || !get_qr(qr_BETTER_PLAYER_JUMP_ANIM))
 		jumping = -1;
 }
 void HeroClass::setJump(zfix new_jump)
@@ -2632,8 +2632,8 @@ void HeroClass::draw(BITMAP* dest)
 			}
 			
 			if(attackclk<7
-			|| (attack==wSword && ((attackclk<(game->get_canslash()?15:13) 
-			|| FIXED_Z3_ANIMATION && attackclk<(game->get_canslash()?16:12))
+			|| (attack==wSword && ((attackclk<(game->get_canslash()?15:13)
+			|| (FIXED_Z3_ANIMATION && attackclk<(game->get_canslash()?16:12)))
 			|| (charging>0 && attackclk!=SWORDCHARGEFRAME)))
 			|| ((attack==wWand || attack==wFire || attack==wCByrna) && attackclk<13)
 			|| (attack==wHammer && attackclk<=30)
@@ -2648,7 +2648,7 @@ void HeroClass::draw(BITMAP* dest)
 						if (attackclk >= 13) tile += (extend==2?2:1);
 					}
 					
-					if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itm.flags&item_flag4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
+					if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itm.flags&item_flag4 && (attackclk<7||(FIXED_Z3_ANIMATION&&(attackclk < 16)))))
 					{
 						herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 						if (FIXED_Z3_ANIMATION)
@@ -3543,7 +3543,7 @@ void HeroClass::reposition_sword()
 // the main weapon checking is in the global function check_collisions()
 bool HeroClass::checkstab()
 {
-    if(action!=attacking && action!=sideswimattacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire && attack != wBugNet)
+    if((action!=attacking && action!=sideswimattacking) || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire && attack != wBugNet)
             || (attackclk<=4))
         return false;
         
@@ -8627,7 +8627,7 @@ heroanimate_skip_liftwpn:;
 				else tick_hover();
 			}
 		}
-		if(fall <= termv && !(moveflags & move_no_real_z) && z>0 || fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0)
+		if((fall <= termv && !(moveflags & move_no_real_z) && z>0) || (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0))
 		{
 			if(fall != 0 || fakefall != 0 || hoverclk>0)
 				jumping++;
@@ -8665,7 +8665,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		}
-		if(fall > termv && !(moveflags & move_no_real_z) && z>0 || fakefall > termv && !(moveflags & move_no_fake_z) && fakez > 0)
+		if((fall > termv && !(moveflags & move_no_real_z) && z>0) || (fakefall > termv && !(moveflags & move_no_fake_z) && fakez > 0))
 		{
 			if (get_qr(qr_BETTER_PLAYER_JUMP_ANIM) && (fall != 0 || fakefall != 0 || hoverclk > 0))
 				jumping++;
@@ -19850,7 +19850,7 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 	if (diagonalMovement)
 	{
 		if (((movedir == up || movedir == down) && (shiftdir == left || shiftdir == right)) ||
-			(movedir == left || movedir == right) && (shiftdir == up || shiftdir == down))
+			((movedir == left || movedir == right) && (shiftdir == up || shiftdir == down)))
 		{
 			step = STEP_DIAGONAL(step);
 			up_step = STEP_DIAGONAL(up_step);
@@ -20368,7 +20368,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	if(diagonalMovement)
 	{
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
-			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
+			((d2 == left || d2 == right) && (shiftdir == up || shiftdir == down)))
 		{
 			if(hero_newstep > 0 && hero_newstep_diag > 0)
 			{

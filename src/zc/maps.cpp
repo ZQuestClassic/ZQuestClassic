@@ -2345,8 +2345,8 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 		{
 			for (int32_t m = layer; m <= 1; m++)
 			{
-				if (m < 0 || m == 0 && get_qr(qr_WATER_ON_LAYER_1)
-				|| m == 1 && get_qr(qr_WATER_ON_LAYER_2))
+				if (m < 0 || (m == 0 && get_qr(qr_WATER_ON_LAYER_1))
+				|| (m == 1 && get_qr(qr_WATER_ON_LAYER_2)))
 				{
 					int32_t checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
 					if (checkwater > 0) 

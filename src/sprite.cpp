@@ -3173,8 +3173,8 @@ bool lineLineColl(zfix x1, zfix y1, zfix x2, zfix y2, zfix x3, zfix y3, zfix x4,
 	
 	if (denominator == 0) 
 	{
-		if (x3 >= x1 && x3 <= x2 || x3 <= x1 && x3 >= x2 
-		|| x4 >= x1 && x4 <= x2 || x4 <= x1 && x4 >= x2)
+		if ((x3 >= x1 && x3 <= x2) || (x3 <= x1 && x3 >= x2)
+		|| (x4 >= x1 && x4 <= x2) || (x4 <= x1 && x4 >= x2))
 		{
 			return numerator1 == 0 && numerator2 == 0;
 		}

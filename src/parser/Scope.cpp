@@ -298,7 +298,7 @@ Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names, vec
 	Scope* current = lookupScope(scope, names.front(), noUsing, host, errorHandler);
 	if (!current) return NULL;
 	//string str = ;
-	if(current->isScript() && delimiters.front().compare(".") || current->isNamespace() && delimiters.front().compare("::"))
+	if((current->isScript() && delimiters.front().compare(".")) || (current->isNamespace() && delimiters.front().compare("::")))
 			return NULL;
 	// Descend with the rest of the names from the first found scope.
 	vector<string> restOfNames(++names.begin(), names.end());

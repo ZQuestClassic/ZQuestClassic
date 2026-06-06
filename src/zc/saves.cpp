@@ -552,7 +552,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 						if(!p_igetl(&game.screen_d[j][k],f))
 							return 43;
 			}
-			if ( section_version >= 12 && FFCore.getQuestHeaderInfo(vZelda) >= 0x253 || section_version >= 16)
+			if ( (section_version >= 12 && FFCore.getQuestHeaderInfo(vZelda) >= 0x253) || section_version >= 16)
 			/* 2.53.1 also have a v12 for this section. 
 			I needed to path this to ensure that the s_v is specific to the build.
 			I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
