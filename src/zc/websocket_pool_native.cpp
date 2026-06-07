@@ -54,11 +54,13 @@ using websocketpp::lib::bind;
 
 static int next_connection_id;
 
+using WebSocketMessageQueue = std::queue<std::pair<websocketpp::frame::opcode::value, std::string>>;
+
 template <typename T1>
 class connection_metadata {
 public:
 	using ptr = websocketpp::lib::shared_ptr<connection_metadata>;
-	using message_queue = std::queue<std::pair<websocketpp::frame::opcode::value, std::string>>;
+	using message_queue = WebSocketMessageQueue;
 
 	connection_metadata(int id, websocketpp::connection_hdl hdl, std::string uri)
 		: m_status("Connecting")
@@ -360,15 +362,14 @@ bool websocket_pool_has_message(int connection_id)
 
 WebSocketMessageType websocket_pool_message_type(int connection_id)
 {
-	connection_metadata<client_no_tls>::message_queue* messages = nullptr;
+	WebSocketMessageQueue* messages = nullptr;
 
-	if (false)
-		;
 #ifdef HAS_SSL
-	else if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
+	if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
 		messages = &c->m_messages;
+	else
 #endif
-	else if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
+	if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
 		messages = &c->m_messages;
 	else
 	{
@@ -389,12 +390,13 @@ WebSocketMessageType websocket_pool_message_type(int connection_id)
 
 std::pair<WebSocketMessageType, std::string> websocket_pool_receive(int connection_id)
 {
-	connection_metadata<client_no_tls>::message_queue* messages = nullptr;
+	WebSocketMessageQueue* messages = nullptr;
 #ifdef HAS_SSL
 	if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
 		messages = &c->m_messages;
+	else
 #endif
-	else if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
+	if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
 		messages = &c->m_messages;
 	else
 	{
@@ -420,8 +422,9 @@ WebSocketStatus websocket_pool_status(int connection_id)
 #ifdef HAS_SSL
 	if (auto c = pool_tls ? pool_tls->find_connection(connection_id) : nullptr)
 		status = c->get_status();
+	else
 #endif
-	else if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
+	if (auto c = pool_no_tls ? pool_no_tls->find_connection(connection_id) : nullptr)
 		status = c->get_status();
 	else
 	{
