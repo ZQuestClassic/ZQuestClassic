@@ -1518,6 +1518,10 @@ void Debugger::InitGui()
 	al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_REQUIRE);
 	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_REQUIRE);
 	display = al_create_display(w, h);
+
+	if (auto main_display = all_get_display())
+		zalleg_bring_window_to_foreground(main_display);
+
 	al_set_window_title(display, "Debugger");
 	ImGui_ImplAllegro5_Init(display);
 

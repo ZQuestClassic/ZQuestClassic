@@ -26,6 +26,19 @@
 #include <SDL.h>
 #endif
 
+#ifdef _WIN32
+#include <allegro5/allegro_windows.h>
+#include <windows.h>
+#endif
+
+#ifdef ALLEGRO_MACOSX
+void zalleg_osx_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
+#endif
+
+#ifdef __linux__
+#include <allegro5/allegro_x.h>
+#endif
+
 DATAFILE *fontsdata, *sfxdata;
 bool sound_was_installed = false;
 
@@ -358,6 +371,35 @@ void zalleg_create_window(const char* title, int gfx_mode, int v_width, int v_he
 	set_window_title(title);
 	zapp_setup_icon();
 	initFonts(); // Doesn't really belong here, but whatever.
+}
+
+void zalleg_bring_window_to_foreground(ALLEGRO_DISPLAY* display)
+{
+#ifdef _WIN32
+	HWND hwnd = al_get_win_window_handle(display);
+	SetForegroundWindow(hwnd);
+#elif defined(ALLEGRO_MACOSX)
+	zalleg_osx_bring_window_to_foreground(display);
+#elif defined(__linux__)
+	XID window_id = al_get_x_window_id(display);
+	Display* x_display = XOpenDisplay(nullptr);
+	if (x_display)
+	{
+		XEvent event = {};
+		event.type = ClientMessage;
+		event.xclient.display = x_display;
+		event.xclient.window = window_id;
+		event.xclient.message_type = XInternAtom(x_display, "_NET_ACTIVE_WINDOW", False);
+		event.xclient.format = 32;
+		event.xclient.data.l[0] = 1; // source: application
+		event.xclient.data.l[1] = CurrentTime;
+		event.xclient.data.l[2] = 0;
+		XSendEvent(x_display, DefaultRootWindow(x_display), False,
+		           SubstructureRedirectMask | SubstructureNotifyMask, &event);
+		XFlush(x_display);
+		XCloseDisplay(x_display);
+	}
+#endif
 }
 
 void zalleg_wait_for_all_keys_up()

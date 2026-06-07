@@ -578,6 +578,11 @@ add_library(zalleg STATIC
 	src/zalleg/zalleg.cpp
 	src/zalleg/zsys.cpp
 )
+if(APPLE)
+	target_sources(zalleg PRIVATE src/zalleg/zalleg_osx.mm)
+	set_source_files_properties(src/zalleg/zalleg_osx.mm
+		PROPERTIES COMPILE_OPTIONS "-x;objective-c++")
+endif()
 target_link_libraries(zalleg PUBLIC base allegro_with_legacy ${IMAGELIBS})
 if (USE_NFD)
 	target_link_libraries(zalleg PUBLIC nfd)
