@@ -1457,6 +1457,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			int32_t& hp_mod = local_ref.attributes[1];
 			int32_t& mod_sfx = local_ref.attributes[2];
 			
+			if (flipp_level < 1)
+				flipp_level = 1;
+			if (req_it_lvl < 1)
+				req_it_lvl = 1;
+			
 			std::shared_ptr<GUI::Grid> mainrow;
 			if(local_ref.type == cWATER) //deep
 			{
