@@ -1574,6 +1574,7 @@ void init_game_vars(bool is_cont_game = false)
 		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=gofast=false;
 
 		ResetSaveScreenSettings();
+		FFCore.shutdown();
 		ALLOFF(true,true,true);
 	}
 
