@@ -32680,7 +32680,15 @@ void HeroClass::reset_hookshot()
 	Lwpns.del(Lwpns.idFirst(wHSHandle));
 	Lwpns.del(Lwpns.idFirst(wHookshot));
 	chainlinks.clear();
-	int32_t index=valid_item_id(directWpn) ? directWpn : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
+	int index = -1;
+	if (valid_item_id(directWpn))
+	{
+		auto const& itm = get_item_data(directWpn);
+		if (itm.type == itype_hookshot || itm.type == itype_switchhook)
+			index = directWpn;
+	}
+	if (!valid_item_id(index))
+		index = current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
 	hs_switcher = false;
 	
 	if (valid_item_id(index))
