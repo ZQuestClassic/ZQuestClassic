@@ -2028,7 +2028,7 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 		
 		while((nmap!=0) && !looped && !(nscr>=128))
 		{
-			if(game->maps.get(((nmap-1)<<7)+nscr) & flag)
+			if(game->xstates.get(((nmap-1)<<7)+nscr) & flag)
 			{
 				log_state_change(nmap, nscr, "ExState change carried over");
 				game->xstates[((nmap-1)<<7)+nscr] &= ~flag;
