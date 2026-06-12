@@ -70,6 +70,14 @@ public:
 	
 	virtual void post_realize(){}
 
+	/* Whether quitting the program while this dialog is open could lose
+	 * meaningful changes. Quitting with a dialog open warns about losing
+	 * the dialog's changes; dialogs that know they hold nothing important
+	 * can override this to skip that warning. Most dialogs can't tell, so
+	 * the default is conservative.
+	 */
+	virtual bool hasUnsavedChanges() const { return true; }
+
 	/* Subclasses must define an int32_t-convertible type called `message`
 	 * and implement:
 	 * bool handleMessage(const DialogMessage<message>&)

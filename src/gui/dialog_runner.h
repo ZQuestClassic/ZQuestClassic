@@ -26,7 +26,8 @@ public:
 				dm.sender = snd;
 				this->done = this->done || dlg.handleMessage(dm);
 			};
-		
+		hasChangesFunc = [&dlg]() { return dlg.hasUnsavedChanges(); };
+
 		std::shared_ptr<Widget> root = dlg.view();
 		if(root)
 		{
@@ -87,8 +88,17 @@ public:
 		done = true;
 	}
 
+	/* Whether quitting while this dialog is open could lose meaningful
+	 * changes. See Dialog::hasUnsavedChanges().
+	 */
+	bool hasUnsavedChanges() const
+	{
+		return hasChangesFunc ? hasChangesFunc() : true;
+	}
+
 private:
 	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> sendMessage;
+	std::function<bool()> hasChangesFunc;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
 	int32_t focused;
