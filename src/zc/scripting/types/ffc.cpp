@@ -180,7 +180,7 @@ static ArrayRegistrar FFFLAGSD_registrar(FFFLAGSD, []{
 	static ScriptingArray_ObjectMemberBitwiseFlags<ffcdata, &ffcdata::flags, 32> impl;
 	impl.setSideEffect([](auto ffc, int index, int){
 		auto flag = F(index);
-		if (flag == ffc_solid || flag == ffc_changer)
+		if (flag == ffc_solid || flag == ffc_cmb_solid || flag == ffc_changer)
 			ffc->updateSolid();
 	});
 	return &impl;

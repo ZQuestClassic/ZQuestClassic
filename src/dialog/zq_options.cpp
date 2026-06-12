@@ -844,7 +844,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)"),
 					ROW_CHECK_I(OPT_NO_HIGHLIGHT_LAYER0, "No Highlight on Layer 0", "The View setting \"Highlight Current Layer\" does not hide layers when selecting Layer 0."),
 					ROW_CHECK_I(OPT_DRAG_CENTER_OF_SQUARES, "Drag Squares From Center", "When dragging 'squares' (FFCs, items, warp squares), drag by their center instead of their top-left."),
-					ROW_CHECK_I(OPT_SMART_NEW_FFCS, "Smart FFC Placement", "When placing a new FFC, the 'Layer' will be set to the current layer being edited, and the 'Solid' flag will be checked if the FFC's combo is fully solid.")
+					ROW_CHECK_I(OPT_SMART_NEW_FFCS, "Smart FFC Placement", "When placing a new FFC, the 'Layer' will be set to the current layer being edited, and the 'Combo-Based Solid' flag will be checked.")
 				)
 			))
 		)

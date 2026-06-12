@@ -177,7 +177,9 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 	bool broken_platform = get_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION);
 	if(sideview_mode())
 	{
-		if((ffc.flags & (ffc_solid|ffc_platform|ffc_changer)) != (ffc_solid|ffc_platform))
+		if((ffc.flags & (ffc_platform|ffc_changer)) != (ffc_platform))
+			return false;
+		if (!ffc.checkSolid())
 			return false;
 		zfix fx = old ? ffc.old_x : ffc.x, fy = old ? ffc.old_y : ffc.y;
 		zfix hx = old && !broken_platform ? old_x : x, hy = old && !broken_platform ? old_y : y;

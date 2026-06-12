@@ -33,6 +33,7 @@ enum ffc_flags : uint32_t
 	ffc_imprecisionchanger  = F(12), //Ignore subpixel for changer collision
 	ffc_lensinvis           = F(13), //Visible, but not to the Lens of Truth
 	ffc_platform            = F(14), //Move the Hero with, if touching
+	ffc_cmb_solid           = F(15), // solid if the combo has solidity
 
 	// Changer flags.
 	ffc_changespeed         = F(26), //Change speed to this (default, not implemented yet)
@@ -72,6 +73,7 @@ public:
 	void draw(BITMAP* dest) override;
 	void draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
 
+	bool checkSolid() const;
 	virtual bool setSolid(bool set) override;
 	virtual void updateSolid() override;
 	void setLoaded(bool set);

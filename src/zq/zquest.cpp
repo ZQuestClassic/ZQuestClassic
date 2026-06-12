@@ -10581,7 +10581,7 @@ void domouse()
 								if (SmartFFCPlacement)
 								{
 									tempdat.layer = CurrentLayer;
-									SETFLAG(tempdat.flags, ffc_solid, (combobuf[Combo].walk & 0xF) == 0xF);
+									tempdat.flags |= ffc_cmb_solid;
 								}
 								call_ffc_dialog(earliestfreeffc, tempdat, active_visible_screen->scr, active_visible_screen->screen);
 							} });
