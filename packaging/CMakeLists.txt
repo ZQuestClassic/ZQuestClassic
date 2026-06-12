@@ -233,6 +233,13 @@ if(APPLE)
 		endif()
 	")
 
+	# base_test_runner is installed alongside the apps only in CI builds
+	# (see the root CMakeLists.txt). Bake that configure-time decision in so it
+	# gets its dylib paths fixed up too; install-time ENV{CI} may not be set.
+	if(DEFINED ENV{CI})
+		set(INSTALL_TEST_RUNNER TRUE)
+	endif()
+
 	# Make the binaries portable.
 	install(CODE "
 		include(BundleUtilities)
@@ -247,6 +254,10 @@ if(APPLE)
 		set(BUILD_ZUPDATER \"${BUILD_ZUPDATER}\")
 		if(BUILD_ZUPDATER)
 			list(APPEND BINARIES_TO_FIX \"\${APP_ROOT}/Contents/Resources/zupdater\")
+		endif()
+		set(INSTALL_TEST_RUNNER \"${INSTALL_TEST_RUNNER}\")
+		if(INSTALL_TEST_RUNNER)
+			list(APPEND BINARIES_TO_FIX \"\${APP_ROOT}/Contents/Resources/base_test_runner\")
 		endif()
 		fixup_bundle(\"\${APP_ROOT}\" \"\${BINARIES_TO_FIX}\" \"\${APP_ROOT}/Contents/Frameworks\")
 	")
