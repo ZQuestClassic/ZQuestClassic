@@ -2072,6 +2072,60 @@ bool force_ex_door_trigger_any(const combined_handle_t& handle, int dir, uint in
 	return ret;
 }
 
+bool force_combopos_trigger(const combined_handle_t& handle, size_t idx, int mi)
+{
+	auto& cmb = handle.combo();
+	if (cmb.triggers.size() <= idx) return false;
+	auto& trig = cmb.triggers[idx];
+	if (!trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_CAUSE))
+		return false;
+	
+	auto& pos_states = handle.is_ffc() ? game->ffcpos_states : game->pos_states;
+	if (mi < 0)
+		mi = mapind(handle.base_scr());
+	auto posstate = pos_states.get(mi).get(handle.local_id());
+	if (posstate & (1 << trig.combopos_state))
+	{
+		do_ex_trigger(handle, idx);
+		return true;
+	}
+	return false;
+}
+
+bool force_combopos_trigger_any(const combined_handle_t& handle, int mi)
+{
+	auto cid = handle.data();
+	bool ret = false;
+	std::vector<int> visited_cids;
+	visited_cids.push_back(cid);
+	bool recheck = false;
+	do
+	{
+		auto& cmb = combobuf[cid];
+		recheck = false;
+		for (size_t idx = 0; idx < cmb.triggers.size(); ++idx)
+		{
+			if (force_combopos_trigger(handle, idx, mi))
+			{
+				ret = true;
+				if (handle.data() != cid)
+				{
+					cid = handle.data();
+					// Prevent infinite oscillation: if this cid was already visited, stop.
+					if (util::contains(visited_cids, cid))
+						break;
+					
+					visited_cids.push_back(cid);
+					recheck = true;
+					break;
+				}
+			}
+		}
+	}
+	while (recheck);
+	return ret;
+}
+
 static bool triggering_generic_secrets = false;
 static bool triggering_generic_switchstate = false;
 
@@ -2308,6 +2362,21 @@ static bool handle_trigger_conditionals(combined_handle_t const& comb_handle, si
 				if (trig.unreq_screen_ex_door[dir].get(q) && getxdoor(state_scr, dir, q))
 					return false;
 			}
+	}
+	
+	{
+		bool req = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_REQ);
+		bool unreq = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_UNREQ);
+		if (req && unreq)
+			return false;
+		if (req || unreq)
+		{
+			auto& pos_states = comb_handle.is_ffc() ? game->ffcpos_states : game->pos_states;
+			auto mi = mapind(scr);
+			byte posstate = pos_states.get(mi).get(comb_handle.local_id());
+			if (req != bool(posstate & (1 << trig.combopos_state)))
+				return false;
+		}
 	}
 
 	if (is_active_screen || trig.trigdmlevel > -1)
@@ -2603,14 +2672,35 @@ void handle_trigger_results(const combined_handle_t& handle, combo_trigger const
 			FFCore.music_update_flags |= MUSIC_UPDATE_FLAG_REVERT;
 		}
 
-		if (trig.exstate > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
-			unsetxmapflag(screen, 1 << trig.exstate);
-		else if (trig.exstate > -1 && trigexstate)
-			setxmapflag(screen, 1 << trig.exstate);
-		if (trig.exdoor_dir > -1 && trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
-			set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind, false);
-		else if (trig.exdoor_dir > -1)
-			set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind);
+		if (trig.exstate > -1)
+		{
+			if (trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))
+				unsetxmapflag(screen, 1 << trig.exstate);
+			else if (trigexstate)
+				setxmapflag(screen, 1 << trig.exstate);
+		}
+		if (trig.exdoor_dir > -1)
+		{
+			if (trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
+				set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind, false);
+			else
+				set_xdoorstate(screen, trig.exdoor_dir, trig.exdoor_ind);
+		}
+		{
+			bool do_set = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_SET);
+			bool do_unset = trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_UNSET);
+			if (do_set || do_unset)
+			{
+				auto& pos_states = handle.is_ffc() ? game->ffcpos_states : game->pos_states;
+				auto mi = mapind(scr);
+				byte& pos_state = pos_states[mi][handle.local_id()];
+				byte flag = 1 << trig.combopos_state;
+				if (do_set && do_unset)
+					pos_state ^= flag;
+				else
+					SETFLAG(pos_state, flag, do_set);
+			}
+		}
 
 		if (trig.trigger_flags.get(TRIGFLAG_REVERT_GRAVITY))
 		{
@@ -2806,6 +2896,14 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 		if(ex_trig.exdoor_dir > -1 && !ex_trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
 		{
 			if(force_ex_door_trigger(handle, idx))
+			{
+				force_ex_ret = true;
+				if(handle.data() != cid) break;
+			}
+		}
+		if (ex_trig.trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_CAUSE))
+		{
+			if (force_combopos_trigger(handle, idx))
 			{
 				force_ex_ret = true;
 				if(handle.data() != cid) break;

@@ -792,6 +792,25 @@ class mapdata {
 	//
 	// @zasm_var MAPDATAEXSTATED
 	internal bool ExState[];
+	
+	// The position-specific states for each combo position.
+	// The 8 states for each position are stored using binary / bitwise, with each bit being (1 << index).
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
+	// @versionadded 3.0
+	// @zasm_var MAPDATACOMBOPOSSTATE
+	internal int PosState[];
+	
+	// The position-specific states for each ffc.
+	// The 8 states for each ffc are stored using binary / bitwise, with each bit being (1 << index).
+	//
+	// If this `mapdata` was loaded via [Game->LoadTempScreen] and layer 0,
+	// this array and the other FFC arrays reference the live FFCs.
+	//
+	// @versionadded 3.0
+	// @zasm_var MAPDATAFFCPOSSTATE
+	internal int FFCPosState[];
 
 	// Returns the map this mapdata points to.
 	//

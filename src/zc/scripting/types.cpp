@@ -189,6 +189,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case CMBTRIG_PLAY_MUSIC:
 		case CMBTRIG_REQ_SCREXDOOR:
 		case CMBTRIG_UNREQ_SCREXDOOR:
+		case CMBTRIGPOSSTATE:
 			return EngineSubsystem::combotrigger;
 
 		case DEBUGTESTING:

@@ -84,6 +84,7 @@ struct combo_trigger
 	int32_t spawnitem;
 	int16_t spawnenemy;
 	int8_t exstate = -1, exdoor_dir = -1, exdoor_ind;
+	byte combopos_state;
 	int32_t spawnip;
 	byte trigcopycat;
 	byte trigcooldown;
@@ -454,6 +455,18 @@ enum ComboTriggerFlag
 	TRIGFLAG_MAPVIEW_ONLY,
 	// Trigger condition: never occurs during Map View (spacebar map).
 	TRIGFLAG_MAPVIEW_NEVER,
+	// Trigger cause: combo position specific state
+	TRIGFLAG_COMBOPOSSTATE_CAUSE,
+	// Trigger condition: combo position specific state
+	TRIGFLAG_COMBOPOSSTATE_REQ,
+	// Trigger condition: not combo position specific state
+	TRIGFLAG_COMBOPOSSTATE_UNREQ,
+	// Trigger effect: set combo position specific state
+	// Combined with [TRIGFLAG_COMBOPOSSTATE_UNSET] is also on, toggles state instead.
+	TRIGFLAG_COMBOPOSSTATE_SET,
+	// Trigger effect: unset combo position specific state
+	// Combined with [TRIGFLAG_COMBOPOSSTATE_SET] is also on, toggles state instead.
+	TRIGFLAG_COMBOPOSSTATE_UNSET,
 
 	TRIGFLAG_MAX
 };

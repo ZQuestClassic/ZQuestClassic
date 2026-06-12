@@ -368,6 +368,29 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_MAPVIEW_NEVER,
+	// Trigger cause: combo position specific state ([combotrigger::ComboPosState])
+	// Works like ExState, only causing combo/cset change, reset anim, and copycat effects.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COMBOPOSSTATE_CAUSE,
+	// Trigger condition: combo position specific state ([combotrigger::ComboPosState])
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COMBOPOSSTATE_REQ,
+	// Trigger condition: not combo position specific state ([combotrigger::ComboPosState])
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COMBOPOSSTATE_UNREQ,
+	// Trigger effect: set combo position specific state ([combotrigger::ComboPosState])
+	// Combined with [TRIGFLAG_COMBOPOSSTATE_UNSET] is also on, toggles state instead.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COMBOPOSSTATE_SET,
+	// Trigger effect: unset combo position specific state ([combotrigger::ComboPosState])
+	// Combined with [TRIGFLAG_COMBOPOSSTATE_SET] is also on, toggles state instead.
+	//
+	// @versionadded 3.0
+	TRIGFLAG_COMBOPOSSTATE_UNSET,
 
 	TRIGFLAG_MAX
 };
@@ -518,6 +541,16 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGEXSTATE
 	internal int ExState;
+	
+	// 0-7. Used by [TRIGFLAG_COMBOPOSSTATE_CAUSE], [TRIGFLAG_COMBOPOSSTATE_REQ],
+	// [TRIGFLAG_COMBOPOSSTATE_UNREQ], [TRIGFLAG_COMBOPOSSTATE_SET],
+	// and [TRIGFLAG_COMBOPOSSTATE_UNSET].
+	//
+	// Ref: [Screen->PosState], [ffc::PosState], [mapdata::PosState], [mapdata::FFCPosState]
+	//
+	// @versionadded 3.0
+	// @zasm_var CMBTRIGPOSSTATE
+	internal int ComboPosState;
 
 	// If > -1, the direction of ExDoor that the combo is linked to
 	//

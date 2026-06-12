@@ -141,7 +141,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MISC            21
 #define V_TILES            4 //3 added blank tile optimization and 4-bit packing; 4 used by .ztileset
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
-#define V_COMBOS          69
+#define V_COMBOS          70
 #define V_CSETS            6 //palette data
 #define V_MAPS            40
 #define V_DMAPS           26
@@ -156,7 +156,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5
 #define V_CHEATS           1
-#define V_SAVEGAME        49
+#define V_SAVEGAME        50
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        20

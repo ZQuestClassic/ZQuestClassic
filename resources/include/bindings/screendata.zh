@@ -511,6 +511,13 @@ class screendata {
 	//
 	// @zasm_var SCREENEXSTATED
 	internal bool ExState[];
+	
+	// The position-specific states for each of the [NUM_COMBO_POS] combo positions.
+	// The 8 states for each position are stored using binary / bitwise, with each bit being (1 << index).
+	//
+	// @versionadded 3.0
+	// @zasm_var SCREENCOMBOPOSSTATE
+	internal int PosState[];
 
 	// Whether or not the current [Region] is 'lit'. Applies to Classic Darkrooms.
 	//

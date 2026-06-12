@@ -57,6 +57,8 @@ bool force_ex_trigger(const combined_handle_t& handle, size_t idx, char xstate =
 bool force_ex_trigger_any(const combined_handle_t& handle, char xstate = -1);
 bool force_ex_door_trigger(const combined_handle_t& handle, size_t idx, int dir = -1, uint ind = 0);
 bool force_ex_door_trigger_any(const combined_handle_t& handle, int dir = -1, uint ind = 0);
+bool force_combopos_trigger(const combined_handle_t& handle, size_t idx, int mi = -1);
+bool force_combopos_trigger_any(const combined_handle_t& handle, int mi = -1);
 bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&)> trig_cond, int32_t special = 0, weapon* w = NULL);
 bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&, size_t)> trig_cond, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo(const combined_handle_t& comb_handle, size_t idx, int32_t special = 0, weapon* w = NULL);

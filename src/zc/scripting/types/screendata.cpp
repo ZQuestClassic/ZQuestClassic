@@ -1143,14 +1143,17 @@ static ArrayRegistrar SCREENSTATED_registrar(SCREENSTATED, []{
 	static ScriptingArray_ObjectComputed<screendata, bool> impl(
 		[](screendata*){ return mMAXIND; },
 		[](screendata* scr, int index) -> bool {
-			int mi = mapind(cur_map, scr->screen);
+			int mi = mapind(scr);
 			if (mi < 0)
 				return false;
 
 			return (game->maps.get(mi) >> index) & 1;
 		},
 		[](screendata* scr, int index, bool value){
-			int mi = mapind(cur_map, scr->screen);
+			int mi = mapind(scr);
+			if (mi < 0)
+				return;
+			
 			if (value)
 				setmapflag_mi(mi, 1 << index);
 			else
@@ -1161,18 +1164,54 @@ static ArrayRegistrar SCREENSTATED_registrar(SCREENSTATED, []{
 	return &impl;
 }());
 
+static ArrayRegistrar SCREENCOMBOPOSSTATE_registrar(SCREENCOMBOPOSSTATE, []{
+	static ScriptingArray_GlobalComputed<int> impl(
+		[](int){ return region_num_rpos; },
+		[](int, int index) -> int {
+			auto rpos = (rpos_t)index;
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			if (!rpos_handle)
+				return 0;
+			
+			int mi = mapind(rpos_handle.base_scr);
+			if (mi < 0)
+				return 0;
+
+			return game->pos_states.get(mi).get(index % 176);
+		},
+		[](int, int index, int value){
+			auto rpos = (rpos_t)index;
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			if (!rpos_handle)
+				return false;
+			
+			int mi = mapind(rpos_handle.base_scr);
+			if (mi < 0)
+				return false;
+			
+			game->pos_states[mi][index % 176] = value;
+			return true;
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar SCREENEXSTATED_registrar(SCREENEXSTATED, []{
 	static ScriptingArray_ObjectComputed<screendata, bool> impl(
 		[](screendata*){ return 32; },
 		[](screendata* scr, int index) -> bool {
-			int mi = mapind(cur_map, scr->screen);
+			int mi = mapind(scr);
 			if (mi < 0)
 				return false;
 
 			return (game->xstates.get(mi) >> index) & 1;
 		},
 		[](screendata* scr, int index, bool value){
-			int mi = mapind(cur_map, scr->screen);
+			int mi = mapind(scr);
+			if (mi < 0)
+				return;
+			
 			if (value)
 				setxmapflag_mi(mi, 1 << index);
 			else

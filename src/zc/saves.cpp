@@ -1217,6 +1217,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			game.set_item_flicker_speed(zinit.item_flicker_speed);
 		}
 		
+		if (section_version > 49)
+		{
+			if(!p_getbmap(&game.pos_states,f))
+				return 121;
+			if(!p_getbmap(&game.ffcpos_states,f))
+				return 122;
+		}
+		
 		game.normalize();
 	}
 	
@@ -1626,6 +1634,11 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_putwstr(exec.name,f))
 			return 94;
 	}
+
+	if(!p_putbmap(game.pos_states,f))
+		return 120;
+	if(!p_putbmap(game.ffcpos_states,f))
+		return 121;
 
 	return 0;
 }

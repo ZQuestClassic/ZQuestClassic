@@ -124,6 +124,13 @@ class ffc {
 	// @index [enum FFCFlag]
 	// @zasm_var FFFLAGSD
 	internal bool Flags[];
+	
+	// The position-specific states for this ffc.
+	//
+	// @length 8
+	// @versionadded 3.0
+	// @zasm_var FFC_POSSTATE
+	internal bool PosState[];
 
 	// The hitbox width, in pixels (1 to 64), of the FFC. Unless the FFC is
 	// [ffc::Flags], the type of its combo will affect this area. NOTE: Not all

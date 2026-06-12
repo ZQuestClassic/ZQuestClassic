@@ -84,6 +84,8 @@ struct gamedata
 	byte visited[MAXDMAPS];
 	bounded_vec<dword,byte> bmaps {MAX_MI, 0}; // the dungeon progress maps
 	bounded_vec<dword,uint32_t> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
+	bounded_map<dword,bounded_map<byte,byte>> pos_states {MAXSCRSNORMAL, {176, 0}};
+	bounded_map<dword,bounded_map<byte,byte>> ffcpos_states {MAXSCRSNORMAL, {MAXFFCS, 0}};
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
 	bitstring item_messages_played;
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
@@ -411,6 +413,8 @@ public:
 		_generic.normalize();
 		bmaps.normalize();
 		maps.normalize();
+		pos_states.normalize();
+		ffcpos_states.normalize();
 		guys.normalize();
 		item_messages_played.normalize();
 		screen_d.normalize();

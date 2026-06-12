@@ -53,6 +53,9 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	game->header.hp_per_heart_container = game->get_hp_per_heart();
 	game->OverrideItems[0] = 0;
 	game->OverrideItems[511] = 511;
+	game->pos_states[5][10] = 3;
+	game->pos_states[163][175] = 0x80;
+	game->ffcpos_states[200][2] = 0xFF;
 	// Does not persist.
 	// game->header.did_cheat = true;
 
@@ -116,6 +119,20 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 		}\
 	}
 	
+	// For nested bounded_maps with large bounds: compares without materializing
+	// default entries (operator== reads via const get()), and only walks the
+	// populated entries when printing a mismatch.
+	#define SAVE_TEST_SPARSE_MAP_2D(field) tr.total++; if (!(game->field == save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		for (auto const& [i, inner] : game->field.inner()) {\
+			for (auto const& [j, v] : inner.inner()) {\
+				if (!gd_compare(v, save.game->field.get(i).get(j)))\
+					printf("%s\n", fmt::format("[{}][{}]: {} != {}", i, j, v, save.game->field.get(i).get(j)).c_str());\
+			}\
+		}\
+		tr.failed++;\
+	}
+
 	#define SAVE_TEST_BITSTRING(field) \
 		SAVE_TEST_VECTOR(field.inner())
 
@@ -169,6 +186,8 @@ TestResults test_saves([[maybe_unused]] bool verbose)
 	SAVE_TEST_ARRAY(visited);
 	SAVE_TEST_VECTOR(bmaps);
 	SAVE_TEST_VECTOR(maps);
+	SAVE_TEST_SPARSE_MAP_2D(pos_states);
+	SAVE_TEST_SPARSE_MAP_2D(ffcpos_states);
 	SAVE_TEST_VECTOR(guys);
 	SAVE_TEST_VECTOR(lvlkeys);
 	SAVE_TEST_VECTOR_2D(screen_d);

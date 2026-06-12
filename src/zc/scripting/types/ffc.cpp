@@ -186,6 +186,28 @@ static ArrayRegistrar FFFLAGSD_registrar(FFFLAGSD, []{
 	return &impl;
 }());
 
+static ArrayRegistrar FFC_POSSTATE_registrar(FFC_POSSTATE, []{
+	static ScriptingArray_ObjectComputed<ffcdata, bool> impl(
+		[](ffcdata*){ return 8; },
+		[](ffcdata* ffc, int index) -> bool {
+			int mi = mapind(cur_map, ffc->screen_spawned >= 0x80 ? home_screen : ffc->screen_spawned);
+			if (mi < 0)
+				return false;
+
+			return game->ffcpos_states.get(mi).get(ffc->index % MAXFFCS) & (1 << index);
+		},
+		[](ffcdata* ffc, int index, bool value){
+			int mi = mapind(cur_map, ffc->screen_spawned >= 0x80 ? home_screen : ffc->screen_spawned);
+			if (mi < 0)
+				return;
+			
+			SETFLAG(game->ffcpos_states[mi][ffc->index % MAXFFCS], 1 << index, value);
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar FFINITDD_registrar(FFINITDD, []{
 	static ScriptingArray_ObjectMemberCArray<ffcdata, &ffcdata::initd> impl;
 	impl.compatSetDefaultValue(-10000);
