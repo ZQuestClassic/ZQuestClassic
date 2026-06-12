@@ -420,7 +420,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						),
 						TabPanel(ptr = &ffctabs[1],
 							TabRef(name = "Basic",
-								Rows_Columns<2, 5>(
+								Rows_Columns<2, 6>(
 									CHECKB("Draw Over", ffc_overlay, "If enabled, the FFC draws on a special timing above Layer 5, ignoring the 'Layer' setting."),
 									CHECKB("Translucent", ffc_trans, "The FFC draws transparently"),
 									CHECKB("Only Visible to Lens", ffc_lensvis, "If this is enabled, the FFC will not be drawn when"
@@ -431,16 +431,18 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 										" invisible."),
 									CHECKB("Active during Holdup", ffc_ignoreholdup, "If disabled, the FFC will pause all activity"
 										" during item holdup animations. Does not pause draws."),
-									
-									CHECKB("Ethereal", ffc_ethereal, "If enabled, the FFC has no 'effect', and is not checked"
-										" for any combo type related effects."),
-									CHECKB("Solid", ffc_solid, "If enabled, SHOULD make the FFC behave as solid."
-										"\nNOTE: This is not fully implemented, and may not work at all."),
 									CHECKB("Carry-Over", ffc_carryover, "If enabled, the FFC will 'Carry Over' to other screens."
 										" Upon loading a new screen, the FFC of the new screen with the same index as this FFC"
 										" will not be loaded, as this FFC will remain loaded in that slot instead. This FFC"
 										" will carry over until either a script toggles this flag off for it, or a screen with"
 										" the screen flag 'No FFC Carryover' is set is reached."),
+									
+									CHECKB("Ethereal", ffc_ethereal, "If enabled, the FFC has no 'effect', and is not checked"
+										" for any combo type related effects."),
+									CHECKB("Solid", ffc_solid, "If enabled, the FFC is solid, as a single rectangle of the 'Combo W'x'Combo H'."),
+									CHECKB("Combo-Based Solid", ffc_cmb_solid, "If enabled, the FFC is solid if the combo"
+										" assigned to the FFC is at least partially solid."
+										"\nIf 'Solid' is checked, the FFC is solid regardless."),
 									CHECKB("Stationary", ffc_stationary, "If enabled, the FFC will not move, even if it has"
 										" movement values given to it."),
 									CHECKB("Platform", ffc_platform, "If enabled, the FFC will act as a platform,"

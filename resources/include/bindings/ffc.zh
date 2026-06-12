@@ -3,7 +3,7 @@ enum FFCFlag
 {
 	FFCF_OVERLAY                   = 0,  // Draw Over (draw between layers 4 and 5).
 	FFCF_TRANS                     = 1,  // Translucent.
-	FFCF_SOLID                     = 2,  // Solidity (Partially Implemented).
+	FFCF_SOLID                     = 2,  // Solidity
 	FFCF_CARRYOVER                 = 3,  // Carry Over.
 	FFCF_STATIONARY                = 4,  // Stationary.
 	FFCF_CHANGER                   = 5,  // Is A Changer.
@@ -18,6 +18,9 @@ enum FFCFlag
 	// Acts as a 'Platform'
 	// @versionadded 3.0
 	FFCF_PLATFORM                  = 14,
+	// Solidity only if the FFC's combo has some solid part
+	// @versionadded 3.0
+	FFCF_SOLID_IF_COMBO_SOLID      = 15,
 	
 	// Changer: Become This Combo+CSet
 	// @versionadded 3.0

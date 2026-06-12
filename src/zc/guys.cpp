@@ -18685,6 +18685,7 @@ void screen_combo_modify_postroutine(const combined_handle_t& comb_handle)
 		}
 
 		ffc_handle.scr->ffcCountMarkDirty();
+		ff->updateSolid();
 	}
 }
 

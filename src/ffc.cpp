@@ -77,16 +77,28 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	}
 }
 
-bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
+bool ffcdata::checkSolid() const
 {
-	bool actual = set && !(flags&ffc_changer) && loaded;
-	bool ret = solid_object::setSolid(actual);
-	solid = set;
-	return ret;
+	if (flags & ffc_solid)
+		return true;
+	if (flags & ffc_cmb_solid)
+	{
+		auto const& cmb = combobuf[data];
+		if (cmb.walk & 0xF)
+			return true;
+	}
+	return false;
+}
+
+bool ffcdata::setSolid(bool new_solid) //exists so that ffcs can do special handling for whether to make something solid or not.
+{
+	if (!loaded || (flags&ffc_changer))
+		new_solid = false;
+	return solid_object::setSolid(new_solid);
 }
 void ffcdata::updateSolid()
 {
-	if(setSolid(flags&ffc_solid))
+	if(setSolid(checkSolid()))
 		solid_update(false);
 }
 
@@ -128,9 +140,7 @@ void ffcdata::solid_update(bool push)
 
 void ffcdata::setLoaded(bool set)
 {
-	if(loaded==set) return;
 	loaded = set;
-	updateSolid();
 }
 bool ffcdata::getLoaded() const
 {

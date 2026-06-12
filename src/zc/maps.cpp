@@ -6409,6 +6409,7 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 		base_scr->ffcs[i].y += offy;
 		base_scr->ffcs[i].current_screen = screen;
 		base_scr->ffcs[i].update_current_screen();
+		base_scr->ffcs[i].updateSolid();
 	}
 }
 

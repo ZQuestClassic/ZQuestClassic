@@ -2228,10 +2228,10 @@ RETURNFUNC; Func[int Graphics::GetTilePixel(int, int, int, int)] Body End       
 SETTILEPIXEL; Func[void Graphics::SetTilePixel(int, int, int, int)] Body Start  | 2199 resources/include/bindings/graphics.zh:149
 POPARGS D5 0.0004                                                               | 2200 resources/include/bindings/graphics.zh:149
 RETURNFUNC; Func[void Graphics::SetTilePixel(int, int, int, int)] Body End      | 2201 resources/include/bindings/graphics.zh:149
-POP D2; Func[bool ffc::Trigger(int)] Body Start                                 | 2202 resources/include/bindings/ffc.zh:173
-POP REFFFC                                                                      | 2203 resources/include/bindings/ffc.zh:173
-FFCTRIGGER D2                                                                   | 2204 resources/include/bindings/ffc.zh:173
-RETURNFUNC; Func[bool ffc::Trigger(int)] Body End                               | 2205 resources/include/bindings/ffc.zh:173
+POP D2; Func[bool ffc::Trigger(int)] Body Start                                 | 2202 resources/include/bindings/ffc.zh:176
+POP REFFFC                                                                      | 2203 resources/include/bindings/ffc.zh:176
+FFCTRIGGER D2                                                                   | 2204 resources/include/bindings/ffc.zh:176
+RETURNFUNC; Func[bool ffc::Trigger(int)] Body End                               | 2205 resources/include/bindings/ffc.zh:176
 POP D2; Func[void ZInfo::GetItemType(char32[], int)] Body Start                 | 2206 resources/include/bindings/zinfo.zh:14
 POP D3                                                                          | 2207 resources/include/bindings/zinfo.zh:14
 MODULEGETIC D3 D2                                                               | 2208 resources/include/bindings/zinfo.zh:14
@@ -7041,6 +7041,7 @@ debug data:
       - const FFCFlag FFCF_IMPRECISIONCHANGER @ Constant[120000]
       - const FFCFlag FFCF_LENSINVIS @ Constant[130000]
       - const FFCFlag FFCF_PLATFORM @ Constant[140000]
+      - const FFCFlag FFCF_SOLID_IF_COMBO_SOLID @ Constant[150000]
       - const FFCFlag FFCF_CHANGE_COMBO @ Constant[270000]
       - const FFCFlag FFCF_PREV_COMBO @ Constant[280000]
       - const FFCFlag FFCF_NEXT_COMBO @ Constant[290000]

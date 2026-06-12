@@ -236,6 +236,7 @@ void mapscr::shrinkToFitFFCs()
 		ffcs[i].update_current_screen();
 		ffcs[i].index = i;
 		ffcs[i].setLoaded(true);
+		ffcs[i].updateSolid();
 	}
 }
 
@@ -277,6 +278,7 @@ ffcdata& mapscr::getFFC(size_t ind)
 		ffcs[i].update_current_screen();
 		ffcs[i].index = i;
 		ffcs[i].setLoaded(true);
+		ffcs[i].updateSolid();
 	}
 
 	return ffcs[ind];
