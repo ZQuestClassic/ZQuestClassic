@@ -68,6 +68,7 @@ from compare_replays import (
     start_webserver,
 )
 from github import Github
+from lib.replay_helpers import read_replay_meta
 from replays import (
     Replay,
     RunReplayTestsProgress,
@@ -86,6 +87,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 replays_dir = script_dir / 'replays'
 is_ci = 'CI' in os.environ
+is_agent = 'CLAUDE' in os.environ or 'AGENT' in os.environ
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import archives
@@ -187,7 +189,7 @@ parser.add_argument(
     action='store_true',
     help='Do not prompt to create compare report',
 )
-parser.add_argument('--not_interactive', action='store_true')
+parser.add_argument('--not_interactive', action='store_true', default=is_agent or is_ci)
 parser.add_argument('--extra_args')
 parser.add_argument(
     '--for_dev_server', action=argparse.BooleanOptionalAction, default=False
