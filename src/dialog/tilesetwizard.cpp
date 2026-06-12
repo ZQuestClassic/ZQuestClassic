@@ -299,3 +299,11 @@ bool TilesetWizard::success() const
 {
 	return wizard_state == wizstate_loaded;
 }
+
+bool TilesetWizard::hasUnsavedChanges() const
+{
+	// Before a tileset is loaded no quest exists yet, so quitting loses
+	// nothing but the selections on the first page. Once one is loaded,
+	// the quest is marked unsaved and checksave() prompts on quit anyway.
+	return wizard_state != wizstate_preload;
+}

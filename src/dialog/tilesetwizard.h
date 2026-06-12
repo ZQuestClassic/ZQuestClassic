@@ -25,6 +25,7 @@ public:
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 	bool success() const;
+	bool hasUnsavedChanges() const override;
 	
 private:
 	bool loadTileset(std::string path);
