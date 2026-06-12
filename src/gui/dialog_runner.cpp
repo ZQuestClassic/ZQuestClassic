@@ -20,7 +20,7 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		if(close_button_quit)
 		{
-			dialog_open_quit = true;
+			dialog_open_quit = dr->hasUnsavedChanges();
 			handle_close_btn_quit();
 			dialog_open_quit = false;
 		}
@@ -71,6 +71,7 @@ void DialogRunner::clear()
 	done = false;
 	realized = false;
 	running = false;
+	hasChangesFunc = nullptr;
 	widgets.clear();
 	alDialog.clear();
 }
