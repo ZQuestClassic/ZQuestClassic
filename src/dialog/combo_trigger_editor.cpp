@@ -156,7 +156,7 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_SCREENUNLOAD,TRIGFLAG_PLAYERLANDHERE,
 		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
 		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
-		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,})) return true;
+		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,TRIGFLAG_COMBOPOSSTATE_CAUSE,})) return true;
 	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
 	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
 	if(trig.trigcopycat) return true;
@@ -175,7 +175,8 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		TRIGFLAG_FORCE_ICE_VX,TRIGFLAG_FORCE_ICE_VY,TRIGFLAG_CANCEL_TRIGGER,
 		TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY,
 		TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN,
-		TRIGFLAG_CMB_CHANGE_ABSOLUTE, TRIGFLAG_CSET_CHANGE_ABSOLUTE, })) return true;
+		TRIGFLAG_CMB_CHANGE_ABSOLUTE, TRIGFLAG_CSET_CHANGE_ABSOLUTE,
+		TRIGFLAG_COMBOPOSSTATE_SET,TRIGFLAG_COMBOPOSSTATE_UNSET,})) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;
@@ -1458,7 +1459,7 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						IBTN_T("ExState", "If the value is >=0, the exstate"
 							" id set here will be set when the combo is triggered,"
 							"\nand if the exstate set here is already set, the combo will automatically trigger"
-							"\nwithout any effects other than combo/cset change."),
+							"\nwithout any effects other than combo/cset change, reset anim, and copycat."),
 						//
 						Label(text = "Copycat:", fitParent = true),
 						TextField(
@@ -1735,298 +1736,333 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							" '-1' for 'none'.")
 					))
 				)),
-				TabRef(name = "Level / Screen Based", Row(
-					Column(framed = true,
-						Rows<3>(
-							Label(text = "Trig DMap Level", fitParent = true),
-							TextField(
-								fitParent = true,
-								vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigdmlevel = val;
-								}),
-							IBTN("The dmap level referenced by these settings."
-								" If '-1', uses the current dmap's level.")
-						),
-						Frame(title = "Level Items", vAlign = 0.0,
-							Column(padding = 0_px,
-								Rows<4>(
-									Label(text = "Req Items:", fitParent = true),
-									req_litems_field = TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = LI_ALL, val = local_ref.trig_levelitems,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_ref.trig_levelitems = val;
-										}),
+				TabRef(name = "Level / Screen Based", Column(
+					Row(padding = 0_px,
+						Column(framed = true,
+							Rows<3>(
+								Label(text = "Trig DMap Level", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -1, high = MAXLEVELS, val = local_ref.trigdmlevel,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_ref.trigdmlevel = val;
+									}),
+								IBTN("The dmap level referenced by these settings."
+									" If '-1', uses the current dmap's level.")
+							),
+							Frame(title = "Level Items", vAlign = 0.0,
+								Column(padding = 0_px,
+									Rows<4>(
+										Label(text = "Req Items:", fitParent = true),
+										req_litems_field = TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = LI_ALL, val = local_ref.trig_levelitems,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_ref.trig_levelitems = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "P", hAlign = 1.0, onPressFunc = [&]()
+											{
+												int32_t flags = local_ref.trig_levelitems;
+												auto const litem_names = GUI::ZCCheckListData::level_items();
+												if(!call_checklist_dialog("Select 'Req Items'",litem_names,flags))
+													return;
+												local_ref.trig_levelitems = flags;
+												req_litems_field->setVal(local_ref.trig_levelitems);
+											}
+										),
+										IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
+											"\nUse the 'P' button to pick the flags for this value.")
+									),
+									Rows_Columns<2,2>(
+										IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
+											"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+										TRIGFLAG(TRIGFLAG_LITEM_COND,"Require All"),
+										IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
+											"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+										TRIGFLAG(TRIGFLAG_LITEM_REVCOND,"Require Not All"),
+										IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
+											" If '->Unset' is also checked, the flags will be toggled instead."),
+										TRIGFLAG(TRIGFLAG_LITEM_SET,"->Set"),
+										IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
+											" If '->Set' is also checked, the flags will be toggled instead."),
+										TRIGFLAG(TRIGFLAG_LITEM_UNSET,"->Unset")
+									)
+								)
+							),
+							Frame(title = "LevelState Conditions",
+								info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
+								Rows<3>(
+									Label(text = "Req States:", fitParent = true),
 									Button(
 										width = 1.5_em, padding = 0_px, forceFitH = true,
 										text = "P", hAlign = 1.0, onPressFunc = [&]()
 										{
-											int32_t flags = local_ref.trig_levelitems;
-											auto const litem_names = GUI::ZCCheckListData::level_items();
-											if(!call_checklist_dialog("Select 'Req Items'",litem_names,flags))
+											dword flags = local_ref.req_level_state;
+											auto& lstates = GUI::ZCCheckListData::level_states();
+											if(!call_checklist_dialog("Select 'Req States'",lstates,flags,8))
 												return;
-											local_ref.trig_levelitems = flags;
-											req_litems_field->setVal(local_ref.trig_levelitems);
+											local_ref.req_level_state = flags;
 										}
 									),
-									IBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
+									IBTN("These LevelStates must be set (on the specified"
+										" Trig DMap Level) for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value."),
+									//
+									Label(text = "Unreq States:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											dword flags = local_ref.unreq_level_state;
+											auto& lstates = GUI::ZCCheckListData::level_states();
+											if(!call_checklist_dialog("Select 'Unreq States'",lstates,flags,8))
+												return;
+											local_ref.unreq_level_state = flags;
+										}
+									),
+									IBTN("These LevelStates must NOT be set (on the specified"
+										" Trig DMap Level) for this trigger to activate."
 										"\nUse the 'P' button to pick the flags for this value.")
-								),
-								Rows_Columns<2,2>(
-									IBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
-										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-									TRIGFLAG(TRIGFLAG_LITEM_COND,"Require All"),
-									IBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
-										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-									TRIGFLAG(TRIGFLAG_LITEM_REVCOND,"Require Not All"),
-									IBTN("The level flags set for 'Req Flags:' will be enabled when this trigger triggers."
-										" If '->Unset' is also checked, the flags will be toggled instead."),
-									TRIGFLAG(TRIGFLAG_LITEM_SET,"->Set"),
-									IBTN("The level flags set for 'Req Flags:' will be disabled when this trigger triggers."
-										" If '->Set' is also checked, the flags will be toggled instead."),
-									TRIGFLAG(TRIGFLAG_LITEM_UNSET,"->Unset")
 								)
 							)
 						),
-						Frame(title = "LevelState Conditions",
-							info = "These are 'Conditions'. They won't trigger the combo on their own, but they must apply for other triggers to work.",
-							Rows<3>(
-								Label(text = "Req States:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
+						Column(framed = true,
+							Rows<4>(
+								Label(text = "Trig Map / Screen", fitParent = true),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = map_count,
+									val = local_ref.trigstatemap, minwidth = 4_em,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										dword flags = local_ref.req_level_state;
-										auto& lstates = GUI::ZCCheckListData::level_states();
-										if(!call_checklist_dialog("Select 'Req States'",lstates,flags,8))
-											return;
-										local_ref.req_level_state = flags;
-									}
-								),
-								IBTN("These LevelStates must be set (on the specified"
-									" Trig DMap Level) for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value."),
-								//
-								Label(text = "Unreq States:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
+										local_ref.trigstatemap = (byte)val;
+									}),
+								TextField(
+									fitParent = true, vPadding = 0_px,
+									type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+									low = 0, high = MAPSCRSNORMAL-1,
+									val = local_ref.trigstatescreen, swap_type = nswapHEX,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										dword flags = local_ref.unreq_level_state;
-										auto& lstates = GUI::ZCCheckListData::level_states();
-										if(!call_checklist_dialog("Select 'Unreq States'",lstates,flags,8))
-											return;
-										local_ref.unreq_level_state = flags;
-									}
-								),
-								IBTN("These LevelStates must NOT be set (on the specified"
-									" Trig DMap Level) for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value.")
+										local_ref.trigstatescreen = (byte)val;
+									}),
+								IBTN("The map/screen referenced by these settings."
+									" If map is '0', uses the combo's screen.")
+							),
+							Frame(title = "Screen State / ExState",
+								Rows<3>(
+									Label(text = "Req States:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_state;
+											auto& states = GUI::ZCCheckListData::screen_state();
+											if(!call_checklist_dialog("Select 'Req States'",states,flags,8))
+												return;
+											local_ref.req_screen_state = flags;
+										}
+									),
+									IBTN("These screen states must be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value."),
+									//
+									Label(text = "Unreq States:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_state;
+											auto& states = GUI::ZCCheckListData::screen_state();
+											if(!call_checklist_dialog("Select 'Unreq States'",states,flags,8))
+												return;
+											local_ref.unreq_screen_state = flags;
+										}
+									),
+									IBTN("These screen states must NOT be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value."),
+									Label(text = "Req ExStates:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_ex_state;
+											auto& states = GUI::ZCCheckListData::ex_state();
+											if(!call_checklist_dialog("Select 'Req ExStates'",states,flags,8))
+												return;
+											local_ref.req_screen_ex_state = flags;
+										}
+									),
+									IBTN("These screen ExStates must be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value."),
+									//
+									Label(text = "Unreq ExStates:", fitParent = true),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_ex_state;
+											auto& states = GUI::ZCCheckListData::ex_state();
+											if(!call_checklist_dialog("Select 'Unreq ExStates'",states,flags,8))
+												return;
+											local_ref.unreq_screen_ex_state = flags;
+										}
+									),
+									IBTN("These screen ExStates must NOT be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value.")
+								)
+							),
+							Frame(title = "Screen ExDoors",
+								Rows<6>(
+									_d,
+									Label(text = "U"),
+									Label(text = "D"),
+									Label(text = "L"),
+									Label(text = "R"),
+									_d,
+									//
+									Label(text = "Req:"),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_ex_door[up];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Req ExDoors[Up]'",states,flags,4))
+												return;
+											local_ref.req_screen_ex_door[up] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_ex_door[down];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Req ExDoors[Down]'",states,flags,4))
+												return;
+											local_ref.req_screen_ex_door[down] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_ex_door[left];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Req ExDoors[Left]'",states,flags,4))
+												return;
+											local_ref.req_screen_ex_door[left] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.req_screen_ex_door[right];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Req ExDoors[Right]'",states,flags,4))
+												return;
+											local_ref.req_screen_ex_door[right] = flags;
+										}
+									),
+									IBTN("These screen ExDoors must be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value for each direction."),
+									//
+									Label(text = "Unreq:"),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_ex_door[up];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Unreq ExDoors[Up]'",states,flags,4))
+												return;
+											local_ref.unreq_screen_ex_door[up] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_ex_door[down];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Unreq ExDoors[Down]'",states,flags,4))
+												return;
+											local_ref.unreq_screen_ex_door[down] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_ex_door[left];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Unreq ExDoors[Left]'",states,flags,4))
+												return;
+											local_ref.unreq_screen_ex_door[left] = flags;
+										}
+									),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											auto flags = local_ref.unreq_screen_ex_door[right];
+											auto& states = GUI::ZCCheckListData::ex_doors();
+											if(!call_checklist_dialog("Select 'Unreq ExDoors[Right]'",states,flags,4))
+												return;
+											local_ref.unreq_screen_ex_door[right] = flags;
+										}
+									),
+									IBTN("These screen ExDoors must NOT be set for this trigger to activate."
+										"\nUse the 'P' button to pick the flags for this value for each direction.")
+									//
+								)
 							)
 						)
 					),
-					Column(framed = true,
-						Rows<4>(
-							Label(text = "Trig Map / Screen", fitParent = true),
-							TextField(
-								fitParent = true, vPadding = 0_px,
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = map_count,
-								val = local_ref.trigstatemap, minwidth = 4_em,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigstatemap = (byte)val;
-								}),
-							TextField(
-								fitParent = true, vPadding = 0_px,
-								type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-								low = 0, high = MAPSCRSNORMAL-1,
-								val = local_ref.trigstatescreen, swap_type = nswapHEX,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_ref.trigstatescreen = (byte)val;
-								}),
-							IBTN("The map/screen referenced by these settings."
-								" If map is '0', uses the combo's screen.")
-						),
-						Frame(title = "Screen State",
-							Rows<3>(
-								Label(text = "Req States:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
+					Frame(title = "Position States",
+						info = "These states are based on the specific position of this combo."
+							" All layers share the same position states. FFCs have their own separate"
+							" position states.",
+						Column(
+							Row(padding = 0_px,
+								Label(text = "State Number:"),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 7, val = local_ref.combopos_state,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										auto flags = local_ref.req_screen_state;
-										auto& states = GUI::ZCCheckListData::screen_state();
-										if(!call_checklist_dialog("Select 'Req States'",states,flags,8))
-											return;
-										local_ref.req_screen_state = flags;
-									}
-								),
-								IBTN("These screen states must be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value."),
-								//
-								Label(text = "Unreq States:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_state;
-										auto& states = GUI::ZCCheckListData::screen_state();
-										if(!call_checklist_dialog("Select 'Unreq States'",states,flags,8))
-											return;
-										local_ref.unreq_screen_state = flags;
-									}
-								),
-								IBTN("These screen states must NOT be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value.")
-							)
-						),
-						Frame(title = "Screen ExState",
-							Rows<3>(
-								Label(text = "Req ExStates:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.req_screen_ex_state;
-										auto& states = GUI::ZCCheckListData::ex_state();
-										if(!call_checklist_dialog("Select 'Req ExStates'",states,flags,8))
-											return;
-										local_ref.req_screen_ex_state = flags;
-									}
-								),
-								IBTN("These screen ExStates must be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value."),
-								//
-								Label(text = "Unreq ExStates:", fitParent = true),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_ex_state;
-										auto& states = GUI::ZCCheckListData::ex_state();
-										if(!call_checklist_dialog("Select 'Unreq ExStates'",states,flags,8))
-											return;
-										local_ref.unreq_screen_ex_state = flags;
-									}
-								),
-								IBTN("These screen ExStates must NOT be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value.")
-							)
-						),
-						Frame(title = "Screen ExDoors",
-							Rows<6>(
-								_d,
-								Label(text = "U"),
-								Label(text = "D"),
-								Label(text = "L"),
-								Label(text = "R"),
-								_d,
-								//
-								Label(text = "Req:"),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.req_screen_ex_door[up];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Req ExDoors[Up]'",states,flags,4))
-											return;
-										local_ref.req_screen_ex_door[up] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.req_screen_ex_door[down];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Req ExDoors[Down]'",states,flags,4))
-											return;
-										local_ref.req_screen_ex_door[down] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.req_screen_ex_door[left];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Req ExDoors[Left]'",states,flags,4))
-											return;
-										local_ref.req_screen_ex_door[left] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.req_screen_ex_door[right];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Req ExDoors[Right]'",states,flags,4))
-											return;
-										local_ref.req_screen_ex_door[right] = flags;
-									}
-								),
-								INFOBTN("These screen ExDoors must be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value for each direction."),
-								//
-								Label(text = "Unreq:"),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_ex_door[up];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Unreq ExDoors[Up]'",states,flags,4))
-											return;
-										local_ref.unreq_screen_ex_door[up] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_ex_door[down];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Unreq ExDoors[Down]'",states,flags,4))
-											return;
-										local_ref.unreq_screen_ex_door[down] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_ex_door[left];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Unreq ExDoors[Left]'",states,flags,4))
-											return;
-										local_ref.unreq_screen_ex_door[left] = flags;
-									}
-								),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "P", hAlign = 1.0, onPressFunc = [&]()
-									{
-										auto flags = local_ref.unreq_screen_ex_door[right];
-										auto& states = GUI::ZCCheckListData::ex_doors();
-										if(!call_checklist_dialog("Select 'Unreq ExDoors[Right]'",states,flags,4))
-											return;
-										local_ref.unreq_screen_ex_door[right] = flags;
-									}
-								),
-								INFOBTN("These screen ExDoors must NOT be set for this trigger to activate."
-									"\nUse the 'P' button to pick the flags for this value for each direction.")
-								//
+										local_ref.combopos_state = val;
+									}),
+								IBTN("Which state number (0-7) to use for the below flags.")
+							),
+							Rows_Columns<2,3>(
+								IBTN("This combo position's specified state number needs to be set for this to trigger."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(TRIGFLAG_COMBOPOSSTATE_REQ,"Require"),
+								IBTN("This combo position's specified state number needs to NOT be set for this to trigger."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(TRIGFLAG_COMBOPOSSTATE_UNREQ,"Require Not"),
+								IBTN("This combo position's specified state number being set will cause this to trigger"
+									" without any effects other than combo/cset change, reset anim, and copycat."),
+								TRIGFLAG(TRIGFLAG_COMBOPOSSTATE_CAUSE,"Cause"),
+								IBTN("This combo position's specified state number will be set."
+									" If '->Unset' is also checked, the state will be toggled instead."),
+								TRIGFLAG(TRIGFLAG_COMBOPOSSTATE_SET,"->Set"),
+								IBTN("This combo position's specified state number will be unset."
+									" If '->Set' is also checked, the state will be toggled instead."),
+								TRIGFLAG(TRIGFLAG_COMBOPOSSTATE_UNSET,"->Unset")
 							)
 						)
 					)

@@ -902,6 +902,11 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 				return 142;
 		}
 	}
+	if (s_version >= 70)
+	{
+		if(!p_getc(&temp_trigger.combopos_state, f))
+			return 143;
+	}
 	return 0;
 }
 
@@ -1691,6 +1696,8 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 		if(!p_putbitstr(tmp_trig.unreq_screen_ex_door[dir], f))
 			return 142;
 	}
+	if(!p_putc(tmp_trig.combopos_state, f))
+		return 143;
 	return 0;
 }
 

@@ -147,6 +147,7 @@ rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y);
 std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos);
 
 int32_t mapind(int32_t map, int32_t screen);
+int32_t mapind(mapscr* scr, bool check_home = true);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
 extern int32_t view_map_show_mode;
@@ -427,6 +428,9 @@ bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, b
 bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, byte xflag, bool triggers);
 void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, bool triggers = false);
 void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers = false);
+
+void clear_combopos_combos_mi(const screen_handles_t& screen_handles, int mi);
+void clear_combopos_combos(const screen_handles_t& screen_handles);
 
 bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers = false);
 bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers);

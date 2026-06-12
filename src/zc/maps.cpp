@@ -1084,6 +1084,10 @@ int32_t mapind(int32_t map, int32_t screen)
 {
 	return map * MAPSCRSNORMAL + screen;
 }
+int32_t mapind(mapscr* scr, bool check_home)
+{
+	return mapind(scr->map, check_home && scr->screen >= 0x80 ? home_screen : scr->screen);
+}
 
 FONT *get_zc_font(int index);
 
@@ -1545,6 +1549,7 @@ static void apply_state_changes_to_screen_handles(const screen_handles_t& screen
 	int mi = mapind(map, screen);
 	clear_xdoors_mi(screen_handles, mi);
 	clear_xstatecombos_mi(screen_handles, mi);
+	clear_combopos_combos_mi(screen_handles, mi);
 
 	handle_screen_load_trigger(screen_handles);
 }
@@ -1780,7 +1785,7 @@ void eventlog_mapflags()
 void setmapflag(mapscr* scr, uint32_t flag)
 {
 	if (scr->screen >= 0x80) scr = special_warp_return_scr;
-	int mi = mapind(cur_map, scr->screen);
+	int mi = mapind(scr);
 	setmapflag_mi(scr, mi, flag);
 }
 void setmapflag_homescr(uint32_t flag)
@@ -1871,7 +1876,7 @@ void unsetmapflag_home(uint32_t flag, bool anyflag)
 void unsetmapflag(mapscr* scr, uint32_t flag, bool anyflag)
 {
 	if (scr->screen >= 0x80) scr = special_warp_return_scr;
-	int mi = mapind(cur_map, scr->screen);
+	int mi = mapind(scr);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
@@ -1943,7 +1948,7 @@ bool getmapflag(int32_t screen, uint32_t flag)
 }
 bool getmapflag(mapscr* scr, uint32_t flag)
 {
-	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(scr);
 	return (game->maps.get(mi) & flag) != 0;
 }
 
@@ -2056,13 +2061,14 @@ bool getxmapflag(int32_t screen, uint32_t flag)
 }
 bool getxmapflag(mapscr* scr, uint32_t flag)
 {
-	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(scr);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi, uint32_t flag)
 {
 	return (game->xstates.get(mi) & flag) != 0;
 }
+
 
 void setxdoor_mi(uint mi, uint dir, uint ind, bool state)
 {
@@ -2093,7 +2099,7 @@ bool getxdoor(int32_t screen, uint dir, uint ind)
 }
 bool getxdoor(mapscr* scr, uint dir, uint ind)
 {
-	int mi = mapind(scr->map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(scr);
 	return getxdoor_mi(mi,dir,ind);
 }
 
@@ -2905,6 +2911,21 @@ void clear_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, b
 	{
 		remove_xstatecombos_mi(screen_handles, mi, q, triggers);
 	}
+}
+
+void clear_combopos_combos_mi(const screen_handles_t& screen_handles, int mi)
+{
+	if (game->pos_states.contains(mi) || game->ffcpos_states.contains(mi))
+	{
+		for_every_combo_in_screen(screen_handles, [&](const auto& handle) {
+			force_combopos_trigger_any(handle, mi);
+		});
+	}
+}
+void clear_combopos_combos(const screen_handles_t& screen_handles)
+{
+	auto mi = mapind(screen_handles[0].base_scr);
+	clear_combopos_combos_mi(screen_handles, mi);
 }
 
 bool remove_xdoors(const screen_handles_t& screen_handles, uint dir, uint ind, bool triggers)
@@ -6446,6 +6467,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		
 		clear_xdoors_mi(screen_handles, mi, true);
 		clear_xstatecombos_mi(screen_handles, mi, true);
+		clear_combopos_combos_mi(screen_handles, mi);
 	}
 
 	// check doors
@@ -6880,6 +6902,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 
 	clear_xdoors(screen_handles, true);
 	clear_xstatecombos(screen_handles, true);
+	clear_combopos_combos(screen_handles);
 
 	// check doors
 	if (isdungeon(destdmap, screen))

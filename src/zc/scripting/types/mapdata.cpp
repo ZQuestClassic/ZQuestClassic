@@ -3,6 +3,7 @@
 #include "base/check.h"
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
+#include "zc/maps.h"
 #include "zc/guys.h"
 #include "zc/scripting/arrays.h"
 #include "zc/scripting/types/musicdata.h"
@@ -1252,10 +1253,43 @@ static ArrayRegistrar MAPDATASCREENSTATED_registrar(MAPDATASCREENSTATED, []{
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);
+			if (mi < 0)
+				return;
+			
 			if (value)
 				setmapflag_mi(mi, 1 << index);
 			else
 				unsetmapflag_mi(mi, 1 << index);
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
+
+static ArrayRegistrar MAPDATACOMBOPOSSTATE_registrar(MAPDATACOMBOPOSSTATE, []{
+	static ScriptingArray_ObjectComputed<mapdata, int> impl(
+		[](mapdata* mapdata){
+			return mapdata->max_pos() + 1;
+		},
+		[](mapdata* mapdata, int index) -> int {
+			auto rpos_handle = mapdata->resolve_pos(index);
+			if (!rpos_handle)
+				return 0;
+			int mi = mapind(rpos_handle.base_scr);
+			if (mi < 0)
+				return 0;
+
+			return game->pos_states.get(mi).get(index % 176);
+		},
+		[](mapdata* mapdata, int index, int value){
+			auto rpos_handle = mapdata->resolve_pos(index);
+			if (!rpos_handle)
+				return;
+			int mi = mapind(rpos_handle.base_scr);
+			if (mi < 0)
+				return;
+			
+			game->pos_states[mi][index % 176] = value;
 		}
 	);
 	impl.setMul10000(true);
@@ -1274,6 +1308,9 @@ static ArrayRegistrar MAPDATAEXSTATED_registrar(MAPDATAEXSTATED, []{
 		},
 		[](mapdata* mapdata, int index, bool value){
 			int mi = get_mi(*mapdata);
+			if (mi < 0)
+				return;
+			
 			if (value)
 				setxmapflag_mi(mi, 1 << index);
 			else
@@ -1654,6 +1691,36 @@ static ffcdata* resolve_ffc_for_scripting_index(mapdata* mapdata, int index)
 {
 	return resolve_ffc_handle_for_scripting_index(mapdata, index).ffc;
 }
+
+static ArrayRegistrar MAPDATAFFCPOSSTATE_registrar(MAPDATAFFCPOSSTATE, []{
+	static ScriptingArray_ObjectComputed<mapdata, int> impl(
+		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
+		[](mapdata* mapdata, int index) -> int {
+			auto ffc_handle = resolve_ffc_handle_for_scripting_index(mapdata, index);
+			if (!ffc_handle)
+				return 0;
+			
+			int mi = mapind(ffc_handle.scr);
+			if (mi < 0)
+				return 0;
+			index = (index - 1) % MAXFFCS;
+			return game->ffcpos_states.get(mi).get(index);
+		},
+		[](mapdata* mapdata, int index, int value){
+			auto ffc_handle = resolve_ffc_handle_for_scripting_index(mapdata, index);
+			if (!ffc_handle)
+				return;
+			
+			int mi = mapind(ffc_handle.scr);
+			if (mi < 0)
+				return;
+			index = (index - 1) % MAXFFCS;
+			game->ffcpos_states[mi][index] = value;
+		}
+	);
+	impl.setMul10000(true);
+	return &impl;
+}());
 
 static ArrayRegistrar MAPDATAFFCSET_registrar(MAPDATAFFCSET, []{
 	static ScriptingArray_ObjectComputed<mapdata, int> impl(

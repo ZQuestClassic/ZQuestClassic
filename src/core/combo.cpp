@@ -253,11 +253,24 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 	{
 		bool cause_ex1 = exstate > -1 && !trigger_flags.get(TRIGFLAG_UNSETEXSTATE);
 		bool cause_ex2 = exdoor_dir > -1 && !trigger_flags.get(TRIGFLAG_UNSETEXDOOR);
+		bool cause_ex3 = trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_CAUSE);
+		bool first = true;
 		if (cause_ex1)
-			causes << indent << fmt::format("ExState {}", exstate);
+		{
+			causes << (first ? indent : ", ") << fmt::format("ExState {}", exstate);
+			first = false;
+		}
 		if (cause_ex2)
-			causes << (cause_ex1 ? ", " : indent) << fmt::format("ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
-		if (cause_ex1 || cause_ex2)
+		{
+			causes << (first ? indent : ", ") << fmt::format("ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
+			first = false;
+		}
+		if (cause_ex3)
+		{
+			causes << (first ? indent : ", ") << fmt::format("PosState {}", combopos_state);
+			first = false;
+		}
+		if (cause_ex1 || cause_ex2 || cause_ex3)
 			causes << " (only causes 'Combo Change'/'CSet Change', prevents other causes)\n";
 
 		if (trigger_flags.get(TRIGFLAG_CMBTYPECAUSES))
@@ -706,6 +719,10 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 				conditions << indent << fmt::format("Screen ExDoor[{}]{} [{}] disabled for {}\n", dirstr[dir], s, state_str, statescreen_str);
 			}
 		}
+		if (trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_REQ))
+			conditions << indent << fmt::format("This combo position's PosState #{} is set\n", int(combopos_state));
+		if (trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_UNREQ))
+			conditions << indent << fmt::format("This combo position's PosState #{} is NOT set\n", int(combopos_state));
 
 		if (trigctramnt)
 		{
@@ -993,6 +1010,21 @@ if (var > -2) \
 				effects << indent << fmt::format("Unsets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
 			else
 				effects << indent << fmt::format("Sets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
+		}
+		{
+			bool do_set = trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_SET);
+			bool do_unset = trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_UNSET);
+			if (do_set || do_unset)
+			{
+				string verb;
+				if (do_set && do_unset)
+					verb = "Toggle";
+				else if (do_set)
+					verb = "Set";
+				else
+					verb = "Unset";
+				effects << indent << fmt::format("{}s this combo position's PosState #{}\n", verb, int(combopos_state));
+			}
 		}
 
 		if (trigger_flags.get(TRIGFLAG_LEVELSTATE))

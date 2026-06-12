@@ -126,6 +126,15 @@ int32_t combotrigger_get_register(int32_t reg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIGPOSSTATE:
+		{
+			if (trig)
+			{
+				ret = trig->combopos_state * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		case CMBTRIGGENSCRIPT:
 		{
 			if (trig)
@@ -695,6 +704,11 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		case CMBTRIGEXSTATE:
 		{
 			trig->exstate = vbound(value/10000, -1, 31);
+			break;
+		}
+		case CMBTRIGPOSSTATE:
+		{
+			trig->combopos_state = vbound(value/10000, 0, 7);
 			break;
 		}
 		case CMBTRIGGENSCRIPT:

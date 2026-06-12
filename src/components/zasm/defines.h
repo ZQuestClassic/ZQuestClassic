@@ -3409,6 +3409,11 @@ enum ASM_DEFINE
 #define CMBTRIG_UNREQ_SCREXDOOR        0x16C8
 #define ITEMPICKUPEXSTATE              0x16C9
 #define NPCDEATHEXSTATE                0x16CA
+#define SCREENCOMBOPOSSTATE            0x16CB
+#define MAPDATACOMBOPOSSTATE           0x16CC
+#define MAPDATAFFCPOSSTATE             0x16CD
+#define FFC_POSSTATE                   0x16CE
+#define CMBTRIGPOSSTATE                0x16CF
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

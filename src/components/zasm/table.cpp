@@ -2726,6 +2726,11 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIG_UNREQ_SCREXDOOR", CMBTRIG_UNREQ_SCREXDOOR, 0 },
 	{ "ITEMPICKUPEXSTATE", ITEMPICKUPEXSTATE, 0 },
 	{ "NPCDEATHEXSTATE", NPCDEATHEXSTATE, 0 },
+	{ "SCREENCOMBOPOSSTATE", SCREENCOMBOPOSSTATE, 0 },
+	{ "MAPDATACOMBOPOSSTATE", MAPDATACOMBOPOSSTATE, 0 },
+	{ "MAPDATAFFCPOSSTATE", MAPDATAFFCPOSSTATE, 0 },
+	{ "FFC_POSSTATE", FFC_POSSTATE, 0 },
+	{ "CMBTRIGPOSSTATE", CMBTRIGPOSSTATE, 0 },
 	{"", -1},
 };
 
@@ -3402,6 +3407,10 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case SUBWIDGTY_CSET:
 		case SUBWIDGTY_TILE:
 		case WEBSOCKET_URL:
+		case SCREENCOMBOPOSSTATE:
+		case MAPDATACOMBOPOSSTATE:
+		case MAPDATAFFCPOSSTATE:
+		case FFC_POSSTATE:
 		{
 			return {rINDEX};
 		}
@@ -3660,6 +3669,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGUNREQSCRSTATE:
 		case CMBTRIGWAVYTIME:
 		case CMBTRIGWPNLEVEL:
+		case CMBTRIGPOSSTATE:
 			return REFCOMBOTRIGGER;
 
 		case DIRECTORYSIZE:
@@ -3811,6 +3821,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case FFCLAYER:
 		case FFCWIDTH:
 		case FFFLAGSD:
+		case FFC_POSSTATE:
 		case FFINITDD:
 		case FFLINK:
 		case FFMISCD:
@@ -4164,6 +4175,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case MAPDATASCREENFLAGSD:
 		case MAPDATASCREENMIDI:
 		case MAPDATASCREENSTATED:
+		case MAPDATACOMBOPOSSTATE:
+		case MAPDATAFFCPOSSTATE:
 		case MAPDATASCRIPT:
 		case MAPDATASCRIPTDRAWS:
 		case MAPDATASECRETCOMBO:
@@ -4554,6 +4567,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SCREENSECRETSTRIGGERED:
 		case SCREENSIDEWARPID:
 		case SCREENSTATED:
+		case SCREENCOMBOPOSSTATE:
 		case SDD:
 		case UNDERCOMBO:
 		case UNDERCSET:
