@@ -68,6 +68,7 @@ from compare_replays import (
     start_webserver,
 )
 from github import Github
+from lib.replay_helpers import read_replay_meta
 from replays import (
     Replay,
     RunReplayTestsProgress,
