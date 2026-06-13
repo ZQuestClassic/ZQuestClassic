@@ -1,5 +1,6 @@
 #include "base/general.h"
 #include "base/util.h"
+#include "base/zc_math.h"
 #include "core/combo.h"
 #include "core/handles.h"
 #include "core/qrs.h"
@@ -1760,8 +1761,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 		}
 		else
 		{
-			double _MSVC2022_tmp1, _MSVC2022_tmp2;
-			double at_player = atan2_MSVC2022_FIX(double(Hero.getY()-wy),double(Hero.getX()-wx));
+			double at_player = zc::math::ArcTan2(double(Hero.getY()-wy),double(Hero.getX()-wx));
 			at_player = WrapAngle(at_player);
 			switch(zdegrees.getTrunc())
 			{

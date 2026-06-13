@@ -20677,8 +20677,7 @@ void HeroClass::autowalk_move()
 	int dir_x = (autowalk_dest_x > x) - (autowalk_dest_x < x);
 	int dir_y = (autowalk_dest_y > y) - (autowalk_dest_y < y);
 	
-	double _MSVC2022_tmp1, _MSVC2022_tmp2;
-	double angle = atan2_MSVC2022_FIX(double(autowalk_dest_y-y),double(autowalk_dest_x-x));
+	double angle = zc::math::ArcTan2(double(autowalk_dest_y-y),double(autowalk_dest_x-x));
 	zfix dx, dy;
 	if(x != autowalk_dest_x)
 		dx = zc::math::Cos(angle)*pix_dist;

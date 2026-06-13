@@ -3680,8 +3680,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	// This obscure quest rule...
 	if(get_qr(qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
 	{
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(wpny-y),double(x-wpnx));
+		double ddir=zc::math::ArcTan2(double(wpny-y),double(x-wpnx));
 		wpnDir=zc_oldrand()&3;
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
@@ -7239,8 +7238,7 @@ waves2:
 		tilerows = 2;
 		int fakex = x + 8*(zc_max(1,txsz)-1);
 		int fakey = y + 8*(zc_max(1,tysz)-1);
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(fakey-(Hero.y)),double(Hero.x-fakex));
+		double ddir=zc::math::ArcTan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 		int32_t lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -9385,8 +9383,7 @@ bool eTrap::animate(int32_t index)
 	{
 		ox = x;
 		oy = y;
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -10155,8 +10152,7 @@ bool eProjectile::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	double _MSVC2022_tmp1, _MSVC2022_tmp2;
-	double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+	double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 	
 	if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 	{
@@ -10275,8 +10271,7 @@ bool eNPC::animate(int32_t index)
 	{
 	case 0:
 	{
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -10355,8 +10350,7 @@ void eSpinTile::facehero()
 	}
 	else
 	{
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
 		{
@@ -10413,8 +10407,7 @@ bool eSpinTile::animate(int32_t index)
 	if(misc==96)
 	{
 		facehero();
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double((Hero.y)-y),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double((Hero.y)-y),double(Hero.x-x));
 		angular=true;
 		angle=ddir;
 		step=zslongToFix(dstep*100);
@@ -10465,8 +10458,7 @@ void eZora::facehero()
 	}
 	else
 	{
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -11110,8 +11102,7 @@ bool eStalfos::animate(int32_t index)
 			}
 			else //turn to face Hero
 			{
-				double _MSVC2022_tmp1, _MSVC2022_tmp2;
-				double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+				double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 				
 				if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
 				{
@@ -15541,8 +15532,7 @@ bool ePatra::animate(int32_t index)
 				temp_y=circle_y;
 			}
 			
-			double _MSVC2022_tmp1, _MSVC2022_tmp2;
-			double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
+			double ddir=zc::math::ArcTan2(double(temp_y),double(temp_x));
 			
 			if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 			{
@@ -15634,7 +15624,7 @@ bool ePatra::animate(int32_t index)
 					}
 					break;
 				}
-			} //ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
+			} //ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
 		}
 		if (clk6 < 0)
 		{
@@ -15796,8 +15786,7 @@ bool ePatra::animate(int32_t index)
 					temp_y=circle_y;
 				}
 				
-				double _MSVC2022_tmp1, _MSVC2022_tmp2;
-				double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
+				double ddir=zc::math::ArcTan2(double(temp_y),double(temp_x));
 				
 				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 				{
@@ -15912,7 +15901,7 @@ bool ePatra::animate(int32_t index)
 										int32_t m=Ewpns.Count()-1;
 										weapon *ew = (weapon*)(Ewpns.spr(m));
 										
-										ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
+										ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
 										((esPatra*)guys.spr(i))->clk5 = 0;
 										clk5 = 0;
 										if (editorflags & ENEMY_FLAG6) clk4 = 16;
@@ -15925,7 +15914,7 @@ bool ePatra::animate(int32_t index)
 									int32_t m=Ewpns.Count()-1;
 									weapon *ew = (weapon*)(Ewpns.spr(m));
 									
-									ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
+									ew->setAngle(zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x)));
 								}
 								break;
 							}
@@ -16379,8 +16368,7 @@ bool ePatraBS::animate(int32_t index)
 				guys.spr(i)->y = temp_y;
 			}
 			
-			double _MSVC2022_tmp1, _MSVC2022_tmp2;
-			double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
+			double ddir=zc::math::ArcTan2(double(temp_y),double(temp_x));
 			
 			if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 			{
@@ -16430,8 +16418,7 @@ void ePatraBS::draw(BITMAP *dest)
 	
 	if(get_qr(qr_NEWENEMYTILES))
 	{
-		double _MSVC2022_tmp1, _MSVC2022_tmp2;
-		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
+		double ddir=zc::math::ArcTan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{

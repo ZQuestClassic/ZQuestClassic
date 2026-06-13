@@ -473,7 +473,9 @@ if(MSVC)
 	# error D8016: '/O2' and '/RTC1' command-line options are incompatible
 	# set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
 else()
-	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
+	# -O3 defines __OPTIMIZE__, which clang refuses to mix with a PCH built at a
+	# lower opt level (Asan/Debug). Skip the PCH for this one file.
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3 SKIP_PRECOMPILE_HEADERS ON)
 endif()
 
 # Make __FILE__ relative to the source directory.
@@ -597,6 +599,7 @@ if(WANT_ZC_TESTS)
 		src/test_runner/base_test_runner.cpp
 		src/test_runner/test_runner.cpp
 		src/components/scc/scc_test.cpp
+		src/base/zc_math_test.cpp
 	)
 	target_link_libraries(base_test_runner PRIVATE base scc)
 

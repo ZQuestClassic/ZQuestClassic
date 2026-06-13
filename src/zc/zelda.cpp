@@ -1264,7 +1264,7 @@ void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t paren
 zfix distance(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 {
-    return (zfix)sqrt(pow((double)abs(x1-x2),2)+pow((double)abs(y1-y2),2));
+    return (zfix)sqrt(zc::math::Pow((double)abs(x1-x2),2)+zc::math::Pow((double)abs(y1-y2),2));
 }
 
 bool getClock()

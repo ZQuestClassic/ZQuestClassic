@@ -596,8 +596,7 @@ void weapon::setAngle(double angletoset)
 void weapon::seekHero()
 {
     angular = true;
-    double _MSVC2022_tmp1, _MSVC2022_tmp2;
-    angle = atan2_MSVC2022_FIX(double(HeroY()-y),double(HeroX()-x));
+    angle = zc::math::ArcTan2(double(HeroY()-y),double(HeroX()-x));
     doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
@@ -627,7 +626,6 @@ void weapon::seekEnemy(int32_t j)
         
         for(int32_t i=0; i<GuyCount(); i++)
         {
-            //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(x,y,GuyX(i),GuyY(i));
             
             if((tempdistance<mindistance)&&(GuyID(i)>=10) && !GuySuperman(i))
@@ -643,8 +641,7 @@ void weapon::seekEnemy(int32_t j)
         return;
     }
 
-    double _MSVC2022_tmp1, _MSVC2022_tmp2;
-    angle = atan2_MSVC2022_FIX(double(GuyY(j)-y),double(GuyX(j)-x));
+    angle = zc::math::ArcTan2(double(GuyY(j)-y),double(GuyX(j)-x));
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -668,7 +665,6 @@ int32_t weapon::seekEnemy2(int32_t j)
         
         for(int32_t i=0; i<GuyCount(); i++)
         {
-            //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(dummy_fix[0],dummy_fix[1],GuyX(i),GuyY(i));
             
             if((tempdistance<mindistance)&&(GuyID(i)>=10) && !GuySuperman(i))
@@ -684,8 +680,7 @@ int32_t weapon::seekEnemy2(int32_t j)
         return j;
     }
     
-    double _MSVC2022_tmp1, _MSVC2022_tmp2;
-    angle = atan2_MSVC2022_FIX(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
+    angle = zc::math::ArcTan2(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
     doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
@@ -4059,7 +4054,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 			double xdiff = -(zc::math::Sin((double)clk/speed) * radius);
 			double ydiff = (zc::math::Cos((double)clk/speed) * radius);
 			
-			double ddir=atan2(double(ydiff),double(xdiff));
+			double ddir=zc::math::ArcTan2(double(ydiff),double(xdiff));
 			
 			if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 				dir=r_up;

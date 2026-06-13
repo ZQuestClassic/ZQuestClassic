@@ -1,3 +1,4 @@
+#include "base/zc_math.h"
 #include "core/zdefs.h"
 #include "new_subscr.h"
 #include "subscr.h"
@@ -2706,7 +2707,7 @@ static string format_counter(int value, int max_value, byte mindigits, byte maxd
 	{
 		if(maxdigits)
 		{
-			auto mval = pow(10,maxdigits);
+			auto mval = zc::math::Pow(10,maxdigits);
 			if(value >= mval)
 				value = mval-1;
 		}
@@ -2719,7 +2720,7 @@ static string format_counter(int value, int max_value, byte mindigits, byte maxd
 	{
 		if(maxdigits)
 		{
-			auto mval = pow(10,maxdigits);
+			auto mval = zc::math::Pow(10,maxdigits);
 			if(max_value >= mval)
 				max_value = mval-1;
 		}

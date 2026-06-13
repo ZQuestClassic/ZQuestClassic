@@ -3389,7 +3389,7 @@ void do_asin(const bool v)
 	double temp = double(SH::get_arg(sarg2, v)) / 10000.0;
 	
 	if(temp >= -1 && temp <= 1)
-		set_register(sarg1, int32_t(asin(temp) * 10000.0));
+		set_register(sarg1, int32_t(zc::math::ArcSin(temp) * 10000.0));
 	else
 	{
 		Z_scripterrlog("Script attempted to pass %f into ArcSin!\n",temp);
@@ -3402,7 +3402,7 @@ void do_acos(const bool v)
 	double temp = double(SH::get_arg(sarg2, v)) / 10000.0;
 	
 	if(temp >= -1 && temp <= 1)
-		set_register(sarg1, int32_t(acos(temp) * 10000.0));
+		set_register(sarg1, int32_t(zc::math::ArcCos(temp) * 10000.0));
 	else
 	{
 		Z_scripterrlog("Script attempted to pass %f into ArcCos!\n",temp);
@@ -3414,8 +3414,8 @@ void do_arctan()
 {
 	double xpos = GET_D(rINDEX) / 10000.0;
 	double ypos = GET_D(rINDEX2) / 10000.0;
-	
-	set_register(sarg1, int32_t(atan2(ypos, xpos) * 10000.0));
+
+	set_register(sarg1, int32_t(zc::math::ArcTan2(ypos, xpos) * 10000.0));
 }
 
 void do_abs(const bool v)
@@ -3429,7 +3429,7 @@ void do_log10(const bool v)
 	double temp = double(SH::get_arg(sarg1, v)) / 10000.0;
 	
 	if(temp > 0)
-		set_register(sarg1, int32_t(log10(temp) * 10000.0));
+		set_register(sarg1, int32_t(zc::math::Log10(temp) * 10000.0));
 	else
 	{
 		Z_scripterrlog("Script tried to calculate log of %f\n", temp / 10000.0);
@@ -3442,7 +3442,7 @@ void do_naturallog(const bool v)
 	double temp = double(SH::get_arg(sarg1, v)) / 10000.0;
 	
 	if(temp > 0)
-		set_register(sarg1, int32_t(log(temp) * 10000.0));
+		set_register(sarg1, int32_t(zc::math::Ln(temp) * 10000.0));
 	else
 	{
 		Z_scripterrlog("Script tried to calculate ln of %f\n", temp / 10000.0);
@@ -3548,7 +3548,7 @@ void do_power(bool v, const bool inv = false)
 		return;
 	}
 	
-	set_register(destreg, int32_t(pow(temp2, temp) * 10000.0));
+	set_register(destreg, int32_t(zc::math::Pow(temp2, temp) * 10000.0));
 }
 
 void do_lpower(bool v, const bool inv = false)
@@ -3565,7 +3565,7 @@ void do_lpower(bool v, const bool inv = false)
 		return;
 	}
 	
-	set_register(destreg, int32_t(pow(temp2, temp)));
+	set_register(destreg, int32_t(zc::math::Pow(temp2, temp)));
 }
 
 //could use recursion or something to avoid truncation.
@@ -3587,7 +3587,7 @@ void do_ipower(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, int32_t(pow(temp2, temp) * 10000.0));
+	set_register(sarg1, int32_t(zc::math::Pow(temp2, temp) * 10000.0));
 }
 
 void do_sqroot(const bool v)
@@ -4389,7 +4389,7 @@ void do_lwpnmakeangular()
 					break;
 			}
 			w->angular = true;
-			w->angle=atan2(vy, vx);
+			w->angle=zc::math::ArcTan2(vy, vx);
 			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
 			w->doAutoRotate();
 		}
@@ -4453,7 +4453,7 @@ void do_ewpnmakeangular()
 					break;
 			}
 			w->angular = true;
-			w->angle=atan2(vy, vx);
+			w->angle=zc::math::ArcTan2(vy, vx);
 			w->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
 			w->doAutoRotate();
 		}
@@ -5949,22 +5949,22 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 	}
 	case CSPACE_LAB:
 	{
-		if (r > 0.04045) r = pow(((r + 0.055) / 1.055), 2.4);
+		if (r > 0.04045) r = zc::math::Pow(((r + 0.055) / 1.055), 2.4);
 		else r /= 12.92;
-		if (g > 0.04045) g = pow(((g + 0.055) / 1.055), 2.4);
+		if (g > 0.04045) g = zc::math::Pow(((g + 0.055) / 1.055), 2.4);
 		else g /= 12.92;
-		if (b > 0.04045) b = pow(((b + 0.055) / 1.055), 2.4);
+		if (b > 0.04045) b = zc::math::Pow(((b + 0.055) / 1.055), 2.4);
 		else b /= 12.92;
 
 		double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
 		double y = r * 0.2126 + g * 0.7152 + b * 0.0722;
 		double z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 
-		if (x > 0.008856) x = pow(x, 1.0 / 3.0);
+		if (x > 0.008856) x = zc::math::Pow(x, 1.0 / 3.0);
 		else x = (7.787 * x) + (16.0 / 116.0);
-		if (y > 0.008856) y = pow(y, 1.0 / 3.0);
+		if (y > 0.008856) y = zc::math::Pow(y, 1.0 / 3.0);
 		else y = (7.787 * y) + (16.0 / 116.0);
-		if (z > 0.008856) z = pow(z, 1.0 / 3.0);
+		if (z > 0.008856) z = zc::math::Pow(z, 1.0 / 3.0);
 		else z = (7.787 * z) + (16.0 / 116.0);
 
 		double CIEL = (116 * y) - 16;
@@ -5980,33 +5980,33 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 	case CSPACE_LCH_CCW:
 	case CSPACE_LCH:
 	{
-		if (r > 0.04045) r = pow(((r + 0.055) / 1.055), 2.4);
+		if (r > 0.04045) r = zc::math::Pow(((r + 0.055) / 1.055), 2.4);
 		else r /= 12.92;
-		if (g > 0.04045) g = pow(((g + 0.055) / 1.055), 2.4);
+		if (g > 0.04045) g = zc::math::Pow(((g + 0.055) / 1.055), 2.4);
 		else g /= 12.92;
-		if (b > 0.04045) b = pow(((b + 0.055) / 1.055), 2.4);
+		if (b > 0.04045) b = zc::math::Pow(((b + 0.055) / 1.055), 2.4);
 		else b /= 12.92;
 
 		double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
 		double y = r * 0.2126 + g * 0.7152 + b * 0.0722;
 		double z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 
-		if (x > 0.008856) x = pow(x, 1.0 / 3.0);
+		if (x > 0.008856) x = zc::math::Pow(x, 1.0 / 3.0);
 		else x = (7.787 * x) + (16.0 / 116.0);
-		if (y > 0.008856) y = pow(y, 1.0 / 3.0);
+		if (y > 0.008856) y = zc::math::Pow(y, 1.0 / 3.0);
 		else y = (7.787 * y) + (16.0 / 116.0);
-		if (z > 0.008856) z = pow(z, 1.0 / 3.0);
+		if (z > 0.008856) z = zc::math::Pow(z, 1.0 / 3.0);
 		else z = (7.787 * z) + (16.0 / 116.0);
 
 		double CIEL = (116 * y) - 16;
 		double CIEa = 500 * (x - y);
 		double CIEb = 200 * (y - z);
 
-		double h = atan2(CIEb, CIEa);
+		double h = zc::math::ArcTan2(CIEb, CIEa);
 		if (h > 0) h = (h / PI) * 180;
 		else h = 360 - (abs(h) / PI) * 180;
 
-		double CIEC = sqrt(pow(CIEa, 2) + pow(CIEb, 2));
+		double CIEC = sqrt(zc::math::Pow(CIEa, 2) + zc::math::Pow(CIEb, 2));
 
 		arr[0] = CIEL;
 		arr[1] = CIEC;
@@ -6144,22 +6144,22 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		double var_x = CIEa / 500.0 + var_y;
 		double var_z = var_y - CIEb / 200.0;
 
-		if (pow(var_x, 3) > 0.008856) var_x = pow(var_x, 3);
+		if (zc::math::Pow(var_x, 3) > 0.008856) var_x = zc::math::Pow(var_x, 3);
 		else var_x = (var_x - 16.0 / 116.0) / 7.787;
-		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
+		if (zc::math::Pow(var_y, 3) > 0.008856) var_y = zc::math::Pow(var_y, 3);
 		else var_y = (var_y - 16.0 / 116.0) / 7.787;
-		if (pow(var_z, 3) > 0.008856) var_z = pow(var_z, 3);
+		if (zc::math::Pow(var_z, 3) > 0.008856) var_z = zc::math::Pow(var_z, 3);
 		else var_z = (var_z - 16.0 / 116.0) / 7.787;
 
 		r = var_x * 3.2406 + var_y * -1.5372 + var_z * -0.4986;
 		g = var_x * -0.9689 + var_y * 1.8758 + var_z * 0.0415;
 		b = var_x * 0.0557 + var_y * -0.2040 + var_z * 1.0570;
 
-		if (r > 0.0031308) r = 1.055 * pow(r, (1 / 2.4)) - 0.055;
+		if (r > 0.0031308) r = 1.055 * zc::math::Pow(r, (1 / 2.4)) - 0.055;
 		else r = 12.92 * r;
-		if (g > 0.0031308) g = 1.055 * pow(g, (1 / 2.4)) - 0.055;
+		if (g > 0.0031308) g = 1.055 * zc::math::Pow(g, (1 / 2.4)) - 0.055;
 		else g = 12.92 * g;
-		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
+		if (b > 0.0031308) b = 1.055 * zc::math::Pow(b, (1 / 2.4)) - 0.055;
 		else b = 12.92 * b;
 
 		r = vbound(r * upper, 0.0, upper);
@@ -6173,29 +6173,29 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 	case CSPACE_LCH:
 	{
 		double CIEL = arr[0];
-		double CIEa = cos((arr[2] * PI) / 180.0) * arr[1];
-		double CIEb = sin((arr[2] * PI) / 180.0) * arr[1];
+		double CIEa = zc::math::Cos((arr[2] * PI) / 180.0) * arr[1];
+		double CIEb = zc::math::Sin((arr[2] * PI) / 180.0) * arr[1];
 
 		double var_y = (CIEL + 16) / 116.0;
 		double var_x = CIEa / 500.0 + var_y;
 		double var_z = var_y - CIEb / 200.0;
 
-		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
+		if (zc::math::Pow(var_y, 3) > 0.008856) var_y = zc::math::Pow(var_y, 3);
 		else var_y = (var_y - 16.0 / 116.0) / 7.787;
-		if (pow(var_x, 3) > 0.008856) var_x = pow(var_x, 3);
+		if (zc::math::Pow(var_x, 3) > 0.008856) var_x = zc::math::Pow(var_x, 3);
 		else var_x = (var_x - 16.0 / 116.0) / 7.787;
-		if (pow(var_z, 3) > 0.008856) var_z = pow(var_z, 3);
+		if (zc::math::Pow(var_z, 3) > 0.008856) var_z = zc::math::Pow(var_z, 3);
 		else var_z = (var_z - 16.0 / 116.0) / 7.787;
 
 		r = var_x * 3.2406 + var_y * -1.5372 + var_z * -0.4986;
 		g = var_x * -0.9689 + var_y * 1.8758 + var_z * 0.0415;
 		b = var_x * 0.0557 + var_y * -0.2040 + var_z * 1.0570;
 
-		if (r > 0.0031308) r = 1.055 * pow(r, (1 / 2.4)) - 0.055;
+		if (r > 0.0031308) r = 1.055 * zc::math::Pow(r, (1 / 2.4)) - 0.055;
 		else r = 12.92 * r;
-		if (g > 0.0031308) g = 1.055 * pow(g, (1 / 2.4)) - 0.055;
+		if (g > 0.0031308) g = 1.055 * zc::math::Pow(g, (1 / 2.4)) - 0.055;
 		else g = 12.92 * g;
-		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
+		if (b > 0.0031308) b = 1.055 * zc::math::Pow(b, (1 / 2.4)) - 0.055;
 		else b = 12.92 * b;
 
 		r = vbound(r * upper, 0.0, upper);
@@ -15122,9 +15122,9 @@ void FFScript::do_xtoi2()
 // Calculates log2 of number.  
 double FFScript::Log2( double n )  
 {  
-    // log(n)/log(2) is log2.  
-    return log( (double)n ) / log( (double)2 );  
-}  
+    // log(n)/log(2) is log2.
+    return zc::math::Ln( (double)n ) / zc::math::Ln( (double)2 );
+}
 
 //xtoa, convert hex number to hex ascii
 void FFScript::do_xtoa()
@@ -15179,7 +15179,7 @@ void FFScript::do_xtoa()
 	int32_t alphaoffset = 'A' - 0xA;
 	for(int32_t i = 0; i < digits; ++i)
 	{
-		int32_t coeff = ((int32_t)floor((double)(((double)number) / pow((float)0x10, digits - i - 1))) % 0x10);
+		int32_t coeff = ((int32_t)floor((double)(((double)number) / zc::math::Pow(0x10, digits - i - 1))) % 0x10);
 		strA[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
 	}
 	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
@@ -15390,7 +15390,7 @@ void FFScript::do_itoacat()
 
 	
 	for(int32_t i = 0; i < digits; ++i)
-		strB[pos + ret + i] = ((int32_t)floor((double)(num / pow((float)10, digits - i - 1))) % 10) + '0';
+		strB[pos + ret + i] = ((int32_t)floor((double)(num / zc::math::Pow(10, digits - i - 1))) % 10) + '0';
 	
 	string strC = strA + strB;
 	if(ArrayH::setArray(arrayptr_a, strC) == SH::_Overflow)
@@ -15460,7 +15460,7 @@ int32_t FFScript::Log10(double temp)
 {
 	int32_t ret = 0;
 	if(temp > 0)
-		ret = int32_t(log10(temp) * 10000.0);
+		ret = int32_t(zc::math::Log10(temp) * 10000.0);
 	else ret = 0;
 	return ret;
 }
@@ -15482,7 +15482,7 @@ double FFScript::ln(double temp)
 {
 	
 	if(temp > 0)
-		return (log(temp));
+		return zc::math::Ln(temp);
 	else
 	{
 		return 0;
@@ -16229,11 +16229,11 @@ string inttobase(word base, int32_t x, word mindigits)
 	static const char coeff[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
 	string s2;
-	word digits = zc_max(mindigits - 1, word(floor(log(double(x)) / log(double(base)))));
+	word digits = zc_max(mindigits - 1, word(floor(zc::math::Ln(double(x)) / zc::math::Ln(double(base)))));
 	
 	for(int32_t i = digits; i >= 0; i--)
 	{
-		s2 += coeff[word(floor(x / pow(double(base), i))) % base];
+		s2 += coeff[word(floor(x / zc::math::Pow(double(base), i))) % base];
 	}
 	
 	return s2;

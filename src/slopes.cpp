@@ -173,7 +173,7 @@ zfix check_slope(zfix tx, zfix ty, zfix tw, zfix th, bool fallthrough, bool plat
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 			if (val < 0)
 			{
@@ -206,7 +206,7 @@ zfix check_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty, boo
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 			if (val < 0)
 			{
@@ -252,7 +252,7 @@ zfix LinePointDist(slope_info const& s, zfix tx, zfix ty)
 		cx = vbound(cx, s.x1, s.x2);
 		cy = (s.slope()*cx) + b; //y = mx + b
 	}
-	return (zfix)sqrt(pow((double)abs(tx-cx),2)+pow((double)abs(ty-cy),2));
+	return (zfix)sqrt(zc::math::Pow((double)abs(tx-cx),2)+zc::math::Pow((double)abs(ty-cy),2));
 }
 
 slope_object const& get_slope(zfix tx, zfix ty, zfix tw, zfix th)
@@ -268,7 +268,7 @@ slope_object const& get_slope(zfix tx, zfix ty, zfix tw, zfix th)
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 			if (val < 0)
 			{
@@ -306,7 +306,7 @@ slope_object const& get_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, 
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 			if (val < 0)
 			{
@@ -376,7 +376,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID)
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 			if (val < 0)
 			{
@@ -424,7 +424,7 @@ void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, 
 	zfix ory = ry;
 	zfix cx = rx + rw/2 - 1;
 	zfix cy = ry + rh/2 - 1;
-	double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+	double lineangle = zc::math::ArcTan2(double(s.y2-s.y1),double(s.x2-s.x1));
 	double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
 	if (val < 0)
 	{

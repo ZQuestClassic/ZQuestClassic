@@ -11,4 +11,10 @@ bool replay_compat_old_movement_off_by_one_bug();
 bool replay_compat_charging_during_scroll_bug();
 bool replay_compat_whistle_stuck_bug();
 
+// Selects the zc::math mode for the current session, based on what math the
+// active replay (if any) was created with. Called from replay_start,
+// replay_continue, and replay_stop, so the mode tracks every replay state
+// transition.
+void replay_compat_setup_zc_maths();
+
 #endif

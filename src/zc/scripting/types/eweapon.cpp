@@ -647,7 +647,7 @@ void eweapon_set_register(int32_t reg, int32_t value)
 				}
 			}
 			s->angular = true;
-			s->angle=atan2(vy, vx);
+			s->angle=zc::math::ArcTan2(vy, vx);
 			s->step=FFCore.Distance(0, 0, vx, vy)/10000;
 			s->doAutoRotate();
 			break;
@@ -679,7 +679,7 @@ void eweapon_set_register(int32_t reg, int32_t value)
 				}
 			}
 			s->angular = true;
-			s->angle=atan2(vy, vx);
+			s->angle=zc::math::ArcTan2(vy, vx);
 			s->step=FFCore.Distance(0, 0, vx, vy)/10000;
 			s->doAutoRotate();
 			break;

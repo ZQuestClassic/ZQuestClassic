@@ -1902,7 +1902,7 @@ int32_t eyeball_combo_tile(const minicombo_drawing &c, int32_t x, int32_t y, int
         
     case 1: //cOLD_EYEBALL_A
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
         {
@@ -1942,7 +1942,7 @@ int32_t eyeball_combo_tile(const minicombo_drawing &c, int32_t x, int32_t y, int
     
     case 3: // 4-way Eyeball (up-down-left-right)
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
         {
@@ -1966,7 +1966,7 @@ int32_t eyeball_combo_tile(const minicombo_drawing &c, int32_t x, int32_t y, int
     
     case 2: //cOLD_EYEBALL_B
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
         {
