@@ -85,7 +85,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		  NULL);                    // no security attribute 
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 	{	// failure
-		MessageBox(NULL,"CreateNamedPipe failed","ConsoleLogger failed",MB_OK);
+		_CONSOLE_DEBUG("ConsoleLogger: CreateNamedPipe failed; disabling console\n");
 		return -1;
 	}
 	_CONSOLE_DEBUG("Created pipe!\nCreating process...\n");
@@ -111,21 +111,58 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		}
 		if (!bRet)
 		{
-			MessageBox(NULL,"Helper executable not found","ConsoleLogger failed",MB_OK);
+			_CONSOLE_DEBUG("ConsoleLogger: helper executable not found; disabling console\n");
 			CloseHandle(m_hPipe);
 			m_hPipe = INVALID_HANDLE_VALUE;
 			return -1;
 		}
 	}
 	killer.init_process(pi.hProcess);
-	
+	// We never wait on the helper's main thread; close the handle so it isn't
+	// leaked for the life of the process.
+	CloseHandle(pi.hThread);
+
 	_CONSOLE_DEBUG("Created process!\nConnecting pipe...\n");
-	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
-		 TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
+	// The pipe is FILE_FLAG_OVERLAPPED, so ConnectNamedPipe returns immediately
+	// (typically ERROR_IO_PENDING) rather than blocking until the helper attaches.
+	// Wait for the connection with a bounded timeout via a real OVERLAPPED: this
+	// tolerates a slow-to-start helper (notably Windows 11 / Windows Terminal) without
+	// spuriously failing, and guarantees we can never hang the app waiting on a helper
+	// that never connects. On failure we tear down the orphan helper and silently
+	// disable the console (no modal dialog, which can hide behind the game window and
+	// look like a freeze) -- every print path already no-ops on an invalid pipe.
+	OVERLAPPED ovConnect = {0};
+	ovConnect.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	BOOL bConnected = ConnectNamedPipe(m_hPipe, &ovConnect);
 	if (!bConnected)
 	{
-		MessageBox(NULL,"ConnectNamedPipe failed","ConsoleLogger failed",MB_OK);
-		
+		switch (GetLastError())
+		{
+			case ERROR_PIPE_CONNECTED:
+				bConnected = TRUE;
+				break;
+			case ERROR_IO_PENDING:
+				if (WaitForSingleObject(ovConnect.hEvent, 5000) == WAIT_OBJECT_0)
+				{
+					DWORD dwIgnored;
+					bConnected = GetOverlappedResult(m_hPipe, &ovConnect, &dwIgnored, FALSE);
+				}
+				else
+				{	// timed out (or wait failed) -- give up on the connection
+					CancelIo(m_hPipe);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	if (ovConnect.hEvent)
+		CloseHandle(ovConnect.hEvent);
+	if (!bConnected)
+	{
+		_CONSOLE_DEBUG("ConsoleLogger: helper failed to connect; disabling console\n");
+		killer.kill();
+		DisconnectNamedPipe(m_hPipe);
 		CloseHandle(m_hPipe);
 		m_hPipe = INVALID_HANDLE_VALUE;
 		return -1;
@@ -147,7 +184,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
 	if (cbWritten!=strlen(buffer))
 	{
-		MessageBox(NULL,"WriteFile failed(1)","ConsoleLogger failed",MB_OK);
+		_CONSOLE_DEBUG("ConsoleLogger: WriteFile failed (1); disabling console\n");
 		DisconnectNamedPipe(m_hPipe);
 		CloseHandle(m_hPipe);
 		m_hPipe=INVALID_HANDLE_VALUE;
@@ -160,7 +197,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
 		if (cbWritten!=strlen(buffer))
 		{
-			MessageBox(NULL,"WriteFile failed(2)","ConsoleLogger failed",MB_OK);
+			_CONSOLE_DEBUG("ConsoleLogger: WriteFile failed (2); disabling console\n");
 			DisconnectNamedPipe(m_hPipe);
 			CloseHandle(m_hPipe);
 			m_hPipe=INVALID_HANDLE_VALUE;
@@ -183,7 +220,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	WriteFile(m_hPipe,buffer,1,&cbWritten,NULL);
 	if (cbWritten!=1)
 	{
-		MessageBox(NULL,"WriteFile failed(3)","ConsoleLogger failed",MB_OK);
+		_CONSOLE_DEBUG("ConsoleLogger: WriteFile failed (3); disabling console\n");
 		DisconnectNamedPipe(m_hPipe);
 		CloseHandle(m_hPipe);
 		m_hPipe=INVALID_HANDLE_VALUE;
