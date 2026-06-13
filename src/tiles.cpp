@@ -4,6 +4,7 @@
 #include <tmmintrin.h>
 
 #include "base/zdefs.h"
+#include "base/zc_math.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
 #include "base/combo.h"
@@ -1900,7 +1901,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y, int frame)
         
     case 1: //cOLD_EYEBALL_A
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
         {
@@ -1940,7 +1941,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y, int frame)
     
     case 3: // 4-way Eyeball (up-down-left-right)
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
         {
@@ -1964,7 +1965,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y, int frame)
     
     case 2: //cOLD_EYEBALL_B
     {
-        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
+        double ddir=zc::math::ArcTan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
         {

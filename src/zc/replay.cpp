@@ -1,4 +1,5 @@
 #include "zc/replay.h"
+#include "zc/replay_compat.h"
 #include "base/qrs.h"
 #include "base/zapp.h"
 #include "zc/zc_sys.h"
@@ -1438,6 +1439,8 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     peek_meta_steps();
 
     save_result();
+
+    replay_compat_setup_zc_maths();
 }
 
 void replay_continue(std::filesystem::path path)
@@ -1464,6 +1467,8 @@ void replay_continue(std::filesystem::path path)
 	// Not certain if really old replays (prior to TypeKeyMap) can be updated.
 	if (version >= 5 && version != VERSION)
 		replay_step_meta("version", fmt::format("{}", VERSION));
+
+	replay_compat_setup_zc_maths();
 }
 
 void replay_poll()
@@ -1894,6 +1899,7 @@ void replay_stop(bool aborted)
 
     mode = ReplayMode::Off;
 	refresh_control_scheme();
+	replay_compat_setup_zc_maths();
     frame_count = 0;
     replay_log.clear();
     rngs.clear();
