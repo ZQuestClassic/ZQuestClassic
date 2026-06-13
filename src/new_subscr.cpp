@@ -1,3 +1,4 @@
+#include "base/zc_math.h"
 #include "base/zdefs.h"
 #include "new_subscr.h"
 #include "subscr.h"
@@ -2127,7 +2128,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 			{
 				if(maxdigits)
 				{
-					auto mval = pow(10,maxdigits);
+					auto mval = zc::math::Pow(10,maxdigits);
 					if(value >= mval)
 						value = mval-1;
 				}
@@ -2467,7 +2468,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		{
 			if(maxdigits)
 			{
-				auto mval = pow(10,maxdigits);
+				auto mval = zc::math::Pow(10,maxdigits);
 				if(value >= mval)
 					value = mval-1;
 			}

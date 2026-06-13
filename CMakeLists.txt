@@ -440,7 +440,9 @@ if(MSVC)
 	# error D8016: '/O2' and '/RTC1' command-line options are incompatible
 	# set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
 else()
-	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
+	# -O3 defines __OPTIMIZE__, which clang refuses to mix with a PCH built at a
+	# lower opt level (Asan/Debug). Skip the PCH for this one file.
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3 SKIP_PRECOMPILE_HEADERS ON)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")

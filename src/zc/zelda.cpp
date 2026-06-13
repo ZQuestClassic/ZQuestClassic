@@ -20,6 +20,7 @@
 #include "base/zc_alleg.h"
 #include "base/misctypes.h"
 #include "control_scheme.h"
+#include "test_runner/test_runner.h"
 
 #include <stdlib.h>
 
@@ -1304,7 +1305,7 @@ void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t paren
 zfix distance(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 {
-    return (zfix)sqrt(pow((double)abs(x1-x2),2)+pow((double)abs(y1-y2),2));
+    return (zfix)sqrt(zc::math::Pow((double)abs(x1-x2),2)+zc::math::Pow((double)abs(y1-y2),2));
 }
 
 bool getClock()
@@ -4215,12 +4216,15 @@ int main(int argc, char **argv)
 
 	if (used_switch(argc,argv,"-test-zc"))
 	{
+		bool verbose = used_switch(argc, argv, "-verbose") || used_switch(argc, argv, "-v");
 		bool success = true;
 		if (!saves_test())
 		{
 			success = false;
 			printf("saves_test failed\n");
 		}
+		extern TestResults test_zc_math(bool);
+		success &= run_tests(test_zc_math, "test_zc_math", verbose);
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);
