@@ -19,9 +19,9 @@ public:
 	int32_t getCombo();
 	int32_t getCSet();
 
-	void setOnSelectFunc(std::function<void(int32_t,int32_t)> newOnSelect)
+	void setOnSelectFunc(GUI::function<void(int32_t,int32_t)> newOnSelect)
 	{
-		onSelectFunc = newOnSelect;
+		onSelectFunc = std::move(newOnSelect);
 	}
 	
 	template<typename T>
@@ -35,7 +35,7 @@ protected:
 private:
 	int32_t combo, cset;
 	bool showsVals;
-	std::function<void(int32_t,int32_t)> onSelectFunc;
+	GUI::function<void(int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

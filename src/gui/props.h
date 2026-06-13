@@ -190,52 +190,79 @@ namespace GUI::Internal
 #pragma clang diagnostic ignored "-Wundefined-var-template"
 #endif
 
-template<typename ArgsSoFar, typename BuilderType>
-inline void applyArgs(ArgsSoFar, BuilderType&&)
+template<typename T>
+inline constexpr bool isPropArg = std::is_base_of_v<Props::Property, std::decay_t<T>>;
+
+// The tag type identifying a property, or void for non-property arguments.
+template<typename T, typename = void>
+struct PropTagOf { using type = void; };
+
+template<typename T>
+struct PropTagOf<T, std::void_t<typename std::decay_t<T>::TagType>>
 {
+    using type = typename std::decay_t<T>::TagType;
+};
+
+template<typename... ArgType>
+constexpr bool propsBeforeChildren()
+{
+    constexpr bool isChild[] = {false, !isPropArg<ArgType>...};
+    bool seenChild = false;
+    for (bool c : isChild)
+    {
+        if (c)
+            seenChild = true;
+        else if (seenChild)
+            return false;
+    }
+    return true;
 }
 
-template<typename ArgsSoFar, typename BuilderType, typename WidgetType,
-    typename... MoreArgsType>
-inline void applyArgs(ArgsSoFar, BuilderType&& builder, std::shared_ptr<WidgetType> child,
-    MoreArgsType&&... moreArgs)
+template<typename Tag, typename... Tags>
+constexpr bool tagUniqueIn()
 {
-    builder.addChildren(child, std::forward<MoreArgsType>(moreArgs)...);
+    if constexpr (std::is_void_v<Tag>)
+        return true;
+    else
+        return ((std::is_same_v<Tag, Tags> ? 1 : 0) + ...) == 1;
 }
 
-template<typename PropsSoFar, typename BuilderType, typename WidgetType>
-inline void applyArgs(PropsSoFar, BuilderType&& builder, std::shared_ptr<WidgetType> child)
+template<typename... Tags>
+constexpr bool tagsUnique()
 {
-    builder.addChildren(child);
+    return (tagUniqueIn<Tags, Tags...>() && ...);
 }
 
-template<typename PropsSoFar, typename BuilderType, typename PropType>
-inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop)
+template<int32_t totalChildren, typename BuilderType, typename ArgType>
+inline void applyArg(BuilderType& builder, ArgType&& arg)
 {
-    using DecayType = typename std::decay_t<PropType>;
-    ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
-        "Arguments must be widget properties or widgets.");
-    prop.assertUnique(psf);
-
-    builder.applyProp(std::forward<PropType>(prop), PropType::tag);
+    using DecayType = typename std::decay_t<ArgType>;
+    if constexpr (isPropArg<ArgType>)
+    {
+        builder.applyProp(std::forward<ArgType>(arg), DecayType::tag);
+    }
+    else
+    {
+        ZCGUI_STATIC_ASSERT((std::is_convertible_v<ArgType, std::shared_ptr<::GUI::Widget>>),
+            "Arguments must be widget properties or widgets." ZCGUI_NEWLINE
+            "This may be a name collision." ZCGUI_NEWLINE
+            "Is there something else with the same name in scope?");
+        builder.template addOneChild<totalChildren>(std::forward<ArgType>(arg));
+    }
 }
 
-template<typename PropsSoFar, typename BuilderType, typename PropType, typename... MoreArgsType>
-inline void applyArgs(PropsSoFar psf, BuilderType&& builder, PropType&& prop,
-    MoreArgsType&&... moreArgs)
+template<typename ArgsSoFar, typename BuilderType, typename... ArgType>
+inline void applyArgs(ArgsSoFar, BuilderType&& builder, ArgType&&... args)
 {
-    using DecayType = typename std::decay_t<PropType>;
-    ZCGUI_STATIC_ASSERT((std::is_base_of_v<Props::Property, DecayType>),
-        "Arguments must be widget properties or widgets." ZCGUI_NEWLINE
-        "This may be a name collision." ZCGUI_NEWLINE
-        "Is there something else with the same name in scope?");
-    prop.assertUnique(psf);
-
-    builder.applyProp(std::forward<PropType>(prop), PropType::tag);
-
-    class PropsApplied: DecayType::TagType {};
-    applyArgs(PropsApplied(), std::forward<BuilderType>(builder),
-        std::forward<MoreArgsType>(moreArgs)...);
+    if constexpr (sizeof...(args) > 0)
+    {
+        ZCGUI_STATIC_ASSERT((propsBeforeChildren<ArgType...>()),
+            "Properties must come before children.");
+        ZCGUI_STATIC_ASSERT((tagsUnique<typename PropTagOf<ArgType>::type...>()),
+            "Property provided more than once.");
+        constexpr int32_t totalChildren = ((isPropArg<ArgType> ? 0 : 1) + ...);
+        (applyArg<totalChildren>(builder, std::forward<ArgType>(args)), ...);
+    }
 }
 
 #ifdef __clang__

@@ -8,7 +8,7 @@
 namespace GUI
 {
 
-TabPanel::TabPanel(): indexptr(NULL), visibleChild(0), onSwitch(NULL)
+TabPanel::TabPanel(): indexptr(NULL), visibleChild(0), onSwitch(nullptr)
 {
 	setFitParent(true);
 }
@@ -189,7 +189,7 @@ int32_t TabPanel::onEvent(int32_t event, [[maybe_unused]] MessageDispatcher& sen
 	
 	return -1;
 }
-void TabPanel::setOnSwitch(std::function<void(size_t,size_t)> newOnSwitch)
+void TabPanel::setOnSwitch(GUI::function<void(size_t,size_t)> newOnSwitch)
 {
 	onSwitch = std::move(newOnSwitch);
 }

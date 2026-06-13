@@ -14,6 +14,7 @@
 #include "pal.h"
 #include "gui/tabpanel.h"
 #include "gui/text_field.h"
+#include "gui/function.h"
 #include "dialog/info.h"
 #include "drawing.h"
 using namespace util;
@@ -8743,7 +8744,7 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 			broadcast_dialog_message(MSG_VSYNC, c);
 			if(d->dp)
 			{
-				int32_t ret = (*(std::function<int32_t()>*)d->dp)();
+				int32_t ret = (*(GUI::function<int32_t()>*)d->dp)();
 				switch(ret)
 				{
 					case ONTICK_EXIT:

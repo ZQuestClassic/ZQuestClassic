@@ -32,7 +32,7 @@ public:
 	void setText(std::string newText);
 	
 	/* Sets a function to be called on press. */
-	void setOnPress(std::function<void()> newOnPress);
+	void setOnPress(GUI::function<void()> newOnPress);
 
 	template<typename T>
 	RequireMessage<T> onClick(T m)
@@ -53,7 +53,7 @@ private:
 	std::string text;
 	DialogRef alDialog;
 	int32_t message;
-	std::function<void()> onPress;
+	GUI::function<void()> onPress;
 	type btnType;
 	
 	int* bound_key;

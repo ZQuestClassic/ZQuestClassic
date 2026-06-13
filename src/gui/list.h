@@ -44,17 +44,17 @@ public:
 	 */
 	void setScrollPtr(size_t* ptr);
 
-	void setOnSelectFunc(std::function<void(int32_t)> newFunc)
+	void setOnSelectFunc(GUI::function<void(int32_t)> newFunc)
 	{
-		onSelectFunc = newFunc;
+		onSelectFunc = std::move(newFunc);
 	}
-	void setOnRClickFunc(std::function<void(int32_t,int32_t,int32_t)> newFunc)
+	void setOnRClickFunc(GUI::function<void(int32_t,int32_t,int32_t)> newFunc)
 	{
-		onRClickFunc = newFunc;
+		onRClickFunc = std::move(newFunc);
 	}
-	void setOnDClickFunc(std::function<void(int32_t,int32_t,int32_t)> newFunc)
+	void setOnDClickFunc(GUI::function<void(int32_t,int32_t,int32_t)> newFunc)
 	{
-		onDClickFunc = newFunc;
+		onDClickFunc = std::move(newFunc);
 	}
 
 	void setIsABC(bool abc);
@@ -85,9 +85,9 @@ private:
 	const ::GUI::ListData* listData;
 	int32_t selectedIndex, selectedValue;
 	int32_t message, msg_r, msg_d;
-	std::function<void(int32_t)> onSelectFunc;
-	std::function<void(int32_t,int32_t,int32_t)> onRClickFunc;
-	std::function<void(int32_t,int32_t,int32_t)> onDClickFunc;
+	GUI::function<void(int32_t)> onSelectFunc;
+	GUI::function<void(int32_t,int32_t,int32_t)> onRClickFunc;
+	GUI::function<void(int32_t,int32_t,int32_t)> onDClickFunc;
 	bool isABC;
 	size_t* scrollPtr;
 	

@@ -40,9 +40,9 @@ public:
 	int32_t getTileWid() const {return tw;}
 	int32_t getTileHei() const {return th;}
 
-	void setOnSelectFunc(std::function<void(int32_t,int32_t,int32_t,int32_t)> newOnSelect)
+	void setOnSelectFunc(GUI::function<void(int32_t,int32_t,int32_t,int32_t)> newOnSelect)
 	{
-		onSelectFunc = newOnSelect;
+		onSelectFunc = std::move(newOnSelect);
 	}
 	
 	template<typename T>
@@ -66,7 +66,7 @@ private:
 	bool isMini;
 	bool minionly;
 	DialogRef alDialog;
-	std::function<void(int32_t,int32_t,int32_t,int32_t)> onSelectFunc;
+	GUI::function<void(int32_t,int32_t,int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

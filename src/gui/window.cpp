@@ -212,11 +212,11 @@ int32_t Window::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	return TopLevelWidget::onEvent(event, sendMessage);
 }
 
-void Window::setOnTick(std::function<int32_t()> newOnTick)
+void Window::setOnTick(GUI::function<int32_t()> newOnTick)
 {
 	onTick = std::move(newOnTick);
 }
-void Window::setOnLoad(std::function<void()> newOnLoad)
+void Window::setOnLoad(GUI::function<void()> newOnLoad)
 {
 	onLoad = std::move(newOnLoad);
 }

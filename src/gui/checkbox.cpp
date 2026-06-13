@@ -143,7 +143,7 @@ bool Checkbox::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void Checkbox::setOnToggleFunc(std::function<void(bool)> newOnToggleFunc)
+void Checkbox::setOnToggleFunc(GUI::function<void(bool)> newOnToggleFunc)
 {
 	onToggleFunc = std::move(newOnToggleFunc);
 }

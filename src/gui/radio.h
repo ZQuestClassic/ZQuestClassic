@@ -29,7 +29,7 @@ public:
 	
 	size_t getIndex() const {return index;}
 	
-	void setOnPressFunc(std::function<void(size_t)> newOnPressFunc);
+	void setOnPressFunc(GUI::function<void(size_t)> newOnPressFunc);
 
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
@@ -44,7 +44,7 @@ private:
 	int32_t procset;
 	size_t index;
 	DialogRef alDialog;
-	std::function<void(size_t)> onPressFunc;
+	GUI::function<void(size_t)> onPressFunc;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

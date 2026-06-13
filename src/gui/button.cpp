@@ -497,7 +497,7 @@ void Button::setText(std::string newText)
 	text = newText;
 }
 
-void Button::setOnPress(std::function<void()> newOnPress)
+void Button::setOnPress(GUI::function<void()> newOnPress)
 {
 	onPress = std::move(newOnPress);
 }

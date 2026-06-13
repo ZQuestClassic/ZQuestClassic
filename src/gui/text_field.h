@@ -96,9 +96,9 @@ public:
 	}
 
 	/* Sets a function to be called on value change. */
-	void setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged);
+	void setOnValChanged(GUI::function<void(type,std::string_view,int32_t)> newOnValChanged);
 	/* Sets a function to be called when the cursor changes. */
-	void setOnCursorChanged(std::function<void(type,int32_t,int32_t)> newOnCursorChanged);
+	void setOnCursorChanged(GUI::function<void(type,int32_t,int32_t)> newOnCursorChanged);
 	
 	void setFixedPlaces(size_t places);
 	void setSwapType(int32_t newtype);
@@ -125,8 +125,8 @@ private:
 	std::shared_ptr<GUI::Checkbox> swap_cb;
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
-	std::function<void(type,std::string_view,int32_t)> onValChanged;
-	std::function<void(type,int32_t,int32_t)> onCursorChanged;
+	GUI::function<void(type,std::string_view,int32_t)> onValChanged;
+	GUI::function<void(type,int32_t,int32_t)> onCursorChanged;
 	
 	void applyReadableFont();
 	void applyVisibility(bool visible) override;

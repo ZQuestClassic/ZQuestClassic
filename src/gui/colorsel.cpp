@@ -33,7 +33,7 @@ byte ColorSel::getVal()
 {
 	return colorVal;
 }
-void ColorSel::setOnValChanged(std::function<void(byte)> newOnValChanged)
+void ColorSel::setOnValChanged(GUI::function<void(byte)> newOnValChanged)
 {
 	onValChanged = std::move(newOnValChanged);
 }
@@ -73,7 +73,8 @@ int32_t ColorSel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 		case geCHANGE_VALUE:
 			colorVal = (byte)vbound(alDialog->d1, 0, 255);
 			message = onValueChangedMsg;
-			onValChanged(colorVal);
+			if(onValChanged)
+				onValChanged(colorVal);
 			break;
 	}
 	if(message < 0)

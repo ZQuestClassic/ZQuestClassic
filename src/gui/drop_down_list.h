@@ -32,9 +32,9 @@ public:
 	/* Returns the value of the currently selected item. */
 	int32_t getSelectedValue() const;
 
-	void setOnSelectFunc(std::function<void(int32_t)> newOnSelect)
+	void setOnSelectFunc(GUI::function<void(int32_t)> newOnSelect)
 	{
-		onSelectFunc = newOnSelect;
+		onSelectFunc = std::move(newOnSelect);
 	}
 	
 	template<typename T>
@@ -50,7 +50,7 @@ private:
 	int32_t selectedIndex, selectedValue;
 	DialogRef alDialog;
 	int32_t message;
-	std::function<void(int32_t)> onSelectFunc;
+	GUI::function<void(int32_t)> onSelectFunc;
 
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();

@@ -126,7 +126,6 @@ std::shared_ptr<GUI::Widget> MidiEditorDialog::view()
 					type = GUI::TextField::type::INT_DECIMAL,
 					maxLength = 4,
 					val = local_midiref.start,
-					maxLength = 4,
 					onValChangedFunc = [&]([[maybe_unused]] GUI::TextField::type type, std::string_view, int32_t val)
 					{
 						local_midiref.start = val;

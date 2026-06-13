@@ -258,57 +258,19 @@ struct widgetType##Builder                                                      
 
 
 #define ZCGUI_ACCEPT_ONE_CHILD(function)                                                           \
-    template<int32_t counter = 1, typename ChildType, typename... MoreChildrenType>                    \
-    inline void addChildren(ChildType&&, MoreChildrenType&&... moreChildren)                       \
+    template<int32_t totalChildren, typename ChildType>                                            \
+    inline void addOneChild(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType = typename std::decay_t<ChildType>;                                        \
-        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
-        constexpr bool isWidget =                                                                  \
-		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
-        ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
-        ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
-        addChildren<counter+1>(std::forward<MoreChildrenType>(moreChildren)...);                   \
-    }                                                                                              \
-                                                                                                   \
-    template<int32_t counter = 1, typename ChildType>                                                  \
-    inline void addChildren(ChildType&& child)                                                     \
-    {                                                                                              \
-        using DecayType = typename std::decay_t<ChildType>;                                        \
-        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
-        constexpr bool isWidget =                                                                  \
-		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
-        ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
-        ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
-        ZCGUI_STATIC_ASSERT(counter == 1, "This widget can only have one child.");                 \
+        ZCGUI_STATIC_ASSERT(totalChildren == 1, "This widget can only have one child.");           \
         Internal::allowChild(ptr, child);                                                          \
         ptr->function(child);                                                                      \
     }
 
 
 #define ZCGUI_ACCEPT_MULTIPLE_CHILDREN(function)                                                   \
-    template<typename ChildType, typename... MoreChildrenType>                                     \
-    inline void addChildren(ChildType&& child, MoreChildrenType&&... moreChildren)                 \
+    template<int32_t totalChildren, typename ChildType>                                            \
+    inline void addOneChild(ChildType&& child)                                                     \
     {                                                                                              \
-        using DecayType = typename std::decay_t<ChildType>;                                        \
-        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
-        constexpr bool isWidget =                                                                  \
-		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI:: Widget>>;                     \
-        ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
-        ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
-        Internal::allowChild(ptr, child);                                                          \
-        ptr->function(child);                                                                      \
-        addChildren(std::forward<MoreChildrenType>(moreChildren)...);                              \
-    }                                                                                              \
-                                                                                                   \
-    template<typename ChildType>                                                                   \
-    inline void addChildren(ChildType&& child)                                                     \
-    {                                                                                              \
-        using DecayType = typename std::decay_t<ChildType>;                                        \
-        constexpr bool isProp = std::is_base_of_v<::GUI::Props::Property, DecayType>;              \
-        constexpr bool isWidget =                                                                  \
-		    std::is_convertible_v<ChildType, std::shared_ptr<::GUI::Widget>>;                      \
-        ZCGUI_STATIC_ASSERT(!isProp || isWidget, "Properties must come before children.");         \
-        ZCGUI_STATIC_ASSERT(isProp || isWidget, "Not a widget property or widget.");               \
         Internal::allowChild(ptr, child);                                                          \
         ptr->function(child);                                                                      \
     }
@@ -316,8 +278,8 @@ struct widgetType##Builder                                                      
 
 // Reject children by default.
 #define ZCGUI_BUILDER_END()                                                                        \
-    template<bool b = false>                                                                       \
-    void addChildren(...)                                                                          \
+    template<int32_t totalChildren = 0, bool b = false>                                            \
+    void addOneChild(...)                                                                          \
     {                                                                                              \
         ZCGUI_STATIC_ASSERT(b, "This widget cannot have children.");                               \
     }                                                                                              \

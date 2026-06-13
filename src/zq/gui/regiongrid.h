@@ -33,14 +33,14 @@ namespace GUI
 			message = static_cast<int32_t>(m);
 		}
 
-		void setOnUpdate(std::function<void()> newfunc)
+		void setOnUpdate(GUI::function<void()> newfunc)
 		{
 			onUpdateFunc = std::move(newfunc);
 		}
 
 	private:
 		int32_t message;
-		std::function<void()> onUpdateFunc;
+		GUI::function<void()> onUpdateFunc;
 
 		regions_data* localRegionsData;
 

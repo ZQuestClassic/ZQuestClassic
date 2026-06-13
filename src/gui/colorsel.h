@@ -28,13 +28,13 @@ public:
 	}
 
 	/* Sets a function to be called on value change. */
-	void setOnValChanged(std::function<void(byte)> newOnValChanged);
+	void setOnValChanged(GUI::function<void(byte)> newOnValChanged);
 	
 private:
 	DialogRef alDialog;
 	int32_t onValueChangedMsg;
 	byte colorVal;
-	std::function<void(byte)> onValChanged;
+	GUI::function<void(byte)> onValChanged;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

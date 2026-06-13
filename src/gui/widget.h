@@ -4,6 +4,7 @@
 #include "gui/common.h"
 #include "dialog_message.h"
 #include "gui/dialog_ref.h"
+#include "gui/function.h"
 #include "gui/size.h"
 #include "zalleg/zalleg.h"
 #include <any>

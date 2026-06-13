@@ -79,6 +79,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      # The build (workspace, emscripten cache, LFS assets, node_modules, and
+      # the editor wasm + debug info) fills the ~21GB free on /. Reclaim space
+      # by removing preinstalled toolchains this job never uses.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /usr/local/share/powershell /usr/share/swift \
+            /usr/local/lib/node_modules /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force || true
+          df -h /
+
       - name: Install cmake
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -128,6 +140,17 @@ jobs:
       - run: bash scripts/configure_emscripten.sh
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      # The wasm-opt --asyncify pass on the editor module (zquest.wasm) peaks
+      # above the 16GB runner RAM, OOM-killing the job (exit 143). Add swap so
+      # the link has headroom. /mnt has the large ephemeral disk.
+      - name: Add swap space
+        run: |
+          sudo swapoff -a || true
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
       - run: cmake --build build_emscripten --config RelWithDebInfo -t web
       - run: ccache -s
 

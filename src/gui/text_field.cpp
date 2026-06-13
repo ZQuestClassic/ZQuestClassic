@@ -528,12 +528,12 @@ void TextField::_updateBuf(size_t sz)
 	}
 }
 
-void TextField::setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged)
+void TextField::setOnValChanged(GUI::function<void(type,std::string_view,int32_t)> newOnValChanged)
 {
 	onValChanged = std::move(newOnValChanged);
 }
 
-void TextField::setOnCursorChanged(std::function<void(type,int32_t,int32_t)> newOnCursorChanged)
+void TextField::setOnCursorChanged(GUI::function<void(type,int32_t,int32_t)> newOnCursorChanged)
 {
 	onCursorChanged = std::move(newOnCursorChanged);
 }

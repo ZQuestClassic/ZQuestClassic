@@ -18,9 +18,9 @@ public:
 	int32_t getVal();
 	int32_t getColor();
 
-	void setOnSelectFunc(std::function<void(int32_t)> newOnSelect)
+	void setOnSelectFunc(GUI::function<void(int32_t)> newOnSelect)
 	{
-		onSelectFunc = newOnSelect;
+		onSelectFunc = std::move(newOnSelect);
 	}
 	
 	template<typename T>
@@ -33,7 +33,7 @@ protected:
 private:
 	int32_t val;
 	DialogRef alDialog;
-	std::function<void(int32_t)> onSelectFunc;
+	GUI::function<void(int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

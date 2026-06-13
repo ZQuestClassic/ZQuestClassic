@@ -54,7 +54,7 @@ static const ListData miscColList
 	{ "Default", 18 },
 };
 
-MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
+MiscColorSel::MiscColorSel(): onUpdate(nullptr), c1(0), c2(0)
 {
 	setFitParent(true);
 	for(auto q = 0; q <= 13; ++q)
@@ -209,7 +209,7 @@ void MiscColorSel::doUpdate2(int32_t val, bool func)
 		onUpdate(c1,c2);
 }
 
-void MiscColorSel::setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate)
+void MiscColorSel::setOnUpdate(GUI::function<void(int32_t,int32_t)> newOnUpdate)
 {
 	onUpdate = std::move(newOnUpdate);
 }

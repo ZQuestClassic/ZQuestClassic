@@ -289,7 +289,7 @@ Button(forceFitH = true, text = "?", \
 Label(text = name, hAlign = 1.0), \
 TextField(fitParent = true, \
 	minwidth = CONFIG_TEXTFIELD_MINWIDTH, \
-	type = GUI::TextField::type::FIXED_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::FIXED_DECIMAL, \
 	low = _min*int32_t(pow(10, _places)), high = _max*int32_t(pow(10, _places)), \
 	val = zc_get_config(head, subhead, def, app)*int32_t(pow(10, _places)), \
 	places = _places, \
@@ -303,7 +303,7 @@ DummyWidget()
 Label(text = name, hAlign = 1.0), \
 TextField(fitParent = true, \
 	minwidth = CONFIG_TEXTFIELD_MINWIDTH, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = zc_get_config(head, subhead, def, app), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -315,7 +315,7 @@ DummyWidget()
 Label(text = name, hAlign = 1.0), \
 var = TextField(fitParent = true, \
 	minwidth = CONFIG_TEXTFIELD_MINWIDTH, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = zc_get_config(head, subhead, def, app), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -327,7 +327,7 @@ DummyWidget()
 Label(text = name, hAlign = 1.0), \
 TextField(fitParent = true, \
 	minwidth = CONFIG_TEXTFIELD_MINWIDTH, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = zc_get_config(head, subhead, def, app), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \

@@ -101,7 +101,7 @@ int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 namespace GUI
 {
 	
-MiscColorRow::MiscColorRow(): onUpdate(NULL), val(0), isSys(false)
+MiscColorRow::MiscColorRow(): onUpdate(nullptr), val(0), isSys(false)
 {}
 
 void MiscColorRow::setVal(int32_t newVal)
@@ -168,7 +168,7 @@ void MiscColorRow::realize(DialogRunner& runner)
 	}
 }
 
-void MiscColorRow::setOnUpdate(std::function<void(int32_t)> newOnUpdate)
+void MiscColorRow::setOnUpdate(GUI::function<void(int32_t)> newOnUpdate)
 {
 	onUpdate = std::move(newOnUpdate);
 }

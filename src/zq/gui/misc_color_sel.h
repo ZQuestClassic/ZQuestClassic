@@ -20,10 +20,10 @@ public:
 	
 	void setC1(int32_t val);
 	void setC2(int32_t val);
-	void setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate);
+	void setOnUpdate(GUI::function<void(int32_t,int32_t)> newOnUpdate);
 
 private:
-	std::function<void(int32_t,int32_t)> onUpdate;
+	GUI::function<void(int32_t,int32_t)> onUpdate;
 	
 	std::shared_ptr<Grid> internal_grid;
 	std::shared_ptr<Label> labels[2];

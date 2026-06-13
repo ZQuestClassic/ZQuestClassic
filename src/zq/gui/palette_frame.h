@@ -18,7 +18,7 @@ public:
 	void setColorData(byte* value);
 	void setPal(PALETTE* value);
 	void setCount(uint8_t value);
-	void setOnUpdate(std::function<void()> newOnUpdate);
+	void setOnUpdate(GUI::function<void()> newOnUpdate);
 	int32_t getSelection();
 	
 private:
@@ -27,7 +27,7 @@ private:
 	PALETTE* plt;
 	uint8_t count;
 	DialogRef alDialog;
-	std::function<void()> onUpdate;
+	GUI::function<void()> onUpdate;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

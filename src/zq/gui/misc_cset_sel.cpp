@@ -148,7 +148,7 @@ void MiscCSetSel::doUpdate(int32_t _c1, int32_t _c2)
 		onUpdate(c1,c2);
 }
 
-void MiscCSetSel::setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate)
+void MiscCSetSel::setOnUpdate(GUI::function<void(int32_t,int32_t)> newOnUpdate)
 {
 	onUpdate = std::move(newOnUpdate);
 }

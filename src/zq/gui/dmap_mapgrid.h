@@ -75,14 +75,14 @@ namespace GUI
 			message = static_cast<int32_t>(m);
 		}
 
-		void setOnUpdate(std::function<void(byte*, byte, byte)> newfunc)
+		void setOnUpdate(GUI::function<void(byte*, byte, byte)> newfunc)
 		{
 			onUpdateFunc = std::move(newfunc);
 		}
 
 	private:
 		int32_t message;
-		std::function<void(byte*, byte, byte)> onUpdateFunc;
+		GUI::function<void(byte*, byte, byte)> onUpdateFunc;
 
 		byte* mapspace;
 		byte continueScreen;

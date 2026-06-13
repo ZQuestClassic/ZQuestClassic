@@ -15,7 +15,7 @@ namespace GUI
 {
 
 PaletteFrame::PaletteFrame(): bmp(NULL), ColorData(NULL), plt(NULL), count(14), alDialog(),
-	onUpdate(NULL)
+	onUpdate(nullptr)
 {
 	setPreferredWidth(192_px);
 	setPreferredHeight(12_px*count);
@@ -106,7 +106,7 @@ int32_t PaletteFrame::onEvent(int32_t event, [[maybe_unused]] MessageDispatcher&
 	return -1;
 }
 
-void PaletteFrame::setOnUpdate(std::function<void()> newOnUpdate)
+void PaletteFrame::setOnUpdate(GUI::function<void()> newOnUpdate)
 {
 	onUpdate = std::move(newOnUpdate);
 }

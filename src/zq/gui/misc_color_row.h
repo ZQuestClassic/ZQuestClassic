@@ -17,11 +17,11 @@ public:
 	int32_t getVal();
 	void setCS(int32_t newCS);
 	void setSys(bool val) {isSys = val;}
-	void setOnUpdate(std::function<void(int32_t)> newOnUpdate);
+	void setOnUpdate(GUI::function<void(int32_t)> newOnUpdate);
 
 private:
 	DialogRef alDialog;
-	std::function<void(int32_t)> onUpdate;
+	GUI::function<void(int32_t)> onUpdate;
 	
 	int32_t val, cs;
 	bool isSys;

@@ -44,7 +44,7 @@ bool Radio::getChecked()
 	return alDialog ? alDialog->flags&D_SELECTED : checked;
 }
 
-void Radio::setOnPressFunc(std::function<void(size_t)> newOnPressFunc)
+void Radio::setOnPressFunc(GUI::function<void(size_t)> newOnPressFunc)
 {
 	onPressFunc = std::move(newOnPressFunc);
 }

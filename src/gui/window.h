@@ -43,8 +43,8 @@ public:
 		onKey(Key::Esc, m);
 	}
 	
-	void setOnTick(std::function<int32_t()> newOnTick);
-	void setOnLoad(std::function<void()> newOnLoad);
+	void setOnTick(GUI::function<int32_t()> newOnTick);
+	void setOnLoad(GUI::function<void()> newOnLoad);
 	
 	void load();
 private:
@@ -55,8 +55,8 @@ private:
 	DialogRef alDialog;
 	int32_t closeMessage;
 	bool use_vsync;
-	std::function<int32_t()> onTick;
-	std::function<void()> onLoad;
+	GUI::function<int32_t()> onTick;
+	GUI::function<void()> onLoad;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

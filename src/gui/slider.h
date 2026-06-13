@@ -41,14 +41,14 @@ namespace GUI
 			message = static_cast<int32_t>(m);
 		}
 
-		void setOnValChanged(std::function<void(int32_t)> newfunc)
+		void setOnValChanged(GUI::function<void(int32_t)> newfunc)
 		{
 			onValChangedFunc = std::move(newfunc);
 		}
 
 	private:
 		int32_t message;
-		std::function<void(int32_t)> onValChangedFunc;
+		GUI::function<void(int32_t)> onValChangedFunc;
 
 		int32_t value, min_value, max_value, step;
 		Size handle_width, bar_width;

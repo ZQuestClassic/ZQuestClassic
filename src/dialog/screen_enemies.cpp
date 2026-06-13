@@ -117,7 +117,6 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 				scr_enemies = List(fitParent = true, maxwidth = 400_px, vAlign = 0.0,
 					selectedIndex = last_enemy,
 					data = list_scr_enemies,
-					fitParent = true,
 					onSelectFunc = [&](int32_t val)
 					{
 						selectedIndex = val;

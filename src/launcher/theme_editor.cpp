@@ -53,21 +53,21 @@ int32_t ThemeEditor::theme_edit_on_tick()
 #define RGB_ROW(ind) \
 Label(text = "RGB " + std::to_string(ind) + ":"), \
 tf_red.add(TextField(fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = 0, high = 255, val = work_colors[ind][0], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][0] = val; \
 	})), \
 tf_green.add(TextField(fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = 0, high = 255, val = work_colors[ind][1], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][1] = val; \
 	})), \
 tf_blue.add(TextField(fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = 0, high = 255, val = work_colors[ind][2], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -78,7 +78,7 @@ ColorSel(read_only = true, val = ind, width = 4.5_em)
 #define JC_ROW(jc_const, info) \
 Label(text = #jc_const), \
 tf_jc.add(TextField(fitParent = true, minwidth = 2_em, \
-	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
 	low = 1, high = 8, val = r_dvc(jwin_pal[jc_const]), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \

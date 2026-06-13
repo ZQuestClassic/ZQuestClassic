@@ -20,6 +20,16 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
+set(WANT_CCACHE TRUE CACHE BOOL "Use ccache as a compiler launcher, if installed")
+
+if(WANT_CCACHE AND NOT MSVC)
+	find_program(CCACHE_PROGRAM ccache)
+	if(CCACHE_PROGRAM)
+		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+		message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
+	endif()
+endif()
 set(WANT_ZUPDATER TRUE CACHE BOOL "Build the zupdater target")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_WEBSOCKETS TRUE CACHE BOOL "Support websockets in zscript")
@@ -953,6 +963,21 @@ if(WIN32)
 	)
 endif()
 
+# Dialog code is UI glue with no perf-sensitive code, but the templated GUI
+# builder DSL makes these by far the slowest files in the project to compile
+# at high optimization levels (-O3 spends most of its time inlining the widget
+# trees). Dialing back the inlining cuts their compile time by ~25% with no
+# observable difference: -O1 for Clang/GCC; /Ob1 for MSVC, which keeps /O2's
+# speed optimizations but only inlines functions marked inline.
+if(MSVC)
+	set(zc_dialog_opt_flag /Ob1)
+else()
+	set(zc_dialog_opt_flag -O1)
+endif()
+file(GLOB zc_dialog_sources CONFIGURE_DEPENDS src/dialog/*.cpp)
+set_source_files_properties(${zc_dialog_sources} PROPERTIES
+	COMPILE_OPTIONS "$<$<CONFIG:Release,RelWithDebInfo>:${zc_dialog_opt_flag}>")
+
 #############################################################
 # ZScript parser
 #############################################################
@@ -1233,10 +1258,17 @@ if (MSVC)
 endif()
 
 if(USE_PCH)
+	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		# Embed no timestamp in the PCH so ccache can cache compilations that
+		# use it (requires ccache sloppiness = pch_defines,time_macros).
+		add_compile_options(-Xclang -fno-pch-timestamp)
+	endif()
+	# The C++ PCH is incompatible with Objective-C++.
+	set_source_files_properties(src/zalleg/zalleg_osx.mm PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 	foreach(target IN LISTS zc_targets)
 		target_precompile_headers(${target}
 			PRIVATE
-				[["base/zc_alleg.h"]]
+				<algorithm>
 				<cassert>
 				<cctype>
 				<cmath>
@@ -1245,9 +1277,15 @@ if(USE_PCH)
 				<cstdio>
 				<cstdlib>
 				<cstring>
+				<functional>
 				<map>
+				<memory>
+				<optional>
 				<set>
+				<sstream>
 				<string>
+				<string_view>
+				<utility>
 				<vector>
 		)
 	endforeach()
