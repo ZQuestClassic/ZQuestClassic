@@ -4493,6 +4493,11 @@ string OEnd::toString() const
     return "GAMEEND";
 }
 
+string OExit::toString() const
+{
+    return "GAMEEXIT";
+}
+
 string OGameReload::toString() const
 {
     return "GAMERELOAD";

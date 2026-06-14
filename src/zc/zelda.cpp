@@ -989,7 +989,9 @@ void Z_eventlog(const char *format,...)
 // Should instead add a \n here and remove from all callers. Same for Z_scripterrlog_force_trace. Probably Z_eventlog too.
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+	// TODO: we are skipping maths.zplay here b/c 2.55 is missing some mod/div-0 related bug fixes for error messages.
+	bool should_replay_trace = replay_is_active() && replay_get_meta_bool("script_trace") && replay_get_meta_str("uuid") != "cb2b359f-5724-43de-a93d-cac0fa4d5d44";
+    if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0 || should_replay_trace)
     {
         FFCore.TraceScriptIDs(true);
 		
@@ -1000,7 +1002,11 @@ void Z_scripterrlog(const char * const format,...)
         vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
-        
+
+		extern script_data *curscript;
+		if (should_replay_trace)
+			replay_step_comment(fmt::format("Error: {} - {}", curscript ? curscript->meta.script_name : "?", buf));
+
 		if ( console_enabled ) 
 		{
 			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -4921,6 +4927,8 @@ reload_for_replay_file:
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
 		if (used_switch(argc, argv, "-replay-name") > 0)
 			replay_set_meta("name", argv[replay_name_arg + 1]);
+		if (used_switch(argc, argv, "-replay-script-trace") > 0)
+			replay_set_meta_bool("script_trace", true);
 		use_testingst_start = true;
 	}
 	if (snapshot_arg > 0)

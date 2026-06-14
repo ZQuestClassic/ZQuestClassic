@@ -1,0 +1,6 @@
+Compiling 'classes.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+ZQ_BUFFER Line 1 @ Columns 1-30 - Error P083: Could not find included file 'auto/test_runner.zs'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)

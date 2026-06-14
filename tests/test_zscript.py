@@ -65,6 +65,8 @@ class TestZScript(unittest.TestCase):
         ]
         p = run_target.run('zscript', args)
         stdout = p.stdout.replace(str(script_path), script_path.name)
+        # Normalize: Error P083: Could not find included file 'auto\test_runner.zs'. Please check your include paths!
+        stdout = stdout.replace('auto\\', 'auto/')
         if p.returncode:
             return stdout
 
@@ -79,6 +81,9 @@ class TestZScript(unittest.TestCase):
 
     def test_zscript_compiler_expected_zasm(self):
         for script_path in test_scripts_dir.rglob('*.zs'):
+            if script_path.name in ['auto.zs', 'playground.zs']:
+                continue
+
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
 

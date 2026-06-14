@@ -1,5 +1,4 @@
 #option WARN_DEPRECATED error
-#option NO_ERROR_HALT on
 
 import "std.zh"
 import "ghost.zh"

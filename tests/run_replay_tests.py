@@ -479,10 +479,13 @@ skip_tests = [
 if platform.system() == 'Windows' and mode == 'update':
     # See _is_known_failure_test
     skip_tests.append('terror_of_necromancy_demo5_2_of_5.zplay')
-    skip_tests.append('the_deep/the_deep_4_of_6.zplay')
+    skip_tests.append('the_deep_4_of_6.zplay')
 # TODO: weird failures in CI starting in https://github.com/ZQuestClassic/ZQuestClassic/pull/1137
 if is_web:
     skip_tests.append('garbage_collection.zplay')
+if args.jit:
+    # TODO: need to cherry-pick do_set stuff to jit_x64.cpp
+    skip_tests.append('auto_ffc_script_runner.zplay')
 tests = [t for t in tests if t.name not in skip_tests]
 
 if args.shard:

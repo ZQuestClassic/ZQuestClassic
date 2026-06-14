@@ -6312,6 +6312,16 @@ namespace ZScript
 		}
 	};
 
+	class OExit : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OExit();
+		}
+	};
+
 	class OGameReload : public Opcode
 	{
 	public:

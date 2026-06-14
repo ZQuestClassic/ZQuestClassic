@@ -309,7 +309,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PIXELARRAYR",                0,   0,   0,   0},
 	{ "TILEARRAYR",                0,   0,   0,   0},
 	{ "COMBOARRAYR",                0,   0,   0,   0},
-	{ "RES0000",			   0,   0,   0,   0},
+	{ "GAMEEXIT",             0,   0,   0,   0},
 	{ "RES0001",			   0,   0,   0,   0},
 	{ "RES0002",			   0,   0,   0,   0},
 	{ "RES0003",			   0,   0,   0,   0},

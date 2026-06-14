@@ -1,0 +1,18 @@
+Compiling 'dmap_trace.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Generating object code
+Pass 6: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+PUSHR REFDMAPDATA
+SETR d4,SP
+TRACEV 999
+POPARGS d5,0.0001
+QUIT
+
+
+QUIT

@@ -120,7 +120,7 @@ zscript: add a few functions in preparation for z3 regions
 
 
 correctly emit error when compiling unsupported ZASM
-  The `-quick-compile` and `-smart-compile` CLI switches were not
+  The `-quick-assign` and `-smart-assign` CLI switches were not
   correctly failing the program or printing an error message when
   encountering a bad ZASM command.
 

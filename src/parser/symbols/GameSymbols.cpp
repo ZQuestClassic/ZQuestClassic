@@ -88,6 +88,7 @@ static AccessorTable gameTable[] =
 	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,             FL_DEPR,  { ZTID_GAME },{},0,"Use 'Audio->MIDI' instead!" },
 	{ "Save",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "End",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "Exit",                       0,          ZTID_VOID,   -1,                   FL_INL|FUNCFLAG_EXITS,  { ZTID_GAME },{} },
 	{ "Reload",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "Continue",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "SaveAndQuit",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
@@ -1229,6 +1230,18 @@ void GameSymbols::generateCode()
 		//pop pointer, and ignore it
 		ASSERT_NUL();
 		addOpcode2 (code, new OEnd());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Exit(game)
+	{
+		Function* function = getFunction("Exit");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
+		ASSERT_NUL();
+		addOpcode2 (code, new OExit());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);

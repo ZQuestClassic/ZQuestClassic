@@ -38425,6 +38425,11 @@ j_command:
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMEEXIT:
+				Quit = qEXIT;
+				skipcont = 1;
+				scommand = 0xFFFF;
+				break;
 			case GAMERELOAD:
 				if ( using_SRAM )
 				{
@@ -45447,6 +45452,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ARCCOSR",             2,   0,   0,   0},
 	{ "ARCCOSV",             2,   1,   0,   0},
 	{ "GAMEEND",             0,   0,   0,   0},
+	{ "GAMEEXIT",             0,   0,   0,   0},
 	{ "DRAWINT",             0,   0,   0,   0},
 	{ "SETTRUE",             1,   0,   0,   0},
 	{ "SETFALSE",            1,   0,   0,   0},
@@ -54980,6 +54986,7 @@ bool command_could_return_not_ok(int command)
 	case EWPNDEL:
 	case GAMECONTINUE:
 	case GAMEEND:
+	case GAMEEXIT:
 	case GAMERELOAD:
 	case GAMESAVECONTINUE:
 	case GAMESAVEQUIT:
