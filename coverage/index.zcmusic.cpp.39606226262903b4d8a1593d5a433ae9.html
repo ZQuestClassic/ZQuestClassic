@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-06 02:49:24</td>
+      <td>2026-06-14 20:58:35</td>
     </tr>
   </table>
 </div>
@@ -95,16 +95,16 @@
     <tr><td><a href="#l847">zcmusic_get_type(ZCMUSIC*) (line 847)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l199">zcmusic_init(int) (line 199)</a></td><td>called 459 times, returned 459 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l306">zcmusic_load_file(char const*) (line 306)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l80">zcmusic_load_for_quest(char const*, char const*) (line 80)</a></td><td>called 1111 times, returned 1111 times</td><td>3.0%</td></tr>
-    <tr><td><a href="#l519">zcmusic_pause(ZCMUSIC*, int) (line 519)</a></td><td>called 62 times, returned 62 times</td><td>13.0%</td></tr>
+    <tr><td><a href="#l80">zcmusic_load_for_quest(char const*, char const*) (line 80)</a></td><td>called 1110 times, returned 1110 times</td><td>3.0%</td></tr>
+    <tr><td><a href="#l519">zcmusic_pause(ZCMUSIC*, int) (line 519)</a></td><td>called 63 times, returned 63 times</td><td>13.0%</td></tr>
     <tr><td><a href="#l453">zcmusic_play(ZCMUSIC*, int) (line 453)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l225">zcmusic_poll(int) (line 225)</a></td><td>called 23 times, returned 23 times</td><td>20.0%</td></tr>
     <tr><td><a href="#l784">zcmusic_set_curpos(ZCMUSIC*, int) (line 784)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l831">zcmusic_set_loop(ZCMUSIC*, double, double) (line 831)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l799">zcmusic_set_speed(ZCMUSIC*, int) (line 799)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l614">zcmusic_set_volume(ZCMUSIC*, int) (line 614)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l582">zcmusic_stop(ZCMUSIC*) (line 582)</a></td><td>called 9584 times, returned 9584 times</td><td>23.0%</td></tr>
-    <tr><td><a href="#l648">zcmusic_unload_file(ZCMUSIC*&amp;) (line 648)</a></td><td>called 10039 times, returned 10039 times</td><td>20.0%</td></tr>
+    <tr><td><a href="#l582">zcmusic_stop(ZCMUSIC*) (line 582)</a></td><td>called 9536 times, returned 9536 times</td><td>23.0%</td></tr>
+    <tr><td><a href="#l648">zcmusic_unload_file(ZCMUSIC*&amp;) (line 648)</a></td><td>called 9991 times, returned 9991 times</td><td>20.0%</td></tr>
   </table>
 </details>
 
@@ -676,7 +676,7 @@
       <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1111</td>
+      <td class="linecount coveredLine">1110</td>
       <td class="src coveredLine"><span class="n">pair</span><span class="o">&lt;</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="p">,</span><span class="n">ZCM_Error</span><span class="o">&gt;</span><span class="w"> </span><span class="n">zcmusic_load_for_quest</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">quest_path</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -692,19 +692,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1111 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1110 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1111</td>
+      <td class="linecount partialCoveredLine">1110</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">al_is_audio_installed</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1111</td>
+      <td class="linecount coveredLine">1110</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">ZCM_E_NO_AUDIO</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1054,7 +1054,7 @@
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1111</td>
+      <td class="linecount coveredLine">1110</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -3833,7 +3833,7 @@
       <td class="lineno"><a id="l519" href="#l519">519</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">62</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">zcmusic_pause</span><span class="p">(</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="w"> </span><span class="n">zcm</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pause</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3878,11 +3878,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 62 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 63 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">62</td>
+      <td class="linecount partialCoveredLine">63</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zcm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">FALSE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -4267,7 +4267,7 @@
       <td class="lineno"><a id="l580" href="#l580">580</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">62</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4281,7 +4281,7 @@
       <td class="lineno"><a id="l582" href="#l582">582</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9584</td>
+      <td class="linecount coveredLine">9536</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">zcmusic_stop</span><span class="p">(</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="w"> </span><span class="n">zcm</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -4312,11 +4312,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 9584 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 9536 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">9584</td>
+      <td class="linecount partialCoveredLine">9536</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zcm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">FALSE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -4498,7 +4498,7 @@
       <td class="lineno"><a id="l612" href="#l612">612</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">9584</td>
+      <td class="linecount coveredLine">9536</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -4750,7 +4750,7 @@
       <td class="lineno"><a id="l648" href="#l648">648</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10039</td>
+      <td class="linecount coveredLine">9991</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zcmusic_unload_file</span><span class="p">(</span><span class="n">ZCMUSIC</span><span class="o">*</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zcm</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -4788,11 +4788,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 10039 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 9991 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">10039</td>
+      <td class="linecount partialCoveredLine">9991</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zcm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -5072,7 +5072,7 @@
       <td class="lineno"><a id="l693" href="#l693">693</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10039</td>
+      <td class="linecount coveredLine">9991</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

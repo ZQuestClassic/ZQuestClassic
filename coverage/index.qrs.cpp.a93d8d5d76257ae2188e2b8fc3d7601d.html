@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-06 02:49:24</td>
+      <td>2026-06-14 20:58:35</td>
     </tr>
   </table>
 </div>
@@ -73,9 +73,9 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l23">get_er(int) (line 23)</a></td><td>called 430 times, returned 430 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l27">set_er(int, bool) (line 27)</a></td><td>called 240 times, returned 240 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l13">set_qr(int, bool, unsigned char*) (line 13)</a></td><td>called 197755 times, returned 197755 times</td><td>77.0%</td></tr>
+    <tr><td><a href="#l23">get_er(int) (line 23)</a></td><td>called 427 times, returned 427 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l27">set_er(int, bool) (line 27)</a></td><td>called 239 times, returned 239 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l13">set_qr(int, bool, unsigned char*) (line 13)</a></td><td>called 197247 times, returned 197247 times</td><td>77.0%</td></tr>
     <tr><td><a href="#l8">unpack_qrs() (line 8)</a></td><td>called 3876 times, returned 3876 times</td><td>100.0%</td></tr>
   </table>
 </details>
@@ -186,7 +186,7 @@
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">197755</td>
+      <td class="linecount coveredLine">197247</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">set_qr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qstptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -202,12 +202,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 197755 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 197247 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">197755</td>
+      <td class="linecount partialCoveredLine">197247</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assert</span><span class="p">(</span><span class="n">index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">qr_MAX</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -217,25 +217,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 197755 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 197247 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">197755</td>
+      <td class="linecount partialCoveredLine">197247</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">qstptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">197755</td>
+      <td class="linecount coveredLine">197247</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">qstptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">quest_rules</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">197755</td>
+      <td class="linecount coveredLine">197247</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">set_bit</span><span class="p">(</span><span class="n">qstptr</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">state</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -245,25 +245,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 197755 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 197247 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">197755</td>
+      <td class="linecount partialCoveredLine">197247</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">qstptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">quest_rules</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">197755</td>
+      <td class="linecount coveredLine">197247</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">_qrs_unpacked</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">197755</td>
+      <td class="linecount coveredLine">197247</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -277,7 +277,7 @@
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">430</td>
+      <td class="linecount coveredLine">427</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">get_er</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -291,7 +291,7 @@
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">430</td>
+      <td class="linecount coveredLine">427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">get_bit</span><span class="p">(</span><span class="n">extra_rules</span><span class="p">,</span><span class="n">index</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -305,7 +305,7 @@
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">240</td>
+      <td class="linecount coveredLine">239</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">set_er</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -319,14 +319,14 @@
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">240</td>
+      <td class="linecount coveredLine">239</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">set_bit</span><span class="p">(</span><span class="n">extra_rules</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">state</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">240</td>
+      <td class="linecount coveredLine">239</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

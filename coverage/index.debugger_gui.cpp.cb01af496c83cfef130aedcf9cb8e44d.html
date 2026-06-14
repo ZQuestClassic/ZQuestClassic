@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-06 02:49:24</td>
+      <td>2026-06-14 20:58:35</td>
     </tr>
   </table>
 </div>
@@ -41,8 +41,8 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>538</td>
-      <td>1005</td>
+      <td>539</td>
+      <td>1007</td>
       <td class="coverage-low">53.5%</td>
     </tr>
     <tr>
@@ -53,8 +53,8 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>387</td>
-      <td>1224</td>
+      <td>388</td>
+      <td>1226</td>
       <td class="coverage-low">31.6%</td>
     </tr>
   </table>
@@ -96,13 +96,13 @@
     <tr><td><a href="#l465">(anonymous namespace)::RenderDebugVariable(Debugger*, Variable&amp;, std::vector&lt;Variable*, std::allocator&lt;Variable*&gt; &gt;, bool)::$_2::operator()() const (line 465)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l308">(anonymous namespace)::RenderVirtualTree(Debugger*, FileNode&amp;) (line 308)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l266">(anonymous namespace)::U32ToImVec4(unsigned int) (line 266)</a></td><td>called 11611 times, returned 11611 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1496">Debugger::InitGui() (line 1496)</a></td><td>called 409 times, returned 409 times</td><td>69.0%</td></tr>
-    <tr><td><a href="#l1531">Debugger::InitGui()::$_0::operator()(int, bool, bool) const (line 1531)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1541">Debugger::InitGui()::$_1::operator()(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 1541)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1496">Debugger::InitGui() (line 1496)</a></td><td>called 409 times, returned 409 times</td><td>66.0%</td></tr>
+    <tr><td><a href="#l1535">Debugger::InitGui()::$_0::operator()(int, bool, bool) const (line 1535)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1545">Debugger::InitGui()::$_1::operator()(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) const (line 1545)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1338">auto (anonymous namespace)::DrawFileSelector(Debugger*)::$_0::operator()&lt;std::pair&lt;int, SourceFile const*&gt;, std::pair&lt;int, SourceFile const*&gt; &gt;(std::pair&lt;int, SourceFile const*&gt; const&amp;, std::pair&lt;int, SourceFile const*&gt; const&amp;) const (line 1338)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l497">auto (anonymous namespace)::RenderDebugVariable(Debugger*, Variable&amp;, std::vector&lt;Variable*, std::allocator&lt;Variable*&gt; &gt;, bool)::$_0::operator()() const::&#39;lambda&#39;(auto&amp;)::operator()&lt;Watch&gt;(auto&amp;) const (line 497)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l510">auto (anonymous namespace)::RenderDebugVariable(Debugger*, Variable&amp;, std::vector&lt;Variable*, std::allocator&lt;Variable*&gt; &gt;, bool)::$_0::operator()() const::&#39;lambda0&#39;(auto&amp;)::operator()&lt;Watch&gt;(auto&amp;) const (line 510)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1578">zscript_debugger_gui_update(Debugger*) (line 1578)</a></td><td>called 409 times, returned 409 times</td><td>34.0%</td></tr>
+    <tr><td><a href="#l1582">zscript_debugger_gui_update(Debugger*) (line 1582)</a></td><td>called 409 times, returned 409 times</td><td>34.0%</td></tr>
   </table>
 </details>
 
@@ -12579,74 +12579,109 @@
       <td class="lineno"><a id="l1521" href="#l1521">1521</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">al_set_window_title</span><span class="p">(</span><span class="n">display</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Debugger&quot;</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1522" href="#l1522">1522</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_Init</span><span class="p">(</span><span class="n">display</span><span class="p">);</span></td>
+      <td class="linecount partialCoveredLine">2</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">main_display</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">all_get_display</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1523" href="#l1523">1523</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">zalleg_bring_window_to_foreground</span><span class="p">(</span><span class="n">main_display</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1524" href="#l1524">1524</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_event_queue</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1525" href="#l1525">1525</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_display_event_source</span><span class="p">(</span><span class="n">display</span><span class="p">));</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">al_set_window_title</span><span class="p">(</span><span class="n">display</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Debugger&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1526" href="#l1526">1526</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_keyboard_event_source</span><span class="p">());</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_Init</span><span class="p">(</span><span class="n">display</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1527" href="#l1527">1527</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_mouse_event_source</span><span class="p">());</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1528" href="#l1528">1528</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l1528" href="#l1528">1528</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_event_queue</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l1529" href="#l1529">1529</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_display_event_source</span><span class="p">(</span><span class="n">display</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1530" href="#l1530">1530</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetShowWhitespaces</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_keyboard_event_source</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1531" href="#l1531">1531</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">al_register_event_source</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_mouse_event_source</span><span class="p">());</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1532" href="#l1532">1532</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1533" href="#l1533">1533</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetReadOnly</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1534" href="#l1534">1534</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetShowWhitespaces</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1535" href="#l1535">1535</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -12660,70 +12695,70 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetBreakpointCallback</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">added</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">enabled</span><span class="p">){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1532" href="#l1532">1532</a></td>
+      <td class="lineno"><a id="l1536" href="#l1536">1536</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">auto</span><span class="w"> </span><span class="n">pcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zasm_debug_data</span><span class="p">.</span><span class="n">resolveAllPcsFromSourceLocation</span><span class="p">(</span><span class="n">selected_source_file</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1533" href="#l1533">1533</a></td>
+      <td class="lineno"><a id="l1537" href="#l1537">1537</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">pc_t</span><span class="w"> </span><span class="n">pc</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">pcs</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1534" href="#l1534">1534</a></td>
+      <td class="lineno"><a id="l1538" href="#l1538">1538</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1535" href="#l1535">1535</a></td>
+      <td class="lineno"><a id="l1539" href="#l1539">1539</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">added</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1536" href="#l1536">1536</a></td>
+      <td class="lineno"><a id="l1540" href="#l1540">1540</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">AddBreakpoint</span><span class="p">(</span><span class="n">selected_source_file</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="p">,</span><span class="w"> </span><span class="n">enabled</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1537" href="#l1537">1537</a></td>
+      <td class="lineno"><a id="l1541" href="#l1541">1541</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="k">else</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1538" href="#l1538">1538</a></td>
+      <td class="lineno"><a id="l1542" href="#l1542">1542</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">RemoveBreakpoint</span><span class="p">(</span><span class="n">pc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1539" href="#l1539">1539</a></td>
+      <td class="lineno"><a id="l1543" href="#l1543">1543</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1540" href="#l1540">1540</a></td>
+      <td class="lineno"><a id="l1544" href="#l1544">1544</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1541" href="#l1541">1541</a></td>
+      <td class="lineno"><a id="l1545" href="#l1545">1545</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -12737,294 +12772,294 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">text_editor</span><span class="p">.</span><span class="n">SetHoverCallback</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">word</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1542" href="#l1542">1542</a></td>
+      <td class="lineno"><a id="l1546" href="#l1546">1546</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">Paused</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1543" href="#l1543">1543</a></td>
+      <td class="lineno"><a id="l1547" href="#l1547">1547</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1544" href="#l1544">1544</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">static</span><span class="w"> </span><span class="n">DebugValue</span><span class="w"> </span><span class="n">prev_value</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1545" href="#l1545">1545</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">prev_str</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1546" href="#l1546">1546</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">const</span><span class="w"> </span><span class="n">Variable</span><span class="o">*</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindVariable</span><span class="p">(</span><span class="n">word</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1547" href="#l1547">1547</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">var</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1548" href="#l1548">1548</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+      <td class="src "><span class="w">		</span><span class="k">static</span><span class="w"> </span><span class="n">DebugValue</span><span class="w"> </span><span class="n">prev_value</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1549" href="#l1549">1549</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Evaluate</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">prev_str</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1550" href="#l1550">1550</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">const</span><span class="w"> </span><span class="n">Variable</span><span class="o">*</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindVariable</span><span class="p">(</span><span class="n">word</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1551" href="#l1551">1551</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">var</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1552" href="#l1552">1552</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">DebugValue</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">value</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1553" href="#l1553">1553</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isVoid</span><span class="p">(</span><span class="n">zasm_debug_data</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1554" href="#l1554">1554</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1555" href="#l1555">1555</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">prev_value</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1556" href="#l1556">1556</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1557" href="#l1557">1557</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">prev_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1558" href="#l1558">1558</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">prev_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ValueToStringTooltip</span><span class="p">(</span><span class="n">value</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1559" href="#l1559">1559</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1560" href="#l1560">1560</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1561" href="#l1561">1561</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateVariableFromValue</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1562" href="#l1562">1562</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">DrawVariableTooltip</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">prev_str</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1563" href="#l1563">1563</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">return</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1564" href="#l1564">1564</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1565" href="#l1565">1565</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1566" href="#l1566">1566</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">prev_value</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1567" href="#l1567">1567</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l1553" href="#l1553">1553</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Evaluate</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1554" href="#l1554">1554</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1555" href="#l1555">1555</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1556" href="#l1556">1556</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">DebugValue</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">value</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1557" href="#l1557">1557</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">type</span><span class="o">-&gt;</span><span class="n">isVoid</span><span class="p">(</span><span class="n">zasm_debug_data</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1558" href="#l1558">1558</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1559" href="#l1559">1559</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">prev_value</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1560" href="#l1560">1560</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1561" href="#l1561">1561</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">prev_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1562" href="#l1562">1562</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">prev_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ValueToStringTooltip</span><span class="p">(</span><span class="n">value</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1563" href="#l1563">1563</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1564" href="#l1564">1564</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1565" href="#l1565">1565</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateVariableFromValue</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1566" href="#l1566">1566</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">DrawVariableTooltip</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">prev_str</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1567" href="#l1567">1567</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="k">return</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l1568" href="#l1568">1568</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">prev_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1569" href="#l1569">1569</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">prev_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ValueToStringTooltip</span><span class="p">(</span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1570" href="#l1570">1570</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1571" href="#l1571">1571</a></td>
+      <td class="lineno"><a id="l1569" href="#l1569">1569</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1570" href="#l1570">1570</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">prev_value</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1571" href="#l1571">1571</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1572" href="#l1572">1572</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">DrawVariableTooltip</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">prev_str</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">prev_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1573" href="#l1573">1573</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="p">});</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">prev_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ValueToStringTooltip</span><span class="p">(</span><span class="n">var</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1574" href="#l1574">1574</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1575" href="#l1575">1575</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1575" href="#l1575">1575</a></td>
+      <td class="lineno"><a id="l1576" href="#l1576">1576</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">DrawVariableTooltip</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">prev_str</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1577" href="#l1577">1577</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">});</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1578" href="#l1578">1578</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1579" href="#l1579">1579</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">has_initialized_gui</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1576" href="#l1576">1576</a></td>
+      <td class="lineno"><a id="l1580" href="#l1580">1580</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1577" href="#l1577">1577</a></td>
+      <td class="lineno"><a id="l1581" href="#l1581">1581</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1578" href="#l1578">1578</a></td>
+      <td class="lineno"><a id="l1582" href="#l1582">1582</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">zscript_debugger_gui_update</span><span class="p">(</span><span class="n">Debugger</span><span class="o">*</span><span class="w"> </span><span class="n">debugger</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1579" href="#l1579">1579</a></td>
+      <td class="lineno"><a id="l1583" href="#l1583">1583</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1580" href="#l1580">1580</a></td>
+      <td class="lineno"><a id="l1584" href="#l1584">1584</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">InitGui</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1581" href="#l1581">1581</a></td>
+      <td class="lineno"><a id="l1585" href="#l1585">1585</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_set_target_backbuffer</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1582" href="#l1582">1582</a></td>
+      <td class="lineno"><a id="l1586" href="#l1586">1586</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1583" href="#l1583">1583</a></td>
+      <td class="lineno"><a id="l1587" href="#l1587">1587</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -13038,42 +13073,42 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">root_node</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1584" href="#l1584">1584</a></td>
+      <td class="lineno"><a id="l1588" href="#l1588">1588</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">BuildVirtualTree</span><span class="p">(</span><span class="n">zasm_debug_data</span><span class="p">.</span><span class="n">source_files</span><span class="p">,</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">root_node</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1585" href="#l1585">1585</a></td>
+      <td class="lineno"><a id="l1589" href="#l1589">1589</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1586" href="#l1586">1586</a></td>
+      <td class="lineno"><a id="l1590" href="#l1590">1590</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1587" href="#l1587">1587</a></td>
+      <td class="lineno"><a id="l1591" href="#l1591">1591</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1588" href="#l1588">1588</a></td>
+      <td class="lineno"><a id="l1592" href="#l1592">1592</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="n">ALLEGRO_EVENT</span><span class="w"> </span><span class="n">ev</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1589" href="#l1589">1589</a></td>
+      <td class="lineno"><a id="l1593" href="#l1593">1593</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -13087,263 +13122,235 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">al_get_next_event</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">queue</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1590" href="#l1590">1590</a></td>
+      <td class="lineno"><a id="l1594" href="#l1594">1594</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1591" href="#l1591">1591</a></td>
+      <td class="lineno"><a id="l1595" href="#l1595">1595</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="c1">// Always handle some key down/up events, even if the main display is focused.</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1592" href="#l1592">1592</a></td>
+      <td class="lineno"><a id="l1596" href="#l1596">1596</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1593" href="#l1593">1593</a></td>
+      <td class="lineno"><a id="l1597" href="#l1597">1597</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1594" href="#l1594">1594</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_EVENT_KEY_DOWN</span><span class="p">:</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1595" href="#l1595">1595</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_EVENT_KEY_UP</span><span class="p">:</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1596" href="#l1596">1596</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1597" href="#l1597">1597</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">keyboard</span><span class="p">.</span><span class="n">keycode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1598" href="#l1598">1598</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="p">{</span></td>
+      <td class="src "><span class="w">			</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_EVENT_KEY_DOWN</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1599" href="#l1599">1599</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F5</span><span class="p">:</span></td>
+      <td class="src "><span class="w">			</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_EVENT_KEY_UP</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1600" href="#l1600">1600</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F6</span><span class="p">:</span></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1601" href="#l1601">1601</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F10</span><span class="p">:</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">keyboard</span><span class="p">.</span><span class="n">keycode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1602" href="#l1602">1602</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F11</span><span class="p">:</span></td>
+      <td class="src "><span class="w">				</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1603" href="#l1603">1603</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">{</span></td>
+      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F5</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1604" href="#l1604">1604</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">						</span><span class="n">ev</span><span class="p">.</span><span class="n">keyboard</span><span class="p">.</span><span class="n">display</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F6</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1605" href="#l1605">1605</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">					</span><span class="p">}</span></td>
+      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F10</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1606" href="#l1606">1606</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="k">case</span><span class="w"> </span><span class="no">ALLEGRO_KEY_F11</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1607" href="#l1607">1607</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">}</span></td>
+      <td class="src "><span class="w">					</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1608" href="#l1608">1608</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">ev</span><span class="p">.</span><span class="n">keyboard</span><span class="p">.</span><span class="n">display</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1609" href="#l1609">1609</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">ImGui_ImplAllegro5_ProcessEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1610" href="#l1610">1610</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ALLEGRO_EVENT_DISPLAY_CLOSE</span><span class="p">)</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1611" href="#l1611">1611</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ALLEGRO_EVENT_DISPLAY_RESIZE</span><span class="p">)</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1612" href="#l1612">1612</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1613" href="#l1613">1613</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ImGui_ImplAllegro5_InvalidateDeviceObjects</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1614" href="#l1614">1614</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_acknowledge_resize</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1615" href="#l1615">1615</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ImGui_ImplAllegro5_CreateDeviceObjects</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1616" href="#l1616">1616</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1617" href="#l1617">1617</a></td>
+      <td class="lineno"><a id="l1613" href="#l1613">1613</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">ImGui_ImplAllegro5_ProcessEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1614" href="#l1614">1614</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ALLEGRO_EVENT_DISPLAY_CLOSE</span><span class="p">)</span><span class="w"> </span><span class="n">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1615" href="#l1615">1615</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ALLEGRO_EVENT_DISPLAY_RESIZE</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1616" href="#l1616">1616</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span></td>
+      <td class="src "><span class="w">		</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1617" href="#l1617">1617</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ImGui_ImplAllegro5_InvalidateDeviceObjects</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1618" href="#l1618">1618</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_acknowledge_resize</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1619" href="#l1619">1619</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_NewFrame</span><span class="p">();</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">ImGui_ImplAllegro5_CreateDeviceObjects</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1620" href="#l1620">1620</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">NewFrame</span><span class="p">();</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1621" href="#l1621">1621</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1622" href="#l1622">1622</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawMenuBar</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1623" href="#l1623">1623</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l1623" href="#l1623">1623</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_NewFrame</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l1624" href="#l1624">1624</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGuiViewport</span><span class="o">*</span><span class="w"> </span><span class="n">viewport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImGui</span><span class="o">::</span><span class="n">GetMainViewport</span><span class="p">();</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">NewFrame</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1625" href="#l1625">1625</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">SetNextWindowPos</span><span class="p">(</span><span class="n">viewport</span><span class="o">-&gt;</span><span class="n">WorkPos</span><span class="p">);</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1626" href="#l1626">1626</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">SetNextWindowSize</span><span class="p">(</span><span class="n">viewport</span><span class="o">-&gt;</span><span class="n">WorkSize</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawMenuBar</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1627" href="#l1627">1627</a></td>
@@ -13357,77 +13364,77 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Begin</span><span class="p">(</span><span class="s">&quot;Window&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoMove</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoResize</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoTitleBar</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoScrollbar</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoBringToFrontOnFocus</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGuiViewport</span><span class="o">*</span><span class="w"> </span><span class="n">viewport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImGui</span><span class="o">::</span><span class="n">GetMainViewport</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1629" href="#l1629">1629</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">PushDebuggerStyle</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">text_editor</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">SetNextWindowPos</span><span class="p">(</span><span class="n">viewport</span><span class="o">-&gt;</span><span class="n">WorkPos</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1630" href="#l1630">1630</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawDebuggerWindowContents</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">SetNextWindowSize</span><span class="p">(</span><span class="n">viewport</span><span class="o">-&gt;</span><span class="n">WorkSize</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1631" href="#l1631">1631</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">PopDebuggerStyle</span><span class="p">();</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1632" href="#l1632">1632</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">End</span><span class="p">();</span><span class="w"> </span><span class="c1">// End Main Window</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Begin</span><span class="p">(</span><span class="s">&quot;Window&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoMove</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoResize</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoTitleBar</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoScrollbar</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ImGuiWindowFlags_NoBringToFrontOnFocus</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1633" href="#l1633">1633</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">PushDebuggerStyle</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">text_editor</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1634" href="#l1634">1634</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawFileSelector</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawDebuggerWindowContents</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1635" href="#l1635">1635</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">PopDebuggerStyle</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1636" href="#l1636">1636</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">End</span><span class="p">();</span><span class="w"> </span><span class="c1">// End Main Window</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1637" href="#l1637">1637</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1636" href="#l1636">1636</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Render.</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1637" href="#l1637">1637</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Render</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l1638" href="#l1638">1638</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_RenderDrawData</span><span class="p">(</span><span class="n">ImGui</span><span class="o">::</span><span class="n">GetDrawData</span><span class="p">());</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">DrawFileSelector</span><span class="p">(</span><span class="n">debugger</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1639" href="#l1639">1639</a></td>
@@ -13438,6 +13445,34 @@
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1640" href="#l1640">1640</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Render.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1641" href="#l1641">1641</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Render</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1642" href="#l1642">1642</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">409</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ImGui_ImplAllegro5_RenderDrawData</span><span class="p">(</span><span class="n">ImGui</span><span class="o">::</span><span class="n">GetDrawData</span><span class="p">());</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1643" href="#l1643">1643</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1644" href="#l1644">1644</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -13451,63 +13486,63 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tooltip_bmp</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1641" href="#l1641">1641</a></td>
+      <td class="lineno"><a id="l1645" href="#l1645">1645</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1642" href="#l1642">1642</a></td>
+      <td class="lineno"><a id="l1646" href="#l1646">1646</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">al_destroy_bitmap</span><span class="p">(</span><span class="n">tooltip_bmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1643" href="#l1643">1643</a></td>
+      <td class="lineno"><a id="l1647" href="#l1647">1647</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">tooltip_bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1644" href="#l1644">1644</a></td>
+      <td class="lineno"><a id="l1648" href="#l1648">1648</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1645" href="#l1645">1645</a></td>
+      <td class="lineno"><a id="l1649" href="#l1649">1649</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1646" href="#l1646">1646</a></td>
+      <td class="lineno"><a id="l1650" href="#l1650">1650</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_flip_display</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1647" href="#l1647">1647</a></td>
+      <td class="lineno"><a id="l1651" href="#l1651">1651</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_set_target_backbuffer</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1648" href="#l1648">1648</a></td>
+      <td class="lineno"><a id="l1652" href="#l1652">1652</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1649" href="#l1649">1649</a></td>
+      <td class="lineno"><a id="l1653" href="#l1653">1653</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -13521,21 +13556,21 @@
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Debugger</span><span class="o">::</span><span class="n">State</span><span class="o">::</span><span class="n">Paused</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1650" href="#l1650">1650</a></td>
+      <td class="lineno"><a id="l1654" href="#l1654">1654</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1651" href="#l1651">1651</a></td>
+      <td class="lineno"><a id="l1655" href="#l1655">1655</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">202</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">clear_info_bmp</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1652" href="#l1652">1652</a></td>
+      <td class="lineno"><a id="l1656" href="#l1656">1656</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -13549,116 +13584,88 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">highlight_sprite_id</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1653" href="#l1653">1653</a></td>
+      <td class="lineno"><a id="l1657" href="#l1657">1657</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1654" href="#l1654">1654</a></td>
+      <td class="lineno"><a id="l1658" href="#l1658">1658</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sprite</span><span class="o">*</span><span class="w"> </span><span class="n">spr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sprite</span><span class="o">::</span><span class="n">getByUID</span><span class="p">(</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">highlight_sprite_id</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1655" href="#l1655">1655</a></td>
+      <td class="lineno"><a id="l1659" href="#l1659">1659</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1656" href="#l1656">1656</a></td>
+      <td class="lineno"><a id="l1660" href="#l1660">1660</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">				</span><span class="k">extern</span><span class="w"> </span><span class="n">viewport_t</span><span class="w"> </span><span class="n">viewport</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1657" href="#l1657">1657</a></td>
+      <td class="lineno"><a id="l1661" href="#l1661">1661</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1658" href="#l1658">1658</a></td>
+      <td class="lineno"><a id="l1662" href="#l1662">1662</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">start_info_bmp</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1659" href="#l1659">1659</a></td>
+      <td class="lineno"><a id="l1663" href="#l1663">1663</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">viewport</span><span class="p">.</span><span class="n">x</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1660" href="#l1660">1660</a></td>
+      <td class="lineno"><a id="l1664" href="#l1664">1664</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playing_field_offset</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">viewport</span><span class="p">.</span><span class="n">y</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1661" href="#l1661">1661</a></td>
+      <td class="lineno"><a id="l1665" href="#l1665">1665</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">spr</span><span class="o">-&gt;</span><span class="n">draw_a5</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">al_map_rgba</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">108</span><span class="p">,</span><span class="mi">160</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1662" href="#l1662">1662</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1663" href="#l1663">1663</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">end_info_bmp</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1664" href="#l1664">1664</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1665" href="#l1665">1665</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l1666" href="#l1666">1666</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">highlight_sprite_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1667" href="#l1667">1667</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">end_info_bmp</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1668" href="#l1668">1668</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">202</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1669" href="#l1669">1669</a></td>
@@ -13671,18 +13678,46 @@
       <td class="lineno"><a id="l1670" href="#l1670">1670</a></td>
       <td class="linebranch">
       </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">debugger</span><span class="o">-&gt;</span><span class="n">highlight_sprite_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1671" href="#l1671">1671</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1672" href="#l1672">1672</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">202</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1673" href="#l1673">1673</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1674" href="#l1674">1674</a></td>
+      <td class="linebranch">
+      </td>
       <td class="linecount coveredLine">409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">running</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1671" href="#l1671">1671</a></td>
+      <td class="lineno"><a id="l1675" href="#l1675">1675</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1672" href="#l1672">1672</a></td>
+      <td class="lineno"><a id="l1676" href="#l1676">1676</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
