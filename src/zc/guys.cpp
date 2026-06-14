@@ -7802,7 +7802,7 @@ int32_t enemy::run_script(int32_t mode)
 	void pop_ri();
 
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (script <= 0 || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+	if (script <= 0 || script >= NUMSCRIPTGUYS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();
