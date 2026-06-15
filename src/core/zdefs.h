@@ -2050,20 +2050,44 @@ enum swStyle //Switchhook animation styles
 
 enum //Special hardcoded draw layers
 {
-	SPLAYER_PLAYER_DRAW = -200000, //The Hero, when this occurs changes based on various conditions.
-	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
-	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
-	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
-	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
-	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the Hero is also above this height.
-	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links
-	SPLAYER_NPC_DRAW, //Enemies
-	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the Hero, or with a higher Z than the Hero
-	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
-	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
-	SPLAYER_FAIRYITEM_DRAW, //Moving fairies
-	SPLAYER_PUSHBLOCK, //Pushable Blocks
-	SPLAYER_MOVINGBLOCK, //Moving Pushable Blocks
+	SPLAYER_PLAYER_DRAW = -200000,  // The [Hero], when this occurs changes based on various conditions.
+	// Eweapons with 'Behind = true'.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_EWEAP_BEHIND_DRAW,
+	// Eweapons with 'Behind = false'.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_EWEAP_FRONT_DRAW,
+	// Lweapons with 'Behind = true'.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_LWEAP_BEHIND_DRAW,
+	// Lweapons with 'Behind = false'.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_LWEAP_FRONT_DRAW,
+	// Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the [Hero] is also above this height.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_LWEAP_ABOVE_DRAW,
+	// Hookshot chain links. This may draw multiple times per frame.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_CHAINLINK_DRAW,
+	// Enemies draw.
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_NPC_DRAW,
+	// Enemies 'grabbing' the [Hero], or with a higher Z than the [Hero]
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_NPC_ABOVEPLAYER_DRAW,
+	// Flying enemies, or enemies in the Z axis (amount required QR dependant)
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_NPC_AIRBORNE_DRAW,
+	// Itemsprites
+	// Does not work if 'Classic Draw Order' is disabled.
+	SPLAYER_ITEMSPRITE_DRAW,
+	// Moving fairies
+	SPLAYER_FAIRYITEM_DRAW,
+	// Pushable Blocks
+	// Only occurs if 'Pushable Block Sprite Layer' is enabled.
+	SPLAYER_PUSHBLOCK,
+	// Moving Pushable Blocks
+	SPLAYER_MOVINGBLOCK,
 	SPLAYER_OVERHEAD_CMB, //Overhead combos
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
@@ -2072,6 +2096,14 @@ enum //Special hardcoded draw layers
 	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_OVER, //Lens drawing blackness to cover most of the screen
+	// Just underneath the [Hero]'s draw
+	SPLAYER_UNDER_PLAYER_DRAW,
+	// Just over the [Hero->LiftedWeapon], regardless of if there is one or not.
+	// This is slightly after the Hero's draw, but before the Prompt Combo is drawn.
+	SPLAYER_OVER_LIFT_WEAPON,
+	// Just over the Hero's overhead prompt combo, regardless of if there is one or not.
+	// This is just after the Hero's draw and the [Hero->LiftedWeapon] is drawn.
+	SPLAYER_OVER_PROMPT_COMBO,
 };
 
 //

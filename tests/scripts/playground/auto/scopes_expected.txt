@@ -5211,6 +5211,9 @@ debug data:
       - const SpecialDrawLayer SPLAYER_LENS_UNDER_1 @ Constant[-1999810000]
       - const SpecialDrawLayer SPLAYER_LENS_UNDER_2 @ Constant[-1999800000]
       - const SpecialDrawLayer SPLAYER_LENS_OVER @ Constant[-1999790000]
+      - const SpecialDrawLayer SPLAYER_UNDER_PLAYER_DRAW @ Constant[-1999780000]
+      - const SpecialDrawLayer SPLAYER_OVER_LIFT_WEAPON @ Constant[-1999770000]
+      - const SpecialDrawLayer SPLAYER_OVER_PROMPT_COMBO @ Constant[-1999760000]
     [ENUM] int SpriteID <IDX:22>
       - const SpriteID SP_ARROW_ENEMY @ Constant[190000]
       - const SpriteID SP_ARROW1 @ Constant[100000]
