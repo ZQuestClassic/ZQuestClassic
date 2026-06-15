@@ -217,6 +217,7 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 bool zq_ignore_item_ownership = true;
+bool hide_editor_only_combos = false;
 
 // Used to find FFC script names
 vector<string> asffcscripts;
@@ -4578,6 +4579,7 @@ static DIALOG loadmap_dlg[] =
 	// 14
 	{  jwin_radio_proc,       16,    66,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"2x  - 8192x2816",		   NULL,   NULL  },
 	{  jwin_radio_proc,       16,    76,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"4x  - 16384x5632",		   NULL,   NULL  },
+    {  jwin_check_proc,      144,    76,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Editor Only Combos", NULL, NULL  },
 	 {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
 };
 
@@ -4627,6 +4629,8 @@ int32_t load_the_map(bool skipmenu)
 
 		if(loadmap_dlg[15].flags&D_SELECTED) res=4;
     }
+	
+	hide_editor_only_combos = !(loadmap_dlg[16].flags & D_SELECTED);
     
     int32_t bw = (256*16)>>res;
 	int32_t bh = (176*8)>>res;
@@ -4651,6 +4655,8 @@ int32_t load_the_map(bool skipmenu)
     if(loadmap_dlg[13].flags & D_SELECTED) saveMapAsImage(mapview_get_rti()->bitmap);
 
 	memcpy(mappal,RAMpal,sizeof(RAMpal));
+	
+	hide_editor_only_combos = false;
 
     return 0;
 }

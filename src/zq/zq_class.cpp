@@ -65,6 +65,7 @@ using namespace util;
 extern uint8_t ViewLayer3BG, ViewLayer2BG;
 extern int32_t LayerDitherBG, LayerDitherSz;
 extern bool NoHighlightLayer0;
+extern bool hide_editor_only_combos;
 
 using std::string;
 using std::pair;
@@ -1565,6 +1566,8 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	nilcombo.tile = 0;
 	
 	newcombo const& c = cmbdat < MAXCOMBOS ? combobuf[cmbdat] : nilcombo;
+	if (hide_editor_only_combos && (c.animflags & AF_EDITOR_ONLY))
+		return;
 	
 	if(c.tile==0)
 	{
@@ -2330,6 +2333,8 @@ void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, in
 	int32_t sflag, bool over = true, bool transp = false, bool dither = false)
 {
 	newcombo const& cmb = combobuf[cid];
+	if (hide_editor_only_combos && (cmb.animflags & AF_EDITOR_ONLY))
+		return;
 	if(cmb.animflags & AF_TRANSPARENT) transp = !transp;
 	if(dither)
 	{
@@ -2922,14 +2927,8 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 				
 				for(int32_t i=c; i<(c&0xF0)+16; i++)
 				{
-					if(layer->layeropacity[k]<255)
-					{
-						overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-					}
-					else
-					{
-						overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-					}
+					auto const& scr = TheMaps[layerscreen];
+					drawcombo(dest, ((i&15)<<4)+x, y, scr.data[i], scr.cset[i], 0, 0, true, layer->layeropacity[k]<255);
 				}
 			}
 		}
