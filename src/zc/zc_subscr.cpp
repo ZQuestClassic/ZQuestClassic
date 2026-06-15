@@ -54,7 +54,7 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 		put_passive_subscr(dest,x,y+distance,showtime,pos);
 	}
 }
-void dosubscr()
+static void _dosubscr()
 {
 	PALETTE temppal;
 	
@@ -531,6 +531,13 @@ void dosubscr()
 	}
 	
 	resume_sfx(WAV_BRANG);
+}
+void dosubscr()
+{
+	bool skipdraws = FFCore.skipscriptdraws;
+	FFCore.skipscriptdraws = false;
+	_dosubscr();
+	FFCore.skipscriptdraws = skipdraws;
 }
 
 void markBmap(int32_t dir, int32_t sc)
