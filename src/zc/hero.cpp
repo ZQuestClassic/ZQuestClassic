@@ -2520,9 +2520,9 @@ weapon* find_first_wtype(int wtype)
 }
 void HeroClass::draw(BITMAP* dest)
 {
+	do_primitives(dest, SPLAYER_UNDER_PLAYER_DRAW);
 	int32_t oxofs = xofs, oyofs = yofs;
 	bool invisible = invis_timer || (hero_scr->flags3&fINVISHERO);
-	
 	{
 		if(action==dying)
 		{
@@ -3436,7 +3436,9 @@ void HeroClass::masked_draw(BITMAP* dest)
 				lift_wpn->draw(sub);
 				lift_wpn->has_shadow = shad;
 			}
+			do_primitives(dest, SPLAYER_OVER_LIFT_WEAPON);
 			prompt_draw(sub);
+			do_primitives(dest, SPLAYER_OVER_PROMPT_COMBO);
 			xofs+=16;
 			yofs += (playing_field_offset+16);
 			destroy_bitmap(sub);
@@ -3455,7 +3457,9 @@ void HeroClass::masked_draw(BITMAP* dest)
 			lift_wpn->draw(dest);
 			lift_wpn->has_shadow = shad;
 		}
+		do_primitives(dest, SPLAYER_OVER_LIFT_WEAPON);
 		prompt_draw(dest);
+		do_primitives(dest, SPLAYER_OVER_PROMPT_COMBO);
 	}
 	
 	if(lift_wpn)
