@@ -238,7 +238,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 				INFOBTN("The top Y position of the textbox"),
 				Label(text = "Layer:", hAlign = 1.0),
 				NUM_FIELD(drawlayer,0,7),
-				INFOBTN("The layer to draw the textbox on"),
+				INFOBTN("The layer to draw the textbox on. 0 <= layer <= 7."),
 				DummyWidget(),
 				DummyWidget(),
 				DummyWidget(),
