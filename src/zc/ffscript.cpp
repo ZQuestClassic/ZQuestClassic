@@ -43400,6 +43400,8 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	bool skipdraws = FFCore.skipscriptdraws;
+	FFCore.skipscriptdraws = false;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	while(doscript(ScriptType::GenericFrozen, local_i) && !Quit)
 	{
@@ -43414,6 +43416,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
+	FFCore.skipscriptdraws = skipdraws;
 	//script_drawing_commands.push_commands(tmpDrawCommands);
 	//clear
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
@@ -43444,6 +43447,8 @@ bool FFScript::runScriptedActiveSusbcreen()
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 	auto& data = get_script_engine_data(ScriptType::ScriptedActiveSubscreen);
+	bool skipdraws = FFCore.skipscriptdraws;
+	FFCore.skipscriptdraws = false;
 	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -43493,6 +43498,7 @@ bool FFScript::runScriptedActiveSusbcreen()
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}
+	FFCore.skipscriptdraws = skipdraws;
 	resume_all_sfx();
 	script_drawing_commands.Clear();
 	//script_drawing_commands.push_commands(tmpDrawCommands);
@@ -43512,6 +43518,8 @@ bool FFScript::runOnMapScriptEngine()
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 
+	bool skipdraws = FFCore.skipscriptdraws;
+	FFCore.skipscriptdraws = false;
 	auto& data = get_script_engine_data(ScriptType::OnMap);
 	while (data.doscript && !Quit)
 	{
@@ -43542,6 +43550,7 @@ bool FFScript::runOnMapScriptEngine()
 			//Now loop without advancing frame, so that the subscreen script can draw immediately.
 		}
 	}
+	FFCore.skipscriptdraws = skipdraws;
 	resume_all_sfx();
 	script_drawing_commands.Clear();
 	//script_drawing_commands.push_commands(tmpDrawCommands);
