@@ -8336,7 +8336,7 @@ heroanimate_skip_liftwpn:;
 			{
 				if (!broken_subpixel)
 				{
-					movexy(0,ydiff,false,true,false);
+					movexy(0,ydiff,false,true,true);
 					ydiff = y - falling_oldy;
 				}
 				else
