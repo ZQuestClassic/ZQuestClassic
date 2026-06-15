@@ -1003,7 +1003,7 @@ class Game {
 	// Closes the program, without saving.
 	//
 	// @exit
-	// @versionadded 3.0
+	// @versionadded 2.55.15
 	// @zasm
 	//   GAMEEXIT
 	internal void Exit();
