@@ -32,7 +32,6 @@ public:
 
 	SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind);
 	
-	std::shared_ptr<GUI::Widget> GEN_INITD(int ind);
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 

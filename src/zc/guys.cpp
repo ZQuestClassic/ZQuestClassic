@@ -20229,6 +20229,7 @@ static bool parsemsgcode(const StringCommand& command)
 			return true;
 		}
 		case MSGC_RUN_FRZ_GENSCR:
+		case MSGC_RUN_FRZ_GENSCR_ARGS:
 		{
 			word scr_id = args[0];
 			bool force_redraw = args[1]!=0;
@@ -20237,7 +20238,14 @@ static bool parsemsgcode(const StringCommand& command)
 				update_msgstr();
 				draw_screen();
 			}
-			FFCore.runGenericFrozenEngine(scr_id);
+			if (command.code == MSGC_RUN_FRZ_GENSCR_ARGS)
+			{
+				int initd[8];
+				for (int ind = 0; ind < 8; ++ind)
+					initd[ind] = 10000 * args[2 + ind];
+				FFCore.runGenericFrozenEngine(scr_id, initd);
+			}
+			else FFCore.runGenericFrozenEngine(scr_id);
 			return true;
 		}
 		case MSGC_DRAWTILE:

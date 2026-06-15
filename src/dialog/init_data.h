@@ -71,7 +71,5 @@ private:
 	zinitdata& dest_zinit;
 	size_t index;
 	GUI::ListData list_dmaps, list_items;
-	
-	std::shared_ptr<GUI::Widget> GEN_INITD(int ind,zasm_meta const& meta);
 };
 #endif

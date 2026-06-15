@@ -825,32 +825,6 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 InitGenscriptWizard::InitGenscriptWizard(zinitdata& start, size_t index):
 	local_zinit(start), dest_zinit(start), index(index)
 {}
-std::shared_ptr<GUI::Widget> InitGenscriptWizard::GEN_INITD(int ind,zasm_meta const& meta)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	std::string lbl = meta.initd[ind];
-	if(lbl.empty())
-		lbl = "InitD["+std::to_string(ind)+"]";
-	return Row(padding = 0_px,
-		Label(text = lbl, hAlign = 1.0),
-		Button(forceFitH = true, text = "?",
-			hPadding = 0_px,
-			disabled = meta.initd_help[ind].empty(),
-			onPressFunc = [&, ind]()
-			{
-				InfoDialog("InitD Info",meta.initd_help[ind]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_zinit.gen_initd.get(index).get(ind), swap_type = meta.initd_type[ind],
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_zinit.gen_initd[index][ind] = val;
-			})
-	);
-}
 
 #define GEN_EXSTATE_RELOAD         0x01
 #define GEN_EXSTATE_CONTINUE       0x02
@@ -1190,18 +1164,33 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 		)
 	));
 	//InitD
+	auto gen_initd_grid = Rows<3>();
 	tabs->add(TabRef(name = "InitD",
-		Column(padding = 0_px,
-			GEN_INITD(0,meta),
-			GEN_INITD(1,meta),
-			GEN_INITD(2,meta),
-			GEN_INITD(3,meta),
-			GEN_INITD(4,meta),
-			GEN_INITD(5,meta),
-			GEN_INITD(6,meta),
-			GEN_INITD(7,meta)
-		)
+		gen_initd_grid
 	));
+	for (int ind = 0; ind < 8; ++ind)
+	{
+		std::string lbl = meta.initd[ind];
+		if(lbl.empty())
+			lbl = "InitD["+std::to_string(ind)+"]";
+		gen_initd_grid->add(Label(text = lbl, hAlign = 1.0));
+		gen_initd_grid->add(Button(
+			hPadding = 0_px,
+			forceFitH = true, text = "?",
+			disabled = meta.initd_help[ind].empty(),
+			onPressFunc = [&, ind]()
+			{
+				InfoDialog("InitD Info",meta.initd_help[ind]).show();
+			}));
+		gen_initd_grid->add(TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_zinit.gen_initd.get(index).get(ind), swap_type = meta.initd_type[ind],
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_zinit.gen_initd[index][ind] = val;
+			}));
+	}
 	
 	return window;
 }

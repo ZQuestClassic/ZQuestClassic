@@ -14381,8 +14381,8 @@ void FFScript::runOnLaunchEngine()
 }
 bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_data)
 {
-	user_genscript& scr = user_genscript::get(script);
 	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
+	user_genscript& scr = user_genscript::get(script);
 	if(init_data)
 	{
 		for(int q = 0; q < 8; ++q)

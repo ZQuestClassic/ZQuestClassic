@@ -78,8 +78,9 @@
 #define MSGC_MUSIC                 159  // 1 arg (music)
 #define MSGC_MUSIC_REFRESH         160  // 1 arg (music refresh)
 #define MSGC_SETCURRENTSCREEND     161  // 2 args (reg, value)
+#define MSGC_RUN_FRZ_GENSCR_ARGS   162  // 10 args (script num, force_redraw, d0, d1, d2, d3, d4, d5, d6, d7)
 
-#define MAX_SCC_ARG_COUNT 6
+#define MAX_SCC_ARG_COUNT 10
 
 struct StringCommand
 {

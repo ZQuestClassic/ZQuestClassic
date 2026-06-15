@@ -84,6 +84,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_SETLEVELSTATE, {"SetLevelState", 3}}, // (level, state, value)
 	{MSGC_SETLEVELITEM, {"SetLevelItem", 3}}, // (level, item, value)
 	{MSGC_RUN_FRZ_GENSCR, {"RunFrozenGenericScript", 2}}, // (script num, force_redraw)
+	{MSGC_RUN_FRZ_GENSCR_ARGS, {"RunFrozenGenericScriptArgs", 10}}, // (script num, force_redraw, d0, d1, d2, d3, d4, d5, d6, d7)
 	{MSGC_COUNTER, {"Counter", 1}}, // (ctr)
 	{MSGC_MAXCOUNTER, {"MaxCounter", 1}}, // (ctr)
 	{MSGC_KILLHERO, {"KillHero", 1}}, // (bypass_revive)

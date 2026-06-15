@@ -12,6 +12,7 @@
 #include "core/initdata.h"
 
 extern bool sorted_fontdd;
+extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
 void call_geninit_wzrd(zinitdata& start, size_t index);
 
@@ -128,6 +129,7 @@ const GUI::ListData SCCListData()
 	addCommand(ld, MSGC_SETLEVELITEM); // Set Level Item
 	
 	addCommand(ld, MSGC_RUN_FRZ_GENSCR); // Run Frozen Generic Script
+	addCommand(ld, MSGC_RUN_FRZ_GENSCR_ARGS); // Run Frozen Generic Script w/ Args
 	addCommand(ld, MSGC_TRIGSECRETS); // Trigger Screen Secrets
 	addCommand(ld, MSGC_TRIG_CMB_COPYCAT); // Trigger Combo Copycat
 	addCommand(ld, MSGC_KILLHERO); // Kill Hero
@@ -340,6 +342,7 @@ std::string scc_help(byte scc)
 		case MSGC_SETSCREENSTATER: return "Set a state of any screen";
 		case MSGC_FONT: return "Change the text font of text after the SCC";
 		case MSGC_RUN_FRZ_GENSCR: return "Run a generic script in the frozen mode.";
+		case MSGC_RUN_FRZ_GENSCR_ARGS: return "Run a generic script in the frozen mode, specifying InitD.";
 		case MSGC_TRIG_CMB_COPYCAT: return "Trigger a combo triggers tab 'Copycat' id";
 		case MSGC_GOTOIFGLOBALSTATE: return "Switch to another string if global state is set";
 		case MSGC_GOTOIFSCREENSTATE: return "Switch to another string if current screen state is set";
@@ -373,7 +376,8 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 	
 	window.reset();
 	
-	std::shared_ptr<GUI::Grid> wingrid, sgrid;
+	std::shared_ptr<GUI::Grid> wingrid;
+	std::shared_ptr<GUI::Widget> sgrid;
 	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	static std::string scc_helpstr;
 	scc_helpstr = scc_help(curscc);
@@ -429,6 +433,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		)
 	);
 	cur_args = args[curscc];
+	meta.zero();
 	switch(curscc)
 	{
 		case MSGC_COLOUR:
@@ -1632,34 +1637,75 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			break;
 		}
 		case MSGC_RUN_FRZ_GENSCR:
+		case MSGC_RUN_FRZ_GENSCR_ARGS:
 		{
-			sgrid = Column(padding = 0_px, vAlign = 0.0,
-				Row(
-					TXT("Script to Run:"),
-					DropDownList(data = list_genscr,
-							fitParent = true,
-							selectedValue = cur_args[0],
-							onSelectFunc = [&](int32_t val)
-							{
-								cur_args[0] = val;
-								miscbtn->setDisabled(!val);
-							}
+			auto tabs = TabPanel(
+				TabRef(name = "Script",
+					Column(padding = 0_px, vAlign = 0.0,
+						Row(
+							TXT("Script to Run:"),
+							DropDownList(data = list_genscr,
+								fitParent = true,
+								selectedValue = cur_args[0],
+								onSelectFunc = [&](int32_t val)
+								{
+									cur_args[0] = val;
+									if (curscc == MSGC_RUN_FRZ_GENSCR_ARGS)
+										refresh_dlg(); // reload metadata
+								}
+							)
+						),
+						Row(
+							INFOBTN("If the screen should be redrawn before the frozen script runs."
+								" Makes sure all the text before this SCC is actually visible in the"
+								" background of the frozen script."),
+							Checkbox(text = "Force Redraw",
+								checked = cur_args[1]!=0,
+								onToggleFunc = [&](bool state)
+								{
+									cur_args[1] = state?1:0;
+								})
 						)
-				),
-				miscbtn = Button(text = "Edit Script InitData",
-					disabled = !cur_args[0],
-					onPressFunc = [&]()
-					{
-						if(int indx = cur_args[0])
-							call_geninit_wzrd(zinit,indx);
-					}),
-				Checkbox(text = "Force Redraw",
-					checked = cur_args[1]!=0,
-					onToggleFunc = [&](bool state)
-					{
-						cur_args[1] = state?1:0;
-					})
+					)
+				)
 			);
+			sgrid = tabs;
+			if (curscc == MSGC_RUN_FRZ_GENSCR_ARGS)
+			{
+				if (cur_args[0])
+					meta = genericscripts[cur_args[0]]->meta;
+				auto row = Rows<3>();
+				tabs->add(
+					TabRef(name = "Args",
+						row
+					)
+				);
+				for (int ind = 0; ind < 8; ++ind)
+				{
+					std::string lbl = meta.initd[ind];
+					if(lbl.empty())
+						lbl = "InitD["+std::to_string(ind)+"]";
+					row->add(Label(text = lbl, hAlign = 1.0));
+					row->add(Button(
+						hPadding = 0_px,
+						forceFitH = true, text = "?",
+						disabled = meta.initd_help[ind].empty(),
+						onPressFunc = [&, ind]()
+						{
+							InfoDialog("InitD Info",meta.initd_help[ind]).show();
+						}));
+					row->add(TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+						low = MIN_SCC_ARG, high = MAX_SCC_ARG,
+						val = cur_args[2+ind],
+						swap_type = meta.initd_type[ind],
+						onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							cur_args[2+ind] = val;
+						}));
+				}
+			}
 			break;
 		}
 		case MSGC_TRIG_CMB_COPYCAT:

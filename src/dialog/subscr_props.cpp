@@ -254,32 +254,6 @@ char* repl_escchar(char* buf, char const* ptr, bool compact)
 }
 
 #define INITD_LAB_WIDTH 12_em
-std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	std::string lbl = local_gen_meta.initd[ind];
-	if(lbl.empty())
-		lbl = "InitD["+std::to_string(ind)+"]:";
-	return Row(padding = 0_px, hAlign = 1.0,
-		geninitd_lbl[ind] = Label(minwidth = INITD_LAB_WIDTH, text = lbl, textAlign = 2),
-		geninitd_btn[ind] = Button(forceFitH = true, text = "?",
-			hPadding = 0_px,
-			disabled = local_gen_meta.initd_help[ind].empty(),
-			onPressFunc = [&, ind]()
-			{
-				InfoDialog("InitD Info",local_gen_meta.initd_help[ind]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_subref->generic_initd[ind], swap_type = local_gen_meta.initd_type[ind],
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_subref->generic_initd[ind] = val;
-			})
-	);
-}
 
 enum
 {
@@ -1709,6 +1683,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		}
 	}
 	extra_grids.build(tpan);
+	auto gen_initd_grid = Rows<3>();
 	tpan->add(TabRef(name = "Selection",
 		TabPanel(ptr = &sprop_tab_sel,
 			TabRef(name = "Basic",
@@ -1863,16 +1838,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						"\nThe script will run before any other effects that occur from"
 						" pressing the button (such as equipping an item to a button).",
 					Row(
-						selgs[1] = Column(padding = 0_px,
-							GEN_INITD(0),
-							GEN_INITD(1),
-							GEN_INITD(2),
-							GEN_INITD(3),
-							GEN_INITD(4),
-							GEN_INITD(5),
-							GEN_INITD(6),
-							GEN_INITD(7)
-						),
+						selgs[1] = gen_initd_grid,
 						Column(
 							Label(text = "Script:", hAlign = 0.0),
 							DropDownList(data = list_genscr,
@@ -1889,6 +1855,30 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				)
 			)
 		)));
+	
+	for (int ind = 0; ind < 8; ++ind)
+	{
+		std::string lbl = local_gen_meta.initd[ind];
+		if(lbl.empty())
+			lbl = "InitD["+std::to_string(ind)+"]";
+		gen_initd_grid->add(geninitd_lbl[ind] = Label(minwidth = INITD_LAB_WIDTH, text = lbl, textAlign = 2));
+		gen_initd_grid->add(geninitd_btn[ind] = Button(
+			hPadding = 0_px,
+			forceFitH = true, text = "?",
+			disabled = local_gen_meta.initd_help[ind].empty(),
+			onPressFunc = [&, ind]()
+			{
+				InfoDialog("InitD Info",local_gen_meta.initd_help[ind]).show();
+			}));
+		gen_initd_grid->add(TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_subref->generic_initd[ind], swap_type = local_gen_meta.initd_type[ind],
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_subref->generic_initd[ind] = val;
+			}));
+	}
 	cond_item_sels[CI_REQ] = local_subref->req_owned_items.empty() ? -1 : *(local_subref->req_owned_items.begin());
 	cond_item_sels[CI_PICKED] = 0;
 	cond_item_sels[CI_REQ_NOT] = local_subref->req_unowned_items.empty() ? -1 : *(local_subref->req_unowned_items.begin());
