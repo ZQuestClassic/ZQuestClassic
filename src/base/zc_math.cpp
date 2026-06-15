@@ -151,7 +151,7 @@ double Tan(double x)
 		return r;
 	}
 	else
-		return std::tan((int16_t)x);
+		return std::tan(x);
 }
 
 
