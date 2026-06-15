@@ -567,10 +567,15 @@ void dosubscr()
 }
 void dosubscr(bool map_subscr)
 {
+	bool skipdraws = FFCore.skipscriptdraws;
+	FFCore.skipscriptdraws = false;
+	
 	auto old = map_subscreen_open;
 	map_subscreen_open = map_subscr;
 	dosubscr();
 	map_subscreen_open = old;
+	
+	FFCore.skipscriptdraws = skipdraws;
 }
 
 void markBmap(int32_t dir, int32_t sc)
