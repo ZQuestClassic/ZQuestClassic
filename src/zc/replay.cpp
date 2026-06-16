@@ -104,6 +104,28 @@ static std::optional<ZCVersionCreated> zc_version_created;
 static std::string replay_file_buffer;
 static std::deque<std::string> string_arena;
 
+// Parse an entire string as a base-10 int. Leaves |out| unchanged and returns false
+// if the string (after trimming whitespace) is empty or has any non-numeric content.
+// Used for file-controlled values so malformed input degrades gracefully instead of
+// throwing from std::stoi.
+static bool try_parse_int(std::string_view s, int& out)
+{
+	while (!s.empty() && (s.front() == ' ' || s.front() == '\t')) s.remove_prefix(1);
+	while (!s.empty() && (s.back() == ' ' || s.back() == '\t')) s.remove_suffix(1);
+	if (s.empty())
+		return false;
+
+	int value;
+	const char* begin = s.data();
+	const char* end = begin + s.size();
+	auto [ptr, ec] = std::from_chars(begin, end, value);
+	if (ec != std::errc() || ptr != end)
+		return false;
+
+	out = value;
+	return true;
+}
+
 struct FramebufHistoryEntry
 {
 	BITMAP* bitmap;
@@ -417,7 +439,7 @@ struct MetaReplayStep : ReplayStep
 	{
 		std::string& value_str = meta_map[std::string(key)] = std::string(value);
 		if (key == "version")
-			version = std::stoi(value_str);
+			try_parse_int(value_str, version);
 	}
 
 	std::string print() const
@@ -651,14 +673,14 @@ static void do_recording_poll()
 	}
 }
 
-static void set_version()
+static bool set_version()
 {
 	version_use_latest = false;
 	if (!meta_map.contains("version"))
 	{
 		version = 1;
 		initial_version = version;
-		return;
+		return true;
 	}
 
 	std::string version_str = meta_map.at("version");
@@ -667,14 +689,18 @@ static void set_version()
 		version = VERSION;
 		version_use_latest = true;
 		initial_version = version;
-		return;
+		return true;
 	}
 
-	version = std::stoi(version_str);
+	if (!try_parse_int(version_str, version))
+		return false;
 	initial_version = version;
+	return true;
 }
 
-static void load_replay(std::string& buffer, std::map<std::string, std::string>& meta_map, std::filesystem::path path, bool only_meta = false)
+// Returns false if the file could not be opened or was malformed in a way that
+// prevents loading. Deeper structural corruption is still caught by CHECK.
+static bool load_replay(std::string& buffer, std::map<std::string, std::string>& meta_map, std::filesystem::path path, bool only_meta = false)
 {
     auto start = std::chrono::steady_clock::now();
 
@@ -691,8 +717,8 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file.is_open())
     {
-        fprintf(stderr, "could not open file: %s\n", path.string().c_str());
-        abort();
+        fprintf(stderr, "could not open replay file: %s\n", path.string().c_str());
+        return false;
     }
 
     std::streamsize size = file.tellg();
@@ -806,10 +832,14 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
         if (!done_with_initial_meta && type != TypeMeta)
         {
             if (only_meta)
-                return;
+                return true;
 
             done_with_initial_meta = true;
-            set_version();
+            if (!set_version())
+            {
+                fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
+                return false;
+            }
             if (version < 5)
                 KeyMapReplayStep::current = key_map;
         }
@@ -976,7 +1006,11 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
     replay_log_current_index = 0;
     replay_log_current_quit_index = 0;
     replay_log_current_state_index = 0;
-    set_version();
+    if (!set_version())
+    {
+        fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
+        return false;
+    }
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
 
@@ -995,6 +1029,7 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
 
     int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     zprint2("Time to load replay: %d ms\n", load_ms);
+    return true;
 }
 
 static void save_replay(std::string filename, const std::vector<ReplayStepVariant> &log)
@@ -1315,7 +1350,7 @@ static void peek_meta_steps()
 	}
 }
 
-void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
+bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
     time_started = std::chrono::steady_clock::now();
@@ -1359,7 +1394,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     switch (mode)
     {
     case ReplayMode::Off:
-        return;
+        return false;
     case ReplayMode::Record:
     {
         version = VERSION;
@@ -1373,7 +1408,11 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     case ReplayMode::Replay:
     case ReplayMode::Assert:
     case ReplayMode::Update:
-        load_replay(replay_file_buffer, meta_map, replay_path);
+        if (!load_replay(replay_file_buffer, meta_map, replay_path))
+        {
+            mode = ReplayMode::Off;
+            return false;
+        }
         break;
     }
 
@@ -1403,6 +1442,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     save_result();
 
     replay_compat_setup_zc_maths();
+    return true;
 }
 
 void replay_continue(std::filesystem::path path)
@@ -1416,7 +1456,11 @@ void replay_continue(std::filesystem::path path)
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
     replay_path = path;
-    load_replay(replay_file_buffer, meta_map, replay_path);
+    if (!load_replay(replay_file_buffer, meta_map, replay_path) || replay_log.empty())
+    {
+        mode = ReplayMode::Off;
+        return;
+    }
 
 	for (auto& step : replay_log)
 	{
@@ -2045,14 +2089,16 @@ std::string replay_get_meta_str(std::string key, std::string defaultValue)
 
 int replay_get_meta_int(std::string key)
 {
-    return std::stoi(get_meta_raw_value(key).c_str());
+    int value = 0;
+    try_parse_int(get_meta_raw_value(key), value);
+    return value;
 }
 
 int replay_get_meta_int(std::string key, int defaultValue)
 {
-    std::string raw = get_meta_raw_value(key);
-    if (raw.empty()) return defaultValue;
-    return std::stoi(raw.c_str());
+    int value = defaultValue;
+    try_parse_int(get_meta_raw_value(key), value);
+    return value;
 }
 
 bool replay_get_meta_bool(std::string key)
