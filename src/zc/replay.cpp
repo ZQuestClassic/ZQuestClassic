@@ -2235,14 +2235,6 @@ bool replay_is_recording()
     return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
-void replay_set_frame_arg(int frame)
-{
-	if (frame == -1)
-		frame = get_frame(replay_log.front()) + 1;
-	else
-		frame_arg = frame;
-}
-
 void replay_enable_exit_when_done()
 {
 	exit_when_done = true;
