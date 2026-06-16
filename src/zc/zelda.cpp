@@ -1613,6 +1613,11 @@ void init_game_vars(bool is_cont_game = false)
 	// first gameplay frame before it's recomputed, nudging hero movement (and rng-desyncing).
 	Hero.climb_cover_x = 0;
 	Hero.climb_cover_y = 0;
+	screenscrolling = false;
+	scrolling_hero_screen = 0;
+	scrolling_map = 0;
+	scrolling_dmap = 0;
+	scrolling_region = {};
 	linkedmsgclk=0;
 	mblock2.clear();
 	clear_screen_states();
