@@ -5880,10 +5880,16 @@ int32_t onExit()
 {
 	if(queding(" Quit ZQuest Classic? ",NULL,NULL)==1)
 	{
+		// Abort any in-progress replay so it doesn't get treated as part of playback.
+		// Without this, the qEXIT is converted to qQUIT and the replay restarts against a
+		// stale log position, re-seeding RNGs that no longer match and causing an "rng
+		// desync". Stopping the replay lets qEXIT fall through and quit the program.
+		if (replay_is_replaying())
+			replay_quit();
 		Quit=qEXIT;
 		return D_CLOSE;
 	}
-	
+
 	return D_O_K;
 }
 
