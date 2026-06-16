@@ -69,6 +69,12 @@ extern int32_t hero_animation_speed; //lower is faster animation
 static int32_t z3step = 2;
 static zfix hero_newstep(1.5);
 static zfix hero_newstep_diag(1.5);
+void HeroClass::reset_step_statics()
+{
+	z3step = 2;
+	hero_newstep = 1.5_zf;
+	hero_newstep_diag = 1.5_zf;
+}
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
@@ -2110,6 +2116,11 @@ void HeroClass::init()
 
 	if (replay_version_check(12))
 		z3step = 2;
+	// NOTE: don't reset hero_newstep / hero_newstep_diag here. init() also runs on
+	// continue/level-restart, where resetting the collision-clamped step mid-replay changes
+	// the hero's movement and desyncs already-recorded replays. The cross-game leak (a new
+	// game inheriting a previous in-process game's clamped step) only needs a reset at a fresh
+	// game start, which reset_step_statics() does from init_game_vars().
 }
 
 void HeroClass::draw_under(BITMAP* dest)

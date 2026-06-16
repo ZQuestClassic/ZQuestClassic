@@ -1582,6 +1582,7 @@ void init_game_vars(bool is_cont_game = false)
 		sprite::reset_uid_counter();
 		ResetSaveScreenSettings();
 		FFCore.shutdown();
+		HeroClass::reset_step_statics();
 		ALLOFF(true,true,true);
 	}
 
@@ -3942,6 +3943,7 @@ static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+
 	if (!replay_start(mode, replay_file, frame))
 	{
 		// replay_start leaves replay mode Off on failure, so no replay_quit() is needed.

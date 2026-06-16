@@ -629,6 +629,10 @@ public:
 	void tick_diving();
 	bool can_deploy_ladder();
 	void reset_ladder();
+	// Resets the file-static collision-clamped step amounts (z3step, hero_newstep,
+	// hero_newstep_diag) to their process-start defaults. Call on a fresh game start so a
+	// previous in-process game's leftover (shortened) step doesn't bleed into the new game.
+	static void reset_step_statics();
 	bool refill();
 	void Catch();
 	bool getClock();
