@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-14 20:58:35</td>
+      <td>2026-06-16 03:30:10</td>
     </tr>
   </table>
 </div>
@@ -94,8 +94,8 @@
     <tr><td><a href="#l355">GUI::TextField::setHighBound(int) (line 355)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l348">GUI::TextField::setLowBound(int) (line 348)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l478">GUI::TextField::setMaxLength(unsigned long) (line 478)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l536">GUI::TextField::setOnCursorChanged(std::function&lt;void (GUI::TextField::type, int, int)&gt;) (line 536)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l531">GUI::TextField::setOnValChanged(std::function&lt;void (GUI::TextField::type, std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;, int)&gt;) (line 531)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l536">GUI::TextField::setOnCursorChanged(GUI::function&lt;void (GUI::TextField::type, int, int)&gt;) (line 536)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l531">GUI::TextField::setOnValChanged(GUI::function&lt;void (GUI::TextField::type, std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;, int)&gt;) (line 531)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l440">GUI::TextField::setSwapType(int) (line 440)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l198">GUI::TextField::setText(std::basic_string_view&lt;char, std::char_traits&lt;char&gt; &gt;) (line 198)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l192">GUI::TextField::setType(GUI::TextField::type) (line 192)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -3833,7 +3833,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TextField</span><span class="o">::</span><span class="n">setOnValChanged</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnValChanged</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TextField</span><span class="o">::</span><span class="n">setOnValChanged</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnValChanged</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l532" href="#l532">532</a></td>
@@ -3868,7 +3868,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TextField</span><span class="o">::</span><span class="n">setOnCursorChanged</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnCursorChanged</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TextField</span><span class="o">::</span><span class="n">setOnCursorChanged</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnCursorChanged</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l537" href="#l537">537</a></td>

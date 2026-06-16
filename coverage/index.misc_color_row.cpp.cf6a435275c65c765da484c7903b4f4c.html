@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-14 20:58:35</td>
+      <td>2026-06-16 03:30:10</td>
     </tr>
   </table>
 </div>
@@ -81,7 +81,7 @@
     <tr><td><a href="#l176">GUI::MiscColorRow::onEvent(int, GUI::MessageDispatcher&amp;) (line 176)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l142">GUI::MiscColorRow::realize(GUI::DialogRunner&amp;) (line 142)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l117">GUI::MiscColorRow::setCS(int) (line 117)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l171">GUI::MiscColorRow::setOnUpdate(std::function&lt;void (int)&gt;) (line 171)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l171">GUI::MiscColorRow::setOnUpdate(GUI::function&lt;void (int)&gt;) (line 171)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l107">GUI::MiscColorRow::setVal(int) (line 107)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l9">d_cs_color_proc2(int, DIALOG*, int) (line 9)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l53">d_sys_color_proc2(int, DIALOG*, int) (line 53)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -825,7 +825,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">MiscColorRow</span><span class="o">::</span><span class="n">MiscColorRow</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">onUpdate</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">isSys</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="n">MiscColorRow</span><span class="o">::</span><span class="n">MiscColorRow</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">onUpdate</span><span class="p">(</span><span class="k">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">isSys</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
@@ -1294,7 +1294,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">MiscColorRow</span><span class="o">::</span><span class="n">setOnUpdate</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnUpdate</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">MiscColorRow</span><span class="o">::</span><span class="n">setOnUpdate</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnUpdate</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l172" href="#l172">172</a></td>

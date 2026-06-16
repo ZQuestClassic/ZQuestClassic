@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-14 20:58:35</td>
+      <td>2026-06-16 03:30:10</td>
     </tr>
   </table>
 </div>
@@ -87,8 +87,8 @@
     <tr><td><a href="#l36">GUI::Window::setHelp(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 36)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l66">GUI::Window::setMenu(TopMenu*) (line 66)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l62">GUI::Window::setMenu(std::shared_ptr&lt;GUI::Menu&gt;) (line 62)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l219">GUI::Window::setOnLoad(std::function&lt;void ()&gt;) (line 219)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l215">GUI::Window::setOnTick(std::function&lt;int ()&gt;) (line 215)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l219">GUI::Window::setOnLoad(GUI::function&lt;void ()&gt;) (line 219)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l215">GUI::Window::setOnTick(GUI::function&lt;int ()&gt;) (line 215)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l26">GUI::Window::setTitle(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 26)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
@@ -1607,7 +1607,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Window</span><span class="o">::</span><span class="n">setOnTick</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnTick</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Window</span><span class="o">::</span><span class="n">setOnTick</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnTick</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l216" href="#l216">216</a></td>
@@ -1635,7 +1635,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Window</span><span class="o">::</span><span class="n">setOnLoad</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnLoad</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">Window</span><span class="o">::</span><span class="n">setOnLoad</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnLoad</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l220" href="#l220">220</a></td>

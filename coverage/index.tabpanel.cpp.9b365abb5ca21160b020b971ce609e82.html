@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-14 20:58:35</td>
+      <td>2026-06-16 03:30:10</td>
     </tr>
   </table>
 </div>
@@ -84,7 +84,7 @@
     <tr><td><a href="#l186">GUI::TabPanel::onEvent(int, GUI::MessageDispatcher&amp;) (line 186)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l156">GUI::TabPanel::realize(GUI::DialogRunner&amp;) (line 156)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l36">GUI::TabPanel::setDisabled(unsigned long, bool) (line 36)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l192">GUI::TabPanel::setOnSwitch(std::function&lt;void (unsigned long, unsigned long)&gt;) (line 192)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l192">GUI::TabPanel::setOnSwitch(GUI::function&lt;void (unsigned long, unsigned long)&gt;) (line 192)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l63">GUI::TabPanel::setPtr(unsigned long*) (line 63)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l16">GUI::TabPanel::switchTo(unsigned long) (line 16)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -176,7 +176,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">TabPanel</span><span class="o">::</span><span class="n">TabPanel</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">indexptr</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span><span class="w"> </span><span class="n">visibleChild</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">onSwitch</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="n">TabPanel</span><span class="o">::</span><span class="n">TabPanel</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">indexptr</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span><span class="w"> </span><span class="n">visibleChild</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">onSwitch</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
@@ -1443,7 +1443,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TabPanel</span><span class="o">::</span><span class="n">setOnSwitch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnSwitch</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">TabPanel</span><span class="o">::</span><span class="n">setOnSwitch</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newOnSwitch</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l193" href="#l193">193</a></td>

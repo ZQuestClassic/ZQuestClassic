@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-14 20:58:35</td>
+      <td>2026-06-16 03:30:10</td>
     </tr>
   </table>
 </div>
@@ -73,8 +73,8 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l51">GUI::List::setOnRClickFunc(std::function&lt;void (int, int, int)&gt;) (line 51)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l47">GUI::List::setOnSelectFunc(std::function&lt;void (int)&gt;) (line 47)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l51">GUI::List::setOnRClickFunc(GUI::function&lt;void (int, int, int)&gt;) (line 51)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l47">GUI::List::setOnSelectFunc(GUI::function&lt;void (int)&gt;) (line 47)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l73">std::enable_if&lt;(std::is_enum_v&lt;BasicListerDialog::message&gt;) || (std::is_integral_v&lt;BasicListerDialog::message&gt;), void&gt;::type GUI::List::onDClick&lt;BasicListerDialog::message&gt;(BasicListerDialog::message) (line 73)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l73">std::enable_if&lt;(std::is_enum_v&lt;BrowseNotesDialog::message&gt;) || (std::is_integral_v&lt;BrowseNotesDialog::message&gt;), void&gt;::type GUI::List::onDClick&lt;BrowseNotesDialog::message&gt;(BrowseNotesDialog::message) (line 73)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l73">std::enable_if&lt;(std::is_enum_v&lt;ScreenEnemiesDialog::message&gt;) || (std::is_integral_v&lt;ScreenEnemiesDialog::message&gt;), void&gt;::type GUI::List::onDClick&lt;ScreenEnemiesDialog::message&gt;(ScreenEnemiesDialog::message) (line 73)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -421,7 +421,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnSelectFunc</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnSelectFunc</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
@@ -435,7 +435,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">onSelectFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newFunc</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">onSelectFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">newFunc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
@@ -449,7 +449,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnRClickFunc</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnRClickFunc</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
@@ -463,7 +463,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">onRClickFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newFunc</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">onRClickFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">newFunc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -477,7 +477,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnDClickFunc</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnDClickFunc</span><span class="p">(</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">newFunc</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
@@ -491,7 +491,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">onDClickFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newFunc</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">onDClickFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">newFunc</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
@@ -708,21 +708,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onSelectFunc</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onSelectFunc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onRClickFunc</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onRClickFunc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onDClickFunc</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">,</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onDClickFunc</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
