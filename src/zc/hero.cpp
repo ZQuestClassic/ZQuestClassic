@@ -2027,6 +2027,7 @@ void HeroClass::init()
     skipstep=0;
     autostep=false;
     attackclk=holdclk=hoverclk=jumping=raftclk=0;
+    holditem=0;
     attack=wNone;
     attackid=-1;
     action=none; FFCore.setHeroAction(none); tempaction=none;
