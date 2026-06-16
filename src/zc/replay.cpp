@@ -53,59 +53,11 @@ static const char TypeKeyMap = 'K';
 static const char TypeMouse = 'V';
 static const char TypeState = 'S';
 
-static ReplayMode mode = ReplayMode::Off;
-static int version;
-static int initial_version;
-static bool version_use_latest;
-static bool debug;
+// Settings configured externally before replay_start (or that persist across
+// replays), so they live outside ReplayState and survive its reset.
 static bool snapshot_all_frames;
 static bool exit_when_done;
-static bool sync_rng;
-static int frame_arg;
-static std::filesystem::path replay_path;
 static std::filesystem::path output_dir;
-static std::map<std::string, std::string> meta_map;
-static std::vector<int> snapshot_frames;
-static std::vector<int> expected_loadscr_frame_count;
-static int loadscr_count;
-static int failed_loadscr_count_frame;
-static size_t replay_log_current_index;
-static size_t replay_log_current_quit_index;
-static size_t replay_log_current_state_index;
-static size_t assert_current_index;
-static bool has_assert_failed;
-static bool has_aborted;
-static int failing_frame;
-static int last_failing_gfx_frame;
-static int current_failing_gfx_segment_start_frame;
-static std::vector<int> unexpected_gfx_frames;
-static std::vector<std::pair<int, int>> unexpected_gfx_segments;
-static std::vector<std::pair<int, int>> unexpected_gfx_segments_limited;
-static bool has_rng_desynced;
-static bool did_attempt_input_during_replay;
-static int frame_count;
-static bool previous_control_state[controls::btnLast];
-static char previous_keys[KEY_MAX];
-static std::vector<zc_randgen *> rngs;
-// Per-rng count of how many times each rng was seeded this frame, indexed by rng
-// index. 0 means "not seeded this frame". A vector (vs a map) keeps this allocation-
-// free across frames since it's reset, not cleared.
-static std::vector<int> rng_seed_count_this_frame;
-static uint32_t prev_gfx_hash;
-static bool prev_gfx_hash_was_same;
-static int prev_debug_x;
-static int prev_debug_y;
-static bool gfx_got_mismatch;
-static std::array<int, 4> prev_mouse_state;
-static std::array<int, 4> current_mouse_state;
-static std::chrono::time_point<std::chrono::steady_clock> time_started;
-static std::chrono::time_point<std::chrono::system_clock> time_started_system;
-static std::chrono::time_point<std::chrono::steady_clock> time_result_saved;
-static std::optional<ZCVersionCreated> zc_version_created;
-
-// Memory ownership for zero-copy string_views.
-static std::string replay_file_buffer;
-static std::deque<std::string> string_arena;
 
 // Parse an entire string as a base-10 int. Leaves |out| unchanged and returns false
 // if the string (after trimming whitespace) is empty or has any non-numeric content.
@@ -135,8 +87,68 @@ struct FramebufHistoryEntry
 	PALETTE pal;
 	int frame;
 };
-static std::array<FramebufHistoryEntry, ASSERT_SNAPSHOT_BUFFER> framebuf_history;
-static int framebuf_history_index;
+
+// All mutable state for a single replay session. Held in one instance (`rs`) so it
+// can be reset in a single assignment (`rs = ReplayState{}`) in replay_start, which
+// keeps start/stop reset logic from drifting out of sync. Externally-configured
+// settings (output_dir, exit_when_done, snapshot_all_frames) and the step logs
+// (replay_log/record_log, whose element type is defined later) live outside this.
+struct ReplayState
+{
+	ReplayMode mode = ReplayMode::Off;
+	int version = 0;
+	int initial_version = 0;
+	bool version_use_latest = false;
+	bool debug = false;
+	bool sync_rng = false;
+	int frame_arg = 0;
+	std::filesystem::path replay_path;
+	std::map<std::string, std::string> meta_map;
+	std::vector<int> snapshot_frames;
+	std::vector<int> expected_loadscr_frame_count;
+	int loadscr_count = 0;
+	int failed_loadscr_count_frame = -1;
+	size_t replay_log_current_index = 0;
+	size_t replay_log_current_quit_index = 0;
+	size_t replay_log_current_state_index = 0;
+	size_t assert_current_index = 0;
+	bool has_assert_failed = false;
+	bool has_aborted = false;
+	int failing_frame = -1;
+	int last_failing_gfx_frame = -1;
+	int current_failing_gfx_segment_start_frame = -1;
+	std::vector<int> unexpected_gfx_frames;
+	std::vector<std::pair<int, int>> unexpected_gfx_segments;
+	std::vector<std::pair<int, int>> unexpected_gfx_segments_limited;
+	bool has_rng_desynced = false;
+	bool did_attempt_input_during_replay = false;
+	int frame_count = 0;
+	bool previous_control_state[controls::btnLast] = {};
+	char previous_keys[KEY_MAX] = {};
+	std::vector<zc_randgen *> rngs;
+	// Per-rng count of how many times each rng was seeded this frame, indexed by rng
+	// index. 0 means "not seeded this frame".
+	std::vector<int> rng_seed_count_this_frame;
+	uint32_t prev_gfx_hash = 0;
+	bool prev_gfx_hash_was_same = false;
+	int prev_debug_x = -1;
+	int prev_debug_y = -1;
+	bool gfx_got_mismatch = false;
+	std::array<int, 4> prev_mouse_state = {0, 0, 0, 0};
+	std::array<int, 4> current_mouse_state = {0, 0, 0, 0};
+	std::chrono::time_point<std::chrono::steady_clock> time_started;
+	std::chrono::time_point<std::chrono::system_clock> time_started_system;
+	std::chrono::time_point<std::chrono::steady_clock> time_result_saved;
+	std::optional<ZCVersionCreated> zc_version_created;
+
+	// Memory ownership for zero-copy string_views.
+	std::string replay_file_buffer;
+	std::deque<std::string> string_arena;
+
+	std::array<FramebufHistoryEntry, ASSERT_SNAPSHOT_BUFFER> framebuf_history = {};
+	int framebuf_history_index = 0;
+};
+static ReplayState rs;
 
 struct ReplayStep
 {
@@ -391,7 +403,7 @@ struct MouseReplayStep : ReplayStep
 
 	void run()
 	{
-		current_mouse_state = state;
+		rs.current_mouse_state = state;
 	}
 
 	std::string print() const
@@ -440,9 +452,9 @@ struct MetaReplayStep : ReplayStep
 
 	void run()
 	{
-		std::string& value_str = meta_map[std::string(key)] = std::string(value);
+		std::string& value_str = rs.meta_map[std::string(key)] = std::string(value);
 		if (key == "version")
-			try_parse_int(value_str, version);
+			try_parse_int(value_str, rs.version);
 	}
 
 	std::string print() const
@@ -490,14 +502,14 @@ static std::vector<ReplayStepVariant> record_log;
 
 static int get_rng_index(zc_randgen *rng)
 {
-    auto it = std::find(rngs.begin(), rngs.end(), rng);
-    if (it == rngs.end())
+    auto it = std::find(rs.rngs.begin(), rs.rngs.end(), rng);
+    if (it == rs.rngs.end())
         return -1;
-    return it - rngs.begin();
+    return it - rs.rngs.begin();
 }
 
 // Find the RNG step associated with the given |rng_index|, starting at |starting_step_index|.
-// Only RNG steps for the current |frame_count| are valid.
+// Only RNG steps for the current |rs.frame_count| are valid.
 // If an offset is given, the nth RNG step will be returned (offset = 1 means the first).
 static const RngReplayStep *find_rng_step(int rng_index, size_t starting_step_index, const std::vector<ReplayStepVariant> &log, int offset = 1)
 {
@@ -507,7 +519,7 @@ static const RngReplayStep *find_rng_step(int rng_index, size_t starting_step_in
     for (size_t i = starting_step_index; i < log.size(); i++)
     {
         auto& step = log[i];
-        if (get_frame(step) != frame_count)
+        if (get_frame(step) != rs.frame_count)
             break;
         if (get_type(step) != TypeRng)
             continue;
@@ -572,7 +584,7 @@ static bool steps_are_equal(const ReplayStepVariant& var1, const ReplayStepVaria
 
 static std::filesystem::path get_file_path(std::string suffix)
 {
-	return output_dir / (replay_path.filename().string() + suffix);
+	return output_dir / (rs.replay_path.filename().string() + suffix);
 }
 
 // This is for detecting keyboard input during replaying,
@@ -581,7 +593,7 @@ static int keyboard_intercept(int c)
 {
 	int k = c >> 8;
 	if (!is_system_key(k))
-		did_attempt_input_during_replay = true;
+		rs.did_attempt_input_during_replay = true;
 
 	// Don't modify the key state at all; this is OK because the
 	// game doesn't read directly from `key` anymore–it now reads from
@@ -621,19 +633,19 @@ static uint32_t hash_bitmap(BITMAP* bitmap)
 
 static void do_recording_poll()
 {
-	gfx_got_mismatch = false;
+	rs.gfx_got_mismatch = false;
 
-	if (debug && !Quit)
+	if (rs.debug && !Quit)
 	{
 		if (!screenscrolling)
 		{
 			int x = HeroX().getInt();
 			int y = HeroY().getInt();
-			if (x != prev_debug_x || y != prev_debug_y)
+			if (x != rs.prev_debug_x || y != rs.prev_debug_y)
 			{
 				replay_step_comment(fmt::format("h {:x} {:x}", x, y));
-				prev_debug_x = x;
-				prev_debug_y = y;
+				rs.prev_debug_x = x;
+				rs.prev_debug_y = y;
 			}
 		}
 
@@ -641,81 +653,81 @@ static void do_recording_poll()
 		replay_step_gfx(hash);
 	}
 
-	if (version >= 5)
+	if (rs.version >= 5)
 	{
-		KeyMapReplayStep new_key_map = KeyMapReplayStep::make(frame_count);
+		KeyMapReplayStep new_key_map = KeyMapReplayStep::make(rs.frame_count);
 		if (new_key_map.button_keys != KeyMapReplayStep::current.button_keys)
 		{
 			KeyMapReplayStep::current = new_key_map;
-			record_log.emplace_back(std::in_place_type<KeyMapReplayStep>, frame_count, new_key_map.button_keys);
+			record_log.emplace_back(std::in_place_type<KeyMapReplayStep>, rs.frame_count, new_key_map.button_keys);
 		}
 	}
 
 	for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
 	{
 		bool state = raw_control_state[i];
-		if (state == previous_control_state[i])
+		if (state == rs.previous_control_state[i])
 			continue;
 
 		int key_index = KeyMapReplayStep::current.button_keys[i];
-		record_log.emplace_back(std::in_place_type<KeyReplayStep>, frame_count, state ? TypeKeyDown : TypeKeyUp, i, key_index);
-		previous_control_state[i] = state;
+		record_log.emplace_back(std::in_place_type<KeyReplayStep>, rs.frame_count, state ? TypeKeyDown : TypeKeyUp, i, key_index);
+		rs.previous_control_state[i] = state;
 	}
 
-	if (version >= 5)
+	if (rs.version >= 5)
 	{
 		for (int i = 1; i < KEY_MAX; i++)
 		{
 			char state = key_current_frame[i];
-			if (state == previous_keys[i] || i == KEY_ESC)
+			if (state == rs.previous_keys[i] || i == KEY_ESC)
 				continue;
 			if (KeyMapReplayStep::current.find_button_index_for_key(i) != -1)
 				continue;
 
-			record_log.emplace_back(std::in_place_type<KeyReplayStep>, frame_count, state ? TypeKeyDown : TypeKeyUp, -1, i);
-			previous_keys[i] = state;
+			record_log.emplace_back(std::in_place_type<KeyReplayStep>, rs.frame_count, state ? TypeKeyDown : TypeKeyUp, -1, i);
+			rs.previous_keys[i] = state;
 		}
 	}
 
-	if (current_mouse_state != prev_mouse_state)
+	if (rs.current_mouse_state != rs.prev_mouse_state)
 	{
-		record_log.emplace_back(std::in_place_type<MouseReplayStep>, frame_count, current_mouse_state);
-		prev_mouse_state = current_mouse_state;
+		record_log.emplace_back(std::in_place_type<MouseReplayStep>, rs.frame_count, rs.current_mouse_state);
+		rs.prev_mouse_state = rs.current_mouse_state;
 	}
 }
 
 static bool set_version()
 {
-	version_use_latest = false;
-	if (!meta_map.contains("version"))
+	rs.version_use_latest = false;
+	if (!rs.meta_map.contains("version"))
 	{
-		version = 1;
-		initial_version = version;
+		rs.version = 1;
+		rs.initial_version = rs.version;
 		return true;
 	}
 
-	std::string version_str = meta_map.at("version");
+	std::string version_str = rs.meta_map.at("version");
 	if (version_str == "latest")
 	{
-		version = VERSION;
-		version_use_latest = true;
-		initial_version = version;
+		rs.version = VERSION;
+		rs.version_use_latest = true;
+		rs.initial_version = rs.version;
 		return true;
 	}
 
-	if (!try_parse_int(version_str, version))
+	if (!try_parse_int(version_str, rs.version))
 		return false;
-	initial_version = version;
+	rs.initial_version = rs.version;
 	return true;
 }
 
 // Returns false if the file could not be opened or was malformed in a way that
 // prevents loading. Deeper structural corruption is still caught by CHECK.
-static bool load_replay(std::string& buffer, std::map<std::string, std::string>& meta_map, std::filesystem::path path, bool only_meta = false)
+static bool load_replay(std::string& buffer, std::map<std::string, std::string>& meta, std::filesystem::path path, bool only_meta = false)
 {
     auto start = std::chrono::steady_clock::now();
 
-    meta_map.clear();
+    meta.clear();
 
 #ifdef __EMSCRIPTEN__
     if (em_is_lazy_file(path))
@@ -851,7 +863,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
                 fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
                 return false;
             }
-            if (version < 5)
+            if (rs.version < 5)
                 KeyMapReplayStep::current = key_map;
         }
 
@@ -867,16 +879,16 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
 
             if (!done_with_initial_meta)
             {
-                CHECK(meta_map.find(key) == meta_map.end());
+                CHECK(meta.find(key) == meta.end());
                 CHECK(annotation_pos == std::string_view::npos);
-                meta_map[key] = value;
+                meta[key] = value;
             }
             else
             {
-                string_arena.push_back(key);
-                std::string_view key_view = string_arena.back();
-                string_arena.push_back(value);
-                std::string_view value_view = string_arena.back();
+                rs.string_arena.push_back(key);
+                std::string_view key_view = rs.string_arena.back();
+                rs.string_arena.push_back(value);
+                std::string_view value_view = rs.string_arena.back();
                 replay_log.emplace_back(std::in_place_type<MetaReplayStep>, frame, key_view, value_view);
             }
         }
@@ -942,7 +954,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeKeyMap)
         {
-            CHECK(version >= 5);
+            CHECK(rs.version >= 5);
             std::array<int, KeyMapReplayStep::NumButtons> keys;
             for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
                 consume_int(line, keys[i]);
@@ -957,7 +969,7 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
         }
         else if (type == TypeKeyUp || type == TypeKeyDown)
         {
-            if (version >= 5)
+            if (rs.version >= 5)
             {
                 CHECK(found_key_map);
             }
@@ -1007,34 +1019,34 @@ static bool load_replay(std::string& buffer, std::map<std::string, std::string>&
             replay_log.emplace_back(std::in_place_type<StateReplayStep>, frame, (ReplayStateType)state_type, value);
         }
 
-        if (frame_arg != -1 && replay_log.size() && get_frame(replay_log.back()) > frame_arg)
+        if (rs.frame_arg != -1 && replay_log.size() && get_frame(replay_log.back()) > rs.frame_arg)
         {
             replay_log.pop_back();
             break;
         }
     }
 
-    replay_log_current_index = 0;
-    replay_log_current_quit_index = 0;
-    replay_log_current_state_index = 0;
+    rs.replay_log_current_index = 0;
+    rs.replay_log_current_quit_index = 0;
+    rs.replay_log_current_state_index = 0;
     if (!set_version())
     {
         fprintf(stderr, "invalid version in replay file: %s\n", path.string().c_str());
         return false;
     }
-    debug = replay_get_meta_bool("debug");
-    sync_rng = replay_get_meta_bool("sync_rng");
+    rs.debug = replay_get_meta_bool("debug");
+    rs.sync_rng = replay_get_meta_bool("sync_rng");
 
-    if (mode == ReplayMode::Assert || mode == ReplayMode::Update)
+    if (rs.mode == ReplayMode::Assert || rs.mode == ReplayMode::Update)
     {
-        expected_loadscr_frame_count.clear();
+        rs.expected_loadscr_frame_count.clear();
         for (auto& step : replay_log)
         {
             if (get_type(step) != TypeComment) continue;
 
             auto& comment_step = std::get<CommentReplayStep>(step);
             if (comment_step.comment.rfind("scr=", 0) == 0)
-                expected_loadscr_frame_count.push_back(get_frame(step));
+                rs.expected_loadscr_frame_count.push_back(get_frame(step));
         }
     }
 
@@ -1047,22 +1059,22 @@ static void save_replay(std::string filename, const std::vector<ReplayStepVarian
 {
     // Compare addresses since record_log and replay_log are statically assigned via std::move if roundtrip checking applies
     bool insert_baseline_annotations =
-        has_assert_failed &&
+        rs.has_assert_failed &&
         filename.find(".roundtrip") != std::string::npos &&
         &log == &record_log;
 
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
     replay_set_meta("zc_version_updated", getVersionString());
-    if (version_use_latest)
+    if (rs.version_use_latest)
         replay_set_meta("version", "latest");
     else
-        replay_set_meta("version", initial_version);
-    replay_set_meta("frames", frame_count);
+        replay_set_meta("version", rs.initial_version);
+    replay_set_meta("frames", rs.frame_count);
 	replay_set_meta("length", log.size());
 
     std::ofstream out(filename, std::ios::binary);
-    for (auto it : meta_map)
+    for (auto it : rs.meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
     for (size_t i = 0; i < log.size(); i++)
     {
@@ -1112,7 +1124,7 @@ static std::string segments_to_string(const std::vector<std::pair<int, int>>& se
 	for (auto it : segments)
 	{
 		int first = it.first;
-		int second = it.second == -1 ? frame_count : it.second;
+		int second = it.second == -1 ? rs.frame_count : it.second;
 		if (first != second)
 			parts.push_back(fmt::format("{}-{}", first, second));
 		else
@@ -1123,16 +1135,16 @@ static std::string segments_to_string(const std::vector<std::pair<int, int>>& se
 
 static void save_result(bool stopped = false, bool changed = false)
 {
-	time_result_saved = std::chrono::steady_clock::now();
-	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
+	rs.time_result_saved = std::chrono::steady_clock::now();
+	std::chrono::duration<double, std::milli> elapsed = rs.time_result_saved - rs.time_started;
 	int elapsed_ms = elapsed.count();
-	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started_system);
-	int fps = elapsed_ms ? (double)frame_count / elapsed_ms * 1000 : 0;
+	std::time_t time_started_c = std::chrono::system_clock::to_time_t(rs.time_started_system);
+	int fps = elapsed_ms ? (double)rs.frame_count / elapsed_ms * 1000 : 0;
 
 	std::ofstream out(get_file_path(".result.txt"), std::ios::binary);
 
-	out << fmt::format("replay: {}", replay_path.string()) << '\n';
-	out << fmt::format("mode: {}", replay_mode_to_string(mode)) << '\n';
+	out << fmt::format("replay: {}", rs.replay_path.string()) << '\n';
+	out << fmt::format("mode: {}", replay_mode_to_string(rs.mode)) << '\n';
 	out << fmt::format("time: {}", strtok(ctime(&time_started_c), "\n")) << '\n';
 	out << fmt::format("duration: {}", elapsed_ms) << '\n';
 	out << fmt::format("zc_version: {}", getVersionString()) << '\n';
@@ -1140,25 +1152,25 @@ static void save_result(bool stopped = false, bool changed = false)
 		out << fmt::format("replay_log_frames: {}", get_frame(replay_log.back())) << '\n';
 	if (replay_is_recording() && !record_log.empty())
 		out << fmt::format("record_log_frames: {}", get_frame(record_log.back())) << '\n';
-	out << fmt::format("frame: {}", frame_count) << '\n';
+	out << fmt::format("frame: {}", rs.frame_count) << '\n';
 	out << fmt::format("fps: {}", fps) << '\n';
-	if (stopped || has_assert_failed)
+	if (stopped || rs.has_assert_failed)
 	{
-		bool success = stopped && !has_aborted && !has_assert_failed && !has_rng_desynced && failed_loadscr_count_frame == -1;
+		bool success = stopped && !rs.has_aborted && !rs.has_assert_failed && !rs.has_rng_desynced && rs.failed_loadscr_count_frame == -1;
 		out << fmt::format("success: {}", success) << '\n';
 	}
-	if (has_rng_desynced)
-		out << fmt::format("rng_desync: {}", has_rng_desynced) << '\n';
-	if (has_assert_failed)
-		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
-	if (mode == ReplayMode::Update)
+	if (rs.has_rng_desynced)
+		out << fmt::format("rng_desync: {}", rs.has_rng_desynced) << '\n';
+	if (rs.has_assert_failed)
+		out << fmt::format("failing_frame: {}", rs.failing_frame) << '\n';
+	if (rs.mode == ReplayMode::Update)
 		out << fmt::format("changed: {}", changed) << '\n';
-	if (has_assert_failed && !unexpected_gfx_frames.empty())
-		out << fmt::format("unexpected_gfx_frames: {}", fmt::join(unexpected_gfx_frames, ", ")) << '\n';
-	if (has_assert_failed && !unexpected_gfx_segments.empty())
-		out << fmt::format("unexpected_gfx_segments: {}", segments_to_string(unexpected_gfx_segments)) << '\n';
-	if (has_assert_failed && !unexpected_gfx_segments_limited.empty())
-		out << fmt::format("unexpected_gfx_segments_limited: {}", segments_to_string(unexpected_gfx_segments_limited)) << '\n';
+	if (rs.has_assert_failed && !rs.unexpected_gfx_frames.empty())
+		out << fmt::format("unexpected_gfx_frames: {}", fmt::join(rs.unexpected_gfx_frames, ", ")) << '\n';
+	if (rs.has_assert_failed && !rs.unexpected_gfx_segments.empty())
+		out << fmt::format("unexpected_gfx_segments: {}", segments_to_string(rs.unexpected_gfx_segments)) << '\n';
+	if (rs.has_assert_failed && !rs.unexpected_gfx_segments_limited.empty())
+		out << fmt::format("unexpected_gfx_segments_limited: {}", segments_to_string(rs.unexpected_gfx_segments_limited)) << '\n';
     out << fmt::format("stopped: {}", stopped) << '\n';
 
 	out.close();
@@ -1175,12 +1187,12 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_path.string()).c_str());
 	save_bitmap(img_path.string().c_str(), bitmap, pal);
 	if (was_unexpected)
-		unexpected_gfx_frames.push_back(frame);
+		rs.unexpected_gfx_frames.push_back(frame);
 }
 
 static void save_history_snapshots()
 {
-	for (auto& entry : framebuf_history)
+	for (auto& entry : rs.framebuf_history)
 	{
 		if (entry.frame > 0)
 		{
@@ -1192,23 +1204,23 @@ static void save_history_snapshots()
 
 static void do_replaying_poll()
 {
-    while (replay_log_current_index < replay_log.size() && get_frame(replay_log[replay_log_current_index]) == frame_count)
+    while (rs.replay_log_current_index < replay_log.size() && get_frame(replay_log[rs.replay_log_current_index]) == rs.frame_count)
     {
-        if (version >= 6)
+        if (rs.version >= 6)
         {
-            char type = get_type(replay_log[replay_log_current_index]);
+            char type = get_type(replay_log[rs.replay_log_current_index]);
             if (type != TypeKeyDown && type != TypeKeyUp && type != TypeMouse && type != TypeMeta)
-                run_step(replay_log[replay_log_current_index]);
+                run_step(replay_log[rs.replay_log_current_index]);
         }
         else
         {
-            run_step(replay_log[replay_log_current_index]);
+            run_step(replay_log[rs.replay_log_current_index]);
         }
-        replay_log_current_index += 1;
+        rs.replay_log_current_index += 1;
     }
 
-    replay_log_current_quit_index = replay_log_current_index;
-    replay_log_current_state_index = replay_log_current_index;
+    rs.replay_log_current_quit_index = rs.replay_log_current_index;
+    rs.replay_log_current_state_index = rs.replay_log_current_index;
 }
 
 static void check_assert()
@@ -1217,21 +1229,21 @@ static void check_assert()
     // the program will exit with a status code based on this bool. If
     // asserts have failed, a ".zplay.roundtrip" file will be written
     // for comparison.
-    if (has_assert_failed)
+    if (rs.has_assert_failed)
         return;
 
-    while (assert_current_index < replay_log.size() && get_frame(replay_log[assert_current_index]) <= frame_count)
+    while (rs.assert_current_index < replay_log.size() && get_frame(replay_log[rs.assert_current_index]) <= rs.frame_count)
     {
-        if (assert_current_index >= record_log.size())
+        if (rs.assert_current_index >= record_log.size())
             break;
 
-        auto& replay_step = replay_log[assert_current_index];
-        auto& record_step = record_log[assert_current_index];
+        auto& replay_step = replay_log[rs.assert_current_index];
+        auto& record_step = record_log[rs.assert_current_index];
         if (!steps_are_equal(replay_step, record_step))
         {
-            has_assert_failed = true;
-            failing_frame = get_frame(record_step);
-            int line_number = assert_current_index + meta_map.size() + 1;
+            rs.has_assert_failed = true;
+            rs.failing_frame = get_frame(record_step);
+            int line_number = rs.assert_current_index + rs.meta_map.size() + 1;
             std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
                                             print_step(replay_step), print_step(record_step));
             fprintf(stderr, "%s\n", error.c_str());
@@ -1252,66 +1264,66 @@ static void check_assert()
             break;
         }
 
-        assert_current_index++;
+        rs.assert_current_index++;
     }
 }
 
 static void maybe_take_snapshot()
 {
-	if (mode == ReplayMode::Assert)
+	if (rs.mode == ReplayMode::Assert)
 	{
-		if (current_failing_gfx_segment_start_frame != -1)
+		if (rs.current_failing_gfx_segment_start_frame != -1)
 		{
 			// Limit how many snapshots are saved in the same gfx failure segment.
-			if (frame_count - current_failing_gfx_segment_start_frame > 60*5)
+			if (rs.frame_count - rs.current_failing_gfx_segment_start_frame > 60*5)
 			{
-				if (unexpected_gfx_segments_limited.back().second == -1)
-					unexpected_gfx_segments_limited.back().second = frame_count - 1;
+				if (rs.unexpected_gfx_segments_limited.back().second == -1)
+					rs.unexpected_gfx_segments_limited.back().second = rs.frame_count - 1;
 			}
-			else if (!prev_gfx_hash_was_same)
-				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			else if (!rs.prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 			return;
 		}
-		else if (last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
+		else if (rs.last_failing_gfx_frame != -1 && rs.frame_count - rs.last_failing_gfx_frame <= 10)
 		{
 			// Save a few frames after the last failing gfx, for context.
-			if (!prev_gfx_hash_was_same)
-				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			if (!rs.prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 			return;
 		}
 	}
 
-	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
-	if (!snapshot_all_frames && !gfx_got_mismatch && it == snapshot_frames.end())
+	auto it = std::find(rs.snapshot_frames.begin(), rs.snapshot_frames.end(), rs.frame_count);
+	if (!snapshot_all_frames && !rs.gfx_got_mismatch && it == rs.snapshot_frames.end())
 	{
-		if (mode == ReplayMode::Assert && !prev_gfx_hash_was_same)
+		if (rs.mode == ReplayMode::Assert && !rs.prev_gfx_hash_was_same)
 		{
-			blit(framebuf, framebuf_history[framebuf_history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			framebuf_history[framebuf_history_index].frame = frame_count;
-			memcpy(framebuf_history[framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
-			framebuf_history_index = (framebuf_history_index + 1) % framebuf_history.size();
+			blit(framebuf, rs.framebuf_history[rs.framebuf_history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			rs.framebuf_history[rs.framebuf_history_index].frame = rs.frame_count;
+			memcpy(rs.framebuf_history[rs.framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
+			rs.framebuf_history_index = (rs.framebuf_history_index + 1) % rs.framebuf_history.size();
 		}
 		return;
 	}
 
-	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+	save_snapshot(framebuf, RAMpal, rs.frame_count, rs.gfx_got_mismatch);
 }
 
 static void fail_replay(std::string error)
 {
-	int line_number = replay_log_current_index + meta_map.size() + 1;
-	std::string err_out = fmt::format("<{}> {}! stopping replay\nframe {}", line_number, error, frame_count);
+	int line_number = rs.replay_log_current_index + rs.meta_map.size() + 1;
+	std::string err_out = fmt::format("<{}> {}! stopping replay\nframe {}", line_number, error, rs.frame_count);
 	fprintf(stderr, "%s\n", err_out.c_str());
 
-	if (failing_frame == -1)
+	if (rs.failing_frame == -1)
 	{
-		failing_frame = frame_count;
+		rs.failing_frame = rs.frame_count;
 	}
 
 	if (!exit_when_done)
 	{
 		enter_sys_pal();
-		InfoDialog(replay_mode_to_string(mode), err_out).show();
+		InfoDialog(replay_mode_to_string(rs.mode), err_out).show();
 		exit_sys_pal();
 	}
 
@@ -1319,9 +1331,9 @@ static void fail_replay(std::string error)
 	replay_stop();
 }
 
-std::string replay_mode_to_string(ReplayMode mode)
+std::string replay_mode_to_string(ReplayMode m)
 {
-	switch (mode)
+	switch (m)
 	{
 		case ReplayMode::Off: return "off";
 		case ReplayMode::Replay: return "replay";
@@ -1335,10 +1347,10 @@ std::string replay_mode_to_string(ReplayMode mode)
 std::map<std::string, std::string> replay_load_meta(std::filesystem::path path)
 {
 	std::string buffer;
-	std::map<std::string, std::string> meta_map;
+	std::map<std::string, std::string> meta;
 	bool only_meta = true;
-	load_replay(buffer, meta_map, path, only_meta);
-	return meta_map;
+	load_replay(buffer, meta, path, only_meta);
+	return meta;
 }
 
 static void peek_meta_steps()
@@ -1346,8 +1358,8 @@ static void peek_meta_steps()
 	if (!replay_is_replaying())
 		return;
 
-	size_t i = replay_log_current_index;
-	while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+	size_t i = rs.replay_log_current_index;
+	while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
 	{
 		if (get_type(replay_log[i]) == TypeMeta)
 		{
@@ -1363,54 +1375,28 @@ static void peek_meta_steps()
 
 bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
-    ASSERT(mode == ReplayMode::Off);
-    time_started = std::chrono::steady_clock::now();
-    time_started_system = std::chrono::system_clock::now();
-    mode = mode_;
-	refresh_control_scheme();
-    debug = false;
-    sync_rng = false;
-    did_attempt_input_during_replay = false;
-    has_assert_failed = false;
-    has_aborted = false;
-    failing_frame = -1;
-    last_failing_gfx_frame = -1;
-    current_failing_gfx_segment_start_frame = -1;
-    unexpected_gfx_frames.clear();
-    unexpected_gfx_segments.clear();
-    unexpected_gfx_segments_limited.clear();
-    loadscr_count = 0;
-    failed_loadscr_count_frame = -1;
-    has_rng_desynced = false;
-    rng_seed_count_this_frame.clear();
-    gfx_got_mismatch = false;
-    replay_path = path;
-    if (output_dir.empty()) output_dir = replay_path.parent_path();
-    assert_current_index = replay_log_current_index = frame_count = 0;
-    frame_arg = frame;
-    prev_gfx_hash = 0;
-    prev_gfx_hash_was_same = false;
-    prev_debug_x = prev_debug_y = -1;
-    prev_mouse_state = {0, 0, 0, 0};
-    current_mouse_state = {0, 0, 0, 0};
+    ASSERT(rs.mode == ReplayMode::Off);
+    rs = ReplayState{};
+    rs.mode = mode_;
+    rs.time_started = std::chrono::steady_clock::now();
+    rs.time_started_system = std::chrono::system_clock::now();
+    rs.replay_path = path;
+    rs.frame_arg = frame;
+    refresh_control_scheme();
+    if (output_dir.empty()) output_dir = rs.replay_path.parent_path();
+    // replay_log/record_log live outside ReplayState, so clear them explicitly.
     replay_log.clear();
     record_log.clear();
-	snapshot_frames.clear();
-    framebuf_history_index = 0;
-    version_use_latest = false;
-    zc_version_created.reset();
     replay_forget_input();
-    replay_file_buffer.clear();
-    string_arena.clear();
 
-    switch (mode)
+    switch (rs.mode)
     {
     case ReplayMode::Off:
         return false;
     case ReplayMode::Record:
     {
-        version = VERSION;
-		initial_version = VERSION;
+        rs.version = VERSION;
+		rs.initial_version = VERSION;
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
         replay_set_meta("zc_version_created", getVersionString());
@@ -1420,20 +1406,20 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     case ReplayMode::Replay:
     case ReplayMode::Assert:
     case ReplayMode::Update:
-        if (!load_replay(replay_file_buffer, meta_map, replay_path))
+        if (!load_replay(rs.replay_file_buffer, rs.meta_map, rs.replay_path))
         {
-            mode = ReplayMode::Off;
+            rs.mode = ReplayMode::Off;
             return false;
         }
         break;
     }
 
-    if (mode == ReplayMode::Assert)
+    if (rs.mode == ReplayMode::Assert)
     {
-        for (int i = 0; i < framebuf_history.size(); i++)
+        for (int i = 0; i < rs.framebuf_history.size(); i++)
         {
-            framebuf_history[i].bitmap = create_bitmap_ex(8, framebuf->w, framebuf->h);
-            framebuf_history[i].frame = -1;
+            rs.framebuf_history[i].bitmap = create_bitmap_ex(8, framebuf->w, framebuf->h);
+            rs.framebuf_history[i].frame = -1;
         }
     }
 
@@ -1444,7 +1430,7 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
         KeyMapReplayStep::stored = KeyMapReplayStep::make(0);
     }
 
-    if (replay_is_recording() && version >= 5)
+    if (replay_is_recording() && rs.version >= 5)
     {
         record_log.emplace_back(std::in_place_type<KeyMapReplayStep>, 0, KeyMapReplayStep::current.button_keys);
     }
@@ -1459,18 +1445,15 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 
 void replay_continue(std::filesystem::path path)
 {
-    ASSERT(mode == ReplayMode::Off);
-    mode = ReplayMode::Record;
-    frame_arg = -1;
-    has_aborted = false;
-	zc_version_created.reset();
-    prev_mouse_state = {0, 0, 0, 0};
-    current_mouse_state = {0, 0, 0, 0};
+    ASSERT(rs.mode == ReplayMode::Off);
+    rs = ReplayState{};
+    rs.mode = ReplayMode::Record;
+    rs.frame_arg = -1;
+    rs.replay_path = path;
     replay_forget_input();
-    replay_path = path;
-    if (!load_replay(replay_file_buffer, meta_map, replay_path) || replay_log.empty())
+    if (!load_replay(rs.replay_file_buffer, rs.meta_map, rs.replay_path) || replay_log.empty())
     {
-        mode = ReplayMode::Off;
+        rs.mode = ReplayMode::Off;
         return;
     }
 
@@ -1481,10 +1464,10 @@ void replay_continue(std::filesystem::path path)
 	}
 
     record_log = std::move(replay_log);
-    frame_count = get_frame(record_log.back()) + 1;
+    rs.frame_count = get_frame(record_log.back()) + 1;
 
 	// Not certain if really old replays (prior to TypeKeyMap) can be updated.
-	if (version >= 5 && version != VERSION)
+	if (rs.version >= 5 && rs.version != VERSION)
 		replay_step_meta("version", fmt::format("{}", VERSION));
 
 	replay_compat_setup_zc_maths();
@@ -1492,10 +1475,10 @@ void replay_continue(std::filesystem::path path)
 
 void replay_poll()
 {
-    if (mode == ReplayMode::Off)
+    if (rs.mode == ReplayMode::Off)
         return;
 
-    if (did_attempt_input_during_replay && replay_is_replaying())
+    if (rs.did_attempt_input_during_replay && replay_is_replaying())
     {
         int key_copy[KEY_MAX];
         bool down_states[controls::btnLast];
@@ -1518,7 +1501,7 @@ void replay_poll()
 		}
 		exit_sys_pal();
 
-        did_attempt_input_during_replay = false;
+        rs.did_attempt_input_during_replay = false;
         install_keyboard_handlers();
         for (int i = 0; i < KEY_MAX; i++)
         {
@@ -1529,9 +1512,9 @@ void replay_poll()
             down_control_states[i] = down_states[i];
     }
 
-    if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
+    if (rs.frame_arg != -1 && rs.frame_arg <= rs.frame_count && replay_is_replaying())
     {
-        if (mode != ReplayMode::Assert)
+        if (rs.mode != ReplayMode::Assert)
         {
             Throttlefps = true;
             Paused = true;
@@ -1543,7 +1526,7 @@ void replay_poll()
         }
     }
 
-    switch (mode)
+    switch (rs.mode)
     {
     case ReplayMode::Off:
         return;
@@ -1552,7 +1535,7 @@ void replay_poll()
         break;
     case ReplayMode::Replay:
         do_replaying_poll();
-        if (replay_log_current_index == replay_log.size())
+        if (rs.replay_log_current_index == replay_log.size())
             replay_stop();
         break;
     case ReplayMode::Assert:
@@ -1563,12 +1546,12 @@ void replay_poll()
     case ReplayMode::Update:
         do_replaying_poll();
         do_recording_poll();
-        if (frame_count == get_frame(replay_log.back()))
+        if (rs.frame_count == get_frame(replay_log.back()))
             replay_stop();
         break;
     }
 
-    if (mode == ReplayMode::Assert && gfx_got_mismatch)
+    if (rs.mode == ReplayMode::Assert && rs.gfx_got_mismatch)
     {
         save_history_snapshots();
     }
@@ -1576,37 +1559,37 @@ void replay_poll()
 
     static bool save_every_frame = get_flag_bool("-replay-save-result-every-frame").value_or(false);
     bool should_save_result = save_every_frame
-        || frame_count == 0
-        || std::chrono::steady_clock::now() - time_result_saved > 1s;
+        || rs.frame_count == 0
+        || std::chrono::steady_clock::now() - rs.time_result_saved > 1s;
     if (should_save_result)
         save_result();
 
-    if (mode == ReplayMode::Assert || mode == ReplayMode::Record)
+    if (rs.mode == ReplayMode::Assert || rs.mode == ReplayMode::Record)
     {
-        if (frame_arg != -1 && frame_arg == frame_count)
+        if (rs.frame_arg != -1 && rs.frame_arg == rs.frame_count)
         {
-            if (mode == ReplayMode::Record) replay_save();
+            if (rs.mode == ReplayMode::Record) replay_save();
 
             Throttlefps = true;
             Paused = true;
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            InfoDialog(replay_mode_to_string(mode), "Stopped at requested frame").show();
+            InfoDialog(replay_mode_to_string(rs.mode), "Stopped at requested frame").show();
             exit_sys_pal();
             return;
         }
     }
 
-    if (mode == ReplayMode::Assert)
+    if (rs.mode == ReplayMode::Assert)
     {
-        if (replay_log_current_index == assert_current_index && assert_current_index == replay_log.size())
+        if (rs.replay_log_current_index == rs.assert_current_index && rs.assert_current_index == replay_log.size())
         {
             replay_stop();
             return;
         }
 
-        if (frame_count > get_frame(replay_log.back()))
+        if (rs.frame_count > get_frame(replay_log.back()))
         {
             replay_stop();
             return;
@@ -1614,15 +1597,15 @@ void replay_poll()
 
         // If loadscr is not called when expected, the rest of the replay is not going to go well and may possible
         // loop forever. Only record 60 more frames at this point.
-        if (has_assert_failed && failed_loadscr_count_frame == -1)
+        if (rs.has_assert_failed && rs.failed_loadscr_count_frame == -1)
         {
-            int expected_frame = loadscr_count + 1 >= expected_loadscr_frame_count.size() ?
+            int expected_frame = rs.loadscr_count + 1 >= rs.expected_loadscr_frame_count.size() ?
                 get_frame(replay_log.back()) :
-                expected_loadscr_frame_count[loadscr_count + 1];
-            if (frame_count > expected_frame)
-                failed_loadscr_count_frame = frame_count;
+                rs.expected_loadscr_frame_count[rs.loadscr_count + 1];
+            if (rs.frame_count > expected_frame)
+                rs.failed_loadscr_count_frame = rs.frame_count;
         }
-        if (has_assert_failed && failed_loadscr_count_frame != -1 && frame_count - failed_loadscr_count_frame > 60)
+        if (rs.has_assert_failed && rs.failed_loadscr_count_frame != -1 && rs.frame_count - rs.failed_loadscr_count_frame > 60)
         {
             replay_stop();
             return;
@@ -1630,21 +1613,21 @@ void replay_poll()
     }
 
     // Updating should never modify when screens are loaded.
-    if (mode == ReplayMode::Update)
+    if (rs.mode == ReplayMode::Update)
     {
-        int expected_frame = loadscr_count + 1 >= expected_loadscr_frame_count.size() ?
+        int expected_frame = rs.loadscr_count + 1 >= rs.expected_loadscr_frame_count.size() ?
             get_frame(replay_log.back()) :
-            expected_loadscr_frame_count[loadscr_count + 1];
-        if (frame_count > expected_frame)
+            rs.expected_loadscr_frame_count[rs.loadscr_count + 1];
+        if (rs.frame_count > expected_frame)
         {
-            failed_loadscr_count_frame = frame_count;
+            rs.failed_loadscr_count_frame = rs.frame_count;
             replay_stop();
             return;
         }
     }
 
-    std::fill(rng_seed_count_this_frame.begin(), rng_seed_count_this_frame.end(), 0);
-    frame_count++;
+    std::fill(rs.rng_seed_count_this_frame.begin(), rs.rng_seed_count_this_frame.end(), 0);
+    rs.frame_count++;
 	peek_meta_steps();
 }
 
@@ -1715,14 +1698,14 @@ bool replay_add_snapshot_frame(std::string frames_shorthand)
 	if (frames.size() > 100000)
 		return false;
 
-	snapshot_frames.insert(snapshot_frames.end(), frames.begin(), frames.end());
+	rs.snapshot_frames.insert(rs.snapshot_frames.end(), frames.begin(), frames.end());
 	return true;
 }
 
 void replay_peek_quit()
 {
-    int i = replay_log_current_quit_index;
-    while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+    int i = rs.replay_log_current_quit_index;
+    while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
     {
         if (get_type(replay_log[i]) == TypeQuit)
         {
@@ -1731,7 +1714,7 @@ void replay_peek_quit()
                 GameFlags |= GAMEFLAG_TRYQUIT;
             else
                 Quit = quit_replay_step.quit_state;
-            replay_log_current_quit_index = i + 1;
+            rs.replay_log_current_quit_index = i + 1;
             break;
         }
         i++;
@@ -1740,8 +1723,8 @@ void replay_peek_quit()
 
 void replay_peek_input()
 {
-    size_t i = replay_log_current_index;
-    while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+    size_t i = rs.replay_log_current_index;
+    while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
     {
         char type = get_type(replay_log[i]);
         if (type == TypeKeyDown || type == TypeKeyUp || type == TypeMouse)
@@ -1754,8 +1737,8 @@ void replay_peek_input()
 
 void replay_do_cheats()
 {
-    size_t i = replay_log_current_index;
-    while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+    size_t i = rs.replay_log_current_index;
+    while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
     {
         if (get_type(replay_log[i]) == TypeCheat)
         {
@@ -1768,8 +1751,8 @@ void replay_do_cheats()
 
 void replay_do_qrs()
 {
-    size_t i = replay_log_current_index;
-    while (i < replay_log.size() && get_frame(replay_log[i]) == frame_count)
+    size_t i = rs.replay_log_current_index;
+    while (i < replay_log.size() && get_frame(replay_log[i]) == rs.frame_count)
     {
         if (get_type(replay_log[i]) == TypeQR)
         {
@@ -1782,12 +1765,12 @@ void replay_do_qrs()
 
 bool replay_is_assert_done()
 {
-	return mode == ReplayMode::Assert && (assert_current_index == replay_log.size() || frame_count >= get_frame(replay_log.back()));
+	return rs.mode == ReplayMode::Assert && (rs.assert_current_index == replay_log.size() || rs.frame_count >= get_frame(replay_log.back()));
 }
 
 void replay_forget_input()
 {
-    if (mode == ReplayMode::Off)
+    if (rs.mode == ReplayMode::Off)
         return;
 
     for (int i = 0; i < KEY_MAX; i++)
@@ -1797,17 +1780,17 @@ void replay_forget_input()
         key_current_frame[i] = 0;
     }
     for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
-        previous_control_state[i] = raw_control_state[i] = false;
+        rs.previous_control_state[i] = raw_control_state[i] = false;
     for (int i = 0; i < KEY_MAX; i++)
-        previous_keys[i] = false;
+        rs.previous_keys[i] = false;
 }
 
 void replay_stop(bool aborted)
 {
-    if (mode == ReplayMode::Off)
+    if (rs.mode == ReplayMode::Off)
         return;
 
-	has_aborted = aborted;
+	rs.has_aborted = aborted;
 
     if (replay_is_replaying())
     {
@@ -1816,12 +1799,12 @@ void replay_stop(bool aborted)
         KeyMapReplayStep::stored.run();
     }
 
-    if (mode == ReplayMode::Assert && !aborted)
+    if (rs.mode == ReplayMode::Assert && !aborted)
     {
         check_assert();
         bool log_size_mismatch = replay_log.size() != record_log.size();
-        has_assert_failed |= log_size_mismatch || has_rng_desynced;
-        if (has_assert_failed)
+        rs.has_assert_failed |= log_size_mismatch || rs.has_rng_desynced;
+        if (rs.has_assert_failed)
         {
             replay_save(get_file_path(".roundtrip"));
         }
@@ -1833,10 +1816,10 @@ void replay_stop(bool aborted)
         save_result(true);
         if (exit_when_done)
         {
-			mode = ReplayMode::Off;
-			zc_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
+			rs.mode = ReplayMode::Off;
+			zc_exit(rs.has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
-        else if (has_assert_failed)
+        else if (rs.has_assert_failed)
         {
             enter_sys_pal();
             InfoDialog("Assert", "Replay has stopped, and the assert failed.").show();
@@ -1845,17 +1828,17 @@ void replay_stop(bool aborted)
         }
     }
 
-    if (mode == ReplayMode::Update && !aborted)
+    if (rs.mode == ReplayMode::Update && !aborted)
     {
         bool should_save;
-        if (failed_loadscr_count_frame != -1)
+        if (rs.failed_loadscr_count_frame != -1)
         {
             should_save = false;
 
             if (exit_when_done)
             {
                 save_result(true);
-                mode = ReplayMode::Off;
+                rs.mode = ReplayMode::Off;
                 zc_exit(ASSERT_FAILED_EXIT_CODE);
             }
             else
@@ -1897,28 +1880,28 @@ void replay_stop(bool aborted)
         save_result(true);
     }
 
-    for (int i = 0; i < framebuf_history.size(); i++)
+    for (int i = 0; i < rs.framebuf_history.size(); i++)
     {
-        if (framebuf_history[i].bitmap)
+        if (rs.framebuf_history[i].bitmap)
 		{
-            destroy_bitmap(framebuf_history[i].bitmap);
-			framebuf_history[i].bitmap = nullptr;
+            destroy_bitmap(rs.framebuf_history[i].bitmap);
+			rs.framebuf_history[i].bitmap = nullptr;
 		}
     }
 
-    mode = ReplayMode::Off;
+    rs.mode = ReplayMode::Off;
 	refresh_control_scheme();
 	replay_compat_setup_zc_maths();
-    frame_count = 0;
+    rs.frame_count = 0;
     replay_log.clear();
-    rngs.clear();
-    meta_map.clear();
-    replay_file_buffer.clear();
-    string_arena.clear();
+    rs.rngs.clear();
+    rs.meta_map.clear();
+    rs.replay_file_buffer.clear();
+    rs.string_arena.clear();
 
 	if (exit_when_done)
 	{
-		zc_exit(has_rng_desynced ? 1 : 0);
+		zc_exit(rs.has_rng_desynced ? 1 : 0);
 	}
 }
 
@@ -1930,7 +1913,7 @@ void replay_quit()
 
 void replay_save()
 {
-    replay_save(replay_path);
+    replay_save(rs.replay_path);
 }
 
 void replay_save(std::filesystem::path path)
@@ -1943,11 +1926,11 @@ void replay_step_comment(std::string comment)
     if (replay_is_recording())
     {
         util::trimstr_trailing(comment);
-        string_arena.push_back(std::move(comment));
-        record_log.emplace_back(std::in_place_type<CommentReplayStep>, frame_count, string_arena.back());
+        rs.string_arena.push_back(std::move(comment));
+        record_log.emplace_back(std::in_place_type<CommentReplayStep>, rs.frame_count, rs.string_arena.back());
         // Not necessary to call this here, but helps to halt the program exactly when an unexpected
         // comment occurs instead of at the next call to replay_poll.
-        if (mode == ReplayMode::Assert)
+        if (rs.mode == ReplayMode::Assert)
             check_assert();
     }
 }
@@ -1955,7 +1938,7 @@ void replay_step_comment(std::string comment)
 void replay_step_comment_loadscr(int screen)
 {
 	replay_step_comment(fmt::format("scr={}", screen));
-	loadscr_count += 1;
+	rs.loadscr_count += 1;
 }
 
 // https://base91.sourceforge.net/
@@ -1983,16 +1966,16 @@ void replay_step_gfx(uint32_t gfx_hash)
 	// Using uint16_t reduces .zplay by ~7%.
 	std::string gfx_comment = fmt::format("g {}", int_to_basE91((uint16_t)gfx_hash));
 
-	if (mode == ReplayMode::Assert)
+	if (rs.mode == ReplayMode::Assert)
 	{
 		std::string expected_gfx_comment;
-		auto it_start = std::lower_bound(replay_log.begin(), replay_log.end(), frame_count,
+		auto it_start = std::lower_bound(replay_log.begin(), replay_log.end(), rs.frame_count,
 			[](auto& step, const int value) {
 				return get_frame(step) < value;
 			});
 		for (auto it = it_start; it < replay_log.end(); it++)
 		{
-			if (get_frame(*it) != frame_count)
+			if (get_frame(*it) != rs.frame_count)
 				break;
 			if (get_type(*it) == TypeComment)
 			{
@@ -2005,37 +1988,37 @@ void replay_step_gfx(uint32_t gfx_hash)
 			}
 		}
 
-		if (expected_gfx_comment.empty() && gfx_hash != prev_gfx_hash)
-			gfx_got_mismatch = true;
+		if (expected_gfx_comment.empty() && gfx_hash != rs.prev_gfx_hash)
+			rs.gfx_got_mismatch = true;
 		if (!expected_gfx_comment.empty() && expected_gfx_comment != gfx_comment)
-			gfx_got_mismatch = true;
-		if (gfx_got_mismatch)
-			last_failing_gfx_frame = frame_count;
-		if (gfx_hash != prev_gfx_hash)
+			rs.gfx_got_mismatch = true;
+		if (rs.gfx_got_mismatch)
+			rs.last_failing_gfx_frame = rs.frame_count;
+		if (gfx_hash != rs.prev_gfx_hash)
 		{
-			if (gfx_got_mismatch && current_failing_gfx_segment_start_frame == -1)
+			if (rs.gfx_got_mismatch && rs.current_failing_gfx_segment_start_frame == -1)
 			{
-				current_failing_gfx_segment_start_frame = frame_count;
-				unexpected_gfx_segments.push_back({frame_count, -1});
-				unexpected_gfx_segments_limited.push_back({frame_count, -1});
+				rs.current_failing_gfx_segment_start_frame = rs.frame_count;
+				rs.unexpected_gfx_segments.push_back({rs.frame_count, -1});
+				rs.unexpected_gfx_segments_limited.push_back({rs.frame_count, -1});
 			}
-			else if (!gfx_got_mismatch && current_failing_gfx_segment_start_frame != -1)
+			else if (!rs.gfx_got_mismatch && rs.current_failing_gfx_segment_start_frame != -1)
 			{
-				current_failing_gfx_segment_start_frame = -1;
-				if (!unexpected_gfx_segments.empty())
-					unexpected_gfx_segments.back().second = frame_count - 1;
-				if (!unexpected_gfx_segments_limited.empty() && unexpected_gfx_segments_limited.back().second == -1)
-					unexpected_gfx_segments_limited.back().second = frame_count - 1;
+				rs.current_failing_gfx_segment_start_frame = -1;
+				if (!rs.unexpected_gfx_segments.empty())
+					rs.unexpected_gfx_segments.back().second = rs.frame_count - 1;
+				if (!rs.unexpected_gfx_segments_limited.empty() && rs.unexpected_gfx_segments_limited.back().second == -1)
+					rs.unexpected_gfx_segments_limited.back().second = rs.frame_count - 1;
 			}
 		}
 	}
 
 	// Skip if last invocation was the same value.
-	prev_gfx_hash_was_same = gfx_hash == prev_gfx_hash;
-	if (!prev_gfx_hash_was_same)
+	rs.prev_gfx_hash_was_same = gfx_hash == rs.prev_gfx_hash;
+	if (!rs.prev_gfx_hash_was_same)
 	{
 		replay_step_comment(gfx_comment);
-		prev_gfx_hash = gfx_hash;
+		rs.prev_gfx_hash = gfx_hash;
 	}
 
 	// Note: I tried a simple queue cache to remember the last N hashes and use shorthand
@@ -2057,13 +2040,13 @@ void replay_set_meta(std::string key, std::string value)
             },
             '/');
 
-    meta_map[key] = value;
+    rs.meta_map[key] = value;
 }
 
 void replay_set_meta(std::string key, int value)
 {
     if (replay_is_active())
-        meta_map[key] = fmt::format("{}", value);
+        rs.meta_map[key] = fmt::format("{}", value);
 }
 
 void replay_set_meta_bool(std::string key, bool value)
@@ -2071,18 +2054,18 @@ void replay_set_meta_bool(std::string key, bool value)
     if (value)
         replay_set_meta(key, "true");
     else
-        meta_map.erase(key);
+        rs.meta_map.erase(key);
 }
 
 void replay_delete_meta(std::string key)
 {
-	meta_map.erase(key);
+	rs.meta_map.erase(key);
 }
 
 static std::string get_meta_raw_value(std::string key)
 {
-    auto it = meta_map.find(key);
-    if (it == meta_map.end())
+    auto it = rs.meta_map.find(key);
+    if (it == rs.meta_map.end())
         return "";
     return it->second;
 }
@@ -2120,28 +2103,28 @@ bool replay_get_meta_bool(std::string key)
 
 bool replay_has_meta(std::string key)
 {
-    return meta_map.find(key) != meta_map.end();
+    return rs.meta_map.find(key) != rs.meta_map.end();
 }
 
 void replay_step_quit(int quit_state)
 {
 	if (replay_is_recording())
-		record_log.emplace_back(std::in_place_type<QuitReplayStep>, frame_count, quit_state);
+		record_log.emplace_back(std::in_place_type<QuitReplayStep>, rs.frame_count, quit_state);
 }
 
 void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
 	if (replay_is_recording())
 	{
-		string_arena.push_back(std::move(arg3));
-		record_log.emplace_back(std::in_place_type<CheatReplayStep>, frame_count, cheat, arg1, arg2, string_arena.back());
+		rs.string_arena.push_back(std::move(arg3));
+		record_log.emplace_back(std::in_place_type<CheatReplayStep>, rs.frame_count, cheat, arg1, arg2, rs.string_arena.back());
 	}
 }
 
 void replay_step_qr(int qr, bool value)
 {
 	if (replay_is_recording())
-		record_log.emplace_back(std::in_place_type<QRReplayStep>, frame_count, qr, value);
+		record_log.emplace_back(std::in_place_type<QRReplayStep>, rs.frame_count, qr, value);
 }
 
 void replay_step_meta(std::string key, std::string value)
@@ -2152,28 +2135,28 @@ void replay_step_meta(std::string key, std::string value)
 	// Nothing else is supported right now.
 	CHECK(key == "version");
 
-	string_arena.push_back(key);
-	std::string_view key_view = string_arena.back();
-	string_arena.push_back(value);
-	std::string_view value_view = string_arena.back();
-	record_log.emplace_back(std::in_place_type<MetaReplayStep>, frame_count, key_view, value_view);
+	rs.string_arena.push_back(key);
+	std::string_view key_view = rs.string_arena.back();
+	rs.string_arena.push_back(value);
+	std::string_view value_view = rs.string_arena.back();
+	record_log.emplace_back(std::in_place_type<MetaReplayStep>, rs.frame_count, key_view, value_view);
 	std::get<MetaReplayStep>(record_log.back()).run();
 }
 
 ReplayMode replay_get_mode()
 {
-    return mode;
+    return rs.mode;
 }
 
 int replay_get_version()
 {
-    return version;
+    return rs.version;
 }
 
 ZCVersionCreated replay_get_zc_version_created()
 {
-	if (zc_version_created.has_value())
-		return *zc_version_created;
+	if (rs.zc_version_created.has_value())
+		return *rs.zc_version_created;
 
 	ZCVersionCreated result{};
 	std::string str = replay_get_meta_str("zc_version_created");
@@ -2202,7 +2185,7 @@ ZCVersionCreated replay_get_zc_version_created()
 		}
 	}
 
-	zc_version_created = result;
+	rs.zc_version_created = result;
 	return result;
 }
 
@@ -2215,15 +2198,15 @@ bool replay_version_check(int min, int max)
 
 	if (max == -1)
 	{
-		return version >= min;
+		return rs.version >= min;
 	}
 
-    return version >= min && version < max;
+    return rs.version >= min && rs.version < max;
 }
 
 int replay_get_frame()
 {
-    return frame_count;
+    return rs.frame_count;
 }
 
 void replay_set_output_dir(std::filesystem::path dir)
@@ -2233,13 +2216,13 @@ void replay_set_output_dir(std::filesystem::path dir)
 
 std::filesystem::path replay_get_replay_path()
 {
-    return replay_path;
+    return rs.replay_path;
 }
 
 std::string replay_get_buttons_string()
 {
     std::string text;
-    text += fmt::format("{} ", frame_count);
+    text += fmt::format("{} ", rs.frame_count);
     for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
     {
         if (raw_control_state[i])
@@ -2254,18 +2237,18 @@ std::string replay_get_buttons_string()
 
 bool replay_is_active()
 {
-    return mode != ReplayMode::Off;
+    return rs.mode != ReplayMode::Off;
 }
 
 void replay_set_debug(bool enable_debug)
 {
-    debug = enable_debug;
-    replay_set_meta_bool("debug", debug);
+    rs.debug = enable_debug;
+    replay_set_meta_bool("debug", rs.debug);
 }
 
 bool replay_is_debug()
 {
-    return mode != ReplayMode::Off && debug;
+    return rs.mode != ReplayMode::Off && rs.debug;
 }
 
 void replay_set_snapshot_all_frames(bool enable_snapshot_all_frames)
@@ -2280,18 +2263,18 @@ bool replay_is_snapshot_all_frames()
 
 void replay_set_sync_rng(bool enable)
 {
-    sync_rng = enable;
-    replay_set_meta_bool("sync_rng", sync_rng);
+    rs.sync_rng = enable;
+    replay_set_meta_bool("sync_rng", rs.sync_rng);
 }
 
 bool replay_is_replaying()
 {
-    return mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return rs.mode == ReplayMode::Replay || rs.mode == ReplayMode::Assert || rs.mode == ReplayMode::Update;
 }
 
 bool replay_is_recording()
 {
-    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return rs.mode == ReplayMode::Record || rs.mode == ReplayMode::Assert || rs.mode == ReplayMode::Update;
 }
 
 void replay_enable_exit_when_done()
@@ -2301,36 +2284,36 @@ void replay_enable_exit_when_done()
 
 size_t replay_register_rng(zc_randgen *rng)
 {
-    if (std::find(rngs.begin(), rngs.end(), rng) != rngs.end())
+    if (std::find(rs.rngs.begin(), rs.rngs.end(), rng) != rs.rngs.end())
         return get_rng_index(rng);
 
-    rngs.push_back(rng);
-    return rngs.size() - 1;
+    rs.rngs.push_back(rng);
+    return rs.rngs.size() - 1;
 }
 
 void replay_set_rng_seed(zc_randgen *rng, int seed)
 {
-    ASSERT(mode != ReplayMode::Off);
+    ASSERT(rs.mode != ReplayMode::Off);
 
     int index = get_rng_index(rng);
     ASSERT(index != -1);
 
-    if ((size_t)index >= rng_seed_count_this_frame.size())
-        rng_seed_count_this_frame.resize(index + 1, 0);
-    int seed_count = rng_seed_count_this_frame[index] + 1;
-    rng_seed_count_this_frame[index] = seed_count;
+    if ((size_t)index >= rs.rng_seed_count_this_frame.size())
+        rs.rng_seed_count_this_frame.resize(index + 1, 0);
+    int seed_count = rs.rng_seed_count_this_frame[index] + 1;
+    rs.rng_seed_count_this_frame[index] = seed_count;
 
     if (replay_is_replaying())
     {
-        const RngReplayStep *rng_step = find_rng_step(index, replay_log_current_index, replay_log, seed_count);
+        const RngReplayStep *rng_step = find_rng_step(index, rs.replay_log_current_index, replay_log, seed_count);
         if (rng_step)
         {
             seed = rng_step->seed;
         }
         // Only OK to be missing if in update mode.
-        else if (mode != ReplayMode::Update)
+        else if (rs.mode != ReplayMode::Update)
         {
-            has_rng_desynced = true;
+            rs.has_rng_desynced = true;
             fail_replay("rng desync");
         }
     }
@@ -2338,7 +2321,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
     if (replay_is_recording())
     {
         bool did_extend = false;
-        if (!record_log.empty() && get_type(record_log.back()) == TypeRng && get_frame(record_log.back()) == frame_count)
+        if (!record_log.empty() && get_type(record_log.back()) == TypeRng && get_frame(record_log.back()) == rs.frame_count)
         {
             auto& rng_step = std::get<RngReplayStep>(record_log.back());
             if (rng_step.seed == seed)
@@ -2357,7 +2340,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         }
 
         if (!did_extend)
-            record_log.emplace_back(std::in_place_type<RngReplayStep>, frame_count, index, index, seed);
+            record_log.emplace_back(std::in_place_type<RngReplayStep>, rs.frame_count, index, index, seed);
     }
 
     rng->seed(seed);
@@ -2365,18 +2348,18 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
 
 void replay_sync_rng()
 {
-    if (!sync_rng)
+    if (!rs.sync_rng)
         return;
 
     int seed = time(0);
-    for (size_t i = 0; i < rngs.size(); i++)
+    for (size_t i = 0; i < rs.rngs.size(); i++)
     {
-        // Only reset the rngs that haven't been updated this frame.
-        if (i < rng_seed_count_this_frame.size() && rng_seed_count_this_frame[i] != 0)
+        // Only reset the rs.rngs that haven't been updated this frame.
+        if (i < rs.rng_seed_count_this_frame.size() && rs.rng_seed_count_this_frame[i] != 0)
             continue;
 
-        replay_set_rng_seed(rngs[i], seed);
-        if (mode == ReplayMode::Off)
+        replay_set_rng_seed(rs.rngs[i], seed);
+        if (rs.mode == ReplayMode::Off)
             return;
     }
 
@@ -2385,12 +2368,12 @@ void replay_sync_rng()
 
 int replay_get_mouse(int index)
 {
-	return current_mouse_state[index];
+	return rs.current_mouse_state[index];
 }
 
 void replay_set_mouse(int index, int value)
 {
-	current_mouse_state[index] = value;
+	rs.current_mouse_state[index] = value;
 }
 
 
@@ -2400,10 +2383,10 @@ int replay_get_state(ReplayStateType state_type, int fn())
 	if (replay_is_replaying())
 	{
 		value = 0;
-		while (replay_log_current_state_index < replay_log.size() && get_frame(replay_log[replay_log_current_state_index]) == frame_count)
+		while (rs.replay_log_current_state_index < replay_log.size() && get_frame(replay_log[rs.replay_log_current_state_index]) == rs.frame_count)
 		{
-			size_t i = replay_log_current_state_index;
-			replay_log_current_state_index += 1;
+			size_t i = rs.replay_log_current_state_index;
+			rs.replay_log_current_state_index += 1;
 
 			if (get_type(replay_log[i]) == TypeState)
 			{
@@ -2423,7 +2406,7 @@ int replay_get_state(ReplayStateType state_type, int fn())
 
 	if (replay_is_recording())
 	{
-		record_log.emplace_back(std::in_place_type<StateReplayStep>, frame_count, state_type, value);
+		record_log.emplace_back(std::in_place_type<StateReplayStep>, rs.frame_count, state_type, value);
 	}
 
 	return value;
