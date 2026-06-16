@@ -1564,6 +1564,7 @@ void init_dmap()
 void init_game_vars(bool is_cont_game = false)
 {
 	new_subscreen_map = new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	subscreen_open = false;
 
 	// There are many replay tests that were made when these globals were not being reset
 	// on continue. Let's not break them.
