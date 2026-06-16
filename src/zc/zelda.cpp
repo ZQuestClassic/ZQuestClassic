@@ -1608,6 +1608,11 @@ void init_game_vars(bool is_cont_game = false)
 	Hero.unfreeze();
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
+	// Ladder-cover position carries over from gameplay and isn't reset on game start. A new
+	// game must start fresh, or a previous in-process game's leftover value is read on the
+	// first gameplay frame before it's recomputed, nudging hero movement (and rng-desyncing).
+	Hero.climb_cover_x = 0;
+	Hero.climb_cover_y = 0;
 	linkedmsgclk=0;
 	mblock2.clear();
 	clear_screen_states();
