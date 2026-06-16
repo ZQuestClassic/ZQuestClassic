@@ -1,5 +1,6 @@
 #include "zc/replay.h"
 #include "zc/replay_compat.h"
+#include "base/check.h"
 #include "core/qrs.h"
 #include "base/version.h"
 #include "base/zapp.h"
@@ -825,8 +826,8 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
 
             if (!done_with_initial_meta)
             {
-                ASSERT(meta_map.find(key) == meta_map.end());
-                ASSERT(annotation_pos == std::string_view::npos);
+                CHECK(meta_map.find(key) == meta_map.end());
+                CHECK(annotation_pos == std::string_view::npos);
                 meta_map[key] = value;
             }
             else
@@ -860,7 +861,7 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
             std::string cheat_name;
             consume_string(line, cheat_name);
             cheat = cheat_from_string(cheat_name);
-            ASSERT(cheat > Cheat::None && cheat < Cheat::Last);
+            CHECK(cheat > Cheat::None && cheat < Cheat::Last);
 
             if (cheat == Cheat::HeroData)
             {
@@ -885,7 +886,7 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
             consume_int(line, qr);
             consume_int(line, value_int);
 
-            ASSERT(qr >= 0 && qr < qr_MAX);
+            CHECK(qr >= 0 && qr < qr_MAX);
 
             replay_log.emplace_back(std::in_place_type<QRReplayStep>, frame, qr, value_int != 0);
         }
@@ -895,12 +896,12 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
             consume_int(line, start_index);
             consume_int(line, end_index);
             consume_int(line, seed);
-            ASSERT(start_index <= end_index);
+            CHECK(start_index <= end_index);
             replay_log.emplace_back(std::in_place_type<RngReplayStep>, frame, start_index, end_index, seed);
         }
         else if (type == TypeKeyMap)
         {
-            ASSERT(version >= 5);
+            CHECK(version >= 5);
             std::array<int, KeyMapReplayStep::NumButtons> keys;
             for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
                 consume_int(line, keys[i]);
@@ -917,7 +918,7 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
         {
             if (version >= 5)
             {
-                ASSERT(found_key_map);
+                CHECK(found_key_map);
             }
 
             if (!line.empty() && line.front() == ' ')
@@ -933,14 +934,14 @@ static void load_replay(std::string& buffer, std::map<std::string, std::string>&
                 key_index = KeyReplayStep::find_index_for_key_name(text.substr(2));
                 if (key_index == -1)
                     fprintf(stderr, "unknown key %.*s\n", (int)text.size() - 2, text.data() + 2);
-                ASSERT(key_index != -1);
+                CHECK(key_index != -1);
             }
             else
             {
                 button_index = KeyReplayStep::find_index_for_button_name(text);
                 if (button_index == -1)
                     fprintf(stderr, "unknown button %.*s\n", (int)text.size(), text.data());
-                ASSERT(button_index != -1);
+                CHECK(button_index != -1);
                 key_index = key_map.button_keys[button_index];
             }
 
