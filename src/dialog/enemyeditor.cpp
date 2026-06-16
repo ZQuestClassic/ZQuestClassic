@@ -392,9 +392,9 @@ void EnemyEditorDialog::loadEnemyType()
 		{
 			l_attribute[0] = "Shot Type:";
 			l_attribute[1] = "Death Type:";
-			l_attribute[2] = "Death Attr. 1:";
-			l_attribute[3] = "Death Attr. 2:";
-			l_attribute[4] = "Death Attr. 3:";
+			l_attribute[2] = "Death/Shot Attr. 1:";
+			l_attribute[3] = "Death/Shot Attr. 2:";
+			l_attribute[4] = "Death/Shot Attr. 3:";
 			l_attribute[5] = "Extra Shots:";
 			l_attribute[6] = "Touch Effects:";
 			l_attribute[7] = "Effect Strength:";
@@ -524,6 +524,8 @@ void EnemyEditorDialog::loadEnemyType()
 			l_attribute[2] = "Shot Attr. 1:";
 			l_attribute[3] = "Solid Combos OK:";
 			l_attribute[4] = "Teleport Delay:";
+			l_attribute[5] = "Shot Attr. 2:";
+			l_attribute[6] = "Shot Attr. 3:";
 			l_bflag[4] = "Old Windrobe Teleport";
 			break;
 		}
@@ -770,13 +772,29 @@ void EnemyEditorDialog::loadAttributes()
 			}
 			GUI::ListData const* lists[12] = { nullptr };
 			
-			if(local_guyref.attributes[0] == e1tSUMMON)
+			if (local_guyref.attributes[0] == e1tSUMMON)
 			{
-				l_attribute[2] = "Enemy ID:";
+				l_attribute[2] = "Summon Enemy ID:";
 				h_attribute[2] = "Enemy to Summon";
-				l_attribute[3] = "Enemy Count:";
-				h_attribute[3] = "Max number of the specified enemy that can be on-screen before summoner stops";
+				l_attribute[3] = "Summon Enemy Count:";
+				h_attribute[3] = "Between 1 and N enemies will spawn each time the summoner summons. Minimum 1.";
+				l_attribute[4] = "Max Summons:";
+				h_attribute[4] = "Max summons before the enemy stops summoning. If 0, defaults to 41."
+					" If 'Old Summoner Counts' is checked, any enemy of the summoned ID counts."
+					" Otherwise, all enemies actually summoned by this enemy count."
+					+ QRHINT({qr_OLD_SUMMONER_COUNTS});
 				lists[2] = &list_enemies;
+			}
+			else if (local_guyref.attributes[0] == e1tSUMMONLAYER)
+			{
+				l_attribute[3] = "Summon Enemy Count:";
+				h_attribute[3] = "Between 1 and N enemies will spawn each time the summoner summons."
+					" Minimum 1. If 0, will default to 3.";
+				l_attribute[4] = "Max Summons:";
+				h_attribute[4] = "Max summons before the enemy stops summoning. If 0, defaults to 41."
+					" If 'Old Summoner Counts' is checked, all enemies on screen count."
+					" Otherwise, all enemies actually summoned by this enemy count."
+					+ QRHINT({qr_OLD_SUMMONER_COUNTS});
 			}
 			else
 			{
@@ -884,6 +902,59 @@ void EnemyEditorDialog::loadAttributes()
 				pbtn_attributes[q]->setDisabled(!plist_attributes[q]);
 			}
 			break;
+		}
+		case eeWIZZ:
+		{
+			static const int dependent_attribs[] = {2,5,6};
+			for(auto q : dependent_attribs)
+			{
+				l_attribute[q] = "Unused:";
+				h_attribute[q] = "";
+				plist_attributes[q] = nullptr;
+			}
+			GUI::ListData const* lists[12] = { nullptr };
+			
+			if (local_guyref.attributes[1] == 2) // summon
+			{
+				l_attribute[2] = "Summon Enemy ID:";
+				h_attribute[2] = "Enemy to Summon";
+				l_attribute[5] = "Summon Enemy Count:";
+				h_attribute[5] = "Between 1 and N enemies will spawn each time the summoner summons."
+					" Minimum 1. If 0, will default to 3.";
+				l_attribute[6] = "Max Summons:";
+				h_attribute[6] = "Max summons before the enemy stops summoning. If 0, defaults to 41."
+					" If 'Old Summoner Counts' is checked, any enemy of the summoned ID counts."
+					" Otherwise, all enemies actually summoned by this enemy count."
+					+ QRHINT({qr_OLD_SUMMONER_COUNTS});
+				lists[2] = &list_enemies;
+			}
+			else if (local_guyref.attributes[1] == 3) // summon layer
+			{
+				l_attribute[5] = "Summon Enemy Count:";
+				h_attribute[5] = "Between 1 and N enemies will spawn each time the summoner summons."
+					" Minimum 1. If 0, will default to 3.";
+				l_attribute[6] = "Max Summons:";
+				h_attribute[6] = "Max summons before the enemy stops summoning. If 0, defaults to 201."
+					" If 'Old Summoner Counts' is checked, all enemies on screen count."
+					" Otherwise, all enemies actually summoned by this enemy count."
+					+ QRHINT({qr_OLD_SUMMONER_COUNTS});
+			}
+			
+			for(auto q : dependent_attribs)
+			{
+				if(lists[q])
+				{
+					ddl_attributes[q]->setListData(*lists[q]);
+					ddl_attributes[q]->setSelectedValue(local_guyref.attributes[q]);
+					sw_attributes[q]->switchTo(SW_DROPDOWN);
+				}
+				else sw_attributes[q]->switchTo(SW_TEXTFIELD);
+				
+				l_attributes[q]->setText(l_attribute[q]);
+				ib_attributes[q]->setDisabled(h_attribute[q].empty());
+				
+				pbtn_attributes[q]->setDisabled(!plist_attributes[q]);
+			}
 		}
 	}
 	updateWarnings();
@@ -1400,21 +1471,38 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		TabRef(name = "Flags", TabPanel(
 			ptr = &guy_tabs[8],
 			TabRef(name = "Basic", Row(
-				Columns<8>(hAlign = 1.0, fitParent = true,
+				Rows_Columns<2, 8>(hAlign = 1.0, fitParent = true,
+					INFOBTN("If Power 0 weapons should damage this enemy based on their Level."),
 					GuyFlag(guy_bhit, "Damaged By Power 0 weapons"),
+					INFOBTN("If this enemy's contact damage should be entirely disabled."),
 					GuyFlag(guy_no_contact_damage, "No Contact Damage"),
+					INFOBTN("If this enemy is invisible."),
 					GuyFlag(guy_invisible, "Does not draw"),
+					INFOBTN("If this enemy doesn't return after it dies."),
 					GuyFlag(guy_never_return, "Never Returns After Death"),
+					INFOBTN("If this enemy doesn't need to be killed to 'clear' a room."),
 					GuyFlag(guy_doesnt_count, "Doesn't Count as Beatable Enemy"),
+					INFOBTN("If this enemy doesn't die to effects which normally kill all enemies."),
 					GuyFlag(guy_ignore_kill_all, "Ignores 'Kill All Enemies' effects"),
+					INFOBTN("If this enemy kills it's child enemies (ex. summons) when dying."),
+					GuyFlag(guy_kill_summoned_enemies, "Kills summoned enemies when dying"),
+					INFOBTN("If this enemy is invisible when not using the Lens."),
 					GuyFlag(guy_lens_only, "Can Only Be Seen By Lens of Truth"),
+					INFOBTN("If this enemy visually flashes between csets."),
 					GuyFlag(guy_flashing, "Is Flashing"),
+					INFOBTN("If this enemy visually flickers."),
 					GuyFlag(guy_blinking, "Is Flickering"),
+					INFOBTN("If this enemy is visually translucent."),
 					GuyFlag(guy_transparent, "Is Translucent"),
+					INFOBTN("If this enemy blocks attacks from the front."),
 					GuyFlag(guy_shield_front, "Shield In Front", !HAS_SHIELD),
+					INFOBTN("If this enemy blocks attacks from the left."),
 					GuyFlag(guy_shield_left, "Shield On Left", !HAS_SHIELD),
+					INFOBTN("If this enemy blocks attacks from the right."),
 					GuyFlag(guy_shield_right, "Shield On Right", !HAS_SHIELD),
+					INFOBTN("If this enemy blocks attacks from behind."),
 					GuyFlag(guy_shield_back, "Shield In Back", !HAS_SHIELD),
+					INFOBTN("If a hammer strike breaks this enemy's block."),
 					GuyFlag(guy_bkshield, "Hammer Can Break Shield", !HAS_SHIELD)
 				)
 			)),

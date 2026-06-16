@@ -891,6 +891,8 @@ static constexpr script_command command_list[]=
 	{ "FFCTRIGGER", FFCTRIGGER, 1, { REG_R }, 0, 0 },
 	{ "DRAWMINITILE", DRAWMINITILE, 0, {}, 0, 0 },
 	{ "BMPDRAWMINITILE", BMPDRAWMINITILE, 0, {}, 0, 0 },
+	{ "NPC_SUMMON_MINION", NPC_SUMMON_MINION, 2, { REG_RW, REG_R }, 0, 0 },
+	{ "NPC_SUMMON_MINION_LAYER", NPC_SUMMON_MINION_LAYER, 1, { REG_RW }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -2731,6 +2733,7 @@ static constexpr script_variable variable_list[]=
 	{ "MAPDATAFFCPOSSTATE", MAPDATAFFCPOSSTATE, 0 },
 	{ "FFC_POSSTATE", FFC_POSSTATE, 0 },
 	{ "CMBTRIGPOSSTATE", CMBTRIGPOSSTATE, 0 },
+	{ "NPC_SUMMONER_PARENT", NPC_SUMMONER_PARENT, 0 },
 	{"", -1},
 };
 
@@ -4348,6 +4351,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCZ:
 		case NPCZOFS:
 		case NPCDEATHEXSTATE:
+		case NPC_SUMMONER_PARENT:
 		case SPRITEMAXNPC:
 			return REFNPC;
 

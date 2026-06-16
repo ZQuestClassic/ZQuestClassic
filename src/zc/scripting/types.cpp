@@ -1033,6 +1033,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCZ:
 		case NPCZOFS:
 		case NPCDEATHEXSTATE:
+		case NPC_SUMMONER_PARENT:
 		case SPRITEMAXNPC:
 			return EngineSubsystem::npc;
 

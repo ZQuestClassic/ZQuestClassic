@@ -363,6 +363,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - ((isSideViewGravity()) ? 0 : 2);
 	did_armos=true;
 	script_spawned=false;
+	summoner_parent = nullptr;
 	
 	d = guysbuf + (id & 0xFFF);
 	hp = d->hp;
@@ -573,6 +574,18 @@ enemy::~enemy()
 		Hero.setEaten(0);
 		hashero=false;
 	}
+	for (enemy* e : summoner_children)
+		e->summoner_parent = nullptr;
+	set_summoner_parent(nullptr);
+}
+
+void enemy::set_summoner_parent(enemy* summoner)
+{
+	if (summoner_parent)
+		util::remove_if_exists(summoner_parent->summoner_children, this);
+	summoner_parent = summoner;
+	if (summoner_parent)
+		summoner_parent->summoner_children.push_back(this);
 }
 
 bool enemy::is_move_paused()
@@ -1016,6 +1029,30 @@ bool enemy::can_moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 	return ret;
 }
 
+void enemy::ondeath_cleanup(int index)
+{
+	if (deathexstate > -1 && deathexstate < 32)
+	{
+		setxmapflag(screen_spawned, 1<<deathexstate);
+		deathexstate = -1;
+	}
+	
+	if (!dying_despawn)
+	{
+		if (flags & guy_never_return)
+			never_return(screen_spawned, index);
+			
+		if (leader)
+			kill_em_all();
+		if (flags & guy_kill_summoned_enemies)
+		{
+			for (enemy* minion : summoner_children)
+				minion->hp = -1000;
+		}
+	}
+	
+	stop_bgsfx(index);
+}
 // Handle pitfalls
 bool enemy::do_falling(int32_t index)
 {
@@ -1028,14 +1065,7 @@ bool enemy::do_falling(int32_t index)
 				++fallclk; //force another frame of falling.... forever.
 			else if(dying) //Give 1 frame for script revival
 			{
-				if(flags&guy_never_return)
-					never_return(screen_spawned, index);
-				
-				if(leader)
-					kill_em_all();
-				
-				//leave_item(); //Don't drop items in pits!
-				stop_bgsfx(index);
+				ondeath_cleanup(index);
 				return true;
 			}
 			else
@@ -1068,14 +1098,7 @@ bool enemy::do_drowning(int32_t index)
 				++drownclk; //force another frame of falling.... forever.
 			else if(dying) //Give 1 frame for script revival
 			{
-				if(flags&guy_never_return)
-					never_return(screen_spawned, index);
-				
-				if(leader)
-					kill_em_all();
-				
-				//leave_item(); //Don't drop items in pits!
-				stop_bgsfx(index);
+				ondeath_cleanup(index);
 				return true;
 			}
 			else
@@ -1108,32 +1131,26 @@ bool enemy::Dead(int32_t index)
 	}
 	if(dying)
 	{
-		if(deathexstate > -1 && deathexstate < 32)
+		if (replay_version_check(0, 60) && deathexstate > -1 && deathexstate < 32)
 		{
 			setxmapflag(screen_spawned, 1<<deathexstate);
 			deathexstate = -1;
 		}
 		--clk2;
-		if (!dying_despawn)
+		bool done = clk2 == 0;
+		if (hp > -1000 && !dying_despawn) // not dying to ringleader / etc
+			if(get_qr(qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
+				death_sfx();
+		
+		if (done)
 		{
-			if (hp > -1000) // not dying to ringleader / etc
-				if(get_qr(qr_HARDCODED_ENEMY_ANIMS) && clk2==12)
-					death_sfx();
-				
-			if(clk2==0)
-			{
-				if(flags&guy_never_return)
-					never_return(screen_spawned, index);
-					
-				if(leader)
-					kill_em_all();
-					
+			ondeath_cleanup(index);
+			if (!dying_despawn)
 				leave_item();
-			}
 		}
 		
 		stop_bgsfx(index);
-		return (clk2==0);
+		return done;
 	}
 	
 	return false;
@@ -1886,6 +1903,110 @@ void enemy::FireBreath(bool seekhero)
 	}
 }
 
+int enemy::summon_enemy(int minion_id, int summon_count, int limit, bool random_count)
+{
+	if (summon_count <= 0)
+		return 0;
+	bool old_summon_counts = get_qr(qr_OLD_SUMMONER_COUNTS);
+	int existing_count = 0;
+	if (old_summon_counts)
+	{
+		for (int gc = 0; gc < guys.Count(); ++gc)
+			if((((enemy*)guys.spr(gc))->id) == minion_id)
+				++existing_count;
+	}
+	else
+	{
+		for (int gc = 0; gc < guys.Count(); ++gc)
+			if (guys.spr(gc)->parent == this)
+				++existing_count;
+	}
+	
+	int ret = 0;
+	if (limit <= 0 || existing_count < limit)  // Not too many enemies
+	{
+		int32_t kids = guys.Count();
+		int minion_count = random_count ? (zc_oldrand() % summon_count) + 1 : summon_count;
+		bool summoned = false;
+		
+		for (int i = 0; i < minion_count; ++i)
+		{
+			if(addchild(screen_spawned,x,y,minion_id,-10, this))
+			{
+				enemy* minion = (enemy*)guys.spr(guys.Count()-1);
+				minion->count_enemy = false;
+				minion->set_summoner_parent(this);
+				++existing_count;
+				++ret;
+			}
+			if (!old_summon_counts && existing_count >= limit)
+				break;
+		}
+	}
+	return ret;
+}
+int enemy::summon_layered_enemies(int summon_count, int limit, bool random_count)
+{
+	if (summon_count <= 0)
+		return 0;
+	if (count_layer_enemies(screen_spawned) == 0)
+		return 0;
+	bool old_summon_counts = get_qr(qr_OLD_SUMMONER_COUNTS);
+	int existing_count = 0;
+	if (old_summon_counts)
+	{
+		existing_count = guys.Count();
+	}
+	else
+	{
+		for (int gc = 0; gc < guys.Count(); ++gc)
+			if (guys.spr(gc)->parent == this)
+				++existing_count;
+	}
+	
+	int ret = 0;
+	if (limit <= 0 || existing_count < limit)  // Not too many enemies
+	{
+		int32_t minion_count = random_count ? (zc_oldrand() % summon_count) + 1 : summon_count;
+		
+		for (int i = 0; i < minion_count; ++i)
+		{
+			int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
+			int32_t x2=0;
+			int32_t y2=0;
+			
+			for(int32_t k=0; k<20; ++k)
+			{
+				x2=16*((zc_oldrand()%12)+2);
+				y2=16*((zc_oldrand()%7)+2);
+				
+				if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
+				{
+					if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this))
+					{
+						enemy* minion = (enemy*)guys.spr(guys.Count()-1);
+						minion->count_enemy = false;
+						minion->set_summoner_parent(this);
+						minion->isolated_freeze_viewport = true;
+						if (get_qr(qr_ENEMIESZAXIS) && (minion->moveflags & move_use_fake_z)) 
+						{
+							minion->fakez = 64;
+							minion->z = 0;
+						}
+						++existing_count;
+						++ret;
+					}
+					break;
+				}
+			}
+			
+			if (!old_summon_counts && existing_count >= limit)
+				break;
+		}
+	}
+	return ret;
+}
+
 void enemy::FireWeapon()
 {
 	/*
@@ -1998,86 +2119,15 @@ void enemy::FireWeapon()
 		
 	case e1tSUMMON: // Bat Wizzrobe
 	{
-		if(dmisc4==0) break;  // Summon 0
-		
-		int32_t bc=0;
-		
-		for(int32_t gc=0; gc<guys.Count(); gc++)
-		{
-			if((((enemy*)guys.spr(gc))->id) == dmisc3)
-			{
-				++bc;
-			}
-		}
-		
-		if(bc<=40)  // Not too many enemies
-		{
-			int32_t kids = guys.Count();
-			int32_t bats=(zc_oldrand()%zc_max(1,dmisc4))+1;
-			
-			for(int32_t i=0; i<bats; i++)
-			{
-				if(addchild(screen_spawned,x,y,dmisc3,-10, this))
-				{
-					((enemy*)guys.spr(kids+i))->count_enemy = false;
-				}
-			}
-
+		if (summon_enemy(dmisc3, dmisc4, dmisc5 ? dmisc5 : 41, true))
 			sfx(firesfx, pan(x));
-		}
-		
 		break;
 	}
 	
 	case e1tSUMMONLAYER: // Summoner
 	{
-		if(count_layer_enemies(screen_spawned)==0)
-		{
-			break;
-		}
-		
-		int32_t kids = guys.Count();
-		
-		if(kids<40)
-		{
-			int32_t newguys=(zc_oldrand()%3)+1;
-			bool summoned=false;
-			
-			for(int32_t i=0; i<newguys; i++)
-			{
-				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
-				int32_t x2=0;
-				int32_t y2=0;
-				
-				for(int32_t k=0; k<20; ++k)
-				{
-					x2=16*((zc_oldrand()%12)+2);
-					y2=16*((zc_oldrand()%7)+2);
-					
-					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
-					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this))
-						{
-							((enemy*)guys.spr(kids+i))->count_enemy = false;
-							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
-							{
-								((enemy*)guys.spr(kids+i))->fakez = 64;
-								((enemy*)guys.spr(kids+i))->z = 0;
-							}
-						}
-							
-						summoned=true;
-						break;
-					}
-				}
-			}
-			
-			if(summoned)
-			{
-				sfx(firesfx, pan(x));
-			}
-		}
-		
+		if (summon_layered_enemies(dmisc4 ? dmisc4 : 3, dmisc5 ? dmisc5 : 41, true))
+			sfx(firesfx, pan(x));
 		break;
 	}
 	}
@@ -12009,78 +12059,13 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	}
 	else if(dmisc2==2)  // summons specific enemy
 	{
-		int32_t bc=0;
-		
-		for(int32_t gc=0; gc<guys.Count(); gc++)
-		{
-			if((((enemy*)guys.spr(gc))->id) == dmisc3)
-			{
-				++bc;
-			}
-		}
-		
-		if(bc<=40)
-		{
-			int32_t kids = guys.Count();
-			int32_t bats=(zc_oldrand()%3)+1;
-			
-			for(int32_t i=0; i<bats; i++)
-			{
-				// Summon bats (or anything)
-				if(addchild(screen_spawned, x,y,dmisc3,-10, this))
-					((enemy*)guys.spr(kids+i))->count_enemy = false;
-			}
+		if (summon_enemy(dmisc3, dmisc6 ? dmisc6 : 3, dmisc7 ? dmisc7 : 41, true))
 			sfx(firesfx, pan(x));
-		}
 	}
 	else if(dmisc2==3)  //summon from layer
 	{
-		if(count_layer_enemies(screen_spawned)==0)
-		{
-			return;
-		}
-		
-		int32_t kids = guys.Count();
-		
-		if(kids<200)
-		{
-			int32_t newguys=(zc_oldrand()%3)+1;
-			bool summoned=false;
-			
-			for(int32_t i=0; i<newguys; i++)
-			{
-				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
-				int32_t x2=0;
-				int32_t y2=0;
-				
-				for(int32_t k=0; k<20; ++k)
-				{
-					x2=16*((zc_oldrand()%12)+2);
-					y2=16*((zc_oldrand()%7)+2);
-					
-					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
-					{
-						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this))
-						{
-							((enemy*)guys.spr(kids+i))->count_enemy = false;
-							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
-							{
-								((enemy*)guys.spr(kids+i))->fakez = 64;
-								((enemy*)guys.spr(kids+i))->z = 0;
-							}
-						}
-							
-						summoned=true;
-						break;
-					}
-				}
-			}
-			
-			if(summoned)
-			{
-				sfx(firesfx, pan(x));
-			}
-		}
+		if (summon_layered_enemies(dmisc6 ? dmisc6 : 3, dmisc7 ? dmisc7 : 201, true))
+			sfx(firesfx, pan(x));
 	}
 }
 
@@ -16732,7 +16717,7 @@ void kill_em_all()
 	{
 		enemy *e = ((enemy*)guys.spr(i));
 		
-		if(e->flags&(1<<3) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
+		if ((e->flags & guy_doesnt_count) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
 		
 		e->kickbucket();
 	}
@@ -16744,7 +16729,7 @@ bool can_kill_em_all()
 	{
 		enemy *e = ((enemy*)guys.spr(i));
 		
-		if(e->flags&(1<<3) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
+		if((e->flags & guy_doesnt_count) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
 		if(e->superman) continue;
 		return true;
 	}

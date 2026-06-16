@@ -1132,6 +1132,12 @@ static GUI::ListData compatRulesList
 		"When enabled, the code used for ffc 'platform's in sideview uses broken collision checks,"
 		" and player ceiling / floor collision will not properly account for off-grid solidity, possibly"
 		" clipping the player into solid ffcs." },
+	{ "Old Summoner Counts", qr_OLD_SUMMONER_COUNTS,
+		"When enabled, enemies that summon other enemies will use the old method of checking if there"
+		" are already too many enemies. 'Summon' types will check how many of the target enemy ID exist,"
+		" while 'Summon (Layer)' types check the total enemy count on-screen."
+		"\nWhen disabled, summoner enemies will count the number of enemies they themselves have summoned"
+		" instead, allowing per-summoner limits."},
 };
 
 static GUI::ListData enemiesRulesList

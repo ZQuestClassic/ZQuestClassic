@@ -28,46 +28,47 @@ constexpr uint64_t LLF(int n)
 
 enum guy_flags : uint64_t
 {
-	guy_bhit                = LLF(0), // Boomerangs will stun.
-	guy_invisible           = LLF(1), // Skip drawing.
-	guy_never_return        = LLF(2), // Once dead, never returns even after leaving the screen.
-	guy_doesnt_count        = LLF(3), // Doesn't count as beatable enemy.
+	guy_bhit                     = LLF(0), // Boomerangs will stun.
+	guy_invisible                = LLF(1), // Skip drawing.
+	guy_never_return             = LLF(2), // Once dead, never returns even after leaving the screen.
+	guy_doesnt_count             = LLF(3), // Doesn't count as beatable enemy.
 	                                  // qr_UNBEATABLES_DONT_KEEP_DEAD impacts this behavior.
-	guy_fade_flicker        = LLF(4),
-	guy_fade_instant        = LLF(5),
-	guy_no_contact_damage   = LLF(7),
-	guy_shield_front        = LLF(24), // Invulnerable in the front (relative to direction of movement).
-	guy_shield_left         = LLF(25), // Invulnerable on the left (relative to direction of movement).
-	guy_shield_right        = LLF(26), // Invulnerable on the right (relative to direction of movement).
-	guy_shield_back         = LLF(27), // Invulnerable in the back (relative to direction of movement).
-	guy_bkshield            = LLF(28), // Shield can be broken by hammer.
-	guy_lens_only           = LLF(31), // Only draw when lens item is active.
+	guy_fade_flicker             = LLF(4),
+	guy_fade_instant             = LLF(5),
+	guy_no_contact_damage        = LLF(7),
+	guy_shield_front             = LLF(24), // Invulnerable in the front (relative to direction of movement).
+	guy_shield_left              = LLF(25), // Invulnerable on the left (relative to direction of movement).
+	guy_shield_right             = LLF(26), // Invulnerable on the right (relative to direction of movement).
+	guy_shield_back              = LLF(27), // Invulnerable in the back (relative to direction of movement).
+	guy_bkshield                 = LLF(28), // Shield can be broken by hammer.
+	guy_lens_only                = LLF(31), // Only draw when lens item is active.
 
 	// Old flags, some reused.
-	guy_superman            = LLF(3),
-	guy_sbombonly           = LLF(4),
-	guy_burning_sprites     = LLF(6), // Weapons use burning sprites.
-	guy_weak_arrow          = LLF(29),
+	guy_superman                 = LLF(3),
+	guy_sbombonly                = LLF(4),
+	guy_burning_sprites          = LLF(6), // Weapons use burning sprites.
+	guy_weak_arrow               = LLF(29),
 
 	//previous guyflags 2
-	guy_flashing            = LLF(32),
-	guy_zora                = LLF(33),
-	guy_rock                = LLF(34),
-	guy_trap                = LLF(35),
-	guy_trph                = LLF(36),
-	guy_trpv                = LLF(37),
-	guy_trp4                = LLF(38),
-	guy_trplr               = LLF(39),
-	guy_trpud               = LLF(40),
-	guy_trp2                = LLF(41),
-	guy_fire                = LLF(42),
-	guy_armos               = LLF(43),
-	guy_ghini               = LLF(44),
-	guy_ganon               = LLF(45),
-	guy_blinking            = LLF(46),
-	guy_transparent         = LLF(47),
-	guy_ignoretmpnr         = LLF(48),
-	guy_ignore_kill_all     = LLF(49),
+	guy_flashing                 = LLF(32),
+	guy_zora                     = LLF(33),
+	guy_rock                     = LLF(34),
+	guy_trap                     = LLF(35),
+	guy_trph                     = LLF(36),
+	guy_trpv                     = LLF(37),
+	guy_trp4                     = LLF(38),
+	guy_trplr                    = LLF(39),
+	guy_trpud                    = LLF(40),
+	guy_trp2                     = LLF(41),
+	guy_fire                     = LLF(42),
+	guy_armos                    = LLF(43),
+	guy_ghini                    = LLF(44),
+	guy_ganon                    = LLF(45),
+	guy_blinking                 = LLF(46),
+	guy_transparent              = LLF(47),
+	guy_ignoretmpnr              = LLF(48),
+	guy_ignore_kill_all          = LLF(49),
+	guy_kill_summoned_enemies    = LLF(50),
 };
 
 enum move_flags : uint32_t
