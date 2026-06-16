@@ -1579,6 +1579,7 @@ void init_game_vars(bool is_cont_game = false)
 		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
 		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=gofast=false;
 
+		sprite::reset_uid_counter();
 		ResetSaveScreenSettings();
 		FFCore.shutdown();
 		ALLOFF(true,true,true);

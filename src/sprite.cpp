@@ -286,6 +286,10 @@ sprite::~sprite()
 // 1 is reserved for Hero.
 static int32_t next_uid = 2;
 
+void sprite::reset_uid_counter()
+{
+	next_uid = 2;
+}
 sprite* sprite::getByUID(int32_t uid)
 {
 #ifdef IS_PLAYER

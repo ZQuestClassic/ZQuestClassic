@@ -34,6 +34,7 @@ class sprite : public solid_object
 {
 public:
 	static sprite* getByUID(int32_t uid);
+	static void reset_uid_counter();
 
     //unique sprite ID
     int32_t uid;
