@@ -601,13 +601,21 @@ static void uninstall_keyboard_handlers()
 
 static uint32_t hash_bitmap(BITMAP* bitmap)
 {
+	// Reused scratch buffer to convert to a known depth before hashing. Recreate it if
+	// the source dimensions change, otherwise the blit would clip and we'd silently hash
+	// a stale region.
 	static BITMAP* true_bitmap;
+	if (true_bitmap && (true_bitmap->w != bitmap->w || true_bitmap->h != bitmap->h))
+	{
+		destroy_bitmap(true_bitmap);
+		true_bitmap = nullptr;
+	}
 	if (!true_bitmap)
 		true_bitmap = create_bitmap_ex(24, bitmap->w, bitmap->h);
 
 	blit(bitmap, true_bitmap, 0, 0, 0, 0, bitmap->w, bitmap->h);
 	int depth = bitmap_color_depth(true_bitmap);
-	size_t len = true_bitmap->w * true_bitmap->h * BYTES_PER_PIXEL(depth);
+	size_t len = (size_t)true_bitmap->w * true_bitmap->h * BYTES_PER_PIXEL(depth);
 	return XXH32(true_bitmap->dat, len, 0);
 }
 
