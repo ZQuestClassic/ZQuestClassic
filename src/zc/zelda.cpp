@@ -3965,7 +3965,24 @@ static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
-	replay_start(mode, replay_file, frame);
+	if (!replay_start(mode, replay_file, frame))
+	{
+		// replay_start leaves replay mode Off on failure, so no replay_quit() is needed.
+		Z_error("Failed to load replay file: %s\n", replay_file.c_str());
+
+		enter_sys_pal();
+		InfoDialog("Error loading replay", fmt::format("Could not load replay file:\n{}", replay_file)).show();
+		exit_sys_pal();
+
+		testingqst_name = "";
+
+		if (!load_replay_file_deffered_called)
+		{
+			// This was called from the CLI, so abort.
+			abort();
+		}
+		return;
+	}
 
 	std::string qst_meta = replay_get_meta_str("qst");
 	testingqst_name = qst_meta;

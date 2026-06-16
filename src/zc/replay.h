@@ -28,7 +28,9 @@ enum ReplayMode
 
 std::string replay_mode_to_string(ReplayMode mode);
 std::map<std::string, std::string> replay_load_meta(std::filesystem::path path);
-void replay_start(ReplayMode mode_, std::filesystem::path path, int frame);
+// Returns false if a replay file could not be loaded (missing/unreadable/malformed),
+// in which case replay mode is left Off.
+bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame);
 void replay_continue(std::filesystem::path path);
 void replay_poll();
 bool replay_add_snapshot_frame(std::string frames_shorthand);
