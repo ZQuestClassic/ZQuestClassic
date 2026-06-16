@@ -87,7 +87,10 @@ static int frame_count;
 static bool previous_control_state[controls::btnLast];
 static char previous_keys[KEY_MAX];
 static std::vector<zc_randgen *> rngs;
-static std::map<int, int> rng_seed_count_this_frame;
+// Per-rng count of how many times each rng was seeded this frame, indexed by rng
+// index. 0 means "not seeded this frame". A vector (vs a map) keeps this allocation-
+// free across frames since it's reset, not cleared.
+static std::vector<int> rng_seed_count_this_frame;
 static uint32_t prev_gfx_hash;
 static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
@@ -1371,6 +1374,7 @@ bool replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     loadscr_count = 0;
     failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
+    rng_seed_count_this_frame.clear();
     gfx_got_mismatch = false;
     replay_path = path;
     if (output_dir.empty()) output_dir = replay_path.parent_path();
@@ -1631,7 +1635,7 @@ void replay_poll()
         }
     }
 
-    rng_seed_count_this_frame.clear();
+    std::fill(rng_seed_count_this_frame.begin(), rng_seed_count_this_frame.end(), 0);
     frame_count++;
 	peek_meta_steps();
 }
@@ -2303,13 +2307,9 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
     int index = get_rng_index(rng);
     ASSERT(index != -1);
 
-    int seed_count = 0;
-    {
-        auto it = rng_seed_count_this_frame.find(index);
-        if (it != rng_seed_count_this_frame.end())
-            seed_count = it->second;
-    }
-    seed_count += 1;
+    if ((size_t)index >= rng_seed_count_this_frame.size())
+        rng_seed_count_this_frame.resize(index + 1, 0);
+    int seed_count = rng_seed_count_this_frame[index] + 1;
     rng_seed_count_this_frame[index] = seed_count;
 
     if (replay_is_replaying())
@@ -2364,7 +2364,7 @@ void replay_sync_rng()
     for (size_t i = 0; i < rngs.size(); i++)
     {
         // Only reset the rngs that haven't been updated this frame.
-        if (rng_seed_count_this_frame.find(i) != rng_seed_count_this_frame.end())
+        if (i < rng_seed_count_this_frame.size() && rng_seed_count_this_frame[i] != 0)
             continue;
 
         replay_set_rng_seed(rngs[i], seed);
