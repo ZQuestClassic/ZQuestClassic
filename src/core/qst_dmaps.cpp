@@ -436,6 +436,13 @@ int32_t read_one_dmap(PACKFILE* f, zquestheader *Header, int s_version, int inde
 			{
 				return qe_invalid;
 			}
+			// These index the fixed-size dmapscripts[NUMSCRIPTSDMAP] table; a
+			// file-controlled out-of-range value would cause an out-of-bounds read
+			// and wild-pointer dereference in consumers, so sanitize here.
+			if(tempDMap.active_sub_script >= NUMSCRIPTSDMAP)
+				tempDMap.active_sub_script = 0;
+			if(tempDMap.passive_sub_script >= NUMSCRIPTSDMAP)
+				tempDMap.passive_sub_script = 0;
 			for ( int32_t q = 0; q < 8; ++q )
 			{
 				if(!p_igetl(&tempDMap.sub_initD[q],f))
