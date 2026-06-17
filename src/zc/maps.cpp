@@ -6771,7 +6771,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
-	if (Hero.lift_wpn && get_qr(qr_CARRYABLE_NO_ACROSS_SCREEN))
+	if (Hero.lift_wpn && get_qr(qr_CARRYABLE_NO_ACROSS_SCREEN) && !(Hero.lift_wpn->misc_wflags & WFLAG_CARRYABLE_CROSS_SCREEN))
 	{
 		delete Hero.lift_wpn;
 		Hero.lift_wpn = nullptr;
