@@ -5,6 +5,40 @@
 
 extern const byte* legacy_skip_flags;
 
+namespace {
+
+// Initializes miscQdata to the defaults used by the original NES quest
+// (modules/classic/title_gfx.dat). Older quest formats only contain a subset of
+// the misc data, so the rest must be initialized here; previously readmisc
+// relied on title_gfx.dat having been loaded into QMisc beforehand to supply
+// these baseline values.
+void init_nes_misc_data(miscQdata *misc)
+{
+	*misc = {};
+
+	for (auto& bt : misc->bottle_types)
+		bt.clear();
+	for (auto& bst : misc->bottle_shop_types)
+		bst.clear();
+
+	// Default sound effects. These mirror the legacy defaults applied below when
+	// reading quest formats that predate the miscsfx section.
+	misc->miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
+	misc->miscsfx[sfxLOWHEART] = WAV_ER;
+	misc->miscsfx[sfxHURTPLAYER] = WAV_OUCH;
+	misc->miscsfx[sfxHAMMERPOUND] = WAV_ZN1HAMMERPOST;
+	misc->miscsfx[sfxSUBSCR_ITEM_ASSIGN] = WAV_PLACE;
+	misc->miscsfx[sfxSUBSCR_CURSOR_MOVE] = WAV_CHIME;
+	misc->miscsfx[sfxREFILL] = WAV_MSG;
+	misc->miscsfx[sfxDRAIN] = WAV_MSG;
+	misc->miscsfx[sfxTAP] = WAV_ZN1TAP;
+	misc->miscsfx[sfxTAP_HOLLOW] = WAV_ZN1TAP2;
+
+	misc->zscript_last_compiled_version = -1;
+}
+
+} // end namespace
+
 int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_misc);
@@ -18,9 +52,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	word s_version=0;
 	word swaptmp;
 	int32_t tempsize=0;
-	
-	temp_misc = *Misc;
-	
+
+	init_nes_misc_data(&temp_misc);
+
 	for(int32_t i=0; i<maxshops; ++i)
 	{
 		memset(&temp_misc.shop, 0, sizeof(shoptype)*256);

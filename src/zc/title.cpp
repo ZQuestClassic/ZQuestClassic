@@ -1613,9 +1613,7 @@ static void actual_titlescreen()
 		try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, starting_volume = get_emusic_volume() * 0.7);
 	}
 
-	init_NES_mode();
 	loadfullpal();
-	loadlvlpal(1);
 
 	auto logo = get_logo();
 	if (logo->bitmap)
