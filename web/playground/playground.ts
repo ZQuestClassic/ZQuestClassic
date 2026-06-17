@@ -246,7 +246,7 @@ async function loadFromGist(gist: string) {
   }
 
   contentGistId = gist;
-  await checkUserOwnsGist(gist);
+  await checkUserOwnsGist(gist, data);
   return files;
 }
 
@@ -322,11 +322,11 @@ function createModel(content: string, uri: monaco.Uri) {
 const tabsEl = findElement('.tabs');
 const activeTabs = new Map<monaco.Uri, HTMLElement>();
 
-async function checkUserOwnsGist(gist: string) {
+async function checkUserOwnsGist(gist: string, data?: any) {
   const user = await auth.getGithubUserIfLoggedIn();
   if (!user) return false;
 
-  const data = await fetch(`https://api.github.com/gists/${gist}`).then(r => r.json());
+  if (!data) data = await fetch(`https://api.github.com/gists/${gist}`).then(r => r.json());
   ownsGist = String(data.owner.id) === user.uid;
   findElement('.share-btn').textContent = ownsGist ? 'Update Gist' : 'Share';
   return ownsGist;
