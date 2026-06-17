@@ -13288,7 +13288,10 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             {
                 return qe_invalid;
             }
-            
+            // pfread fills the whole buffer with raw file bytes; ensure it is
+            // NUL-terminated before the strlen below to avoid an out-of-bounds read.
+            tempname[63] = '\0';
+
             // Don't retain names of uneditable enemy entries!
 			// for version upgrade to 2.5
 			if(guyversion < 23 && i >= 177)
