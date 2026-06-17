@@ -124,6 +124,10 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		{
 			return qe_invalid;
 		}
+		if(num_combo_pools > MAXCOMBOPOOLS) // file-controlled; guard against OOB write into combo_pools
+		{
+			return qe_invalid;
+		}
 	}
 	
 	for(combo_pool& pool : combo_pools)
@@ -169,6 +173,10 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 	if (sversion >= 5)
 	{
 		if (!p_igetw(&num_combo_autos, f))
+		{
+			return qe_invalid;
+		}
+		if (num_combo_autos > MAXCOMBOPOOLS) // file-controlled; guard against OOB write into combo_autos
 		{
 			return qe_invalid;
 		}
