@@ -1,5 +1,7 @@
 # Update docs every 10 minutes
 */10 * * * * root bash /home/zc/ZQuestClassic/infra/scripts/update.sh >> /var/log/zc-docs-update.log 2>&1
 
-# Restart once a day to periodically update manifest.json
-0 1 * * * root /bin/systemctl try-restart zc.api_server >> /var/log/zc-restart-api-server.log 2>&1
+# Restart once a day to periodically update manifest.json.
+# Use `restart` (not `try-restart`): try-restart is a no-op on a stopped/failed
+# unit, so it could never bring the service back after a crash.
+0 1 * * * root /bin/systemctl restart zc.api_server >> /var/log/zc-restart-api-server.log 2>&1

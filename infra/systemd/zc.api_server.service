@@ -10,6 +10,8 @@ Environment="PATH=/home/zc/ZQuestClassic/venv/bin:/usr/bin/"
 Environment="FLASK_PRODUCTION=1"
 Environment="FLASK_DATA_DIR=/home/zc/api-server-data"
 ExecStart=bash /home/zc/ZQuestClassic/api_server/start.sh
+Restart=on-failure
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
