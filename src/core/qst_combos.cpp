@@ -912,6 +912,11 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		if(!p_getc(&temp_trigger.combopos_state, f))
 			return 143;
 	}
+	if (s_version >= 71)
+	{
+		if(!p_getc(&temp_trigger.large_combo_copycat, f))
+			return 144;
+	}
 	return 0;
 }
 
@@ -1711,6 +1716,8 @@ int32_t writecombo_triggers_loop(PACKFILE *f, combo_trigger const& tmp_trig)
 	}
 	if(!p_putc(tmp_trig.combopos_state, f))
 		return 143;
+	if(!p_putc(tmp_trig.large_combo_copycat, f))
+		return 144;
 	return 0;
 }
 

@@ -2735,6 +2735,7 @@ static constexpr script_variable variable_list[]=
 	{ "CMBTRIGPOSSTATE", CMBTRIGPOSSTATE, 0 },
 	{ "NPC_SUMMONER_PARENT", NPC_SUMMONER_PARENT, 0 },
 	{ "COMBOD_LARGECOMBO_DIRS", COMBOD_LARGECOMBO_DIRS, 0 },
+	{ "CMBTRIG_LARGECOMBO_COPYCAT", CMBTRIG_LARGECOMBO_COPYCAT, 0 },
 	{"", -1},
 };
 
@@ -3601,6 +3602,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGCHANGECMB:
 		case CMBTRIGCOOLDOWN:
 		case CMBTRIGCOPYCAT:
+		case CMBTRIG_LARGECOMBO_COPYCAT:
 		case CMBTRIGCSETCHANGE:
 		case CMBTRIGCTR:
 		case CMBTRIGCTRAMNT:

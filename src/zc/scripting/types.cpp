@@ -121,6 +121,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case CMBTRIGCHANGECMB:
 		case CMBTRIGCOOLDOWN:
 		case CMBTRIGCOPYCAT:
+		case CMBTRIG_LARGECOMBO_COPYCAT:
 		case CMBTRIGCSETCHANGE:
 		case CMBTRIGCTR:
 		case CMBTRIGCTRAMNT:

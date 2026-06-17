@@ -391,6 +391,20 @@ enum ComboTriggerFlag
 	//
 	// @versionadded 3.0
 	TRIGFLAG_COMBOPOSSTATE_UNSET,
+	// Trigger effect: cause all combos in this combo's 'Large Combo' group
+	// as determined by [combodata::LargeComboDirs] to trigger all triggers they
+	// have with [TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT] set, and the same
+	// [combotrigger::LargeComboCopycatID].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT,
+	// Trigger cause: caused when any combo in this combo's 'Large Combo' group
+	// as determined by [combodata::LargeComboDirs] trigger a trigger they
+	// have with [TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT] set, and the same
+	// [combotrigger::LargeComboCopycatID].
+	//
+	// @versionadded 3.0
+	TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,
 
 	TRIGFLAG_MAX
 };
@@ -527,6 +541,13 @@ class combotrigger {
 	//
 	// @zasm_var CMBTRIGCOPYCAT
 	internal int Copycat;
+
+	// Used by [TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT] and
+	// [TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT].
+	//
+	// @versionadded 3.0
+	// @zasm_var CMBTRIG_LARGECOMBO_COPYCAT
+	internal int LargeComboCopycatID;
 
 	// The item pickup bitflags for the spawned item.
 	//
