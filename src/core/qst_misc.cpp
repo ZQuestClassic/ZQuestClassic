@@ -885,6 +885,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		byte save_menu_count = 0;
 		if (!p_getc(&save_menu_count, f))
 			return qe_invalid;
+		if (save_menu_count > NUM_SAVE_MENUS) // file-controlled; guard against OOB write into save_menus
+			return qe_invalid;
 		for(size_t q = 0; q < save_menu_count; ++q)
 		{
 			SaveMenu& menu = temp_misc.save_menus[q];
