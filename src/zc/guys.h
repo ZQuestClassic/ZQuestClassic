@@ -112,6 +112,9 @@ public:
 	bool aim_hero;
 	word specialsfx; //weapon specialsfx.
 	
+	enemy* summoner_parent;
+	vector<enemy*> summoner_children;
+	
 	zfix  getX();
 	zfix  getY();
 	int32_t  getID();
@@ -131,6 +134,7 @@ public:
 	bool can_moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
 	bool can_moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);
 	
+	void ondeath_cleanup(int32_t index);
 	// Handle pitfalls
 	bool do_falling(int32_t index);
 	// Handle drowning
@@ -233,6 +237,10 @@ public:
 	int32_t lined_up(int32_t range, bool dir8);
 	// returns true if Hero is within 'range' pixels of the enemy
 	bool HeroInRange(int32_t range);
+	
+	// Summon minions
+	int summon_enemy(int minion_id, int summon_count, int limit, bool random_count);
+	int summon_layered_enemies(int summon_count, int limit, bool random_count);
 	// Breathe fire
 	void FireBreath(bool seekhero);
 	// Shoot weapons
@@ -271,6 +279,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual bool can_drawshadow() const;
 	virtual void drawshadow(BITMAP *dest, bool translucent);
+	void set_summoner_parent(enemy* summoner);
 protected:
 	
 	

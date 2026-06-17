@@ -213,6 +213,10 @@ enum NPCFlags
 	NPCF_TRANSLUCENT, // Is translucent
 	NPCF_IGNORE_TEMP_NO_RETURN, // Ignores temp no return
 	NPCF_IGNORE_KILL_ALL, // Ignores kill all enemies
+	// When dying, kills all summoned enemies.
+	// Summoner is determined by [npc::ParentSummoner] on the summoned enemies.
+	// @versionadded 3.0
+	NPCF_KILL_SUMMONED_ENEMIES,
 	NPCF_MAX
 };
 
@@ -1060,4 +1064,37 @@ class npc {
 	// @value [enum NPCType]
 	// @zasm_var NPCTYPE
 	internal int Family;
+	
+	// The 'summoner' of this enemy.
+	// If the summoner is not [NULL], and has [NPCF_KILL_SUMMONED_ENEMIES],
+	//   then when the summoner dies, this enemy will also die.
+	//
+	// @versionadded 3.0
+	// @zasm_var NPC_SUMMONER_PARENT
+	internal npc ParentSummoner;
+	
+	// Summons a minion enemy with the specified npc_id.
+	// Enemy is summoned at this enemy's position.
+	// Fails if too many enemies already exist, based on the specified summon_limit.
+	// This enemy is the [ParentSummoner] of the created enemies.
+	//
+	// @versionadded 3.0
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP REFNPC
+	//   NPC_SUMMON_MINION D2 D3
+	internal npc SummonMinion(int npc_id, int summon_limit);
+	
+	// Summons a minion enemy randomly from the enemy list of the screens set as layers > 0.
+	// Enemy is summoned at a random position.
+	// Fails if too many enemies already exist, based on the specified summon_limit.
+	// This enemy is the [ParentSummoner] of the created enemies.
+	//
+	// @versionadded 3.0
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPC_SUMMON_MINION_LAYER D2
+	internal npc SummonMinionFromLayer(int summon_limit);
 }

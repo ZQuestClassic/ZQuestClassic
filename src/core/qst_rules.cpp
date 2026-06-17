@@ -868,6 +868,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
 		set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
 	}
+	if (compatrule_version < 116)
+		set_qr(qr_OLD_SUMMONER_COUNTS, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

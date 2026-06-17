@@ -447,6 +447,32 @@ void do_npc_knockback(const bool v)
 	set_register(sarg1, ( ret ? 10000 : 0));
 }
 
+void do_npc_summon()
+{
+	int limit = get_register(sarg1) / 10000;
+	int id = get_register(sarg2) / 10000;
+	int ret = 0;
+	if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+	{
+		enemy* n = GuyH::getNPC();
+		if (n->summon_enemy(id, 1, limit, false))
+			ret = guys.spr(guys.Count()-1)->getUID();
+	}
+	set_register(sarg1, ret);
+}
+void do_npc_summon_layer()
+{
+	int limit = get_register(sarg1) / 10000;
+	int ret = 0;
+	if(GuyH::loadNPC(GET_REF(npcref)) == SH::_NoError)
+	{
+		enemy* n = GuyH::getNPC();
+		if (n->summon_layered_enemies(1, limit, false))
+			ret = guys.spr(guys.Count()-1)->getUID();
+	}
+	set_register(sarg1, ret);
+}
+
 void do_npc_add(const bool v)
 {
 	int32_t arrayptr = SH::get_arg(sarg1, v);
@@ -1279,6 +1305,11 @@ int32_t npc_get_register(int32_t reg)
 
 		case NPCDEATHEXSTATE:
 			GET_NPC_VAR_INT(deathexstate) break;
+		
+		case NPC_SUMMONER_PARENT:
+			if (npc && npc->summoner_parent)
+				ret = npc->summoner_parent->getUID();
+			break;
 
 		default: NOTREACHED();
 	}
@@ -1915,6 +1946,16 @@ void npc_set_register(int32_t reg, int32_t value)
 			}
 			break;
 
+		case NPC_SUMMONER_PARENT:
+			if (npc)
+			{
+				enemy* new_summoner = nullptr;
+				if (value && GuyH::loadNPC(value) == SH::_NoError)
+					new_summoner = GuyH::getNPC();
+				npc->set_summoner_parent(new_summoner);
+			}
+			break;
+
 		default: NOTREACHED();
 	}
 }
@@ -1998,6 +2039,13 @@ std::optional<int32_t> npc_run_command(word command)
 			
 		case NPCKNOCKBACK:
 			do_npc_knockback(false);
+			break;
+			
+		case NPC_SUMMON_MINION:
+			do_npc_summon();
+			break;
+		case NPC_SUMMON_MINION_LAYER:
+			do_npc_summon_layer();
 			break;
 		
 		case NPCADD:

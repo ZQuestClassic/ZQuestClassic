@@ -1255,6 +1255,9 @@ enum ASM_DEFINE
 	FFCTRIGGER,
 	DRAWMINITILE,
 	BMPDRAWMINITILE,
+	
+	NPC_SUMMON_MINION,
+	NPC_SUMMON_MINION_LAYER,
 
 	NUMCOMMANDS
 };
@@ -3414,6 +3417,7 @@ enum ASM_DEFINE
 #define MAPDATAFFCPOSSTATE             0x16CD
 #define FFC_POSSTATE                   0x16CE
 #define CMBTRIGPOSSTATE                0x16CF
+#define NPC_SUMMONER_PARENT            0x16D0
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7
