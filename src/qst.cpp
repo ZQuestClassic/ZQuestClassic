@@ -17218,9 +17218,14 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 				
 				for(int32_t k=0; k<128; k++)
 				{
-					TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
+					// secretcombo is a file-controlled position into the TEMPLATE2
+					// screen's 176-entry cset/sflag/data arrays; bound it to avoid OOB reads.
+					word pos = TheMaps[scr].secretcombo[k];
+					if(pos >= 176)
+						pos = 0;
+					TheMaps[scr].secretcset[k]=tcmbcset2(i, pos);
+					TheMaps[scr].secretflag[k]=tcmbflag2(i, pos);
+					TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, pos);
 				}
 			}
 		}
