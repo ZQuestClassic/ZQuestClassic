@@ -132,6 +132,15 @@ enum WeaponFlag
 	//
 	// @versionadded 3.0
 	WFLAG_TEMP_IGNORE_SOLID,
+	// The weapon will be carried by conveyor combos.
+	//
+	// @versionadded 3.0
+	WFLAG_OBEY_CONVEYORS,
+	// If carried by the [Hero], the weapon can be carried across screen boundaries,
+	// even when QRs would normally prevent this.
+	//
+	// @versionadded 3.0
+	WFLAG_CARRYABLE_CROSS_SCREEN,
 	WFLAG_MAX
 };
 

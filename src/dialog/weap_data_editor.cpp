@@ -158,7 +158,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 					),
 					Column(
 						Frame(title = "Misc Flags",
-							Rows_Columns<2,6>(
+							Rows_Columns<2,7>(
+								INFOBTN("The weapon will collect items it touches, similar to how Melee weapons do."),
 								Checkbox(text = "Pick Up Items",
 									checked = local_ref.wflags & WFLAG_PICKUP_ITEMS,
 									fitParent = true,
@@ -167,8 +168,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_PICKUP_ITEMS, state);
 									}
 								),
-								INFOBTN("The weapon will collect items it touches, similar to how Melee weapons do."),
 								//
+								INFOBTN("The weapon will die when it lands after being airborne."),
 								Checkbox(text = "Break On Landing",
 									checked = local_ref.wflags & WFLAG_BREAK_WHEN_LANDING,
 									fitParent = true,
@@ -177,8 +178,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BREAK_WHEN_LANDING, state);
 									}
 								),
-								INFOBTN("The weapon will die when it lands after being airborne."),
 								//
+								INFOBTN("The weapon will stop moving when it lands after being airborne."),
 								Checkbox(text = "Stop On Landing",
 									checked = local_ref.wflags & WFLAG_STOP_WHEN_LANDING,
 									fitParent = true,
@@ -187,8 +188,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_STOP_WHEN_LANDING, state);
 									}
 								),
-								INFOBTN("The weapon will stop moving when it lands after being airborne."),
 								//
+								INFOBTN("The weapon will die when it collides with a solid."),
 								Checkbox(text = "Break On Solid",
 									checked = local_ref.wflags & WFLAG_BREAK_ON_SOLID,
 									fitParent = true,
@@ -197,8 +198,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BREAK_ON_SOLID, state);
 									}
 								),
-								INFOBTN("The weapon will die when it collides with a solid."),
 								//
+								INFOBTN("The weapon will stop moving when it collides with a solid."),
 								Checkbox(text = "Stop On Solid",
 									checked = local_ref.wflags & WFLAG_STOP_WHEN_HIT_SOLID,
 									fitParent = true,
@@ -207,8 +208,9 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_STOP_WHEN_HIT_SOLID, state);
 									}
 								),
-								INFOBTN("The weapon will stop moving when it collides with a solid."),
 								//
+								INFOBTN("The weapon will ignore any solids it hits, until it is NOT inside of a solid."
+									"Useful for solid Shooter combos, so their projectiles don't collide with themselves."),
 								Checkbox(text = "Temp Ignore Solids",
 									checked = local_ref.wflags & WFLAG_TEMP_IGNORE_SOLID,
 									fitParent = true,
@@ -217,9 +219,11 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_TEMP_IGNORE_SOLID, state);
 									}
 								),
-								INFOBTN("The weapon will ignore any solids it hits, until it is NOT inside of a solid."
-									"Useful for solid Shooter combos, so their projectiles don't collide with themselves."),
 								//
+								_d,
+								_d,
+								//
+								INFOBTN("The weapon is ignited aflame with 'Any' fire."),
 								Checkbox(text = "Ignited: Any",
 									checked = local_ref.wflags & WFLAG_BURN_ANYFIRE,
 									fitParent = true,
@@ -228,8 +232,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BURN_ANYFIRE, state);
 									}
 								),
-								INFOBTN("The weapon is ignited aflame with 'Any' fire."),
 								//
+								INFOBTN("The weapon is ignited aflame with 'Strong' fire."),
 								Checkbox(text = "Ignited: Strong",
 									checked = local_ref.wflags & WFLAG_BURN_STRONGFIRE,
 									fitParent = true,
@@ -238,8 +242,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BURN_STRONGFIRE, state);
 									}
 								),
-								INFOBTN("The weapon is ignited aflame with 'Strong' fire."),
 								//
+								INFOBTN("The weapon is ignited aflame with 'Magic' fire."),
 								Checkbox(text = "Ignited: Magic",
 									checked = local_ref.wflags & WFLAG_BURN_MAGICFIRE,
 									fitParent = true,
@@ -248,8 +252,8 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BURN_MAGICFIRE, state);
 									}
 								),
-								INFOBTN("The weapon is ignited aflame with 'Magic' fire."),
 								//
+								INFOBTN("The weapon is ignited aflame with 'Divine' fire."),
 								Checkbox(text = "Ignited: Divine",
 									checked = local_ref.wflags & WFLAG_BURN_DIVINEFIRE,
 									fitParent = true,
@@ -258,10 +262,10 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_BURN_DIVINEFIRE, state);
 									}
 								),
-								INFOBTN("The weapon is ignited aflame with 'Divine' fire."),
 								//
 								//WFLAG_UPDATE_IGNITE_SPRITE is in the Burn/Glow tab
 								//
+								INFOBTN("The weapon will not hit any entities while it's step is 0."),
 								Checkbox(text = "No Collision When Still",
 									checked = local_ref.wflags & WFLAG_NO_COLL_WHEN_STILL,
 									fitParent = true,
@@ -270,7 +274,9 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_NO_COLL_WHEN_STILL, state);
 									}
 								),
-								INFOBTN("The weapon will not hit any entities while it's step is 0."),
+								//
+								INFOBTN("The weapon will be moved by conveyors."
+									" Conveyors with 'Stunned while moving' checked will set the weapon's step speed to 0."),
 								Checkbox(text = "Obeys Conveyors",
 									checked = local_ref.wflags & WFLAG_OBEY_CONVEYORS,
 									fitParent = true,
@@ -279,8 +285,18 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 										SETFLAG(local_ref.wflags, WFLAG_OBEY_CONVEYORS, state);
 									}
 								),
-								INFOBTN("The weapon will be moved by conveyors."
-									" Conveyors with 'Stunned while moving' checked will set the weapon's step speed to 0.")
+								//
+								INFOBTN("The weapon can be carried across screen boundaries, ignoring"
+									" qrs that would normally prevent this."
+									+ QRHINT({qr_NO_SCROLL_WHILE_CARRYING,qr_CARRYABLE_NO_ACROSS_SCREEN})),
+								Checkbox(text = "Cross-Screen Carry",
+									checked = local_ref.wflags & WFLAG_CARRYABLE_CROSS_SCREEN,
+									fitParent = true,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.wflags, WFLAG_CARRYABLE_CROSS_SCREEN, state);
+									}
+								)
 							)
 						)
 					)

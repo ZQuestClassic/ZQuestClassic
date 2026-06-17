@@ -10308,7 +10308,7 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		if (walk && lift_wpn && get_qr(qr_NO_SCROLL_WHILE_CARRYING))
+		if (walk && lift_wpn && get_qr(qr_NO_SCROLL_WHILE_CARRYING) && !(lift_wpn->misc_wflags & WFLAG_CARRYABLE_CROSS_SCREEN))
 			walk = false; // prevent softlock at screen edge
 		
 		if(walk)
@@ -27557,7 +27557,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	if((z > 0 || fakez > 0 || stomping) && get_qr(qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
 
-	if(lift_wpn && get_qr(qr_NO_SCROLL_WHILE_CARRYING))
+	if(lift_wpn && get_qr(qr_NO_SCROLL_WHILE_CARRYING) && !(lift_wpn->misc_wflags & WFLAG_CARRYABLE_CROSS_SCREEN))
 		should_scroll = false;
 
 	if(nextcombo_wf(dir))

@@ -5384,7 +5384,9 @@ debug data:
       - const WeaponFlag WFLAG_UPDATE_BURNSPR @ Constant[90000]
       - const WeaponFlag WFLAG_NO_COLL_WHEN_STILL @ Constant[100000]
       - const WeaponFlag WFLAG_TEMP_IGNORE_SOLID @ Constant[110000]
-      - const WeaponFlag WFLAG_MAX @ Constant[120000]
+      - const WeaponFlag WFLAG_OBEY_CONVEYORS @ Constant[120000]
+      - const WeaponFlag WFLAG_CARRYABLE_CROSS_SCREEN @ Constant[130000]
+      - const WeaponFlag WFLAG_MAX @ Constant[140000]
     [ENUM] int WeaponSpriteIndex <IDX:32>
       - const WeaponSpriteIndex WPN_SPRITE_BASE @ Constant[0]
       - const WeaponSpriteIndex WPN_SPRITE_BURN_ANY @ Constant[10000]
