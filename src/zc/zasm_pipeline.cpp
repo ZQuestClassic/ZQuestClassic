@@ -1,6 +1,7 @@
 #include "zc/zasm_pipeline.h"
 #include "zc/jit.h"
 #include "zc/zasm_optimize.h"
+#include "zc/zasm_utils.h"
 #include <thread>
 #include <fmt/format.h>
 
@@ -56,6 +57,20 @@ void zasm_pipeline_init(bool force_precompile)
 	if (!jit_is_enabled() && !zasm_optimize_is_enabled())
 	{
 		zasm_pipeline_trace("zasm optimizer and jit are disabled");
+		return;
+	}
+
+	// Only count non-trivial scripts.
+	int num_scripts = 0;
+	bool parallel = false;
+	zasm_for_every_script(parallel, [&](auto script){
+		if (script->size >= 10)
+			num_scripts += 1;
+	});
+
+	if (num_scripts == 0)
+	{
+		zasm_pipeline_trace("no scripts");
 		return;
 	}
 

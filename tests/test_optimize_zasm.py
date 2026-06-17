@@ -75,7 +75,7 @@ class TestOptimizeZasm(ZCTestCase):
                     filtered_lines.append(line)
 
             if not filtered_lines:
-                if 'No scripts found' not in output:
+                if '[zasm-pipeline] no scripts' not in output:
                     raise Exception(f'Error optimizing scripts:\n{output}')
                 return
 
