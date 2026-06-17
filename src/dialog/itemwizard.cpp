@@ -29,6 +29,7 @@ bool hasItemWizard(int32_t type)
 	switch(type)
 	{
 		case itype_shield:
+		case itype_stompboots:
 		case itype_note:
 			return true;
 	}
@@ -83,6 +84,12 @@ void ItemWizardDialog::update(bool first)
 			disable(1, !move);
 			break;
 		}
+		case itype_stompboots:
+		{
+			bool enemy_bounce = (local_ref.flags & ITEM_FLAG1);
+			disable(0, !enemy_bounce);
+			break;
+		}
 		case itype_note:
 			break;
 	}
@@ -132,6 +139,19 @@ void ItemWizardDialog::endUpdate()
 			local_ref.misc1 |= local_ref.misc2; //blockflags are req for refl flags
 			break;
 		}
+		case itype_stompboots:
+		{
+			bool enemy_bounce = (local_ref.flags & ITEM_FLAG1);
+			bool src_enemy_bounce = (src_ref.flags & ITEM_FLAG1);
+			if (!enemy_bounce)
+			{
+				if (src_enemy_bounce)
+					local_ref.misc1 = 0;
+				else
+					local_ref.misc1 = src_ref.misc1;
+			}
+			break;
+		}
 		case itype_note:
 			break;
 	}
@@ -168,6 +188,9 @@ void item_default(itemdata& ref)
 		case itype_shield:
 			ref.flags |= ITEM_FLAG1; //protects front
 			ref.misc1 = shROCK|shARROW|shBRANG;
+			break;
+		case itype_stompboots:
+			ref.misc2 = shROCK|shARROW|shBRANG;
 			break;
 		case itype_note:
 			ref.misc1 = 0;
@@ -380,6 +403,59 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 										local_ref.misc8 = val;
 									})),
 								push_widg(1,INFOBTN("A step value (in 100ths of a pixel per frame) to be added to the player's speed."))
+							))
+						)
+					)
+				)
+			));
+			break;
+		}
+		case itype_stompboots:
+		{
+			static size_t tabpos = 0;
+			auto& bounce = local_ref.misc1;
+			
+			windowRow->add(TabPanel(ptr = &tabpos,
+				TabRef(name = "BlockFlags",
+					Columns<8>(
+						CBOX_DI("Rocks", misc2, shROCK),
+						CBOX_DI("Arrows", misc2, shARROW),
+						CBOX_DI("Boomerangs", misc2, shBRANG),
+						CBOX_DI("Fireballs", misc2, shFIREBALL),
+						CBOX_DI("Fireballs (Boss)", misc2, shFIREBALL2),
+						CBOX_DI("Swords", misc2, shSWORD),
+						CBOX_DI("Magic", misc2, shMAGIC),
+						CBOX_DI("Flames", misc2, shFLAME),
+						CBOX_I("Flames 2", misc2, shFLAME2, "Might ALWAYS be blocked regardless, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+						CBOX_I("Custom W. (ALL)", misc2, shSCRIPT, "Checking this has the same effect as checking all 10 below."),
+						CBOX_DI("Custom W. 1", misc2, shSCRIPT1),
+						CBOX_DI("Custom W. 2", misc2, shSCRIPT2),
+						CBOX_DI("Custom W. 3", misc2, shSCRIPT3),
+						CBOX_DI("Custom W. 4", misc2, shSCRIPT4),
+						CBOX_DI("Custom W. 5", misc2, shSCRIPT5),
+						CBOX_DI("Custom W. 6", misc2, shSCRIPT6),
+						CBOX_DI("Custom W. 7", misc2, shSCRIPT7),
+						CBOX_DI("Custom W. 8", misc2, shSCRIPT8),
+						CBOX_DI("Custom W. 9", misc2, shSCRIPT9),
+						CBOX_DI("Custom W. 10", misc2, shSCRIPT10),
+						push_widg(-1,CBOX_DI("Light Beams", misc2, shLIGHTBEAM))
+					)
+				),
+				TabRef(name = "Other",
+					Frame(title = "Enemy Bouncing",
+						Column(
+							CBOX("Can Bounce On Enemies", flags, ITEM_FLAG1),
+							push_widg(0,Row(
+								Label(text = "Bounce Power:", hAlign = 1.0),
+								TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::INT_DECIMAL,
+									val = bounce,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										bounce = val;
+									}),
+								INFOBTN("The bounce strength when bouncing off of enemies.")
 							))
 						)
 					)
