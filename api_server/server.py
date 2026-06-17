@@ -1,8 +1,8 @@
-import gzip
 import json
 import os
 import sys
 import uuid
+import zlib
 
 from http import HTTPStatus
 from pathlib import Path
@@ -24,6 +24,26 @@ app.config.from_prefixed_env()
 data_dir = Path(app.config['DATA_DIR'])
 replays_dir = data_dir / 'replays'
 replays_dir.mkdir(exist_ok=True)
+
+
+# An uploaded replay may not exceed this size once decompressed.
+MAX_REPLAY_BYTES = 300_000_000
+
+
+def decompress_gzip_bounded(data: bytes, max_size: int) -> bytes:
+    """Decompress gzip data, aborting if the output would exceed max_size.
+
+    Unlike gzip.decompress(), this never buffers more than ~max_size bytes, so a
+    small "gzip bomb" payload can't exhaust memory before the size check runs.
+    """
+    decompressor = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    out = decompressor.decompress(data, max_size + 1)
+    if decompressor.unconsumed_tail or len(out) > max_size:
+        raise ValueError('decompressed payload too large')
+    out += decompressor.flush()
+    if len(out) > max_size:
+        raise ValueError('decompressed payload too large')
+    return out
 
 
 def is_valid_uuid(val):
@@ -109,7 +129,7 @@ def replays(uuid):
     content_encoding = request.headers.get('Content-Encoding', '').lower()
     if content_encoding == 'gzip':
         try:
-            raw_data = gzip.decompress(raw_data)
+            raw_data = decompress_gzip_bounded(raw_data, MAX_REPLAY_BYTES)
         except Exception as e:
             return {
                 'error': f'Failed to decompress gzip payload: {str(e)}'
@@ -128,7 +148,7 @@ def replays(uuid):
         return {'error': 'invalid replay'}, HTTPStatus.BAD_REQUEST
 
     # No larger than 300 MB.
-    if len(data) > 300e6:
+    if len(data) > MAX_REPLAY_BYTES:
         return {
             'error': 'too large, max is 300 MB'
         }, HTTPStatus.REQUEST_ENTITY_TOO_LARGE
