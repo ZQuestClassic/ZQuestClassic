@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-17 06:28:24</td>
+      <td>2026-06-17 09:47:46</td>
     </tr>
   </table>
 </div>
@@ -466,7 +466,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MSGC_RUN_FRZ_GENSCR        136  </span><span class="c1">// 2 args (script num, force_redraw)</span></td>
+      <td class="src "><span class="cp">#define MSGC_RUN_FRZ_GENSCR        136  </span><span class="c1">// 2-10 args (script num, force_redraw, [d0..d7])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
@@ -662,7 +662,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_SCC_ARG_COUNT 6</span></td>
+      <td class="src "><span class="cp">#define MAX_SCC_ARG_COUNT 10</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
@@ -886,31 +886,38 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">value_and_warnings</span><span class="o">&lt;</span><span class="n">ParsedMsgStr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">parse_ascii_msg_str</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
+      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_scc_command_max_args</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">code</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">value_and_warnings</span><span class="o">&lt;</span><span class="n">ParsedMsgStr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">parse_legacy_binary_msg_str</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
+      <td class="src "><span class="n">value_and_warnings</span><span class="o">&lt;</span><span class="n">ParsedMsgStr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">parse_ascii_msg_str</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="n">value_and_warnings</span><span class="o">&lt;</span><span class="n">ParsedMsgStr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">parse_legacy_binary_msg_str</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l117" href="#l117">117</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
