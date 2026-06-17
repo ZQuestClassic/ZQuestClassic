@@ -1370,6 +1370,12 @@ static ArrayRegistrar COMBODGENFLAGARR_registrar(COMBODGENFLAGARR, []{
 	return &impl;
 }());
 
+static ArrayRegistrar COMBOD_LARGECOMBO_DIRS_registrar(COMBOD_LARGECOMBO_DIRS, []{
+	static ScriptingArray_ObjectMemberBitwiseFlags<newcombo, &newcombo::large_combo_dirs, 4> impl;
+	impl.setMul10000(true);
+	return &impl;
+}());
+
 static ArrayRegistrar COMBODLIFTFLAGS_registrar(COMBODLIFTFLAGS, []{
 	static ScriptingArray_ObjectComputed<newcombo, int> impl(
 		[](newcombo*){

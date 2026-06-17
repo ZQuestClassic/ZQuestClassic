@@ -3016,6 +3016,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									SETFLAG(local_comboref.liftflags,LF_SPECIALITEM,state);
 								}
+							),
+							//
+							IBTN("All combos connected via 'Large Combo' settings on the General tab"
+								" will be lifted as one large object when any of them are lifted."
+								" Each combo will use it's own undercombo settings, but the top-leftmost"
+								" combo in the connection will be used for all other lift settings."),
+							Checkbox(colSpan = 2,
+								text = "Large Combo Liftable", hAlign = 0.0,
+								checked = local_comboref.liftflags & LF_LARGE_LIFTABLE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.liftflags,LF_LARGE_LIFTABLE,state);
+								}
 							)
 						)
 					),
@@ -3091,7 +3104,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					TabRef(name = "Misc",
 						Rows<2>(
 							Frame(title = "General Flags",
-								rowSpan = 2,
+								hAlign = 1.0, vAlign = 1.0,
 								Rows<2>(
 									CMB_GEN_FLAG(0,"Hook-Grabbable","Solid parts of this combo can be grabbed by the Hookshot"),
 									CMB_GEN_FLAG(1,"Switch-Hookable","Solid parts of this combo can be grabbed by the SwitchHook"),
@@ -3105,6 +3118,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							Frame(title = "Hero Speed Mod",
 								info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+								hAlign = 0.0, vAlign = 1.0,
 								Rows<3>(
 									Label(text = "Multiplier:", hAlign = 1.0),
 									TextField(type = GUI::TextField::type::INT_DECIMAL,
@@ -3139,7 +3153,48 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									IBTN("Adds this value, in px/frame, to the Hero's speed walking over this combo. Applies after mult and div. Can be negative.")
 								)
 							),
+							Frame(title = "Large Combo",
+								hAlign = 1.0, vAlign = 0.0,
+								Rows<3>(
+									_d,
+									Checkbox(
+										checked = local_comboref.large_combo_dirs & (1 << up),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.large_combo_dirs, (1 << up), state);
+										}),
+									_d,
+									//
+									Checkbox(
+										checked = local_comboref.large_combo_dirs & (1 << left),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.large_combo_dirs, (1 << left), state);
+										}),
+									IBTN("Is open to connect to other combos in the checked directions for 'Large Combos'."
+										" Any adjacent combo on the same layer can connect, if it is also open to connect"
+										" in the direction towards this combo."
+										"\nThis has no effect unless other flags that specifically use 'Large Combos' are set."
+										" (ex. 'Large Combo Liftable' in 'Lifting' tab)"),
+									Checkbox(
+										checked = local_comboref.large_combo_dirs & (1 << right),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.large_combo_dirs, (1 << right), state);
+										}),
+									//
+									_d,
+									Checkbox(
+										checked = local_comboref.large_combo_dirs & (1 << down),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.large_combo_dirs, (1 << down), state);
+										}),
+									_d
+								)
+							),
 							Frame(
+								hAlign = 0.0, vAlign = 0.0,
 								Rows<3>(
 									Label(text = "Z Height:", hAlign = 1.0),
 									TextField(

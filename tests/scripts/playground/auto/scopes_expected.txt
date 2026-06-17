@@ -3515,10 +3515,10 @@ POP D2; Func[void bottleshopdata::SetName(char32[])] Body Start                 
 POP REFBOTTLESHOP                                                               | 3486 resources/include/bindings/bottleshopdata.zh:47
 BSHOPNAMESET D2                                                                 | 3487 resources/include/bindings/bottleshopdata.zh:47
 RETURNFUNC; Func[void bottleshopdata::SetName(char32[])] Body End               | 3488 resources/include/bindings/bottleshopdata.zh:47
-POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3489 resources/include/bindings/combodata.zh:403
-POP REFCOMBOTRIGGER                                                             | 3490 resources/include/bindings/combodata.zh:403
-COMBOD_GET_TRIGGER D2                                                           | 3491 resources/include/bindings/combodata.zh:403
-RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3492 resources/include/bindings/combodata.zh:403
+POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3489 resources/include/bindings/combodata.zh:415
+POP REFCOMBOTRIGGER                                                             | 3490 resources/include/bindings/combodata.zh:415
+COMBOD_GET_TRIGGER D2                                                           | 3491 resources/include/bindings/combodata.zh:415
+RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3492 resources/include/bindings/combodata.zh:415
 PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetReqExDoor(int, int)] Body Start | 3493 resources/include/bindings/combotrigger.zh:693
 SETR D2 CMBTRIG_REQ_SCREXDOOR                                                   | 3494 resources/include/bindings/combotrigger.zh:693
 POPARGS D5 0.0003                                                               | 3495 resources/include/bindings/combotrigger.zh:693
@@ -4603,6 +4603,7 @@ debug data:
       - const ComboLiftFlag LF_NOUCSET @ Constant[40000]
       - const ComboLiftFlag LF_NOWPNCMBCSET @ Constant[50000]
       - const ComboLiftFlag LF_BREAKONSOLID @ Constant[60000]
+      - const ComboLiftFlag LF_LARGE_LIFTABLE @ Constant[70000]
     [ENUM] int ComboType <IDX:6>
       - const ComboType CT_NONE @ Constant[0]
       - const ComboType CT_STAIR @ Constant[10000]
@@ -6408,6 +6409,7 @@ debug data:
       - bool[] GenFlags @ Reg[COMBODGENFLAGARR]
       - const int ID @ Reg[COMBODATAID]
       - untyped[] InitD @ Reg[COMBODATAINITD]
+      - bool[] LargeComboDirs @ Reg[COMBOD_LARGECOMBO_DIRS]
       - const int Layer @ Reg[COMBOLAYERR]
       - int LiftBreakSFX @ Reg[COMBODLIFTBREAKSFX]
       - int LiftBreakSprite @ Reg[COMBODLIFTBREAKSPRITE]

@@ -19,6 +19,7 @@ enum lift_flags : uint8_t
 	LF_NOUCSET              = F(4),
 	LF_NOWPNCMBCSET         = F(5),
 	LF_BREAKONSOLID         = F(6),
+	LF_LARGE_LIFTABLE       = F(7),
 };
 } // ends namespace
 
@@ -61,6 +62,7 @@ enum
 	CMB_ADVP_GEN_SFX,
 	CMB_ADVP_GEN_SPRITES,
 	CMB_ADVP_GEN_ZHEIGHT,
+	CMB_ADVP_GEN_LARGECOMBO,
 	CMB_ADVP_MISC_WEAP_DATA,
 	CMB_ADVP_SZ
 };
@@ -189,6 +191,8 @@ struct newcombo
 	
 	zfix z_height, z_step_height;
 	byte dive_under_level;
+	
+	byte large_combo_dirs;
 	
 	void set_tile(int32_t newtile);
 	void clear();

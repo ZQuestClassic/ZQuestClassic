@@ -523,6 +523,8 @@ struct rect_t
 	int right() const;
 	int top() const;
 	int bottom() const;
+	int width() const;
+	int height() const;
 	
 	void expand(int dist);
 	rect_t expanded(int dist) const;

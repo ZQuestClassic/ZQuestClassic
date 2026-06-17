@@ -886,6 +886,10 @@ enum ComboLiftFlag
 	LF_NOUCSET,
 	LF_NOWPNCMBCSET,
 	LF_BREAKONSOLID, // TODO: Deprecate this with new weapon_data access
+	// If this combo is part of a larger liftable object, as
+	// defined via [combodata::LargeComboDirs].
+	// @versionadded 3.0
+	LF_LARGE_LIFTABLE,
 };
 
 // Used with [Hero->LiftFlags].

@@ -2734,6 +2734,7 @@ static constexpr script_variable variable_list[]=
 	{ "FFC_POSSTATE", FFC_POSSTATE, 0 },
 	{ "CMBTRIGPOSSTATE", CMBTRIGPOSSTATE, 0 },
 	{ "NPC_SUMMONER_PARENT", NPC_SUMMONER_PARENT, 0 },
+	{ "COMBOD_LARGECOMBO_DIRS", COMBOD_LARGECOMBO_DIRS, 0 },
 	{"", -1},
 };
 
@@ -3091,6 +3092,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case COMBODD:
 		case COMBODGENFLAGARR:
 		case COMBODLIFTFLAGS:
+		case COMBOD_LARGECOMBO_DIRS:
 		case COMBODTRIGGERBUTTON:
 		case COMBODTRIGGERFLAGS:
 		case COMBODTRIGGERFLAGS2:
@@ -3519,6 +3521,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case COMBODLIFTBREAKSPRITE:
 		case COMBODLIFTDAMAGE:
 		case COMBODLIFTFLAGS:
+		case COMBOD_LARGECOMBO_DIRS:
 		case COMBODLIFTGFXCCSET:
 		case COMBODLIFTGFXCOMBO:
 		case COMBODLIFTGFXSPRITE:

@@ -11309,28 +11309,18 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		{
 			if(rpos != rpos_t::None)
 			{
-				auto rpos_handle = get_rpos_handle(rpos, lyr);
-				auto& cmb = rpos_handle.combo();	
-				if(cmb.liftflags & LF_LIFTABLE)
+				if(do_lift_combo(get_rpos_handle(rpos, lyr), liftid))
 				{
-					if(do_lift_combo(rpos_handle,liftid))
-					{
-						lifted = true;
-						break;
-					}
+					lifted = true;
+					break;
 				}
 			}
 			if(rpos != rpos2 && rpos2 != rpos_t::None)
 			{
-				auto rpos_handle_2 = get_rpos_handle(rpos2, lyr);
-				newcombo const& cmb2 = combobuf[rpos_handle_2.data()];
-				if(cmb2.liftflags & LF_LIFTABLE)
+				if(do_lift_combo(get_rpos_handle(rpos2, lyr), liftid))
 				{
-					if(do_lift_combo(rpos_handle_2,liftid))
-					{
-						lifted = true;
-						break;
-					}
+					lifted = true;
+					break;
 				}
 			}
 		}

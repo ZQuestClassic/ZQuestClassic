@@ -1254,6 +1254,7 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(liftlvl) return false;
 	if(liftitm) return false;
 	if(liftflags) return false;
+	if(large_combo_dirs) return false;
 	if(liftgfx) return false;
 	if(liftsprite) return false;
 	if(liftsfx) return false;
@@ -1428,6 +1429,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		dive_under_level = other.dive_under_level;
 		CPYFLAG(genflags, cflag3|cflag4, other.genflags); // z-height related flags
 	}
+	if(flags.get(CMB_ADVP_GEN_LARGECOMBO))
+		large_combo_dirs = other.large_combo_dirs;
 	if(flags.get(CMB_ADVP_MISC_WEAP_DATA))
 		misc_weap_data = other.misc_weap_data;
 }
