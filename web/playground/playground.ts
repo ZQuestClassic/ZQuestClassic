@@ -365,6 +365,8 @@ function closeTab(model: monaco.editor.ITextModel, tabEl: HTMLElement) {
 
   tabEl.remove();
   activeTabs.delete(model.uri);
+  modelStates.delete(model);
+  model.dispose();
 }
 
 function openModel(model: monaco.editor.ITextModel) {
