@@ -2696,7 +2696,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 int c = TheMaps[(i*MAPSCRS)+j].numFFC();
                 for(int32_t m=0; m<c; m++)
                 {
-                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
+                    // ffc data is a file-controlled word; bound it against combobuf to avoid OOB read
+                    word data = TheMaps[(i*MAPSCRS)+j].ffcs[m].data;
+                    if(data < MAXCOMBOS && combobuf[data].type == cCHANGE)
                         TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffc_changer;
                 }
             }
