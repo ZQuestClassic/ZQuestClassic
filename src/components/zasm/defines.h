@@ -3419,6 +3419,7 @@ enum ASM_DEFINE
 #define CMBTRIGPOSSTATE                0x16CF
 #define NPC_SUMMONER_PARENT            0x16D0
 #define COMBOD_LARGECOMBO_DIRS         0x16D1
+#define CMBTRIG_LARGECOMBO_COPYCAT     0x16D2
 
 // unused block (we can fill this out)
 #define SPRITE_SHADOW_XOFS      0x16E7

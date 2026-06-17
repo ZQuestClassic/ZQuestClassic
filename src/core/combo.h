@@ -132,6 +132,8 @@ struct combo_trigger
 	byte sfx_volume = 100;
 	int32_t sfx_frequency = -1;
 	
+	byte large_combo_copycat;
+	
 	std::string summarize(newcombo const& cmb) const;
 	bool is_blank() const;
 	void clear();
@@ -471,6 +473,16 @@ enum ComboTriggerFlag
 	// Trigger effect: unset combo position specific state
 	// Combined with [TRIGFLAG_COMBOPOSSTATE_SET] is also on, toggles state instead.
 	TRIGFLAG_COMBOPOSSTATE_UNSET,
+	// Trigger effect: cause all combos in this combo's 'Large Combo' group
+	// as determined by [combodata::LargeComboDirs] to trigger all triggers they
+	// have with [TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT] set, and the same
+	// [combotrigger::LargeComboCopycatID].
+	TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT,
+	// Trigger cause: caused when any combo in this combo's 'Large Combo' group
+	// as determined by [combodata::LargeComboDirs] trigger a trigger they
+	// have with [TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT] set, and the same
+	// [combotrigger::LargeComboCopycatID].
+	TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,
 
 	TRIGFLAG_MAX
 };

@@ -359,6 +359,9 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 
 		if (trigcopycat && !trigger_flags.get(TRIGFLAG_NO_COPYCAT_CAUSE))
 			misc_cause.emplace_back(fmt::format("Copycat {}", trigcopycat));
+		
+		if (trigger_flags.get(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT))
+			misc_cause.emplace_back(fmt::format("Large Combo Copycat {}", large_combo_copycat));
 
 		if (trigger_flags.get(TRIGFLAG_TGROUP_LESS))
 			misc_cause.emplace_back(fmt::format("Trigger Group {} < {}", trig_group, trig_group_val));
@@ -897,6 +900,8 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 			misc_effects.emplace_back("Clear all eweapons");
 		if (trigcopycat)
 			misc_effects.emplace_back(fmt::format("Activate Copycat {}", trigcopycat));
+		if (trigger_flags.get(TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT))
+			misc_effects.emplace_back(fmt::format("Activate Large Combo Copycat {}", large_combo_copycat));
 
 		if (!misc_effects.empty())
 		{

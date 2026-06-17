@@ -359,4 +359,6 @@ namespace combo_caches
 	}
 }
 
+void combos_init_game_vars();
+
 #endif

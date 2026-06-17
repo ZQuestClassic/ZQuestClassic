@@ -156,7 +156,8 @@ static bool has_trigger_cause(combo_trigger const& trig)
 		TRIGFLAG_LWREFFIRE2,TRIGFLAG_SCREENLOAD,TRIGFLAG_SCREENUNLOAD,TRIGFLAG_PLAYERLANDHERE,
 		TRIGFLAG_PLAYERLANDANYWHERE,TRIGFLAG_CMBTYPECAUSES,
 		TRIGFLAG_BLOCK_TRIGGER_SAME_LAYER,TRIGFLAG_BLOCK_TRIGGER_ANY_LAYER,
-		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,TRIGFLAG_COMBOPOSSTATE_CAUSE,})) return true;
+		TRIGFLAG_SWIMTRIG, TRIGFLAG_SWIMSENSTRIG,TRIGFLAG_COMBOPOSSTATE_CAUSE,
+		TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT,})) return true;
 	if(trig.exstate != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXSTATE))) return true;
 	if(trig.exdoor_dir != -1 && !(trig.trigger_flags.get(TRIGFLAG_UNSETEXDOOR))) return true;
 	if(trig.trigcopycat) return true;
@@ -176,7 +177,8 @@ static bool has_trigger_effect(combo_trigger const& trig)
 		TRIGFLAG_SET_GRAVITY, TRIGFLAG_REVERT_GRAVITY,
 		TRIGFLAG_RESPAWN_HERE, TRIGFLAG_RESET_RESPAWN,
 		TRIGFLAG_CMB_CHANGE_ABSOLUTE, TRIGFLAG_CSET_CHANGE_ABSOLUTE,
-		TRIGFLAG_COMBOPOSSTATE_SET,TRIGFLAG_COMBOPOSSTATE_UNSET,})) return true;
+		TRIGFLAG_COMBOPOSSTATE_SET,TRIGFLAG_COMBOPOSSTATE_UNSET,
+		TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT,})) return true;
 	if(trig.dest_player_x || trig.dest_player_y || trig.dest_player_z) return true;
 	if(trig.force_ice_combo > -1) return true;
 	if(trig.dest_player_dir > -1) return true;
@@ -1288,57 +1290,83 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Counters/Items", Column(
-					Frame(title = "Counters",
-						Column(padding = 0_px,
-							Rows<3>(
-								Label(text = "Counter:", fitParent = true),
-								DropDownList(data = parent.list_ss_counters_nn,
-									fitParent = true, maxwidth = 350_px,
-									selectedValue = local_ref.trigctr,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_ref.trigctr = val;
-									}
+				TabRef(name = "Counter / Item / Enemy", Row(
+					Column(
+						Frame(title = "Counters",
+							Column(padding = 0_px,
+								Rows<3>(
+									Label(text = "Counter:", fitParent = true),
+									DropDownList(data = parent.list_ss_counters_nn,
+										fitParent = true, maxwidth = 350_px,
+										selectedValue = local_ref.trigctr,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_ref.trigctr = val;
+										}
+									),
+									IBTN_T("Counter", "Which counter to use for the various counter effects"),
+									Label(text = "Amount:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -65535, high = 65535, val = local_ref.trigctramnt,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.trigctramnt = val;
+										}),
+									IBTN_T("Counter Amount", "The amount of the counter to use for the various counter effects")
 								),
-								IBTN_T("Counter", "Which counter to use for the various counter effects"),
-								Label(text = "Amount:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -65535, high = 65535, val = local_ref.trigctramnt,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_ref.trigctramnt = val;
-									}),
-								IBTN_T("Counter Amount", "The amount of the counter to use for the various counter effects")
-							),
-							Rows_Columns<2,4>(
-								IBTN("Only trigger if the specified counter has at least the specified amount."
-									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(TRIGFLAG_COUNTERGE,"Require >="),
-								IBTN("Only trigger if the specified counter has less than the specified amount."
-									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
-								TRIGFLAG(TRIGFLAG_COUNTERLT,"Require <"),
-								IBTN("The Counter Amount is a percentage of the max."),
-								TRIGFLAG(TRIGFLAG_COUNTER_PERCENT,"...Is Percent"),
-								IBTN(fmt::format("The Counter Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
-								TRIGFLAG(TRIGFLAG_COUNTERDISCOUNT,"Apply Discount"),
-								IBTN("If the counter has the specified amount, consume it."
-									" Negative amount will add to the counter."),
-								TRIGFLAG(TRIGFLAG_COUNTEREAT,"Consume Amount"),
-								IBTN("The 'Consume Amount' will be drained/granted gradually, instead of at once."),
-								TRIGFLAG(TRIGFLAG_COUNTER_GRADUAL,"...Gradual"),
-								IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
-								TRIGFLAG(TRIGFLAG_CTRNONLYTRIG,"Consume w/o trig"),
-								IBTN("The 'Consume Amount' will occur even if the current amount is insufficient."),
-								TRIGFLAG(TRIGFLAG_COUNTER_PARTIAL_CONSUME,"Partial Consume")
+								Rows_Columns<2,4>(
+									IBTN("Only trigger if the specified counter has at least the specified amount."
+										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+									TRIGFLAG(TRIGFLAG_COUNTERGE,"Require >="),
+									IBTN("Only trigger if the specified counter has less than the specified amount."
+										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+									TRIGFLAG(TRIGFLAG_COUNTERLT,"Require <"),
+									IBTN("The Counter Amount is a percentage of the max."),
+									TRIGFLAG(TRIGFLAG_COUNTER_PERCENT,"...Is Percent"),
+									IBTN(fmt::format("The Counter Amount will be discounted based on the Hero's current '{}' item.", ZI.getItemClassName(itype_wealthmedal))),
+									TRIGFLAG(TRIGFLAG_COUNTERDISCOUNT,"Apply Discount"),
+									IBTN("If the counter has the specified amount, consume it."
+										" Negative amount will add to the counter."),
+									TRIGFLAG(TRIGFLAG_COUNTEREAT,"Consume Amount"),
+									IBTN("The 'Consume Amount' will be drained/granted gradually, instead of at once."),
+									TRIGFLAG(TRIGFLAG_COUNTER_GRADUAL,"...Gradual"),
+									IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
+									TRIGFLAG(TRIGFLAG_CTRNONLYTRIG,"Consume w/o trig"),
+									IBTN("The 'Consume Amount' will occur even if the current amount is insufficient."),
+									TRIGFLAG(TRIGFLAG_COUNTER_PARTIAL_CONSUME,"Partial Consume")
+								)
+							)
+						),
+						Frame(title = "Enemies",
+							Column(
+								Rows<3>(
+									Label(text = "Spawn Enemy:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 511, val = local_ref.spawnenemy,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.spawnenemy = val;
+										}),
+									IBTN_T("Spawn Enemy","If the value is >0, the enemy "
+										" id set here will be spawned when the combo is triggered."
+										"\nIf 'Trigger ExState after enemy kill' is checked, the combo will not set its'"
+										"\nExState on being triggered, instead setting it when the enemy is defeated.")
+								),
+								Rows<2>(
+									IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
+									TRIGFLAG(TRIGFLAG_EXSTENEMY, "Trigger ExState after enemy kill")
+								)
 							)
 						)
 					),
-					Row(padding = 0_px,
-						Frame(title = "Items", vAlign = 0.0,
+					Column(
+						Frame(title = "Items",
 							Column(padding = 0_px,
 								Rows<3>(
 									Label(text = "Req Item:", fitParent = true),
@@ -1360,227 +1388,212 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 									IBTN("'Req Item:' must NOT be owned to trigger"),
 									TRIGFLAG(TRIGFLAG_CONSUMEITEM,"Consume Item Req"),
 									IBTN("'Req Item:' will be taken when triggering")
+								),
+								Rows<4>(
+									Label(text = "Spawn Item:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -(MAXITEMDROPSETS-1), high = MAXITEMS, val = local_ref.spawnitem,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.spawnitem = val;
+										}),
+									DummyWidget(),
+									IBTN_T("Spawn Item", "If the value is >0, the item "
+										" id set here will be spawned when the combo is triggered."
+										"\nIf the value is <0, it will be treated as a dropset to drop."
+										"\nIf 'Spawns Special Item' is checked, the item will count as the room's special item,"
+										"\nnot spawning if the special item state is already set."
+										"\nIf 'Trigger ExState after item pickup' is checked, the combo will not set its'"
+										"\nExState on being triggered, instead setting it when the item is picked up."),
+									//
+									Label(text = "Spawned Item Pickup:", fitParent = true),
+									spawned_ip_field = TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										maxLength = 12, val = local_ref.spawnip,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.spawnip = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "P", hAlign = 1.0, onPressFunc = [&]()
+										{
+											int32_t flags = local_ref.spawnip;
+											static const vector<CheckListInfo> pickups =
+											{
+												{ CheckListInfo::DISABLED, "Large Collision Rectangle (INTERNAL)" },
+												{ "Hold Up Item" },
+												{ CheckListInfo::DISABLED, "Sets Screen State ST_ITEM" },
+												{ CheckListInfo::DISABLED, "Dummy Item" },
+												{ CheckListInfo::DISABLED, "Shop Item (INTERNAL)" },
+												{ CheckListInfo::DISABLED, "Pay for Info (INTERNAL)" },
+												{ CheckListInfo::DISABLED, "Item Fades" },
+												{ CheckListInfo::DISABLED, "Enemy Carries Item" },
+												{ "Item Disappears" },
+												{ CheckListInfo::DISABLED, "Big McGuffin (INTERNAL)" },
+												{ CheckListInfo::DISABLED, "Invisible" },
+												{ CheckListInfo::DISABLED, "Triggers Screen State ST_SP_ITEM" },
+												{ "Triggers Screen Secrets" },
+												{ "Always Grabbable" },
+												{ CheckListInfo::DISABLED },
+												{ CheckListInfo::DISABLED },
+											};
+											if(!call_checklist_dialog("Select 'Spawned Item Pickup'",pickups,flags))
+												return;
+											local_ref.spawnip = flags;
+											spawned_ip_field->setVal(local_ref.spawnip);
+										}
+									),
+									IBTN_T("Spawn Item Pickup", "Represents the pickup flags of the spawned item."
+										" Only some flags are valid. Click the 'P' button for a selector list.")
+								),
+								Rows<2>(
+									IBTN("'Spawn Item' will be linked to the room's Special Item state"),
+									TRIGFLAG(TRIGFLAG_SPCITEM, "Spawns Special Item"),
+									IBTN("The item spawned by the combo will automatically be collected by the Hero."),
+									TRIGFLAG(TRIGFLAG_AUTOGRABITEM, "Spawned Item auto-collects"),
+									IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
+									TRIGFLAG(TRIGFLAG_EXSTITEM, "Trigger ExState after item pickup")
 								)
 							)
 						)
 					)
 				)),
-				TabRef(name = "States/Spawning", Row(
-					Rows<4>(framed = true, vAlign = 0.0,
-						Label(text = "Spawn Item:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -(MAXITEMDROPSETS-1), high = MAXITEMS, val = local_ref.spawnitem,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.spawnitem = val;
-							}),
-						DummyWidget(),
-						IBTN_T("Spawn Item", "If the value is >0, the item "
-							" id set here will be spawned when the combo is triggered."
-							"\nIf the value is <0, it will be treated as a dropset to drop."
-							"\nIf 'Spawns Special Item' is checked, the item will count as the room's special item,"
-							"\nnot spawning if the special item state is already set."
-							"\nIf 'Trigger ExState after item pickup' is checked, the combo will not set its'"
-							"\nExState on being triggered, instead setting it when the item is picked up."),
-						//
-						Label(text = "Spawned Item Pickup:", fitParent = true),
-						spawned_ip_field = TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							maxLength = 12, val = local_ref.spawnip,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.spawnip = val;
-							}),
-						Button(
-							width = 1.5_em, padding = 0_px, forceFitH = true,
-							text = "P", hAlign = 1.0, onPressFunc = [&]()
-							{
-								int32_t flags = local_ref.spawnip;
-								static const vector<CheckListInfo> pickups =
+				TabRef(name = "States", Column(
+					Row(padding = 0_px,
+						Rows<4>(framed = true, vAlign = 0.0,
+							Label(text = "ExState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = 31, val = local_ref.exstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 								{
-									{ CheckListInfo::DISABLED, "Large Collision Rectangle (INTERNAL)" },
-									{ "Hold Up Item" },
-									{ CheckListInfo::DISABLED, "Sets Screen State ST_ITEM" },
-									{ CheckListInfo::DISABLED, "Dummy Item" },
-									{ CheckListInfo::DISABLED, "Shop Item (INTERNAL)" },
-									{ CheckListInfo::DISABLED, "Pay for Info (INTERNAL)" },
-									{ CheckListInfo::DISABLED, "Item Fades" },
-									{ CheckListInfo::DISABLED, "Enemy Carries Item" },
-									{ "Item Disappears" },
-									{ CheckListInfo::DISABLED, "Big McGuffin (INTERNAL)" },
-									{ CheckListInfo::DISABLED, "Invisible" },
-									{ CheckListInfo::DISABLED, "Triggers Screen State ST_SP_ITEM" },
-									{ "Triggers Screen Secrets" },
-									{ "Always Grabbable" },
-									{ CheckListInfo::DISABLED },
-									{ CheckListInfo::DISABLED },
-								};
-								if(!call_checklist_dialog("Select 'Spawned Item Pickup'",pickups,flags))
-									return;
-								local_ref.spawnip = flags;
-								spawned_ip_field->setVal(local_ref.spawnip);
-							}
+									local_ref.exstate = val;
+								}),
+							DummyWidget(),
+							IBTN_T("ExState", "If the value is >=0, the exstate"
+								" id set here will be set when the combo is triggered,"
+								"\nand if the exstate set here is already set, the combo will automatically trigger"
+								"\nwithout any effects other than combo/cset change, reset anim, and copycat."),
+							//
+							Label(text = "Copycat:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_ref.trigcopycat,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trigcopycat = val;
+								}),
+							DummyWidget(),
+							IBTN_T("Copycat", "If the value is > 0, the combo is linked to that copycat ID."
+								"\nIf this trigger is triggered, all other linked combos will also trigger,"
+								"\nand if any other linked trigger triggers, this trigger will trigger."),
+							//
+							Label(text = "LevelState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 31, val = local_ref.trig_lstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trig_lstate = val;
+								}),
+							DummyWidget(),
+							IBTN_T("LevelState", "The LevelState used by the flags"
+								" '->LevelState' and 'LevelState->'. 0-31."),
+							//
+							Label(text = "GlobalState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_ref.trig_gstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trig_gstate = val;
+								}),
+							DummyWidget(),
+							IBTN_T("GlobalState", "The GlobalState used by the flags"
+								" '->GlobalState' and 'GlobalState->'. 0-255."),
+							//
+							Label(text = "GlobalState Timer:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 214748, val = local_ref.trig_statetime,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trig_statetime = val;
+								}),
+							DummyWidget(),
+							IBTN_T("GlobalState Timer", "If this value is >0,"
+								" then the 'GlobalState->' flag will trigger a timed global"
+								" state with this duration, in frames, instead of toggling"
+								" the global state."),
+							//
+							Label(text = "Trigger Group:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_ref.trig_group,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trig_group = val;
+								}),
+							DummyWidget(),
+							IBTN_T("Trigger Group", "The Trigger Group used by the flags"
+								" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255."),
+							//
+							Label(text = "Trigger Group Val:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 65535, val = local_ref.trig_group_val,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_ref.trig_group_val = val;
+								}),
+							DummyWidget(),
+							IBTN_T("Trigger Group Val", "The value used by the flags"
+								" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535."),
+							//
+							Label(text = "ExDoor Dir:", fitParent = true),
+							DropDownList(data = parent.list_dirs4n, fitParent = true,
+								selectedValue = local_ref.exdoor_dir,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_ref.exdoor_dir = val;
+								}),
+							DummyWidget(),
+							IBTN("If not '(None)', triggering this trigger sets the extra doorstate"
+								" in the specified direction (of the index set for 'ExDoor Index')."
+								" Additionally, if that door state is already set, the combo will"
+								" automatically trigger without any effects other than combo/cset change."),
+							//
+							Label(text = "ExDoor Index:", fitParent = true),
+							DropDownList(data = parent.list_0_7, fitParent = true,
+								selectedValue = local_ref.exdoor_ind,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_ref.exdoor_ind = val;
+								}),
+							DummyWidget(),
+							IBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
 						),
-						IBTN_T("Spawn Item Pickup", "Represents the pickup flags of the spawned item."
-							" Only some flags are valid. Click the 'P' button for a selector list."),
-						//
-						Label(text = "Spawn Enemy:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 511, val = local_ref.spawnenemy,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.spawnenemy = val;
-							}),
-						DummyWidget(),
-						IBTN_T("Spawn Enemy","If the value is >0, the enemy "
-							" id set here will be spawned when the combo is triggered."
-							"\nIf 'Trigger ExState after enemy kill' is checked, the combo will not set its'"
-							"\nExState on being triggered, instead setting it when the enemy is defeated."),
-						//
-						Label(text = "ExState:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -1, high = 31, val = local_ref.exstate,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.exstate = val;
-							}),
-						DummyWidget(),
-						IBTN_T("ExState", "If the value is >=0, the exstate"
-							" id set here will be set when the combo is triggered,"
-							"\nand if the exstate set here is already set, the combo will automatically trigger"
-							"\nwithout any effects other than combo/cset change, reset anim, and copycat."),
-						//
-						Label(text = "Copycat:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 255, val = local_ref.trigcopycat,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trigcopycat = val;
-							}),
-						DummyWidget(),
-						IBTN_T("Copycat", "If the value is > 0, the combo is linked to that copycat ID."
-							"\nIf this trigger is triggered, all other linked combos will also trigger,"
-							"\nand if any other linked trigger triggers, this trigger will trigger."),
-						//
-						Label(text = "LevelState:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 31, val = local_ref.trig_lstate,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trig_lstate = val;
-							}),
-						DummyWidget(),
-						IBTN_T("LevelState", "The LevelState used by the flags"
-							" '->LevelState' and 'LevelState->'. 0-31."),
-						//
-						Label(text = "GlobalState:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 255, val = local_ref.trig_gstate,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trig_gstate = val;
-							}),
-						DummyWidget(),
-						IBTN_T("GlobalState", "The GlobalState used by the flags"
-							" '->GlobalState' and 'GlobalState->'. 0-255."),
-						//
-						Label(text = "GlobalState Timer:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 214748, val = local_ref.trig_statetime,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trig_statetime = val;
-							}),
-						DummyWidget(),
-						IBTN_T("GlobalState Timer", "If this value is >0,"
-							" then the 'GlobalState->' flag will trigger a timed global"
-							" state with this duration, in frames, instead of toggling"
-							" the global state."),
-						//
-						Label(text = "Trigger Group:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 255, val = local_ref.trig_group,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trig_group = val;
-							}),
-						DummyWidget(),
-						IBTN_T("Trigger Group", "The Trigger Group used by the flags"
-							" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255."),
-						//
-						Label(text = "Trigger Group Val:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 65535, val = local_ref.trig_group_val,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_ref.trig_group_val = val;
-							}),
-						DummyWidget(),
-						IBTN_T("Trigger Group Val", "The value used by the flags"
-							" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535."),
-						//
-						Label(text = "ExDoor Dir:", fitParent = true),
-						DropDownList(data = parent.list_dirs4n, fitParent = true,
-							selectedValue = local_ref.exdoor_dir,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_ref.exdoor_dir = val;
-							}),
-						DummyWidget(),
-						IBTN("If not '(None)', triggering this trigger sets the extra doorstate"
-							" in the specified direction (of the index set for 'ExDoor Index')."
-							" Additionally, if that door state is already set, the combo will"
-							" automatically trigger without any effects other than combo/cset change."),
-						//
-						Label(text = "ExDoor Index:", fitParent = true),
-						DropDownList(data = parent.list_0_7, fitParent = true,
-							selectedValue = local_ref.exdoor_ind,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_ref.exdoor_ind = val;
-							}),
-						DummyWidget(),
-						IBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
-					),
-					Column(vAlign = 0.0, padding = 0_px,
 						Rows<4>(framed = true, fitParent = true,
-							IBTN("'Spawn Item' will be linked to the room's Special Item state"),
-							TRIGFLAG(TRIGFLAG_SPCITEM, "Spawns Special Item",3),
-							IBTN("The item spawned by the combo will automatically be collected by the Hero."),
-							TRIGFLAG(TRIGFLAG_AUTOGRABITEM, "Spawned Item auto-collects",3),
-							IBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-							TRIGFLAG(TRIGFLAG_EXSTITEM, "Trigger ExState after item pickup",3),
-							IBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-							TRIGFLAG(TRIGFLAG_EXSTENEMY, "Trigger ExState after enemy kill",3),
 							IBTN("The combo's 'ExState' will be unset instead of set when triggered."
 								" (Does not necessarily revert combos that were changed by the ExState on it's own)"),
 							TRIGFLAG(TRIGFLAG_UNSETEXSTATE, "Clear ExState on trigger",3),
@@ -1604,8 +1617,39 @@ std::shared_ptr<GUI::Widget> ComboTriggerDialog::view()
 							TRIGFLAG(TRIGFLAG_TGROUP_GREATER, "TrigGroup Greater->"),
 							IBTN("The 'Copycat' will not cause this combo to trigger; it will only be used to trigger other combos when this combo triggers."),
 							TRIGFLAG(TRIGFLAG_NO_COPYCAT_CAUSE, "Copycat doesn't trigger this")
+						)
+					),
+					Row(vAlign = 0.0, padding = 0_px,
+						Frame(title = "Large Combos",
+							vAlign = 0.0,
+							Column(
+								Rows<3>(
+									Label(text = "Copycat:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_ref.large_combo_copycat,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_ref.large_combo_copycat = val;
+										}),
+									IBTN_T("Large Combo Copycat", "Used by the flags below.")
+								),
+								Rows<2>(
+									IBTN("Effect: All combos in the same 'Large Combo' as this combo (see General tab)"
+										" will have any triggers with 'Large Copycat->' checked and the same"
+										" 'Large Combo' 'Copycat' value as above be triggered."),
+									TRIGFLAG(TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT, "->Large Copycat"),
+									IBTN("Cause: Will be triggered when any combo in the same 'Large Combo' as this combo (see General tab)"
+										" triggers a trigger with '->Large Copycat' checked and the same"
+										" 'Large Combo' 'Copycat' value as above."),
+									TRIGFLAG(TRIGFLAG_TRIGGERED_BY_LARGE_COMBO_COPYCAT, "Large Copycat->")
+								)
+							)
 						),
 						Frame(title = "GlobalState Conditions",
+							vAlign = 0.0,
 							Rows<3>(
 								Label(text = "Req States:", fitParent = true),
 								Button(

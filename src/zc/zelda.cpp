@@ -1654,6 +1654,7 @@ void init_game_vars(bool is_cont_game = false)
 	msgscr=nullptr;
 	maps_init_game_vars();
 	guys_init_game_vars();
+	combos_init_game_vars();
 	reset_lens_hints();
 	for(int32_t i=0; i<6; i++)
 	{

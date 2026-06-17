@@ -63,6 +63,15 @@ int32_t combotrigger_get_register(int32_t reg)
 			else ret = -10000;
 			break;
 		}
+		case CMBTRIG_LARGECOMBO_COPYCAT:
+		{
+			if (trig)
+			{
+				ret = trig->large_combo_copycat * 10000;
+			}
+			else ret = -10000;
+			break;
+		}
 		case CMBTRIGCSETCHANGE:
 		{
 			if (trig)
@@ -669,6 +678,11 @@ void combotrigger_set_register(int32_t reg, int32_t value)
 		case CMBTRIGCOPYCAT:
 		{
 			trig->trigcopycat = vbound(value/10000, 0, 255);
+			break;
+		}
+		case CMBTRIG_LARGECOMBO_COPYCAT:
+		{
+			trig->large_combo_copycat = vbound(value/10000, 0, 255);
 			break;
 		}
 		case CMBTRIGCSETCHANGE:
