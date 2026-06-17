@@ -273,6 +273,11 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename, bool metadata_v
 {
 	DataType::STRING = DataTypeArray::create(DataType::CHAR);
 
+	// Source contents are cached for error context. Clear it so a long-lived
+	// process (ex: the web playground worker) re-reads the current file contents
+	// rather than reusing a previous compilation's stale source.
+	clearSourceCodeCache();
+
 	auto ret = _compile_helper(filename, metadata_visitor, doc_visitor);
 
 	DataTypeArray::created_arr_types.clear();

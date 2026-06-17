@@ -677,6 +677,7 @@ namespace ZScript
 	bool debug_data_should_emit_inlined_functions();
 	bool do_codegen();
 
+	void clearSourceCodeCache();
 	int getSourceCodeNumLines(const std::string& fname);
 	const std::string& getSourceCodeContents(const std::string& fname);
 	std::string getSourceCodeSnippet(const LocationData& loc);

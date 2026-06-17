@@ -884,6 +884,10 @@ private:
 };
 
 static std::map<std::string, cache_entry> sourceContentsCache;
+void ZScript::clearSourceCodeCache()
+{
+	sourceContentsCache.clear();
+}
 static cache_entry* getSourceCodeCacheEntry(const std::string& fname)
 {
 	auto it = sourceContentsCache.find(fname);
