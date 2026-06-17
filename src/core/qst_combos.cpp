@@ -1347,6 +1347,10 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 				if(!p_getc(&temp_combo.dive_under_level,f))
 					return qe_invalid;
 			}
+			
+			if (s_version >= 71)
+				if(!p_getc(&temp_combo.large_combo_dirs,f))
+					return qe_invalid;
 		}
 		if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 		{
@@ -1755,7 +1759,7 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap
 		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
 		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning || tmp_cmb.z_height || tmp_cmb.z_step_height
-		|| tmp_cmb.dive_under_level)
+		|| tmp_cmb.dive_under_level || tmp_cmb.large_combo_dirs)
 		combo_has_flags |= CHAS_GENERAL;
 	if(!tmp_cmb.misc_weap_data.is_blank())
 		combo_has_flags |= CHAS_MISC_WEAP_DATA;
@@ -1931,6 +1935,8 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 			return 97;
 		if(!p_putc(tmp_cmb.dive_under_level,f))
 			return 98;
+		if(!p_putc(tmp_cmb.large_combo_dirs,f))
+			return 99;
 	}
 	if(combo_has_flags&CHAS_MISC_WEAP_DATA)
 	{

@@ -10754,6 +10754,7 @@ bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		{ "Gen: SFX", "The SFX related values from the 'General' tab" },
 		{ "Gen: Sprites", "The Sprites related values from the 'General' tab" },
 		{ "Gen: Z Height", "The combo's 'Z Height'/'Z Step Height' settings, and related flags" },
+		{ "Gen: Large Combo", "The combo's 'Large Combo' flags" },
 		{ "Misc Weapon Data", "The combo's 'Misc Weapon Data' settings" },
 		// should be CMB_ADVP_SZ long
 	};

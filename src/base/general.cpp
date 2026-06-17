@@ -252,6 +252,8 @@ int rect_t::left() const {return l;}
 int rect_t::right() const {return r;}
 int rect_t::top() const {return t;}
 int rect_t::bottom() const {return b;}
+int rect_t::width() const {return r-l;}
+int rect_t::height() const {return b-t;}
 
 void rect_t::expand(int dist)
 {
