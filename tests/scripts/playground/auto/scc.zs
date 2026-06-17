@@ -120,6 +120,45 @@ generic script scc
 		playMessage(1);
 		Waitframes(60 * 5);
 
+		// RunFrozenGenericScript accepts up to 8 optional InitD args. The target
+		// script copies its InitD into Data[] so we can verify what it received.
+		{
+			int target = Game->GetGenericScript("scc_frozen_target");
+			genericdata gd = Game->LoadGenericData(target);
+			gd->DataSize = 8;
+			for (int i = 0; i < 8; i++)
+				gd->Data[i] = -1;
+
+			char32 msg[200];
+			sprintf(msg, "Running script!\\RunFrozenGenericScript\\%d\\0\\11\\22\\33\\", target);
+			playMessage(msg);
+
+			gd = Game->LoadGenericData(target);
+			int d0 = gd->Data[0];
+			int d1 = gd->Data[1];
+			int d2 = gd->Data[2];
+			int d3 = gd->Data[3];
+			int d7 = gd->Data[7];
+			Test::AssertEqual(d0, 11);
+			Test::AssertEqual(d1, 22);
+			Test::AssertEqual(d2, 33);
+			// Unspecified trailing InitD default to 0.
+			Test::AssertEqual(d3, 0);
+			Test::AssertEqual(d7, 0);
+		}
+
 		Test::End();
+	}
+}
+
+// Target for the RunFrozenGenericScript test above. Records the InitD it was
+// invoked with into its Data[] array.
+generic script scc_frozen_target
+{
+	void run()
+	{
+		this->DataSize = 8;
+		for (int i = 0; i < 8; i++)
+			this->Data[i] = this->InitD[i];
 	}
 }

@@ -51,7 +51,7 @@
 #define MSGC_SETSCREENSTATE        133  // 2 args (state, value)
 #define MSGC_SETSCREENSTATER       134  // 4 args (map, screen, state, value)
 #define MSGC_FONT                  135  // 1 arg (font)
-#define MSGC_RUN_FRZ_GENSCR        136  // 2 args (script num, force_redraw)
+#define MSGC_RUN_FRZ_GENSCR        136  // 2-10 args (script num, force_redraw, [d0..d7])
 #define MSGC_TRIG_CMB_COPYCAT      137  // 1 arg (copycat id)
 // Added in 3.0+
 #define MSGC_GOTOIFGLOBALSTATE     138  // 3 args (index, value, newstring)
@@ -79,7 +79,7 @@
 #define MSGC_MUSIC_REFRESH         160  // 1 arg (music refresh)
 #define MSGC_SETCURRENTSCREEND     161  // 2 args (reg, value)
 
-#define MAX_SCC_ARG_COUNT 6
+#define MAX_SCC_ARG_COUNT 10
 
 struct StringCommand
 {
@@ -111,6 +111,7 @@ struct ParsedMsgStr
 
 std::optional<const char*> get_scc_command_name(int code);
 std::optional<int> get_scc_command_num_args(int code);
+std::optional<int> get_scc_command_max_args(int code);
 value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str);
 value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& str);
 

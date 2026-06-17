@@ -413,6 +413,46 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*warnings*/ {R"(Expected 5 args, but got 1 for command: \128\1\)"}
 		},
 		TC{
+			"Variable args: only required args",
+			R"(\RunFrozenGenericScript\5\1\)",
+			/*segments*/ {Command},
+			/*literals*/ {},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 2, {5, 1}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Variable args: some optional args",
+			R"(\RunFrozenGenericScript\5\0\11\22\)",
+			/*segments*/ {Command},
+			/*literals*/ {},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 4, {5, 0, 11, 22}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Variable args: max optional args",
+			R"(\RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\)",
+			/*segments*/ {Command},
+			/*literals*/ {},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 10, {1, 0, 2, 3, 4, 5, 6, 7, 8, 9}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Error: Variable args, too few args",
+			R"(\RunFrozenGenericScript\5\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\RunFrozenGenericScript\5\)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Expected between 2 and 10 args, but got 1 for command: \RunFrozenGenericScript\5\)"}
+		},
+		TC{
+			"Error: Variable args, too many args",
+			R"(\RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\10\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\10\)"},
+			/*commands*/ {},
+			/*warnings*/ {R"(Expected between 2 and 10 args, but got 11 for command: \RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\10\)"}
+		},
+		TC{
 			"Trailing \\",
 			R"(Hello\)",
 			/*segments*/ {Literal, Invalid},

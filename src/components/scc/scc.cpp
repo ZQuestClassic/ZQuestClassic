@@ -9,7 +9,15 @@
 struct StringCommandDefn
 {
 	const char* name;
-	int num_args;
+	// The accepted argument count range. For fixed-arity commands min_args ==
+	// max_args. Commands that accept optional trailing arguments use a range.
+	int min_args;
+	int max_args;
+
+	StringCommandDefn(const char* name, int num_args)
+		: name(name), min_args(num_args), max_args(num_args) {}
+	StringCommandDefn(const char* name, int min_args, int max_args)
+		: name(name), min_args(min_args), max_args(max_args) {}
 };
 
 static std::map<int, StringCommandDefn> scc_commands =
@@ -83,7 +91,7 @@ static std::map<int, StringCommandDefn> scc_commands =
 	{MSGC_SETGLOBALSTATE, {"SetGlobalState", 2}}, // (state, value)
 	{MSGC_SETLEVELSTATE, {"SetLevelState", 3}}, // (level, state, value)
 	{MSGC_SETLEVELITEM, {"SetLevelItem", 3}}, // (level, item, value)
-	{MSGC_RUN_FRZ_GENSCR, {"RunFrozenGenericScript", 2}}, // (script num, force_redraw)
+	{MSGC_RUN_FRZ_GENSCR, {"RunFrozenGenericScript", 2, 10}}, // (script num, force_redraw, [d0..d7])
 	{MSGC_COUNTER, {"Counter", 1}}, // (ctr)
 	{MSGC_MAXCOUNTER, {"MaxCounter", 1}}, // (ctr)
 	{MSGC_KILLHERO, {"KillHero", 1}}, // (bypass_revive)
@@ -118,12 +126,25 @@ std::optional<const char*> get_scc_command_name(int code)
 	return it->second.name;
 }
 
+// Returns the number of required arguments for a command. For commands that
+// accept optional trailing arguments, this is the minimum. Callers that only
+// need to know "is this a known command" can check has_value().
 std::optional<int> get_scc_command_num_args(int code)
 {
 	auto it = scc_commands.find(code);
 	if (it == scc_commands.end())
 		return std::nullopt;
-	return it->second.num_args;
+	return it->second.min_args;
+}
+
+// Returns the maximum number of arguments a command accepts (== the required
+// count for fixed-arity commands).
+std::optional<int> get_scc_command_max_args(int code)
+{
+	auto it = scc_commands.find(code);
+	if (it == scc_commands.end())
+		return std::nullopt;
+	return it->second.max_args;
 }
 
 struct NumberParseResult
@@ -269,9 +290,10 @@ static bool parse_ascii_scc_command(
 		consume_until_slash(str, cur);
 
 	cmd.code = code.value_or(0);
-	auto expected_args_opt = get_scc_command_num_args(cmd.code);
-	bool is_unknown_command = !expected_args_opt.has_value();
-	int expected_args = expected_args_opt.value_or(0);
+	auto defn_it = scc_commands.find(cmd.code);
+	bool is_unknown_command = defn_it == scc_commands.end();
+	int min_args = is_unknown_command ? 0 : defn_it->second.min_args;
+	int max_args = is_unknown_command ? 0 : defn_it->second.max_args;
 	int found_num_args = 0;
 
 	// Parse arguments.
@@ -335,7 +357,8 @@ static bool parse_ascii_scc_command(
 	if (!missing_slash) cur++; // Skip terminator '\'
 
 	bool overflowed = found_underflowed_argument || found_overflowed_argument;
-	bool is_valid_command = cmd.code != 0 && !missing_slash && !is_unknown_command && expected_args == found_num_args && !overflowed && !found_non_numeric_argument && !found_double_slash;
+	bool wrong_arg_count = found_num_args < min_args || found_num_args > max_args;
+	bool is_valid_command = cmd.code != 0 && !missing_slash && !is_unknown_command && !wrong_arg_count && !overflowed && !found_non_numeric_argument && !found_double_slash;
 
 	if (is_unknown_command)
 	{
@@ -347,8 +370,13 @@ static bool parse_ascii_scc_command(
 	}
 	else
 	{
-		if (expected_args != found_num_args && !is_unknown_command)
-			warnings.push_back(fmt::format("Expected {} args, but got {} for command: {}", expected_args, found_num_args, str.substr(start_index, cur - start_index)));
+		if (wrong_arg_count)
+		{
+			if (min_args == max_args)
+				warnings.push_back(fmt::format("Expected {} args, but got {} for command: {}", min_args, found_num_args, str.substr(start_index, cur - start_index)));
+			else
+				warnings.push_back(fmt::format("Expected between {} and {} args, but got {} for command: {}", min_args, max_args, found_num_args, str.substr(start_index, cur - start_index)));
+		}
 		if (found_non_numeric_argument)
 			warnings.push_back(fmt::format("Found non-numeric argument for command: {}", str.substr(start_index, cur - start_index)));
 		if (found_overflowed_argument)
@@ -583,6 +611,10 @@ value_and_warnings<ParsedMsgStr> parse_legacy_binary_msg_str(const std::string& 
 			prev = cur;
 		}
 
+		// The legacy binary format is not self-delimiting, so it can only encode
+		// a fixed number of args. Commands that accept optional trailing args are
+		// only ever authored in the new ascii format, so reading the required
+		// (minimum) count here is correct for any command an old quest can contain.
 		auto expected_args_opt = get_scc_command_num_args(c - 1);
 		if (!expected_args_opt)
 		{
@@ -644,7 +676,7 @@ std::string ParsedMsgStr::serialize() const
 		if (segment_types[i] == ParsedMsgStr::SegmentType::Command)
 		{
 			auto& command = commands[command_index++];
-			result += fmt::format("\\{}", scc_commands[command.code].name);
+			result += fmt::format("\\{}", get_scc_command_name(command.code).value_or(""));
 			for (int j = 0; j < command.num_args; j++)
 				result += fmt::format("\\{}", command.args[j]);
 			if (i == segment_types.size() - 1)

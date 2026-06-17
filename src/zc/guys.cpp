@@ -20205,7 +20205,16 @@ static bool parsemsgcode(const StringCommand& command)
 				update_msgstr();
 				draw_screen();
 			}
-			FFCore.runGenericFrozenEngine(scr_id);
+			// Optional args (beyond script num and force_redraw) are passed as the
+			// script's InitD. Any unspecified trailing InitD slots default to 0.
+			if(command.num_args > 2)
+			{
+				int32_t init_data[8] = {0};
+				for(int q = 0; q < 8 && q + 2 < command.num_args; ++q)
+					init_data[q] = 10000 * args[q + 2];
+				FFCore.runGenericFrozenEngine(scr_id, init_data);
+			}
+			else FFCore.runGenericFrozenEngine(scr_id);
 			return true;
 		}
 		case MSGC_DRAWTILE:
