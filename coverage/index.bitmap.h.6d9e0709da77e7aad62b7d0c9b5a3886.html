@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-16 03:30:10</td>
+      <td>2026-06-17 03:36:15</td>
     </tr>
   </table>
 </div>
@@ -73,13 +73,13 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l62">user_bitmap::can_del() (line 62)</a></td><td>called 28104285 times, returned 28104285 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l62">user_bitmap::can_del() (line 62)</a></td><td>called 28104577 times, returned 28104577 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l38">user_bitmap::destroy() (line 38)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l47">user_bitmap::free_obj() (line 47)</a></td><td>called 14053936 times, returned 14053936 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l57">user_bitmap::is_freeing() (line 57)</a></td><td>called 48741055 times, returned 48741055 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l52">user_bitmap::mark_can_del() (line 52)</a></td><td>called 14053860 times, returned 14053860 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l29">user_bitmap::user_bitmap() (line 29)</a></td><td>called 14055416 times, returned 14055416 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l32">user_bitmap::~user_bitmap() (line 32)</a></td><td>called 28110818 times, returned 28110818 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l47">user_bitmap::free_obj() (line 47)</a></td><td>called 14054082 times, returned 14054082 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l57">user_bitmap::is_freeing() (line 57)</a></td><td>called 70601903 times, returned 70601903 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l52">user_bitmap::mark_can_del() (line 52)</a></td><td>called 14054006 times, returned 14054006 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l29">user_bitmap::user_bitmap() (line 29)</a></td><td>called 14055788 times, returned 14055788 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l32">user_bitmap::~user_bitmap() (line 32)</a></td><td>called 28111561 times, returned 28111561 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -294,7 +294,7 @@
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14055416</td>
+      <td class="linecount coveredLine">14055788</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">user_bitmap</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -315,14 +315,14 @@
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28110818</td>
+      <td class="linecount coveredLine">28111561</td>
       <td class="src coveredLine"><span class="w">	</span><span class="o">~</span><span class="n">user_bitmap</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28110818</td>
+      <td class="linecount coveredLine">28111561</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
@@ -331,14 +331,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 14055416 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 14055788 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 14055219 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 197 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 14055365 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 423 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14055416</td>
+      <td class="linecount partialCoveredLine">14055788</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is_exiting</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -347,19 +347,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 14055219 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 14055365 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14055219</td>
+      <td class="linecount partialCoveredLine">14055365</td>
       <td class="src partialCoveredLine"><span class="w">			</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="n">u_bmp</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28110818</td>
+      <td class="linecount coveredLine">28111561</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -436,7 +436,7 @@
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053936</td>
+      <td class="linecount coveredLine">14054082</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">free_obj</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -450,14 +450,14 @@
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053936</td>
+      <td class="linecount coveredLine">14054082</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">UBMPFLAG_FREEING</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053936</td>
+      <td class="linecount coveredLine">14054082</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -471,7 +471,7 @@
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053860</td>
+      <td class="linecount coveredLine">14054006</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">mark_can_del</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -485,14 +485,14 @@
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053860</td>
+      <td class="linecount coveredLine">14054006</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">UBMPFLAG_CAN_DELETE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14053860</td>
+      <td class="linecount coveredLine">14054006</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -506,7 +506,7 @@
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">48741055</td>
+      <td class="linecount coveredLine">70601903</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">is_freeing</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -520,7 +520,7 @@
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">48741055</td>
+      <td class="linecount coveredLine">70601903</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">UBMPFLAG_FREEING</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -541,7 +541,7 @@
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28104285</td>
+      <td class="linecount coveredLine">28104577</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">can_del</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -555,7 +555,7 @@
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28104285</td>
+      <td class="linecount coveredLine">28104577</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">UBMPFLAG_CAN_DELETE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
