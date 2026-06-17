@@ -223,6 +223,15 @@ def rst_toc(caption: str, documents):
 
 
 def add_comment(symbol):
+    def word_suffix_guard(match: re.Match) -> str:
+        # reStructuredText forbids inline roles being directly followed by a
+        # word character (e.g. a plural "s"). Emit an escaped space so the role
+        # abuts the following text without a visible gap.
+        end = match.end()
+        if end < len(match.string) and match.string[end].isalnum():
+            return '\\ '
+        return ''
+
     def replace_symbol_link(match: re.Match):
         if '|' in match.group(1):
             symbol_id, label = match.group(1).split('|')
@@ -236,7 +245,7 @@ def add_comment(symbol):
                 f'could not resolve symbol link in comment: {symbol.comment.text}'
             )
 
-        return reflink(matched_symbol, label)
+        return reflink(matched_symbol, label) + word_suffix_guard(match)
 
     def replace_docs_link(match: re.Match):
         if '|' in match.group(1):
@@ -244,7 +253,7 @@ def add_comment(symbol):
         else:
             docs_key = match.group(1)
             label = docs_key
-        return doclink(docs_key, label)
+        return doclink(docs_key, label) + word_suffix_guard(match)
 
     monos = []
 
@@ -407,9 +416,15 @@ def handle_scope(symbol):
     functions = []
     variables = []
     enums = []
+    classes = []
 
     def cb(node, parent):
-        if isinstance(node, Function):
+        if isinstance(node, Class):
+            # Skip the scope itself; collect any classes defined within it so
+            # their reference anchors get emitted.
+            if node is not symbol:
+                classes.append(node)
+        elif isinstance(node, Function):
             if node.constructor:
                 constructors.append(node)
             else:
@@ -426,6 +441,13 @@ def handle_scope(symbol):
 
     def link(x: Symbol) -> str:
         return reflink(x, get_full_symbol_name(x))
+
+    # Emit an anchor + heading for each class so type references resolve. The
+    # class members are rendered below in the flattened scope sections.
+    for cls in classes:
+        add(f'.. _{cls.loc.ref}:\n')
+        rst_h2(cls.name)
+        add_comment(cls)
 
     if variables:
         rst_h2('Variables')

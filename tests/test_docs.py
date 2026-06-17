@@ -29,9 +29,13 @@ class TestDocs(unittest.TestCase):
         if docs_generated_html_path.exists():
             shutil.rmtree(docs_generated_html_path)
 
-        # Ensure there are no issues building the docs site, and no Sphinx warnings.
+        # Ensure there are no issues building the docs site, and no Sphinx
+        # warnings. -W turns warnings into errors (failing the build), and
+        # --keep-going collects every warning before failing instead of
+        # stopping at the first.
+        env = {**os.environ, 'SPHINXOPTS': '-j auto -W --keep-going'}
         subprocess.check_call(
-            ['bash', root_dir / 'docs-www/update.sh'], shell=is_windows
+            ['bash', root_dir / 'docs-www/update.sh'], shell=is_windows, env=env
         )
 
         # Very basic checks that files were generated as expected.
