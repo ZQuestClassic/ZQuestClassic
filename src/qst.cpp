@@ -21056,7 +21056,13 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	{
 		return qe_invalid;
 	}
-	
+	// num_favorite_combos and per_row are file-controlled; guard against OOB writes
+	// into favorite_combos/favorite_combo_modes (and a div-by-zero on per_row below).
+	if(num_favorite_combos > MAXFAVORITECOMBOS)
+	{
+		return qe_invalid;
+	}
+
 	//Hack; port old favorite combos
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
@@ -21089,11 +21095,14 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 			favorite_combos[i] = temp_num;
 			favorite_combo_modes[i] = favtype;
 		}
-		else
+		else if(per_row != 0)
 		{
 			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-			favorite_combos[new_i]=temp_num;
-			favorite_combo_modes[new_i] = favtype;
+			if(new_i >= 0 && new_i < MAXFAVORITECOMBOS)
+			{
+				favorite_combos[new_i]=temp_num;
+				favorite_combo_modes[new_i] = favtype;
+			}
 		}
 	}
 	
