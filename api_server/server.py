@@ -118,6 +118,16 @@ def quests():
 
 @app.route('/api/v1/replays/<uuid>', methods=['PUT'])
 def replays(uuid):
+    # Log the attempted upload size up front (and flushed), so that if a large
+    # payload starves the box of memory we can still correlate it in the logs.
+    content_encoding = request.headers.get('Content-Encoding', '').lower()
+    print(
+        f'replay upload attempt: uuid={uuid} ip={request.remote_addr} '
+        f'content_length={request.content_length} '
+        f'encoding={content_encoding or "none"}',
+        flush=True,
+    )
+
     # Limit the raw / uncompressed incoming payload size.
     if len(request.data) > 30e6:
         return {
@@ -126,7 +136,6 @@ def replays(uuid):
 
     raw_data = request.data
 
-    content_encoding = request.headers.get('Content-Encoding', '').lower()
     if content_encoding == 'gzip':
         try:
             raw_data = decompress_gzip_bounded(raw_data, MAX_REPLAY_BYTES)
@@ -138,6 +147,11 @@ def replays(uuid):
         return {
             'error': f'Unsupported content encoding payload: {content_encoding}'
         }, HTTPStatus.BAD_REQUEST
+
+    print(
+        f'replay upload decoded: uuid={uuid} bytes={len(raw_data)}',
+        flush=True,
+    )
 
     try:
         data = raw_data.decode('utf-8')
