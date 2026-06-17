@@ -611,7 +611,6 @@ export async function main() {
       await ZScriptWorker.writeFile(model.uri.path, model.getValue());
     }
     openModel(models[0]);
-    await recompileModel(models[0]);
   }
 }
 
