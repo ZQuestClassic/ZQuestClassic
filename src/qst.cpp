@@ -20702,6 +20702,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		byte num_counters;
 		if(!p_getc(&num_counters,f))
 			return qe_invalid;
+		if(num_counters > MAX_COUNTERS) // file-controlled; guard against OOB write into counter/mcounter
+			return qe_invalid;
 		for(int q = 0; q < num_counters; ++q)
 			if(!p_igetw(&temp_zinit.counter[q],f))
 				return qe_invalid;
