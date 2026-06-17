@@ -6040,7 +6040,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	{
 		itemdata const& stomp = itemsbuf[stompid];
 		bool reflect = false; //unused, always false
-		if(!sh_check(stomp.misc2, 0, w->id, reflect, w->type&1, true))
+		if(sh_check(stomp.misc2, 0, w->id, reflect, w->type&1, false))
 		{
 			w->onhit(false);
 			sfx(WAV_CHINK,pan(x.getInt()));
@@ -6121,7 +6121,7 @@ int32_t HeroClass::EwpnHit()
 			{
 				itemdata const& stomp = itemsbuf[stompid];
 				bool reflect = false; //unused, always false
-				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->type&1, true))
+				if(sh_check(stomp.misc2, 0, ew->id, reflect, ew->type&1, false))
 				{
 					ew->onhit(false);
 					sfx(WAV_CHINK,pan(x.getInt()));
