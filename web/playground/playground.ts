@@ -53,9 +53,11 @@ const zasmPaneEl = findElement('.zasm-pane');
 async function initWorker() {
   ZScriptWorker.worker.addEventListener('message', e => {
     const id = e.data.id;
-    const { resolve, reject } = ZScriptWorker.commandPromiseResolvers.get(id);
-    if (e.data.error) reject(new Error(e.data.error));
-    else resolve(e.data.result);
+    const entry = ZScriptWorker.commandPromiseResolvers.get(id);
+    if (!entry) return;
+    ZScriptWorker.commandPromiseResolvers.delete(id);
+    if (e.data.error) entry.reject(new Error(e.data.error));
+    else entry.resolve(e.data.result);
   });
   try {
     await ZScriptWorker.sendCommand('init', {});
