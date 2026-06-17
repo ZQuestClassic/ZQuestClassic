@@ -117,6 +117,14 @@ async function loadEditor(themeName: string) {
     renderValidationDecorations: 'on',
   });
 
+  // Toggle line comment(s) for the current selection with Ctrl/Cmd + Shift + /.
+  editor.addAction({
+    id: 'zscript.toggleLineComment',
+    label: 'Toggle Line Comment',
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Slash],
+    run: (ed) => { ed.getAction('editor.action.commentLine')?.run(); },
+  });
+
   const languages = new Map([['zscript', 'source.zscript']]);
   await wireTmGrammars(monaco, registry, languages, editor);
 }
@@ -613,6 +621,13 @@ self.MonacoEnvironment = {
 
 monaco.languages.register({
   id: 'zscript',
+});
+
+monaco.languages.setLanguageConfiguration('zscript', {
+  comments: {
+    lineComment: '//',
+    blockComment: ['/*', '*/'],
+  },
 });
 
 main().catch(e => {
