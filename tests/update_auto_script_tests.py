@@ -44,6 +44,30 @@ class Test:
         return self.script_path.stem
 
 
+# `M` meta fields that capture a replay's creation identity. These are carried
+# over when a replay is re-recorded, so regenerating an existing replay doesn't
+# churn them (the dynamic fields like `frames`, `length` and `time_updated` are
+# regenerated from the new recording).
+PERSISTED_META_KEYS = ['uuid', 'time_created', 'zc_version_created']
+
+
+def read_persisted_meta(replay_path: Path) -> dict:
+    if not replay_path.exists():
+        return {}
+    meta = {}
+    for line in replay_path.read_text().splitlines():
+        if line.startswith('M '):
+            key, _, value = line[2:].partition(' ')
+            if key in PERSISTED_META_KEYS:
+                meta[key] = value
+    return meta
+
+
+def reached_test_end(replay_path: Path) -> bool:
+    # A replay that ran to completion logs '[Test] done' (from Test::End).
+    return replay_path.exists() and '[Test] done' in replay_path.read_text()
+
+
 tests = [
     Test(path, root_dir / f'{auto_replays_dir}/auto_{path.stem}.zplay')
     for path in auto_tests_dir.rglob('*.zs')
@@ -88,15 +112,21 @@ def compile():
         raise e
 
 
-def create_replay(test: Test):
+def create_replay(
+    test: Test, persisted_meta: dict | None = None, *, headless: bool, debug: bool
+):
+    verb = 're-recording' if persisted_meta else 'creating'
     print(
-        f'creating replay for {test.script_path.relative_to(root_dir)}: {test.replay_path.relative_to(root_dir)}'
+        f'{verb} replay for {test.script_path.relative_to(root_dir)}: {test.replay_path.relative_to(root_dir)}'
     )
 
     log = run_target.get_build_folder() / 'allegro.log'
     if log.exists():
         log.unlink()
-    args = [
+    args = []
+    if headless:
+        args.append('-headless')
+    args += [
         '-test',
         qst_path,
         '5',
@@ -107,6 +137,12 @@ def create_replay(test: Test):
         test.name(),
         '-replay-script-trace',
     ]
+    # Debug mode records the per-frame state/gfx hashes used to assert the
+    # replay. Only do this headless: those hashes are compared headless by
+    # run_replay_tests, so recording them with a window would bake in mismatched
+    # values.
+    if debug:
+        args.append('-replay-debug')
     try:
         run_target.check_run('zplayer', args)
     except Exception as e:
@@ -123,6 +159,12 @@ def create_replay(test: Test):
         'M version latest\n',
         content,
     )
+    for key, value in (persisted_meta or {}).items():
+        content = re.sub(
+            rf'(?m)^M {re.escape(key)} .*$',
+            f'M {key} {value}',
+            content,
+        )
     test.replay_path.write_text(content)
 
 
@@ -234,9 +276,30 @@ def update_auto_script_tests():
         return
 
     compile()
-    for test in tests_missing_replays:
-        create_replay(test)
-    run_replays([t for t in tests if t not in tests_missing_replays], update=True)
+
+    # Refresh existing replays in place with --update. Update mode replays the
+    # recorded RNG seeds (and most steps), so a replay whose script didn't change
+    # comes out nearly identical -- unlike a full re-record, which regenerates
+    # every random seed and churns every replay.
+    persisted_meta = {t.name(): read_persisted_meta(t.replay_path) for t in tests}
+    existing = [t for t in tests if t.replay_path.exists()]
+    run_replays(existing, update=True)
+
+    # Update mode can't extend a replay past its recorded length, so a test whose
+    # script grew won't reach Test::End. Re-record those (and brand-new tests)
+    # from scratch -- only the changed replays churn their seeds. A re-recording
+    # self-terminates at Test::End, so growing a script needs no manual editing.
+    for test in tests:
+        if reached_test_end(test.replay_path):
+            continue
+
+        existed = test.replay_path.exists()
+        create_replay(
+            test,
+            persisted_meta[test.name()],
+            headless=existed,
+            debug=existed,
+        )
     validate(tests)
 
     print(
