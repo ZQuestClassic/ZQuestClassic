@@ -89,6 +89,11 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *Header, 
 		}
 	}
 
+	if(combos_used > MAXCOMBOS) // file-controlled; guard against OOB write into combobuf
+	{
+		return qe_invalid;
+	}
+
 	//finally...  section data
 	for(int32_t i=0; i<combos_used; i++)
 	{
@@ -1398,6 +1403,10 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	if(section_version > 32) //Cleanup time!
 	{
 		if(!p_igetw(&combos_used,f))
+		{
+			return qe_invalid;
+		}
+		if(combos_used > MAXCOMBOS) // file-controlled; guard against OOB write into combobuf
 		{
 			return qe_invalid;
 		}
