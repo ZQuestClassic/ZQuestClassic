@@ -599,7 +599,6 @@ void null_quest()
 		set_bit(skip_flags, i, 1);
 	set_bit(skip_flags, skip_tiles, 0);
 	set_bit(skip_flags, skip_csets, 0);
-	set_bit(skip_flags, skip_misc, 0); // needed for miscsfx (skip this and `tests/replays/demons_inferno/demons_inferno_1_of_2.zplay` fails).
 	loadquest(title_assets_path.c_str(), &QHeader, &QMisc, tunes+ZC_MIDI_COUNT, false, skip_flags, 0, false);
 	sfxdat = 1;
 	// TODO: sfx.dat is ~1.2 MB. Could be better to break that up into individual files and load on demand / not at startup.
