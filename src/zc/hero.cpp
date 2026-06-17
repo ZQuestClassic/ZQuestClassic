@@ -6283,7 +6283,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	
 	int32_t stompid = current_item_id(itype_stompboots);
 	
-	if(invalid_item_id(stompid) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
+	if(valid_item_id(stompid) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
 	((z+fakez) > (w->z+(w->fakez))) ||
 	((isSideViewHero() && (y+16)-(w->y)<=14) && falling_oldy<y)))
 	{
@@ -6364,7 +6364,7 @@ int32_t HeroClass::EwpnHit()
 			
 			int32_t stompid = current_item_id(itype_stompboots);
 			
-			if(invalid_item_id(stompid) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
+			if(valid_item_id(stompid) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
 			((z+fakez) > (ew->z+(ew->fakez))) ||
 			((isSideViewHero() && (y+16)-(ew->y)<=14) && falling_oldy<y)))
 			{
