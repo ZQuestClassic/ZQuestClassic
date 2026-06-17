@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-17 09:47:46</td>
+      <td>2026-06-17 21:05:37</td>
     </tr>
   </table>
 </div>
@@ -76,7 +76,7 @@
     <tr><td><a href="#l315">ButtonItemData::ButtonItemData(int, bool) (line 315)</a></td><td>called 136747045 times, returned 136747045 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l321">ButtonItemData::operator==(ButtonItemData const&amp;) const (line 321)</a></td><td>called 113664444 times, returned 113664444 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l303">cooldown_data::cooldown_data() (line 303)</a></td><td>called 48089 times, returned 48089 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l336">invalid_item_id(int) (line 336)</a></td><td>called 5905687557 times, returned 5905687557 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l336">invalid_item_id(int) (line 336)</a></td><td>called 5905661441 times, returned 5905661441 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l117">item::get_forcegrab() (line 117)</a></td><td>called 3820102 times, returned 3820102 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l100">item::get_scrtype() const (line 100)</a></td><td>called 80635 times, returned 80635 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l103">item::set_forcegrab(bool) (line 103)</a></td><td>called 18096 times, returned 18096 times</td><td>100.0%</td></tr>
@@ -88,7 +88,7 @@
     <tr><td><a href="#l165">itemdata::operator=(itemdata&amp;&amp;) (line 165)</a></td><td>called 115712 times, returned 115712 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l286">itemdata::operator==(itemdata const&amp;) const (line 286)</a></td><td>called 466 times, returned 466 times</td><td>59.0%</td></tr>
     <tr><td><a href="#l165">itemdata::~itemdata() (line 165)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l332">valid_item_id(int) (line 332)</a></td><td>called 6850578571 times, returned 6850578571 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l332">valid_item_id(int) (line 332)</a></td><td>called 6850565524 times, returned 6850565524 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -2639,7 +2639,7 @@
       <td class="lineno"><a id="l332" href="#l332">332</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6850578571</td>
+      <td class="linecount coveredLine">6850565524</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">valid_item_id</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iid</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2653,7 +2653,7 @@
       <td class="lineno"><a id="l334" href="#l334">334</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6850578571</td>
+      <td class="linecount coveredLine">6850565524</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kt">unsigned</span><span class="p">(</span><span class="n">iid</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MAXITEMS</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -2667,7 +2667,7 @@
       <td class="lineno"><a id="l336" href="#l336">336</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5905687557</td>
+      <td class="linecount coveredLine">5905661441</td>
       <td class="src coveredLine"><span class="kr">inline</span><span class="w"> </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">invalid_item_id</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iid</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2681,7 +2681,7 @@
       <td class="lineno"><a id="l338" href="#l338">338</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5905687557</td>
+      <td class="linecount coveredLine">5905661441</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">valid_item_id</span><span class="p">(</span><span class="n">iid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
