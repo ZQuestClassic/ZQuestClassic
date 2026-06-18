@@ -17,6 +17,7 @@
 #define STRINGFLAG_FULLTILE         0x10
 #define STRINGFLAG_TRANS_BG         0x20
 #define STRINGFLAG_TRANS_FG         0x40
+#define STRINGFLAG_NOFREEZE         0x80
 enum
 {
 	STR_ADVP_TEXT,

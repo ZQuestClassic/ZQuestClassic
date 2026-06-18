@@ -9,6 +9,9 @@ enum MessageFlag
 	                      // instead of the UL of a 2x2 adjustable frame
 	MSGFLAG_TRANS_BG,     // If the background should be translucent
 	MSGFLAG_TRANS_FG,     // If the text should be translucent
+	// If the string should ignore 'Messages Freeze All Action'.
+	// @versionadded 3.0
+	MSGFLAG_NOFREEZE,
 };
 
 // @versionadded 3.0
