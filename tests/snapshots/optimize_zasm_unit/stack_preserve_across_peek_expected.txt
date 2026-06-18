@@ -1,0 +1,11 @@
+Function run_none-0
+    0: CALLFUNC        2                            [Block 0 -> ][Function #1]
+    1: QUIT
+
+
+Function Function #1
+    2: PUSHR           D2                           [Block 0 -> ]
+    3: PEEK            D3
+    4: POP             D2
+    5: TRACER          D3
+    6: RETURNFUNC

@@ -564,6 +564,12 @@ static bool optimize_stack(OptContext& ctx)
 				if (command == CALLFUNC)
 					break;
 
+				// These commands access the stack relative to the stack pointer. Removing
+				// the PUSHR would shift the stack pointer for them, so they could read or
+				// write the wrong slot. Be conservative and keep the stack usage.
+				if (one_of(command, PEEK, PEEKATV, STACKWRITEATRV, STACKWRITEATVV, STACKWRITEATVV_IF))
+					break;
+
 				switch (command)
 				{
 					case POP:

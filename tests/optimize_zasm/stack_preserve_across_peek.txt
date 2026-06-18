@@ -1,0 +1,19 @@
+; optimize_stack: a PUSHR/POP pair that preserves an unchanged register would
+; normally be removed, but here a PEEK reads the stack relative to the stack
+; pointer in between. Removing the push would shift the stack pointer and make the
+; PEEK read the wrong slot, so the push/pop must be kept.
+;
+; SYNTHETIC: the compiler does not currently emit a register-preservation push/pop
+; straddling a stack-pointer-relative access, so this is not hit by real output.
+; This is a hand-written regression test.
+Function run_none-0
+    0: CALLFUNC        2                            [Block 0 -> ][Function #1]
+    1: QUIT
+
+
+Function Function #1
+    2: PUSHR           D2                           [Block 0 -> ]
+    3: PEEK            D3
+    4: POP             D2
+    5: TRACER          D3
+    6: RETURNFUNC
