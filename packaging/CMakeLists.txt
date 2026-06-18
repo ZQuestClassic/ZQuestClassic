@@ -233,10 +233,12 @@ if(APPLE)
 		endif()
 	")
 
-	# base_test_runner is installed alongside the apps only in CI builds
-	# (see the root CMakeLists.txt). Bake that configure-time decision in so it
-	# gets its dylib paths fixed up too; install-time ENV{CI} may not be set.
-	if(DEFINED ENV{CI})
+	# base_test_runner is installed alongside the apps only in CI builds that
+	# enable tests (see the root CMakeLists.txt, which gates it on WANT_ZC_TESTS
+	# AND ENV{CI}). Mirror that exactly: a CI release build with tests disabled
+	# has no base_test_runner target, so it must not be added to BINARIES_TO_FIX.
+	# Bake the decision in here because install-time ENV{CI} may not be set.
+	if(TARGET base_test_runner AND DEFINED ENV{CI})
 		set(INSTALL_TEST_RUNNER TRUE)
 	endif()
 
