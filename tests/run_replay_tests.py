@@ -1005,7 +1005,7 @@ for result in test_results.runs[-1]:
 
     # Only print on failure and last attempt.
     if not result.success or result.exceptions:
-        print(f'failure: {result.name}')
+        print(f'failure: {result.path}')
 
         if result.exceptions:
             title = 'EXCEPTIONS'
