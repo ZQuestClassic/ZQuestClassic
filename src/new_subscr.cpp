@@ -25,22 +25,29 @@ extern sprite_list Lwpns;
 extern bool msg_onscreen;
 void verifyBothWeapons();
 bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,
-	zq_view_noinf = false, zq_view_allinf = false;
+	zq_view_noinf = false, zq_view_allinf = false, zq_hint_draws = false;
 
 #define ALLOW_NULL_WIDGET replay_version_check(0,19)
 #else
 #define ALLOW_NULL_WIDGET is_zq_replay_test
 extern bool is_zq_replay_test;
 extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
-	zq_view_noinf, zq_view_allinf;
+	zq_view_noinf, zq_view_allinf, zq_hint_draws;
 extern int zq_subscr_override_dmap;
 #endif
+
+#define COLOR_HINT vc(13)
+#define COLOR_HINT_2 vc(14)
+//makecol(255,0,255)
 
 extern dword loading_tileset_flags;
 
 extern FFScript FFCore;
 
 extern const GUI::ListData subscrWidgets;
+
+const string example_string = "Lorem ipsum";
+const string example_string_2 = "Lorem ipsum dolor sit amet";
 
 int32_t get_dlevel();
 int32_t get_currdmap();
@@ -53,7 +60,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
-const std::string subwidg_internal_names[widgMAX] =
+const string subwidg_internal_names[widgMAX] =
 {
 	"SUBWIDG_NULL", "SUBWIDG_FRAME", "SUBWIDG_TEXT", "SUBWIDG_LINE", "SUBWIDG_RECT",
 	"SUBWIDG_TIME", "SUBWIDG_MMETER", "SUBWIDG_LMETER", "SUBWIDG_BTNITM", "SUBWIDG_COUNTER",
@@ -62,8 +69,8 @@ const std::string subwidg_internal_names[widgMAX] =
 	"SUBWIDG_SELECTOR", "SUBWIDG_LGAUGE", "SUBWIDG_MGAUGE", "SUBWIDG_TEXTBOX", "SUBWIDG_SELECTEDTEXT",
 	"SUBWIDG_MISCGAUGE", "SUBWIDG_BTNCOUNTER",
 };
-const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
-const std::string subscr_infos[sstMAX] = {
+const string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
+const string subscr_infos[sstMAX] = {
 	"The subscreen that actively opens when you press 'Start'",
 	"The subscreen visible at the top of the screen normally, which moves down when the active opens.",
 	"Like the passive, but visible across the whole screen and does NOT move down for the active opening."
@@ -1305,7 +1312,7 @@ void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
 	if(pg_mode && (btnflgs&pg_btns))
 		parent.page_change(pg_mode, pg_targ, pg_trans, genflags&SUBSCRFLAG_PGGOTO_NOWRAP);
 }
-std::string SubscrWidget::getTypeName() const
+string SubscrWidget::getTypeName() const
 {
 	return GUI::ZCListData::subscr_widgets().findText(getType());
 }
@@ -1442,7 +1449,10 @@ byte SW_Text::getType() const
 void SW_Text::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	textout_styled_aligned_ex(dest,tempfont,text.c_str(),x+xofs,y+yofs,
+	string const* str = &text;
+	if (str->empty() && zq_hint_draws)
+		str = &example_string;
+	textout_styled_aligned_ex(dest,tempfont,str->c_str(),x+xofs,y+yofs,
 		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
 SubscrWidget* SW_Text::clone() const
@@ -1911,8 +1921,6 @@ byte SW_ButtonItem::getType() const
 void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	if(!show_subscreen_items) return;
-	if(flags&SUBSCR_BTNITM_TRANSP)
-		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	
 	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
 #ifdef IS_PLAYER
@@ -1926,7 +1934,12 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		btnitem_ids[btn] = ids[btn];
 		btnitem_clks[btn] = 0;
 	}
-	if(btnitem_ids[btn] > nullval)
+	auto id = btnitem_ids[btn];
+	auto tx = x + xofs;
+	auto ty = y + yofs;
+	if(flags&SUBSCR_BTNITM_TRANSP)
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	if (id > nullval)
 	{
 		bool dodraw = true;
 		switch(itemsbuf[btnitem_ids[btn]&0xFF].family)
@@ -1938,7 +1951,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 					if(bow>-1)
 					{
 						if(replay_version_check(0,19))
-							putitem3(dest,x,y,bow,subscr_item_clk);
+							putitem3(dest,tx,ty,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
 							&& !checkmagiccost(btnitem_ids[btn]&0xFF))
 							dodraw = false;
@@ -1947,9 +1960,16 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 				break;
 		}
 		if(dodraw)
-			putitem3(dest,x+xofs,y+yofs,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
+			putitem3(dest,tx,ty,id&0xFF,btnitem_clks[btn]);
 	}
-	
+	else if (zq_hint_draws)
+	{
+		rect(dest, tx, ty, tx+getW()-1, ty+getH()-1, COLOR_HINT);
+		FONT* hintfont = get_zc_font(font_z3smallfont);
+		int fh = text_height(hintfont);
+		textout_centre_ex(dest, hintfont, "ITM", tx+getW()/2, ty+2, COLOR_HINT_2, -1);
+		textout_centre_ex(dest, hintfont, GUI::ZCListData::buttons().findText(btn).c_str(), tx+getW()/2, ty+getH()-1-fh, COLOR_HINT_2, -1);
+	}
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -2678,6 +2698,22 @@ byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 	bool l2 = stripspaces(dmaptitlesource[1], dmaptitle[1], 10) > 0;
 
 	int linecnt = (l1 ? 1 : 0) + (l2 ? 1 : 0);
+	
+	if (linecnt == 0 && zq_hint_draws)
+	{
+		title_view = example_string;
+		
+		for (int i = 0; i < 10; i++)
+		{
+			dmaptitlesource[0][i] = (i < title_view.length()) ? title_view[i] : ' ';
+			dmaptitlesource[1][i] = ((i + 10) < title_view.length()) ? title_view[i + 10] : ' ';
+		}
+
+		l1 = stripspaces(dmaptitlesource[0], dmaptitle[0], 10) > 0;
+		l2 = stripspaces(dmaptitlesource[1], dmaptitle[1], 10) > 0;
+
+		linecnt = (l1 ? 1 : 0) + (l2 ? 1 : 0);
+	}
 
 	if (linecnt == 0)
 		return 0;
@@ -2717,7 +2753,10 @@ void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pa
 void SW_MMapTitle::draw_new(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	draw_textbox(dest, x + xofs, y + yofs, w, h, tempfont, DMaps[get_sub_dmap()].title.c_str(),
+	string const* str = &DMaps[get_sub_dmap()].title;
+	if (str->empty() && zq_hint_draws)
+		str = &example_string;
+	draw_textbox(dest, x + xofs, y + yofs, w, h, tempfont, str->c_str(),
 		flags & SUBSCR_MMAPTIT_WORDWRAP, tabsize, align, shadtype,
 		c_text.get_color(), c_shadow.get_color(), c_bg.get_color());
 }
@@ -3457,15 +3496,15 @@ int32_t SW_ItemSlot::getDisplayItem() const
 void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	if(subscr_itemless && iid < 0) return;
-	#ifdef IS_PLAYER
-	if(flags&SUBSCR_CURITM_INVIS)
-		return;
-	#else
-	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
-		return;
+	bool invis = (flags&SUBSCR_CURITM_INVIS);
+	#ifndef IS_PLAYER
+	if(invis && (zinit.ss_flags&ssflagSHOWINVIS))
+		invis = false;
 	#endif
 	int id = getDisplayItem();
-	if(id > -1)
+	auto tx = x + xofs;
+	auto ty = y + yofs;
+	if(!invis && id > -1)
 	{
 		bool nosp = iid > -1 || (flags&SUBSCR_CURITM_IGNR_SP_DISPLAY);
 		if(!nosp && QMisc.colors.HCpieces_tile && id == iHCPiece)
@@ -3473,7 +3512,7 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			int hcpphc =  game->get_hcp_per_hc();
 			int numhpc = vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
 			int t = QMisc.colors.HCpieces_tile + numhpc;
-			overtile16(dest,t,x+xofs,y+yofs,QMisc.colors.HCpieces_cset,0);
+			overtile16(dest,t,tx,ty,QMisc.colors.HCpieces_cset,0);
 		}
 		else
 		{
@@ -3485,14 +3524,20 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 					subscr_override_clkoffsets[itemid] = subscr_item_clk;
 				clk -= subscr_override_clkoffsets[itemid];
 			}
-			putitem3(dest,x+xofs,y+yofs,itemid,clk);
+			putitem3(dest,tx,ty,itemid,clk);
 			if(!nosp && (id&0xF000))
 			{
 				int id2 = get_subscr_item_id(itype_bow, false);
 				if(id2 > -1)
-					putitem3(dest,x+xofs,y+yofs,id2,clk);
+					putitem3(dest,tx,ty,id2,clk);
 			}
 		}
+	}
+	else if (zq_hint_draws)
+	{
+		rect(dest, tx, ty, tx+getW()-1, ty+getH()-1, COLOR_HINT);
+		FONT* hintfont = get_zc_font(font_z3smallfont);
+		textout_centre_ex(dest, hintfont, "ITM", tx+getW()/2, ty+2, COLOR_HINT_2, -1);
 	}
 }
 SubscrWidget* SW_ItemSlot::clone() const
@@ -3963,6 +4008,17 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 {
 	if(subscr_pg_animating && !(subscr_pg_transition.flags&SUBSCR_TRANS_NOHIDESELECTOR))
 		return;
+	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
+	if (zq_hint_draws)
+	{
+		auto tx = x + xofs;
+		auto ty = y + yofs;
+		rect(dest, tx, ty, tx+getW()-1, ty+getH()-1, COLOR_HINT);
+		FONT* hintfont = get_zc_font(font_z3smallfont);
+		int fh = text_height(hintfont);
+		textout_centre_ex(dest, hintfont, "SEL", tx+getW()/2, ty+2, COLOR_HINT_2, -1);
+		textout_centre_ex(dest, hintfont, selector_type ? "2" : "1", tx+getW()/2, ty+getH()-1-fh, COLOR_HINT_2, -1);
+	}
 	SubscrWidget* widg = page.get_sel_widg();
 	if(!widg)
 	{
@@ -3974,8 +4030,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	}
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
-	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
-	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
+	item tempsel(0,0,0,selector_type ? iSelectB : iSelectA,0,0,true);
 	tempsel.subscreenItem=true;
 	tempsel.hide_hitbox = true;
 	tempsel.xofs = tempsel.yofs = 0;
@@ -4761,7 +4816,11 @@ byte SW_TextBox::getType() const
 void SW_TextBox::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	draw_textbox(dest, x+xofs, y+yofs, w, h, tempfont, text.c_str(),
+	string const* str = &text;
+	if (str->empty() && zq_hint_draws)
+		str = &example_string_2;
+	
+	draw_textbox(dest, x+xofs, y+yofs, w, h, tempfont, str->c_str(),
 		flags&SUBSCR_TEXTBOX_WORDWRAP, tabsize, align, shadtype,
 		c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
@@ -4859,7 +4918,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 	SubscrWidget* widg = page.get_sel_widg();
 	if(!widg) return;
 	FONT* tempfont = get_zc_font(fontid);
-	std::string str;
+	string str;
 	if(widg->override_text.size())
 		str = widg->override_text;
 	else
@@ -4891,7 +4950,9 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 			}
 		}
 	}
-	if(str.size())
+	if (str.empty() && zq_hint_draws)
+		str = example_string_2;
+	if (str.size())
 		draw_textbox(dest, x+xofs, y+yofs, w, h, tempfont,
 			str.c_str(), flags&SUBSCR_SELTEXT_WORDWRAP, tabsize, align, shadtype,
 			c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
@@ -5468,7 +5529,7 @@ int32_t SubscrPage::get_pos_of_item(int32_t id)
 	}
 	return -1;
 }
-int32_t SubscrPage::find_label_index(std::string const& lbl) const
+int32_t SubscrPage::find_label_index(string const& lbl) const
 {
 	if(lbl.empty()) return -1;
 	int32_t indx = 0;
