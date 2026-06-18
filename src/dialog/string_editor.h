@@ -28,7 +28,7 @@ private:
 	int32_t addAfter;
 	MsgStr tmpMsgStr;
 	
-	GUI::ListData list_nextstr, list_font, list_font_order, list_shtype;
+	GUI::ListData list_nextstr, list_font, list_font_order, list_sfx, list_shtype;
 	
 	std::shared_ptr<GUI::MsgPreview> preview;
 	std::shared_ptr<GUI::DropDownList> font_dd, nextstr_dd;
