@@ -11,7 +11,7 @@
 //    Optimizes the scripts in all the quests in tests/replays, and creates a snapshot test for the summary
 //    of the optimizer
 //
-// 3. zplayer -test-zc will run a few unit tests, located in this file.
+// 3. zplayer -test-zc will run a few unit tests, located in zasm_optimize_test.cpp.
 //
 // 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -optimize-zasm -optimize-zasm-experimental 2>&1 | code -
 //
@@ -21,6 +21,7 @@
 //    were recorded w/ these optimizations, they grant a high confidence that these optimizations are sound.
 
 #include "zc/zasm_optimize.h"
+#include "zc/zasm_optimize_internal.h"
 #include "base/general.h"
 #include "base/util.h"
 #include "base/zapp.h"
@@ -51,7 +52,7 @@
 #include <sstream>
 #include <fmt/format.h>
 
-static bool verbose;
+bool zasm_optimize_verbose;
 
 bool zasm_optimize_is_enabled()
 {
@@ -108,265 +109,10 @@ static bool bisect_tool_should_skip()
 #endif
 }
 
-enum class ValueType
-{
-	Uninitialized,
-	Number,
-	Register,
-	Expression,
-	Unknown,
-};
-
-struct SimulationValue
-{
-	bool operator==(const SimulationValue& other) const
-	{
-		if (type != other.type) return false;
-		if (data != other.data) return false;
-		if (type == ValueType::Expression)
-		{
-			if (!(*op1.get()).operator==(*other.op1.get())) return false;
-			if (!(*op2.get()).operator==(*other.op2.get())) return false;
-		}
-		return true;
-	}
-
-	static SimulationValue num(int x)
-	{
-		return {ValueType::Number, x};
-	}
-
-	static SimulationValue reg(int x)
-	{
-		return {ValueType::Register, x};
-	}
-
-	static SimulationValue expr(SimulationValue x, int cmp, SimulationValue y)
-	{
-		auto op1 = std::make_shared<SimulationValue>(x);
-		auto op2 = std::make_shared<SimulationValue>(y);
-		return {ValueType::Expression, cmp, op1, op2};
-	}
-
-	bool is_register() const
-	{
-		return type == ValueType::Register;
-	}
-
-	bool is_number() const
-	{
-		return type == ValueType::Number;
-	}
-
-	bool is_expression() const
-	{
-		return type == ValueType::Expression;
-	}
-
-	bool is_equality_expression() const
-	{
-		return type == ValueType::Expression && (data == CMP_EQ);
-	}
-
-	SimulationValue negate() const
-	{
-		switch (type)
-		{
-			case ValueType::Number:
-				return num(-data);
-			case ValueType::Expression:
-				return expr(*op1, INVERT_CMP(data), *op2);
-			default:
-				return {ValueType::Unknown};
-		}
-	}
-
-	bool is_mutually_exclusive(const SimulationValue& other) const
-	{
-		ASSERT(type == ValueType::Expression);
-		if (other.type != ValueType::Expression)
-			return false;
-		return *this == other.negate();
-	}
-
-	std::string to_string() const
-	{
-		if (type == ValueType::Expression)
-		{
-			if (is_bool_cast())
-				return fmt::format("{}({})", data & CMP_SETI ? "IBool" : "Bool", op1->to_string());
-			if (is_bool_cast_negated())
-				return fmt::format("!{}({})", data & CMP_SETI ? "IBool" : "Bool", op1->to_string());
-
-			std::string lhs = op1->type == ValueType::Expression ? fmt::format("({})", op1->to_string()) : op1->to_string();
-			std::string rhs = op2->type == ValueType::Expression ? fmt::format("({})", op2->to_string()) : op2->to_string();
-
-			if (data & CMP_BOOL)
-				return fmt::format("Bool({}) {} Bool({})", lhs, CMP_STR(data | ~CMP_BOOL), rhs);
-			return fmt::format("{} {} {}", lhs, CMP_STR(data), rhs);
-		}
-		if (type == ValueType::Register)
-			return zasm_var_to_string(data);
-		if (type == ValueType::Number)
-			return fmt::format("{}", data);
-		return "?";
-	}
-
-	bool is_bool_cast() const
-	{
-		if (type != ValueType::Expression || !(data & CMP_FLAGS))
-			return false;
-		if (!op2->is_number())
-			return false;
-		return op2->data == 0 && (data & CMP_FLAGS) == CMP_NE;
-	}
-
-	bool is_bool_cast_negated() const
-	{
-		if (type != ValueType::Expression || !(data & CMP_FLAGS))
-			return false;
-		if (!op2->is_number())
-			return false;
-		return op2->data == 0 && (data & CMP_FLAGS) == CMP_EQ;
-	}
-
-	void replace_value(const SimulationValue& match, const SimulationValue& replace_with)
-	{
-		if (*this == match)
-			*this = replace_with;
-
-		if (type == ValueType::Expression)
-		{
-			op1->replace_value(match, replace_with);
-			op2->replace_value(match, replace_with);
-		}
-	}
-
-	ValueType type = ValueType::Uninitialized;
-	// [number] integer value
-	// [register] register
-	// [expression] cmp
-	int data;
-	// [expression]
-	std::shared_ptr<SimulationValue> op1;
-	std::shared_ptr<SimulationValue> op2;
-};
-
-#define num(x) SimulationValue::num(x)
-#define reg(x) SimulationValue::reg(x)
-#define expr(x, cmp, y) SimulationValue::expr(x, cmp, y)
-#define boolean_cast(x) SimulationValue::expr(x, CMP_NE, num(0))
-#define num_one num(1)
-#define num_zero num(0)
-
 template<class... Args>
 bool one_of(const unsigned int var, const Args&... args)
 {
   return ((var == args) || ...);
-}
-
-static const char *expect_file;
-static int expect_line;
-static bool tests_passed;
-#define EXPECT(...) {\
-	expect_file = __FILE__;\
-	expect_line = __LINE__;\
-	expect(__VA_ARGS__);\
-}
-
-static void print_string_delta(const std::string& expected, const std::string& got)
-{
-	std::vector<std::string> expected_lines, got_lines;
-	util::split(expected, expected_lines, '\n');
-	util::split(got, got_lines, '\n');
-	if (expected_lines.size() <= 1 && got_lines.size() <= 1)
-		return;
-
-	fmt::println("= delta\n");
-	for (int i = 0; i < std::max(expected_lines.size(), got_lines.size()); i++)
-	{
-		std::string expected_line = i < expected_lines.size() ? expected_lines[i] : "EOF";
-		std::string got_line = i < got_lines.size() ? got_lines[i] : "EOF";
-		if (expected_line == got_line)
-		{
-			fmt::println("  {}", expected_lines[i]);
-		}
-		else
-		{
-			fmt::println("- {}", expected_lines[i]);
-			fmt::println("+ {}", got_lines[i]);
-		}
-	}
-}
-
-static void normalize_whitespace(std::string& text)
-{
-	util::trimstr(text);
-	std::vector<std::string> lines;
-	util::split(text, lines, '\n');
-	for (auto& line : lines)
-		line.erase(line.find_last_not_of("\t\n\v\f\r ") + 1);
-
-    std::ostringstream os;
-    for (int i = 0; i < lines.size() - 1; ++i) {
-        os << lines.at(i) << "\n";
-    }
-    os << lines.back();
-    text = os.str();
-}
-
-std::string zasm_to_string_clean(const zasm_script* script)
-{
-	std::string str = zasm_to_string(script);
-	normalize_whitespace(str);
-	util::trimstr(str);
-	return str + "\n";
-}
-
-template <typename T1, typename T2>
-static void expect(std::string name, const T1& expected, const T2& got)
-{
-	if (expected != got)
-	{
-		tests_passed = false;
-		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
-		fmt::println("expected {}, but got: {}\n", expected, got);
-	}
-}
-
-static void expect(std::string name, const SimulationValue& expected, const SimulationValue& got)
-{
-	if (expected != got)
-	{
-		tests_passed = false;
-		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
-		fmt::println("expected {}, but got: {}\n", expected.to_string(), got.to_string());
-	}
-}
-
-static void expect(std::string name, zasm_script* script, std::vector<ffscript>&& s)
-{
-	bool success = script->size == s.size();
-	for (int i = 0; i < s.size(); i++)
-	{
-		if (!success) break;
-		if (script->zasm[i].command == NOP && s[i].command == NOP)
-			continue;
-		if (script->zasm[i] != s[i])
-			success = false;
-	}
-
-	if (!success)
-	{
-		tests_passed = false;
-		auto expected_script = zasm_script{std::move(s)};
-		std::string expected = zasm_to_string_clean(&expected_script);
-		std::string got = zasm_to_string_clean(script);
-		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
-		fmt::println("= expected:\n\n{}", expected);
-		fmt::println("= got:\n\n{}", got);
-		print_string_delta(expected, got);
-	}
 }
 
 template <typename T>
@@ -432,19 +178,6 @@ static void for_every_register_side_effect(const ffscript& instr, T fn)
 	});
 }
 
-struct OptContext
-{
-	uint32_t saved;
-	zasm_script* script;
-	ZasmFunction fn;
-	ZasmCFG cfg;
-	bool cfg_stale;
-	ZasmLiveness liveness_vars;
-	std::set<pc_t> block_unreachable;
-	StructuredZasm* structured_zasm;
-	bool debug;
-};
-
 #define C(i) (ctx.script->zasm[i])
 #define E(i) (ctx.cfg.block_edges[i])
 
@@ -454,7 +187,7 @@ static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_sc
 	ctx.structured_zasm = &structured_zasm;
 	ctx.script = script;
 	ctx.fn = fn;
-	ctx.debug = verbose;
+	ctx.debug = zasm_optimize_verbose;
 	ctx.cfg_stale = true;
 	return ctx;
 }
@@ -474,7 +207,7 @@ static void add_context_liveness(OptContext& ctx)
 	ctx.liveness_vars = zasm_run_liveness_analysis(ctx.script, ctx.cfg);
 }
 
-static OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
+OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
 	auto ctx = create_context_no_cfg(structured_zasm, script, fn);
 	add_context_cfg(ctx);
@@ -867,34 +600,7 @@ static bool optimize_stack(OptContext& ctx)
 	return true;
 }
 
-struct SimulationState
-{
-	pc_t block = 0;
-	pc_t pc = 0;
-	pc_t final_pc = 0;
-	SimulationValue d[8];
-	SimulationValue operand_1;
-	int operand_1_backing_reg = -1;
-	SimulationValue operand_2;
-	int operand_2_backing_reg = -1;
-	std::vector<SimulationValue> stack;
-	bool side_effects = false;
-	bool bail = false;
-
-	SimulationState()
-	{
-		for (int i = 0; i < 8; i++)
-			d[i] = {ValueType::Register, D(i)};
-	}
-
-	void set_block(const OptContext& ctx, pc_t target_block)
-	{
-		block = target_block;
-		std::tie(pc, final_pc) = ctx.cfg.get_block_bounds(target_block);
-	}
-};
-
-static SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b)
+SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b)
 {
 	ASSERT(cmp <= (CMP_FLAGS|CMP_BOOL|CMP_SETI));
 	int flags = cmp & CMP_FLAGS;
@@ -1402,7 +1108,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	return;
 }
 
-static void simulate_and_advance(OptContext& ctx, SimulationState& state)
+void simulate_and_advance(OptContext& ctx, SimulationState& state)
 {
 	simulate(ctx, state);
 	if (state.pc != state.final_pc)
@@ -1545,7 +1251,7 @@ static bool compile_conditional(SimulationValue& expression, std::vector<ffscrip
 	return true;
 }
 
-static bool compile_conditional(std::vector<ffscript>& result, const ffscript& instr, const SimulationValue& op1, const SimulationValue& op2)
+bool compile_conditional(std::vector<ffscript>& result, const ffscript& instr, const SimulationValue& op1, const SimulationValue& op2)
 {
 	int cmp = command_to_cmp(instr.command, instr.arg2);
 	auto val = evaluate_binary_op(cmp, op1, op2);
@@ -2739,375 +2445,4 @@ void zasm_optimize_sync()
 	}
 
 	finalize_optimizer_results(log_level);
-}
-
-static bool _TEST(std::string& name_var, std::string name)
-{
-	static auto filter = get_flag_string("-test-filter");
-	if (filter.has_value() && name.find(filter.value()) == name.npos)
-		return false;
-
-	name_var = name;
-	return true;
-}
-
-#define TEST(name_val) if (_TEST(name, name_val))
-
-// Simplified version of parsing ZASM.
-static zasm_script zasm_from_string(std::string text)
-{
-	normalize_whitespace(text);
-
-	std::vector<ffscript> instructions;
-	std::vector<std::string> lines;
-	util::split(text, lines, '\n');
-	for (auto& line : lines)
-	{
-		util::trimstr(line);
-		if (line.empty() || line.starts_with("Function"))
-			continue;
-
-		instructions.push_back(parse_zasm_op(line));
-	}
-
-	instructions.emplace_back(0xFFFF);
-	return {std::move(instructions)};
-}
-
-// Used by test_optimize_zasm_unit.py
-void zasm_optimize_run_for_file(std::string path)
-{
-	std::string text = util::read_text_file(path);
-
-	std::vector<std::string> lines;
-	util::split(text, lines, '\n');
-	int last_comment_line = 0;
-	for (auto& line : lines)
-	{
-		if (line.starts_with((";")))
-		{
-			last_comment_line++;
-		}
-		else break;
-	}
-
-	std::string zasm;
-	for (int i = last_comment_line; i < lines.size(); i++)
-		zasm += lines[i] + "\n";
-
-	auto script = zasm_from_string(zasm);
-	// Configures the first function as the "entry".
-	script.script_datas.emplace_back(new script_data(ScriptType::None, 0));
-	script.script_datas.back()->pc = 0;
-
-	// Just in case there is a minor roundtrip difference, resave the input.
-	{
-		std::ofstream out(path, std::ios::binary);
-		for (int i = 0; i < last_comment_line; i++)
-			out << lines[i] + "\n";
-		out << zasm_to_string_clean(&script);
-		out.close();
-	}
-
-	fmt::println("\noutput:");
-	verbose = true;
-	zasm_init_meta_cache();
-	zasm_optimize_script(&script);
-	fmt::println("{}", zasm_to_string_clean(&script));
-}
-
-bool zasm_optimize_test()
-{
-	tests_passed = true;
-	zasm_script script;
-	std::string name;
-
-	TEST("evaluate_binary_op")
-	{
-		// Basics
-		// number op number -> number
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ, num_one, num_one));
-		EXPECT(name, num(10000),
-			evaluate_binary_op(CMP_EQ | CMP_SETI, num_one, num_one));
-		EXPECT(name, num(10000),
-			evaluate_binary_op(CMP_EQ | CMP_SETI, num_one, num_one));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ, num_one, num(1337)));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_LT, num_one, num(1337)));
-		
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ, num_one, num_one));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_NE, num_one, num_one));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_LT, num_one, num_one));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_LE, num_one, num_one));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_LE, num_zero, num_one));
-		
-		// CMP_BOOL
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ | CMP_BOOL, num_one, num_one));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ | CMP_BOOL, num(100), num_one));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ | CMP_BOOL, num_zero, num_one));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ | CMP_BOOL, num_zero, num_zero));
-
-		// Comparing a number with a register results in an expression
-		// register op number -> expression
-		// number op register -> expression
-		EXPECT(name, expr(reg(1), CMP_LT, num(1337)),
-			evaluate_binary_op(CMP_LT, reg(1), num(1337)));
-		EXPECT(name, expr(reg(1), CMP_GT, num(1337)),
-			evaluate_binary_op(CMP_LT, num(1337), reg(1)));
-		EXPECT(name, expr(reg(1), CMP_GE, num(1337)),
-			evaluate_binary_op(CMP_LE, num(1337), reg(1)));
-
-		// Comparing with "Never"
-		// any Never op -> num_zero
-		EXPECT(name, num_zero,
-			evaluate_binary_op(0, num_one, num(1337)));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(0, reg(1), num(1337)));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(0, {ValueType::Expression}, {ValueType::Expression}));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(0, {ValueType::Unknown}, {ValueType::Unknown}));
-
-		// Comparing with "Always"
-		// any Always op -> num_one
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_FLAGS, num_one, num(1337)));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_FLAGS, reg(1), num(1337)));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_FLAGS, {ValueType::Expression}, {ValueType::Expression}));
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_FLAGS, {ValueType::Unknown}, {ValueType::Unknown}));
-		EXPECT(name, num(10000),
-			evaluate_binary_op(CMP_FLAGS | CMP_SETI, {ValueType::Unknown}, {ValueType::Unknown}));
-
-		// Comparison with equal operands.
-		auto do_identity_test_cases = [&](const SimulationValue& expected_result, int cmp) {
-			auto T = [&](const SimulationValue& x){
-				EXPECT(name, expected_result,
-					evaluate_binary_op(cmp, x, x));
-			};
-			T(num(0));
-			T(num(1));
-			T(num(10000));
-			T(reg(1));
-			T(expr(reg(1), CMP_EQ, num(2)));
-			auto compound_expr = SimulationValue{ValueType::Expression, CMP_EQ};
-			compound_expr.op1 = std::make_shared<SimulationValue>(expr(reg(2), CMP_EQ, num(1337)));
-			compound_expr.op2 = std::make_shared<SimulationValue>(expr(reg(2), CMP_EQ, num(1337)));
-			T(compound_expr);
-		};
-		do_identity_test_cases(num_one, CMP_FLAGS);
-		do_identity_test_cases(num_one, CMP_EQ);
-		do_identity_test_cases(num_one, CMP_GE);
-		do_identity_test_cases(num_one, CMP_LE);
-		do_identity_test_cases(num_zero, CMP_NE);
-		do_identity_test_cases(num_zero, CMP_GT);
-		do_identity_test_cases(num_zero, CMP_LT);
-		do_identity_test_cases(num_zero, 0);
-
-		EXPECT(name, {ValueType::Unknown},
-			evaluate_binary_op(CMP_EQ, {ValueType::Unknown}, {ValueType::Unknown}));
-		EXPECT(name, {ValueType::Unknown},
-			evaluate_binary_op(CMP_NE, {ValueType::Unknown}, {ValueType::Unknown}));
-
-		// Comparing independent expressions
-		// expr_a ? expr_b -> expr_c
-		auto compound_expr = SimulationValue{ValueType::Expression, CMP_EQ};
-		compound_expr.op1 = std::make_shared<SimulationValue>(expr(reg(1), CMP_EQ, num(1337)));
-		compound_expr.op2 = std::make_shared<SimulationValue>(expr(reg(2), CMP_EQ, num(1337)));
-		EXPECT(name, compound_expr,
-			evaluate_binary_op(CMP_EQ, expr(reg(1), CMP_EQ, num(1337)), expr(reg(2), CMP_EQ, num(1337))));
-
-		// Boolean cast.
-		// int CMP_NE 0 -> boolean
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_NE, num(1337), num(0)));
-
-		// Returns boolean when possible.
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_EQ, num_zero, num(0)));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ, num_one, num(0)));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ, num(10000), num(0)));
-
-		// Negation.
-		// x CMP_EQ 0 -> !x
-		EXPECT(name, expr(reg(2), CMP_LT, num(1337)),
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_GE, num(1337)), num(0)));
-		EXPECT(name, expr(reg(2), CMP_LT, num(1337)),
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_GE, num(1337)), num_zero));
-		EXPECT(name, expr(reg(2), CMP_LT, num(1337)),
-			evaluate_binary_op(CMP_NE, expr(reg(2), CMP_GE, num(1337)), num_one));
-
-		// Basic reductions.
-		// (x == y) == True -> x == y
-		EXPECT(name, expr(reg(2), CMP_EQ, reg(3)),
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ, reg(3)), num_one));
-		EXPECT(name, expr(reg(2), CMP_EQ, reg(3)),
-			evaluate_binary_op(CMP_EQ, num_one, expr(reg(2), CMP_EQ, reg(3))));
-		// (x == y) == False -> x != y
-		EXPECT(name, expr(reg(2), CMP_NE, reg(3)),
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ, reg(3)), num_zero));
-		EXPECT(name, expr(reg(2), CMP_NE, reg(3)),
-			evaluate_binary_op(CMP_EQ, num_zero, expr(reg(2), CMP_EQ, reg(3))));
-
-		// Comparing w/o CMP_SETI on expressions w/ CMP_SETI removes CMP_SETI.
-		EXPECT(name, expr(reg(2), CMP_EQ, reg(3)),
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ|CMP_SETI, reg(3)), num_one));
-
-		// Weird stuff.
-		// 0 <= (10 < D(2)) -> true
-		EXPECT(name, num_one,
-			evaluate_binary_op(CMP_LE, num(0), expr(num(10), CMP_LT, reg(2))));
-		// 0 > (10 < D(2)) -> false
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_GT, num(0), expr(num(10), CMP_LT, reg(2))));
-		// 0 >= (10 < D(2)) -> 10 < D(2)
-		EXPECT(name, expr(num(10), CMP_LT, reg(2)),
-			evaluate_binary_op(CMP_GE, num(0), expr(num(10), CMP_LT, reg(2))));
-		// 0 < (10 < D(2)) -> 10 < D(2)
-		EXPECT(name, expr(num(10), CMP_LT, reg(2)),
-			evaluate_binary_op(CMP_LT, num(0), expr(num(10), CMP_LT, reg(2))));
-		// 1 < (10 < D(2)) -> false
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_LT, num(1), expr(num(10), CMP_LT, reg(2))));
-		// 10000 < (10 i< D(2)) -> 10 < D(2)
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_LT, num(10000), expr(num(10), CMP_LT | CMP_SETI, reg(2))));
-		// 0 > (10 i< D(2)) -> 10 i< D(2)
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_GT, num(0), expr(num(10), CMP_LT, reg(2))));
-		
-		// Reduce comparison between mutually exclusive expressions.
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_GT, num(5)), expr(reg(2), CMP_LE, num(5))));
-		EXPECT(name, num_zero,
-			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ, num(5)), expr(reg(2), CMP_NE, num(5))));
-	}
-
-	TEST("simulate")
-	{
-		std::vector<ffscript> s = {
-			/*  0 */ {COMPAREV, D(2), 0},         // [Block 0 -> 1, 2]
-			/*  1 */ {SETFALSE, D(2)},
-			/*  2 */ {COMPAREV, D(3), 0},
-			/*  3 */ {SETFALSE, D(3)},
-			/*  4 */ {COMPARER, D(2), D(3)},
-			/*  5 */ {SETFALSE, D(2)},
-			/*  6 */ {COMPAREV, D(2), 0},
-			/*  7 */ {GOTOTRUE, 9},
-
-			/*  8 */ {TRACEV, 1},                 // [Block 1 -> 2]
-
-			/*  9 */ {QUIT},                      // [Block 2 ->  ]
-			/* 10 */ {0xFFFF},
-		};
-		script = zasm_script{0, "", std::move(s)};
-
-		StructuredZasm structured_zasm = zasm_construct_structured(&script);
-		OptContext ctx = create_context(structured_zasm, &script, structured_zasm.functions.at(0));
-		SimulationState state{};
-		state.pc = 0;
-		state.final_pc = 7;
-
-		simulate_and_advance(ctx, state);
-		EXPECT(name, 1, state.pc);
-		EXPECT(name, reg(2), state.operand_1);
-		EXPECT(name, num(0), state.operand_2);
-
-		simulate_and_advance(ctx, state);
-		EXPECT(name, 2, state.pc);
-		EXPECT(name, "Bool(D2)", state.d[2].to_string());
-
-		simulate_and_advance(ctx, state);
-		simulate_and_advance(ctx, state);
-		EXPECT(name, 4, state.pc);
-		EXPECT(name, "Bool(D3)", state.d[3].to_string());
-
-		simulate_and_advance(ctx, state);
-		simulate_and_advance(ctx, state);
-		EXPECT(name, 6, state.pc);
-		EXPECT(name, "(Bool(D2)) != (Bool(D3))", state.d[2].to_string());
-
-		simulate_and_advance(ctx, state);
-		simulate_and_advance(ctx, state);
-		EXPECT(name, 7, state.pc);
-		int cmp = command_to_cmp(C(state.pc).command, C(state.pc).arg1);
-		EXPECT(name, "(Bool(D2)) == (Bool(D3))", evaluate_binary_op(cmp, state.operand_1, state.operand_2).to_string());
-	}
-
-	TEST("compile_conditional")
-	{
-		{
-			std::vector<ffscript> r;
-			compile_conditional(r, {GOTOCMP, 0, CMP_EQ}, reg(2), num_one);
-			auto script = zasm_script(std::move(r));
-			EXPECT(name, &script, {
-				{COMPAREV, D(2), 1},
-				{GOTOCMP, 0, CMP_EQ},
-			});
-		}
-
-		{
-			std::vector<ffscript> r;
-			auto e = expr(reg(2), CMP_NE, num(0));
-			compile_conditional(r, {GOTOCMP, 0, CMP_EQ},
-				e, num(1));
-			auto script = zasm_script(std::move(r));
-			EXPECT(name, &script, {
-				{COMPAREV, D(2), 0},
-				{GOTOCMP, 0, CMP_NE},
-			});
-		}
-
-		{
-			std::vector<ffscript> r;
-			auto e = expr(reg(2), CMP_GT, num(10));
-			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
-				e, num(0));
-			auto script = zasm_script(std::move(r));
-			EXPECT(name, &script, {
-				{COMPAREV, D(2), 10},
-				{GOTOCMP, 0, CMP_GT},
-			});
-		}
-
-		{
-			std::vector<ffscript> r;
-			auto e = expr(reg(2), CMP_NE, num(0));
-			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
-				e, num(0));
-			auto script = zasm_script(std::move(r));
-			EXPECT(name, &script, {
-				{COMPAREV, D(2), 0},
-				{GOTOCMP, 0, CMP_NE},
-			});
-		}
-
-		{
-			std::vector<ffscript> r;
-			compile_conditional(r, {GOTOCMP, 0, CMP_NE},
-				boolean_cast(reg(2)), boolean_cast(reg(3)));
-			auto script = zasm_script(std::move(r));
-			EXPECT(name, &script, {
-				{COMPARER, D(2), D(3)},
-				{GOTOCMP, 0, CMP_NE|CMP_BOOL},
-			});
-		}
-	}
-
-	return tests_passed;
 }

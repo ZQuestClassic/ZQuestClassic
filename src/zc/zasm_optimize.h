@@ -27,7 +27,6 @@ bool zasm_optimize_is_enabled();
 void zasm_optimize_sync();
 void zasm_optimize();
 OptimizeResults zasm_optimize_script(zasm_script* script);
-bool zasm_optimize_test();
 void zasm_optimize_run_for_file(std::string path);
 
 #endif
