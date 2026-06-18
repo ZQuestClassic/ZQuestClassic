@@ -159,6 +159,11 @@ void zasm_optimize_run_for_file(std::string path)
 		zasm += lines[i] + "\n";
 
 	auto script = zasm_from_string(zasm);
+	if (!script.valid())
+	{
+		fmt::println("error: no zasm parsed from '{}' (missing or empty file?)", path);
+		return;
+	}
 	// Configures the first function as the "entry".
 	script.script_datas.emplace_back(new script_data(ScriptType::None, 0));
 	script.script_datas.back()->pc = 0;

@@ -259,8 +259,12 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
 
-		// Don't include 0xFFFF as part of the last function.
-		if (script->zasm.back().command == 0xFFFF)
+		// Don't include 0xFFFF as part of the last function. Guard against an
+		// empty script (no real instructions, just the 0xFFFF terminator), where
+		// `size - 2` would underflow and produce an out-of-bounds final pc.
+		if (script->size <= 1)
+			function_final_pcs.push_back(0);
+		else if (script->zasm.back().command == 0xFFFF)
 			function_final_pcs.push_back(script->size - 2);
 		else
 			function_final_pcs.push_back(script->size - 1);
