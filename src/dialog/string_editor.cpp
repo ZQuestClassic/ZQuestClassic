@@ -347,7 +347,10 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					INFOBTN("The background is drawn transparently."),
 					CHECKB(stringflags, STRINGFLAG_TRANS_BG, "Transparent BG"),
 					INFOBTN("The foreground (text) is drawn transparently."),
-					CHECKB(stringflags, STRINGFLAG_TRANS_FG, "Transparent FG")
+					CHECKB(stringflags, STRINGFLAG_TRANS_FG, "Transparent FG"),
+					INFOBTN("The string will not be frozen, ignoring 'Messages Freeze All Action'."
+						+ QRHINT({qr_MSGFREEZE})),
+					CHECKB(stringflags, STRINGFLAG_NOFREEZE, "No Freeze")
 				),
 				Rows<3>(
 					INFOBTN("Which type of shadow the text will have."

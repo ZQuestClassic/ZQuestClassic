@@ -490,7 +490,7 @@ static ArrayRegistrar MESSAGEDATAMARGINS_registrar(MESSAGEDATAMARGINS, []{
 }());
 
 static ArrayRegistrar MESSAGEDATAFLAGSARR_registrar(MESSAGEDATAFLAGSARR, []{
-	static ScriptingArray_ObjectMemberBitwiseFlags<MsgStr, &MsgStr::stringflags, 7> impl;
+	static ScriptingArray_ObjectMemberBitwiseFlags<MsgStr, &MsgStr::stringflags, 8> impl;
 	impl.setMul10000(true);
 	return &impl;
 }());

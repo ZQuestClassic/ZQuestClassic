@@ -236,6 +236,7 @@ std::optional<MsgStr::iterator> msg_it;
 mapscr* msgscr;
 int16_t msg_margins[4] = {0};
 byte msgstr_layer = 6;
+bool msgstr_nofreeze = false;
 int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
@@ -794,7 +795,9 @@ void donewmsg(mapscr* scr, int32_t str)
     msgorig = msgstr;
     msgcolour=QMisc.colors.msgtext;
     msgspeed=zinit.msg_speed;
-	msgstr_layer=MsgStrings[msgstr].drawlayer;
+	auto& msgstring = MsgStrings[msgstr];
+	msgstr_layer=msgstring.drawlayer;
+	msgstr_nofreeze = msgstring.stringflags & STRINGFLAG_NOFREEZE;
     
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
 	{
@@ -814,24 +817,24 @@ void donewmsg(mapscr* scr, int32_t str)
     clear_bitmap(msg_portrait_bmp_buf);
     msgclk=0;
     msgspace=true;
-    msg_w=MsgStrings[msgstr].w;
-    msg_h=MsgStrings[msgstr].h;
-    msg_xpos=MsgStrings[msgstr].x;
-    msg_ypos=MsgStrings[msgstr].y;
-	prt_tile=MsgStrings[msgstr].portrait_tile;
-	prt_cset=MsgStrings[msgstr].portrait_cset;
-	prt_x=MsgStrings[msgstr].portrait_x;
-	prt_y=MsgStrings[msgstr].portrait_y;
-	prt_tw=MsgStrings[msgstr].portrait_tw;
-	prt_th=MsgStrings[msgstr].portrait_th;
-	msg_shdtype=MsgStrings[msgstr].shadow_type;
-	msg_shdcol=MsgStrings[msgstr].shadow_color;
+	msg_w=msgstring.w;
+	msg_h=msgstring.h;
+	msg_xpos=msgstring.x;
+	msg_ypos=msgstring.y;
+	prt_tile=msgstring.portrait_tile;
+	prt_cset=msgstring.portrait_cset;
+	prt_x=msgstring.portrait_x;
+	prt_y=msgstring.portrait_y;
+	prt_tw=msgstring.portrait_tw;
+	prt_th=msgstring.portrait_th;
+	msg_shdtype=msgstring.shadow_type;
+	msg_shdcol=msgstring.shadow_color;
     
-    msg_bg(MsgStrings[msgstr]);
+	msg_bg(msgstring);
     msg_prt();
     
 	int16_t old_margins[4] = {8,0,8,-8};
-	int16_t const* copy_from = get_qr(qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
+	int16_t const* copy_from = get_qr(qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : msgstring.margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];
     cursor_x=msg_margins[left];
@@ -848,6 +851,7 @@ void dismissmsg()
     cursor_y=0;
 	prt_tile=0;
     msg_onscreen = msg_active = false;
+	msgstr_nofreeze = false;
     //Hero.finishedmsg(); //Not possible?
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
@@ -1669,6 +1673,7 @@ void init_game_vars(bool is_cont_game = false)
 	idle_count = 0;
 	active_count = 0;
 	msg_onscreen = msg_active = false;
+	msgstr_nofreeze = false;
 	prt_tile = 0;
 	prt_cset = 0;
 	prt_x = 0;
@@ -3215,8 +3220,9 @@ void game_loop()
 		
 		// freeze_message if message is being printed && qr_MSGFREEZE is on,
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
-		freeze_message = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
-			&& (get_qr(qr_MSGFREEZE)));
+		freeze_message = get_qr(qr_MSGFREEZE)
+			&& ((intropos && intropos<72)
+				|| (!msgstr_nofreeze && (msg_active || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))));
 		if (!get_qr(qr_SCRIPTDRAWSFROZENMSG))
 			FFCore.skipscriptdraws = freeze_message;
 		if(!freeze_message || get_qr(qr_SCRIPTDRAWSFROZENMSG))
