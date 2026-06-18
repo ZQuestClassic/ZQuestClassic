@@ -60,7 +60,6 @@
 #include "zc/ffscript.h"
 #include "dialog/info.h"
 #include "zc/combos.h"
-#include "zc/jit.h"
 #include "zc/zc_subscr.h"
 #include <fmt/format.h>
 #include "zconsole/ConsoleLogger.h"
@@ -5431,12 +5430,6 @@ static NewMenu cheat_menu
 
 static void onOpenDebugger()
 {
-	if (jit_is_enabled())
-	{
-		InfoDialog("Not supported", "The ZScript debugger currently does not support JIT. Disable JIT and reload zplayer to use the debugger.").show();
-		return;
-	}
-
 	zscript_debugger_open();
 }
 

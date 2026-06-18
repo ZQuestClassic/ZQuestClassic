@@ -9046,7 +9046,11 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	script_funcrun = false;
 
 	JittedScriptInstance* j_instance = nullptr;
-	if (jit_is_enabled())
+	// When the debugger is open, run scripts through the interpreter so every command passes through
+	// the per-instruction hook in run_script_int (zscript_debugger_exec). The JIT executes most
+	// commands as native code and only re-enters the interpreter for uncompiled commands, so
+	// breakpoints and line stepping would otherwise only land on those few PCs.
+	if (jit_is_enabled() && !zscript_debugger_is_open())
 	{
 		if (!data.j_instance)
 			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri));
