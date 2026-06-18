@@ -646,35 +646,6 @@ class Game {
 	// @zasm_var GAMEMAXMAPS
 	internal const int MapCount;
 
-	// The ZScript version number the quest was last compiled in.
-	//
-	// @zasm_var ZSCRIPTVERSION
-	internal const int ZScriptVersion;
-
-	// The current version of ZC that the quest is being played in (ex: "2.55"
-	// for 2.55)
-	//
-	// @zasm_var ZELDAVERSION
-	internal const int Version;
-
-	// The current Build ID of ZC that the quest is being played in.
-	//
-	// @deprecated
-	// @zasm_var ZELDABUILD
-	internal const int Build;
-
-	// The current detailed version; this can be the current Alpha, Beta, Gamma,
-	// or Release number, depending on the version of the program.
-	//
-	// @zasm_var ZELDABETA
-	internal const int Beta;
-
-	// What type of detailed version the program is in. `0 = Alpha`, `1 = Beta`,
-	// `2 = Gamma`, `3 = Release`, `-1 = error`.
-	//
-	// @zasm_var ZELDABETATYPE
-	internal const int BetaType;
-
 	// If true, pressing the Start button will no longer open the active
 	// subscreen.
 	//

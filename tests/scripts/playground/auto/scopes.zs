@@ -379,7 +379,7 @@ generic script scopes
 	int scriptFunction()
 	{
 		// Avoid any possible optimization.
-		return Game->Version ? 100 : 0;
+		return Game->SubscreenSpeed ? 100 : 0;
 	}
 
 	void run()
