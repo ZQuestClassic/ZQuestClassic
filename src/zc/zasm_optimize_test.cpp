@@ -2,6 +2,7 @@
 // via zasm_optimize_internal.h. Run with `zplayer -test-zc`.
 
 #include "test_runner/test_runner.h"
+#include "test_runner/assert.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_optimize_internal.h"
 #include "zc/zasm_utils.h"
@@ -12,6 +13,7 @@
 #include "base/zapp.h"
 #include <fmt/format.h>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -23,7 +25,6 @@ static const char* expect_file;
 static int expect_line;
 static std::string name;
 static bool current_test_failed;
-static TestResults* current_results;
 
 #define EXPECT(...) {\
 	expect_file = __FILE__;\
@@ -78,17 +79,6 @@ static std::string zasm_to_string_clean(const zasm_script* script)
 	normalize_whitespace(str);
 	util::trimstr(str);
 	return str + "\n";
-}
-
-template <typename T1, typename T2>
-static void expect(std::string name, const T1& expected, const T2& got)
-{
-	if (expected != got)
-	{
-		current_test_failed = true;
-		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
-		fmt::println("expected {}, but got: {}\n", expected, got);
-	}
 }
 
 static void expect(std::string name, const SimulationValue& expected, const SimulationValue& got)
@@ -189,50 +179,36 @@ void zasm_optimize_run_for_file(std::string path)
 	fmt::println("{}", zasm_to_string_clean(&script));
 }
 
-// Scope guard backing the TEST macro. Each matching TEST() counts as one test in
-// the TestResults, and is marked failed if any EXPECT inside it failed.
-struct TestScope
+// Runs one test case, counting it in the TestResults. A case fails if any EXPECT
+// reported a mismatch, or if an assert.h assertion (which throws) fired.
+static void TEST(const std::string& test_name, TestResults& tr, const std::function<void()>& body)
 {
-	bool should_run;
-	bool entered = false;
+	static auto filter = get_flag_string("-test-filter");
+	if (filter.has_value() && test_name.find(filter.value()) == std::string::npos)
+		return;
 
-	explicit TestScope(const std::string& test_name)
+	name = test_name;
+	current_test_failed = false;
+	tr.total++;
+	try
 	{
-		static auto filter = get_flag_string("-test-filter");
-		should_run = !filter.has_value() || test_name.find(filter.value()) != std::string::npos;
-		if (should_run)
-		{
-			name = test_name;
-			current_test_failed = false;
-			current_results->total++;
-		}
+		body();
 	}
-
-	bool keep()
+	catch (const std::exception& e)
 	{
-		if (!should_run)
-			return false;
-		if (entered)
-		{
-			if (current_test_failed)
-				current_results->failed++;
-			return false;
-		}
-		entered = true;
-		return true;
+		fmt::println("{}", e.what());
+		current_test_failed = true;
 	}
-};
-
-#define TEST(name_val) for (TestScope _scope(name_val); _scope.keep(); )
+	if (current_test_failed)
+		tr.failed++;
+}
 
 TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 {
 	TestResults tr{};
-	current_results = &tr;
 	zasm_script script;
 
-	TEST("evaluate_binary_op")
-	{
+	TEST("evaluate_binary_op", tr, [&]{
 		// Basics
 		// number op number -> number
 		EXPECT(name, num_one,
@@ -405,10 +381,9 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_GT, num(5)), expr(reg(2), CMP_LE, num(5))));
 		EXPECT(name, num_zero,
 			evaluate_binary_op(CMP_EQ, expr(reg(2), CMP_EQ, num(5)), expr(reg(2), CMP_NE, num(5))));
-	}
+	});
 
-	TEST("simulate")
-	{
+	TEST("simulate", tr, [&]{
 		std::vector<ffscript> s = {
 			/*  0 */ {COMPAREV, D(2), 0},         // [Block 0 -> 1, 2]
 			/*  1 */ {SETFALSE, D(2)},
@@ -433,33 +408,32 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 		state.final_pc = 7;
 
 		simulate_and_advance(ctx, state);
-		EXPECT(name, 1, state.pc);
+		assertEqual(state.pc, pc_t(1));
 		EXPECT(name, reg(2), state.operand_1);
 		EXPECT(name, num(0), state.operand_2);
 
 		simulate_and_advance(ctx, state);
-		EXPECT(name, 2, state.pc);
-		EXPECT(name, "Bool(D2)", state.d[2].to_string());
+		assertEqual(state.pc, pc_t(2));
+		assertEqual(state.d[2].to_string(), std::string("Bool(D2)"));
 
 		simulate_and_advance(ctx, state);
 		simulate_and_advance(ctx, state);
-		EXPECT(name, 4, state.pc);
-		EXPECT(name, "Bool(D3)", state.d[3].to_string());
+		assertEqual(state.pc, pc_t(4));
+		assertEqual(state.d[3].to_string(), std::string("Bool(D3)"));
 
 		simulate_and_advance(ctx, state);
 		simulate_and_advance(ctx, state);
-		EXPECT(name, 6, state.pc);
-		EXPECT(name, "(Bool(D2)) != (Bool(D3))", state.d[2].to_string());
+		assertEqual(state.pc, pc_t(6));
+		assertEqual(state.d[2].to_string(), std::string("(Bool(D2)) != (Bool(D3))"));
 
 		simulate_and_advance(ctx, state);
 		simulate_and_advance(ctx, state);
-		EXPECT(name, 7, state.pc);
+		assertEqual(state.pc, pc_t(7));
 		int cmp = command_to_cmp(C(state.pc).command, C(state.pc).arg1);
-		EXPECT(name, "(Bool(D2)) == (Bool(D3))", evaluate_binary_op(cmp, state.operand_1, state.operand_2).to_string());
-	}
+		assertEqual(evaluate_binary_op(cmp, state.operand_1, state.operand_2).to_string(), std::string("(Bool(D2)) == (Bool(D3))"));
+	});
 
-	TEST("compile_conditional")
-	{
+	TEST("compile_conditional", tr, [&]{
 		{
 			std::vector<ffscript> r;
 			compile_conditional(r, {GOTOCMP, 0, CMP_EQ}, reg(2), num_one);
@@ -516,7 +490,7 @@ TestResults test_zasm_optimize([[maybe_unused]] bool verbose)
 				{GOTOCMP, 0, CMP_NE|CMP_BOOL},
 			});
 		}
-	}
+	});
 
 	return tr;
 }
