@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-17 21:05:37</td>
+      <td>2026-06-18 04:44:19</td>
     </tr>
   </table>
 </div>
@@ -74,8 +74,8 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l668">ParsedMsgStr::serialize[abi:cxx11]() const (line 668)</a></td><td>called 511 times, returned 511 times</td><td>60.0%</td></tr>
-    <tr><td><a href="#l17">StringCommandDefn::StringCommandDefn(char const*, int) (line 17)</a></td><td>called 37422 times, returned 37422 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l19">StringCommandDefn::StringCommandDefn(char const*, int, int) (line 19)</a></td><td>called 594 times, returned 594 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l17">StringCommandDefn::StringCommandDefn(char const*, int) (line 17)</a></td><td>called 37548 times, returned 37548 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l19">StringCommandDefn::StringCommandDefn(char const*, int, int) (line 19)</a></td><td>called 596 times, returned 596 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l228">compareStringsCaseIns(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 228)</a></td><td>called 159181 times, returned 159181 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l242">consume_until_slash(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, unsigned long&amp;) (line 242)</a></td><td>called 152099 times, returned 152099 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l142">get_scc_command_max_args(int) (line 142)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -218,28 +218,28 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37422</td>
+      <td class="linecount coveredLine">37548</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">StringCommandDefn</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_args</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">37422</td>
+      <td class="linecount coveredLine">37548</td>
       <td class="src coveredLine"><span class="w">		</span><span class="o">:</span><span class="w"> </span><span class="n">name</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="w"> </span><span class="n">min_args</span><span class="p">(</span><span class="n">num_args</span><span class="p">),</span><span class="w"> </span><span class="n">max_args</span><span class="p">(</span><span class="n">num_args</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">StringCommandDefn</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">min_args</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max_args</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">		</span><span class="o">:</span><span class="w"> </span><span class="n">name</span><span class="p">(</span><span class="n">name</span><span class="p">),</span><span class="w"> </span><span class="n">min_args</span><span class="p">(</span><span class="n">min_args</span><span class="p">),</span><span class="w"> </span><span class="n">max_args</span><span class="p">(</span><span class="n">max_args</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
@@ -260,7 +260,7 @@
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">StringCommandDefn</span><span class="o">&gt;</span><span class="w"> </span><span class="n">scc_commands</span><span class="w"> </span><span class="o">=</span></td>
     </tr>
     <tr class="source-line">
@@ -269,140 +269,140 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">65/130</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="takenBranch">&check; Branch 6 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 6 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="takenBranch">&check; Branch 8 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 8 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="takenBranch">&check; Branch 10 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 10 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
-          <div class="takenBranch">&check; Branch 12 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 12 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-          <div class="takenBranch">&check; Branch 14 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 14 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 15 not taken.</div>
-          <div class="takenBranch">&check; Branch 16 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 16 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 17 not taken.</div>
-          <div class="takenBranch">&check; Branch 18 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 18 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 19 not taken.</div>
-          <div class="takenBranch">&check; Branch 20 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 20 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 21 not taken.</div>
-          <div class="takenBranch">&check; Branch 22 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 22 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 23 not taken.</div>
-          <div class="takenBranch">&check; Branch 24 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 24 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 25 not taken.</div>
-          <div class="takenBranch">&check; Branch 26 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 26 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 27 not taken.</div>
-          <div class="takenBranch">&check; Branch 28 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 28 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 29 not taken.</div>
-          <div class="takenBranch">&check; Branch 30 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 30 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 31 not taken.</div>
-          <div class="takenBranch">&check; Branch 32 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 32 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 33 not taken.</div>
-          <div class="takenBranch">&check; Branch 34 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 34 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 35 not taken.</div>
-          <div class="takenBranch">&check; Branch 36 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 36 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 37 not taken.</div>
-          <div class="takenBranch">&check; Branch 38 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 38 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 39 not taken.</div>
-          <div class="takenBranch">&check; Branch 40 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 40 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 41 not taken.</div>
-          <div class="takenBranch">&check; Branch 42 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 42 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 43 not taken.</div>
-          <div class="takenBranch">&check; Branch 44 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 44 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 45 not taken.</div>
-          <div class="takenBranch">&check; Branch 46 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 46 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 47 not taken.</div>
-          <div class="takenBranch">&check; Branch 48 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 48 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 49 not taken.</div>
-          <div class="takenBranch">&check; Branch 50 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 50 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 51 not taken.</div>
-          <div class="takenBranch">&check; Branch 52 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 52 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 53 not taken.</div>
-          <div class="takenBranch">&check; Branch 54 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 54 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 55 not taken.</div>
-          <div class="takenBranch">&check; Branch 56 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 56 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 57 not taken.</div>
-          <div class="takenBranch">&check; Branch 58 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 58 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 59 not taken.</div>
-          <div class="takenBranch">&check; Branch 60 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 60 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 61 not taken.</div>
-          <div class="takenBranch">&check; Branch 62 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 62 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 63 not taken.</div>
-          <div class="takenBranch">&check; Branch 64 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 64 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 65 not taken.</div>
-          <div class="takenBranch">&check; Branch 66 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 66 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 67 not taken.</div>
-          <div class="takenBranch">&check; Branch 68 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 68 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 69 not taken.</div>
-          <div class="takenBranch">&check; Branch 70 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 70 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 71 not taken.</div>
-          <div class="takenBranch">&check; Branch 72 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 72 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 73 not taken.</div>
-          <div class="takenBranch">&check; Branch 74 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 74 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 75 not taken.</div>
-          <div class="takenBranch">&check; Branch 76 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 76 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 77 not taken.</div>
-          <div class="takenBranch">&check; Branch 78 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 78 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 79 not taken.</div>
-          <div class="takenBranch">&check; Branch 80 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 80 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 81 not taken.</div>
-          <div class="takenBranch">&check; Branch 82 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 82 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 83 not taken.</div>
-          <div class="takenBranch">&check; Branch 84 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 84 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 85 not taken.</div>
-          <div class="takenBranch">&check; Branch 86 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 86 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 87 not taken.</div>
-          <div class="takenBranch">&check; Branch 88 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 88 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 89 not taken.</div>
-          <div class="takenBranch">&check; Branch 90 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 90 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 91 not taken.</div>
-          <div class="takenBranch">&check; Branch 92 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 92 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 93 not taken.</div>
-          <div class="takenBranch">&check; Branch 94 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 94 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 95 not taken.</div>
-          <div class="takenBranch">&check; Branch 96 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 96 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 97 not taken.</div>
-          <div class="takenBranch">&check; Branch 98 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 98 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 99 not taken.</div>
-          <div class="takenBranch">&check; Branch 100 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 100 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 101 not taken.</div>
-          <div class="takenBranch">&check; Branch 102 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 102 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 103 not taken.</div>
-          <div class="takenBranch">&check; Branch 104 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 104 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 105 not taken.</div>
-          <div class="takenBranch">&check; Branch 106 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 106 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 107 not taken.</div>
-          <div class="takenBranch">&check; Branch 108 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 108 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 109 not taken.</div>
-          <div class="takenBranch">&check; Branch 110 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 110 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 111 not taken.</div>
-          <div class="takenBranch">&check; Branch 112 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 112 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 113 not taken.</div>
-          <div class="takenBranch">&check; Branch 114 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 114 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 115 not taken.</div>
-          <div class="takenBranch">&check; Branch 116 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 116 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 117 not taken.</div>
-          <div class="takenBranch">&check; Branch 118 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 118 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 119 not taken.</div>
-          <div class="takenBranch">&check; Branch 120 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 120 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 121 not taken.</div>
-          <div class="takenBranch">&check; Branch 122 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 122 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 123 not taken.</div>
-          <div class="takenBranch">&check; Branch 124 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 124 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 125 not taken.</div>
-          <div class="takenBranch">&check; Branch 126 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 126 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 127 not taken.</div>
-          <div class="takenBranch">&check; Branch 128 taken 594 times.</div>
+          <div class="takenBranch">&check; Branch 128 taken 596 times.</div>
           <div class="notTakenBranch">&cross; Branch 129 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">38610</td>
+      <td class="linecount partialCoveredLine">38740</td>
       <td class="src partialCoveredLine"><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
@@ -416,63 +416,63 @@
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_COLOUR</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;TextColor&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (cset,swatch)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SHDCOLOR</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;ShadowColor&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (cset,swatch)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SHDTYPE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;ShadowType&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (type)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SPEED</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Speed&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (speed)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_DRAWTILE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Tile&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (tile, cset, wid, hei, flip)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_NEWLINE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Newline&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_FONT</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Font&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (font)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_NAME</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CHANGEPORTRAIT</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Portrait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (tile, cset, x, y, twid, thei)</span></td>
     </tr>
     <tr class="source-line">
@@ -493,28 +493,28 @@
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETUPMENU</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetupMenu&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (tile, cset, wid, hei, flip)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_MENUCHOICE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;MenuChoice&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (pos, upos, dpos, lpos, rpos)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_RUNMENU</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;RunMenu&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOMENUCHOICE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfMenuChoice&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (pos, newstring)</span></td>
     </tr>
     <tr class="source-line">
@@ -535,119 +535,119 @@
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFSCREEND</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfScreenD&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (register, val, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFRAND</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfRand&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (factor, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (itemid, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFCTR</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfCounter&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFCTRPC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfCounter%&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFTRI</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfMcGuffin&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (level, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFTRICOUNT</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfMcGuffinCount&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (tricount, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFCREEND</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfAnyScreenD&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (dmap, screen, reg, val, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFGLOBALSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfGlobalState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFSCREENSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfScreenState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFANYSCREENSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfAnyScreenState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (map, screen, state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFSCREENEXSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfScreenExState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFANYSCREENEXSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfAnyScreenExState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (map, screen, state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFLEVELSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfLevelState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (level, state, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFLEVELITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfLevelItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (level, item, value, newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFSECRETS</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfSecrets&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (newstring)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GOTOIFBOTTLE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GoIfBottle&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (quantity, fill type, newstring)</span></td>
     </tr>
     <tr class="source-line">
@@ -668,70 +668,70 @@
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRUP</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterAdd&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRDN</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterSubtract&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRSET</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterSet&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRUPPC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterAdd%&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRDNPC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterSubtract%&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CTRSETPC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CounterSet%&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (counter, val)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_GIVEITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;GiveItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (itemid)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_COLLECTITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;CollectItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (itemid)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_TAKEITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;TakeItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (itemid)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_CHANGEBOTTLE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;ChangeBottle&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (quantity, old fill type, new fill type)</span></td>
     </tr>
     <tr class="source-line">
@@ -752,168 +752,168 @@
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_WARP</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Warp&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (dmap, screen, x, y, effect, sound</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETSCREEND</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetScreenD&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (dmap, screen, reg, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETCURRENTSCREEND</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetCurrentScreenD&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (reg, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SFX</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SFX&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (sfx)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_MIDI</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;MIDI&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (midi)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_MUSIC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Music&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (music)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_MUSIC_REFRESH</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;MusicRefresh&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">//  (music)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_WAIT_ADVANCE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;WaitAdvance&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_DELAY</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_FORCE_DELAY</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;ForceDelay&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_ENDSTRING</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;EndString&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}},</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l85" href="#l85">85</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_TRIGSECRETS</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;TriggerSecrets&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (perm)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l86" href="#l86">86</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_TRIG_CMB_COPYCAT</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;TriggerComboCopycat&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (copycat id)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l87" href="#l87">87</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETSCREENSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetScreenState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETSCREENSTATER</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetAnyScreenState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (map, screen, state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETSCREENEXSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetScreenExState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETANYSCREENEXSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetAnyScreenExState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (map, screen, state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETGLOBALSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetGlobalState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l92" href="#l92">92</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETLEVELSTATE</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetLevelState&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (level, state, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_SETLEVELITEM</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;SetLevelItem&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (level, item, value)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l94" href="#l94">94</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_RUN_FRZ_GENSCR</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;RunFrozenGenericScript&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (script num, force_redraw, [d0..d7])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_COUNTER</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;Counter&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (ctr)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_MAXCOUNTER</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;MaxCounter&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (ctr)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">594</td>
+      <td class="linecount coveredLine">596</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">{</span><span class="n">MSGC_KILLHERO</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;KillHero&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span><span class="w"> </span><span class="c1">// (bypass_revive)</span></td>
     </tr>
     <tr class="source-line">

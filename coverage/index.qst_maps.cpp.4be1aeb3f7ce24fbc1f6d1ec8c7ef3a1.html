@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-17 21:05:37</td>
+      <td>2026-06-18 04:44:19</td>
     </tr>
   </table>
 </div>
@@ -41,8 +41,8 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>914</td>
-      <td>1294</td>
+      <td>916</td>
+      <td>1297</td>
       <td class="coverage-low">70.6%</td>
     </tr>
     <tr>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>816</td>
-      <td>1300</td>
-      <td class="coverage-low">62.8%</td>
+      <td>817</td>
+      <td>1302</td>
+      <td class="coverage-low">62.7%</td>
     </tr>
   </table>
 </div>
@@ -20045,33 +20045,26 @@
     <tr class="source-line">
       <td class="lineno"><a id="l2324" href="#l2324">2324</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2924544 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">2924544</td>
-      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcset</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbcset2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="c1">// secretcombo is a file-controlled position into the TEMPLATE2</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2325" href="#l2325">2325</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2924544 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">2924544</td>
-      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretflag</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbflag2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">					</span><span class="c1">// screen&#39;s 176-entry cset/sflag/data arrays; bound it to avoid OOB reads.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2326" href="#l2326">2326</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">2924544</td>
+      <td class="src coveredLine"><span class="w">					</span><span class="n">word</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2327" href="#l2327">2327</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -20082,59 +20075,108 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">2924544</td>
-      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbdat2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span></td>
+      <td class="src partialCoveredLine"><span class="w">					</span><span class="k">if</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">176</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2327" href="#l2327">2327</a></td>
+      <td class="lineno"><a id="l2328" href="#l2328">2328</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">						</span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2329" href="#l2329">2329</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2924544 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">2924544</td>
+      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcset</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbcset2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2330" href="#l2330">2330</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2924544 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">2924544</td>
+      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretflag</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbflag2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2331" href="#l2331">2331</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 2924544 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount partialCoveredLine">2924544</td>
+      <td class="src partialCoveredLine"><span class="w">					</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">screen</span><span class="p">].</span><span class="n">secretcombo</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">tcmbdat2</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2332" href="#l2332">2332</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2924544</td>
       <td class="src coveredLine"><span class="w">				</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2328" href="#l2328">2328</a></td>
+      <td class="lineno"><a id="l2333" href="#l2333">2333</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">22848</td>
       <td class="src coveredLine"><span class="w">			</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2329" href="#l2329">2329</a></td>
+      <td class="lineno"><a id="l2334" href="#l2334">2334</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">168</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2330" href="#l2330">2330</a></td>
+      <td class="lineno"><a id="l2335" href="#l2335">2335</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">65031</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2331" href="#l2331">2331</a></td>
+      <td class="lineno"><a id="l2336" href="#l2336">2336</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">811</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">map_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp_map_count</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2332" href="#l2332">2332</a></td>
+      <td class="lineno"><a id="l2337" href="#l2337">2337</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">811</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2333" href="#l2333">2333</a></td>
+      <td class="lineno"><a id="l2338" href="#l2338">2338</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">811</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2334" href="#l2334">2334</a></td>
+      <td class="lineno"><a id="l2339" href="#l2339">2339</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

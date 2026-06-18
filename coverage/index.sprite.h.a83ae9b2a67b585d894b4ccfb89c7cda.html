@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-17 21:05:37</td>
+      <td>2026-06-18 04:44:19</td>
     </tr>
   </table>
 </div>
@@ -80,7 +80,7 @@
     <tr><td><a href="#l33">sprite::operator=(sprite const&amp;) (line 33)</a></td><td>called 101874 times, returned 101874 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l52">sprite::setParent(sprite*) (line 52)</a></td><td>called 4856186 times, returned 4856186 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l261">sprite_list::getMax() (line 261)</a></td><td>called 2 times, returned 2 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l262">sprite_list::setMax(int) (line 262)</a></td><td>called 8287 times, returned 8287 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l262">sprite_list::setMax(int) (line 262)</a></td><td>called 5539 times, returned 5539 times</td><td>75.0%</td></tr>
   </table>
 </details>
 
@@ -1956,12 +1956,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 8287 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 5539 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">8287</td>
+      <td class="linecount partialCoveredLine">5539</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setMax</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">max_sprites</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">max</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SLMAX</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">SLMAX</span><span class="p">);}</span></td>
     </tr>
     <tr class="source-line">
