@@ -192,6 +192,13 @@ FONT* __load_a4_font(char const* path)
 }
 ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 {
+	// In headless mode no display is created, so the A5 screen palette is never populated and every
+	// 8-bit->A5 conversion produces a blank bitmap. al_grab_font_from_bitmap would then fail to find
+	// any glyph and spam "Unable to find character 0" for every font. A5 fonts aren't rendered in
+	// headless anyway, so skip building them.
+	if (is_headless())
+		return nullptr;
+
 	PALETTE oldpal;
 	get_palette(oldpal);
 	
