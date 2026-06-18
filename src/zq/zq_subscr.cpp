@@ -27,7 +27,7 @@ extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern bool zq_ignore_item_ownership;
 bool zq_view_fullctr = false, zq_view_maxctr = false,
-	zq_view_noinf = false, zq_view_allinf = false;
+	zq_view_noinf = false, zq_view_allinf = false, zq_hint_draws = true;
 bool subscr_confirm_delete = true, subscr_dupe_in_place = true;
 int zq_subscr_override_dmap = -1;
 
@@ -367,6 +367,7 @@ static int32_t onToggleMaxCtr();
 static int32_t onToggleMaxMaxCtr();
 static int32_t onToggleNoInf();
 static int32_t onToggleAllInf();
+static int32_t onToggleHintDraws();
 static int32_t onEditGrid();
 static int32_t onSelectionOptions();
 static int32_t onShowHideGrid();
@@ -1156,6 +1157,7 @@ enum
 	MENUID_SS_VIEW_MAX_MAX_COUNTERS,
 	MENUID_SS_VIEW_NO_INFINITE,
 	MENUID_SS_VIEW_ALL_INFINITE,
+	MENUID_SS_VIEW_HINT_DRAWS,
 	MENUID_SS_VIEW_SHOW_GRID,
 };
 static NewMenu ss_view_menu
@@ -1169,6 +1171,7 @@ static NewMenu ss_view_menu
 	{ "Max Out Max Counters", onToggleMaxMaxCtr, MENUID_SS_VIEW_MAX_MAX_COUNTERS },
 	{ "Don't Show 'Infinite's", onToggleNoInf, MENUID_SS_VIEW_NO_INFINITE },
 	{ "Show Everything 'Infinite'", onToggleAllInf, MENUID_SS_VIEW_ALL_INFINITE },
+	{ "Show Hint Draws", onToggleHintDraws, MENUID_SS_VIEW_HINT_DRAWS },
 	{},
 	{ "Set Preview &DMap", onSetSubscrDmap },
 	{},
@@ -1965,6 +1968,13 @@ static int32_t onToggleAllInf()
 	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
 	return D_O_K;
 }
+static int32_t onToggleHintDraws()
+{
+	zq_hint_draws = !zq_hint_draws;
+	ss_view_menu.select_uid(MENUID_SS_VIEW_HINT_DRAWS, zq_hint_draws);
+	zc_set_config("editsubscr","show_hint_draws",zq_hint_draws?1:0);
+	return D_O_K;
+}
 static int32_t onToggleConfDelete()
 {
 	subscr_confirm_delete = !subscr_confirm_delete;
@@ -2456,6 +2466,7 @@ bool edit_subscreen()
 	zq_view_maxctr = zc_get_config("editsubscr","show_maxed_maxcounters",0);
 	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
 	zq_view_allinf = zc_get_config("editsubscr","show_all_infinites",0);
+	zq_hint_draws = zc_get_config("editsubscr","show_hint_draws",1);
 	subscr_confirm_delete = zc_get_config("editsubscr","confirm_delete",0);
 	subscr_dupe_in_place = zc_get_config("editsubscr","duplicate_in_place",0);
 	game = new gamedata();
@@ -2467,6 +2478,7 @@ bool edit_subscreen()
 	ss_view_menu.select_uid(MENUID_SS_VIEW_MAX_MAX_COUNTERS, zq_view_maxctr);
 	ss_view_menu.select_uid(MENUID_SS_VIEW_NO_INFINITE, zq_view_noinf);
 	ss_view_menu.select_uid(MENUID_SS_VIEW_ALL_INFINITE, zq_view_allinf);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_HINT_DRAWS, zq_hint_draws);
 	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DELETE, subscr_confirm_delete);
 	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DUPEINPLACE, subscr_dupe_in_place);
 	subscreen_menu.borderless = true;
