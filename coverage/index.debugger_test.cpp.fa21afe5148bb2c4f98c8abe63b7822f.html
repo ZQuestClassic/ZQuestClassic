@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-18 04:44:19</td>
+      <td>2026-06-18 07:29:43</td>
     </tr>
   </table>
 </div>
@@ -101,12 +101,12 @@
     <tr><td><a href="#l344">run_scopes_replay_coroutine() (line 344)</a></td><td>called 1 time, returned 1 time</td><td>41.0%</td></tr>
     <tr><td><a href="#l179">select_script(Debugger*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 179)</a></td><td>called 3 times, returned 3 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l722">test_debugger(bool) (line 722)</a></td><td>called 1 time, returned 1 time</td><td>52.0%</td></tr>
-    <tr><td><a href="#l742">test_debugger(bool)::$_0::operator()() const (line 742)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
-    <tr><td><a href="#l746">test_debugger(bool)::$_0::operator()() const::&#39;lambda&#39;()::operator()() const (line 746)</a></td><td>called 68 times, returned 68 times</td><td>85.0%</td></tr>
-    <tr><td><a href="#l766">test_debugger(bool)::$_1::operator()() const (line 766)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
-    <tr><td><a href="#l770">test_debugger(bool)::$_1::operator()() const::&#39;lambda&#39;()::operator()() const (line 770)</a></td><td>called 96 times, returned 96 times</td><td>85.0%</td></tr>
-    <tr><td><a href="#l790">test_debugger(bool)::$_2::operator()() const (line 790)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
-    <tr><td><a href="#l794">test_debugger(bool)::$_2::operator()() const::&#39;lambda&#39;()::operator()() const (line 794)</a></td><td>called 140 times, returned 140 times</td><td>85.0%</td></tr>
+    <tr><td><a href="#l744">test_debugger(bool)::$_0::operator()() const (line 744)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
+    <tr><td><a href="#l748">test_debugger(bool)::$_0::operator()() const::&#39;lambda&#39;()::operator()() const (line 748)</a></td><td>called 68 times, returned 68 times</td><td>85.0%</td></tr>
+    <tr><td><a href="#l768">test_debugger(bool)::$_1::operator()() const (line 768)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
+    <tr><td><a href="#l772">test_debugger(bool)::$_1::operator()() const::&#39;lambda&#39;()::operator()() const (line 772)</a></td><td>called 96 times, returned 96 times</td><td>85.0%</td></tr>
+    <tr><td><a href="#l792">test_debugger(bool)::$_2::operator()() const (line 792)</a></td><td>called 1 time, returned 1 time</td><td>55.0%</td></tr>
+    <tr><td><a href="#l796">test_debugger(bool)::$_2::operator()() const::&#39;lambda&#39;()::operator()() const (line 796)</a></td><td>called 140 times, returned 140 times</td><td>85.0%</td></tr>
     <tr><td><a href="#l237">verify_expression(Debugger*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 237)</a></td><td>called 161 times, returned 161 times</td><td>20.0%</td></tr>
     <tr><td><a href="#l248">verify_expression_invalid(Debugger*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 248)</a></td><td>called 14 times, returned 14 times</td><td>19.0%</td></tr>
     <tr><td><a href="#l194">verify_variable(Debugger*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 194)</a></td><td>called 35 times, returned 35 times</td><td>38.0%</td></tr>
@@ -9394,6 +9394,20 @@
     <tr class="source-line">
       <td class="lineno"><a id="l739" href="#l739">739</a></td>
       <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// JIT isn&#39;t really utilized, but this ensures that the script engine falls back to interpreted mode</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l740" href="#l740">740</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// when the debugger is open.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l741" href="#l741">741</a></td>
+      <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
@@ -9407,24 +9421,24 @@
         </details>
       </td>
       <td class="linecount partialCoveredLine">1</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">test_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-test-zc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_dir</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;-optimize-zasm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-no-jit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-debugger&quot;</span><span class="p">};</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">test_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-test-zc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_dir</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;-optimize-zasm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-jit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-debugger&quot;</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l740" href="#l740">740</a></td>
+      <td class="lineno"><a id="l742" href="#l742">742</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zapp_replace_args</span><span class="p">(</span><span class="n">test_args</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="k">const_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">**&gt;</span><span class="p">(</span><span class="n">test_args</span><span class="p">.</span><span class="n">data</span><span class="p">()));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l741" href="#l741">741</a></td>
+      <td class="lineno"><a id="l743" href="#l743">743</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l742" href="#l742">742</a></td>
+      <td class="lineno"><a id="l744" href="#l744">744</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9440,35 +9454,35 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;maths.zplay (save breakpoints)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l743" href="#l743">743</a></td>
+      <td class="lineno"><a id="l745" href="#l745">745</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">TestTask</span><span class="w"> </span><span class="n">current_test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_maths_replay_save_breakpoints_coroutine</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l744" href="#l744">744</a></td>
+      <td class="lineno"><a id="l746" href="#l746">746</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l745" href="#l745">745</a></td>
+      <td class="lineno"><a id="l747" href="#l747">747</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l746" href="#l746">746</a></td>
+      <td class="lineno"><a id="l748" href="#l748">748</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">69</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l747" href="#l747">747</a></td>
+      <td class="lineno"><a id="l749" href="#l749">749</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -9482,28 +9496,28 @@
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_test</span><span class="p">.</span><span class="n">resume</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l748" href="#l748">748</a></td>
+      <td class="lineno"><a id="l750" href="#l750">750</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">67</td>
       <td class="src coveredLine"><span class="w">				</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l749" href="#l749">749</a></td>
+      <td class="lineno"><a id="l751" href="#l751">751</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l750" href="#l750">750</a></td>
+      <td class="lineno"><a id="l752" href="#l752">752</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">promise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_test</span><span class="p">.</span><span class="n">handle</span><span class="p">.</span><span class="n">promise</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l751" href="#l751">751</a></td>
+      <td class="lineno"><a id="l753" href="#l753">753</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9517,56 +9531,56 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">promise</span><span class="p">.</span><span class="n">has_failed</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l752" href="#l752">752</a></td>
+      <td class="lineno"><a id="l754" href="#l754">754</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;error: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">promise</span><span class="p">.</span><span class="n">failure_message</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l753" href="#l753">753</a></td>
+      <td class="lineno"><a id="l755" href="#l755">755</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="k">else</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l754" href="#l754">754</a></td>
+      <td class="lineno"><a id="l756" href="#l756">756</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">				</span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l755" href="#l755">755</a></td>
+      <td class="lineno"><a id="l757" href="#l757">757</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l756" href="#l756">756</a></td>
+      <td class="lineno"><a id="l758" href="#l758">758</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l757" href="#l757">757</a></td>
+      <td class="lineno"><a id="l759" href="#l759">759</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">68</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l758" href="#l758">758</a></td>
+      <td class="lineno"><a id="l760" href="#l760">760</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l759" href="#l759">759</a></td>
+      <td class="lineno"><a id="l761" href="#l761">761</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9582,7 +9596,7 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">load_replay_file_deferred</span><span class="p">(</span><span class="n">ReplayMode</span><span class="o">::</span><span class="n">Replay</span><span class="p">,</span><span class="w"> </span><span class="n">test_dir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/replays/playground/maths.zplay&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l760" href="#l760">760</a></td>
+      <td class="lineno"><a id="l762" href="#l762">762</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9596,14 +9610,14 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">init_and_run_main_zplayer_loop</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l761" href="#l761">761</a></td>
+      <td class="lineno"><a id="l763" href="#l763">763</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l762" href="#l762">762</a></td>
+      <td class="lineno"><a id="l764" href="#l764">764</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9617,28 +9631,28 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">success</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l763" href="#l763">763</a></td>
+      <td class="lineno"><a id="l765" href="#l765">765</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">success</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l764" href="#l764">764</a></td>
+      <td class="lineno"><a id="l766" href="#l766">766</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l765" href="#l765">765</a></td>
+      <td class="lineno"><a id="l767" href="#l767">767</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l766" href="#l766">766</a></td>
+      <td class="lineno"><a id="l768" href="#l768">768</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9654,35 +9668,35 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;maths.zplay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l767" href="#l767">767</a></td>
+      <td class="lineno"><a id="l769" href="#l769">769</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">TestTask</span><span class="w"> </span><span class="n">current_test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_maths_replay_coroutine</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l768" href="#l768">768</a></td>
+      <td class="lineno"><a id="l770" href="#l770">770</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l769" href="#l769">769</a></td>
+      <td class="lineno"><a id="l771" href="#l771">771</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l770" href="#l770">770</a></td>
+      <td class="lineno"><a id="l772" href="#l772">772</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">97</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l771" href="#l771">771</a></td>
+      <td class="lineno"><a id="l773" href="#l773">773</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -9696,28 +9710,28 @@
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_test</span><span class="p">.</span><span class="n">resume</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l772" href="#l772">772</a></td>
+      <td class="lineno"><a id="l774" href="#l774">774</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">95</td>
       <td class="src coveredLine"><span class="w">				</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l773" href="#l773">773</a></td>
+      <td class="lineno"><a id="l775" href="#l775">775</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l774" href="#l774">774</a></td>
+      <td class="lineno"><a id="l776" href="#l776">776</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">promise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_test</span><span class="p">.</span><span class="n">handle</span><span class="p">.</span><span class="n">promise</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l775" href="#l775">775</a></td>
+      <td class="lineno"><a id="l777" href="#l777">777</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9731,56 +9745,56 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">promise</span><span class="p">.</span><span class="n">has_failed</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l776" href="#l776">776</a></td>
+      <td class="lineno"><a id="l778" href="#l778">778</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;error: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">promise</span><span class="p">.</span><span class="n">failure_message</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l777" href="#l777">777</a></td>
+      <td class="lineno"><a id="l779" href="#l779">779</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="k">else</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l778" href="#l778">778</a></td>
+      <td class="lineno"><a id="l780" href="#l780">780</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">				</span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l779" href="#l779">779</a></td>
+      <td class="lineno"><a id="l781" href="#l781">781</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l780" href="#l780">780</a></td>
+      <td class="lineno"><a id="l782" href="#l782">782</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l781" href="#l781">781</a></td>
+      <td class="lineno"><a id="l783" href="#l783">783</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">96</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l782" href="#l782">782</a></td>
+      <td class="lineno"><a id="l784" href="#l784">784</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l783" href="#l783">783</a></td>
+      <td class="lineno"><a id="l785" href="#l785">785</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9796,7 +9810,7 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">load_replay_file_deferred</span><span class="p">(</span><span class="n">ReplayMode</span><span class="o">::</span><span class="n">Replay</span><span class="p">,</span><span class="w"> </span><span class="n">test_dir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/replays/playground/maths.zplay&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l784" href="#l784">784</a></td>
+      <td class="lineno"><a id="l786" href="#l786">786</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9810,14 +9824,14 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">init_and_run_main_zplayer_loop</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l785" href="#l785">785</a></td>
+      <td class="lineno"><a id="l787" href="#l787">787</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l786" href="#l786">786</a></td>
+      <td class="lineno"><a id="l788" href="#l788">788</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9831,28 +9845,28 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">success</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l787" href="#l787">787</a></td>
+      <td class="lineno"><a id="l789" href="#l789">789</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">success</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l788" href="#l788">788</a></td>
+      <td class="lineno"><a id="l790" href="#l790">790</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l789" href="#l789">789</a></td>
+      <td class="lineno"><a id="l791" href="#l791">791</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l790" href="#l790">790</a></td>
+      <td class="lineno"><a id="l792" href="#l792">792</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -9868,35 +9882,35 @@
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">TEST</span><span class="p">(</span><span class="s">&quot;scopes.zplay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="p">[](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l791" href="#l791">791</a></td>
+      <td class="lineno"><a id="l793" href="#l793">793</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">TestTask</span><span class="w"> </span><span class="n">current_test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_scopes_replay_coroutine</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l792" href="#l792">792</a></td>
+      <td class="lineno"><a id="l794" href="#l794">794</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l793" href="#l793">793</a></td>
+      <td class="lineno"><a id="l795" href="#l795">795</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l794" href="#l794">794</a></td>
+      <td class="lineno"><a id="l796" href="#l796">796</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">141</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l795" href="#l795">795</a></td>
+      <td class="lineno"><a id="l797" href="#l797">797</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
@@ -9910,28 +9924,28 @@
       <td class="src coveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_test</span><span class="p">.</span><span class="n">resume</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l796" href="#l796">796</a></td>
+      <td class="lineno"><a id="l798" href="#l798">798</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">139</td>
       <td class="src coveredLine"><span class="w">				</span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l797" href="#l797">797</a></td>
+      <td class="lineno"><a id="l799" href="#l799">799</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l798" href="#l798">798</a></td>
+      <td class="lineno"><a id="l800" href="#l800">800</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">promise</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_test</span><span class="p">.</span><span class="n">handle</span><span class="p">.</span><span class="n">promise</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l799" href="#l799">799</a></td>
+      <td class="lineno"><a id="l801" href="#l801">801</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -9945,56 +9959,56 @@
       <td class="src partialCoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">promise</span><span class="p">.</span><span class="n">has_failed</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l800" href="#l800">800</a></td>
+      <td class="lineno"><a id="l802" href="#l802">802</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;error: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">promise</span><span class="p">.</span><span class="n">failure_message</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l801" href="#l801">801</a></td>
+      <td class="lineno"><a id="l803" href="#l803">803</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="k">else</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l802" href="#l802">802</a></td>
+      <td class="lineno"><a id="l804" href="#l804">804</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">				</span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l803" href="#l803">803</a></td>
+      <td class="lineno"><a id="l805" href="#l805">805</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l804" href="#l804">804</a></td>
+      <td class="lineno"><a id="l806" href="#l806">806</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">test_update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l805" href="#l805">805</a></td>
+      <td class="lineno"><a id="l807" href="#l807">807</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">140</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l806" href="#l806">806</a></td>
+      <td class="lineno"><a id="l808" href="#l808">808</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l807" href="#l807">807</a></td>
+      <td class="lineno"><a id="l809" href="#l809">809</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -10010,7 +10024,7 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">load_replay_file_deferred</span><span class="p">(</span><span class="n">ReplayMode</span><span class="o">::</span><span class="n">Replay</span><span class="p">,</span><span class="w"> </span><span class="n">test_dir</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/replays/playground/auto_scopes.zplay&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l808" href="#l808">808</a></td>
+      <td class="lineno"><a id="l810" href="#l810">810</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10024,14 +10038,14 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">init_and_run_main_zplayer_loop</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l809" href="#l809">809</a></td>
+      <td class="lineno"><a id="l811" href="#l811">811</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l810" href="#l810">810</a></td>
+      <td class="lineno"><a id="l812" href="#l812">812</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
@@ -10045,42 +10059,42 @@
       <td class="src partialCoveredLine"><span class="w">		</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">success</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l811" href="#l811">811</a></td>
+      <td class="lineno"><a id="l813" href="#l813">813</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">success</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l812" href="#l812">812</a></td>
+      <td class="lineno"><a id="l814" href="#l814">814</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">});</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l813" href="#l813">813</a></td>
+      <td class="lineno"><a id="l815" href="#l815">815</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l814" href="#l814">814</a></td>
+      <td class="lineno"><a id="l816" href="#l816">816</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l815" href="#l815">815</a></td>
+      <td class="lineno"><a id="l817" href="#l817">817</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l816" href="#l816">816</a></td>
+      <td class="lineno"><a id="l818" href="#l818">818</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
