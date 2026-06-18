@@ -1,0 +1,5 @@
+Function run_none-0
+    0: PUSHARGSV       10000            3           [Block 0 -> ]
+    1: NOP
+    2: NOP
+    3: QUIT

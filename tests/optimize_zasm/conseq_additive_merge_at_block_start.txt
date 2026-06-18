@@ -1,0 +1,13 @@
+; conseq_additive: identical pushes that merge all the way down to the first
+; instruction of a block whose start is pc 0. The backward merge must stop at the
+; block start instead of reading C(-1) (out of bounds) or wrapping the unsigned
+; loop counter. Before the fix this crashed; now it merges into a single PUSHARGSV.
+;
+; SYNTHETIC: the compiler does not currently emit code like this. A script's entry
+; function begins with frame setup, never with consecutive identical pushes, so the
+; merge never reaches pc 0 in real output. This is a hand-written regression test.
+Function run_none-0
+    0: PUSHV           10000                        [Block 0 -> ]
+    1: PUSHV           10000
+    2: PUSHV           10000
+    3: QUIT

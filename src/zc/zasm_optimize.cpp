@@ -318,7 +318,9 @@ static bool optimize_conseq_additive(OptContext& ctx)
 	bool is_entry_fn = ctx.fn.is_entry_function;
 
 	optimize_by_block(ctx, [&]([[maybe_unused]] pc_t block_index, pc_t start_pc, pc_t final_pc){
-		for (pc_t j = final_pc; j > start_pc; j--)
+		// Signed: a merge can set `j = start == start_pc`, and the loop's `j--`
+		// must not wrap around (pc_t is unsigned) when start_pc is 0.
+		for (int64_t j = final_pc; j > (int64_t)start_pc; j--)
 		{
 			word command = C(j).command;
 			int arg1 = C(j).arg1;
@@ -344,7 +346,11 @@ static bool optimize_conseq_additive(OptContext& ctx)
 
 			pc_t start = j;
 			pc_t end = j;
-			while (start >= start_pc)
+			// Note: `start > start_pc` (not `>=`): the merge must stay within this
+			// block. Using `>=` would read C(start_pc - 1) — out of bounds when the
+			// block starts at pc 0, and otherwise able to merge across a block
+			// boundary (the previous block's last instruction).
+			while (start > start_pc)
 			{
 				int prev_command = C(start - 1).command;
 				int prev_arg1 = C(start - 1).arg1;
