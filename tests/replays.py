@@ -390,6 +390,7 @@ class RunReplayTestsContext:
     headless: bool
     jit: bool
     extra_args: list[str]
+    optimize_zasm: bool = True
 
 
 @dataclass
@@ -437,9 +438,11 @@ class CLIPlayerInterface:
             output_dir,
             '-script-runtime-debug-folder',
             str(output_dir / 'zscript-debug'),
-            '-optimize-zasm',
-            '-optimize-zasm-experimental',
         ]
+        if ctx.optimize_zasm:
+            exe_args.extend(['-optimize-zasm', '-optimize-zasm-experimental'])
+        else:
+            exe_args.append('-no-optimize-zasm')
 
         if extra_args:
             exe_args.extend(extra_args)
@@ -533,9 +536,11 @@ class WebPlayerInterface:
         extra_args = [
             '-replay-exit-when-done',
             '-show-fps',
-            '-optimize-zasm',
-            '-optimize-zasm-experimental',
         ]
+        if ctx.optimize_zasm:
+            extra_args.extend(['-optimize-zasm', '-optimize-zasm-experimental'])
+        else:
+            extra_args.append('-no-optimize-zasm')
         if ctx.extra_args:
             extra_args.extend(ctx.extra_args)
 
@@ -934,6 +939,7 @@ def run_replays(
     debugger=False,
     headless=True,
     jit=True,
+    optimize_zasm=True,
     concurrency: Optional[int | bool] = True,
     prune_test_results=False,
     timeout=True,
@@ -988,6 +994,7 @@ def run_replays(
                 headless,
                 jit,
                 extra_args,
+                optimize_zasm,
             ),
             on_update,
         )

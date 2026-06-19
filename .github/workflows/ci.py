@@ -523,6 +523,7 @@ def extract_package(ctx: CiContext, args):
 @argument("--shard")
 @argument("--extra-args", default="")
 @argument("--no-jit", action="store_true")
+@argument("--no-optimize-zasm", action="store_true")
 def replay_tests(ctx: CiContext, args):
     logger.info("Preparing to run replay tests...")
 
@@ -530,6 +531,10 @@ def replay_tests(ctx: CiContext, args):
     test_results_dir = tmp_dir / f"test_results/{args.run_id}"
     if args.no_jit:
         test_results_dir = test_results_dir.with_name(f"{test_results_dir.name}-nojit")
+    if args.no_optimize_zasm:
+        test_results_dir = test_results_dir.with_name(
+            f"{test_results_dir.name}-nooptimizezasm"
+        )
     test_results_dir.mkdir(parents=True, exist_ok=True)
 
     base_cmd = [
@@ -550,17 +555,37 @@ def replay_tests(ctx: CiContext, args):
             [
                 "--filter=playground",
                 "--filter=keys.zplay",
+                "--filter=yuurand_riviere.zplay",
+                "--filter=crucible_quest_short",
                 "--no-jit",
                 "--no-headless",
             ]
         )
 
+    if args.no_optimize_zasm:
+        logger.info("Running some replays with the ZASM optimizer disabled.")
+        base_cmd.extend(
+            [
+                "--filter=playground",
+                "--filter=keys.zplay",
+                # TODO: fix issues.
+                # "--filter=yuurand_riviere.zplay",
+                # "--filter=crucible_quest_short",
+                "--no-optimize-zasm",
+            ]
+        )
+
+    # TODO: not working for some reason
+    if ctx.compiler == 'gcc' and (args.no_jit or args.no_optimize_zasm):
+        base_cmd = [arg for arg in base_cmd if arg != "--filter=yuurand_riviere.zplay"]
+        base_cmd = [arg for arg in base_cmd if arg != "--filter=crucible_quest_short"]
+
     if args.extra_args:
         logger.info(f"Applying extra arguments: {args.extra_args}")
         extra_args = shlex.split(args.extra_args)
 
-        # Ignore any extra filter args for if no_jit was set.
-        if args.no_jit:
+        # Ignore any extra filter args if a fixed replay subset was selected.
+        if args.no_jit or args.no_optimize_zasm:
             while "--filter" in extra_args:
                 idx = extra_args.index("--filter")
                 del extra_args[idx : idx + 2]

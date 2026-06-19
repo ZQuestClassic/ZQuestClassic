@@ -163,6 +163,12 @@ parser.add_argument(
     help='Enables JIT compilation',
 )
 parser.add_argument(
+    '--optimize-zasm',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Enables the ZASM optimizer',
+)
+parser.add_argument(
     '--debugger',
     action=argparse.BooleanOptionalAction,
     default=is_ci,
@@ -921,6 +927,7 @@ test_results = run_replays(
     debugger=args.debugger,
     headless=args.headless,
     jit=args.jit,
+    optimize_zasm=args.optimize_zasm,
     concurrency=concurrency,
     prune_test_results=args.prune_test_results,
     timeout=timeout,

@@ -155,6 +155,23 @@ jobs:
           --extra-args "$EXTRA_ARGS"
           --build-folder zc-extracted
 
+      # Run the same subset with the ZASM optimizer disabled. Some JIT bugs only
+      # surface when the optimizer isn't rewriting the ZASM beforehand.
+      - name: Test w/o ZASM optimizer
+        if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.compiler != 'msvc' }}
+        env:
+          EXTRA_ARGS: ${{ inputs.extra-args }}
+        run: >
+          bash .github/workflows/run_python.sh .github/workflows/ci.py replay-tests
+          --repo ${{ github.repository }}
+          --runs-on ${{ inputs.runs-on }}
+          --arch ${{ inputs.arch }}
+          --config ${{ inputs.config }}
+          --run-id ${{ github.run_id }}
+          --no-optimize-zasm
+          --extra-args "$EXTRA_ARGS"
+          --build-folder zc-extracted
+
       - name: Updater cache
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         uses: actions/cache@v5
