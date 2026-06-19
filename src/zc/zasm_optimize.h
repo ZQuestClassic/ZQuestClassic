@@ -12,6 +12,10 @@ struct OptimizationPass
 	// microseconds
 	uint32_t elapsed;
 	bool skipped;
+	// For passes that rewrite instructions in place to make them faster (rather than
+	// removing them): how many instances were improved. Reported instead of "instr saved".
+	uint32_t instances;
+	bool counts_instances;
 };
 
 struct OptimizeResults

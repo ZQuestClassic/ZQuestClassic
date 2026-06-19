@@ -391,6 +391,47 @@ static bool optimize_conseq_additive(OptContext& ctx)
 	return true;
 }
 
+// Fixed-point strength reduction: turn a multiply by a power of two into a shift.
+//
+//   MULTV reg, 2^k * 10000 -> LSHIFTV32 reg, k     reg * 2^k
+//
+// MULTV otherwise lowers to a 64-bit imul + fixed-point divide; a left shift is
+// much cheaper. Values are fixed-point (x10000), so the multiplier is arg2/10000.
+// Only applied to generic D-registers (D0..D7), which have no read/write side
+// effects. Identity ops (x*1, x+0, x*0, x/1) are not handled here -- the compiler
+// already folds those, so scanning for them would be wasted work.
+static bool optimize_strength_reduce(OptContext& ctx)
+{
+	auto is_generic = [](int r) { return r >= D(0) && r < D(INITIAL_D); };
+
+	for (pc_t i = ctx.fn.start_pc; i <= ctx.fn.final_pc; i++)
+	{
+		ffscript& op = C(i);
+		if (op.command != MULTV || !is_generic(op.arg1))
+			continue;
+
+		// Integer multiplier that is a power of two (> 1).
+		if (op.arg2 <= 10000 || op.arg2 % 10000 != 0)
+			continue;
+		int m = op.arg2 / 10000;
+		if ((m & (m - 1)) != 0)
+			continue;
+
+		if (bisect_tool_should_skip())
+			continue;
+
+		int k = 0;
+		for (int mm = m; mm > 1; mm >>= 1)
+			k++;
+		// LSHIFTV32 is a raw left shift; reg << k == reg * 2^k, matching the
+		// (integer) fixed-point multiply in both the interpreter and the JIT.
+		C(i) = {LSHIFTV32, op.arg1, k * 10000};
+		ctx.improved++;
+	}
+
+	return true;
+}
+
 // SETR, ADDV, LOADI -> LOAD
 // SETR, ADDV, STOREI -> STORE
 // Ex:
@@ -2183,7 +2224,16 @@ static bool optimize_dead_code(OptContext& ctx)
 	return true;
 }
 
-static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> script_passes = {
+struct OptPass
+{
+	std::string name;
+	std::function<bool(OptContext&)> fn;
+	// Pass rewrites instructions in place to make them faster rather than removing
+	// them; report "improved N instances" instead of "saved N instr".
+	bool counts_instances = false;
+};
+
+static std::vector<OptPass> script_passes = {
 	// Convert to modern function calls before anything else, so all
 	// passes may assume that.
 	{"calling_mode", optimize_calling_mode},
@@ -2196,7 +2246,7 @@ static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> scr
 	// {"inline_functions", optimize_inline_functions},
 };
 
-static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> function_passes = {
+static std::vector<OptPass> function_passes = {
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
 	{"load_store", optimize_load_store},
@@ -2206,6 +2256,7 @@ static std::vector<std::pair<std::string, std::function<bool(OptContext&)>>> fun
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"propagate_values", optimize_propagate_values},
+	{"strength_reduce", optimize_strength_reduce, true},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
 	{"dead_code", optimize_dead_code},
 };
@@ -2230,14 +2281,15 @@ static bool is_minimal_mode()
 	return false;
 }
 
-static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<bool(OptContext&)>> pass)
+static void run_pass(OptimizeResults& results, int i, OptContext& ctx, const OptPass& pass)
 {
 	auto start_time = std::chrono::steady_clock::now();
-	auto [name, fn] = pass;
+
+	results.passes[i].counts_instances = pass.counts_instances;
 
 	if (is_minimal_mode())
 	{
-		if (name != "calling_mode")
+		if (pass.name != "calling_mode")
 		{
 			results.passes[i].skipped = true;
 			return;
@@ -2245,10 +2297,12 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair
 	}
 
 	ctx.saved = 0;
-	results.passes[i].skipped = !fn(ctx);
+	ctx.improved = 0;
+	results.passes[i].skipped = !pass.fn(ctx);
 
 	auto end_time = std::chrono::steady_clock::now();
 	results.passes[i].instructions_saved += ctx.saved;
+	results.passes[i].instances += ctx.improved;
 	results.passes[i].elapsed += std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 }
 
@@ -2264,13 +2318,13 @@ static void optimize_function(OptimizeResults& results, StructuredZasm& structur
 static OptimizeResults create_opt_results()
 {
 	OptimizeResults results{};
-	for (auto [pass_name, _] : script_passes)
+	for (const auto& p : script_passes)
 	{
-		results.passes.push_back({pass_name, 0, 0, true});
+		results.passes.push_back({p.name, 0, 0, true, 0, p.counts_instances});
 	}
-	for (auto [pass_name, _] : function_passes)
+	for (const auto& p : function_passes)
 	{
-		results.passes.push_back({pass_name, 0, 0, true});
+		results.passes.push_back({p.name, 0, 0, true, 0, p.counts_instances});
 	}
 	return results;
 }
@@ -2339,6 +2393,7 @@ OptimizeResults zasm_optimize_script(zasm_script* script)
 
 				results.passes[i].elapsed += function_result.passes[i].elapsed;
 				results.passes[i].instructions_saved += function_result.passes[i].instructions_saved;
+				results.passes[i].instances += function_result.passes[i].instances;
 				results.passes[i].skipped = false;
 			}
 		}
@@ -2392,6 +2447,7 @@ static void update_optimizer_results(int log_level, zasm_script* script, const O
 			continue;
 
 		results.passes[i].instructions_saved += r.passes[i].instructions_saved;
+		results.passes[i].instances += r.passes[i].instances;
 		results.passes[i].elapsed += r.passes[i].elapsed;
 		results.passes[i].skipped = false;
 	}
@@ -2411,6 +2467,12 @@ static void finalize_optimizer_results(int log_level)
 		{
 			if (pass.skipped)
 				continue;
+
+			if (pass.counts_instances)
+			{
+				zasm_optimize_trace("\t[{}] improved {} instances, took {} ms", pass.name, pass.instances, pass.elapsed / 1000);
+				continue;
+			}
 
 			double pct = 100.0 * pass.instructions_saved / results.instructions_processed;
 			zasm_optimize_trace("\t[{}] saved {} instr ({:.1f}%), took {} ms", pass.name, pass.instructions_saved, pct, pass.elapsed / 1000);

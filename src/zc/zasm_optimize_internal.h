@@ -170,6 +170,9 @@ struct SimulationValue
 struct OptContext
 {
 	uint32_t saved;
+	// Instructions improved in place (e.g. strength-reduced) by passes that make code
+	// faster without removing instructions.
+	uint32_t improved;
 	zasm_script* script;
 	ZasmFunction fn;
 	ZasmCFG cfg;
