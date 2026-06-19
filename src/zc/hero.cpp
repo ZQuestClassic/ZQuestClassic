@@ -82,7 +82,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NEW_MOVEMENT		(get_qr(qr_NEW_HERO_MOVEMENT)||get_qr(qr_NEW_HERO_MOVEMENT2))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_qr(qr_BROKEN_Z3_ANIMATION))
 
-static bool active_invincible_byrna()
+static bool active_invincible_byrna(bool for_kb)
 {
 	if (Hero.last_cane_of_byrna_item_id < 0)
 		return false;
@@ -91,17 +91,26 @@ static bool active_invincible_byrna()
 		return false;
 	if (!(itm.flags & ITEM_FLAG2))
 		return false;
-	return true;
-}
-static bool active_invincible_divineprot()
-{
-	if (Hero.getDivineProtectionShieldClk() <= 0)
+	if (for_kb && !(itm.flags & ITEM_FLAG5))
 		return false;
 	return true;
 }
-bool HeroClass::active_invincibility_spell() const
+static bool active_invincible_divineprot(bool for_kb)
 {
-	return active_invincible_divineprot() || active_invincible_byrna();
+	if (Hero.getDivineProtectionShieldClk() <= 0)
+		return false;
+	if (!for_kb)
+		return true;
+	if (div_prot_item < 0)
+		return false;
+	auto& itm = itemsbuf[div_prot_item];
+	if (itm.family != itype_divineprotection)
+		return false;
+	return (itm.flags & ITEM_FLAG5);
+}
+bool HeroClass::active_invincibility_spell(bool for_kb) const
+{
+	return active_invincible_divineprot(for_kb) || active_invincible_byrna(for_kb);
 }
 
 bool item_error()
@@ -1335,7 +1344,7 @@ int32_t HeroClass::getFlashingCSet()
 		{
 			temp_cs += (((~frame) >> 1) & 3);
 		}
-		else if (hclk && !active_invincibility_spell() && getCanFlicker())
+		else if (hclk && !active_invincibility_spell(false) && getCanFlicker())
 		{
 			temp_cs += ((hclk >> 1) & 3);
 		}
@@ -6274,12 +6283,13 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 			ev.push_back(lwpn_dp(indx)*10000);
 			ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 			ev.push_back(0);
-			ev.push_back(active_invincibility_spell() ? 10000 : 0);
+			ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_LWPN*10000);
 			ev.push_back(w->getUID());
 			ev.push_back(ZSD_NONE*10000);
 			ev.push_back(0);
+			ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -6295,6 +6305,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 			int32_t hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
 			bool divineprot = ev[3] != 0;
+			bool divprot_kb = ev[9] != 0;
 			int32_t iframes = ev[4] / 10000;
 			ev.clear();
 			if(nullhit) return true;
@@ -6332,7 +6343,8 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				}
 			}
 			
-			doHit(hdir, iframes);
+			if (!divprot_kb)
+				doHit(hdir, iframes);
 			return true;
 		}
 	}
@@ -6381,12 +6393,13 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				ev.push_back(((w->parentitem>-1 ? itemsbuf[w->parentitem].misc3 : w->power) *game->get_hp_per_heart())*10000);
 				ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(active_invincibility_spell() ? 10000 : 0);
+				ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(w->getUID());
 				ev.push_back(ZSD_NONE*10000);
 				ev.push_back(0);
+				ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 				
 				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 				int32_t dmg = ev[0]/10000;
@@ -6402,6 +6415,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				int32_t hdir = ev[1]/10000;
 				nullhit = ev[2] != 0;
 				bool divineprot = ev[3] != 0;
+				bool divprot_kb = ev[9] != 0;
 				int32_t iframes = ev[4] / 10000;
 				ev.clear();
 				if(nullhit) return true;
@@ -6439,7 +6453,8 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 					}
 				}
 				
-				doHit(hdir, iframes);
+				if (!divprot_kb)
+					doHit(hdir, iframes);
 				return true;
 			}
 		}
@@ -6456,6 +6471,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(w->getUID());
 		ev.push_back(ZSD_NONE*10000);
+		ev.push_back(0);
 		ev.push_back(0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
@@ -6515,12 +6531,13 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	ev.push_back((ewpn_dp(indx)*10000));
 	ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 	ev.push_back(0);
-	ev.push_back(active_invincibility_spell() ? 10000 : 0);
+	ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_EWPN*10000);
 	ev.push_back(w->getUID());
 	ev.push_back(ZSD_NONE*10000);
 	ev.push_back(0);
+	ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 	
 	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 	int32_t dmg = ev[0]/10000;
@@ -6536,6 +6553,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	int32_t hdir = ev[1]/10000;
 	nullhit = ev[2] != 0;
 	bool divineprot = ev[3] != 0;
+	bool divprot_kb = ev[9] != 0;
 	int32_t iframes = ev[4] / 10000;
 	ev.clear();
 	if (nullhit) return false;
@@ -6569,7 +6587,8 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	if(w)
 		w->onhit(false);
 	
-	doHit(hdir, iframes);
+	if (!divprot_kb)
+		doHit(hdir, iframes);
 	return true;
 }
 
@@ -6939,12 +6958,13 @@ void HeroClass::checkhit()
 		ev.push_back((lwpn_dp(hit2)*10000));
 		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(active_invincibility_spell() ? 10000 : 0);
+		ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(lwpnspr->getUID());
 		ev.push_back(ZSD_NONE*10000);
 		ev.push_back(0);
+		ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -6960,6 +6980,7 @@ void HeroClass::checkhit()
 		int32_t hdir = ev[1]/10000;
 		nullhit = ev[2] != 0;
 		bool divineprot = ev[3] != 0;
+		bool divprot_kb = ev[9] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if(nullhit) return;
@@ -6996,7 +7017,8 @@ void HeroClass::checkhit()
 		if(lwpnspr)
 			lwpnspr->onhit(false);
 		
-		doHit(hdir, iframes);
+		if (!divprot_kb)
+			doHit(hdir, iframes);
 		return;
 	}
 	
@@ -7012,12 +7034,13 @@ void HeroClass::checkhit()
 		ev.push_back((ewpn_dp(hit2)*10000));
 		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(active_invincibility_spell() ? 10000 : 0);
+		ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
 		ev.push_back(ZSD_NONE*10000);
 		ev.push_back(0);
+		ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -7033,6 +7056,7 @@ void HeroClass::checkhit()
 		int32_t hdir = ev[1]/10000;
 		nullhit = ev[2] != 0;
 		bool divineprot = ev[3] != 0;
+		bool divprot_kb = ev[9] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if (nullhit) return;
@@ -7066,7 +7090,8 @@ void HeroClass::checkhit()
 		if(ewpnspr)
 			ewpnspr->onhit(false);
 		
-		doHit(hdir, iframes);
+		if (!divprot_kb)
+			doHit(hdir, iframes);
 		return;
 	}
 	
@@ -7387,12 +7412,13 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(-hp_modmin*10000);
 			ev.push_back((hasKB ? dir^1 : -1)*10000);
 			ev.push_back(0);
-			ev.push_back(active_invincibility_spell() ? 10000 : 0);
+			ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
 			ev.push_back((best_type ? ZSD_FFC : ZSD_COMBOPOS)*10000);
 			ev.push_back(best_type ? best_ffcpos : best_cpos*10000);
+			ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -7408,6 +7434,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			int32_t hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
 			bool divineprot = ev[3] != 0;
+			bool divprot_kb = ev[9] != 0;
 			int32_t iframes = ev[4] / 10000;
 			ev.clear();
 			if(nullhit) return false;
@@ -7417,8 +7444,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
 			
-			hitdir = hdir;
-			doHit(hitdir, iframes);
+			if (!divprot_kb)
+				doHit(hdir, iframes);
 			return true;
 		}
 		else if (do_health_check) paymagiccost(itemid); // Boots are successful
@@ -7476,12 +7503,13 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	ev.push_back((enemy_dp(hit2) *10000));
 	ev.push_back((force_hdir>-1 ? force_hdir : ((sprite*)enemyptr)->hitdir(x,y,16,16,dir))*10000);
 	ev.push_back(0);
-	ev.push_back(active_invincibility_spell() ? 10000 : 0);
+	ev.push_back(active_invincibility_spell(false) ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_NPC*10000);
 	ev.push_back(enemyptr->getUID());
 	ev.push_back(ZSD_NONE*10000);
 	ev.push_back(0);
+	ev.push_back(active_invincibility_spell(true) ? 10000 : 0);
 	
 	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 	int32_t dmg = ev[0] / 10000;
@@ -7497,6 +7525,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	int32_t hdir = ev[1] / 10000;
 	nullhit = ev[2] != 0;
 	bool divineprot = ev[3] != 0;
+	bool divprot_kb = ev[9] != 0;
 	int32_t iframes = ev[4] / 10000;
 	ev.clear();
 	
@@ -7520,29 +7549,8 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		sethitHeroUID(HIT_BY_NPC_TYPE, enemyptr->family);
 	}
 	
-	hitdir = hdir;
-	if (IsSideSwim())
-	{
-	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-	}
-	else if(action==swimming || hopclk==0xFF)
-	{
-		action=swimhit; FFCore.setHeroAction(swimhit);
-	}
-	else
-	{
-		action=gothit; FFCore.setHeroAction(gothit);
-	}
-		
-	hclk=iframes;
-	sfx(getHurtSFX(),pan(x.getInt()));
-	
-	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-	{
-		spins = charging = attackclk = 0;
-		attack=none;
-		tapping = false;
-	}
+	if (!divprot_kb)
+		doHit(hdir, iframes);
 	
 	enemy_scored(hit2);
 	int32_t dm7 = enemyptr->dmisc7;

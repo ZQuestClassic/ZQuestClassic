@@ -3767,14 +3767,20 @@ enum
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
 {
 	GENEV_HEROHIT_DAMAGE, //Damage to be taken
-	GENEV_HEROHIT_HITDIR, //Dir to be knocked in
+	GENEV_HEROHIT_HITDIR, //[Direction] to be knocked in
 	GENEV_HEROHIT_NULLIFY, //Bool: to nullify the hit, or not
-	GENEV_HEROHIT_NAYRUON, //Bool: if nayru's love will nullify the damage, or not
+	//Bool: if [IC_NAYRUSLOVE] or [IC_CBYRNA] will nullify the damage, or not.
+	// @versionadded 2.55.15
+	GENEV_HEROHIT_INVINCIBLE,
 	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
-	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
+	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ([ObjectType])
 	GENEV_HEROHIT_HITOBJ, //The pointer to that object
-	GENEV_HEROHIT_HITTYPE2, //A second type of object (sometimes 'OBJTYPE_NONE')
-	GENEV_HEROHIT_HITOBJ2 //The pointer to the second object
+	GENEV_HEROHIT_HITTYPE2, //A second type of object ([ObjectType], can be [OBJTYPE_NONE])
+	GENEV_HEROHIT_HITOBJ2, //The pointer to the second object
+	//Bool: if [IC_NAYRUSLOVE] or [IC_CBYRNA] will nullify the knockback, or not.
+	// @versionadded 2.55.15
+	GENEV_HEROHIT_INVINCIBLE_KB,
+	GENEV_HEROHIT_NAYRUON = GENEV_HEROHIT_INVINCIBLE
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
 {
