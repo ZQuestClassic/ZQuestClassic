@@ -12156,20 +12156,24 @@ bool HeroClass::startwpn(int32_t itemid)
 			//Remote detonation
 			if(Lwpns.idCount(lit_ty) >= zc_max(itm.misc2,1))
 			{
-				weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
-				
-				while(Lwpns.idCount(lit_ty) && ew->misc == 0)
+				if (itm.misc1 <= 0)
 				{
-					//If this ever needs a version check, in the future. -z
-					if (boom_ty == wBomb && (FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31)))
+					weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
+					
+					while(Lwpns.idCount(lit_ty) && ew->misc == 0)
 					{
-						if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
-							ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
+						//If this ever needs a version check, in the future. -z
+						if (boom_ty == wBomb && (FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31)))
+						{
+							if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
+								ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
+						}
+						ew->misc=50;
+						ew->clk=ew->misc-3;
+						ew->id=boom_ty;
+						ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
 					}
-					ew->misc=50;
-					ew->clk=ew->misc-3;
-					ew->id=boom_ty;
-					ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
+					
 				}
 				
 				deselectbombs(sbomb);
@@ -12190,7 +12194,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			paymagiccost(itemid);
 			start_cooldown(itemid);
 				
-			if(itm.misc1>0) // If not remote bombs
+			if (itm.misc1 > 0) // If not remote bombs
 				deselectbombs(sbomb);
 				
 			if(isdungeon())
