@@ -1969,13 +1969,13 @@ void ComboEditorDialog::loadComboType()
 					h_flag[4] = "Drop a specific item instead of an item from a dropset";
 					if(FL(cflag5))
 					{
-						l_attribute[10] = "Item:";
-						h_attribute[10] = "The item ID to drop";
+						l_attribute[11] = "Item:";
+						h_attribute[11] = "The item ID to drop";
 					}
 					else
 					{
-						l_attribute[10] = "Dropset:";
-						h_attribute[10] = "The dropset to select a drop item from";
+						l_attribute[11] = "Dropset:";
+						h_attribute[11] = "The dropset to select a drop item from";
 					}
 				}
 			}
