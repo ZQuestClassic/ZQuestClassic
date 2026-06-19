@@ -332,6 +332,7 @@ private:
 public:
 	
 	// Methods below here.
+	bool active_invincibility_spell() const;
 	bool isLifting();
 	void set_liftflags(int liftid);
 	void doSwitchHook(byte style);

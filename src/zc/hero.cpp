@@ -82,6 +82,28 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NEW_MOVEMENT		(get_qr(qr_NEW_HERO_MOVEMENT)||get_qr(qr_NEW_HERO_MOVEMENT2))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_qr(qr_BROKEN_Z3_ANIMATION))
 
+static bool active_invincible_byrna()
+{
+	if (Hero.last_cane_of_byrna_item_id < 0)
+		return false;
+	auto& itm = itemsbuf[Hero.last_cane_of_byrna_item_id];
+	if (itm.family != itype_cbyrna)
+		return false;
+	if (!(itm.flags & ITEM_FLAG2))
+		return false;
+	return true;
+}
+static bool active_invincible_divineprot()
+{
+	if (Hero.getDivineProtectionShieldClk() <= 0)
+		return false;
+	return true;
+}
+bool HeroClass::active_invincibility_spell() const
+{
+	return active_invincible_divineprot() || active_invincible_byrna();
+}
+
 bool item_error()
 {
 	if(QMisc.miscsfx[sfxERROR])
@@ -1314,7 +1336,7 @@ int32_t HeroClass::getFlashingCSet()
 		{
 			temp_cs += (((~frame) >> 1) & 3);
 		}
-		else if (hclk && (DivineProtectionShieldClk <= 0) && getCanFlicker())
+		else if (hclk && !active_invincibility_spell() && getCanFlicker())
 		{
 			temp_cs += ((hclk >> 1) & 3);
 		}
@@ -6253,7 +6275,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 			ev.push_back(lwpn_dp(indx)*10000);
 			ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 			ev.push_back(0);
-			ev.push_back(DivineProtectionShieldClk>0?10000:0);
+			ev.push_back(active_invincibility_spell() ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_LWPN*10000);
 			ev.push_back(w->getUID());
@@ -6386,7 +6408,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				ev.push_back(((w->parentitem>-1 ? itemsbuf[w->parentitem].misc3 : w->power) *game->get_hp_per_heart())*10000);
 				ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(DivineProtectionShieldClk>0?10000:0);
+				ev.push_back(active_invincibility_spell() ? 10000 : 0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(w->getUID());
@@ -6546,7 +6568,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	ev.push_back((ewpn_dp(indx)*10000));
 	ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 	ev.push_back(0);
-	ev.push_back(DivineProtectionShieldClk>0?10000:0);
+	ev.push_back(active_invincibility_spell() ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_EWPN*10000);
 	ev.push_back(w->getUID());
@@ -6739,7 +6761,7 @@ void HeroClass::checkhit()
 				ev.push_back(lwpn_dp(i)*10000);
 				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(DivineProtectionShieldClk>0?10000:0);
+				ev.push_back(active_invincibility_spell() ? 10000 : 0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(s->getUID());
@@ -6874,7 +6896,7 @@ void HeroClass::checkhit()
 					ev.push_back(((w->parentitem>-1 ? itemsbuf[w->parentitem].misc3 : w->power) *game->get_hp_per_heart())*10000);
 					ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 					ev.push_back(0);
-					ev.push_back(DivineProtectionShieldClk>0?10000:0);
+					ev.push_back(active_invincibility_spell() ? 10000 : 0);
 					ev.push_back(48*10000);
 					ev.push_back(ZSD_LWPN*10000);
 					ev.push_back(w->getUID());
@@ -7045,7 +7067,7 @@ void HeroClass::checkhit()
 		ev.push_back((lwpn_dp(hit2)*10000));
 		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(DivineProtectionShieldClk>0?10000:0);
+		ev.push_back(active_invincibility_spell() ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(lwpnspr->getUID());
@@ -7141,7 +7163,7 @@ void HeroClass::checkhit()
 		ev.push_back((ewpn_dp(hit2)*10000));
 		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(DivineProtectionShieldClk>0?10000:0);
+		ev.push_back(active_invincibility_spell() ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
@@ -7539,7 +7561,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(-hp_modmin*10000);
 			ev.push_back((hasKB ? dir^1 : -1)*10000);
 			ev.push_back(0);
-			ev.push_back(DivineProtectionShieldClk>0?10000:0);
+			ev.push_back(active_invincibility_spell() ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
@@ -7629,7 +7651,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	ev.push_back((enemy_dp(hit2) *10000));
 	ev.push_back((force_hdir>-1 ? force_hdir : ((sprite*)enemyptr)->hitdir(x,y,16,16,dir))*10000);
 	ev.push_back(0);
-	ev.push_back(DivineProtectionShieldClk>0?10000:0);
+	ev.push_back(active_invincibility_spell() ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_NPC*10000);
 	ev.push_back(enemyptr->getUID());
@@ -9511,14 +9533,7 @@ heroanimate_skip_liftwpn:;
 		
 		if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
-			for (int32_t i = 0; i < Lwpns.Count(); i++)
-			{
-				weapon* w = ((weapon*)Lwpns.spr(i));
-
-				if (w->id == wCByrna && !w->weapon_dying_frame)
-					w->dead = 1;
-			}
-			//kill the sound effect for the orbits -Z 14FEB2019
+			stopCaneOfByrna();
 			stop_sfx(itemsbuf[itemid].usesound);
 		}
 		else paymagiccost(itemid);
