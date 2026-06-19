@@ -14792,411 +14792,13 @@ void HeroClass::moveheroOld()
 	zfix temp_x(x);
 	zfix temp_y(y);
 	
-	tick_diving();
-	
-	if(action==rafting)
-	{
-		do_rafting();
-		
-		if(action==rafting)
-		{
-			return;
-		}
-		
-		
-		set_respawn_point();
-		trySideviewLadder();
-	}
-	
-	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
-	int32_t btnwpn = -1;
-	
-	//The Quick Sword is allowed to interrupt attacks.
-	int32_t currentSwordOrWand = (valid_item_id(dowpn) && (itemsbuf.get(dowpn).type == itype_wand || itemsbuf.get(dowpn).type == itype_sword)) ? dowpn : -1;
-	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (get_item_data(currentSwordOrWand).flags & item_flag5)))
-	{
-		if (getInput(btnB, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
-		{
-			btnwpn = Bwpn.get_family();
-			dowpn = Bwpn.id;
-			directWpn = directItemB;
-		}
-		else if (getInput(btnA, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
-		{
-			btnwpn = Awpn.get_family();
-			dowpn = Awpn.id;
-			directWpn = directItemA;
-		}
-		else if (get_qr(qr_SET_XBUTTON_ITEMS) && getInput(btnEx1, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
-		{
-			btnwpn = Xwpn.get_family();
-			dowpn = Xwpn.id;
-			directWpn = directItemX;
-		}
-		else if (get_qr(qr_SET_YBUTTON_ITEMS) && getInput(btnEx2, INPUT_PRESS | INPUT_DRUNK | INPUT_HERO_ACTION))
-		{
-			btnwpn = Ywpn.get_family();
-			dowpn = Ywpn.id;
-			directWpn = directItemY;
-		}
-		
-		auto itmid = valid_item_id(directWpn) ? directWpn
-			: (valid_item_id(dowpn) ? dowpn
-			: current_item_id(btnwpn));
-		if (!can_be_used(itmid))
-		{
-			directWpn = olddirectwpn;
-			btnwpn = -1;
-			dowpn = -1;
-			did_scriptb = false;
-		}
-		else
-		{
-			if(invalid_item_id(directWpn)) directWpn = -1;
-			
-			// The Quick Sword only allows repeated sword or wand swings.
-			if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
-				btnwpn=-1;
-		}
-	}
-	
-	auto swordid = (valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword));
-	if(can_attack() && (valid_item_id(swordid) && itemsbuf.get(swordid).type==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
-	{
-		attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword);
-		if(valid_item_id(attackid) && checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf.get(attackid).flags & item_flag6)))
-		{
-			if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
-			{
-				paymagiccost(attackid,true);
-				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
-			}
-			SetAttack();
-			attack=wSword;
-			
-			attackclk=0;
-			sfx(get_item_data(valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword)).usesound, pan(x));
-			
-			if(valid_item_id(dowpn) && itemsbuf.get(dowpn).script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
-			{
-				if(!checkmagiccost(dowpn))
-				{
-					item_error();
-				}
-				else
-				{
-					//clear the item script stack for a new script
-					int i = dowpn;
-					FFCore.reset_script_engine_data(ScriptType::Item, i);
-					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).script, i);
-					did_scripta=true;
-				}
-			}
-		}
-		else
-		{
-			item_error();
-		}
-	}
-	else
-	{
-		did_scripta=false;
-	}
-	
-	if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !getOnSideviewLadder())
-	{
-		if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION) && canSideviewLadder())
-		{
-			setOnSideviewLadder(true);
-		}
-		else if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION) && canSideviewLadder(true))
-		{
-			y+=1;
-			old_y += 1;
-			setOnSideviewLadder(true);
-		}
-	}
-	
-	if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
-	{
-		if((xoff==0)||diagonalMovement)
-		{
-			if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = up;
-			if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = down;
-		}
-
-		if((yoff==0)||diagonalMovement)
-		{
-			if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = left;
-			if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = right;
-		}
-	}
-
-	do_lens();
-	
-	WalkflagInfo info;
-	
-	bool no_jinx = true;
-	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-	auto itmid = valid_item_id(directWpn) ? directWpn : current_item_id(btnwpn);
-	if(liftonly)
-	{
-		if(replay_version_check(38) && btnwpn > -1)
-		{
-			no_jinx = checkitem_jinx(itmid);
-			if(no_jinx)
-				startwpn(itmid);
-			directWpn = olddirectwpn;
-		}
-	}
-	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
-	{
-		bool paidmagic = false;
-		if(btnwpn==itype_wand && (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_wand : false) : current_item(itype_wand)))
-		{
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_wand);
-			no_jinx = checkitem_jinx(attackid);
-			if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
-			{
-				if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
-					paymagiccost(attackid,true);
-					misc_internal_hero_flags |= LF_PAID_WAND_COST;
-				}
-				SetAttack();
-				attack=wWand;
-				attackclk=0;
-			}
-			else
-			{
-				item_error();
-			}
-		}
-		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
-				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_hammer : false) : current_item(itype_hammer)))
-		{
-			no_jinx = checkitem_jinx(dowpn);
-			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
-			{
-				item_error();
-			}
-			else
-			{
-				paymagiccost(dowpn);
-				paidmagic = true;
-				SetAttack();
-				attack=wHammer;
-				attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_hammer);
-				attackclk=0;
-			}
-		}
-		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
-				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_candle : false) : current_item(itype_candle)))
-		{
-			//checkbunny handled where magic cost is paid
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_candle);
-			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx)
-			{
-				SetAttack();
-				attack=wFire;
-				attackclk=0;
-			}
-		}
-		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
-				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_cbyrna : false) : current_item(itype_cbyrna)))
-		{
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_cbyrna);
-			no_jinx = checkitem_jinx(attackid);
-			if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
-			{
-				if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
-					paymagiccost(attackid,true);
-					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
-				}
-				SetAttack();
-				attack=wCByrna;
-				attackclk=0;
-			}
-			else
-			{
-				item_error();
-			}
-		}
-		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
-				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) && itemsbuf.get(directWpn).type==itype_bugnet) : current_item(itype_bugnet)))
-		{
-			attackid = valid_item_id(directWpn) ? directWpn : current_item_id(itype_bugnet);
-			no_jinx = checkitem_jinx(attackid);
-			if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
-			{
-				paymagiccost(attackid);
-				SetAttack();
-				attack = wBugNet;
-				attackclk = 0;
-				sfx(itemsbuf.get(attackid).usesound);
-			}
-			else
-			{
-				item_error();
-			}
-		}
-		else
-		{
-			no_jinx = checkitem_jinx(itmid);
-			if(no_jinx)
-			{
-				paidmagic = startwpn(itmid);
-				
-				if(paidmagic)
-				{
-					if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
-					{
-						;
-					}
-					else
-					{
-						SetAttack();
-						attackclk=0;
-						attack=none;
-						
-						if(btnwpn==itype_brang)
-						{
-							attack=wBrang;
-						}
-					}
-				}
-				else
-				{
-					// Weapon not started: directWpn should be reset to prev. value.
-					directWpn = olddirectwpn;
-				}
-			}
-		}
-		
-		if(valid_item_id(dowpn) && no_jinx && itemsbuf.get(dowpn).script!=0 && !did_scriptb && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
-		{
-			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
-			{
-				item_error();
-			}
-			else
-			{
-				// Only charge for magic if item's magic cost wasn't already charged
-				// for the item's main use.
-				if(!paidmagic && attack!=wWand)
-					paymagiccost(dowpn);
-				//clear the item script stack for a new script
-				int i = dowpn;
-				FFCore.reset_script_engine_data(ScriptType::Item, i);
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).script, i);
-				did_scriptb=true;
-			}
-		}
-		
-		if(no_jinx && (action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning))
-		{
-			return;
-		}
-		if(!no_jinx)
-			did_scriptb = false;
-	}
-	else
-	{
-		did_scriptb=false;
-	}
-	
-	if(attackclk || action==attacking || action==sideswimattacking)
-	{
-		
-		if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
-		{
-			if((xoff==0)||diagonalMovement)
-			{
-				if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = up;
-				if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = down;
-			}
-			
-			if((yoff==0)||diagonalMovement)
-			{
-				if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = left;
-				if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = right;
-			}
-		}
-		
-		bool attacked = doattack();
-		
-		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
-		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
-		{
-			if((xoff==0)||diagonalMovement)
-			{
-				if (getInput(btnUp, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = up;
-
-				if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = down;
-			}
-			
-			if((yoff==0)||diagonalMovement)
-			{
-				if (getInput(btnLeft, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = left;
-
-				if (getInput(btnRight, INPUT_DRUNK | INPUT_HERO_ACTION)) dir = right;
-			}
-		}
-		
-		if(attacked && (charging==0 && spins<=5) && jumping<1 && action!=sideswimattacking)
-		{
-			return;
-		}
-		else if(!attacked)
-		{
-			// Spin attack - change direction
-			if(spins>1 && attack != wHammer)
-			{
-				spins--;
-				
-				if(spins%5==0)
-				{
-					int id = currentscroll > -1 ? currentscroll : (current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll));
-					if (valid_item_id(id))
-						sfx(itemsbuf.get(id).usesound,pan(x));
-				}
-				attackclk=1;
-				
-				switch(dir)
-				{
-				case up:
-					dir=left;
-					break;
-					
-				case right:
-					dir=up;
-					break;
-					
-				case down:
-					dir=right;
-					break;
-					
-				case left:
-					dir=down;
-					break;
-				}
-				
-				return;
-			}
-			else
-			{
-				spins=0;
-			}
-			
-			if (IsSideSwim()) {action=sideswimming; FFCore.setHeroAction(sideswimming);}
-			else {action=none; FFCore.setHeroAction(none);}
-			attackclk=0;
-			charging=0;
-		}
-	}
+	if (!premove())
+		return;
 	
 	if(pitslide()) //Check pit's 'pull'. If true, then Hero cannot fight the pull.
 		return;
+	
+	WalkflagInfo info;
 	
 	if(action==walking) //still walking
 	{
@@ -19176,6 +18778,7 @@ bool HeroClass::premove()
 	if(is_autowalking()) return true;
 	if(lstunclock) return false;
 	if(is_conveyor_stunned) return (convey_forcex || convey_forcey);
+	
 	int32_t xoff=x.getInt()&7;
 	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
@@ -19183,8 +18786,6 @@ bool HeroClass::premove()
 		xoff = 0;
 		yoff = 0;
 	}
-	int32_t push=pushing;
-	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
 	
 	tick_diving();
 	
@@ -19196,7 +18797,6 @@ bool HeroClass::premove()
 		{
 			return false;
 		}
-		
 		
 		set_respawn_point();
 		trySideviewLadder();
@@ -19306,11 +18906,13 @@ bool HeroClass::premove()
 		else if (getInput(btnDown, INPUT_DRUNK | INPUT_HERO_ACTION) && canSideviewLadder(true))
 		{
 			y+=1;
+			old_y += 1;
 			setOnSideviewLadder(true);
 		}
 	}
 	
-	if(conv_forcedir > -1 && !spins) dir = conv_forcedir;
+	if(conv_forcedir > -1 && !spins)
+		dir = conv_forcedir;
 	else if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
@@ -19586,6 +19188,7 @@ bool HeroClass::premove()
 			charging=0;
 		}
 	}
+	
 	return true;
 }
 void HeroClass::movehero(bool premove_passed)
