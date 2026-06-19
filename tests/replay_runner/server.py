@@ -64,7 +64,7 @@ async def update_client(client: Client):
 async def update_view(view: str, data: dict):
     view_store[view] = data
     for client in clients:
-        if client.ws.status and client.view == view:
+        if not client.ws.closed and client.view == view:
             await client.send_view_msg(view, data)
 
 
