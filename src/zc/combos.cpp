@@ -1718,7 +1718,7 @@ bool trigger_damage_combo(int32_t cid, int type, int ptrval, int32_t hdir, bool 
 			ev.push_back(-dmg*10000);
 			ev.push_back(hdir*10000);
 			ev.push_back(0);
-			ev.push_back(Hero.DivineProtectionShieldClk>0?10000:0);
+			ev.push_back(Hero.active_invincibility_spell() ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(cid);
