@@ -1267,7 +1267,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			hxofs=hyofs=4;
 			hit_width=hit_height=8;
-			misc = ((id==wBomb || id == wSBomb) ? 1 : (valid_item_id(parentitem) ? parent.misc1 : 50));
+			misc = ((id==wBomb || id == wSBomb) ? 1 : (valid_item_id(parentitem) ? zc_max(0, parent.misc1) : 50));
 			break;
 		}
 		case wBait:
