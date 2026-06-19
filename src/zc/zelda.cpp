@@ -4034,6 +4034,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	else
 	{
 		use_testingst_start = false;
+		testingqst_init_data.clear();
 	}
 
 	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
