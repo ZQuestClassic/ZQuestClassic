@@ -1583,6 +1583,13 @@ void init_game_vars(bool is_cont_game = false)
 		ResetSaveScreenSettings();
 		FFCore.shutdown();
 		HeroClass::reset_step_statics();
+		// swordclk (the sword charge/jinx clock) is a Hero field that isn't reset on a new game,
+		// so a previous in-process game that ended mid-charge leaves it > 0. ALLOFF() below calls
+		// Hero.resetflags(), which runs verifyAWpn() whenever swordclk > 0 — and at this point the
+		// item cache and active subscreen aren't set up yet, so that premature verify reads a stale
+		// "no sword" state and clears the A-button selection (game->awpn -> 0xFF), desyncing the
+		// replay. Reset it here, before ALLOFF, so a fresh game never triggers that early verify.
+		Hero.swordclk = 0;
 		ALLOFF(true,true,true);
 	}
 
