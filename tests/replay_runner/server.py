@@ -152,7 +152,7 @@ def handle_initial_req(request):
                 'date': os.path.getmtime(result_path),
             }
         )
-    results_path = result_paths.sort(key=lambda x: x['date'], reverse=True)
+    result_paths.sort(key=lambda x: x['date'], reverse=True)
 
     data = {
         'replays': replays,
