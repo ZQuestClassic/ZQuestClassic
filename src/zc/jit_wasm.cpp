@@ -424,6 +424,20 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	// case SUBV2:
+	case BITNOT:
+	case BITNOT32:
+	case LSHIFTV:
+	case LSHIFTV32:
+	case RSHIFTV:
+	case RSHIFTV32:
+	case LSHIFTR:
+	case LSHIFTR32:
+	case RSHIFTR:
+	case RSHIFTR32:
+	case XORR:
+	case XORV:
+	case XORR32:
+	case XORV32:
 		return true;
 	}
 
@@ -1304,6 +1318,143 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						get_z_register(state, arg1);
 						wasm.emitI32Const(arg2);
 						wasm.emitI32Sub();
+					});
+				}
+				break;
+
+				case BITNOT:
+				{
+					// reg = (~(reg / 10000)) * 10000  (~x == x ^ -1)
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						wasm.emitI32Const(-1);
+						wasm.emitI32Xor();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case BITNOT32:
+				{
+					// reg = ~reg
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(-1);
+						wasm.emitI32Xor();
+					});
+				}
+				break;
+				case LSHIFTV:
+				case RSHIFTV:
+				{
+					// reg = ((reg / 10000) <</>> k) * 10000, k is a constant count.
+					// wasm masks the shift count to 5 bits, matching the interpreter
+					// (whose C++ shifts also lower to masked shifts); >> is arithmetic.
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						wasm.emitI32Const(arg2 / 10000);
+						if (command == LSHIFTV) wasm.emitI32Shl();
+						else wasm.emitI32ShrS();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case LSHIFTV32:
+				case RSHIFTV32:
+				{
+					// reg = reg <</>> k (raw, no fixed-point scaling on the value).
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(arg2 / 10000);
+						if (command == LSHIFTV32) wasm.emitI32Shl();
+						else wasm.emitI32ShrS();
+					});
+				}
+				break;
+				case LSHIFTR:
+				case RSHIFTR:
+				{
+					// reg = ((reg / 10000) <</>> (count / 10000)) * 10000, count is a register.
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						get_z_register(state, arg2);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						if (command == LSHIFTR) wasm.emitI32Shl();
+						else wasm.emitI32ShrS();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case LSHIFTR32:
+				case RSHIFTR32:
+				{
+					// reg = reg <</>> (count / 10000) (raw value, count is a register).
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						get_z_register(state, arg2);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						if (command == LSHIFTR32) wasm.emitI32Shl();
+						else wasm.emitI32ShrS();
+					});
+				}
+				break;
+				case XORV:
+				{
+					// reg = ((reg / 10000) ^ (arg2 / 10000)) * 10000
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						wasm.emitI32Const(arg2 / 10000);
+						wasm.emitI32Xor();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case XORR:
+				{
+					// reg = ((reg / 10000) ^ (arg2reg / 10000)) * 10000
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						get_z_register(state, arg2);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						wasm.emitI32Xor();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case XORV32:
+				{
+					// reg = reg ^ arg2 (raw)
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(arg2);
+						wasm.emitI32Xor();
+					});
+				}
+				break;
+				case XORR32:
+				{
+					// reg = reg ^ arg2reg (raw)
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						get_z_register(state, arg2);
+						wasm.emitI32Xor();
 					});
 				}
 				break;

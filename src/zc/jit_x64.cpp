@@ -1040,6 +1040,20 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	case SUBV2:
+	case BITNOT:
+	case BITNOT32:
+	case LSHIFTV:
+	case LSHIFTV32:
+	case RSHIFTV:
+	case RSHIFTV32:
+	case LSHIFTR:
+	case LSHIFTR32:
+	case RSHIFTR:
+	case RSHIFTR32:
+	case XORR:
+	case XORV:
+	case XORR32:
+	case XORV32:
 		return true;
 
 	// These require SSE4.1
@@ -1612,6 +1626,49 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
+		case XORV:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+
+			div_10000(cc, val);
+			cc.xor_(val, arg2 / 10000);
+			cc.imul(val, 10000);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORR:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp val2 = get_z_register(state, cc, arg2);
+
+			div_10000(cc, val);
+			div_10000(cc, val2);
+			cc.xor_(val, val2);
+			cc.imul(val, 10000);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORR32:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp val2 = get_z_register(state, cc, arg2);
+
+			cc.xor_(val, val2);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORV32:
+		{
+			x86::Gp val = get_z_register(state, cc, arg1);
+
+			cc.xor_(val, arg2);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
 		case MAXR:
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
@@ -1707,6 +1764,84 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			cc.mov(result, arg1);
 			cc.sub(result, val);
 			set_z_register(state, cc, arg2, result);
+		}
+		break;
+		case BITNOT:
+		{
+			// reg = (~(reg / 10000)) * 10000
+			x86::Gp val = get_z_register(state, cc, arg1);
+			div_10000(cc, val);
+			cc.not_(val);
+			cc.imul(val, val, 10000);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case BITNOT32:
+		{
+			// reg = ~reg
+			x86::Gp val = get_z_register(state, cc, arg1);
+			cc.not_(val);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTV:
+		case RSHIFTV:
+		{
+			// reg = ((reg / 10000) <</>> k) * 10000, where k is the shift count.
+			// x86 masks the shift count to 5 bits, matching the interpreter (whose
+			// `<<`/`>>` also lower to x86 shifts); `>>` on a signed int is arithmetic.
+			x86::Gp val = get_z_register(state, cc, arg1);
+			div_10000(cc, val);
+			int k = (arg2 / 10000) & 31;
+			if (k)
+			{
+				if (command == LSHIFTV) cc.shl(val, k);
+				else cc.sar(val, k);
+			}
+			cc.imul(val, val, 10000);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTV32:
+		case RSHIFTV32:
+		{
+			// reg = reg <</>> k (raw, no fixed-point scaling on the value).
+			x86::Gp val = get_z_register(state, cc, arg1);
+			int k = (arg2 / 10000) & 31;
+			if (k)
+			{
+				if (command == LSHIFTV32) cc.shl(val, k);
+				else cc.sar(val, k);
+			}
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTR:
+		case RSHIFTR:
+		{
+			// reg = ((reg / 10000) <</>> (count / 10000)) * 10000, count is a register.
+			// x86 only reads the low 5 bits of CL, matching the interpreter (whose
+			// `<<`/`>>` also lower to x86 shifts); `>>` on a signed int is arithmetic.
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp count = get_z_register(state, cc, arg2);
+			div_10000(cc, val);
+			div_10000(cc, count);
+			if (command == LSHIFTR) cc.shl(val, count.r8());
+			else cc.sar(val, count.r8());
+			cc.imul(val, val, 10000);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTR32:
+		case RSHIFTR32:
+		{
+			// reg = reg <</>> (count / 10000) (raw value, count is a register).
+			x86::Gp val = get_z_register(state, cc, arg1);
+			x86::Gp count = get_z_register(state, cc, arg2);
+			div_10000(cc, count);
+			if (command == LSHIFTR32) cc.shl(val, count.r8());
+			else cc.sar(val, count.r8());
+			set_z_register(state, cc, arg1, val);
 		}
 		break;
 		case MULTV:

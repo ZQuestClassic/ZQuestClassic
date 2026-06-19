@@ -3674,6 +3674,7 @@ void do_xnor(const bool v)
 
 void do_not(const bool v)
 {
+	// Never implemented
 	int32_t temp = SH::get_arg(sarg2, v);
 	set_register(sarg1, !temp);
 }
