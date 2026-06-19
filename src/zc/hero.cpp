@@ -8923,11 +8923,11 @@ heroanimate_skip_liftwpn:;
 													if(cmb.usrflags&cflag4) //drop item
 													{
 														if(cmb.usrflags&cflag5)
-															it = cmb.attribytes[2];
+															it = cmb.attribytes[3];
 														else
 														{
-															it = select_dropitem(cmb.attribytes[2]); 
-															thedropset = cmb.attribytes[2];
+															it = select_dropitem(cmb.attribytes[3]);
+															thedropset = cmb.attribytes[3];
 														}
 													}
 													
