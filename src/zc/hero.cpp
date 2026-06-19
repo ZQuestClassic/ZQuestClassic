@@ -8952,7 +8952,7 @@ heroanimate_skip_liftwpn:;
 													int32_t thedropset = -1;
 													if(cmb.usrflags&cflag4) //drop item
 													{
-														auto id = cmb.c_attributes[10].getTrunc();
+														auto id = cmb.c_attributes[11].getTrunc();
 														if(cmb.usrflags&cflag5)
 															it = id;
 														else
