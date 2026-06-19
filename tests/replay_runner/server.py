@@ -76,14 +76,19 @@ def try_parse_json(text: str):
         return None
 
 
-def create_proc(program: str, args: list[str]):
-    return asyncio.create_subprocess_exec(
+async def run_proc(program: str, args: list[str]):
+    p = await asyncio.create_subprocess_exec(
         program,
         *args,
         cwd=root_dir,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
+    # Use communicate() rather than wait() so the pipes are drained while the
+    # process runs. Otherwise a process that fills the OS pipe buffer blocks on
+    # write while we block on wait(), deadlocking the server.
+    stdout, stderr = await p.communicate()
+    return p.returncode, stdout.decode('utf-8'), stderr.decode('utf-8')
 
 
 async def update_views():
@@ -195,12 +200,10 @@ async def handle_run_command(client: Client, params):
             value = [value]
         for v in value:
             args.extend([f'--{key}', str(v)])
-    p = await create_proc(sys.executable, args)
-    exit_code = await p.wait()
+    exit_code, stdout, stderr = await run_proc(sys.executable, args)
     # Exit code of 2 is "replays failed, but there is still a final test_results.json".
     # Ignore that here because update_views will handle it.
     if exit_code != 0 and exit_code != 2:
-        stderr = (await p.stderr.read()).decode('utf-8')
         view = f'/results/{test_results_name}'
         print(view, stderr)
         await update_view(
@@ -221,15 +224,13 @@ async def handle_compare_command(client: Client, params):
         'download',
         tag,
     ]
-    p = await create_proc(sys.executable, args)
-    if await p.wait() != 0:
-        stderr = (await p.stderr.read()).decode('utf-8')
+    exit_code, stdout, stderr = await run_proc(sys.executable, args)
+    if exit_code != 0:
         await update_view(
             view, {'status': f'[FAILED] downloading baseline build {tag}\n' + stderr}
         )
         return
 
-    stdout = (await p.stdout.read()).decode('utf-8')
     build_dir = Path(stdout.strip())
     if platform.system() == 'Darwin':
         zc_app_path = next(build_dir.glob('*.app'))
@@ -254,9 +255,8 @@ async def handle_compare_command(client: Client, params):
         '--not_interactive',
         *get_args_for_collect_baseline_from_test_results([test_results_path]),
     ]
-    p = await create_proc(sys.executable, args)
-    if await p.wait() != 0:
-        stderr = (await p.stderr.read()).decode('utf-8')
+    exit_code, stdout, stderr = await run_proc(sys.executable, args)
+    if exit_code != 0:
         await update_view(
             view, {'status': f'[FAILED] running baseline replays\n{stderr}'}
         )
@@ -277,9 +277,8 @@ async def handle_compare_command(client: Client, params):
         dest,
         '--no-start-server',
     ]
-    p = await create_proc(sys.executable, args)
-    if await p.wait() != 0:
-        stderr = (await p.stderr.read()).decode('utf-8')
+    exit_code, stdout, stderr = await run_proc(sys.executable, args)
+    if exit_code != 0:
         await update_view(view, {'status': f'[FAILED] creating report\n{stderr}'})
         return
 
