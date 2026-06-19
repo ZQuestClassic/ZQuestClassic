@@ -456,11 +456,28 @@ if args.shard:
         print('nothing to run for this shard')
         exit(0)
 
+
+def frames_to_time(frames: int) -> str:
+    minutes = frames / 60 / 60
+    if minutes <= 60:
+        return f'{minutes:.1f} minutes'
+
+    hours = minutes / 60
+    if hours <= 100:
+        return f'{hours:.1f} hours'
+
+    days = hours / 24
+    return f'{days:.2f} days'
+
+
 total_frames = sum(r.frames for r in replays)
+total_frames_gameplay_time = frames_to_time(total_frames)
 total_frames_limited = sum(r.frames_limited() for r in replays)
 frames_limited_ratio = total_frames_limited / total_frames
+
+print(f'\nframes: {total_frames} ({total_frames_gameplay_time})')
 if frames_limited_ratio < 1:
-    print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
+    print(f'frames limited: {frames_limited_ratio * 100:.2f}%')
 
 if args.print_shards:
     exit(0)
