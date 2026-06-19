@@ -3,7 +3,17 @@ function createTable(selector, data) {
 		{ data: 'replay' },
 		// {data: 'qst'},
 		// {data: 'author'},
-		{ data: 'frames' },
+		{
+			data: 'frames',
+			// Show large frame counts compactly (e.g. 12783 -> "13k") for
+			// display only; keep the raw number for sorting/filtering.
+			render(data, type) {
+				if (type === 'display' && typeof data === 'number' && data > 1000) {
+					return `${Math.round(data / 1000)}k`;
+				}
+				return data;
+			},
+		},
 		// {data: 'length'},
 		// {data: 'debug'},
 		{ data: 'starting_dmap' },
@@ -40,6 +50,7 @@ function createTable(selector, data) {
 		data: realData,
 		columns,
 		paging: false,
+		autoWidth: false,
 		rowId: 'replay',
 		rowReorder: true,
 		select: {

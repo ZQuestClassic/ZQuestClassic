@@ -1,32 +1,441 @@
-.hidden {
-	display: none;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+	--bg:            #07090d;
+	--bg-panel:      #12151c;
+	--bg-panel-2:    #0c0f15;
+	--gold:          #f0c93b;
+	--gold-dim:      #c89b2c;
+	--gold-deep:     #6e561a;
+	--green:         #4caf50;
+	--green-dim:     #2f7a37;
+	--red:           #d1462f;
+	--red-dim:       #8c2a1c;
+	--blue:          #3a78c2;
+	--gray:          #5b6168;
+	--parchment:     #e7e3cf;
+	--parchment-dim: #a9a690;
+	--pixel: 'Press Start 2P', 'Courier New', monospace;
+	--mono: 'Courier New', ui-monospace, Menlo, Consolas, monospace;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	color-scheme: dark;
+}
+
+body {
+	margin: 0;
+	padding: 0 0 60px;
+	background-color: var(--bg);
+	/* Single glow anchored to the viewport: no-repeat + fixed keeps it seamless
+	   regardless of page height. */
+	background-image: radial-gradient(ellipse 90% 55% at 50% 0%, #1a1f2b 0%, transparent 70%);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	color: var(--parchment);
+	font-family: var(--mono);
+	font-size: 15px;
+	line-height: 1.5;
+	-webkit-font-smoothing: none;
+}
+
+/* ----- Masthead ---------------------------------------------------------- */
+
+.masthead {
+	text-align: center;
+	padding: 32px 16px 24px;
+	border-bottom: 2px solid var(--gold-deep);
+	background:
+		linear-gradient(180deg, rgba(240, 201, 59, 0.06), transparent 70%);
+	margin-bottom: 28px;
+}
+
+.title {
+	font-family: var(--pixel);
+	font-size: 26px;
+	line-height: 1.4;
+	letter-spacing: 1px;
+	margin: 18px 0 10px;
+	color: var(--gold);
+	text-shadow:
+		0 2px 0 var(--gold-deep),
+		0 0 16px rgba(240, 201, 59, 0.45);
+}
+
+.subtitle {
+	margin: 0;
+	font-size: 13px;
+	font-style: italic;
+	color: var(--parchment-dim);
+	letter-spacing: 0.5px;
+}
+
+/* ----- Triforce ---------------------------------------------------------- */
+
+.triforce {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	filter: drop-shadow(0 0 10px rgba(240, 201, 59, 0.6));
+	animation: triforce-pulse 2.8s ease-in-out infinite;
+}
+
+.triforce__row {
+	display: flex;
+	gap: 4px;
+}
+
+.triforce__tri {
+	width: 0;
+	height: 0;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	border-bottom: 26px solid var(--gold);
+}
+
+@keyframes triforce-pulse {
+	0%, 100% { filter: drop-shadow(0 0 6px rgba(240, 201, 59, 0.45)); }
+	50%      { filter: drop-shadow(0 0 16px rgba(240, 201, 59, 0.85)); }
+}
+
+/* ----- Layout ------------------------------------------------------------ */
+
+.runner-root {
+	max-width: 1500px;
+	margin: 0 auto;
+	padding: 0 20px;
 }
 
 .controls {
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
+	gap: 16px;
+	margin-bottom: 28px;
 }
-.controls button {
-	margin: 0 10px;
+
+.controls__nav {
+	display: flex;
+	gap: 16px;
+}
+
+h2 {
+	font-family: var(--pixel);
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--gold);
+	border-left: 4px solid var(--gold-dim);
+	padding-left: 12px;
+	margin: 0 0 18px;
+}
+
+.hidden {
+	display: none;
+}
+
+/* ----- Panels / sections ------------------------------------------------- */
+
+.section {
+	background: var(--bg-panel);
+	border: 2px solid var(--gold-deep);
+	border-radius: 4px;
+	padding: 20px 22px 24px;
+	box-shadow:
+		inset 0 0 0 2px var(--bg-panel-2),
+		0 6px 22px rgba(0, 0, 0, 0.6);
+}
+
+.section .content {
+	margin-top: 4px;
+}
+
+/* ----- Buttons ----------------------------------------------------------- */
+
+button,
+.dt-button {
+	font-family: var(--pixel);
+	font-size: 12.5px;
+	color: var(--gold);
+	background: linear-gradient(180deg, #1d212b, #11141b);
+	border: 2px solid var(--gold-dim);
+	border-radius: 3px;
+	padding: 10px 16px;
+	cursor: pointer;
+	letter-spacing: 0.5px;
+	transition: background 0.12s, color 0.12s, transform 0.05s, box-shadow 0.12s;
+}
+
+/* The dt-button selectors are scoped under div.dt-buttons so they out-specify
+   DataTables' own :hover rule (loaded after this stylesheet). */
+button:hover,
+div.dt-buttons .dt-button:hover:not(.disabled) {
+	color: var(--bg);
+	background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+	box-shadow: 0 0 14px rgba(240, 201, 59, 0.5);
+}
+
+button:active {
+	transform: translateY(1px);
+}
+
+button:disabled,
+button:disabled:hover {
+	color: var(--gray);
+	background: var(--bg-panel-2);
+	border-color: var(--gray);
+	box-shadow: none;
+	cursor: not-allowed;
+}
+
+/* ----- Replay results grid ----------------------------------------------- */
+
+/* The heading mixes the pixel font ("Viewing results -") with the mono run
+   name; align them on a shared baseline so they don't look staggered. */
+.section.results h2 {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.results__name {
+	color: var(--parchment);
+	font-family: var(--mono);
+	font-size: 14px;
+}
+
+.results__error {
+	display: block;
+	white-space: pre-wrap;
+	color: var(--red);
+	font-family: var(--mono);
 }
 
 .replays-list {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 10px;
+	margin-top: 16px;
 }
 
 .replay {
-	padding: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	border: 2px solid rgba(0, 0, 0, 0.4);
+	border-left-width: 6px;
+	border-radius: 3px;
+	background: var(--bg-panel-2);
 }
+
+.replay__name {
+	font-weight: bold;
+	word-break: break-all;
+}
+
+.replay__status {
+	font-size: 12px;
+	opacity: 0.95;
+}
+
+.replay__right {
+	text-align: right;
+	white-space: nowrap;
+	opacity: 0.85;
+	font-size: 12px;
+}
+
 .replay--success {
-	background-color: rgb(90, 167, 90);
+	border-left-color: var(--green);
+	background: linear-gradient(90deg, rgba(76, 175, 80, 0.18), var(--bg-panel-2) 60%);
 }
 .replay--failed {
-	background-color: rgb(167, 116, 90);
+	border-left-color: var(--red);
+	background: linear-gradient(90deg, rgba(209, 70, 47, 0.20), var(--bg-panel-2) 60%);
 }
 .replay--running {
-	background-color: rgb(206, 203, 64);
+	border-left-color: var(--gold);
+	background: linear-gradient(90deg, rgba(240, 201, 59, 0.18), var(--bg-panel-2) 60%);
+	animation: running-glow 1.4s ease-in-out infinite;
 }
 .replay--pending {
-	background-color: rgb(135, 140, 140);
+	border-left-color: var(--gray);
+	opacity: 0.7;
+}
+
+@keyframes running-glow {
+	0%, 100% { box-shadow: inset 3px 0 0 rgba(240, 201, 59, 0.2); }
+	50%      { box-shadow: inset 3px 0 0 rgba(240, 201, 59, 0.7); }
+}
+
+.btn-compare {
+	margin-top: 16px;
+}
+
+/* ----- Load list --------------------------------------------------------- */
+
+.section.load .content > div {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 0;
+	border-bottom: 1px solid rgba(110, 86, 26, 0.4);
+}
+
+/* ----- Compare ----------------------------------------------------------- */
+
+.section.compare .status {
+	margin: 16px 0;
+	white-space: pre-wrap;
+	font-family: var(--mono);
+	color: var(--parchment-dim);
+}
+
+.show-link {
+	display: inline-block;
+	margin-top: 8px;
+	color: var(--gold);
+	font-family: var(--pixel);
+	font-size: 11px;
+	text-decoration: none;
+	border-bottom: 2px solid var(--gold-dim);
+	padding-bottom: 3px;
+}
+.show-link:hover {
+	color: var(--bg);
+	background: var(--gold);
+}
+
+/* ===========================================================================
+   DataTables overrides
+   =========================================================================== */
+
+.dt-container {
+	font-family: var(--mono);
+	color: var(--parchment);
+	width: 100%;
+}
+
+table.dataTable {
+	border-collapse: collapse;
+	width: 100% !important;
+	background: var(--bg-panel-2);
+}
+
+/* Let long replay paths wrap instead of forcing the table wider than the
+   toolbar above it. */
+table.dataTable td:first-child {
+	word-break: break-all;
+}
+
+/* The default sort indicators are tiny; enlarge them. */
+table.dataTable thead span.dt-column-order {
+	width: 16px !important;
+}
+table.dataTable thead span.dt-column-order::before,
+table.dataTable thead span.dt-column-order::after {
+	font-size: 1.15em !important;
+	line-height: 11px !important;
+}
+
+table.dataTable thead th {
+	font-family: var(--pixel);
+	font-size: 12px;
+	color: var(--gold);
+	text-align: left;
+	border-bottom: 2px solid var(--gold-dim) !important;
+	padding: 12px 10px;
+}
+
+table.dataTable tbody td {
+	padding: 8px 10px;
+	border-top: 1px solid rgba(110, 86, 26, 0.25) !important;
+}
+
+table.dataTable tbody tr {
+	background: transparent;
+	cursor: pointer;
+}
+
+table.dataTable tbody tr.even {
+	background: rgba(255, 255, 255, 0.02);
+}
+
+table.dataTable tbody tr:hover {
+	background: rgba(240, 201, 59, 0.08);
+}
+
+/* DataTables paints row selection via these vars (default: blue). Override
+   them to our green so every cell — and all stripe/sort/hover variants —
+   match. Only defined on :root by DataTables, so html.dark wins. */
+html.dark {
+	--dt-row-selected: 47, 122, 55;
+	--dt-row-selected-text: 231, 227, 207;
+}
+
+/* A single brighter accent bar down the left of a selected row, layered on top
+   of the green fill (not one bar per cell). */
+table.dataTable tbody tr.selected td:first-child {
+	box-shadow:
+		inset 4px 0 0 var(--green),
+		inset 0 0 0 9999px rgba(var(--dt-row-selected), 0.9) !important;
+}
+
+/* Search box + info */
+.dt-search input.dt-input {
+	background: var(--bg-panel-2);
+	border: 2px solid var(--gold-dim);
+	border-radius: 3px;
+	color: var(--parchment);
+	font-family: var(--mono);
+	padding: 6px 10px;
+	margin-left: 8px;
+}
+.dt-search input.dt-input:focus {
+	outline: none;
+	border-color: var(--gold);
+	box-shadow: 0 0 10px rgba(240, 201, 59, 0.4);
+}
+
+.dt-search,
+.dt-info {
+	color: var(--parchment-dim);
+	font-size: 16px;
+}
+
+.dt-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 14px;
+}
+
+.dt-button-collection {
+	background: var(--bg-panel) !important;
+	border: 2px solid var(--gold-deep) !important;
+}
+
+.dt-button.dt-button-active {
+	color: var(--bg) !important;
+	background: linear-gradient(180deg, var(--gold), var(--gold-dim)) !important;
+}
+
+.dt-layout-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+/* Row-reorder drag helper */
+table.dataTable tr.dt-rowReorder-moving {
+	outline: 2px solid var(--gold);
 }
