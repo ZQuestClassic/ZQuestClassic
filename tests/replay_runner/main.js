@@ -260,7 +260,7 @@ function render(view, state) {
 }
 
 window.addEventListener('popstate', (e) => {
-	const view = e.state.view;
+	const view = e.state?.view ?? location.pathname;
 	render(view, viewStates.get(view) ?? {});
 	socket.updateView(view);
 });
