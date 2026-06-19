@@ -640,6 +640,20 @@ static x86::Gp immutable_add_constant(x86::Compiler& cc, x86::Gp reg, int value)
 	return r;
 }
 
+// Computes (base + value) / 10000 into a fresh register for a stack offset.
+// div_10000 mutates its operand in place, and `base` is typically a cached
+// register (rSFRAME, or a D-register from get_z_register), so it must be copied
+// first -- otherwise the cached value is corrupted (immutable_add_constant
+// returns `base` unchanged when value is 0, which would alias it).
+static x86::Gp compute_stack_offset(x86::Compiler& cc, x86::Gp base, int value)
+{
+	x86::Gp offset = cc.newInt32();
+	cc.mov(offset, base);
+	add_constant(cc, offset, value);
+	div_10000(cc, offset);
+	return offset;
+}
+
 static void cast_bool(x86::Compiler& cc, x86::Gp reg)
 {
 	cc.test(reg, reg);
@@ -1335,19 +1349,14 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case LOADD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
-			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
-			div_10000(cc, offset);
-
+			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
 			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
 		}
 		break;
 		case LOADI:
 		{
 			// Set register to a value on the stack (offset is register at arg2).
-			x86::Gp offset = get_z_register(state, cc, arg2);
-			div_10000(cc, offset);
-
+			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
 			set_z_register(state, cc, arg1, x86::ptr_32(state.ptrStackBase, offset, 2));
 		}
 		break;
@@ -1395,10 +1404,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case STORED:
 		{
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
-			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
-			div_10000(cc, offset);
-
+			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
 			x86::Gp val = get_z_register(state, cc, arg1);
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
 		}
@@ -1406,19 +1412,14 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case STOREDV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
-			x86::Gp sframe = get_z_register(state, cc, rSFRAME);
-			x86::Gp offset = immutable_add_constant(cc, sframe, arg2);
-			div_10000(cc, offset);
-
+			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), arg1);
 		}
 		break;
 		case STOREI:
 		{
 			// Write from register to a value on the stack (offset is register at arg2).
-			x86::Gp offset = get_z_register(state, cc, arg2);
-			div_10000(cc, offset);
-
+			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
 			x86::Gp val = get_z_register(state, cc, arg1);
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
 		}
