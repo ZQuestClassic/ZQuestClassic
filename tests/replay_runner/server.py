@@ -162,18 +162,6 @@ def handle_initial_req(request):
     return web.json_response(data)
 
 
-def handle_test_results_list_req(request):
-    results_path = root_dir / '.tmp/test_results'
-    for result_path in results_path.glob('*'):
-        results_path.append(
-            {
-                'name': result_path.name,
-            }
-        )
-    data = {'testResults': results_path}
-    return web.json_response(data)
-
-
 async def handle_update_view_command(client: Client, params):
     client.view = params['view']
     await update_client(client)
