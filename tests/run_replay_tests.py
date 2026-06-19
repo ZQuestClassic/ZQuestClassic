@@ -553,6 +553,8 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
+        release_platform = get_release_platform()
+
         if args.baseline_version:
             tag = args.baseline_version
             print(f'using baseline version: {tag}\n')
@@ -579,7 +581,7 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
                     encoding='utf-8',
                 ).strip()
                 most_recent_stable = archives_255_output.splitlines()[-1].split(' ')[1]
-            except e as Exception:
+            except Exception as e:
                 print('error finding latest stable version, using 2.55.14 instead')
                 print(e)
                 most_recent_stable = '2.55.14'
@@ -588,6 +590,25 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
                 (f'Most recent nightly ({most_recent_nightly})', most_recent_nightly),
                 (f'Most recent stable ({most_recent_stable})', most_recent_stable),
             ]
+
+            # Revisions come back oldest-first, so the release following a given
+            # version sits at the next index. Computed lazily and reused.
+            release_tags: list[str] | None = None
+
+            def next_release_tag(version: str) -> str:
+                nonlocal release_tags
+                if release_tags is None:
+                    release_tags = [
+                        r.tag
+                        for r in archives.get_revisions(
+                            release_platform, 'main', include_test_builds=False
+                        )
+                    ]
+                if version in release_tags:
+                    i = release_tags.index(version)
+                    if i + 1 < len(release_tags):
+                        return release_tags[i + 1]
+                return version
 
             failed_replay_zc_versions = set()
             for test_result in failing_test_results_list:
@@ -602,7 +623,11 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
                     if not zc_version:
                         continue
 
-                    zc_version = zc_version.replace('.local', '')
+                    if '.local' in zc_version:
+                        # e.g. 3.0.0-prerelease.195+2026-06-18.local: drop the
+                        # local suffix, then map to the next official release.
+                        zc_version = next_release_tag(zc_version.replace('.local', ''))
+
                     if zc_version in failed_replay_zc_versions:
                         continue
 
@@ -616,7 +641,6 @@ def prompt_to_create_compare_report(failing_test_results_list: list[ReplayTestRe
             print()
             tag = choices[selected_index][1]
 
-        release_platform = get_release_platform()
         build_dir = archives.download(tag, release_platform)
         if release_platform == 'mac':
             zc_app_path = next(build_dir.glob('*.app'))
