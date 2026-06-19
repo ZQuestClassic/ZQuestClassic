@@ -105,7 +105,7 @@ async function main() {
 
 	await new Promise((resolve, reject) => {
 		const url = new URL('/ws', location.href);
-		url.protocol = 'ws:';
+		url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 		ws = new WebSocket(url);
 		ws.addEventListener('open', () => {
 			wsConnected = true;
