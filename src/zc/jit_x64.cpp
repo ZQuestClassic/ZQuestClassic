@@ -2105,7 +2105,7 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 			}
 		}
 
-		if (command == COMPAREV || command == COMPARER)
+		if (command == COMPAREV || command == COMPARER || command == COMPAREV2)
 		{
 			// Compare commands emit a cmp, but so does the stack check. So flush the stack here so
 			// that it doesn't need to be done in the "flush_cache" above, which would interrupt the

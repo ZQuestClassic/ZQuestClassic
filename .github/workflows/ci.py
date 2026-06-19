@@ -568,9 +568,8 @@ def replay_tests(ctx: CiContext, args):
             [
                 "--filter=playground",
                 "--filter=keys.zplay",
-                # TODO: fix issues.
-                # "--filter=yuurand_riviere.zplay",
-                # "--filter=crucible_quest_short",
+                "--filter=yuurand_riviere.zplay",
+                "--filter=crucible_quest_short",
                 "--no-optimize-zasm",
             ]
         )
