@@ -106,6 +106,28 @@ weapon* find_first_wtype(int wtype)
 
 } // anonymous
 
+static bool active_invincible_byrna()
+{
+	if (invalid_item_id(Hero.last_cane_of_byrna_item_id))
+		return false;
+	auto& itm = get_item_data(Hero.last_cane_of_byrna_item_id);
+	if (itm.type != itype_cbyrna)
+		return false;
+	if (!(itm.flags & item_flag2))
+		return false;
+	return true;
+}
+static bool active_invincible_divineprot()
+{
+	if (Hero.getDivineProtectionShieldClk() <= 0)
+		return false;
+	return true;
+}
+bool HeroClass::active_invincibility_spell() const
+{
+	return active_invincible_divineprot() || active_invincible_byrna();
+}
+
 zfix HeroClass::get_standing_z_state() const
 {
 	if (standing_on_z < 0) // diving under stuff
@@ -1543,7 +1565,7 @@ int32_t HeroClass::getFlashingCSet()
 		{
 			temp_cs += (((~global_frame) >> 1) & 3);
 		}
-		else if (hclk && (DivineProtectionShieldClk <= 0) && getCanFlicker())
+		else if (hclk && !active_invincibility_spell() && getCanFlicker())
 		{
 			temp_cs += ((hclk >> 1) & 3);
 		}
@@ -6555,7 +6577,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 			ev.push_back(lwpn_dp(indx)*10000);
 			ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 			ev.push_back(0);
-			ev.push_back(DivineProtectionShieldClk>0?10000:0);
+			ev.push_back(active_invincibility_spell() ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_LWPN*10000);
 			ev.push_back(w->getUID());
@@ -6658,7 +6680,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				ev.push_back(((valid_parent ? parent.misc3 : w->power) * game->get_hp_per_heart()) * 10000);
 				ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(DivineProtectionShieldClk>0?10000:0);
+				ev.push_back(active_invincibility_spell() ? 10000 : 0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(w->getUID());
@@ -6786,7 +6808,7 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 	ev.push_back((ewpn_dp(indx)*10000));
 	ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 	ev.push_back(0);
-	ev.push_back(DivineProtectionShieldClk>0?10000:0);
+	ev.push_back(active_invincibility_spell() ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_EWPN*10000);
 	ev.push_back(w->getUID());
@@ -6962,7 +6984,7 @@ void HeroClass::checkhit()
 		ev.push_back((lwpn_dp(hit2)*10000));
 		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(DivineProtectionShieldClk>0?10000:0);
+		ev.push_back(active_invincibility_spell() ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(lwpnspr->getUID());
@@ -7029,7 +7051,7 @@ void HeroClass::checkhit()
 		ev.push_back((ewpn_dp(hit2)*10000));
 		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(DivineProtectionShieldClk>0?10000:0);
+		ev.push_back(active_invincibility_spell() ? 10000 : 0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
@@ -7377,7 +7399,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(-hp_modmin*10000);
 			ev.push_back((hasKB ? dir^1 : -1)*10000);
 			ev.push_back(0);
-			ev.push_back(DivineProtectionShieldClk>0?10000:0);
+			ev.push_back(active_invincibility_spell() ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
@@ -7465,7 +7487,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	ev.push_back((enemy_dp(hit2) *10000));
 	ev.push_back((force_hdir>-1 ? force_hdir : ((sprite*)enemyptr)->hitdir(x,y,16,16,dir))*10000);
 	ev.push_back(0);
-	ev.push_back(DivineProtectionShieldClk>0?10000:0);
+	ev.push_back(active_invincibility_spell() ? 10000 : 0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_NPC*10000);
 	ev.push_back(enemyptr->getUID());
@@ -9389,13 +9411,7 @@ heroanimate_skip_liftwpn:;
 		
 		if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
-			for (int32_t i = 0; i < Lwpns.Count(); i++)
-			{
-				weapon* w = ((weapon*)Lwpns.spr(i));
-
-				if (w->id == wCByrna && !w->weapon_dying_frame)
-					w->dead = 1;
-			}
+			stopCaneOfByrna();
 			if (valid_item_id(itemid))
 				stop_sfx(itemsbuf.get(itemid).usesound);
 		}
