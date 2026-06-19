@@ -11768,8 +11768,20 @@ void HeroClass::doSwitchHook(byte style)
 bool HeroClass::startwpn(int32_t itemid)
 {
 	if (invalid_item_id(itemid)) return false;
-	if (on_cooldown(itemid)) return false;
 	itemdata const& itm = itemsbuf.get(itemid);
+	switch (itm.type)
+	{
+		case itype_sword:
+		case itype_wand:
+		case itype_cbyrna:
+			// for these types, cooldown applies to melee attack,
+			// but this function handles the projectile -
+			// so skip the cooldown check for these types
+			break;
+		default:
+			if (on_cooldown(itemid))
+				return false;
+	}
 	if(((dir==up && y<24) || (dir==down && y>world_h-48) ||
 			(dir==left && x<32) || (dir==right && x>world_w-48)) && !(get_qr(qr_ITEMSONEDGES) || inlikelike))
 		return false;
@@ -12174,6 +12186,7 @@ bool HeroClass::startwpn(int32_t itemid)
 						ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(lit_ty)));
 					}
 					
+					start_cooldown(itemid);
 				}
 				
 				deselectbombs(sbomb);
@@ -12192,11 +12205,13 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			start_cooldown(itemid);
 				
 			if (itm.misc1 > 0) // If not remote bombs
+			{
+				start_cooldown(itemid);
 				deselectbombs(sbomb);
-				
+			}
+			
 			if(isdungeon())
 			{
 				wy=zc_max(wy,16);
@@ -12280,7 +12295,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				start_cooldown(bookid);
 			}
 			
-			start_cooldown(itemid);
+			// start_cooldown(itemid); // started when melee wand is swung
 				
 			if (valid_item_id(bookid))
 			{
@@ -12312,7 +12327,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				paymagiccost(itemid);
 			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
 			
-			start_cooldown(itemid);
+			// start_cooldown(itemid); // started when melee sword is swung
 
 			int temppower;
 			if(itm.flags & item_flag2)
@@ -12352,7 +12367,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			
 			paymagiccost(itemid);
-			start_cooldown(itemid);
+			start_cooldown(itemid); // started when fire is shot, not when melee is swung
 			
 			if(itm.flags&item_flag1) ++usecounts[countid];
 			
@@ -12808,7 +12823,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			start_cooldown(itemid);
+			// start_cooldown(itemid); // starts when the effect ends, not when it starts
 			
 			last_cane_of_byrna_item_id = itemid; 
 			for(int32_t i=0; i<itm.misc3; i++)
@@ -18854,11 +18869,13 @@ bool HeroClass::premove()
 		}
 	}
 	
-	auto swordid = (valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword));
-	if(can_attack() && (valid_item_id(swordid) && itemsbuf.get(swordid).type==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
+	auto itmid = valid_item_id(directWpn) ? directWpn : current_item_id(btnwpn);
+	if(can_attack() && (valid_item_id(itmid) && itemsbuf.get(itmid).type==itype_sword) && checkitem_jinx(itmid) && btnwpn==itype_sword && charging==0)
 	{
-		attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword);
-		if(valid_item_id(attackid) && checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf.get(attackid).flags & item_flag6)))
+		attackid = itmid;
+		if (on_cooldown(attackid))
+			;
+		else if(valid_item_id(attackid) && checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf.get(attackid).flags & item_flag6)))
 		{
 			if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
 			{
@@ -18866,6 +18883,7 @@ bool HeroClass::premove()
 				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
 			}
 			SetAttack();
+			start_cooldown(attackid);
 			attack=wSword;
 			
 			attackclk=0;
@@ -18932,7 +18950,6 @@ bool HeroClass::premove()
 	
 	bool no_jinx = true;
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-	auto itmid = valid_item_id(directWpn) ? directWpn : current_item_id(btnwpn);
 	if(liftonly)
 	{
 		if(replay_version_check(38) && btnwpn > -1)
@@ -18948,14 +18965,17 @@ bool HeroClass::premove()
 		bool paidmagic = false;
 		if(btnwpn==itype_wand && (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_wand : false) : current_item(itype_wand)))
 		{
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_wand);
+			attackid = itmid;
 			no_jinx = checkitem_jinx(attackid);
-			if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
+			if (on_cooldown(attackid))
+				;
+			else if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
 			{
 				if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_WAND_COST;
 				}
+				start_cooldown(attackid);
 				SetAttack();
 				attack=wWand;
 				attackclk=0;
@@ -18969,13 +18989,16 @@ bool HeroClass::premove()
 				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
-			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
+			if (on_cooldown(dowpn))
+				;
+			else if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
 			{
 				item_error();
 			}
 			else
 			{
 				paymagiccost(dowpn);
+				start_cooldown(dowpn);
 				paidmagic = true;
 				SetAttack();
 				attack=wHammer;
@@ -18986,10 +19009,12 @@ bool HeroClass::premove()
 		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_candle : false) : current_item(itype_candle)))
 		{
-			//checkbunny handled where magic cost is paid
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_candle);
+			//checkbunny / start_cooldown handled where magic cost is paid
+			attackid = itmid;
 			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx)
+			if (on_cooldown(attackid))
+				;
+			else if(no_jinx)
 			{
 				SetAttack();
 				attack=wFire;
@@ -18999,10 +19024,13 @@ bool HeroClass::premove()
 		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) ? itemsbuf.get(directWpn).type==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
-			attackid=valid_item_id(directWpn) ? directWpn : current_item_id(itype_cbyrna);
+			attackid = itmid;
 			no_jinx = checkitem_jinx(attackid);
-			if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
+			if (on_cooldown(attackid))
+				;
+			else if(valid_item_id(attackid) && no_jinx && checkbunny(attackid) && ((!(itemsbuf.get(attackid).flags & item_flag6)) || checkmagiccost(attackid)))
 			{
+				// cooldown starts when byrna beam DIES
 				if((itemsbuf.get(attackid).flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
@@ -19019,11 +19047,14 @@ bool HeroClass::premove()
 		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (valid_item_id(directWpn) ? (!item_disabled(directWpn) && itemsbuf.get(directWpn).type==itype_bugnet) : current_item(itype_bugnet)))
 		{
-			attackid = valid_item_id(directWpn) ? directWpn : current_item_id(itype_bugnet);
+			attackid = itmid;
 			no_jinx = checkitem_jinx(attackid);
-			if (valid_item_id(attackid) && no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
+			if (on_cooldown(attackid))
+				;
+			else if (valid_item_id(attackid) && no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
 			{
 				paymagiccost(attackid);
+				start_cooldown(attackid);
 				SetAttack();
 				attack = wBugNet;
 				attackclk = 0;
@@ -30029,7 +30060,8 @@ void HeroClass::cleanupByrna()
 		if ( !(Lwpns.idCount(wCByrna)) )
 		{
 			stop_sfx(itemsbuf.get(last_cane_of_byrna_item_id).usesound);
-			last_cane_of_byrna_item_id = -1; 
+			start_cooldown(last_cane_of_byrna_item_id);
+			last_cane_of_byrna_item_id = -1;
 		}
 	}
 }
