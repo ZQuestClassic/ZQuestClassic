@@ -350,7 +350,7 @@ private:
 public:
 	
 	// Methods below here.
-	bool active_invincibility_spell() const;
+	bool active_invincibility_spell(bool for_kb) const;
 	zfix get_standing_z_state() const;
 	void clear_ice();
 	void force_ice_velocity(optional<zfix> vx, optional<zfix> vy);
