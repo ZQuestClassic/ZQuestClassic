@@ -1443,12 +1443,13 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 			ev.push_back(-dmg*10000);
 			ev.push_back(hdir*10000);
 			ev.push_back(0);
-			ev.push_back(Hero.active_invincibility_spell() ? 10000 : 0);
+			ev.push_back(Hero.active_invincibility_spell(false) ? 10000 : 0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(cid);
 			ev.push_back(type*10000);
 			ev.push_back(ptrval);
+			ev.push_back(Hero.active_invincibility_spell(true) ? 10000 : 0);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -1464,6 +1465,7 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 			hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
 			bool divineprot = ev[3] != 0;
+			bool divprot_kb = ev[9] != 0;
 			int32_t iframes = ev[4] / 10000;
 			ev.clear();
 			if(nullhit) return false;
@@ -1472,8 +1474,8 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 			{
 				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
-			Hero.doHit(hdir); //set hit action, iframes, etc
-			Hero.hclk = iframes;
+			if (!divprot_kb)
+				Hero.doHit(hdir, iframes); //set hit action, iframes, etc
 			return true;
 		}
 		else paymagiccost(itemid); //boots succeeded

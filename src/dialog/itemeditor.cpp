@@ -220,7 +220,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[3] = "Melee Damage:";
 			inf->misc[9] = "Slash Sound:";
 			inf->flag[0] = "Penetrates Enemies";
-			inf->flag[1] = "Invincible Hero";
+			_SET(flag[1], "Invincible Hero", "Make the Hero invincible from damage while the beam is out.");
 			inf->flag[2] = "No Melee Attack";
 			inf->flag[3] = "Can Slash";
 			inf->flag[5] = "Melee Weapons Use Magic Cost";
@@ -232,6 +232,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[3] = "Sparkle Sprite:";
 			inf->wpn[4] = "Damaging Sparkle Sprite:";
 			inf->actionsnd[0] = "Orbit Sound:";
+			if (FLAG(2))
+			{
+				_SET(flag[4], "Invincibility Stops Knockback",
+					"The Hero's invincibility stops not only damage, but also knockback/iframes.");
+			}
 			break;
 		}
 		case itype_whispring:
@@ -498,6 +503,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[1] = "Translucent Rocket";
 			inf->flag[2] = "Translucent Shield";
 			inf->flag[3] = "Shield Flickers";
+			_SET(flag[4], "Invincibility Stops Knockback",
+				"The Hero's invincibility stops not only damage, but also knockback/iframes.");
 			inf->wpn[0] = "Left Rocket Sprite:";
 			inf->wpn[1] = "L. Rocket Return Sprite:";
 			inf->wpn[2] = "L. Rocket Sparkle Sprite:";

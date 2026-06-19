@@ -1779,410 +1779,410 @@ SETV D2 100                                                                     
 GOTO 1753                                                                       | 1750 tests/scripts/playground/auto/scopes.zs:382
 SETV D2 0                                                                       | 1751 tests/scripts/playground/auto/scopes.zs:382
 RETURNFUNC; return End AND Func[int scriptFunction()] Body End                  | 1752 tests/scripts/playground/auto/scopes.zs:382
-SETR D2 INCQST; Func[int Game::IncrementQuest()] Body Start                     | 1753 resources/include/bindings/game.zh:864
-RETURNFUNC; Func[int Game::IncrementQuest()] Body End                           | 1754 resources/include/bindings/game.zh:864
-SETR D2 SPRITEMAXNPC; Func[int Game::MaxNPCs()] Body Start                      | 1755 resources/include/bindings/game.zh:870
-RETURNFUNC; Func[int Game::MaxNPCs()] Body End                                  | 1756 resources/include/bindings/game.zh:870
-POP D2; Func[void Game::MaxNPCs(int)] Body Start                                | 1757 resources/include/bindings/game.zh:878
-SETR SPRITEMAXNPC D2                                                            | 1758 resources/include/bindings/game.zh:878
-RETURNFUNC; Func[void Game::MaxNPCs(int)] Body End                              | 1759 resources/include/bindings/game.zh:878
-SETR D2 SPRITEMAXLWPN; Func[int Game::MaxLWeapons()] Body Start                 | 1760 resources/include/bindings/game.zh:884
-RETURNFUNC; Func[int Game::MaxLWeapons()] Body End                              | 1761 resources/include/bindings/game.zh:884
-POP D2; Func[void Game::MaxLWeapons(int)] Body Start                            | 1762 resources/include/bindings/game.zh:892
-SETR SPRITEMAXLWPN D2                                                           | 1763 resources/include/bindings/game.zh:892
-RETURNFUNC; Func[void Game::MaxLWeapons(int)] Body End                          | 1764 resources/include/bindings/game.zh:892
-SETR D2 SPRITEMAXEWPN; Func[int Game::MaxEWeapons()] Body Start                 | 1765 resources/include/bindings/game.zh:898
-RETURNFUNC; Func[int Game::MaxEWeapons()] Body End                              | 1766 resources/include/bindings/game.zh:898
-POP D2; Func[void Game::MaxEWeapons(int)] Body Start                            | 1767 resources/include/bindings/game.zh:906
-SETR SPRITEMAXEWPN D2                                                           | 1768 resources/include/bindings/game.zh:906
-RETURNFUNC; Func[void Game::MaxEWeapons(int)] Body End                          | 1769 resources/include/bindings/game.zh:906
-SETR D2 SPRITEMAXITEM; Func[int Game::MaxItemsprites()] Body Start              | 1770 resources/include/bindings/game.zh:912
-RETURNFUNC; Func[int Game::MaxItemsprites()] Body End                           | 1771 resources/include/bindings/game.zh:912
-POP D2; Func[void Game::MaxItemsprites(int)] Body Start                         | 1772 resources/include/bindings/game.zh:920
-SETR SPRITEMAXITEM D2                                                           | 1773 resources/include/bindings/game.zh:920
-RETURNFUNC; Func[void Game::MaxItemsprites(int)] Body End                       | 1774 resources/include/bindings/game.zh:920
-POP D1; Func[untyped Game::GetScreenD(int, int)] Body Start                     | 1775 resources/include/bindings/game.zh:926
-POP D0                                                                          | 1776 resources/include/bindings/game.zh:926
-SETR D2 SDDD                                                                    | 1777 resources/include/bindings/game.zh:926
-RETURNFUNC; Func[untyped Game::GetScreenD(int, int)] Body End                   | 1778 resources/include/bindings/game.zh:926
-POP D6; Func[void Game::SetScreenD(int, int, untyped)] Body Start               | 1779 resources/include/bindings/game.zh:933
-POP D1                                                                          | 1780 resources/include/bindings/game.zh:933
-POP D0                                                                          | 1781 resources/include/bindings/game.zh:933
-SETR SDDD D6                                                                    | 1782 resources/include/bindings/game.zh:933
-RETURNFUNC; Func[void Game::SetScreenD(int, int, untyped)] Body End             | 1783 resources/include/bindings/game.zh:933
-POP D2; Func[untyped Game::GetDMapScreenD(int, int, int)] Body Start            | 1784 resources/include/bindings/game.zh:940
-POP D1                                                                          | 1785 resources/include/bindings/game.zh:940
-POP D0                                                                          | 1786 resources/include/bindings/game.zh:940
-SETR D2 SDDDD                                                                   | 1787 resources/include/bindings/game.zh:940
-RETURNFUNC; Func[untyped Game::GetDMapScreenD(int, int, int)] Body End          | 1788 resources/include/bindings/game.zh:940
-POP D6; Func[void Game::SetDMapScreenD(int, int, int, untyped)] Body Start      | 1789 resources/include/bindings/game.zh:948
-POP D2                                                                          | 1790 resources/include/bindings/game.zh:948
-POP D1                                                                          | 1791 resources/include/bindings/game.zh:948
-POP D0                                                                          | 1792 resources/include/bindings/game.zh:948
-SETR SDDDD D6                                                                   | 1793 resources/include/bindings/game.zh:948
-RETURNFUNC; Func[void Game::SetDMapScreenD(int, int, int, untyped)] Body End    | 1794 resources/include/bindings/game.zh:948
-POP D2; Func[itemdata Game::LoadItemData(int)] Body Start                       | 1795 resources/include/bindings/game.zh:954
-LOADITEMDATAR D2                                                                | 1796 resources/include/bindings/game.zh:954
-SETR D2 REFITEMDATA                                                             | 1797 resources/include/bindings/game.zh:954
-RETURNFUNC; Func[itemdata Game::LoadItemData(int)] Body End                     | 1798 resources/include/bindings/game.zh:954
-SETR D2 GETMIDI; Func[int Game::GetMIDI()] Body Start                           | 1799 resources/include/bindings/game.zh:959
-RETURNFUNC; Func[int Game::GetMIDI()] Body End                                  | 1800 resources/include/bindings/game.zh:959
-SAVE; Func[void Game::Save()] Body Start                                        | 1801 resources/include/bindings/game.zh:965
-RETURNFUNC; Func[void Game::Save()] Body End                                    | 1802 resources/include/bindings/game.zh:965
-GAMEEND; Func[void Game::End()] Body Start                                      | 1803 resources/include/bindings/game.zh:972
-RETURNFUNC; Func[void Game::End()] Body End                                     | 1804 resources/include/bindings/game.zh:972
-GAMEEXIT; Func[void Game::Exit()] Body Start                                    | 1805 resources/include/bindings/game.zh:980
-RETURNFUNC; Func[void Game::Exit()] Body End                                    | 1806 resources/include/bindings/game.zh:980
-GAMERELOAD; Func[void Game::Reload()] Body Start                                | 1807 resources/include/bindings/game.zh:987
-RETURNFUNC; Func[void Game::Reload()] Body End                                  | 1808 resources/include/bindings/game.zh:987
-GAMECONTINUE; Func[void Game::Continue()] Body Start                            | 1809 resources/include/bindings/game.zh:994
-RETURNFUNC; Func[void Game::Continue()] Body End                                | 1810 resources/include/bindings/game.zh:994
-GAMESAVEQUIT; Func[void Game::SaveAndQuit()] Body Start                         | 1811 resources/include/bindings/game.zh:1001
-RETURNFUNC; Func[void Game::SaveAndQuit()] Body End                             | 1812 resources/include/bindings/game.zh:1001
-GAMESAVECONTINUE; Func[void Game::SaveAndContinue()] Body Start                 | 1813 resources/include/bindings/game.zh:1008
-RETURNFUNC; Func[void Game::SaveAndContinue()] Body End                         | 1814 resources/include/bindings/game.zh:1008
-SHOWF6SCREEN; Func[void Game::ShowContinueScreen()] Body Start                  | 1815 resources/include/bindings/game.zh:1014
-RETURNFUNC; Func[void Game::ShowContinueScreen()] Body End                      | 1816 resources/include/bindings/game.zh:1014
-POP D2; Func[void Game::GetSaveName(char32[])] Body Start                       | 1817 resources/include/bindings/game.zh:1021
-GETSAVENAME D2                                                                  | 1818 resources/include/bindings/game.zh:1021
-RETURNFUNC; Func[void Game::GetSaveName(char32[])] Body End                     | 1819 resources/include/bindings/game.zh:1021
-POP D2; Func[void Game::SetSaveName(char32[])] Body Start                       | 1820 resources/include/bindings/game.zh:1029
-SETSAVENAME D2                                                                  | 1821 resources/include/bindings/game.zh:1029
-RETURNFUNC; Func[void Game::SetSaveName(char32[])] Body End                     | 1822 resources/include/bindings/game.zh:1029
-SAVESCREEN D2; Func[bool Game::ShowSaveScreen()] Body Start                     | 1823 resources/include/bindings/game.zh:1036
-RETURNFUNC; Func[bool Game::ShowSaveScreen()] Body End                          | 1824 resources/include/bindings/game.zh:1036
-SAVEQUITSCREEN; Func[void Game::ShowSaveQuitScreen()] Body Start                | 1825 resources/include/bindings/game.zh:1042
-RETURNFUNC; Func[void Game::ShowSaveQuitScreen()] Body End                      | 1826 resources/include/bindings/game.zh:1042
-POP D2; Func[int Game::GetFFCScript(char32[])] Body Start                       | 1827 resources/include/bindings/game.zh:1050
-GETFFCSCRIPT D2                                                                 | 1828 resources/include/bindings/game.zh:1050
-RETURNFUNC; Func[int Game::GetFFCScript(char32[])] Body End                     | 1829 resources/include/bindings/game.zh:1050
-POP D2; Func[int Game::GetComboScript(char32[])] Body Start                     | 1830 resources/include/bindings/game.zh:1058
-GETCOMBOSCRIPT D2                                                               | 1831 resources/include/bindings/game.zh:1058
-RETURNFUNC; Func[int Game::GetComboScript(char32[])] Body End                   | 1832 resources/include/bindings/game.zh:1058
-POP D2; Func[int Game::GetItemScript(char32[])] Body Start                      | 1833 resources/include/bindings/game.zh:1066
-GETITEMSCRIPT D2                                                                | 1834 resources/include/bindings/game.zh:1066
-RETURNFUNC; Func[int Game::GetItemScript(char32[])] Body End                    | 1835 resources/include/bindings/game.zh:1066
-POP D2; Func[int Game::GetNPCScript(char32[])] Body Start                       | 1836 resources/include/bindings/game.zh:1074
-GETNPCSCRIPT D2                                                                 | 1837 resources/include/bindings/game.zh:1074
-RETURNFUNC; Func[int Game::GetNPCScript(char32[])] Body End                     | 1838 resources/include/bindings/game.zh:1074
-POP D2; Func[int Game::GetLWeaponScript(char32[])] Body Start                   | 1839 resources/include/bindings/game.zh:1082
-GETLWEAPONSCRIPT D2                                                             | 1840 resources/include/bindings/game.zh:1082
-RETURNFUNC; Func[int Game::GetLWeaponScript(char32[])] Body End                 | 1841 resources/include/bindings/game.zh:1082
-POP D2; Func[int Game::GetEWeaponScript(char32[])] Body Start                   | 1842 resources/include/bindings/game.zh:1090
-GETEWEAPONSCRIPT D2                                                             | 1843 resources/include/bindings/game.zh:1090
-RETURNFUNC; Func[int Game::GetEWeaponScript(char32[])] Body End                 | 1844 resources/include/bindings/game.zh:1090
-POP D2; Func[int Game::GetPlayerScript(char32[])] Body Start                    | 1845 resources/include/bindings/game.zh:1100
-GETHEROSCRIPT D2                                                                | 1846 resources/include/bindings/game.zh:1100
-RETURNFUNC; Func[int Game::GetPlayerScript(char32[])] Body End                  | 1847 resources/include/bindings/game.zh:1100
-POP D2; Func[int Game::GetGlobalScript(char32[])] Body Start                    | 1848 resources/include/bindings/game.zh:1108
-GETGLOBALSCRIPT D2                                                              | 1849 resources/include/bindings/game.zh:1108
-RETURNFUNC; Func[int Game::GetGlobalScript(char32[])] Body End                  | 1850 resources/include/bindings/game.zh:1108
-POP D2; Func[int Game::GetDMapScript(char32[])] Body Start                      | 1851 resources/include/bindings/game.zh:1116
-GETDMAPSCRIPT D2                                                                | 1852 resources/include/bindings/game.zh:1116
-RETURNFUNC; Func[int Game::GetDMapScript(char32[])] Body End                    | 1853 resources/include/bindings/game.zh:1116
-POP D2; Func[int Game::GetScreenScript(char32[])] Body Start                    | 1854 resources/include/bindings/game.zh:1124
-GETSCREENSCRIPT D2                                                              | 1855 resources/include/bindings/game.zh:1124
-RETURNFUNC; Func[int Game::GetScreenScript(char32[])] Body End                  | 1856 resources/include/bindings/game.zh:1124
-POP D2; Func[int Game::GetItemSpriteScript(char32[])] Body Start                | 1857 resources/include/bindings/game.zh:1132
-GETSPRITESCRIPT D2                                                              | 1858 resources/include/bindings/game.zh:1132
-RETURNFUNC; Func[int Game::GetItemSpriteScript(char32[])] Body End              | 1859 resources/include/bindings/game.zh:1132
-POP D2; Func[int Game::GetNPC(char32[])] Body Start                             | 1860 resources/include/bindings/game.zh:1140
-GETNPCBYNAME D2                                                                 | 1861 resources/include/bindings/game.zh:1140
-RETURNFUNC; Func[int Game::GetNPC(char32[])] Body End                           | 1862 resources/include/bindings/game.zh:1140
-POP D2; Func[int Game::GetItem(char32[])] Body Start                            | 1863 resources/include/bindings/game.zh:1148
-GETITEMBYNAME D2                                                                | 1864 resources/include/bindings/game.zh:1148
-RETURNFUNC; Func[int Game::GetItem(char32[])] Body End                          | 1865 resources/include/bindings/game.zh:1148
-POP D2; Func[int Game::GetCombo(char32[])] Body Start                           | 1866 resources/include/bindings/game.zh:1156
-GETCOMBOBYNAME D2                                                               | 1867 resources/include/bindings/game.zh:1156
-RETURNFUNC; Func[int Game::GetCombo(char32[])] Body End                         | 1868 resources/include/bindings/game.zh:1156
-POP D2; Func[int Game::GetDMap(char32[])] Body Start                            | 1869 resources/include/bindings/game.zh:1164
-GETDMAPBYNAME D2                                                                | 1870 resources/include/bindings/game.zh:1164
-RETURNFUNC; Func[int Game::GetDMap(char32[])] Body End                          | 1871 resources/include/bindings/game.zh:1164
-POP D2; Func[int Game::GetGenericScript(char32[])] Body Start                   | 1872 resources/include/bindings/game.zh:1172
-GETGENERICSCRIPT D2                                                             | 1873 resources/include/bindings/game.zh:1172
-RETURNFUNC; Func[int Game::GetGenericScript(char32[])] Body End                 | 1874 resources/include/bindings/game.zh:1172
-POP D2; Func[npcdata Game::LoadNPCData(int)] Body Start                         | 1875 resources/include/bindings/game.zh:1182
-LOADNPCDATAR D2                                                                 | 1876 resources/include/bindings/game.zh:1182
-SETR D2 REFNPCDATA                                                              | 1877 resources/include/bindings/game.zh:1182
-RETURNFUNC; Func[npcdata Game::LoadNPCData(int)] Body End                       | 1878 resources/include/bindings/game.zh:1182
-POP D2; Func[combodata Game::LoadComboData(int)] Body Start                     | 1879 resources/include/bindings/game.zh:1191
-LOADCOMBODATAR D2                                                               | 1880 resources/include/bindings/game.zh:1191
-SETR D2 REFCOMBODATA                                                            | 1881 resources/include/bindings/game.zh:1191
-RETURNFUNC; Func[combodata Game::LoadComboData(int)] Body End                   | 1882 resources/include/bindings/game.zh:1191
-POP D1; Func[mapdata Game::LoadMapData(int, int)] Body Start                    | 1883 resources/include/bindings/game.zh:1202
-POP D0                                                                          | 1884 resources/include/bindings/game.zh:1202
-SETR D2 LOADMAPDATA                                                             | 1885 resources/include/bindings/game.zh:1202
-RETURNFUNC; Func[mapdata Game::LoadMapData(int, int)] Body End                  | 1886 resources/include/bindings/game.zh:1202
-POP D2; Func[mapdata Game::LoadTempScreen(int)] Body Start                      | 1887 resources/include/bindings/game.zh:1218
-LOADTMPSCR D2                                                                   | 1888 resources/include/bindings/game.zh:1218
-RETURNFUNC; Func[mapdata Game::LoadTempScreen(int)] Body End                    | 1889 resources/include/bindings/game.zh:1218
-POP D3; Func[mapdata Game::LoadTempScreen(int, int)] Body Start                 | 1890 resources/include/bindings/game.zh:1229
-POP D2                                                                          | 1891 resources/include/bindings/game.zh:1229
-LOADTMPSCR2 D2 D3                                                               | 1892 resources/include/bindings/game.zh:1229
-RETURNFUNC; Func[mapdata Game::LoadTempScreen(int, int)] Body End               | 1893 resources/include/bindings/game.zh:1229
-POP D3; Func[mapdata Game::LoadTempScreenForComboPos(int, int)] Body Start      | 1894 resources/include/bindings/game.zh:1239
-POP D2                                                                          | 1895 resources/include/bindings/game.zh:1239
-REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS D2 D3                                    | 1896 resources/include/bindings/game.zh:1239
-RETURNFUNC; Func[mapdata Game::LoadTempScreenForComboPos(int, int)] Body End    | 1897 resources/include/bindings/game.zh:1239
-POP D2; Func[mapdata Game::LoadScrollingScreen(int)] Body Start                 | 1898 resources/include/bindings/game.zh:1252
-LOADSCROLLSCR D2                                                                | 1899 resources/include/bindings/game.zh:1252
-RETURNFUNC; Func[mapdata Game::LoadScrollingScreen(int)] Body End               | 1900 resources/include/bindings/game.zh:1252
-POP D3; Func[mapdata Game::LoadScrollingScreen(int, int)] Body Start            | 1901 resources/include/bindings/game.zh:1264
-POP D2                                                                          | 1902 resources/include/bindings/game.zh:1264
-LOADSCROLLSCR2 D2 D3                                                            | 1903 resources/include/bindings/game.zh:1264
-RETURNFUNC; Func[mapdata Game::LoadScrollingScreen(int, int)] Body End          | 1904 resources/include/bindings/game.zh:1264
-POP D2; Func[spritedata Game::LoadSpriteData(int)] Body Start                   | 1905 resources/include/bindings/game.zh:1274
-LOADSPRITEDATAR D2                                                              | 1906 resources/include/bindings/game.zh:1274
-SETR D2 REFSPRITEDATA                                                           | 1907 resources/include/bindings/game.zh:1274
-RETURNFUNC; Func[spritedata Game::LoadSpriteData(int)] Body End                 | 1908 resources/include/bindings/game.zh:1274
-POP D2; Func[shopdata Game::LoadShopData(int)] Body Start                       | 1909 resources/include/bindings/game.zh:1283
-LOADSHOPR D2                                                                    | 1910 resources/include/bindings/game.zh:1283
-SETR D2 REFSHOPDATA                                                             | 1911 resources/include/bindings/game.zh:1283
-RETURNFUNC; Func[shopdata Game::LoadShopData(int)] Body End                     | 1912 resources/include/bindings/game.zh:1283
-POP D2; Func[shopdata Game::LoadInfoShopData(int)] Body Start                   | 1913 resources/include/bindings/game.zh:1292
-LOADINFOSHOPR D2                                                                | 1914 resources/include/bindings/game.zh:1292
-SETR D2 REFSHOPDATA                                                             | 1915 resources/include/bindings/game.zh:1292
-RETURNFUNC; Func[shopdata Game::LoadInfoShopData(int)] Body End                 | 1916 resources/include/bindings/game.zh:1292
-POP D2; Func[bitmap Game::LoadBitmapID(int)] Body Start                         | 1917 resources/include/bindings/game.zh:1301
-LOADBITMAPDATAR D2                                                              | 1918 resources/include/bindings/game.zh:1301
-SETR D2 REFBITMAP                                                               | 1919 resources/include/bindings/game.zh:1301
-RETURNFUNC; Func[bitmap Game::LoadBitmapID(int)] Body End                       | 1920 resources/include/bindings/game.zh:1301
-POP D2; Func[messagedata Game::LoadMessageData(int)] Body Start                 | 1921 resources/include/bindings/game.zh:1310
-LOADMESSAGEDATAR D2                                                             | 1922 resources/include/bindings/game.zh:1310
-SETR D2 REFMSGDATA                                                              | 1923 resources/include/bindings/game.zh:1310
-RETURNFUNC; Func[messagedata Game::LoadMessageData(int)] Body End               | 1924 resources/include/bindings/game.zh:1310
-POP D2; Func[dmapdata Game::LoadDMapData(int)] Body Start                       | 1925 resources/include/bindings/game.zh:1318
-LOADDMAPDATAR D2                                                                | 1926 resources/include/bindings/game.zh:1318
-SETR D2 REFDMAPDATA                                                             | 1927 resources/include/bindings/game.zh:1318
-RETURNFUNC; Func[dmapdata Game::LoadDMapData(int)] Body End                     | 1928 resources/include/bindings/game.zh:1318
-POP D2; Func[dropsetdata Game::LoadDropset(int)] Body Start                     | 1929 resources/include/bindings/game.zh:1327
-LOADDROPSETR D2                                                                 | 1930 resources/include/bindings/game.zh:1327
-SETR D2 REFDROPSETDATA                                                          | 1931 resources/include/bindings/game.zh:1327
-RETURNFUNC; Func[dropsetdata Game::LoadDropset(int)] Body End                   | 1932 resources/include/bindings/game.zh:1327
-LOADRNG; Func[randgen Game::LoadRNG()] Body Start                               | 1933 resources/include/bindings/game.zh:1332
-RETURNFUNC; Func[randgen Game::LoadRNG()] Body End                              | 1934 resources/include/bindings/game.zh:1332
-LOADSTACK; Func[stack Game::LoadStack()] Body Start                             | 1935 resources/include/bindings/game.zh:1337
-RETURNFUNC; Func[stack Game::LoadStack()] Body End                              | 1936 resources/include/bindings/game.zh:1337
-POP D2; Func[websocket Game::LoadWebSocket(char32[])] Body Start                | 1937 resources/include/bindings/game.zh:1343
-WEBSOCKET_LOAD D2                                                               | 1938 resources/include/bindings/game.zh:1343
-RETURNFUNC; Func[websocket Game::LoadWebSocket(char32[])] Body End              | 1939 resources/include/bindings/game.zh:1343
-POP D2; Func[bottledata Game::LoadBottleData(int)] Body Start                   | 1940 resources/include/bindings/game.zh:1354
-LOADBOTTLETYPE D2                                                               | 1941 resources/include/bindings/game.zh:1354
-SETR D2 REFBOTTLETYPE                                                           | 1942 resources/include/bindings/game.zh:1354
-RETURNFUNC; Func[bottledata Game::LoadBottleData(int)] Body End                 | 1943 resources/include/bindings/game.zh:1354
-POP D2; Func[bottleshopdata Game::LoadBottleShopData(int)] Body Start           | 1944 resources/include/bindings/game.zh:1365
-LOADBSHOPDATA D2                                                                | 1945 resources/include/bindings/game.zh:1365
-SETR D2 REFBOTTLESHOP                                                           | 1946 resources/include/bindings/game.zh:1365
-RETURNFUNC; Func[bottleshopdata Game::LoadBottleShopData(int)] Body End         | 1947 resources/include/bindings/game.zh:1365
-POP D2; Func[save_menu Game::LoadSaveMenu(int)] Body Start                      | 1948 resources/include/bindings/game.zh:1376
-LOADSAVEMENU D2                                                                 | 1949 resources/include/bindings/game.zh:1376
-RETURNFUNC; Func[save_menu Game::LoadSaveMenu(int)] Body End                    | 1950 resources/include/bindings/game.zh:1376
-POP D2; Func[genericdata Game::LoadGenericData(int)] Body Start                 | 1951 resources/include/bindings/game.zh:1387
-LOADGENERICDATA D2                                                              | 1952 resources/include/bindings/game.zh:1387
-SETR D2 REFGENERICDATA                                                          | 1953 resources/include/bindings/game.zh:1387
-RETURNFUNC; Func[genericdata Game::LoadGenericData(int)] Body End               | 1954 resources/include/bindings/game.zh:1387
-POP D1; Func[bitmap Game::CreateBitmap(int, int)] Body Start                    | 1955 resources/include/bindings/game.zh:1397
-POP D0                                                                          | 1956 resources/include/bindings/game.zh:1397
-SETR D2 CREATEBITMAP                                                            | 1957 resources/include/bindings/game.zh:1397
-RETURNFUNC; Func[bitmap Game::CreateBitmap(int, int)] Body End                  | 1958 resources/include/bindings/game.zh:1397
-SETR D2 ALLOCATEBITMAPR; Func[bitmap Game::AllocateBitmap()] Body Start         | 1959 resources/include/bindings/game.zh:1404
-RETURNFUNC; Func[bitmap Game::AllocateBitmap()] Body End                        | 1960 resources/include/bindings/game.zh:1404
-GAMESETCUSTOMCURSOR; Func[void Game::SetCustomCursor(bitmap, int, int, bool, bool)] Body Start | 1961 resources/include/bindings/game.zh:1432
-POPARGS D5 0.0005                                                               | 1962 resources/include/bindings/game.zh:1432
-RETURNFUNC; Func[void Game::SetCustomCursor(bitmap, int, int, bool, bool)] Body End | 1963 resources/include/bindings/game.zh:1432
-POP D2; Func[savedportal Game::LoadSavedPortal(int)] Body Start                 | 1964 resources/include/bindings/game.zh:1443
-LOADSAVPORTAL D2                                                                | 1965 resources/include/bindings/game.zh:1443
-RETURNFUNC; Func[savedportal Game::LoadSavedPortal(int)] Body End               | 1966 resources/include/bindings/game.zh:1443
-CREATESAVPORTAL; Func[savedportal Game::CreateSavedPortal()] Body Start         | 1967 resources/include/bindings/game.zh:1447
-RETURNFUNC; Func[savedportal Game::CreateSavedPortal()] Body End                | 1968 resources/include/bindings/game.zh:1447
-CURRENTITEMID; Func[int Game::CurrentItemID(int, int)] Body Start               | 1969 resources/include/bindings/game.zh:1462
-POPARGS D5 0.0002                                                               | 1970 resources/include/bindings/game.zh:1462
-RETURNFUNC; Func[int Game::CurrentItemID(int, int)] Body End                    | 1971 resources/include/bindings/game.zh:1462
-POP D2; Func[subscreendata Game::LoadASubData(int)] Body Start                  | 1972 resources/include/bindings/game.zh:1472
-LOADSUBDATARV D2 0                                                              | 1973 resources/include/bindings/game.zh:1472
-RETURNFUNC; Func[subscreendata Game::LoadASubData(int)] Body End                | 1974 resources/include/bindings/game.zh:1472
-POP D2; Func[subscreendata Game::LoadPSubData(int)] Body Start                  | 1975 resources/include/bindings/game.zh:1482
-LOADSUBDATARV D2 1                                                              | 1976 resources/include/bindings/game.zh:1482
-RETURNFUNC; Func[subscreendata Game::LoadPSubData(int)] Body End                | 1977 resources/include/bindings/game.zh:1482
-POP D2; Func[subscreendata Game::LoadOSubData(int)] Body Start                  | 1978 resources/include/bindings/game.zh:1492
-LOADSUBDATARV D2 2                                                              | 1979 resources/include/bindings/game.zh:1492
-RETURNFUNC; Func[subscreendata Game::LoadOSubData(int)] Body End                | 1980 resources/include/bindings/game.zh:1492
-POP D2; Func[subscreendata Game::LoadMSubData(int)] Body Start                  | 1981 resources/include/bindings/game.zh:1503
-LOADSUBDATARV D2 3                                                              | 1982 resources/include/bindings/game.zh:1503
-RETURNFUNC; Func[subscreendata Game::LoadMSubData(int)] Body End                | 1983 resources/include/bindings/game.zh:1503
-SWAPSUBSCREENV 0; Func[int Game::SwapActiveSubscreens(int, int)] Body Start     | 1984 resources/include/bindings/game.zh:1508
-POPARGS D5 0.0002                                                               | 1985 resources/include/bindings/game.zh:1508
-RETURNFUNC; Func[int Game::SwapActiveSubscreens(int, int)] Body End             | 1986 resources/include/bindings/game.zh:1508
-SWAPSUBSCREENV 1; Func[int Game::SwapPassiveSubscreens(int, int)] Body Start    | 1987 resources/include/bindings/game.zh:1513
-POPARGS D5 0.0002                                                               | 1988 resources/include/bindings/game.zh:1513
-RETURNFUNC; Func[int Game::SwapPassiveSubscreens(int, int)] Body End            | 1989 resources/include/bindings/game.zh:1513
-SWAPSUBSCREENV 2; Func[int Game::SwapOverlaySubscreens(int, int)] Body Start    | 1990 resources/include/bindings/game.zh:1518
-POPARGS D5 0.0002                                                               | 1991 resources/include/bindings/game.zh:1518
-RETURNFUNC; Func[int Game::SwapOverlaySubscreens(int, int)] Body End            | 1992 resources/include/bindings/game.zh:1518
-POP D2; Func[void Game::GetMessage(int, char32[])] Body Start                   | 1993 resources/include/bindings/game.zh:1524
-POP D3                                                                          | 1994 resources/include/bindings/game.zh:1524
-GETMESSAGE D3 D2                                                                | 1995 resources/include/bindings/game.zh:1524
-RETURNFUNC; Func[void Game::GetMessage(int, char32[])] Body End                 | 1996 resources/include/bindings/game.zh:1524
-POP D2; Func[void Game::SetMessage(int, char32[])] Body Start                   | 1997 resources/include/bindings/game.zh:1532
-POP D3                                                                          | 1998 resources/include/bindings/game.zh:1532
-SETMESSAGE D3 D2                                                                | 1999 resources/include/bindings/game.zh:1532
-RETURNFUNC; Func[void Game::SetMessage(int, char32[])] Body End                 | 2000 resources/include/bindings/game.zh:1532
-POP D3; Func[int Game::ComboTile(int)] Body Start                               | 2001 resources/include/bindings/game.zh:1537
-COMBOTILE D2 D3                                                                 | 2002 resources/include/bindings/game.zh:1537
-RETURNFUNC; Func[int Game::ComboTile(int)] Body End                             | 2003 resources/include/bindings/game.zh:1537
-POP D2; Func[void Game::PlaySound(int)] Body Start                              | 2004 resources/include/bindings/game.zh:1543
-PLAYSOUNDR D2                                                                   | 2005 resources/include/bindings/game.zh:1543
-RETURNFUNC; Func[void Game::PlaySound(int)] Body End                            | 2006 resources/include/bindings/game.zh:1543
-POP D2; Func[void Game::PlayMIDI(int)] Body Start                               | 2007 resources/include/bindings/game.zh:1549
-PLAYMIDIR D2                                                                    | 2008 resources/include/bindings/game.zh:1549
-RETURNFUNC; Func[void Game::PlayMIDI(int)] Body End                             | 2009 resources/include/bindings/game.zh:1549
-POP D2; Func[bool Game::PlayEnhancedMusic(char32[], int)] Body Start            | 2010 resources/include/bindings/game.zh:1556
-POP D3                                                                          | 2011 resources/include/bindings/game.zh:1556
-PLAYENHMUSIC D3 D2                                                              | 2012 resources/include/bindings/game.zh:1556
-RETURNFUNC; Func[bool Game::PlayEnhancedMusic(char32[], int)] Body End          | 2013 resources/include/bindings/game.zh:1556
-POP D2; Func[bool Game::PlayOgg(char32[], int)] Body Start                      | 2014 resources/include/bindings/game.zh:1563
-POP D3                                                                          | 2015 resources/include/bindings/game.zh:1563
-PLAYENHMUSICEX D3 D2                                                            | 2016 resources/include/bindings/game.zh:1563
-RETURNFUNC; Func[bool Game::PlayOgg(char32[], int)] Body End                    | 2017 resources/include/bindings/game.zh:1563
-GETENHMUSICPOS D2; Func[int Game::GetOggPos()] Body Start                       | 2018 resources/include/bindings/game.zh:1568
-RETURNFUNC; Func[int Game::GetOggPos()] Body End                                | 2019 resources/include/bindings/game.zh:1568
-POP D2; Func[void Game::SetOggPos(int)] Body Start                              | 2020 resources/include/bindings/game.zh:1574
-SETENHMUSICPOS D2                                                               | 2021 resources/include/bindings/game.zh:1574
-RETURNFUNC; Func[void Game::SetOggPos(int)] Body End                            | 2022 resources/include/bindings/game.zh:1574
-POP D2; Func[void Game::SetOggSpeed(int)] Body Start                            | 2023 resources/include/bindings/game.zh:1580
-SETENHMUSICSPEED D2                                                             | 2024 resources/include/bindings/game.zh:1580
-RETURNFUNC; Func[void Game::SetOggSpeed(int)] Body End                          | 2025 resources/include/bindings/game.zh:1580
-POP D0; Func[int Game::GetScreenFlags(int, int, int)] Body Start                | 2026 resources/include/bindings/game.zh:1588
-POP D1                                                                          | 2027 resources/include/bindings/game.zh:1588
-POP D2                                                                          | 2028 resources/include/bindings/game.zh:1588
-GETSCREENFLAGS D2                                                               | 2029 resources/include/bindings/game.zh:1588
-RETURNFUNC; Func[int Game::GetScreenFlags(int, int, int)] Body End              | 2030 resources/include/bindings/game.zh:1588
-POP D1; Func[bool Game::GetScreenState(int, int, int)] Body Start               | 2031 resources/include/bindings/game.zh:1601
-POP D0                                                                          | 2032 resources/include/bindings/game.zh:1601
-POP D2                                                                          | 2033 resources/include/bindings/game.zh:1601
-SUBV D2 1                                                                       | 2034 resources/include/bindings/game.zh:1601
-MULTV D2 136                                                                    | 2035 resources/include/bindings/game.zh:1601
-ADDR D0 D2                                                                      | 2036 resources/include/bindings/game.zh:1601
-SETR D2 SCREENSTATEDD                                                           | 2037 resources/include/bindings/game.zh:1601
-COMPAREV D2 0                                                                   | 2038 resources/include/bindings/game.zh:1601
-SETCMP D2 !=                                                                    | 2039 resources/include/bindings/game.zh:1601
-RETURNFUNC; Func[bool Game::GetScreenState(int, int, int)] Body End             | 2040 resources/include/bindings/game.zh:1601
-POP D6; Func[void Game::SetScreenState(int, int, int, bool)] Body Start         | 2041 resources/include/bindings/game.zh:1614
-POP D1                                                                          | 2042 resources/include/bindings/game.zh:1614
-POP D0                                                                          | 2043 resources/include/bindings/game.zh:1614
-POP D2                                                                          | 2044 resources/include/bindings/game.zh:1614
-SUBV D2 1                                                                       | 2045 resources/include/bindings/game.zh:1614
-MULTV D2 136                                                                    | 2046 resources/include/bindings/game.zh:1614
-ADDR D0 D2                                                                      | 2047 resources/include/bindings/game.zh:1614
-COMPAREV D6 0                                                                   | 2048 resources/include/bindings/game.zh:1614
-SETCMP SCREENSTATEDD !=                                                         | 2049 resources/include/bindings/game.zh:1614
-RETURNFUNC; Func[void Game::SetScreenState(int, int, int, bool)] Body End       | 2050 resources/include/bindings/game.zh:1614
-POP D0; Func[int Game::GetComboData(int, int, int)] Body Start                  | 2051 resources/include/bindings/game.zh:1627
-POP D2                                                                          | 2052 resources/include/bindings/game.zh:1627
-POP D1                                                                          | 2053 resources/include/bindings/game.zh:1627
-SETR D2 COMBODDM                                                                | 2054 resources/include/bindings/game.zh:1627
-RETURNFUNC; Func[int Game::GetComboData(int, int, int)] Body End                | 2055 resources/include/bindings/game.zh:1627
-POP D3; Func[void Game::SetComboData(int, int, int, int)] Body Start            | 2056 resources/include/bindings/game.zh:1641
-POP D0                                                                          | 2057 resources/include/bindings/game.zh:1641
-POP D2                                                                          | 2058 resources/include/bindings/game.zh:1641
-POP D1                                                                          | 2059 resources/include/bindings/game.zh:1641
-SETR COMBODDM D3                                                                | 2060 resources/include/bindings/game.zh:1641
-RETURNFUNC; Func[void Game::SetComboData(int, int, int, int)] Body End          | 2061 resources/include/bindings/game.zh:1641
-POP D0; Func[int Game::GetComboCSet(int, int, int)] Body Start                  | 2062 resources/include/bindings/game.zh:1654
-POP D2                                                                          | 2063 resources/include/bindings/game.zh:1654
-POP D1                                                                          | 2064 resources/include/bindings/game.zh:1654
-SETR D2 COMBOCDM                                                                | 2065 resources/include/bindings/game.zh:1654
-RETURNFUNC; Func[int Game::GetComboCSet(int, int, int)] Body End                | 2066 resources/include/bindings/game.zh:1654
-POP D3; Func[void Game::SetComboCSet(int, int, int, int)] Body Start            | 2067 resources/include/bindings/game.zh:1668
-POP D0                                                                          | 2068 resources/include/bindings/game.zh:1668
-POP D2                                                                          | 2069 resources/include/bindings/game.zh:1668
-POP D1                                                                          | 2070 resources/include/bindings/game.zh:1668
-SETR COMBOCDM D3                                                                | 2071 resources/include/bindings/game.zh:1668
-RETURNFUNC; Func[void Game::SetComboCSet(int, int, int, int)] Body End          | 2072 resources/include/bindings/game.zh:1668
-POP D0; Func[int Game::GetComboFlag(int, int, int)] Body Start                  | 2073 resources/include/bindings/game.zh:1681
-POP D2                                                                          | 2074 resources/include/bindings/game.zh:1681
-POP D1                                                                          | 2075 resources/include/bindings/game.zh:1681
-SETR D2 COMBOFDM                                                                | 2076 resources/include/bindings/game.zh:1681
-RETURNFUNC; Func[int Game::GetComboFlag(int, int, int)] Body End                | 2077 resources/include/bindings/game.zh:1681
-POP D3; Func[void Game::SetComboFlag(int, int, int, int)] Body Start            | 2078 resources/include/bindings/game.zh:1695
-POP D0                                                                          | 2079 resources/include/bindings/game.zh:1695
-POP D2                                                                          | 2080 resources/include/bindings/game.zh:1695
-POP D1                                                                          | 2081 resources/include/bindings/game.zh:1695
-SETR COMBOFDM D3                                                                | 2082 resources/include/bindings/game.zh:1695
-RETURNFUNC; Func[void Game::SetComboFlag(int, int, int, int)] Body End          | 2083 resources/include/bindings/game.zh:1695
-POP D0; Func[int Game::GetComboType(int, int, int)] Body Start                  | 2084 resources/include/bindings/game.zh:1708
-POP D2                                                                          | 2085 resources/include/bindings/game.zh:1708
-POP D1                                                                          | 2086 resources/include/bindings/game.zh:1708
-SETR D2 COMBOTDM                                                                | 2087 resources/include/bindings/game.zh:1708
-RETURNFUNC; Func[int Game::GetComboType(int, int, int)] Body End                | 2088 resources/include/bindings/game.zh:1708
-POP D3; Func[void Game::SetComboType(int, int, int, int)] Body Start            | 2089 resources/include/bindings/game.zh:1722
-POP D0                                                                          | 2090 resources/include/bindings/game.zh:1722
-POP D2                                                                          | 2091 resources/include/bindings/game.zh:1722
-POP D1                                                                          | 2092 resources/include/bindings/game.zh:1722
-SETR COMBOTDM D3                                                                | 2093 resources/include/bindings/game.zh:1722
-RETURNFUNC; Func[void Game::SetComboType(int, int, int, int)] Body End          | 2094 resources/include/bindings/game.zh:1722
-POP D0; Func[int Game::GetComboInherentFlag(int, int, int)] Body Start          | 2095 resources/include/bindings/game.zh:1735
-POP D2                                                                          | 2096 resources/include/bindings/game.zh:1735
-POP D1                                                                          | 2097 resources/include/bindings/game.zh:1735
-SETR D2 COMBOIDM                                                                | 2098 resources/include/bindings/game.zh:1735
-RETURNFUNC; Func[int Game::GetComboInherentFlag(int, int, int)] Body End        | 2099 resources/include/bindings/game.zh:1735
-POP D3; Func[void Game::SetComboInherentFlag(int, int, int, int)] Body Start    | 2100 resources/include/bindings/game.zh:1746
-POP D0                                                                          | 2101 resources/include/bindings/game.zh:1746
-POP D2                                                                          | 2102 resources/include/bindings/game.zh:1746
-POP D1                                                                          | 2103 resources/include/bindings/game.zh:1746
-SETR COMBOIDM D3                                                                | 2104 resources/include/bindings/game.zh:1746
-RETURNFUNC; Func[void Game::SetComboInherentFlag(int, int, int, int)] Body End  | 2105 resources/include/bindings/game.zh:1746
-POP D0; Func[int Game::GetComboSolid(int, int, int)] Body Start                 | 2106 resources/include/bindings/game.zh:1759
-POP D2                                                                          | 2107 resources/include/bindings/game.zh:1759
-POP D1                                                                          | 2108 resources/include/bindings/game.zh:1759
-SETR D2 COMBOSDM                                                                | 2109 resources/include/bindings/game.zh:1759
-RETURNFUNC; Func[int Game::GetComboSolid(int, int, int)] Body End               | 2110 resources/include/bindings/game.zh:1759
-POP D3; Func[void Game::SetComboSolid(int, int, int, int)] Body Start           | 2111 resources/include/bindings/game.zh:1770
-POP D0                                                                          | 2112 resources/include/bindings/game.zh:1770
-POP D2                                                                          | 2113 resources/include/bindings/game.zh:1770
-POP D1                                                                          | 2114 resources/include/bindings/game.zh:1770
-SETR COMBOSDM D3                                                                | 2115 resources/include/bindings/game.zh:1770
-RETURNFUNC; Func[void Game::SetComboSolid(int, int, int, int)] Body End         | 2116 resources/include/bindings/game.zh:1770
-POP D2; Func[int Game::GetUntypedScript(char32[])] Body Start                   | 2117 resources/include/bindings/game.zh:1776
-GETUNTYPEDSCRIPT D2                                                             | 2118 resources/include/bindings/game.zh:1776
-RETURNFUNC; Func[int Game::GetUntypedScript(char32[])] Body End                 | 2119 resources/include/bindings/game.zh:1776
-POP D2; Func[int Game::GetSubscreenScript(char32[])] Body Start                 | 2120 resources/include/bindings/game.zh:1782
-GETSUBSCREENSCRIPT D2                                                           | 2121 resources/include/bindings/game.zh:1782
-RETURNFUNC; Func[int Game::GetSubscreenScript(char32[])] Body End               | 2122 resources/include/bindings/game.zh:1782
-POP D2; Func[void Game::GetDMapMusicFilename(int, char32[])] Body Start         | 2123 resources/include/bindings/game.zh:1789
-POP D3                                                                          | 2124 resources/include/bindings/game.zh:1789
-GETMUSICFILE D3 D2                                                              | 2125 resources/include/bindings/game.zh:1789
-RETURNFUNC; Func[void Game::GetDMapMusicFilename(int, char32[])] Body End       | 2126 resources/include/bindings/game.zh:1789
-POP D2; Func[int Game::GetDMapMusicTrack(int)] Body Start                       | 2127 resources/include/bindings/game.zh:1795
-GETMUSICTRACK D2                                                                | 2128 resources/include/bindings/game.zh:1795
-RETURNFUNC; Func[int Game::GetDMapMusicTrack(int)] Body End                     | 2129 resources/include/bindings/game.zh:1795
-SETDMAPENHMUSIC; Func[void Game::SetDMapEnhancedMusic(int, char32[], int)] Body Start | 2130 resources/include/bindings/game.zh:1801
-POPARGS D5 0.0003                                                               | 2131 resources/include/bindings/game.zh:1801
-RETURNFUNC; Func[void Game::SetDMapEnhancedMusic(int, char32[], int)] Body End  | 2132 resources/include/bindings/game.zh:1801
-POP D2; Func[void Game::GetDMapName(int, char32[])] Body Start                  | 2133 resources/include/bindings/game.zh:1808
-POP D3                                                                          | 2134 resources/include/bindings/game.zh:1808
-GETDMAPNAME D3 D2                                                               | 2135 resources/include/bindings/game.zh:1808
-RETURNFUNC; Func[void Game::GetDMapName(int, char32[])] Body End                | 2136 resources/include/bindings/game.zh:1808
-POP D2; Func[void Game::SetDMapName(int, char32[])] Body Start                  | 2137 resources/include/bindings/game.zh:1815
-POP D3                                                                          | 2138 resources/include/bindings/game.zh:1815
-SETDMAPNAME D3 D2                                                               | 2139 resources/include/bindings/game.zh:1815
-RETURNFUNC; Func[void Game::SetDMapName(int, char32[])] Body End                | 2140 resources/include/bindings/game.zh:1815
-POP D2; Func[void Game::GetDMapTitle(int, char32[])] Body Start                 | 2141 resources/include/bindings/game.zh:1822
-POP D3                                                                          | 2142 resources/include/bindings/game.zh:1822
-GETDMAPTITLE D3 D2                                                              | 2143 resources/include/bindings/game.zh:1822
-RETURNFUNC; Func[void Game::GetDMapTitle(int, char32[])] Body End               | 2144 resources/include/bindings/game.zh:1822
-POP D2; Func[void Game::SetDMapTitle(int, char32[])] Body Start                 | 2145 resources/include/bindings/game.zh:1829
-POP D3                                                                          | 2146 resources/include/bindings/game.zh:1829
-SETDMAPTITLE D3 D2                                                              | 2147 resources/include/bindings/game.zh:1829
-RETURNFUNC; Func[void Game::SetDMapTitle(int, char32[])] Body End               | 2148 resources/include/bindings/game.zh:1829
-POP D2; Func[void Game::GetDMapIntro(int, char32[])] Body Start                 | 2149 resources/include/bindings/game.zh:1836
-POP D3                                                                          | 2150 resources/include/bindings/game.zh:1836
-GETDMAPINTRO D3 D2                                                              | 2151 resources/include/bindings/game.zh:1836
-RETURNFUNC; Func[void Game::GetDMapIntro(int, char32[])] Body End               | 2152 resources/include/bindings/game.zh:1836
-POP D2; Func[void Game::SetDMapIntro(int, char32[])] Body Start                 | 2153 resources/include/bindings/game.zh:1843
-POP D3                                                                          | 2154 resources/include/bindings/game.zh:1843
-SETDMAPINTRO D3 D2                                                              | 2155 resources/include/bindings/game.zh:1843
-RETURNFUNC; Func[void Game::SetDMapIntro(int, char32[])] Body End               | 2156 resources/include/bindings/game.zh:1843
+SETR D2 INCQST; Func[int Game::IncrementQuest()] Body Start                     | 1753 resources/include/bindings/game.zh:870
+RETURNFUNC; Func[int Game::IncrementQuest()] Body End                           | 1754 resources/include/bindings/game.zh:870
+SETR D2 SPRITEMAXNPC; Func[int Game::MaxNPCs()] Body Start                      | 1755 resources/include/bindings/game.zh:876
+RETURNFUNC; Func[int Game::MaxNPCs()] Body End                                  | 1756 resources/include/bindings/game.zh:876
+POP D2; Func[void Game::MaxNPCs(int)] Body Start                                | 1757 resources/include/bindings/game.zh:884
+SETR SPRITEMAXNPC D2                                                            | 1758 resources/include/bindings/game.zh:884
+RETURNFUNC; Func[void Game::MaxNPCs(int)] Body End                              | 1759 resources/include/bindings/game.zh:884
+SETR D2 SPRITEMAXLWPN; Func[int Game::MaxLWeapons()] Body Start                 | 1760 resources/include/bindings/game.zh:890
+RETURNFUNC; Func[int Game::MaxLWeapons()] Body End                              | 1761 resources/include/bindings/game.zh:890
+POP D2; Func[void Game::MaxLWeapons(int)] Body Start                            | 1762 resources/include/bindings/game.zh:898
+SETR SPRITEMAXLWPN D2                                                           | 1763 resources/include/bindings/game.zh:898
+RETURNFUNC; Func[void Game::MaxLWeapons(int)] Body End                          | 1764 resources/include/bindings/game.zh:898
+SETR D2 SPRITEMAXEWPN; Func[int Game::MaxEWeapons()] Body Start                 | 1765 resources/include/bindings/game.zh:904
+RETURNFUNC; Func[int Game::MaxEWeapons()] Body End                              | 1766 resources/include/bindings/game.zh:904
+POP D2; Func[void Game::MaxEWeapons(int)] Body Start                            | 1767 resources/include/bindings/game.zh:912
+SETR SPRITEMAXEWPN D2                                                           | 1768 resources/include/bindings/game.zh:912
+RETURNFUNC; Func[void Game::MaxEWeapons(int)] Body End                          | 1769 resources/include/bindings/game.zh:912
+SETR D2 SPRITEMAXITEM; Func[int Game::MaxItemsprites()] Body Start              | 1770 resources/include/bindings/game.zh:918
+RETURNFUNC; Func[int Game::MaxItemsprites()] Body End                           | 1771 resources/include/bindings/game.zh:918
+POP D2; Func[void Game::MaxItemsprites(int)] Body Start                         | 1772 resources/include/bindings/game.zh:926
+SETR SPRITEMAXITEM D2                                                           | 1773 resources/include/bindings/game.zh:926
+RETURNFUNC; Func[void Game::MaxItemsprites(int)] Body End                       | 1774 resources/include/bindings/game.zh:926
+POP D1; Func[untyped Game::GetScreenD(int, int)] Body Start                     | 1775 resources/include/bindings/game.zh:932
+POP D0                                                                          | 1776 resources/include/bindings/game.zh:932
+SETR D2 SDDD                                                                    | 1777 resources/include/bindings/game.zh:932
+RETURNFUNC; Func[untyped Game::GetScreenD(int, int)] Body End                   | 1778 resources/include/bindings/game.zh:932
+POP D6; Func[void Game::SetScreenD(int, int, untyped)] Body Start               | 1779 resources/include/bindings/game.zh:939
+POP D1                                                                          | 1780 resources/include/bindings/game.zh:939
+POP D0                                                                          | 1781 resources/include/bindings/game.zh:939
+SETR SDDD D6                                                                    | 1782 resources/include/bindings/game.zh:939
+RETURNFUNC; Func[void Game::SetScreenD(int, int, untyped)] Body End             | 1783 resources/include/bindings/game.zh:939
+POP D2; Func[untyped Game::GetDMapScreenD(int, int, int)] Body Start            | 1784 resources/include/bindings/game.zh:946
+POP D1                                                                          | 1785 resources/include/bindings/game.zh:946
+POP D0                                                                          | 1786 resources/include/bindings/game.zh:946
+SETR D2 SDDDD                                                                   | 1787 resources/include/bindings/game.zh:946
+RETURNFUNC; Func[untyped Game::GetDMapScreenD(int, int, int)] Body End          | 1788 resources/include/bindings/game.zh:946
+POP D6; Func[void Game::SetDMapScreenD(int, int, int, untyped)] Body Start      | 1789 resources/include/bindings/game.zh:954
+POP D2                                                                          | 1790 resources/include/bindings/game.zh:954
+POP D1                                                                          | 1791 resources/include/bindings/game.zh:954
+POP D0                                                                          | 1792 resources/include/bindings/game.zh:954
+SETR SDDDD D6                                                                   | 1793 resources/include/bindings/game.zh:954
+RETURNFUNC; Func[void Game::SetDMapScreenD(int, int, int, untyped)] Body End    | 1794 resources/include/bindings/game.zh:954
+POP D2; Func[itemdata Game::LoadItemData(int)] Body Start                       | 1795 resources/include/bindings/game.zh:960
+LOADITEMDATAR D2                                                                | 1796 resources/include/bindings/game.zh:960
+SETR D2 REFITEMDATA                                                             | 1797 resources/include/bindings/game.zh:960
+RETURNFUNC; Func[itemdata Game::LoadItemData(int)] Body End                     | 1798 resources/include/bindings/game.zh:960
+SETR D2 GETMIDI; Func[int Game::GetMIDI()] Body Start                           | 1799 resources/include/bindings/game.zh:965
+RETURNFUNC; Func[int Game::GetMIDI()] Body End                                  | 1800 resources/include/bindings/game.zh:965
+SAVE; Func[void Game::Save()] Body Start                                        | 1801 resources/include/bindings/game.zh:971
+RETURNFUNC; Func[void Game::Save()] Body End                                    | 1802 resources/include/bindings/game.zh:971
+GAMEEND; Func[void Game::End()] Body Start                                      | 1803 resources/include/bindings/game.zh:978
+RETURNFUNC; Func[void Game::End()] Body End                                     | 1804 resources/include/bindings/game.zh:978
+GAMEEXIT; Func[void Game::Exit()] Body Start                                    | 1805 resources/include/bindings/game.zh:986
+RETURNFUNC; Func[void Game::Exit()] Body End                                    | 1806 resources/include/bindings/game.zh:986
+GAMERELOAD; Func[void Game::Reload()] Body Start                                | 1807 resources/include/bindings/game.zh:993
+RETURNFUNC; Func[void Game::Reload()] Body End                                  | 1808 resources/include/bindings/game.zh:993
+GAMECONTINUE; Func[void Game::Continue()] Body Start                            | 1809 resources/include/bindings/game.zh:1000
+RETURNFUNC; Func[void Game::Continue()] Body End                                | 1810 resources/include/bindings/game.zh:1000
+GAMESAVEQUIT; Func[void Game::SaveAndQuit()] Body Start                         | 1811 resources/include/bindings/game.zh:1007
+RETURNFUNC; Func[void Game::SaveAndQuit()] Body End                             | 1812 resources/include/bindings/game.zh:1007
+GAMESAVECONTINUE; Func[void Game::SaveAndContinue()] Body Start                 | 1813 resources/include/bindings/game.zh:1014
+RETURNFUNC; Func[void Game::SaveAndContinue()] Body End                         | 1814 resources/include/bindings/game.zh:1014
+SHOWF6SCREEN; Func[void Game::ShowContinueScreen()] Body Start                  | 1815 resources/include/bindings/game.zh:1020
+RETURNFUNC; Func[void Game::ShowContinueScreen()] Body End                      | 1816 resources/include/bindings/game.zh:1020
+POP D2; Func[void Game::GetSaveName(char32[])] Body Start                       | 1817 resources/include/bindings/game.zh:1027
+GETSAVENAME D2                                                                  | 1818 resources/include/bindings/game.zh:1027
+RETURNFUNC; Func[void Game::GetSaveName(char32[])] Body End                     | 1819 resources/include/bindings/game.zh:1027
+POP D2; Func[void Game::SetSaveName(char32[])] Body Start                       | 1820 resources/include/bindings/game.zh:1035
+SETSAVENAME D2                                                                  | 1821 resources/include/bindings/game.zh:1035
+RETURNFUNC; Func[void Game::SetSaveName(char32[])] Body End                     | 1822 resources/include/bindings/game.zh:1035
+SAVESCREEN D2; Func[bool Game::ShowSaveScreen()] Body Start                     | 1823 resources/include/bindings/game.zh:1042
+RETURNFUNC; Func[bool Game::ShowSaveScreen()] Body End                          | 1824 resources/include/bindings/game.zh:1042
+SAVEQUITSCREEN; Func[void Game::ShowSaveQuitScreen()] Body Start                | 1825 resources/include/bindings/game.zh:1048
+RETURNFUNC; Func[void Game::ShowSaveQuitScreen()] Body End                      | 1826 resources/include/bindings/game.zh:1048
+POP D2; Func[int Game::GetFFCScript(char32[])] Body Start                       | 1827 resources/include/bindings/game.zh:1056
+GETFFCSCRIPT D2                                                                 | 1828 resources/include/bindings/game.zh:1056
+RETURNFUNC; Func[int Game::GetFFCScript(char32[])] Body End                     | 1829 resources/include/bindings/game.zh:1056
+POP D2; Func[int Game::GetComboScript(char32[])] Body Start                     | 1830 resources/include/bindings/game.zh:1064
+GETCOMBOSCRIPT D2                                                               | 1831 resources/include/bindings/game.zh:1064
+RETURNFUNC; Func[int Game::GetComboScript(char32[])] Body End                   | 1832 resources/include/bindings/game.zh:1064
+POP D2; Func[int Game::GetItemScript(char32[])] Body Start                      | 1833 resources/include/bindings/game.zh:1072
+GETITEMSCRIPT D2                                                                | 1834 resources/include/bindings/game.zh:1072
+RETURNFUNC; Func[int Game::GetItemScript(char32[])] Body End                    | 1835 resources/include/bindings/game.zh:1072
+POP D2; Func[int Game::GetNPCScript(char32[])] Body Start                       | 1836 resources/include/bindings/game.zh:1080
+GETNPCSCRIPT D2                                                                 | 1837 resources/include/bindings/game.zh:1080
+RETURNFUNC; Func[int Game::GetNPCScript(char32[])] Body End                     | 1838 resources/include/bindings/game.zh:1080
+POP D2; Func[int Game::GetLWeaponScript(char32[])] Body Start                   | 1839 resources/include/bindings/game.zh:1088
+GETLWEAPONSCRIPT D2                                                             | 1840 resources/include/bindings/game.zh:1088
+RETURNFUNC; Func[int Game::GetLWeaponScript(char32[])] Body End                 | 1841 resources/include/bindings/game.zh:1088
+POP D2; Func[int Game::GetEWeaponScript(char32[])] Body Start                   | 1842 resources/include/bindings/game.zh:1096
+GETEWEAPONSCRIPT D2                                                             | 1843 resources/include/bindings/game.zh:1096
+RETURNFUNC; Func[int Game::GetEWeaponScript(char32[])] Body End                 | 1844 resources/include/bindings/game.zh:1096
+POP D2; Func[int Game::GetPlayerScript(char32[])] Body Start                    | 1845 resources/include/bindings/game.zh:1106
+GETHEROSCRIPT D2                                                                | 1846 resources/include/bindings/game.zh:1106
+RETURNFUNC; Func[int Game::GetPlayerScript(char32[])] Body End                  | 1847 resources/include/bindings/game.zh:1106
+POP D2; Func[int Game::GetGlobalScript(char32[])] Body Start                    | 1848 resources/include/bindings/game.zh:1114
+GETGLOBALSCRIPT D2                                                              | 1849 resources/include/bindings/game.zh:1114
+RETURNFUNC; Func[int Game::GetGlobalScript(char32[])] Body End                  | 1850 resources/include/bindings/game.zh:1114
+POP D2; Func[int Game::GetDMapScript(char32[])] Body Start                      | 1851 resources/include/bindings/game.zh:1122
+GETDMAPSCRIPT D2                                                                | 1852 resources/include/bindings/game.zh:1122
+RETURNFUNC; Func[int Game::GetDMapScript(char32[])] Body End                    | 1853 resources/include/bindings/game.zh:1122
+POP D2; Func[int Game::GetScreenScript(char32[])] Body Start                    | 1854 resources/include/bindings/game.zh:1130
+GETSCREENSCRIPT D2                                                              | 1855 resources/include/bindings/game.zh:1130
+RETURNFUNC; Func[int Game::GetScreenScript(char32[])] Body End                  | 1856 resources/include/bindings/game.zh:1130
+POP D2; Func[int Game::GetItemSpriteScript(char32[])] Body Start                | 1857 resources/include/bindings/game.zh:1138
+GETSPRITESCRIPT D2                                                              | 1858 resources/include/bindings/game.zh:1138
+RETURNFUNC; Func[int Game::GetItemSpriteScript(char32[])] Body End              | 1859 resources/include/bindings/game.zh:1138
+POP D2; Func[int Game::GetNPC(char32[])] Body Start                             | 1860 resources/include/bindings/game.zh:1146
+GETNPCBYNAME D2                                                                 | 1861 resources/include/bindings/game.zh:1146
+RETURNFUNC; Func[int Game::GetNPC(char32[])] Body End                           | 1862 resources/include/bindings/game.zh:1146
+POP D2; Func[int Game::GetItem(char32[])] Body Start                            | 1863 resources/include/bindings/game.zh:1154
+GETITEMBYNAME D2                                                                | 1864 resources/include/bindings/game.zh:1154
+RETURNFUNC; Func[int Game::GetItem(char32[])] Body End                          | 1865 resources/include/bindings/game.zh:1154
+POP D2; Func[int Game::GetCombo(char32[])] Body Start                           | 1866 resources/include/bindings/game.zh:1162
+GETCOMBOBYNAME D2                                                               | 1867 resources/include/bindings/game.zh:1162
+RETURNFUNC; Func[int Game::GetCombo(char32[])] Body End                         | 1868 resources/include/bindings/game.zh:1162
+POP D2; Func[int Game::GetDMap(char32[])] Body Start                            | 1869 resources/include/bindings/game.zh:1170
+GETDMAPBYNAME D2                                                                | 1870 resources/include/bindings/game.zh:1170
+RETURNFUNC; Func[int Game::GetDMap(char32[])] Body End                          | 1871 resources/include/bindings/game.zh:1170
+POP D2; Func[int Game::GetGenericScript(char32[])] Body Start                   | 1872 resources/include/bindings/game.zh:1178
+GETGENERICSCRIPT D2                                                             | 1873 resources/include/bindings/game.zh:1178
+RETURNFUNC; Func[int Game::GetGenericScript(char32[])] Body End                 | 1874 resources/include/bindings/game.zh:1178
+POP D2; Func[npcdata Game::LoadNPCData(int)] Body Start                         | 1875 resources/include/bindings/game.zh:1188
+LOADNPCDATAR D2                                                                 | 1876 resources/include/bindings/game.zh:1188
+SETR D2 REFNPCDATA                                                              | 1877 resources/include/bindings/game.zh:1188
+RETURNFUNC; Func[npcdata Game::LoadNPCData(int)] Body End                       | 1878 resources/include/bindings/game.zh:1188
+POP D2; Func[combodata Game::LoadComboData(int)] Body Start                     | 1879 resources/include/bindings/game.zh:1197
+LOADCOMBODATAR D2                                                               | 1880 resources/include/bindings/game.zh:1197
+SETR D2 REFCOMBODATA                                                            | 1881 resources/include/bindings/game.zh:1197
+RETURNFUNC; Func[combodata Game::LoadComboData(int)] Body End                   | 1882 resources/include/bindings/game.zh:1197
+POP D1; Func[mapdata Game::LoadMapData(int, int)] Body Start                    | 1883 resources/include/bindings/game.zh:1208
+POP D0                                                                          | 1884 resources/include/bindings/game.zh:1208
+SETR D2 LOADMAPDATA                                                             | 1885 resources/include/bindings/game.zh:1208
+RETURNFUNC; Func[mapdata Game::LoadMapData(int, int)] Body End                  | 1886 resources/include/bindings/game.zh:1208
+POP D2; Func[mapdata Game::LoadTempScreen(int)] Body Start                      | 1887 resources/include/bindings/game.zh:1224
+LOADTMPSCR D2                                                                   | 1888 resources/include/bindings/game.zh:1224
+RETURNFUNC; Func[mapdata Game::LoadTempScreen(int)] Body End                    | 1889 resources/include/bindings/game.zh:1224
+POP D3; Func[mapdata Game::LoadTempScreen(int, int)] Body Start                 | 1890 resources/include/bindings/game.zh:1235
+POP D2                                                                          | 1891 resources/include/bindings/game.zh:1235
+LOADTMPSCR2 D2 D3                                                               | 1892 resources/include/bindings/game.zh:1235
+RETURNFUNC; Func[mapdata Game::LoadTempScreen(int, int)] Body End               | 1893 resources/include/bindings/game.zh:1235
+POP D3; Func[mapdata Game::LoadTempScreenForComboPos(int, int)] Body Start      | 1894 resources/include/bindings/game.zh:1245
+POP D2                                                                          | 1895 resources/include/bindings/game.zh:1245
+REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS D2 D3                                    | 1896 resources/include/bindings/game.zh:1245
+RETURNFUNC; Func[mapdata Game::LoadTempScreenForComboPos(int, int)] Body End    | 1897 resources/include/bindings/game.zh:1245
+POP D2; Func[mapdata Game::LoadScrollingScreen(int)] Body Start                 | 1898 resources/include/bindings/game.zh:1258
+LOADSCROLLSCR D2                                                                | 1899 resources/include/bindings/game.zh:1258
+RETURNFUNC; Func[mapdata Game::LoadScrollingScreen(int)] Body End               | 1900 resources/include/bindings/game.zh:1258
+POP D3; Func[mapdata Game::LoadScrollingScreen(int, int)] Body Start            | 1901 resources/include/bindings/game.zh:1270
+POP D2                                                                          | 1902 resources/include/bindings/game.zh:1270
+LOADSCROLLSCR2 D2 D3                                                            | 1903 resources/include/bindings/game.zh:1270
+RETURNFUNC; Func[mapdata Game::LoadScrollingScreen(int, int)] Body End          | 1904 resources/include/bindings/game.zh:1270
+POP D2; Func[spritedata Game::LoadSpriteData(int)] Body Start                   | 1905 resources/include/bindings/game.zh:1280
+LOADSPRITEDATAR D2                                                              | 1906 resources/include/bindings/game.zh:1280
+SETR D2 REFSPRITEDATA                                                           | 1907 resources/include/bindings/game.zh:1280
+RETURNFUNC; Func[spritedata Game::LoadSpriteData(int)] Body End                 | 1908 resources/include/bindings/game.zh:1280
+POP D2; Func[shopdata Game::LoadShopData(int)] Body Start                       | 1909 resources/include/bindings/game.zh:1289
+LOADSHOPR D2                                                                    | 1910 resources/include/bindings/game.zh:1289
+SETR D2 REFSHOPDATA                                                             | 1911 resources/include/bindings/game.zh:1289
+RETURNFUNC; Func[shopdata Game::LoadShopData(int)] Body End                     | 1912 resources/include/bindings/game.zh:1289
+POP D2; Func[shopdata Game::LoadInfoShopData(int)] Body Start                   | 1913 resources/include/bindings/game.zh:1298
+LOADINFOSHOPR D2                                                                | 1914 resources/include/bindings/game.zh:1298
+SETR D2 REFSHOPDATA                                                             | 1915 resources/include/bindings/game.zh:1298
+RETURNFUNC; Func[shopdata Game::LoadInfoShopData(int)] Body End                 | 1916 resources/include/bindings/game.zh:1298
+POP D2; Func[bitmap Game::LoadBitmapID(int)] Body Start                         | 1917 resources/include/bindings/game.zh:1307
+LOADBITMAPDATAR D2                                                              | 1918 resources/include/bindings/game.zh:1307
+SETR D2 REFBITMAP                                                               | 1919 resources/include/bindings/game.zh:1307
+RETURNFUNC; Func[bitmap Game::LoadBitmapID(int)] Body End                       | 1920 resources/include/bindings/game.zh:1307
+POP D2; Func[messagedata Game::LoadMessageData(int)] Body Start                 | 1921 resources/include/bindings/game.zh:1316
+LOADMESSAGEDATAR D2                                                             | 1922 resources/include/bindings/game.zh:1316
+SETR D2 REFMSGDATA                                                              | 1923 resources/include/bindings/game.zh:1316
+RETURNFUNC; Func[messagedata Game::LoadMessageData(int)] Body End               | 1924 resources/include/bindings/game.zh:1316
+POP D2; Func[dmapdata Game::LoadDMapData(int)] Body Start                       | 1925 resources/include/bindings/game.zh:1324
+LOADDMAPDATAR D2                                                                | 1926 resources/include/bindings/game.zh:1324
+SETR D2 REFDMAPDATA                                                             | 1927 resources/include/bindings/game.zh:1324
+RETURNFUNC; Func[dmapdata Game::LoadDMapData(int)] Body End                     | 1928 resources/include/bindings/game.zh:1324
+POP D2; Func[dropsetdata Game::LoadDropset(int)] Body Start                     | 1929 resources/include/bindings/game.zh:1333
+LOADDROPSETR D2                                                                 | 1930 resources/include/bindings/game.zh:1333
+SETR D2 REFDROPSETDATA                                                          | 1931 resources/include/bindings/game.zh:1333
+RETURNFUNC; Func[dropsetdata Game::LoadDropset(int)] Body End                   | 1932 resources/include/bindings/game.zh:1333
+LOADRNG; Func[randgen Game::LoadRNG()] Body Start                               | 1933 resources/include/bindings/game.zh:1338
+RETURNFUNC; Func[randgen Game::LoadRNG()] Body End                              | 1934 resources/include/bindings/game.zh:1338
+LOADSTACK; Func[stack Game::LoadStack()] Body Start                             | 1935 resources/include/bindings/game.zh:1343
+RETURNFUNC; Func[stack Game::LoadStack()] Body End                              | 1936 resources/include/bindings/game.zh:1343
+POP D2; Func[websocket Game::LoadWebSocket(char32[])] Body Start                | 1937 resources/include/bindings/game.zh:1349
+WEBSOCKET_LOAD D2                                                               | 1938 resources/include/bindings/game.zh:1349
+RETURNFUNC; Func[websocket Game::LoadWebSocket(char32[])] Body End              | 1939 resources/include/bindings/game.zh:1349
+POP D2; Func[bottledata Game::LoadBottleData(int)] Body Start                   | 1940 resources/include/bindings/game.zh:1360
+LOADBOTTLETYPE D2                                                               | 1941 resources/include/bindings/game.zh:1360
+SETR D2 REFBOTTLETYPE                                                           | 1942 resources/include/bindings/game.zh:1360
+RETURNFUNC; Func[bottledata Game::LoadBottleData(int)] Body End                 | 1943 resources/include/bindings/game.zh:1360
+POP D2; Func[bottleshopdata Game::LoadBottleShopData(int)] Body Start           | 1944 resources/include/bindings/game.zh:1371
+LOADBSHOPDATA D2                                                                | 1945 resources/include/bindings/game.zh:1371
+SETR D2 REFBOTTLESHOP                                                           | 1946 resources/include/bindings/game.zh:1371
+RETURNFUNC; Func[bottleshopdata Game::LoadBottleShopData(int)] Body End         | 1947 resources/include/bindings/game.zh:1371
+POP D2; Func[save_menu Game::LoadSaveMenu(int)] Body Start                      | 1948 resources/include/bindings/game.zh:1382
+LOADSAVEMENU D2                                                                 | 1949 resources/include/bindings/game.zh:1382
+RETURNFUNC; Func[save_menu Game::LoadSaveMenu(int)] Body End                    | 1950 resources/include/bindings/game.zh:1382
+POP D2; Func[genericdata Game::LoadGenericData(int)] Body Start                 | 1951 resources/include/bindings/game.zh:1393
+LOADGENERICDATA D2                                                              | 1952 resources/include/bindings/game.zh:1393
+SETR D2 REFGENERICDATA                                                          | 1953 resources/include/bindings/game.zh:1393
+RETURNFUNC; Func[genericdata Game::LoadGenericData(int)] Body End               | 1954 resources/include/bindings/game.zh:1393
+POP D1; Func[bitmap Game::CreateBitmap(int, int)] Body Start                    | 1955 resources/include/bindings/game.zh:1403
+POP D0                                                                          | 1956 resources/include/bindings/game.zh:1403
+SETR D2 CREATEBITMAP                                                            | 1957 resources/include/bindings/game.zh:1403
+RETURNFUNC; Func[bitmap Game::CreateBitmap(int, int)] Body End                  | 1958 resources/include/bindings/game.zh:1403
+SETR D2 ALLOCATEBITMAPR; Func[bitmap Game::AllocateBitmap()] Body Start         | 1959 resources/include/bindings/game.zh:1410
+RETURNFUNC; Func[bitmap Game::AllocateBitmap()] Body End                        | 1960 resources/include/bindings/game.zh:1410
+GAMESETCUSTOMCURSOR; Func[void Game::SetCustomCursor(bitmap, int, int, bool, bool)] Body Start | 1961 resources/include/bindings/game.zh:1438
+POPARGS D5 0.0005                                                               | 1962 resources/include/bindings/game.zh:1438
+RETURNFUNC; Func[void Game::SetCustomCursor(bitmap, int, int, bool, bool)] Body End | 1963 resources/include/bindings/game.zh:1438
+POP D2; Func[savedportal Game::LoadSavedPortal(int)] Body Start                 | 1964 resources/include/bindings/game.zh:1449
+LOADSAVPORTAL D2                                                                | 1965 resources/include/bindings/game.zh:1449
+RETURNFUNC; Func[savedportal Game::LoadSavedPortal(int)] Body End               | 1966 resources/include/bindings/game.zh:1449
+CREATESAVPORTAL; Func[savedportal Game::CreateSavedPortal()] Body Start         | 1967 resources/include/bindings/game.zh:1453
+RETURNFUNC; Func[savedportal Game::CreateSavedPortal()] Body End                | 1968 resources/include/bindings/game.zh:1453
+CURRENTITEMID; Func[int Game::CurrentItemID(int, int)] Body Start               | 1969 resources/include/bindings/game.zh:1468
+POPARGS D5 0.0002                                                               | 1970 resources/include/bindings/game.zh:1468
+RETURNFUNC; Func[int Game::CurrentItemID(int, int)] Body End                    | 1971 resources/include/bindings/game.zh:1468
+POP D2; Func[subscreendata Game::LoadASubData(int)] Body Start                  | 1972 resources/include/bindings/game.zh:1478
+LOADSUBDATARV D2 0                                                              | 1973 resources/include/bindings/game.zh:1478
+RETURNFUNC; Func[subscreendata Game::LoadASubData(int)] Body End                | 1974 resources/include/bindings/game.zh:1478
+POP D2; Func[subscreendata Game::LoadPSubData(int)] Body Start                  | 1975 resources/include/bindings/game.zh:1488
+LOADSUBDATARV D2 1                                                              | 1976 resources/include/bindings/game.zh:1488
+RETURNFUNC; Func[subscreendata Game::LoadPSubData(int)] Body End                | 1977 resources/include/bindings/game.zh:1488
+POP D2; Func[subscreendata Game::LoadOSubData(int)] Body Start                  | 1978 resources/include/bindings/game.zh:1498
+LOADSUBDATARV D2 2                                                              | 1979 resources/include/bindings/game.zh:1498
+RETURNFUNC; Func[subscreendata Game::LoadOSubData(int)] Body End                | 1980 resources/include/bindings/game.zh:1498
+POP D2; Func[subscreendata Game::LoadMSubData(int)] Body Start                  | 1981 resources/include/bindings/game.zh:1509
+LOADSUBDATARV D2 3                                                              | 1982 resources/include/bindings/game.zh:1509
+RETURNFUNC; Func[subscreendata Game::LoadMSubData(int)] Body End                | 1983 resources/include/bindings/game.zh:1509
+SWAPSUBSCREENV 0; Func[int Game::SwapActiveSubscreens(int, int)] Body Start     | 1984 resources/include/bindings/game.zh:1514
+POPARGS D5 0.0002                                                               | 1985 resources/include/bindings/game.zh:1514
+RETURNFUNC; Func[int Game::SwapActiveSubscreens(int, int)] Body End             | 1986 resources/include/bindings/game.zh:1514
+SWAPSUBSCREENV 1; Func[int Game::SwapPassiveSubscreens(int, int)] Body Start    | 1987 resources/include/bindings/game.zh:1519
+POPARGS D5 0.0002                                                               | 1988 resources/include/bindings/game.zh:1519
+RETURNFUNC; Func[int Game::SwapPassiveSubscreens(int, int)] Body End            | 1989 resources/include/bindings/game.zh:1519
+SWAPSUBSCREENV 2; Func[int Game::SwapOverlaySubscreens(int, int)] Body Start    | 1990 resources/include/bindings/game.zh:1524
+POPARGS D5 0.0002                                                               | 1991 resources/include/bindings/game.zh:1524
+RETURNFUNC; Func[int Game::SwapOverlaySubscreens(int, int)] Body End            | 1992 resources/include/bindings/game.zh:1524
+POP D2; Func[void Game::GetMessage(int, char32[])] Body Start                   | 1993 resources/include/bindings/game.zh:1530
+POP D3                                                                          | 1994 resources/include/bindings/game.zh:1530
+GETMESSAGE D3 D2                                                                | 1995 resources/include/bindings/game.zh:1530
+RETURNFUNC; Func[void Game::GetMessage(int, char32[])] Body End                 | 1996 resources/include/bindings/game.zh:1530
+POP D2; Func[void Game::SetMessage(int, char32[])] Body Start                   | 1997 resources/include/bindings/game.zh:1538
+POP D3                                                                          | 1998 resources/include/bindings/game.zh:1538
+SETMESSAGE D3 D2                                                                | 1999 resources/include/bindings/game.zh:1538
+RETURNFUNC; Func[void Game::SetMessage(int, char32[])] Body End                 | 2000 resources/include/bindings/game.zh:1538
+POP D3; Func[int Game::ComboTile(int)] Body Start                               | 2001 resources/include/bindings/game.zh:1543
+COMBOTILE D2 D3                                                                 | 2002 resources/include/bindings/game.zh:1543
+RETURNFUNC; Func[int Game::ComboTile(int)] Body End                             | 2003 resources/include/bindings/game.zh:1543
+POP D2; Func[void Game::PlaySound(int)] Body Start                              | 2004 resources/include/bindings/game.zh:1549
+PLAYSOUNDR D2                                                                   | 2005 resources/include/bindings/game.zh:1549
+RETURNFUNC; Func[void Game::PlaySound(int)] Body End                            | 2006 resources/include/bindings/game.zh:1549
+POP D2; Func[void Game::PlayMIDI(int)] Body Start                               | 2007 resources/include/bindings/game.zh:1555
+PLAYMIDIR D2                                                                    | 2008 resources/include/bindings/game.zh:1555
+RETURNFUNC; Func[void Game::PlayMIDI(int)] Body End                             | 2009 resources/include/bindings/game.zh:1555
+POP D2; Func[bool Game::PlayEnhancedMusic(char32[], int)] Body Start            | 2010 resources/include/bindings/game.zh:1562
+POP D3                                                                          | 2011 resources/include/bindings/game.zh:1562
+PLAYENHMUSIC D3 D2                                                              | 2012 resources/include/bindings/game.zh:1562
+RETURNFUNC; Func[bool Game::PlayEnhancedMusic(char32[], int)] Body End          | 2013 resources/include/bindings/game.zh:1562
+POP D2; Func[bool Game::PlayOgg(char32[], int)] Body Start                      | 2014 resources/include/bindings/game.zh:1569
+POP D3                                                                          | 2015 resources/include/bindings/game.zh:1569
+PLAYENHMUSICEX D3 D2                                                            | 2016 resources/include/bindings/game.zh:1569
+RETURNFUNC; Func[bool Game::PlayOgg(char32[], int)] Body End                    | 2017 resources/include/bindings/game.zh:1569
+GETENHMUSICPOS D2; Func[int Game::GetOggPos()] Body Start                       | 2018 resources/include/bindings/game.zh:1574
+RETURNFUNC; Func[int Game::GetOggPos()] Body End                                | 2019 resources/include/bindings/game.zh:1574
+POP D2; Func[void Game::SetOggPos(int)] Body Start                              | 2020 resources/include/bindings/game.zh:1580
+SETENHMUSICPOS D2                                                               | 2021 resources/include/bindings/game.zh:1580
+RETURNFUNC; Func[void Game::SetOggPos(int)] Body End                            | 2022 resources/include/bindings/game.zh:1580
+POP D2; Func[void Game::SetOggSpeed(int)] Body Start                            | 2023 resources/include/bindings/game.zh:1586
+SETENHMUSICSPEED D2                                                             | 2024 resources/include/bindings/game.zh:1586
+RETURNFUNC; Func[void Game::SetOggSpeed(int)] Body End                          | 2025 resources/include/bindings/game.zh:1586
+POP D0; Func[int Game::GetScreenFlags(int, int, int)] Body Start                | 2026 resources/include/bindings/game.zh:1594
+POP D1                                                                          | 2027 resources/include/bindings/game.zh:1594
+POP D2                                                                          | 2028 resources/include/bindings/game.zh:1594
+GETSCREENFLAGS D2                                                               | 2029 resources/include/bindings/game.zh:1594
+RETURNFUNC; Func[int Game::GetScreenFlags(int, int, int)] Body End              | 2030 resources/include/bindings/game.zh:1594
+POP D1; Func[bool Game::GetScreenState(int, int, int)] Body Start               | 2031 resources/include/bindings/game.zh:1607
+POP D0                                                                          | 2032 resources/include/bindings/game.zh:1607
+POP D2                                                                          | 2033 resources/include/bindings/game.zh:1607
+SUBV D2 1                                                                       | 2034 resources/include/bindings/game.zh:1607
+MULTV D2 136                                                                    | 2035 resources/include/bindings/game.zh:1607
+ADDR D0 D2                                                                      | 2036 resources/include/bindings/game.zh:1607
+SETR D2 SCREENSTATEDD                                                           | 2037 resources/include/bindings/game.zh:1607
+COMPAREV D2 0                                                                   | 2038 resources/include/bindings/game.zh:1607
+SETCMP D2 !=                                                                    | 2039 resources/include/bindings/game.zh:1607
+RETURNFUNC; Func[bool Game::GetScreenState(int, int, int)] Body End             | 2040 resources/include/bindings/game.zh:1607
+POP D6; Func[void Game::SetScreenState(int, int, int, bool)] Body Start         | 2041 resources/include/bindings/game.zh:1620
+POP D1                                                                          | 2042 resources/include/bindings/game.zh:1620
+POP D0                                                                          | 2043 resources/include/bindings/game.zh:1620
+POP D2                                                                          | 2044 resources/include/bindings/game.zh:1620
+SUBV D2 1                                                                       | 2045 resources/include/bindings/game.zh:1620
+MULTV D2 136                                                                    | 2046 resources/include/bindings/game.zh:1620
+ADDR D0 D2                                                                      | 2047 resources/include/bindings/game.zh:1620
+COMPAREV D6 0                                                                   | 2048 resources/include/bindings/game.zh:1620
+SETCMP SCREENSTATEDD !=                                                         | 2049 resources/include/bindings/game.zh:1620
+RETURNFUNC; Func[void Game::SetScreenState(int, int, int, bool)] Body End       | 2050 resources/include/bindings/game.zh:1620
+POP D0; Func[int Game::GetComboData(int, int, int)] Body Start                  | 2051 resources/include/bindings/game.zh:1633
+POP D2                                                                          | 2052 resources/include/bindings/game.zh:1633
+POP D1                                                                          | 2053 resources/include/bindings/game.zh:1633
+SETR D2 COMBODDM                                                                | 2054 resources/include/bindings/game.zh:1633
+RETURNFUNC; Func[int Game::GetComboData(int, int, int)] Body End                | 2055 resources/include/bindings/game.zh:1633
+POP D3; Func[void Game::SetComboData(int, int, int, int)] Body Start            | 2056 resources/include/bindings/game.zh:1647
+POP D0                                                                          | 2057 resources/include/bindings/game.zh:1647
+POP D2                                                                          | 2058 resources/include/bindings/game.zh:1647
+POP D1                                                                          | 2059 resources/include/bindings/game.zh:1647
+SETR COMBODDM D3                                                                | 2060 resources/include/bindings/game.zh:1647
+RETURNFUNC; Func[void Game::SetComboData(int, int, int, int)] Body End          | 2061 resources/include/bindings/game.zh:1647
+POP D0; Func[int Game::GetComboCSet(int, int, int)] Body Start                  | 2062 resources/include/bindings/game.zh:1660
+POP D2                                                                          | 2063 resources/include/bindings/game.zh:1660
+POP D1                                                                          | 2064 resources/include/bindings/game.zh:1660
+SETR D2 COMBOCDM                                                                | 2065 resources/include/bindings/game.zh:1660
+RETURNFUNC; Func[int Game::GetComboCSet(int, int, int)] Body End                | 2066 resources/include/bindings/game.zh:1660
+POP D3; Func[void Game::SetComboCSet(int, int, int, int)] Body Start            | 2067 resources/include/bindings/game.zh:1674
+POP D0                                                                          | 2068 resources/include/bindings/game.zh:1674
+POP D2                                                                          | 2069 resources/include/bindings/game.zh:1674
+POP D1                                                                          | 2070 resources/include/bindings/game.zh:1674
+SETR COMBOCDM D3                                                                | 2071 resources/include/bindings/game.zh:1674
+RETURNFUNC; Func[void Game::SetComboCSet(int, int, int, int)] Body End          | 2072 resources/include/bindings/game.zh:1674
+POP D0; Func[int Game::GetComboFlag(int, int, int)] Body Start                  | 2073 resources/include/bindings/game.zh:1687
+POP D2                                                                          | 2074 resources/include/bindings/game.zh:1687
+POP D1                                                                          | 2075 resources/include/bindings/game.zh:1687
+SETR D2 COMBOFDM                                                                | 2076 resources/include/bindings/game.zh:1687
+RETURNFUNC; Func[int Game::GetComboFlag(int, int, int)] Body End                | 2077 resources/include/bindings/game.zh:1687
+POP D3; Func[void Game::SetComboFlag(int, int, int, int)] Body Start            | 2078 resources/include/bindings/game.zh:1701
+POP D0                                                                          | 2079 resources/include/bindings/game.zh:1701
+POP D2                                                                          | 2080 resources/include/bindings/game.zh:1701
+POP D1                                                                          | 2081 resources/include/bindings/game.zh:1701
+SETR COMBOFDM D3                                                                | 2082 resources/include/bindings/game.zh:1701
+RETURNFUNC; Func[void Game::SetComboFlag(int, int, int, int)] Body End          | 2083 resources/include/bindings/game.zh:1701
+POP D0; Func[int Game::GetComboType(int, int, int)] Body Start                  | 2084 resources/include/bindings/game.zh:1714
+POP D2                                                                          | 2085 resources/include/bindings/game.zh:1714
+POP D1                                                                          | 2086 resources/include/bindings/game.zh:1714
+SETR D2 COMBOTDM                                                                | 2087 resources/include/bindings/game.zh:1714
+RETURNFUNC; Func[int Game::GetComboType(int, int, int)] Body End                | 2088 resources/include/bindings/game.zh:1714
+POP D3; Func[void Game::SetComboType(int, int, int, int)] Body Start            | 2089 resources/include/bindings/game.zh:1728
+POP D0                                                                          | 2090 resources/include/bindings/game.zh:1728
+POP D2                                                                          | 2091 resources/include/bindings/game.zh:1728
+POP D1                                                                          | 2092 resources/include/bindings/game.zh:1728
+SETR COMBOTDM D3                                                                | 2093 resources/include/bindings/game.zh:1728
+RETURNFUNC; Func[void Game::SetComboType(int, int, int, int)] Body End          | 2094 resources/include/bindings/game.zh:1728
+POP D0; Func[int Game::GetComboInherentFlag(int, int, int)] Body Start          | 2095 resources/include/bindings/game.zh:1741
+POP D2                                                                          | 2096 resources/include/bindings/game.zh:1741
+POP D1                                                                          | 2097 resources/include/bindings/game.zh:1741
+SETR D2 COMBOIDM                                                                | 2098 resources/include/bindings/game.zh:1741
+RETURNFUNC; Func[int Game::GetComboInherentFlag(int, int, int)] Body End        | 2099 resources/include/bindings/game.zh:1741
+POP D3; Func[void Game::SetComboInherentFlag(int, int, int, int)] Body Start    | 2100 resources/include/bindings/game.zh:1752
+POP D0                                                                          | 2101 resources/include/bindings/game.zh:1752
+POP D2                                                                          | 2102 resources/include/bindings/game.zh:1752
+POP D1                                                                          | 2103 resources/include/bindings/game.zh:1752
+SETR COMBOIDM D3                                                                | 2104 resources/include/bindings/game.zh:1752
+RETURNFUNC; Func[void Game::SetComboInherentFlag(int, int, int, int)] Body End  | 2105 resources/include/bindings/game.zh:1752
+POP D0; Func[int Game::GetComboSolid(int, int, int)] Body Start                 | 2106 resources/include/bindings/game.zh:1765
+POP D2                                                                          | 2107 resources/include/bindings/game.zh:1765
+POP D1                                                                          | 2108 resources/include/bindings/game.zh:1765
+SETR D2 COMBOSDM                                                                | 2109 resources/include/bindings/game.zh:1765
+RETURNFUNC; Func[int Game::GetComboSolid(int, int, int)] Body End               | 2110 resources/include/bindings/game.zh:1765
+POP D3; Func[void Game::SetComboSolid(int, int, int, int)] Body Start           | 2111 resources/include/bindings/game.zh:1776
+POP D0                                                                          | 2112 resources/include/bindings/game.zh:1776
+POP D2                                                                          | 2113 resources/include/bindings/game.zh:1776
+POP D1                                                                          | 2114 resources/include/bindings/game.zh:1776
+SETR COMBOSDM D3                                                                | 2115 resources/include/bindings/game.zh:1776
+RETURNFUNC; Func[void Game::SetComboSolid(int, int, int, int)] Body End         | 2116 resources/include/bindings/game.zh:1776
+POP D2; Func[int Game::GetUntypedScript(char32[])] Body Start                   | 2117 resources/include/bindings/game.zh:1782
+GETUNTYPEDSCRIPT D2                                                             | 2118 resources/include/bindings/game.zh:1782
+RETURNFUNC; Func[int Game::GetUntypedScript(char32[])] Body End                 | 2119 resources/include/bindings/game.zh:1782
+POP D2; Func[int Game::GetSubscreenScript(char32[])] Body Start                 | 2120 resources/include/bindings/game.zh:1788
+GETSUBSCREENSCRIPT D2                                                           | 2121 resources/include/bindings/game.zh:1788
+RETURNFUNC; Func[int Game::GetSubscreenScript(char32[])] Body End               | 2122 resources/include/bindings/game.zh:1788
+POP D2; Func[void Game::GetDMapMusicFilename(int, char32[])] Body Start         | 2123 resources/include/bindings/game.zh:1795
+POP D3                                                                          | 2124 resources/include/bindings/game.zh:1795
+GETMUSICFILE D3 D2                                                              | 2125 resources/include/bindings/game.zh:1795
+RETURNFUNC; Func[void Game::GetDMapMusicFilename(int, char32[])] Body End       | 2126 resources/include/bindings/game.zh:1795
+POP D2; Func[int Game::GetDMapMusicTrack(int)] Body Start                       | 2127 resources/include/bindings/game.zh:1801
+GETMUSICTRACK D2                                                                | 2128 resources/include/bindings/game.zh:1801
+RETURNFUNC; Func[int Game::GetDMapMusicTrack(int)] Body End                     | 2129 resources/include/bindings/game.zh:1801
+SETDMAPENHMUSIC; Func[void Game::SetDMapEnhancedMusic(int, char32[], int)] Body Start | 2130 resources/include/bindings/game.zh:1807
+POPARGS D5 0.0003                                                               | 2131 resources/include/bindings/game.zh:1807
+RETURNFUNC; Func[void Game::SetDMapEnhancedMusic(int, char32[], int)] Body End  | 2132 resources/include/bindings/game.zh:1807
+POP D2; Func[void Game::GetDMapName(int, char32[])] Body Start                  | 2133 resources/include/bindings/game.zh:1814
+POP D3                                                                          | 2134 resources/include/bindings/game.zh:1814
+GETDMAPNAME D3 D2                                                               | 2135 resources/include/bindings/game.zh:1814
+RETURNFUNC; Func[void Game::GetDMapName(int, char32[])] Body End                | 2136 resources/include/bindings/game.zh:1814
+POP D2; Func[void Game::SetDMapName(int, char32[])] Body Start                  | 2137 resources/include/bindings/game.zh:1821
+POP D3                                                                          | 2138 resources/include/bindings/game.zh:1821
+SETDMAPNAME D3 D2                                                               | 2139 resources/include/bindings/game.zh:1821
+RETURNFUNC; Func[void Game::SetDMapName(int, char32[])] Body End                | 2140 resources/include/bindings/game.zh:1821
+POP D2; Func[void Game::GetDMapTitle(int, char32[])] Body Start                 | 2141 resources/include/bindings/game.zh:1828
+POP D3                                                                          | 2142 resources/include/bindings/game.zh:1828
+GETDMAPTITLE D3 D2                                                              | 2143 resources/include/bindings/game.zh:1828
+RETURNFUNC; Func[void Game::GetDMapTitle(int, char32[])] Body End               | 2144 resources/include/bindings/game.zh:1828
+POP D2; Func[void Game::SetDMapTitle(int, char32[])] Body Start                 | 2145 resources/include/bindings/game.zh:1835
+POP D3                                                                          | 2146 resources/include/bindings/game.zh:1835
+SETDMAPTITLE D3 D2                                                              | 2147 resources/include/bindings/game.zh:1835
+RETURNFUNC; Func[void Game::SetDMapTitle(int, char32[])] Body End               | 2148 resources/include/bindings/game.zh:1835
+POP D2; Func[void Game::GetDMapIntro(int, char32[])] Body Start                 | 2149 resources/include/bindings/game.zh:1842
+POP D3                                                                          | 2150 resources/include/bindings/game.zh:1842
+GETDMAPINTRO D3 D2                                                              | 2151 resources/include/bindings/game.zh:1842
+RETURNFUNC; Func[void Game::GetDMapIntro(int, char32[])] Body End               | 2152 resources/include/bindings/game.zh:1842
+POP D2; Func[void Game::SetDMapIntro(int, char32[])] Body Start                 | 2153 resources/include/bindings/game.zh:1849
+POP D3                                                                          | 2154 resources/include/bindings/game.zh:1849
+SETDMAPINTRO D3 D2                                                              | 2155 resources/include/bindings/game.zh:1849
+RETURNFUNC; Func[void Game::SetDMapIntro(int, char32[])] Body End               | 2156 resources/include/bindings/game.zh:1849
 POP D3; Func[void Graphics::Wavy(bool)] Body Start                              | 2157 resources/include/bindings/graphics.zh:49
 FXWAVYR D3                                                                      | 2158 resources/include/bindings/graphics.zh:49
 RETURNFUNC; Func[void Graphics::Wavy(bool)] Body End                            | 2159 resources/include/bindings/graphics.zh:49
@@ -7235,12 +7235,14 @@ debug data:
       - const EventDataIndex_HeroHit GENEV_HEROHIT_DAMAGE @ Constant[0]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_HITDIR @ Constant[10000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_NULLIFY @ Constant[20000]
-      - const EventDataIndex_HeroHit GENEV_HEROHIT_NAYRUON @ Constant[30000]
+      - const EventDataIndex_HeroHit GENEV_HEROHIT_INVINCIBLE @ Constant[30000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_IFRAMES @ Constant[40000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_HITTYPE @ Constant[50000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_HITOBJ @ Constant[60000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_HITTYPE2 @ Constant[70000]
       - const EventDataIndex_HeroHit GENEV_HEROHIT_HITOBJ2 @ Constant[80000]
+      - const EventDataIndex_HeroHit GENEV_HEROHIT_INVINCIBLE_KB @ Constant[90000]
+      - const EventDataIndex_HeroHit GENEV_HEROHIT_NAYRUON @ Constant[30000]
     [ENUM] int EventDataIndex_PlayerFallDrown <IDX:251>
       - const EventDataIndex_PlayerFallDrown GENEV_PLAYER_FALLDROWN_COMBO @ Constant[0]
     [ENUM] int GameOverScreenElementIndex <IDX:252>
