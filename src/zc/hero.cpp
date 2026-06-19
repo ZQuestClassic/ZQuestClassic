@@ -82,6 +82,23 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NEW_MOVEMENT		(get_qr(qr_NEW_HERO_MOVEMENT)||get_qr(qr_NEW_HERO_MOVEMENT2))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_qr(qr_BROKEN_Z3_ANIMATION))
 
+namespace
+{
+
+weapon* find_first_wtype(int wtype)
+{
+	for(int32_t i=0; i<Lwpns.Count(); i++)
+	{
+		weapon* w = (weapon*)Lwpns.spr(i);
+
+		if(w->id == wtype)
+			return w;
+	}
+	return nullptr;
+}
+
+} // anonymous
+
 static bool active_invincible_byrna(bool for_kb)
 {
 	if (Hero.last_cane_of_byrna_item_id < 0)
@@ -2305,16 +2322,149 @@ int HeroClass::getHammerState() const
 	}
 	return 0;
 }
-weapon* find_first_wtype(int wtype)
+
+void HeroClass::getHammerSwingPos(weapon* w, int32_t& wx, int32_t& wy, int32_t& t, int32_t& f)
 {
-	for(int32_t i=0; i<Lwpns.Count(); i++)
+	wx=1;
+	wy=1;
+	f=0;
+	t = w->o_tile;
+
+	switch(dir)
 	{
-		weapon* w = (weapon*)Lwpns.spr(i);
-		
-		if(w->id == wtype)
-			return w;
+	case up:
+		wx=-1;
+		wy=-15;
+		if (IsSideSwim())wy+=hammer_swim_up_offset;
+
+		if(attackclk>=13)
+		{
+			wx-=1;
+			wy+=1;
+			++t;
+		}
+
+		if(attackclk>=15)
+		{
+			if (IsSideSwim())wy-=hammer_swim_up_offset;
+			++t;
+		}
+
+		break;
+
+	case down:
+		wx=3;
+		wy=-14;
+		if (IsSideSwim())wy+=hammer_swim_down_offset;
+		t+=3;
+
+		if(attackclk>=13)
+		{
+			wy+=16;
+			++t;
+		}
+
+		if(attackclk>=15)
+		{
+			wx-=1;
+			wy+=12;
+			if (IsSideSwim())wy-=hammer_swim_down_offset;
+			++t;
+		}
+
+		break;
+
+	case left:
+		wx=0;
+		wy=-14;
+		if (IsSideSwim())wy+=hammer_swim_left_offset;
+		t+=6;
+		f=1;
+
+		if(attackclk>=13)
+		{
+			wx-=7;
+			wy+=8;
+			++t;
+		}
+
+		if(attackclk>=15)
+		{
+			wx-=8;
+			wy+=8;
+			if (IsSideSwim())wy-=hammer_swim_left_offset;
+			++t;
+		}
+
+		break;
+
+	case right:
+		wx=0;
+		wy=-14;
+		if (IsSideSwim())wy+=hammer_swim_right_offset;
+		t+=6;
+
+		if(attackclk>=13)
+		{
+			wx+=7;
+			wy+=8;
+			++t;
+		}
+
+		if(attackclk>=15)
+		{
+			wx+=8;
+			wy+=8;
+			if (IsSideSwim())wy-=hammer_swim_right_offset;
+			++t;
+		}
+
+		break;
 	}
-	return nullptr;
+
+	if(BSZ || ((isdungeon() && currscr<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
+	{
+		wy+=2;
+	}
+}
+
+// The hammer weapon's hitbox is normally positioned in HeroClass::draw(), which
+// runs after Lwpns.animate() in the frame. That left the combo-trigger/collision
+// scans using the previous frame's hammer position - most visibly, the first
+// frame the hammer becomes ground-active (so "No Air Triggers" stops suppressing
+// it) it still carried the raised, pulled-back position, triggering combos above
+// and behind the drawn hitbox. Re-sync the geometry here, before those scans run.
+void HeroClass::position_hammer_for_triggers()
+{
+	if(replay_compat_hammer_trigger_lag_bug())
+		return;
+	if(attack != wHammer)
+		return;
+	if(!(attackclk || action==attacking || action==sideswimattacking))
+		return;
+
+	weapon* w = find_first_wtype(wHammer);
+	if(!w)
+		return;
+
+	int32_t wx, wy, t, f;
+	getHammerSwingPos(w, wx, wy, t, f);
+
+	w->x = x+wx;
+	w->y = y+wy-(original_playing_field_offset-2-yofs)-fakez;
+	w->z = (z+zofs);
+	w->hit_width=20;
+	w->hit_height=20;
+
+	if(dir>down)
+	{
+		w->hit_height-=6;
+	}
+	else
+	{
+		w->hit_width-=6;
+		w->hyofs=4;
+	}
 }
 void HeroClass::draw(BITMAP* dest)
 {
@@ -2548,106 +2698,9 @@ void HeroClass::draw(BITMAP* dest)
 					found = true;
 				}
 				
-				t = w->o_tile;
 				cs2 = w->o_cset;
-				
-				switch(dir)
-				{
-				case up:
-					wx=-1;
-					wy=-15;
-					if (IsSideSwim())wy+=hammer_swim_up_offset;
-					
-					if(attackclk>=13)
-					{
-						wx-=1;
-						wy+=1;
-						++t;
-					}
-					
-					if(attackclk>=15)
-					{
-						if (IsSideSwim())wy-=hammer_swim_up_offset;
-						++t;
-					}
-					
-					break;
-					
-				case down:
-					wx=3;
-					wy=-14;
-					if (IsSideSwim())wy+=hammer_swim_down_offset;
-					t+=3;
-					
-					if(attackclk>=13)
-					{
-						wy+=16;
-						++t;
-					}
-					
-					if(attackclk>=15)
-					{
-						wx-=1;
-						wy+=12;
-						if (IsSideSwim())wy-=hammer_swim_down_offset;
-						++t;
-					}
-					
-					break;
-					
-				case left:
-					wx=0;
-					wy=-14;
-					if (IsSideSwim())wy+=hammer_swim_left_offset;
-					t+=6;
-					f=1;
-					
-					if(attackclk>=13)
-					{
-						wx-=7;
-						wy+=8;
-						++t;
-					}
-					
-					if(attackclk>=15)
-					{
-						wx-=8;
-						wy+=8;
-						if (IsSideSwim())wy-=hammer_swim_left_offset;
-						++t;
-					}
-					
-					break;
-					
-				case right:
-					wx=0;
-					wy=-14;
-					if (IsSideSwim())wy+=hammer_swim_right_offset;
-					t+=6;
-					
-					if(attackclk>=13)
-					{
-						wx+=7;
-						wy+=8;
-						++t;
-					}
-					
-					if(attackclk>=15)
-					{
-						wx+=8;
-						wy+=8;
-						if (IsSideSwim())wy-=hammer_swim_right_offset;
-						++t;
-					}
-					
-					break;
-				}
-				
-				if(BSZ || ((isdungeon() && currscr<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
-				{
-					wy+=2;
-				}
-				
+				getHammerSwingPos(w, wx, wy, t, f);
+
 				// Stone of Agony
 				if(agony)
 				{
@@ -10485,6 +10538,12 @@ heroanimate_skip_liftwpn:;
 	}
 	if (justmoved > 0) --justmoved;
 	return false;
+}
+
+void HeroClass::post_animate()
+{
+	sprite::post_animate();
+	position_hammer_for_triggers();
 }
 
 bool HeroClass::push_pixel(zfix dx, zfix dy)

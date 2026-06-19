@@ -507,6 +507,14 @@ public:
 	void check_wand_block(int32_t bx, int32_t by);
 	void check_pound_block(int bx, int by, weapon* w = nullptr);
 	void check_pound_block_layer(int bx, int by, int lyr, weapon* w = nullptr);
+	// Computes the hammer weapon's swing position/tile/flip for the current
+	// attack frame (does not apply the cosmetic Stone of Agony bounce).
+	void getHammerSwingPos(weapon* w, int32_t& wx, int32_t& wy, int32_t& t, int32_t& f);
+	// Keeps the active hammer weapon's hitbox in sync with the current attack
+	// frame before weapon trigger/collision scans run, so triggers match the
+	// drawn hitbox instead of lagging a frame behind.
+	void position_hammer_for_triggers();
+	virtual void post_animate();
 	
 	// called by ALLOFF()
 	void resetflags(bool all);

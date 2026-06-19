@@ -80,6 +80,15 @@ bool replay_compat_frozen_combos_tick_bug()
 	return check_2_55(15);
 }
 
+// The hammer weapon's hitbox was positioned in HeroClass::draw(), which runs
+// after Lwpns.animate(), so combo trigger and collision scans lagged a frame
+// behind the drawn hitbox.
+// https://discord.com/channels/876899628556091432/1459317304511955059
+bool replay_compat_hammer_trigger_lag_bug()
+{
+	return check_2_55(15);
+}
+
 // Trig, inverse trig, and log/pow switched from libm (and the replay-only Q15
 // trig) to the deterministic tables in zc_math.cpp in replay version 59 /
 // ZC 2.55.15. This owns the entire mode policy so zc_math.cpp needs no
