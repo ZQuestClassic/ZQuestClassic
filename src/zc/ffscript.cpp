@@ -14143,6 +14143,8 @@ void FFScript::shutdown()
 	scriptEngineDatas.clear();
 	objectRAM.clear();
 	script_objects.clear();
+	script_object_ids_by_type.clear();
+	next_script_object_id_freelist.clear();
 }
 
 void FFScript::SetFFEngineFlag(int32_t flag, bool state)
