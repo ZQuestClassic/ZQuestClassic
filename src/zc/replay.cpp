@@ -38,7 +38,7 @@ using namespace std::chrono_literals;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 60;
+static const int VERSION = 61;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
