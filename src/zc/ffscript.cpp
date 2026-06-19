@@ -6678,8 +6678,8 @@ void do_createlweapon(const bool v)
 				(ID==wWind?1:0)  /*special*/
 			)
 		);
-		ri->lwpnref = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+		ri->lwpnref = w->getUID();
 		w->screen_spawned = ri->screenref;
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
@@ -6712,7 +6712,7 @@ void do_createeweapon(const bool v)
 			w->screen_spawned = ri->screenref;
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
-			ri->ewpnref = Ewpns.spr(Ewpns.Count() - 1)->getUID();
+			ri->ewpnref = w->getUID();
 			Z_eventlog("Script created eweapon %d with UID = %u\n", ID, ri->ewpnref);
 		}
 		else
@@ -6771,7 +6771,11 @@ void do_createnpc(const bool v)
 		ri->npcref = guys.spr(index)->getUID();
 		
 		for(; index<guys.Count(); index++)
-			((enemy*)guys.spr(index))->script_spawned=true;
+		{
+			enemy* e = ((enemy*)guys.spr(index));
+			e->script_spawned = true;
+			e->screen_spawned = ri->screenref;
+		}
 			
 		Z_eventlog("Script created NPC \"%s\" with UID = %u\n", guy_string[ID], ri->npcref);
 	}
