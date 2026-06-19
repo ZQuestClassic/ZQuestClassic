@@ -143,10 +143,11 @@ function openSection(name) {
 }
 
 function show(view) {
-	if (location.href === view)
-		return;
-
-	history.pushState({ view }, '', view);
+	// Only push history when actually navigating, but always (re)render so the
+	// initial load (show(location.pathname)) still draws the current view.
+	if (location.pathname !== view) {
+		history.pushState({ view }, '', view);
+	}
 	socket.updateView(view);
 	render(view, viewStates.get(view) ?? {});
 }
