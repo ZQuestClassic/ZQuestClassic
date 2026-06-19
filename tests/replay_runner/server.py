@@ -93,7 +93,7 @@ async def update_views():
             views.add(client.view)
 
     for view in views:
-        parts = [x for x in client.view.split('/') if x]
+        parts = [x for x in view.split('/') if x]
         type = parts[0]
 
         if type == 'results':
