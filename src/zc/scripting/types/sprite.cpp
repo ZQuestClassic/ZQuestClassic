@@ -443,6 +443,17 @@ void sprite_set_register(int32_t reg, int32_t value)
 
 	switch (reg)
 	{
+		case SPRITE_SPAWN_SCREEN:
+		{
+			if (is_player(GET_REF(spriteref)))
+				break;
+			if (dynamic_cast<ffcdata*>(s))
+				break;
+
+			if (s)
+				s->screen_spawned = value / 10000;
+			break;
+		}
 		case SPRITE_X:
 		{
 			if (is_player(GET_REF(spriteref)))
