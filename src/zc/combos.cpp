@@ -1396,6 +1396,8 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 	enemy* e = (enemy*)guys.spr(guys.Count() - 1);
 	e->did_armos = false;
 	e->activated_handle = handle;
+	if (cmb.type == cARMOS)
+		e->flags |= guy_armos;
 	return true;
 }
 
