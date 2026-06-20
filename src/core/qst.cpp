@@ -74,7 +74,6 @@ extern byte                *colordata;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
 extern comboclass          *combo_class_buf;
-extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
 extern char                palnames[MAXLEVELS][17];
 string				             zScript;
@@ -1047,11 +1046,8 @@ int32_t get_qst_buffers()
 	itemsbuf.clear();
 	sprite_data_buf.clear();
     
-    if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
-        return 0;
-        
-	for(size_t q = 0; q < MAXGUYS; ++q)
-		guysbuf[q].clear();
+	for (auto& guy : guysbuf)
+		guy.clear();
     
     if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
         return 0;
@@ -1110,8 +1106,6 @@ void del_qst_buffers()
     
     itemsbuf.clear();
 	sprite_data_buf.clear();
-    
-    if(guysbuf) free(guysbuf);
     
     if(combo_class_buf) free(combo_class_buf);
 }

@@ -136,7 +136,6 @@ extern BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;
 extern byte *colordata, *trashbuf;
 extern comboclass *combo_class_buf;
-extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern midi_info Midi_Info;
 extern bool zq_showpal;

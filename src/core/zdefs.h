@@ -1213,6 +1213,7 @@ struct guydata
 #define ENEMY_FLAG16     0x8000
     
 };
+extern std::array<guydata, MAXGUYS> guysbuf;
 
 #define LIFTFL_DIS_SHIELD             0x00000001
 #define LIFTFL_DIS_ITEMS              0x00000002

@@ -365,7 +365,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	script_spawned=false;
 	summoner_parent = nullptr;
 	
-	d = guysbuf + (id & 0xFFF);
+	d = &guysbuf[id & 0xFFF];
 	hp = d->hp;
 	starting_hp = hp;
 //  cs = d->cset;

@@ -212,7 +212,6 @@ BITMAP     *zcmouse[NUM_ZCMOUSE];
 PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
 comboclass *combo_class_buf;
-guydata    *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 ZCHEATS    zcheats;
 byte       use_cheats;
