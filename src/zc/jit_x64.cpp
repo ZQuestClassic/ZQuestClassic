@@ -1054,6 +1054,14 @@ static bool command_is_compiled(int command)
 	case XORV:
 	case XORR32:
 	case XORV32:
+	case READPODARRAYR:
+	case READPODARRAYV:
+	case WRITEPODARRAYRR:
+	case WRITEPODARRAYRV:
+	case WRITEPODARRAYVR:
+	case WRITEPODARRAYVV:
+	case WRITEPODARRAY:
+	case ALLOCATEMEMV:
 		return true;
 
 	// These require SSE4.1
@@ -1444,6 +1452,90 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
 			x86::Gp val = get_z_register(state, cc, arg1);
 			cc.mov(x86::ptr_32(state.ptrStackBase, offset, 2), val);
+		}
+		break;
+		case READPODARRAYR:
+		case READPODARRAYV:
+		{
+			// reg[arg1] = array[rINDEX][index]. Calls a helper for the bounds-checked
+			// access; the array pointer (rINDEX) and index are passed as arguments, so
+			// the register cache does not need flushing (unlike the interpreter path).
+			x86::Gp arrayptr = get_z_register(state, cc, rINDEX);
+			x86::Gp index;
+			if (command == READPODARRAYR)
+			{
+				// Copy before div_10000 so the cached source register isn't corrupted.
+				index = cc.newInt32();
+				cc.mov(index, get_z_register(state, cc, arg2));
+				div_10000(cc, index);
+			}
+
+			x86::Gp result = cc.newInt32();
+			InvokeNode* node;
+			cc.invoke(&node, jit_pod_read, FuncSignature::build<int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arrayptr);
+			if (command == READPODARRAYR)
+				node->setArg(1, index);
+			else
+				node->setArg(1, arg2 / 10000);
+			node->setArg(2, state.pc);
+			node->setRet(0, result);
+			set_z_register(state, cc, arg1, result);
+		}
+		break;
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+		{
+			// array[rINDEX][index] = value. First letter of the suffix is the index
+			// operand kind, second is the value operand kind (R=register, V=immediate).
+			bool index_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYRV;
+			bool value_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYVR;
+
+			x86::Gp arrayptr = get_z_register(state, cc, rINDEX);
+			x86::Gp index;
+			if (index_is_reg)
+			{
+				// Copy before div_10000 so the cached source register isn't corrupted.
+				index = cc.newInt32();
+				cc.mov(index, get_z_register(state, cc, arg1));
+				div_10000(cc, index);
+			}
+			x86::Gp value;
+			if (value_is_reg)
+				value = get_z_register(state, cc, arg2);
+
+			InvokeNode* node;
+			cc.invoke(&node, jit_pod_write, FuncSignature::build<void, int32_t, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arrayptr);
+			if (index_is_reg) node->setArg(1, index); else node->setArg(1, arg1 / 10000);
+			if (value_is_reg) node->setArg(2, value); else node->setArg(2, arg2);
+			node->setArg(3, instr.arg3);
+			node->setArg(4, state.pc);
+		}
+		break;
+		case WRITEPODARRAY:
+		{
+			// Bulk-initialize array (reg arg1) from the instruction's constant vector.
+			x86::Gp id = get_z_register(state, cc, arg1);
+			InvokeNode* node;
+			cc.invoke(&node, jit_writepodarr, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, id);
+			node->setArg(1, state.pc);
+		}
+		break;
+		case ALLOCATEMEMV:
+		{
+			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
+			x86::Gp result = cc.newInt32();
+			InvokeNode* node;
+			cc.invoke(&node, jit_allocatemem, FuncSignature::build<int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arg2 / 10000);
+			node->setArg(1, instr.arg3);
+			node->setArg(2, state.pc);
+			node->setRet(0, result);
+			set_z_register(state, cc, arg1, result);
 		}
 		break;
 		case POP:

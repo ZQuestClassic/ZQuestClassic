@@ -62,6 +62,10 @@ struct CompilationState
 	uint8_t f_idx_set_guarded_register;
 	uint8_t f_idx_runtime_debug;
 	uint8_t f_idx_log_error;
+	uint8_t f_idx_pod_read;
+	uint8_t f_idx_pod_write;
+	uint8_t f_idx_allocatemem;
+	uint8_t f_idx_writepodarr;
 
 	uint8_t l_idx_j_instance;
 	uint8_t l_idx_ri;
@@ -438,6 +442,14 @@ static bool command_is_compiled(int command)
 	case XORV:
 	case XORR32:
 	case XORV32:
+	case READPODARRAYR:
+	case READPODARRAYV:
+	case WRITEPODARRAYRR:
+	case WRITEPODARRAYRV:
+	case WRITEPODARRAYVR:
+	case WRITEPODARRAYVV:
+	case WRITEPODARRAY:
+	case ALLOCATEMEMV:
 		return true;
 	}
 
@@ -1459,6 +1471,78 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				}
 				break;
 
+				case READPODARRAYR:
+				case READPODARRAYV:
+				{
+					// reg[arg1] = array[rINDEX][index]. Calls a helper for the bounds-checked
+					// access (array pointer + index passed as args), so no register flush.
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, rINDEX);
+						if (command == READPODARRAYR)
+						{
+							get_z_register(state, arg2);
+							wasm.emitI32Const(10000);
+							wasm.emitI32DivS();
+						}
+						else
+						{
+							wasm.emitI32Const(arg2 / 10000);
+						}
+						wasm.emitI32Const(state.pc);
+						wasm.emitCall(state.f_idx_pod_read);
+					});
+				}
+				break;
+				case WRITEPODARRAYRR:
+				case WRITEPODARRAYRV:
+				case WRITEPODARRAYVR:
+				case WRITEPODARRAYVV:
+				{
+					// array[rINDEX][index] = value. First suffix letter is the index operand
+					// kind, second is the value operand kind (R=register, V=immediate).
+					bool index_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYRV;
+					bool value_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYVR;
+
+					get_z_register(state, rINDEX);
+					if (index_is_reg)
+					{
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+					}
+					else
+					{
+						wasm.emitI32Const(arg1 / 10000);
+					}
+					if (value_is_reg)
+						get_z_register(state, arg2);
+					else
+						wasm.emitI32Const(arg2);
+					wasm.emitI32Const(script->zasm[i].arg3);
+					wasm.emitI32Const(state.pc);
+					wasm.emitCall(state.f_idx_pod_write);
+				}
+				break;
+				case WRITEPODARRAY:
+				{
+					// Bulk-initialize array (reg arg1) from the instruction's constant vector.
+					get_z_register(state, arg1);
+					wasm.emitI32Const(state.pc);
+					wasm.emitCall(state.f_idx_writepodarr);
+				}
+				break;
+				case ALLOCATEMEMV:
+				{
+					// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
+					set_z_register(state, arg1, [&](){
+						wasm.emitI32Const(arg2 / 10000);
+						wasm.emitI32Const(script->zasm[i].arg3);
+						wasm.emitI32Const(state.pc);
+						wasm.emitCall(state.f_idx_allocatemem);
+					});
+				}
+				break;
+
 				default:
 				{
 					printf("unexpected command %s at index %d\n", zasm_op_to_string(command).c_str(), i);
@@ -1538,6 +1622,10 @@ JittedScript* jit_compile_script(zasm_script* script)
 	state.f_idx_set_guarded_register = comp.builder.importFunction("set_guarded_register", 3, 0);
 	state.f_idx_runtime_debug = comp.builder.importFunction("runtime_debug", 2, 0);
 	state.f_idx_log_error = comp.builder.importFunction("log_error", 1, 0);
+	state.f_idx_pod_read = comp.builder.importFunction("pod_read", 3, 1);
+	state.f_idx_pod_write = comp.builder.importFunction("pod_write", 5, 0);
+	state.f_idx_allocatemem = comp.builder.importFunction("allocatemem", 3, 1);
+	state.f_idx_writepodarr = comp.builder.importFunction("writepodarr", 2, 0);
 
 	// params
 	state.l_idx_j_instance = 0;
@@ -1822,6 +1910,26 @@ extern "C" void em_log_error(int code)
 		scripting_log_error_with_context("Attempted to divide by zero!");
 	if (code == 1)
 		scripting_log_error_with_context("Attempted to modulo by zero!");
+}
+
+extern "C" int em_pod_read(int arrayptr, int index, int pc)
+{
+	return jit_pod_read(arrayptr, index, pc);
+}
+
+extern "C" void em_pod_write(int arrayptr, int index, int value, int type, int pc)
+{
+	jit_pod_write(arrayptr, index, value, type, pc);
+}
+
+extern "C" int em_allocatemem(int size, int object_type, int uid)
+{
+	return jit_allocatemem(size, object_type, uid);
+}
+
+extern "C" void em_writepodarr(int id, int pc)
+{
+	jit_writepodarr(id, pc);
 }
 
 #endif

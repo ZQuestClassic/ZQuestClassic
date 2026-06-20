@@ -63,6 +63,10 @@ export async function compileScriptWasmModule(name, ptr, size) {
     emFunctions.setGuardedRegister = Module.cwrap('em_set_guarded_register', 'void', ['int', 'int', 'int']);
     emFunctions.runtimeDebug = Module.cwrap('em_runtime_script_debug', 'void', ['int', 'int']);
     emFunctions.logError = Module.cwrap('em_log_error', 'void', ['int']);
+    emFunctions.podRead = Module.cwrap('em_pod_read', 'int', ['int', 'int', 'int']);
+    emFunctions.podWrite = Module.cwrap('em_pod_write', 'void', ['int', 'int', 'int', 'int', 'int']);
+    emFunctions.allocatemem = Module.cwrap('em_allocatemem', 'int', ['int', 'int', 'int']);
+    emFunctions.writepodarr = Module.cwrap('em_writepodarr', 'void', ['int', 'int']);
   }
 
   console.log(`compiling ${name}, ${size} len`);
@@ -83,6 +87,10 @@ export async function compileScriptWasmModule(name, ptr, size) {
         set_guarded_register: emFunctions.setGuardedRegister,
         runtime_debug: emFunctions.runtimeDebug,
         log_error: emFunctions.logError,
+        pod_read: emFunctions.podRead,
+        pod_write: emFunctions.podWrite,
+        allocatemem: emFunctions.allocatemem,
+        writepodarr: emFunctions.writepodarr,
       },
     });
 
