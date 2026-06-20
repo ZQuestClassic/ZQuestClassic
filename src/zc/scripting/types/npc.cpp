@@ -1310,6 +1310,10 @@ int32_t npc_get_register(int32_t reg)
 			if (npc && npc->summoner_parent)
 				ret = npc->summoner_parent->getUID();
 			break;
+		case NPC_WEAPONDATA:
+			if (npc)
+				ret = FFCore.get_new_weapondata(wdata_type::npc, GET_REF(npcref));
+			break;
 
 		default: NOTREACHED();
 	}
@@ -1954,6 +1958,8 @@ void npc_set_register(int32_t reg, int32_t value)
 					new_summoner = GuyH::getNPC();
 				npc->set_summoner_parent(new_summoner);
 			}
+			break;
+		case NPC_WEAPONDATA:
 			break;
 
 		default: NOTREACHED();

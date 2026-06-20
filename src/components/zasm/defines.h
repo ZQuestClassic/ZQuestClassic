@@ -1258,6 +1258,9 @@ enum ASM_DEFINE
 	
 	NPC_SUMMON_MINION,
 	NPC_SUMMON_MINION_LAYER,
+	CREATEWEAPDATA,
+	WEAPDATA_COPY,
+	WEAPDATA_APPLY,
 
 	NUMCOMMANDS
 };
@@ -3420,12 +3423,48 @@ enum ASM_DEFINE
 #define NPC_SUMMONER_PARENT            0x16D0
 #define COMBOD_LARGECOMBO_DIRS         0x16D1
 #define CMBTRIG_LARGECOMBO_COPYCAT     0x16D2
+#define REFWEAPDATA                    0x16D3
+#define WEAPDATA_MISC_FLAGS               0x16D4
+#define WEAPDATA_MOVE_FLAGS               0x16D5
+#define WEAPDATA_WEAP_FLAGS               0x16D6
+#define WEAPDATA_BURN_SPRITES             0x16D7
+#define WEAPDATA_BURN_LIGHTRAD            0x16D8
+#define WEAPDATA_BURN_LIGHTOFFSET         0x16D9
+#define WEAPDATA_LIGHT_SHAPE              0x16DA
+#define WEAPDATA_SIZE_BITFLAGS            0x16DB
+#define WEAPDATA_HIT_OFFSET_X             0x16DC
+#define WEAPDATA_HIT_OFFSET_Y             0x16DD
+#define WEAPDATA_HIT_WIDTH                0x16DE
+#define WEAPDATA_HIT_HEIGHT               0x16DF
+#define WEAPDATA_HIT_ZHEIGHT              0x16E0
+#define WEAPDATA_X_OFFSET                 0x16E1
+#define WEAPDATA_Y_OFFSET                 0x16E2
+#define WEAPDATA_TILE_W                   0x16E3
+#define WEAPDATA_TILE_H                   0x16E4
+#define WEAPDATA_STEP                     0x16E5
+#define WEAPDATA_BOUNCE_MULT              0x16E6
+#define SPRITE_SHADOW_XOFS                0x16E7
+#define WEAPDATA_BOUNCE_ADD               0x16E8
+#define WEAPDATA_UNBLOCKABLE              0x16E9
+#define WEAPDATA_TIMEOUT                  0x16EA
+#define WEAPDATA_USEWEAPON                0x16EB
+#define WEAPDATA_USEDEFENCE               0x16EC
+#define WEAPDATA_LIFTLEVEL                0x16ED
+#define WEAPDATA_LIFTTIME                 0x16EE
+#define WEAPDATA_LIFTHEIGHT               0x16EF
+#define WEAPDATA_SCRIPT                   0x16F0
+#define WEAPDATA_INITD                    0x16F1
+#define WEAPDATA_PIERCE                   0x16F2
+#define WEAPDATA_VIEWPORT_SUSPEND_RANGE   0x16F3
+#define WEAPDATA_VIEWPORT_DESPAWN_RANGE   0x16F4
+#define IDATA_WEAPONDATA                  0x16F5
+#define NPC_WEAPONDATA                    0x16F6
+#define NPCDATA_WEAPONDATA                0x16F7
+#define COMBODATA_MISC_WEAPONDATA         0x16F8
+#define COMBODATA_LIFT_WEAPONDATA         0x16F9
+#define WEAPDATA_VALID                    0x16FA
 
-// unused block (we can fill this out)
-#define SPRITE_SHADOW_XOFS      0x16E7
-// Note: define new variables in above unused block
-
-#define NUMVARIABLES         0x16E8
+#define NUMVARIABLES         0x16FB
 
 //} End variables
 

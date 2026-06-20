@@ -2823,8 +2823,9 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 			light_offsets[q] = data.light_offsets[q];
 		}
 		last_burnstate = get_burnstate();
+		optional<word> wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
 		if(out_wpnspr)
-			*out_wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
+			*out_wpnspr = wpnspr;
 		glowRad = light_rads[last_burnstate];
 		glowOffset = light_offsets[last_burnstate];
 	}
@@ -7786,7 +7787,7 @@ const weapon_data* get_weapon_data_for_id(int id, int parentitem, int parentid, 
 			if (invalid_item_id(itemid))
 				itemid = directWpn > -1 ? directWpn : current_item_id(itype_wand);
 			if (valid_item_id(itemid))
-				wdata = &itemsbuf.get(itemid).weap_data;
+				wdata = &(itemsbuf.get(itemid).weap_data);
 			break;
 		}
 		case wSSparkle: case wFSparkle:
@@ -7795,9 +7796,9 @@ const weapon_data* get_weapon_data_for_id(int id, int parentitem, int parentid, 
 		[[fallthrough]];
 		default:
 			if (valid_item_id(parentitem)) //weapons created by items
-				wdata = &parent.weap_data;
+				wdata = &(parent.weap_data);
 			else if (e && !isLWeapon) //weapons created by enemies
-				wdata = &e->weap_data;
+				wdata = &(e->weap_data);
 	}
 
 	return wdata;

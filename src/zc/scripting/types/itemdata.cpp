@@ -683,6 +683,17 @@ int32_t itemdata_get_register(int32_t reg)
 			}
 			ret=(itemsbuf.get(GET_REF(itemdataref)).weaprange)*10000;
 			break;
+		case IDATA_WEAPONDATA:
+		{
+			if(invalid_item_id(GET_REF(itemdataref)))
+			{
+				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
+				ret = -10000;
+				break;
+			}
+			ret = FFCore.get_new_weapondata(wdata_type::itemdata, GET_REF(itemdataref));
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -1302,6 +1313,8 @@ void itemdata_set_register(int32_t reg, int32_t value)
 				break;
 			}
 			(itemsbuf[GET_REF(itemdataref)].weaprange)=vbound(value/10000, 0, 255);
+			break;
+		case IDATA_WEAPONDATA:
 			break;
 
 		default:

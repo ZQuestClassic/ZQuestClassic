@@ -3515,10 +3515,10 @@ POP D2; Func[void bottleshopdata::SetName(char32[])] Body Start                 
 POP REFBOTTLESHOP                                                               | 3486 resources/include/bindings/bottleshopdata.zh:47
 BSHOPNAMESET D2                                                                 | 3487 resources/include/bindings/bottleshopdata.zh:47
 RETURNFUNC; Func[void bottleshopdata::SetName(char32[])] Body End               | 3488 resources/include/bindings/bottleshopdata.zh:47
-POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3489 resources/include/bindings/combodata.zh:415
-POP REFCOMBOTRIGGER                                                             | 3490 resources/include/bindings/combodata.zh:415
-COMBOD_GET_TRIGGER D2                                                           | 3491 resources/include/bindings/combodata.zh:415
-RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3492 resources/include/bindings/combodata.zh:415
+POP D2; Func[combotrigger combodata::GetTrigger(char32[])] Body Start           | 3489 resources/include/bindings/combodata.zh:417
+POP REFCOMBOTRIGGER                                                             | 3490 resources/include/bindings/combodata.zh:417
+COMBOD_GET_TRIGGER D2                                                           | 3491 resources/include/bindings/combodata.zh:417
+RETURNFUNC; Func[combotrigger combodata::GetTrigger(char32[])] Body End         | 3492 resources/include/bindings/combodata.zh:417
 PEEKATV REFCOMBOTRIGGER 0.0002; Func[int combotrigger::GetReqExDoor(int, int)] Body Start | 3493 resources/include/bindings/combotrigger.zh:714
 SETR D2 CMBTRIG_REQ_SCREXDOOR                                                   | 3494 resources/include/bindings/combotrigger.zh:714
 POPARGS D5 0.0003                                                               | 3495 resources/include/bindings/combotrigger.zh:714
@@ -3816,26 +3816,26 @@ POP D1; Func[int hero::GetOriginalFlip(int, int)] Body Start                    
 POP D0                                                                          | 3787 resources/include/bindings/hero.zh:987
 SETR D2 LINKOFLIP                                                               | 3788 resources/include/bindings/hero.zh:987
 RETURNFUNC; Func[int hero::GetOriginalFlip(int, int)] Body End                  | 3789 resources/include/bindings/hero.zh:987
-POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3790 resources/include/bindings/itemdata.zh:941
-POP REFITEMDATA                                                                 | 3791 resources/include/bindings/itemdata.zh:941
-ITEMNAME D2                                                                     | 3792 resources/include/bindings/itemdata.zh:941
-RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3793 resources/include/bindings/itemdata.zh:941
-POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3794 resources/include/bindings/itemdata.zh:949
-POP REFITEMDATA                                                                 | 3795 resources/include/bindings/itemdata.zh:949
-ITEMGETDISPLAYNAME D2                                                           | 3796 resources/include/bindings/itemdata.zh:949
-RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3797 resources/include/bindings/itemdata.zh:949
-POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3798 resources/include/bindings/itemdata.zh:957
-POP REFITEMDATA                                                                 | 3799 resources/include/bindings/itemdata.zh:957
-ITEMSETDISPLAYNAME D2                                                           | 3800 resources/include/bindings/itemdata.zh:957
-RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3801 resources/include/bindings/itemdata.zh:957
-POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3802 resources/include/bindings/itemdata.zh:967
-POP REFITEMDATA                                                                 | 3803 resources/include/bindings/itemdata.zh:967
-ITEMGETSHOWNNAME D2                                                             | 3804 resources/include/bindings/itemdata.zh:967
-RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3805 resources/include/bindings/itemdata.zh:967
-POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3806 resources/include/bindings/itemdata.zh:976
-POP REFITEMDATA                                                                 | 3807 resources/include/bindings/itemdata.zh:976
-RUNITEMSCRIPT D2                                                                | 3808 resources/include/bindings/itemdata.zh:976
-RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3809 resources/include/bindings/itemdata.zh:976
+POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3790 resources/include/bindings/itemdata.zh:959
+POP REFITEMDATA                                                                 | 3791 resources/include/bindings/itemdata.zh:959
+ITEMNAME D2                                                                     | 3792 resources/include/bindings/itemdata.zh:959
+RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3793 resources/include/bindings/itemdata.zh:959
+POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3794 resources/include/bindings/itemdata.zh:967
+POP REFITEMDATA                                                                 | 3795 resources/include/bindings/itemdata.zh:967
+ITEMGETDISPLAYNAME D2                                                           | 3796 resources/include/bindings/itemdata.zh:967
+RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3797 resources/include/bindings/itemdata.zh:967
+POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3798 resources/include/bindings/itemdata.zh:975
+POP REFITEMDATA                                                                 | 3799 resources/include/bindings/itemdata.zh:975
+ITEMSETDISPLAYNAME D2                                                           | 3800 resources/include/bindings/itemdata.zh:975
+RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3801 resources/include/bindings/itemdata.zh:975
+POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3802 resources/include/bindings/itemdata.zh:985
+POP REFITEMDATA                                                                 | 3803 resources/include/bindings/itemdata.zh:985
+ITEMGETSHOWNNAME D2                                                             | 3804 resources/include/bindings/itemdata.zh:985
+RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3805 resources/include/bindings/itemdata.zh:985
+POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3806 resources/include/bindings/itemdata.zh:994
+POP REFITEMDATA                                                                 | 3807 resources/include/bindings/itemdata.zh:994
+RUNITEMSCRIPT D2                                                                | 3808 resources/include/bindings/itemdata.zh:994
+RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3809 resources/include/bindings/itemdata.zh:994
 POP D2; Func[void itemsprite::Max(int)] Body Start                              | 3810 resources/include/bindings/itemsprite.zh:145
 POP REFITEM                                                                     | 3811 resources/include/bindings/itemsprite.zh:145
 SETR SPRITEMAXITEM D2                                                           | 3812 resources/include/bindings/itemsprite.zh:145
@@ -3854,35 +3854,35 @@ POP D2; Func[bool itemsprite::Switch(int)] Body Start                           
 POP REFITEM                                                                     | 3825 resources/include/bindings/itemsprite.zh:178
 SWITCHITM D2                                                                    | 3826 resources/include/bindings/itemsprite.zh:178
 RETURNFUNC; Func[bool itemsprite::Switch(int)] Body End                         | 3827 resources/include/bindings/itemsprite.zh:178
-POP D2; Func[void lweapon::Max(int)] Body Start                                 | 3828 resources/include/bindings/lweapon.zh:363
-POP REFLWPN                                                                     | 3829 resources/include/bindings/lweapon.zh:363
-SETR SPRITEMAXLWPN D2                                                           | 3830 resources/include/bindings/lweapon.zh:363
-RETURNFUNC; Func[void lweapon::Max(int)] Body End                               | 3831 resources/include/bindings/lweapon.zh:363
-POP D2; Func[bool lweapon::isValid()] Body Start                                | 3832 resources/include/bindings/lweapon.zh:371
-ISVALIDLWPN D2                                                                  | 3833 resources/include/bindings/lweapon.zh:371
-RETURNFUNC; Func[bool lweapon::isValid()] Body End                              | 3834 resources/include/bindings/lweapon.zh:371
-POP D2; Func[void lweapon::UseSprite(int)] Body Start                           | 3835 resources/include/bindings/lweapon.zh:381
-POP D3                                                                          | 3836 resources/include/bindings/lweapon.zh:381
-SETR REFLWPN D3                                                                 | 3837 resources/include/bindings/lweapon.zh:381
-LWPNUSESPRITER D2                                                               | 3838 resources/include/bindings/lweapon.zh:381
-RETURNFUNC; Func[void lweapon::UseSprite(int)] Body End                         | 3839 resources/include/bindings/lweapon.zh:381
-POP D2; Func[void lweapon::Explode(int)] Body Start                             | 3840 resources/include/bindings/lweapon.zh:389
-POP REFLWPN                                                                     | 3841 resources/include/bindings/lweapon.zh:389
-LWEAPONEXPLODER D2                                                              | 3842 resources/include/bindings/lweapon.zh:389
-RETURNFUNC; Func[void lweapon::Explode(int)] Body End                           | 3843 resources/include/bindings/lweapon.zh:389
-POP REFLWPN; Func[void lweapon::Remove()] Body Start                            | 3844 resources/include/bindings/lweapon.zh:396
-LWPNDEL                                                                         | 3845 resources/include/bindings/lweapon.zh:396
-RETURNFUNC; Func[void lweapon::Remove()] Body End                               | 3846 resources/include/bindings/lweapon.zh:396
-POP D2; Func[bool lweapon::Switch(int)] Body Start                              | 3847 resources/include/bindings/lweapon.zh:406
-POP REFLWPN                                                                     | 3848 resources/include/bindings/lweapon.zh:406
-SWITCHLW D2                                                                     | 3849 resources/include/bindings/lweapon.zh:406
-RETURNFUNC; Func[bool lweapon::Switch(int)] Body End                            | 3850 resources/include/bindings/lweapon.zh:406
-POP D2; Func[bool lweapon::MakeAngular()] Body Start                            | 3851 resources/include/bindings/lweapon.zh:414
-LWPNMAKEANGULAR D2                                                              | 3852 resources/include/bindings/lweapon.zh:414
-RETURNFUNC; Func[bool lweapon::MakeAngular()] Body End                          | 3853 resources/include/bindings/lweapon.zh:414
-POP D2; Func[bool lweapon::MakeDirectional()] Body Start                        | 3854 resources/include/bindings/lweapon.zh:422
-LWPNMAKEDIRECTIONAL D2                                                          | 3855 resources/include/bindings/lweapon.zh:422
-RETURNFUNC; Func[bool lweapon::MakeDirectional()] Body End                      | 3856 resources/include/bindings/lweapon.zh:422
+POP D2; Func[void lweapon::Max(int)] Body Start                                 | 3828 resources/include/bindings/lweapon.zh:366
+POP REFLWPN                                                                     | 3829 resources/include/bindings/lweapon.zh:366
+SETR SPRITEMAXLWPN D2                                                           | 3830 resources/include/bindings/lweapon.zh:366
+RETURNFUNC; Func[void lweapon::Max(int)] Body End                               | 3831 resources/include/bindings/lweapon.zh:366
+POP D2; Func[bool lweapon::isValid()] Body Start                                | 3832 resources/include/bindings/lweapon.zh:374
+ISVALIDLWPN D2                                                                  | 3833 resources/include/bindings/lweapon.zh:374
+RETURNFUNC; Func[bool lweapon::isValid()] Body End                              | 3834 resources/include/bindings/lweapon.zh:374
+POP D2; Func[void lweapon::UseSprite(int)] Body Start                           | 3835 resources/include/bindings/lweapon.zh:384
+POP D3                                                                          | 3836 resources/include/bindings/lweapon.zh:384
+SETR REFLWPN D3                                                                 | 3837 resources/include/bindings/lweapon.zh:384
+LWPNUSESPRITER D2                                                               | 3838 resources/include/bindings/lweapon.zh:384
+RETURNFUNC; Func[void lweapon::UseSprite(int)] Body End                         | 3839 resources/include/bindings/lweapon.zh:384
+POP D2; Func[void lweapon::Explode(int)] Body Start                             | 3840 resources/include/bindings/lweapon.zh:392
+POP REFLWPN                                                                     | 3841 resources/include/bindings/lweapon.zh:392
+LWEAPONEXPLODER D2                                                              | 3842 resources/include/bindings/lweapon.zh:392
+RETURNFUNC; Func[void lweapon::Explode(int)] Body End                           | 3843 resources/include/bindings/lweapon.zh:392
+POP REFLWPN; Func[void lweapon::Remove()] Body Start                            | 3844 resources/include/bindings/lweapon.zh:399
+LWPNDEL                                                                         | 3845 resources/include/bindings/lweapon.zh:399
+RETURNFUNC; Func[void lweapon::Remove()] Body End                               | 3846 resources/include/bindings/lweapon.zh:399
+POP D2; Func[bool lweapon::Switch(int)] Body Start                              | 3847 resources/include/bindings/lweapon.zh:409
+POP REFLWPN                                                                     | 3848 resources/include/bindings/lweapon.zh:409
+SWITCHLW D2                                                                     | 3849 resources/include/bindings/lweapon.zh:409
+RETURNFUNC; Func[bool lweapon::Switch(int)] Body End                            | 3850 resources/include/bindings/lweapon.zh:409
+POP D2; Func[bool lweapon::MakeAngular()] Body Start                            | 3851 resources/include/bindings/lweapon.zh:417
+LWPNMAKEANGULAR D2                                                              | 3852 resources/include/bindings/lweapon.zh:417
+RETURNFUNC; Func[bool lweapon::MakeAngular()] Body End                          | 3853 resources/include/bindings/lweapon.zh:417
+POP D2; Func[bool lweapon::MakeDirectional()] Body Start                        | 3854 resources/include/bindings/lweapon.zh:425
+LWPNMAKEDIRECTIONAL D2                                                          | 3855 resources/include/bindings/lweapon.zh:425
+RETURNFUNC; Func[bool lweapon::MakeDirectional()] Body End                      | 3856 resources/include/bindings/lweapon.zh:425
 POP D1; Func[bool mapdata::isSolid(int, int)] Body Start                        | 3857 resources/include/bindings/mapdata.zh:925
 POP D0                                                                          | 3858 resources/include/bindings/mapdata.zh:925
 POP REFMAPDATA                                                                  | 3859 resources/include/bindings/mapdata.zh:925
@@ -4113,10 +4113,10 @@ POP D2; Func[npc npc::SummonMinionFromLayer(int)] Body Start                    
 POP REFNPC                                                                      | 4084 resources/include/bindings/npc.zh:1099
 NPC_SUMMON_MINION_LAYER D2                                                      | 4085 resources/include/bindings/npc.zh:1099
 RETURNFUNC; Func[npc npc::SummonMinionFromLayer(int)] Body End                  | 4086 resources/include/bindings/npc.zh:1099
-POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4087 resources/include/bindings/npcdata.zh:542
-POP REFNPCDATA                                                                  | 4088 resources/include/bindings/npcdata.zh:542
-NPCDATAGETNAME D2                                                               | 4089 resources/include/bindings/npcdata.zh:542
-RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4090 resources/include/bindings/npcdata.zh:542
+POP D2; Func[void npcdata::GetName(char32[])] Body Start                        | 4087 resources/include/bindings/npcdata.zh:545
+POP REFNPCDATA                                                                  | 4088 resources/include/bindings/npcdata.zh:545
+NPCDATAGETNAME D2                                                               | 4089 resources/include/bindings/npcdata.zh:545
+RETURNFUNC; Func[void npcdata::GetName(char32[])] Body End                      | 4090 resources/include/bindings/npcdata.zh:545
 CREATEPALDATA; Func[paldata paldata::paldata()] Body Start                      | 4091 resources/include/bindings/paldata.zh:9
 RETURNFUNC; Func[paldata paldata::paldata()] Body End                           | 4092 resources/include/bindings/paldata.zh:9
 POP D2; Func[paldata paldata::paldata(rgb)] Body Start                          | 4093 resources/include/bindings/paldata.zh:14
@@ -4360,27 +4360,41 @@ RETURNFUNC; Func[bool subscreenwidget::CheckConditions()] Body End              
 POP REFSUBSCREENWIDG; Func[bool subscreenwidget::CheckVisible()] Body Start     | 4331 resources/include/bindings/subscreenwidget.zh:1096
 SUBWIDG_CHECK_VISIBLE D2                                                        | 4332 resources/include/bindings/subscreenwidget.zh:1096
 RETURNFUNC; Func[bool subscreenwidget::CheckVisible()] Body End                 | 4333 resources/include/bindings/subscreenwidget.zh:1096
-POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4334 resources/include/bindings/websocket.zh:22
-WEBSOCKET_LOAD D2                                                               | 4335 resources/include/bindings/websocket.zh:22
-RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4336 resources/include/bindings/websocket.zh:22
-POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4337 resources/include/bindings/websocket.zh:46
-POP REFWEBSOCKET                                                                | 4338 resources/include/bindings/websocket.zh:46
-WEBSOCKET_ERROR D2                                                              | 4339 resources/include/bindings/websocket.zh:46
-RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4340 resources/include/bindings/websocket.zh:46
-POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4341 resources/include/bindings/websocket.zh:55
-POP D3                                                                          | 4342 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET                                                                | 4343 resources/include/bindings/websocket.zh:55
-WEBSOCKET_SEND D2 D3                                                            | 4344 resources/include/bindings/websocket.zh:55
-RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4345 resources/include/bindings/websocket.zh:55
-POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4346 resources/include/bindings/websocket.zh:65
-WEBSOCKET_RECEIVE D2                                                            | 4347 resources/include/bindings/websocket.zh:65
-RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4348 resources/include/bindings/websocket.zh:65
-POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4349 resources/include/bindings/websocket.zh:83
-WEBSOCKET_FREE                                                                  | 4350 resources/include/bindings/websocket.zh:83
-RETURNFUNC; Func[void websocket::Free()] Body End                               | 4351 resources/include/bindings/websocket.zh:83
-POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4352 resources/include/bindings/websocket.zh:95
-WEBSOCKET_OWN                                                                   | 4353 resources/include/bindings/websocket.zh:95
-RETURNFUNC; Func[void websocket::Own()] Body End                                | 4354 resources/include/bindings/websocket.zh:95
+CREATEWEAPDATA; Func[weapondata weapondata::weapondata()] Body Start            | 4334 resources/include/bindings/weapondata.zh:23
+RETURNFUNC; Func[weapondata weapondata::weapondata()] Body End                  | 4335 resources/include/bindings/weapondata.zh:23
+POP D2; Func[void weapondata::CopyTo(weapondata)] Body Start                    | 4336 resources/include/bindings/weapondata.zh:233
+POP REFWEAPDATA                                                                 | 4337 resources/include/bindings/weapondata.zh:233
+WEAPDATA_COPY D2                                                                | 4338 resources/include/bindings/weapondata.zh:233
+RETURNFUNC; Func[void weapondata::CopyTo(weapondata)] Body End                  | 4339 resources/include/bindings/weapondata.zh:233
+POP D2; Func[void weapondata::ApplyTo(lweapon)] Body Start                      | 4340 resources/include/bindings/weapondata.zh:241
+POP REFWEAPDATA                                                                 | 4341 resources/include/bindings/weapondata.zh:241
+WEAPDATA_APPLY D2                                                               | 4342 resources/include/bindings/weapondata.zh:241
+RETURNFUNC; Func[void weapondata::ApplyTo(lweapon)] Body End                    | 4343 resources/include/bindings/weapondata.zh:241
+POP D2; Func[void weapondata::ApplyTo(eweapon)] Body Start                      | 4344 resources/include/bindings/weapondata.zh:249
+POP REFWEAPDATA                                                                 | 4345 resources/include/bindings/weapondata.zh:249
+WEAPDATA_APPLY D2                                                               | 4346 resources/include/bindings/weapondata.zh:249
+RETURNFUNC; Func[void weapondata::ApplyTo(eweapon)] Body End                    | 4347 resources/include/bindings/weapondata.zh:249
+POP D2; Func[websocket websocket::websocket(char32[])] Body Start               | 4348 resources/include/bindings/websocket.zh:22
+WEBSOCKET_LOAD D2                                                               | 4349 resources/include/bindings/websocket.zh:22
+RETURNFUNC; Func[websocket websocket::websocket(char32[])] Body End             | 4350 resources/include/bindings/websocket.zh:22
+POP D2; Func[void websocket::GetError(char32[])] Body Start                     | 4351 resources/include/bindings/websocket.zh:46
+POP REFWEBSOCKET                                                                | 4352 resources/include/bindings/websocket.zh:46
+WEBSOCKET_ERROR D2                                                              | 4353 resources/include/bindings/websocket.zh:46
+RETURNFUNC; Func[void websocket::GetError(char32[])] Body End                   | 4354 resources/include/bindings/websocket.zh:46
+POP D2; Func[void websocket::Send(char32[], WebsocketType)] Body Start          | 4355 resources/include/bindings/websocket.zh:55
+POP D3                                                                          | 4356 resources/include/bindings/websocket.zh:55
+POP REFWEBSOCKET                                                                | 4357 resources/include/bindings/websocket.zh:55
+WEBSOCKET_SEND D2 D3                                                            | 4358 resources/include/bindings/websocket.zh:55
+RETURNFUNC; Func[void websocket::Send(char32[], WebsocketType)] Body End        | 4359 resources/include/bindings/websocket.zh:55
+POP REFWEBSOCKET; Func[untyped[] websocket::Receive()] Body Start               | 4360 resources/include/bindings/websocket.zh:65
+WEBSOCKET_RECEIVE D2                                                            | 4361 resources/include/bindings/websocket.zh:65
+RETURNFUNC; Func[untyped[] websocket::Receive()] Body End                       | 4362 resources/include/bindings/websocket.zh:65
+POP REFWEBSOCKET; Func[void websocket::Free()] Body Start                       | 4363 resources/include/bindings/websocket.zh:83
+WEBSOCKET_FREE                                                                  | 4364 resources/include/bindings/websocket.zh:83
+RETURNFUNC; Func[void websocket::Free()] Body End                               | 4365 resources/include/bindings/websocket.zh:83
+POP REFWEBSOCKET; Func[void websocket::Own()] Body Start                        | 4366 resources/include/bindings/websocket.zh:95
+WEBSOCKET_OWN                                                                   | 4367 resources/include/bindings/websocket.zh:95
+RETURNFUNC; Func[void websocket::Own()] Body End                                | 4368 resources/include/bindings/websocket.zh:95
 
 debug data:
 
@@ -6424,13 +6438,15 @@ debug data:
       - int LiftHeight @ Reg[COMBODLIFTHEIGHT]
       - int LiftItem @ Reg[COMBODLIFTITEM]
       - int LiftLevel @ Reg[COMBODLIFTLEVEL]
-      - int LiftLightRadius @ Reg[COMBODLIFTLIGHTRAD]
-      - int LiftLightShape @ Reg[COMBODLIFTLIGHTSHAPE]
+      - int LiftLightRadius @ Reg[COMBODLIFTLIGHTRAD] <DEPRECATED>
+      - int LiftLightShape @ Reg[COMBODLIFTLIGHTSHAPE] <DEPRECATED>
       - int LiftSFX @ Reg[COMBODLIFTSFX]
       - int LiftTime @ Reg[COMBODLIFTTIME]
       - int LiftUnderCSet @ Reg[COMBODLIFTUNDERCS]
       - int LiftUnderCombo @ Reg[COMBODLIFTUNDERCMB]
+      - const weapondata LiftWeaponData @ Reg[COMBODATA_LIFT_WEAPONDATA]
       - int LiftWeaponItem @ Reg[COMBODLIFTWEAPONITEM]
+      - const weapondata MiscWeaponData @ Reg[COMBODATA_MISC_WEAPONDATA]
       - int NextCSet @ Reg[COMBODNEXTC]
       - int NextData @ Reg[COMBODNEXTD]
       - int NextTimer @ Reg[COMBODNEXTTIMER]
@@ -9299,8 +9315,8 @@ debug data:
       - int Amount @ Reg[IDATAAMOUNT]
       - untyped[] Attributes @ Reg[IDATAATTRIB]
       - bool BunnyUsable @ Reg[IDATABUNNYABLE]
-      - int[] BurnLightRadius @ Reg[IDATABURNINGLIGHTRAD]
-      - int[] BurnSprites @ Reg[IDATABURNINGSPR]
+      - int[] BurnLightRadius @ Reg[IDATABURNINGLIGHTRAD] <DEPRECATED>
+      - int[] BurnSprites @ Reg[IDATABURNINGSPR] <DEPRECATED>
       - int CSet @ Reg[IDATACSET]
       - int CollectFlags @ Reg[IDATACOLLECTFLAGS]
       - bool Combine @ Reg[IDATACOMBINE]
@@ -9315,7 +9331,7 @@ debug data:
       - int Counter @ Reg[IDATACOUNTER]
       - int Damage @ Reg[IDATAPOWER] <HIDDEN>
       - int Defence @ Reg[IDATAUSEDEF] <HIDDEN>
-      - int Defense @ Reg[IDATAUSEDEF]
+      - int Defense @ Reg[IDATAUSEDEF] <DEPRECATED>
       - int Delay @ Reg[IDATADELAY]
       - bool Downgrade @ Reg[IDATADOWNGRADE]
       - int DrawLayer @ Reg[IDATADRAWLAYER]
@@ -9375,26 +9391,27 @@ debug data:
       - int TileWidth @ Reg[IDATATILEW]
       - int Type @ Reg[IDATATYPE]
       - bool Unused @ Reg[IDATAFLAGUNUSED]
-      - bool UseBurnSprites @ Reg[IDATAUSEBURNSPR]
+      - bool UseBurnSprites @ Reg[IDATAUSEBURNSPR] <DEPRECATED>
       - int UseSound @ Reg[IDATAUSESOUND]
       - int UseSound2 @ Reg[IDATAUSESOUND2]
       - bool Validate @ Reg[IDATAVALIDATE]
       - bool Validate2 @ Reg[IDATAVALIDATE2]
-      - int Weapon @ Reg[IDATAUSEWPN]
-      - int WeaponDrawXOffset @ Reg[IDATAWEAPXOFS]
-      - int WeaponDrawYOffset @ Reg[IDATAWEAPYOFS]
-      - int WeaponHitHeight @ Reg[IDATAWEAPHYSZ]
-      - int WeaponHitWidth @ Reg[IDATAWEAPHXSZ]
-      - int WeaponHitXOffset @ Reg[IDATAWEAPHXOFS]
-      - int WeaponHitYOffset @ Reg[IDATAWEAPHYOFS]
-      - int WeaponHitZHeight @ Reg[IDATAWEAPHZSZ]
-      - untyped[] WeaponInitD @ Reg[IDATAWPNINITD]
+      - int Weapon @ Reg[IDATAUSEWPN] <DEPRECATED>
+      - const weapondata WeaponData @ Reg[IDATA_WEAPONDATA]
+      - int WeaponDrawXOffset @ Reg[IDATAWEAPXOFS] <DEPRECATED>
+      - int WeaponDrawYOffset @ Reg[IDATAWEAPYOFS] <DEPRECATED>
+      - int WeaponHitHeight @ Reg[IDATAWEAPHYSZ] <DEPRECATED>
+      - int WeaponHitWidth @ Reg[IDATAWEAPHXSZ] <DEPRECATED>
+      - int WeaponHitXOffset @ Reg[IDATAWEAPHXOFS] <DEPRECATED>
+      - int WeaponHitYOffset @ Reg[IDATAWEAPHYOFS] <DEPRECATED>
+      - int WeaponHitZHeight @ Reg[IDATAWEAPHZSZ] <DEPRECATED>
+      - untyped[] WeaponInitD @ Reg[IDATAWPNINITD] <DEPRECATED>
       - untyped[] WeaponMisc @ Reg[IDATAMISCD]
-      - bool[] WeaponMoveFlags @ Reg[IDATAWMOVEFLAGS]
-      - int WeaponScript @ Reg[IDATAWEAPONSCRIPT]
-      - int WeaponSizeFlags @ Reg[IDATAOVERRIDEFLWEAP]
-      - int WeaponTileHeight @ Reg[IDATATILEHWEAP]
-      - int WeaponTileWidth @ Reg[IDATATILEWWEAP]
+      - bool[] WeaponMoveFlags @ Reg[IDATAWMOVEFLAGS] <DEPRECATED>
+      - int WeaponScript @ Reg[IDATAWEAPONSCRIPT] <DEPRECATED>
+      - int WeaponSizeFlags @ Reg[IDATAOVERRIDEFLWEAP] <DEPRECATED>
+      - int WeaponTileHeight @ Reg[IDATATILEHWEAP] <DEPRECATED>
+      - int WeaponTileWidth @ Reg[IDATATILEWWEAP] <DEPRECATED>
       [FUNCTION] GetDisplayName <PC:3794-3797 IDX:594> <INTERNAL>
         - const itemdata this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
@@ -10235,6 +10252,7 @@ debug data:
       - const int UID @ Reg[NPCSCRIPTUID] <DEPRECATED>
       - int Weapon @ Reg[NPCWEAPON]
       - int WeaponDamage @ Reg[NPCWDP]
+      - const weapondata WeaponData @ Reg[NPC_WEAPONDATA]
       - int WeaponSFX @ Reg[NPCFIRESFX]
       - int WeaponSprite @ Reg[NPCWEAPSPRITE]
       [FUNCTION] Attack <PC:3954-3956 IDX:655> <INTERNAL>
@@ -10596,10 +10614,11 @@ debug data:
       - int Type @ Reg[NPCDATATYPE]
       - int Weapon @ Reg[NPCDATAWEAPON]
       - int WeaponDamage @ Reg[NPCDATAWEAPONDAMAGE]
-      - int[] WeaponInitD @ Reg[NPCDATAWEAPONINITD]
-      - bool[] WeaponMoveFlags @ Reg[NPCDATAWMOVEFLAGS]
+      - const weapondata WeaponData @ Reg[NPCDATA_WEAPONDATA]
+      - int[] WeaponInitD @ Reg[NPCDATAWEAPONINITD] <DEPRECATED>
+      - bool[] WeaponMoveFlags @ Reg[NPCDATAWMOVEFLAGS] <DEPRECATED>
       - int WeaponSFX @ Reg[NPCDATAFIRESFX]
-      - int WeaponScript @ Reg[NPCDATAWEAPONSCRIPT]
+      - int WeaponScript @ Reg[NPCDATAWEAPONSCRIPT] <DEPRECATED>
       - int WeaponSprite @ Reg[NPCDATAWPNSPRITE]
       - int Width @ Reg[NPCDATAWIDTH]
       [FUNCTION] GetName <PC:4087-4090 IDX:705> <INTERNAL>
@@ -12843,128 +12862,177 @@ debug data:
       - const int Width @ Reg[VIEWPORT_WIDTH]
       - int X @ Reg[VIEWPORT_X]
       - int Y @ Reg[VIEWPORT_Y]
-  [FILE] resources/include/bindings/websocket.zh <IDX:938>
-    [ENUM] int WebsocketState <IDX:939>
+  [FILE] resources/include/bindings/weapondata.zh <IDX:938>
+    [ENUM] int WeapDataFlag <IDX:939>
+      - const WeapDataFlag WDATA_GLOW_RAD @ Constant[0]
+      - const WeapDataFlag WDATA_SET_STEP @ Constant[10000]
+    [CLASS] weapondata <IDX:940>
+      - int BounceAdd @ Reg[WEAPDATA_BOUNCE_ADD]
+      - int BounceMult @ Reg[WEAPDATA_BOUNCE_MULT]
+      - int[] BurnLightOffset @ Reg[WEAPDATA_BURN_LIGHTOFFSET]
+      - int[] BurnLightRadius @ Reg[WEAPDATA_BURN_LIGHTRAD]
+      - int[] BurnSprites @ Reg[WEAPDATA_BURN_SPRITES]
+      - int Defense @ Reg[WEAPDATA_USEDEFENCE]
+      - int DrawXOffset @ Reg[WEAPDATA_X_OFFSET]
+      - int DrawYOffset @ Reg[WEAPDATA_Y_OFFSET]
+      - bool[] Flags @ Reg[WEAPDATA_WEAP_FLAGS]
+      - int HitHeight @ Reg[WEAPDATA_HIT_HEIGHT]
+      - int HitWidth @ Reg[WEAPDATA_HIT_WIDTH]
+      - int HitXOffset @ Reg[WEAPDATA_HIT_OFFSET_X]
+      - int HitYOffset @ Reg[WEAPDATA_HIT_OFFSET_Y]
+      - int HitZHeight @ Reg[WEAPDATA_HIT_ZHEIGHT]
+      - untyped[] InitD @ Reg[WEAPDATA_INITD]
+      - int LiftHeight @ Reg[WEAPDATA_LIFTHEIGHT]
+      - int LiftLevel @ Reg[WEAPDATA_LIFTLEVEL]
+      - int LiftTime @ Reg[WEAPDATA_LIFTTIME]
+      - int LightShape @ Reg[WEAPDATA_LIGHT_SHAPE]
+      - bool[] MiscFlags @ Reg[WEAPDATA_MISC_FLAGS]
+      - bool[] MoveFlags @ Reg[WEAPDATA_MOVE_FLAGS]
+      - int PierceCount @ Reg[WEAPDATA_PIERCE]
+      - int Script @ Reg[WEAPDATA_SCRIPT]
+      - int SizeFlags @ Reg[WEAPDATA_SIZE_BITFLAGS]
+      - int Step @ Reg[WEAPDATA_STEP]
+      - int TileHeight @ Reg[WEAPDATA_TILE_H]
+      - int TileWidth @ Reg[WEAPDATA_TILE_W]
+      - int Timeout @ Reg[WEAPDATA_TIMEOUT]
+      - int Unblockable @ Reg[WEAPDATA_UNBLOCKABLE]
+      - const bool Valid @ Reg[WEAPDATA_VALID]
+      - int ViewportDespawnRange @ Reg[WEAPDATA_VIEWPORT_DESPAWN_RANGE]
+      - int ViewportSuspendRange @ Reg[WEAPDATA_VIEWPORT_SUSPEND_RANGE]
+      - int Weapon @ Reg[WEAPDATA_USEWEAPON]
+      [FUNCTION] weapondata weapondata <PC:4334-4335 IDX:941> <INTERNAL>
+        - const weapondata this @ Stack[0] <HIDDEN>
+      [FUNCTION] ApplyTo <PC:4344-4347 IDX:942> <INTERNAL>
+        - const weapondata this @ Stack[1] <HIDDEN>
+        - eweapon weap @ Stack[0]
+      [FUNCTION] ApplyTo <PC:4340-4343 IDX:943> <INTERNAL>
+        - const weapondata this @ Stack[1] <HIDDEN>
+        - lweapon weap @ Stack[0]
+      [FUNCTION] CopyTo <PC:4336-4339 IDX:944> <INTERNAL>
+        - const weapondata this @ Stack[1] <HIDDEN>
+        - weapondata target @ Stack[0]
+  [FILE] resources/include/bindings/websocket.zh <IDX:945>
+    [ENUM] int WebsocketState <IDX:946>
       - const WebsocketState WEBSOCKET_STATE_CONNECTING @ Constant[0]
       - const WebsocketState WEBSOCKET_STATE_OPEN @ Constant[1]
       - const WebsocketState WEBSOCKET_STATE_CLOSING @ Constant[2]
       - const WebsocketState WEBSOCKET_STATE_CLOSED @ Constant[3]
-    [ENUM] int WebsocketType <IDX:940>
+    [ENUM] int WebsocketType <IDX:947>
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_TEXT @ Constant[1]
       - const WebsocketType WEBSOCKET_MESSAGE_TYPE_BINARY @ Constant[2]
-    [CLASS] websocket <IDX:941>
+    [CLASS] websocket <IDX:948>
       - const bool HasMessage @ Reg[WEBSOCKET_HAS_MESSAGE]
       - const WebsocketType MessageType @ Reg[WEBSOCKET_MESSAGE_TYPE]
       - const WebsocketState State @ Reg[WEBSOCKET_STATE]
       - const char32[] URL @ Reg[WEBSOCKET_URL]
-      [FUNCTION] websocket websocket <PC:4334-4336 IDX:942> <INTERNAL>
+      [FUNCTION] websocket websocket <PC:4348-4350 IDX:949> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] url @ Stack[0]
-      [FUNCTION] Free <PC:4349-4351 IDX:943> <INTERNAL> <DEPRECATED>
+      [FUNCTION] Free <PC:4363-4365 IDX:950> <INTERNAL> <DEPRECATED>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] GetError <PC:4337-4340 IDX:944> <INTERNAL>
+      [FUNCTION] GetError <PC:4351-4354 IDX:951> <INTERNAL>
         - const websocket this @ Stack[1] <HIDDEN>
         - char32[] buf @ Stack[0]
-      [FUNCTION] Own <PC:4352-4354 IDX:945> <INTERNAL>
+      [FUNCTION] Own <PC:4366-4368 IDX:952> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] untyped[] Receive <PC:4346-4348 IDX:946> <INTERNAL>
+      [FUNCTION] untyped[] Receive <PC:4360-4362 IDX:953> <INTERNAL>
         - const websocket this @ Stack[0] <HIDDEN>
-      [FUNCTION] Send <PC:4341-4345 IDX:947> <INTERNAL>
+      [FUNCTION] Send <PC:4355-4359 IDX:954> <INTERNAL>
         - const websocket this @ Stack[2] <HIDDEN>
         - char32[] buf @ Stack[1]
         - WebsocketType type @ Stack[0]
-  [FILE] resources/include/bindings/zinfo.zh <IDX:948>
+  [FILE] resources/include/bindings/zinfo.zh <IDX:955>
     - const ZInfo Module @ Constant[0]
     - const ZInfo ZInfo @ Constant[0]
-    [CLASS] ZInfo <IDX:949>
-      [FUNCTION] GetItemType <PC:2206-2209 IDX:950> <INTERNAL>
+    [CLASS] ZInfo <IDX:956>
+      [FUNCTION] GetItemType <PC:2206-2209 IDX:957> <INTERNAL>
         - const ZInfo this @ Reg[CLASS_THISKEY] <HIDDEN>
         - char32[] buffer @ Stack[1]
         - int itemclass_id @ Stack[0]
-  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:951>
+  [FILE] tests/scripts/playground/auto/scopes.zs <IDX:958>
     - const int CONST_GLOBAL_VAR @ Constant[10000]
     - bool GLOBAL_BOOL @ Global[7]
     - int GLOBAL_VAR @ Global[6]
     - int GLOBAL_VAR_NEVER_SHADOWED @ Global[5]
-    [ENUM] int Enum <IDX:952>
+    [ENUM] int Enum <IDX:959>
       - const Enum Enum_A @ Constant[0]
       - const Enum Enum_B @ Constant[10000]
-    [NAMESPACE] A <IDX:1008>
+    [NAMESPACE] A <IDX:1015>
       - int A_var @ Global[9]
       - int GLOBAL_VAR @ Global[8]
       - CL cl @ Global[15]
-      [NAMESPACE] B <IDX:1009>
+      [NAMESPACE] B <IDX:1016>
         - int B_var @ Global[10]
-        [FUNCTION] B_fn <PC:926-950 IDX:1010>
-          [BLOCK] <PC:936-947 IDX:1011>
+        [FUNCTION] B_fn <PC:926-950 IDX:1017>
+          [BLOCK] <PC:936-947 IDX:1018>
             - int GLOBAL_VAR @ Stack[0]
-      [CLASS] CL <IDX:1012>
+      [CLASS] CL <IDX:1019>
         - int A_var @ ClassField[0]
         - int[] arr @ ClassField[2]
         - untyped[] arr_untyped @ ClassField[3]
         - CL this_ptr @ ClassField[1]
-        [FUNCTION] CL CL <PC:1040-1121 IDX:1013>
+        [FUNCTION] CL CL <PC:1040-1121 IDX:1020>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1048-1113 IDX:1014>
+          [BLOCK] <PC:1048-1113 IDX:1021>
             - CL ptr @ Stack[1]
             - DataBag d @ Stack[0]
-        [FUNCTION] ~CL <PC:1122-1133 IDX:1015>
+        [FUNCTION] ~CL <PC:1122-1133 IDX:1022>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:1125-1131 IDX:1016>
+          [BLOCK] <PC:1125-1131 IDX:1023>
             - int a @ Stack[0]
-        [FUNCTION] int getVar <PC:1148-1152 IDX:1017>
+        [FUNCTION] int getVar <PC:1148-1152 IDX:1024>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] trace <PC:1134-1147 IDX:1018>
+        [FUNCTION] trace <PC:1134-1147 IDX:1025>
           - const CL this @ Reg[CLASS_THISKEY] <HIDDEN>
-      [CLASS] DataBag <IDX:1019>
+      [CLASS] DataBag <IDX:1026>
         - int var1 @ ClassField[0]
         - int var2 @ ClassField[1]
-        [FUNCTION] DataBag DataBag <PC:957-971 IDX:1020>
+        [FUNCTION] DataBag DataBag <PC:957-971 IDX:1027>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-        [FUNCTION] int StaticClassFunction <PC:951-956 IDX:1021>
-        [FUNCTION] dosomething <PC:972-994 IDX:1022>
+        [FUNCTION] int StaticClassFunction <PC:951-956 IDX:1028>
+        [FUNCTION] dosomething <PC:972-994 IDX:1029>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
-          [BLOCK] <PC:975-991 IDX:1023>
+          [BLOCK] <PC:975-991 IDX:1030>
             - int v1 @ Stack[1]
             - int v2 @ Stack[0]
-        [FUNCTION] int sum <PC:995-1039 IDX:1024>
+        [FUNCTION] int sum <PC:995-1039 IDX:1031>
           - const DataBag this @ Reg[CLASS_THISKEY] <HIDDEN>
           - int a @ Stack[3]
           - int[] rest @ Stack[2] <VARARG>
-          [BLOCK] <PC:1000-1036 IDX:1025>
+          [BLOCK] <PC:1000-1036 IDX:1032>
             - int sum @ Stack[1]
-            [BLOCK] <PC:1010-1034 IDX:1026>
+            [BLOCK] <PC:1010-1034 IDX:1033>
               - int i @ Stack[0]
-      [FUNCTION] A_fn <PC:917-925 IDX:1027>
+      [FUNCTION] A_fn <PC:917-925 IDX:1034>
         - int GLOBAL_VAR @ Stack[0]
-      [FUNCTION] int DebugAddOne <PC:912-916 IDX:1028>
+      [FUNCTION] int DebugAddOne <PC:912-916 IDX:1035>
         - int a @ Stack[0]
-      [FUNCTION] trace <PC:1153-1159 IDX:1029>
-    [NAMESPACE] D <IDX:1030>
+      [FUNCTION] trace <PC:1153-1159 IDX:1036>
+    [NAMESPACE] D <IDX:1037>
       - int D_var @ Global[11]
-    [CLASS] DebugClassDefaultCtor <IDX:1031>
+    [CLASS] DebugClassDefaultCtor <IDX:1038>
       - int data @ ClassField[0]
-      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1626-1637 IDX:1032>
+      [FUNCTION] DebugClassDefaultCtor DebugClassDefaultCtor <PC:1626-1637 IDX:1039>
         - const DebugClassDefaultCtor this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] scopes <IDX:1033>
+    [SCRIPT] scopes <IDX:1040>
       - int SCRIPT_SCOPED_GLOBAL @ Global[12]
-      [FUNCTION] run <PC:629-825 IDX:1034>
+      [FUNCTION] run <PC:629-825 IDX:1041>
         - const genericdata this @ Stack[0]
-      [FUNCTION] int scriptFunction <PC:1745-1752 IDX:1035>
-    [FUNCTION] AccessScriptScopedMembers <PC:1725-1738 IDX:1036>
-    [FUNCTION] int DebugAdd <PC:1349-1353 IDX:1037>
+      [FUNCTION] int scriptFunction <PC:1745-1752 IDX:1042>
+    [FUNCTION] AccessScriptScopedMembers <PC:1725-1738 IDX:1043>
+    [FUNCTION] int DebugAdd <PC:1349-1353 IDX:1044>
       - int a @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1354-1361 IDX:1038>
+    [FUNCTION] int DebugAdd <PC:1354-1361 IDX:1045>
       - int a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1362-1370 IDX:1039>
+    [FUNCTION] int DebugAdd <PC:1362-1370 IDX:1046>
       - int a @ Stack[1]
       - long b @ Stack[0]
-    [FUNCTION] int DebugAdd <PC:1371-1379 IDX:1040>
+    [FUNCTION] int DebugAdd <PC:1371-1379 IDX:1047>
       - long a @ Stack[1]
       - int b @ Stack[0]
-    [FUNCTION] DebugArrays <PC:1388-1476 IDX:1041>
-      [BLOCK] <PC:1390-1466 IDX:1042>
+    [FUNCTION] DebugArrays <PC:1388-1476 IDX:1048>
+      [BLOCK] <PC:1390-1466 IDX:1049>
         - const bitmap b @ Stack[7]
         - int[] arr1 @ Stack[6]
         - int[] arr2 @ Stack[5]
@@ -12973,99 +13041,99 @@ debug data:
         - CL[] arr5 @ Stack[2]
         - untyped[] arr6 @ Stack[1]
         - const int[] arr7 @ Stack[0]
-    [FUNCTION] int DebugFrames1 <PC:1565-1589 IDX:1043>
+    [FUNCTION] int DebugFrames1 <PC:1565-1589 IDX:1050>
       - int a @ Stack[3]
       - int b @ Stack[2]
-      [BLOCK] <PC:1567-1588 IDX:1044>
+      [BLOCK] <PC:1567-1588 IDX:1051>
         - int c @ Stack[1]
         - int d @ Stack[0]
-    [FUNCTION] int DebugFrames2 <PC:1590-1600 IDX:1045>
+    [FUNCTION] int DebugFrames2 <PC:1590-1600 IDX:1052>
       - int a @ Stack[2]
       - int b @ Stack[1]
-      [BLOCK] <PC:1592-1599 IDX:1046>
+      [BLOCK] <PC:1592-1599 IDX:1053>
         - int c @ Stack[0]
-    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1601-1605 IDX:1047>
-    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1606-1612 IDX:1048>
-    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1638-1674 IDX:1049>
-      [BLOCK] <PC:1640-1670 IDX:1050>
+    [FUNCTION] DebugFunctionCallsWaitframe1 <PC:1601-1605 IDX:1054>
+    [FUNCTION] DebugFunctionCallsWaitframe2 <PC:1606-1612 IDX:1055>
+    [FUNCTION] DebugFunctionDefaultCtor1 <PC:1638-1674 IDX:1056>
+      [BLOCK] <PC:1640-1670 IDX:1057>
         - DebugClassDefaultCtor c @ Stack[1]
         - untyped[] a @ Stack[0]
-    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1675-1689 IDX:1051>
+    [FUNCTION] DebugFunctionDefaultCtor2 <PC:1675-1689 IDX:1058>
       - untyped[] c @ Stack[0]
-    [FUNCTION] DebugFunctionInfiniteLoop <PC:1613-1625 IDX:1052>
+    [FUNCTION] DebugFunctionInfiniteLoop <PC:1613-1625 IDX:1059>
       - bool forever @ Stack[0]
-    [FUNCTION] int DebugFunctionVarargs <PC:1690-1724 IDX:1053>
+    [FUNCTION] int DebugFunctionVarargs <PC:1690-1724 IDX:1060>
       - int first @ Stack[3]
       - int[] rest @ Stack[2] <VARARG>
-      [BLOCK] <PC:1694-1722 IDX:1054>
+      [BLOCK] <PC:1694-1722 IDX:1061>
         - int sum @ Stack[1]
-        [BLOCK] <PC:1696-1720 IDX:1055>
+        [BLOCK] <PC:1696-1720 IDX:1062>
           - int i @ Stack[0]
-    [FUNCTION] DebugInternalObjects <PC:1477-1564 IDX:1056>
-      [BLOCK] <PC:1479-1559 IDX:1057>
+    [FUNCTION] DebugInternalObjects <PC:1477-1564 IDX:1063>
+      [BLOCK] <PC:1479-1559 IDX:1064>
         - const ffc f @ Stack[4]
         - const npc n @ Stack[3]
         - const bitmap b @ Stack[2]
         - const randgen rng @ Stack[1]
         - untyped[] arr_rng @ Stack[0]
-    [FUNCTION] DebugPrintCL <PC:1380-1387 IDX:1058>
+    [FUNCTION] DebugPrintCL <PC:1380-1387 IDX:1065>
       - const CL cl @ Stack[0]
-    [FUNCTION] do_fn <PC:1287-1305 IDX:1059>
-      [BLOCK] <PC:1289-1303 IDX:1060>
+    [FUNCTION] do_fn <PC:1287-1305 IDX:1066>
+      [BLOCK] <PC:1289-1303 IDX:1067>
         - int i @ Stack[1]
-        [BLOCK] <PC:1290-1296 IDX:1061>
+        [BLOCK] <PC:1290-1296 IDX:1068>
           - int j @ Stack[0]
-    [FUNCTION] Enum enum_fn <PC:1263-1266 IDX:1062>
+    [FUNCTION] Enum enum_fn <PC:1263-1266 IDX:1069>
       - const Enum e @ Stack[0]
-    [FUNCTION] has_constant <PC:1167-1171 IDX:1063>
-      [BLOCK] <PC:1169-1169 IDX:1064>
+    [FUNCTION] has_constant <PC:1167-1171 IDX:1070>
+      [BLOCK] <PC:1169-1169 IDX:1071>
         - const int constant_int @ Constant[10000]
-    [FUNCTION] long_fn <PC:1258-1262 IDX:1065>
+    [FUNCTION] long_fn <PC:1258-1262 IDX:1072>
       - long a @ Stack[0]
-    [FUNCTION] loop_fn <PC:1267-1286 IDX:1066>
-      [BLOCK] <PC:1269-1281 IDX:1067>
+    [FUNCTION] loop_fn <PC:1267-1286 IDX:1073>
+      [BLOCK] <PC:1269-1281 IDX:1074>
         - int i @ Stack[0]
-      [BLOCK] <PC:1282-1284 IDX:1068>
+      [BLOCK] <PC:1282-1284 IDX:1075>
         - int x @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1069>
+      [BLOCK] <PC:0-0 IDX:1076>
         - int y @ Stack[0]
-      [BLOCK] <PC:0-0 IDX:1070>
+      [BLOCK] <PC:0-0 IDX:1077>
         - int z @ Stack[0]
-    [FUNCTION] num_fn <PC:1253-1257 IDX:1071>
+    [FUNCTION] num_fn <PC:1253-1257 IDX:1078>
       - int a @ Stack[0]
-    [FUNCTION] num_fn <PC:1248-1252 IDX:1072>
+    [FUNCTION] num_fn <PC:1248-1252 IDX:1079>
       - long a @ Stack[0]
-    [FUNCTION] range_loop_fn <PC:1306-1348 IDX:1073>
-      [BLOCK] <PC:1308-1345 IDX:1074>
+    [FUNCTION] range_loop_fn <PC:1306-1348 IDX:1080>
+      [BLOCK] <PC:1308-1345 IDX:1081>
         - int[] arr @ Stack[4]
-        [BLOCK] <PC:1313-1337 IDX:1075>
+        [BLOCK] <PC:1313-1337 IDX:1082>
           - int __LOOP_ITER @ Stack[3] <HIDDEN>
           - int[] __LOOP_ARR @ Stack[2] <HIDDEN>
           - int x @ Stack[1]
-          [BLOCK] <PC:1326-1336 IDX:1076>
+          [BLOCK] <PC:1326-1336 IDX:1083>
             - int y @ Stack[0]
-        [BLOCK] <PC:1338-1344 IDX:1077>
+        [BLOCK] <PC:1338-1344 IDX:1084>
           - int z @ Stack[3]
-    [FUNCTION] int returnOne <PC:1739-1744 IDX:1078>
-    [FUNCTION] template_fn <PC:1199-1229 IDX:1079>
+    [FUNCTION] int returnOne <PC:1739-1744 IDX:1085>
+    [FUNCTION] template_fn <PC:1199-1229 IDX:1086>
       - char32[] val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1203-1225 IDX:1080>
+      [BLOCK] <PC:1203-1225 IDX:1087>
         - char32[][][] double_arr @ Stack[0]
-    [FUNCTION] template_fn <PC:1172-1198 IDX:1081>
+    [FUNCTION] template_fn <PC:1172-1198 IDX:1088>
       - int val1 @ Stack[2]
       - int val2 @ Stack[1]
-      [BLOCK] <PC:1174-1195 IDX:1082>
+      [BLOCK] <PC:1174-1195 IDX:1089>
         - int[][] double_arr @ Stack[0]
-    [FUNCTION] trace_all <PC:1230-1239 IDX:1083>
+    [FUNCTION] trace_all <PC:1230-1239 IDX:1090>
       - int a @ Stack[1]
       - int[] b @ Stack[0] <VARARG>
-    [FUNCTION] trace_all_2 <PC:1240-1247 IDX:1084>
+    [FUNCTION] trace_all_2 <PC:1240-1247 IDX:1091>
       - int[] a @ Stack[0] <VARARG>
-    [FUNCTION] using_namespace_statement <PC:1160-1166 IDX:1085>
-      [BLOCK] <PC:1161-1165 IDX:1086>
-  [FILE] resources/include/std.zh <IDX:953>
-  [FILE] resources/include/std_zh/std.cfg <IDX:954>
+    [FUNCTION] using_namespace_statement <PC:1160-1166 IDX:1092>
+      [BLOCK] <PC:1161-1165 IDX:1093>
+  [FILE] resources/include/std.zh <IDX:960>
+  [FILE] resources/include/std_zh/std.cfg <IDX:961>
     - const int MAX_HIGHEST_LEVEL_ITEM_CHECK @ Constant[2550000]
     - const int MAX_NOACTION_INPUT @ Constant[140000]
     - const int NOACTION_SKIP_MAP @ Constant[0]
@@ -13079,12 +13147,12 @@ debug data:
     - const int STD_EMULATE_ENGINE_COLLISION @ Constant[0]
     - const int STD_FORCE_OLD_DISTANCE @ Constant[10000]
     - const int STD_NEVER_USE_SAFESQRT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_extension.zh <IDX:955>
-  [FILE] resources/include/std_zh/std_functions.zh <IDX:956>
-    [NAMESPACE] std <IDX:967>
-    [FUNCTION] bool Above <PC:2564-2578 IDX:968>
+  [FILE] resources/include/std_zh/std_extension.zh <IDX:962>
+  [FILE] resources/include/std_zh/std_functions.zh <IDX:963>
+    [NAMESPACE] std <IDX:974>
+    [FUNCTION] bool Above <PC:2564-2578 IDX:975>
       - sprite s @ Stack[0]
-  [FILE] resources/include/std_zh/std_constants.zh <IDX:957>
+  [FILE] resources/include/std_zh/std_constants.zh <IDX:964>
     - const int BIT_INTBTN_A @ Constant[10000]
     - const int BIT_INTBTN_B @ Constant[20000]
     - const int BIT_INTBTN_EX1 @ Constant[160000]
@@ -13395,7 +13463,7 @@ debug data:
     - const int SUBSCREEN_BOTTOM @ Constant[-10000]
     - const int SUBSCREEN_TOP @ Constant[-560000]
     - const int TERMINAL_VELOCITY @ Constant[32000]
-    [ENUM] int AimType <IDX:958>
+    [ENUM] int AimType <IDX:965>
       - const AimType AT_NONE @ Constant[0]
       - const AimType AT_4DIR @ Constant[10000]
       - const AimType AT_8DIR @ Constant[20000]
@@ -13403,7 +13471,7 @@ debug data:
       - const AimType AT_RAND4DIR @ Constant[40000]
       - const AimType AT_RAND8DIR @ Constant[50000]
       - const AimType AT_RANDANGULAR @ Constant[60000]
-    [ENUM] int Dir2 <IDX:959>
+    [ENUM] int Dir2 <IDX:966>
       - const Dir2 DIR2_UP @ Constant[80000]
       - const Dir2 DIR2_RIGHTUP @ Constant[90000]
       - const Dir2 DIR2_RIGHT @ Constant[100000]
@@ -13416,7 +13484,7 @@ debug data:
       - const Dir2 DIR2_DOWNRIGHT @ Constant[110000]
       - const Dir2 DIR2_DOWNLEFT @ Constant[130000]
       - const Dir2 DIR2_UPLEFT @ Constant[150000]
-    [ENUM] int DitherType <IDX:960>
+    [ENUM] int DitherType <IDX:967>
       - const DitherType DITH_CHECKER @ Constant[0]
       - const DitherType DITH_CHECKER_INV @ Constant[10000]
       - const DitherType DITH_CRISS_CROSS @ Constant[20000]
@@ -13446,17 +13514,17 @@ debug data:
       - const DitherType DITH_DOTS4 @ Constant[260000]
       - const DitherType DITH_DOTS4_INV @ Constant[270000]
       - const DitherType DITH_MAX @ Constant[280000]
-    [ENUM] int HeroMoveFlag <IDX:961>
+    [ENUM] int HeroMoveFlag <IDX:968>
       - const HeroMoveFlag HEROMV_OBEYS_GRAVITY @ Constant[0]
       - const HeroMoveFlag HEROMV_CAN_PITFALL @ Constant[10000]
       - const HeroMoveFlag HEROMV_NO_FAKE_Z @ Constant[80000]
       - const HeroMoveFlag HEROMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int ItemspriteMoveFlag <IDX:962>
+    [ENUM] int ItemspriteMoveFlag <IDX:969>
       - const ItemspriteMoveFlag ITEMMV_OBEYS_GRAVITY @ Constant[0]
       - const ItemspriteMoveFlag ITEMMV_CAN_PITFALL @ Constant[10000]
       - const ItemspriteMoveFlag ITEMMV_NO_FAKE_Z @ Constant[80000]
       - const ItemspriteMoveFlag ITEMMV_NO_REAL_Z @ Constant[90000]
-    [ENUM] int NPCMoveFlag <IDX:963>
+    [ENUM] int NPCMoveFlag <IDX:970>
       - const NPCMoveFlag NPCMV_OBEYS_GRAVITY @ Constant[0]
       - const NPCMoveFlag NPCMV_CAN_PITFALL @ Constant[10000]
       - const NPCMoveFlag NPCMV_CAN_PIT_WALK @ Constant[20000]
@@ -13473,12 +13541,12 @@ debug data:
       - const NPCMoveFlag NPCMV_IGNORE_SCREENEDGE @ Constant[130000]
       - const NPCMoveFlag NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE @ Constant[140000]
       - const NPCMoveFlag NPCMV_NOT_PUSHABLE_BY_SOLIDS @ Constant[150000]
-    [ENUM] int WeaponMoveFlag <IDX:964>
+    [ENUM] int WeaponMoveFlag <IDX:971>
       - const WeaponMoveFlag WPNMV_OBEYS_GRAVITY @ Constant[0]
       - const WeaponMoveFlag WPNMV_CAN_PITFALL @ Constant[10000]
       - const WeaponMoveFlag WPNMV_NO_FAKE_Z @ Constant[80000]
       - const WeaponMoveFlag WPNMV_NO_REAL_Z @ Constant[90000]
-  [FILE] resources/include/std_zh/limits.zh <IDX:965>
+  [FILE] resources/include/std_zh/limits.zh <IDX:972>
     - const int BYTE_MAX @ Constant[2550000]
     - const int BYTE_MIN @ Constant[0]
     - const int CHAR_MAX @ Constant[1270000]
@@ -13505,7 +13573,7 @@ debug data:
     - const int USHRT_MIN @ Constant[0]
     - const int WORD_MAX @ Constant[655350000]
     - const int WORD_MIN @ Constant[0]
-  [FILE] resources/include/std_zh/script_runners.zh <IDX:966>
+  [FILE] resources/include/std_zh/script_runners.zh <IDX:973>
     - const int FFCS_INVISIBLE_COMBO @ Constant[10000]
     - const int FFCS_MAX_FFC @ Reg[MAX_FFC_ID]
     - const int FFCS_MIN_FFC @ Constant[10000]
@@ -13521,18 +13589,18 @@ debug data:
     - const int MIN_ITEMSPRITESCRIPT @ Constant[10000]
     - const int MIN_LWEAPONSCRIPT @ Constant[10000]
     - const int MIN_NPCSCRIPT @ Constant[10000]
-  [FILE] resources/include/std_zh/std_time.zh <IDX:969>
-    [NAMESPACE] time <IDX:970>
+  [FILE] resources/include/std_zh/std_time.zh <IDX:976>
+    [NAMESPACE] time <IDX:977>
       - const int FRAMES_PER_SECOND @ Constant[600000]
       - const int MINUTES_PER_HOUR @ Constant[600000]
       - const int SECONDS_PER_MINUTE @ Constant[600000]
       - const long TIME_FRAME @ Constant[1]
-  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:971>
-    [NAMESPACE] GhostBasedMovement <IDX:972>
-  [FILE] resources/include/std_zh/std_sideview.zh <IDX:973>
+  [FILE] resources/include/std_zh/ghostBasedMovement.zh <IDX:978>
+    [NAMESPACE] GhostBasedMovement <IDX:979>
+  [FILE] resources/include/std_zh/std_sideview.zh <IDX:980>
     - const bool ONSIDEVIEWPLATFORM_CHECK_OBJ_WIDTH @ Constant[10000]
     - const int ONSIDEVIEWPLATFORM_OVERHANG_DEPTH @ Constant[40000]
-  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:974>
+  [FILE] resources/include/std_zh/string/string_constants.zh <IDX:981>
     - const char32 CHAR_0 @ Constant[480000]
     - const char32 CHAR_0_SUPER @ Constant[1860000]
     - const char32 CHAR_1 @ Constant[490000]
@@ -13823,8 +13891,8 @@ debug data:
     - const int MF_PTR @ Constant[50000]
     - const int MF_STRING @ Constant[10000]
     - const char32 MSGC_LINEFEED @ Constant[100000]
-  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:975>
-  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:976>
+  [FILE] resources/include/std_zh/string/string_functions.zh <IDX:982>
+  [FILE] resources/include/std_zh/std_keyboard.zh <IDX:983>
     - const char32 CHAR_ARROW_D @ Constant[-5120000]
     - const char32 CHAR_ARROW_L @ Constant[-2560000]
     - const char32 CHAR_ARROW_R @ Constant[-10240000]
@@ -13845,64 +13913,64 @@ debug data:
     - const int KEYBOARD_REPEAT_RATE @ Constant[60000]
     - const int KEYBOARD_TYPE @ Constant[0]
     - const int ___KEY_TIMER @ Constant[2550000]
-  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:977>
-    [NAMESPACE] Test <IDX:978>
+  [FILE] tests/scripts/playground/auto/test_runner.zs <IDX:984>
+    [NAMESPACE] Test <IDX:985>
       - const int TestingDmap @ Constant[50000]
-      [FUNCTION] Assert <PC:2810-2823 IDX:979>
+      [FUNCTION] Assert <PC:2810-2823 IDX:986>
         - CL actual @ Stack[0]
-      [FUNCTION] Assert <PC:2796-2809 IDX:980>
+      [FUNCTION] Assert <PC:2796-2809 IDX:987>
         - Thing[] actual @ Stack[0]
-      [FUNCTION] Assert <PC:2782-2795 IDX:981>
+      [FUNCTION] Assert <PC:2782-2795 IDX:988>
         - bitmap actual @ Stack[0]
-      [FUNCTION] Assert <PC:2771-2781 IDX:982>
+      [FUNCTION] Assert <PC:2771-2781 IDX:989>
         - npc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2760-2770 IDX:983>
+      [FUNCTION] Assert <PC:2760-2770 IDX:990>
         - ffc actual @ Stack[0]
-      [FUNCTION] Assert <PC:2749-2759 IDX:984>
+      [FUNCTION] Assert <PC:2749-2759 IDX:991>
         - int actual @ Stack[0]
-      [FUNCTION] Assert <PC:2738-2748 IDX:985>
+      [FUNCTION] Assert <PC:2738-2748 IDX:992>
         - bool actual @ Stack[0]
-      [FUNCTION] Assert <PC:2853-2865 IDX:986>
+      [FUNCTION] Assert <PC:2853-2865 IDX:993>
         - untyped actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2837-2852 IDX:987>
+      [FUNCTION] Assert <PC:2837-2852 IDX:994>
         - Thing actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] Assert <PC:2824-2836 IDX:988>
+      [FUNCTION] Assert <PC:2824-2836 IDX:995>
         - bool actual @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2608-2629 IDX:989>
+      [FUNCTION] AssertEqual <PC:2608-2629 IDX:996>
         - int actual @ Stack[1]
         - int expected @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2711-2737 IDX:990>
+      [FUNCTION] AssertEqual <PC:2711-2737 IDX:997>
         - long actual @ Stack[2]
         - long expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2684-2710 IDX:991>
+      [FUNCTION] AssertEqual <PC:2684-2710 IDX:998>
         - untyped actual @ Stack[2]
         - untyped expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2657-2683 IDX:992>
+      [FUNCTION] AssertEqual <PC:2657-2683 IDX:999>
         - bool actual @ Stack[2]
         - bool expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] AssertEqual <PC:2630-2656 IDX:993>
+      [FUNCTION] AssertEqual <PC:2630-2656 IDX:1000>
         - int actual @ Stack[2]
         - int expected @ Stack[1]
         - char32[] error @ Stack[0]
-      [FUNCTION] End <PC:2601-2607 IDX:994>
-      [FUNCTION] Fail <PC:2866-2890 IDX:995>
+      [FUNCTION] End <PC:2601-2607 IDX:1001>
+      [FUNCTION] Fail <PC:2866-2890 IDX:1002>
         - char32[] error @ Stack[0]
-      [FUNCTION] Init <PC:2579-2600 IDX:996>
+      [FUNCTION] Init <PC:2579-2600 IDX:1003>
         - int screen @ Stack[0]
-    [SCRIPT] TestRunner <IDX:997>
-      [FUNCTION] run <PC:38-90 IDX:998>
+    [SCRIPT] TestRunner <IDX:1004>
+      [FUNCTION] run <PC:38-90 IDX:1005>
         - const dmapdata this @ Stack[3]
-        [BLOCK] <PC:41-89 IDX:999>
+        [BLOCK] <PC:41-89 IDX:1006>
           - char32[] name @ Stack[2]
           - int script_id @ Stack[1]
           - genericdata gd @ Stack[0]
-  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:1000>
+  [FILE] tests/scripts/playground/auto/global_objects.zs <IDX:1007>
     - Thing globalThing @ Global[13]
     - Thing[] globalThings @ Global[16]
     - untyped[] globalUntypedThings @ Global[17]
@@ -13912,25 +13980,25 @@ debug data:
     - Thing[] thingsNotGlobalized @ Global[18]
     - int untypedThingGlobalized @ Global[2]
     - int untypedThingNotGlobalized @ Global[3]
-    [CLASS] Counter <IDX:1001>
+    [CLASS] Counter <IDX:1008>
       - int field @ ClassField[0]
-      [FUNCTION] Counter Counter <PC:2552-2563 IDX:1002>
+      [FUNCTION] Counter Counter <PC:2552-2563 IDX:1009>
         - const Counter this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [CLASS] Thing <IDX:1003>
+    [CLASS] Thing <IDX:1010>
       - bitmap a_bitmap @ ClassField[1]
       - Counter not_globalized @ ClassField[2]
       - Thing otherThing @ ClassField[0]
       - Counter[] someCounters @ ClassField[3]
-      [FUNCTION] Thing Thing <PC:2539-2551 IDX:1004>
+      [FUNCTION] Thing Thing <PC:2539-2551 IDX:1011>
         - const Thing this @ Reg[CLASS_THISKEY] <HIDDEN>
-    [SCRIPT] global_objects <IDX:1005>
-      [FUNCTION] run <PC:91-628 IDX:1006>
+    [SCRIPT] global_objects <IDX:1012>
+      [FUNCTION] run <PC:91-628 IDX:1013>
         - const genericdata this @ Stack[2]
-        [BLOCK] <PC:94-627 IDX:1007>
+        [BLOCK] <PC:94-627 IDX:1014>
           - bool firstTime @ Stack[1]
           - Thing thing @ Stack[0]
-  [SCRIPT] ~Init <IDX:1087>
-    [FUNCTION] run <PC:0-37 IDX:1088>
+  [SCRIPT] ~Init <IDX:1094>
+    [FUNCTION] run <PC:0-37 IDX:1095>
 
 Types:
 
@@ -13999,441 +14067,445 @@ Types:
 62: itemsprite
 63: ffc
 64: subscreenwidget
-65: untyped[]
-66: Counter
-67: Thing
-68: CL
-69: DataBag
-70: DebugClassDefaultCtor
-71: Enum
-72: BlitModeBitflags
-73: const BlitModeBitflags
-74: ComboFlag
-75: const ComboFlag
-76: ComboLiftFlag
-77: const ComboLiftFlag
-78: ComboType
-79: const ComboType
-80: CornerIndex
-81: const CornerIndex
-82: CounterIndex
-83: const CounterIndex
-84: Direction
-85: const Direction
-86: DrawStyle
-87: const DrawStyle
-88: EnemyPattern
-89: const EnemyPattern
-90: FontType
-91: const FontType
-92: HitIndex
-93: const HitIndex
-94: InteractButton
-95: const InteractButton
-96: LiftFlag
-97: const LiftFlag
-98: LightShape
-99: const LightShape
-100: PickupStringBitflags
-101: const PickupStringBitflags
-102: ShadowType
-103: const ShadowType
-104: SideWarpIndex
-105: const SideWarpIndex
-106: SizeOverrideBitflags
-107: const SizeOverrideBitflags
-108: SpecialDrawLayer
-109: const SpecialDrawLayer
-110: SpriteID
-111: const SpriteID
-112: SwitchEffect
-113: const SwitchEffect
-114: TextAlignment
-115: const TextAlignment
-116: TileWarpIndex
-117: const TileWarpIndex
-118: TransformationType
-119: const TransformationType
-120: UnblockableBitflags
-121: const UnblockableBitflags
-122: WarpIndex
-123: const WarpIndex
-124: WarpType
-125: const WarpType
-126: WeaponDeadState
-127: const WeaponDeadState
-128: WeaponFlag
-129: const WeaponFlag
-130: WeaponSpriteIndex
-131: const WeaponSpriteIndex
-132: const int
-133: ExtendMode
-134: const ExtendMode
-135: MoveFlag
-136: const MoveFlag
-137: bool[]
-138: const bool
-139: sprite
-140: const sprite
-141: MusicRefreshFlag
-142: const MusicRefreshFlag
-143: MusicRefreshMode
-144: const MusicRefreshMode
-145: SoundEffect
-146: const SoundEffect
-147: VolumeIndex
-148: const VolumeIndex
-149: Audio
-150: const Audio
-151: int[]
-152: const bitmap
-153: BottleFlag
-154: const BottleFlag
-155: const bottledata
-156: const bottleshopdata
-157: AnimationBitflags
-158: const AnimationBitflags
-159: ComboGeneralFlag
-160: const ComboGeneralFlag
-161: ComboSolidityBitflags
-162: const ComboSolidityBitflags
-163: combotrigger[]
-164: const combotrigger[]
-165: const combodata
-166: ComboTriggerFlag
-167: const ComboTriggerFlag
-168: const combotrigger
-169: Debug
-170: const Debug
-171: const directory
-172: DMapBitflags
-173: const DMapBitflags
-174: DMapChartedBitflags
-175: const DMapChartedBitflags
-176: DMapFlag
-177: const DMapFlag
-178: DMapType
-179: const DMapType
-180: const dmapdata
-181: const dropsetdata
-182: EWeaponType
-183: const EWeaponType
-184: const eweapon
-185: FFCFlag
-186: const FFCFlag
-187: const ffc
-188: const long
-189: const file
-190: FileSystem
-191: const FileSystem
-192: CurrentItemIDBitflags
-193: const CurrentItemIDBitflags
-194: EventDataIndex_CollectItem
-195: const EventDataIndex_CollectItem
-196: EventDataIndex_EnemyDeath
-197: const EventDataIndex_EnemyDeath
-198: EventDataIndex_EnemyDropItem1
-199: const EventDataIndex_EnemyDropItem1
-200: EventDataIndex_EnemyDropItem2
-201: const EventDataIndex_EnemyDropItem2
-202: EventDataIndex_EnemyHit
-203: const EventDataIndex_EnemyHit
-204: EventDataIndex_HeroHit
-205: const EventDataIndex_HeroHit
-206: EventDataIndex_PlayerFallDrown
-207: const EventDataIndex_PlayerFallDrown
-208: GameOverScreenElementIndex
-209: const GameOverScreenElementIndex
-210: GameOverStringIndex
-211: const GameOverStringIndex
-212: GenericIndex
-213: const GenericIndex
-214: GravityIndex
-215: const GravityIndex
-216: ItemCollectEventType
-217: const ItemCollectEventType
-218: LayerZIndex
-219: const LayerZIndex
-220: LevelItemBitflags
-221: const LevelItemBitflags
-222: MiscSfx
-223: const MiscSfx
-224: MiscSpriteIndex
-225: const MiscSpriteIndex
-226: MouseCursor
-227: const MouseCursor
-228: ObjectType
-229: const ObjectType
-230: RegionMapping
-231: const RegionMapping
-232: ScrollingIndex
-233: const ScrollingIndex
-234: SuspendType
-235: const SuspendType
-236: Game
-237: const Game
-238: const int[]
-239: const bool[]
-240: long[]
-241: savedportal[]
-242: const savedportal[]
-243: GenericScriptStateIndex
-244: const GenericScriptStateIndex
-245: const genericdata
-246: const GenericScriptEvent
-247: RealTimeClockCategory
-248: const RealTimeClockCategory
-249: ScriptTiming
-250: const ScriptTiming
-251: StoredMemoryBitflags
-252: const StoredMemoryBitflags
-253: const untyped
-254: T[]
-255: ColorSpace
-256: const ColorSpace
-257: Graphics
-258: const Graphics
-259: HammerPosition
-260: const HammerPosition
-261: HeroAction
-262: const HeroAction
-263: HeroSliding
-264: const HeroSliding
-265: ItemRequireBitflags
-266: const ItemRequireBitflags
-267: ItemSlot
-268: const ItemSlot
-269: MouseButtonBitflags
-270: const MouseButtonBitflags
-271: WarpBitflags
-272: const WarpBitflags
-273: WarpEffect
-274: const WarpEffect
-275: hero
-276: const hero
-277: const untyped[]
-278: Button
-279: const Button
-280: KeyCode
-281: const KeyCode
-282: KeyModifierBitflags
-283: const KeyModifierBitflags
-284: MouseIndex
-285: const MouseIndex
-286: Input
-287: const Input
-288: BlockBitflags
-289: const BlockBitflags
-290: BlockBitflagsInt
-291: const BlockBitflagsInt
-292: ItemBurnIndex
-293: const ItemBurnIndex
-294: ItemID
-295: const ItemID
-296: ItemMiscBitflags
-297: const ItemMiscBitflags
-298: ItemPickupBitflags
-299: const ItemPickupBitflags
-300: ItemScriptRunMode
-301: const ItemScriptRunMode
-302: ItemType
-303: const ItemType
-304: const itemdata
-305: const itemsprite
-306: LWeaponType
-307: const LWeaponType
-308: const lweapon
-309: DoorIndex
-310: const DoorIndex
-311: DoorType
-312: const DoorType
-313: FFCBitflags
-314: const FFCBitflags
-315: NoCarryBitflags
-316: const NoCarryBitflags
-317: NoResetBitflags
-318: const NoResetBitflags
-319: RoomType
-320: const RoomType
-321: ScreenState
-322: const ScreenState
-323: SecretComboIndex
-324: const SecretComboIndex
-325: combodata[]
-326: const combodata[]
-327: WarpType[]
-328: const mapdata
-329: MessageFlag
-330: const MessageFlag
-331: MessageSegmentType
-332: const MessageSegmentType
-333: const messagedata
-334: const musicdata
-335: BossPal
-336: const BossPal
-337: ItemSet
-338: const ItemSet
-339: NPCFlags
-340: const NPCFlags
-341: NPCID
-342: const NPCID
-343: NPCMiscBitflags
-344: const NPCMiscBitflags
-345: NPCMoveStatus
-346: const NPCMoveStatus
-347: NPCWalkType
-348: const NPCWalkType
-349: const npc
-350: NPCDefenseIndex
-351: const NPCDefenseIndex
-352: NPCDefenseType
-353: const NPCDefenseType
-354: NPCFade
-355: const NPCFade
-356: NPCShieldIndex
-357: const NPCShieldIndex
-358: NPCType
-359: const NPCType
-360: NPCWeapon
-361: const NPCWeapon
-362: const npcdata
-363: const rgb
-364: rgb[]
-365: const paldata
-366: const portal
-367: QR
-368: const QR
-369: const randgen
-370: Region
-371: const Region
-372: SaveMenuFlags
-373: const SaveMenuFlags
-374: SaveMenuOptionFlags
-375: const SaveMenuOptionFlags
-376: SaveMenuOptionFlags[]
-377: const save_menu
-378: const savedportal
-379: DrawOrigin
-380: const DrawOrigin
-381: PolygonRenderMode
-382: const PolygonRenderMode
-383: RenderTarget
-384: const RenderTarget
-385: ScreenEnemyFlagGroup
-386: const ScreenEnemyFlagGroup
-387: ScreenEnemyFlagList1
-388: const ScreenEnemyFlagList1
-389: ScreenEnemyFlagList2
-390: const ScreenEnemyFlagList2
-391: ScreenEnemyFlagSpawn
-392: const ScreenEnemyFlagSpawn
-393: ScreenFlag
-394: const ScreenFlag
-395: ScreenFlagCombos
-396: const ScreenFlagCombos
-397: ScreenFlagFFC
-398: const ScreenFlagFFC
-399: ScreenFlagGroup
-400: const ScreenFlagGroup
-401: ScreenFlagItems
-402: const ScreenFlagItems
-403: ScreenFlagMisc
-404: const ScreenFlagMisc
-405: ScreenFlagRoomType
-406: const ScreenFlagRoomType
-407: ScreenFlagSave
-408: const ScreenFlagSave
-409: ScreenFlagSecrets
-410: const ScreenFlagSecrets
-411: ScreenFlagView
-412: const ScreenFlagView
-413: ScreenFlagWarp
-414: const ScreenFlagWarp
-415: ScreenFlagWhistle
-416: const ScreenFlagWhistle
-417: SpriteList
-418: const SpriteList
-419: WipeEffect
-420: const WipeEffect
-421: screendata
-422: const screendata
-423: eweapon[]
-424: const eweapon[]
-425: ffc[]
-426: const ffc[]
-427: itemsprite[]
-428: const itemsprite[]
-429: lweapon[]
-430: const lweapon[]
-431: npc[]
-432: const npc[]
-433: portal[]
-434: const portal[]
-435: SpriteDataFlag
-436: const SpriteDataFlag
-437: const stack
-438: SubscreenPageMode
-439: const SubscreenPageMode
-440: SubscreenWidgetGenFlag
-441: const SubscreenWidgetGenFlag
-442: SubscreenWidgetType
-443: const SubscreenWidgetType
-444: TransitionFlag
-445: const TransitionFlag
-446: subscreenpage
-447: subscreenpage[]
-448: const subscreenpage[]
-449: const subscreendata
-450: MoveSubscreenSelectorBitflags
-451: const MoveSubscreenSelectorBitflags
-452: subscreenwidget[]
-453: const subscreenwidget[]
-454: const subscreenpage
-455: ConditionType
-456: const ConditionType
-457: SubscreenItemButton
-458: const SubscreenItemButton
-459: const subscreenwidget
-460: Text
-461: const Text
-462: ViewportMode
-463: const ViewportMode
-464: Viewport
-465: const Viewport
-466: WebsocketState
-467: const WebsocketState
-468: WebsocketType
-469: const WebsocketType
-470: const char32[]
-471: const websocket
-472: ZInfo
-473: const ZInfo
-474: const Enum
-475: AimType
-476: const AimType
-477: Dir2
-478: const Dir2
-479: DitherType
-480: const DitherType
-481: HeroMoveFlag
-482: const HeroMoveFlag
-483: ItemspriteMoveFlag
-484: const ItemspriteMoveFlag
-485: NPCMoveFlag
-486: const NPCMoveFlag
-487: WeaponMoveFlag
-488: const WeaponMoveFlag
-489: const char32
-490: Thing[]
-491: const Counter
-492: Counter[]
-493: const Thing
-494: const CL
-495: const DataBag
-496: const DebugClassDefaultCtor
-497: CL[]
-498: char32[][]
-499: char32[][][]
-500: int[][]
+65: weapondata
+66: untyped[]
+67: Counter
+68: Thing
+69: CL
+70: DataBag
+71: DebugClassDefaultCtor
+72: Enum
+73: BlitModeBitflags
+74: const BlitModeBitflags
+75: ComboFlag
+76: const ComboFlag
+77: ComboLiftFlag
+78: const ComboLiftFlag
+79: ComboType
+80: const ComboType
+81: CornerIndex
+82: const CornerIndex
+83: CounterIndex
+84: const CounterIndex
+85: Direction
+86: const Direction
+87: DrawStyle
+88: const DrawStyle
+89: EnemyPattern
+90: const EnemyPattern
+91: FontType
+92: const FontType
+93: HitIndex
+94: const HitIndex
+95: InteractButton
+96: const InteractButton
+97: LiftFlag
+98: const LiftFlag
+99: LightShape
+100: const LightShape
+101: PickupStringBitflags
+102: const PickupStringBitflags
+103: ShadowType
+104: const ShadowType
+105: SideWarpIndex
+106: const SideWarpIndex
+107: SizeOverrideBitflags
+108: const SizeOverrideBitflags
+109: SpecialDrawLayer
+110: const SpecialDrawLayer
+111: SpriteID
+112: const SpriteID
+113: SwitchEffect
+114: const SwitchEffect
+115: TextAlignment
+116: const TextAlignment
+117: TileWarpIndex
+118: const TileWarpIndex
+119: TransformationType
+120: const TransformationType
+121: UnblockableBitflags
+122: const UnblockableBitflags
+123: WarpIndex
+124: const WarpIndex
+125: WarpType
+126: const WarpType
+127: WeaponDeadState
+128: const WeaponDeadState
+129: WeaponFlag
+130: const WeaponFlag
+131: WeaponSpriteIndex
+132: const WeaponSpriteIndex
+133: const int
+134: ExtendMode
+135: const ExtendMode
+136: MoveFlag
+137: const MoveFlag
+138: bool[]
+139: const bool
+140: sprite
+141: const sprite
+142: MusicRefreshFlag
+143: const MusicRefreshFlag
+144: MusicRefreshMode
+145: const MusicRefreshMode
+146: SoundEffect
+147: const SoundEffect
+148: VolumeIndex
+149: const VolumeIndex
+150: Audio
+151: const Audio
+152: int[]
+153: const bitmap
+154: BottleFlag
+155: const BottleFlag
+156: const bottledata
+157: const bottleshopdata
+158: AnimationBitflags
+159: const AnimationBitflags
+160: ComboGeneralFlag
+161: const ComboGeneralFlag
+162: ComboSolidityBitflags
+163: const ComboSolidityBitflags
+164: const weapondata
+165: combotrigger[]
+166: const combotrigger[]
+167: const combodata
+168: ComboTriggerFlag
+169: const ComboTriggerFlag
+170: const combotrigger
+171: Debug
+172: const Debug
+173: const directory
+174: DMapBitflags
+175: const DMapBitflags
+176: DMapChartedBitflags
+177: const DMapChartedBitflags
+178: DMapFlag
+179: const DMapFlag
+180: DMapType
+181: const DMapType
+182: const dmapdata
+183: const dropsetdata
+184: EWeaponType
+185: const EWeaponType
+186: const eweapon
+187: FFCFlag
+188: const FFCFlag
+189: const ffc
+190: const long
+191: const file
+192: FileSystem
+193: const FileSystem
+194: CurrentItemIDBitflags
+195: const CurrentItemIDBitflags
+196: EventDataIndex_CollectItem
+197: const EventDataIndex_CollectItem
+198: EventDataIndex_EnemyDeath
+199: const EventDataIndex_EnemyDeath
+200: EventDataIndex_EnemyDropItem1
+201: const EventDataIndex_EnemyDropItem1
+202: EventDataIndex_EnemyDropItem2
+203: const EventDataIndex_EnemyDropItem2
+204: EventDataIndex_EnemyHit
+205: const EventDataIndex_EnemyHit
+206: EventDataIndex_HeroHit
+207: const EventDataIndex_HeroHit
+208: EventDataIndex_PlayerFallDrown
+209: const EventDataIndex_PlayerFallDrown
+210: GameOverScreenElementIndex
+211: const GameOverScreenElementIndex
+212: GameOverStringIndex
+213: const GameOverStringIndex
+214: GenericIndex
+215: const GenericIndex
+216: GravityIndex
+217: const GravityIndex
+218: ItemCollectEventType
+219: const ItemCollectEventType
+220: LayerZIndex
+221: const LayerZIndex
+222: LevelItemBitflags
+223: const LevelItemBitflags
+224: MiscSfx
+225: const MiscSfx
+226: MiscSpriteIndex
+227: const MiscSpriteIndex
+228: MouseCursor
+229: const MouseCursor
+230: ObjectType
+231: const ObjectType
+232: RegionMapping
+233: const RegionMapping
+234: ScrollingIndex
+235: const ScrollingIndex
+236: SuspendType
+237: const SuspendType
+238: Game
+239: const Game
+240: const int[]
+241: const bool[]
+242: long[]
+243: savedportal[]
+244: const savedportal[]
+245: GenericScriptStateIndex
+246: const GenericScriptStateIndex
+247: const genericdata
+248: const GenericScriptEvent
+249: RealTimeClockCategory
+250: const RealTimeClockCategory
+251: ScriptTiming
+252: const ScriptTiming
+253: StoredMemoryBitflags
+254: const StoredMemoryBitflags
+255: const untyped
+256: T[]
+257: ColorSpace
+258: const ColorSpace
+259: Graphics
+260: const Graphics
+261: HammerPosition
+262: const HammerPosition
+263: HeroAction
+264: const HeroAction
+265: HeroSliding
+266: const HeroSliding
+267: ItemRequireBitflags
+268: const ItemRequireBitflags
+269: ItemSlot
+270: const ItemSlot
+271: MouseButtonBitflags
+272: const MouseButtonBitflags
+273: WarpBitflags
+274: const WarpBitflags
+275: WarpEffect
+276: const WarpEffect
+277: hero
+278: const hero
+279: const untyped[]
+280: Button
+281: const Button
+282: KeyCode
+283: const KeyCode
+284: KeyModifierBitflags
+285: const KeyModifierBitflags
+286: MouseIndex
+287: const MouseIndex
+288: Input
+289: const Input
+290: BlockBitflags
+291: const BlockBitflags
+292: BlockBitflagsInt
+293: const BlockBitflagsInt
+294: ItemBurnIndex
+295: const ItemBurnIndex
+296: ItemID
+297: const ItemID
+298: ItemMiscBitflags
+299: const ItemMiscBitflags
+300: ItemPickupBitflags
+301: const ItemPickupBitflags
+302: ItemScriptRunMode
+303: const ItemScriptRunMode
+304: ItemType
+305: const ItemType
+306: const itemdata
+307: const itemsprite
+308: LWeaponType
+309: const LWeaponType
+310: const lweapon
+311: DoorIndex
+312: const DoorIndex
+313: DoorType
+314: const DoorType
+315: FFCBitflags
+316: const FFCBitflags
+317: NoCarryBitflags
+318: const NoCarryBitflags
+319: NoResetBitflags
+320: const NoResetBitflags
+321: RoomType
+322: const RoomType
+323: ScreenState
+324: const ScreenState
+325: SecretComboIndex
+326: const SecretComboIndex
+327: combodata[]
+328: const combodata[]
+329: WarpType[]
+330: const mapdata
+331: MessageFlag
+332: const MessageFlag
+333: MessageSegmentType
+334: const MessageSegmentType
+335: const messagedata
+336: const musicdata
+337: BossPal
+338: const BossPal
+339: ItemSet
+340: const ItemSet
+341: NPCFlags
+342: const NPCFlags
+343: NPCID
+344: const NPCID
+345: NPCMiscBitflags
+346: const NPCMiscBitflags
+347: NPCMoveStatus
+348: const NPCMoveStatus
+349: NPCWalkType
+350: const NPCWalkType
+351: const npc
+352: NPCDefenseIndex
+353: const NPCDefenseIndex
+354: NPCDefenseType
+355: const NPCDefenseType
+356: NPCFade
+357: const NPCFade
+358: NPCShieldIndex
+359: const NPCShieldIndex
+360: NPCType
+361: const NPCType
+362: NPCWeapon
+363: const NPCWeapon
+364: const npcdata
+365: const rgb
+366: rgb[]
+367: const paldata
+368: const portal
+369: QR
+370: const QR
+371: const randgen
+372: Region
+373: const Region
+374: SaveMenuFlags
+375: const SaveMenuFlags
+376: SaveMenuOptionFlags
+377: const SaveMenuOptionFlags
+378: SaveMenuOptionFlags[]
+379: const save_menu
+380: const savedportal
+381: DrawOrigin
+382: const DrawOrigin
+383: PolygonRenderMode
+384: const PolygonRenderMode
+385: RenderTarget
+386: const RenderTarget
+387: ScreenEnemyFlagGroup
+388: const ScreenEnemyFlagGroup
+389: ScreenEnemyFlagList1
+390: const ScreenEnemyFlagList1
+391: ScreenEnemyFlagList2
+392: const ScreenEnemyFlagList2
+393: ScreenEnemyFlagSpawn
+394: const ScreenEnemyFlagSpawn
+395: ScreenFlag
+396: const ScreenFlag
+397: ScreenFlagCombos
+398: const ScreenFlagCombos
+399: ScreenFlagFFC
+400: const ScreenFlagFFC
+401: ScreenFlagGroup
+402: const ScreenFlagGroup
+403: ScreenFlagItems
+404: const ScreenFlagItems
+405: ScreenFlagMisc
+406: const ScreenFlagMisc
+407: ScreenFlagRoomType
+408: const ScreenFlagRoomType
+409: ScreenFlagSave
+410: const ScreenFlagSave
+411: ScreenFlagSecrets
+412: const ScreenFlagSecrets
+413: ScreenFlagView
+414: const ScreenFlagView
+415: ScreenFlagWarp
+416: const ScreenFlagWarp
+417: ScreenFlagWhistle
+418: const ScreenFlagWhistle
+419: SpriteList
+420: const SpriteList
+421: WipeEffect
+422: const WipeEffect
+423: screendata
+424: const screendata
+425: eweapon[]
+426: const eweapon[]
+427: ffc[]
+428: const ffc[]
+429: itemsprite[]
+430: const itemsprite[]
+431: lweapon[]
+432: const lweapon[]
+433: npc[]
+434: const npc[]
+435: portal[]
+436: const portal[]
+437: SpriteDataFlag
+438: const SpriteDataFlag
+439: const stack
+440: SubscreenPageMode
+441: const SubscreenPageMode
+442: SubscreenWidgetGenFlag
+443: const SubscreenWidgetGenFlag
+444: SubscreenWidgetType
+445: const SubscreenWidgetType
+446: TransitionFlag
+447: const TransitionFlag
+448: subscreenpage
+449: subscreenpage[]
+450: const subscreenpage[]
+451: const subscreendata
+452: MoveSubscreenSelectorBitflags
+453: const MoveSubscreenSelectorBitflags
+454: subscreenwidget[]
+455: const subscreenwidget[]
+456: const subscreenpage
+457: ConditionType
+458: const ConditionType
+459: SubscreenItemButton
+460: const SubscreenItemButton
+461: const subscreenwidget
+462: Text
+463: const Text
+464: ViewportMode
+465: const ViewportMode
+466: Viewport
+467: const Viewport
+468: WeapDataFlag
+469: const WeapDataFlag
+470: WebsocketState
+471: const WebsocketState
+472: WebsocketType
+473: const WebsocketType
+474: const char32[]
+475: const websocket
+476: ZInfo
+477: const ZInfo
+478: const Enum
+479: AimType
+480: const AimType
+481: Dir2
+482: const Dir2
+483: DitherType
+484: const DitherType
+485: HeroMoveFlag
+486: const HeroMoveFlag
+487: ItemspriteMoveFlag
+488: const ItemspriteMoveFlag
+489: NPCMoveFlag
+490: const NPCMoveFlag
+491: WeaponMoveFlag
+492: const WeaponMoveFlag
+493: const char32
+494: Thing[]
+495: const Counter
+496: Counter[]
+497: const Thing
+498: const CL
+499: const DataBag
+500: const DebugClassDefaultCtor
+501: CL[]
+502: char32[][]
+503: char32[][][]
+504: int[][]
 
 

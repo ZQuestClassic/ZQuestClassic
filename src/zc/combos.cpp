@@ -1937,7 +1937,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 		int pitem = lw ? cmb.c_attributes[14].getTrunc() : -1;
 		if (lw && (!pitem || invalid_item_id(pitem))) pitem = -1;
 
-		if (const weapon_data* wpn_data = (cmb.usrflags & cflag10) ? &cmb.misc_weap_data : get_weapon_data_for_id(weapid, pitem, -1, lw))
+		if (const weapon_data* wpn_data = (cmb.usrflags & cflag10) ? &(cmb.misc_weap_data) : get_weapon_data_for_id(weapid, pitem, -1, lw))
 		{
 			if (wpn_data->viewport_suspend_range > 0 || wpn_data->viewport_despawn_range > 0)
 			{

@@ -165,6 +165,84 @@ static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {scrip
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
 extern UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks;
 extern UserDataContainer<user_bitmap, MAX_USER_BITMAPS> user_bitmaps;
+static UserDataContainer<user_weapondata, MAX_USER_WEAPONDATAS> user_weapondatas = {script_object_type::weapondata, "weapondata"};
+
+weapon_data* checkWeaponData(int32_t ref, bool skipError)
+{
+	auto* ptr = user_weapondatas.check(ref, skipError);
+	if (ptr)
+	{
+		auto old_suppress_script_error_logging =  suppress_script_error_logging;
+		if (skipError)
+			suppress_script_error_logging = true;
+		auto* data = ptr->get_data();
+		suppress_script_error_logging = old_suppress_script_error_logging;
+		if (data)
+			return data;
+	}
+	if(!skipError)
+		scripting_log_error_with_context("Invalid {} using UID = {}", "weapondata", ref);
+	return nullptr;
+}
+
+weapon_data* user_weapondata::get_data()
+{
+	switch (data_type)
+	{
+		case wdata_type::script:
+			return inner_data;
+		case wdata_type::npcdata:
+			if (data_index >= MAXNPCS)
+				break;
+			return &guysbuf[data_index].weap_data;
+		case wdata_type::npc:
+			if (enemy* e = ResolveNpc(data_index))
+				return &e->weap_data;
+			break;
+		case wdata_type::itemdata:
+			if (invalid_item_id(data_index))
+				break;
+			return &itemsbuf[data_index].weap_data;
+		case wdata_type::combodata_lift:
+			if (data_index >= MAXCOMBOS)
+				break;
+			return &combobuf[data_index].lift_weap_data;
+		case wdata_type::combodata_misc:
+			if (data_index >= MAXCOMBOS)
+				break;
+			return &combobuf[data_index].misc_weap_data;
+	}
+	return nullptr;
+}
+static uint32_t make_new_user_weapondata(wdata_type data_type, dword data_index)
+{
+	uint32_t ret = 0;
+	if (data_type != wdata_type::script)
+	{
+		user_weapondatas.foreach([&](uint32_t id, user_weapondata *wdata)
+		{
+			if (wdata->data_type == data_type && wdata->data_index == data_index)
+			{
+				ret = id;
+				return true;
+			}
+			return false;
+		});
+	}
+	if (!ret)
+	{
+		auto* wdata = user_weapondatas.create();
+		if (wdata)
+		{
+			ret = wdata->id;
+			wdata->data_type = data_type;
+			wdata->data_index = data_index;
+			if (data_type == wdata_type::script)
+				wdata->inner_data = new weapon_data();
+		}
+	}
+	return ret;
+}
 
 script_array* create_script_array()
 {
@@ -288,8 +366,9 @@ script_array* checkArray(uint32_t id, bool skipError)
 
 void script_bitmaps::update()
 {
+	// intentionally copying ids as script_object_ids_by_type may be mutated
 	auto ids = script_object_ids_by_type[user_bitmaps.type];
-	for (auto id : ids)
+	for (auto const& id : ids)
 	{
 		auto& bitmap = user_bitmaps[id];
 		if (bitmap.is_freeing())
@@ -2579,6 +2658,7 @@ static int get_ref(int arg)
 		case REFWEBSOCKET: return ri->websocketref;
 		case REFSAVEMENU: return ri->savemenuref;
 		case REFMUSIC: return ri->musicref;
+		case REFWEAPDATA: return ri->weapdataref;
 
 		default: NOTREACHED();
 	}
@@ -4723,6 +4803,11 @@ void FFScript::do_loadrng()
 	rng->gen = &script_rnggens[q];
 	ri->rngref = rng->id;
 	SET_D(rEXP1, rng->id);
+}
+
+uint32_t FFScript::get_new_weapondata(wdata_type data_type, dword data_index)
+{
+	return (ri->weapdataref = make_new_user_weapondata(data_type, data_index));
 }
 
 void FFScript::do_loadstack()
@@ -13321,6 +13406,11 @@ void FFScript::user_paldata_init()
 void FFScript::user_websockets_init()
 {
 	websocket_init();
+}
+
+void FFScript::user_weapondata_init()
+{
+	user_weapondatas.clear();
 }
 
 void FFScript::script_arrays_init()

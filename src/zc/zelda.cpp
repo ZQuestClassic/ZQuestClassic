@@ -1849,6 +1849,7 @@ int32_t init_game()
 	FFCore.user_stacks_init();
 	FFCore.user_paldata_init();
 	FFCore.user_websockets_init();
+	FFCore.user_weapondata_init();
 	FFCore.script_arrays_init();
 	script_init_name_to_slot_index_maps();
 

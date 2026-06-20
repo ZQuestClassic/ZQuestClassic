@@ -199,6 +199,17 @@ int32_t npcdata_get_register(int32_t reg)
 			} 
 			break;
 		}
+		case NPCDATA_WEAPONDATA:
+		{
+			if(!nd)
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->WeaponData: %d\n", ri->npcdataref);
+				ret = -10000;
+				break;
+			}
+			ret = FFCore.get_new_weapondata(wdata_type::npcdata, GET_REF(npcdataref));
+			break;
+		}
 		case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 			//bool npcdata->MatchInitDLabel("label", d)
 		{
@@ -333,6 +344,8 @@ void npcdata_set_register(int32_t reg, int32_t value)
 			nd->spr_spawn = vbound(value/10000, 0, MAXSPRITES-1);
 			break;
 		}
+		case NPCDATA_WEAPONDATA:
+			break;
 
 		default:
 			NOTREACHED();

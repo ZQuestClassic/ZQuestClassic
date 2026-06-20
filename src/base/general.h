@@ -297,6 +297,7 @@ enum class script_object_type : byte
 	object,
 	array,
 	untyped,
+	weapondata,
 	last = untyped,
 };
 
