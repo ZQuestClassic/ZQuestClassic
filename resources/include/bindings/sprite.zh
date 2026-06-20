@@ -46,11 +46,12 @@ class sprite {
 
 	// The screen index this sprite was created on. Does not update as the sprite moves around a region.
 	//
-	// [Hero]: This is equal to the screen that the player first entered the region.
+	// [Hero]: This is equal to the origin screen of the region, and cannot be modified.
+	// [ffc]: This is the screen the FFC belongs to, and cannot be modified.
 	//
 	// @versionadded 3.0
 	// @zasm_var SPRITE_SPAWN_SCREEN
-	internal const int SpawnScreen;
+	internal int SpawnScreen;
 
 	// The screen index this sprite is currently on, updating as it moves around.
 	//

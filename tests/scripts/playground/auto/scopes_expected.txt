@@ -3272,38 +3272,38 @@ REF_COUNT D2                                                                    
 RETURNFUNC; Func[long RefCount(untyped)] Body End                               | 3243 resources/include/bindings/global.zh:969
 GC; Func[void GC()] Body Start                                                  | 3244 resources/include/bindings/global.zh:974
 RETURNFUNC; Func[void GC()] Body End                                            | 3245 resources/include/bindings/global.zh:974
-POP D2; Func[void sprite::Own(bitmap)] Body Start                               | 3246 resources/include/bindings/sprite.zh:432
-POP REFSPRITE                                                                   | 3247 resources/include/bindings/sprite.zh:432
-OBJ_OWN_BITMAP D2 0                                                             | 3248 resources/include/bindings/sprite.zh:432
-RETURNFUNC; Func[void sprite::Own(bitmap)] Body End                             | 3249 resources/include/bindings/sprite.zh:432
-POP D2; Func[void sprite::Own(paldata)] Body Start                              | 3250 resources/include/bindings/sprite.zh:440
-POP REFSPRITE                                                                   | 3251 resources/include/bindings/sprite.zh:440
-OBJ_OWN_PALDATA D2 0                                                            | 3252 resources/include/bindings/sprite.zh:440
-RETURNFUNC; Func[void sprite::Own(paldata)] Body End                            | 3253 resources/include/bindings/sprite.zh:440
-POP D2; Func[void sprite::Own(file)] Body Start                                 | 3254 resources/include/bindings/sprite.zh:448
-POP REFSPRITE                                                                   | 3255 resources/include/bindings/sprite.zh:448
-OBJ_OWN_FILE D2 0                                                               | 3256 resources/include/bindings/sprite.zh:448
-RETURNFUNC; Func[void sprite::Own(file)] Body End                               | 3257 resources/include/bindings/sprite.zh:448
-POP D2; Func[void sprite::Own(directory)] Body Start                            | 3258 resources/include/bindings/sprite.zh:456
-POP REFSPRITE                                                                   | 3259 resources/include/bindings/sprite.zh:456
-OBJ_OWN_DIR D2 0                                                                | 3260 resources/include/bindings/sprite.zh:456
-RETURNFUNC; Func[void sprite::Own(directory)] Body End                          | 3261 resources/include/bindings/sprite.zh:456
-POP D2; Func[void sprite::Own(stack)] Body Start                                | 3262 resources/include/bindings/sprite.zh:464
-POP REFSPRITE                                                                   | 3263 resources/include/bindings/sprite.zh:464
-OBJ_OWN_STACK D2 0                                                              | 3264 resources/include/bindings/sprite.zh:464
-RETURNFUNC; Func[void sprite::Own(stack)] Body End                              | 3265 resources/include/bindings/sprite.zh:464
-POP D2; Func[void sprite::Own(randgen)] Body Start                              | 3266 resources/include/bindings/sprite.zh:472
-POP REFSPRITE                                                                   | 3267 resources/include/bindings/sprite.zh:472
-OBJ_OWN_RNG D2 0                                                                | 3268 resources/include/bindings/sprite.zh:472
-RETURNFUNC; Func[void sprite::Own(randgen)] Body End                            | 3269 resources/include/bindings/sprite.zh:472
-POP D2; Func[void sprite::OwnArray(untyped)] Body Start                         | 3270 resources/include/bindings/sprite.zh:480
-POP REFSPRITE                                                                   | 3271 resources/include/bindings/sprite.zh:480
-OBJ_OWN_ARRAY D2 0                                                              | 3272 resources/include/bindings/sprite.zh:480
-RETURNFUNC; Func[void sprite::OwnArray(untyped)] Body End                       | 3273 resources/include/bindings/sprite.zh:480
-POP D2; Func[void sprite::OwnObject(untyped)] Body Start                        | 3274 resources/include/bindings/sprite.zh:488
-POP REFSPRITE                                                                   | 3275 resources/include/bindings/sprite.zh:488
-OBJ_OWN_CLASS D2 0                                                              | 3276 resources/include/bindings/sprite.zh:488
-RETURNFUNC; Func[void sprite::OwnObject(untyped)] Body End                      | 3277 resources/include/bindings/sprite.zh:488
+POP D2; Func[void sprite::Own(bitmap)] Body Start                               | 3246 resources/include/bindings/sprite.zh:433
+POP REFSPRITE                                                                   | 3247 resources/include/bindings/sprite.zh:433
+OBJ_OWN_BITMAP D2 0                                                             | 3248 resources/include/bindings/sprite.zh:433
+RETURNFUNC; Func[void sprite::Own(bitmap)] Body End                             | 3249 resources/include/bindings/sprite.zh:433
+POP D2; Func[void sprite::Own(paldata)] Body Start                              | 3250 resources/include/bindings/sprite.zh:441
+POP REFSPRITE                                                                   | 3251 resources/include/bindings/sprite.zh:441
+OBJ_OWN_PALDATA D2 0                                                            | 3252 resources/include/bindings/sprite.zh:441
+RETURNFUNC; Func[void sprite::Own(paldata)] Body End                            | 3253 resources/include/bindings/sprite.zh:441
+POP D2; Func[void sprite::Own(file)] Body Start                                 | 3254 resources/include/bindings/sprite.zh:449
+POP REFSPRITE                                                                   | 3255 resources/include/bindings/sprite.zh:449
+OBJ_OWN_FILE D2 0                                                               | 3256 resources/include/bindings/sprite.zh:449
+RETURNFUNC; Func[void sprite::Own(file)] Body End                               | 3257 resources/include/bindings/sprite.zh:449
+POP D2; Func[void sprite::Own(directory)] Body Start                            | 3258 resources/include/bindings/sprite.zh:457
+POP REFSPRITE                                                                   | 3259 resources/include/bindings/sprite.zh:457
+OBJ_OWN_DIR D2 0                                                                | 3260 resources/include/bindings/sprite.zh:457
+RETURNFUNC; Func[void sprite::Own(directory)] Body End                          | 3261 resources/include/bindings/sprite.zh:457
+POP D2; Func[void sprite::Own(stack)] Body Start                                | 3262 resources/include/bindings/sprite.zh:465
+POP REFSPRITE                                                                   | 3263 resources/include/bindings/sprite.zh:465
+OBJ_OWN_STACK D2 0                                                              | 3264 resources/include/bindings/sprite.zh:465
+RETURNFUNC; Func[void sprite::Own(stack)] Body End                              | 3265 resources/include/bindings/sprite.zh:465
+POP D2; Func[void sprite::Own(randgen)] Body Start                              | 3266 resources/include/bindings/sprite.zh:473
+POP REFSPRITE                                                                   | 3267 resources/include/bindings/sprite.zh:473
+OBJ_OWN_RNG D2 0                                                                | 3268 resources/include/bindings/sprite.zh:473
+RETURNFUNC; Func[void sprite::Own(randgen)] Body End                            | 3269 resources/include/bindings/sprite.zh:473
+POP D2; Func[void sprite::OwnArray(untyped)] Body Start                         | 3270 resources/include/bindings/sprite.zh:481
+POP REFSPRITE                                                                   | 3271 resources/include/bindings/sprite.zh:481
+OBJ_OWN_ARRAY D2 0                                                              | 3272 resources/include/bindings/sprite.zh:481
+RETURNFUNC; Func[void sprite::OwnArray(untyped)] Body End                       | 3273 resources/include/bindings/sprite.zh:481
+POP D2; Func[void sprite::OwnObject(untyped)] Body Start                        | 3274 resources/include/bindings/sprite.zh:489
+POP REFSPRITE                                                                   | 3275 resources/include/bindings/sprite.zh:489
+OBJ_OWN_CLASS D2 0                                                              | 3276 resources/include/bindings/sprite.zh:489
+RETURNFUNC; Func[void sprite::OwnObject(untyped)] Body End                      | 3277 resources/include/bindings/sprite.zh:489
 POP D1; Func[bitmap bitmap::bitmap(int, int)] Body Start                        | 3278 resources/include/bindings/bitmap.zh:9
 POP D0                                                                          | 3279 resources/include/bindings/bitmap.zh:9
 SETR D2 CREATEBITMAP                                                            | 3280 resources/include/bindings/bitmap.zh:9
@@ -5460,7 +5460,7 @@ debug data:
       - int ShadowSprite @ Reg[SPRITE_SHADOW_SPR]
       - int ShadowXOffset @ Reg[SPRITE_SHADOW_XOFS]
       - int ShadowYOffset @ Reg[SPRITE_SHADOW_YOFS]
-      - const int SpawnScreen @ Reg[SPRITE_SPAWN_SCREEN]
+      - int SpawnScreen @ Reg[SPRITE_SPAWN_SCREEN]
       - const bool SwitchHooked @ Reg[SPRITE_SWHOOKED]
       - const int TerminalVelocity @ Reg[SPRITE_TERMINAL_VELOCITY]
       - int Tile @ Reg[SPRITE_TILE]
