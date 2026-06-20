@@ -4,7 +4,6 @@
 #include <gui/builder.h>
 #include "core/qrs.h"
 void mark_save_dirty();
-extern guydata *guysbuf;
 
 void call_room_dlg(mapscr* scr)
 {

@@ -14,7 +14,6 @@
 #include "weap_data_editor.h"
 
 void mark_save_dirty();
-extern guydata* guysbuf;
 extern int32_t CSet;
 extern char* guy_string[eMAXGUYS];
 extern const char* old_guy_string[OLDMAXGUYS];

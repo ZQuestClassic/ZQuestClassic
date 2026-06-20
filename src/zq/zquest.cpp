@@ -457,7 +457,6 @@ BITMAP *mapscreenbmp, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUS
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 comboclass *combo_class_buf;
-guydata  *guysbuf;
 item_drop_object item_drop_sets[MAXITEMDROPSETS];
 midi_info Midi_Info;
 bool zq_showpal=false;

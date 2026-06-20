@@ -21,6 +21,7 @@ using namespace util;
 extern bool update_hw_pal;
 
 volatile bool close_button_quit = false, exiting_program = false, dialog_open_quit = false;
+std::array<guydata, MAXGUYS> guysbuf;
 
 const char months[13][13] =
 { 

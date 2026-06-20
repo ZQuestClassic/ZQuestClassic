@@ -219,7 +219,6 @@ extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern PALETTE  pal_gui;
 extern byte     *colordata;
 extern comboclass *combo_class_buf;
-extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern ZCHEATS  zcheats;
 extern byte     use_cheats;
