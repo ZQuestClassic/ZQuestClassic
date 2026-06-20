@@ -3093,185 +3093,185 @@ POP D0                                                                          
 POP D6                                                                          | 3064 resources/include/bindings/global.zh:527
 SETR D2 LONGDISTANCESCALE                                                       | 3065 resources/include/bindings/global.zh:527
 RETURNFUNC; Func[long LongDistance(long, long, long, long, long)] Body End      | 3066 resources/include/bindings/global.zh:527
-POP D1; Func[int strcmp(char32[], char32[])] Body Start                         | 3067 resources/include/bindings/global.zh:535
-POP D0                                                                          | 3068 resources/include/bindings/global.zh:535
-STRINGCOMPARE D2                                                                | 3069 resources/include/bindings/global.zh:535
-RETURNFUNC; Func[int strcmp(char32[], char32[])] Body End                       | 3070 resources/include/bindings/global.zh:535
-POP D1; Func[int strncmp(char32[], char32[], int)] Body Start                   | 3071 resources/include/bindings/global.zh:544
-POP D0                                                                          | 3072 resources/include/bindings/global.zh:544
-POP D3                                                                          | 3073 resources/include/bindings/global.zh:544
-STRINGNCOMPARE D2                                                               | 3074 resources/include/bindings/global.zh:544
-RETURNFUNC; Func[int strncmp(char32[], char32[], int)] Body End                 | 3075 resources/include/bindings/global.zh:544
-POP D1; Func[int stricmp(char32[], char32[])] Body Start                        | 3076 resources/include/bindings/global.zh:552
-POP D0                                                                          | 3077 resources/include/bindings/global.zh:552
-STRINGICOMPARE D2                                                               | 3078 resources/include/bindings/global.zh:552
-RETURNFUNC; Func[int stricmp(char32[], char32[])] Body End                      | 3079 resources/include/bindings/global.zh:552
-POP D1; Func[int strnicmp(char32[], char32[], int)] Body Start                  | 3080 resources/include/bindings/global.zh:561
-POP D0                                                                          | 3081 resources/include/bindings/global.zh:561
-POP D3                                                                          | 3082 resources/include/bindings/global.zh:561
-STRINGNICOMPARE D2                                                              | 3083 resources/include/bindings/global.zh:561
-RETURNFUNC; Func[int strnicmp(char32[], char32[], int)] Body End                | 3084 resources/include/bindings/global.zh:561
-POP D3; Func[void strcpy(char32[], char32[])] Body Start                        | 3085 resources/include/bindings/global.zh:569
-POP D2                                                                          | 3086 resources/include/bindings/global.zh:569
-STRINGCOPY D2 D3                                                                | 3087 resources/include/bindings/global.zh:569
-RETURNFUNC; Func[void strcpy(char32[], char32[])] Body End                      | 3088 resources/include/bindings/global.zh:569
-POP D3; Func[void itoacat(char32[], int)] Body Start                            | 3089 resources/include/bindings/global.zh:578
-POP D2                                                                          | 3090 resources/include/bindings/global.zh:578
-ITOACAT D2 D3                                                                   | 3091 resources/include/bindings/global.zh:578
-RETURNFUNC; Func[void itoacat(char32[], int)] Body End                          | 3092 resources/include/bindings/global.zh:578
-POP D3; Func[void ArrayCopy(T[], T[])] Body Start                               | 3093 resources/include/bindings/global.zh:587
-POP D2                                                                          | 3094 resources/include/bindings/global.zh:587
-ARRAYCOPY D2 D3                                                                 | 3095 resources/include/bindings/global.zh:587
-RETURNFUNC; Func[void ArrayCopy(T[], T[])] Body End                             | 3096 resources/include/bindings/global.zh:587
-POP D3; Func[int strlen(char32[])] Body Start                                   | 3097 resources/include/bindings/global.zh:594
-STRINGLENGTH D2 D3                                                              | 3098 resources/include/bindings/global.zh:594
-RETURNFUNC; Func[int strlen(char32[])] Body End                                 | 3099 resources/include/bindings/global.zh:594
-POP D3; Func[int atoi(char32[])] Body Start                                     | 3100 resources/include/bindings/global.zh:601
-ATOI D2 D3                                                                      | 3101 resources/include/bindings/global.zh:601
-RETURNFUNC; Func[int atoi(char32[])] Body End                                   | 3102 resources/include/bindings/global.zh:601
-POP D3; Func[long atol(char32[])] Body Start                                    | 3103 resources/include/bindings/global.zh:609
-ATOL D2 D3                                                                      | 3104 resources/include/bindings/global.zh:609
-RETURNFUNC; Func[long atol(char32[])] Body End                                  | 3105 resources/include/bindings/global.zh:609
-POP D3; Func[int ilen(char32[])] Body Start                                     | 3106 resources/include/bindings/global.zh:617
-ILEN D2 D3                                                                      | 3107 resources/include/bindings/global.zh:617
-RETURNFUNC; Func[int ilen(char32[])] Body End                                   | 3108 resources/include/bindings/global.zh:617
-POP D3; Func[void utol(char32[])] Body Start                                    | 3109 resources/include/bindings/global.zh:624
-UPPERTOLOWER D2 D3                                                              | 3110 resources/include/bindings/global.zh:624
-RETURNFUNC; Func[void utol(char32[])] Body End                                  | 3111 resources/include/bindings/global.zh:624
-POP D3; Func[void ltou(char32[])] Body Start                                    | 3112 resources/include/bindings/global.zh:631
-LOWERTOUPPER D2 D3                                                              | 3113 resources/include/bindings/global.zh:631
-RETURNFUNC; Func[void ltou(char32[])] Body End                                  | 3114 resources/include/bindings/global.zh:631
-POP D3; Func[void convcase(char32[])] Body Start                                | 3115 resources/include/bindings/global.zh:638
-CONVERTCASE D2 D3                                                               | 3116 resources/include/bindings/global.zh:638
-RETURNFUNC; Func[void convcase(char32[])] Body End                              | 3117 resources/include/bindings/global.zh:638
-POP D3; Func[int itoa(char32[], int)] Body Start                                | 3118 resources/include/bindings/global.zh:646
-POP D2                                                                          | 3119 resources/include/bindings/global.zh:646
-ITOA D2 D3                                                                      | 3120 resources/include/bindings/global.zh:646
-RETURNFUNC; Func[int itoa(char32[], int)] Body End                              | 3121 resources/include/bindings/global.zh:646
-POP D3; Func[int xtoa(char32[], int)] Body Start                                | 3122 resources/include/bindings/global.zh:654
-POP D2                                                                          | 3123 resources/include/bindings/global.zh:654
-XTOA D2 D3                                                                      | 3124 resources/include/bindings/global.zh:654
-RETURNFUNC; Func[int xtoa(char32[], int)] Body End                              | 3125 resources/include/bindings/global.zh:654
-POP D3; Func[int xtoi(char32[])] Body Start                                     | 3126 resources/include/bindings/global.zh:661
-XTOI D2 D3                                                                      | 3127 resources/include/bindings/global.zh:661
-RETURNFUNC; Func[int xtoi(char32[])] Body End                                   | 3128 resources/include/bindings/global.zh:661
-POP D1; Func[int strcat(char32[], char32[])] Body Start                         | 3129 resources/include/bindings/global.zh:669
-POP D0                                                                          | 3130 resources/include/bindings/global.zh:669
-STRCAT D2                                                                       | 3131 resources/include/bindings/global.zh:669
-RETURNFUNC; Func[int strcat(char32[], char32[])] Body End                       | 3132 resources/include/bindings/global.zh:669
-POP D1; Func[int strchr(char32[], char32)] Body Start                           | 3133 resources/include/bindings/global.zh:677
-POP D0                                                                          | 3134 resources/include/bindings/global.zh:677
-STRCHR D2                                                                       | 3135 resources/include/bindings/global.zh:677
-RETURNFUNC; Func[int strchr(char32[], char32)] Body End                         | 3136 resources/include/bindings/global.zh:677
-POP D1; Func[int strcspn(char32[], char32[])] Body Start                        | 3137 resources/include/bindings/global.zh:685
-POP D0                                                                          | 3138 resources/include/bindings/global.zh:685
-STRCSPN D2                                                                      | 3139 resources/include/bindings/global.zh:685
-RETURNFUNC; Func[int strcspn(char32[], char32[])] Body End                      | 3140 resources/include/bindings/global.zh:685
-POP D1; Func[int strspn(char32[], char32[])] Body Start                         | 3141 resources/include/bindings/global.zh:694
-POP D0                                                                          | 3142 resources/include/bindings/global.zh:694
-STRSPN D2                                                                       | 3143 resources/include/bindings/global.zh:694
-RETURNFUNC; Func[int strspn(char32[], char32[])] Body End                       | 3144 resources/include/bindings/global.zh:694
-POP D1; Func[int strstr(char32[], char32[])] Body Start                         | 3145 resources/include/bindings/global.zh:702
-POP D0                                                                          | 3146 resources/include/bindings/global.zh:702
-STRSTR D2                                                                       | 3147 resources/include/bindings/global.zh:702
-RETURNFUNC; Func[int strstr(char32[], char32[])] Body End                       | 3148 resources/include/bindings/global.zh:702
-POP D1; Func[int strrchr(char32[], char32)] Body Start                          | 3149 resources/include/bindings/global.zh:710
-POP D0                                                                          | 3150 resources/include/bindings/global.zh:710
-STRRCHR D2                                                                      | 3151 resources/include/bindings/global.zh:710
-RETURNFUNC; Func[int strrchr(char32[], char32)] Body End                        | 3152 resources/include/bindings/global.zh:710
-POP D2; Func[bool IsValidArray(T[])] Body Start                                 | 3153 resources/include/bindings/global.zh:717
-ISVALIDARRAY D2                                                                 | 3154 resources/include/bindings/global.zh:717
-RETURNFUNC; Func[bool IsValidArray(T[])] Body End                               | 3155 resources/include/bindings/global.zh:717
-POP D3; Func[int DegToRad(int)] Body Start                                      | 3156 resources/include/bindings/global.zh:740
-DEGTORAD D2 D3                                                                  | 3157 resources/include/bindings/global.zh:740
-RETURNFUNC; Func[int DegToRad(int)] Body End                                    | 3158 resources/include/bindings/global.zh:740
-POP D3; Func[int RadToDeg(int)] Body Start                                      | 3159 resources/include/bindings/global.zh:752
-RADTODEG D2 D3                                                                  | 3160 resources/include/bindings/global.zh:752
-RETURNFUNC; Func[int RadToDeg(int)] Body End                                    | 3161 resources/include/bindings/global.zh:752
-POP D2; Func[int WrapRadians(int)] Body Start                                   | 3162 resources/include/bindings/global.zh:762
-WRAPRADIANS D2                                                                  | 3163 resources/include/bindings/global.zh:762
-RETURNFUNC; Func[int WrapRadians(int)] Body End                                 | 3164 resources/include/bindings/global.zh:762
-POP D2; Func[int WrapDegrees(int)] Body Start                                   | 3165 resources/include/bindings/global.zh:770
-WRAPDEGREES D2                                                                  | 3166 resources/include/bindings/global.zh:770
-RETURNFUNC; Func[int WrapDegrees(int)] Body End                                 | 3167 resources/include/bindings/global.zh:770
-PRINTFVARG; Func[void printf(char32[], ...untyped[])] Body Start                | 3168 resources/include/bindings/global.zh:779
-POP D5                                                                          | 3169 resources/include/bindings/global.zh:779
-RETURNFUNC; Func[void printf(char32[], ...untyped[])] Body End                  | 3170 resources/include/bindings/global.zh:779
-SPRINTFVARG; Func[int sprintf(char32[], char32[], ...untyped[])] Body Start     | 3171 resources/include/bindings/global.zh:789
-POPARGS D5 0.0002                                                               | 3172 resources/include/bindings/global.zh:789
-RETURNFUNC; Func[int sprintf(char32[], char32[], ...untyped[])] Body End        | 3173 resources/include/bindings/global.zh:789
-PRINTFA; Func[void printfa(char32[], untyped[])] Body Start                     | 3174 resources/include/bindings/global.zh:796
-POPARGS D5 0.0002                                                               | 3175 resources/include/bindings/global.zh:796
-RETURNFUNC; Func[void printfa(char32[], untyped[])] Body End                    | 3176 resources/include/bindings/global.zh:796
-SPRINTFA; Func[int sprintfa(char32[], char32[], untyped[])] Body Start          | 3177 resources/include/bindings/global.zh:803
-POPARGS D5 0.0003                                                               | 3178 resources/include/bindings/global.zh:803
-RETURNFUNC; Func[int sprintfa(char32[], char32[], untyped[])] Body End          | 3179 resources/include/bindings/global.zh:803
-MAXVARG; Func[T Max(...T[])] Body Start                                         | 3180 resources/include/bindings/global.zh:809
-RETURNFUNC; Func[T Max(...T[])] Body End                                        | 3181 resources/include/bindings/global.zh:809
-MINVARG; Func[T Min(...T[])] Body Start                                         | 3182 resources/include/bindings/global.zh:815
-RETURNFUNC; Func[T Min(...T[])] Body End                                        | 3183 resources/include/bindings/global.zh:815
-CHOOSEVARG; Func[T Choose(...T[])] Body Start                                   | 3184 resources/include/bindings/global.zh:821
-RETURNFUNC; Func[T Choose(...T[])] Body End                                     | 3185 resources/include/bindings/global.zh:821
-PUSHV -1; Func[bool ArrayPushBack(T[], T)] Body Start                           | 3186 resources/include/bindings/global.zh:830
-ARRAYPUSH                                                                       | 3187 resources/include/bindings/global.zh:830
-POPARGS D5 0.0003                                                               | 3188 resources/include/bindings/global.zh:830
-RETURNFUNC; Func[bool ArrayPushBack(T[], T)] Body End                           | 3189 resources/include/bindings/global.zh:830
-PUSHV 0; Func[bool ArrayPushFront(T[], T)] Body Start                           | 3190 resources/include/bindings/global.zh:839
-ARRAYPUSH                                                                       | 3191 resources/include/bindings/global.zh:839
-POPARGS D5 0.0003                                                               | 3192 resources/include/bindings/global.zh:839
-RETURNFUNC; Func[bool ArrayPushFront(T[], T)] Body End                          | 3193 resources/include/bindings/global.zh:839
-ARRAYPUSH; Func[bool ArrayPushAt(T[], T, int)] Body Start                       | 3194 resources/include/bindings/global.zh:848
-POPARGS D5 0.0003                                                               | 3195 resources/include/bindings/global.zh:848
-RETURNFUNC; Func[bool ArrayPushAt(T[], T, int)] Body End                        | 3196 resources/include/bindings/global.zh:848
-PUSHV -1; Func[T ArrayPopBack(T[])] Body Start                                  | 3197 resources/include/bindings/global.zh:857
-ARRAYPOP                                                                        | 3198 resources/include/bindings/global.zh:857
-POPARGS D5 0.0002                                                               | 3199 resources/include/bindings/global.zh:857
-RETURNFUNC; Func[T ArrayPopBack(T[])] Body End                                  | 3200 resources/include/bindings/global.zh:857
-PUSHV 0; Func[T ArrayPopFront(T[])] Body Start                                  | 3201 resources/include/bindings/global.zh:866
-ARRAYPOP                                                                        | 3202 resources/include/bindings/global.zh:866
-POPARGS D5 0.0002                                                               | 3203 resources/include/bindings/global.zh:866
-RETURNFUNC; Func[T ArrayPopFront(T[])] Body End                                 | 3204 resources/include/bindings/global.zh:866
-ARRAYPOP; Func[T ArrayPopAt(T[], int)] Body Start                               | 3205 resources/include/bindings/global.zh:875
-POPARGS D5 0.0002                                                               | 3206 resources/include/bindings/global.zh:875
-RETURNFUNC; Func[T ArrayPopAt(T[], int)] Body End                               | 3207 resources/include/bindings/global.zh:875
-POP D3; Func[int Rand(int)] Body Start                                          | 3208 resources/include/bindings/global.zh:883
-RNDR D2 D3                                                                      | 3209 resources/include/bindings/global.zh:883
-RETURNFUNC; Func[int Rand(int)] Body End                                        | 3210 resources/include/bindings/global.zh:883
-POP D3; Func[void SRand(long)] Body Start                                       | 3211 resources/include/bindings/global.zh:891
-SRNDR D3                                                                        | 3212 resources/include/bindings/global.zh:891
-RETURNFUNC; Func[void SRand(long)] Body End                                     | 3213 resources/include/bindings/global.zh:891
-SRNDRND D2; Func[long SRand()] Body Start                                       | 3214 resources/include/bindings/global.zh:897
-RETURNFUNC; Func[long SRand()] Body End                                         | 3215 resources/include/bindings/global.zh:897
-POP D3; Func[int ComboAt(int, int)] Body Start                                  | 3216 resources/include/bindings/global.zh:908
-POP D2                                                                          | 3217 resources/include/bindings/global.zh:908
-COMBO_AT D2 D3                                                                  | 3218 resources/include/bindings/global.zh:908
-RETURNFUNC; Func[int ComboAt(int, int)] Body End                                | 3219 resources/include/bindings/global.zh:908
-POP D0; Func[int ComboAdjust(int, int, int)] Body Start                         | 3220 resources/include/bindings/global.zh:922
-POP D1                                                                          | 3221 resources/include/bindings/global.zh:922
-POP D2                                                                          | 3222 resources/include/bindings/global.zh:922
-COMBO_ADJUST D2 D1 D0                                                           | 3223 resources/include/bindings/global.zh:922
-RETURNFUNC; Func[int ComboAdjust(int, int, int)] Body End                       | 3224 resources/include/bindings/global.zh:922
-POP D2; Func[untyped Untype(untyped)] Body Start                                | 3225 resources/include/bindings/global.zh:937
-RETURNFUNC; Func[untyped Untype(untyped)] Body End                              | 3226 resources/include/bindings/global.zh:937
-POP D0; Func[int GetScriptRAM(int)] Body Start                                  | 3227 resources/include/bindings/global.zh:943
-SETR D2 SCRIPTRAMD                                                              | 3228 resources/include/bindings/global.zh:943
-RETURNFUNC; Func[int GetScriptRAM(int)] Body End                                | 3229 resources/include/bindings/global.zh:943
-POP D3; Func[void SetScriptRAM(int, int)] Body Start                            | 3230 resources/include/bindings/global.zh:950
-POP D0                                                                          | 3231 resources/include/bindings/global.zh:950
-SETR SCRIPTRAMD D3                                                              | 3232 resources/include/bindings/global.zh:950
-RETURNFUNC; Func[void SetScriptRAM(int, int)] Body End                          | 3233 resources/include/bindings/global.zh:950
-POP D0; Func[int GetGlobalRAM(int)] Body Start                                  | 3234 resources/include/bindings/global.zh:956
-SETR D2 GLOBALRAMD                                                              | 3235 resources/include/bindings/global.zh:956
-RETURNFUNC; Func[int GetGlobalRAM(int)] Body End                                | 3236 resources/include/bindings/global.zh:956
-POP D3; Func[void SetGlobalRAM(int, int)] Body Start                            | 3237 resources/include/bindings/global.zh:963
-POP D0                                                                          | 3238 resources/include/bindings/global.zh:963
-SETR GLOBALRAMD D3                                                              | 3239 resources/include/bindings/global.zh:963
-RETURNFUNC; Func[void SetGlobalRAM(int, int)] Body End                          | 3240 resources/include/bindings/global.zh:963
-POP D2; Func[long RefCount(untyped)] Body Start                                 | 3241 resources/include/bindings/global.zh:969
-REF_COUNT D2                                                                    | 3242 resources/include/bindings/global.zh:969
-RETURNFUNC; Func[long RefCount(untyped)] Body End                               | 3243 resources/include/bindings/global.zh:969
-GC; Func[void GC()] Body Start                                                  | 3244 resources/include/bindings/global.zh:974
-RETURNFUNC; Func[void GC()] Body End                                            | 3245 resources/include/bindings/global.zh:974
+POP D1; Func[int strcmp(char32[], char32[])] Body Start                         | 3067 resources/include/bindings/global.zh:538
+POP D0                                                                          | 3068 resources/include/bindings/global.zh:538
+STRINGCOMPARE D2                                                                | 3069 resources/include/bindings/global.zh:538
+RETURNFUNC; Func[int strcmp(char32[], char32[])] Body End                       | 3070 resources/include/bindings/global.zh:538
+POP D1; Func[int strncmp(char32[], char32[], int)] Body Start                   | 3071 resources/include/bindings/global.zh:549
+POP D0                                                                          | 3072 resources/include/bindings/global.zh:549
+POP D3                                                                          | 3073 resources/include/bindings/global.zh:549
+STRINGNCOMPARE D2                                                               | 3074 resources/include/bindings/global.zh:549
+RETURNFUNC; Func[int strncmp(char32[], char32[], int)] Body End                 | 3075 resources/include/bindings/global.zh:549
+POP D1; Func[int stricmp(char32[], char32[])] Body Start                        | 3076 resources/include/bindings/global.zh:559
+POP D0                                                                          | 3077 resources/include/bindings/global.zh:559
+STRINGICOMPARE D2                                                               | 3078 resources/include/bindings/global.zh:559
+RETURNFUNC; Func[int stricmp(char32[], char32[])] Body End                      | 3079 resources/include/bindings/global.zh:559
+POP D1; Func[int strnicmp(char32[], char32[], int)] Body Start                  | 3080 resources/include/bindings/global.zh:571
+POP D0                                                                          | 3081 resources/include/bindings/global.zh:571
+POP D3                                                                          | 3082 resources/include/bindings/global.zh:571
+STRINGNICOMPARE D2                                                              | 3083 resources/include/bindings/global.zh:571
+RETURNFUNC; Func[int strnicmp(char32[], char32[], int)] Body End                | 3084 resources/include/bindings/global.zh:571
+POP D3; Func[void strcpy(char32[], char32[])] Body Start                        | 3085 resources/include/bindings/global.zh:579
+POP D2                                                                          | 3086 resources/include/bindings/global.zh:579
+STRINGCOPY D2 D3                                                                | 3087 resources/include/bindings/global.zh:579
+RETURNFUNC; Func[void strcpy(char32[], char32[])] Body End                      | 3088 resources/include/bindings/global.zh:579
+POP D3; Func[void itoacat(char32[], int)] Body Start                            | 3089 resources/include/bindings/global.zh:588
+POP D2                                                                          | 3090 resources/include/bindings/global.zh:588
+ITOACAT D2 D3                                                                   | 3091 resources/include/bindings/global.zh:588
+RETURNFUNC; Func[void itoacat(char32[], int)] Body End                          | 3092 resources/include/bindings/global.zh:588
+POP D3; Func[void ArrayCopy(T[], T[])] Body Start                               | 3093 resources/include/bindings/global.zh:597
+POP D2                                                                          | 3094 resources/include/bindings/global.zh:597
+ARRAYCOPY D2 D3                                                                 | 3095 resources/include/bindings/global.zh:597
+RETURNFUNC; Func[void ArrayCopy(T[], T[])] Body End                             | 3096 resources/include/bindings/global.zh:597
+POP D3; Func[int strlen(char32[])] Body Start                                   | 3097 resources/include/bindings/global.zh:604
+STRINGLENGTH D2 D3                                                              | 3098 resources/include/bindings/global.zh:604
+RETURNFUNC; Func[int strlen(char32[])] Body End                                 | 3099 resources/include/bindings/global.zh:604
+POP D3; Func[int atoi(char32[])] Body Start                                     | 3100 resources/include/bindings/global.zh:611
+ATOI D2 D3                                                                      | 3101 resources/include/bindings/global.zh:611
+RETURNFUNC; Func[int atoi(char32[])] Body End                                   | 3102 resources/include/bindings/global.zh:611
+POP D3; Func[long atol(char32[])] Body Start                                    | 3103 resources/include/bindings/global.zh:619
+ATOL D2 D3                                                                      | 3104 resources/include/bindings/global.zh:619
+RETURNFUNC; Func[long atol(char32[])] Body End                                  | 3105 resources/include/bindings/global.zh:619
+POP D3; Func[int ilen(char32[])] Body Start                                     | 3106 resources/include/bindings/global.zh:627
+ILEN D2 D3                                                                      | 3107 resources/include/bindings/global.zh:627
+RETURNFUNC; Func[int ilen(char32[])] Body End                                   | 3108 resources/include/bindings/global.zh:627
+POP D3; Func[void utol(char32[])] Body Start                                    | 3109 resources/include/bindings/global.zh:634
+UPPERTOLOWER D2 D3                                                              | 3110 resources/include/bindings/global.zh:634
+RETURNFUNC; Func[void utol(char32[])] Body End                                  | 3111 resources/include/bindings/global.zh:634
+POP D3; Func[void ltou(char32[])] Body Start                                    | 3112 resources/include/bindings/global.zh:641
+LOWERTOUPPER D2 D3                                                              | 3113 resources/include/bindings/global.zh:641
+RETURNFUNC; Func[void ltou(char32[])] Body End                                  | 3114 resources/include/bindings/global.zh:641
+POP D3; Func[void convcase(char32[])] Body Start                                | 3115 resources/include/bindings/global.zh:648
+CONVERTCASE D2 D3                                                               | 3116 resources/include/bindings/global.zh:648
+RETURNFUNC; Func[void convcase(char32[])] Body End                              | 3117 resources/include/bindings/global.zh:648
+POP D3; Func[int itoa(char32[], int)] Body Start                                | 3118 resources/include/bindings/global.zh:657
+POP D2                                                                          | 3119 resources/include/bindings/global.zh:657
+ITOA D2 D3                                                                      | 3120 resources/include/bindings/global.zh:657
+RETURNFUNC; Func[int itoa(char32[], int)] Body End                              | 3121 resources/include/bindings/global.zh:657
+POP D3; Func[int xtoa(char32[], int)] Body Start                                | 3122 resources/include/bindings/global.zh:666
+POP D2                                                                          | 3123 resources/include/bindings/global.zh:666
+XTOA D2 D3                                                                      | 3124 resources/include/bindings/global.zh:666
+RETURNFUNC; Func[int xtoa(char32[], int)] Body End                              | 3125 resources/include/bindings/global.zh:666
+POP D3; Func[int xtoi(char32[])] Body Start                                     | 3126 resources/include/bindings/global.zh:673
+XTOI D2 D3                                                                      | 3127 resources/include/bindings/global.zh:673
+RETURNFUNC; Func[int xtoi(char32[])] Body End                                   | 3128 resources/include/bindings/global.zh:673
+POP D1; Func[char32[] strcat(char32[], char32[])] Body Start                    | 3129 resources/include/bindings/global.zh:681
+POP D0                                                                          | 3130 resources/include/bindings/global.zh:681
+STRCAT D2                                                                       | 3131 resources/include/bindings/global.zh:681
+RETURNFUNC; Func[char32[] strcat(char32[], char32[])] Body End                  | 3132 resources/include/bindings/global.zh:681
+POP D1; Func[int strchr(char32[], char32)] Body Start                           | 3133 resources/include/bindings/global.zh:689
+POP D0                                                                          | 3134 resources/include/bindings/global.zh:689
+STRCHR D2                                                                       | 3135 resources/include/bindings/global.zh:689
+RETURNFUNC; Func[int strchr(char32[], char32)] Body End                         | 3136 resources/include/bindings/global.zh:689
+POP D1; Func[int strcspn(char32[], char32[])] Body Start                        | 3137 resources/include/bindings/global.zh:697
+POP D0                                                                          | 3138 resources/include/bindings/global.zh:697
+STRCSPN D2                                                                      | 3139 resources/include/bindings/global.zh:697
+RETURNFUNC; Func[int strcspn(char32[], char32[])] Body End                      | 3140 resources/include/bindings/global.zh:697
+POP D1; Func[int strspn(char32[], char32[])] Body Start                         | 3141 resources/include/bindings/global.zh:705
+POP D0                                                                          | 3142 resources/include/bindings/global.zh:705
+STRSPN D2                                                                       | 3143 resources/include/bindings/global.zh:705
+RETURNFUNC; Func[int strspn(char32[], char32[])] Body End                       | 3144 resources/include/bindings/global.zh:705
+POP D1; Func[int strstr(char32[], char32[])] Body Start                         | 3145 resources/include/bindings/global.zh:713
+POP D0                                                                          | 3146 resources/include/bindings/global.zh:713
+STRSTR D2                                                                       | 3147 resources/include/bindings/global.zh:713
+RETURNFUNC; Func[int strstr(char32[], char32[])] Body End                       | 3148 resources/include/bindings/global.zh:713
+POP D1; Func[int strrchr(char32[], char32)] Body Start                          | 3149 resources/include/bindings/global.zh:721
+POP D0                                                                          | 3150 resources/include/bindings/global.zh:721
+STRRCHR D2                                                                      | 3151 resources/include/bindings/global.zh:721
+RETURNFUNC; Func[int strrchr(char32[], char32)] Body End                        | 3152 resources/include/bindings/global.zh:721
+POP D2; Func[bool IsValidArray(T[])] Body Start                                 | 3153 resources/include/bindings/global.zh:728
+ISVALIDARRAY D2                                                                 | 3154 resources/include/bindings/global.zh:728
+RETURNFUNC; Func[bool IsValidArray(T[])] Body End                               | 3155 resources/include/bindings/global.zh:728
+POP D3; Func[int DegToRad(int)] Body Start                                      | 3156 resources/include/bindings/global.zh:751
+DEGTORAD D2 D3                                                                  | 3157 resources/include/bindings/global.zh:751
+RETURNFUNC; Func[int DegToRad(int)] Body End                                    | 3158 resources/include/bindings/global.zh:751
+POP D3; Func[int RadToDeg(int)] Body Start                                      | 3159 resources/include/bindings/global.zh:763
+RADTODEG D2 D3                                                                  | 3160 resources/include/bindings/global.zh:763
+RETURNFUNC; Func[int RadToDeg(int)] Body End                                    | 3161 resources/include/bindings/global.zh:763
+POP D2; Func[int WrapRadians(int)] Body Start                                   | 3162 resources/include/bindings/global.zh:773
+WRAPRADIANS D2                                                                  | 3163 resources/include/bindings/global.zh:773
+RETURNFUNC; Func[int WrapRadians(int)] Body End                                 | 3164 resources/include/bindings/global.zh:773
+POP D2; Func[int WrapDegrees(int)] Body Start                                   | 3165 resources/include/bindings/global.zh:781
+WRAPDEGREES D2                                                                  | 3166 resources/include/bindings/global.zh:781
+RETURNFUNC; Func[int WrapDegrees(int)] Body End                                 | 3167 resources/include/bindings/global.zh:781
+PRINTFVARG; Func[void printf(char32[], ...untyped[])] Body Start                | 3168 resources/include/bindings/global.zh:790
+POP D5                                                                          | 3169 resources/include/bindings/global.zh:790
+RETURNFUNC; Func[void printf(char32[], ...untyped[])] Body End                  | 3170 resources/include/bindings/global.zh:790
+SPRINTFVARG; Func[int sprintf(char32[], char32[], ...untyped[])] Body Start     | 3171 resources/include/bindings/global.zh:800
+POPARGS D5 0.0002                                                               | 3172 resources/include/bindings/global.zh:800
+RETURNFUNC; Func[int sprintf(char32[], char32[], ...untyped[])] Body End        | 3173 resources/include/bindings/global.zh:800
+PRINTFA; Func[void printfa(char32[], untyped[])] Body Start                     | 3174 resources/include/bindings/global.zh:807
+POPARGS D5 0.0002                                                               | 3175 resources/include/bindings/global.zh:807
+RETURNFUNC; Func[void printfa(char32[], untyped[])] Body End                    | 3176 resources/include/bindings/global.zh:807
+SPRINTFA; Func[int sprintfa(char32[], char32[], untyped[])] Body Start          | 3177 resources/include/bindings/global.zh:814
+POPARGS D5 0.0003                                                               | 3178 resources/include/bindings/global.zh:814
+RETURNFUNC; Func[int sprintfa(char32[], char32[], untyped[])] Body End          | 3179 resources/include/bindings/global.zh:814
+MAXVARG; Func[T Max(...T[])] Body Start                                         | 3180 resources/include/bindings/global.zh:820
+RETURNFUNC; Func[T Max(...T[])] Body End                                        | 3181 resources/include/bindings/global.zh:820
+MINVARG; Func[T Min(...T[])] Body Start                                         | 3182 resources/include/bindings/global.zh:826
+RETURNFUNC; Func[T Min(...T[])] Body End                                        | 3183 resources/include/bindings/global.zh:826
+CHOOSEVARG; Func[T Choose(...T[])] Body Start                                   | 3184 resources/include/bindings/global.zh:832
+RETURNFUNC; Func[T Choose(...T[])] Body End                                     | 3185 resources/include/bindings/global.zh:832
+PUSHV -1; Func[bool ArrayPushBack(T[], T)] Body Start                           | 3186 resources/include/bindings/global.zh:841
+ARRAYPUSH                                                                       | 3187 resources/include/bindings/global.zh:841
+POPARGS D5 0.0003                                                               | 3188 resources/include/bindings/global.zh:841
+RETURNFUNC; Func[bool ArrayPushBack(T[], T)] Body End                           | 3189 resources/include/bindings/global.zh:841
+PUSHV 0; Func[bool ArrayPushFront(T[], T)] Body Start                           | 3190 resources/include/bindings/global.zh:850
+ARRAYPUSH                                                                       | 3191 resources/include/bindings/global.zh:850
+POPARGS D5 0.0003                                                               | 3192 resources/include/bindings/global.zh:850
+RETURNFUNC; Func[bool ArrayPushFront(T[], T)] Body End                          | 3193 resources/include/bindings/global.zh:850
+ARRAYPUSH; Func[bool ArrayPushAt(T[], T, int)] Body Start                       | 3194 resources/include/bindings/global.zh:859
+POPARGS D5 0.0003                                                               | 3195 resources/include/bindings/global.zh:859
+RETURNFUNC; Func[bool ArrayPushAt(T[], T, int)] Body End                        | 3196 resources/include/bindings/global.zh:859
+PUSHV -1; Func[T ArrayPopBack(T[])] Body Start                                  | 3197 resources/include/bindings/global.zh:868
+ARRAYPOP                                                                        | 3198 resources/include/bindings/global.zh:868
+POPARGS D5 0.0002                                                               | 3199 resources/include/bindings/global.zh:868
+RETURNFUNC; Func[T ArrayPopBack(T[])] Body End                                  | 3200 resources/include/bindings/global.zh:868
+PUSHV 0; Func[T ArrayPopFront(T[])] Body Start                                  | 3201 resources/include/bindings/global.zh:877
+ARRAYPOP                                                                        | 3202 resources/include/bindings/global.zh:877
+POPARGS D5 0.0002                                                               | 3203 resources/include/bindings/global.zh:877
+RETURNFUNC; Func[T ArrayPopFront(T[])] Body End                                 | 3204 resources/include/bindings/global.zh:877
+ARRAYPOP; Func[T ArrayPopAt(T[], int)] Body Start                               | 3205 resources/include/bindings/global.zh:886
+POPARGS D5 0.0002                                                               | 3206 resources/include/bindings/global.zh:886
+RETURNFUNC; Func[T ArrayPopAt(T[], int)] Body End                               | 3207 resources/include/bindings/global.zh:886
+POP D3; Func[int Rand(int)] Body Start                                          | 3208 resources/include/bindings/global.zh:894
+RNDR D2 D3                                                                      | 3209 resources/include/bindings/global.zh:894
+RETURNFUNC; Func[int Rand(int)] Body End                                        | 3210 resources/include/bindings/global.zh:894
+POP D3; Func[void SRand(long)] Body Start                                       | 3211 resources/include/bindings/global.zh:902
+SRNDR D3                                                                        | 3212 resources/include/bindings/global.zh:902
+RETURNFUNC; Func[void SRand(long)] Body End                                     | 3213 resources/include/bindings/global.zh:902
+SRNDRND D2; Func[long SRand()] Body Start                                       | 3214 resources/include/bindings/global.zh:908
+RETURNFUNC; Func[long SRand()] Body End                                         | 3215 resources/include/bindings/global.zh:908
+POP D3; Func[int ComboAt(int, int)] Body Start                                  | 3216 resources/include/bindings/global.zh:919
+POP D2                                                                          | 3217 resources/include/bindings/global.zh:919
+COMBO_AT D2 D3                                                                  | 3218 resources/include/bindings/global.zh:919
+RETURNFUNC; Func[int ComboAt(int, int)] Body End                                | 3219 resources/include/bindings/global.zh:919
+POP D0; Func[int ComboAdjust(int, int, int)] Body Start                         | 3220 resources/include/bindings/global.zh:933
+POP D1                                                                          | 3221 resources/include/bindings/global.zh:933
+POP D2                                                                          | 3222 resources/include/bindings/global.zh:933
+COMBO_ADJUST D2 D1 D0                                                           | 3223 resources/include/bindings/global.zh:933
+RETURNFUNC; Func[int ComboAdjust(int, int, int)] Body End                       | 3224 resources/include/bindings/global.zh:933
+POP D2; Func[untyped Untype(untyped)] Body Start                                | 3225 resources/include/bindings/global.zh:948
+RETURNFUNC; Func[untyped Untype(untyped)] Body End                              | 3226 resources/include/bindings/global.zh:948
+POP D0; Func[int GetScriptRAM(int)] Body Start                                  | 3227 resources/include/bindings/global.zh:954
+SETR D2 SCRIPTRAMD                                                              | 3228 resources/include/bindings/global.zh:954
+RETURNFUNC; Func[int GetScriptRAM(int)] Body End                                | 3229 resources/include/bindings/global.zh:954
+POP D3; Func[void SetScriptRAM(int, int)] Body Start                            | 3230 resources/include/bindings/global.zh:961
+POP D0                                                                          | 3231 resources/include/bindings/global.zh:961
+SETR SCRIPTRAMD D3                                                              | 3232 resources/include/bindings/global.zh:961
+RETURNFUNC; Func[void SetScriptRAM(int, int)] Body End                          | 3233 resources/include/bindings/global.zh:961
+POP D0; Func[int GetGlobalRAM(int)] Body Start                                  | 3234 resources/include/bindings/global.zh:967
+SETR D2 GLOBALRAMD                                                              | 3235 resources/include/bindings/global.zh:967
+RETURNFUNC; Func[int GetGlobalRAM(int)] Body End                                | 3236 resources/include/bindings/global.zh:967
+POP D3; Func[void SetGlobalRAM(int, int)] Body Start                            | 3237 resources/include/bindings/global.zh:974
+POP D0                                                                          | 3238 resources/include/bindings/global.zh:974
+SETR GLOBALRAMD D3                                                              | 3239 resources/include/bindings/global.zh:974
+RETURNFUNC; Func[void SetGlobalRAM(int, int)] Body End                          | 3240 resources/include/bindings/global.zh:974
+POP D2; Func[long RefCount(untyped)] Body Start                                 | 3241 resources/include/bindings/global.zh:980
+REF_COUNT D2                                                                    | 3242 resources/include/bindings/global.zh:980
+RETURNFUNC; Func[long RefCount(untyped)] Body End                               | 3243 resources/include/bindings/global.zh:980
+GC; Func[void GC()] Body Start                                                  | 3244 resources/include/bindings/global.zh:985
+RETURNFUNC; Func[void GC()] Body End                                            | 3245 resources/include/bindings/global.zh:985
 POP D2; Func[void sprite::Own(bitmap)] Body Start                               | 3246 resources/include/bindings/sprite.zh:433
 POP REFSPRITE                                                                   | 3247 resources/include/bindings/sprite.zh:433
 OBJ_OWN_BITMAP D2 0                                                             | 3248 resources/include/bindings/sprite.zh:433
@@ -8317,7 +8317,7 @@ debug data:
       - char32[] dest @ Stack[2]
       - char32[] format @ Stack[1]
       - untyped[] args @ Stack[0]
-    [FUNCTION] int strcat <PC:3129-3132 IDX:512> <INTERNAL>
+    [FUNCTION] char32[] strcat <PC:3129-3132 IDX:512> <INTERNAL>
       - char32[] dest @ Stack[1]
       - char32[] src @ Stack[0]
     [FUNCTION] int strchr <PC:3133-3136 IDX:513> <INTERNAL>
@@ -8350,7 +8350,7 @@ debug data:
       - char32 c @ Stack[0]
     [FUNCTION] int strspn <PC:3141-3144 IDX:522> <INTERNAL>
       - char32[] str @ Stack[1]
-      - char32[] string_keys @ Stack[0]
+      - char32[] chars @ Stack[0]
     [FUNCTION] int strstr <PC:3145-3148 IDX:523> <INTERNAL>
       - char32[] str @ Stack[1]
       - char32[] tofind @ Stack[0]
@@ -13990,102 +13990,102 @@ Types:
 53: stack
 54: websocket
 55: GenericScriptEvent
-56: paldata
-57: lweapon
-58: npc
-59: portal
-60: eweapon
-61: itemsprite
-62: ffc
-63: subscreenwidget
-64: untyped[]
-65: Counter
-66: Thing
-67: CL
-68: DataBag
-69: DebugClassDefaultCtor
-70: Enum
-71: BlitModeBitflags
-72: const BlitModeBitflags
-73: ComboFlag
-74: const ComboFlag
-75: ComboLiftFlag
-76: const ComboLiftFlag
-77: ComboType
-78: const ComboType
-79: CornerIndex
-80: const CornerIndex
-81: CounterIndex
-82: const CounterIndex
-83: Direction
-84: const Direction
-85: DrawStyle
-86: const DrawStyle
-87: EnemyPattern
-88: const EnemyPattern
-89: FontType
-90: const FontType
-91: HitIndex
-92: const HitIndex
-93: InteractButton
-94: const InteractButton
-95: LiftFlag
-96: const LiftFlag
-97: LightShape
-98: const LightShape
-99: PickupStringBitflags
-100: const PickupStringBitflags
-101: ShadowType
-102: const ShadowType
-103: SideWarpIndex
-104: const SideWarpIndex
-105: SizeOverrideBitflags
-106: const SizeOverrideBitflags
-107: SpecialDrawLayer
-108: const SpecialDrawLayer
-109: SpriteID
-110: const SpriteID
-111: SwitchEffect
-112: const SwitchEffect
-113: TextAlignment
-114: const TextAlignment
-115: TileWarpIndex
-116: const TileWarpIndex
-117: TransformationType
-118: const TransformationType
-119: UnblockableBitflags
-120: const UnblockableBitflags
-121: WarpIndex
-122: const WarpIndex
-123: WarpType
-124: const WarpType
-125: WeaponDeadState
-126: const WeaponDeadState
-127: WeaponFlag
-128: const WeaponFlag
-129: WeaponSpriteIndex
-130: const WeaponSpriteIndex
-131: const int
-132: ExtendMode
-133: const ExtendMode
-134: MoveFlag
-135: const MoveFlag
-136: bool[]
-137: const bool
-138: sprite
-139: const sprite
-140: MusicRefreshFlag
-141: const MusicRefreshFlag
-142: MusicRefreshMode
-143: const MusicRefreshMode
-144: SoundEffect
-145: const SoundEffect
-146: VolumeIndex
-147: const VolumeIndex
-148: Audio
-149: const Audio
-150: int[]
-151: char32[]
+56: char32[]
+57: paldata
+58: lweapon
+59: npc
+60: portal
+61: eweapon
+62: itemsprite
+63: ffc
+64: subscreenwidget
+65: untyped[]
+66: Counter
+67: Thing
+68: CL
+69: DataBag
+70: DebugClassDefaultCtor
+71: Enum
+72: BlitModeBitflags
+73: const BlitModeBitflags
+74: ComboFlag
+75: const ComboFlag
+76: ComboLiftFlag
+77: const ComboLiftFlag
+78: ComboType
+79: const ComboType
+80: CornerIndex
+81: const CornerIndex
+82: CounterIndex
+83: const CounterIndex
+84: Direction
+85: const Direction
+86: DrawStyle
+87: const DrawStyle
+88: EnemyPattern
+89: const EnemyPattern
+90: FontType
+91: const FontType
+92: HitIndex
+93: const HitIndex
+94: InteractButton
+95: const InteractButton
+96: LiftFlag
+97: const LiftFlag
+98: LightShape
+99: const LightShape
+100: PickupStringBitflags
+101: const PickupStringBitflags
+102: ShadowType
+103: const ShadowType
+104: SideWarpIndex
+105: const SideWarpIndex
+106: SizeOverrideBitflags
+107: const SizeOverrideBitflags
+108: SpecialDrawLayer
+109: const SpecialDrawLayer
+110: SpriteID
+111: const SpriteID
+112: SwitchEffect
+113: const SwitchEffect
+114: TextAlignment
+115: const TextAlignment
+116: TileWarpIndex
+117: const TileWarpIndex
+118: TransformationType
+119: const TransformationType
+120: UnblockableBitflags
+121: const UnblockableBitflags
+122: WarpIndex
+123: const WarpIndex
+124: WarpType
+125: const WarpType
+126: WeaponDeadState
+127: const WeaponDeadState
+128: WeaponFlag
+129: const WeaponFlag
+130: WeaponSpriteIndex
+131: const WeaponSpriteIndex
+132: const int
+133: ExtendMode
+134: const ExtendMode
+135: MoveFlag
+136: const MoveFlag
+137: bool[]
+138: const bool
+139: sprite
+140: const sprite
+141: MusicRefreshFlag
+142: const MusicRefreshFlag
+143: MusicRefreshMode
+144: const MusicRefreshMode
+145: SoundEffect
+146: const SoundEffect
+147: VolumeIndex
+148: const VolumeIndex
+149: Audio
+150: const Audio
+151: int[]
 152: const bitmap
 153: BottleFlag
 154: const BottleFlag

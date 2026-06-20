@@ -527,6 +527,9 @@ internal long LongDistance(long x1, long y1, long x2, long y2);
 internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
 
 // Compares the contents of the two strings.
+// Returns 0 if they are equal.
+// Returns 1 if the first string is 'greater' than the second string.
+// Returns -1 if the first string is 'less' than the second string.
 //
 // @zasm
 //   POP D1
@@ -535,6 +538,8 @@ internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
 internal int strcmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings, up to a length limit.
+// See [strcmp] for more details on comparison / return values.
+// Only the first 'num_chars' characters are compared.
 //
 // @zasm
 //   POP D1
@@ -544,6 +549,8 @@ internal int strcmp(char32[] str1, char32[] str2);
 internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 
 // Compares the contents of the two strings, case-insensitively.
+// See [strcmp] for more details on comparison / return values.
+// All alphabetical characters are considered lower-case for comparison.
 //
 // @zasm
 //   POP D1
@@ -552,6 +559,9 @@ internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 internal int stricmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings, up to a length limit, case-insensitively.
+// See [strcmp] for more details on comparison / return values.
+// Only the first 'num_chars' characters are compared.
+// All alphabetical characters are considered lower-case for comparison.
 //
 // @zasm
 //   POP D1
@@ -638,6 +648,7 @@ internal void ltou(char32[] string);
 internal void convcase(char32[] string);
 
 // Converts the value [val] to a string, and writes to [dest].
+// Returns the number of characters used.
 //
 // @zasm
 //   POP D3
@@ -646,6 +657,7 @@ internal void convcase(char32[] string);
 internal int itoa(char32[] dest, int val);
 
 // Converts [val] to a string, as hexadecimal, and writes to [dest].
+// Returns the number of characters used.
 //
 // @zasm
 //   POP D3
@@ -666,7 +678,7 @@ internal int xtoi(char32[] str);
 //   POP D1
 //   POP D0
 //   STRCAT D2
-internal int strcat(char32[] dest, char32[] src);
+internal char32[] strcat(char32[] dest, char32[] src);
 
 // Returns the first index of [str] that contains the character [c].
 //
@@ -676,7 +688,7 @@ internal int strcat(char32[] dest, char32[] src);
 //   STRCHR D2
 internal int strchr(char32[] str, char32 c);
 
-// Returns the length in [str] before any character in 'chars' is found.
+// Returns the length in [str] before any character in [chars] is found.
 //
 // @zasm
 //   POP D1
@@ -684,14 +696,13 @@ internal int strchr(char32[] str, char32 c);
 //   STRCSPN D2
 internal int strcspn(char32[] str, char32[] chars);
 
-// Returns the number of characters in a string before a character not contained
-// in 'string_keys' is found
+//  Returns the length in [str] before any character NOT in [chars] is found.
 //
 // @zasm
 //   POP D1
 //   POP D0
 //   STRSPN D2
-internal int strspn(char32[] str, char32[] string_keys);
+internal int strspn(char32[] str, char32[] chars);
 
 // Returns the index of the first instance of the string [tofind] within [str].
 //
