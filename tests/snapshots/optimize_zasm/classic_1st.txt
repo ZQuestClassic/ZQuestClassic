@@ -10,6 +10,7 @@ Finished optimizing scripts:
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 2 instr (0.2%)
 	[propagate_values] saved 1 instr (0.1%)
+	[collapse_podarray] saved 0 instr (0.0%)
 	[strength_reduce] improved 0 instances
 	[unreachable_blocks_2] saved 0 instr (0.0%)
 	[dead_code] saved 30 instr (3.6%)

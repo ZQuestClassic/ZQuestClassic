@@ -432,6 +432,85 @@ static bool optimize_strength_reduce(OptContext& ctx)
 	return true;
 }
 
+// Collapse a run of per-element array writes into a single bulk array write:
+//
+//   WRITEPODARRAYVV 0      v0       WRITEPODARRAY   rINDEX {v0, 0, v2, ...}
+//   WRITEPODARRAYVR 10000  D5   ->  WRITEPODARRAYVR 10000  D5
+//   WRITEPODARRAYVV 20000  v2
+//   ...
+//
+// Older quests initialize arrays as a long sequence of per-element writes
+// (WRITEPODARRAYVV for a constant value, WRITEPODARRAYVR for a register value);
+// the modern compiler emits a single WRITEPODARRAY for the constant part. The
+// constant elements are folded into the bulk vector; register-valued elements
+// get a placeholder in the vector and their original write is re-emitted right
+// after the bulk write to overwrite the placeholder. Only plain POD writes (type
+// none) of a contiguous range starting at index 0 qualify, since WRITEPODARRAY
+// (setArray) bulk-writes from index 0.
+static bool optimize_collapse_podarray_init(OptContext& ctx)
+{
+	auto is_run_write = [](const ffscript& op) {
+		// Immediate-index, type-none POD element write (VV = const value, VR = register value).
+		return (op.command == WRITEPODARRAYVV || op.command == WRITEPODARRAYVR) && op.arg3 == 0;
+	};
+
+	for (pc_t i = ctx.fn.start_pc; i <= ctx.fn.final_pc; i++)
+	{
+		// Run must begin at element 0.
+		if (!is_run_write(C(i)) || C(i).arg1 != 0)
+			continue;
+
+		// Extend over the maximal contiguous, sequentially-indexed run.
+		pc_t j = i;
+		int expected_index = 0;
+		int n_const = 0;
+		while (j <= ctx.fn.final_pc && is_run_write(C(j)) && C(j).arg1 == expected_index)
+		{
+			if (C(j).command == WRITEPODARRAYVV)
+				n_const++;
+			j++;
+			expected_index += 10000;
+		}
+
+		int len = j - i;
+		// Only worthwhile if at least two constant elements fold into the bulk write.
+		if (n_const < 2)
+			continue;
+
+		if (bisect_tool_should_skip())
+			continue;
+
+		auto values = new std::vector<int32_t>();
+		values->reserve(len);
+		std::vector<ffscript> leftovers;
+		for (pc_t k = i; k < j; k++)
+		{
+			if (C(k).command == WRITEPODARRAYVV)
+			{
+				values->push_back(C(k).arg2);
+			}
+			else // WRITEPODARRAYVR: register value -> placeholder, re-emit after the bulk write
+			{
+				values->push_back(0);
+				leftovers.push_back({WRITEPODARRAYVR, C(k).arg1, C(k).arg2, C(k).arg3});
+			}
+		}
+
+		C(i) = {WRITEPODARRAY, rINDEX};
+		C(i).vecptr = values;
+		pc_t w = i + 1;
+		for (const auto& lo : leftovers)
+			C(w++) = lo;
+		for (; w < j; w++)
+			C(w).command = NOP;
+
+		ctx.saved += n_const - 1;
+		i = j - 1;
+	}
+
+	return true;
+}
+
 // SETR, ADDV, LOADI -> LOAD
 // SETR, ADDV, STOREI -> STORE
 // Ex:
@@ -2256,6 +2335,7 @@ static std::vector<OptPass> function_passes = {
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"propagate_values", optimize_propagate_values},
+	{"collapse_podarray", optimize_collapse_podarray_init},
 	{"strength_reduce", optimize_strength_reduce, true},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
 	{"dead_code", optimize_dead_code},
