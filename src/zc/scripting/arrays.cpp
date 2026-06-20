@@ -14,7 +14,7 @@
 //     impl.setMul10000(false);
 //     return &impl;
 // }());
-//
+//ScriptingArray_ObjectSubMemberCArray
 // The above configures the IDATAWPNINITD variable to map to the initd field of weapon_data, inside the weap_data member of itemdata.
 //
 // Steps for defining new scripting arrays:

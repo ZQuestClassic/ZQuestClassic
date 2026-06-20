@@ -47,6 +47,7 @@
 #include "zc/scripting/types/user_object.h"
 #include "zc/scripting/types/viewport.h"
 #include "zc/scripting/types/websocket.h"
+#include "zc/scripting/types/weapondata.h"
 
 #include <array>
 #include <optional>
@@ -97,6 +98,7 @@ enum class EngineSubsystem : uint8_t
 	viewport,
 	weapon,
 	websocket,
+	weapondata,
 };
 
 constexpr int MAX_REGISTER_ID = NUMVARIABLES;
@@ -150,8 +152,8 @@ ZC_FORCE_INLINE int32_t scripting_engine_get_register(int32_t reg)
 		case EngineSubsystem::subscreenwidget: return subscreenwidget_get_register(reg);
 		case EngineSubsystem::viewport: return viewport_get_register(reg);
 		case EngineSubsystem::websocket: return websocket_get_register(reg);
+		case EngineSubsystem::weapondata: return weapondata_get_register(reg);
     }
-
 #ifdef DEBUG_REGISTER_DEPS
 	return 0; // TODO: remove this branch.
 #else
@@ -207,6 +209,7 @@ ZC_FORCE_INLINE void scripting_engine_set_register(int32_t reg, int32_t value)
 		case EngineSubsystem::subscreenwidget: subscreenwidget_set_register(reg, value); return;
 		case EngineSubsystem::viewport: viewport_set_register(reg, value); return;
 		case EngineSubsystem::websocket: websocket_set_register(reg, value); return;
+		case EngineSubsystem::weapondata: weapondata_set_register(reg, value); return;
     }
 
 #ifdef DEBUG_REGISTER_DEPS
@@ -236,6 +239,8 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_run_command(word command
 	if (auto r = websocket_run_command(command))
 		return *r;
 	if (auto r = musicdata_run_command(command))
+		return *r;
+	if (auto r = weapondata_run_command(command))
 		return *r;
 
 	return std::nullopt;

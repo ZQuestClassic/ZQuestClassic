@@ -14,6 +14,7 @@
 #include "zc/scripting/types/genericdata.h"
 #include "zc/scripting/types/savemenu.h"
 #include "zc/scripting/types/websocket.h"
+#include "zc/scripting/types/weapondata.h"
 #include <cstddef>
 #include <functional>
 #include <optional>
@@ -213,6 +214,8 @@ T* resolveScriptingObject(int ref)
 		return game;
 	else if constexpr (std::is_same<T, HeroClass>::value)
 		return &Hero;
+	else if constexpr (std::is_same<T, weapon_data>::value)
+		return checkWeaponData(ref);
 	else
 		static_assert(always_false<T>::value, "Unhandled type in 'resolveScriptingObject' function");
 }

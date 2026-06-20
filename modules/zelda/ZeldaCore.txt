@@ -90,6 +90,7 @@ src/zc/scripting/types/user_object.cpp
 src/zc/scripting/types/viewport.cpp
 src/zc/scripting/types/weapon.cpp
 src/zc/scripting/types/websocket.cpp
+src/zc/scripting/types/weapondata.cpp
 src/zc/scripting/types.cpp
 
 src/zc/zasm_optimize.cpp

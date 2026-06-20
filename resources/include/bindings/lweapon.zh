@@ -211,7 +211,6 @@ class lweapon {
 	// Unblockable bitflags.
 	//
 	// @value [enum UnblockableBitflags]
-
 	// @zasm_var LWPNUNBL
 	internal int Unblockable;
 
@@ -318,6 +317,10 @@ class lweapon {
 	// @zasm_var LWPNDEATHSFX
 	internal int DeathSFX;
 
+	// The required Lift Glove level to lift this weapon.
+	// If 0, the weapon cannot be lifted.
+	// If >0, the weapon can be lifted by gloves >= this level.
+	//
 	// @zasm_var LWPNLIFTLEVEL
 	internal int LiftLevel;
 

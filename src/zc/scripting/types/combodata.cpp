@@ -718,7 +718,19 @@ int32_t combodata_get_register(int32_t reg)
 			}
 			break;
 		}
-
+		case COMBODATA_MISC_WEAPONDATA:
+		{
+			if (checkCombo(GET_REF(combodataref), false))
+				ret = FFCore.get_new_weapondata(wdata_type::combodata_misc, GET_REF(combodataref));
+			break;
+		}
+		case COMBODATA_LIFT_WEAPONDATA:
+		{
+			if (checkCombo(GET_REF(combodataref), false))
+				ret = FFCore.get_new_weapondata(wdata_type::combodata_lift, GET_REF(combodataref));
+			break;
+		}
+		
 		default:
 			NOTREACHED();
 	}
@@ -1303,6 +1315,10 @@ void combodata_set_register(int32_t reg, int32_t value)
 				combobuf[GET_REF(combodataref)].z_step_height = zslongToFix(zc_max(0,value));
 			break;
 		}
+		case COMBODATA_MISC_WEAPONDATA:
+			break;
+		case COMBODATA_LIFT_WEAPONDATA:
+			break;
 
 		default:
 			NOTREACHED();

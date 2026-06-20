@@ -79,6 +79,7 @@ int32_t misc_get_register(int32_t reg)
 		case REFSUBSCREENPAGE: ret = ri->subscreenpageref; break;
 		case REFSUBSCREENWIDG: ret = ri->subscreenwidgref; break;
 		case REFWEBSOCKET: ret = ri->websocketref; break;
+		case REFWEAPDATA: ret = ri->weapdataref; break;
 		case SP:
 			ret = ri->sp * 10000;
 			break;
@@ -164,6 +165,7 @@ void misc_set_register(int32_t reg, int32_t value)
 		case REFSUBSCREENPAGE: ri->subscreenpageref = value; break;
 		case REFSUBSCREENWIDG: ri->subscreenwidgref = value; break;
 		case REFWEBSOCKET: ri->websocketref = value; break;
+		case REFWEAPDATA: ri->weapdataref = value; break;
 		case SP:
 			ri->sp = value / 10000;
 			break;

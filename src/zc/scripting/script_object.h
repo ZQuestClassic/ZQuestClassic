@@ -46,8 +46,9 @@ struct UserDataContainer
 
 	void clear()
 	{
+		// intentionally copying ids as script_object_ids_by_type may be mutated
 		auto ids = script_object_ids_by_type[type];
-		for (auto id : ids)
+		for (auto const& id : ids)
 			delete_script_object(id);
 	}
 
@@ -93,6 +94,21 @@ struct UserDataContainer
 
 		scripting_log_error_with_context("Invalid {} using UID = {}", name, id);
 		return NULL;
+	}
+	
+	// Return true to stop iteration
+	bool foreach(std::function<bool(uint32_t,T*)> const& proc)
+	{
+		auto const& ids = script_object_ids_by_type[type];
+		for (auto const& id : ids)
+		{
+			auto& t = script_objects.at(id);
+			assert(t->type == type);
+			T* ptr = static_cast<T*>(t.get());
+			if (proc(id, ptr))
+				return true;
+		}
+		return false;
 	}
 };
 

@@ -626,51 +626,61 @@ class itemdata {
 
 	// The overrided weapon type that the weapon will act like.
 	//
+	// @deprecated use [WeaponData] / [weapondata::Weapon] instead!
 	// @zasm_var IDATAUSEWPN
 	internal int Weapon;
 
 	// The 8 InitD values for the weapon script.
 	//
+	// @deprecated use [WeaponData] / [weapondata::InitD] instead!
 	// @zasm_var IDATAWPNINITD
 	internal untyped WeaponInitD[];
 
 	// The item's lweapon script
 	//
+	// @deprecated use [WeaponData] / [weapondata::Script] instead!
 	// @zasm_var IDATAWEAPONSCRIPT
 	internal int WeaponScript;
 
 	// The hitbox offset of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::HitXOffset] instead!
 	// @zasm_var IDATAWEAPHXOFS
 	internal int WeaponHitXOffset;
 
 	// The hitbox offset of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::HitYOffset] instead!
 	// @zasm_var IDATAWEAPHYOFS
 	internal int WeaponHitYOffset;
 
 	// The hitbox size of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::HitWidth] instead!
 	// @zasm_var IDATAWEAPHXSZ
 	internal int WeaponHitWidth;
 
 	// The hitbox size of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::HitHeight] instead!
 	// @zasm_var IDATAWEAPHYSZ
 	internal int WeaponHitHeight;
 
 	// The Z-Height of the hitbox, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::HitZHeight] instead!
 	// @zasm_var IDATAWEAPHZSZ
 	internal int WeaponHitZHeight;
 
 	// The visual offset of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::DrawXOffset] instead!
 	// @zasm_var IDATAWEAPXOFS
 	internal int WeaponDrawXOffset;
 
 	// The visual offset of the sprite, in pixels.
 	//
+	// @deprecated use [WeaponData] / [weapondata::DrawYOffset] instead!
 	// @zasm_var IDATAWEAPYOFS
 	internal int WeaponDrawYOffset;
 
@@ -760,16 +770,19 @@ class itemdata {
 	// apply from the itemdata, for any [lweapon] created by this item.
 	//
 	// @value [enum SizeOverrideBitflags]
+	// @deprecated use [WeaponData] / [weapondata::SizeFlags] instead!
 	// @zasm_var IDATAOVERRIDEFLWEAP
 	internal int WeaponSizeFlags;
 
 	// The visual size of the sprite, in tiles.
 	//
+	// @deprecated use [WeaponData] / [weapondata::TileWidth] instead!
 	// @zasm_var IDATATILEWWEAP
 	internal int WeaponTileWidth;
 
 	// The visual size of the sprite, in tiles.
 	//
+	// @deprecated use [WeaponData] / [weapondata::TileHeight] instead!
 	// @zasm_var IDATATILEHWEAP
 	internal int WeaponTileHeight;
 
@@ -811,6 +824,7 @@ class itemdata {
 	// If true, the weapon created by this item will update its sprite when lit
 	// on fire using [BurnSprites].
 	//
+	// @deprecated use [WeaponData] / [weapondata::Flags] / [WFLAG_UPDATE_BURNSPR] instead!
 	// @zasm_var IDATAUSEBURNSPR
 	internal bool UseBurnSprites;
 
@@ -818,12 +832,14 @@ class itemdata {
 	// fire.
 	//
 	// @index [enum ItemBurnIndex]
+	// @deprecated use [WeaponData] / [weapondata::BurnSprites] instead!
 	// @zasm_var IDATABURNINGSPR
 	internal int BurnSprites[];
 
 	// The burning light radii from `Graphics->Sprites->Burning`.
 	//
 	// @index [enum ItemBurnIndex]
+	// @deprecated use [WeaponData] / [weapondata::BurnLightRadius] instead!
 	// @zasm_var IDATABURNINGLIGHTRAD
 	internal int BurnLightRadius[];
 
@@ -863,6 +879,7 @@ class itemdata {
 	// defense resolution is used in place of `None`.
 	//
 	// @deprecated_alias Defence
+	// @deprecated use [WeaponData] / [weapondata::Defense] instead!
 	// @zasm_var IDATAUSEDEF
 	internal int Defense;
 
@@ -928,6 +945,7 @@ class itemdata {
 	// Does not apply to some weapon types (ex. Sword, Hammer, Wand)
 	//
 	// @value [enum MoveFlag]
+	// @deprecated use [WeaponData] / [weapondata::MoveFlags] instead!
 	// @versionadded 3.0
 	// @zasm_var IDATAWMOVEFLAGS
 	internal bool WeaponMoveFlags[];
@@ -979,4 +997,9 @@ class itemdata {
 	// @value [enum ItemType]
 	// @zasm_var IDATATYPE
 	internal int Family;
+	
+	// The [weapondata] for this item's weapon.
+	// @versionadded 3.0
+	// @zasm_var IDATA_WEAPONDATA
+	internal const weapondata WeaponData;
 }

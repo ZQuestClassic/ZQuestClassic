@@ -1097,4 +1097,9 @@ class npc {
 	//   POP REFNPC
 	//   NPC_SUMMON_MINION_LAYER D2
 	internal npc SummonMinionFromLayer(int summon_limit);
+	
+	// The [weapondata] for this enemy's weapon.
+	// @versionadded 3.0
+	// @zasm_var NPC_WEAPONDATA
+	internal const weapondata WeaponData;
 }

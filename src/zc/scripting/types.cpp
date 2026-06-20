@@ -114,6 +114,8 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case COMBOPOSR:
 		case COMBOXR:
 		case COMBOYR:
+		case COMBODATA_MISC_WEAPONDATA:
+		case COMBODATA_LIFT_WEAPONDATA:
 			return EngineSubsystem::combodata;
 
 		case CMBTRIGBOSSPAL:
@@ -660,6 +662,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case IDATAWEAPYOFS:
 		case IDATAWEAPZOFS:
 		case IDATAWRANGE:
+		case IDATA_WEAPONDATA:
 			return EngineSubsystem::itemdata;
 
 		case ITEMACLK:
@@ -926,6 +929,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case REFSUBSCREENPAGE:
 		case REFSUBSCREENWIDG:
 		case REFWEBSOCKET:
+		case REFWEAPDATA:
 		case SP:
 		case SP2:
 		case SWITCHKEY:
@@ -1036,6 +1040,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCDEATHEXSTATE:
 		case NPC_SUMMONER_PARENT:
 		case SPRITEMAXNPC:
+		case NPC_WEAPONDATA:
 			return EngineSubsystem::npc;
 
 		case NPCDATAANIM:
@@ -1089,6 +1094,7 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCDSHADOWSPR:
 		case NPCDSPAWNSPR:
 		case NPCMATCHINITDLABEL:
+		case NPCDATA_WEAPONDATA:
 			return EngineSubsystem::npcdata;
 
 		case PORTALACLK:
@@ -1401,7 +1407,42 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case VIEWPORT_X:
 		case VIEWPORT_Y:
 			return EngineSubsystem::viewport;
-
+		
+		case WEAPDATA_MISC_FLAGS:
+		case WEAPDATA_MOVE_FLAGS:
+		case WEAPDATA_WEAP_FLAGS:
+		case WEAPDATA_BURN_SPRITES:
+		case WEAPDATA_BURN_LIGHTRAD:
+		case WEAPDATA_BURN_LIGHTOFFSET:
+		case WEAPDATA_LIGHT_SHAPE:
+		case WEAPDATA_SIZE_BITFLAGS:
+		case WEAPDATA_HIT_OFFSET_X:
+		case WEAPDATA_HIT_OFFSET_Y:
+		case WEAPDATA_HIT_WIDTH:
+		case WEAPDATA_HIT_HEIGHT:
+		case WEAPDATA_HIT_ZHEIGHT:
+		case WEAPDATA_X_OFFSET:
+		case WEAPDATA_Y_OFFSET:
+		case WEAPDATA_TILE_W:
+		case WEAPDATA_TILE_H:
+		case WEAPDATA_STEP:
+		case WEAPDATA_BOUNCE_MULT:
+		case WEAPDATA_BOUNCE_ADD:
+		case WEAPDATA_UNBLOCKABLE:
+		case WEAPDATA_TIMEOUT:
+		case WEAPDATA_USEWEAPON:
+		case WEAPDATA_USEDEFENCE:
+		case WEAPDATA_LIFTLEVEL:
+		case WEAPDATA_LIFTTIME:
+		case WEAPDATA_LIFTHEIGHT:
+		case WEAPDATA_SCRIPT:
+		case WEAPDATA_INITD:
+		case WEAPDATA_PIERCE:
+		case WEAPDATA_VIEWPORT_SUSPEND_RANGE:
+		case WEAPDATA_VIEWPORT_DESPAWN_RANGE:
+		case WEAPDATA_VALID:
+			return EngineSubsystem::weapondata;
+		
 		case WEBSOCKET_HAS_MESSAGE:
 		case WEBSOCKET_MESSAGE_TYPE:
 		case WEBSOCKET_STATE:

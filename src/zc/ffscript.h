@@ -313,6 +313,32 @@ struct user_rng : public user_abstract_obj
 	}
 };
 
+enum class wdata_type
+{
+	script,
+	npcdata,
+	npc,
+	itemdata,
+	combodata_lift,
+	combodata_misc,
+};
+#define MAX_USER_WEAPONDATAS 2048
+struct user_weapondata : public user_abstract_obj
+{
+	wdata_type data_type;
+	dword data_index;
+	
+	weapon_data* inner_data = nullptr;
+	
+	weapon_data* get_data();
+	
+	~user_weapondata()
+	{
+		if (inner_data)
+			delete inner_data;
+	}
+};
+
 extern bool scripting_use_8bit_colors;
 extern int scripting_max_color_val;
 
@@ -618,8 +644,10 @@ void user_stacks_init();
 void user_rng_init();
 void user_paldata_init();
 void user_websockets_init();
+void user_weapondata_init();
 void script_arrays_init();
 
+uint32_t get_new_weapondata(wdata_type data_type, dword data_index);
 void do_loadstack();
 void do_loadrng();
 void do_create_paldata();

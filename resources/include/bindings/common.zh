@@ -894,7 +894,8 @@ enum ComboLiftFlag
 	LF_SPECIALITEM,
 	LF_NOUCSET,
 	LF_NOWPNCMBCSET,
-	LF_BREAKONSOLID, // TODO: Deprecate this with new weapon_data access
+	// @deprecated use [combodata::LiftWeaponData] / [weapondata::Flags] / [WFLAG_BREAKS_ON_SOLID] instead!
+	LF_BREAKONSOLID,
 	// If this combo is part of a larger liftable object, as
 	// defined via [combodata::LargeComboDirs].
 	// @versionadded 3.0

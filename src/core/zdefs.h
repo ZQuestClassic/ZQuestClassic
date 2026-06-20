@@ -1279,7 +1279,7 @@ public:
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapdataref, msgdataref, shopdataref;
 	int32_t mapdataref;
 	dword dropsetdataref;
-	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref, musicref;
+	dword fileref, directoryref, rngref, stackref, paldataref, savemenuref, musicref, weapdataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combodataref, comboposref;
 	dword combotriggerref;

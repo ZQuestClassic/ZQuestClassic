@@ -341,12 +341,14 @@ class combodata {
 	// The radius of light that will be emitted by the lifted weapon.
 	//
 	// @versionadded 3.0
+	// @deprecated use [LiftWeaponData] / [weapondata::BurnLightRadius] instead!
 	// @zasm_var COMBODLIFTLIGHTRAD
 	internal int LiftLightRadius;
 	
 	// The [LightShape] the lifted weapon will use, if light is emitted.
 	//
 	// @versionadded 3.0
+	// @deprecated use [LiftWeaponData] / [weapondata::LightShape] instead!
 	// @zasm_var COMBODLIFTLIGHTSHAPE
 	internal int LiftLightShape;
 
@@ -713,4 +715,14 @@ class combodata {
 	// @versionadded 3.0
 	// @zasm_var COMBODTRIGPUSHTIME
 	internal int TrigPushTime;
+	
+	// The [weapondata] for this combo's lift weapon.
+	// @versionadded 3.0
+	// @zasm_var COMBODATA_LIFT_WEAPONDATA
+	internal const weapondata LiftWeaponData;
+	
+	// The [weapondata] for this combo's misc weapon.
+	// @versionadded 3.0
+	// @zasm_var COMBODATA_MISC_WEAPONDATA
+	internal const weapondata MiscWeaponData;
 }

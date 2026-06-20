@@ -146,7 +146,7 @@ generic script viewport
 		Hero->Item[Game->LoadItemData(I_ARROW1)->ID] = true;
 		Game->Counter[CR_ARROWS] = 10;
 		Game->MCounter[CR_ARROWS] = 10;
-		Game->LoadItemData(I_ARROW1)->WeaponScript = Game->GetLWeaponScript("seeking_arrow");
+		Game->LoadItemData(I_ARROW1)->WeaponData->Script = Game->GetLWeaponScript("seeking_arrow");
 
 		Waitframes(30);
 		press(CB_B);

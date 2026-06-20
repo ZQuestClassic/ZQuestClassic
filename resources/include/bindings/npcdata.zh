@@ -496,11 +496,13 @@ class npcdata {
 
 	// The weapon action script assigned to this npc.
 	//
+	// @deprecated use [WeaponData] / [weapondata::Script] instead!
 	// @zasm_var NPCDATAWEAPONSCRIPT
 	internal int WeaponScript;
 
 	// The eight InitD args assigned to the weapon script used by this npc.
 	//
+	// @deprecated use [WeaponData] / [weapondata::InitD] instead!
 	// @zasm_var NPCDATAWEAPONINITD
 	internal int WeaponInitD[];
 
@@ -529,6 +531,7 @@ class npcdata {
 	// The fired [eweapon]'s default movement flags.
 	//
 	// @value [enum MoveFlag]
+	// @deprecated use [WeaponData] / [weapondata::MoveFlags] instead!
 	// @versionadded 3.0
 	// @zasm_var NPCDATAWMOVEFLAGS
 	internal bool WeaponMoveFlags[];
@@ -545,4 +548,9 @@ class npcdata {
 	// @value [enum NPCType]
 	// @zasm_var NPCDATATYPE
 	internal int Family;
+	
+	// The [weapondata] for this enemy's weapon.
+	// @versionadded 3.0
+	// @zasm_var NPCDATA_WEAPONDATA
+	internal const weapondata WeaponData;
 }
