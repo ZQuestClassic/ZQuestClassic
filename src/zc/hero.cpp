@@ -9443,55 +9443,62 @@ heroanimate_skip_liftwpn:;
 		if (unsigned(ty) < world_h && unsigned(tx) < world_w)
 		{
 			rpos_t rpos = COMBOPOS_REGION_B(tx, ty);
-			for(int32_t q = 0; q < 3; ++q)
+			bool check_bridge = !get_qr(qr_OLD_BRIDGE_COMBO_COVER);
+			if (rpos != rpos_t::None && (!check_bridge || !has_bridge_above(tx, ty, 2)))
 			{
-				if (rpos == rpos_t::None) break;
-
-				auto rpos_handle = get_rpos_handle(rpos, q);
-				if (!rpos_handle.scr->is_valid()) continue;
-
-				auto& cmb = rpos_handle.combo();
-				
-				int32_t b = 1;
-				if(tx&8) b <<= 2;
-				if(ty&8) b <<= 1;
-				b |= (b<<4); //check equivalent effect flag too
-				if((cmb.walk & b) != b) //not both solid and effecting
-					continue;
-				
-				bool standing_switchblock = cmb.type == cCSWITCHBLOCK && (cmb.usrflags & cflag9);
-				bool standing_combo = (cmb.genflags & cflag3) && !standing_switchblock;
-				
-				if (cmb.dive_under_level && isDiving())
+				for(int32_t q = 2; q >= 0; --q)
 				{
-					// keep you from surfacing
-					// also sets the 'standing_on_z' value, based on flippers
-					set_dive(zc_max(diveclk, 2));
-					if (standing_on_z >= -cmb.dive_under_level) // push you down further if the combo appeared on you or etc
-						standing_on_z = -cmb.dive_under_level;
-				}
-				else if (standing_switchblock || standing_combo)
-				{
-					bool should_z_offs = standing_switchblock ? (cmb.usrflags&cflag10) : (cmb.genflags & cflag4);
-					zfix cmb_z = standing_switchblock ? cmb.c_attributes[2] : cmb.z_height;
-					if (!cmb_z) cmb_z = STANDING_Z_MAX;
+					if (rpos == rpos_t::None) break;
+
+					auto rpos_handle = get_rpos_handle(rpos, q);
+					if (!rpos_handle.scr->is_valid()) continue;
+
+					auto& cmb = rpos_handle.combo();
 					
-					if (standing_on_z >= 0)
+					int32_t b = 1;
+					if(tx&8) b <<= 2;
+					if(ty&8) b <<= 1;
+					b |= (b<<4); //check equivalent effect flag too
+					
+					bool standing_switchblock = cmb.type == cCSWITCHBLOCK && (cmb.usrflags & cflag9);
+					bool standing_combo = (cmb.genflags & cflag3) && !standing_switchblock;
+					
+					if ((cmb.walk & b) == b) //both solid and effecting
 					{
-						if (z == 0 && fakez == 0)
-							standing_on_z = zc_max(standing_on_z, cmb_z);
-						else if(get_standing_z_state() < cmb_z)
-							standing_on_z += cmb_z - get_standing_z_state();
+						if (cmb.dive_under_level && isDiving())
+						{
+							// keep you from surfacing
+							// also sets the 'standing_on_z' value, based on flippers
+							set_dive(zc_max(diveclk, 2));
+							if (standing_on_z >= -cmb.dive_under_level) // push you down further if the combo appeared on you or etc
+								standing_on_z = -cmb.dive_under_level;
+							break;
+						}
+						else if (standing_switchblock || standing_combo)
+						{
+							bool should_z_offs = standing_switchblock ? (cmb.usrflags&cflag10) : (cmb.genflags & cflag4);
+							zfix cmb_z = standing_switchblock ? cmb.c_attributes[2] : cmb.z_height;
+							if (!cmb_z) cmb_z = STANDING_Z_MAX;
+							
+							if (standing_on_z >= 0)
+							{
+								if (z == 0 && fakez == 0)
+									standing_on_z = zc_max(standing_on_z, cmb_z);
+								else if(get_standing_z_state() < cmb_z)
+									standing_on_z += cmb_z - get_standing_z_state();
+							}
+							if(z == 0 && fakez == 0 && should_z_offs && !standing_z_offset)
+							{
+								standing_z_offset = true;
+								yofs -= 8;
+							}
+							break;
+						}
 					}
-					if(z == 0 && fakez == 0 && should_z_offs && !standing_z_offset)
-					{
-						standing_z_offset = true;
-						yofs -= 8;
-					}
+					
+					if (check_bridge && has_bridge_at(tx, ty, q))
+						break;
 				}
-				else continue;
-				
-				break;
 			}
 		}
 	}
