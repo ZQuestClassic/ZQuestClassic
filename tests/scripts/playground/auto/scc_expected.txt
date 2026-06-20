@@ -130,12 +130,12 @@ POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
 POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
-LOAD D2 0.0008; InlineFunc[int strcat(char32[], char32[])] Params Start
+LOAD D2 0.0008; InlineFunc[char32[] strcat(char32[], char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
-SETR D1 D2; InlineFunc[int strcat(char32[], char32[])] Params End
-POP D0; InlineFunc[int strcat(char32[], char32[])] Body Start
-STRCAT D2; InlineFunc[int strcat(char32[], char32[])] Body End
+SETR D1 D2; InlineFunc[char32[] strcat(char32[], char32[])] Params End
+POP D0; InlineFunc[char32[] strcat(char32[], char32[])] Body Start
+STRCAT D2; InlineFunc[char32[] strcat(char32[], char32[])] Body End
 REF_REMOVE 0.0006; for() #136 Body End
 LOAD D2 0.0007; for() #136 LoopIncrement
 ADDV D2 1
@@ -218,12 +218,12 @@ POP D4
 PUSHVARGR D2; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Params End
 SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body Start
 POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[], ...untyped[])] Body End
-LOAD D2 0.0008; InlineFunc[int strcat(char32[], char32[])] Params Start
+LOAD D2 0.0008; InlineFunc[char32[] strcat(char32[], char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
-SETR D1 D2; InlineFunc[int strcat(char32[], char32[])] Params End
-POP D0; InlineFunc[int strcat(char32[], char32[])] Body Start
-STRCAT D2; InlineFunc[int strcat(char32[], char32[])] Body End
+SETR D1 D2; InlineFunc[char32[] strcat(char32[], char32[])] Params End
+POP D0; InlineFunc[char32[] strcat(char32[], char32[])] Body Start
+STRCAT D2; InlineFunc[char32[] strcat(char32[], char32[])] Body End
 REF_REMOVE 0.0006; for() #137 Body End
 LOAD D2 0.0007; for() #137 LoopIncrement
 ADDV D2 1

@@ -1615,11 +1615,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 778,
+              "line": 789,
               "character": 14
             },
             "end": {
-              "line": 778,
+              "line": 789,
               "character": 20
             }
           },
@@ -1780,17 +1780,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 769,
+              "line": 780,
               "character": 23
             },
             "end": {
-              "line": 769,
+              "line": 780,
               "character": 34
             }
           },
           "uri": "URI"
         },
-        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A769%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A769%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
+        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A780%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A780%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
       "5489": {
         "loc": {
@@ -1909,7 +1909,7 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "There was a bug that would result in randomly choosing between functions of the same name.\nIn this case, the internal binding \"itoa\" vs the function in string_functions.zh \"itoa\".\n\nNow, the expected result is to prefer the binding function over any other global function.\n\nfeed me to [`itoa()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A645%2C%22character%22%3A13%7D%2C%22end%22%3A%7B%22line%22%3A645%2C%22character%22%3A17%7D%7D%7D).",
+        "doc": "There was a bug that would result in randomly choosing between functions of the same name.\nIn this case, the internal binding \"itoa\" vs the function in string_functions.zh \"itoa\".\n\nNow, the expected result is to prefer the binding function over any other global function.\n\nfeed me to [`itoa()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A656%2C%22character%22%3A13%7D%2C%22end%22%3A%7B%22line%22%3A656%2C%22character%22%3A17%7D%7D%7D).",
         "name": "s",
         "type": "char32[]"
       },
