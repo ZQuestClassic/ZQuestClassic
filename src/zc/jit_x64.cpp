@@ -1084,6 +1084,15 @@ JittedFunction jit_compile_script(script_data *script)
 				continue;
 			}
 
+			if (arg2 == -1)
+			{
+				// idiv overflows computing INT_MIN / -1, but x % -1 is always 0.
+				x86::Gp val = cc.newInt32();
+				zero(cc, val);
+				set_z_register(state, cc, vStackIndex, arg1, val);
+				continue;
+			}
+
 			// https://stackoverflow.com/a/8022107/2788187
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
@@ -1119,6 +1128,10 @@ JittedFunction jit_compile_script(script_data *script)
 			// Prevent division by zero. Result will be zero.
 			cc.test(divisor, divisor);
 			cc.jz(do_set_register);
+
+			// idiv overflows computing INT_MIN / -1, but x % -1 is always 0 (rem is already 0).
+			cc.cmp(divisor, -1);
+			cc.je(do_set_register);
 
 			cc.cdq(rem, dividend);
 			cc.idiv(rem, dividend, divisor);
