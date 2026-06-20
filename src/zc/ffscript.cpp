@@ -44846,18 +44846,8 @@ double FFScript::Log2( double n )
 //xtoa, convert hex number to hex ascii
 void FFScript::do_xtoa()
 {
-	
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	int32_t number = get_register(sarg2) / 10000;//ri->d[rEXP2]/10000; //why are you not in sarg2?!!
-	
-	//for ( int32_t q = 0; q < 6; ++q )
-	//	zprint2("ri->d[%d] is %d", q, ri->d[q]);
-	
-	// zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
-	// zprint2("xtoa_c number is: %d\n",number);
-		
-	
-	
 	
 	bool isneg = false;
 	if ( number < 0 ) 
@@ -44866,56 +44856,26 @@ void FFScript::do_xtoa()
 		number *= -1;
 	}
 	double num = number;
-	// zprint2("xtoa_c(), num is: %f\n", num);
 	int32_t digits = num ? floor(FFCore.LogToBase(num, 16) + 1) : 1;
-	//sizeof(number)*CHAR_BIT/4;
-	// zprint2("xtoa_c, digits is: %d\n",digits);
 	
-	
-	int32_t pos = 0;
-	string strA;
-	if(number == 0) //Needs to precede str.resize(digits+3) as if the number is <= 0 then this breaks.
-	{
-		strA.resize(3);
-		strA[pos+2] = '0';
-		if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-		{
-			Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
-			set_register(sarg1, 0);
-		}
-		else set_register(sarg1, 30000); //returns the pointer to the dest
-		return;
-	}
-	int32_t ret = 0;
-	strA.resize(digits+3+(isneg?1:0));
-	//num = Floor(Abs(num));
+	ostringstream oss;
 	if ( isneg )
-	{
-		strA[pos] = '-';
-		strA[pos+1] = '0';
-		strA[pos+2] = 'x';
-		ret = 3;
-	}
-	else
-	{
-		strA[pos] = '0';
-		strA[pos+1] = 'x';
-		ret = 2;
-	}
+		oss << "-";
+	oss << "0x";
 
 	int32_t alphaoffset = 'A' - 0xA;
 	for(int32_t i = 0; i < digits; ++i)
 	{
 		int32_t coeff = ((int32_t)floor((double)(((double)number) / zc::math::Pow(0x10, digits - i - 1))) % 0x10);
-		strA[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
+		oss << char(coeff < 0xA ? coeff + '0' : coeff + alphaoffset);
 	}
-	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
+	string str = oss.str();
+	if(ArrayH::setArray(arrayptr_a, str) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'xtoa()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
-	else set_register(sarg1, (ret + digits -(isneg?1:0))*10000); //don't count the - sign as a digit
+	else set_register(sarg1, str.size() * 10000);
 }
 
 void FFScript::do_ilen(const bool v)
