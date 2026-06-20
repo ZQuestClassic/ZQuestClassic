@@ -1589,7 +1589,12 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 	}
 	guygrid[pos] = 61;
 	if(addenemy(tx,ty+3,id2,eclk))
-		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+	{
+		enemy* en = (enemy*)guys.spr(guys.Count()-1);
+		en->did_armos=false;
+		if (cmb.type == cARMOS)
+			en->flags2 |= cmbflag_armos;
+	}
 	else return false;
 	return true;
 }
@@ -1674,8 +1679,11 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 	guygridffc[pos] = 61;
 	if(addenemy(tx,ty+3,id2,eclk))
 	{
-		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=pos+1;
+		enemy* en = (enemy*)guys.spr(guys.Count()-1);
+		en->did_armos=false;
+		en->ffcactivated=pos+1;
+		if (cmb.type == cARMOS)
+			en->flags2 |= cmbflag_armos;
 	}
 	else return false;
 	return true;
