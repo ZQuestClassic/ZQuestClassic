@@ -3345,8 +3345,10 @@ void do_mod(bool v, const bool inv = false)
 		scripting_log_error_with_context("Attempted to modulo by zero!");
 		temp = 1;
 	}
-	
-	set_register(destreg, temp2 % temp);
+
+	// INT_MIN % -1 overflows the idiv instruction (the quotient is not
+	// representable), but x % -1 is always 0.
+	set_register(destreg, temp == -1 ? 0 : temp2 % temp);
 }
 
 void do_trig(const bool v, const byte type)

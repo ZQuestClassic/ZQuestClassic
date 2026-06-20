@@ -1124,6 +1124,14 @@ static x86::Gp compile_modv(CompilationState& state, x86::Compiler& cc, x86::Gp 
 		return val;
 	}
 
+	if (arg2 == -1)
+	{
+		// idiv overflows computing INT_MIN / -1, but x % -1 is always 0.
+		x86::Gp val = cc.newInt32();
+		zero(cc, val);
+		return val;
+	}
+
 	// https://stackoverflow.com/a/8022107/2788187
 	if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
 	{
@@ -1667,6 +1675,9 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			cc.jmp(do_set_register);
 
 			cc.bind(do_modulo);
+			// idiv overflows computing INT_MIN / -1, but x % -1 is always 0 (rem is already 0).
+			cc.cmp(divisor, -1);
+			cc.je(do_set_register);
 			cc.cdq(rem, dividend);
 			cc.idiv(rem, dividend, divisor);
 
