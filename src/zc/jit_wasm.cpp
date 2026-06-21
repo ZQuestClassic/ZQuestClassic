@@ -872,6 +872,33 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						// g_idx_ret_stack_index += 1
 						modify_global_idx(wasm, g_idx_ret_stack_index, 1);
 					}
+					else if (structured_zasm.start_pc_to_function.contains(arg1) &&
+							 !function_ids.contains(structured_zasm.start_pc_to_function.at(arg1)))
+					{
+						// A GOTO whose target is the entry of a function in a *different* compile
+						// unit. Each (non-yielding) function is compiled as its own WASM function,
+						// and the loop-switch `br` can only reach blocks within the current function,
+						// so we cannot branch there. Instead, lower the GOTO as a tail-call into the
+						// target function.
+						//
+						// This is only expected for the "~Init" script of older (2.55-era) quests:
+						// that script is assembled by inlining init function bodies and tail-jumping
+						// over them (via GOTO) to the "run" continuation, rather than using a plain
+						// CALLFUNC. Modern compiles don't produce cross-function GOTOs.
+						// jit_compile_script validates the target is a separately-compiled,
+						// non-yielding function's entry, so emitCall is sufficient.
+						//
+						// Example: .tmp/replay_uploads/EB5E2CFAE26A97BAA15637C0A60D557A/6940ead2-143f-45b9-a894-1bc05c81b9e0-updated-main.zplay
+						check_call_limit(state);
+						modify_global_idx(wasm, g_idx_ret_stack_index, 1);
+						wasm.emitI32Const(0);
+						wasm.emitGlobalSet(g_idx_target_block_id);
+						wasm.emitCall(function_id_to_idx.at(structured_zasm.start_pc_to_function.at(arg1)));
+						modify_global_idx(wasm, g_idx_ret_stack_index, -1);
+						// The GOTO does not return here, so end this function once the callee does.
+						wasm.emitReturn();
+						continue;
+					}
 
 					// In both the "call within the yielder function case", or the "branch within a function" case,
 					// we set the target block index and jump back to the loop-switch.
@@ -1654,6 +1681,36 @@ JittedScript* jit_compile_script(zasm_script* script)
 	comp.builder.exportFunction(fn_run_idx, "run");
 
 	auto yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
+
+	// A GOTO whose target is outside its own function is lowered as a tail-call into
+	// the target function (see compile_function). This is only expected for the "~Init"
+	// script of older (2.55-era) quests, whose entry tail-jumps over inlined init
+	// function bodies to the "run" continuation. The tail-call lowering only works when
+	// the target is a separately-compiled, non-yielding function's entry. Bail to the
+	// interpreter for anything else (e.g. a GOTO into a yielding function inlined in the
+	// yielder, or a GOTO that doesn't land on a function entry), rather than miscompile it.
+	for (auto& fn : structured_zasm.functions)
+	{
+		for (pc_t i = fn.start_pc; i <= fn.final_pc && i < (pc_t)script->size; i++)
+		{
+			if (script->zasm[i].command != GOTO)
+				continue;
+			pc_t tgt = script->zasm[i].arg1;
+			if (tgt >= fn.start_pc && tgt <= fn.final_pc)
+				continue; // intra-function GOTO, handled by the loop-switch
+			bool tgt_is_entry = structured_zasm.start_pc_to_function.contains(tgt);
+			pc_t tgt_fn = tgt_is_entry ? structured_zasm.start_pc_to_function.at(tgt) : (pc_t)-1;
+			// Source and target both in the yielder => same WASM unit, handled by its combined CFG.
+			if (tgt_is_entry && yielding_fns.contains(fn.id) && yielding_fns.contains(tgt_fn))
+				continue;
+			if (!tgt_is_entry || yielding_fns.contains(fn.id) || yielding_fns.contains(tgt_fn))
+			{
+				error(script, fmt::format("unsupported cross-function GOTO at pc {} -> {}", (int)i, (int)tgt), true);
+				return nullptr;
+			}
+		}
+	}
+
 	pc_t fn_yielder_idx = yielding_fns.empty() ? -1 : comp.builder.declareFunction({}, {});
 
 	std::map<pc_t, pc_t> function_id_to_idx;
