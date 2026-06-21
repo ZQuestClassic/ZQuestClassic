@@ -870,6 +870,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if (compatrule_version < 116)
 		set_qr(qr_OLD_SUMMONER_COUNTS, 1);
+	if (compatrule_version < 117)
+		set_qr(qr_BROKEN_LARGE_ARMOS_ANIM, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
