@@ -994,14 +994,13 @@ void EnemyEditorDialog::updateWarnings()
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 24_em
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, int32_t _min, int32_t _max, int _length, bool _disabled)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, int32_t _min, int32_t _max, bool _disabled)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
 	return TextField(
 		type = GUI::TextField::type::INT_DECIMAL,
-		maxLength = _length,
 		disabled = _disabled,
 		hAlign = 1.0, fitParent = true,
 		val = *data,
@@ -1295,9 +1294,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								),
 								Rows<2>(hAlign = 1.0,
 									Label(text = "W:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.width, 0, 20, 2),
+									NumberField(&local_guyref.width, 0, 20),
 									Label(text = "H:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.height, 0, 20, 2)
+									NumberField(&local_guyref.height, 0, 20)
 								),
 								//
 								Label(text = "Special"),
@@ -1316,9 +1315,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								),
 								Rows<2>(hAlign = 1.0,
 									Label(text = "W:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.s_width, 0, 20, 2),
+									NumberField(&local_guyref.s_width, 0, 20),
 									Label(text = "H:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.s_height, 0, 20, 2)
+									NumberField(&local_guyref.s_height, 0, 20)
 								),
 								//
 								Label(text = "New"),
@@ -1337,9 +1336,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								),
 								Rows<2>(hAlign = 1.0,
 									Label(text = "W:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.e_width, 0, 20, 2),
+									NumberField(&local_guyref.e_width, 0, 20),
 									Label(text = "H:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.e_height, 0, 20, 2)
+									NumberField(&local_guyref.e_height, 0, 20)
 								)
 								//
 							)
@@ -1348,14 +1347,14 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							Rows_Columns<3, 7>(hAlign = 1.0,
 								Label(text = "HP:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How many hit points this enemy has."),
-								NumberField(&local_guyref.hp, 0, 32767, 5),
+								NumberField(&local_guyref.hp, 0, 32767),
 								Label(text = "Damage:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How much HP the Hero loses if this enemy touches him."),
-								NumberField(&local_guyref.dp, 0, 32767, 5),
+								NumberField(&local_guyref.dp, 0, 32767),
 								Label(text = "Hunger:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("Determines how attracted this enemy is to the Bait weapon."
 									"\nThe range of values is 0 (no response) to 4 (extremely attracted)."),
-								NumberField(&local_guyref.grumble, 0, 4, 1),
+								NumberField(&local_guyref.grumble, 0, 4),
 								Checkbox(
 									text = "Use Boss CSet",
 									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
@@ -1371,28 +1370,28 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								
 								Label(text = TURNFREQHALTRATE, hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN(TURNFREQHALTRATEHINT),
-								NumberField(&local_guyref.hrate, 0, MAXHALT, 4),
+								NumberField(&local_guyref.hrate, 0, MAXHALT),
 								Label(text = "Random Rate:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How often this enemy considers changing direction after stepping upon a new combo."
 										"\nRanges from 0 (never)to 16 (always)."),
-								NumberField(&local_guyref.rate, 0, MAXRATE, 4),
+								NumberField(&local_guyref.rate, 0, MAXRATE),
 								Label(text = "Homing Factor:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("How often this enemy changes to a direction that points toward the Hero."
 										"\nRanges from 0 (never)to 255 (always)."),
-								NumberField(&local_guyref.homing, 0, MAXHOMING, 4),
+								NumberField(&local_guyref.homing, 0, MAXHOMING),
 								Label(text = "Step Speed:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("Movement speed. 100 step speed is 1 pixel per frame."
 										"\nNote that only certain enemy types use this."),
-								NumberField(&local_guyref.step, 0, MAXSTEP, 4),
+								NumberField(&local_guyref.step, 0, MAXSTEP),
 								Label(text = "Boss CSet:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("If enabled the enemy will use CSet 14, and load the specified ESP to CSet 14"
 										"\nNote that this has no effect if Use Boss CSet to the left is unchecked."),
-								NumberField(&local_guyref.bosspal, -1, 29, 2),
+								NumberField(&local_guyref.bosspal, -1, 29),
 								
 								INFOBTN("Distance outside the viewport the enemy suspends its behavior. Disabled if 0."),
-								NumberField(&local_guyref.viewport_suspend_range, 0, 214747, 10),
+								NumberField(&local_guyref.viewport_suspend_range, 0, 214747),
 								INFOBTN("Distance outside the viewport the enemy despawns. Disabled if 0."),
-								NumberField(&local_guyref.viewport_despawn_range, 0, 214747, 10)
+								NumberField(&local_guyref.viewport_despawn_range, 0, 214747)
 							)
 						)
 					),
@@ -1414,12 +1413,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									Label(text = "Old Anim:", hAlign = 1.0, rightPadding = 0_px, disabled=get_qr(qr_NEWENEMYTILES)),
 									DropDownField(&local_guyref.anim, list_animations, get_qr(qr_NEWENEMYTILES)),
 									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px, disabled=get_qr(qr_NEWENEMYTILES)),
-									NumberField(&local_guyref.frate, 0, 256, 3, get_qr(qr_NEWENEMYTILES)),
+									NumberField(&local_guyref.frate, 0, 256, get_qr(qr_NEWENEMYTILES)),
 									//
 									Label(text = "New Anim:", hAlign = 1.0, rightPadding = 0_px, disabled = !get_qr(qr_NEWENEMYTILES)),
 									DropDownField(&local_guyref.e_anim, list_animations, !get_qr(qr_NEWENEMYTILES)),
 									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px, disabled = !get_qr(qr_NEWENEMYTILES)),
-									NumberField(&local_guyref.e_frate, 0, 256, 3, !get_qr(qr_NEWENEMYTILES))
+									NumberField(&local_guyref.e_frate, 0, 256, !get_qr(qr_NEWENEMYTILES))
 									//
 								)
 							)
@@ -1596,16 +1595,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Label(text = "DrawZOffset:", hAlign = 1.0, rightPadding = 0_px),
 					Label(text = "DrawXOffset:", hAlign = 1.0, rightPadding = 0_px),
 					Label(text = "DrawYOffset:", hAlign = 1.0, rightPadding = 0_px),
-					NumberField(&local_guyref.txsz, 0, 4, 1),
-					NumberField(&local_guyref.tysz, 0, 4, 1),
-					NumberField(&local_guyref.hxsz, 0, 64, 3),
-					NumberField(&local_guyref.hysz, 0, 64, 3),
-					NumberField(&local_guyref.hzsz, 0, 64, 3),
-					NumberField(&local_guyref.hxofs, -64, 64, 3),
-					NumberField(&local_guyref.hyofs, -64, 64, 3),
-					NumberField(&local_guyref.zofs, -1000, 1000, 5),
-					NumberField(&local_guyref.xofs, -1000, 1000, 5),
-					NumberField(&local_guyref.yofs, -1000, 1000, 5),
+					NumberField(&local_guyref.txsz, 0, 20),
+					NumberField(&local_guyref.tysz, 0, 20),
+					NumberField(&local_guyref.hxsz, 0, 214748),
+					NumberField(&local_guyref.hysz, 0, 214748),
+					NumberField(&local_guyref.hzsz, 0, 214748),
+					NumberField(&local_guyref.hxofs, -214748, 214748),
+					NumberField(&local_guyref.hyofs, -214748, 214748),
+					NumberField(&local_guyref.zofs, -214748, 214748),
+					NumberField(&local_guyref.xofs, -214748, 214748),
+					NumberField(&local_guyref.yofs, -214748, 214748),
 					SizeFlag(OVERRIDE_TILE_WIDTH),
 					SizeFlag(OVERRIDE_TILE_HEIGHT),
 					SizeFlag(OVERRIDE_HIT_WIDTH),
@@ -1649,7 +1648,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					//
 					Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
 					INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
-					NumberField(&local_guyref.wdp, 0, 32767, 5),
+					NumberField(&local_guyref.wdp, 0, 32767),
 					Button(text = "Weapon Data",
 						colSpan = 3,
 						onPressFunc = [&]()
