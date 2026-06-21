@@ -59,17 +59,9 @@ async function runReplay(zplay) {
     hasExited = true;
   });
 
-  page.on('console', async (e) => {
+  page.on('console', (e) => {
     const type = e.type();
-    const args = await Promise.all(e.args().map(arg => page.evaluate(arg => {
-      if (arg instanceof Error)
-        return arg.message;
-      return arg;
-    }, arg).catch((e) => {
-      console.error('error in run_replay.js', e);
-      return '???';
-    })));
-    const text = args.join(' ');
+    const text = e.text();
 
     if (type === 'error' || type === 'warning') {
       process.stderr.write(text);
@@ -90,7 +82,7 @@ async function runReplay(zplay) {
       'Assert failed',
     ];
     if (bad.some(t => text.includes(t))) {
-      await browser.close();
+      browser.close().catch(() => {});
       process.exit(1);
     }
   });

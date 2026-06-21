@@ -77,18 +77,9 @@ async function run() {
     hasExited = true;
   });
 
-  page.on('console', async (e) => {
+  page.on('console', (e) => {
     const type = e.type();
-    const args = await Promise.all(e.args().map(arg => page.evaluate(arg => {
-      if (arg instanceof Error) {
-        return arg.message + '\n' + arg.stack;
-      }
-      return arg;
-    }, arg).catch((e) => {
-      console.error('error in run_web_version.js', e);
-      return '???';
-    })));
-    const text = args.join(' ');
+    const text = e.text();
 
     if (type === 'error' || type === 'warning') {
       process.stderr.write(text);

@@ -1,11 +1,20 @@
 /**
  * @param {import('puppeteer').Page} page
  */
+// Cap the retained-message buffer so a page that floods the console (e.g. a
+// replay stuck logging an error every frame) can't grow node's heap without
+// bound. waitFor() only ever looks for messages emitted early in startup, so
+// dropping the oldest entries is safe.
+const MAX_SEEN = 5000;
+
 function setupConsoleListener(page) {
   /** @type {string[]} */
   let seen = [];
   page.on('console', (e) => {
     seen.push(e.text());
+    if (seen.length > MAX_SEEN * 2) {
+      seen.splice(0, seen.length - MAX_SEEN);
+    }
   });
 
   return {

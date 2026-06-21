@@ -691,20 +691,27 @@ def _run_replay_test(
                 ctx.test_results.zc_version = watcher.result['zc_version']
 
             # .zplay.result.txt should be updated every second.
+            # Time out based on frame progress rather than file-modified time:
+            # the result file is rewritten every second even while stuck (e.g. a
+            # replay looping at frame 0), so a modified-time check never fires.
+            # A replay may legitimately sit at frame 0 for a while (JIT can take
+            # a moment for big scripts), so the timeout only trips once the frame
+            # has failed to advance for `timeout` seconds.
+            last_progress_frame = -1
+            last_progress_time = timer()
             while watcher.observer.is_alive():
                 watcher.update_result()
 
                 if player_interface.poll() != None:
                     break
 
-                # Don't apply timeout until beyond the first frame, since JIT may take a moment for big scripts.
-                if watcher.result['frame'] == 0:
-                    continue
-
-                if do_timeout and timer() - watcher.modified_time > timeout:
-                    last_frame = watcher.result['frame']
+                frame = watcher.result['frame']
+                if frame != last_progress_frame:
+                    last_progress_frame = frame
+                    last_progress_time = timer()
+                elif do_timeout and timer() - last_progress_time > timeout:
                     raise ReplayTimeoutException(
-                        f'timed out, replay got stuck around frame {last_frame}'
+                        f'timed out, replay got stuck around frame {frame}'
                     )
 
                 yield (key, 'status', result)
