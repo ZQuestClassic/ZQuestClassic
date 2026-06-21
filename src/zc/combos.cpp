@@ -51,6 +51,73 @@ void CutsceneState::error()
 }
 CutsceneState active_cutscene;
 
+static void calc_large_combo_handles(const combined_handle_t& base_handle,
+	rect_t& hitbox, vector<combined_handle_t>& handles)
+{
+	hitbox = base_handle.get_rect(true);
+	if (!base_handle.is_rpos())
+	{
+		handles.push_back(base_handle);
+		return;
+	}
+	vector<combined_handle_t> queued_handles {base_handle};
+	vector<rpos_t> visited_rposes {rpos_t(base_handle.id())};
+	rpos_t lowest_rpos = rpos_t::None;
+	int lowest_x = 0, lowest_y = 0;
+	static int xoffs[4] = {0, 0, -16, 16};
+	static int yoffs[4] = {-16, 16, 0, 0};
+	while (queued_handles.size())
+	{
+		handles.push_back(queued_handles.front());
+		queued_handles.erase(queued_handles.begin());
+		auto const& handle = handles.back();
+		auto const& cmb = handle.combo();
+		hitbox.union_with(handle.get_rect(true));
+		auto [x,y] = handle.xy();
+		if (lowest_rpos == rpos_t::None || y < lowest_y || (y == lowest_y && x < lowest_x))
+		{
+			// Keep track of the top-left most (top-most, tiebroken by left-most)
+			// position, as that position is the one read for large combo settings.
+			// It must be sorted to the front of the vector.
+			lowest_y = y;
+			lowest_x = x;
+			lowest_rpos = rpos_t(handle.id());
+		}
+		if (cmb.large_combo_dirs)
+		{
+			for (int dir = 0; dir < 4; ++dir)
+			{
+				if (cmb.large_combo_dirs & (1 << dir))
+				{
+					rpos_handle_t new_handle = get_rpos_handle_for_world_xy(x + xoffs[dir], y + yoffs[dir], handle.get_layer());
+					if (util::contains(visited_rposes, new_handle.rpos))
+						continue;
+					auto& new_cmb = new_handle.combo();
+					int oppdir = oppositeDir[dir];
+					if (!(new_cmb.large_combo_dirs & (1 << oppdir)))
+						continue;
+					visited_rposes.push_back(new_handle.rpos);
+					queued_handles.push_back(new_handle);
+				}
+			}
+		}
+	}
+	for (auto it = handles.begin(); it != handles.end(); ++it)
+	{
+		if (rpos_t(it->id()) == lowest_rpos)
+		{
+			if (it == handles.begin())
+				break; // already at front of list
+			// Move 'lowest' handle to front of list, so caller knows which handle
+			// to use for lifting flags.
+			auto lowest_handle = *it;
+			handles.erase(it);
+			handles.insert(handles.begin(), lowest_handle);
+			break;
+		}
+	}
+}
+
 // TRIGGERS STUFF
 bool trig_each_combo_trigger(const combined_handle_t& comb_handle, std::function<bool(combo_trigger const&)> trig_cond,
 	int32_t special, weapon* w)
@@ -1163,7 +1230,7 @@ bool trigger_lockblock(const combined_handle_t& handle)
 
 bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 {
-	auto layer = handle.layer(); // ffc = 7
+	auto layer = handle.get_layer(); // ffc = 7
 	if (layer > 0 && layer != 7 && !get_qr(qr_ARMOS_GRAVE_ON_LAYERS))
 		return false;
 	auto& counters = activation_counters[layer];
@@ -1212,7 +1279,32 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 				}
 			}
 
-			if (handle.is_rpos() && (cmb.usrflags & cflag3)) //handle large enemy (EARLY RETURN)
+			// Large Combo (early return)
+			if (cmb.usrflags & cflag4)
+			{
+				rect_t hitbox;
+				vector<combined_handle_t> handles;
+				
+				calc_large_combo_handles(handle, hitbox, handles);
+				for (auto const& handle : handles)
+					counters[handle.id()] = 61;
+				
+				if (addenemy(handle.get_screen(), hitbox.l, hitbox.t, id2, eclk))
+				{
+					enemy* en = ((enemy*)guys.spr(guys.Count() - 1));
+					en->did_armos = false;
+					en->fading = fade_flicker;
+					en->activated_handles = handles;
+					en->flags |= guy_armos;
+					en->x = hitbox.l + ((hitbox.width() - en->hit_width) / 2) - en->hxofs;
+					en->y = hitbox.t + ((hitbox.height() - en->hit_height) / 2) - en->hyofs;
+				}
+				return true;
+			}
+			if (!handle.is_rpos())
+				break;
+			// Large Enemy (early return)
+			if (cmb.usrflags & cflag3)
 			{
 				counters[handle.id()] = 61;
 				//! To-do Adjust for larger enemies, but we need it to be directional. 
@@ -1389,6 +1481,32 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 					}
 				}
 			}
+			
+			// Large Combo (early return)
+			if (cmb.usrflags & cflag4)
+			{
+				rect_t hitbox;
+				vector<combined_handle_t> handles;
+				
+				calc_large_combo_handles(handle, hitbox, handles);
+				for (auto const& handle : handles)
+				{
+					counters[handle.id()] = 61;
+					if (nextcmb)
+						handle.increment_data();
+				}
+				
+				if (addenemy(handle.get_screen(), hitbox.l, hitbox.t, id2, eclk))
+				{
+					enemy* en = ((enemy*)guys.spr(guys.Count() - 1));
+					en->fading = fade_flicker;
+					en->activated_handles = handles;
+					en->x = hitbox.l + ((hitbox.width() - en->hit_width) / 2) - en->hxofs;
+					en->y = hitbox.t + ((hitbox.height() - en->hit_height) / 2) - en->hyofs;
+				}
+				return true;
+			}
+			
 			if (nextcmb)
 				handle.increment_data();
 			break;
@@ -1907,68 +2025,6 @@ void trigger_save(newcombo const& cmb, mapscr* scr)
 		QMisc.save_menus[save_menu].run(nullopt, continue_point);
 }
 
-static void calc_large_combo_handles(const rpos_handle_t& base_handle,
-	rect_t& hitbox, vector<rpos_handle_t>& handles)
-{
-	vector<rpos_handle_t> queued_handles {base_handle};
-	vector<rpos_t> visited_rposes {base_handle.rpos};
-	hitbox = base_handle.get_rect(true);
-	rpos_t lowest_rpos = rpos_t::None;
-	int lowest_x = 0, lowest_y = 0;
-	static int xoffs[4] = {0, 0, -16, 16};
-	static int yoffs[4] = {-16, 16, 0, 0};
-	while (queued_handles.size())
-	{
-		handles.push_back(queued_handles.front());
-		queued_handles.erase(queued_handles.begin());
-		auto const& handle = handles.back();
-		auto const& cmb = handle.combo();
-		hitbox.union_with(handle.get_rect(true));
-		auto [x,y] = handle.xy();
-		if (lowest_rpos == rpos_t::None || y < lowest_y || (y == lowest_y && x < lowest_x))
-		{
-			// Keep track of the top-left most (top-most, tiebroken by left-most)
-			// position, as that position is the one read for large combo settings.
-			// It must be sorted to the front of the vector.
-			lowest_y = y;
-			lowest_x = x;
-			lowest_rpos = handle.rpos;
-		}
-		if (cmb.large_combo_dirs)
-		{
-			for (int dir = 0; dir < 4; ++dir)
-			{
-				if (cmb.large_combo_dirs & (1 << dir))
-				{
-					auto new_handle = get_rpos_handle_for_world_xy(x + xoffs[dir], y + yoffs[dir], handle.layer);
-					if (util::contains(visited_rposes, new_handle.rpos))
-						continue;
-					auto& new_cmb = new_handle.combo();
-					int oppdir = oppositeDir[dir];
-					if (!(new_cmb.large_combo_dirs & (1 << oppdir)))
-						continue;
-					visited_rposes.push_back(new_handle.rpos);
-					queued_handles.push_back(std::move(new_handle));
-				}
-			}
-		}
-	}
-	for (auto it = handles.begin(); it != handles.end(); ++it)
-	{
-		if (it->rpos == lowest_rpos)
-		{
-			if (it == handles.begin())
-				break; // already at front of list
-			// Move 'lowest' handle to front of list, so caller knows which handle
-			// to use for lifting flags.
-			rpos_handle_t lowest_handle = *it;
-			handles.erase(it);
-			handles.insert(handles.begin(), std::move(lowest_handle));
-			break;
-		}
-	}
-}
-
 static byte copycat_id = 0;
 static bool _copycat_trig_cond(combo_trigger const& trig)
 {
@@ -2041,14 +2097,13 @@ static bool handle_large_combo_copycat(const combined_handle_t& handle, combo_tr
 	if (trig.trigger_flags.get(TRIGFLAG_TRIGGER_LARGE_COMBO_COPYCAT))
 	{
 		byte id = trig.large_combo_copycat;
-		auto& rpos_handle = handle.get_rpos();
 		rect_t hitbox;
-		vector<rpos_handle_t> handles;
-		calc_large_combo_handles(rpos_handle, hitbox, handles);
+		vector<combined_handle_t> handles;
+		calc_large_combo_handles(handle, hitbox, handles);
 		if (handles.empty())
 			return false;
 		auto& main_handle = handles[0];
-		const std::pair<int,rpos_t> identifier = {main_handle.layer, main_handle.rpos};
+		const std::pair<int,rpos_t> identifier = {main_handle.get_layer(), rpos_t(main_handle.id())};
 		
 		if (util::contains(large_copycat_ids[identifier], id))
 			return false; // prevent unwanted recursion
@@ -2927,16 +2982,15 @@ struct active_trigger_data
 	active_trigger_data(combined_handle_t const& handle, size_t idx)
 		: idx(idx)
 	{
+		id = handle.id();
 		if (handle.is_rpos())
 		{
 			is_rpos = true;
-			id = handle.id();
 			layer = handle.get_rpos().layer;
 		}
 		else
 		{
 			is_rpos = false;
-			id = handle.id();
 			layer = -1;
 		}
 	}
@@ -3137,7 +3191,7 @@ static bool _do_trigger_combo(const combined_handle_t& handle, size_t idx, int32
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 						if (ffc_handle)
-							trigger_damage_combo(handle, ZSD_FFC, ffc_handle->id);
+							trigger_damage_combo(handle, ZSD_FFC, ffc_handle->ffc_id);
 						else if (rpos_handle)
 							trigger_damage_combo(handle, ZSD_COMBOPOS, int(rpos_handle->rpos)*10000);
 						break;
@@ -3220,7 +3274,7 @@ bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx)
 	return handle_trigger_conditionals(comb_handle, idx, hasitem, false);
 }
 
-static void set_lift_undercombo(rpos_handle_t const& handle)
+static void set_lift_undercombo(combined_handle_t const& handle)
 {
 	auto& cmb = handle.combo();
 	handle.set_data(cmb.liftundercmb);
@@ -3228,22 +3282,22 @@ static void set_lift_undercombo(rpos_handle_t const& handle)
 		handle.set_cset(cmb.liftundercs);
 	handle.set_sflag(0);
 }
-bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
+bool do_lift_combo(const combined_handle_t& base_handle, int32_t gloveid)
 {
 	if (invalid_item_id(gloveid)) return false;
 	if(!Hero.can_lift(gloveid)) return false;
 	if(Hero.lift_wpn) return false;
 	rect_t hitbox;
-	vector<rpos_handle_t> handles;
-	bool large_liftable = rpos_handle.combo().liftflags & LF_LARGE_LIFTABLE;
+	vector<combined_handle_t> handles;
+	bool large_liftable = base_handle.combo().liftflags & LF_LARGE_LIFTABLE;
 	if (large_liftable)
 	{
-		calc_large_combo_handles(rpos_handle, hitbox, handles);
+		calc_large_combo_handles(base_handle, hitbox, handles);
 	}
 	else
 	{
-		handles.push_back(rpos_handle);
-		hitbox = rpos_handle.get_rect(true);
+		handles.push_back(base_handle);
+		hitbox = base_handle.get_rect(true);
 	}
 	
 	if (handles.empty()) return false;
@@ -3271,7 +3325,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 		else dropitem = cmb.liftitm;
 	}
 	
-	if(hasitem && (cmb.liftflags&LF_SPECIALITEM) && getmapflag(handle.screen, mSPECIALITEM))
+	if(hasitem && (cmb.liftflags&LF_SPECIALITEM) && getmapflag(handle.get_screen(), mSPECIALITEM))
 	{
 		hasitem = false;
 		dropitem = dropset = -1;
@@ -3578,7 +3632,7 @@ cpos_info& cpos_get(const combined_handle_t& handle)
 {
 	if (handle.is_ffc())
 		return handle.get_ffc().ffc->info;
-	int index = handle.layer() * region_num_rpos + handle.id();
+	int index = handle.get_layer() * region_num_rpos + handle.id();
 	return combo_posinfos[index];
 }
 int cpos_trig_group_count(int ind)

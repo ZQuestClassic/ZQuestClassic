@@ -3682,7 +3682,7 @@ void update_freeform_combos()
 			if (thisffc.link==0)
 			{
 				for_some_ffcs([&](const ffc_handle_t& other_ffc_handle) {
-					if (ffc_handle.id == other_ffc_handle.id)
+					if (ffc_handle.ffc_id == other_ffc_handle.ffc_id)
 						return true;
 
 					ffcdata& otherffc = *other_ffc_handle.ffc;
@@ -3708,7 +3708,7 @@ void update_freeform_combos()
 					&& //and...
 						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
 					{
-						zc_ffc_changer(thisffc, otherffc, ffc_handle.id, other_ffc_handle.id);
+						zc_ffc_changer(thisffc, otherffc, ffc_handle.ffc_id, other_ffc_handle.ffc_id);
 						return false;
 					}
 
@@ -3721,7 +3721,7 @@ void update_freeform_combos()
 			{
 				thisffc.prev_changer_x = thisffc.x.getZLong();
 				thisffc.prev_changer_y = thisffc.y.getZLong();
-				if(thisffc.link && (thisffc.link-1) != ffc_handle.id)
+				if(thisffc.link && (thisffc.link-1) != ffc_handle.ffc_id)
 				{
 					if (!linked_ffc->is_beyond_viewport_suspend_range())
 					{
@@ -3751,7 +3751,7 @@ void update_freeform_combos()
 			}
 			else
 			{
-				if(!thisffc.link || (thisffc.link-1) == ffc_handle.id)
+				if(!thisffc.link || (thisffc.link-1) == ffc_handle.ffc_id)
 					thisffc.delay--;
 			}
 			

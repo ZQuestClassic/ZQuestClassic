@@ -92,11 +92,24 @@ uint8_t rpos_handle_t::ctype() const
 	return combo_caches::type.minis[scr->data[pos]].type;
 }
 
+int rpos_handle_t::id() const
+{
+	return int(rpos);
+}
+int rpos_handle_t::local_id() const
+{
+	return int(pos);
+}
+int rpos_handle_t::get_layer() const
+{
+	return layer;
+}
+
 mapscr* ffc_handle_t::get_mapscr() const
 {
 	return scr;
 }
-int32_t ffc_handle_t::layer() const
+int32_t ffc_handle_t::get_layer() const
 {
 	return 7;
 }
@@ -173,6 +186,15 @@ uint8_t ffc_handle_t::cflag() const
 uint8_t ffc_handle_t::ctype() const
 {
 	return combo_caches::type.minis[ffc->data].type;
+}
+
+int ffc_handle_t::id() const
+{
+	return ffc_id;
+}
+int ffc_handle_t::local_id() const
+{
+	return i;
 }
 
 
@@ -262,14 +284,14 @@ mapscr* combined_handle_t::base_scr() const
 }
 IMPL_COMBINED_HANDLE_GET(get_mapscr, mapscr*)
 
-int32_t combined_handle_t::layer() const
+int32_t combined_handle_t::get_layer() const
 {
 	if (std::holds_alternative<rpos_handle_t>(*this))
 	{
 		auto& rpos_handle = std::get<rpos_handle_t>(*this);
-		return rpos_handle.layer;
+		return rpos_handle.get_layer();
 	}
-	return std::get<ffc_handle_t>(*this).layer();
+	return std::get<ffc_handle_t>(*this).get_layer();
 }
 
 int32_t combined_handle_t::get_screen() const
@@ -304,28 +326,8 @@ IMPL_COMBINED_HANDLE_GET_DEF(cset, int32_t, 0)
 IMPL_COMBINED_HANDLE_SET(set_cset, int32_t)
 IMPL_COMBINED_HANDLE_GET(cflag, uint8_t)
 IMPL_COMBINED_HANDLE_GET(ctype, uint8_t)
-
-int32_t combined_handle_t::id() const
-{
-	if (std::holds_alternative<rpos_handle_t>(*this))
-	{
-		auto& rpos_handle = std::get<rpos_handle_t>(*this);
-		return (int32_t)rpos_handle.rpos;
-	}
-
-	return std::get<ffc_handle_t>(*this).id;
-}
-int32_t combined_handle_t::local_id() const
-{
-	if (std::holds_alternative<rpos_handle_t>(*this))
-	{
-		auto& rpos_handle = std::get<rpos_handle_t>(*this);
-		return (int32_t)rpos_handle.pos;
-	}
-
-	return std::get<ffc_handle_t>(*this).i;
-}
-
+IMPL_COMBINED_HANDLE_GET(id, int)
+IMPL_COMBINED_HANDLE_GET(local_id, int)
 IMPL_COMBINED_HANDLE_GET(info, cpos_info&)
 IMPL_COMBINED_HANDLE_GET(xy, zfix_pair)
 IMPL_COMBINED_HANDLE_GET(center_xy, zfix_pair)

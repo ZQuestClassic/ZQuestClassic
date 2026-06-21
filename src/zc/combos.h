@@ -65,7 +65,7 @@ bool do_trigger_combo(const combined_handle_t& comb_handle, size_t idx, int32_t 
 bool do_trigger_ctype_causes(const combined_handle_t& comb_handle);
 bool check_trig_conditions(const combined_handle_t& comb_handle, size_t idx);
 
-bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
+bool do_lift_combo(const combined_handle_t&, int32_t gloveid);
 
 void trig_trigger_groups();
 

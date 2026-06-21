@@ -1510,30 +1510,48 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			if(armos)
 			{
 				endrow->add(cboxes[0] = Checkbox(
-						text = "Handle Large", hAlign = 0.0,
-							checked = local_ref.usrflags&cflag3,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_ref.usrflags,cflag3,state);
-							}
-						));
+					text = "Large Enemy", hAlign = 0.0,
+						checked = local_ref.usrflags&cflag3,
+						disabled = local_ref.usrflags&cflag4,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.usrflags,cflag3,state);
+						}
+					));
 				endrow->add(INFOBTN("If the specified enemy is larger"
-						" than 1x1 tile, attempt to use armos"
-						" combos that take up its' size"));
+					" than 1x1 tile, attempt to use armos"
+					" combos that take up its' size"));
 			}
 			else
 			{
 				endrow->add(cboxes[0] = Checkbox(
-						text = "Next", hAlign = 0.0,
-							checked = local_ref.type==cBSGRAVE,
-							onToggleFunc = [&](bool state)
-							{
-								local_ref.type = state ? cBSGRAVE : cGRAVE;
-							}
-						));
+					text = "Next", hAlign = 0.0,
+						checked = local_ref.type==cBSGRAVE,
+						onToggleFunc = [&](bool state)
+						{
+							local_ref.type = state ? cBSGRAVE : cGRAVE;
+						}
+					));
 				endrow->add(INFOBTN("If the combo should become the next combo"
 					" after spawning its' enemy."));
 			}
+			
+			endrow->add(cboxes[1] = Checkbox(
+				text = "Large Combo", hAlign = 0.0,
+					checked = local_ref.usrflags&cflag4,
+					onToggleFunc = [&, armos](bool state)
+					{
+						SETFLAG(local_ref.usrflags,cflag4,state);
+						if (armos)
+							cboxes[0]->setDisabled(state);
+					}
+				));
+			endrow->add(INFOBTN(fmt::format("Use the connected combos via the 'Large Combo'"
+				" general tab feature as connected {},"
+				" spawning the enemy with it's hitbox centered on"
+				" the center of the 'Large Combo'.", armos ? "statues" : "graves")));
+			
+			
 			string cty = armos ? "Armos" : "Grave";
 			windowRow->add(Rows<3>(
 				Label(text = "Enemy 1:", hAlign = 1.0),
