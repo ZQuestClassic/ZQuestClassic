@@ -5,7 +5,7 @@
 #include "ZScript.h"
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::ordered_json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace ZScript
 {
@@ -29,7 +29,7 @@ namespace ZScript
 		void caseExprArrow(ASTExprArrow& host, void* param);
 		void caseExprCall(ASTExprCall& host, void* param);
 
-		json takeOutput();
+		ordered_json takeOutput();
 	
 	private:
 		std::string root_file_name;

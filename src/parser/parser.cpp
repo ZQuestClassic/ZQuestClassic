@@ -21,7 +21,7 @@
 #include <nlohmann/json.hpp>
 
 using namespace std::chrono_literals;
-using json = nlohmann::ordered_json;
+using ordered_json = nlohmann::ordered_json;
 
 FFScript FFCore;
 
@@ -298,7 +298,7 @@ void updateIncludePaths()
 	ZQincludePaths = split(includePathString, ';');
 }
 
-static void fill_result(json& data, int code, ZScript::ScriptsData* result)
+static void fill_result(ordered_json& data, int code, ZScript::ScriptsData* result)
 {
 	data["success"] = code == 0;
 	if (code)
@@ -556,7 +556,7 @@ int32_t main(int32_t argc, char **argv)
 
 		if (result && do_json_output)
 		{
-			json data;
+			ordered_json data;
 			fill_result(data, res, result.get());
 			std::cout << data.dump(2);
 		}
@@ -590,7 +590,7 @@ extern "C" int compile_script(const char* script_path)
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata, docs));
 	int32_t code = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
 
-	json data;
+	ordered_json data;
 	fill_result(data, code, result.get());
 	std::ofstream out("out.txt");
 	out << data.dump(2);

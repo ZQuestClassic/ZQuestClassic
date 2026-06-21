@@ -99,10 +99,10 @@ struct combo_trigger
 	dword req_level_state, unreq_level_state;
 	bitstring req_global_state, unreq_global_state, req_screen_state,
 		unreq_screen_state, req_screen_ex_state, unreq_screen_ex_state;
-	bitstring req_screen_ex_door[4], unreq_screen_ex_door[4];
+	std::array<bitstring, 4> req_screen_ex_door, unreq_screen_ex_door;
 	int16_t trigdmlevel = -1;
 	byte trigstatemap, trigstatescreen;
-	int16_t trigtint[3]; //r,g,b range [-255,255]
+	std::array<int16_t, 3> trigtint{}; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
 	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
@@ -138,6 +138,9 @@ struct combo_trigger
 	bool is_blank() const;
 	void clear();
 	bool operator==(combo_trigger const& other) const = default;
+	
+    friend void to_json(json& j, const combo_trigger& trig);
+    friend void from_json(const json& j, combo_trigger& trig);
 };
 
 struct newcombo

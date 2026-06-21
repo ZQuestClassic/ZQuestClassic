@@ -10,10 +10,10 @@
 #include <fmt/format.h>
 
 using namespace ZScript;
-using json = nlohmann::ordered_json;
+using ordered_json = nlohmann::ordered_json;
 
-static json root;
-static json* active;
+static ordered_json root;
+static ordered_json* active;
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#symbolKind
 enum class SymbolKind
@@ -86,7 +86,7 @@ static void linkifyString(std::string& string, const AST* node)
 	}
 }
 
-static json getCommentJson(const AST* node)
+static ordered_json getCommentJson(const AST* node)
 {
 	// TODO: the doc_comment isn't always in a consistent place. For example see `utils::hmm // ...` in `metadata.zh` 
 	if (auto n = dynamic_cast<const ASTDataDecl*>(node); n && n->list && node->doc_comment.empty() && !n->list->isEnum())
@@ -100,15 +100,15 @@ static json getCommentJson(const AST* node)
 		return nullptr;
 
 	auto& parsed_comment = node->getParsedComment();
-	json result = json::object();
+	ordered_json result = ordered_json::object();
 
-	result["tags"] = json::array();
+	result["tags"] = ordered_json::array();
 	for (auto [k, v] : parsed_comment.tags)
 	{
 		std::string str = v;
 		if (!str.empty())
 			linkifyString(str, node);
-		result["tags"].push_back(json::array({k, str}));
+		result["tags"].push_back(ordered_json::array({k, str}));
 	}
 
 	std::string comment = parsed_comment.description;
@@ -120,7 +120,7 @@ static json getCommentJson(const AST* node)
 }
 
 template <typename T>
-static json* appendSymbol(SymbolKind kind, const T& node)
+static ordered_json* appendSymbol(SymbolKind kind, const T& node)
 {
 	std::optional<LocationData> loc;
 	if (auto n = dynamic_cast<const ASTDataEnum*>(&node))
@@ -133,9 +133,9 @@ static json* appendSymbol(SymbolKind kind, const T& node)
 		{"id", getSymbolId(&node)},
 		{"kind", kind},
 		{"comment", getCommentJson(&node)},
-		{"children", json::array()},
+		{"children", ordered_json::array()},
 	});
-	json* result = &active->back();
+	ordered_json* result = &active->back();
 	if (loc)
 	{
 		std::string fname = loc->fname;
@@ -153,7 +153,7 @@ static json* appendSymbol(SymbolKind kind, const T& node)
 DocVisitor::DocVisitor(Program& program) : RecursiveVisitor(program)
 {
 	root = {
-		{"files", json::array()},
+		{"files", ordered_json::array()},
 	};
 	visit(program.getRoot());
 }
@@ -167,7 +167,7 @@ void DocVisitor::caseFile(ASTFile& host, void* param)
 {
 	root["files"].push_back({
 		{"name", host.location.fname},
-		{"symbols", json::array()},
+		{"symbols", ordered_json::array()},
 	});
 
 	auto prev_active = active;
@@ -238,10 +238,10 @@ void DocVisitor::caseFuncDecl(ASTFuncDecl& host, void*)
 	auto kind = host.getFlag(FUNCFLAG_CONSTRUCTOR) ? SymbolKind::Constructor : SymbolKind::Function;
 	auto symbol = appendSymbol(kind, host);
 	(*symbol)["returnType"] = host.returnType->type->getName();
-	(*symbol)["parameters"] = json::array();
+	(*symbol)["parameters"] = ordered_json::array();
 	for (auto param : host.parameters)
 	{
-		json j_param = {
+		ordered_json j_param = {
 			{"name", param->getName()},
 			{"type", param->resolvedType->getName()},
 		};

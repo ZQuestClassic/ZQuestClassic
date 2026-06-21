@@ -37,3 +37,14 @@ zfix& zfix_round::doRound()
 	return do_round(rt);
 }
 
+void to_json(json& j, const zfix& z)
+{
+	j = z.str_trim();
+}
+void from_json(const json& j, zfix& z)
+{
+	std::string s;
+	j.get_to(s);
+	z = atozfix(s.c_str());
+}
+

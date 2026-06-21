@@ -20,7 +20,7 @@
 #include <sstream>
 
 using std::unique_ptr;
-using json = nlohmann::ordered_json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace ZScript
 {
@@ -299,7 +299,7 @@ namespace ZScript
 		ZasmCompilerResult zasmCompilerResult;
 		// Just the errors/warnings for the main input script.
 		std::vector<Diagnostic> diagnostics;
-		json metadata;
+		ordered_json metadata;
 		std::string docs;
 	};
 
