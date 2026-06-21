@@ -1034,6 +1034,11 @@ static GUI::ListData compatRulesList
 	{ "Broken SCC Map Args", qr_BROKEN_SCC_MAP_ARGS,
 		"When enabled, some SCCs checking or setting states on other screens will use"
 		" the wrong Map, off-by-1 from the specified map."},
+	{ "Broken Large Armos Anim", qr_BROKEN_LARGE_ARMOS_ANIM,
+		"When enabled, enemies with the 'Armos (4-frame)' anim style and 'Armos' walk style"
+		" will always add 20 to their starting tile when they randomly start 'faster'."
+		"\nIf disabled, these enemies will instead add a multiple of 20 large enough"
+		" to be on a tile not in a row already used by the animation."},
 };
 
 static GUI::ListData enemiesRulesList
