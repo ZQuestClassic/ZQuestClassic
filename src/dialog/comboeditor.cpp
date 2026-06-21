@@ -459,15 +459,18 @@ std::string getComboTypeHelpText(int32_t id)
 			break;
 		case cARMOS:
 			typehelp = "When touched, this combo produces an Armos and changes to the screen's Undercombo."
-				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+				" Functions only on layer 0, unless 'Armos/Grave combo types work on layers' is checked."
+				+ QRHINT({qr_ARMOS_GRAVE_ON_LAYERS});
 			break;
 		case cGRAVE:
 			typehelp = "When touched, this combo produces one Ghini."
-				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+				" Functions only on layer 0, unless 'Armos/Grave combo types work on layers' is checked."
+				+ QRHINT({qr_ARMOS_GRAVE_ON_LAYERS});
 			break;
 		case cBSGRAVE:
 			typehelp = "When touched, this combo produces a Ghini and changes to the next combo in the list."
-				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+				" Functions only on layer 0, unless 'Armos/Grave combo types work on layers' is checked."
+				+ QRHINT({qr_ARMOS_GRAVE_ON_LAYERS});
 			break;
 		case cCUTSCENETRIG:
 			typehelp = "When activated with ComboType Effects, either stops an active cutscene, or"
