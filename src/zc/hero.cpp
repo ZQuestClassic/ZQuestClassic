@@ -7286,7 +7286,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	int ffc_ids[] = {-1, -1, -1, -1};
 	{
 		auto ffc_handle = getFFCAt(dx1,dy1);
-		ffc_ids[0] = ffc_handle ? ffc_handle->id : -1;
+		ffc_ids[0] = ffc_handle ? ffc_handle->ffc_id : -1;
 		cid[4] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -7301,7 +7301,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx1,dy2);
-		ffc_ids[1] = ffc_handle ? ffc_handle->id : -1;
+		ffc_ids[1] = ffc_handle ? ffc_handle->ffc_id : -1;
 		cid[5] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -7316,7 +7316,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx2,dy1);
-		ffc_ids[2] = ffc_handle ? ffc_handle->id : -1;
+		ffc_ids[2] = ffc_handle ? ffc_handle->ffc_id : -1;
 		cid[6] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -7331,7 +7331,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx2,dy2);
-		ffc_ids[3] = ffc_handle ? ffc_handle->id : -1;
+		ffc_ids[3] = ffc_handle ? ffc_handle->ffc_id : -1;
 		cid[7] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.only_gentrig) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -28810,10 +28810,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			if (ffc_handle.ffc->script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.id))
+			if (ffc_handle.ffc->script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id))
 			{
-				ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);
-				FFCore.waitdraw(ScriptType::FFC, ffc_handle.id) = false;
+				ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.ffc_id);
+				FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id) = false;
 			}
 		});
 

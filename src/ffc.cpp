@@ -165,7 +165,7 @@ void ffcdata::doContactDamage(int32_t hdir)
 			});
 			if (ffc_handle)
 			{
-				ffnum = ffc_handle->id;
+				ffnum = ffc_handle->ffc_id;
 			}
 		}
 		if(ffnum > -1)

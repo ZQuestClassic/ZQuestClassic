@@ -8529,7 +8529,7 @@ bool eGhini::animate(int32_t index)
 					activation_counters[0][int(rpos)] = 0;
 			}
 			else for (auto const& handle : activated_handles)
-				activation_counters[handle.layer()][handle.id()] = 0;
+				activation_counters[handle.get_layer()][handle.id()] = 0;
 		}
 	}
 	
@@ -18585,14 +18585,14 @@ void screen_combo_modify_postroutine(const combined_handle_t& comb_handle)
 		ffcdata* ff = ffc_handle.ffc;
 		auto& cmb = ffc_handle.combo();
 		
-		auto id = create_slope_id(SLOPE_STAGE_FFCS, ffc_handle.id, -1);
+		auto id = create_slope_id(SLOPE_STAGE_FFCS, ffc_handle.ffc_id, -1);
 		auto it = slopes.find(id);
 		
 		bool wasSlope = it!=slopes.end();
 		bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffc_changer);
 		if(isSlope && !wasSlope)
 		{
-			slopes.try_emplace(id, nullptr, ff, ffc_handle.id);
+			slopes.try_emplace(id, nullptr, ff, ffc_handle.ffc_id);
 		}
 		else if(wasSlope && !isSlope)
 		{

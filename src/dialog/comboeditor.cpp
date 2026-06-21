@@ -1017,8 +1017,14 @@ void ComboEditorDialog::loadComboType()
 					h_attribute[8] = "The enemy ID to be spawned";
 				}
 			}
-			l_flag[2] = "Handle Large";
-			h_flag[2] = "If the specified enemy is larger than 1x1 tile, attempt to use armos combos that take up its' size";
+			l_flag[3] = "Use Large Combo";
+			h_flag[3] = "Use the connected combos via the 'Large Combo' general tab feature as connected statues,"
+				" spawning the enemy with it's hitbox centered on the center of the 'Large Combo'.";
+			if (!FL(cflag4))
+			{
+				l_flag[2] = "Use Large Enemy";
+				h_flag[2] = "If the specified enemy is larger than 1x1 tile, attempt to use armos combos that take up its' size";
+			}
 			break;
 		}
 		case cBSGRAVE:
@@ -1045,6 +1051,9 @@ void ComboEditorDialog::loadComboType()
 					h_attribute[8] = "The enemy ID to be spawned";
 				}
 			}
+			l_flag[3] = "Use Large Combo";
+			h_flag[3] = "Use the connected combos via the 'Large Combo' general tab feature as connected graves,"
+				" spawning the enemy with it's hitbox centered on the center of the 'Large Combo'.";
 			break;
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:

@@ -6512,7 +6512,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 			{
 				if (!ffcIsAt(ffc_handle, checkx, checky))
 					return true;
-				if (ignoreffc != ffc_id_t(-1) && ignoreffc == ffc_handle.id)
+				if (ignoreffc != ffc_id_t(-1) && ignoreffc == ffc_handle.ffc_id)
 				{
 					was_ignored = true;
 					return true;
@@ -6525,7 +6525,7 @@ bool weapon::do_mirror() // returns true if animate needs to early-break
 					auto [nx, ny] = ffc_handle.center_xy();
 					nx -= check_x_ofs;
 					ny -= check_y_ofs;
-					if(!_mirror_refl(nx, ny, rpos_t::None, ffc_handle.id, cmb))
+					if(!_mirror_refl(nx, ny, rpos_t::None, ffc_handle.ffc_id, cmb))
 						failed = true;
 					did_reflect = true;
 					return false;

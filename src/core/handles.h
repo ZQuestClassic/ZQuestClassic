@@ -70,13 +70,17 @@ struct rpos_handle_t
 
 	uint8_t cflag() const;
 	uint8_t ctype() const;
+	
+	int id() const;
+	int local_id() const;
+	int get_layer() const;
 };
 
 struct ffc_handle_t
 {
 	mapscr* scr;
 	uint8_t screen;
-	ffc_id_t id;
+	ffc_id_t ffc_id;
 	// The index into mapscr.ffcs
 	uint8_t i;
 	ffcdata* ffc;
@@ -86,7 +90,7 @@ struct ffc_handle_t
 		return scr;
 	}
 	mapscr* get_mapscr() const;
-	int32_t layer() const;
+	int get_layer() const;
 
 	const newcombo& combo() const;
 	cpos_info& info() const;
@@ -105,6 +109,9 @@ struct ffc_handle_t
 
 	uint8_t cflag() const;
 	uint8_t ctype() const;
+	
+	int id() const;
+	int local_id() const;
 };
 
 // TODO: this may be a tad overengineered for its current usecases. Consider replacing
@@ -121,7 +128,7 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 	operator bool() const;
 	mapscr* base_scr() const;
 	mapscr* get_mapscr() const;
-	int32_t layer() const;
+	int get_layer() const;
 	int32_t get_screen() const;
 	int id() const;
 	int local_id() const;
