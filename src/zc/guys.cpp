@@ -460,7 +460,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	stickclk = 0;
 	submerged = false;
 	didScriptThisFrame = false;
-	activated_handle = std::nullopt;
+	activated_handles.clear();
 	hitdir = -1;
 	editorflags = d->editorflags; //set by Enemy Editor 
 	//Set the drawing flag for this sprite.
@@ -8441,45 +8441,28 @@ void eFriendly::repair_shield()
 	}
 }
 
-
-void enemy::removearmos(int32_t ax,int32_t ay)
+static void remove_armos(combined_handle_t const& handle)
 {
-	if(did_armos)
-		return;
-	did_armos=true;
-	auto handle = activated_handle;
-
-	auto layer = handle ? handle->layer() : 0;
-	if (!handle || handle->is_rpos())
-		handle = get_rpos_handle_for_world_xy(ax, ay, layer);
-	mapscr* scr = handle->get_mapscr();
-	
-	auto [tx, ty] = handle->xy();
-	if (handle->is_rpos())
-	{
-		tx = TRUNCATE_TILE(ax);
-		ty = TRUNCATE_TILE(ay);
-	}
-	
-	int32_t f = handle->sflag();
-	int32_t f2 = handle->cflag();
-
-	if (handle->ctype() != cARMOS)
+	if (handle.ctype() != cARMOS)
 		return;
 	
+	mapscr* scr = handle.get_mapscr();
+	auto [tx, ty] = handle.xy();
+	int32_t f = handle.sflag();
+	int32_t f2 = handle.cflag();
 	
 	if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
 	{
-		handle->set_data(scr->secretcombo[sSTAIRS]);
-		handle->set_cset(scr->secretcset[sSTAIRS]);
-		handle->set_sflag(scr->secretflag[sSTAIRS]);
+		handle.set_data(scr->secretcombo[sSTAIRS]);
+		handle.set_cset(scr->secretcset[sSTAIRS]);
+		handle.set_sflag(scr->secretflag[sSTAIRS]);
 		sfx(scr->secretsfx);
 	}
 	else
 	{
-		handle->set_data(scr->undercombo);
-		handle->set_cset(scr->undercset);
-		handle->set_sflag(0);
+		handle.set_data(scr->undercombo);
+		handle.set_cset(scr->undercset);
+		handle.set_sflag(0);
 	}
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
@@ -8491,7 +8474,17 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 		}
 	}
 	
-	putcombo(scrollbuf,tx,ty,handle->data(),handle->cset());
+	putcombo(scrollbuf,tx,ty,handle.data(),handle.cset());
+}
+void enemy::removearmos(int32_t ax,int32_t ay)
+{
+	if (did_armos)
+		return;
+	did_armos = true;
+	if (activated_handles.empty())
+		remove_armos(get_rpos_handle_for_world_xy(ax, ay, 0));
+	else for (auto const& handle : activated_handles)
+		remove_armos(handle);
 }
 
 eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
@@ -8528,20 +8521,15 @@ bool eGhini::animate(int32_t index)
 			misc=1;
 			clk3=32;
 			fading=0;
-			if (activated_handle) 
-			{
-				activation_counters[activated_handle->layer()][activated_handle->id()] = 0;
-				removearmos(x, y);
-			}
-			else 
+			removearmos(x, y);
+			if (activated_handles.empty())
 			{
 				rpos_t rpos = COMBOPOS_REGION_B(x, y);
 				if (rpos != rpos_t::None)
-				{
 					activation_counters[0][int(rpos)] = 0;
-					removearmos(x,y);
-				}
 			}
+			else for (auto const& handle : activated_handles)
+				activation_counters[handle.layer()][handle.id()] = 0;
 		}
 	}
 	
@@ -10787,40 +10775,9 @@ bool eStalfos::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags&guy_armos && z==0 && fakez == 0)
-		{
-		//if a custom size (not 16px by 16px)
+			if(flags&guy_armos && z == 0 && fakez == 0)
+				removearmos(x,y);
 			
-		//if a custom size (not 16px by 16px)
-		if (activated_handle && !activated_handle->is_rpos())
-			removearmos(x,y); 
-		else
-		{
-			if (txsz > 1 || tysz > 1 || (SIZEflags&OVERRIDE_HIT_WIDTH) || (SIZEflags&OVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
-			{
-				 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-				for(int32_t dx = 0; dx < tysz; dx ++)
-				{
-					for(int32_t dy = 0; dy < tysz; dy++)
-					{
-						removearmos((int32_t)x+(dx*16),(int32_t)y+(dy*16)+1);
-						did_armos = false;
-					}
-					removearmos((int32_t)x+(dx*16), (int32_t)y+((tysz-1)*16)+1);
-					did_armos = false;
-				}
-				for(int32_t dy = 0; dy < tysz; dy ++)
-				{
-					removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+(dy*16)+1);
-					did_armos = false;
-				}
-				removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+((tysz-1)*16)+1);
-			}
-			else removearmos(x,y); 
-		}
-	   
-		}
-				
 			clk2=0;
 			
 			newdir();
@@ -12806,17 +12763,7 @@ bool eGohma::animate(int32_t index)
 	}
 		
 	if(clk==0)
-	{
-		if (activated_handle && !activated_handle->is_rpos()) removearmos(x,y);
-		else
-		{
-			removearmos(zc_max(x-16, 0_zf),y);
-			did_armos = false;
-			removearmos(x,y);
-			did_armos = false;
-			removearmos(zc_min(x+16, 255_zf),y);
-		}
-	}
+		removearmos(x,y);
 	
 	if(clk<0) return enemy::animate(index);
 	

@@ -70,7 +70,7 @@ public:
 	word hitsfx,deadsfx;
 	bool submerged;
 	
-	std::optional<combined_handle_t> activated_handle;
+	vector<combined_handle_t> activated_handles;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;

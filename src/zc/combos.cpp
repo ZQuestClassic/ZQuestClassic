@@ -1338,13 +1338,17 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 
 				int32_t xpos2 = tx + xpos;
 				int32_t ypos2 = ty + ypos;
+				vector<combined_handle_t> handles;
 				for (int32_t n = 0; n < armosysz; n++)
 				{
 					for (int32_t m = 0; m < armosxsz; m++)
 					{
 						rpos_t rpos = COMBOPOS_REGION_B(xpos2 + m * 16, ypos2 + n * 16);
 						if (rpos != rpos_t::None)
+						{
 							counters[int(rpos)] = 61;
+							handles.push_back(get_rpos_handle(rpos, layer));
+						}
 					}
 				}
 				if (guysbuf[id2].type == eeGHOMA)
@@ -1356,6 +1360,7 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 					enemy* en = ((enemy*)guys.spr(guys.Count() - 1));
 					en->did_armos = false;
 					en->fading = fade_flicker;
+					en->activated_handles = handles;
 					en->flags |= guy_armos;
 				}
 				return true;
@@ -1395,7 +1400,7 @@ bool trigger_armos_grave(const combined_handle_t& handle, int32_t trigdir)
 		return false;
 	enemy* e = (enemy*)guys.spr(guys.Count() - 1);
 	e->did_armos = false;
-	e->activated_handle = handle;
+	e->activated_handles.push_back(handle);
 	if (cmb.type == cARMOS)
 		e->flags |= guy_armos;
 	return true;
