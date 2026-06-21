@@ -10642,7 +10642,22 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	{
 		step=zslongToFix(dmisc10*100);
 		
-		if(anim==aARMOS4) o_tile+=20;
+		if (anim==aARMOS4)
+		{
+			if ((txsz < 2 && tysz < 2) || get_qr(qr_BROKEN_LARGE_ARMOS_ANIM))
+				o_tile += 20;
+			else
+			{
+				int start_row = TILEROW(o_tile);
+				int tmp = o_tile;
+				tmp += 16 * zc_max(1, txsz);
+				int row = TILEROW(tmp);
+				
+				tmp += (zc_max(1, tysz)-1) * TILES_PER_ROW * (row - start_row);
+				row = TILEROW(tmp);
+				o_tile += TILES_PER_ROW * ((row - start_row) + zc_max(1, tysz));
+			}
+		}
 	}
 	
 	if(flags & guy_fade_flicker)

@@ -1138,6 +1138,11 @@ static GUI::ListData compatRulesList
 		" while 'Summon (Layer)' types check the total enemy count on-screen."
 		"\nWhen disabled, summoner enemies will count the number of enemies they themselves have summoned"
 		" instead, allowing per-summoner limits."},
+	{ "Broken Large Armos Anim", qr_BROKEN_LARGE_ARMOS_ANIM,
+		"When enabled, enemies with the 'Armos (4-frame)' anim style and 'Armos' walk style"
+		" will always add 20 to their starting tile when they randomly start 'faster'."
+		"\nIf disabled, these enemies will instead add a multiple of 20 large enough"
+		" to be on a tile not in a row already used by the animation."},
 };
 
 static GUI::ListData enemiesRulesList
