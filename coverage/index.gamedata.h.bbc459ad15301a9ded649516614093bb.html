@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-21 07:27:41</td>
+      <td>2026-06-22 01:52:06</td>
     </tr>
   </table>
 </div>
@@ -75,9 +75,9 @@
     </tr>
     <tr><td><a href="#l65">gamedata::gamedata() (line 65)</a></td><td>called 1064 times, returned 1064 times</td><td>37.0%</td></tr>
     <tr><td><a href="#l381">gamedata::get_bottle_slot(unsigned int) (line 381)</a></td><td>called 205725 times, returned 205725 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l374">gamedata::get_item(int) const (line 374)</a></td><td>called 109965917 times, returned 109965917 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l374">gamedata::get_item(int) const (line 374)</a></td><td>called 109965304 times, returned 109965304 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l406">gamedata::normalize() (line 406)</a></td><td>called 590 times, returned 590 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l65">gamedata::operator=(gamedata const&amp;) (line 65)</a></td><td>called 1836 times, returned 1836 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l65">gamedata::operator=(gamedata const&amp;) (line 65)</a></td><td>called 1841 times, returned 1841 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l67">gamedata::operator==(gamedata const&amp;) const (line 67)</a></td><td>called 2 times, returned 2 times</td><td>89.0%</td></tr>
     <tr><td><a href="#l135">gamedata::scriptDataResize(int, int) (line 135)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l129">gamedata::scriptDataSize(int) const (line 129)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -85,7 +85,7 @@
     <tr><td><a href="#l65">gamedata::~gamedata() (line 65)</a></td><td>called 535 times, returned 535 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l44">gamedata_header::gamedata_header() (line 44)</a></td><td>called 1064 times, returned 1064 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l44">gamedata_header::gamedata_header(gamedata_header const&amp;) (line 44)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l44">gamedata_header::operator=(gamedata_header const&amp;) (line 44)</a></td><td>called 1836 times, returned 1836 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l44">gamedata_header::operator=(gamedata_header const&amp;) (line 44)</a></td><td>called 1841 times, returned 1841 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l46">gamedata_header::operator==(gamedata_header const&amp;) const (line 46)</a></td><td>called 3 times, returned 3 times</td><td>89.0%</td></tr>
     <tr><td><a href="#l44">gamedata_header::~gamedata_header() (line 44)</a></td><td>called 535 times, returned 535 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l33">savedportal::clear() (line 33)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -3081,7 +3081,7 @@
       <td class="lineno"><a id="l374" href="#l374">374</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">109965917</td>
+      <td class="linecount coveredLine">109965304</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_item</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
     </tr>
     <tr class="source-line">
@@ -3098,11 +3098,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 109965917 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 109965304 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">109965917</td>
+      <td class="linecount partialCoveredLine">109965304</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">invalid_item_id</span><span class="p">(</span><span class="n">id</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -3116,14 +3116,14 @@
       <td class="lineno"><a id="l378" href="#l378">378</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">109965917</td>
+      <td class="linecount coveredLine">109965304</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">items_owned</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l379" href="#l379">379</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">109965917</td>
+      <td class="linecount coveredLine">109965304</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
