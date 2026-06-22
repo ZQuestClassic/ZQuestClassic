@@ -446,7 +446,7 @@ UserClassVar* UserClassVar::create(
 			return ucv;
 		}
 
-		ClassScope* cscope = scope.getClass();
+		ClassScope* cscope = scope.getClassScope();
 		UserClass& user_class = cscope->user_class;
 		if(ucv->is_arr)
 		{

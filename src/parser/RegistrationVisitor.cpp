@@ -226,7 +226,7 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* node)
 	UserClass* user_class = nullptr;
 	if (scope->isClass())
 	{
-		user_class = &scope->getClass()->user_class;
+		user_class = &scope->getClassScope()->user_class;
 		refvar = user_class->internalRefVar;
 	}
 
@@ -1096,7 +1096,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// Member functions of a templated class implicitly take the class's template
 	// types. They are bound from the receiver's type at each call site, rather
 	// than inferred from arguments (see lookupClassFuncs).
-	if (ClassScope* c_scope = scope->getClass())
+	if (ClassScope* c_scope = scope->getClassScope())
 	{
 		UserClass& containing_class = c_scope->user_class;
 		if (!containing_class.template_types.empty())
@@ -1352,7 +1352,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void*)
 		{
 			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
 			{
-				user_class = &scope->getClass()->user_class;
+				user_class = &scope->getClassScope()->user_class;
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())
