@@ -208,12 +208,21 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, "run"));
-		if (breakRecursion(host)) return;
+		return;
 	}
-	if (*possibleRuns[0]->returnType != DataType::ZVOID)
+	Function* runfunc = possibleRuns[0];
+	AST* node = &host;
+	if (runfunc->node)
+		node = runfunc->node;
+	if (*runfunc->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name, "run"));
-		if (breakRecursion(host)) return;
+		handleError(CompileError::ScriptRunNotVoid(node, name, "run"));
+		return;
+	}
+	if (runfunc->getFlag(FUNCFLAG_STATIC))
+	{
+		handleError(CompileError::Error(node, "void run() functions cannot be static."));
+		return;
 	}
 	script.setRun(possibleRuns[0]);
 }

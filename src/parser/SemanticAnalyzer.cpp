@@ -1009,9 +1009,18 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 		handleError(CompileError::TooManyRun(&host, name, "run"));
 		return;
 	}
-	if (*possibleRuns[0]->returnType != DataType::ZVOID)
+	Function* runfunc = possibleRuns[0];
+	AST* node = &host;
+	if (runfunc->node)
+		node = runfunc->node;
+	if (*runfunc->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name, "run"));
+		handleError(CompileError::ScriptRunNotVoid(node, name, "run"));
+		return;
+	}
+	if (runfunc->getFlag(FUNCFLAG_STATIC))
+	{
+		handleError(CompileError::Error(node, "void run() functions cannot be static."));
 		return;
 	}
 	script.setRun(possibleRuns[0]);
