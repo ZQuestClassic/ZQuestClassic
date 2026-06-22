@@ -968,6 +968,8 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 
 bool play_combo_string(int str, optional<int> screen)
 {
+	if (!str)
+		return false;
 	if (!screen) screen = cur_screen;
 	mapscr* scr = get_scr(*screen);
 	switch(str)
