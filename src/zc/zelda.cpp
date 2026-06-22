@@ -1620,6 +1620,7 @@ void init_game_vars(bool is_cont_game = false)
 	scrolling_map = 0;
 	scrolling_dmap = 0;
 	scrolling_region = {};
+	isUserTinted(false);
 	linkedmsgclk=0;
 	mblock2.clear();
 	clear_screen_states();
