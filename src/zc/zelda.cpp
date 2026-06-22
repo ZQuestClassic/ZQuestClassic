@@ -1571,6 +1571,22 @@ void init_game_vars(bool is_cont_game = false)
 	if (is_cont_game && !(replay_version_check(32) || replay_get_meta_str("qst") == "grassland_attack.qst"))
 		return;
 
+	origin_scr = nullptr;
+	hero_scr = nullptr;
+	prev_hero_scr = nullptr;
+
+	Hero.unfreeze();
+	Hero.reset_hookshot();
+	Hero.reset_ladder();
+	// Most of the above Hero function calls are redundant, but some do set global variables that HeroClass::init wouldn't.
+	Hero.init();
+	// Not reset by any of the above. A previous in-process game's leftover value is read by
+	// walkability checks on the first gameplay frame before it's recomputed, nudging hero
+	// movement (and rng-desyncing). Not reset in HeroClass::init() because init() also runs
+	// on continue/level-restart, where a reset would desync already-recorded replays.
+	Hero.climb_cover_x = 0;
+	Hero.climb_cover_y = 0;
+
 	if (!is_cont_game)
 	{
 		// Don't reset cheats on continue.
@@ -1583,12 +1599,6 @@ void init_game_vars(bool is_cont_game = false)
 		ResetSaveScreenSettings();
 		FFCore.shutdown();
 		HeroClass::reset_step_statics();
-		// swordclk (the sword charge/jinx clock) is a Hero field that isn't reset on a new game,
-		// so a previous in-process game that ended mid-charge leaves it > 0. ALLOFF() below calls
-		// Hero.resetflags(), which runs verifyAWpn() whenever swordclk > 0 — and at this point the
-		// item cache and active subscreen aren't set up yet, so that premature verify reads a stale
-		// "no sword" state and clears the A-button selection (game->awpn -> 0xFF), desyncing the
-		// replay. Reset it here, before ALLOFF, so a fresh game never triggers that early verify.
 		Hero.swordclk = 0;
 		ALLOFF(true,true,true);
 	}
@@ -1598,9 +1608,6 @@ void init_game_vars(bool is_cont_game = false)
 	// same way, even if manually started in the ZC UI.
 	global_frame = 0;
 
-	origin_scr = nullptr;
-	hero_scr = nullptr;
-	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
 	clear_camera_effect();
 	screenscrolling = false;
@@ -1614,14 +1621,6 @@ void init_game_vars(bool is_cont_game = false)
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=231;	
-	Hero.unfreeze();
-	Hero.reset_hookshot();
-	Hero.reset_ladder();
-	// Ladder-cover position carries over from gameplay and isn't reset on game start. A new
-	// game must start fresh, or a previous in-process game's leftover value is read on the
-	// first gameplay frame before it's recomputed, nudging hero movement (and rng-desyncing).
-	Hero.climb_cover_x = 0;
-	Hero.climb_cover_y = 0;
 	screenscrolling = false;
 	scrolling_hero_screen = 0;
 	scrolling_map = 0;

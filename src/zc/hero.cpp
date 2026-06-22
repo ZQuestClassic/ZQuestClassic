@@ -1975,6 +1975,8 @@ void HeroClass::init()
 	steprate = zinit.heroStep;
 	tmp_step_boost = 0;
 	shove_offset = zinit.shove_offset;
+	hitdir = 0;
+	warpx = warpy = raftwarpx = raftwarpy = 0;
 	
 	itembox_xofs = zinit.hero_itembox_xofs;
 	itembox_yofs = zinit.hero_itembox_yofs;
@@ -2101,11 +2103,18 @@ void HeroClass::init()
 	{
 		defence[q] = hero_defenses[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
 	}
-	
+
+	for (int i = 0; i < 4; i++)
+		lastdir[i] = 0xFF;
+
+	if (replay_version_check(12))
+		z3step = 2;
+
 	clear_ice();
 	script_ice_combo = 0;
+	FFCore.nostepforward = 0;
 	//Run script!
-	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
+	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) && hero_scr ) //if (!hasplayed) runs in game_loop()
 	{
 		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT);
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
@@ -2113,17 +2122,6 @@ void HeroClass::init()
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
-
-	for (int i = 0; i < 4; i++)
-		lastdir[i] = 0xFF;
-
-	if (replay_version_check(12))
-		z3step = 2;
-	// NOTE: don't reset hero_newstep / hero_newstep_diag here. init() also runs on
-	// continue/level-restart, where resetting the collision-clamped step mid-replay changes
-	// the hero's movement and desyncs already-recorded replays. The cross-game leak (a new
-	// game inheriting a previous in-process game's clamped step) only needs a reset at a fresh
-	// game start, which reset_step_statics() does from init_game_vars().
 }
 
 void HeroClass::draw_under(BITMAP* dest)
