@@ -41,6 +41,7 @@
 #include "auto/scopes.zs"
 #include "auto/screen_wipe.zs"
 #include "auto/script_drawing.zs"
+#include "auto/script_instance_vars.zs"
 #include "auto/sprites.zs"
 #include "auto/stack_limit.zs"
 #include "auto/stack_typed.zs"

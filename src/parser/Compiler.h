@@ -186,6 +186,7 @@ namespace ZScript
 		zasm_meta meta;
 		uint32_t pc, end_pc;
 		byte format;
+		bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
 		std::string formatName(std::string name)
 		{
 			return name;

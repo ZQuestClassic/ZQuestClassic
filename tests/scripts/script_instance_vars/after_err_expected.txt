@@ -1,0 +1,45 @@
+stderr:
+
+Compiling 'after_err.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+after_err.zs Line 7 @ Columns 10-11 - Error T046: An expression is not constant that needs to be.
+
+5    const int CONST = 11037;
+6    int a = 1;
+7    int b = a; // Error: Instance vars must be compile-time constant
+             ^
+
+
+Failure!
+Compile finished with exit code '46' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 46,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 9
+        },
+        "end": {
+          "line": 6,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "T046: An expression is not constant that needs to be."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 11,
+    "symbols": 10,
+    "identifiers": 12,
+    "elided": true
+  }
+}

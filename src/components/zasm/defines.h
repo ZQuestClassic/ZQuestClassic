@@ -1494,7 +1494,7 @@ enum ASM_DEFINE
 #define SP2                   0x02ED
 
 //#define SD(n)              ((0x02ED)+(n)) //Spare 8
-#define GD(n)              ((0x02F5)+(n)) //1024, spare 352
+#define GD(n)              ((0x02F5)+(n)) //1024: 0x02F5 -> 0x06F5
 
 // Defines for accessing gamedata
 //#define GAMECOUNTER(n)     ((0x03F5)+((n)*3)) //All of these spare
@@ -3485,7 +3485,10 @@ enum ASM_DEFINE
 #define MESSAGEDATA_MENUMOVE_SFX              0x170C
 #define MESSAGEDATA_MENUCLOSE_SFX             0x170D
 
-#define NUMVARIABLES         0x170E
+// fill in gap here
+
+#define SCRIPT_INST_VARS(d)      ((0x1800) + d) // 256; 0x1800 -> 0x1900
+#define NUMVARIABLES               0x1900
 
 //} End variables
 

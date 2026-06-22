@@ -29,8 +29,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0002
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
 NOP
 SETV D2 0.0006; while(true) #1 Body [Opt:AlwaysOn] Start
@@ -68,4 +67,4 @@ PUSHV 128; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int,
 CIRCLER; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run() Body End

@@ -373,6 +373,8 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 		read_var(dsd.pc, tempfile);
 		read_var(dsd.end_pc, tempfile);
 		
+		read_boundedcont(dsd.script_d_init, tempfile);
+		
 		zasmCompilerResult.theScripts[str] = dsd;
 	}
 
@@ -437,6 +439,8 @@ void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 		
 		write_var(v.pc, tempfile);
 		write_var(v.end_pc, tempfile);
+		
+		write_boundedcont(v.script_d_init, tempfile);
 	}
 	
 	dummy = zasmCompilerResult.zasm.size();

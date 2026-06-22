@@ -400,6 +400,7 @@ void DebugStaticClassFunction()
 generic script scopes
 {
 	int SCRIPT_SCOPED_GLOBAL = 123;
+	nonstatic int script_scoped_local = 456;
 
 	int scriptFunction()
 	{
@@ -411,9 +412,12 @@ generic script scopes
 	{
 		Test::Init();
 
+		script_scoped_local += 1; // ensure it remains a script field, and not optimized away as a constant.
+
 		// Test::AssertEqual(scopes::SCRIPT_SCOPED_GLOBAL, 123); // invalid - can't use :: for script scoped members
-		Test::AssertEqual(scopes.SCRIPT_SCOPED_GLOBAL, 123);
+		Test::AssertEqual(scopes.scriptFunction(), 100);
 		Test::AssertEqual(SCRIPT_SCOPED_GLOBAL, 123);
+		Test::AssertEqual(script_scoped_local, 457);
 		Test::AssertEqual(scopes.scriptFunction(), 100);
 		Test::AssertEqual(scriptFunction(), 100);
 		// Static class functions can use . and :: - for some reason...

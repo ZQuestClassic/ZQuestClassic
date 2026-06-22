@@ -368,7 +368,7 @@ static void get_z_register(CompilationState& state, int r)
 		emit_get_ri(state);
 		state.wasm->emitI32Load(4 + r*4);
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		emit_get_global_d(state);
 		state.wasm->emitI32Load((r - GD(0)) * 4); // game->global_d[]
@@ -449,7 +449,7 @@ static void set_z_register(CompilationState& state, int r, F&& fn)
 		fn();
 		state.wasm->emitI32Store(4 + r*4);
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		emit_get_global_d(state);
 		fn();

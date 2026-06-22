@@ -27,21 +27,20 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHV 0
+PUSHV 0; void run() Body Start
 SETR D4 SP2
 NOP
 PUSHR D4; if() #8 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
-CALLFUNC 0.0041; UsrFunc[bool HeroHitThisFrame()] Call
+CALLFUNC 0.0040; UsrFunc[bool HeroHitThisFrame()] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 38 ==; Test 'if'
+GOTOCMP 37 ==; Test 'if'
 STOREV 0 0; for() #3 setup AND if() #8 Body Start
 LOAD D2 0; for() #3 LoopTest
 COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 37 ==; for() #3 TestFail?
+GOTOCMP 36 ==; for() #3 TestFail?
 SETV D2 0.0002; for() #3 Body Start
 PUSHR D2
 POP D2
@@ -61,37 +60,37 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #3 Body End
 LOAD D2 0; for() #3 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 12; for() #3 End
+GOTO 11; for() #3 End
 NOP; if() #8 Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[bool HeroHitThisFrame()] Body Start
 SETV D2 4; return Start
 PUSHR D2
 POP D0
 SETR D2 LINKHITBY
 COMPAREV D2 0
-GOTOCMP 68 !=
+GOTOCMP 67 !=
 SETV D2 5
 PUSHR D2
 POP D0
 SETR D2 LINKHITBY
 COMPAREV D2 0
-GOTOCMP 68 !=
+GOTOCMP 67 !=
 SETV D2 6
 PUSHR D2
 POP D0
 SETR D2 LINKHITBY
 COMPAREV D2 0
-GOTOCMP 68 !=
+GOTOCMP 67 !=
 SETV D2 7
 PUSHR D2
 POP D0
 SETR D2 LINKHITBY
 COMPAREV D2 0
-GOTOCMP 68 !=
+GOTOCMP 67 !=
 SETV D2 0
-GOTO 69
+GOTO 68
 SETV D2 1
 RETURNFUNC; return End AND Func[bool HeroHitThisFrame()] Body End

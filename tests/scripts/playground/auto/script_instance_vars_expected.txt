@@ -1,0 +1,545 @@
+stderr:
+
+Compiling 'script_instance_vars.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 26,
+    "symbols": 47,
+    "identifiers": 118,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD1 1; void run() Body Start
+SETV GD2 1
+SETV GD3 2
+SETV GD4 2
+SETV GD5 2
+SETV GD6 2
+QUIT; void run() Body End
+PUSHARGSV 0 0.0003; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #389 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 36 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #389 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #389 Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #2 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 59 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
+GOTO 51; while() #2 End
+CALLFUNC 0.0419; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHR SCR0; UsrFunc[void Assert(genericdata)] Params
+CALLFUNC 0.0470; UsrFunc[void Assert(genericdata)] Call
+PEEK D4
+PUSHARGSV 1 0.0002; UsrFunc[void test(int, int)] Params Start AND UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0288; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHARGSV 2 0.0002; UsrFunc[void static_test(int, int)] Params Start AND UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0302; UsrFunc[void static_test(int, int)] Call
+POP D4
+SETV D2 5
+SETR GD1 D2
+SETV D2 8
+SETR GD2 D2
+SETV D2 42
+SETR GD3 D2
+SETV D2 420
+SETR GD4 D2
+PUSHR D4
+PUSHV 5; UsrFunc[void test(int, int)] Params Start
+PUSHV 8; UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0288; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHV 42; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 420; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0302; UsrFunc[void static_test(int, int)] Call
+PEEK D4
+PUSHARGSV 11037 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0426; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+RETURNFUNC; void run() Body End
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+PUSHR SCR0; UsrFunc[void Assert(genericdata)] Params
+CALLFUNC 0.0470; UsrFunc[void Assert(genericdata)] Call
+PEEK D4
+PUSHARGSV 1 0.0002; UsrFunc[void test(int, int)] Params Start AND UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0316; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHARGSV 2 0.0002; UsrFunc[void static_test(int, int)] Params Start AND UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0333; UsrFunc[void static_test(int, int)] Call
+POP D4
+SETV D2 5
+SETR SCR1 D2
+SETV D2 8
+SETR SCR2 D2
+SETV D2 42
+SETR GD5 D2
+SETV D2 420
+SETR GD6 D2
+PUSHR D4
+PUSHV 5; UsrFunc[void test(int, int)] Params Start
+PUSHV 8; UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0316; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHV 42; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 420; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0333; UsrFunc[void static_test(int, int)] Call
+PEEK D4
+PUSHARGSV 11037 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0426; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+RETURNFUNC; void run() Body End
+PUSHARGSV 0 0.0004; void run() Body Start
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0397; UsrFunc[void Init(int)] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHR D4
+ALLOCATEMEMV D2 13 0; UsrFunc[int CheckGenericScript(char32[])] Params Start
+WRITEPODSTRING D2 "setup_before"
+PUSHR D2; UsrFunc[int CheckGenericScript(char32[])] Params End
+CALLFUNC 0.0191; UsrFunc[int CheckGenericScript(char32[])] Call
+POP D4
+STORE D2 0.0003
+PUSHR D4
+ALLOCATEMEMV D2 12 0; UsrFunc[int CheckGenericScript(char32[])] Params Start
+WRITEPODSTRING D2 "setup_after"
+PUSHR D2; UsrFunc[int CheckGenericScript(char32[])] Params End
+CALLFUNC 0.0191; UsrFunc[int CheckGenericScript(char32[])] Call
+POP D4
+STORE D2 0.0002
+PUSHR D4
+LOAD D2 0.0003; UsrFunc[void Assert(int)] Params Start
+PUSHR D2; UsrFunc[void Assert(int)] Params End
+CALLFUNC 0.0481; UsrFunc[void Assert(int)] Call
+PEEK D4
+LOAD D2 0.0002; UsrFunc[void Assert(int)] Params Start
+PUSHR D2; UsrFunc[void Assert(int)] Params End
+CALLFUNC 0.0481; UsrFunc[void Assert(int)] Call
+PEEK D4
+LOAD D2 0.0003; UsrFunc[genericdata RunGenericScript(int, untyped[])] Params Start
+PUSHR D2
+PUSHV 0; UsrFunc[genericdata RunGenericScript(int, untyped[])] Params End
+CALLFUNC 0.0218; UsrFunc[genericdata RunGenericScript(int, untyped[])] Call
+POP D4
+STORE D2 0.0001
+LOAD D2 0.0001; while() #3 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 169 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body
+GOTO 161; while() #3 End
+PUSHR D4
+CALLFUNC 0.0347; UsrFunc[void test_before()] Call
+PEEK D4
+LOAD D2 0.0002; UsrFunc[genericdata RunGenericScript(int, untyped[])] Params Start
+PUSHR D2
+PUSHV 0; UsrFunc[genericdata RunGenericScript(int, untyped[])] Params End
+CALLFUNC 0.0218; UsrFunc[genericdata RunGenericScript(int, untyped[])] Call
+POP D4
+STORE D2 0
+LOAD D2 0; while() #4 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 186 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #4 Body
+GOTO 178; while() #4 End
+PUSHR D4
+CALLFUNC 0.0378; UsrFunc[void test_after()] Call
+POP D4
+POPARGS D5 0.0004
+RETURNFUNC; void run() Body End
+PUSHV 0; Func[int CheckGenericScript(char32[])] Body Start
+SETR D4 SP2
+MARK_TYPE_STACK 0.0009 0.0001
+REF_INC 0.0001
+LOAD D2 0.0001; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0
+LOAD D2 0; if() #24 Test
+COMPAREV D2 0
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 213 ==; Test 'if'
+ALLOCATEMEMV D2 48 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #24 Body Start
+WRITEPODSTRING D2 "Generic Script '%s' is not assigned to a slot!\n"
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+SETV D2 0; return Start
+GOTO 215; return End AND if() #24 Body End
+NOP
+LOAD D2 0; return Start
+REF_REMOVE 0.0001; return End
+POPARGS D5 0.0002
+RETURNFUNC; Func[int CheckGenericScript(char32[])] Body End
+PUSHARGSV 0 0.0002; Func[genericdata RunGenericScript(int, untyped[])] Body Start
+SETR D4 SP2
+MARK_TYPE_STACK 0.0009 0.0002
+REF_INC 0.0002
+LOAD D2 0.0003; if() #239 Test
+COMPAREV D2 1
+GOTOCMP 230 <
+LOAD D2 0.0003
+COMPAREV D2 511
+GOTOCMP 230 >
+SETV D2 0
+GOTO 231
+SETV D2 1
+COMPAREV D2 0
+GOTOCMP 235 ==; Test 'if'
+SETV D2 0; return Start AND if() #239 Body Start
+GOTO 285; return End AND if() #239 Body End
+NOP
+LOAD D2 0.0003; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0.0001
+LOAD D2 0.0002; if() #240 Test
+COMPAREV D2 0
+GOTOCMP 273 ==; Test 'if'
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #88 setup AND if() #240 Body Start
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
+SUBV D2 1
+STORE D2 0
+LOAD D2 0; for() #88 LoopTest
+COMPAREV D2 0
+SETCMP D2 I>=
+COMPAREV D2 0
+GOTOCMP 272 ==; for() #88 TestFail?
+LOAD D2 0.0002; for() #88 Body Start
+PUSHR D2
+LOAD D2 0
+POP D0
+READPODARRAYR D2 D2
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+LOAD D2 0
+PUSHR D2
+POP D0
+POP D2
+POP REFGENERICDATA
+SETR GENDATAINITD D2; for() #88 Body End
+LOAD D2 0; for() #88 LoopIncrement
+SUBV D2 1
+STORE D2 0
+GOTO 247; for() #88 End
+NOP; if() #240 Body End
+NOP
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0.0001; return Start
+REF_REMOVE 0.0002; return End
+POPARGS D5 0.0004
+RETURNFUNC; Func[genericdata RunGenericScript(int, untyped[])] Body End
+SETR D4 SP2; Func[void test(int, int)] Body Start
+PUSHR D4
+PUSHR GD1; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR GD2; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void test(int, int)] Body End
+SETR D4 SP2; Func[void static_test(int, int)] Body Start
+PUSHR D4
+PUSHR GD3; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR GD4; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void static_test(int, int)] Body End
+SETR D4 SP2; Func[void test(int, int)] Body Start
+PUSHR D4
+PUSHR SCR0; UsrFunc[void Assert(genericdata)] Params
+CALLFUNC 0.0470; UsrFunc[void Assert(genericdata)] Call
+PEEK D4
+PUSHR SCR1; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR SCR2; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void test(int, int)] Body End
+SETR D4 SP2; Func[void static_test(int, int)] Body Start
+PUSHR D4
+PUSHR GD5; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0.0001
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+PEEK D4
+PUSHR GD6; UsrFunc[void AssertEqual(int, int)] Params Start
+LOAD D2 0
+PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0448; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+POPARGS D5 0.0002
+RETURNFUNC; Func[void static_test(int, int)] Body End
+SETR D4 SP2; Func[void test_before()] Body Start
+PUSHR D4
+PUSHV 5; UsrFunc[void test(int, int)] Params Start
+PUSHV 8; UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0288; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHV 42; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 420; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0302; UsrFunc[void static_test(int, int)] Call
+POP D4
+SETV D2 7
+SETR GD1 D2
+SETV D2 42
+SETR GD2 D2
+SETV D2 3
+SETR GD3 D2
+SETV D2 9
+SETR GD4 D2
+PUSHR D4
+PUSHV 7; UsrFunc[void test(int, int)] Params Start
+PUSHV 42; UsrFunc[void test(int, int)] Params End
+CALLFUNC 0.0288; UsrFunc[void test(int, int)] Call
+PEEK D4
+PUSHV 3; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 9; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0302; UsrFunc[void static_test(int, int)] Call
+PEEK D4
+PUSHARGSV 11037 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0426; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+RETURNFUNC; Func[void test_before()] Body End
+SETR D4 SP2; Func[void test_after()] Body Start
+PUSHR D4
+PUSHV 42; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 420; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0333; UsrFunc[void static_test(int, int)] Call
+POP D4
+SETV D2 3
+SETR GD5 D2
+SETV D2 9
+SETR GD6 D2
+PUSHR D4
+PUSHV 3; UsrFunc[void static_test(int, int)] Params Start
+PUSHV 9; UsrFunc[void static_test(int, int)] Params End
+CALLFUNC 0.0333; UsrFunc[void static_test(int, int)] Call
+PEEK D4
+PUSHARGSV 11037 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start AND UsrFunc[void AssertEqual(int, int)] Params End
+CALLFUNC 0.0426; UsrFunc[void AssertEqual(int, int)] Call
+POP D4
+RETURNFUNC; Func[void test_after()] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() #388 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 416 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #388 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() #392 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 445 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #392 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #392 Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
+LOAD D2 0; if() #393 Test
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+COMPARER D3 D2
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 467 ==; Test 'if'
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #393 Body Start
+WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #393 Body End
+NOP
+POPARGS D5 0.0002
+RETURNFUNC; Func[void AssertEqual(int, int)] Body End
+SETR D4 SP2; Func[void Assert(genericdata)] Body Start
+LOAD D2 0; unless() #390 Test
+COMPAREV D2 0
+GOTOCMP 478 !=; Test 'unless'
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #390 Body Start
+WRITEPODSTRING D2 ""
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0492; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #390 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Assert(genericdata)] Body End
+SETR D4 SP2; Func[void Assert(int)] Body Start
+LOAD D2 0; unless() #391 Test
+COMPAREV D2 0
+GOTOCMP 489 !=; Test 'unless'
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #391 Body Start
+WRITEPODSTRING D2 ""
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0492; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Assert(int)] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #109 Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 511 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 516; if() #109 Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #109 Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End

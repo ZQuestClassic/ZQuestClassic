@@ -19,7 +19,6 @@ namespace ZScript
 	class VarArgument;
 	class LiteralVarArgument;
 	class LabelArgument;
-	class GlobalArgument;
 	class StringArgument;
 	class TypeArgument;
 	class VectorArgument;
@@ -35,7 +34,6 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLiteralVar(LiteralVarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
-		virtual void caseGlobal(GlobalArgument&, void *){}
 		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
 		{
 			for (auto it = vec.begin(); it != vec.end(); ++it)
@@ -244,27 +242,6 @@ namespace ZScript
 		}
 
 		int32_t ID;
-	};
-
-	class GlobalArgument : public VarArgument
-	{
-	public:
-		GlobalArgument(int32_t id) : VarArgument(id) {}
-		std::string toString() const;
-		void execute(ArgumentVisitor &host, void *param)
-		{
-			host.caseGlobal(*this,param);
-		}
-		GlobalArgument* clone() const
-		{
-			return new GlobalArgument(ID);
-		}
-
-		bool equals(const Argument& other) const
-		{
-			const auto& o = static_cast<const GlobalArgument&>(other);
-			return ID == o.ID;
-		}
 	};
 
 	class LabelArgument : public Argument

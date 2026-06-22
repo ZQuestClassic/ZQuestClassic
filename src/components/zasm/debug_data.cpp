@@ -4,6 +4,7 @@
 #include "components/zasm/debug_data.h"
 #include "base/check.h"
 #include "base/ints.h"
+#include "base/general.h"
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
 
@@ -698,6 +699,14 @@ uint32_t DebugData::getFunctionAdditionalStackSize(const DebugScope* scope) cons
 std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 {
 	auto format_storage = [](DebugSymbolStorage s, int32_t offset, uint32_t type_id) -> std::string {
+		if (s == LOC_REGISTER)
+		{
+			if (offset >= GD(0) && offset < GD(MAX_GLOBAL_VARIABLES))
+			{
+				s = LOC_GLOBAL;
+				offset -= GD(0);
+			}
+		}
 		switch(s) {
 			case CONSTANT:
 			{
@@ -707,11 +716,18 @@ std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 					return fmt::format("Constant[{}L]", offset);
 				return fmt::format("Constant[{}]", offset);
 			}
-			case LOC_STACK:    return fmt::format("Stack[{}]", offset);
-			case LOC_GLOBAL:   return fmt::format("Global[{}]", offset);
-			case LOC_REGISTER: return fmt::format("Reg[{}]", get_script_variable(offset).first->name);
-			case LOC_CLASS:    return fmt::format("ClassField[{}]", offset);
-			default:           return fmt::format("Unknown[{}]", offset);
+			case LOC_STACK:
+				return fmt::format("Stack[{}]", offset);
+			case LOC_GLOBAL:
+				return fmt::format("Global[{}]", offset);
+			case LOC_SCRIPT_INSTANCE:
+				return fmt::format("ScriptField[{}]", offset);
+			case LOC_REGISTER:
+				return fmt::format("Reg[{}]", get_script_variable(offset).first->name);
+			case LOC_CLASS:
+				return fmt::format("ClassField[{}]", offset);
+			default:
+				return fmt::format("Unknown[{}]", offset);
 		}
 	};
 
@@ -886,10 +902,11 @@ DebugData::ResolveResult DebugData::resolveEntity(const std::string& identifier,
 			{
 				current_res = find_member(lookup_idx, tokens[0]);
 
-				// Class instance variables have no instance to read from when
-				// the evaluation context is a static function - keep walking
+				// Class/script instance variables have no instance to read from
+				// when the evaluation context is a static function - keep walking
 				// outward, as if the symbol were not there.
-				if (current_res.sym && current_res.sym->storage == LOC_CLASS && crossed_static_fn)
+				if (current_res.sym && crossed_static_fn
+					&& (current_res.sym->storage == LOC_CLASS || current_res.sym->storage == LOC_SCRIPT_INSTANCE))
 				{
 					current_res = {};
 					continue;

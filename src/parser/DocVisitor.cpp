@@ -204,8 +204,15 @@ void DocVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	auto symbol = appendSymbol(SymbolKind::Variable, host);
 	(*symbol)["type"] = host.resolvedType->getName();
 	if (auto init = host.getInitializer())
-		if (auto value = init->getCompileTimeValue(nullptr, host.getScope()))
+	{
+		Scope* host_scope = host.getScope();
+		if (host_scope)
+			host_scope->in_static_init = host.is_static();
+		if (auto value = init->getCompileTimeValue(nullptr, host_scope))
 			(*symbol)["value"] = *value;
+		if (host_scope)
+			host_scope->in_static_init = false;
+	}
 	RecursiveVisitor::caseDataDecl(host, param);
 }
 
@@ -222,9 +229,14 @@ void DocVisitor::caseDataEnum(ASTDataEnum& host, void*)
 	active = &(*symbol)["children"];
 	for (auto* decl : host.getDeclarations())
 	{
-		auto value = decl->getInitializer()->getCompileTimeValue(nullptr, decl->getScope());
+		Scope* decl_scope = decl->getScope();
+		if (decl_scope)
+			decl_scope->in_static_init = host.is_static;
+		auto value = decl->getInitializer()->getCompileTimeValue(nullptr, decl_scope);
+		if (decl_scope)
+			decl_scope->in_static_init = false;
 		auto symbol = appendSymbol(SymbolKind::EnumMember, *decl);
-		(*symbol)["type"] = decl->getInitializer()->getReadType(decl->getScope(), nullptr)->isLong() ? "long" : "int";
+		(*symbol)["type"] = decl->getInitializer()->getReadType(decl_scope, nullptr)->isLong() ? "long" : "int";
 		(*symbol)["value"] = *value;
 	}
 	active = prev_active;
