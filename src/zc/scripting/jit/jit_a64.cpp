@@ -373,7 +373,7 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 	{
 		cc.ldr(val, a64::ptr(state.ptrRegisters, r * 4));
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		a64::Gp address = cc.newIntPtr();
 		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
@@ -448,7 +448,7 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	{
 		cc.str(val_reg, a64::ptr(state.ptrRegisters, r * 4));
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		a64::Gp address = cc.newIntPtr();
 		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.

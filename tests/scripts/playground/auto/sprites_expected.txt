@@ -53,8 +53,7 @@ WRITEPODSTRING D2 "player"
 MARK_TYPE_REG GD3 0.0009
 SET_OBJECT GD3 D2 0.0009
 QUIT; void run() Body End
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -75,7 +74,7 @@ LOAD D2 0.0001; if() #389 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 55 ==; Test 'if'
+GOTOCMP 54 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #389 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -102,17 +101,16 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 78 ==; Test 'while'
+GOTOCMP 77 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 70; while() #2 End
-CALLFUNC 0.1294; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 69; while() #2 End
+CALLFUNC 0.1292; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0014
+PUSHARGSV 0 0.0014; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.1272; UsrFunc[void Init(int)] Call
+CALLFUNC 0.1270; UsrFunc[void Init(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV D2 28; InlineFunc[itemsprite screendata::CreateItem(int)] Params
@@ -125,7 +123,7 @@ PUSHR D2
 ALLOCATEMEMV D2 12 0
 WRITEPODSTRING D2 "item not ok"
 PUSHR D2; UsrFunc[void Assert(itemsprite, char32[])] Params End
-CALLFUNC 0.1323; UsrFunc[void Assert(itemsprite, char32[])] Call
+CALLFUNC 0.1321; UsrFunc[void Assert(itemsprite, char32[])] Call
 POP D4
 LOAD D2 0.0013
 STORE D2 0.0012
@@ -135,24 +133,24 @@ PUSHR D2
 ALLOCATEMEMV D2 16 0
 WRITEPODSTRING D2 "a_sprite not ok"
 PUSHR D2; UsrFunc[void Assert(sprite, char32[])] Params End
-CALLFUNC 0.1336; UsrFunc[void Assert(sprite, char32[])] Call
+CALLFUNC 0.1334; UsrFunc[void Assert(sprite, char32[])] Call
 PEEK D4
 LOAD D2 0.0013; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 PUSHR D2
 LOAD D2 0.0012
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 LOAD D2 0.0013; UsrFunc[void print_it(itemsprite)] Params Start
 PUSHR D2; UsrFunc[void print_it(itemsprite)] Params End
-CALLFUNC 0.1155; UsrFunc[void print_it(itemsprite)] Call
+CALLFUNC 0.1153; UsrFunc[void print_it(itemsprite)] Call
 PEEK D4
 LOAD D2 0.0012; UsrFunc[void print_it(sprite)] Params Start
 PUSHR D2; UsrFunc[void print_it(sprite)] Params End
-CALLFUNC 0.1175; UsrFunc[void print_it(sprite)] Call
+CALLFUNC 0.1173; UsrFunc[void print_it(sprite)] Call
 PEEK D4
 PUSHV 0.0001; UsrFunc[void print_it(sprite)] Params
-CALLFUNC 0.1175; UsrFunc[void print_it(sprite)] Call
+CALLFUNC 0.1173; UsrFunc[void print_it(sprite)] Call
 POP D4
 SETV D2 1; InlineFunc[ffc screendata::LoadFFC(int)] Params
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
@@ -239,7 +237,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 LOAD D2 0.0011; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 PUSHR D2
@@ -248,7 +246,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 1
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 PUSHV 0.0001; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 LOAD D2 0.0007
@@ -256,7 +254,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 2
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 LOAD D2 0.0010; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 PUSHR D2
@@ -265,7 +263,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 3
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 LOAD D2 0.0009; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 PUSHR D2
@@ -274,7 +272,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 4
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 PEEK D4
 LOAD D2 0.0008; UsrFunc[void AssertEqual(sprite, sprite)] Params Start
 PUSHR D2
@@ -283,7 +281,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 5
 PUSHR D2; UsrFunc[void AssertEqual(sprite, sprite)] Params End
-CALLFUNC 0.1301; UsrFunc[void AssertEqual(sprite, sprite)] Call
+CALLFUNC 0.1299; UsrFunc[void AssertEqual(sprite, sprite)] Call
 POP D4
 LOAD D2 0.0007; InlineFunc[int SizeOfArray(untyped[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
@@ -296,7 +294,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 306 ==; for() #136 TestFail?
+GOTOCMP 304 ==; for() #136 TestFail?
 LOAD D2 0.0007; for() #136 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -332,7 +330,7 @@ SETR SPRITE_Y D2; for() #136 Body End
 LOAD D2 0.0005; for() #136 LoopIncrement
 ADDV D2 1
 STORE D2 0.0005
-GOTO 262; for() #136 End
+GOTO 260; for() #136 End
 NOP
 ALLOCATEMEMV D2 6 0
 PUSHR D2
@@ -480,7 +478,7 @@ LOAD D2 0.0002; while() #3 Test
 COMPAREV D2 300
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 531 ==; Test 'while'
+GOTOCMP 529 ==; Test 'while'
 PUSHARGSV 0 0.0002; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND while() #3 Body Start
 PUSHV 10
 PUSHV 9
@@ -501,7 +499,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 525 ==; for() #137 TestFail?
+GOTOCMP 523 ==; for() #137 TestFail?
 LOAD D2 0.0007; for() #137 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -540,24 +538,24 @@ PUSHR D2
 PUSHV 16
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[void modify_sprite(sprite, int, int)] Params End
-CALLFUNC 0.1191; UsrFunc[void modify_sprite(sprite, int, int)] Call
+CALLFUNC 0.1189; UsrFunc[void modify_sprite(sprite, int, int)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void drawText(int, sprite)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
-CALLFUNC 0.0997; UsrFunc[void drawText(int, sprite)] Call
+CALLFUNC 0.0995; UsrFunc[void drawText(int, sprite)] Call
 POP D4; for() #137 Body End
 LOAD D2 0.0001; for() #137 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 467; for() #137 End
+GOTO 465; for() #137 End
 NOP
 LOAD D2 0.0002
 ADDV D2 1
 STORE D2 0.0002
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
-GOTO 449; while() #3 End
+GOTO 447; while() #3 End
 STOREV 0 0.0001; for() #138 setup
 LOAD D2 0.0001; for() #138 LoopTest
 PUSHR D2
@@ -566,7 +564,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 607 ==; for() #138 TestFail?
+GOTOCMP 605 ==; for() #138 TestFail?
 LOAD D2 0.0007; for() #138 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -633,7 +631,7 @@ SETR SPRITE_SCALE D2; for() #138 Body End
 LOAD D2 0.0001; for() #138 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 532; for() #138 End
+GOTO 530; for() #138 End
 NOP
 SETV D2 0
 STORE D2 0.0002
@@ -641,7 +639,7 @@ LOAD D2 0.0002; while() #4 Test
 COMPAREV D2 300
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 688 ==; Test 'while'
+GOTOCMP 686 ==; Test 'while'
 PUSHARGSV 0 0.0002; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND while() #4 Body Start
 PUSHV 10
 PUSHV 9
@@ -662,7 +660,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 682 ==; for() #139 TestFail?
+GOTOCMP 680 ==; for() #139 TestFail?
 LOAD D2 0.0007; for() #139 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -703,18 +701,18 @@ LOAD D2 0.0001; UsrFunc[void drawText(int, sprite)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
-CALLFUNC 0.0997; UsrFunc[void drawText(int, sprite)] Call
+CALLFUNC 0.0995; UsrFunc[void drawText(int, sprite)] Call
 POP D4; for() #139 Body End
 LOAD D2 0.0001; for() #139 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 628; for() #139 End
+GOTO 626; for() #139 End
 NOP
 LOAD D2 0.0002
 ADDV D2 1
 STORE D2 0.0002
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #4 Body End
-GOTO 610; while() #4 End
+GOTO 608; while() #4 End
 STOREV 0 0.0001; for() #140 setup
 LOAD D2 0.0001; for() #140 LoopTest
 PUSHR D2
@@ -723,7 +721,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 725 ==; for() #140 TestFail?
+GOTOCMP 723 ==; for() #140 TestFail?
 LOAD D2 0.0007; for() #140 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -751,7 +749,7 @@ SETR SPRITE_Y_OFFSET D2; for() #140 Body End
 LOAD D2 0.0001; for() #140 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 689; for() #140 End
+GOTO 687; for() #140 End
 NOP
 SETV D2 0
 STORE D2 0.0002
@@ -759,7 +757,7 @@ LOAD D2 0.0002; while() #5 Test
 COMPAREV D2 300
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 807 ==; Test 'while'
+GOTOCMP 805 ==; Test 'while'
 PUSHARGSV 0 0.0002; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND while() #5 Body Start
 PUSHV 10
 PUSHV 9
@@ -780,7 +778,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 801 ==; for() #141 TestFail?
+GOTOCMP 799 ==; for() #141 TestFail?
 LOAD D2 0.0007; for() #141 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -822,18 +820,18 @@ LOAD D2 0.0001; UsrFunc[void drawText(int, sprite)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
-CALLFUNC 0.0997; UsrFunc[void drawText(int, sprite)] Call
+CALLFUNC 0.0995; UsrFunc[void drawText(int, sprite)] Call
 POP D4; for() #141 Body End
 LOAD D2 0.0001; for() #141 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 746; for() #141 End
+GOTO 744; for() #141 End
 NOP
 LOAD D2 0.0002
 ADDV D2 1
 STORE D2 0.0002
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #5 Body End
-GOTO 728; while() #5 End
+GOTO 726; while() #5 End
 STOREV 0 0.0001; for() #142 setup
 LOAD D2 0.0001; for() #142 LoopTest
 PUSHR D2
@@ -842,7 +840,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 844 ==; for() #142 TestFail?
+GOTOCMP 842 ==; for() #142 TestFail?
 LOAD D2 0.0007; for() #142 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -870,7 +868,7 @@ SETR SPRITE_SCRIPT_FLIP D2; for() #142 Body End
 LOAD D2 0.0001; for() #142 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 808; for() #142 End
+GOTO 806; for() #142 End
 NOP
 SETV D2 0
 STORE D2 0.0002
@@ -878,7 +876,7 @@ LOAD D2 0.0002; while() #6 Test
 COMPAREV D2 300
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 936 ==; Test 'while'
+GOTOCMP 934 ==; Test 'while'
 PUSHARGSV 0 0.0002; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND while() #6 Body Start
 PUSHV 10
 PUSHV 9
@@ -899,7 +897,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 930 ==; for() #143 TestFail?
+GOTOCMP 928 ==; for() #143 TestFail?
 LOAD D2 0.0007; for() #143 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -951,18 +949,18 @@ LOAD D2 0.0001; UsrFunc[void drawText(int, sprite)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
-CALLFUNC 0.0997; UsrFunc[void drawText(int, sprite)] Call
+CALLFUNC 0.0995; UsrFunc[void drawText(int, sprite)] Call
 POP D4; for() #143 Body End
 LOAD D2 0.0001; for() #143 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 865; for() #143 End
+GOTO 863; for() #143 End
 NOP
 LOAD D2 0.0002
 ADDV D2 1
 STORE D2 0.0002
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #6 Body End
-GOTO 847; while() #6 End
+GOTO 845; while() #6 End
 STOREV 0 0.0001; for() #144 setup
 LOAD D2 0.0001; for() #144 LoopTest
 PUSHR D2
@@ -971,7 +969,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 991 ==; for() #144 TestFail?
+GOTOCMP 989 ==; for() #144 TestFail?
 LOAD D2 0.0007; for() #144 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -1017,9 +1015,9 @@ SETR SPRITE_TILE_H D2; for() #144 Body End
 LOAD D2 0.0001; for() #144 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 937; for() #144 End
+GOTO 935; for() #144 End
 NOP
-CALLFUNC 0.1294; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.1292; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0003
 REF_REMOVE 0.0005
 REF_REMOVE 0.0004
@@ -1029,7 +1027,7 @@ LOAD D2 0.0001; if() #110 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1023 ==; Test 'if'
+GOTOCMP 1021 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #110 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1049,12 +1047,12 @@ PUSHR GD1
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1152; if() #110 Body End
+GOTO 1150; if() #110 Body End
 LOAD D2 0.0001; if() #111 Test AND if() #110 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1048 ==; Test 'if'
+GOTOCMP 1046 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #111 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1074,12 +1072,12 @@ PUSHR GD2
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1151; if() #111 Body End
+GOTO 1149; if() #111 Body End
 LOAD D2 0.0001; if() #112 Test AND if() #111 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1073 ==; Test 'if'
+GOTOCMP 1071 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #112 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1099,12 +1097,12 @@ PUSHR GD3
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1150; if() #112 Body End
+GOTO 1148; if() #112 Body End
 LOAD D2 0.0001; if() #113 Test AND if() #112 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1098 ==; Test 'if'
+GOTOCMP 1096 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #113 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1124,12 +1122,12 @@ PUSHR GD4
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1149; if() #113 Body End
+GOTO 1147; if() #113 Body End
 LOAD D2 0.0001; if() #114 Test AND if() #113 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1123 ==; Test 'if'
+GOTOCMP 1121 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #114 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1149,12 +1147,12 @@ PUSHR GD5
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1148; if() #114 Body End
+GOTO 1146; if() #114 Body End
 LOAD D2 0.0001; if() #390 Test AND if() #114 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 1147 ==; Test 'if'
+GOTOCMP 1145 ==; Test 'if'
 PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #390 Body Start
 LOAD D2 0
 PUSHR D2
@@ -1312,7 +1310,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 1291 ==; Test 'if'
+GOTOCMP 1289 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -1336,7 +1334,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 1320 ==; Test 'if'
+GOTOCMP 1318 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #393 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -1355,10 +1353,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #391 Test
 COMPAREV D2 0
-GOTOCMP 1332 !=; Test 'unless'
+GOTOCMP 1330 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #391 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.1349; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
+CALLFUNC 0.1347; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -1368,10 +1366,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #392 Test
 COMPAREV D2 0
-GOTOCMP 1345 !=; Test 'unless'
+GOTOCMP 1343 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #392 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.1349; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #392 Body End
+CALLFUNC 0.1347; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #392 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -1385,7 +1383,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 1368 ==; Test 'if'
+GOTOCMP 1366 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -1394,7 +1392,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 1373; if() #109 Body End
+GOTO 1371; if() #109 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End

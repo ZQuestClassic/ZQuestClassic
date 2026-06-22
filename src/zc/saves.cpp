@@ -558,7 +558,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
 			*/
 			{
-				for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+				for(int32_t j=0; j<MAX_GLOBAL_VARIABLES; j++)
 					if(!p_igetl(&game.global_d[j],f))
 						return 45;
 			}
@@ -572,7 +572,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 		if (section_version >= 41)
 		{
-			for (int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+			for (int32_t j=0; j<MAX_GLOBAL_VARIABLES; j++)
 			{
 				word type;
 				if (!p_igetw(&type,f))
@@ -1364,11 +1364,11 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_putbmap(game.screen_d,f))
 		return 43;
 	
-	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+	for(int32_t j=0; j<MAX_GLOBAL_VARIABLES; j++)
 		if(!p_iputl(game.global_d[j],f))
 			return 44;
 
-	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+	for(int32_t j=0; j<MAX_GLOBAL_VARIABLES; j++)
 		if(!p_iputw((word)game.global_d_types[j],f))
 			return 121;
 

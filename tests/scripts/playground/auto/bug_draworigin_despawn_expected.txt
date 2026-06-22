@@ -51,8 +51,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -73,7 +72,7 @@ LOAD D2 0.0001; if() #389 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 31 ==; Test 'if'
+GOTOCMP 30 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #389 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -100,28 +99,27 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 54 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 46; while() #2 End
-CALLFUNC 0.0179; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #2 End
+CALLFUNC 0.0176; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFLWPN; void run() Body Start
-SETR D4 SP2
+SETR D4 SP2; void run() Body Start
 SETV D2 0.0006
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN D2
-LOAD D2 0
+SETR D2 SCR0
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_ORIGIN_TARGET D2
 PUSHV 4; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND while(true) #3 Body [Opt:AlwaysOn] Start
 PUSHARGSV 0 0.0002
-LOAD D2 0
+SETR D2 SCR0
 PUSHR D2
 POP REFSPRITE
 PUSHR SPRITE_TILE
-LOAD D2 0
+SETR D2 SCR0
 PUSHR D2
 POP REFSPRITE
 PUSHR SPRITE_CSET
@@ -129,13 +127,12 @@ PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] P
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
-GOTO 66; while() #3 End AND [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0002
+GOTO 64; while() #3 End AND [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0157; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0154; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 8; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params
 CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
@@ -193,19 +190,19 @@ LOAD D2 0; for() #136 LoopTest
 COMPAREV D2 30
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 150 ==; for() #136 TestFail?
+GOTOCMP 147 ==; for() #136 TestFail?
 WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #136 Body
 LOAD D2 0; for() #136 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 140; for() #136 End
+GOTO 137; for() #136 End
 NOP
 PUSHR D4
 PUSHR LWPNCOUNT; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHV 0; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0186; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0183; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0179; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0176; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -219,7 +216,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 176 ==; Test 'if'
+GOTOCMP 173 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -243,7 +240,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 205 ==; Test 'if'
+GOTOCMP 202 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #390 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2

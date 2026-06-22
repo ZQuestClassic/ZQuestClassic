@@ -344,6 +344,31 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		// Script-scoped variables require '.':
 		resolveSymbol(debugData, "scopes.SCRIPT_SCOPED_GLOBAL", file_scope);
 		assertTrue(debugData.resolveSymbol("scopes::SCRIPT_SCOPED_GLOBAL", file_scope) == nullptr);
+
+		const DebugScope* scopes_script_scope = resolveScope(debugData, "scopes", file_scope);
+		assertEqual(scopes_script_scope->tag, TAG_SCRIPT);
+		assertEqual(resolveSymbol(debugData, "scopes.SCRIPT_SCOPED_GLOBAL", file_scope)->storage, LOC_GLOBAL);
+
+		// Script instance variables live in the script's instance data.
+		const DebugSymbol* script_inst_var = resolveSymbol(debugData, "scopes.script_scoped_local", file_scope);
+		assertEqual(script_inst_var->storage, LOC_SCRIPT_INSTANCE);
+		assertEqual(script_inst_var->offset, 1);
+
+		// `this` is instance slot 0.
+		const DebugSymbol* script_this = resolveSymbol(debugData, "this", scopes_script_scope);
+		assertEqual(script_this->storage, LOC_SCRIPT_INSTANCE);
+		assertEqual(script_this->offset, 0);
+
+		// Instance variables resolve from instance functions (`run`), but not from
+		// static script functions - there is no instance to read from there.
+		const DebugScope* run_fn_scope = resolveScope(debugData, "scopes.run", file_scope);
+		assertTrue(resolveSymbol(debugData, "script_scoped_local", run_fn_scope) == script_inst_var);
+		const DebugScope* static_fn_scope = resolveScope(debugData, "scopes.scriptFunction", file_scope);
+		assertTrue(static_fn_scope->flags & SCOPE_FLAG_STATIC_FN);
+		assertTrue(debugData.resolveSymbol("script_scoped_local", static_fn_scope) == nullptr);
+		assertTrue(debugData.resolveSymbol("this", static_fn_scope) == nullptr);
+		// Static script members still resolve from static functions.
+		assertEqual(resolveSymbol(debugData, "SCRIPT_SCOPED_GLOBAL", static_fn_scope)->storage, LOC_GLOBAL);
 		// Namespace variables require '::' (not '.'):
 		resolveSymbol(debugData, "A::cl", file_scope);
 		assertTrue(debugData.resolveSymbol("A.cl", file_scope) == nullptr);
@@ -365,6 +390,7 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 
 		std::map<int32_t, int32_t> stack;
 		std::map<int32_t, int32_t> globals;
+		std::map<int32_t, int32_t> scriptvars;
 		std::map<int32_t, int32_t> registers;
 		std::map<int32_t, std::map<int32_t, int32_t>> heap; // ObjPtr -> { Offset -> Val }
 		
@@ -379,6 +405,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		int32_t readGlobal(int32_t idx) override
 		{
 			return globals[idx];
+		}
+
+		int32_t readScript(int32_t idx) override
+		{
+			return scriptvars[idx];
 		}
 
 		int32_t readRegister(int32_t id) override
@@ -413,6 +444,10 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		}
 
 		void writeGlobal(int32_t, int32_t) override
+		{
+		}
+
+		void writeScript(int32_t, int32_t) override
 		{
 		}
 
@@ -691,6 +726,21 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 
 			val = eval("GLOBAL_VAR + 10");
 			assertEqual(val.raw_value, 60 * FIXED_ONE);
+		}
+
+		// Script instance variables.
+		{
+			const DebugScope* run_fn_scope = resolveScope(debugData, "scopes.run", root_scope);
+			const DebugSymbol* script_inst_var = resolveSymbol(debugData, "script_scoped_local", run_fn_scope);
+			assertEqual(script_inst_var->storage, LOC_SCRIPT_INSTANCE);
+			vm.scriptvars[script_inst_var->offset] = 456 * FIXED_ONE;
+
+			auto val = eval("script_scoped_local", run_fn_scope);
+			assertEqual(val.raw_value, 456 * FIXED_ONE);
+
+			// No instance to read from inside a static script function.
+			const DebugScope* static_fn_scope = resolveScope(debugData, "scopes.scriptFunction", root_scope);
+			assertThrows(eval("script_scoped_local", static_fn_scope));
 		}
 
 		// Bitflags.

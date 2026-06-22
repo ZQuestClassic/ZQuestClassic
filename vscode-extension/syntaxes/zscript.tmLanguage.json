@@ -176,7 +176,7 @@
 				},
 				{
 					"name": "storage.modifier.zscript",
-					"match": "\\b(const|inline|internal|constexpr|static|readonly)\\b"
+					"match": "\\b(const|inline|internal|constexpr|static|nonstatic|readonly)\\b"
 				},
 				{
 					"name": "support.function.zscript",

@@ -1,0 +1,156 @@
+stderr:
+
+Compiling 'after_err_2.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+after_err_2.zs Line 33 @ Columns 9-13 - Error S110: Variable this is not static, so cannot be accessed externally.
+
+31    static void static_print()
+32    {
+33        Trace(this); // Error: can't access instance vars without instance
+                ^~~~
+
+
+after_err_2.zs Line 43 @ Columns 3-12 - Error T111: Function foo.print() is not static, so cannot be accessed externally.
+
+41    void run()
+42    {
+43        foo.print(); // Error: can't call instance funcs without instance
+          ^~~~~~~~~
+
+
+after_err_2.zs Line 45 @ Columns 3-8 - Error S110: Variable foo.a is not static, so cannot be accessed externally.
+
+43    foo.print(); // Error: can't call instance funcs without instance
+44    foo.static_print();
+45    foo.a = 7; // Error: can't access instance vars without instance
+      ^~~~~
+
+
+after_err_2.zs Line 46 @ Columns 3-8 - Error S110: Variable foo.b is not static, so cannot be accessed externally.
+
+44    foo.static_print();
+45    foo.a = 7; // Error: can't access instance vars without instance
+46    foo.b = 42; // Error: can't access instance vars without instance
+      ^~~~~
+
+
+after_err_2.zs Line 49 @ Columns 9-14 - Error S110: Variable foo.a is not static, so cannot be accessed externally.
+
+47    foo.c = 3;
+48    foo.d = 9;
+49    Trace(foo.a); // Error: can't access instance vars without instance
+            ^~~~~
+
+
+after_err_2.zs Line 50 @ Columns 9-14 - Error S110: Variable foo.b is not static, so cannot be accessed externally.
+
+48    foo.d = 9;
+49    Trace(foo.a); // Error: can't access instance vars without instance
+50    Trace(foo.b); // Error: can't access instance vars without instance
+            ^~~~~
+
+
+Failure!
+Compile finished with exit code '110' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 110,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 8
+        },
+        "end": {
+          "line": 32,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable this is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 2
+        },
+        "end": {
+          "line": 42,
+          "character": 11
+        }
+      },
+      "severity": 1,
+      "message": "T111: Function foo.print() is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 44,
+          "character": 2
+        },
+        "end": {
+          "line": 44,
+          "character": 7
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable foo.a is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 2
+        },
+        "end": {
+          "line": 45,
+          "character": 7
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable foo.b is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 48,
+          "character": 8
+        },
+        "end": {
+          "line": 48,
+          "character": 13
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable foo.a is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 49,
+          "character": 8
+        },
+        "end": {
+          "line": 49,
+          "character": 13
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable foo.b is not static, so cannot be accessed externally."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 11,
+    "symbols": 12,
+    "identifiers": 47,
+    "elided": true
+  }
+}

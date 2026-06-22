@@ -27,8 +27,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -49,7 +48,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 31 ==; Test 'if'
+GOTOCMP 30 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -76,23 +75,22 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 54 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 46; while() #1 End
-CALLFUNC 0.0106; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #1 End
+CALLFUNC 0.0103; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-SETR D4 SP2
+SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0084; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0081; UsrFunc[void Init(int)] Call
 POP D4
 SETV D2 4; if() #10 Test
 PUSHR D2
 POP D0
 SETR D2 BUTTONINPUT
 COMPAREV D2 0
-GOTOCMP 82 !=; Test 'if' AND return (Void) AND if() #10 Body
+GOTOCMP 80 !=; Test 'if' AND return (Void) AND if() #10 Body
 NOP
 SETV D2 1
 PUSHR D2
@@ -106,8 +104,7 @@ PUSHR D2
 POP D2
 SETR LINKHP D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn]
-GOTO 80; while() #2 End
-POP D5
+GOTO 78; while() #2 End
 RETURNFUNC; void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
@@ -122,7 +119,7 @@ LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 103 ==; Test 'if'
+GOTOCMP 100 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start

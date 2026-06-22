@@ -715,7 +715,7 @@ DebugValue ExpressionEvaluator::readSymbol(const DebugSymbol* sym)
 		if (auto v = vm.readObjectMember(DebugValue{thisPtr, nullptr}, sym))
 			return v.value();
 	}
-
+	
 	DebugValue v{};
 	v.type = debugData.getType(sym->type_id);
 	v.is_lvalue = true;
@@ -724,6 +724,8 @@ DebugValue ExpressionEvaluator::readSymbol(const DebugSymbol* sym)
 		v.raw_value = sym->offset;
 	else if (sym->storage == LOC_GLOBAL)
 		v.raw_value = vm.readGlobal(sym->offset);
+	else if (sym->storage == LOC_SCRIPT_INSTANCE)
+		v.raw_value = vm.readScript(sym->offset);
 	else if (sym->storage == LOC_STACK)
 		v.raw_value = vm.readStack(sym->offset);
 	else if (sym->storage == LOC_REGISTER)
@@ -753,9 +755,11 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 			DebugValue previous_value = readSymbol(sym);
 			vm.decreaseObjectReference(previous_value, sym);
 		}
-
+		
 		if (sym->storage == LOC_GLOBAL)
 			vm.writeGlobal(sym->offset, val.raw_value);
+		else if (sym->storage == LOC_SCRIPT_INSTANCE)
+			vm.writeScript(sym->offset, val.raw_value);
 		else if (sym->storage == LOC_STACK)
 			vm.writeStack(sym->offset, val.raw_value);
 		else if (sym->storage == LOC_REGISTER)

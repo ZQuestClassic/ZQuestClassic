@@ -60,7 +60,7 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 	}
 	
 
-	bool is_classvar = parsing_user_class == puc_vars;
+	bool is_func_var = scope->getFunctionScope();
 	optional<int32_t> const_value;
 	if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR) && !(list && list->internal))
 	{
@@ -72,13 +72,20 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		}
 
 		// Inline the constant if possible.
+		scope->in_static_init = !is_func_var;
 		const_value = host.getInitializer()->getCompileTimeValue(this, scope);
+		scope->in_static_init = false;
 		
-		//The dataType is constant, but the initializer is not. This is not allowed in static scopes, as it causes crashes. -V
-		if (!const_value && (scope->isGlobal() || scope->isScript() || scope->isClass()))
+		if (!is_func_var)
 		{
-			handleError(CompileError::ConstNotConstant(&host, host.getName()));
-			return;
+			if (const_value)
+				list->is_static = true; // force the list to be static
+			else
+			{
+				// Non-function scopes require constant initializers for constants.
+				handleError(CompileError::ConstNotConstant(&host, host.getName()));
+				return;
+			}
 		}
 		
 		if (const_value)
@@ -94,6 +101,9 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		}
 	}
 	
+	bool is_static = host.is_static();
+	bool is_classvar = parsing_user_class == puc_vars && !is_static;
+	bool is_scriptvar = !is_static && scope->isScript();
 	if (is_classvar)
 	{
 		if (host.getInitializer())
@@ -121,7 +131,20 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		}
 		return;
 	}
-		
+	
+	if (is_scriptvar)
+	{
+		if (auto* init = host.getInitializer())
+		{
+			const_value = init->getCompileTimeValue(this, scope);
+			if (!const_value)
+			{
+				handleError(CompileError::ExprNotConstant(init));
+				return;
+			}
+		}
+	}
+	
 	if (scope->getLocalDatum(host.getName()))
 	{
 		handleError(CompileError::VarRedef(&host, host.getName()));
@@ -137,7 +160,9 @@ void RegBaseVisitor::handle_data_decl_registry(ASTDataDecl& host)
 		return;
 	}
 	
-	Variable::create(*scope, host, *type, this);
+	auto* var = Variable::create(*scope, host, *type, this);
+	if (is_scriptvar)
+		scope->getScriptScope()->script.register_instance_var(var, const_value);
 }
 
 

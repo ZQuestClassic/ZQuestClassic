@@ -27,8 +27,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -49,7 +48,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 31 ==; Test 'if'
+GOTOCMP 30 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -76,17 +75,16 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 54 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 46; while() #1 End
-CALLFUNC 0.0204; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #1 End
+CALLFUNC 0.0202; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0007
+PUSHARGSV 0 0.0007; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0182; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0180; UsrFunc[void Init(int)] Call
 POP D4
 SETR D2 GAMETIME
 STORE D2 0.0006
@@ -104,7 +102,7 @@ PUSHR D2
 ALLOCATEMEMV D2 42 0
 WRITEPODSTRING D2 "Game->Time must change across a Waitframe"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0239; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0237; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0005; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -116,7 +114,7 @@ PUSHR D2
 ALLOCATEMEMV D2 43 0
 WRITEPODSTRING D2 "Game->Time must advance across a Waitframe"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0239; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0237; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETR D2 GAMETIME
 STORE D2 0.0004
@@ -134,7 +132,7 @@ PUSHR D2
 ALLOCATEMEMV D2 46 0
 WRITEPODSTRING D2 "Game->Time must change across a Waitframe (2)"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0239; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0237; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -146,7 +144,7 @@ PUSHR D2
 ALLOCATEMEMV D2 47 0
 WRITEPODSTRING D2 "Game->Time must advance across a Waitframe (2)"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0239; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0237; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
 LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
@@ -188,7 +186,7 @@ PUSHR D2
 ALLOCATEMEMV D2 50 0
 WRITEPODSTRING D2 "CurScreen must change across the warp's Waitframe"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0239; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0237; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -196,7 +194,7 @@ PUSHV 0
 ALLOCATEMEMV D2 67 0
 WRITEPODSTRING D2 "CurScreen should still be the old screen before the warp Waitframe"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0211; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0209; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -204,9 +202,9 @@ PUSHV 1
 ALLOCATEMEMV D2 61 0
 WRITEPODSTRING D2 "CurScreen should be the warp destination after the Waitframe"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0211; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0209; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
-CALLFUNC 0.0204; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0202; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -220,7 +218,7 @@ LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 201 ==; Test 'if'
+GOTOCMP 199 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -246,7 +244,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 235 ==; Test 'if'
+GOTOCMP 233 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #11 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -269,10 +267,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #10 Test
 COMPAREV D2 0
-GOTOCMP 248 !=; Test 'unless'
+GOTOCMP 246 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #10 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0252; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #10 Body End
+CALLFUNC 0.0250; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #10 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -286,7 +284,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 271 ==; Test 'if'
+GOTOCMP 269 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -295,7 +293,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 276; if() #1 Body End
+GOTO 274; if() #1 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End

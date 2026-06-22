@@ -660,9 +660,10 @@ void Debugger::UpdateVariables()
 
 	variable_groups.clear();
 
-	variable_groups.reserve(3);
+	variable_groups.reserve(4);
 	auto& local_group = variable_groups.emplace_back("Local");
 	auto& class_group = variable_groups.emplace_back("Class");
+	auto& script_group = variable_groups.emplace_back("Script");
 	auto& global_group = variable_groups.emplace_back("Global");
 
 	const DebugScope* scope = selected_scope;
@@ -677,9 +678,9 @@ void Debugger::UpdateVariables()
 			if (symbol->flags & SYM_FLAG_HIDDEN)
 				continue;
 
-			// Class instance variables have no instance to read from when the
+			// Instance variables have no instance to read from when the
 			// paused function is static.
-			if (symbol->storage == LOC_CLASS && crossed_static_fn)
+			if (crossed_static_fn && (symbol->storage == LOC_CLASS || symbol->storage == LOC_SCRIPT_INSTANCE))
 				continue;
 
 			DebugValue value = eval.readSymbol(symbol);
@@ -693,6 +694,8 @@ void Debugger::UpdateVariables()
 				class_group.variables.push_back(var);
 			else if (scope->tag == TAG_ROOT || scope->tag == TAG_FILE || scope->tag == TAG_NAMESPACE)
 				global_group.variables.push_back(var);
+			else if (scope->tag == TAG_SCRIPT)
+				script_group.variables.push_back(var);
 			else
 				local_group.variables.push_back(var);
 		}

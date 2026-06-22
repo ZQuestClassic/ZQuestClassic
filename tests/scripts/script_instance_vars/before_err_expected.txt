@@ -1,0 +1,68 @@
+stderr:
+
+Compiling 'before_err.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+before_err.zs Line 25 @ Columns 9-13 - Error S110: Variable this is not static, so cannot be accessed externally.
+
+23    void print()
+24    {
+25        Trace(this); // Error: can't access instance vars without instance
+                ^~~~
+
+
+before_err.zs Line 31 @ Columns 9-13 - Error S110: Variable this is not static, so cannot be accessed externally.
+
+29    static void static_print()
+30    {
+31        Trace(this); // Error: can't access instance vars without instance
+                ^~~~
+
+
+Failure!
+Compile finished with exit code '110' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 110,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 24,
+          "character": 8
+        },
+        "end": {
+          "line": 24,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable this is not static, so cannot be accessed externally."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 8
+        },
+        "end": {
+          "line": 30,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S110: Variable this is not static, so cannot be accessed externally."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 11,
+    "symbols": 12,
+    "identifiers": 54,
+    "elided": true
+  }
+}

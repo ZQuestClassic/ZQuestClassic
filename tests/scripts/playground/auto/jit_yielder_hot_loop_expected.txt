@@ -27,8 +27,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -49,7 +48,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 31 ==; Test 'if'
+GOTOCMP 30 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -76,17 +75,16 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 54 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 46; while() #1 End
-CALLFUNC 0.0262; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #1 End
+CALLFUNC 0.0260; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0009
+PUSHARGSV 0 0.0009; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0240; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0238; UsrFunc[void Init(int)] Call
 POP D4
 STOREV 0 0.0008
 STOREV 0 0.0007; for() #10 setup
@@ -94,7 +92,7 @@ LOAD D2 0.0007; for() #10 LoopTest
 COMPAREV D2 20000
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 83 ==; for() #10 TestFail?
+GOTOCMP 81 ==; for() #10 TestFail?
 LOAD D2 0.0008; for() #10 Body Start
 PUSHR D2
 LOAD D2 0.0007
@@ -107,7 +105,7 @@ STORE D2 0.0008; for() #10 Body End
 LOAD D2 0.0007; for() #10 LoopIncrement
 ADDV D2 1
 STORE D2 0.0007
-GOTO 65; for() #10 End
+GOTO 63; for() #10 End
 NOP
 STOREV 0 0.0007
 STOREV 0 0.0006; for() #11 setup
@@ -115,13 +113,13 @@ LOAD D2 0.0006; for() #11 LoopTest
 COMPAREV D2 150
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 117 ==; for() #11 TestFail?
+GOTOCMP 115 ==; for() #11 TestFail?
 STOREV 0 0.0005; for() #12 setup AND for() #11 Body Start
 LOAD D2 0.0005; for() #12 LoopTest
 COMPAREV D2 150
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 112 ==; for() #12 TestFail?
+GOTOCMP 110 ==; for() #12 TestFail?
 LOAD D2 0.0007; for() #12 Body Start
 PUSHR D2
 LOAD D2 0.0006
@@ -136,12 +134,12 @@ STORE D2 0.0007; for() #12 Body End
 LOAD D2 0.0005; for() #12 LoopIncrement
 ADDV D2 1
 STORE D2 0.0005
-GOTO 92; for() #12 End
+GOTO 90; for() #12 End
 NOP; for() #11 Body End
 LOAD D2 0.0006; for() #11 LoopIncrement
 ADDV D2 1
 STORE D2 0.0006
-GOTO 86; for() #11 End
+GOTO 84; for() #11 End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body
 STOREV 0 0.0006
@@ -150,7 +148,7 @@ LOAD D2 0.0005; for() #13 LoopTest
 COMPAREV D2 20000
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 139 ==; for() #13 TestFail?
+GOTOCMP 137 ==; for() #13 TestFail?
 LOAD D2 0.0006; for() #13 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -163,7 +161,7 @@ STORE D2 0.0006; for() #13 Body End
 LOAD D2 0.0005; for() #13 LoopIncrement
 ADDV D2 1
 STORE D2 0.0005
-GOTO 121; for() #13 End
+GOTO 119; for() #13 End
 NOP
 STOREV 0 0.0005
 STOREV 0 0.0004; for() #14 setup
@@ -171,12 +169,12 @@ LOAD D2 0.0004; for() #14 LoopTest
 COMPAREV D2 1000
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 161 ==; for() #14 TestFail?
+GOTOCMP 159 ==; for() #14 TestFail?
 LOAD D2 0.0005; if() #12 Test AND for() #14 Body Start
 COMPAREV D2 994
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 161 !=; Test 'if' AND break 1; AND if() #12 Body
+GOTOCMP 159 !=; Test 'if' AND break 1; AND if() #12 Body
 NOP
 LOAD D2 0.0005
 ADDV D2 7
@@ -185,33 +183,33 @@ STORE D2 0.0005; for() #14 Body End
 LOAD D2 0.0004; for() #14 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 142; for() #14 End
+GOTO 140; for() #14 End
 NOP
 PUSHR D4
 PUSHV 20000; UsrFunc[int hot(int)] Params
-CALLFUNC 0.0291; UsrFunc[int hot(int)] Call
+CALLFUNC 0.0289; UsrFunc[int hot(int)] Call
 POP D4
 STORE D2 0.0004
 PUSHR D4
 PUSHARGSV 150 0.0002; UsrFunc[int hot_nested(int, int)] Params Start AND UsrFunc[int hot_nested(int, int)] Params End
-CALLFUNC 0.0320; UsrFunc[int hot_nested(int, int)] Call
+CALLFUNC 0.0318; UsrFunc[int hot_nested(int, int)] Call
 POP D4
 STORE D2 0.0003
 WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR D4
 PUSHV 20000; UsrFunc[int hot(int)] Params
-CALLFUNC 0.0291; UsrFunc[int hot(int)] Call
+CALLFUNC 0.0289; UsrFunc[int hot(int)] Call
 POP D4
 STORE D2 0.0002
 PUSHR D4
 PUSHV 1000; UsrFunc[int hot_break(int, int)] Params Start
 PUSHV 994; UsrFunc[int hot_break(int, int)] Params End
-CALLFUNC 0.0365; UsrFunc[int hot_break(int, int)] Call
+CALLFUNC 0.0363; UsrFunc[int hot_break(int, int)] Call
 POP D4
 STORE D2 0.0001
 PUSHR D4
 PUSHV 5000; UsrFunc[int hot_return(int)] Params
-CALLFUNC 0.0398; UsrFunc[int hot_return(int)] Call
+CALLFUNC 0.0396; UsrFunc[int hot_return(int)] Call
 POP D4
 STORE D2 0
 WAITFRAME; InlineFunc[void Waitframe()] Body
@@ -219,52 +217,52 @@ PUSHR D4
 LOAD D2 0.0008; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 64302; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0007; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 2547; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0006; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0008
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0005; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 994; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0008
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 2547; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0002; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0.0001; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 994; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 PEEK D4
 LOAD D2 0; UsrFunc[void AssertEqual(int, int)] Params Start
 PUSHR D2
 PUSHV 1018; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0269; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0267; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0262; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0260; UsrFunc[void End()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void Init(int)] Body Start
 ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
 WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
@@ -278,7 +276,7 @@ LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 259 ==; Test 'if'
+GOTOCMP 257 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -302,7 +300,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 288 ==; Test 'if'
+GOTOCMP 286 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #13 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -327,7 +325,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 316 ==; for() #5 TestFail?
+GOTOCMP 314 ==; for() #5 TestFail?
 LOAD D2 0.0001; for() #5 Body Start
 PUSHR D2
 LOAD D2 0
@@ -340,7 +338,7 @@ STORE D2 0.0001; for() #5 Body End
 LOAD D2 0; for() #5 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 295; for() #5 End
+GOTO 293; for() #5 End
 NOP
 LOAD D2 0.0001; return Start
 POPARGS D5 0.0003; return End
@@ -356,7 +354,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 361 ==; for() #7 TestFail?
+GOTOCMP 359 ==; for() #7 TestFail?
 STOREV 0 0; for() #8 setup AND for() #7 Body Start
 LOAD D2 0; for() #8 LoopTest
 PUSHR D2
@@ -365,7 +363,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 356 ==; for() #8 TestFail?
+GOTOCMP 354 ==; for() #8 TestFail?
 LOAD D2 0.0002; for() #8 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -380,12 +378,12 @@ STORE D2 0.0002; for() #8 Body End
 LOAD D2 0; for() #8 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 333; for() #8 End
+GOTO 331; for() #8 End
 NOP; for() #7 Body End
 LOAD D2 0.0001; for() #7 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 324; for() #7 End
+GOTO 322; for() #7 End
 NOP
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0005; return End
@@ -401,7 +399,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 394 ==; for() #6 TestFail?
+GOTOCMP 392 ==; for() #6 TestFail?
 LOAD D2 0.0001; if() #10 Test AND for() #6 Body Start
 PUSHR D2
 LOAD D2 0.0002
@@ -409,7 +407,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 394 !=; Test 'if' AND break 1; AND if() #10 Body
+GOTOCMP 392 !=; Test 'if' AND break 1; AND if() #10 Body
 NOP
 LOAD D2 0.0001
 ADDV D2 7
@@ -418,7 +416,7 @@ STORE D2 0.0001; for() #6 Body End
 LOAD D2 0; for() #6 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 369; for() #6 End
+GOTO 367; for() #6 End
 NOP
 LOAD D2 0.0001; return Start
 POPARGS D5 0.0004; return End
@@ -434,7 +432,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 426 ==; for() #9 TestFail?
+GOTOCMP 424 ==; for() #9 TestFail?
 LOAD D2 0.0001; for() #9 Body Start
 MULTV D2 3
 MODV D2 2039
@@ -443,14 +441,14 @@ LOAD D2 0.0001; if() #11 Test
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 421 ==; Test 'if'
+GOTOCMP 419 ==; Test 'if'
 LOAD D2 0; return Start AND if() #11 Body Start
-GOTO 428; return End AND if() #11 Body End
+GOTO 426; return End AND if() #11 Body End
 NOP; for() #9 Body End
 LOAD D2 0; for() #9 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 402; for() #9 End
+GOTO 400; for() #9 End
 NOP
 SETV D2 -1; return Start
 POPARGS D5 0.0003; return End

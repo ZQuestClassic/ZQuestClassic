@@ -131,13 +131,13 @@ repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
 internal		TOKEN( INTERNAL );
 static			TOKEN( STATIC );
+nonstatic			TOKEN( NONSTATIC );
 constexpr			TOKEN( CONSTEXPR );
 new			TOKEN( NEW );
 delete			TOKEN( DELETE );
 CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
-auto		TOKEN( ZAUTO );
 void		TOKEN( ZVOID );
 untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
@@ -311,7 +311,10 @@ appx_equal	TOKEN( APPXEQUAL );
 	off			VALUE( NUMBER, ASTFloat("0", ASTFloat::TYPE_DECIMAL, yylloc) );
 	error			VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
 	warn			VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
+	auto			VALUE( NUMBER, ASTFloat("-1", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
+ /* auto type needs to be after hash commands */
+auto		TOKEN( ZAUTO );
 
  /* Strings */
 <INITIAL>\"		{

@@ -17,6 +17,7 @@ struct VM : VMInterface
 
 	int32_t readStack(int32_t offset) override;
 	int32_t readGlobal(int32_t idx) override;
+	int32_t readScript(int32_t idx) override;
 	int32_t readRegister(int32_t id) override;
 	std::optional<DebugValue> readObjectMember(DebugValue object, const DebugSymbol* sym) override;
 	std::optional<std::vector<DebugValue>> readArray(DebugValue array) override;
@@ -24,6 +25,7 @@ struct VM : VMInterface
 	std::optional<int32_t> readArraySize(DebugValue array) override;
 	std::optional<std::string> readString(int32_t string_ptr) override;
 	void writeGlobal(int32_t offset, int32_t value) override;
+	void writeScript(int32_t offset, int32_t value) override;
 	void writeStack(int32_t offset, int32_t value) override;
 	void writeRegister(int32_t offset, int32_t value) override;
 	bool writeObjectMember(DebugValue object, const DebugSymbol* sym, DebugValue value) override;
