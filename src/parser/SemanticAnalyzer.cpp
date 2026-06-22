@@ -882,7 +882,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// Member functions of a templated class implicitly take the class's template
 	// types. They are bound from the receiver's type at each call site, rather
 	// than inferred from arguments (see lookupClassFuncs).
-	if (ClassScope* c_scope = scope->getClass())
+	if (ClassScope* c_scope = scope->getClassScope())
 	{
 		UserClass& containing_class = c_scope->user_class;
 		if (!containing_class.template_types.empty())
@@ -1120,7 +1120,7 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		Function& func = *defcon->func;
 		std::vector<std::shared_ptr<Opcode>> code;
 
-		ClassScope* cscope = func.getInternalScope()->getClass();
+		ClassScope* cscope = func.getInternalScope()->getClassScope();
 		UserClass& user_class = cscope->user_class;
 		vector<Function*> destr = cscope->getDestructor();
 		Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
@@ -1579,7 +1579,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		{
 			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
 			{
-				user_class = &scope->getClass()->user_class;
+				user_class = &scope->getClassScope()->user_class;
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())

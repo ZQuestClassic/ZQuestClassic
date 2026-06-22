@@ -516,7 +516,7 @@ UserClassVar* ZScript::lookupClassVars(Scope& scope, ASTExprIdentifier& host, Co
 	vector<string> names = host.components;
 	if (names.size() != 1)
 		return nullptr;
-	ClassScope* cscope = scope.getClass();
+	ClassScope* cscope = scope.getClassScope();
 	if(!cscope) return nullptr;
 	return cscope->getClassVar(names[0]);
 }
@@ -945,7 +945,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		{
 			continue;
 		}
-		if(trimClasses && function->getInternalScope()->getClass() && !function->getFlag(FUNCFLAG_STATIC))
+		if(trimClasses && function->getInternalScope()->getClassScope() && !function->getFlag(FUNCFLAG_STATIC))
 		{
 			continue;
 		}
@@ -1310,7 +1310,7 @@ vector<Scope*> BasicScope::getChildren() const
 	return results;
 }
 
-ScriptScope* BasicScope::getScript()
+ScriptScope* BasicScope::getScriptScope()
 {
 	if(isScript())
 	{
@@ -1319,12 +1319,13 @@ ScriptScope* BasicScope::getScript()
 	}
 	for(Scope* parent = getParent(); parent; parent = parent->getParent())
 	{
-		if(parent->isScript()) return dynamic_cast<ScriptScope*>(parent);
+		if(parent->isScript())
+			return static_cast<ScriptScope*>(parent);
 	}
 	return NULL;
 }
 
-ClassScope* BasicScope::getClass()
+ClassScope* BasicScope::getClassScope()
 {
 	if(isClass())
 	{
@@ -1333,7 +1334,23 @@ ClassScope* BasicScope::getClass()
 	}
 	for(Scope* parent = getParent(); parent; parent = parent->getParent())
 	{
-		if(parent->isClass()) return dynamic_cast<ClassScope*>(parent);
+		if(parent->isClass())
+			return static_cast<ClassScope*>(parent);
+	}
+	return NULL;
+}
+
+FunctionScope* BasicScope::getFunctionScope()
+{
+	if(isFunction())
+	{
+		Scope* temp = this;
+		return static_cast<FunctionScope*>(temp);
+	}
+	for(Scope* parent = getParent(); parent; parent = parent->getParent())
+	{
+		if(parent->isFunction())
+			return static_cast<FunctionScope*>(parent);
 	}
 	return NULL;
 }
