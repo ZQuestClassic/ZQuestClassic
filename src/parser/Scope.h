@@ -82,8 +82,11 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const = 0;
 		virtual FileScope* getFile() const = 0;
 		virtual ScriptScope* getScriptScope() = 0;
+		virtual ScriptScope const* getScriptScope() const = 0;
 		virtual ClassScope* getClassScope() = 0;
+		virtual ClassScope const* getClassScope() const = 0;
 		virtual FunctionScope* getFunctionScope() = 0;
+		virtual FunctionScope const* getFunctionScope() const = 0;
 		virtual int32_t useNamespace(std::string name, bool noUsing) = 0;
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing) = 0;
 	
@@ -328,8 +331,11 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const;
 		virtual FileScope* getFile() const {return parentFile_;}
 		virtual ScriptScope* getScriptScope();
+		virtual ScriptScope const* getScriptScope() const;
 		virtual ClassScope* getClassScope();
+		virtual ClassScope const* getClassScope() const;
 		virtual FunctionScope* getFunctionScope();
+		virtual FunctionScope const* getFunctionScope() const;
 		virtual int32_t useNamespace(std::string name, bool noUsing);
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing);
 	

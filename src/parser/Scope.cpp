@@ -1261,49 +1261,57 @@ vector<Scope*> BasicScope::getChildren() const
 	return results;
 }
 
+template<typename T>
+static T get_scope_type(Scope* current)
+{
+	while (current)
+	{
+		if (T ptr = dynamic_cast<T>(current))
+			return ptr;
+		current = current->getParent();
+	}
+	return nullptr;
+}
+template<typename T>
+static T get_cscope_type(Scope const* current)
+{
+	while (current)
+	{
+		if (T ptr = dynamic_cast<T>(current))
+			return ptr;
+		current = current->getParent();
+	}
+	return nullptr;
+}
+
 ScriptScope* BasicScope::getScriptScope()
 {
-	if(isScript())
-	{
-		Scope* temp = this;
-		return static_cast<ScriptScope*>(temp);
-	}
-	for(Scope* parent = getParent(); parent; parent = parent->getParent())
-	{
-		if(parent->isScript())
-			return static_cast<ScriptScope*>(parent);
-	}
-	return NULL;
+	return get_scope_type<ScriptScope*>(this);
+}
+
+ScriptScope const* BasicScope::getScriptScope() const
+{
+	return get_cscope_type<ScriptScope const*>((Scope const*)this);
 }
 
 ClassScope* BasicScope::getClassScope()
 {
-	if(isClass())
-	{
-		Scope* temp = this;
-		return static_cast<ClassScope*>(temp);
-	}
-	for(Scope* parent = getParent(); parent; parent = parent->getParent())
-	{
-		if(parent->isClass())
-			return static_cast<ClassScope*>(parent);
-	}
-	return NULL;
+	return get_scope_type<ClassScope*>(this);
+}
+
+ClassScope const* BasicScope::getClassScope() const
+{
+	return get_cscope_type<ClassScope const*>((Scope const*)this);
 }
 
 FunctionScope* BasicScope::getFunctionScope()
 {
-	if(isFunction())
-	{
-		Scope* temp = this;
-		return static_cast<FunctionScope*>(temp);
-	}
-	for(Scope* parent = getParent(); parent; parent = parent->getParent())
-	{
-		if(parent->isFunction())
-			return static_cast<FunctionScope*>(parent);
-	}
-	return NULL;
+	return get_scope_type<FunctionScope*>(this);
+}
+
+FunctionScope const* BasicScope::getFunctionScope() const
+{
+	return get_cscope_type<FunctionScope const*>((Scope const*)this);
 }
 
 int32_t BasicScope::useNamespace(vector<std::string> names, vector<std::string> delimiters, bool noUsing)
