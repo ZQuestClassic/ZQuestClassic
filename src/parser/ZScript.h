@@ -340,7 +340,7 @@ namespace ZScript
 		std::optional<std::string> getName() const {return node.getName();}
 		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
-		UserClass* getClass() const {return &(scope.getClass()->user_class);}
+		UserClass* getClass() const {return &(scope.getClassScope()->user_class);}
 		int32_t getIndex() const {return _index;}
 		void setIndex(int32_t ind) {_index = ind;}
 		int32_t getOrder() const {return _order_ind;}

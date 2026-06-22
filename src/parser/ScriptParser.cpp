@@ -751,7 +751,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		}
 		else if (classfunc)
 		{
-			UserClass& user_class = scope->getClass()->user_class;
+			UserClass& user_class = scope->getClassScope()->user_class;
 			
 			vector<std::shared_ptr<Opcode>> funccode;
 			
@@ -2838,7 +2838,7 @@ void ScriptAssembler::finalize_debug_scopes(ScopeProcessingContext& ctx)
 	for (size_t i = 0; i < ctx.debug_data.scopes.size(); i++)
 	{
 		if (ctx.debug_data.scopes[i].tag == TAG_CLASS && ctx.compiler_scopes[i])
-			class_scope_map[&ctx.compiler_scopes[i]->getClass()->user_class] = i;
+			class_scope_map[&ctx.compiler_scopes[i]->getClassScope()->user_class] = i;
 	}
 
 	DebugTypeBuilder type_builder(ctx.debug_data.types);
