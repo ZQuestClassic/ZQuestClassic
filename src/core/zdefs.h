@@ -136,7 +136,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           9
-#define V_RULES           17
+#define V_RULES           18
 #define V_STRINGS         12
 #define V_MISC            21
 #define V_TILES            4 //3 added blank tile optimization and 4-bit packing; 4 used by .ztileset
@@ -161,7 +161,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        20
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         29
+#define V_FFSCRIPT         30
 #define V_SFX              9
 #define V_FAVORITES        4
 #define V_ZINFO            5
@@ -169,6 +169,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 // not 'real' sections, just separate version numbers
 #define V_COMPATRULE       117
+
+#define V_COMPILESETTING   1
 
 #define V_WEAP_DATA        4
 
@@ -1298,6 +1300,8 @@ public:
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
 	bool overflow;
+	bounded_vec<word, int32_t> script_d {MAX_SCRIPT_INST_VARIABLES, 0};
+	std::set<uint32_t> script_d_is_object;
 
 	void Clear()
 	{
@@ -1679,6 +1683,9 @@ struct script_data
 	uint32_t pc;
 	// Exclusive.
 	uint32_t end_pc;
+	
+	// Initializer values for instance vars
+	bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
 
 	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
@@ -1700,6 +1707,14 @@ struct script_data
 		zasm_script = nullptr;
 		pc = 0;
 		end_pc = 0;
+	}
+	
+	void clear()
+	{
+		zasm_script = nullptr;
+		pc = end_pc = 0;
+		meta.zero();
+		script_d_init.clear();
 	}
 };
 

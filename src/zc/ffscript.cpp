@@ -1393,6 +1393,29 @@ static script_data* get_script_safe(ScriptType type, int script)
 	return nullptr;
 }
 
+static void clear_script_variables()
+{
+	vector<int> ids_to_clear;
+	for (uint32_t offset : ri->script_d_is_object)
+	{
+		ids_to_clear.push_back(ri->script_d[offset]);
+	}
+	ri->script_d.clear();
+	ri->script_d_is_object.clear();
+	for (auto id : ids_to_clear)
+		script_object_ref_dec(id);
+}
+static void reset_script_variables()
+{
+	clear_script_variables();
+	auto const& initv = curscript->script_d_init;
+	for (auto [id, val] : initv.inner())
+	{
+		if (val)
+			ri->script_d[id] = val;
+	}
+}
+
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, script_data* sd, int index)
 {
 	bool got_initialized = false;
@@ -1420,11 +1443,13 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				mapscr* scr = get_scr(ffc->screen_spawned);
 				memcpy(ri->d, scr->ffcs[index % 128].initd, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = true;
 			}
 
 			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
 			ri->screenref = ffc->screen_spawned;
+			ri->script_d[0] = ri->ffcref;
 		}
 		break;
 		
@@ -1436,11 +1461,13 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = 1;
 			}
 			
 			ri->npcref = index;
 			ri->screenref = spr->screen_spawned;
+			ri->script_d[0] = ri->npcref;
 		}
 		break;
 		
@@ -1452,11 +1479,13 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = 1;
 			}
 			
 			ri->lwpnref = index;
 			ri->screenref = spr->screen_spawned;
+			ri->script_d[0] = ri->lwpnref;
 		}
 		break;
 		
@@ -1468,11 +1497,13 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = 1;
 			}
 			
 			ri->ewpnref = index;
 			ri->screenref = spr->screen_spawned;
+			ri->script_d[0] = ri->ewpnref;
 		}
 		break;
 		
@@ -1484,11 +1515,13 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = 1;
 			}
 			
 			ri->itemref = index;
 			ri->screenref = spr->screen_spawned;
+			ri->script_d[0] = ri->itemref;
 		}
 		break;
 		
@@ -1504,9 +1537,12 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				memcpy(ri->d, itemsbuf.get(new_i).initiald, 8 * sizeof(int32_t));
+				reset_script_variables();
 				data.initialized = true;
 			}			
-			ri->itemdataref = ( collect ) ? new_i : i; //'this' pointer
+			//'this' pointer
+			ri->itemdataref = ( collect ) ? new_i : i;
+			ri->script_d[0] = ri->itemdataref;
 		}
 		break;
 		
@@ -1515,15 +1551,17 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				data.initialized = 1;
 
 				// If this compat QR is on, scripts can run before ~Init and set global variables.
 				// Before overwriting them with 0, get rid of object references held by global variables.
 				if (get_qr(qr_OLD_INIT_SCRIPT_TIMING) && ZScriptVersion::gc() && script == GLOBAL_SCRIPT_INIT)
 				{
-					for (int i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+					for (int i = 0; i < MAX_GLOBAL_VARIABLES; i++)
 						script_object_ref_dec(game->global_d[i]);
 				}
+				
+				reset_script_variables();
+				data.initialized = 1;
 			}
 		}
 		break;
@@ -1536,9 +1574,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				scr.initd.copy_to(ri->d, 8);
+				reset_script_variables();
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
+			ri->script_d[0] = ri->genericdataref;
 		}
 		break;
 		
@@ -1549,9 +1589,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				scr.initd.copy_to(ri->d, 8);
+				reset_script_variables();
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
+			ri->script_d[0] = ri->genericdataref;
 		}
 		break;
 		
@@ -1561,6 +1603,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
+				reset_script_variables();
 				data.initialized = 1;
 			}
 		}
@@ -1574,11 +1617,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
 					ri->d[q] = DMaps[ri->dmapdataref].initD[q];// * 10000;
-				}
+				reset_script_variables();
 				data.initialized = true;
 			}
+			ri->script_d[0] = ri->dmapdataref;
 		}
 		break;
 		
@@ -1589,11 +1632,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
 					ri->d[q] = DMaps[ri->dmapdataref].onmap_initD[q];
-				}
+				reset_script_variables();
 				data.initialized = true;
 			}
+			ri->script_d[0] = ri->dmapdataref;
 		}
 		break;
 		
@@ -1604,11 +1647,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
 					ri->d[q] = DMaps[ri->dmapdataref].sub_initD[q];
-				}
+				reset_script_variables();
 				data.initialized = true;
 			}
+			ri->script_d[0] = ri->dmapdataref;
 		}
 		break;
 		
@@ -1619,11 +1662,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
 					ri->d[q] = DMaps[ri->dmapdataref].sub_initD[q];
-				}
+				reset_script_variables();
 				data.initialized = true;
 			}
+			ri->script_d[0] = ri->dmapdataref;
 		}
 		break;
 		case ScriptType::EngineSubscreen:
@@ -1635,11 +1678,11 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
 					ri->d[q] = ptr->initd[q];
-				}
+				reset_script_variables();
 				data.initialized = true;
 			}
+			ri->script_d[0] = ri->subscreendataref;
 		}
 		break;
 		
@@ -1650,9 +1693,8 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				got_initialized = true;
 				mapscr* scr = get_scr(index);
 				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = scr->screeninitd[q];// * 10000;
-				}
+					ri->d[q] = scr->screeninitd[q];
+				reset_script_variables();
 				data.initialized = true;
 			}
 
@@ -1672,12 +1714,14 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 				memset(ri->d, 0, 8 * sizeof(int32_t));
 				for ( int32_t q = 0; q < 8; q++ )
 					ri->d[q] = combobuf[id].initd[q];
+				reset_script_variables();
 				data.initialized = true;
 			}
 
 			ri->combodataref = id; //'this' pointer
 			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
 			ri->screenref = rpos_handle.screen;
+			ri->script_d[0] = ri->combodataref;
 			break;
 		}
 	}
@@ -2138,6 +2182,12 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 			ids_to_clear.push_back(id);
 		}
 		data.ref.stack_pos_is_object.clear();
+		for (uint32_t offset : data.ref.script_d_is_object)
+		{
+			uint32_t id = data.ref.script_d[offset];
+			ids_to_clear.push_back(id);
+		}
+		data.ref.script_d_is_object.clear();
 	}
 
 	if (ZScriptVersion::gc())
@@ -2186,6 +2236,12 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 				ids_to_clear.push_back(id);
 			}
 			data.ref.stack_pos_is_object.clear();
+			for (uint32_t offset : data.ref.script_d_is_object)
+			{
+				uint32_t id = data.ref.script_d[offset];
+				ids_to_clear.push_back(id);
+			}
+			data.ref.script_d_is_object.clear();
 		}
 
 		for (auto id : ids_to_clear)
@@ -2250,6 +2306,12 @@ void FFScript::deallocateAllScriptOwnedCont()
 				ids_to_clear.push_back(id);
 			}
 			data.ref.stack_pos_is_object.clear();
+			for (uint32_t offset : data.ref.script_d_is_object)
+			{
+				uint32_t id = data.ref.script_d[offset];
+				ids_to_clear.push_back(id);
+			}
+			data.ref.script_d_is_object.clear();
 		}
 
 		for (auto id : ids_to_clear)
@@ -2670,8 +2732,11 @@ int32_t get_register(int32_t arg)
 	if (arg >= D(0) && arg <= D(7))
 		return ri->d[arg - D(0)];
 
-	if (arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+	if (arg >= GD(0) && arg < GD(MAX_GLOBAL_VARIABLES))
 		return game->global_d[arg - GD(0)];
+
+	if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+		return ri->script_d[arg - SCRIPT_INST_VARS(0)];
 
 	int32_t ret = 0;
 	current_zasm_register = arg;
@@ -2699,9 +2764,14 @@ void set_register(int32_t arg, int32_t value)
 		ri->d[arg - D(0)] = value;
 		return;
 	}
-	else if (arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+	else if (arg >= GD(0) && arg < GD(MAX_GLOBAL_VARIABLES))
 	{
 		game->global_d[arg-GD(0)] = value;
+		return;
+	}
+	else if (arg >= SCRIPT_INST_VARS(0) && arg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		ri->script_d[arg-SCRIPT_INST_VARS(0)] = value;
 		return;
 	}
 
@@ -8961,18 +9031,25 @@ static bool check_cmp(uint cmp)
 
 static void markRegisterType(int reg, int type)
 {
-	// Currently only marking globals as objects is supported.
-	if (!(reg >= GD(0) && reg <= GD(MAX_SCRIPT_REGISTERS)))
-	{
-		assert(false);
-	}
 	if (!(type >= 0 && type <= (int)script_object_type::last))
 	{
 		assert(false);
 	}
-
-	int index = reg - GD(0);
-	game->global_d_types[index] = (script_object_type)type;
+	// Currently only marking globals / script instance vars as objects is supported.
+	if (reg >= GD(0) && reg < GD(MAX_GLOBAL_VARIABLES))
+	{
+		int index = reg - GD(0);
+		game->global_d_types[index] = (script_object_type)type;
+	}
+	else if (reg >= SCRIPT_INST_VARS(0) && reg < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+	{
+		int index = reg - SCRIPT_INST_VARS(0);
+		if (type)
+			ri->script_d_is_object.insert(index);
+		else
+			ri->script_d_is_object.erase(index);
+	}
+	else assert(false);
 }
 
 static void markGlobalRegisters()
@@ -13088,13 +13165,21 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case SET_OBJECT:
 			{
 				int value = get_register(sarg2);
-				if (sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS))
+				if (sarg1 >= GD(0) && sarg1 < GD(MAX_GLOBAL_VARIABLES))
 				{
 					int index = sarg1-GD(0);
 					assert(game->global_d_types[index] != script_object_type::none);
 					script_object_ref_inc(value);
 					script_object_ref_dec(game->global_d[index]);
 					game->global_d[index] = value;
+				}
+				else if (sarg1 >= SCRIPT_INST_VARS(0) && sarg1 < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+				{
+					int index = sarg1-SCRIPT_INST_VARS(0);
+					assert(ri->script_d_is_object.contains(index));
+					script_object_ref_inc(value);
+					script_object_ref_dec(ri->script_d[index]);
+					ri->script_d[index] = value;
 				}
 				else if (zasm_array_supports(sarg1))
 				{

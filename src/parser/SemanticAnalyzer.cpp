@@ -45,16 +45,11 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		UserClass* _class = function.getClass();
 		DataType const* thisType = &_class->getNode()->type->resolve(*scope,this);
 		DataType const* constType = thisType->getConstType();
-		function.thisVar = BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
+		BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
 		// User-defined class functions don't push 'this' on the stack. But internal binding functions do. Blegh.
 		if (!function.isBinding())
 			function.getInternalScope()->stackDepth_--;
 	}
-
-	// Grab the script.
-	Script* script = NULL;
-	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(extern_scope->getParent()))
-		script = &ss->script;
 
 	// Add the parameters to the scope.
 	vector<ASTDataDecl*>& parameters = functionDecl->parameters.data();
@@ -72,17 +67,6 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	// If this is the script's run method, add "this" to the scope.
 	if (isRun(function))
 	{
-		std::string typeName = script->getType().getName();
-		if (typeName == "generic")
-			typeName = "genericdata";
-		auto klass = program.getClass(typeName);
-		if (klass)
-		{
-			auto t = klass->getType()->getConstType();
-			function.thisVar =
-				BuiltinVariable::create(*scope, *t, "this");
-		}
-
 		if (parameters.size() > 8)
 			handleError(CompileError::Error(functionDecl, "The `run` function cannot have more than 8 parameters"));
 	}
@@ -588,6 +572,8 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
 		return;
 	}
+	
+	host.is_static = !scope->getFunctionScope();
 
 	//Handle initializer assignment
 	zfix value = 0;
@@ -628,7 +614,10 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		if(breakRecursion(host, param)) return;
 		if(init) //Set spot for next auto-fill, enforce const-ness
 		{
-			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			scope->in_static_init = host.is_static;
+			std::optional<int32_t> v = init->getCompileTimeValue(this, scope);
+			scope->in_static_init = false;
+			if(v)
 			{
 				value = zslongToFix(*v);
 				// Should we WARN here if 'bitmode' is on? This could break the doubling increment....
@@ -699,8 +688,10 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			}
 		}
 		
-		// Is it a constant?
-		bool isConstant = false;
+		bool is_static = host.is_static();
+		bool is_classvar = parsing_user_class == puc_vars && !is_static;
+		bool is_scriptvar = !is_static && scope->isScript();
+		optional<int32_t> const_value;
 		if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR))
 		{
 			// A constant without an initializer doesn't make sense.
@@ -711,51 +702,66 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			}
 
 			// Inline the constant if possible.
-			isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
-			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-			if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
+			scope->in_static_init = is_static;
+			const_value = host.getInitializer()->getCompileTimeValue(this, scope);
+			scope->in_static_init = false;
+			//The dataType is constant, but the initializer is not. This is not allowed in static scopes, as it causes crashes. -V
+			if(!const_value && is_static)
 			{
 				handleError(CompileError::ConstNotConstant(&host, host.getName()));
 				return;
 			}
-		}
-		else if(parsing_user_class == puc_vars) //class variables
-		{
-			if(host.getInitializer())
-			{
-				handleError(CompileError::ClassNoInits(&host, host.getName()));
-				return;
-			}
-		}
-
-		if (isConstant)
-		{
-			if (scope->getLocalDatum(host.getName()))
-			{
-				handleError(CompileError::VarRedef(&host, host.getName()));
-				return;
-			}
 			
-			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-			Constant::create(*scope, host, *type, value, this);
-		}
-		else
-		{
-			if(parsing_user_class == puc_vars)
-			{
-				UserClassVar::create(*scope, host, *type, this);
-			}
-			else
+			if (const_value)
 			{
 				if (scope->getLocalDatum(host.getName()))
 				{
 					handleError(CompileError::VarRedef(&host, host.getName()));
 					return;
 				}
-
-				Variable::create(*scope, host, *type, this);
+				
+				scope->in_static_init = is_static;
+				int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
+				scope->in_static_init = false;
+				Constant::create(*scope, host, *type, value, this);
+				return;
 			}
 		}
+		
+		if (is_classvar)
+		{
+			if (host.getInitializer())
+			{
+				handleError(CompileError::ClassNoInits(&host, host.getName()));
+				return;
+			}
+			
+			UserClassVar::create(*scope, host, *type, this);
+			return;
+		}
+		
+		if (is_scriptvar)
+		{
+			if (auto* init = host.getInitializer())
+			{
+				const_value = init->getCompileTimeValue(this, scope);
+				if (!const_value)
+				{
+					handleError(CompileError::ExprNotConstant(init));
+					return;
+				}
+			}
+		}
+		
+		if (scope->getLocalDatum(host.getName()))
+		{
+			handleError(CompileError::VarRedef(&host, host.getName()));
+			return;
+		}
+
+		auto* var = Variable::create(*scope, host, *type, this);
+		if (is_scriptvar)
+			scope->getScriptScope()->script.register_instance_var(var, const_value);
 	}
 	
 	//Handle typechecking regardless of registration
@@ -984,7 +990,22 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	Script& script = *host.script;
 	string name = script.getName();
 	scope = &script.getScope();
+	
+	std::string typeName = script.getType().getName();
+	if (typeName == "generic")
+		typeName = "genericdata";
+	auto klass = program.getClass(typeName);
+	if (klass)
+	{
+		auto t = klass->getType()->getConstType();
+		// Create at the script-scope as a nonstatic var
+		// Hardcode the script ID to '0'- user-declared vars start counting from '1'
+		// Any nonstatic functions in the script can access 'this'
+		BuiltinVariable::create(*scope, *t, "this", this, SCRIPT_INST_VARS(0));
+	}
+	
 	RecursiveVisitor::caseScript(host, param);
+	
 	scope = scope->getParent();
 	
 	std::optional<int32_t> init_weight = script.getInitWeight();
@@ -1219,7 +1240,7 @@ void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
 {
 	RecursiveVisitor::caseExprConst(host);
 	if (breakRecursion(host)) return;
-	if(!(scope->isGlobal() || scope->isScript())) return; //Only require constant initializer if global var.
+	if (!scope->in_static_init) return; //Only require constant initializer if static var.
 	if (!host.valueIsArray(scope, this) && !host.getCompileTimeValue(this, scope))
 	{
 		handleError(CompileError::ExprNotConstant(&host));
@@ -1265,11 +1286,12 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
 	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
-	host.binding = lookupDatum(*scope, host, this);
-	if(parsing_user_class > puc_vars)
+	bool trimmed = false;
+	host.binding = lookupDatum(*scope, host, this, &trimmed);
+	if (parsing_user_class > puc_vars)
 	{
-		bool class_bind = true;
-		if(host.binding)
+		bool class_bind = host.components.size() == 1;
+		if (class_bind && host.binding)
 		{
 			for(Scope* current = &host.binding->scope; current; current = current->getParent())
 			{
@@ -1280,7 +1302,7 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 				}
 			}
 		}
-		if(class_bind)
+		if (class_bind)
 		{
 			if(UserClassVar* var = lookupClassVars(*scope, host, this))
 				host.binding = var;
@@ -1288,7 +1310,10 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 	}
 	if (!host.binding)
 	{
-		handleError(CompileError::VarUndeclared(&host, host.asString()));
+		if (trimmed)
+			handleError(CompileError::VarNotStatic(&host, host.asString()));
+		else
+			handleError(CompileError::VarUndeclared(&host, host.asString()));
 		return;
 	}
 }
@@ -1357,7 +1382,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		Function* reader;
 		if (host.index)
 		{
-			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT}, true, true);
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT}, true, true, false, scope);
 			reader = fns.size() ? fns[0] : nullptr;
 		}
 		else
@@ -1396,7 +1421,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		Function* writer;
 		if (host.index)
 		{
-			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT, &DataType::UNTYPED}, true, true);
+			auto fns = lookupFunctions(host.leftClass->getScope(), host.right->getValue(), {leftType, &DataType::FLOAT, &DataType::UNTYPED}, true, true, false, scope);
 			writer = fns.size() ? fns[0] : nullptr;
 		}
 		else
@@ -1517,6 +1542,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		 it != host.parameters.end(); ++it)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
+	bool static_trimmed = false;
 	// Grab functions with the proper name, and matching parameter types
 	vector<Function*> functions;
 	if(identifier)
@@ -1539,17 +1565,17 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())
-					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
+					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true, false, scope, &static_trimmed);
 			}
 			if(!functions.size())
-				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing, false, false, scope, &static_trimmed);
 		}
 	}
 	else if(user_class)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
 	}
-	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope, &static_trimmed); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
@@ -1737,8 +1763,10 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		FunctionSignature signature(host.left->asString(), parameterTypes);
 		if (bestFunctions.size() == 0)
 		{
-			handleError(
-					CompileError::NoFuncMatch(&host, signature.asString()));
+			if (static_trimmed)
+				handleError(CompileError::FuncNotStatic(&host, signature.asString()));
+			else
+				handleError(CompileError::NoFuncMatch(&host, signature.asString()));
 		}
 		else
 		{

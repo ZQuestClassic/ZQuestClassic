@@ -107,7 +107,7 @@ void init_script_objects()
 
 	// Set reference counts.
 
-	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+	for (size_t i = 0; i < MAX_GLOBAL_VARIABLES; i++)
 	{
 		auto type = game->global_d_types[i];
 		if (can_restore_object_type(type) && script_objects.contains(game->global_d[i]))
@@ -387,7 +387,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 			// Not checking "MaybeHoldsObjects" because globalRAM is only used in older quests.
 		}
 	}
-	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+	for (size_t i = 0; i < MAX_GLOBAL_VARIABLES; i++)
 	{
 		if (game->global_d_types[i] != script_object_type::none)
 			live_object_ids.insert(game->global_d[i]);
@@ -417,6 +417,8 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		{
 			for (int i : data.ref.stack_pos_is_object)
 				live_object_ids.insert(data.stack[i]);
+			for (int i : data.ref.script_d_is_object)
+				live_object_ids.insert(data.ref.script_d[i]);
 		}
 		for (auto id : script_object_autorelease_pool)
 			live_object_ids.insert(id);

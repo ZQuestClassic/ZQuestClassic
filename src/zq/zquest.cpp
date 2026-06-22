@@ -17634,14 +17634,10 @@ bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 		scriptdata->pc = data.pc;
 		scriptdata->end_pc = data.end_pc;
 		scriptdata->zasm_script = zasm_scripts[0];
+		scriptdata->script_d_init = data.script_d_init;
 	}
 	else if(scriptdata)
-	{
-		scriptdata->zasm_script = nullptr;
-		scriptdata->meta.zero();
-		scriptdata->pc = 0;
-		scriptdata->end_pc = 0;
-	}
+		scriptdata->clear();
 	return true;
 }
 bool handle_slot_map(map<int32_t, script_slot_data>& mp, int offs, script_data** scriptdata)

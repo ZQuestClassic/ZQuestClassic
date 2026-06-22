@@ -57,6 +57,7 @@ enum DebugSymbolStorage : uint8_t
 	LOC_GLOBAL,
 	LOC_REGISTER,
 	LOC_CLASS,
+	LOC_SCRIPT_INSTANCE,
 };
 
 enum DebugSymbolFlags : uint8_t

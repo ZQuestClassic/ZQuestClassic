@@ -715,6 +715,8 @@ DebugValue ExpressionEvaluator::readSymbol(const DebugSymbol* sym)
 		if (auto v = vm.readObjectMember(DebugValue{thisPtr, nullptr}, sym))
 			return v.value();
 	}
+	
+	//!TODO something for LOC_SCRIPT_INSTANCE
 
 	DebugValue v{};
 	v.type = debugData.getType(sym->type_id);
@@ -753,7 +755,7 @@ void ExpressionEvaluator::assignTo(std::shared_ptr<ExprNode> target, DebugValue 
 			DebugValue previous_value = readSymbol(sym);
 			vm.decreaseObjectReference(previous_value, sym);
 		}
-
+		//!TODO something for LOC_SCRIPT_INSTANCE
 		if (sym->storage == LOC_GLOBAL)
 			vm.writeGlobal(sym->offset, val.raw_value);
 		else if (sym->storage == LOC_STACK)

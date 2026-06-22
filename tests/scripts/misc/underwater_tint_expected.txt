@@ -27,15 +27,14 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0002
+PUSHARGSV 0 0.0002; void run() Body Start
 SETR D4 SP2
 NOP
 SETR D2 LINKACTION; if() #8 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
 COMPAREV D2 24
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 34 ==; Test 'if'
+GOTOCMP 33 ==; Test 'if'
 SETV D2 0.0001; if() #8 Body Start
 PUSHR D2
 POP D2
@@ -61,4 +60,4 @@ RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, 
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #8 Body End
 NOP
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 4; while() #1 End AND [Opt:NeverRet] AND void run() Body End

@@ -597,7 +597,7 @@ void ReturnVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	RecursiveVisitor::caseDataDecl(host, param);
 	Datum* ptr = host.manager;
 	Variable* varptr = dynamic_cast<Variable*>(ptr);
-	if(in_func && varptr && ptr->getNode() && !ptr->getGlobalId())
+	if(in_func && varptr && ptr->getNode() && !ptr->getRegisterId())
 		var_map[in_func][varptr] = false;
 }
 void ReturnVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)

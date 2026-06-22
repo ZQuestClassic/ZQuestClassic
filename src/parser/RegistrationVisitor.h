@@ -113,6 +113,7 @@ namespace ZScript
 	private:
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
+		void handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* scope, bool disallow);
 		
 		bool hasChanged;
 	};
