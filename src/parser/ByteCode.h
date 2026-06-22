@@ -100,7 +100,7 @@ namespace ZScript {
 	typedef Opcode2<LSHIFTR32, VarArgument, VarArgument> O32BitLShiftRegister;
 	typedef Opcode2<LSHIFTV, VarArgument, LiteralArgument> OLShiftImmediate;
 	typedef Opcode2<LSHIFTV32, VarArgument, LiteralArgument> O32BitLShiftImmediate;
-	typedef Opcode2<MARK_TYPE_REG, GlobalArgument, TypeArgument> OMarkTypeRegister;
+	typedef Opcode2<MARK_TYPE_REG, VarArgument, TypeArgument> OMarkTypeRegister;
 	typedef Opcode2<MARK_TYPE_STACK, TypeArgument, LiteralArgument> OMarkTypeStack;
 	typedef Opcode2<MODR, VarArgument, VarArgument> OModuloRegister;
 	typedef Opcode2<MODV, VarArgument, LiteralArgument> OModuloImmediate;

@@ -8,13 +8,14 @@
 #include <string_view>
 #include <array>
 #include "parser/parserDefs.h"
+#include "core/qrs.h"
 
 void call_compile_settings();
 
 class CompileSettingsDlg: public GUI::Dialog<CompileSettingsDlg>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QUEST_CFG };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	CompileSettingsDlg();
 
@@ -29,6 +30,7 @@ private:
 	int old_dd_cfg[4];
 	char include_str[MAX_INCLUDE_PATH_CHARS];
 	byte qst_cfg[4];
+	map<QSTCompilerSetting, int> local_compiler_settings;
 	word timeout_secs, old_timeout_secs;
 	
 	void load();

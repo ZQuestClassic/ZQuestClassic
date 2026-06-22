@@ -27,8 +27,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -49,7 +48,7 @@ LOAD D2 0.0001; if() #10 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 31 ==; Test 'if'
+GOTOCMP 30 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #10 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -76,16 +75,15 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 54 ==; Test 'while'
+GOTOCMP 53 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 46; while() #1 End
-CALLFUNC 0.0155; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 45; while() #1 End
+CALLFUNC 0.0153; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-SETR D4 SP2
+SETR D4 SP2; void run() Body Start
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0133; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0131; UsrFunc[void Init(int)] Call
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body
 ALLOCATEMEMV D2 20 0; InlineFunc[void Trace(char32[])] Params Start
@@ -94,7 +92,7 @@ TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start
 TRACE3; InlineFunc[void Trace(char32[])] Body End
 PUSHR D4
 PUSHV 100; UsrFunc[void call_recursive(int)] Params
-CALLFUNC 0.0083; UsrFunc[void call_recursive(int)] Call
+CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
 POP D4
 ALLOCATEMEMV D2 22 0; InlineFunc[void Trace(char32[])] Params Start
 WRITEPODSTRING D2 "call_recursive: 10000"; InlineFunc[void Trace(char32[])] Params End
@@ -102,12 +100,12 @@ TRACE6 D2; InlineFunc[void Trace(char32[])] Body Start
 TRACE3; InlineFunc[void Trace(char32[])] Body End
 PUSHR D4
 PUSHV 10000; UsrFunc[void call_recursive(int)] Params
-CALLFUNC 0.0083; UsrFunc[void call_recursive(int)] Call
+CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
 POP D4
 ALLOCATEMEMV D2 18 0; UsrFunc[void Fail(char32[])] Params Start
 WRITEPODSTRING D2 "expected overflow"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0162; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0160; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0005; Func[void call_recursive(int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0005
@@ -124,12 +122,12 @@ LOAD D2 0.0005; if() #1 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 106 ==; Test 'if'
+GOTOCMP 104 ==; Test 'if'
 PUSHR D4; if() #1 Body Start
 LOAD D2 0.0005; UsrFunc[void call_recursive(int)] Params Start
 SUBV D2 1
 PUSHR D2; UsrFunc[void call_recursive(int)] Params End
-CALLFUNC 0.0083; UsrFunc[void call_recursive(int)] Call
+CALLFUNC 0.0081; UsrFunc[void call_recursive(int)] Call
 POP D4; if() #1 Body End
 NOP
 LOAD D2 0.0004; InlineFunc[void Trace(untyped)] Params Start
@@ -171,7 +169,7 @@ LOAD D2 0; if() #9 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 152 ==; Test 'if'
+GOTOCMP 150 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #9 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -196,7 +194,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 181 ==; Test 'if'
+GOTOCMP 179 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -205,7 +203,7 @@ PUSHVARGR D2
 MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 186; if() #1 Body End
+GOTO 184; if() #1 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End

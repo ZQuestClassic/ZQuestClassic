@@ -1,0 +1,83 @@
+stderr:
+
+Compiling 'after.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 10,
+    "symbols": 11,
+    "identifiers": 42,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD1 2; void run() Body Start
+SETV GD2 2
+QUIT; void run() Body End
+SETR D4 SP2; void run() Body Start
+SETR D2 SCR0; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+PUSHR D4
+CALLFUNC 0.0042; UsrFunc[void print()] Call
+PEEK D4
+CALLFUNC 0.0050; UsrFunc[void static_print()] Call
+POP D4
+SETV D2 5
+SETR SCR1 D2
+SETV D2 8
+SETR SCR2 D2
+SETV D2 42
+SETR GD1 D2
+SETV D2 420
+SETR GD2 D2
+SETR D2 SCR1; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 SCR2; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 GD1; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 GD2; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+RETURNFUNC; void run() Body End
+SETR D4 SP2; void run() Body Start
+PUSHR D4
+CALLFUNC 0.0050; UsrFunc[void static_print()] Call
+POP D4
+SETV D2 3
+SETR GD1 D2
+SETV D2 9
+SETR GD2 D2
+SETR D2 GD1; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 GD2; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+RETURNFUNC; void run() Body End
+SETR D4 SP2; Func[void print()] Body Start
+SETR D2 SCR0; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 SCR1; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 SCR2; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+RETURNFUNC; Func[void print()] Body End
+SETR D4 SP2; Func[void static_print()] Body Start
+SETR D2 GD1; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 GD2; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+RETURNFUNC; Func[void static_print()] Body End

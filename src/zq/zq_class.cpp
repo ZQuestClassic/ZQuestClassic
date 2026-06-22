@@ -6837,11 +6837,8 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
-int32_t writerules(PACKFILE *f, zquestheader *Header)
+int32_t writerules(PACKFILE *f, zquestheader *)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
     dword section_id=ID_RULES;
     dword section_version=V_RULES;
     dword section_size=0;
@@ -6864,9 +6861,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     }
 	
 	if(!p_iputl(V_COMPATRULE,f))
-	{
 		new_return(6);
-	}
     
     for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
@@ -6885,6 +6880,20 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
         {
             new_return(5);
         }
+		
+		if(!p_iputl(V_COMPILESETTING,f))
+			new_return(7);
+		
+		if (!p_iputw(qst_compiler_settings.size(), f))
+			new_return(8);
+		
+		for (auto [id, val] : qst_compiler_settings)
+		{
+			if (!p_iputw(word(id), f))
+				new_return(9);
+			if (!p_iputl(val, f))
+				new_return(10);
+		}
         
         if(writecycle==0)
         {
@@ -12150,6 +12159,9 @@ int32_t write_one_ffscript(PACKFILE *f, [[maybe_unused]] zquestheader *Header, [
 
 	if(!p_iputl(script->end_pc, f))
 		new_return(26);
+	
+	if (!p_putbmap(script->script_d_init, f))
+		new_return(27);
 
     return 0;
 }

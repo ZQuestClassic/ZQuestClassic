@@ -680,6 +680,7 @@ void Debugger::UpdateVariables()
 			Variable var = CreateVariable(value, symbol->name);
 			var.symbol = symbol;
 
+			//!TODO something for LOC_SCRIPT_INSTANCE
 			if (symbol->storage == LOC_GLOBAL)
 				var.name = zasm_debug_data.getFullSymbolName(symbol);
 

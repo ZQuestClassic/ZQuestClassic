@@ -2,6 +2,7 @@
 #include "allegro/config.h"
 #include "core/qrs.h"
 #include "parser/config.h"
+#include "base/zapp.h"
 #include <map>
 
 extern bool zc_cfg_defaulted;
@@ -150,6 +151,15 @@ void CompileOption::updateDefaults(bool has_qrs)
 				double val = zscript_get_config_double(entry.name, entry.defaultValue/10000.0);
 				if(!zc_cfg_defaulted)
 					entry.defaultValue = val * 10000L;
+				break;
+			}
+			
+			case OPTTYPE_QST_SETTING:
+			{
+				if (auto val = get_flag_int(fmt::format("-{}", entry.name).c_str()))
+				{
+					entry.defaultValue = *val * 10000L;
+				}
 				break;
 			}
 		}

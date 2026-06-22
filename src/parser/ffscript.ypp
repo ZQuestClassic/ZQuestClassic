@@ -353,6 +353,7 @@ static ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token INLINE
 %token INTERNAL
 %token STATIC
+%token NONSTATIC
 %token CONSTEXPR
 %left NEW
 %left DELETE
@@ -464,8 +465,12 @@ Global_List :
 		root->options.push_back(option);
 		if (root->hasDeclarations())
 			yywarn("WARNING: Options should come before everything else.");}
-	| %empty {root.reset(new ASTFile(noloc));}
-	;
+	| FileRoot {}
+
+FileRoot :
+	%empty {
+		root.reset(new ASTFile(noloc));
+	};
 
 Global_Statement :
 	Import {$$ = $1;}
@@ -769,6 +774,22 @@ Data :
 			yyerrmsg("internal modifier used twice");
 		list->internal = true;
 		$$ = list;}
+	| STATIC Data {
+		ASTDataDeclList* list = (ASTDataDeclList*)$2;
+		if (list->is_static)
+			yyerrmsg("static modifier used twice");
+		else if (list->is_nonstatic)
+			yyerrmsg("nonstatic modifier conflicts with static modified");
+		list->is_static = true;
+		$$ = list;}
+	| NONSTATIC Data {
+		ASTDataDeclList* list = (ASTDataDeclList*)$2;
+		if (list->is_nonstatic)
+			yyerrmsg("nonstatic modifier used twice");
+		else if (list->is_static)
+			yyerrmsg("nonstatic modifier conflicts with static modified");
+		list->is_nonstatic = true;
+		$$ = list;}
 	| DataType Data_List {
 		ASTDataType* type = (ASTDataType*)$1;
 		ASTDataDeclList* list = (ASTDataDeclList*)$2;
@@ -882,12 +903,33 @@ Function :
 			func->setFlag(FUNCFLAG_INVALID);
 			func->invalidMsg += " Duplicate `static`.";
 		}
+		else if(func->getFlag(FUNCFLAG_NONSTATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Conflicting `static` / `nonstatic`.";
+		}
 		else if(func->getFlag(FUNCFLAG_DESTRUCTOR|FUNCFLAG_CONSTRUCTOR))
 		{
 			func->setFlag(FUNCFLAG_INVALID);
 			func->invalidMsg += " Constructors and destructors cannot be static.";
 		}
 		else func->setFlag(FUNCFLAG_STATIC);
+		$$ = func;
+	}
+	| NONSTATIC Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if (func->getFlag(FUNCFLAG_NONSTATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `nonstatic`.";
+		}
+		else if(func->getFlag(FUNCFLAG_STATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Conflicting `static` / `nonstatic`.";
+		}
+		else func->setFlag(FUNCFLAG_NONSTATIC);
 		$$ = func;
 	}
 	| INLINE Function
@@ -2670,6 +2712,13 @@ Expression_Range :
 // Literals
 
 Literal :
+	Literal_Numeric {$$ = $1;}
+	| Literal_String {$$ = $1;}
+	| Literal_Bool {$$ = $1;}
+	| Literal_Array {$$ = $1;}
+	;
+
+Literal_Numeric :
 	NUMBER {
 		ASTFloat* val = (ASTFloat*)$1;
 		$$ = new ASTNumberLiteral(val, @$);}
@@ -2680,16 +2729,9 @@ Literal :
 		ASTString* as = (ASTString*)$1;
 		ASTFloat* number = new ASTFloat(int(as->getValue().at(1)), 0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
-	| Literal_String {$$ = $1;}
-	| Literal_Bool {$$ = $1;}
-	| Literal_Array {$$ = $1;}
 	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTOptionValue(name->getValue(), @$);
-		delete name;}
-	| ISINCLUDED LPAREN IMPORTSTRING RPAREN {
-		ASTString* name = (ASTString*)$3;
-		$$ = new ASTIsIncluded(name->getValue(), @$);
 		delete name;}
 	;
 
@@ -2715,6 +2757,10 @@ Literal_String :
 Literal_Bool :
 	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}
 	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
+	| ISINCLUDED LPAREN IMPORTSTRING RPAREN {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTIsIncluded(name->getValue(), @$);
+		delete name;}
 	;
 
 Literal_Array :

@@ -389,6 +389,12 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 		return qe_invalid;
 	if(!p_igetl(&script->end_pc, f))
 		return qe_invalid;
+	
+	if (s_version >= 30)
+	{
+		if (!p_getbmap(&script->script_d_init, f))
+			return qe_invalid;
+	}
 
 	if (script == &fake_script_data)
 		return 0;

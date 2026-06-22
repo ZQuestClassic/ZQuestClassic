@@ -2,6 +2,7 @@
 #define CORE_QRS_H_
 
 #include "base/ints.h"
+#include "base/headers.h"
 
 #define QUESTRULES_SIZE 20
 #define QUESTRULES_NEW_SIZE 100
@@ -291,6 +292,13 @@ void set_er(int index,bool state);
 //Want to move these here, but looks complicated...
 // void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
 // void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
+
+enum class QSTCompilerSetting : uint16_t
+{
+	DEFAULT_STATIC_SCRIPT_MEMBERS,
+};
+extern map<QSTCompilerSetting, int> qst_compiler_settings;
+std::string to_string(QSTCompilerSetting setting);
 
 #endif
 

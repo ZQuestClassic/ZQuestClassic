@@ -1692,12 +1692,15 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
-	if(parsing_user_class == puc_vars) return;
+	bool is_static = host.is_static();
+	if (parsing_user_class == puc_vars && !is_static) return;
 	OpcodeContext& context = *(OpcodeContext*)param;
 	Datum& manager = *host.manager;
-	if(manager.is_erased()) //var unused, optimized away
+	if (manager.is_erased()) //var unused, optimized away
 	{
+		scope->in_static_init = is_static;
 		sidefx_visit(host.getInitializer(), param);
+		scope->in_static_init = false;
 		return;
 	}
 
@@ -1717,9 +1720,14 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	// Load initializer, if present.
 	auto init = host.getInitializer();
 
+	bool is_static = host.is_static();
 	std::optional<int> comptime_val;
 	if (init)
+	{
+		scope->in_static_init = is_static;
 		comptime_val = init->getCompileTimeValue(this, scope);
+		scope->in_static_init = false;
+	}
 	if (!comptime_val)
 	{
 		if (init)
@@ -1736,17 +1744,17 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	bool is_object = writeType && writeType->isObject();
 
 	// Set variable to EXP1 or comptime_val, depending on the initializer.
-	if (auto globalId = manager.getGlobalId())
+	if (auto registerId = manager.getRegisterId())
 	{
 		if (is_object)
-			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new TypeArgument(writeType)));
+			addOpcode(new OMarkTypeRegister(new VarArgument(*registerId), new TypeArgument(writeType)));
 
 		if (comptime_val)
-			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
+			addOpcode(new OSetImmediate(new VarArgument(*registerId), new LiteralArgument(*comptime_val)));
 		else if (is_object)
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new TypeArgument(writeType)));
+			addOpcode(new OSetObject(new VarArgument(*registerId), new VarArgument(EXP1), new TypeArgument(writeType)));
 		else
-			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+			addOpcode(new OSetRegister(new VarArgument(*registerId), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1799,7 +1807,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext&)
 	auto array_type = dynamic_cast<const DataTypeArray*>(&type);
 
 	// Allocate the array.
-	if (auto globalId = manager.getGlobalId())
+	if (manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
@@ -1865,7 +1873,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void*)
 	}
 	
 	// If a constant, just load its value.
-	if (auto value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
+	if (auto value = host.binding->getCompileTimeValue(scope->in_static_init))
 	{
 		addOpcode(new OSetImmediate(new VarArgument(EXP1),
 									new LiteralArgument(*value)));
@@ -1873,11 +1881,9 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void*)
 		return;
 	}
 
-	if (auto globalId = host.binding->getGlobalId())
+	if (auto registerId = host.binding->getRegisterId())
 	{
-		// Global variable, so just get its value.
-		addOpcode(new OSetRegister(new VarArgument(EXP1),
-								   new GlobalArgument(*globalId)));
+		addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(*registerId)));
 		return;
 	}
 
@@ -4097,13 +4103,13 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if (auto type = host.getWriteType(scope, nullptr))
 		var_type = type;
 
-	if (auto globalId = host.binding->getGlobalId())
+	if (auto registerId = host.binding->getRegisterId())
 	{
 		// Global variable.
 		if (var_type->isObject())
-			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1), new TypeArgument(var_type)));
+			addOpcode(new OSetObject(new VarArgument(*registerId), new VarArgument(EXP1), new TypeArgument(var_type)));
 		else
-			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+			addOpcode(new OSetRegister(new VarArgument(*registerId), new VarArgument(EXP1)));
 		return;
 	}
 

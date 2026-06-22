@@ -379,7 +379,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 	{
 		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
@@ -451,7 +451,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 			cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
 		}
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
@@ -527,7 +527,7 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 			cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
 		}
 	}
-	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	else if (r >= GD(0) && r < GD(MAX_GLOBAL_VARIABLES))
 	{
 		x86::Gp address = cc.newIntPtr();
 		cc.mov(address, &game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.

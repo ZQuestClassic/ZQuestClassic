@@ -28,7 +28,7 @@ FunctionData::FunctionData(Program& program)
 		ScriptScope& scope = script->getScope();
 		for(Datum* datum : scope.getLocalData())
 		{
-			if (!datum->getCompileTimeValue())
+			if (datum->is_static && !datum->getCompileTimeValue())
 				globalVariables.push_back(datum);
 		}
 	}
@@ -39,6 +39,16 @@ FunctionData::FunctionData(Program& program)
 		for(Datum* datum : scope.getLocalData())
 		{
 			if (!datum->getCompileTimeValue())
+				globalVariables.push_back(datum);
+		}
+	}
+	
+	for (UserClass* cls : program.classes)
+	{
+		ClassScope& scope = cls->getScope();
+		for(Datum* datum : scope.getLocalData())
+		{
+			if (datum->is_static && !datum->getCompileTimeValue())
 				globalVariables.push_back(datum);
 		}
 	}

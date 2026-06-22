@@ -177,11 +177,12 @@ namespace ZScript
 
 		void initFunctionBinding(Function* fn, CompileErrorHandler* handler);
 	
-	Scope* lexical_options_scope;
-	int32_t start_label = -1;
-	int32_t end_label = -1;
+		Scope* lexical_options_scope;
+		int32_t start_label = -1;
+		int32_t end_label = -1;
+		bool in_static_init;
 
-	int32_t getId() const {return id;}
+		int32_t getId() const {return id;}
 
 	protected:
 		TypeStore& typeStore_;
@@ -234,8 +235,7 @@ namespace ZScript
 	ZClass* lookupClass(Scope const&, std::string const& name);
 
 	// Attempt to resolve name to a variable under scope.
-	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
-	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
+	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool* trimmed_match = nullptr, bool forceNoTrim = false);
 	UserClassVar* lookupClassVars(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
 	
 	// Attempt to resolve name to a getter under scope.
@@ -249,9 +249,11 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr);
+			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes,
+			bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr, bool* static_trim = nullptr);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes,
+			bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr, bool* static_trim = nullptr);
 	
 	UserClass* lookupClass(Scope& scope, std::string const& name, bool noUsing);
 	UserClass* lookupClass(Scope& scope, std::vector<std::string> const& names,
@@ -259,7 +261,6 @@ namespace ZScript
 	std::vector<Function*> lookupConstructors(UserClass const& user_class, std::vector<DataType const*> const& parameterTypes, Scope const* scope, DataType const* receiver_type = nullptr);
 	std::vector<Function*> lookupClassFuncs(UserClass const& user_class,
 		std::string const& name, std::vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams = false, DataType const* receiver_type = nullptr);
-	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* scope, bool trimClasses = true);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,
