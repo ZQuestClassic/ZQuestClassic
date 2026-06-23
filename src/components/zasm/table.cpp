@@ -3273,6 +3273,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case MOUSEARR:
 		case MUSICUPDATEFLAGS:
 		case NPCBEHAVIOUR:
+		case NPCCOLLISION:
 		case NPCDATAATTRIBUTE:
 		case NPCDATABEHAVIOUR:
 		case NPCDATADEFENSE:
@@ -3427,7 +3428,6 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case LINKOTILE:
 		case LOADMAPDATA:
 		case MAPDATAINTID:
-		case NPCCOLLISION:
 		case NPCLINEDUP:
 		case SCREENSTATEDD:
 		case SCRIPTRAM:
@@ -3678,6 +3678,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case CMBTRIGWAVYTIME:
 		case CMBTRIGWPNLEVEL:
 		case CMBTRIGPOSSTATE:
+		case CMBTRIG_REQ_SCREXDOOR:
+		case CMBTRIG_UNREQ_SCREXDOOR:
 			return REFCOMBOTRIGGER;
 
 		case DIRECTORYSIZE:
@@ -4610,6 +4612,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_HIT_OFFSET_Y:
 		case SPRITE_HIT_WIDTH:
 		case SPRITE_HIT_ZHEIGHT:
+		case SPRITE_INVIS_CLK:
 		case SPRITE_JUMP:
 		case SPRITE_LIGHT_OFFSET:
 		case SPRITE_LIGHT_RADIUS:
@@ -4630,6 +4633,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case SPRITE_TILE_H:
 		case SPRITE_TILE_W:
 		case SPRITE_TILE:
+		case SPRITE_VIEWPORT_SUSPEND_RANGE:
+		case SPRITE_VIEWPORT_DESPAWN_RANGE:
 		case SPRITE_X_OFFSET:
 		case SPRITE_X:
 		case SPRITE_Y_OFFSET:

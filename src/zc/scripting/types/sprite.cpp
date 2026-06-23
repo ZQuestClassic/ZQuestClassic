@@ -380,7 +380,7 @@ int32_t sprite_get_register(int32_t reg)
 		{
 			if (s)
 				return s->script_no_colldet * 10000;
-			break;
+			return 0;
 		}
 		case SPRITE_SWHOOKED:
 		{
