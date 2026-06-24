@@ -663,14 +663,8 @@ void ASTStringList::execute(ASTVisitor& visitor, void* param)
 
 // ASTAnnotation
 
-ASTAnnotation::ASTAnnotation(ASTString* key, ASTString* strval, LocationData const& location)
-	: AST(location), key(key), strval(strval), intval()
-{}
-ASTAnnotation::ASTAnnotation(ASTString* key, ASTFloat* intval, LocationData const& location)
-	: AST(location), key(key), strval(), intval(intval)
-{}
-ASTAnnotation::ASTAnnotation(ASTString* key, LocationData const& location)
-	: AST(location), key(key), strval(), intval()
+ASTAnnotation::ASTAnnotation(LocationData const& location)
+	: AST(location), key(), params()
 {}
 
 void ASTAnnotation::execute(ASTVisitor&, void*)
