@@ -38,7 +38,7 @@ void user_genscript::quit()
 {
 	if(indx > -1)
 	{
-		FFCore.destroyScriptableObject(ScriptType::Generic, indx);
+		FFCore.reset_script_engine_data(ScriptType::Generic, indx);
 	}
 	_doscript = false;
 }

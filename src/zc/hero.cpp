@@ -2025,9 +2025,8 @@ void HeroClass::init()
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
-		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT); 
-		FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_INIT);
-		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script. 
+		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT);
+		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
 		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
 	}
@@ -9613,7 +9612,6 @@ heroanimate_skip_liftwpn:;
 					is_conveyor_stunned = 0;
 					FFCore.setHeroAction(dying);
 					FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-					FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 					ALLOFF(true,true);
 					if(lift_wpn)
 					{
@@ -9628,7 +9626,6 @@ heroanimate_skip_liftwpn:;
 					if(!get_qr(qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_DEATH);
 					}
 					Playing = false;
 					heroDeathAnimation();
@@ -9636,7 +9633,6 @@ heroanimate_skip_liftwpn:;
 					{
 						Playing = true;
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_DEATH);
 						Playing = false;
 					}
 					GameFlags &= ~GAMEFLAG_NO_F6;

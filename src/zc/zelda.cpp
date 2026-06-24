@@ -2061,7 +2061,6 @@ int32_t init_game()
 		{
 			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
-			FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_INIT);
 		}
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
 		Hero.set_respawn_point(); //This should be after the init script, so that Hero->X and Hero->Y set by the script
@@ -4771,7 +4770,6 @@ reload_for_replay_file:
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-		FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		switch(Quit)
 		{
 			case qSAVE:
