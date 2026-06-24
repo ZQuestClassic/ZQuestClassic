@@ -6678,7 +6678,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	Hero.screen_spawned = screen;
 
 	cpos_clear_all();
-	FFCore.destroyScriptableObjectsOfType(ScriptType::Screen);
+	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
 
 	if (is_in_scrolling_region())
@@ -6728,13 +6728,13 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		// Note: ideally would use "destroySprite", but during scrolling the previous
 		// screen's FFCs are still accessible (even though only the new screen's FFC scripts run).
 		// The only difference is a call to "release_sprite_owned_objects". To defer FFC script
-		// owned objects being released until the end of the scroll, here "destroyScriptableObject"
+		// owned objects being released until the end of the scroll, here "reset_script_engine_data"
 		// is used instead.
 		//
 		// So when is "release_sprite_owned_objects" called for FFCs? For scrolling screen
 		// transitions, it's at the end of "scrollscr" via "delete_temporary_screens". Otherwise,
 		// it is called above when "load_region" calls "clear_temporary_screens".
-		FFCore.destroyScriptableObject(ScriptType::FFC, index);
+		FFCore.reset_script_engine_data(ScriptType::FFC, index);
 	}
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,

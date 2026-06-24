@@ -279,10 +279,6 @@ sprite::~sprite()
 		util::remove_if_exists(parent->children, this);
 	for (auto child : children)
 		child->parent = nullptr;
-	if(auto scrty = get_scrtype())
-	{
-		FFCore.clear_script_engine_data(*scrty, getUID());
-	}
 	#endif
 }
 

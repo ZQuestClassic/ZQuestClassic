@@ -269,6 +269,18 @@ static void expire_internal_script_arrays(ScriptType scriptType)
 		script_object_ref_dec(id);
 }
 
+// Releases everything a script's engine data owns, in preparation for that entry being
+// zeroed (reset) or erased (cleared). This is the single chokepoint that frees:
+// - script objects and arrays the script took ownership of via Own()
+// - object references the script left on its stack (under GC)
+// - internal arrays that refer to the script
+// It must run while the entry's ref/stack still describe the finished script.
+static void release_script_engine_data(ScriptType type, int index)
+{
+	FFScript::deallocateAllScriptOwned(type, index);
+	expire_internal_script_arrays(type, index);
+}
+
 script_array* checkArray(uint32_t id, bool skipError)
 {
 	return script_arrays.check(id, skipError);
@@ -1183,6 +1195,9 @@ void FFScript::clear_script_engine_data_for_continue()
 
 void FFScript::reset_script_engine_data(ScriptType type, int index)
 {
+	// Releasing first frees anything the previous occupant of this slot still owned,
+	// so reusing or restarting the slot can never leak its objects.
+	release_script_engine_data(type, index);
 	get_script_engine_data(type, index).reset();
 }
 
@@ -1206,15 +1221,14 @@ void FFScript::clear_script_engine_data(ScriptType type, int index)
 		index = 0;
 	}
 
-	auto it = scriptEngineDatas.find({type, index});
-	if (it != scriptEngineDatas.end())
-	{
-		scriptEngineDatas.erase(it);
-	}
+	release_script_engine_data(type, index);
+	scriptEngineDatas.erase({type, index});
 }
 
 void FFScript::clear_script_engine_data_of_type(ScriptType type)
 {
+	deallocateAllScriptOwnedOfType(type);
+	expire_internal_script_arrays(type);
 	std::erase_if(scriptEngineDatas, [&](auto& kv) { return kv.first.first == type; });
 }
 
@@ -1740,27 +1754,33 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 
 void FFScript::initZScriptDMapScripts()
 {
-	scriptEngineDatas[{ScriptType::DMap, 0}] = ScriptEngineData();
-	scriptEngineDatas[{ScriptType::ScriptedPassiveSubscreen, 0}] = ScriptEngineData();
+	if (scriptEngineDatas.contains({ScriptType::DMap, 0}))
+		reset_script_engine_data(ScriptType::DMap, 0);
+	if (scriptEngineDatas.contains({ScriptType::ScriptedPassiveSubscreen, 0}))
+		reset_script_engine_data(ScriptType::ScriptedPassiveSubscreen, 0);
 }
 
 void FFScript::initZScriptSubscreenScript()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in dosubscr.
 	scriptEngineDatas[{ScriptType::EngineSubscreen, 0}] = ScriptEngineData();
 }
 void FFScript::initZScriptScriptedActiveSubscreen()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in runScriptedActiveSubscreen.
 	scriptEngineDatas[{ScriptType::ScriptedActiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in runOnMapScriptEngine.
 	scriptEngineDatas[{ScriptType::OnMap, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptHeroScripts()
 {
-	scriptEngineDatas[{ScriptType::Hero, 0}] = ScriptEngineData();
+	if (scriptEngineDatas.contains({ScriptType::Hero, 0}))
+		reset_script_engine_data(ScriptType::Hero, 0);
 }
 
 
@@ -2015,24 +2035,7 @@ void FFScript::destroySprite(sprite* sprite)
 	ScriptType scriptType = *sprite->get_scrtype();
 	int32_t uid = sprite->getUID();
 	FFCore.release_sprite_owned_objects(uid);
-	FFCore.deallocateAllScriptOwned(scriptType, uid);
-	FFCore.reset_script_engine_data(scriptType, uid);
-	expire_internal_script_arrays(scriptType, uid);
-}
-
-// Same as "onDestroySprite", but for non-sprite things.
-void FFScript::destroyScriptableObject(ScriptType scriptType, const int32_t UID)
-{
-	FFCore.deallocateAllScriptOwned(scriptType, UID);
-	FFCore.reset_script_engine_data(scriptType, UID);
-	expire_internal_script_arrays(scriptType, UID);
-}
-
-void FFScript::destroyScriptableObjectsOfType(ScriptType scriptType)
-{
-	FFCore.deallocateAllScriptOwnedOfType(scriptType);
-	FFCore.clear_script_engine_data_of_type(scriptType);
-	expire_internal_script_arrays(scriptType);
+	FFCore.clear_script_engine_data(scriptType, uid);
 }
 
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
@@ -14286,6 +14289,7 @@ void FFScript::runF6Engine()
 			clear_bitmap(f6_menu_buf);
 			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_F6};
 			int32_t openingwipe = black_opening_count;
 			int32_t openingshape = black_opening_shape;
 			black_opening_count = 0; //No opening wipe during F6 menu
@@ -14355,6 +14359,7 @@ void FFScript::runOnDeathEngine()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptHeroScripts();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::Hero, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -14387,6 +14392,7 @@ void FFScript::runOnLaunchEngine()
 	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
 	clear_to_color(script_menu_buf,BLACK);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 
@@ -14433,6 +14439,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	push_ri();
 	int local_i = int(gen_frozen_index++);
 	reset_script_engine_data(ScriptType::GenericFrozen, local_i);
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::GenericFrozen, local_i};
 	//run script
 	uint32_t fl = GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE;
 	BITMAP* tmpbuf = script_menu_buf;
@@ -14469,7 +14476,6 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 		destroy_bitmap(script_menu_buf);
 		script_menu_buf = tmpbuf;
 	}
-	clear_script_engine_data(ScriptType::GenericFrozen, local_i);
 	--gen_frozen_index;
 	//Restore script refinfo
 	pop_ri();
@@ -14485,6 +14491,7 @@ bool FFScript::runScriptedActiveSubscreen()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptScriptedActiveSubscreen();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::ScriptedActiveSubscreen, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = cur_dmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -14556,6 +14563,7 @@ bool FFScript::runOnMapScriptEngine()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptOnMapScript();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::OnMap, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = cur_dmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -14620,6 +14628,7 @@ void FFScript::runOnSaveEngine()
 		Quit = 0;
 		//
 		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
+		ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_ONSAVE};
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
 		pop_ri();
@@ -16460,7 +16469,6 @@ void FFScript::clear_combo_scripts()
 	combo_id_cache.clear();
 	combo_id_cache.resize(region_num_rpos * 7);
 	std::fill(combo_id_cache.begin(), combo_id_cache.end(), -1);
-	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
 	FFCore.clear_script_engine_data_of_type(ScriptType::Combo);
 }
 

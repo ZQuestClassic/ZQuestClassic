@@ -151,6 +151,7 @@ void dosubscr()
 	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
 
 	FFCore.initZScriptSubscreenScript();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::EngineSubscreen, 0};
 	subscrpg_clear_animation();
 	subscreen_open = true;
 	current_subscr_pos = sspSCROLLING;
@@ -517,7 +518,7 @@ void dosubscr()
 		if(can_btn && (getInput(btnS, INPUT_PRESS) || ((map_subscreen_open || get_qr(qr_MAP_BUTTON_CLOSES_SUBSCREEN)) && getInput(btnP, INPUT_PRESS))))
 			done=true;
 	}
-	
+
 	subscrpg_clear_animation();
 	current_subscr_pos = sspSCROLLING;
 	for(y = zc_min(y, 0); y >= -distance; y -= 3*Hero.subscr_speed)

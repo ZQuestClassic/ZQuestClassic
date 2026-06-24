@@ -864,8 +864,6 @@ enum __Error
 
 	static void release_sprite_owned_objects(int32_t sprite_id);
 	static void destroySprite(sprite* sprite);
-	static void destroyScriptableObject(ScriptType scriptType, const int32_t UID);
-	static void destroyScriptableObjectsOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID);
 	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
@@ -995,6 +993,17 @@ ScriptEngineData& get_ffc_script_engine_data(int index);
 ScriptEngineData& get_item_script_engine_data(int index);
 
 extern FFScript FFCore;
+
+// RAII guard for a script engine's blocking run loop: clears the slot's engine data
+// (releasing anything it owned) when it leaves scope, so an early return can't skip
+// the cleanup.
+struct ScopedScriptEngineDataClear
+{
+	ScriptType type;
+	int index;
+	~ScopedScriptEngineDataClear() { FFCore.clear_script_engine_data(type, index); }
+};
+
 extern byte flagpos;
 extern int32_t flagval;
 void clear_ornextflag();
