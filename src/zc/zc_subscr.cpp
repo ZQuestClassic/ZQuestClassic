@@ -119,6 +119,7 @@ static void _dosubscr()
 	int offy = passive_subscreen_height;
 
 	FFCore.initZScriptSubscreenScript();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::EngineSubscreen, 0};
 	subscrpg_clear_animation();
 	subscreen_open = true;
 	for(int32_t y = -distance; y <= 0; y += 3*Hero.subscr_speed)
@@ -484,6 +485,7 @@ static void _dosubscr()
 			done=true;
 	}
 	while(!done);
+
 	subscrpg_clear_animation();
 	for(int32_t y = 0; y >= -distance; y -= 3*Hero.subscr_speed)
 	{

@@ -1539,8 +1539,20 @@ void FFScript::clear_script_engine_data()
 	scriptEngineDatas.clear();
 }
 
+// Releases everything a script's engine data owns, in preparation for that entry being
+// zeroed (reset) or erased (cleared). This is the single chokepoint that frees the
+// script objects and arrays the script took ownership of via Own().
+// It must run while the entry's ref/stack still describe the finished script.
+static void release_script_engine_data(ScriptType type, int index)
+{
+	FFScript::deallocateAllScriptOwned(type, index);
+}
+
 void FFScript::reset_script_engine_data(ScriptType type, int index)
 {
+	// Releasing first frees anything the previous occupant of this slot still owned,
+	// so reusing or restarting the slot can never leak its objects.
+	release_script_engine_data(type, index);
 	get_script_engine_data(type, index).reset();
 }
 
@@ -1557,15 +1569,13 @@ void FFScript::clear_script_engine_data(ScriptType type, int index)
 		index = 0;
 	}
 
-	auto it = scriptEngineDatas.find({type, index});
-	if (it != scriptEngineDatas.end())
-	{
-		scriptEngineDatas.erase(it);
-	}
+	release_script_engine_data(type, index);
+	scriptEngineDatas.erase({type, index});
 }
 
 void FFScript::clear_script_engine_data_of_type(ScriptType type)
 {
+	deallocateAllScriptOwnedOfType(type);
 	std::erase_if(scriptEngineDatas, [&](auto& kv) { return kv.first.first == type; });
 }
 
@@ -2032,27 +2042,33 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 
 void FFScript::initZScriptDMapScripts()
 {
-	scriptEngineDatas[{ScriptType::DMap, 0}] = ScriptEngineData();
-	scriptEngineDatas[{ScriptType::ScriptedPassiveSubscreen, 0}] = ScriptEngineData();
+	if (scriptEngineDatas.contains({ScriptType::DMap, 0}))
+		reset_script_engine_data(ScriptType::DMap, 0);
+	if (scriptEngineDatas.contains({ScriptType::ScriptedPassiveSubscreen, 0}))
+		reset_script_engine_data(ScriptType::ScriptedPassiveSubscreen, 0);
 }
 
 void FFScript::initZScriptSubscreenScript()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in dosubscr.
 	scriptEngineDatas[{ScriptType::EngineSubscreen, 0}] = ScriptEngineData();
 }
 void FFScript::initZScriptScriptedActiveSubscreen()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in runScriptedActiveSubscreen.
 	scriptEngineDatas[{ScriptType::ScriptedActiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
 {
+	// Cleared on every exit by ScopedScriptEngineDataClear in runOnMapScriptEngine.
 	scriptEngineDatas[{ScriptType::OnMap, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptHeroScripts()
 {
-	scriptEngineDatas[{ScriptType::Player, 0}] = ScriptEngineData();
+	if (scriptEngineDatas.contains({ScriptType::Player, 0}))
+		reset_script_engine_data(ScriptType::Player, 0);
 }
 
 void FFScript::initZScriptItemScripts()
@@ -43233,6 +43249,7 @@ void FFScript::runF6Engine()
 			clear_bitmap(f6_menu_buf);
 			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_F6};
 			int32_t openingwipe = black_opening_count;
 			int32_t openingshape = black_opening_shape;
 			black_opening_count = 0; //No opening wipe during F6 menu
@@ -43292,6 +43309,7 @@ void FFScript::runOnDeathEngine()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptHeroScripts();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::Player, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -43324,6 +43342,7 @@ void FFScript::runOnLaunchEngine()
 	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
 	clear_to_color(script_menu_buf,BLACK);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 
@@ -43371,6 +43390,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	push_ri();
 	int local_i = int(gen_frozen_index++);
 	reset_script_engine_data(ScriptType::GenericFrozen, local_i);
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::GenericFrozen, local_i};
 	//run script
 	uint32_t fl = GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE;
 	BITMAP* tmpbuf = script_menu_buf;
@@ -43407,7 +43427,6 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 		destroy_bitmap(script_menu_buf);
 		script_menu_buf = tmpbuf;
 	}
-	clear_script_engine_data(ScriptType::GenericFrozen, local_i);
 	--gen_frozen_index;
 	//Restore script refinfo
 	pop_ri();
@@ -43423,6 +43442,7 @@ bool FFScript::runScriptedActiveSusbcreen()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptScriptedActiveSubscreen();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::ScriptedActiveSubscreen, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -43494,6 +43514,7 @@ bool FFScript::runOnMapScriptEngine()
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptOnMapScript();
+	ScopedScriptEngineDataClear engine_data_guard{ScriptType::OnMap, 0};
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -43558,6 +43579,7 @@ void FFScript::runOnSaveEngine()
 		Quit = 0;
 		//
 		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
+		ScopedScriptEngineDataClear engine_data_guard{ScriptType::Global, GLOBAL_SCRIPT_ONSAVE};
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
 		pop_ri();

@@ -1871,6 +1871,18 @@ enum __Error
     int32_t sid;
 };
 
+extern FFScript FFCore;
+
+// RAII guard for a script engine's blocking run loop: clears the slot's engine data
+// (releasing anything it owned) when it leaves scope, so an early return can't skip
+// the cleanup.
+struct ScopedScriptEngineDataClear
+{
+	ScriptType type;
+	int index;
+	~ScopedScriptEngineDataClear() { FFCore.clear_script_engine_data(type, index); }
+};
+
 extern int32_t ffmisc[MAXFFCS][16];
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
