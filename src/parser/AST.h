@@ -402,20 +402,28 @@ namespace ZScript
 		owning_vector<ASTString> strings;
 	};
 
+	struct AnnotationParam
+	{
+		AnnotationParam(ASTString* ptr)
+			: is_string(true), strval(ptr), intval()
+		{}
+		AnnotationParam(ASTFloat* ptr)
+			: is_string(false), strval(), intval(ptr)
+		{}
+		bool is_string;
+		owning_ptr<ASTString> strval;
+		owning_ptr<ASTFloat> intval;
+	};
 	class ASTAnnotation : public AST
 	{
 	public:
-		ASTAnnotation(ASTString* key, ASTString* strval,
-		          LocationData const& location = LOC_NONE);
-		ASTAnnotation(ASTString* key, ASTFloat* intval,
-		          LocationData const& location = LOC_NONE);
-		ASTAnnotation(ASTString* key, LocationData const& location = LOC_NONE);
+		ASTAnnotation(LocationData const& location = LOC_NONE);
 		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_ptr<ASTString> key, strval;
-		owning_ptr<ASTFloat> intval;
+		owning_ptr<ASTString> key;
+		vector<AnnotationParam> params;
 	};
 	
 	class ASTAnnotationList : public AST
