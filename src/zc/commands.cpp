@@ -85,6 +85,9 @@ void zplayer_handle_commands()
 		extern TestResults test_zasm_optimize(bool);
 		if (!run_tests(test_zasm_optimize, "test_zasm_optimize", verbose)) success = false;
 
+		extern TestResults test_arrays(bool);
+		if (!run_tests(test_arrays, "test_arrays", verbose)) success = false;
+
 #ifndef __EMSCRIPTEN__
 		extern TestResults test_debugger(bool);
 		if (!run_tests(test_debugger, "test_debugger", verbose)) success = false;
