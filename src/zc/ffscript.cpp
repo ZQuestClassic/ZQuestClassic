@@ -16709,6 +16709,7 @@ bool command_could_return_not_ok(int command)
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:
+	case SUBDATA_CLOSE:
 		return true;
 	}
 	return false;
