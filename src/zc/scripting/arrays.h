@@ -1042,6 +1042,60 @@ public:
 	}
 };
 
+template<typename T_Object, auto T_MemberPtr, auto T_SubMemberPtr>
+class ScriptingArray_ObjectSubMemberContainer : public IScriptingArray
+{
+public:
+	using MemberType = field_type<T_SubMemberPtr>::type;
+	using ElementType = MemberType::value_type;
+
+	size_t getSize(int ref) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return 0;
+
+		return (obj->*T_MemberPtr.*T_SubMemberPtr).size();
+	}
+
+	int getElement(int ref, int index) const override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return getDefaultValue();
+
+		const auto& container = obj->*T_MemberPtr.*T_SubMemberPtr;
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundGetterIndex))
+		{
+			if constexpr (is_gettable_container<MemberType>)
+				return container.get(*resolved_index) * (m_mul10000 ? 10000 : 1);
+			else
+				return container[*resolved_index] * (m_mul10000 ? 10000 : 1);
+		}
+
+		return getDefaultValue();
+	}
+
+	bool setElement(int ref, int index, int value) override
+	{
+		auto* obj = resolveScriptingObject<T_Object>(ref);
+		if (!obj) return false;
+
+		auto& container = (obj->*T_MemberPtr.*T_SubMemberPtr);
+
+		if (auto resolved_index = resolveIndex(index, container.size(), m_boundSetterIndex))
+			index = *resolved_index;
+		else
+			return false;
+
+		if (auto val = transformValue<ElementType>(value))
+		{
+			container[index] = val.value();
+			return true;
+		}
+		return false;
+	}
+};
+
 struct ArrayRegistrar
 {
 	ArrayRegistrar(int zasm_var, IScriptingArray* arrayImpl);

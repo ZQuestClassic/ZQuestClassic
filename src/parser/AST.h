@@ -1045,6 +1045,10 @@ namespace ZScript
 		bool is_nonstatic; // only matters until registration
 		
 		bool handled_staticness;
+		
+		bool was_exported;
+		bool was_range_exported;
+		exported_variable export_data;
 
 	protected:
 		// The list of individual data declarations.

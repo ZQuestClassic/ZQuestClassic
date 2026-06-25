@@ -373,7 +373,7 @@ int32_t mapdata_get_register(int32_t reg)
 				break;
 
 			if (auto handle = ResolveMapdataFFC(ri->mapdataref, index))
-				ret = handle.ffc->initd[d_index];
+				ret = handle.ffc->scrconfig.initd[d_index];
 			else
 			{
 				ret = -10000;
@@ -747,7 +747,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 				break;
 
 			if (auto handle = ResolveMapdataFFC(ri->mapdataref, index))
-				handle.ffc->initd[dindex] = value;
+				handle.ffc->scrconfig.initd[dindex] = value;
 			break;
 		}	
 		case MAPDATAITEM:
@@ -2034,13 +2034,13 @@ static ArrayRegistrar MAPDATAFFSCRIPT_registrar(MAPDATAFFSCRIPT, []{
 		[](mapdata* mapdata){ return mapdata->scr->numFFC(); },
 		[](mapdata* mapdata, int index) -> int {
 			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
-				return ffc->script;
+				return ffc->scrconfig.script;
 
 			return -1;
 		},
 		[](mapdata* mapdata, int index, int value){
 			if (auto ffc = resolve_ffc_for_scripting_index(mapdata, index))
-				ffc->script = value;
+				ffc->scrconfig.script = value;
 		}
 	);
 	impl.compatSetDefaultValue(-10000);
