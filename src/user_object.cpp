@@ -17,14 +17,34 @@ void destroy_object_arr(int32_t ptr);
 script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
 
+// For the script types whose RunScript "index" identifies a dmap/subscreen context rather than a
+// distinct script-engine slot (DMap, OnMap, passive/active subscreen, engine subscreen), there is
+// a single shared slot keyed at index 0. Script ownership must normalize the index the same way
+// `get_script_engine_data` does, or owned objects end up keyed by the dmap index while cleanup
+// looks at index 0 -- leaking them. Keep this list in sync with `get_script_engine_data`.
+static int32_t normalize_script_owner_index(ScriptType type, int32_t i)
+{
+	switch (type)
+	{
+	case ScriptType::DMap:
+	case ScriptType::OnMap:
+	case ScriptType::ScriptedPassiveSubscreen:
+	case ScriptType::ScriptedActiveSubscreen:
+	case ScriptType::EngineSubscreen:
+		return 0;
+	default:
+		return i;
+	}
+}
+
 void user_abstract_obj::own(ScriptType type, int32_t i)
 {
 	owned_type = type;
-	owned_i = i;
+	owned_i = normalize_script_owner_index(type, i);
 }
 bool user_abstract_obj::own_clear(ScriptType type, int32_t i)
 {
-	if(owned_type == type && owned_i == i)
+	if(owned_type == type && owned_i == normalize_script_owner_index(type, i))
 	{
 		free_obj();
 		return true;
