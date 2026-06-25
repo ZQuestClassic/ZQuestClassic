@@ -12256,7 +12256,8 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(type == ScriptType::Lwpn && ri->lwpnref == i)
 				{
 					FFCore.do_lweapon_delete();
-					return RUNSCRIPT_SELFDELETE;
+					earlyretval = RUNSCRIPT_SELFDELETE;
+					break;
 				}
 
 				FFCore.do_lweapon_delete();
@@ -12267,7 +12268,8 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(type == ScriptType::Ewpn && ri->ewpnref == i)
 				{
 					FFCore.do_eweapon_delete();
-					return RUNSCRIPT_SELFDELETE;
+					earlyretval = RUNSCRIPT_SELFDELETE;
+					break;
 				}
 
 				FFCore.do_eweapon_delete();
@@ -12572,7 +12574,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					{
 						scripting_log_error_with_context("This function can only be used on the currently-open Active or Map subscreen.");
 					}
-					else return RUNSCRIPT_SELFDELETE; // exit the subscreen itself
+					else earlyretval = RUNSCRIPT_SELFDELETE; // exit the subscreen itself
 				}
 				break;
 			}
@@ -13053,6 +13055,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 		}
 		if(earlyretval == RUNSCRIPT_SELFDELETE)
 		{
+			// The JIT uses command_could_return_not_ok to decide whether to check a command's
+			// return code. A self-deleting command that isn't registered there is silently
+			// ignored by the JIT (it diverges from the interpreter), so catch that here.
+			CHECK(command_could_return_not_ok(scommand));
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
