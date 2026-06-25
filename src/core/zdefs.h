@@ -143,7 +143,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
 #define V_COMBOS          71
 #define V_CSETS            6 //palette data
-#define V_MAPS            40
+#define V_MAPS            41
 #define V_DMAPS           26
 #define V_DOORS            1
 #define V_ITEMS           70
@@ -453,12 +453,6 @@ enum
 
 #define PITFALL_FALL_FRAMES 70
 #define WATER_DROWN_FRAMES 64
-
-#define lensflagSHOWHINTS = 0x0010;
-#define lensflagHIDESECRETS = 0x0020;
-#define lensflagNOXRAY = 0x0400;
-#define lensflagSHOWRAFTPATHS = 0x0800;
-#define lensflagSHOWINVISENEMIES = 0x1000;
 
 enum
 {
@@ -1691,6 +1685,7 @@ struct script_data
 	
 	// Initializer values for instance vars
 	bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
+	bounded_map<word, exported_variable> script_d_exports {MAX_SCRIPT_INST_VARIABLES, {}};
 
 	script_data(ScriptType type, int index) : meta(), id({type, index}), pc(0), end_pc(0) {}
 
@@ -1720,6 +1715,7 @@ struct script_data
 		pc = end_pc = 0;
 		meta.zero();
 		script_d_init.clear();
+		script_d_exports.clear();
 	}
 };
 
@@ -2171,8 +2167,6 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern viewport_t viewport;
-
-enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 
 double WrapAngle(double radians);

@@ -269,3 +269,8 @@ rect_t rect_t::expanded(int dist) const
 	r.expand(dist);
 	return r;
 }
+
+void script_config::clear()
+{
+	*this = script_config();
+}

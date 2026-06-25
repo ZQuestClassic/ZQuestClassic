@@ -92,6 +92,33 @@ inline void read_var(bounded_map<Sz,T>& val, FILE *f)
 }
 
 
+inline void write_var(zfix const& val, FILE *f)
+{
+	write_var(val.val, f);
+}
+inline void read_var(zfix& val, FILE *f)
+{
+	read_var(val.val, f);
+}
+
+inline void write_var(exported_variable const& val, FILE *f)
+{
+	write_str(val.name, f);
+	write_str(val.helptext, f);
+	write_var(val.btn_type, f);
+	write_var(val.min, f);
+	write_var(val.max, f);
+}
+inline void read_var(exported_variable& val, FILE *f)
+{
+	read_str(val.name, f);
+	read_str(val.helptext, f);
+	read_var(val.btn_type, f);
+	read_var(val.min, f);
+	read_var(val.max, f);
+}
+
+
 inline void write_str(string const& str, FILE* f)
 {
 	size_t sz = str.size();
@@ -374,6 +401,7 @@ void read_compile_data(ZScript::ZasmCompilerResult& zasmCompilerResult)
 		read_var(dsd.end_pc, tempfile);
 		
 		read_boundedcont(dsd.script_d_init, tempfile);
+		read_boundedcont(dsd.script_d_exports, tempfile);
 		
 		zasmCompilerResult.theScripts[str] = dsd;
 	}
@@ -441,6 +469,7 @@ void write_compile_data(const ZScript::ZasmCompilerResult& zasmCompilerResult)
 		write_var(v.end_pc, tempfile);
 		
 		write_boundedcont(v.script_d_init, tempfile);
+		write_boundedcont(v.script_d_exports, tempfile);
 	}
 	
 	dummy = zasmCompilerResult.zasm.size();

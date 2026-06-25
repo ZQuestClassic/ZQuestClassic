@@ -563,6 +563,15 @@ inline bool p_putvar(vector<T> const& ptr, PACKFILE *f)
 	return p_putlvec(ptr,f);
 }
 
+inline bool p_getvar(string* ptr, PACKFILE *f)
+{
+	return p_getlstr(ptr,f);
+}
+inline bool p_putvar(string const& ptr, PACKFILE *f)
+{
+	return p_putlstr(ptr,f);
+}
+
 template<typename T>
 inline bool p_getvar(std::set<T>* ptr, PACKFILE *f)
 {
@@ -615,6 +624,57 @@ template<typename A, typename B>
 inline bool p_putvar(def_pair<A,B> const& ptr, PACKFILE *f)
 {
 	return p_putpair(ptr,f);
+}
+
+inline bool p_getvar(exported_variable* ptr, PACKFILE *f)
+{
+	*ptr = exported_variable();
+	if (!p_getcstr(&ptr->name, f))
+		return false;
+	if (!p_getlstr(&ptr->helptext, f))
+		return false;
+	if (!p_getc(&ptr->btn_type, f))
+		return false;
+	if (!p_igetzf(&ptr->min, f))
+		return false;
+	if (!p_igetzf(&ptr->max, f))
+		return false;
+	return true;
+}
+inline bool p_putvar(exported_variable const& ptr, PACKFILE *f)
+{
+	if (!p_putcstr(ptr.name, f))
+		return false;
+	if (!p_putlstr(ptr.helptext, f))
+		return false;
+	if (!p_putc(ptr.btn_type, f))
+		return false;
+	if (!p_iputzf(ptr.min, f))
+		return false;
+	if (!p_iputzf(ptr.max, f))
+		return false;
+	return true;
+}
+
+inline bool p_getvar(script_config* ptr, PACKFILE *f)
+{
+	if (!p_igetw(&ptr->script, f))
+		return false;
+	if (!p_getarr(&ptr->initd, f))
+		return false;
+	if (!p_getwmap(&ptr->inst_init, f))
+		return false;
+	return true;
+}
+inline bool p_putvar(script_config const& ptr, PACKFILE *f)
+{
+	if (!p_iputw(ptr.script, f))
+		return false;
+	if (!p_putarr(ptr.initd, f))
+		return false;
+	if (!p_putwmap(ptr.inst_init, f))
+		return false;
+	return true;
 }
 
 //

@@ -10451,7 +10451,7 @@ void domouse()
 												.cset = 0,
 												.delay = 0,
 												.link = 0,
-												.script = 0,
+												.scrconfig = {},
 												.tw = 1,
 												.th = 1,
 												.ew = 16,
@@ -17635,6 +17635,7 @@ bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 		scriptdata->end_pc = data.end_pc;
 		scriptdata->zasm_script = zasm_scripts[0];
 		scriptdata->script_d_init = data.script_d_init;
+		scriptdata->script_d_exports = data.script_d_exports;
 	}
 	else if(scriptdata)
 		scriptdata->clear();

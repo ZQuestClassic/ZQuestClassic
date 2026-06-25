@@ -3934,9 +3934,6 @@ void set_combo_command::undo()
 
 set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 {
-	std::array<int, 8> initd_arr;
-	std::copy(std::begin(ffc.initd), std::end(ffc.initd), initd_arr.begin());
-
 	return {
 		.x = ffc.x,
 		.y = ffc.y,
@@ -3948,13 +3945,12 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.cset = ffc.cset,
 		.delay = ffc.delay,
 		.link = ffc.link,
-		.script = ffc.script,
+		.scrconfig = ffc.scrconfig,
 		.tw = ffc.txsz,
 		.th = ffc.tysz,
 		.ew = ffc.hit_width,
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
-		.initd = initd_arr,
 		.layer = ffc.layer,
 		.viewport_suspend_range = ffc.viewport_suspend_range,
 		.viewport_despawn_range = ffc.viewport_despawn_range,
@@ -3977,13 +3973,12 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffcs[i].cset = data.cset;
 	mapscr_ptr->ffcs[i].delay = data.delay;
 	mapscr_ptr->ffcs[i].link = data.link;
-	mapscr_ptr->ffcs[i].script = data.script;
+	mapscr_ptr->ffcs[i].scrconfig = data.scrconfig;
 	mapscr_ptr->ffcs[i].flags = data.flags;
 	mapscr_ptr->ffEffectWidth(i, data.ew);
 	mapscr_ptr->ffEffectHeight(i, data.eh);
 	mapscr_ptr->ffTileWidth(i, data.tw);
 	mapscr_ptr->ffTileHeight(i, data.th);
-	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcs[i].layer = data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4006,7 +4001,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].cset = prev_data.cset;
 	mapscr_ptr->ffcs[i].delay = prev_data.delay;
 	mapscr_ptr->ffcs[i].link = prev_data.link;
-	mapscr_ptr->ffcs[i].script = prev_data.script;
+	mapscr_ptr->ffcs[i].scrconfig = prev_data.scrconfig;
 	mapscr_ptr->ffcs[i].flags = prev_data.flags;
 	mapscr_ptr->ffcs[i].viewport_suspend_range = prev_data.viewport_suspend_range;
 	mapscr_ptr->ffcs[i].viewport_despawn_range = prev_data.viewport_despawn_range;
@@ -4014,7 +4009,6 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
 	mapscr_ptr->ffTileHeight(i, prev_data.th);
-	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcs[i].layer = prev_data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4322,9 +4316,6 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 	mapscr_ptr->ensureFFC(i);
 
 	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
-
-	std::array<int, 8> initd_arr;
-	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
 
 	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
 
@@ -8839,14 +8830,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_iputl(tempffc.flags,f))
 			return qe_invalid;
 		
-		if(!p_iputw(tempffc.script,f))
+		if (!p_putvar(tempffc.scrconfig,f))
 			return qe_invalid;
-		
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_iputl(tempffc.initd[q],f))
-				return qe_invalid;
-		}
 
 		if(!p_putc(tempffc.layer,f))
 			return qe_invalid;
@@ -12162,6 +12147,9 @@ int32_t write_one_ffscript(PACKFILE *f, [[maybe_unused]] zquestheader *Header, [
 	
 	if (!p_putbmap(script->script_d_init, f))
 		new_return(27);
+	
+	if (!p_putbmap(script->script_d_exports, f))
+		new_return(28);
 
     return 0;
 }

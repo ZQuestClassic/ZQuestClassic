@@ -28904,9 +28904,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			if (ffc_handle.ffc->script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id))
+			if (ffc_handle.ffc->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id))
 			{
-				ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.ffc_id);
+				ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->scrconfig.script, ffc_handle.ffc_id);
 				FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id) = false;
 			}
 		});

@@ -394,6 +394,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 	{
 		if (!p_getbmap(&script->script_d_init, f))
 			return qe_invalid;
+		if (!p_getbmap(&script->script_d_exports, f))
+			return qe_invalid;
 	}
 
 	if (script == &fake_script_data)

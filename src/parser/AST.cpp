@@ -1265,13 +1265,15 @@ std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
 
 ASTDataDeclList::ASTDataDeclList(LocationData const& location)
 	: ASTDecl(location), baseType(NULL), readonly(false), internal(false),
-	is_static(false), is_nonstatic(false), handled_staticness(false)
+	is_static(false), is_nonstatic(false), handled_staticness(false),
+	was_exported(false), was_range_exported(false), export_data()
 {}
 
 ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType), readonly(other.readonly), internal(other.internal),
-	  is_static(other.is_static), is_nonstatic(other.is_nonstatic), handled_staticness(other.handled_staticness)
+	  is_static(other.is_static), is_nonstatic(other.is_nonstatic), handled_staticness(other.handled_staticness),
+	  was_exported(other.was_exported), was_range_exported(other.was_range_exported), export_data(other.export_data)
 {
 	for (auto it = other.declarations_.cbegin();
 	     it != other.declarations_.cend(); ++it)

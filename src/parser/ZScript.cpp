@@ -263,12 +263,18 @@ void UserScript::register_instance_var(Variable* v, optional<int32_t> value)
 	assert(!v->registerId);
 	auto id = getUniqueInstanceID();
 	v->registerId = SCRIPT_INST_VARS(id);
+	
 	if (value)
 		script_d_init[id] = *value;
+	
+	auto* decl_list = v->node.list;
+	if (decl_list && decl_list->was_exported)
+		script_d_exports[id] = decl_list->export_data;
 }
 void UserScript::apply_data(disassembled_script_data& dest)
 {
 	dest.script_d_init = script_d_init;
+	dest.script_d_exports = script_d_exports;
 }
 
 // ZScript::BuiltinScript

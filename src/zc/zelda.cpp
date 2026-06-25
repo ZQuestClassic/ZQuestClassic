@@ -2399,9 +2399,9 @@ void show_ffscript_names()
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if(ypos > 224) return;
 
-		if (ffc_handle.ffc->script)
+		if (ffc_handle.ffc->scrconfig.script)
 		{
-			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->scrconfig.script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
 			ypos+=12;
 		}
 	});
@@ -3211,9 +3211,9 @@ void game_loop()
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id))
 			{
-				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if (ffc_handle.ffc->scrconfig.script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.ffc_id);
+					ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->scrconfig.script, ffc_handle.ffc_id);
 					FFCore.waitdraw(ScriptType::FFC, ffc_handle.ffc_id) = false;
 				}
 			}

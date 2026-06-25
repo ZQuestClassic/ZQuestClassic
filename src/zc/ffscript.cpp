@@ -1413,12 +1413,21 @@ static void clear_script_variables()
 static void reset_script_variables()
 {
 	clear_script_variables();
-	auto const& initv = curscript->script_d_init;
-	for (auto [id, val] : initv.inner())
+	for (auto [id, val] : curscript->script_d_init.inner())
 	{
 		if (val)
 			ri->script_d[id] = val;
 	}
+}
+static void reset_script_variables(script_config const& cfg)
+{
+	reset_script_variables();
+	for (auto [id, val] : cfg.inst_init)
+	{
+		ri->script_d[id] = val;
+	}
+	
+	memcpy(ri->d, cfg.initd.data(), 8 * sizeof(int32_t));
 }
 
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, script_data* sd, int index)
@@ -1447,8 +1456,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				mapscr* scr = get_scr(ffc->screen_spawned);
-				memcpy(ri->d, scr->ffcs[index % 128].initd, 8 * sizeof(int32_t));
-				reset_script_variables();
+				reset_script_variables(scr->ffcs[index % 128].scrconfig);
 				data.initialized = true;
 			}
 
@@ -9196,7 +9204,7 @@ static void script_exit_cleanup(bool no_dealloc)
 		case ScriptType::FFC:
 		{
 			if (auto ffc = ResolveFFCWithID(i))
-				ffc->script = 0;
+				ffc->scrconfig.script = 0;
 			auto& data = get_script_engine_data(type, i);
 			data.doscript = false;
 			data.clear_ref();
@@ -13651,7 +13659,7 @@ int32_t ffscript_engine(const bool preload)
 		}
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			if(ffc_handle.ffc->script == 0)
+			if(ffc_handle.ffc->scrconfig.script == 0)
 				return;
 				
 			if(preload && !(ffc_handle.ffc->flags&ffc_preload))
@@ -13663,7 +13671,7 @@ int32_t ffscript_engine(const bool preload)
 			if (ffc_handle.ffc->is_beyond_viewport_suspend_range())
 				return;
 
-			ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.ffc_id);
+			ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->scrconfig.script, ffc_handle.ffc_id);
 		});
 	}
 	

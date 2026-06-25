@@ -155,6 +155,7 @@ namespace ZScript
 		ASTScript& node;
 		ScriptScope* scope;
 		bounded_map<word, int32_t> script_d_init {MAX_SCRIPT_INST_VARIABLES, 0};
+		bounded_map<word, exported_variable> script_d_exports {MAX_SCRIPT_INST_VARIABLES, {}};
 	};
 
 	class BuiltinScript : public Script

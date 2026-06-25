@@ -27,17 +27,16 @@ struct ffdata
 	word delay;
 	ffc_flags flags;
 	word link;
-	int8_t layer;
+	int8_t layer = 1;
 	byte twid : 2;
-	byte fwid : 6;
+	byte fwid : 6 = 15;
 	byte thei : 2;
-	byte fhei : 6;
-	int32_t script;
-	std::array<int, 8> initd;
+	byte fhei : 6 = 15;
+	script_config scrconfig;
 	int32_t viewport_suspend_range;
 	int32_t viewport_despawn_range;
 	
-	ffdata();
+	ffdata() = default;
 	ffdata(mapscr* scr, int32_t ind);
 	void clear();
 	void load(mapscr* scr, int32_t ind);
@@ -58,17 +57,11 @@ public:
 	
 	void post_realize() override;
 private:
-	std::shared_ptr<GUI::Widget> FFC_INITD(int index);
-	void refreshScript();
 	void refreshSize();
 	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::SelComboSwatch> cmbsw;
 	
-	std::string h_initd[8];
-	std::shared_ptr<GUI::TextField> tf_initd[8];
-	std::shared_ptr<GUI::Button> ib_initds[8];
-	std::shared_ptr<GUI::Label> l_initds[8];
 	std::shared_ptr<GUI::Grid> cmb_container;
 	
 	ffdata ffc;

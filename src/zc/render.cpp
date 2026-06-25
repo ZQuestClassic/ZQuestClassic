@@ -408,8 +408,8 @@ void render_zc()
 	if (show_ff_scripts)
 	{
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			if (ffc_handle.ffc->script)
-				lines_right.push_back(ffcmap[ffc_handle.ffc->script-1].scriptname);
+			if (ffc_handle.ffc->scrconfig.script)
+				lines_right.push_back(ffcmap[ffc_handle.ffc->scrconfig.script-1].scriptname);
 		});
 	}
 
