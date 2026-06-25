@@ -58,10 +58,30 @@ bool can_restore_object_type(script_object_type type)
 // When a script or sprite ends, the functions "destroySprite" / "deallocateAllScriptOwned" etc.
 // handle removing the reference.
 
+// For the script types whose RunScript "index" identifies a dmap/subscreen context rather than a
+// distinct script-engine slot (DMap, OnMap, passive/active subscreen, engine subscreen), there is
+// a single shared slot keyed at index 0. Script ownership must normalize the index the same way
+// `get_script_engine_data` does, or owned objects end up keyed by the dmap index while cleanup
+// looks at index 0 -- leaking them. Keep this list in sync with `get_script_engine_data`.
+static int32_t normalize_script_owner_index(ScriptType type, int32_t i)
+{
+	switch (type)
+	{
+	case ScriptType::DMap:
+	case ScriptType::OnMap:
+	case ScriptType::ScriptedPassiveSubscreen:
+	case ScriptType::ScriptedActiveSubscreen:
+	case ScriptType::EngineSubscreen:
+		return 0;
+	default:
+		return i;
+	}
+}
+
 void user_abstract_obj::set_owned_by_script(ScriptType type, int32_t i)
 {
 	owned_type = type;
-	owned_i = i;
+	owned_i = normalize_script_owner_index(type, i);
 	owned_sprite_id = 0;
 }
 void user_abstract_obj::set_owned_by_sprite(sprite* sprite)
@@ -72,7 +92,7 @@ void user_abstract_obj::set_owned_by_sprite(sprite* sprite)
 }
 bool user_abstract_obj::script_own_clear(ScriptType type, int32_t i)
 {
-	if(owned_type == type && owned_i == i)
+	if(owned_type == type && owned_i == normalize_script_owner_index(type, i))
 	{
 		return true;
 	}
