@@ -21,7 +21,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: RecursiveVisitor(program), returnType(NULL)
+	: RegBaseVisitor(program), returnType(NULL)
 {
 	scope = &program.getScope();
 	caseFile(program.getRoot());
@@ -653,6 +653,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	// Then resolve the type.
 	DataType const* type = host.resolve_ornull(scope, this);
 	if (breakRecursion(host)) return;
+	auto* list = host.list;
 	if(!host.registered())  //Handle initial setup
 	{
 		if (!type->isResolved())
@@ -660,102 +661,10 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			handleError(CompileError::UnresolvedType(&host, type->getName()));
 			return;
 		}
-
-		// Don't allow void type.
-		if (type->isVoid())
-		{
-			handleError(CompileError::BadVarType(&host, host.getName(), type->getName()));
-			return;
-		}
 		
-		if (type->isAuto())
-		{
-			auto arr_depth = type->getArrayDepth();
-			auto init = host.getInitializer();
-			DataType const* readty = nullptr;
-			if(init)
-			{
-				readty = init->getReadType(scope, this);
-				if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
-				{
-					if(readty->getArrayDepth() < arr_depth)
-					{
-						handleError(CompileError::BadAutoType(&host, type->getName(), fmt::format("must have an initializer with type that is at least {}-depth array", arr_depth)));
-						return;
-					}
-					if(type->isConstant())
-						type = readty->getConstType();
-					else if(!readty->isArray())
-						type = readty->getMutType();
-					else type = readty;
-					host.setResolvedType(*type);
-				}
-				else readty = nullptr; //indicate failure
-			}
-			if(!readty)
-			{
-				handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
-				return;
-			}
-		}
-		
-		// Is it a constant?
-		bool isConstant = false;
-		if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR))
-		{
-			// A constant without an initializer doesn't make sense.
-			if (!host.getInitializer())
-			{
-				handleError(CompileError::ConstUninitialized(&host));
-				return;
-			}
-
-			// Inline the constant if possible.
-			isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
-			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-			if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
-			{
-				handleError(CompileError::ConstNotConstant(&host, host.getName()));
-				return;
-			}
-		}
-		else if(parsing_user_class == puc_vars) //class variables
-		{
-			if(host.getInitializer())
-			{
-				handleError(CompileError::ClassNoInits(&host, host.getName()));
-				return;
-			}
-		}
-
-		if (isConstant)
-		{
-			if (scope->getLocalDatum(host.getName()))
-			{
-				handleError(CompileError::VarRedef(&host, host.getName()));
-				return;
-			}
-			
-			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-			Constant::create(*scope, host, *type, value, this);
-		}
-		else
-		{
-			if(parsing_user_class == puc_vars)
-			{
-				UserClassVar::create(*scope, host, *type, this);
-			}
-			else
-			{
-				if (scope->getLocalDatum(host.getName()))
-				{
-					handleError(CompileError::VarRedef(&host, host.getName()));
-					return;
-				}
-
-				Variable::create(*scope, host, *type, this);
-			}
-		}
+		handle_data_decl_registry(host);
+		if (breakRecursion(host)) return;
+		type = host.resolve_ornull(scope, this);
 	}
 	
 	//Handle typechecking regardless of registration
@@ -766,7 +675,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		DataType const& initType = *initializer->getReadType(scope, this);
 		DataType const& enumType = DataType::CFLOAT;
 
-		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : *type, &host);
+		checkCast(initType, (list && list->isEnum()) ? enumType : *type, &host);
 		if (breakRecursion(host)) return;
 	}	
 }
