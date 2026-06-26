@@ -1853,12 +1853,12 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	}
 	wpn->unblockable = cmb.c_attributes[12].getTrunc() & WPNUNB_ALL;
 	
-	wpn->script = cmb.c_attributes[13].getTrunc();
+	wpn->scrconfig.script = cmb.c_attributes[13].getTrunc();
 	if (cmb.usrflags & cflag10)
 		wpn->load_weap_data(cmb.misc_weap_data);
 	
-	if(!((lw ? lwpnmap : ewpnmap)[wpn->script-1].hasScriptData())) // validate script
-		wpn->script = 0;
+	if(!((lw ? lwpnmap : ewpnmap)[wpn->scrconfig.script-1].hasScriptData())) // validate script
+		wpn->scrconfig.clear();
 
 	return wpn;
 }

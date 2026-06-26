@@ -1466,8 +1466,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
-				reset_script_variables();
+				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
 			}
 			
@@ -1484,8 +1483,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
-				reset_script_variables();
+				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
 			}
 			
@@ -1502,8 +1500,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
-				reset_script_variables();
+				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
 			}
 			
@@ -1520,8 +1517,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, spr->initD, 8 * sizeof(int32_t));
-				reset_script_variables();
+				reset_script_variables(spr->scrconfig);
 				data.initialized = 1;
 			}
 			
@@ -1542,8 +1538,8 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, itemsbuf.get(new_i).initiald, 8 * sizeof(int32_t));
-				reset_script_variables();
+				auto& idat = itemsbuf.get(new_i);
+				reset_script_variables(collect ? idat.collect_scrconfig : idat.scrconfig);
 				data.initialized = true;
 			}			
 			//'this' pointer
@@ -1927,13 +1923,13 @@ void FFScript::initZScriptItemScripts()
 		if (q < itemsbuf.capacity())
 		{
 			auto const& itm = itemsbuf.get(q);
-			if (itm.script)
+			if (itm.scrconfig.script)
 			{
 				auto& data = get_script_engine_data(ScriptType::Item, q);
 				data.reset();
 				data.doscript = ((itm.flags&item_passive_script) && game->get_item(q)) ? 1 : 0;
 			}
-			if (itm.collect_script)
+			if (itm.collect_scrconfig.script)
 			{
 				auto& cdata = get_script_engine_data(ScriptType::Item, c);
 				cdata.reset();
@@ -9153,7 +9149,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			data.doscript = false;
 			data.clear_ref();
 			if (auto spr = sprite::getByUID(i))
-				spr->script = 0;
+				spr->scrconfig.script = 0;
 		}
 		break;
 		
@@ -9178,7 +9174,7 @@ static void script_exit_cleanup(bool no_dealloc)
 			{
 				auto& itm = itemsbuf[i];
 				if ((itm.flags & item_passive_script) && game->get_item(i))
-					itm.script = 0; //Quit perpetual scripts, too.
+					itm.scrconfig.script = 0; //Quit perpetual scripts, too.
 			}
 			data.doscript = 0;
 			data.clear_ref();
@@ -12385,7 +12381,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					}
 					case 1:
 					{
-						if ( itm.script != 0 )
+						if ( itm.scrconfig.script != 0 )
 						{
 							if ( !data.doscript ) 
 							{
@@ -12402,7 +12398,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 					case 2:
 					default:
 					{
-						if (itm.script != 0)
+						if (itm.scrconfig.script != 0)
 						{
 							if (data.doscript != 2)
 								data.doscript = 2;
@@ -13360,13 +13356,13 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i)
 		case ScriptType::FFC:
 			return ffscripts[script];
 		case ScriptType::NPC:
-			return guyscripts[guys.getByUID(i)->script];
+			return guyscripts[guys.getByUID(i)->scrconfig.script];
 		case ScriptType::Lwpn:
-			return lwpnscripts[Lwpns.getByUID(i)->script];
+			return lwpnscripts[Lwpns.getByUID(i)->scrconfig.script];
 		case ScriptType::Ewpn:
-			return ewpnscripts[Ewpns.getByUID(i)->script];
+			return ewpnscripts[Ewpns.getByUID(i)->scrconfig.script];
 		case ScriptType::ItemSprite:
-			return itemspritescripts[items.getByUID(i)->script];
+			return itemspritescripts[items.getByUID(i)->scrconfig.script];
 		case ScriptType::Item:
 			return itemscripts[script];
 		case ScriptType::Global:
@@ -14827,7 +14823,7 @@ bool FFScript::itemScriptEngine()
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf.get(q);
-		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		if ( itm.scrconfig.script <= 0 || itm.scrconfig.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 		if ( data.doscript < 1 ) continue;
@@ -14840,7 +14836,7 @@ bool FFScript::itemScriptEngine()
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itm.type) > itm.level)
 					data.doscript = 0;
-				else ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				else ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
 					data.clear_ref();
@@ -14874,7 +14870,7 @@ bool FFScript::itemScriptEngine()
 			}
 			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
@@ -14884,7 +14880,7 @@ bool FFScript::itemScriptEngine()
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+					ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 					data.doscript = 0;
 				}
 			}
@@ -14909,7 +14905,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 	for (int32_t q = 0; q < itemsbuf.capacity(); ++q)
 	{
 		auto const& itm = itemsbuf.get(q);
-		if ( itm.script <= 0 || itm.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
+		if ( itm.scrconfig.script <= 0 || itm.scrconfig.script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 
@@ -14934,7 +14930,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itm.type) > itm.level)
 					data.doscript = 0;
-				else ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				else ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
 					data.clear_ref();
@@ -14956,7 +14952,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			}
 			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
@@ -14966,7 +14962,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(ScriptType::Item, itm.script, q);
+					ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, q);
 					data.doscript = 0;
 				}
 			}

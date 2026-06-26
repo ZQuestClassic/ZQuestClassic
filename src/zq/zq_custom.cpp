@@ -268,9 +268,9 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 {
 	if (i < 8)
 	{
-		if (test.script)
+		if (test.scrconfig.script)
 		{
-			zasm_meta const& meta = guyscripts[test.script]->meta;
+			zasm_meta const& meta = guyscripts[test.scrconfig.script]->meta;
 			if(!meta.initd_help[i].empty())
 				InfoDialog("Info", meta.initd_help[i].c_str()).show();
 		}
@@ -278,9 +278,9 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 	else
 	{
 		i -= 8;
-		if (test.weap_data.script)
+		if (test.weap_data.scrconfig.script)
 		{
-			zasm_meta const& meta = ewpnscripts[test.weap_data.script]->meta;
+			zasm_meta const& meta = ewpnscripts[test.weap_data.scrconfig.script]->meta;
 			if (!meta.initd_help[i].empty())
 				InfoDialog("Info", meta.initd_help[i].c_str()).show();
 		}

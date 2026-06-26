@@ -1787,7 +1787,6 @@ static constexpr script_variable variable_list[]=
 	
 	{"NPCDATAINITD", NPCDATAINITD, 0},
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0},
-	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0},
 	//lweapon scripts
 	{"LWPNSCRIPT", LWPNSCRIPT, 0},
 	{"LWPNINITD", LWPNINITD, 0},
@@ -2779,6 +2778,8 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODATA_MISC_WEAPONDATA", COMBODATA_MISC_WEAPONDATA, 0 },
 	{ "COMBODATA_LIFT_WEAPONDATA", COMBODATA_LIFT_WEAPONDATA, 0 },
 	{ "WEAPDATA_VALID", WEAPDATA_VALID, 0 },
+	{ "IDATACOLLECTINITD", IDATACOLLECTINITD, 0 },
+	{ "IDATASPRITEINITD", IDATASPRITEINITD, 0 },
 	{"", -1},
 };
 
@@ -3248,6 +3249,8 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case IDATABURNINGSPR:
 		case IDATAFLAGS:
 		case IDATAINITDD:
+		case IDATACOLLECTINITD:
+		case IDATASPRITEINITD:
 		case IDATAMISCD:
 		case IDATAMOVEFLAGS:
 		case IDATASPRITE:
@@ -4041,6 +4044,8 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case IDATAHZSZ:
 		case IDATAID:
 		case IDATAINITDD:
+		case IDATACOLLECTINITD:
+		case IDATASPRITEINITD:
 		case IDATAJINXIMMUNE:
 		case IDATAJINXSWAP:
 		case IDATAKEEP:
@@ -4494,7 +4499,6 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case NPCDDEATHSPR:
 		case NPCDSHADOWSPR:
 		case NPCDSPAWNSPR:
-		case NPCMATCHINITDLABEL:
 		case NPCDATA_WEAPONDATA:
 			return REFNPCDATA;
 

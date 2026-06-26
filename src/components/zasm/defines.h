@@ -2399,7 +2399,7 @@ enum ASM_DEFINE
 #define NPCLINEDUP			0x131F	
 #define NPCDATAINITD			0x1320
 #define NPCDATASCRIPT			0x1321	
-#define NPCMATCHINITDLABEL			0x1322	
+#define DELETED_NPCMATCHINITDLABEL			0x1322	
 #define LWPNSCRIPT			0x1323
 #define LWPNINITD			0x1324	
 #define ITEMTYPE			0x1325	
@@ -3466,6 +3466,8 @@ enum ASM_DEFINE
 
 
 
+#define IDATACOLLECTINITD          0x16FE
+#define IDATASPRITEINITD           0x16FF
 #define SCRIPT_INST_VARS(d)      ((0x1700) + d) // 256; 0x1700 -> 0x1800
 #define NUMVARIABLES               0x1800
 

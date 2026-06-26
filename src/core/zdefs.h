@@ -146,13 +146,13 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            41
 #define V_DMAPS           26
 #define V_DOORS            1
-#define V_ITEMS           69
+#define V_ITEMS           70
 #define V_WEAPONS          9
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        48
-#define V_GUYS            58
+#define V_GUYS            59
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5
 #define V_CHEATS           1
@@ -168,11 +168,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ADVMUSIC         1
 
 // not 'real' sections, just separate version numbers
-#define V_COMPATRULE       117
+#define V_COMPATRULE       118
 
 #define V_COMPILESETTING   1
 
-#define V_WEAP_DATA        4
+#define V_WEAP_DATA        5
+#define V_SCRIPT_CONFIG    1
 
 //= V_SHOPS is under V_MISC
 
@@ -1171,14 +1172,10 @@ struct guydata
     int16_t firesfx; //weapon fire (attack) sound
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
-    int32_t initD[8];
-    
-    word script; //For future npc action scripts. 
+	script_config scrconfig;
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
 	move_flags moveflags;
-    
-    char initD_label[8][65];
     
 	word spr_shadow, spr_death, spr_spawn;
 	word specialsfx;

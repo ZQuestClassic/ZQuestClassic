@@ -363,7 +363,7 @@ void ItemListerDialog::update(bool)
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
 			itm.name, display_name, selected_val, itm.power, itm.level,
-			itm.type, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weap_data.script,
+			itm.type, itm.csets&0xF, itm.scrconfig.script, itm.collect_scrconfig.script, itm.sprite_scrconfig.script, itm.weap_data.scrconfig.script,
 			copied_name));
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(itm.tile);
@@ -834,7 +834,7 @@ void EnemyListerDialog::update(bool)
 			"\nNew Tile: {}\nHP: {}\nDamage: {}\nW. Damage: {}\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
 			"\n\nCopied:\n{}",
 			selected_val, enemy.tile, enemy.s_tile,
-			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.type, enemy.item_set, enemy.script, enemy.weap_data.script,
+			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.type, enemy.item_set, enemy.scrconfig.script, enemy.weap_data.scrconfig.script,
 			copied_name));
 		if(unsigned(selected_val) > 0)
 		{

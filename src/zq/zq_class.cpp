@@ -8040,17 +8040,11 @@ int32_t write_single_item(PACKFILE *f, word index)
 	if(!p_iputl(item_ref.flags,f))
 		new_return(15);
 	
-	if(!p_iputw(item_ref.script,f))
-		new_return(16);
-	
 	if(!p_putc(item_ref.count,f))
 		new_return(17);
 	
 	if(!p_iputw(item_ref.amount,f))
 		new_return(18);
-	
-	if(!p_iputw(item_ref.collect_script,f))
-		new_return(19);
 	
 	if(!p_iputw(item_ref.setmax,f))
 		new_return(21);
@@ -8060,10 +8054,6 @@ int32_t write_single_item(PACKFILE *f, word index)
 	
 	if(!p_iputw(item_ref.playsound,f))
 		new_return(23);
-	
-	for(int32_t j=0; j<8; j++)
-		if(!p_iputl(item_ref.initiald[j],f))
-			new_return(24);
 	
 	for (int q = 0; q < 10; ++q)
 		if(!p_iputw(item_ref.wpn_sprites[q],f))
@@ -8165,20 +8155,13 @@ int32_t write_single_item(PACKFILE *f, word index)
 		if(!p_putc(item_ref.cost_counter[q],f))
 			new_return(84);
 	
-	//InitD[] labels
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_putc(item_ref.initD_label[q][w],f))
-				new_return(85);
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_putc(item_ref.sprite_initD_label[q][w],f))
-				new_return(87);
-		if(!p_iputl(item_ref.sprite_initiald[q],f))
-			new_return(88);
-	}
-	if(!p_iputw(item_ref.sprite_script,f))
-		new_return(90);
+	if(!p_putvar(item_ref.scrconfig, f))
+		new_return(85);
+	if(!p_putvar(item_ref.collect_scrconfig, f))
+		new_return(86);
+	if(!p_putvar(item_ref.sprite_scrconfig, f))
+		new_return(87);
+	
 	if(!p_putc(item_ref.pickupflag,f))
 		new_return(91);
 	if(!p_putcstr(item_ref.display_name,f))
@@ -10363,24 +10346,8 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 			return 87;
 		}
 	}
-	if(!p_iputw(guy.script,f))
-	{
+	if(!p_putvar(guy.scrconfig, f))
 		return 88;
-	}
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		if(!p_iputl(guy.initD[q],f))
-		{
-			return 89;
-		}
-	}
-	for ( int32_t q = 0; q < 2; q++ )
-	{
-		if(!p_iputl(0,f))
-		{
-			return 90;
-		}
-	}
 	if(!p_iputl(guy.editorflags,f))
 	{
 		return 91;
@@ -10400,16 +10367,6 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 	}
 	
 	//Enemy Editor InitD[] labels
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		for ( int32_t w = 0; w < 65; w++ )
-		{
-			if(!p_putc(guy.initD_label[q][w],f))
-			{
-				return 95;
-			} 
-		}
-	}
 	if(!p_iputl(guy.moveflags,f))
 		return 99;
 	if(!p_iputw(guy.spr_shadow,f))

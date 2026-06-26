@@ -1033,24 +1033,33 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 			return qe_invalid;
 		}
 	}
-	if(!p_igetw(&(tempguy.script),f))
+	
+	if (guyversion < 59)
 	{
-		return qe_invalid;
-	} 
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		if(!p_igetl(&(tempguy.initD[q]),f))
+		if(!p_igetw(&(tempguy.scrconfig.script),f))
 		{
 			return qe_invalid;
-		} 			
+		} 
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			if(!p_igetl(&(tempguy.scrconfig.run_args[q]),f))
+			{
+				return qe_invalid;
+			} 			
+		}
+		for ( int32_t q = 0; q < 2; q++ )
+		{
+			int32_t temp;
+			if(!p_igetl(&temp,f))
+			{
+				return qe_invalid;
+			} 			
+		}
 	}
-	for ( int32_t q = 0; q < 2; q++ )
+	else
 	{
-		int32_t temp;
-		if(!p_igetl(&temp,f))
-		{
+		if (!p_getvar(&tempguy.scrconfig, f))
 			return qe_invalid;
-		} 			
 	}
 	
 	}
@@ -1090,42 +1099,34 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	{
 	for ( int32_t q = 0; q < 8; q++ )
 	{
-		for ( int32_t w = 0; w < 65; w++ )
+		byte dummybyte;
+		if (guyversion < 59)
 		{
-			if(!p_getc(&(tempguy.initD_label[q][w]),f))
-			{
-				return qe_invalid;
-			} 
+			for (int32_t w = 0; w < 65; w++)
+				if (!p_getc(&dummybyte,f))
+					return qe_invalid;
 		}
-		if(guyversion < 54)
+		if (guyversion < 54)
 		{
-			byte dummybyte;
-			for ( int32_t w = 0; w < 65; w++ )
-				if(!p_getc(&dummybyte,f))
+			for (int32_t w = 0; w < 65; w++)
+				if (!p_getc(&dummybyte,f))
 					return qe_invalid;
 		}
 	}
 		
 		
 	}
-	if ( guyversion < 39 ) //apply old InitD strings to both
-	{
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		snprintf(tempguy.initD_label[q], sizeof(tempguy.initD_label[q]), "InitD[%d]",q);
-	}
-	}
 	if ( guyversion >= 40 && guyversion < 54)
-		if(!p_igetw(&(tempguy.weap_data.script),f))
+		if(!p_igetw(&(tempguy.weap_data.scrconfig.script),f))
 			return qe_invalid;
 	if ( guyversion < 40 ) 
-		tempguy.weap_data.script = 0;
+		tempguy.weap_data.scrconfig.clear();
 	//eweapon script InitD
 	if ( guyversion >= 41 )
 	{
 		if(guyversion < 54)
 			for ( int32_t q = 0; q < 8; q++ )
-				if(!p_igetl(&(tempguy.weap_data.initd[q]),f))
+				if(!p_igetl(&(tempguy.weap_data.scrconfig.run_args[q]),f))
 					return qe_invalid;
 		if ( guy_cversion < 4 )
 		{
@@ -1250,8 +1251,7 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 	}
 	
 	//NPC Script attributes.
-	tempguy.script = 0; //No scripted enemies existed. -Z
-	for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
+	tempguy.scrconfig.clear();
 	
 	for ( int32_t q = 15; q < 32; q++) tempguy.attributes[q] = 0; //misc 16-32
 
@@ -1887,9 +1887,7 @@ int32_t readguy_single(PACKFILE *f, word guyversion, word guy_cversion, zquesthe
 
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
-		tempguy.script = 0;
-		for(int q = 0; q < 8; ++q)
-			tempguy.initD[q] = 0;
+		tempguy.scrconfig.clear();
 	}
 
 	return 0;

@@ -156,7 +156,7 @@ int32_t itemsprite_get_register(int32_t reg)
 		case ITEMSPRITESCRIPT:
 			if (s)
 			{
-				ret=((int32_t)s->script)*10000;
+				ret=((int32_t)s->scrconfig.script)*10000;
 			}
 			break;
 
@@ -630,7 +630,10 @@ void itemsprite_set_register(int32_t reg, int32_t value)
 			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, GET_REF(itemref));
 			if (s)
 			{
-				(s->script)=(value/10000);
+				(s->scrconfig.script)=(value/10000);
+				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+					s->scrconfig.run_args.fill(0);
+				s->scrconfig.inst_init.clear();
 			}
 			break;
 		
@@ -1201,7 +1204,7 @@ static ArrayRegistrar ITEMMOVEFLAGS_registrar(ITEMMOVEFLAGS, []{
 }());
 
 static ArrayRegistrar ITEMSPRITEINITD_registrar(ITEMSPRITEINITD, []{
-	static ScriptingArray_ObjectMemberCArray<item, &item::initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<item, &item::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

@@ -637,21 +637,6 @@ void do_npc_canmove(const bool v)
 	//set_register(sarg1, ( can_mv ? 10000 : 0));
 }
 
-void get_npcdata_initd_label(const bool v)
-{
-	int32_t init_d_index = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2);
-	
-	if((unsigned)init_d_index > 7)
-	{
-		Z_scripterrlog("Invalid InitD[] index (%d) passed to npcdata->GetInitDLabel().\n", init_d_index);
-		return;
-	}
-		
-	if(ArrayH::setArray(arrayptr, string(guysbuf[GET_REF(npcdataref)].initD_label[init_d_index])) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
-}
-
 void do_breakshield()
 {
 	int32_t UID = get_register(sarg1);
@@ -1139,7 +1124,7 @@ int32_t npc_get_register(int32_t reg)
 			else
 			{
 				//enemy *e = (enemy*)guys.spr(GET_REF(npcref));
-				ret = (int32_t)npc->script * 10000;
+				ret = (int32_t)npc->scrconfig.script * 10000;
 			}
 		}
 		break;
@@ -1785,12 +1770,10 @@ void npc_set_register(int32_t reg, int32_t value)
 		{
 			if (npc)
 			{
-				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-				{
-					for(int32_t q=0; q<8; q++)
-						npc->initD[q] = 0;
-				}
-				npc->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
+				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+					npc->scrconfig.run_args.fill(0);
+				npc->scrconfig.inst_init.clear();
+				npc->scrconfig.script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
 				on_reassign_script_engine_data(ScriptType::NPC, GET_REF(npcref));
 			}
 		}
@@ -2199,10 +2182,6 @@ std::optional<int32_t> npc_run_command(word command)
 		case NPCDATAGETNAME:
 			do_getnpcdata_getname();
 			break;
-		
-		case DELETED_NPCGETINITDLABEL:
-			get_npcdata_initd_label(false);
-			break;
 
 		default: return std::nullopt;
 	}
@@ -2213,7 +2192,7 @@ std::optional<int32_t> npc_run_command(word command)
 // NPC arrays.
 
 static ArrayRegistrar NPCINITD_registrar(NPCINITD, []{
-	static ScriptingArray_ObjectMemberCArray<enemy, &enemy::initD> impl;
+	static ScriptingArray_ObjectSubMemberContainer<enemy, &enemy::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
