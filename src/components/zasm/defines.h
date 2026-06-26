@@ -2401,7 +2401,7 @@ enum ASM_DEFINE
 #define NPCLINEDUP			0x131F	
 #define NPCDATAINITD			0x1320
 #define NPCDATASCRIPT			0x1321	
-#define NPCMATCHINITDLABEL			0x1322	
+#define DELETED_NPCMATCHINITDLABEL			0x1322	
 #define LWPNSCRIPT			0x1323
 #define LWPNINITD			0x1324	
 #define ITEMTYPE			0x1325	
@@ -3484,6 +3484,9 @@ enum ASM_DEFINE
 #define MESSAGEDATA_ADVSFX                    0x170B
 #define MESSAGEDATA_MENUMOVE_SFX              0x170C
 #define MESSAGEDATA_MENUCLOSE_SFX             0x170D
+
+#define IDATACOLLECTINITD                     0x170E
+#define IDATASPRITEINITD                      0x170F
 
 // fill in gap here
 

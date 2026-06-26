@@ -176,14 +176,11 @@ struct itemdata
     byte level = 1;            // What type in this family the item is
     int32_t power;             // Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;
-    word script;
     char count = crNONE;       // which counter is gained on picking up the item
     word amount;
     int16_t setmax;
     word max;
     word playsound = WAV_SCALE;
-    word collect_script;
-    int32_t initiald[INITIAL_D];
 	word wpn_sprites[10];
     byte pickup_hearts;
     int32_t misc1;
@@ -198,6 +195,9 @@ struct itemdata
     int32_t misc10;
 	int16_t cost_amount[2]; // Counter usage
     word usesound, usesound2;
+	script_config scrconfig;
+	script_config collect_scrconfig;
+	script_config sprite_scrconfig;
     
     //To implement next;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z Note: totally unused.
@@ -222,12 +222,6 @@ struct itemdata
     int32_t wpnsprite; //enemy weapon sprite. 
     int32_t magiccosttimer[2]; 
     char cost_counter[2];
-    
-    char initD_label[8][65];
-    char sprite_initD_label[8][65];
-    
-    int32_t sprite_initiald[INITIAL_D];
-    word sprite_script;
 	
 	std::string name;
 	std::string display_name;

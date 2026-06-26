@@ -568,8 +568,13 @@ struct script_config
 	std::array<int, 8> run_args;
 	std::map<word, int> inst_init;
 	
-	bool empty() const;
+	script_config();
+	script_config(script_config const& other);
+	script_config(script_config&& other) noexcept;
+	script_config& operator=(script_config const& other);
+	script_config& operator=(script_config&& other) noexcept;
 	bool operator==(const script_config& other) const = default;
+	bool empty() const;
 	void clear();
 };
 

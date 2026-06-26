@@ -959,11 +959,16 @@ int32_t read_weap_data(weapon_data& data, PACKFILE* f)
 	if (!p_igetzf(&(data.lift_height), f))
 		return qe_invalid;
 	
-	if(!p_igetw(&(data.script), f))
-		return qe_invalid;
-	for(uint q = 0; q < 8; ++q)
-		if(!p_igetl(&(data.initd[q]), f))
+	if (v_weapon_data < 5)
+	{
+		if(!p_igetw(&(data.scrconfig.script), f))
 			return qe_invalid;
+		for(uint q = 0; q < 8; ++q)
+			if(!p_igetl(&(data.scrconfig.run_args[q]), f))
+				return qe_invalid;
+	}
+	else if (!p_getvar(&data.scrconfig, f))
+		return qe_invalid;
 	if(!p_igetw(&(data.pierce_count), f))
 		return qe_invalid;
 	

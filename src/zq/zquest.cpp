@@ -6664,9 +6664,9 @@ void refresh(int32_t flags, bool update)
 			{
 				if(ypos+showfont_h-1 > map_page_bar[0].y)
 					break;
-				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
+				if(Map.CurrScr()->ffcs[i].scrconfig.script && Map.CurrScr()->ffcs[i].data)
 				{
-					textout_shadowed_ex(screen, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
+					textout_shadowed_ex(screen, showfont, ffcmap[Map.CurrScr()->ffcs[i].scrconfig.script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
 					ypos+=showfont_h+1;
 				}
 			}
@@ -9769,8 +9769,8 @@ void domouse()
 					newcombo const& cmb = combobuf[ff.data];
 					if (cmb.type)
 						oss << "\nType: " << combo_class_buf[cmb.type].name;
-					if (ff.script > 0)
-						oss << "\nScript: " << ffcmap[ff.script-1].scriptname.substr(0,400).c_str();
+					if (ff.scrconfig.script > 0)
+						oss << "\nScript: " << ffcmap[ff.scrconfig.script-1].scriptname.substr(0,400).c_str();
 					if (!cmb.label.empty())
 						oss << "\nLabel: " << cmb.label;
 					

@@ -890,6 +890,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LONG_SCC_ARGS, 1);
 	if (compatrule_version < 120)
 		set_qr(qr_STRINGS_DONT_SCROLL, 1);
+	if (compatrule_version < 121)
+		set_qr(qr_SCRIPTS_SHARE_INITD, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

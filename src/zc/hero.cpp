@@ -3651,7 +3651,7 @@ void collectitem_script(int32_t id)
 	if (invalid_item_id(id))
 		return;
 	auto const& itm = itemsbuf.get(id);
-	if(itm.collect_script)
+	if(itm.collect_scrconfig.script)
 	{
 		//clear item script stack. 
 		FFCore.clear_ref(ScriptType::Item, -id);
@@ -3660,14 +3660,14 @@ void collectitem_script(int32_t id)
 		{
 			int i = -id;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
-			ZScriptVersion::RunScript(ScriptType::Item, itm.collect_script, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itm.collect_scrconfig.script, i);
 			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		else if (id == 0 && !(FFCore.doscript(ScriptType::Item, -id) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
 		{
 			int i = COLLECT_SCRIPT_ITEM_ZERO;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
-			ZScriptVersion::RunScript(ScriptType::Item, itm.collect_script, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itm.collect_scrconfig.script, i);
 			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		//runningItemScripts[id] = 0;
@@ -3679,7 +3679,7 @@ void passiveitem_script(int32_t id, bool doRun = false)
 		return;
 	auto const& itm = itemsbuf.get(id);
 	//Passive item scripts on colelction
-	if(itm.script && ( (itm.flags&item_passive_script) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ))
+	if(itm.scrconfig.script && ( (itm.flags&item_passive_script) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
 		FFCore.reset_script_engine_data(ScriptType::Item, id);
 		
@@ -3690,7 +3690,7 @@ void passiveitem_script(int32_t id, bool doRun = false)
 			return;
 		}
 		if(doRun)
-			ZScriptVersion::RunScript(ScriptType::Item, itm.script, id);
+			ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, id);
 	}
 }
 
@@ -7571,11 +7571,11 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			game->set_item(stompid,false);
 			
 		// Stomp Boots script
-		if(stomp.script != 0 && !(FFCore.doscript(ScriptType::Item, stompid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(stomp.scrconfig.script != 0 && !(FFCore.doscript(ScriptType::Item, stompid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			int i = stompid;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
-			ZScriptVersion::RunScript(ScriptType::Item, stomp.script, i);
+			ZScriptVersion::RunScript(ScriptType::Item, stomp.scrconfig.script, i);
 			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		
@@ -11141,7 +11141,7 @@ bool HeroClass::run_item_action_script(int itemid, bool paid_magic)
 	if (invalid_item_id(itemid))
 		return false;
 	itemdata const& itm = itemsbuf.get(itemid);
-	if (!itm.script)
+	if (!itm.scrconfig.script)
 		return false;
 	if (FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING))
 		return false; //already running!
@@ -11154,7 +11154,7 @@ bool HeroClass::run_item_action_script(int itemid, bool paid_magic)
 	if (!paid_magic)
 		paymagiccost(itemid);
 	FFCore.reset_script_engine_data(ScriptType::Item, itemid);
-	ZScriptVersion::RunScript(ScriptType::Item, itm.script, itemid);
+	ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, itemid);
 	
 	did_scriptb = true; // unsure if this is really necessary, but copying this part just in case.
 	return true;
@@ -11296,7 +11296,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		item_error();
 		return;
 	}
-	if(glove.script!=0 && (FFCore.doscript(ScriptType::Item, liftid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+	if(glove.scrconfig.script!=0 && (FFCore.doscript(ScriptType::Item, liftid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 		return;
 	
 	bool paidmagic = had_weapon; //don't pay to throw, only to lift
@@ -11968,12 +11968,12 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				return item_error();
 			}
-			if(itm.script!=0 && (FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itm.scrconfig.script!=0 && (FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 				return false;
 			
 			size_t bind = game->get_bottle_slot(itm.misc1);
 			bool paidmagic = false;
-			if(itm.script)
+			if(itm.scrconfig.script)
 			{
 				paidmagic = true;
 				paymagiccost(itemid);
@@ -11981,7 +11981,7 @@ bool HeroClass::startwpn(int32_t itemid)
 
 				int i = itemid;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
-				ZScriptVersion::RunScript(ScriptType::Item, itm.script, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, i);
 				bind = game->get_bottle_slot(itm.misc1);
 			}
 			bottletype const* bt = bind ? &(QMisc.bottle_types[bind-1]) : NULL;
@@ -13541,12 +13541,12 @@ void do_lens()
 			
 			paymagiccost(itemid, true); //Needs to ignore timer cause lensclk is our timer.
 			
-			if(itm.script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itm.scrconfig.script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				//clear the item script stack for a new script
 				int i = itemid;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
-				ZScriptVersion::RunScript(ScriptType::Item, itm.script, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, i);
 				did_scriptl=true;
 			}
 			
@@ -13594,12 +13594,12 @@ void do_210_lens()
 		
 		paymagiccost(itemid, true);
 		
-		if(itm.script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(itm.scrconfig.script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			//clear the item script stack for a new script
 			int i = itemid;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
-			ZScriptVersion::RunScript(ScriptType::Item, itm.script, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, i);
 			did_scriptl=true;
 		}
 		
@@ -18980,7 +18980,7 @@ bool HeroClass::premove()
 			attackclk=0;
 			sfx(get_item_data(valid_item_id(directWpn) ? directWpn : current_item_id(itype_sword)).usesound, pan(x));
 			
-			if(valid_item_id(dowpn) && itemsbuf.get(dowpn).script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(valid_item_id(dowpn) && itemsbuf.get(dowpn).scrconfig.script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -18991,7 +18991,7 @@ bool HeroClass::premove()
 					//clear the item script stack for a new script
 					int i = dowpn;
 					FFCore.reset_script_engine_data(ScriptType::Item, i);
-					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).script, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).scrconfig.script, i);
 					did_scripta=true;
 				}
 			}
@@ -19189,7 +19189,7 @@ bool HeroClass::premove()
 			}
 		}
 		
-		if(valid_item_id(dowpn) && no_jinx && itemsbuf.get(dowpn).script!=0 && !did_scriptb && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(valid_item_id(dowpn) && no_jinx && itemsbuf.get(dowpn).scrconfig.script!=0 && !did_scriptb && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -19204,7 +19204,7 @@ bool HeroClass::premove()
 				//clear the item script stack for a new script
 				int i = dowpn;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
-				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).script, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf.get(i).scrconfig.script, i);
 				did_scriptb=true;
 			}
 		}
@@ -31741,19 +31741,19 @@ void HeroClass::getTriforce(int32_t id2)
 		
 		if ( (itm.flags & item_flag13) ) //Run action script on collection.
 		{
-			if ( itm.script )
+			if ( itm.scrconfig.script )
 			{
 				if ( !FFCore.doscript(ScriptType::Item, id2) ) 
 				{
 					int i = id2;
 					FFCore.reset_script_engine_data(ScriptType::Item, i);
-					ZScriptVersion::RunScript(ScriptType::Item, itm.script, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, i);
 					FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 				}
 				else
 				{
 					if ( !(itm.flags & item_flag10) ) //Cutscene halts the script it resumes after cutscene.
-						ZScriptVersion::RunScript(ScriptType::Item, itm.script, id2); //if flag is off, run the script every frame of the cutscene.
+						ZScriptVersion::RunScript(ScriptType::Item, itm.scrconfig.script, id2); //if flag is off, run the script every frame of the cutscene.
 				}
 			}
 		}

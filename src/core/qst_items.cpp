@@ -22,6 +22,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 {
     byte padding, tempbyte;
     word dummy_word;
+	dword tempdword;
 	
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 	itemdata tempitem = itemdata();
@@ -196,17 +197,15 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			if (tempchar) tempitem.flags |= item_gamedata;
 		}
 		
-		if(!p_igetw(&tempitem.script,f))
+		if(!p_igetw(&tempitem.scrconfig.script,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(s_version<=3)
 		{
-			if(tempitem.script > NUMSCRIPTITEM)
-			{
-				tempitem.script = 0;
-			}
+			if(tempitem.scrconfig.script > NUMSCRIPTITEM)
+				tempitem.scrconfig.script = 0;
 		}
 		
 		if(!p_getc(&tempitem.count,f))
@@ -219,17 +218,15 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&tempitem.collect_script,f))
+		if(!p_igetw(&tempitem.collect_scrconfig.script,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(s_version<=3)
 		{
-			if(tempitem.collect_script > NUMSCRIPTITEM)
-			{
-				tempitem.collect_script = 0;
-			}
+			if(tempitem.collect_scrconfig.script > NUMSCRIPTITEM)
+				tempitem.collect_scrconfig.script = 0;
 		}
 		
 		if(!p_igetw(&tempitem.setmax,f))
@@ -256,10 +253,10 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 		
 		for(int32_t j=0; j<8; j++)
 		{
-			if(!p_igetl(&tempitem.initiald[j],f))
-			{
+			if(!p_igetl(&tempitem.scrconfig.run_args[j],f))
 				return qe_invalid;
-			}
+			tempitem.collect_scrconfig.run_args[j] = tempitem.scrconfig.run_args[j];
+			tempitem.sprite_scrconfig.run_args[j] = tempitem.scrconfig.run_args[j];
 		}
 		
 		for(int32_t j=0; j<2; j++)
@@ -488,7 +485,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			}
 			if(s_version < 63)
 				for ( int32_t q = 0; q < INITIAL_D; q++ )
-					if(!p_igetl(&tempitem.weap_data.initd[q],f))
+					if(!p_igetl(&tempitem.weap_data.scrconfig.run_args[q],f))
 						return qe_invalid;
 			for ( int32_t q = 0; q < 2; q++ )
 			{
@@ -551,7 +548,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 					return qe_invalid;
 			}
 			if(s_version < 63)
-				if(!p_igetw(&tempitem.weap_data.script,f))
+				if(!p_igetw(&tempitem.weap_data.scrconfig.script,f))
 					return qe_invalid;
 			if(!p_igetl(&tempitem.wpnsprite,f))
 			{
@@ -643,7 +640,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			{
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&(tempitem.initD_label[q][w]),f))
+					if(!p_getc(&padding,f))
 					{
 						return qe_invalid;
 					} 
@@ -654,12 +651,12 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 							return qe_invalid;
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f))
+					if(!p_getc(&padding,f))
 					{
 						return qe_invalid;
 					} 
 				}
-				if(!p_igetl(&(tempitem.sprite_initiald[q]),f))
+				if(!p_igetl(&tempdword,f))
 				{
 					return qe_invalid;
 				}
@@ -674,7 +671,7 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 				}
 			}
 			//Pickup Type
-			if(!p_igetw(&tempitem.sprite_script,f))
+			if(!p_igetw(&tempitem.sprite_scrconfig.script,f))
 			{
 				return qe_invalid;
 			}
@@ -803,13 +800,8 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 	{
 		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 		{
-			tempitem.script = 0;
-			tempitem.weap_data.script = 0;
-			for(int q = 0; q < 8; ++q)
-			{
-				tempitem.initiald[q] = 0;
-				tempitem.weap_data.initd[q] = 0;
-			}
+			tempitem.scrconfig.clear();
+			tempitem.weap_data.scrconfig.clear();
 		}
 		itemsbuf[index] = tempitem;
 	}
@@ -2743,13 +2735,7 @@ void update_old_item(word s_version, word index, word version, word build)
 		}
 		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
 		{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				snprintf(tempitem.initD_label[q], sizeof(tempitem.initD_label[q]), "InitD[%d]",q);
-				snprintf(tempitem.sprite_initD_label[q], sizeof(tempitem.sprite_initD_label[q]), "InitD[%d]",q);
-				tempitem.sprite_initiald[q] = 0;
-			}
-			tempitem.sprite_script = 0;
+			tempitem.sprite_scrconfig.clear();
 		}
 		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
 		{
@@ -2854,6 +2840,7 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	static itemdata _nil_item;
 	
 	byte tempbyte;
+	dword tempdword;
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
 	itemdata& item_ref = should_skip ? _nil_item : itemsbuf[index];
 	item_ref = itemdata();
@@ -2895,8 +2882,9 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	if(!p_igetl(&item_ref.flags,f))
 		return qe_invalid;
 	
-	if(!p_igetw(&item_ref.script,f))
-		return qe_invalid;
+	if (s_version < 71)
+		if(!p_igetw(&item_ref.scrconfig.script,f))
+			return qe_invalid;
 	
 	if(!p_getc(&item_ref.count,f))
 		return qe_invalid;
@@ -2904,8 +2892,9 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	if(!p_igetw(&item_ref.amount,f))
 		return qe_invalid;
 	
-	if(!p_igetw(&item_ref.collect_script,f))
-		return qe_invalid;
+	if (s_version < 71)
+		if(!p_igetw(&item_ref.collect_scrconfig.script,f))
+			return qe_invalid;
 	
 	if(!p_igetw(&item_ref.setmax,f))
 		return qe_invalid;
@@ -2916,9 +2905,16 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	if(!p_igetw(&item_ref.playsound,f))
 		return qe_invalid;
 	
-	for (size_t q = 0; q < 8; ++q)
-		if(!p_igetl(&item_ref.initiald[q], f))
-			return qe_invalid;
+	if (s_version < 71)
+	{
+		for (size_t q = 0; q < 8; ++q)
+		{
+			if(!p_igetl(&item_ref.scrconfig.run_args[q], f))
+				return qe_invalid;
+			item_ref.collect_scrconfig.run_args[q] = item_ref.scrconfig.run_args[q];
+			item_ref.sprite_scrconfig.run_args[q] = item_ref.scrconfig.run_args[q];
+		}
+	}
 	
 	if (s_version < 68)
 	{
@@ -3027,19 +3023,31 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 		if(!p_getc(&item_ref.cost_counter[q],f))
 			return qe_invalid;
 		
-	for ( int32_t q = 0; q < 8; q++ )
+	if (s_version < 71)
 	{
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_getc(&(item_ref.initD_label[q][w]),f))
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			for ( int32_t w = 0; w < 65; w++ )
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+			for ( int32_t w = 0; w < 65; w++ )
+				if(!p_getc(&tempbyte,f))
+					return qe_invalid;
+			if(!p_igetl(&tempdword,f))
 				return qe_invalid;
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_getc(&(item_ref.sprite_initD_label[q][w]),f))
-				return qe_invalid;
-		if(!p_igetl(&(item_ref.sprite_initiald[q]),f))
+		}
+		if(!p_igetw(&item_ref.sprite_scrconfig.script,f))
 			return qe_invalid;
 	}
-	if(!p_igetw(&item_ref.sprite_script,f))
-		return qe_invalid;
+	else
+	{
+		if (!p_getvar(&item_ref.scrconfig, f))
+			return qe_invalid;
+		if (!p_getvar(&item_ref.collect_scrconfig, f))
+			return qe_invalid;
+		if (!p_getvar(&item_ref.sprite_scrconfig, f))
+			return qe_invalid;
+	}
 	
 	if(!p_getc(&(item_ref.pickupflag),f))
 		return qe_invalid;
@@ -3072,13 +3080,8 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	{
 		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 		{
-			item_ref.script = 0;
-			item_ref.weap_data.script = 0;
-			for(int q = 0; q < 8; ++q)
-			{
-				item_ref.initiald[q] = 0;
-				item_ref.weap_data.initd[q] = 0;
-			}
+			item_ref.scrconfig.clear();
+			item_ref.weap_data.scrconfig.clear();
 		}
 	}
 	return 0;

@@ -270,6 +270,37 @@ rect_t rect_t::expanded(int dist) const
 	return r;
 }
 
+script_config::script_config()
+	: script(0), inst_init()
+{
+	run_args.fill(0);
+}
+script_config::script_config(script_config const& other)
+{
+	*this = other;
+}
+script_config::script_config(script_config&& other) noexcept
+{
+	*this = other;
+}
+
+script_config& script_config::operator=(script_config const& other)
+{
+	script = other.script;
+	run_args = other.run_args;
+	inst_init = other.inst_init;
+	return *this;
+}
+script_config& script_config::operator=(script_config&& other) noexcept
+{
+	script = other.script;
+	run_args.fill(0);
+	inst_init.clear();
+	run_args.swap(other.run_args);
+	inst_init.swap(other.inst_init);
+	return *this;
+}
+
 bool script_config::empty() const
 {
 	if (script)

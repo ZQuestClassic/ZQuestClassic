@@ -103,8 +103,7 @@ public:
     int script_no_colldet;
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
     dword scriptflag;
-    word script;
-    int32_t initD[8];
+	script_config scrconfig;
     int32_t scripttile;
     signed char scriptflip;
     bool do_animation;

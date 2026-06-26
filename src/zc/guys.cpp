@@ -450,12 +450,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	for ( int32_t q = 0; q < 32; q++ ) movement[q] = d->movement[q];
 	for ( int32_t q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
 	
-	script = d->script;
-	
-	for ( int32_t q = 0; q < 8; q++ ) 
-	{
-		initD[q] = d->initD[q];
-	}
+	scrconfig = d->scrconfig;
 	
 	stickclk = 0;
 	submerged = false;
@@ -7907,7 +7902,7 @@ int32_t enemy::run_script(int32_t mode)
 	void pop_ri();
 
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (script <= 0 || script >= NUMSCRIPTGUYS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+	if (scrconfig.script <= 0 || scrconfig.script >= NUMSCRIPTGUYS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();
@@ -7919,13 +7914,13 @@ int32_t enemy::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			ret = ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+			ret = ZScriptVersion::RunScript(ScriptType::NPC, scrconfig.script, uid);
 			break;
 
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+				ret = ZScriptVersion::RunScript(ScriptType::NPC, scrconfig.script, uid);
 				waitdraw = false;
 			}
 			break;
@@ -19719,7 +19714,7 @@ void setupscreen()
 			curItem->hit_width=1;
 			curItem->hyofs=4;
 			curItem->hit_height=12;
-			curItem->script=0;
+			curItem->scrconfig.script=0;
 			curItem->txsz=1;
 			curItem->tysz=1;
 			//}
@@ -19918,9 +19913,9 @@ void check_enemy_lweapon_collision(weapon *w)
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= game->get_item_spawn_flicker())
 							|| (((prnt_itm.flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((prnt_itm.flags & item_flag7)&&isKey))&& !priced)))
 						{
-							if(itm.collect_script)
+							if(itm.collect_scrconfig.script)
 							{
-								ZScriptVersion::RunScript(ScriptType::Item, itm.collect_script, theItem->id & 0xFFF);
+								ZScriptVersion::RunScript(ScriptType::Item, itm.collect_scrconfig.script, theItem->id & 0xFFF);
 							}
 							
 							Hero.checkitems(j);

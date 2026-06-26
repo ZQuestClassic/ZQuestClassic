@@ -441,7 +441,7 @@ int32_t itemdata_get_register(int32_t reg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf.get(GET_REF(itemdataref)).collect_script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).collect_scrconfig.script)*10000;
 			break;
 		case IDATAPSOUND:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -471,7 +471,8 @@ int32_t itemdata_get_register(int32_t reg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf.get(GET_REF(itemdataref)).script)*10000;
+			
+			ret=(itemsbuf.get(GET_REF(itemdataref)).scrconfig.script)*10000;
 			break;
 		case IDATASETMAX:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -489,7 +490,7 @@ int32_t itemdata_get_register(int32_t reg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf.get(GET_REF(itemdataref)).sprite_script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).sprite_scrconfig.script)*10000;
 			break;
 		case IDATASSWIMDISABLED:
 			ret = item_flag(item_sideswim_disabled);
@@ -650,7 +651,7 @@ int32_t itemdata_get_register(int32_t reg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.script)*10000;
+			ret=(itemsbuf.get(GET_REF(itemdataref)).weap_data.scrconfig.script)*10000;
 			break;
 		case IDATAWEAPXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -1079,8 +1080,9 @@ void itemdata_set_register(int32_t reg, int32_t value)
 			FFScript::deallocateAllScriptOwned(ScriptType::Item, new_ref);
 
 			auto& itm = itemsbuf[id];
-			itm.collect_script = vbound(value/10000, 0, NUMSCRIPTITEM);
-			if (itm.collect_script && !script_engine_data_exists(ScriptType::Item, new_ref))
+			itm.collect_scrconfig.script = vbound(value/10000, 0, NUMSCRIPTITEM);
+			itm.collect_scrconfig.inst_init.clear();
+			if (itm.collect_scrconfig.script && !script_engine_data_exists(ScriptType::Item, new_ref))
 			{
 				auto& data = get_script_engine_data(ScriptType::Item, new_ref);
 				data.reset();
@@ -1117,8 +1119,9 @@ void itemdata_set_register(int32_t reg, int32_t value)
 			}
 			FFScript::deallocateAllScriptOwned(ScriptType::Item, id);
 			auto& itm = itemsbuf[id];
-			itm.script = vbound(value/10000, 0, NUMSCRIPTITEM);
-			if (itm.script && !script_engine_data_exists(ScriptType::Item, id))
+			itm.scrconfig.script = vbound(value/10000, 0, NUMSCRIPTITEM);
+			itm.scrconfig.inst_init.clear();
+			if (itm.scrconfig.script && !script_engine_data_exists(ScriptType::Item, id))
 			{
 				auto& data = get_script_engine_data(ScriptType::Item, id);
 				data.reset();
@@ -1135,13 +1138,17 @@ void itemdata_set_register(int32_t reg, int32_t value)
 			(itemsbuf[GET_REF(itemdataref)].setmax)=value/10000;
 			break;
 		case IDATASPRSCRIPT:
+		{
 			if(invalid_item_id(GET_REF(itemdataref)))
 			{
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			itemsbuf[GET_REF(itemdataref)].sprite_script=vbound(value/10000,0,NUMSCRIPTSITEMSPRITE);
+			auto& itm = itemsbuf[GET_REF(itemdataref)];
+			itm.sprite_scrconfig.script=vbound(value/10000,0,NUMSCRIPTSITEMSPRITE);
+			itm.sprite_scrconfig.inst_init.clear();
 			break;
+		}
 		case IDATASSWIMDISABLED:
 			item_flag(item_sideswim_disabled, value);
 			break;
@@ -1285,7 +1292,7 @@ void itemdata_set_register(int32_t reg, int32_t value)
 				scripting_log_error_with_context("Invalid itemdata access: {}", GET_REF(itemdataref));
 				break;
 			}
-			(itemsbuf[GET_REF(itemdataref)].weap_data.script)=vbound(value/10000, 0, 255);
+			(itemsbuf[GET_REF(itemdataref)].weap_data.scrconfig.script)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAWEAPXOFS:
 			if(invalid_item_id(GET_REF(itemdataref)))
@@ -1325,7 +1332,28 @@ void itemdata_set_register(int32_t reg, int32_t value)
 // itemdata arrays.
 
 static ArrayRegistrar IDATAINITDD_registrar(IDATAINITDD, []{
-	static ScriptingArray_ObjectMemberCArray<itemdata, &itemdata::initiald> impl;
+	static ScriptingArray_ObjectSubMemberContainer<itemdata, &itemdata::scrconfig, &script_config::run_args> impl;
+	impl.compatSetDefaultValue(-10000);
+	impl.setMul10000(false);
+	impl.setSideEffect([](auto* idata, auto*, auto*, int index, int val){
+		if (get_qr(qr_SCRIPTS_SHARE_INITD))
+		{
+			idata->collect_scrconfig.run_args[index] = val;
+			idata->sprite_scrconfig.run_args[index] = val;
+		}
+	});
+	return &impl;
+}());
+
+static ArrayRegistrar IDATACOLLECTINITD_registrar(IDATACOLLECTINITD, []{
+	static ScriptingArray_ObjectSubMemberContainer<itemdata, &itemdata::collect_scrconfig, &script_config::run_args> impl;
+	impl.compatSetDefaultValue(-10000);
+	impl.setMul10000(false);
+	return &impl;
+}());
+
+static ArrayRegistrar IDATASPRITEINITD_registrar(IDATASPRITEINITD, []{
+	static ScriptingArray_ObjectSubMemberContainer<itemdata, &itemdata::sprite_scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	return &impl;
@@ -1352,7 +1380,7 @@ static ArrayRegistrar IDATAWMOVEFLAGS_registrar(IDATAWMOVEFLAGS, []{
 }());
 
 static ArrayRegistrar IDATAWPNINITD_registrar(IDATAWPNINITD, []{
-	static ScriptingArray_ObjectSubMemberCArray<itemdata, &itemdata::weap_data, &weapon_data::initd> impl;
+	static ScriptingArray_ObjectSubSubMemberContainer<itemdata, &itemdata::weap_data, &weapon_data::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.compatBoundIndex();

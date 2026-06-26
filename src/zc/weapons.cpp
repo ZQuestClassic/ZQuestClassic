@@ -707,9 +707,7 @@ void weapon::convertType(bool toLW)
 	}
 
 	isLWeapon = toLW;
-	script = 0;
-	for(int32_t q = 0; q < 8; ++q)
-		initD[q] = 0;
+	scrconfig.clear();
 }
 
 weapon::weapon(weapon const & other):
@@ -804,7 +802,7 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays.
 
 {
-	script = other.script;
+	scrconfig = other.scrconfig;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
@@ -812,10 +810,6 @@ weapon::weapon(weapon const & other):
 		misc_wsprites[q] = other.misc_wsprites[q];
 		light_rads[q] = other.light_rads[q];
 		light_offsets[q] = other.light_offsets[q];
-	}
-	for( int32_t q = 0; q < 8; q++ ) 
-	{
-		initD[q] = other.initD[q];
 	}
 	for(int32_t i=0; i<10; ++i)
 	{
@@ -2917,13 +2911,11 @@ void weapon::load_weap_data(weapon_data const& data, optional<word>* out_wpnspr)
 	lift_time = data.lift_time;
 	lift_height = data.lift_height;
 	
-	script = data.script;
-	for ( int32_t q = 0; q < 8; q++ )
-		initD[q] = data.initd[q];
-	if(script)
+	scrconfig = data.scrconfig;
+	if (scrconfig.script)
 	{
-		if(!((isLWeapon ? lwpnmap : ewpnmap)[script-1].hasScriptData())) // validate script
-			script = 0;
+		if(!((isLWeapon ? lwpnmap : ewpnmap)[scrconfig.script-1].hasScriptData())) // validate script
+			scrconfig.script = 0;
 	}
 	
 	pierce_count = data.pierce_count;
@@ -3297,9 +3289,9 @@ void weapon::limited_animate()
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
-				if(script && clear_boom_script)
+				if (scrconfig.script && clear_boom_script)
 				{
-					script = 0;
+					scrconfig.script = 0;
 					FFCore.destroySprite(this);
 				}
 				rundeath = true;
@@ -3325,9 +3317,9 @@ void weapon::limited_animate()
 				hzsz=16;
 				step = 0;
 				lift_level = 0;
-				if(script && clear_boom_script)
+				if (scrconfig.script && clear_boom_script)
 				{
-					script = 0;
+					scrconfig.script = 0;
 					FFCore.destroySprite(this);
 				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
@@ -3340,9 +3332,9 @@ void weapon::limited_animate()
 				hxofs=2000;
 				step = 0;
 				lift_level = 0;
-				if(script && clear_boom_script)
+				if (scrconfig.script && clear_boom_script)
 				{
-					script = 0;
+					scrconfig.script = 0;
 					FFCore.destroySprite(this);
 				}
 				if(fixboom) moveflags &= ~move_obeys_grav;
@@ -7649,7 +7641,7 @@ void weapon::findcombotriggers()
 int32_t weapon::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (script <= 0 || script > NUMSCRIPTWEAPONS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+	if (scrconfig.script <= 0 || scrconfig.script > NUMSCRIPTWEAPONS || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	auto scrty = *get_scrtype();
 	auto uid = getUID();
@@ -7660,11 +7652,11 @@ int32_t weapon::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(scrty, script, uid);
+			return ZScriptVersion::RunScript(scrty, scrconfig.script, uid);
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(scrty, script, uid);
+				ret = ZScriptVersion::RunScript(scrty, scrconfig.script, uid);
 				waitdraw = false;
 			}
 			break;
@@ -7753,7 +7745,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     ScriptGenerated = 0;
     LOADGFX(usesprite);
     step=0;
-    script = 0;
+    scrconfig.clear();
 	weapon_dying_frame = false;
 	rundeath = false;
 	shd_aclk = shd_aframe = 0;
