@@ -7,6 +7,15 @@
 #include <concepts>
 
 template<typename T>
+concept int_type = std::integral<T>;
+
+template<typename T>
+concept integral_enum_type = std::is_enum_v<T> && std::integral<std::underlying_type_t<T>>;
+
+template<typename T>
+concept integral_type = int_type<T> || integral_enum_type<T>;
+
+template<typename T>
 concept uint_type = std::unsigned_integral<T>;
 
 template <typename ContType>

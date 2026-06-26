@@ -536,7 +536,7 @@ namespace ZScript
 		friend bool operator!=(ParserScriptType const& lhs, ParserScriptType const& rhs);
 
 	public:
-		enum Id
+		enum Id : uint8_t
 		{
 			idInvalid,
 			idGlobal,
