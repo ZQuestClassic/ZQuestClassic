@@ -6340,7 +6340,7 @@ static void load_a_screen_and_layers_init(int screen, bool screen_overlay, bool 
 	if (screen == Hero.current_screen)
 		hero_scr = prev_hero_scr = base_scr;
 
-	if (source->script > 0)
+	if (source->scrconfig.script > 0)
 		FFCore.reset_script_engine_data(ScriptType::Screen, screen);
 
 	for (int i = 0; i < 6; i++)
@@ -6791,18 +6791,14 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 
 	scr->valid |= mVALID; //layer 0 is always valid
 
-	if ( source->script > 0 )
+	if ( source->scrconfig.script > 0 )
 	{
-		scr->script = source->script;
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			scr->screeninitd[q] = source->screeninitd[q];
-		}
+		scr->scrconfig = source->scrconfig;
 		FFCore.reset_script_engine_data(ScriptType::Screen, screen);
 	}
 	else
 	{
-		scr->script = 0;
+		scr->scrconfig.script = 0;
 	}
 	
 	if(overlay)

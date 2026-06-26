@@ -8458,16 +8458,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		|| screen.nextmap || screen.nextscr || screen.exstate_reset || screen.exstate_carry)
 		scr_has_flags |= SCRHAS_CARRY;
 	
-	if(screen.script || screen.preloadscript)
+	if (!screen.scrconfig.empty() || screen.preloadscript)
 		scr_has_flags |= SCRHAS_SCRIPT;
-	else for(auto q = 0; q < 8; ++q)
-	{
-		if(screen.screeninitd[q])
-		{
-			scr_has_flags |= SCRHAS_SCRIPT;
-			break;
-		}
-	}
 	
 	for(auto q = 0; q < 128; ++q)
 	{
@@ -8701,15 +8693,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	}
 	if(scr_has_flags & SCRHAS_SCRIPT)
 	{
-		if(!p_iputw(screen.script,f))
+		if (!p_putvar(screen.scrconfig,f))
 			return qe_invalid;
-		if(!p_putc(screen.preloadscript,f))
+		if (!p_putc(screen.preloadscript,f))
 			return qe_invalid;
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			if(!p_iputl(screen.screeninitd[q],f))
-				return qe_invalid;
-		}
 	}
 	if(scr_has_flags & SCRHAS_SECRETS)
 	{

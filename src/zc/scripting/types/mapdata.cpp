@@ -484,7 +484,7 @@ int32_t mapdata_get_register(int32_t reg)
 			break;
 		}
 		case MAPDATASCREENWIDTH: 	break;//GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script); break;	//W
+		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(scrconfig.script); break;	//W
 		case MAPDATASCRIPTENTRY:
 		{
 			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
@@ -842,15 +842,13 @@ void mapdata_set_register(int32_t reg, int32_t value)
 				if (result.current())
 				{
 					if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-					{
-						for (int q=0; q<8; q++)
-							result.scr->screeninitd[q] = 0;
-					}
+						result.scr->scrconfig.initd.fill(0);
+					result.scr->scrconfig.inst_init.clear();
 
 					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 				}
 
-				result.scr->script = vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+				result.scr->scrconfig.script = vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
 			else 
 			{ 
@@ -1236,7 +1234,7 @@ static ArrayRegistrar MAPDATATILEWARPDMAP_registrar(MAPDATATILEWARPDMAP, []{
 }());
 
 static ArrayRegistrar MAPDATAINITDARRAY_registrar(MAPDATAINITDARRAY, []{
-	static ScriptingArray_ObjectMemberCArray<mapscr, &mapscr::screeninitd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<mapscr, &mapscr::scrconfig, &script_config::initd> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

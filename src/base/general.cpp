@@ -270,6 +270,17 @@ rect_t rect_t::expanded(int dist) const
 	return r;
 }
 
+bool script_config::empty() const
+{
+	if (script)
+		return false;
+	for (auto q : initd)
+		if (q)
+			return false;
+	if (!inst_init.empty())
+		return false;
+	return true;
+}
 void script_config::clear()
 {
 	*this = script_config();

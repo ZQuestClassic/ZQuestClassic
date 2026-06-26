@@ -1568,13 +1568,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 
 	if ( version >= 20 && Header->zelda_version > 0x253 )
 	{
-	if(!p_igetw(&(temp_mapscr->script),f))
+	if(!p_igetw(&(temp_mapscr->scrconfig.script),f))
 	{
 		return qe_invalid;
 	} 
 	for ( int32_t q = 0; q < 8; q++)
 	{
-		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
+		if(!p_igetl(&(temp_mapscr->scrconfig.initd[q]),f))
 		{
 			return qe_invalid;
 		}
@@ -1582,8 +1582,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	if ( version < 20 )
 	{
-	temp_mapscr->script = 0;
-	for ( int32_t q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
+		temp_mapscr->scrconfig.clear();
 	}
 	if ( version >= 21 && Header->zelda_version > 0x253 )
 	{
@@ -1923,13 +1922,23 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		}
 		if(scr_has_flags & SCRHAS_SCRIPT)
 		{
-			if(!p_igetw(&(temp_mapscr->script),f))
-				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->preloadscript),f))
-				return qe_invalid;
-			for ( int32_t q = 0; q < 8; q++ )
+			if (version < 41)
 			{
-				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
+				if (!p_igetw(&(temp_mapscr->scrconfig.script),f))
+					return qe_invalid;
+				if (!p_getc(&(temp_mapscr->preloadscript),f))
+					return qe_invalid;
+				for (int32_t q = 0; q < 8; q++)
+				{
+					if(!p_igetl(&(temp_mapscr->scrconfig.initd[q]),f))
+						return qe_invalid;
+				}
+			}
+			else
+			{
+				if (!p_getvar(&(temp_mapscr->scrconfig),f))
+					return qe_invalid;
+				if (!p_getc(&(temp_mapscr->preloadscript),f))
 					return qe_invalid;
 			}
 		}

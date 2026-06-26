@@ -568,6 +568,7 @@ struct script_config
 	std::array<int, 8> initd;
 	std::map<word, int> inst_init;
 	
+	bool empty() const;
 	bool operator==(const script_config& other) const = default;
 	void clear();
 };

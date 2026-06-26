@@ -31,16 +31,10 @@ public:
 
 private:
 	std::shared_ptr<GUI::Widget> SCREEN_INITD(int index);
-	void refreshScript();
 	void refreshTWarp();
 	void refreshLensEff();
 	
 	std::shared_ptr<GUI::Window> window;
-	
-	std::string h_initd[8];
-	std::shared_ptr<GUI::TextField> tf_initd[8];
-	std::shared_ptr<GUI::Button> ib_initds[8];
-	std::shared_ptr<GUI::Label> l_initds[8];
 	
 	std::shared_ptr<GUI::Label> twarp_lbl;
 
@@ -56,7 +50,7 @@ private:
 	
 	mapscr* thescr;
 	mapscr local_scr;
-	int mapscrnum;
+	int map, scr;
 	
 	bounded_map<dword,int32_t> screen_misc_data;
 	

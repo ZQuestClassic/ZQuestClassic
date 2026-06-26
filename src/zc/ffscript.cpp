@@ -1705,9 +1705,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			{
 				got_initialized = true;
 				mapscr* scr = get_scr(index);
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = scr->screeninitd[q];
-				reset_script_variables();
+				reset_script_variables(scr->scrconfig);
 				data.initialized = true;
 			}
 
@@ -9212,7 +9210,7 @@ static void script_exit_cleanup(bool no_dealloc)
 		break;
 
 		case ScriptType::Screen:
-			get_scr(i)->script = 0;
+			get_scr(i)->scrconfig.script = 0;
 		case ScriptType::Global:
 		case ScriptType::Hero:
 		case ScriptType::DMap:
@@ -13634,9 +13632,9 @@ int32_t ffscript_engine(const bool preload)
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 			if ((preload && scr->preloadscript) || !preload)
 			{
-				if (scr->script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
+				if (scr->scrconfig.script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);
 				}
 			}
 			});
@@ -13650,9 +13648,9 @@ int32_t ffscript_engine(const bool preload)
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
 				if ((preload && scr->preloadscript) || !preload)
 				{
-					if (scr->script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
+					if (scr->scrconfig.script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen))
 					{
-						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
+						ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);
 					}
 				}
 				});
@@ -14650,9 +14648,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
+				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);  
 					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
@@ -14683,9 +14681,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && scr->preloadscript)
+				if (scr->scrconfig.script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);
 				}
 			});
 		}

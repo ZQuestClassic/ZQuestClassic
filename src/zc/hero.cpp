@@ -27825,9 +27825,9 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
+				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);  
 					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
@@ -27844,9 +27844,9 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && scr->preloadscript)
+				if (scr->scrconfig.script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);
 				}
 			});
 		}
@@ -28894,9 +28894,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_base_screen_in_region([&](mapscr* scr, unsigned int, unsigned int) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen))
+				if (scr->scrconfig.script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->scrconfig.script, scr->screen);  
 					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
