@@ -1495,9 +1495,6 @@ void DrawDebuggerWindowContents(Debugger* debugger)
 
 void Debugger::InitGui()
 {
-	if (has_initialized_gui)
-		return;
-
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -1518,9 +1515,6 @@ void Debugger::InitGui()
 	al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_REQUIRE);
 	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_REQUIRE);
 	display = al_create_display(w, h);
-
-	if (auto main_display = all_get_display())
-		zalleg_bring_window_to_foreground(main_display);
 
 	al_set_window_title(display, "Debugger");
 	ImGui_ImplAllegro5_Init(display);
@@ -1575,13 +1569,10 @@ void Debugger::InitGui()
 
 		DrawVariableTooltip(this, var, prev_str);
 	});
-
-	has_initialized_gui = true;
 }
 
 bool zscript_debugger_gui_update(Debugger* debugger)
 {
-	debugger->InitGui();
 	al_set_target_backbuffer(debugger->display);
 
 	if (debugger->root_node.children.empty())

@@ -110,6 +110,7 @@ std::string GetScriptTypeName(ScriptType type)
 Debugger::Debugger()
 {
 	Init();
+	InitGui();
 }
 
 Debugger::~Debugger()
@@ -1328,7 +1329,11 @@ void zscript_debugger_init()
 #endif
 
 	if (is_feature_enabled("-debugger", "ZSCRIPT", "debugger", false) && !jit_is_enabled())
+	{
 		zscript_debugger_open();
+		if (auto main_display = all_get_display())
+			zalleg_bring_window_to_foreground(main_display);
+	}
 
 	if (!debugger)
 		return;

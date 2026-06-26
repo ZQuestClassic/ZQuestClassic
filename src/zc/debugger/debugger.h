@@ -119,7 +119,6 @@ struct Debugger
 	ALLEGRO_EVENT_QUEUE* queue;
 
 	TextEditor text_editor;
-	bool has_initialized_gui = false;
 
 	FileNode root_node;
 	ActiveScript* selected_script = nullptr;
