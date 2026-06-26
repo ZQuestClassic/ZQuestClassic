@@ -464,13 +464,26 @@ inline bool p_getlvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
 inline bool p_putlvec(vector<T> const& vec, PACKFILE *f);
 
-template<typename Sz,typename T>
+template<typename K, typename V>
+inline bool p_getcmap(map<K, V> *mp, PACKFILE *f);
+template<typename K, typename V>
+inline bool p_putcmap(map<K, V> const& mp, PACKFILE *f);
+template<typename K, typename V>
+inline bool p_getwmap(map<K, V> *mp, PACKFILE *f);
+template<typename K, typename V>
+inline bool p_putwmap(map<K, V> const& mp, PACKFILE *f);
+template<typename K, typename V>
+inline bool p_getlmap(map<K, V> *mp, PACKFILE *f);
+template<typename K, typename V>
+inline bool p_putlmap(map<K, V> const& mp, PACKFILE *f);
+
+template<uint_type Sz,typename T>
 inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f);
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f);
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f);
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f);
 template<typename T, size_t Sz>
 inline bool p_getarr(T cont[Sz], PACKFILE *f);
@@ -492,56 +505,48 @@ inline bool p_putpair(def_pair<A,B> const& cont, PACKFILE *f);
 bool p_getbitstr(bitstring* ptr, PACKFILE *f);
 bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
 
-template<typename T>
+template<integral_type T>
 inline bool p_getvar(T* ptr, PACKFILE *f)
 {
-	switch(auto sz = sizeof(T))
-	{
-		case 1:
-			return p_getc(ptr,f);
-		case 2:
-			return p_igetw(ptr,f);
-		case 4:
-			return p_igetl(ptr,f);
-		default:
-			return pfread((char*)ptr,sz,f);
-	}
+	if constexpr (sizeof(T) == 1)
+		return p_getc(ptr, f);
+	else if constexpr (sizeof(T) == 2)
+		return p_igetw(ptr, f);
+	else if constexpr (sizeof(T) == 4)
+		return p_igetl(ptr, f);
+	return pfread((char*)ptr, sizeof(T), f);
 }
 
-template<typename T>
+template<integral_type T>
 inline bool p_putvar(T const& ptr, PACKFILE *f)
 {
-	switch(auto sz = sizeof(T))
-	{
-		case 1:
-			return p_putc(ptr,f);
-		case 2:
-			return p_iputw(ptr,f);
-		case 4:
-			return p_iputl(ptr,f);
-		default:
-			return pfwrite((char const*)&ptr,sz,f);
-	}
+	if constexpr (sizeof(T) == 1)
+		return p_putc(ptr, f);
+	else if constexpr (sizeof(T) == 2)
+		return p_iputw(ptr, f);
+	else if constexpr (sizeof(T) == 4)
+		return p_iputl(ptr, f);
+	return pfwrite((char const*)&ptr, sizeof(T), f);
 }
 
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
 {
 	return p_getbvec(ptr,f);
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putvar(bounded_vec<Sz,T> const& ptr, PACKFILE *f)
 {
 	return p_putbvec(ptr,f);
 }
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_getvar(bounded_map<Sz,T>* ptr, PACKFILE *f)
 {
 	return p_getbmap(ptr,f);
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putvar(bounded_map<Sz,T> const& ptr, PACKFILE *f)
 {
 	return p_putbmap(ptr,f);
@@ -614,7 +619,7 @@ inline bool p_putvar(def_pair<A,B> const& ptr, PACKFILE *f)
 
 //
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 {
 	cont->clear();
@@ -656,7 +661,7 @@ inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 	}
 	return true;
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 {
 	Sz sz = cont.size();
@@ -696,7 +701,7 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 	return true;
 }
 
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 {
 	cont->clear();
@@ -738,7 +743,7 @@ inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 	}
 	return true;
 }
-template<typename Sz,typename T>
+template<uint_type Sz,typename T>
 inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 {
 	Sz sz = cont.size();
@@ -1058,6 +1063,130 @@ inline bool p_putlvec(vector<T> const& vec, PACKFILE *f)
 		{
 			if(!p_putvar(vec.at(q), f))
 				return false;
+		}
+	}
+	return true;
+}
+
+template<typename K, typename V>
+inline bool p_getcmap(map<K, V> *mp, PACKFILE *f)
+{
+	mp->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f))
+		return false;
+	if(sz) //map found
+	{
+		K key = K();
+		V val = V();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&key,f))
+				return false;
+			if(!p_getvar(&val,f))
+				return false;
+			(*mp)[key] = val;
+		}
+	}
+	return true;
+}
+template<typename K, typename V>
+inline bool p_putcmap(map<K, V> const& mp, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,mp.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for (auto& [k, v] : mp)
+		{
+			if(!p_putvar(k, f))
+				return false;
+			if(!p_putvar(v, f))
+				return false;
+			if (!--sz) break;
+		}
+	}
+	return true;
+}
+template<typename K, typename V>
+inline bool p_getwmap(map<K, V> *mp, PACKFILE *f)
+{
+	mp->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f))
+		return false;
+	if(sz) //map found
+	{
+		K key = K();
+		V val = V();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&key,f))
+				return false;
+			if(!p_getvar(&val,f))
+				return false;
+			(*mp)[key] = val;
+		}
+	}
+	return true;
+}
+template<typename K, typename V>
+inline bool p_putwmap(map<K, V> const& mp, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,mp.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for (auto& [k, v] : mp)
+		{
+			if(!p_putvar(k, f))
+				return false;
+			if(!p_putvar(v, f))
+				return false;
+			if (!--sz) break;
+		}
+	}
+	return true;
+}
+template<typename K, typename V>
+inline bool p_getlmap(map<K, V> *mp, PACKFILE *f)
+{
+	mp->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f))
+		return false;
+	if(sz) //map found
+	{
+		K key = K();
+		V val = V();
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&key,f))
+				return false;
+			if(!p_getvar(&val,f))
+				return false;
+			(*mp)[key] = val;
+		}
+	}
+	return true;
+}
+template<typename K, typename V>
+inline bool p_putlmap(map<K, V> const& mp, PACKFILE *f)
+{
+	dword sz = mp.size();
+	if(!p_iputl(sz,f))
+		return false;
+	if(sz)
+	{
+		for (auto& [k, v] : mp)
+		{
+			if(!p_putvar(k, f))
+				return false;
+			if(!p_putvar(v, f))
+				return false;
+			if (!--sz) break;
 		}
 	}
 	return true;
