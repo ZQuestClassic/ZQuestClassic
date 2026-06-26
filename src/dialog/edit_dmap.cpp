@@ -815,8 +815,8 @@ void EditDMapDialog::refreshScripts()
 		zasm_meta const& meta = dmapscripts[local_dmap.script]->meta;
 		for (auto q = 0; q < 8; ++q)
 		{
-			if (meta.initd[q].size())
-				ac_initds[q] = meta.initd[q];
+			if (meta.initd_label[q].size())
+				ac_initds[q] = meta.initd_label[q];
 			if (meta.initd_help[q].size())
 				h_ac_initds[q] = meta.initd_help[q];
 			if (meta.initd_type[q] > -1)
@@ -834,8 +834,8 @@ void EditDMapDialog::refreshScripts()
 		zasm_meta const& meta = dmapscripts[local_dmap.active_sub_script]->meta;
 		for (auto q = 0; q < 8; ++q)
 		{
-			if (meta.initd[q].size())
-				ss_initds[q] = meta.initd[q];
+			if (meta.initd_label[q].size())
+				ss_initds[q] = meta.initd_label[q];
 			if (meta.initd_help[q].size())
 				h_ss_initds[q] = meta.initd_help[q];
 			if (meta.initd_type[q] > -1)
@@ -848,8 +848,8 @@ void EditDMapDialog::refreshScripts()
 		zasm_meta const& meta = dmapscripts[local_dmap.passive_sub_script]->meta;
 		for (auto q = 0; q < 8; ++q)
 		{
-			if (meta.initd[q].size())
-				ss_initds[q] = meta.initd[q];
+			if (meta.initd_label[q].size())
+				ss_initds[q] = meta.initd_label[q];
 			if (meta.initd_help[q].size())
 				h_ss_initds[q] = meta.initd_help[q];
 			if (meta.initd_type[q] > -1)
@@ -866,8 +866,8 @@ void EditDMapDialog::refreshScripts()
 		zasm_meta const& meta = dmapscripts[local_dmap.onmap_script]->meta;
 		for (auto q = 0; q < 8; ++q)
 		{
-			if (meta.initd[q].size())
-				map_initds[q] = meta.initd[q];
+			if (meta.initd_label[q].size())
+				map_initds[q] = meta.initd_label[q];
 			if (meta.initd_help[q].size())
 				h_map_initds[q] = meta.initd_help[q];
 			if (meta.initd_type[q] > -1)

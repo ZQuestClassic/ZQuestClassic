@@ -12097,7 +12097,7 @@ int32_t write_one_ffscript_meta(PACKFILE *f, zasm_meta const& tmeta)
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
-		if(!p_putcstr(tmeta.initd[q],f))
+		if(!p_putcstr(tmeta.initd_label[q],f))
 			new_return(22);
 		if(!p_putwstr(tmeta.initd_help[q],f))
 			new_return(23);

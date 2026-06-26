@@ -829,7 +829,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::GEN_INITD(int ind,zasm_meta co
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	std::string lbl = meta.initd[ind];
+	std::string lbl = meta.initd_label[ind];
 	if(lbl.empty())
 		lbl = "InitD["+std::to_string(ind)+"]";
 	return Row(padding = 0_px,

@@ -2443,8 +2443,8 @@ void ItemEditorDialog::refreshScripts()
 		zasm_meta const& meta = itemspritescripts[local_itemref.sprite_script]->meta;
 		for(auto q = 0; q < 8; ++q)
 		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
+			if(meta.initd_label[q].size())
+				it_initd[q] = meta.initd_label[q];
 			if(meta.initd_help[q].size())
 				h_it_initds[q] = meta.initd_help[q];
 			if(meta.initd_type[q] > -1)
@@ -2457,8 +2457,8 @@ void ItemEditorDialog::refreshScripts()
 		zasm_meta const& meta = itemscripts[local_itemref.collect_script]->meta;
 		for(auto q = 0; q < 8; ++q)
 		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
+			if(meta.initd_label[q].size())
+				it_initd[q] = meta.initd_label[q];
 			if(meta.initd_help[q].size())
 				h_it_initds[q] = meta.initd_help[q];
 			if(meta.initd_type[q] > -1)
@@ -2471,8 +2471,8 @@ void ItemEditorDialog::refreshScripts()
 		zasm_meta const& meta = itemscripts[local_itemref.script]->meta;
 		for(auto q = 0; q < 8; ++q)
 		{
-			if(meta.initd[q].size())
-				it_initd[q] = meta.initd[q];
+			if(meta.initd_label[q].size())
+				it_initd[q] = meta.initd_label[q];
 			if(meta.initd_help[q].size())
 				h_it_initds[q] = meta.initd_help[q];
 			if(meta.initd_type[q] > -1)

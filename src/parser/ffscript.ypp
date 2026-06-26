@@ -1355,7 +1355,7 @@ Annotated_Script :
 					if(annot_sig_check_1(ANNTY_STR, data))
 					{
 						annot_trunc_str(p1->unescaped_val, 255);
-						script->metadata.initd[c] = p1->unescaped_val;
+						script->metadata.initd_label[c] = p1->unescaped_val;
 					}
 					excl_keys[fmt::format("ExportInitD{}", c)].insert(key);
 					return true;
@@ -1479,7 +1479,7 @@ Annotated_Script :
 							{
 								auto& param = data.params[0];
 								annot_trunc_str(param.unescaped_val, 255);
-								script->metadata.initd[c] = param.unescaped_val;
+								script->metadata.initd_label[c] = param.unescaped_val;
 							}
 						}
 						excl_keys[fmt::format("InitD{}", c)].insert(key);

@@ -1361,7 +1361,7 @@ struct zasm_meta
 	std::string usrflags[16];
 	std::string attributes_help[NUM_ZMETA_ATTRIBUTES];
 	std::string usrflags_help[16];
-	std::string initd[8];
+	std::string initd_label[8];
 	std::string initd_help[8];
 	int8_t initd_type[8];
 	
@@ -1404,7 +1404,7 @@ struct zasm_meta
 			usrflags[q].clear();
 			usrflags_help[q].clear();
 			if(q > 7) continue;
-			initd[q].clear();
+			initd_label[q].clear();
 			initd_help[q].clear();
 			initd_type[q] = -1;
 			run_idens[q].clear();
@@ -1447,7 +1447,7 @@ struct zasm_meta
 			usrflags[q] = other.usrflags[q];
 			usrflags_help[q] = other.usrflags_help[q];
 			if(q > 7) continue;
-			initd[q] = other.initd[q];
+			initd_label[q] = other.initd_label[q];
 			initd_help[q] = other.initd_help[q];
 			initd_type[q] = other.initd_type[q];
 			run_idens[q] = other.run_idens[q];
@@ -1485,7 +1485,7 @@ struct zasm_meta
 			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
 			if(q > 7) continue;
-			if(initd[q].compare(other.initd[q]))
+			if(initd_label[q].compare(other.initd_label[q]))
 				return false;
 			if(initd_help[q].compare(other.initd_help[q]))
 				return false;
