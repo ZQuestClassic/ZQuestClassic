@@ -10447,7 +10447,7 @@ bool eSpinTile::animate(int32_t index)
 		step=zslongToFix(dstep*100);
 	}
 	
-	if(y>186 || y<=-16 || x>272 || x<=-16)
+	if (y > world_h + 10 || y <= -16 || x > world_w + 16 || x <= -16)
 		kickbucket();
 		
 	sprite::move(step);
