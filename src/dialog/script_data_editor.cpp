@@ -138,11 +138,12 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 		if (!specified_args.contains(local_ref.script))
 		{
 			auto& specified = specified_args[local_ref.script];
+			auto const& exports = scrdata->script_d_exports.inner();
 			for (auto const& [idx, val] : args)
 				specified.set(idx, true);
 			for (auto const& [idx, val] : scrdata->script_d_init.inner())
 			{
-				if (!specified.get(idx))
+				if (exports.contains(idx) && !specified.get(idx))
 					args[idx] = val;
 			}
 		}
