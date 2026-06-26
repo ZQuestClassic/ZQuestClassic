@@ -31546,8 +31546,8 @@ bool HeroClass::refill()
         switch(refill_what)
         {
         case REFILL_LIFE:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
-            
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+zc_max(1, game->get_hp_per_heart()/2))));
+
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
@@ -31561,8 +31561,8 @@ bool HeroClass::refill()
             break;
             
         case REFILL_MAGIC:
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
-            
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+zc_max(1, game->get_mp_per_block()/4))));
+
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
@@ -31576,8 +31576,8 @@ bool HeroClass::refill()
             break;
             
         case REFILL_ALL:
-            game->set_life(zc_min(refill_heart_stop, (game->get_life()+game->get_hp_per_heart()/2)));
-            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+game->get_mp_per_block()/4)));
+            game->set_life(zc_min(refill_heart_stop, (game->get_life()+zc_max(1, game->get_hp_per_heart()/2))));
+            game->set_magic(zc_min(refill_magic_stop, (game->get_magic()+zc_max(1, game->get_mp_per_block()/4))));
             
             if((game->get_life()>=refill_heart_stop)&&(game->get_magic()>=refill_magic_stop))
             {
