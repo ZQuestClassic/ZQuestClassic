@@ -373,7 +373,7 @@ int32_t mapdata_get_register(int32_t reg)
 				break;
 
 			if (auto handle = ResolveMapdataFFC(ri->mapdataref, index))
-				ret = handle.ffc->scrconfig.initd[d_index];
+				ret = handle.ffc->scrconfig.run_args[d_index];
 			else
 			{
 				ret = -10000;
@@ -747,7 +747,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 				break;
 
 			if (auto handle = ResolveMapdataFFC(ri->mapdataref, index))
-				handle.ffc->scrconfig.initd[dindex] = value;
+				handle.ffc->scrconfig.run_args[dindex] = value;
 			break;
 		}	
 		case MAPDATAITEM:
@@ -842,7 +842,7 @@ void mapdata_set_register(int32_t reg, int32_t value)
 				if (result.current())
 				{
 					if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-						result.scr->scrconfig.initd.fill(0);
+						result.scr->scrconfig.run_args.fill(0);
 					result.scr->scrconfig.inst_init.clear();
 
 					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
@@ -1234,7 +1234,7 @@ static ArrayRegistrar MAPDATATILEWARPDMAP_registrar(MAPDATATILEWARPDMAP, []{
 }());
 
 static ArrayRegistrar MAPDATAINITDARRAY_registrar(MAPDATAINITDARRAY, []{
-	static ScriptingArray_ObjectSubMemberContainer<mapscr, &mapscr::scrconfig, &script_config::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<mapscr, &mapscr::scrconfig, &script_config::run_args> impl;
 	impl.setMul10000(false);
 	return &impl;
 }());

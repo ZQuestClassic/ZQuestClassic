@@ -1478,42 +1478,42 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(version>10)
 				{
-					if(!p_igetl(&(tempffc.scrconfig.initd[0]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[0]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[1]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[1]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[2]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[2]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[3]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[3]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[4]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[4]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[5]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[5]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[6]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[6]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.scrconfig.initd[7]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[7]),f))
 					{
 						return qe_invalid;
 					}
@@ -1574,7 +1574,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	} 
 	for ( int32_t q = 0; q < 8; q++)
 	{
-		if(!p_igetl(&(temp_mapscr->scrconfig.initd[q]),f))
+		if(!p_igetl(&(temp_mapscr->scrconfig.run_args[q]),f))
 		{
 			return qe_invalid;
 		}
@@ -1930,7 +1930,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					return qe_invalid;
 				for (int32_t q = 0; q < 8; q++)
 				{
-					if(!p_igetl(&(temp_mapscr->scrconfig.initd[q]),f))
+					if(!p_igetl(&(temp_mapscr->scrconfig.run_args[q]),f))
 						return qe_invalid;
 				}
 			}
@@ -2124,7 +2124,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					return qe_invalid;
 				for(auto q = 0; q < 8; ++q)
 				{
-					if(!p_igetl(&(tempffc.scrconfig.initd[q]),f))
+					if(!p_igetl(&(tempffc.scrconfig.run_args[q]),f))
 						return qe_invalid;
 				}
 			}

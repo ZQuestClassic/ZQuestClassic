@@ -660,7 +660,7 @@ inline bool p_getvar(script_config* ptr, PACKFILE *f)
 {
 	if (!p_igetw(&ptr->script, f))
 		return false;
-	if (!p_getarr(&ptr->initd, f))
+	if (!p_getarr(&ptr->run_args, f))
 		return false;
 	if (!p_getwmap(&ptr->inst_init, f))
 		return false;
@@ -670,7 +670,7 @@ inline bool p_putvar(script_config const& ptr, PACKFILE *f)
 {
 	if (!p_iputw(ptr.script, f))
 		return false;
-	if (!p_putarr(ptr.initd, f))
+	if (!p_putarr(ptr.run_args, f))
 		return false;
 	if (!p_putwmap(ptr.inst_init, f))
 		return false;

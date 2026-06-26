@@ -2067,7 +2067,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int32_t j=0; j<8; ++j)
-                    newnode->d[j] = scrconfig.initd[j];
+                    newnode->d[j] = scrconfig.run_args[j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;
