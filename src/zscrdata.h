@@ -317,7 +317,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		write_str(meta.initd[q], f);
+		write_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -354,7 +354,7 @@ void read_meta(zasm_meta& meta, FILE* f)
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags_help[q], f);
 	for(auto q = 0; q < 8; ++q)
-		read_str(meta.initd[q], f);
+		read_str(meta.initd_label[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.initd_help[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -679,8 +679,8 @@ string zasm_meta::get_meta() const
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
-		if(initd[q].size())
-			oss << "\n#INITD_" << q << " = " << initd[q];
+		if(initd_label[q].size())
+			oss << "\n#INITD_" << q << " = " << initd_label[q];
 		if(initd_help[q].size())
 			oss << "\n#INITD_HELP_" << q << " = "
 				<< util::escape_characters(initd_help[q]);
@@ -883,7 +883,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 		byte ind = cmd.at(7) - '0';
 		if (ind < 8)
 		{
-			initd[ind] = val;
+			initd_label[ind] = val;
 		}
 		else return false;
 	}

@@ -1683,7 +1683,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			tabs->add(TabRef(name = "Args", row));
 			for (int ind = 0; ind < 8; ++ind)
 			{
-				std::string lbl = meta.initd[ind];
+				std::string lbl = meta.initd_label[ind];
 				if(lbl.empty())
 					lbl = "InitD["+std::to_string(ind)+"]";
 				row->add(Label(text = lbl, hAlign = 1.0));

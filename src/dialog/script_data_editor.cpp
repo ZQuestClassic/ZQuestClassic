@@ -107,8 +107,8 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 		if (scrdata)
 		{
 			auto& meta = scrdata->meta;
-			if (!meta.initd[ind].empty())
-				label = meta.initd[ind];
+			if (!meta.initd_label[ind].empty())
+				label = meta.initd_label[ind];
 			if (!meta.initd_help[ind].empty())
 				help = meta.initd_help[ind];
 			if (unsigned(meta.initd_type[ind]) < nswapMAX)

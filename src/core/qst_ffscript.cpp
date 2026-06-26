@@ -217,7 +217,7 @@ int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
 	{
 		for(auto q = 0; q < 8; ++q)
 		{
-			if(!p_getcstr(&temp_meta.initd[q],f))
+			if(!p_getcstr(&temp_meta.initd_label[q],f))
 				return qe_invalid;
 			if(!p_getwstr(&temp_meta.initd_help[q],f))
 				return qe_invalid;
@@ -231,7 +231,7 @@ int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
 	else
 	{
 		for(auto q = 0; q < 8; ++q)
-			temp_meta.initd[q] = temp_meta.run_idens[q];
+			temp_meta.initd_label[q] = temp_meta.run_idens[q];
 	}
 	
 	return 0;
