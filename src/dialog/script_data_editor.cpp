@@ -123,10 +123,10 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 			fitParent = true, minwidth = 8_em,
 			type = GUI::TextField::type::SWAP_ZSINT,
 			swap_type = swp,
-			val = local_ref.initd[ind],
+			val = local_ref.run_args[ind],
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
-				local_ref.initd[ind] = val;
+				local_ref.run_args[ind] = val;
 			}));
 	}
 	

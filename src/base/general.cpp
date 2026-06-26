@@ -274,7 +274,7 @@ bool script_config::empty() const
 {
 	if (script)
 		return false;
-	for (auto q : initd)
+	for (auto q : run_args)
 		if (q)
 			return false;
 	if (!inst_init.empty())

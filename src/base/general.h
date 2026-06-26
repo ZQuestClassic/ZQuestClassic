@@ -565,7 +565,7 @@ struct exported_variable
 struct script_config
 {
 	word script;
-	std::array<int, 8> initd;
+	std::array<int, 8> run_args;
 	std::map<word, int> inst_init;
 	
 	bool empty() const;

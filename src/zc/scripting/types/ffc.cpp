@@ -137,7 +137,7 @@ void ffc_set_register(int32_t reg, int32_t value)
 			for(int32_t i=0; i<16; i++)
 				ffc->miscellaneous[i] = 0;
 			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-				ffc->scrconfig.initd.fill(0);
+				ffc->scrconfig.run_args.fill(0);
 			ffc->scrconfig.inst_init.clear();
 			on_reassign_script_engine_data(ScriptType::FFC, ffc->index);
 			break;
@@ -207,7 +207,7 @@ static ArrayRegistrar FFC_POSSTATE_registrar(FFC_POSSTATE, []{
 }());
 
 static ArrayRegistrar FFINITDD_registrar(FFINITDD, []{
-	static ScriptingArray_ObjectSubMemberContainer<ffcdata, &ffcdata::scrconfig, &script_config::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<ffcdata, &ffcdata::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.compatBoundSetterIndex();

@@ -1423,11 +1423,9 @@ static void reset_script_variables(script_config const& cfg)
 {
 	reset_script_variables();
 	for (auto [id, val] : cfg.inst_init)
-	{
 		ri->script_d[id] = val;
-	}
 	
-	memcpy(ri->d, cfg.initd.data(), 8 * sizeof(int32_t));
+	memcpy(ri->d, cfg.run_args.data(), 8 * sizeof(int32_t));
 }
 
 static void set_current_script_engine_data(ScriptEngineData& data, ScriptType type, int script, script_data* sd, int index)
