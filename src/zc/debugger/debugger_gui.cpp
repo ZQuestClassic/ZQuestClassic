@@ -3,7 +3,6 @@
 #include "core/qst.h"
 #include "base/util.h"
 #include "nonstd/expected.h"
-#include "zalleg/zalleg.h"
 #include "components/zasm/debug_data.h"
 #include "components/zasm/eval.h"
 #include "zc/debugger/debugger.h"
@@ -21,10 +20,59 @@
 #include <vector>
 #include <fmt/ranges.h>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <allegro5/allegro_windows.h>
+#elif defined(__APPLE__)
+// Defined in zalleg/zalleg_osx.mm.
+float zalleg_osx_get_main_screen_scale_factor(void);
+float zalleg_osx_get_display_scale_factor(ALLEGRO_DISPLAY* display);
+void zalleg_osx_get_main_screen_usable_size(int* w, int* h);
+#endif
+
 namespace {
 
 ALLEGRO_BITMAP* tooltip_bmp;
 bool show_file_selector;
+
+// The HiDPI scale factor for the debugger UI. On a Retina/high-DPI panel
+// Allegro renders into a physical-pixel backbuffer, so the default 16px font
+// and 1x widgets look tiny; we scale fonts and style by this factor to
+// compensate. Pass the debugger display to query the monitor it currently
+// lives on, or null to query the main screen (e.g. before the display exists).
+float GetDebuggerDpiScale([[maybe_unused]] ALLEGRO_DISPLAY* display)
+{
+#if defined(__APPLE__)
+	float scale = display ? zalleg_osx_get_display_scale_factor(display)
+	                      : zalleg_osx_get_main_screen_scale_factor();
+	return scale > 0.f ? scale : 1.0f;
+#elif defined(_WIN32)
+	UINT dpi = display ? GetDpiForWindow(al_get_win_window_handle(display))
+	                   : GetDpiForSystem();
+	return dpi ? dpi / 96.0f : 1.0f;
+#else // X11: derived from EDID, often unreliable, so round to a whole step.
+	int dpi = al_get_monitor_dpi(0);
+	return dpi > 0 ? std::max(1.0f, std::roundf(dpi / 96.0f)) : 1.0f;
+#endif
+}
+
+// Rescale the UI for a new DPI factor (e.g. after the window moved to a monitor
+// with a different scale). FontScaleDpi makes ImGui re-rasterize fonts at the
+// new size (dynamic font atlas, 1.92+); style sizes scale relative to the
+// previous factor so the chosen color palette is preserved.
+void ApplyDpiScale(Debugger* debugger, float new_scale)
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.ScaleAllSizes(new_scale / debugger->dpi_scale);
+	style.FontScaleDpi = new_scale;
+	debugger->dpi_scale = new_scale;
+}
 
 std::string GetCommonPathPrefix(const std::vector<SourceFile>& files)
 {
@@ -1294,7 +1342,7 @@ void DrawFileSelector(Debugger* debugger)
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImVec2 pos(viewport->GetCenter().x, viewport->Pos.y);
 	ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(0.5f, 0.0f));
-	ImGui::SetNextWindowSize(ImVec2(600, 400));
+	ImGui::SetNextWindowSize(ImVec2(600 * debugger->dpi_scale, 400 * debugger->dpi_scale));
 
 	bool open = true;
 	if (ImGui::BeginPopupModal("FileSelector", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
@@ -1410,12 +1458,15 @@ void DrawDebuggerWindowContents(Debugger* debugger)
 		return;
 	}
 
-	static float console_height = 300.0f;
-	static float left_pane_width = 300.0f;
+	// These pixel sizes are stored in physical pixels (matching the backbuffer
+	// and ImGui's coordinate space), so the defaults and minimums scale with DPI.
+	float scale = debugger->dpi_scale;
+	static float console_height = 300.0f * scale;
+	static float left_pane_width = 300.0f * scale;
 
-	const float min_console_height = 100.0f;
-	const float min_left_pane_width = 150.0f;
-	const float splitter_thickness = 10.0f;
+	const float min_console_height = 100.0f * scale;
+	const float min_left_pane_width = 150.0f * scale;
+	const float splitter_thickness = 10.0f * scale;
 
 	float avail_width = ImGui::GetContentRegionAvail().x;
 	float avail_height = ImGui::GetContentRegionAvail().y;
@@ -1499,17 +1550,38 @@ void Debugger::InitGui()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui::StyleColorsDark();
-	if (!io.Fonts->AddFontFromFileTTF("ProggyVector-Regular.ttf", 16.0))
-		io.Fonts->AddFontDefault();
 
-	int w = 1200;
-	int h = 1100;
-	ALLEGRO_MONITOR_INFO info;
+	dpi_scale = GetDebuggerDpiScale(nullptr);
+
+	// Scale fonts and style for HiDPI. FontScaleDpi makes ImGui rasterize the
+	// font at the scaled size so text stays crisp (dynamic font atlas, 1.92+),
+	// and ScaleAllSizes scales padding, spacing, scrollbars, etc.
+	if (!io.Fonts->AddFontFromFileTTF("ProggyVector-Regular.ttf", 16.0f))
+		io.Fonts->AddFontDefault();
+	ImGui::GetStyle().ScaleAllSizes(dpi_scale);
+	ImGui::GetStyle().FontScaleDpi = dpi_scale;
+
+	// The desired logical size, expressed in the physical pixels that Allegro
+	// expects, so the window opens at a sensible on-screen size.
+	int w = 1200 * dpi_scale;
+	int h = 1100 * dpi_scale;
+#if defined(__APPLE__)
+	// Clamp to the usable area (minus menu bar/dock), reserving room for the
+	// window title bar, so the window isn't pushed partly off the top of the
+	// screen. al_get_monitor_info reports the full frame including the menu bar,
+	// which is too generous here.
+	int usable_w = 0, usable_h = 0;
+	zalleg_osx_get_main_screen_usable_size(&usable_w, &usable_h);
+	if (usable_w > 0) w = std::min(w, usable_w);
+	if (usable_h > 0) h = std::min(h, usable_h - (int)(40 * dpi_scale));
+#else
+	ALLEGRO_MONITOR_INFO info; // Monitor bounds are reported in physical pixels.
 	if (al_get_monitor_info(0, &info))
 	{
 		w = std::min(w, info.x2 - info.x1);
-		h = std::min(h, info.y2 - info.y1 - 40);
+		h = std::min(h, info.y2 - info.y1 - (int)(40 * dpi_scale));
 	}
+#endif
 
 	al_set_new_display_flags(ALLEGRO_RESIZABLE);
 	al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_REQUIRE);
@@ -1607,6 +1679,12 @@ bool zscript_debugger_gui_update(Debugger* debugger)
 		{
 			ImGui_ImplAllegro5_InvalidateDeviceObjects();
 			al_acknowledge_resize(debugger->display);
+
+			// The window may have moved to a monitor with a different DPI.
+			float new_scale = GetDebuggerDpiScale(debugger->display);
+			if (new_scale > 0.f && new_scale != debugger->dpi_scale)
+				ApplyDpiScale(debugger, new_scale);
+
 			ImGui_ImplAllegro5_CreateDeviceObjects();
 		}
 	}

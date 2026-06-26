@@ -117,6 +117,7 @@ struct Debugger
 	VM vm;
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_EVENT_QUEUE* queue;
+	float dpi_scale = 1.0f;
 
 	TextEditor text_editor;
 
