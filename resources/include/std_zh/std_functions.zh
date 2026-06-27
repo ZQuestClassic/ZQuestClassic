@@ -2615,22 +2615,10 @@ bool VisibleOnDungeonMap(int x, int y)
 	return (dm->Grid[y]&(128>>x));
 }
 
-//Returns if a screen is visible on the passive subscreen minimap.
-//Uses the current screen.
-bool VisibleOnDungeonMap()
-{
-	dmapdata dm = Game->LoadDMapData(Game->CurDMap);
-	int scr = Game->CurScreen;
-	int col = (scr % 0x10)-dm->Offset;
-	int row = (scr>>4);
-	//screen-dm->Offset;
-	//could get screen X and Y from curscreen and dmapoffset in a separate function
-	return (dm->Grid[row]&((128>>col)));
-}
-
-//Returns if a screen is visible on the passive subscreen minimap.
-//Accepts a specific screen ID for the current dmap.
-bool VisibleOnDungeonMap(int scr)
+// Returns true if a screen is visible on the passive subscreen minimap.
+//
+// @param scr - If no screen given, defaults to [Game->CurScreen].
+bool VisibleOnDungeonMap(int scr = Game->CurScreen)
 {
 	dmapdata dm = Game->LoadDMapData(Game->CurDMap);
 	int col = (scr % 0x10)-dm->Offset;
@@ -2638,19 +2626,11 @@ bool VisibleOnDungeonMap(int scr)
 	return (dm->Grid[row]&((128>>col)));
 }
 
-//Returns if a screen is visible on the passive subscreen minimap.
-//Uses the current screen on a dmapdata pointer.
-bool VisibleOnDungeonMap(dmapdata dm)
-{
-	int scr = Game->CurScreen;
-	int col = (scr % 0x10)-dm->Offset;
-	int row = (scr>>4);
-	return (dm->Grid[row]&((128>>col)));
-}
-
-//Returns if a screen is visible on the passive subscreen minimap.
-//Accepts a specific screen ID on a specified dmapdata pointer.
-bool VisibleOnDungeonMap(dmapdata dm, int scr)
+// Returns if a screen is visible on the passive subscreen minimap.
+//
+// @param [dmapdata] dm
+// @param scr - If no screen given, defaults to [Game->CurScreen].
+bool VisibleOnDungeonMap(dmapdata dm, int scr = Game->CurScreen)
 {
 	int col = (scr % 0x10)-dm->Offset;
 	int row = (scr>>4);
