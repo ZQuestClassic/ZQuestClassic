@@ -135,6 +135,7 @@ public:
 
     virtual int32_t readStack(int32_t offset) = 0;
     virtual int32_t readGlobal(int32_t global_index) = 0;
+    virtual int32_t readScript(int32_t global_index) = 0;
     virtual int32_t readRegister(int32_t zasm_var) = 0;
     virtual std::optional<DebugValue> readObjectMember(DebugValue object, const DebugSymbol* sym) = 0;
 	virtual std::optional<std::string> readString(int32_t string_ptr) = 0;
@@ -142,6 +143,7 @@ public:
 	virtual std::optional<DebugValue> readArrayElement(DebugValue array, int index) = 0;
 	virtual std::optional<int32_t> readArraySize(DebugValue array) = 0;
 	virtual void writeGlobal(int32_t offset, int32_t value) = 0;
+	virtual void writeScript(int32_t offset, int32_t value) = 0;
 	virtual void writeStack(int32_t offset, int32_t value) = 0;
 	virtual void writeRegister(int32_t offset, int32_t value) = 0;
 	virtual bool writeObjectMember(DebugValue object, const DebugSymbol* sym, DebugValue value) = 0;

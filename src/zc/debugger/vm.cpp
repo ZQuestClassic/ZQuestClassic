@@ -129,6 +129,12 @@ int32_t VM::readGlobal(int32_t idx)
 	return game->global_d[idx];
 }
 
+int32_t VM::readScript(int32_t idx)
+{
+	auto ri = &current_data->ref;
+	return ri->script_d[idx];
+}
+
 int32_t VM::readRegister(int32_t id)
 {
 	InDebuggerScopeGuard scope_guard(suppress_errors_in_sandbox);
@@ -281,6 +287,12 @@ std::optional<std::string> VM::readString(int32_t string_ptr)
 void VM::writeGlobal(int32_t offset, int32_t value)
 {
 	game->global_d[offset] = value;
+}
+
+void VM::writeScript(int32_t offset, int32_t value)
+{
+	auto ri = &current_data->ref;
+	ri->script_d[offset] = value;
 }
 
 void VM::writeStack(int32_t offset, int32_t value)
