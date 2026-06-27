@@ -248,6 +248,11 @@ static void get_z_register(CompilationState& state, int r)
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
 
+		// ri->pc = state.pc; needed for accurate stack trace should an error occur.
+		state.wasm->emitGlobalGet(state.g_idx_ri);
+		state.wasm->emitI32Const(state.pc);
+		state.wasm->emitI32Store(0); // ri->pc
+
 		state.wasm->emitI32Const(r);
 		state.wasm->emitCall(state.f_idx_get_register);
 	}
@@ -276,6 +281,11 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 			state.wasm->emitGlobalGet(state.g_idx_sp);
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
+
+		// ri->pc = state.pc; needed for accurate stack trace should an error occur.
+		state.wasm->emitGlobalGet(state.g_idx_ri);
+		state.wasm->emitI32Const(state.pc);
+		state.wasm->emitI32Store(0); // ri->pc
 
 		state.wasm->emitI32Const(r);
 		fn();

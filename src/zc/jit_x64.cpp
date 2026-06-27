@@ -309,19 +309,37 @@ static void flush_cache_for_dependent_registers(CompilationState& state, x86::Co
 	});
 }
 
-static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp)
+static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp, pc_t pc)
 {
 	extern refInfo *ri;
 
+	ri->pc = pc;
 	ri->sp = sp;
 	return get_register(arg);
 }
 
-static void set_register_and_restore_sp(int32_t arg, int32_t value, uint32_t sp)
+static int32_t get_register_jit(int32_t arg, pc_t pc)
 {
 	extern refInfo *ri;
 
+	ri->pc = pc;
+	return get_register(arg);
+}
+
+static void set_register_and_restore_sp(int32_t arg, int32_t value, uint32_t sp, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
 	ri->sp = sp;
+	set_register(arg, value);
+}
+
+static void set_register_jit(int32_t arg, int32_t value, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
 	set_register(arg, value);
 }
 
@@ -390,19 +408,21 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler& cc, int r)
 
 		// Call external get_register_and_restore_sp.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, stackIndex);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
 		invokeNode->setRet(0, val);
 	}
 	else
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
 
-		// Call external get_register.
+		// Call external get_register_jit.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignature::build<int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_jit, FuncSignature::build<int32_t, int32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, state.pc); // Needed for accurate stack trace should an error occur.
 		invokeNode->setRet(0, val);
 	}
 	return val;
@@ -459,9 +479,10 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 		// Call external get_register_and_restore_sp.
 		x86::Gp val32 = cc.newInt32();
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, stackIndex);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
 		invokeNode->setRet(0, val32);
 		cc.movsxd(val, val32);
 	}
@@ -469,11 +490,12 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler& cc, int
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
 
-		// Call external get_register.
+		// Call external get_register_jit.
 		x86::Gp val32 = cc.newInt32();
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignature::build<int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, get_register_jit, FuncSignature::build<int32_t, int32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, state.pc); // Needed for accurate stack trace should an error occur.
 		invokeNode->setRet(0, val32);
 		cc.movsxd(val, val32);
 	}
@@ -529,10 +551,11 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 
 		// Call external set_register_and_restore_sp.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register_and_restore_sp, FuncSignature::build<void, int32_t, int32_t, uint32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_register_and_restore_sp, FuncSignature::build<void, int32_t, int32_t, uint32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 		invokeNode->setArg(2, stackIndex);
+		invokeNode->setArg(3, state.pc); // Needed for accurate stack trace should an error occur.
 	}
 	else if (is_guarded_script_register(r))
 	{
@@ -550,11 +573,12 @@ static void set_z_register(CompilationState& state, x86::Compiler& cc, int r, T 
 	{
 		flush_cache_for_dependent_registers(state, cc, r);
 
-		// Call external set_register.
+		// Call external set_register_jit.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
+		cc.invoke(&invokeNode, set_register_jit, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
 	}
 }
 
