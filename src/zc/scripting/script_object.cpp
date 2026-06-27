@@ -201,8 +201,15 @@ void script_object_ref_inc(uint32_t id)
 
 static void script_object_ref_dec(user_abstract_obj* object)
 {
-	assert(object->ref_count > 0);
-	if (object->ref_count == 0) return;
+	DCHECK(ZScriptVersion::gc());
+
+	if (object->ref_count <= 0)
+	{
+		scripting_log_error_with_context("Invalid object reference decrement in script_object_ref_dec: {}", object->id);
+		DCHECK(object->ref_count > 0);
+		return;
+	}
+
 	object->ref_count--;
 
 	if (object->global)
