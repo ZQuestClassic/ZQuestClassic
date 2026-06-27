@@ -33,3 +33,4 @@
 #include "auto/tango.zs"
 #include "auto/varargs.zs"
 #include "auto/viewport.zs"
+#include "auto/weapon_data.zs"
