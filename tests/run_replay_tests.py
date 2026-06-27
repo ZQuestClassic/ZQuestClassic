@@ -936,6 +936,8 @@ test_results = run_replays(
 )
 del display
 
+print(f'test results: {test_results_dir}')
+
 for result in test_results.runs[-1]:
     run_dir = test_results_dir / result.directory
 
