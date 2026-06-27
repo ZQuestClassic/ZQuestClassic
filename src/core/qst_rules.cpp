@@ -14,8 +14,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 
 	int32_t dummy;
 	zquestheader tempheader = *Header;
-	word s_version=0;
-	dword compatrule_version=0;
+	word s_version = 0;
+	dword compatrule_version = 0;
+	dword compile_setting_version = 0;
+	
+	qst_compiler_settings.clear();
 	
 	if(tempheader.zelda_version >= 0x193)
 	{
@@ -66,6 +69,28 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
+		}
+		
+		if (s_version > 17)
+			if (!p_igetl(&compile_setting_version, f))
+				return qe_invalid;
+		FFCore.quest_format[vCompileSetting] = compile_setting_version;
+		
+		if (compile_setting_version > 0)
+		{
+			word sz;
+			if (!p_igetw(&sz, f))
+				return qe_invalid;
+			word id;
+			int val;
+			for (word q = 0; q < sz; ++q)
+			{
+				if (!p_igetw(&id, f))
+					return qe_invalid;
+				if (!p_igetl(&val, f))
+					return qe_invalid;
+				qst_compiler_settings[(QSTCompilerSetting)id] = val;
+			}
 		}
 	}
 
@@ -872,6 +897,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_SUMMONER_COUNTS, 1);
 	if (compatrule_version < 117)
 		set_qr(qr_BROKEN_LARGE_ARMOS_ANIM, 1);
+	if (compatrule_version < 118)
+		set_qr(qr_SCRIPTS_SHARE_INITD, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

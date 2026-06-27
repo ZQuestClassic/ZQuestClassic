@@ -217,7 +217,7 @@ int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
 	{
 		for(auto q = 0; q < 8; ++q)
 		{
-			if(!p_getcstr(&temp_meta.initd[q],f))
+			if(!p_getcstr(&temp_meta.initd_label[q],f))
 				return qe_invalid;
 			if(!p_getwstr(&temp_meta.initd_help[q],f))
 				return qe_invalid;
@@ -231,7 +231,7 @@ int32_t read_one_zmeta(PACKFILE *f, zasm_meta& temp_meta, word zmeta_version)
 	else
 	{
 		for(auto q = 0; q < 8; ++q)
-			temp_meta.initd[q] = temp_meta.run_idens[q];
+			temp_meta.initd_label[q] = temp_meta.run_idens[q];
 	}
 	
 	return 0;
@@ -389,6 +389,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, [[maybe_unused]] int32_t 
 		return qe_invalid;
 	if(!p_igetl(&script->end_pc, f))
 		return qe_invalid;
+	
+	if (s_version >= 30)
+	{
+		if (!p_getbmap(&script->script_d_init, f))
+			return qe_invalid;
+		if (!p_getbmap(&script->script_d_exports, f))
+			return qe_invalid;
+	}
 
 	if (script == &fake_script_data)
 		return 0;

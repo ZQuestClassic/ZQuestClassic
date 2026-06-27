@@ -402,20 +402,28 @@ namespace ZScript
 		owning_vector<ASTString> strings;
 	};
 
+	struct AnnotationParam
+	{
+		AnnotationParam(ASTString* ptr)
+			: is_string(true), strval(ptr), intval()
+		{}
+		AnnotationParam(ASTFloat* ptr)
+			: is_string(false), strval(), intval(ptr)
+		{}
+		bool is_string;
+		owning_ptr<ASTString> strval;
+		owning_ptr<ASTFloat> intval;
+	};
 	class ASTAnnotation : public AST
 	{
 	public:
-		ASTAnnotation(ASTString* key, ASTString* strval,
-		          LocationData const& location = LOC_NONE);
-		ASTAnnotation(ASTString* key, ASTFloat* intval,
-		          LocationData const& location = LOC_NONE);
-		ASTAnnotation(ASTString* key, LocationData const& location = LOC_NONE);
+		ASTAnnotation(LocationData const& location = LOC_NONE);
 		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_ptr<ASTString> key, strval;
-		owning_ptr<ASTFloat> intval;
+		owning_ptr<ASTString> key;
+		vector<AnnotationParam> params;
 	};
 	
 	class ASTAnnotationList : public AST
@@ -1001,6 +1009,8 @@ namespace ZScript
 		Scope* parentScope;
 		bool prototype;
 		owning_ptr<ASTExprConst> defaultReturn;
+		
+		bool handled_staticness;
 	private:
 		int32_t flags;
 		friend class Function;
@@ -1031,6 +1041,14 @@ namespace ZScript
 
 		bool readonly;
 		bool internal;
+		bool is_static;
+		bool is_nonstatic; // only matters until registration
+		
+		bool handled_staticness;
+		
+		bool was_exported;
+		bool was_range_exported;
+		exported_variable export_data;
 
 	protected:
 		// The list of individual data declarations.
@@ -1121,6 +1139,11 @@ namespace ZScript
 		static const uint FL_HIDDEN = 0x04;
 
 		Scope* getScope() const;
+		
+		bool is_static() const
+		{
+			return list && list->is_static;
+		}
 
 	private:
 		// The initialization expression. Optional.

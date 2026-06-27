@@ -5,6 +5,7 @@
 #include "zc_list_data.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include "script_data_editor.h"
 
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
@@ -47,30 +48,6 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::MoveFlag(move_flags index, string
 	);
 }
 
-std::shared_ptr<GUI::Widget> WeaponDataDialog::ScriptField(int index)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Row(padding = 0_px,
-		l_initds[index] = Label(minwidth = ATTR_LAB_WID, hAlign = 1.0, textAlign = 2),
-		ib_initds[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("InitD Info", h_initd[index]).show();
-			}),
-		tf_initd[index] = TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_ref.initd[index],
-			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
-			{
-				local_ref.initd[index] = val;
-			})
-	);
-}
-
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
@@ -89,17 +66,33 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 	using namespace GUI::Props;
 	
 	std::shared_ptr<GUI::Grid> script_col = Column(vAlign = 0.0);
-	if(togglable)
-		script_col->add(Button(text = "Toggle Type", disabled = !togglable,
+	{
+		auto lw_btn = Button(
+			text = "LWeapon Script Setup",
+			height = 2_em,
 			onPressFunc = [&]()
 			{
-				is_lw = !is_lw;
-				refresh_dlg();
-			}));
-	script_col->add(Row(
-		padding = 0_px,
-		SCRIPT_LIST_PROC("Script:", is_lw ? list_lwpnscripts : list_ewpnscripts, local_ref.script, refresh_script)
-	));
+				ScriptDataDialog("LWeapon Script Setup", local_ref.scrconfig,
+					list_lwpnscripts, lwpnscripts).show();
+			}
+		);
+		auto ew_btn = Button(
+			text = "EWeapon Script Setup",
+			height = 2_em,
+			onPressFunc = [&]()
+			{
+				ScriptDataDialog("EWeapon Script Setup", local_ref.scrconfig,
+					list_ewpnscripts, ewpnscripts).show();
+			}
+		);
+		if (togglable)
+		{
+			script_col->add(lw_btn);
+			script_col->add(ew_btn);
+		}
+		else
+			script_col->add(is_lw ? lw_btn : ew_btn);
+	}
 	window = Window(
 		use_vsync = true,
 		title = "Weapon Data Editor",
@@ -701,16 +694,6 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 					)
 				)),
 				TabRef(name = "Script", Row(
-					Column(
-						ScriptField(0),
-						ScriptField(1),
-						ScriptField(2),
-						ScriptField(3),
-						ScriptField(4),
-						ScriptField(5),
-						ScriptField(6),
-						ScriptField(7)
-					),
 					script_col
 				))
 			),
@@ -749,7 +732,6 @@ std::shared_ptr<GUI::Widget> WeaponDataDialog::view()
 	);
 	
 	refresh_burnglow();
-	refresh_script();
 	step_tf->setDisabled(!(local_ref.flags & wdata_set_step));
 	
 	return window;
@@ -768,45 +750,6 @@ void WeaponDataDialog::refresh_burnglow()
 	glow_off_field_base->setDisabled(!burn && !glow);
 	burn_box->setChecked(burn);
 	glow_box->setChecked(glow);
-}
-
-void WeaponDataDialog::refresh_script()
-{
-	int32_t sw_initd[8];
-	for (auto q = 0; q < 8; ++q)
-	{
-		l_initd[q] = "InitD[" + to_string(q) + "]:";
-		h_initd[q].clear();
-		sw_initd[q] = -1;
-	}
-	if (local_ref.script)
-	{
-		if(auto scriptdata = (is_lw ? lwpnscripts : ewpnscripts)[local_ref.script])
-		{
-			zasm_meta const& meta = scriptdata->meta;
-			for (auto q = 0; q < 8; ++q)
-			{
-				if (unsigned(meta.initd_type[q]) < nswapMAX)
-					sw_initd[q] = meta.initd_type[q];
-				if (meta.initd[q].size())
-					l_initd[q] = meta.initd[q];
-				if (meta.initd_help[q].size())
-					h_initd[q] = meta.initd_help[q];
-			}
-		}
-	}
-	else
-	{
-		for (auto q = 0; q < 8; ++q)
-			sw_initd[q] = nswapDEC;
-	}
-	for (auto q = 0; q < 8; ++q)
-	{
-		ib_initds[q]->setDisabled(h_initd[q].empty());
-		l_initds[q]->setText(l_initd[q]);
-		if (sw_initd[q] > -1)
-			tf_initd[q]->setSwapType(sw_initd[q]);
-	}
 }
 
 bool WeaponDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)

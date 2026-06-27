@@ -59,7 +59,7 @@ int32_t ffc_get_register(int32_t reg)
 			ret = ffc->link * 10000;
 			break;
 		case FFSCRIPT:
-			ret = ffc->script * 10000;
+			ret = ffc->scrconfig.script * 10000;
 			break;
 		case FFTHEIGHT:
 			ret = ffc->tysz * 10000;
@@ -133,14 +133,12 @@ void ffc_set_register(int32_t reg, int32_t value)
 			break;
 		case FFSCRIPT:
 		{
-			ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+			ffc->scrconfig.script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 			for(int32_t i=0; i<16; i++)
 				ffc->miscellaneous[i] = 0;
 			if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-			{
-				for(int32_t i=0; i<8; i++)
-					ffc->initd[i] = 0;
-			}
+				ffc->scrconfig.run_args.fill(0);
+			ffc->scrconfig.inst_init.clear();
 			on_reassign_script_engine_data(ScriptType::FFC, ffc->index);
 			break;
 		}
@@ -209,7 +207,7 @@ static ArrayRegistrar FFC_POSSTATE_registrar(FFC_POSSTATE, []{
 }());
 
 static ArrayRegistrar FFINITDD_registrar(FFINITDD, []{
-	static ScriptingArray_ObjectMemberCArray<ffcdata, &ffcdata::initd> impl;
+	static ScriptingArray_ObjectSubMemberContainer<ffcdata, &ffcdata::scrconfig, &script_config::run_args> impl;
 	impl.compatSetDefaultValue(-10000);
 	impl.setMul10000(false);
 	impl.compatBoundSetterIndex();

@@ -8,19 +8,18 @@
 #define REGISTRATIONVISITOR_H_
 
 #include "ASTVisitors.h"
+#include "RegBaseVisitor.h"
 #include "DataStructs.h"
 #include "ZScript.h"
 
 namespace ZScript
 {
-	class RegistrationVisitor : public RecursiveVisitor
+	class RegistrationVisitor : public RegBaseVisitor
 	{
 	public:
 		RegistrationVisitor(ZScript::Program& program);
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
-
-		void initInternalVar(ASTDataDeclList* node);
 
 		////////////////
 		// Cases
@@ -113,6 +112,7 @@ namespace ZScript
 	private:
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
+		void handle_staticness(AST* node, bool& is_static, bool is_nonstatic, Scope* scope, bool disallow);
 		
 		bool hasChanged;
 	};

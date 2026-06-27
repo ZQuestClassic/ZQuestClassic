@@ -3933,9 +3933,6 @@ void set_combo_command::undo()
 
 set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 {
-	std::array<int, 8> initd_arr;
-	std::copy(std::begin(ffc.initd), std::end(ffc.initd), initd_arr.begin());
-
 	return {
 		.x = ffc.x,
 		.y = ffc.y,
@@ -3947,13 +3944,12 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.cset = ffc.cset,
 		.delay = ffc.delay,
 		.link = ffc.link,
-		.script = ffc.script,
+		.scrconfig = ffc.scrconfig,
 		.tw = ffc.txsz,
 		.th = ffc.tysz,
 		.ew = ffc.hit_width,
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
-		.initd = initd_arr,
 		.layer = ffc.layer,
 		.viewport_suspend_range = ffc.viewport_suspend_range,
 		.viewport_despawn_range = ffc.viewport_despawn_range,
@@ -3976,13 +3972,12 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffcs[i].cset = data.cset;
 	mapscr_ptr->ffcs[i].delay = data.delay;
 	mapscr_ptr->ffcs[i].link = data.link;
-	mapscr_ptr->ffcs[i].script = data.script;
+	mapscr_ptr->ffcs[i].scrconfig = data.scrconfig;
 	mapscr_ptr->ffcs[i].flags = data.flags;
 	mapscr_ptr->ffEffectWidth(i, data.ew);
 	mapscr_ptr->ffEffectHeight(i, data.eh);
 	mapscr_ptr->ffTileWidth(i, data.tw);
 	mapscr_ptr->ffTileHeight(i, data.th);
-	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcs[i].layer = data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4005,7 +4000,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].cset = prev_data.cset;
 	mapscr_ptr->ffcs[i].delay = prev_data.delay;
 	mapscr_ptr->ffcs[i].link = prev_data.link;
-	mapscr_ptr->ffcs[i].script = prev_data.script;
+	mapscr_ptr->ffcs[i].scrconfig = prev_data.scrconfig;
 	mapscr_ptr->ffcs[i].flags = prev_data.flags;
 	mapscr_ptr->ffcs[i].viewport_suspend_range = prev_data.viewport_suspend_range;
 	mapscr_ptr->ffcs[i].viewport_despawn_range = prev_data.viewport_despawn_range;
@@ -4013,7 +4008,6 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
 	mapscr_ptr->ffTileHeight(i, prev_data.th);
-	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcs[i].layer = prev_data.layer;
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4321,9 +4315,6 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 	mapscr_ptr->ensureFFC(i);
 
 	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
-
-	std::array<int, 8> initd_arr;
-	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
 
 	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
 
@@ -6836,11 +6827,8 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
-int32_t writerules(PACKFILE *f, zquestheader *Header)
+int32_t writerules(PACKFILE *f, zquestheader *)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
     dword section_id=ID_RULES;
     dword section_version=V_RULES;
     dword section_size=0;
@@ -6863,9 +6851,7 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
     }
 	
 	if(!p_iputl(V_COMPATRULE,f))
-	{
 		new_return(6);
-	}
     
     for(int32_t writecycle=0; writecycle<2; ++writecycle)
     {
@@ -6884,6 +6870,20 @@ int32_t writerules(PACKFILE *f, zquestheader *Header)
         {
             new_return(5);
         }
+		
+		if(!p_iputl(V_COMPILESETTING,f))
+			new_return(7);
+		
+		if (!p_iputw(qst_compiler_settings.size(), f))
+			new_return(8);
+		
+		for (auto [id, val] : qst_compiler_settings)
+		{
+			if (!p_iputw(word(id), f))
+				new_return(9);
+			if (!p_iputl(val, f))
+				new_return(10);
+		}
         
         if(writecycle==0)
         {
@@ -8040,17 +8040,11 @@ int32_t write_single_item(PACKFILE *f, word index)
 	if(!p_iputl(item_ref.flags,f))
 		new_return(15);
 	
-	if(!p_iputw(item_ref.script,f))
-		new_return(16);
-	
 	if(!p_putc(item_ref.count,f))
 		new_return(17);
 	
 	if(!p_iputw(item_ref.amount,f))
 		new_return(18);
-	
-	if(!p_iputw(item_ref.collect_script,f))
-		new_return(19);
 	
 	if(!p_iputw(item_ref.setmax,f))
 		new_return(21);
@@ -8060,10 +8054,6 @@ int32_t write_single_item(PACKFILE *f, word index)
 	
 	if(!p_iputw(item_ref.playsound,f))
 		new_return(23);
-	
-	for(int32_t j=0; j<8; j++)
-		if(!p_iputl(item_ref.initiald[j],f))
-			new_return(24);
 	
 	for (int q = 0; q < 10; ++q)
 		if(!p_iputw(item_ref.wpn_sprites[q],f))
@@ -8165,20 +8155,13 @@ int32_t write_single_item(PACKFILE *f, word index)
 		if(!p_putc(item_ref.cost_counter[q],f))
 			new_return(84);
 	
-	//InitD[] labels
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_putc(item_ref.initD_label[q][w],f))
-				new_return(85);
-		for ( int32_t w = 0; w < 65; w++ )
-			if(!p_putc(item_ref.sprite_initD_label[q][w],f))
-				new_return(87);
-		if(!p_iputl(item_ref.sprite_initiald[q],f))
-			new_return(88);
-	}
-	if(!p_iputw(item_ref.sprite_script,f))
-		new_return(90);
+	if(!p_putvar(item_ref.scrconfig, f))
+		new_return(85);
+	if(!p_putvar(item_ref.collect_scrconfig, f))
+		new_return(86);
+	if(!p_putvar(item_ref.sprite_scrconfig, f))
+		new_return(87);
+	
 	if(!p_putc(item_ref.pickupflag,f))
 		new_return(91);
 	if(!p_putcstr(item_ref.display_name,f))
@@ -8453,16 +8436,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		|| screen.nextmap || screen.nextscr || screen.exstate_reset || screen.exstate_carry)
 		scr_has_flags |= SCRHAS_CARRY;
 	
-	if(screen.script || screen.preloadscript)
+	if (!screen.scrconfig.empty() || screen.preloadscript)
 		scr_has_flags |= SCRHAS_SCRIPT;
-	else for(auto q = 0; q < 8; ++q)
-	{
-		if(screen.screeninitd[q])
-		{
-			scr_has_flags |= SCRHAS_SCRIPT;
-			break;
-		}
-	}
 	
 	for(auto q = 0; q < 128; ++q)
 	{
@@ -8696,15 +8671,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	}
 	if(scr_has_flags & SCRHAS_SCRIPT)
 	{
-		if(!p_iputw(screen.script,f))
+		if (!p_putvar(screen.scrconfig,f))
 			return qe_invalid;
-		if(!p_putc(screen.preloadscript,f))
+		if (!p_putc(screen.preloadscript,f))
 			return qe_invalid;
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			if(!p_iputl(screen.screeninitd[q],f))
-				return qe_invalid;
-		}
 	}
 	if(scr_has_flags & SCRHAS_SECRETS)
 	{
@@ -8825,14 +8795,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_iputl(tempffc.flags,f))
 			return qe_invalid;
 		
-		if(!p_iputw(tempffc.script,f))
+		if (!p_putvar(tempffc.scrconfig,f))
 			return qe_invalid;
-		
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(!p_iputl(tempffc.initd[q],f))
-				return qe_invalid;
-		}
 
 		if(!p_putc(tempffc.layer,f))
 			return qe_invalid;
@@ -10382,24 +10346,8 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 			return 87;
 		}
 	}
-	if(!p_iputw(guy.script,f))
-	{
+	if(!p_putvar(guy.scrconfig, f))
 		return 88;
-	}
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		if(!p_iputl(guy.initD[q],f))
-		{
-			return 89;
-		}
-	}
-	for ( int32_t q = 0; q < 2; q++ )
-	{
-		if(!p_iputl(0,f))
-		{
-			return 90;
-		}
-	}
 	if(!p_iputl(guy.editorflags,f))
 	{
 		return 91;
@@ -10419,16 +10367,6 @@ int32_t writeguy_single(PACKFILE *f, guydata& guy)
 	}
 	
 	//Enemy Editor InitD[] labels
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		for ( int32_t w = 0; w < 65; w++ )
-		{
-			if(!p_putc(guy.initD_label[q][w],f))
-			{
-				return 95;
-			} 
-		}
-	}
 	if(!p_iputl(guy.moveflags,f))
 		return 99;
 	if(!p_iputw(guy.spr_shadow,f))
@@ -12033,7 +11971,7 @@ int32_t write_one_ffscript_meta(PACKFILE *f, zasm_meta const& tmeta)
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
-		if(!p_putcstr(tmeta.initd[q],f))
+		if(!p_putcstr(tmeta.initd_label[q],f))
 			new_return(22);
 		if(!p_putwstr(tmeta.initd_help[q],f))
 			new_return(23);
@@ -12067,6 +12005,12 @@ int32_t write_one_ffscript(PACKFILE *f, [[maybe_unused]] zquestheader *Header, [
 
 	if(!p_iputl(script->end_pc, f))
 		new_return(26);
+	
+	if (!p_putbmap(script->script_d_init, f))
+		new_return(27);
+	
+	if (!p_putbmap(script->script_d_exports, f))
+		new_return(28);
 
     return 0;
 }

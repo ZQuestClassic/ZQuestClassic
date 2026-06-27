@@ -365,6 +365,7 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 
 		std::map<int32_t, int32_t> stack;
 		std::map<int32_t, int32_t> globals;
+		std::map<int32_t, int32_t> scriptvars;
 		std::map<int32_t, int32_t> registers;
 		std::map<int32_t, std::map<int32_t, int32_t>> heap; // ObjPtr -> { Offset -> Val }
 		
@@ -379,6 +380,11 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		int32_t readGlobal(int32_t idx) override
 		{
 			return globals[idx];
+		}
+
+		int32_t readScript(int32_t idx) override
+		{
+			return scriptvars[idx];
 		}
 
 		int32_t readRegister(int32_t id) override
@@ -413,6 +419,10 @@ TestResults test_parser([[maybe_unused]] bool verbose)
 		}
 
 		void writeGlobal(int32_t, int32_t) override
+		{
+		}
+
+		void writeScript(int32_t, int32_t) override
 		{
 		}
 

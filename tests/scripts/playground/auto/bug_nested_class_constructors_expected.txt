@@ -27,8 +27,7 @@ stdout:
 zasm:
 
 QUIT; void run() Body
-PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
 STORE_OBJECT D2 0.0002
@@ -48,7 +47,7 @@ LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 29 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #9 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,21 +74,20 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
+GOTOCMP 52 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
-GOTO 45; while() #1 End
-CALLFUNC 0.0128; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 44; while() #1 End
+CALLFUNC 0.0126; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
-PUSHR REFGENERICDATA; void run() Body Start
-PUSHARGSV 0 0.0003
+PUSHARGSV 0 0.0003; void run() Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0106; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0104; UsrFunc[void Init(int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0196; ClassFunc[Outer0 Outer0::Outer0()] Constructor Call
+CALLFUNC 0.0194; ClassFunc[Outer0 Outer0::Outer0()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0002
@@ -97,11 +95,11 @@ PUSHR D4
 LOAD D2 0.0002; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Params Start
 ZCLASS_READ D2 0
 PUSHR D2; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Params End
-CALLFUNC 0.0157; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Call
+CALLFUNC 0.0155; UsrFunc[void Assert(InnerDefaultCtorNoFields)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0226; ClassFunc[Outer1 Outer1::Outer1()] Constructor Call
+CALLFUNC 0.0224; ClassFunc[Outer1 Outer1::Outer1()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0001
@@ -111,11 +109,11 @@ ZCLASS_READ D2 0
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 123; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0135; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0133; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0264; ClassFunc[Outer2 Outer2::Outer2()] Constructor Call
+CALLFUNC 0.0262; ClassFunc[Outer2 Outer2::Outer2()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
@@ -125,9 +123,9 @@ ZCLASS_READ D2 0
 ZCLASS_READ D2 0
 PUSHR D2
 PUSHV 124; UsrFunc[void AssertEqual(int, int)] Params End
-CALLFUNC 0.0135; UsrFunc[void AssertEqual(int, int)] Call
+CALLFUNC 0.0133; UsrFunc[void AssertEqual(int, int)] Call
 POP D4
-CALLFUNC 0.0128; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0126; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002
 REF_REMOVE 0.0001
 REF_REMOVE 0; [Opt:NeverRet] AND void run() Body End
@@ -144,7 +142,7 @@ LOAD D2 0; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 125 ==; Test 'if'
+GOTOCMP 123 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #8 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -168,7 +166,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 154 ==; Test 'if'
+GOTOCMP 152 ==; Test 'if'
 ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #11 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
@@ -187,11 +185,11 @@ MARK_TYPE_STACK 0.0008 0
 REF_INC 0
 LOAD D2 0; unless() #10 Test
 COMPAREV D2 0
-GOTOCMP 167 !=; Test 'unless'
+GOTOCMP 165 !=; Test 'unless'
 ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #10 Body Start
 WRITEPODSTRING D2 ""
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0171; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #10 Body End
+CALLFUNC 0.0169; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #10 Body End
 NOP
 REF_REMOVE 0
 POP D5
@@ -205,7 +203,7 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 189 ==; Test 'if'
+GOTOCMP 187 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
@@ -213,7 +211,7 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 194; if() #1 Body End
+GOTO 192; if() #1 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -230,7 +228,7 @@ SETR D4 SP2
 PUSHR CLASS_THISKEY2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0214; ClassFunc[InnerDefaultCtorNoFields InnerDefaultCtorNoFields::InnerDefaultCtorNoFields()] Constructor Call
+CALLFUNC 0.0212; ClassFunc[InnerDefaultCtorNoFields InnerDefaultCtorNoFields::InnerDefaultCtorNoFields()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_WRITE CLASS_THISKEY 0
@@ -260,7 +258,7 @@ SETR D4 SP2
 PUSHR CLASS_THISKEY2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0252; ClassFunc[InnerDefaultCtor InnerDefaultCtor::InnerDefaultCtor()] Constructor Call
+CALLFUNC 0.0250; ClassFunc[InnerDefaultCtor InnerDefaultCtor::InnerDefaultCtor()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_WRITE CLASS_THISKEY 0
@@ -298,7 +296,7 @@ SETR D4 SP2
 PUSHR CLASS_THISKEY2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0290; ClassFunc[InnerUserCtor InnerUserCtor::InnerUserCtor()] Constructor Call
+CALLFUNC 0.0288; ClassFunc[InnerUserCtor InnerUserCtor::InnerUserCtor()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 ZCLASS_WRITE CLASS_THISKEY 0

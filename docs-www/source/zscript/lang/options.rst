@@ -54,8 +54,11 @@ What are all the options?
 Standard Options
 ^^^^^^^^^^^^^^^^
 
+.. |onoffauto| replace:: :zs_kw:`on` :zs_kw:`off` :zs_kw:`auto`
 .. |onoff| replace:: :zs_kw:`on` :zs_kw:`off`
 .. |onoffew| replace:: :zs_kw:`on` :zs_kw:`off` :zs_kw:`error` :zs_kw:`warn`
+.. |onoffw| replace:: :zs_kw:`on` :zs_kw:`off` :zs_kw:`warn`
+.. |offew| replace:: :zs_kw:`off` :zs_kw:`error` :zs_kw:`warn`
 
 .. table::
 	:widths: auto
@@ -78,6 +81,22 @@ Standard Options
 	| WARN_DEPRECATED                    | :zs_kw:`off`     | |onoffew|             | If :zs_kw:`on` or :zs_kw:`warn`, issues a warning when using    |
 	|                                    |                  |                       | any internal symbol that is marked as ``deprecated``. Setting   |
 	|                                    |                  |                       | to :zs_kw:`error` gives a compile error instead.                |
+	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
+	| ON_MISSING_RETURN                  | :zs_kw:`auto`    | |offew|               | If :zs_kw:`off`, does nothing. If :zs_kw:`warn` or              |
+	|                                    |                  |                       | :zs_kw:`error`, warns/errors when a function with a non-void    |
+	|                                    |                  |                       | return type can exit without returning a valid value.           |
+	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
+	| LEGACY_ARRAYS                      | :zs_kw:`warn`    | |onoffw|              | If :zs_kw:`on`, does nothing. If :zs_kw:`warn` or :zs_kw:`off`, |
+	|                                    |                  |                       | warns/errors when a variable with a non-array type tries to     |
+	|                                    |                  |                       | hold an array.                                                  |
+	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
+	| DEFAULT_STATIC_SCRIPT_MEMBERS      | :zs_kw:`warn`    | |onoffauto|           | If :zs_kw:`auto`, picks between :zs_kw:`on` / :zs_kw:`off`      |
+	|                                    |                  |                       | automatically. All variables and functions except `void run`    |
+	|                                    |                  |                       | inside a script will be :zs_kw:`static` by default if           |
+	|                                    |                  |                       | :zs_kw:`on`, requiring the :zs_kw:`nonstatic` keyword to make   |
+	|                                    |                  |                       | specific ones non-static. If :zs_kw:`off`, functions/variables  |
+	|                                    |                  |                       | in scripts will be non-static by default, requiring the         |
+	|                                    |                  |                       | :zs_kw:`static` keyword to be static.                           |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 
 .. plans::

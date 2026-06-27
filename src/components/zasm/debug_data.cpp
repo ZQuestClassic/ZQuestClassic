@@ -4,6 +4,7 @@
 #include "components/zasm/debug_data.h"
 #include "base/check.h"
 #include "base/ints.h"
+#include "base/general.h"
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
 
@@ -698,6 +699,19 @@ uint32_t DebugData::getFunctionAdditionalStackSize(const DebugScope* scope) cons
 std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 {
 	auto format_storage = [](DebugSymbolStorage s, int32_t offset, uint32_t type_id) -> std::string {
+		if (s == LOC_REGISTER)
+		{
+			if (offset >= GD(0) && offset < GD(MAX_GLOBAL_VARIABLES))
+			{
+				s = LOC_GLOBAL;
+				offset -= GD(0);
+			}
+			else if (offset >= SCRIPT_INST_VARS(0) && offset < SCRIPT_INST_VARS(MAX_SCRIPT_INST_VARIABLES))
+			{
+				s = LOC_SCRIPT_INSTANCE;
+				offset -= SCRIPT_INST_VARS(0);
+			}
+		}
 		switch(s) {
 			case CONSTANT:
 			{
@@ -707,11 +721,18 @@ std::string DebugData::getDebugSymbolName(const DebugSymbol* symbol) const
 					return fmt::format("Constant[{}L]", offset);
 				return fmt::format("Constant[{}]", offset);
 			}
-			case LOC_STACK:    return fmt::format("Stack[{}]", offset);
-			case LOC_GLOBAL:   return fmt::format("Global[{}]", offset);
-			case LOC_REGISTER: return fmt::format("Reg[{}]", get_script_variable(offset).first->name);
-			case LOC_CLASS:    return fmt::format("ClassField[{}]", offset);
-			default:           return fmt::format("Unknown[{}]", offset);
+			case LOC_STACK:
+				return fmt::format("Stack[{}]", offset);
+			case LOC_GLOBAL:
+				return fmt::format("Global[{}]", offset);
+			case LOC_SCRIPT_INSTANCE:
+				return fmt::format("ScriptField[{}]", offset);
+			case LOC_REGISTER:
+				return fmt::format("Reg[{}]", get_script_variable(offset).first->name);
+			case LOC_CLASS:
+				return fmt::format("ClassField[{}]", offset);
+			default:
+				return fmt::format("Unknown[{}]", offset);
 		}
 	};
 

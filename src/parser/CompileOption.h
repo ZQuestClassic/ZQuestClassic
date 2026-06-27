@@ -8,6 +8,7 @@
 namespace ZScript
 {
 	typedef int32_t CompileOptionValue;
+	static const CompileOptionValue OPTION_AUTO = -10000;
 	static const CompileOptionValue OPTION_OFF = 0;
 	static const CompileOptionValue OPTION_ON = 10000;
 	static const CompileOptionValue OPTION_ERROR = 20000;

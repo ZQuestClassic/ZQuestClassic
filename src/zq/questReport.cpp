@@ -2046,7 +2046,8 @@ void scriptLocationReport()
 			word num_ffcs = ts->numFFC();
             for(word i=0; i<num_ffcs; i++)
             {
-                int32_t script = ts->ffcs[i].script;
+				auto const& scrconfig = ts->ffcs[i].scrconfig;
+                int32_t script = scrconfig.script;
                 
                 if(!script || !ts->ffcs[i].data) continue;
                 
@@ -2066,7 +2067,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int32_t j=0; j<8; ++j)
-                    newnode->d[j] = ts->ffcs[i].initd[j];
+                    newnode->d[j] = scrconfig.run_args[j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;

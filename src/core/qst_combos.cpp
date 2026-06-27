@@ -1524,11 +1524,8 @@ int32_t write_weap_data(weapon_data const& data, PACKFILE* f)
 	if (!p_iputzf(data.lift_height, f))
 		new_return(25);
 
-	if (!p_iputw(data.script, f))
+	if (!p_putvar(data.scrconfig, f))
 		new_return(26);
-	for(uint q = 0; q < 8; ++q)
-		if(!p_iputl(data.initd[q], f))
-			new_return(27);
 	if (!p_iputw(data.pierce_count, f))
 		new_return(28);
 	if (!p_iputzf(data.bounce_mult, f))

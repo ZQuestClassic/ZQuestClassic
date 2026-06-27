@@ -2,6 +2,7 @@
 #define CORE_QRS_H_
 
 #include "base/ints.h"
+#include "base/headers.h"
 
 #define QUESTRULES_SIZE 20
 #define QUESTRULES_NEW_SIZE 100
@@ -226,6 +227,8 @@ enum
 	// 74
 	qr_NO_FLASHING_MSG_MORE, qr_BROKEN_LENS_HINTS_SECRETS, qr_BRIDGES_ABOVE_2, qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2,
 	qr_KNOCKBACK_THROUGH_PLATFORMS, qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, qr_OLD_SUMMONER_COUNTS, qr_BROKEN_LARGE_ARMOS_ANIM,
+	// 75
+	qr_SCRIPTS_SHARE_INITD,
 	
 	//80 //PARSER SPOT
 	qr_PARSER_250DIVISION = 80*8, qr_PARSER_NO_LOGGING, qr_PARSER_SHORT_CIRCUIT, qr_PARSER_BOOL_TRUE_DECIMAL,
@@ -289,6 +292,13 @@ void set_er(int index,bool state);
 //Want to move these here, but looks complicated...
 // void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
 // void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
+
+enum class QSTCompilerSetting : uint16_t
+{
+	DEFAULT_STATIC_SCRIPT_MEMBERS,
+};
+extern map<QSTCompilerSetting, int> qst_compiler_settings;
+std::string to_string(QSTCompilerSetting setting);
 
 #endif
 

@@ -229,8 +229,8 @@ void SubscrSettingsDialog::refr_script()
 		zasm_meta const& meta = subscreenscripts[local_subref.script]->meta;
 		for(size_t q = 0; q < 8; ++q)
 		{
-			if(meta.initd[q].size())
-				label[q] = meta.initd[q];
+			if(meta.initd_label[q].size())
+				label[q] = meta.initd_label[q];
 			if(meta.initd_help[q].size())
 				help[q] = meta.initd_help[q];
 		}

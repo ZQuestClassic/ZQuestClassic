@@ -120,6 +120,11 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 		args.push_back("-noclose");
 	if(delay)
 		args.push_back("-delay");
+	for (auto [id, val] : qst_compiler_settings)
+	{
+		args.push_back(fmt::format("-{}", to_string(id)));
+		args.push_back(std::to_string(val));
+	}
 	process_manager* pm = launch_piped_process(locate_zapp_file(ZSCRIPT_FILE), "zq_parser_pipe", args);
 	dword compile_timeout = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	if(!pm)

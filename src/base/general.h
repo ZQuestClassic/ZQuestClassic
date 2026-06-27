@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
+#include <array>
 
 using warnings = std::vector<std::string>;
 
@@ -106,8 +108,8 @@ double wrap_float(double x,double low,double high);
 #define FFSCRIPT_MISC              32
 #define MAX_STACK_SIZE             5120
 #define MAX_CALL_FRAMES            1024
-#define MAX_SCRIPT_REGISTERS       1024
-#define MAX_SCRIPT_REGISTERS_250   256
+#define MAX_GLOBAL_VARIABLES       1024
+#define MAX_SCRIPT_INST_VARIABLES  256
 #define MAX_PC                     dword(-1)
 
 //Sizes
@@ -543,6 +545,37 @@ struct CheckListInfo
 	CheckListInfo(byte flags, std::string name = "", std::string info = "")
 		: name(std::move(name)), info(std::move(info)), flags(flags)
 	{}
+};
+
+enum
+{
+	nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX
+};
+static const char* swp_strs[nswapMAX] = {"D", "H", "LD", "LH", "B"};
+
+struct exported_variable
+{
+	std::string name;
+	std::string helptext;
+	int8_t btn_type = nswapDEC;
+	zfix min = -214748.3648_zf, max = 214748.3647_zf;
+	bool operator==(const exported_variable& other) const = default;
+};
+
+struct script_config
+{
+	word script;
+	std::array<int, 8> run_args;
+	std::map<word, int> inst_init;
+	
+	script_config();
+	script_config(script_config const& other);
+	script_config(script_config&& other) noexcept;
+	script_config& operator=(script_config const& other);
+	script_config& operator=(script_config&& other) noexcept;
+	bool operator==(const script_config& other) const = default;
+	bool empty() const;
+	void clear();
 };
 
 #endif

@@ -816,8 +816,8 @@ void ComboEditorDialog::refreshScript()
 		{
 			if(unsigned(meta.initd_type[q]) < nswapMAX)
 				sw_initd[q] = meta.initd_type[q];
-			if(meta.initd[q].size())
-				l_initd[q] = meta.initd[q];
+			if(meta.initd_label[q].size())
+				l_initd[q] = meta.initd_label[q];
 			if(meta.initd_help[q].size())
 				h_initd[q] = meta.initd_help[q];
 		}

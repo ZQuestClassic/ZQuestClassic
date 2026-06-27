@@ -35,6 +35,8 @@
 //	    ScriptingArray_ObjectMemberBitstring
 //	    ScriptingArray_ObjectMemberSet
 //	    ScriptingArray_ObjectMemberContainer
+//	    ScriptingArray_ObjectSubMemberContainer
+//	    ScriptingArray_ObjectSubSubMemberContainer
 //	    ScriptingArray_ObjectComputed
 //
 //   The "Global" interfaces pass the ref variable as an int. Many ZASM arrays are "global" in that they

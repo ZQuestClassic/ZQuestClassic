@@ -1492,7 +1492,7 @@ enum ASM_DEFINE
 #define SP2                   0x02ED
 
 //#define SD(n)              ((0x02ED)+(n)) //Spare 8
-#define GD(n)              ((0x02F5)+(n)) //1024, spare 352
+#define GD(n)              ((0x02F5)+(n)) //1024: 0x02F5 -> 0x06F5
 
 // Defines for accessing gamedata
 //#define GAMECOUNTER(n)     ((0x03F5)+((n)*3)) //All of these spare
@@ -2399,7 +2399,7 @@ enum ASM_DEFINE
 #define NPCLINEDUP			0x131F	
 #define NPCDATAINITD			0x1320
 #define NPCDATASCRIPT			0x1321	
-#define NPCMATCHINITDLABEL			0x1322	
+#define DELETED_NPCMATCHINITDLABEL			0x1322	
 #define LWPNSCRIPT			0x1323
 #define LWPNINITD			0x1324	
 #define ITEMTYPE			0x1325	
@@ -3464,7 +3464,12 @@ enum ASM_DEFINE
 #define COMBODATA_LIFT_WEAPONDATA         0x16F9
 #define WEAPDATA_VALID                    0x16FA
 
-#define NUMVARIABLES         0x16FB
+
+
+#define IDATACOLLECTINITD          0x16FE
+#define IDATASPRITEINITD           0x16FF
+#define SCRIPT_INST_VARS(d)      ((0x1700) + d) // 256; 0x1700 -> 0x1800
+#define NUMVARIABLES               0x1800
 
 //} End variables
 

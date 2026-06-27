@@ -1093,7 +1093,6 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case NPCDDEATHSPR:
 		case NPCDSHADOWSPR:
 		case NPCDSPAWNSPR:
-		case NPCMATCHINITDLABEL:
 		case NPCDATA_WEAPONDATA:
 			return EngineSubsystem::npcdata;
 

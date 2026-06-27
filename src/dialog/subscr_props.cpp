@@ -258,7 +258,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	std::string lbl = local_gen_meta.initd[ind];
+	std::string lbl = local_gen_meta.initd_label[ind];
 	if(lbl.empty())
 		lbl = "InitD["+std::to_string(ind)+"]:";
 	return Row(padding = 0_px, hAlign = 1.0,
@@ -2607,7 +2607,7 @@ void SubscrPropDialog::updateSelectable()
 	
 	for(int q = 0; q < 8; ++q)
 	{
-		std::string lbl = local_gen_meta.initd[q];
+		std::string lbl = local_gen_meta.initd_label[q];
 		if(lbl.empty())
 			lbl = "InitD["+std::to_string(q)+"]";
 		geninitd_lbl[q]->setText(lbl);
