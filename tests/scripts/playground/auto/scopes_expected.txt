@@ -3843,26 +3843,26 @@ POP D1; Func[int hero::GetOriginalFlip(int, int)] Body Start                    
 POP D0                                                                          | 3814 resources/include/bindings/hero.zh:987
 SETR D2 LINKOFLIP                                                               | 3815 resources/include/bindings/hero.zh:987
 RETURNFUNC; Func[int hero::GetOriginalFlip(int, int)] Body End                  | 3816 resources/include/bindings/hero.zh:987
-POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3817 resources/include/bindings/itemdata.zh:959
-POP REFITEMDATA                                                                 | 3818 resources/include/bindings/itemdata.zh:959
-ITEMNAME D2                                                                     | 3819 resources/include/bindings/itemdata.zh:959
-RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3820 resources/include/bindings/itemdata.zh:959
-POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3821 resources/include/bindings/itemdata.zh:967
-POP REFITEMDATA                                                                 | 3822 resources/include/bindings/itemdata.zh:967
-ITEMGETDISPLAYNAME D2                                                           | 3823 resources/include/bindings/itemdata.zh:967
-RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3824 resources/include/bindings/itemdata.zh:967
-POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3825 resources/include/bindings/itemdata.zh:975
-POP REFITEMDATA                                                                 | 3826 resources/include/bindings/itemdata.zh:975
-ITEMSETDISPLAYNAME D2                                                           | 3827 resources/include/bindings/itemdata.zh:975
-RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3828 resources/include/bindings/itemdata.zh:975
-POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3829 resources/include/bindings/itemdata.zh:985
-POP REFITEMDATA                                                                 | 3830 resources/include/bindings/itemdata.zh:985
-ITEMGETSHOWNNAME D2                                                             | 3831 resources/include/bindings/itemdata.zh:985
-RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3832 resources/include/bindings/itemdata.zh:985
-POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3833 resources/include/bindings/itemdata.zh:994
-POP REFITEMDATA                                                                 | 3834 resources/include/bindings/itemdata.zh:994
-RUNITEMSCRIPT D2                                                                | 3835 resources/include/bindings/itemdata.zh:994
-RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3836 resources/include/bindings/itemdata.zh:994
+POP D2; Func[void itemdata::GetName(char32[])] Body Start                       | 3817 resources/include/bindings/itemdata.zh:971
+POP REFITEMDATA                                                                 | 3818 resources/include/bindings/itemdata.zh:971
+ITEMNAME D2                                                                     | 3819 resources/include/bindings/itemdata.zh:971
+RETURNFUNC; Func[void itemdata::GetName(char32[])] Body End                     | 3820 resources/include/bindings/itemdata.zh:971
+POP D2; Func[void itemdata::GetDisplayName(char32[])] Body Start                | 3821 resources/include/bindings/itemdata.zh:979
+POP REFITEMDATA                                                                 | 3822 resources/include/bindings/itemdata.zh:979
+ITEMGETDISPLAYNAME D2                                                           | 3823 resources/include/bindings/itemdata.zh:979
+RETURNFUNC; Func[void itemdata::GetDisplayName(char32[])] Body End              | 3824 resources/include/bindings/itemdata.zh:979
+POP D2; Func[void itemdata::SetDisplayName(char32[])] Body Start                | 3825 resources/include/bindings/itemdata.zh:987
+POP REFITEMDATA                                                                 | 3826 resources/include/bindings/itemdata.zh:987
+ITEMSETDISPLAYNAME D2                                                           | 3827 resources/include/bindings/itemdata.zh:987
+RETURNFUNC; Func[void itemdata::SetDisplayName(char32[])] Body End              | 3828 resources/include/bindings/itemdata.zh:987
+POP D2; Func[void itemdata::GetShownName(char32[])] Body Start                  | 3829 resources/include/bindings/itemdata.zh:997
+POP REFITEMDATA                                                                 | 3830 resources/include/bindings/itemdata.zh:997
+ITEMGETSHOWNNAME D2                                                             | 3831 resources/include/bindings/itemdata.zh:997
+RETURNFUNC; Func[void itemdata::GetShownName(char32[])] Body End                | 3832 resources/include/bindings/itemdata.zh:997
+POP D2; Func[void itemdata::RunScript(int)] Body Start                          | 3833 resources/include/bindings/itemdata.zh:1006
+POP REFITEMDATA                                                                 | 3834 resources/include/bindings/itemdata.zh:1006
+RUNITEMSCRIPT D2                                                                | 3835 resources/include/bindings/itemdata.zh:1006
+RETURNFUNC; Func[void itemdata::RunScript(int)] Body End                        | 3836 resources/include/bindings/itemdata.zh:1006
 POP D2; Func[void itemsprite::Max(int)] Body Start                              | 3837 resources/include/bindings/itemsprite.zh:145
 POP REFITEM                                                                     | 3838 resources/include/bindings/itemsprite.zh:145
 SETR SPRITEMAXITEM D2                                                           | 3839 resources/include/bindings/itemsprite.zh:145
@@ -9399,6 +9399,7 @@ debug data:
       - int PScript @ Reg[IDATAPSCRIPT]
       - int PString @ Reg[IDATAPSTRING]
       - int Pickup @ Reg[IDATAPICKUP]
+      - untyped[] PickupInitD @ Reg[IDATACOLLECTINITD]
       - int PickupLItemLevel @ Reg[IDATAPICKUPLITEMLEVEL]
       - int PickupLItems @ Reg[IDATAPICKUPLITEMS]
       - int PickupSound @ Reg[IDATAPSOUND]
@@ -9410,6 +9411,7 @@ debug data:
       - int Script @ Reg[IDATASCRIPT]
       - bool SideSwimDisabled @ Reg[IDATASSWIMDISABLED]
       - int SizeFlags @ Reg[IDATAOVERRIDEFL]
+      - untyped[] SpriteInitD @ Reg[IDATASPRITEINITD]
       - int SpriteScript @ Reg[IDATASPRSCRIPT]
       - int[] Sprites @ Reg[IDATASPRITE]
       - int Tile @ Reg[IDATATILE]
