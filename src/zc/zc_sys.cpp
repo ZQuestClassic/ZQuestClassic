@@ -84,7 +84,6 @@ extern byte monochrome_console;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern std::string loadlast;
-byte use_dwm_flush;
 byte use_save_indicator;
 int32_t paused_midi_pos = 0;
 byte midi_suspended = 0;
@@ -110,34 +109,6 @@ extern TopMenu the_player_menu;
 #endif
 
 bool zc_key_pressed();
-
-#ifdef _WIN32
-
-// This should only be necessary for MinGW, since it doesn't have a dwmapi.h. Add another #ifdef if you like.
-extern "C"
-{
-	typedef HRESULT(WINAPI *t_DwmFlush)();
-	typedef HRESULT(WINAPI *t_DwmIsCompositionEnabled)(BOOL *pfEnabled);
-}
-
-void do_DwmFlush()
-{
-	static HMODULE shell = LoadLibrary("dwmapi.dll");
-	
-	if(!shell)
-		return;
-		
-	static t_DwmFlush flush=reinterpret_cast<t_DwmFlush>(GetProcAddress(shell, "DwmFlush"));
-	static t_DwmIsCompositionEnabled isEnabled=reinterpret_cast<t_DwmIsCompositionEnabled>(GetProcAddress(shell, "DwmIsCompositionEnabled"));
-	
-	BOOL enabled;
-	isEnabled(&enabled);
-	
-	if(isEnabled)
-		flush();
-}
-
-#endif // _WIN32
 
 void zc_exit(int code)
 {
@@ -365,11 +336,7 @@ void load_game_configs()
 #ifdef _WIN32
 	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
-	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
-   
-	// This one's for Aero
-	use_dwm_flush = (byte) zc_get_config("zeldadx","use_dwm_flush",0);
-   
+
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
 	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
@@ -3977,16 +3944,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		
-#ifdef _WIN32
-		
-		if(use_dwm_flush)
-		{
-			do_DwmFlush();
-		}
-		
-#endif
-		
+
 		// to keep music playing
 		if(zcmusic!=NULL)
 		{
@@ -4057,16 +4015,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		if (Quit)
 			replay_step_quit(Quit);
 	}
-	
-#ifdef _WIN32
-	
-	if(use_dwm_flush)
-	{
-		do_DwmFlush();
-	}
-	
-#endif
-	
+
 	if(sfxcleanup)
 		sfx_cleanup();
 

@@ -267,7 +267,7 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte zc_vsync=0;
-byte use_win32_proc=1, console_enabled = 0;
+byte console_enabled = 0;
 int32_t home_screen,global_frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 dword light_wave_clk = 0;
 bool scrolling_using_new_region_coords;

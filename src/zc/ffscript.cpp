@@ -146,7 +146,6 @@ void scripting_log_error_with_context(std::string text)
 // (type, index) => ScriptEngineData
 std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
-extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 
 int32_t hangcount = 0;
