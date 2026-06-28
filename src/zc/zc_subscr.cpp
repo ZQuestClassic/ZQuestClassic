@@ -659,7 +659,12 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	// Only needed when not opening the active subscreen. That allows for the passive subscreen to
 	// have a transparent background when moving over the playing field – if not desired, a black
 	// rectangle widget should be used in the passive subscreen.
-	if (QHeader.is_z3 && !subscreen_open && playing_field_offset)
+	// Only fill while actually in a scrolling region; outside of one (including non-scrolling
+	// regions) the passive subscreen can stay transparent. While scrolling between screens
+	// cur_region can briefly report a single screen, so also check the region being scrolled
+	// into to avoid the playing field showing through for a frame.
+	bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
+	if (in_scrolling_region && !subscreen_open && playing_field_offset)
 		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
 
 	int32_t prev_currscr;
