@@ -216,7 +216,7 @@ int CenterY(npc n, bool usehitbox)
 //Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
 int CenterY(item it, bool usehitbox) 
 {
-	return ( (usehitbox) ? (it->Y+it->HitHeight/2 + it->HitYOffset) : (it->X+8*it->TileHeight + it->DrawYOffset) );
+	return ( (usehitbox) ? (it->Y+it->HitHeight/2 + it->HitYOffset) : (it->Y+8*it->TileHeight + it->DrawYOffset) );
 }
 
 //Returns centre of lweapon, with option to include its HitYOffset and DrawYOffset (individually).
