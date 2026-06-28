@@ -1,3 +1,4 @@
+import concurrent.futures
 import difflib
 import json
 import os
@@ -12,6 +13,26 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 releases_dir = root_dir / '.tmp/releases'
 test_builds_dir = root_dir / '.tmp/test_builds'
+
+
+def get_test_concurrency() -> int:
+    return max(1, (os.cpu_count() or 1) - 1)
+
+
+def submit_all(fn, items):
+    """
+    Submit fn(item) for every item to a thread pool (sized to the machine),
+    returning the open executor and a dict mapping each item to its Future.
+
+    The work runs concurrently while the caller consumes results in whatever
+    (deterministic) order it likes via future.result(), which re-raises any
+    exception from the worker at the point it's consumed. The caller is
+    responsible for keeping the executor alive until all results are read,
+    e.g. by using it as a context manager.
+    """
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=get_test_concurrency())
+    futures = {item: executor.submit(fn, item) for item in items}
+    return executor, futures
 
 
 # TODO: this is a duplicated function

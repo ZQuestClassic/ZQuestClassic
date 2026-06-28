@@ -20,7 +20,7 @@ import unittest
 
 from pathlib import Path
 
-from common import ZCTestCase, parse_json
+from common import ZCTestCase, parse_json, submit_all
 
 CI = 'CI' in os.environ
 
@@ -103,7 +103,9 @@ class TestZScript(ZCTestCase):
             str(root_dir / 'resources/headers'),
             str(test_scripts_dir / 'playground'),
         ]
-        zasm_path = tmp_dir / 'out.zasm'
+        # Use a zasm path unique to this script so parallel runs don't clobber each other.
+        slug = script_path.relative_to(test_scripts_dir).as_posix().replace('/', '_')
+        zasm_path = tmp_dir / f'{slug}.zasm'
         zasm_path.unlink(missing_ok=True)
         args = [
             '-input',
@@ -183,17 +185,22 @@ class TestZScript(ZCTestCase):
     def test_zscript_compiler_expected_zasm(self):
         script_paths = list(test_scripts_dir.rglob('*.zs'))
         script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
-        for script_path in script_paths:
-            if script_path.name in ['auto.zs', 'playground.zs', 'z3.zs']:
-                continue
+        script_paths = [
+            script_path
+            for script_path in script_paths
+            if script_path.name not in ['auto.zs', 'playground.zs', 'z3.zs']
+        ]
 
-            with self.subTest(msg=f'compile {script_path.name}'):
-                output = self.compile_script(script_path)
-                script_subpath = script_path.relative_to(test_scripts_dir)
-                expected_path = expected_dir / script_subpath.with_name(
-                    f'{script_subpath.stem}_expected.txt'
-                )
-                self.expect_snapshot(expected_path, output, args.update)
+        executor, futures = submit_all(self.compile_script, script_paths)
+        with executor:
+            for script_path in script_paths:
+                with self.subTest(msg=f'compile {script_path.name}'):
+                    output = futures[script_path].result()
+                    script_subpath = script_path.relative_to(test_scripts_dir)
+                    expected_path = expected_dir / script_subpath.with_name(
+                        f'{script_subpath.stem}_expected.txt'
+                    )
+                    self.expect_snapshot(expected_path, output, args.update)
 
     def test_zscript_version_docs(self):
         subprocess.check_call(

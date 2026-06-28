@@ -19,7 +19,7 @@ import unittest
 
 from pathlib import Path
 
-from common import ZCTestCase
+from common import ZCTestCase, submit_all
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -48,7 +48,7 @@ class TestOptimizeZasmUnit(ZCTestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def run_test(self, path: Path):
+    def optimize_zasm_in_file(self, path: Path):
         run_args = [
             '-headless',
             '-optimize-zasm-experimental',
@@ -59,17 +59,25 @@ class TestOptimizeZasmUnit(ZCTestCase):
         ]
         p = run_target.run('zplayer', run_args)
         if p.returncode:
-            raise Exception(f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}')
+            raise Exception(
+                f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}'
+            )
 
         output_index = p.stdout.index('output:\n') + len('output:\n')
-        output = p.stdout[output_index:].strip() + '\n'
-        expected_path = expected_dir / f'{path.stem}_expected.txt'
-        self.expect_snapshot(expected_path, output, args.update)
+        return p.stdout[output_index:].strip() + '\n'
+
+    def run_test(self, path: Path, future):
+        with self.subTest(msg=f'optimizing {path.name}'):
+            output = future.result()
+            expected_path = expected_dir / f'{path.stem}_expected.txt'
+            self.expect_snapshot(expected_path, output, args.update)
 
     def test_optimize_zasm(self):
-        for path in inputs_dir.rglob('*.txt'):
-            with self.subTest(msg=f'optimizing {path.name}'):
-                self.run_test(inputs_dir / path)
+        paths = list(inputs_dir.rglob('*.txt'))
+        executor, futures = submit_all(self.optimize_zasm_in_file, paths)
+        with executor:
+            for path in paths:
+                self.run_test(path, futures[path])
 
 
 if __name__ == '__main__':
