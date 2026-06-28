@@ -84,7 +84,7 @@ protected:
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
 		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx, list_dmaps,
-		list_costinds, list_items_no_none, list_reqitems, list_reqnotitems,
+		list_costinds, list_items_no_none, list_reqitems, list_reqnotitems, list_items_no_none_equipment_only,
 		list_buttons_none, list_reqfloors, list_reqlevels, list_reqdmaps, list_reqmaps, list_reqscreens;
 	
 	void updateSelectable();

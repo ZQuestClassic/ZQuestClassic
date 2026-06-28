@@ -43,6 +43,15 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_dmaps(GUI::ZCListData::dmaps(true)),
 	list_costinds(GUI::ListData::numbers(false, 0, 2)),
 	list_items_no_none(GUI::ZCListData::items(true, false)),
+	list_items_no_none_equipment_only(
+		list_items_no_none.filter([&](GUI::ListItem& itm)
+		{
+			if(invalid_item_id(itm.value))
+				return false;
+			itemdata const& idata = itemsbuf.get(itm.value);
+			return bool(idata.flags & item_gamedata); // only ownable items are usable
+		})
+	),
 	list_buttons_none(GUI::ZCListData::buttons(true))
 {
 	byte pg = subscr_edit.curpage, ind = index;
@@ -1904,103 +1913,104 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	updateConditions();
 	const auto btnsz = 32_px;
 	std::shared_ptr<GUI::List> cond_itms_list;
+	std::shared_ptr<GUI::Widget> conditional_item_widget;
+	if (list_items_no_none_equipment_only.empty())
+		conditional_item_widget = Label(text = "No 'Equipment Item's to display!");
+	else
+	{
+		conditional_item_widget = Columns<4>(
+			Row(padding = 0_px,
+				Label(text = "Required Owned Items"),
+				INFOBTN("Widget will not exist unless these items are owned.")
+			),
+			Column(
+				req_item_list = List(prefheight = 10_em,
+					data = list_reqitems,
+					focused = true,
+					selectedValue = cond_item_sels[CI_REQ],
+					onSelectFunc = [&](int32_t val)
+					{
+						cond_item_sels[CI_REQ] = val;
+					}
+				),
+				Rows<2>(
+					INFOBTN("If checked, 'Require Owned Items' will be satisfied if any one of the items is owned, rather than requiring all of them."),
+					Checkbox(
+						text = "Req Any Item", hAlign = 0.0,
+						checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_ITEM,
+						onToggleFunc = [=, this](bool state)
+						{
+							SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_ITEM,state);
+						})
+				)
+			),
+			Row(padding = 0_px,
+				Label(text = "Required Unowned Items"),
+				INFOBTN("Widget will not exist if any of these items are owned.")
+			),
+			req_not_item_list = List(prefheight = 10_em,
+				data = list_reqnotitems,
+				focused = true,
+				selectedValue = cond_item_sels[CI_REQ_NOT],
+				onSelectFunc = [&](int32_t val)
+				{
+					cond_item_sels[CI_REQ_NOT] = val;
+				}
+			),
+			Column(rowSpan = 2,
+				Button(type = GUI::Button::type::ICON,
+					icon = BTNICON_ARROW_LEFT,
+					width = btnsz, height = btnsz,
+					onPressFunc = [&]()
+					{
+						local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
+						updateConditions();
+					}),
+				Button(type = GUI::Button::type::ICON,
+					icon = BTNICON_ARROW_RIGHT,
+					width = btnsz, height = btnsz,
+					onPressFunc = [&]()
+					{
+						local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
+						updateConditions();
+					})
+			),
+			Column(rowSpan = 2,
+				Button(type = GUI::Button::type::ICON,
+					icon = BTNICON_ARROW_LEFT,
+					width = btnsz, height = btnsz,
+					onPressFunc = [&]()
+					{
+						local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
+						updateConditions();
+					}),
+				Button(type = GUI::Button::type::ICON,
+					icon = BTNICON_ARROW_RIGHT,
+					width = btnsz, height = btnsz,
+					onPressFunc = [&]()
+					{
+						local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
+						updateConditions();
+					})
+			),
+			Label(text = "Items"),
+			cond_itms_list = List(prefheight = 16_em,
+				fitParent = true, rowSpan = 3,
+				data = list_items_no_none_equipment_only,
+				isABC = true,
+				focused = true,
+				selectedIndex = 0,
+				onSelectFunc = [&](int32_t val)
+				{
+					cond_item_sels[CI_PICKED] = val;
+				}
+			)
+		);
+	}
 	tpan->add(TabRef(name = "Conditions",
 		TabPanel(ptr = &sprop_tab_cond,
 			TabRef(name = "Items",
-				Columns<4>(
-					Row(padding = 0_px,
-						Label(text = "Required Owned Items"),
-						INFOBTN("Widget will not exist unless these items are owned.")
-					),
-					Column(
-						req_item_list = List(prefheight = 10_em,
-							data = list_reqitems,
-							focused = true,
-							selectedValue = cond_item_sels[CI_REQ],
-							onSelectFunc = [&](int32_t val)
-							{
-								cond_item_sels[CI_REQ] = val;
-							}
-						),
-						Rows<2>(
-							INFOBTN("If checked, 'Require Owned Items' will be satisfied if any one of the items is owned, rather than requiring all of them."),
-							Checkbox(
-								text = "Req Any Item", hAlign = 0.0,
-								checked = local_subref->genflags & SUBSCRFLAG_REQ_ANY_ITEM,
-								onToggleFunc = [=, this](bool state)
-								{
-									SETFLAG(local_subref->genflags,SUBSCRFLAG_REQ_ANY_ITEM,state);
-								})
-						)
-					),
-					Row(padding = 0_px,
-						Label(text = "Required Unowned Items"),
-						INFOBTN("Widget will not exist if any of these items are owned.")
-					),
-					req_not_item_list = List(prefheight = 10_em,
-						data = list_reqnotitems,
-						focused = true,
-						selectedValue = cond_item_sels[CI_REQ_NOT],
-						onSelectFunc = [&](int32_t val)
-						{
-							cond_item_sels[CI_REQ_NOT] = val;
-						}
-					),
-					Column(rowSpan = 2,
-						Button(type = GUI::Button::type::ICON,
-							icon = BTNICON_ARROW_LEFT,
-							width = btnsz, height = btnsz,
-							onPressFunc = [&]()
-							{
-								local_subref->req_owned_items.insert(cond_item_sels[CI_PICKED]);
-								updateConditions();
-							}),
-						Button(type = GUI::Button::type::ICON,
-							icon = BTNICON_ARROW_RIGHT,
-							width = btnsz, height = btnsz,
-							onPressFunc = [&]()
-							{
-								local_subref->req_owned_items.erase(cond_item_sels[CI_REQ]);
-								updateConditions();
-							})
-					),
-					Column(rowSpan = 2,
-						Button(type = GUI::Button::type::ICON,
-							icon = BTNICON_ARROW_LEFT,
-							width = btnsz, height = btnsz,
-							onPressFunc = [&]()
-							{
-								local_subref->req_unowned_items.insert(cond_item_sels[CI_PICKED]);
-								updateConditions();
-							}),
-						Button(type = GUI::Button::type::ICON,
-							icon = BTNICON_ARROW_RIGHT,
-							width = btnsz, height = btnsz,
-							onPressFunc = [&]()
-							{
-								local_subref->req_unowned_items.erase(cond_item_sels[CI_REQ_NOT]);
-								updateConditions();
-							})
-					),
-					Label(text = "Items"),
-					cond_itms_list = List(prefheight = 16_em,
-						fitParent = true, rowSpan = 3,
-						data = list_items_no_none.filter([&](GUI::ListItem& itm)
-							{
-								if(invalid_item_id(itm.value))
-									return false;
-								itemdata const& idata = itemsbuf.get(itm.value);
-								return bool(idata.flags & item_gamedata); // only ownable items are usable
-							}),
-						isABC = true,
-						focused = true,
-						selectedIndex = 0,
-						onSelectFunc = [&](int32_t val)
-						{
-							cond_item_sels[CI_PICKED] = val;
-						}
-					)
-				)
+				conditional_item_widget
 			),
 			TabRef(name = "Level / DMap",
 				Column(
@@ -2570,7 +2580,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			)
 		)
 	);
-	cond_item_sels[CI_PICKED] = cond_itms_list->getSelectedValue();
+	cond_item_sels[CI_PICKED] = cond_itms_list ? cond_itms_list->getSelectedValue() : 0;
 	update_dmap_floor(req_floor_list->getSelectedValue());
 	update_dmap_level(req_level_list->getSelectedValue());
 	update_req_dmap(req_dmap_list->getSelectedValue());
@@ -2689,7 +2699,7 @@ void SubscrPropDialog::updateConditions()
 		list_reqitems.add("---", -1);
 	else for(auto iid : local_subref->req_owned_items)
 	{
-		list_reqitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
+		list_reqitems.add(GUI::ListItem(list_items_no_none_equipment_only.accessItem(iid)));
 	}
 	
 	list_reqnotitems.clear();
@@ -2697,7 +2707,7 @@ void SubscrPropDialog::updateConditions()
 		list_reqnotitems.add("---", -1);
 	else for(auto iid : local_subref->req_unowned_items)
 	{
-		list_reqnotitems.add(GUI::ListItem(list_items_no_none.accessItem(iid)));
+		list_reqnotitems.add(GUI::ListItem(list_items_no_none_equipment_only.accessItem(iid)));
 	}
 	
 	if(req_item_list)
