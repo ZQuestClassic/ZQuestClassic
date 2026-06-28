@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-28 02:28:38</td>
+      <td>2026-06-28 20:51:46</td>
     </tr>
   </table>
 </div>
@@ -81,7 +81,7 @@
     <tr><td><a href="#l80">annot_trunc_str(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;, unsigned long) (line 80)</a></td><td>called 249 times, returned 249 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l84">annot_type_check(unsigned int, AnnotData const&amp;) (line 84)</a></td><td>called 22487 times, returned 22487 times</td><td>47.0%</td></tr>
     <tr><td><a href="#l96">handle_annotations(ZScript::ASTAnnotationList*, std::function&lt;bool (AnnotData&amp;)&gt;) (line 96)</a></td><td>called 22284 times, returned 22284 times</td><td>68.0%</td></tr>
-    <tr><td><a href="#l151">handle_statement_expr(ZScript::ASTExpr*) (line 151)</a></td><td>called 1628138 times, returned 1628138 times</td><td>83.0%</td></tr>
+    <tr><td><a href="#l151">handle_statement_expr(ZScript::ASTExpr*) (line 151)</a></td><td>called 1607138 times, returned 1607138 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l45">trunc_str(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;, unsigned long, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 45)</a></td><td>called 249 times, returned 249 times</td><td>8.0%</td></tr>
     <tr><td><a href="#l2577">yydb(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 2577)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l2572">yyerrmsg(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;, int, int, char const*) (line 2572)</a></td><td>called 73 times, returned 73 times</td><td>44.0%</td></tr>
@@ -1397,7 +1397,7 @@
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1628138</td>
+      <td class="linecount coveredLine">1607138</td>
       <td class="src coveredLine">ASTExpr* handle_statement_expr(ASTExpr* expr)</td>
     </tr>
     <tr class="source-line">
@@ -1413,14 +1413,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1628138 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1607138 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="takenBranch">&check; Branch 2 taken 129249 times.</div>
-          <div class="takenBranch">&check; Branch 3 taken 1498889 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1477889 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1628138</td>
+      <td class="linecount partialCoveredLine">1607138</td>
       <td class="src partialCoveredLine">	if(ASTExprIncrement* increm = dynamic_cast&lt;ASTExprIncrement*&gt;(expr))</td>
     </tr>
     <tr class="source-line">
@@ -1451,13 +1451,13 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1498889 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 1436748 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1477889 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1415748 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 62141 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1498889</td>
+      <td class="linecount partialCoveredLine">1477889</td>
       <td class="src partialCoveredLine">	else if(ASTExprDecrement* decrem = dynamic_cast&lt;ASTExprDecrement*&gt;(expr))</td>
     </tr>
     <tr class="source-line">
@@ -1485,7 +1485,7 @@
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1628138</td>
+      <td class="linecount coveredLine">1607138</td>
       <td class="src coveredLine">	return expr;</td>
     </tr>
     <tr class="source-line">
