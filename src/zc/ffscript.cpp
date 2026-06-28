@@ -2104,7 +2104,7 @@ void FFScript::release_sprite_owned_objects(int32_t sprite_id)
 // Called when the sprite object is being destroyed.
 //
 // - clears any object references retained by a sprite via "ownership".
-//   See the comment above user_abstract_obj::set_owned_by_script for more.
+//   See the comment above script_object_base::set_owned_by_script for more.
 // - clears script engine data
 // - invalidates any internal array references that refer to this sprite
 void FFScript::destroySprite(sprite* sprite)

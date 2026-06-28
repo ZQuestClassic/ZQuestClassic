@@ -12,7 +12,7 @@
 #include <utility>
 
 // TODO: make these static.
-std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
+std::map<uint32_t, std::unique_ptr<script_object_base>> script_objects;
 std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
 std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
@@ -165,14 +165,14 @@ void init_script_objects()
 	}
 }
 
-void register_script_object(user_abstract_obj* object, script_object_type type, uint32_t id)
+void register_script_object(script_object_base* object, script_object_type type, uint32_t id)
 {
 	if (id == -1)
 		id = get_next_script_object_id();
 
 	object->type = type;
 	object->id = id;
-	script_objects[id] = std::unique_ptr<user_abstract_obj>(object);
+	script_objects[id] = std::unique_ptr<script_object_base>(object);
 	script_object_ids_by_type[type].push_back(id);
 
 	allocations_since_last_gc++;
@@ -180,7 +180,7 @@ void register_script_object(user_abstract_obj* object, script_object_type type, 
 	script_object_autorelease_pool.push_back(id);
 }
 
-static void script_object_ref_inc(user_abstract_obj* object)
+static void script_object_ref_inc(script_object_base* object)
 {
 	object->ref_count++;
 
@@ -199,7 +199,7 @@ void script_object_ref_inc(uint32_t id)
 		script_object_ref_inc(object);
 }
 
-static void script_object_ref_dec(user_abstract_obj* object)
+static void script_object_ref_dec(script_object_base* object)
 {
 	DCHECK(ZScriptVersion::gc());
 
@@ -229,7 +229,7 @@ void script_object_ref_dec(uint32_t id)
 		script_object_ref_dec(object);
 }
 
-user_abstract_obj* get_script_object(uint32_t id)
+script_object_base* get_script_object(uint32_t id)
 {
 	auto it = script_objects.find(id);
 	if (it != script_objects.end())
@@ -237,7 +237,7 @@ user_abstract_obj* get_script_object(uint32_t id)
 	return nullptr;
 }
 
-user_abstract_obj* get_script_object_checked(uint32_t id)
+script_object_base* get_script_object_checked(uint32_t id)
 {
 	if (is_reserved_bitmap_id(id))
 		return nullptr;
@@ -248,7 +248,7 @@ user_abstract_obj* get_script_object_checked(uint32_t id)
 	return object;
 }
 
-const std::map<uint32_t, std::unique_ptr<user_abstract_obj>>& get_script_objects()
+const std::map<uint32_t, std::unique_ptr<script_object_base>>& get_script_objects()
 {
 	return script_objects;
 }
@@ -259,7 +259,7 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	if (it == script_objects.end())
 		return;
 
-	user_abstract_obj* object = it->second.get();
+	script_object_base* object = it->second.get();
 
 	// Bitmap objects can't be deleted right away, since drawing operations are deferred slightly.
 	// We must wait for the script drawing to be done with it, which is signaled by script_bitmaps::update
@@ -314,7 +314,7 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		next_script_object_id_freelist.push_back(id);
 }
 
-void own_script_object(user_abstract_obj* object, ScriptType type, int i)
+void own_script_object(script_object_base* object, ScriptType type, int i)
 {
 	if (!ZScriptVersion::gc())
 	{
@@ -331,7 +331,7 @@ void own_script_object(user_abstract_obj* object, ScriptType type, int i)
 		script_object_ref_inc(object);
 }
 
-void own_script_object(user_abstract_obj* object, sprite* sprite)
+void own_script_object(script_object_base* object, sprite* sprite)
 {
 	if (!sprite)
 		return;
@@ -362,7 +362,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 {
 	std::set<uint32_t> live_object_ids;
 
-	std::vector<user_abstract_obj*> all_objects;
+	std::vector<script_object_base*> all_objects;
 	std::vector<script_array*> script_arrays;
 	for (auto& [id, object] : script_objects)
 	{
@@ -430,7 +430,7 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 	}
 
 	// Insert all root objects into worklist.
-	std::set<user_abstract_obj*> worklist;
+	std::set<script_object_base*> worklist;
 	for (auto& id : live_object_ids)
 	{
 		if (is_reserved_object_id(id))

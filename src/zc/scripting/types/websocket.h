@@ -7,7 +7,7 @@
 
 #include <optional>
 
-struct user_websocket : public user_abstract_obj
+struct user_websocket : public script_object_base
 {
 	~user_websocket();
 

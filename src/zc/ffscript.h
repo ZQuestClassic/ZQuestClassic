@@ -217,7 +217,7 @@ enum //ScrollingData indexes
 
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
-struct user_stack : public user_abstract_obj
+struct user_stack : public script_object_base
 {
 	std::deque<int32_t> theStack;
 
@@ -284,7 +284,7 @@ struct user_stack : public user_abstract_obj
 };
 
 #define MAX_USER_RNGS 256
-struct user_rng : public user_abstract_obj
+struct user_rng : public script_object_base
 {
 	zc_randgen* gen;
 	
@@ -323,7 +323,7 @@ enum class wdata_type
 	combodata_misc,
 };
 #define MAX_USER_WEAPONDATAS 2048
-struct user_weapondata : public user_abstract_obj
+struct user_weapondata : public script_object_base
 {
 	wdata_type data_type;
 	dword data_index;
@@ -345,7 +345,7 @@ extern int scripting_max_color_val;
 #define MAX_USER_PALDATAS 256
 #define PALDATA_NUM_COLORS 256
 #define PALDATA_BITSTREAM_SIZE 32
-struct user_paldata : public user_abstract_obj
+struct user_paldata : public script_object_base
 {
 	RGB colors[PALDATA_NUM_COLORS];
 	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags

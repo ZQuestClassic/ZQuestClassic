@@ -9,7 +9,7 @@
 
 #define MAX_USER_FILES 256
 
-struct user_file : public user_abstract_obj
+struct user_file : public script_object_base
 {
 	FILE* file;
 	std::string filepath;

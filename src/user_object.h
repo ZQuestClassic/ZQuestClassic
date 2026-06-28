@@ -28,9 +28,9 @@ extern std::vector<NamedScriptEngineData*> active_object_dtor_script_datas;
 // All other object types are set to NULL.
 bool can_restore_object_type(script_object_type type);
 
-struct user_abstract_obj
+struct script_object_base
 {
-	virtual bool operator==(user_abstract_obj const&) const = default;
+	virtual bool operator==(script_object_base const&) const = default;
 
 	int32_t ref_count;
 	script_object_type type;
@@ -40,7 +40,7 @@ struct user_abstract_obj
 	int32_t owned_sprite_id;
 	bool global;
 
-	virtual ~user_abstract_obj() = default;
+	virtual ~script_object_base() = default;
 
 	virtual void get_retained_ids([[maybe_unused]] std::vector<uint32_t>& ids) {};
 	virtual void restore_references() {};
@@ -70,7 +70,7 @@ struct user_abstract_obj
 	bool sprite_own_clear(int32_t id);
 };
 
-struct ArrayOwner : user_abstract_obj
+struct ArrayOwner : script_object_base
 {
 	ArrayOwner();
 	bool specOwned;
@@ -80,7 +80,7 @@ struct ArrayOwner : user_abstract_obj
 	void reown(sprite* spr);
 };
 
-struct script_array : public user_abstract_obj
+struct script_array : public script_object_base
 {
 	struct internal_array_id
 	{
@@ -124,7 +124,7 @@ struct scr_func_exec
 	void execute();
 	bool validate(const zasm_script* zasm_script);
 };
-struct user_object : public user_abstract_obj
+struct user_object : public script_object_base
 {
 	std::vector<int32_t> data;
 	size_t owned_vars;

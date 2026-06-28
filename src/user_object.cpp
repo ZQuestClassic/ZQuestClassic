@@ -78,19 +78,19 @@ static int32_t normalize_script_owner_index(ScriptType type, int32_t i)
 	}
 }
 
-void user_abstract_obj::set_owned_by_script(ScriptType type, int32_t i)
+void script_object_base::set_owned_by_script(ScriptType type, int32_t i)
 {
 	owned_type = type;
 	owned_i = normalize_script_owner_index(type, i);
 	owned_sprite_id = 0;
 }
-void user_abstract_obj::set_owned_by_sprite(sprite* sprite)
+void script_object_base::set_owned_by_sprite(sprite* sprite)
 {
 	owned_sprite_id = sprite->getUID();
 	owned_type = ScriptType::None;
 	owned_i = 0;
 }
-bool user_abstract_obj::script_own_clear(ScriptType type, int32_t i)
+bool script_object_base::script_own_clear(ScriptType type, int32_t i)
 {
 	if(owned_type == type && owned_i == normalize_script_owner_index(type, i))
 	{
@@ -98,7 +98,7 @@ bool user_abstract_obj::script_own_clear(ScriptType type, int32_t i)
 	}
 	return false;
 }
-bool user_abstract_obj::script_own_clear_any()
+bool script_object_base::script_own_clear_any()
 {
 	if(owned_type != ScriptType::None || owned_i != 0)
 	{
@@ -106,7 +106,7 @@ bool user_abstract_obj::script_own_clear_any()
 	}
 	return false;
 }
-bool user_abstract_obj::script_own_clear_cont()
+bool script_object_base::script_own_clear_cont()
 {
 	if(owned_type != ScriptType::None || owned_i != 0)
 	{
@@ -126,7 +126,7 @@ bool user_abstract_obj::script_own_clear_cont()
 	}
 	return false;
 }
-bool user_abstract_obj::sprite_own_clear(int32_t id)
+bool script_object_base::sprite_own_clear(int32_t id)
 {
 	if (id && id == owned_sprite_id)
 	{
@@ -135,7 +135,7 @@ bool user_abstract_obj::sprite_own_clear(int32_t id)
 	return false;
 }
 
-ArrayOwner::ArrayOwner() : user_abstract_obj(),
+ArrayOwner::ArrayOwner() : script_object_base(),
 	specOwned(false), specCleared(false)
 {}
 

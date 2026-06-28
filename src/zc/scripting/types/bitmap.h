@@ -19,7 +19,7 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 #define UBMPFLAG_FREEING               0x01
 #define UBMPFLAG_CAN_DELETE            0x02
 
-struct user_bitmap : public user_abstract_obj
+struct user_bitmap : public script_object_base
 {
 	BITMAP* u_bmp;
 	int32_t width;

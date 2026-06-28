@@ -9,7 +9,7 @@
 
 #define MAX_USER_DIRS 256
 
-struct user_dir : public user_abstract_obj
+struct user_dir : public script_object_base
 {
 	FLIST* list;
 	std::string filepath;
