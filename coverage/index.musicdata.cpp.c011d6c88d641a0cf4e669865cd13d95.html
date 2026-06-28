@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2026-06-27 05:09:52</td>
+      <td>2026-06-28 02:28:38</td>
     </tr>
   </table>
 </div>
@@ -41,9 +41,9 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>23</td>
+      <td>24</td>
       <td>166</td>
-      <td class="coverage-low">13.9%</td>
+      <td class="coverage-low">14.5%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -53,9 +53,9 @@
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>14</td>
+      <td>15</td>
       <td>165</td>
-      <td class="coverage-low">8.5%</td>
+      <td class="coverage-low">9.1%</td>
     </tr>
   </table>
 </div>
@@ -75,7 +75,7 @@
     </tr>
     <tr><td><a href="#l14">checkMusic(int, bool) (line 14)</a></td><td>called 4474 times, returned 4474 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l25">musicdata_get_register(int) (line 25)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l200">musicdata_run_command(unsigned short) (line 200)</a></td><td>called 39 times, returned 39 times</td><td>27.0%</td></tr>
+    <tr><td><a href="#l200">musicdata_run_command(unsigned short) (line 200)</a></td><td>called 63 times, returned 63 times</td><td>27.0%</td></tr>
     <tr><td><a href="#l107">musicdata_set_register(int, int) (line 107)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
@@ -1495,7 +1495,7 @@
       <td class="lineno"><a id="l200" href="#l200">200</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">39</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">musicdata_run_command</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1540,20 +1540,20 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 22 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 17 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 41 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">39</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PLAY_MUSIC</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">get_register</span><span class="p">(</span><span class="n">sarg1</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">GET_REF</span><span class="p">(</span><span class="n">musicref</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l207" href="#l207">207</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/6</summary>
+        <summary class="linebranchSummary">3/6</summary>
         <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 0 taken 24 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="takenBranch">&check; Branch 3 taken 17 times.</div>
@@ -1562,7 +1562,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">39</td>
+      <td class="linecount partialCoveredLine">63</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">command</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2107,8 +2107,8 @@
       <td class="lineno"><a id="l277" href="#l277">277</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">24</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l278" href="#l278">278</a></td>
@@ -2135,7 +2135,7 @@
       <td class="lineno"><a id="l281" href="#l281">281</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">39</td>
+      <td class="linecount coveredLine">63</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
