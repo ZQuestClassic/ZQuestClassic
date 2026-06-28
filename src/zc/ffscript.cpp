@@ -87,7 +87,6 @@ static int64_t script_execount[NUMCOMMANDS];
 using namespace util;
 using std::ostringstream;
 
-extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 
 int32_t hangcount = 0;
@@ -168,16 +167,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		// to keep fps constant
 		updatescr(allowwavy);
 		
-#ifdef _WIN32
-		
-		if(use_dwm_flush)
-		{
-			do_DwmFlush();
-		}
-		
-#endif
-		
-		// to keep music playing
+// to keep music playing
 		if(zcmusic!=NULL)
 		{
 			zcmusic_poll();
@@ -193,16 +183,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	syskeys();
 	updatescr(allowwavy);
 	
-#ifdef _WIN32
-	
-	if(use_dwm_flush)
-	{
-		do_DwmFlush();
-	}
-	
-#endif
-	
-	//textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
+//textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
 	if(sfxcleanup)
 		sfx_cleanup();
 }

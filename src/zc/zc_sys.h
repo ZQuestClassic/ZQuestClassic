@@ -22,10 +22,6 @@ void Z_init_sound();
 void load_game_configs();
 void save_game_configs();
 
-#ifdef _WIN32
-void do_DwmFlush();
-#endif
-
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
