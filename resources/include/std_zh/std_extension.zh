@@ -37,156 +37,42 @@ int CenterLinkY(bool hitoffset, bool drawoffset)
 	return ly;
 }
 
-//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(item it, bool usehitbox) 
-{ 
-	return ( (usehitbox) ? (it->X+it->HitWidth/2 + it->HitXOffset) : (it->X+8*it->TileWidth + it->DrawXOffset) );
-}
-
-//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(npc n, bool usehitbox) 
-{ 
-	return ( (usehitbox) ? (n->X+n->HitWidth/2 + n->HitXOffset) : (n->X+8*n->TileWidth + n->DrawXOffset) );
-}
-
-//Returns center of eweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(eweapon anEWeapon, bool usehitbox) 
-{ 
-	return ( ( usehitbox ) ? (anEWeapon->X+anEWeapon->HitWidth/2 + anEWeapon->HitXOffset) : (anEWeapon->X+8*anEWeapon->TileWidth + anEWeapon->DrawXOffset) );
-}
-
-//Returns center of lweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(lweapon anLWeapon, bool usehitbox) 
-{ 
-	return ( ( usehitbox ) ? (anLWeapon->X+anLWeapon->HitWidth/2 + anLWeapon->HitXOffset) : (anLWeapon->X+8*anLWeapon->TileWidth + anLWeapon->DrawXOffset) );
-}
-
-//Returns center of lweapon, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int lx = anLWeapon->X;
-	if ( usehitbox ) lx += anLWeapon->HitWidth/2;
-	unless ( usehitbox ) lx += 8*anLWeapon->TileWidth;
-	if ( trueoffset ) lx += anLWeapon->HitXOffset;
-	if ( drawoffset ) lx += anLWeapon->DrawXOffset;
-	return lx;
-}
-
-//Returns center of eweapon, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int ex = anEWeapon->X;
-	if ( usehitbox ) ex += anEWeapon->HitWidth/2;
-	unless ( usehitbox ) ex += 8*anEWeapon->TileWidth;
-	if ( trueoffset ) ex += anEWeapon->HitXOffset;
-	if ( drawoffset ) ex += anEWeapon->DrawXOffset;
-	return ex;
-}
-
-//Returns center of npc, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int nx = n->X;
-	if ( usehitbox ) nx += n->HitWidth/2;
-	unless ( usehitbox ) nx += 8*n->TileWidth;
-	if ( trueoffset ) nx += n->HitXOffset;
-	if ( drawoffset ) nx += n->DrawXOffset;
-	return nx;
-}
-
-//Returns center of item, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int ix = i->X;
-	if ( usehitbox ) ix += i->HitWidth/2;
-	unless ( usehitbox ) ix += 8*i->TileWidth;
-	if ( trueoffset ) ix += i->HitXOffset;
-	if ( drawoffset ) ix += i->DrawXOffset;
-	return ix;
-}
-
-//Returns center of lweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(lweapon anLWeapon, bool usehitbox) 
+//Returns the center X of a sprite.
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center.
+int CenterX(sprite a, bool usehitbox)
 {
-	return ( (usehitbox) ? (anLWeapon->Y+anLWeapon->HitHeight/2 + anLWeapon->HitYOffset) : (anLWeapon->Y+8*anLWeapon->TileHeight + anLWeapon->DrawYOffset) );
+	return ( (usehitbox) ? (a->X+a->HitWidth/2 + a->HitXOffset) : (a->X+8*a->TileWidth + a->DrawXOffset) );
 }
 
-//Returns center of eweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(eweapon anEWeapon, bool usehitbox) 
+//Returns the center X of a sprite, choosing the hitbox and draw offsets individually.
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center.
+int CenterX(sprite a, bool usehitbox, bool trueoffset, bool drawoffset)
 {
-	return ( (usehitbox) ? (anEWeapon->Y+anEWeapon->HitHeight/2 + anEWeapon->HitYOffset) : (anEWeapon->Y+8*anEWeapon->TileHeight + anEWeapon->DrawYOffset) );
+	int x = a->X;
+	if ( usehitbox ) x += a->HitWidth/2;
+	unless ( usehitbox ) x += 8*a->TileWidth;
+	if ( trueoffset ) x += a->HitXOffset;
+	if ( drawoffset ) x += a->DrawXOffset;
+	return x;
 }
 
-//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(npc n, bool usehitbox) 
+//Returns the center Y of a sprite.
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center.
+int CenterY(sprite a, bool usehitbox)
 {
-	return ( (usehitbox) ? (n->Y+n->HitHeight/2 + n->HitYOffset) : (n->Y+8*n->TileHeight + n->DrawYOffset) );
+	return ( (usehitbox) ? (a->Y+a->HitHeight/2 + a->HitYOffset) : (a->Y+8*a->TileHeight + a->DrawYOffset) );
 }
 
-//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(item it, bool usehitbox) 
+//Returns the center Y of a sprite, choosing the hitbox and draw offsets individually.
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center.
+int CenterY(sprite a, bool usehitbox, bool trueoffset, bool drawoffset)
 {
-	return ( (usehitbox) ? (it->Y+it->HitHeight/2 + it->HitYOffset) : (it->X+8*it->TileHeight + it->DrawYOffset) );
-}
-
-//Returns center of lweapon, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int ly = anLWeapon->Y;
-	if ( usehitbox ) ly += anLWeapon->HitHeight/2;
-	unless ( usehitbox ) ly += 8*anLWeapon->TileHeight;
-	if ( trueoffset ) ly += anLWeapon->HitYOffset;
-	if ( drawoffset ) ly += anLWeapon->DrawYOffset;
-	return ly;
-}
-
-//Returns center of eweapon, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int ey = anEWeapon->Y;
-	if ( usehitbox ) ey += anEWeapon->HitHeight/2;
-	unless ( usehitbox ) ey += 8*anEWeapon->TileHeight;
-	if ( trueoffset ) ey += anEWeapon->HitYOffset;
-	if ( drawoffset ) ey += anEWeapon->DrawYOffset;
-	return ey;
-}
-
-//Returns center of npc, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int ny = n->Y;
-	if ( usehitbox ) ny += n->HitHeight/2;
-	unless ( usehitbox ) ny += 8*n->TileHeight;
-	if ( trueoffset ) ny += n->HitYOffset;
-	if ( drawoffset ) ny += n->DrawYOffset;
-	return ny;
-}
-
-//Returns center of item, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
-int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset) 
-{ 
-	int iy = i->Y;
-	if ( usehitbox ) iy += i->HitHeight/2;
-	unless ( usehitbox ) iy += 8*i->TileHeight;
-	if ( trueoffset ) iy += i->HitYOffset;
-	if ( drawoffset ) iy += i->DrawYOffset;
-	return iy;
+	int y = a->Y;
+	if ( usehitbox ) y += a->HitHeight/2;
+	unless ( usehitbox ) y += 8*a->TileHeight;
+	if ( trueoffset ) y += a->HitYOffset;
+	if ( drawoffset ) y += a->DrawYOffset;
+	return y;
 }
 
 //Check for collision between Link and a combo at location 'cmb'. 
@@ -995,43 +881,7 @@ int LeastIndex(int[] arr)
 }
 
 //Returns if Link is facing an object. 
-bool LinkFacing(ffc f)
-{
-	if ( Hero->Dir == DIR_UP && Hero->Y > f->Y ) return true;
-	if ( Hero->Dir == DIR_DOWN && Hero->Y < f->Y ) return true;
-	if ( Hero->Dir == DIR_RIGHT && Hero->X < f->X ) return true;
-	if ( Hero->Dir == DIR_LEFT && Hero->X > f->X ) return true;
-	return false;
-}
-
-bool LinkFacing(npc f)
-{
-	if ( Hero->Dir == DIR_UP && Hero->Y > f->Y ) return true;
-	if ( Hero->Dir == DIR_DOWN && Hero->Y < f->Y ) return true;
-	if ( Hero->Dir == DIR_RIGHT && Hero->X < f->X ) return true;
-	if ( Hero->Dir == DIR_LEFT && Hero->X > f->X ) return true;
-	return false;
-}
-
-bool LinkFacing(lweapon f)
-{
-	if ( Hero->Dir == DIR_UP && Hero->Y > f->Y ) return true;
-	if ( Hero->Dir == DIR_DOWN && Hero->Y < f->Y ) return true;
-	if ( Hero->Dir == DIR_RIGHT && Hero->X < f->X ) return true;
-	if ( Hero->Dir == DIR_LEFT && Hero->X > f->X ) return true;
-	return false;
-}
-
-bool LinkFacing(eweapon f)
-{
-	if ( Hero->Dir == DIR_UP && Hero->Y > f->Y ) return true;
-	if ( Hero->Dir == DIR_DOWN && Hero->Y < f->Y ) return true;
-	if ( Hero->Dir == DIR_RIGHT && Hero->X < f->X ) return true;
-	if ( Hero->Dir == DIR_LEFT && Hero->X > f->X ) return true;
-	return false;
-}
-
-bool LinkFacing(item f)
+bool LinkFacing(sprite f)
 {
 	if ( Hero->Dir == DIR_UP && Hero->Y > f->Y ) return true;
 	if ( Hero->Dir == DIR_DOWN && Hero->Y < f->Y ) return true;
@@ -1516,196 +1366,18 @@ void NoPress(bool stick)
 	}
 }
 
-//O
-
-//P
-
-//Proximinity between Link and object, or two objects.
-int ProximityX(ffc a, ffc b) 
+// Proximity between two sprites along X axis.
+int ProximityX(sprite a, sprite b) 
 {
 	return ( Abs(a->X - b->X) );
 }
 
-
-int ProximityX(ffc a, lweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-
-int ProximityX(ffc a, eweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-	
-
-int ProximityX(ffc a, npc b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-
-int ProximityX(ffc a, item b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-
-int ProximityX(lweapon a, ffc b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(lweapon a, lweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(lweapon a, eweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(lweapon a, npc b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(lweapon a, item b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(eweapon a, ffc b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(eweapon a, lweapon b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(eweapon a, eweapon b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(eweapon a, npc b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(eweapon a, item b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(npc a, ffc b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(npc a, lweapon b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(npc a, eweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(npc a, npc b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(npc a, item b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-
-int ProximityX(item a, ffc b)
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(item a, lweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(item a, eweapon b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(item a, npc b) 
-{
-	return ( Abs(a->X - b->X) );
-}
-
-int ProximityX(item a, item b) 
-{
-	return (Abs(b->X - a->X));
-}
-
-int ProximityX(int b, ffc a) 
+int ProximityX(int b, sprite a) 
 {
 	return (Abs(ComboX(b) - a->X));
 }
 
-
-int ProximityX(int b, lweapon a) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-
-int ProximityX(int b, eweapon a) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-	
-
-int ProximityX(int b, npc a) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-
-int ProximityX(int b, item a) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-int ProximityX(ffc a, int b) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-
-int ProximityX(lweapon a, int b) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-
-int ProximityX(eweapon a, int b) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-	
-
-int ProximityX(npc a, int b) 
-{
-	return (Abs(ComboX(b) - a->X));
-}
-
-
-int ProximityX(item a, int b) 
+int ProximityX(sprite a, int b) 
 {
 	return (Abs(ComboX(b) - a->X));
 }
@@ -1715,31 +1387,15 @@ int ProximityX(int b, int a)
 	return ( Abs(ComboX(a) - ComboX(b)) );
 }
 
-int ProximityX(ffc a) 
+int ProximityX(sprite a) 
 {
 	return ( Abs(Hero->X - a->X) );
 }
 
-int ProximityX(lweapon a) 
+int ProximityX(int a) 
 {
-	return ( Abs(Hero->X - a->X) );
+	return ( Abs(Hero->X - ComboX(a)) );
 }
-
-int ProximityX(eweapon a) 
-{
-	return ( Abs(Hero->X - a->X) );
-}
-
-int ProximityX(npc a) 
-{
-	return ( Abs(Hero->X - a->X) );
-}
-
-int ProximityX(item a) 
-{
-	return ( Abs(Hero->X - a->X) );
-}
-
 
 //Proximity from center of object's hitbox:
 int ProximityX(ffc a, ffc b, bool fromcentre ) 
@@ -1939,197 +1595,18 @@ int ProximityX(int b, int a, bool center)
 
 //ProximityY Functions
 
-int ProximityX(int a) 
-{
-	return ( Abs(Hero->X - ComboX(a)) );
-}
-
-
-int ProximityY(ffc a, ffc b) 
+// Proximity between two sprites along Y axis.
+int ProximityY(sprite a, sprite b) 
 {
 	return ( Abs(a->Y - b->Y) );
 }
 
-
-int ProximityY(ffc a, lweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-
-int ProximityY(ffc a, eweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-	
-
-int ProximityY(ffc a, npc b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-
-int ProximityY(ffc a, item b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-
-int ProximityY(lweapon a, ffc b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(lweapon a, lweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(lweapon a, eweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(lweapon a, npc b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(lweapon a, item b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(eweapon a, ffc b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(eweapon a, lweapon b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(eweapon a, eweapon b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(eweapon a, npc b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(eweapon a, item b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(npc a, ffc b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(npc a, lweapon b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(npc a, eweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(npc a, npc b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(npc a, item b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-
-int ProximityY(item a, ffc b)
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(item a, lweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(item a, eweapon b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(item a, npc b) 
-{
-	return ( Abs(a->Y - b->Y) );
-}
-
-int ProximityY(item a, item b) 
-{
-	return (Abs(b->Y - a->Y));
-}
-
-int ProximityY(int b, ffc a) 
+int ProximityY(int b, sprite a) 
 {
 	return (Abs(ComboY(b) - a->Y));
 }
 
-
-int ProximityY(int b, lweapon a) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-
-int ProximityY(int b, eweapon a) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-	
-
-int ProximityY(int b, npc a) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-
-int ProximityY(int b, item a) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-int ProximityY(ffc a, int b) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-
-int ProximityY(lweapon a, int b) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-
-int ProximityY(eweapon a, int b) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-	
-
-int ProximityY(npc a, int b) 
-{
-	return (Abs(ComboY(b) - a->Y));
-}
-
-
-int ProximityY(item a, int b) 
+int ProximityY(sprite a, int b) 
 {
 	return (Abs(ComboY(b) - a->Y));
 }
@@ -2139,32 +1616,12 @@ int ProximityY(int b, int a)
 	return ( Abs(ComboY(a) - ComboY(b)) );
 }
 
-int ProximityY(ffc a) 
+int ProximityY(sprite a)
 {
 	return ( Abs(Hero->Y - a->Y) );
 }
 
-int ProximityY(lweapon a) 
-{
-	return ( Abs(Hero->Y - a->Y) );
-}
-
-int ProximityY(eweapon a) 
-{
-	return ( Abs(Hero->Y - a->Y) );
-}
-
-int ProximityY(npc a) 
-{
-	return ( Abs(Hero->Y - a->Y) );
-}
-
-int ProximityY(item a) 
-{
-	return ( Abs(Hero->Y - a->Y) );
-}
-
-int ProximityY(int a) 
+int ProximityY(int a)
 {
 	return ( Abs(Hero->Y - ComboY(a)) );
 }

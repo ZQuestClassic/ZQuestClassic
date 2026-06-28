@@ -136,7 +136,7 @@ POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bitmap create(int, int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
 SETR D4 SP2
-SETR D2 GD1; if() #432 Test
+SETR D2 GD1; if() #392 Test
 PUSHR D2
 POP REFBITMAP
 SETR D2 BITMAPHEIGHT
@@ -147,8 +147,8 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 124 ==; Test 'if'
-REF_REMOVE 0.0001; if() #432 Body Start
-GOTO 164; return (Void) AND if() #432 Body End
+REF_REMOVE 0.0001; if() #392 Body Start
+GOTO 164; return (Void) AND if() #392 Body End
 NOP
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
@@ -324,7 +324,7 @@ FONTHEIGHTR D2; InlineFunc[int Text::FontHeight(int)] Body
 STORE D2 0.0001
 SETR D2 GD1
 STORE_OBJECT D2 0
-SETR D2 GD2; if() #428 Test
+SETR D2 GD2; if() #388 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -346,7 +346,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 332 ==; Test 'if'
-PUSHR D4; if() #428 Body Start
+PUSHR D4; if() #388 Body Start
 LOAD D2 0; UsrFunc[void resize(int)] Params Start
 PUSHR D2
 POP REFBITMAP
@@ -356,7 +356,7 @@ PUSHR D2; UsrFunc[void resize(int)] Params End
 CALLFUNC 0.0109; UsrFunc[void resize(int)] Call
 POP D4
 SETR D2 GD1
-STORE_OBJECT D2 0; if() #428 Body End
+STORE_OBJECT D2 0; if() #388 Body End
 NOP
 LOAD D2 0; InlineFunc[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHR D2
@@ -429,11 +429,11 @@ GOTO 402
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
-LOAD D2 0.0001; if() #430 Test
+LOAD D2 0.0001; if() #390 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 449 !=; Test 'if' AND return (Void) AND if() #430 Body
+GOTOCMP 449 !=; Test 'if' AND return (Void) AND if() #390 Body
 NOP
 LOAD D2 0.0002
 COMPAREV D2 0
@@ -446,13 +446,13 @@ GOTO 419
 SETV D2 0
 SUBV D2 56
 STORE D2 0
-LOAD D2 0.0002; if() #431 Test
+LOAD D2 0.0002; if() #391 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 428 ==; Test 'if'
-SETV D2 0; if() #431 Body Start
-STORE D2 0.0002; if() #431 Body End
+SETV D2 0; if() #391 Body Start
+STORE D2 0.0002; if() #391 Body End
 NOP
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2

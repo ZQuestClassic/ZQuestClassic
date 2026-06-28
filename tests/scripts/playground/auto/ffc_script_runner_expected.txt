@@ -49,17 +49,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #369 Test
+LOAD D2 0.0001; if() #329 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 35 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #369 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #329 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #369 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #329 Body End
 NOP
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -115,15 +115,15 @@ ALLOCATEMEMV D2 14 0; InlineFunc[int Game::GetFFCScript(char32[])] Params Start 
 WRITEPODSTRING D2 "SayGoodbyeFFC"; InlineFunc[int Game::GetFFCScript(char32[])] Params End
 GETFFCSCRIPT D2; InlineFunc[int Game::GetFFCScript(char32[])] Body
 STORE D2 0
-LOAD D2 0; if() #430 Test
+LOAD D2 0; if() #390 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 99 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #430 Body Start
+ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #390 Body Start
 WRITEPODSTRING D2 "could not find script"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #430 Body End
+CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #390 Body End
 NOP
 PUSHR D4
 LOAD D2 0; UsrFunc[ffc RunFFCScriptOrQuit(int, untyped[])] Params Start
@@ -144,15 +144,15 @@ ALLOCATEMEMV D2 18 0; InlineFunc[int Game::GetGenericScript(char32[])] Params St
 WRITEPODSTRING D2 "SayGoodbyeGeneric"; InlineFunc[int Game::GetGenericScript(char32[])] Params End
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0
-LOAD D2 0; if() #431 Test
+LOAD D2 0; if() #391 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 128 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #431 Body Start
+ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #391 Body Start
 WRITEPODSTRING D2 "could not find script"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #431 Body End
+CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #391 Body End
 NOP
 PUSHR D4
 LOAD D2 0; UsrFunc[genericdata RunGenericScriptFrz(int, untyped[])] Params Start
@@ -172,15 +172,15 @@ ALLOCATEMEMV D2 9 0; InlineFunc[int Game::GetFFCScript(char32[])] Params Start
 WRITEPODSTRING D2 "SayHello"; InlineFunc[int Game::GetFFCScript(char32[])] Params End
 GETFFCSCRIPT D2; InlineFunc[int Game::GetFFCScript(char32[])] Body
 STORE D2 0
-LOAD D2 0; if() #432 Test
+LOAD D2 0; if() #392 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 156 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #432 Body Start
+ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #392 Body Start
 WRITEPODSTRING D2 "could not find script"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #432 Body End
+CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #392 Body End
 NOP
 LOAD D2 0
 PUSHR D2
@@ -206,15 +206,15 @@ ALLOCATEMEMV D2 9 0; InlineFunc[int Game::GetFFCScript(char32[])] Params Start
 WRITEPODSTRING D2 "SayHello"; InlineFunc[int Game::GetFFCScript(char32[])] Params End
 GETFFCSCRIPT D2; InlineFunc[int Game::GetFFCScript(char32[])] Body
 STORE D2 0
-LOAD D2 0; if() #433 Test
+LOAD D2 0; if() #393 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 190 ==; Test 'if'
-ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #433 Body Start
+ALLOCATEMEMV D2 22 0; UsrFunc[void Fail(char32[])] Params Start AND if() #393 Body Start
 WRITEPODSTRING D2 "could not find script"
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #433 Body End
+CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND if() #393 Body End
 NOP
 LOAD D2 0
 PUSHR D2
@@ -319,7 +319,7 @@ PUSHARGSV 0 0.0003; Func[int RunFFCScript(int, untyped[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0003
 REF_INC 0.0003
-LOAD D2 0.0004; if() #274 Test
+LOAD D2 0.0004; if() #234 Test
 COMPAREV D2 0
 GOTOCMP 302 <
 LOAD D2 0.0004
@@ -330,8 +330,8 @@ GOTO 303
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 307 ==; Test 'if'
-SETV D2 0; return Start AND if() #274 Body Start
-GOTO 419; return End AND if() #274 Body End
+SETV D2 0; return Start AND if() #234 Body Start
+GOTO 419; return End AND if() #234 Body End
 NOP
 STOREV 0 0.0002
 STOREV 1 0.0001; for() #86 setup
@@ -346,7 +346,7 @@ GOTOCMP 417 ==; for() #86 TestFail?
 LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #86 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0002
-LOAD D2 0.0002; if() #275 Test
+LOAD D2 0.0002; if() #235 Test
 PUSHR D2
 POP REFFFC
 SETR D2 FFSCRIPT
@@ -377,7 +377,7 @@ SETV D2 0
 GOTO 351
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 413 !=; Test 'if' AND continue 1; AND if() #275 Body
+GOTOCMP 413 !=; Test 'if' AND continue 1; AND if() #235 Body
 NOP
 SETV D2 1
 PUSHR D2
@@ -397,12 +397,12 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR FFSCRIPT D2
-LOAD D2 0.0003; if() #276 Test
+LOAD D2 0.0003; if() #236 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 410 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND InlineFunc[int Min(...int[])] Params Start AND for() #87 setup AND if() #276 Body Start
+LOAD D2 0.0003; InlineFunc[int SizeOfArray(untyped[])] Params AND InlineFunc[int Min(...int[])] Params Start AND for() #87 setup AND if() #236 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 PUSHVARGR D2
 PUSHVARGV 8; InlineFunc[int Min(...int[])] Params End
@@ -434,7 +434,7 @@ LOAD D2 0; for() #87 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 384; for() #87 End
-NOP; if() #276 Body End
+NOP; if() #236 Body End
 NOP
 LOAD D2 0.0001; return Start
 GOTO 419; return End AND for() #86 Body End
@@ -451,7 +451,7 @@ PUSHV 0; Func[ffc RunFFCScriptOrQuit(int, untyped[])] Body Start
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0001
 REF_INC 0.0001
-LOAD D2 0.0002; if() #277 Test
+LOAD D2 0.0002; if() #237 Test
 COMPAREV D2 0
 GOTOCMP 434 <
 LOAD D2 0.0002
@@ -462,7 +462,7 @@ GOTO 435
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 438 ==; Test 'if'
-QUIT; InlineFunc[void Quit()] Body AND if() #277 Body
+QUIT; InlineFunc[void Quit()] Body AND if() #237 Body
 NOP
 PUSHR D4
 LOAD D2 0.0002; UsrFunc[int RunFFCScript(int, untyped[])] Params Start
@@ -472,12 +472,12 @@ PUSHR D2; UsrFunc[int RunFFCScript(int, untyped[])] Params End
 CALLFUNC 0.0290; UsrFunc[int RunFFCScript(int, untyped[])] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #278 Test
+LOAD D2 0; if() #238 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 453 ==; Test 'if'
-QUIT; InlineFunc[void Quit()] Body AND if() #278 Body
+QUIT; InlineFunc[void Quit()] Body AND if() #238 Body
 NOP
 LOAD D2 0; InlineFunc[ffc screendata::LoadFFC(int)] Params AND return Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
@@ -488,7 +488,7 @@ PUSHARGSV 0 0.0002; Func[genericdata RunGenericScriptFrz(int, untyped[])] Body S
 SETR D4 SP2
 MARK_TYPE_STACK 0.0009 0.0002
 REF_INC 0.0002
-LOAD D2 0.0003; if() #281 Test
+LOAD D2 0.0003; if() #241 Test
 COMPAREV D2 1
 GOTOCMP 471 <
 LOAD D2 0.0003
@@ -499,17 +499,17 @@ GOTO 472
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 476 ==; Test 'if'
-SETV D2 0; return Start AND if() #281 Body Start
-GOTO 519; return End AND if() #281 Body End
+SETV D2 0; return Start AND if() #241 Body Start
+GOTO 519; return End AND if() #241 Body End
 NOP
 LOAD D2 0.0003; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
 STORE D2 0.0001
-LOAD D2 0.0002; if() #282 Test
+LOAD D2 0.0002; if() #242 Test
 COMPAREV D2 0
 GOTOCMP 514 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #89 setup AND if() #282 Body Start
+LOAD D2 0.0002; InlineFunc[int SizeOfArray(untyped[])] Params AND for() #89 setup AND if() #242 Body Start
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(untyped[])] Body
 SUBV D2 1
 STORE D2 0
@@ -538,7 +538,7 @@ LOAD D2 0; for() #89 LoopIncrement
 SUBV D2 1
 STORE D2 0
 GOTO 488; for() #89 End
-NOP; if() #282 Body End
+NOP; if() #242 Body End
 NOP
 LOAD D2 0.0001; InlineFunc[bool genericdata::RunFrozen()] Params Start
 SETR REFGENERICDATA D2; InlineFunc[bool genericdata::RunFrozen()] Params End
@@ -744,16 +744,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-LOAD D2 0; if() #368 Test
+LOAD D2 0; if() #328 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 729 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #368 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #328 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #368 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #328 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
@@ -765,7 +765,7 @@ PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 SETR D4 SP2; Func[void AssertEqual(int, int)] Body Start
-LOAD D2 0; if() #435 Test
+LOAD D2 0; if() #395 Test
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -773,7 +773,7 @@ COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 758 ==; Test 'if'
-ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #435 Body Start
+ALLOCATEMEMV D2 49 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #395 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d\n"
 PUSHR D2
 LOAD D2 0
@@ -782,18 +782,18 @@ LOAD D2 0.0001
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #435 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #395 Body End
 NOP
 POPARGS D5 0.0002
 RETURNFUNC; Func[void AssertEqual(int, int)] Body End
 SETR D4 SP2; Func[void Assert(bool)] Body Start
-LOAD D2 0; unless() #434 Test
+LOAD D2 0; unless() #394 Test
 COMPAREV D2 0
 GOTOCMP 769 !=; Test 'unless'
-ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #434 Body Start
+ALLOCATEMEMV D2 1 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #394 Body Start
 WRITEPODSTRING D2 ""
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #434 Body End
+CALLFUNC 0.0772; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #394 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Assert(bool)] Body End

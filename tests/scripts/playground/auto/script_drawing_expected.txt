@@ -44,17 +44,17 @@ POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #369 Test
+LOAD D2 0.0001; if() #329 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 30 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #369 Body Start
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #329 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #369 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #329 Body End
 NOP
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
@@ -264,16 +264,16 @@ LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-LOAD D2 0; if() #368 Test
+LOAD D2 0; if() #328 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 249 ==; Test 'if'
-PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #368 Body Start
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #328 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
 WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #368 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #328 Body End
 NOP
 POP D5
 RETURNFUNC; Func[void Init(int)] Body End
@@ -389,12 +389,12 @@ PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0174; UsrFunc[int Angle(int, int, int, int)] Call
 POP D4
 STORE D2 0.0001
-LOAD D2 0.0004; if() #430 Test
+LOAD D2 0.0004; if() #390 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 421 ==; Test 'if'
-LOAD D2 0.0012; if() #430 Body Start
+LOAD D2 0.0012; if() #390 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[int VectorX(int, int)] Params Start
@@ -445,7 +445,7 @@ CALLFUNC 0.0220; UsrFunc[int VectorY(int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
-STORE D2 0.0009; if() #430 Body End
+STORE D2 0.0009; if() #390 Body End
 NOP
 ALLOCATEMEMV D2 12 0
 PUSHR D2

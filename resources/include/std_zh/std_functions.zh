@@ -1344,50 +1344,21 @@ int HitboxLeft(ffc a)
 }
 
 // Returns the X coordinate of the right edge of the hitbox.
-int HitboxRight(eweapon a)
+int HitboxRight(sprite s)
 {
-	return (a->X + a->HitXOffset + a->HitWidth - 1);
+	return (s->X + s->HitXOffset + s->HitWidth - 1);
 }
 
-int HitboxRight(lweapon a)
-{
-	return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(item a)
-{
-	return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(npc a)
-{
-	return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
+//Uses TileWidth for the FFC's bounding box.
 int HitboxRight(ffc a)
 {
 	return a->X + a->TileWidth*16 - 1;
 }
 
 // Returns the Y coordinate of the top edge of the hitbox.
-int HitboxTop(eweapon a)
+int HitboxTop(sprite s)
 {
-	return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(lweapon a)
-{
-	return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(item a)
-{
-	return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(npc a)
-{
-	return (a->Y + a->HitYOffset);
+	return (s->Y + s->HitYOffset);
 }
 
 int HitboxTop(ffc a)
@@ -2007,14 +1978,8 @@ void Remove(npc n)
 	n->HP = -1000;
 }
 
-//Returns if Link is right of an npc.
-bool RightOf(npc n){ return Hero->X > n->X; }
-//Returns if Link is above, below, left of, or right of an ffc.
-bool RightOf(ffc n){ return Hero->X > n->X; }
-//Returns if Link is above, below, left of, or right of an eweapon.
-bool RightOf(eweapon n){ return Hero->X > n->X; }
-//Returns if Link is above, below, left of, or right of an lweapon.
-bool RightOf(lweapon n){ return Hero->X > n->X; }
+//Returns if Link is right of a sprite.
+bool RightOf(sprite n){ return Hero->X > n->X; }
 
 //rotates and scales X about a center point by an amount of degrees
 float RotateScalePointX(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY)
