@@ -33,6 +33,8 @@
 
 #ifdef ALLEGRO_MACOSX
 void zalleg_osx_bring_window_to_foreground(ALLEGRO_DISPLAY* display);
+void zalleg_osx_get_main_screen_usable_size(int* w, int* h);
+float zalleg_osx_get_main_screen_scale_factor(void);
 #endif
 
 #ifdef __linux__
@@ -432,16 +434,32 @@ std::pair<int, int> zalleg_get_default_display_size(int base_width, int base_hei
 	}
 
 #ifdef ALLEGRO_MACOSX
-	// https://talk.automators.fm/t/getting-screen-dimensions-while-accounting-the-menu-bar-dock-and-multiple-displays/13639
-	mh -= 38;
+	// Use the screen's usable area, which excludes the menu bar and dock
+	// (al_get_monitor_info reports the full frame including the menu bar).
+	int uw = 0, uh = 0;
+	zalleg_osx_get_main_screen_usable_size(&uw, &uh);
+	if (uw > 0 && uh > 0)
+	{
+		mw = uw;
+		mh = uh;
+	}
 #endif
-#ifdef _WIN32
+	// Reserve room for the window's title bar, plus a little breathing room so
+	// the default window never fills the entire usable area.
+#if defined(ALLEGRO_MACOSX)
+	// visibleFrame already excludes the menu bar and dock, but not the title
+	// bar, which scales with DPI.
+	float scale = zalleg_osx_get_main_screen_scale_factor();
+	mw -= (int)(24 * scale);
+	mh -= (int)(48 * scale);
+#elif defined(_WIN32)
 	// Title bar.
-	mh -= 23;
-#endif
-	// Small buffer, so the default window is never as big as the monitor.
+	mw -= 50;
+	mh -= 23 + 50;
+#else
 	mw -= 50;
 	mh -= 50;
+#endif
 
 	int s = std::min(mh / base_height, mw / base_width);
 	s = std::min(max_scale, s);
