@@ -6572,7 +6572,7 @@ void FFScript::do_loadcombodata(const bool v)
 	
 	if ( (unsigned)ID > (MAXCOMBOS-1) )
 	{
-		scripting_log_error_with_context("Invalid combodata ID: {}", GET_REF(combodataref));
+		scripting_log_error_with_context("Invalid combodata ID: {}", ID);
 		ri->combodataref = 0;
 	}
 
