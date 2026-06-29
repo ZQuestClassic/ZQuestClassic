@@ -38,6 +38,7 @@
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "components/zasm/serialize.h"
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -421,6 +422,10 @@ static bool command_is_compiled(int command)
 	case QUIT:
 	case CALLFUNC:
 	case RETURNFUNC:
+	// Yields back to the driver to run a nested frozen script (handled inline in
+	// compile_function, not compile_single_command). Marked compiled so it isn't
+	// batched into a do_commands() call.
+	case RUNGENFRZSCR:
 
 	// These commands modify the stack pointer, which is just a local copy. If these commands
 	// were not compiled, then ri->sp would have to be restored after compile_command_interpreter.
@@ -871,6 +876,31 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				// special cases where it does not. For example, when WAITFRAMESR arg is 0.
 				// This will return to the run function, but only if actually waiting.
 				compile_command_interpreter(state, script, i, 1, true);
+				continue;
+			}
+
+			// RUNGENFRZSCR runs a nested generic script which yields frames via
+			// ASYNCIFY - which can't unwind through a (non-instrumented) JIT frame.
+			// Instead, yield cleanly back to the C++ driver (run_script), which runs
+			// the frozen script and writes its result to `arg1` before resuming us.
+			// Modeled on the wait yield above (store the resume block in wait_index
+			// and return). Signalled via frozen_dest_reg != -1 rather than a return
+			// code, because a clean return always reports RUNSCRIPT_OK to the poller.
+			if (command == RUNGENFRZSCR)
+			{
+				ASSERT(may_yield);
+
+				// j_instance->frozen_dest_reg = arg1 (where the driver writes the result)
+				wasm.emitGlobalGet(state.g_idx_j_instance);
+				wasm.emitI32Const(arg1);
+				wasm.emitI32Store(offsetof(JittedScriptInstance, frozen_dest_reg));
+
+				// j_instance->wait_index = current_block_index + 1 (resume at the next block)
+				wasm.emitGlobalGet(g_idx_wait_index);
+				wasm.emitI32Const(current_block_index + 1);
+				wasm.emitI32Store();
+
+				wasm.emitReturn();
 				continue;
 			}
 
@@ -1707,20 +1737,17 @@ JittedScript* jit_compile_script(zasm_script* script)
 	if (script->size <= 1)
 		return nullptr;
 
-	// TODO: support RUNGENFRZSCR by using do_commands_async, which returns a promise. Need a way to defer execution until promise resolves...
-	// https://emscripten.org/docs/porting/asyncify.html
-	// Might need to use atomics. First pass for WASM compiler used that, for reference: https://github.com/connorjclark/ZeldaClassic/commit/eb5fd2c7d83ce084569fe3e73be1a69383416f58
+	// Bail to the interpreter for any chunk using STACKWRITEATVV_IF (not supported) or
+	// RUNGENFRZSCR. The RUNGENFRZSCR yield-point lowering works on the playground tests,
+	// but enabling it for real quests surfaced a pre-existing wasm-JIT memory-corruption
+	// bug that crashes them; until that's fixed, run generic-script content interpreted.
 	for (size_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
-		if (command == RUNGENFRZSCR)
+		if (command == RUNGENFRZSCR || command == STACKWRITEATVV_IF)
 		{
-			// error(script, "RUNGENFRZSCR unsupported", true);
-			return nullptr;
-		}
-		else if (command == STACKWRITEATVV_IF)
-		{
-			error(script, "STACKWRITEATVV_IF unsupported", true);
+			if (command == STACKWRITEATVV_IF)
+				error(script, "STACKWRITEATVV_IF unsupported", true);
 			return nullptr;
 		}
 	}
