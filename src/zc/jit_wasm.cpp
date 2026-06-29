@@ -25,6 +25,7 @@
 
 #include "allegro/debug.h"
 #include "allegro/file.h"
+#include "base/check.h"
 #include "base/general.h"
 #include "base/zapp.h"
 #include "core/zdefs.h"
@@ -466,6 +467,191 @@ static bool command_is_compiled(int command)
 	return false;
 }
 
+// Compiles a comparison command (COMPARER/COMPAREV/COMPAREV2) at `i` together
+// with every command that consumes its result. A single comparison can feed
+// MULTIPLE consumers: the optimizer emits e.g. `COMPAREV D2 N; SETCMP D2;
+// GOTOCMP T`, where the boolean is both stored to a register AND branched on,
+// all from the one compare. Each consumer re-derives the comparison from the
+// operands; because a SETx consumer can overwrite an operand register, when
+// there is more than one consumer the operands are first snapshotted into two
+// reserved locals. Returns the pc of the last command consumed (the caller's
+// loop advances past it); for a loose compare with no consumer, returns `i`.
+static pc_t compile_comparison(CompilationState& state, const zasm_script* script, const ZasmCFG& cfg, pc_t num_blocks, pc_t& current_block_index, pc_t i)
+{
+	WasmAssembler& wasm = *state.wasm;
+	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
+	// Locals reserved for snapshotting the two comparison operands (see the
+	// defineFunction calls that declare {I32, I32, I32}).
+	constexpr uint8_t l_idx_cmp1 = 1;
+	constexpr uint8_t l_idx_cmp2 = 2;
+
+	int command = script->zasm[i].command;
+	int arg1 = script->zasm[i].arg1;
+	int arg2 = script->zasm[i].arg2;
+
+	bool arg1_is_imm = false;
+	bool arg2_is_imm = command != COMPARER;
+	if (command == COMPAREV2)
+		std::swap(arg1_is_imm, arg2_is_imm);
+
+	// Collect the run of consumers (NOP/SETx/GOTOx) that use this comparison.
+	std::vector<pc_t> consumers;
+	for (pc_t j = i + 1; j < (pc_t)script->size; j++)
+	{
+		int c = script->zasm[j].command;
+		if (c == NOP || command_uses_comparison_result(c))
+			consumers.push_back(j);
+		else
+			break;
+	}
+
+	if (consumers.empty())
+	{
+		// A loose compare (e.g. the statement `x == 1;`). Ignore it.
+		return i;
+	}
+
+	int real_consumers = 0;
+	for (pc_t j : consumers)
+		if (script->zasm[j].command != NOP)
+			real_consumers++;
+
+	// With more than one consumer, snapshot the operand values up-front so a
+	// SETx consumer overwriting an operand register can't corrupt a later one.
+	bool capture = real_consumers > 1;
+	if (capture)
+	{
+		if (!arg1_is_imm) { get_z_register(state, arg1); wasm.emitLocalSet(l_idx_cmp1); }
+		if (!arg2_is_imm) { get_z_register(state, arg2); wasm.emitLocalSet(l_idx_cmp2); }
+	}
+
+	auto push_operand = [&](int arg, bool is_imm, uint8_t local, bool cmp_bool){
+		if (is_imm)
+		{
+			wasm.emitI32Const(cmp_bool ? !!arg : arg);
+			return;
+		}
+		if (capture)
+			wasm.emitLocalGet(local);
+		else
+			get_z_register(state, arg);
+		if (cmp_bool)
+		{
+			wasm.emitI32Const(0);
+			wasm.emitI32Ne();
+		}
+	};
+
+	for (pc_t cj : consumers)
+	{
+		if (cfg.contains_block_start(cj))
+		{
+			wasm.emitEnd();
+			current_block_index += 1;
+		}
+
+		int cc = script->zasm[cj].command;
+		int c_arg1 = script->zasm[cj].arg1;
+		int c_arg2 = script->zasm[cj].arg2;
+		bool cmp_bool = c_arg2 & CMP_BOOL;
+
+		if (cc == NOP)
+		{
+			// The optimizer can turn a consumer into a NOP without removing
+			// the compare; nothing to emit.
+			continue;
+		}
+
+		auto emit_operands = [&](){
+			push_operand(arg1, arg1_is_imm, l_idx_cmp1, cmp_bool);
+			push_operand(arg2, arg2_is_imm, l_idx_cmp2, cmp_bool);
+		};
+
+		if (cc == SETCMP)
+		{
+			set_z_register(state, c_arg1, [&](){
+				emit_operands();
+				switch (c_arg2 & CMP_FLAGS)
+				{
+					default: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(0); break;
+					case CMP_GT: wasm.emitI32GtS(); break;
+					case CMP_GT|CMP_EQ: wasm.emitI32GeS(); break;
+					case CMP_LT: wasm.emitI32LtS(); break;
+					case CMP_LT|CMP_EQ: wasm.emitI32LeS(); break;
+					case CMP_EQ: wasm.emitI32Eq(); break;
+					case CMP_GT|CMP_LT: wasm.emitI32Ne(); break;
+					case CMP_GT|CMP_LT|CMP_EQ: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(1); break;
+				}
+				if (c_arg2 & CMP_SETI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+			});
+		}
+		else if (cc == SETLESSI || cc == SETLESS)
+		{
+			set_z_register(state, c_arg1, [&](){
+				emit_operands(); wasm.emitI32LeS();
+				if (cc == SETLESSI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+			});
+		}
+		else if (cc == SETMOREI || cc == SETMORE)
+		{
+			set_z_register(state, c_arg1, [&](){
+				emit_operands(); wasm.emitI32GeS();
+				if (cc == SETMOREI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+			});
+		}
+		else if (cc == SETFALSEI || cc == SETFALSE)
+		{
+			set_z_register(state, c_arg1, [&](){
+				emit_operands(); wasm.emitI32Ne();
+				if (cc == SETFALSEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+			});
+		}
+		else if (cc == SETTRUEI || cc == SETTRUE)
+		{
+			set_z_register(state, c_arg1, [&](){
+				emit_operands(); wasm.emitI32Eq();
+				if (cc == SETTRUEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+			});
+		}
+		else if (cc == GOTOCMP || cc == GOTOTRUE || cc == GOTOFALSE || cc == GOTOMORE || cc == GOTOLESS)
+		{
+			emit_operands();
+			switch (cc)
+			{
+				case GOTOCMP:
+					switch (c_arg2 & CMP_FLAGS)
+					{
+						default: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(0); break;
+						case CMP_GT: wasm.emitI32GtS(); break;
+						case CMP_GT|CMP_EQ: wasm.emitI32GeS(); break;
+						case CMP_LT: wasm.emitI32LtS(); break;
+						case CMP_LT|CMP_EQ: wasm.emitI32LeS(); break;
+						case CMP_EQ: wasm.emitI32Eq(); break;
+						case CMP_GT|CMP_LT: wasm.emitI32Ne(); break;
+						case CMP_GT|CMP_LT|CMP_EQ: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(1); break;
+					}
+					break;
+				case GOTOTRUE: wasm.emitI32Eq(); break;
+				case GOTOFALSE: wasm.emitI32Ne(); break;
+				case GOTOMORE: wasm.emitI32GeS(); break;
+				case GOTOLESS: wasm.emitI32LeS(); break;
+			}
+
+			size_t target_block_index = cfg.block_id_from_start_pc(c_arg1) + 1;
+			wasm.emitI32Const(target_block_index);
+			wasm.emitGlobalSet(g_idx_target_block_id);
+			wasm.emitBrIf(num_blocks - current_block_index);
+		}
+		else
+		{
+			printf("unexpected comparison consumer %s at index %d\n", zasm_op_to_string(cc).c_str(), (int)cj);
+			CHECK(false);
+		}
+	}
+
+	return consumers.back();
+}
+
 static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
 {
 	WasmAssembler wasm;
@@ -585,208 +771,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 			{
-				#define VAL(x, v) {\
-					if (v) wasm.emitI32Const((next_arg2 & CMP_BOOL) ? !!x : x);\
-					else\
-					{\
-						get_z_register(state, x);\
-						if (next_arg2 & CMP_BOOL)\
-						{\
-							wasm.emitI32Const(0);\
-							wasm.emitI32Ne();\
-						}\
-					}\
-				}
-				bool arg1_from_register = false;
-				bool arg2_from_register = command != COMPARER;
-				if (command == COMPAREV2)
-					std::swap(arg1_from_register, arg2_from_register);
-
-				int next_command = script->zasm[i + 1].command;
-				int next_arg1 = script->zasm[i + 1].arg1;
-				int next_arg2 = script->zasm[i + 1].arg2;
-
-				if (!command_uses_comparison_result(next_command) && next_command != NOP)
-				{
-					// This shouldn't happen for functional code, but a statement like `x == 1;` can
-					// result in a loose compare command. Just ignore it.
-					continue;
-				}
-
-				if (cfg.contains_block_start(i + 1))
-				{
-					wasm.emitEnd();
-					current_block_index += 1;
-				}
-
-				if (next_command == NOP)
-				{
-					// The optimizer may turn the usage of the comparison into a NOP, but not actually remove
-					// the comparison command.
-					// Example: hollow_forest.qst/zasm-global-1.txt
-					// 11911: COMPAREV        D2              0            
-					// 11912: GOTOTRUE        11913                        ---- turns into NOP
-				}
-				else if (next_command == SETCMP)
-				{
-					set_z_register(state, next_arg1, [&](){
-						VAL(arg1, arg1_from_register);
-						VAL(arg2, arg2_from_register);
-						switch(next_arg2 & CMP_FLAGS)
-						{
-							default:
-								wasm.emitDrop();
-								wasm.emitDrop();
-								wasm.emitI32Const(0);
-								break;
-							case CMP_GT:
-								wasm.emitI32GtS();
-								break;
-							case CMP_GT|CMP_EQ:
-								wasm.emitI32GeS();
-								break;
-							case CMP_LT:
-								wasm.emitI32LtS();
-								break;
-							case CMP_LT|CMP_EQ:
-								wasm.emitI32LeS();
-								break;
-							case CMP_EQ:
-								wasm.emitI32Eq();
-								break;
-							case CMP_GT|CMP_LT:
-								wasm.emitI32Ne();
-								break;
-							case CMP_GT|CMP_LT|CMP_EQ:
-								// TODO could avoid getting values ...
-								wasm.emitDrop();
-								wasm.emitDrop();
-								wasm.emitI32Const(1);
-								break;
-						}
-						if (next_arg2 & CMP_SETI)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-					});
-				}
-				else if (next_command == SETLESSI || next_command == SETLESS)
-				{
-					set_z_register(state, next_arg1, [&](){
-						VAL(arg1, arg1_from_register);
-						VAL(arg2, arg2_from_register);
-						wasm.emitI32LeS();
-						if (next_command == SETLESSI)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-					});
-				}
-				else if (next_command == SETMOREI || next_command == SETMORE)
-				{
-					set_z_register(state, next_arg1, [&](){
-						VAL(arg1, arg1_from_register);
-						VAL(arg2, arg2_from_register);
-						wasm.emitI32GeS();
-						if (next_command == SETMOREI)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-					});
-				}
-				else if (next_command == SETFALSEI || next_command == SETFALSE)
-				{
-					set_z_register(state, next_arg1, [&](){
-						VAL(arg1, arg1_from_register);
-						VAL(arg2, arg2_from_register);
-						wasm.emitI32Ne();
-						if (next_command == SETFALSEI)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-					});
-				}
-				else if (next_command == SETTRUEI || next_command == SETTRUE)
-				{
-					set_z_register(state, next_arg1, [&](){
-						VAL(arg1, arg1_from_register);
-						VAL(arg2, arg2_from_register);
-						wasm.emitI32Eq();
-						if (next_command == SETTRUEI)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-					});
-				}
-				else if (next_command == GOTOCMP || next_command == GOTOTRUE || next_command == GOTOFALSE || next_command == GOTOMORE || next_command == GOTOLESS)
-				{
-					VAL(arg1, arg1_from_register);
-					VAL(arg2, arg2_from_register);
-					switch (next_command)
-					{
-						case GOTOCMP:
-						{
-							switch(next_arg2 & CMP_FLAGS)
-							{
-								default:
-									// TODO this is a nop...
-									wasm.emitDrop();
-									wasm.emitDrop();
-									wasm.emitI32Const(0);
-									break;
-								case CMP_GT:
-									wasm.emitI32GtS();
-									break;
-								case CMP_GT|CMP_EQ:
-									wasm.emitI32GeS();
-									break;
-								case CMP_LT:
-									wasm.emitI32LtS();
-									break;
-								case CMP_LT|CMP_EQ:
-									wasm.emitI32LeS();
-									break;
-								case CMP_EQ:
-									wasm.emitI32Eq();
-									break;
-								case CMP_GT|CMP_LT:
-									wasm.emitI32Ne();
-									break;
-								case CMP_GT|CMP_LT|CMP_EQ:
-									// TODO could avoid getting values ...
-									wasm.emitDrop();
-									wasm.emitDrop();
-									wasm.emitI32Const(1);
-									break;
-							}
-						}
-						break;
-						case GOTOTRUE: wasm.emitI32Eq(); break;
-						case GOTOFALSE: wasm.emitI32Ne(); break;
-						case GOTOMORE: wasm.emitI32GeS(); break;
-						case GOTOLESS: wasm.emitI32LeS(); break;
-					}
-
-					// Set target block index, in case we must branch.
-					size_t target_block_index = cfg.block_id_from_start_pc(next_arg1) + 1;
-					wasm.emitI32Const(target_block_index);
-					wasm.emitGlobalSet(g_idx_target_block_id);
-
-					// Maybe branch by jumping to start of loop-switch.
-					wasm.emitBrIf(num_blocks - current_block_index);
-				}
-				else
-				{
-					printf("unexpected command %s at index %d\n", zasm_op_to_string(next_command).c_str(), i + 1);
-					ASSERT(false);
-				}
-
-				i += 1;
+				i = compile_comparison(state, script, cfg, num_blocks, current_block_index, i);
 				continue;
 			}
 
@@ -1583,7 +1568,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				default:
 				{
 					printf("unexpected command %s at index %d\n", zasm_op_to_string(command).c_str(), i);
-					ASSERT(false);
+					CHECK(false);
 				}
 			}
 		}
@@ -1736,7 +1721,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	{
 		bool may_yield = true;
 		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield);
-		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32}, wasm.finish());
+		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
 
@@ -1748,7 +1733,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 		bool may_yield = false;
 		auto wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
 		pc_t fidx = function_id_to_idx.at(fn.id);
-		comp.builder.defineFunction(fidx, {WasmValType::I32}, wasm.finish());
+		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		if (fn.name().empty())
 			comp.builder.setFunctionName(fidx, fmt::format("fn_{}", fn.id));
 		else
