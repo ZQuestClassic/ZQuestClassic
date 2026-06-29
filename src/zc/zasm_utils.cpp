@@ -115,12 +115,34 @@ StructuredZasm zasm_construct_structured(const zasm_script* script)
 			start_pc_to_function[functions[i].start_pc] = i;
 		}
 
-		// Find all function calls.
+		// Find all function calls, and build the call graph (called_by_functions).
+		// The latter is needed by zasm_find_yielding_functions to propagate "may
+		// yield" up to transitive callers - e.g. a function that calls a function
+		// containing a wait or RUNGENFRZSCR. (The legacy path below builds this too.)
+		auto fn_containing = [&](pc_t pc) -> int {
+			int lo = 0, hi = (int)functions.size() - 1, res = -1;
+			while (lo <= hi)
+			{
+				int mid = (lo + hi) / 2;
+				if (functions[mid].start_pc <= pc) { res = mid; lo = mid + 1; }
+				else hi = mid - 1;
+			}
+			if (res != -1 && pc <= functions[res].final_pc) return res;
+			return -1;
+		};
 		for (pc_t i = 0; i < script->size; i++)
 		{
 			int command = script->zasm[i].command;
-			if (command == CALLFUNC)
-				function_calls.insert(i);
+			if (command != CALLFUNC)
+				continue;
+			function_calls.insert(i);
+
+			auto callee_it = start_pc_to_function.find(script->zasm[i].arg1);
+			if (callee_it == start_pc_to_function.end())
+				continue;
+			int caller = fn_containing(i);
+			if (caller != -1)
+				functions[callee_it->second].called_by_functions.insert(caller);
 		}
 
 		for (auto sd : script->script_datas)
@@ -310,7 +332,10 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 	{
 		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
 		{
-			if (command_is_wait(script->zasm[i].command))
+			// RUNGENFRZSCR yields back to the engine (like a wait) in the wasm JIT,
+			// so a function containing it must be compiled with suspend/resume support.
+			int command = script->zasm[i].command;
+			if (command_is_wait(command) || command == RUNGENFRZSCR)
 			{
 				yielding_function_ids.insert(fn.id);
 				break;
@@ -418,8 +443,11 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}
-			else if (command_is_wait(command))
+			else if (command_is_wait(command) || command == RUNGENFRZSCR)
 			{
+				// RUNGENFRZSCR is a yield point in the wasm JIT (see jit_wasm.cpp):
+				// like a wait, it ends its block so execution can resume at the next
+				// instruction.
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}
