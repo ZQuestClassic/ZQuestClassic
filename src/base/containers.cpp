@@ -38,9 +38,9 @@ void from_json(const json& j, bitstring& b)
 			if (isdigit(c))
 				tmp = c - '0';
 			else if (c >= 'A' && c <= 'F')
-				tmp = c - 'A';
+				tmp = c - 'A' + 0xA;
 			else if (c >= 'a' && c <= 'f')
-				tmp = c - 'a';
+				tmp = c - 'a' + 0xA;
 			else throw std::invalid_argument("bitstring must contain only valid hex characters!");
 			b |= tmp << offs;
 		}
