@@ -15832,9 +15832,14 @@ std::string StackTrace::to_string() const
 	return fmt::format("{}", fmt::join(parts, "\n"));
 }
 
+bool FFScript::should_display_stack_traces()
+{
+	return !zasm_debug_data.debug_lines_encoded.empty() || show_zasm_stack_traces;
+}
+
 std::optional<StackTrace> FFScript::create_stack_trace(const refInfo* ri)
 {
-	if (zasm_debug_data.debug_lines_encoded.empty() && !show_zasm_stack_traces)
+	if (!should_display_stack_traces())
 		return std::nullopt;
 
 	StackTrace result{};

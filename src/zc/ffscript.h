@@ -610,6 +610,9 @@ void do_breakpoint();
 std::optional<StackFrame> get_script_stack_frame(int pc);
 void handle_trace(const std::string& s, bool is_error = false, bool no_prefix = false);
 std::optional<StackTrace> create_stack_trace(const refInfo* ri);
+// Whether script error/Trace output should include source stack traces. Also
+// gates the JIT upkeep (ri->pc, the call stack) that only those traces consume.
+bool should_display_stack_traces();
 void do_trace(bool v);
 void do_tracel(bool v);
 void do_tracenl();

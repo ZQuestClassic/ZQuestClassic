@@ -52,6 +52,11 @@ struct CompilationState
 {
 	WasmAssembler* wasm;
 	bool runtime_debugging;
+	// When true, compiled calls maintain ri->retsp + ret_stack (the script call
+	// stack create_stack_trace reads) so error/Trace context shows the full caller
+	// chain. Gated on stack traces being possible, to avoid the per-call cost
+	// otherwise.
+	bool maintain_call_stack;
 
 	pc_t pc;
 
@@ -83,6 +88,8 @@ struct CompilationState
 	uint8_t g_idx_stack;
 	uint8_t g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index;
+	// Base of ri's ret_stack[] (the pc call stack create_stack_trace reads).
+	uint8_t g_idx_ret_stack_pc;
 	uint8_t g_idx_wait_index;
 	uint8_t g_idx_sp;
 	uint8_t g_idx_target_block_id;
@@ -249,10 +256,17 @@ static void get_z_register(CompilationState& state, int r)
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
 
-		// ri->pc = state.pc; needed for accurate stack trace should an error occur.
-		state.wasm->emitGlobalGet(state.g_idx_ri);
-		state.wasm->emitI32Const(state.pc);
-		state.wasm->emitI32Store(0); // ri->pc
+		// ri->pc = state.pc; needed for an accurate stack trace should the engine
+		// call log an error. create_stack_trace is its only consumer, so skip it
+		// when stack traces won't be shown - except for reads of the PC register,
+		// which returns ri->pc itself (the interpreter and x64 backend keep it
+		// current, so a stale value here would be a web-only divergence).
+		if (state.maintain_call_stack || r == PC)
+		{
+			state.wasm->emitGlobalGet(state.g_idx_ri);
+			state.wasm->emitI32Const(state.pc);
+			state.wasm->emitI32Store(0); // ri->pc
+		}
 
 		state.wasm->emitI32Const(r);
 		state.wasm->emitCall(state.f_idx_get_register);
@@ -283,10 +297,15 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
 
-		// ri->pc = state.pc; needed for accurate stack trace should an error occur.
-		state.wasm->emitGlobalGet(state.g_idx_ri);
-		state.wasm->emitI32Const(state.pc);
-		state.wasm->emitI32Store(0); // ri->pc
+		// ri->pc = state.pc; needed for an accurate stack trace should the engine
+		// call log an error. create_stack_trace is its only consumer, so skip it
+		// when stack traces won't be shown.
+		if (state.maintain_call_stack)
+		{
+			state.wasm->emitGlobalGet(state.g_idx_ri);
+			state.wasm->emitI32Const(state.pc);
+			state.wasm->emitI32Store(0); // ri->pc
+		}
 
 		state.wasm->emitI32Const(r);
 		fn();
@@ -465,6 +484,57 @@ static bool command_is_compiled(int command)
 	}
 
 	return false;
+}
+
+// Maintains ri->retsp + ret_stack (the pc call stack create_stack_trace walks)
+// around a compiled call, so an error/Trace inside the callee reports the full
+// caller chain - matching the interpreter and x64 JIT. The x64 JIT gets this for
+// free by returning to run_script_int for CALLFUNC; the wasm JIT compiles calls
+// inline, so it must replicate the push/pop. Only emitted when stack traces are
+// possible (state.maintain_call_stack), to avoid the per-call cost otherwise.
+static void emit_trace_call_stack_push(CompilationState& state, pc_t pc)
+{
+	if (!state.maintain_call_stack)
+		return;
+	auto& wasm = *state.wasm;
+	// ret_stack[ri->retsp] = pc + 1. The interpreter pushes ri->pc+1; create_stack_trace
+	// reads back (stored - 1), which maps to the CALLFUNC's call site.
+	wasm.emitGlobalGet(state.g_idx_ret_stack_pc);
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitI32Load(4 * 10); // ri->retsp
+	wasm.emitI32Const(4);
+	wasm.emitI32Mul();
+	wasm.emitI32Add();
+	wasm.emitI32Const(pc + 1);
+	wasm.emitI32Store(0);
+	// ri->retsp += 1
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitI32Load(4 * 10);
+	wasm.emitI32Const(1);
+	wasm.emitI32Add();
+	wasm.emitI32Store(4 * 10);
+}
+
+static void emit_trace_call_stack_pop(CompilationState& state)
+{
+	if (!state.maintain_call_stack)
+		return;
+	auto& wasm = *state.wasm;
+	// if (ri->retsp) ri->retsp -= 1;  - mirrors retstack_pop, which no-ops at the
+	// root frame (the entry function's top-level RETURN was never pushed).
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitI32Load(4 * 10); // ri->retsp
+	wasm.emitIf();
+	{
+		wasm.emitGlobalGet(state.g_idx_ri);
+		wasm.emitGlobalGet(state.g_idx_ri);
+		wasm.emitI32Load(4 * 10);
+		wasm.emitI32Const(1);
+		wasm.emitI32Sub();
+		wasm.emitI32Store(4 * 10);
+	}
+	wasm.emitEnd();
 }
 
 // Compiles a comparison command (COMPARER/COMPAREV/COMPAREV2) at `i` together
@@ -834,6 +904,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						{
 							// g_idx_ret_stack_index += 1
 							modify_global_idx(wasm, g_idx_ret_stack_index, 1);
+							emit_trace_call_stack_push(state, i);
 
 							// This is a function call, the function is compiled as a separate WASM function, so we can simply
 							// call it and be done with this instruction. Set the initial block id to 0 so the function starts
@@ -845,6 +916,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 							wasm.emitCall(fn_idx);
 
 							// g_idx_ret_stack_index -= 1
+							emit_trace_call_stack_pop(state);
 							modify_global_idx(wasm, g_idx_ret_stack_index, -1);
 							continue;
 						}
@@ -866,6 +938,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 						// g_idx_ret_stack_index += 1
 						modify_global_idx(wasm, g_idx_ret_stack_index, 1);
+						emit_trace_call_stack_push(state, i);
 					}
 					else if (structured_zasm.start_pc_to_function.contains(arg1) &&
 							 !function_ids.contains(structured_zasm.start_pc_to_function.at(arg1)))
@@ -920,6 +993,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 						// g_idx_ret_stack_index -= 1
 						modify_global_idx(wasm, g_idx_ret_stack_index, -1);
+						emit_trace_call_stack_pop(state);
 
 						// g_idx_ret_stack[g_idx_ret_stack_index]
 						{
@@ -1635,6 +1709,9 @@ JittedScript* jit_compile_script(zasm_script* script)
 	CompilationState state{};
 
 	state.runtime_debugging = script_debug_is_runtime_debugging() == 2;
+	// Maintain ri->pc and the pc call stack only when a stack trace could actually
+	// be produced (their only consumer), so non-tracing runs pay nothing per call.
+	state.maintain_call_stack = FFCore.should_display_stack_traces();
 
 	state.f_idx_set_return_value = comp.builder.importFunction("set_return_value", 1, 0);
 	state.f_idx_do_commands = comp.builder.importFunction("do_commands", 4, 1);
@@ -1666,6 +1743,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	state.g_idx_global_d = comp.builder.addGlobal("global_d");
 	state.g_idx_stack = comp.builder.addGlobal("stack");
 	state.g_idx_ret_stack = comp.builder.addGlobal("ret_stack");
+	state.g_idx_ret_stack_pc = comp.builder.addGlobal("ret_stack_pc");
 	state.g_idx_ret_stack_index = comp.builder.addGlobal("ret_stack_index");
 	state.g_idx_wait_index = comp.builder.addGlobal("wait_index");
 	state.g_idx_sp = comp.builder.addGlobal("sp");
@@ -1749,6 +1827,15 @@ JittedScript* jit_compile_script(zasm_script* script)
 		wasm.emitGlobalSet(state.g_idx_j_instance);
 		wasm.emitLocalGet(state.l_idx_ri);
 		wasm.emitGlobalSet(state.g_idx_ri);
+		// g_idx_ret_stack_pc = &data.ret_stack. ri == &data.ref (the first member of
+		// ScriptEngineData), so this is the same pc call stack create_stack_trace reads.
+		if (state.maintain_call_stack)
+		{
+			wasm.emitLocalGet(state.l_idx_ri);
+			wasm.emitI32Const(offsetof(ScriptEngineData, ret_stack));
+			wasm.emitI32Add();
+			wasm.emitGlobalSet(state.g_idx_ret_stack_pc);
+		}
 		wasm.emitLocalGet(state.l_idx_global_d);
 		wasm.emitGlobalSet(state.g_idx_global_d);
 		wasm.emitLocalGet(state.l_idx_stack);
