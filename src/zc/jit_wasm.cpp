@@ -1908,8 +1908,15 @@ JittedScript* jit_compile_script(zasm_script* script)
 				wasm.emitI32Eq();
 
 				wasm.emitIf();
-				wasm.emitCall(fn_idx); // call then return.
-				wasm.emitReturn();
+				wasm.emitCall(fn_idx);
+				// The synchronous entry function ran to completion (it never waits), so
+				// the script is done. Report it like the x64 JIT's root return (and the
+				// yielding RETURNFUNC) so the engine runs script_exit_cleanup and stops -
+				// otherwise the script's `doscript` flag stays set and a frozen run
+				// (runGenericFrozenEngine) loops re-running it until the game ends.
+				wasm.emitI32Const(RUNSCRIPT_JIT_QUIT);
+				wasm.emitCall(state.f_idx_set_return_value);
+				wasm.emitUnreachable();
 				wasm.emitEnd();
 			}
 
