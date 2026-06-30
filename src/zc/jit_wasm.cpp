@@ -203,6 +203,11 @@ static void check_sp(CompilationState& state)
 	wasm.emitI32GeU();
 
 	wasm.emitIf();
+	// ri->pc = state.pc, so the stack-overflow error's innermost stack frame is the
+	// command that overflowed (matching the interpreter), not a stale pc.
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitI32Const(state.pc);
+	wasm.emitI32Store(0); // ri->pc
 	wasm.emitI32Const(RUNSCRIPT_JIT_STACK_OVERFLOW);
 	wasm.emitCall(state.f_idx_set_return_value);
 	wasm.emitUnreachable(); // Bail.
