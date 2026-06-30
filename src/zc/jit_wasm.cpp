@@ -991,6 +991,24 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 							add_sp(state, 1);
 						}
 
+						// A RETURNFUNC at the root call frame is the entry function ("void
+						// run()") falling off its end, which ends the script. Report it as
+						// RUNSCRIPT_JIT_QUIT (same as the x64 JIT and what the interpreter does
+						// via `scommand = 0xFFFF`) so the caller runs script_exit_cleanup - which
+						// runs owned-object destructors - before stopping. Otherwise
+						// g_idx_ret_stack_index would decrement below zero, and check_call_limit's
+						// unsigned compare would later read that as a huge depth and falsely trip
+						// the call limit.
+						wasm.emitGlobalGet(g_idx_ret_stack_index);
+						wasm.emitI32Eqz();
+						wasm.emitIf();
+						{
+							wasm.emitI32Const(RUNSCRIPT_JIT_QUIT);
+							wasm.emitCall(state.f_idx_set_return_value);
+							wasm.emitUnreachable();
+						}
+						wasm.emitEnd();
+
 						// g_idx_ret_stack_index -= 1
 						modify_global_idx(wasm, g_idx_ret_stack_index, -1);
 						emit_trace_call_stack_pop(state);
