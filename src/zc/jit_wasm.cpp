@@ -209,7 +209,7 @@ static void check_sp(CompilationState& state)
 	wasm.emitEnd();
 }
 
-static void check_call_limit(CompilationState& state)
+static void check_call_limit(CompilationState& state, pc_t target_pc)
 {
 	auto& wasm = *state.wasm;
 
@@ -218,6 +218,12 @@ static void check_call_limit(CompilationState& state)
 	wasm.emitI32GeU();
 
 	wasm.emitIf();
+	// Match the interpreter: when the call limit trips, ri->pc points at the entry
+	// of the function being called, so the error's innermost stack frame is the
+	// recursing function rather than the call site.
+	wasm.emitGlobalGet(state.g_idx_ri);
+	wasm.emitI32Const(target_pc);
+	wasm.emitI32Store(0); // ri->pc
 	wasm.emitI32Const(RUNSCRIPT_JIT_CALL_LIMIT);
 	wasm.emitCall(state.f_idx_set_return_value);
 	wasm.emitUnreachable(); // Bail.
@@ -897,7 +903,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						// a native function call. This does not require g_idx_ret_stack_index.
 						// However, we still increment g_idx_ret_stack_index so we can check for the
 						// call limit.
-						check_call_limit(state);
+						check_call_limit(state, arg1);
 
 						pc_t fn_id = structured_zasm.start_pc_to_function.at(arg1);
 						if (!may_yield || !structured_zasm.functions[fn_id].may_yield)
@@ -957,7 +963,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						// non-yielding function's entry, so emitCall is sufficient.
 						//
 						// Example: .tmp/replay_uploads/EB5E2CFAE26A97BAA15637C0A60D557A/6940ead2-143f-45b9-a894-1bc05c81b9e0-updated-main.zplay
-						check_call_limit(state);
+						check_call_limit(state, arg1);
 						modify_global_idx(wasm, g_idx_ret_stack_index, 1);
 						wasm.emitI32Const(0);
 						wasm.emitGlobalSet(g_idx_target_block_id);
