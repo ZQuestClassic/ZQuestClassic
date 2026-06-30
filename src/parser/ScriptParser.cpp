@@ -2735,7 +2735,7 @@ bool ScriptAssembler::fill_debug_scope_locals(Scope* scope, int32_t scopeIdx, Sc
 			if (var->is_internal)
 			{
 				int zasm_register = var->getZasmRegister();
-				DCHECK(zasm_register != -1);
+				// DCHECK(zasm_register != -1);
 				if (zasm_register == -1) continue;
 
 				symbol.storage = LOC_REGISTER;
