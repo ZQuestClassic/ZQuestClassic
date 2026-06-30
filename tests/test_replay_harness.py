@@ -2,9 +2,10 @@
 
 import os
 import sys
-import pytest
 
 from pathlib import Path
+
+import pytest
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(script_dir))
@@ -23,6 +24,7 @@ from replays import (
     get_replay_name,
     get_shards,
     group_arg,
+    load_replays,
     time_format,
 )
 
@@ -211,6 +213,46 @@ def test_get_replay_name_not_relative(tmp_path):
     replays_dir = tmp_path / 'replays'
     replay_file = Path('/elsewhere/test.zplay')
     assert get_replay_name(replay_file, replays_dir) == 'test.zplay'
+
+
+# ---------------------------------------------------------------------------
+# load_replays
+# ---------------------------------------------------------------------------
+
+
+def _write_replay(path: Path, qst: str = 'test.qst', frames: int = 10):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f'M qst {qst}\n' f'M frames {frames}\n' 'C 0 step\n')
+
+
+def test_load_replays_resolves_relative_path(tmp_path, monkeypatch):
+    # A relative path must come back absolute, so the cwd it's later used from
+    # (the zplayer subprocess runs with cwd=build_folder) doesn't matter.
+    replays_dir = tmp_path / 'replays'
+    _write_replay(replays_dir / 'a.zplay')
+    monkeypatch.chdir(tmp_path)
+
+    replays = load_replays([Path('replays/a.zplay')], Path('replays'))
+
+    assert len(replays) == 1
+    assert replays[0].path.is_absolute()
+    assert replays[0].path == (replays_dir / 'a.zplay').resolve()
+
+
+def test_load_replays_name_relative_to_resolved_root(tmp_path, monkeypatch):
+    # Run names stay relative to root even when both inputs are relative paths.
+    replays_dir = tmp_path / 'replays'
+    _write_replay(replays_dir / 'subdir' / 'b.zplay')
+    monkeypatch.chdir(tmp_path)
+
+    replays = load_replays([Path('replays/subdir/b.zplay')], Path('replays'))
+
+    assert replays[0].name == 'subdir/b.zplay'
+
+
+def test_load_replays_missing_file_raises(tmp_path):
+    with pytest.raises(Exception, match='file does not exist'):
+        load_replays([tmp_path / 'nope.zplay'], tmp_path)
 
 
 # ---------------------------------------------------------------------------
