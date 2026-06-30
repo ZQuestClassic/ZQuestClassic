@@ -235,7 +235,7 @@ parser.add_argument(
 parser.add_argument(
     '--root_replays_folder',
     type=dir_path,
-    help='Replays run names are made by taking the relative path to this folder. Only used if `replays` positional arg is used',
+    help='Run all *.zplay replays found under this folder (recursively), unless `replays` positional args are given. Replay run names are made by taking the relative path to this folder.',
 )
 
 args = parser.parse_args()
@@ -252,6 +252,9 @@ if args.replays:
         replays_dir = Path(os.path.commonpath(tests))
     else:
         replays_dir = tests[0].parent
+elif args.root_replays_folder:
+    replays_dir = args.root_replays_folder
+    tests = list(replays_dir.rglob('*.zplay'))
 else:
     tests = list(replays_dir.rglob('*.zplay'))
 

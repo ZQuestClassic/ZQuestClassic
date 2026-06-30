@@ -295,12 +295,21 @@ def get_replay_name(replay_file: Path, replays_dir: Path):
 
 
 def load_replays(replay_paths: list[Path], relative_to: Path) -> list[Replay]:
+    # Resolve both sides so run names (derived via path.relative_to below) keep
+    # working now that replay paths are made absolute.
+    relative_to = relative_to.resolve()
     replays = []
     for path in replay_paths:
         if not path.exists():
             raise Exception(f'file does not exist: {path}')
         if not path.is_file():
             raise Exception(f'is not a file: {path}')
+
+        # Resolve to an absolute path: the path is validated here (cwd = repo
+        # root) but later handed to a zplayer subprocess that runs with its cwd
+        # set to the build folder. A relative path would resolve differently in
+        # the two places, surfacing as "could not open replay file".
+        path = path.resolve()
 
         name = get_replay_name(path, relative_to)
         meta = read_replay_meta(path)
