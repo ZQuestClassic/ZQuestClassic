@@ -2,7 +2,7 @@
 
 `zplayer` executes a quest's ZASM scripts typically by running them in our ZASM interpreter. To speed things up significantly, we can compile ZASM scripts to native machine code using the JIT (just-in-time) compiler. This runs in `zplayer`, not in the `zscript` compiler. There are two backends for the JIT: `jit_x64.cpp`, and `jit_wasm.cpp` (for the browser build). JIT is not supported for 32-bit.
 
-JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` config option, found in the launcher. There is also the `-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
+JIT compilation is on by default. It can be disabled by setting the `[ZSCRIPT] jit = 0` config option, found in the launcher. There is also the `-jit` / `-no-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
 `[ZSCRIPT] jit_threads = -2` controls how many threads to use for compilation. See the note in `base_config/zc.cfg` for more.
 
@@ -14,7 +14,7 @@ First, details on how ZASM is normally interpreted:
 
 A "z-register" (in the code, `ffscript.cpp` calls them registers, but the AST parser code calls them Vars) is set/read via `set_register`/`get_register`. A handful of general purposes z-registers exist called `D` and `G` (global). All other z-registers connect some state of the game engine to ZASM - for example, `Link->X = 123` would become the ZASM instruction `SETV LINKX 123`, so `set_register` would get called to set the player's position to the given value.
 
-Function calls are implemented with `PUSHR/PUSHV <thispc>; GOTO <destpc>` (pushing current pc onto stack and go to destination function). If there are parameters, they get pushed too. There's additional details for the `SP` z-register that I'm brushing over. When the function wants to return, a `RETURNFUNC` statement will pop pc to jump to from the stack.
+Function calls in modern quests use `CALLFUNC <destpc>` / `RETURNFUNC` (older 2.55-era compiles instead push the return pc and `GOTO <destpc>` - this is what `is_modern_function_calling()` distinguishes). If there are parameters, they get pushed onto the stack too. There's additional details for the `SP` z-register that I'm brushing over. When the function wants to return, `RETURNFUNC` pops the pc to jump back to.
 
 The ZASM bytecode interpreter will execute instructions until it encounters either 1) some `WaitX` command or 2) a `QUIT` command. If it somehow gets past the end of the instructions, that is treated as a `QUIT` (although, I think this should never happen). Some examples of `WaitX` are: `WaitFrame` (yield and resume on the next frame) and `WaitEvent` (wait for some game event to occur before continuing). In any case, whenever a script resumes it picks up from that last `WaitX` call with all its state and registers intact. The `refInfo` and `stack` will continue to exist for this script instance (until cleared, like for FFCs when leaving the screen).
 
@@ -71,11 +71,12 @@ This can result in ~20x better performance for scripts that are just pure math. 
 
 `GOTO` commands will emit a `jmp` to a label that is placed at the correct place in the generated assembly.
 
-Scripts are compiled per-function. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function.
+The two backends differ in what unit they compile and when:
 
-If precompiling is enabled, all functions are compiled on quest load, before the game starts.
+- **x64 (`jit_x64.cpp`):** scripts are compiled **per-function**. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function. If precompiling is enabled, all functions are compiled on quest load, before the game starts.
+- **wasm (`jit_wasm.cpp`, browser build):** the **entire script chunk** (e.g. `@single`, which contains all of a quest's generic/ffc scripts and their functions) is compiled to a single wasm module at once. Only precompiling is supported - there is no hot-threshold or worker-pool path (so the `jit_hot_function_*` settings below don't apply to the browser build).
 
-When a `WaitX` command is hit, the compiled function will save the location of that command and return. The next time it is called, it will jump straight to the next instruction after that `WaitX` command. This is tracked via `JittedScript::pc_to_address`.
+When a `WaitX` command is hit, the compiled function saves where to resume and returns; the next time it is called it picks up at the instruction after that `WaitX`. On x64 this resume point is tracked via `JittedScript::pc_to_resume_address`; on the wasm backend it is a saved block index (`wait_index`) that the function's loop-switch dispatches on when re-entered.
 
 ## Configuration
 
