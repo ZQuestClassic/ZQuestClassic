@@ -587,7 +587,7 @@ def frames_to_time(frames: int) -> str:
 total_frames = sum(r.frames for r in replays)
 total_frames_gameplay_time = frames_to_time(total_frames)
 total_frames_limited = sum(r.frames_limited() for r in replays)
-frames_limited_ratio = total_frames_limited / total_frames
+frames_limited_ratio = total_frames_limited / total_frames if total_frames else 0
 
 print(f'\nframes: {total_frames} ({total_frames_gameplay_time})')
 if frames_limited_ratio < 1:
