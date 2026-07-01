@@ -386,6 +386,7 @@ script_array* checkArray(uint32_t id, bool skipError = false);
 
 extern bool script_is_within_debugger_vm;
 extern bool suppress_script_error_logging;
+extern bool disable_script_error_logs;
 
 int32_t run_script_jit_sequence(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp, int32_t count);
 int32_t run_script_jit_one(JittedScriptInstance* j_instance, pc_t pc, uint32_t sp);

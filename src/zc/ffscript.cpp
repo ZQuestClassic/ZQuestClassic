@@ -108,6 +108,12 @@ void scripting_log_error_with_context(std::string text)
 	if (suppress_script_error_logging)
 		return;
 
+	// Bail before the debugger pause and the context/fmt work below - benchmarks
+	// with every-frame script errors must not pay for messages nobody will see
+	// (handle_trace would drop them anyway).
+	if (disable_script_error_logs)
+		return;
+
 	if (auto debugger = zscript_debugger_get_if_open(); debugger && debugger->break_on_error)
 		debugger->SetState(Debugger::State::Paused);
 
@@ -9337,6 +9343,7 @@ int32_t run_script_jit_until_call_or_return(JittedScriptInstance* j_instance, pc
 
 bool script_is_within_debugger_vm;
 bool suppress_script_error_logging;
+bool disable_script_error_logs;
 
 // When j_instance is null, that means the interperter is fully in charge.
 // Otherwise, the JIT may still call this function for the many commands that are not compiled, or
@@ -15753,6 +15760,13 @@ std::optional<StackFrame> FFScript::get_script_stack_frame(int pc)
 
 void FFScript::handle_trace(const std::string& s, bool is_error, bool no_prefix)
 {
+	// -experimental-disable-script-error-logs: skip script error logging (and the
+	// expensive stack-trace creation below). Scripts that error every frame (e.g.
+	// divide-by-zero) otherwise dominate a benchmark. Engine diagnostics (al_trace)
+	// and non-error Trace() output are unaffected.
+	if (disable_script_error_logs && is_error)
+		return;
+
 	bool user_visible_trace = true;
 	if (is_error)
 		user_visible_trace = get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0; // TODO: consider removing this, always logging errors.
