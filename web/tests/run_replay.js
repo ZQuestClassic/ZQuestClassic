@@ -40,6 +40,12 @@ const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get
 const headless = replayUrl.searchParams.has('headless');
 const browser = await puppeteer.launch({
   headless: headless ? 'new' : false,
+  // DUMPIO=1 pipes Chrome's own stdout/stderr through to us - useful for surfacing a
+  // renderer crash reason or an out-of-memory abort that never reaches the page console.
+  dumpio: !!process.env.DUMPIO,
+  // V8_FLAGS passes flags straight to V8, e.g. "--liftoff-only" to disable wasm TurboFan
+  // tier-up (isolates crashes caused by tiering up a large jitted function).
+  args: process.env.V8_FLAGS ? [`--js-flags=${process.env.V8_FLAGS}`] : [],
 });
 
 async function runReplay(zplay) {
@@ -50,6 +56,12 @@ async function runReplay(zplay) {
 
   let hasExited = false;
   let exitCode = 0;
+
+  // The renderer process died (e.g. OOM). Log whatever reason puppeteer gives.
+  // (Puppeteer signals a page crash via the 'error' event, unlike Playwright's 'crash'.)
+  page.on('error', e => {
+    process.stderr.write(`[PAGECRASH] ${e}\n`);
+  });
 
   const consoleListener = setupConsoleListener(page);
   page.on('pageerror', e => {
@@ -152,6 +164,9 @@ async function runReplay(zplay) {
 let code = 1;
 try {
   code = await runReplay(zplay);
+} catch (e) {
+  // Surface why runReplay threw - e.g. a renderer crash makes page.evaluate reject.
+  process.stderr.write(`[RUNREPLAY-THREW] ${e && e.stack ? e.stack : e}\n`);
 } finally {
   await browser.close();
   process.exit(code);
