@@ -27,6 +27,7 @@ class RunResult:
     path: str
     success: bool = False
     stopped: bool = False
+    rng_desync: bool = False
     exit_code: int = None
     duration: float = None
     fps: int = None
