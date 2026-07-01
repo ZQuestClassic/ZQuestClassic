@@ -1094,28 +1094,16 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				case PUSHR:
 				case PUSHV:
 				{
-					if (command == PUSHR && (arg1 == SP || arg1 == SP2))
-					{
-						wasm.emitGlobalGet(g_idx_sp);
-						if (arg1 == SP)
-						{
-							wasm.emitI32Const(10000);
-							wasm.emitI32Mul();
-						}
-						wasm.emitLocalSet(l_idx_scratch);
-
-						add_sp(state, -1);
-						check_sp(state);
-
-						wasm.emitGlobalGet(g_idx_sp);
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add(); // Add stack base offset.
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32Store();
-						break;
-					}
+					// Evaluate the value to push BEFORE decrementing sp, matching the
+					// interpreter and x64 JIT. A stack-dependent register (e.g.
+					// SCREENDATAEXDOOR) read after add_sp would see the decremented sp
+					// and read the wrong stack slot. Capturing into a local also handles
+					// SP/SP2 (which read the current sp) without a special case.
+					if (command == PUSHR)
+						get_z_register(state, arg1);
+					else
+						wasm.emitI32Const(arg1);
+					wasm.emitLocalSet(l_idx_scratch);
 
 					add_sp(state, -1);
 					check_sp(state);
@@ -1125,10 +1113,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 					wasm.emitGlobalGet(g_idx_stack);
 					wasm.emitI32Add(); // Add stack base offset.
-					if (command == PUSHR)
-						get_z_register(state, arg1);
-					else
-						wasm.emitI32Const(arg1);
+					wasm.emitLocalGet(l_idx_scratch);
 					wasm.emitI32Store();
 				}
 				break;
