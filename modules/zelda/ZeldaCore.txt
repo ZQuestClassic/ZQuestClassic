@@ -24,6 +24,7 @@ src/zc/replay.cpp
 src/zc/replay_compat.cpp
 src/zc/render.cpp
 src/zc/frame_timings.cpp
+src/zc/script_timings.cpp
 src/user_object.cpp
 src/ffc.cpp
 src/slopes.cpp

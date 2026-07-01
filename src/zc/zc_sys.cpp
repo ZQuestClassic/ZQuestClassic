@@ -24,6 +24,7 @@
 #include "gamedata.h"
 #include "zc/debugger/debugger.h"
 #include "zc/frame_timings.h"
+#include "zc/script_timings.h"
 #include "zc/replay_upload.h"
 #include "zc/scripting/types/genericdata.h"
 #include "zc/zasm_pipeline.h"
@@ -151,6 +152,7 @@ void zc_exit(int code)
 	zscript_coloured_console.kill();
 	zasm_pipeline_shutdown();
 	frame_timings_end();
+	script_timings_end();
 	if (auto debugger = zscript_debugger_get_if_open())
 		debugger->Save();
 	quit_game();

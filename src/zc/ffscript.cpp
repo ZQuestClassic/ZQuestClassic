@@ -51,6 +51,7 @@
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
+#include "zc/script_timings.h"
 #include "zalleg/zalleg.h"
 #include "base/zc_math.h"
 #include "base/zc_array.h"
@@ -9132,7 +9133,9 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 		return RUNSCRIPT_ERROR;
 		
 	if(type != ScriptType::Global && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
-	
+
+	ScriptTimingScope _script_timing_scope; // -script-timings: measure scripting-engine time
+
 	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
@@ -9158,6 +9161,10 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 
 	// Because qst.cpp likes to write script_data without setting this.
 	curscript->meta.script_type = type;
+
+	// Attribute this outermost call's time to the script by name (-script-timings).
+	if (script_timings_enabled && script_timings_is_outermost())
+		script_timings_set_current_name(curscript->name());
 
 	// If script isn't valid, we don't have a `pc` to start from... just exit.
 	if(!curscript->valid())

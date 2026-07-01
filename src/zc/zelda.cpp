@@ -43,6 +43,7 @@
 #include "zc/debugger/debugger.h"
 #include "zc/ffscript.h"
 #include "zc/frame_timings.h"
+#include "zc/script_timings.h"
 #include "zc/jit.h"
 #include "zc/matrix.h"
 #include "zc/render.h"
@@ -1710,6 +1711,7 @@ void init_game_vars(bool is_cont_game = false)
 int32_t init_game()
 {
 	frame_timings_init(get_flag_bool("-frame-timings").value_or(false));
+	script_timings_init(get_flag_bool("-script-timings").value_or(false));
 
 	if (saves_current_selection() == -1)
 		Z_error_fatal("Failed to load save: init_game\n");
