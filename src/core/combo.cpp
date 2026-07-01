@@ -1211,6 +1211,35 @@ void combo_trigger::clear()
 	*this = combo_trigger();
 }
 
+void to_json(json& j, const combo_trigger& trig)
+{
+	combo_trigger def_trigger{};
+	#define X(name) \
+	do \
+	{ \
+		if (trig.name != def_trigger.name) \
+			j[#name] = trig.name; \
+	} \
+	while(false)
+	
+	#include "combo_trigger.xtable"
+	#undef X
+}
+void from_json(const json& j, combo_trigger& trig)
+{
+	trig.clear();
+	#define X(name) \
+	do \
+	{ \
+		if (j.contains(#name)) \
+			j.at(#name).get_to(trig.name); \
+	} \
+	while(false)
+	
+	#include "combo_trigger.xtable"
+	#undef X
+}
+
 void newcombo::set_tile(int32_t newtile)
 {
 	o_tile = newtile;

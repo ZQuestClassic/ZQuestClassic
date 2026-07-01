@@ -9,18 +9,16 @@
 #include "Scope.h"
 #include "CompileError.h"
 #include <filesystem>
-#include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <sstream>
 
 using namespace ZScript;
-using json = nlohmann::ordered_json;
 
 std::string metadata_tmp_path;
 std::string metadata_orig_path;
 
-static json root;
-static json* active;
+static ordered_json root;
+static ordered_json* active;
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#symbolKind
 enum class SymbolKind
@@ -77,7 +75,7 @@ static auto LocationData_json(const LocationData& loc)
 {
 	assert(loc.first_line > 0 && loc.first_column > 0);
 	assert(loc.last_line > 0 && loc.last_column > 0);
-	return json{
+	return ordered_json{
 		{"start", {
 			{"line", loc.first_line - 1}, {"character", loc.first_column - 1},
 		}},
@@ -90,7 +88,7 @@ static auto LocationData_json(const LocationData& loc)
 static auto LocationData_pos_json(const LocationData& loc)
 {
 	assert(loc.first_line == loc.last_line);
-	return json{
+	return ordered_json{
 		{"line", loc.first_line - 1}, {"character", loc.first_column - 1}, {"length", loc.last_column - loc.first_column},
 	};
 }
@@ -135,7 +133,7 @@ static void linkifyComment(std::string& comment, const AST* node)
 		}
 
 		auto location = it->symbol_node->getIdentifierLocation().value_or(it->symbol_node->location);
-		auto args = json{
+		auto args = ordered_json{
 			{"file", make_uri(location.fname)},
 			{"position", LocationData_json(location)},
 		};
@@ -217,7 +215,7 @@ static void appendDocSymbol(SymbolKind kind, const T& node)
 		{"kind", kind},
 		{"range", LocationData_json(getRange(node))},
 		{"selectionRange", LocationData_json(getSelectionRange(node))},
-		{"children", json::array()},
+		{"children", ordered_json::array()},
 	});
 	active = &(*active).back()["children"];
 }
@@ -313,9 +311,9 @@ MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
 	: RecursiveVisitor(program), root_file_name(root_file_name), is_enabled(false)
 {
 	root = {
-		{"currentFileSymbols", json::array()},
-		{"symbols",  json::object()},
-		{"identifiers",  json::array()},
+		{"currentFileSymbols", ordered_json::array()},
+		{"symbols",  ordered_json::object()},
+		{"identifiers",  ordered_json::array()},
 	};
 	active = &root["currentFileSymbols"];
 	visit(program.getRoot());
@@ -560,7 +558,7 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 	RecursiveVisitor::caseExprCall(host, param);
 }
 
-json MetadataVisitor::takeOutput()
+ordered_json MetadataVisitor::takeOutput()
 {
 	return std::move(root);
 }

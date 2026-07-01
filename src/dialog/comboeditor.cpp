@@ -26,7 +26,6 @@ using std::to_string;
 static size_t cmb_tabs[5] = {0};
 static int32_t cmb_scrolls[1] = {0};
 static bool combo_use_script_data = true;
-static optional<combo_trigger> copied_trigger;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -2247,9 +2246,9 @@ void ComboEditorDialog::updateTriggerIndex()
 	trigbtnCopy->setDisabled(trigger_index < 0);
 	trigbtnEdit->setDisabled(trigger_index < 0);
 	trigbtnDelete->setDisabled(trigger_index < 0);
-	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
-	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS || !copied_trigger);
-	trigbtnPaste->setDisabled(trigger_index < 0 || !copied_trigger);
+	trigbtnPasteNewCursor->setDisabled(trigger_index < 0 || local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnPasteNewEnd->setDisabled(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS);
+	trigbtnPaste->setDisabled(trigger_index < 0);
 	trigbtnUp->setDisabled(trigger_index < 1);
 	trigbtnDown->setDisabled(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1);
 }
@@ -2339,15 +2338,51 @@ int32_t solidity_to_flag(int32_t val)
 	return (val&0b1001) | (val&0b0100)>>1 | (val&0b0010)<<1;
 }
 
+static optional<combo_trigger> load_trigger_json_clipboard(bool skip_popup = false)
+{
+	try
+	{
+		string str;
+		if (!get_al_clipboard(str))
+			throw std::runtime_error("No text found on clipboard!");
+		json data = json::parse(str);
+		return data.get<combo_trigger>();
+	}
+	catch (std::exception const& e)
+	{
+		if (!skip_popup)
+			InfoDialog("Error", fmt::format("Failed to load JSON from clipboard!\nError: {}", e.what())).show();
+	}
+	return nullopt;
+}
+static bool save_trigger_json_clipboard(combo_trigger const& trig, bool skip_popup = false)
+{
+	try
+	{
+		json data = trig;
+		set_al_clipboard(data.dump((key[KEY_LSHIFT]||key[KEY_RSHIFT]) ? 4 : -1));
+		InfoDialog("Copied", "Saved data to clipboard!").show();
+		return true;
+	}
+	catch (std::exception const& e)
+	{
+		if (!skip_popup)
+			InfoDialog("Error", fmt::format("Failed to save JSON to clipboard!\nError: {}", e.what())).show();
+	}
+	return false;
+}
 
 void ComboEditorDialog::add_combo_trigger(size_t pos, bool copied)
 {
-	if(copied && !copied_trigger) return;
+	optional<combo_trigger> from_clipboard;
+	if(copied)
+		if (!(from_clipboard = load_trigger_json_clipboard()))
+			return;
 	if(local_comboref.triggers.size() >= MAX_COMBO_TRIGGERS) return;
 	combo_trigger& trig = *local_comboref.triggers.emplace(std::next(local_comboref.triggers.begin(), pos));
 	
 	if(copied)
-		trig = *copied_trigger;
+		trig = *from_clipboard;
 	else if(!call_trigger_editor(*this, pos))
 	{
 		local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), pos));
@@ -2437,6 +2472,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				local_comboref.c_attributes[q] = zslongToFix(val);
 			}));
 	}
+	
+	#define TRIG_BTN_HEI 2_em
 	
 	window = Window(
 		use_vsync = true,
@@ -2742,9 +2779,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Frame(
 						Row(
 							Column(
-								Row(
+								Row(spacing = 0_px,
 									trigbtnSummarizeAll = Button(text = "Summarize All",
 										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
 										onPressFunc = [&]()
 										{
 											std::ostringstream oss;
@@ -2758,8 +2796,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											}
 											InfoDialog("All Trigger Summary", oss.str()).set_text_align(0).show();
 										}),
-									trigbtnSummarize = Button(text = "Summarize",
+									trigbtnSummarize = Button(text = "Summarize Selected",
 										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
 										onPressFunc = [&]()
 										{
 											auto const& trig = local_comboref.triggers[trigger_index];
@@ -2792,84 +2831,121 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									)
 								)
 							),
-							Columns<5>(
-								trigbtnAddCursor = Button(text = "Add (at cursor)",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										add_combo_trigger(trigger_index+1);
-									}),
-								trigbtnAddEnd = Button(text = "Add (at end)",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										add_combo_trigger(local_comboref.triggers.size());
-									}),
-								trigbtnCopy = Button(text = "Copy",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 0) return;
-										copied_trigger = local_comboref.triggers[trigger_index];
-										refresh_dlg();
-									}),
-								trigbtnEdit = Button(text = "Edit",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 0) return;
-										if(call_trigger_editor(*this, size_t(trigger_index)))
+							Column(
+								Columns<6>(
+									//
+									trigbtnEdit = Button(text = "Edit",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if(trigger_index < 0) return;
+											if(call_trigger_editor(*this, size_t(trigger_index)))
+												refresh_dlg();
+										}),
+									trigbtnAddCursor = Button(text = "Add", // at cursor
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											add_combo_trigger(trigger_index+1);
+										}),
+									trigbtnAddEnd = Button(text = "Add", // at end
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											add_combo_trigger(local_comboref.triggers.size());
+										}),
+									trigbtnDelete = Button(text = "Delete",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if(trigger_index < 0) return;
+											if (!alert_confirm("Are you sure?", "Deleting a trigger cannot be undone!"))
+												return;
+											local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), trigger_index));
 											refresh_dlg();
-									}),
-								trigbtnDelete = Button(text = "Delete",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 0) return;
-										if (!alert_confirm("Are you sure?", "Deleting a trigger cannot be undone!"))
-											return;
-										local_comboref.triggers.erase(std::next(local_comboref.triggers.begin(), trigger_index));
-										refresh_dlg();
-									}),
-								//
-								trigbtnPasteNewCursor = Button(text = "Paste New (at cursor)",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										add_combo_trigger(trigger_index+1, true);
-									}),
-								trigbtnPasteNewEnd = Button(text = "Paste New (at end)",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										add_combo_trigger(local_comboref.triggers.size(), true);
-									}),
-								trigbtnPaste = Button(text = "Paste",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 0 || !copied_trigger) return;
-										local_comboref.triggers[trigger_index] = *copied_trigger;
-										refresh_dlg();
-									}),
-								trigbtnUp = Button(text = "Up",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 1) return;
-										zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index-1]);
-										--trigger_index;
-										refresh_dlg();
-									}),
-								trigbtnDown = Button(text = "Down",
-									fitParent = true,
-									onPressFunc = [&]()
-									{
-										if(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1) return;
-										zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index+1]);
-										++trigger_index;
-										refresh_dlg();
-									})
+										}),
+									trigbtnUp = Button(text = "Up",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if(trigger_index < 1) return;
+											zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index-1]);
+											--trigger_index;
+											refresh_dlg();
+										}),
+									trigbtnDown = Button(text = "Down",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if(trigger_index < 0 || trigger_index >= local_comboref.triggers.size()-1) return;
+											zc_swap(local_comboref.triggers[trigger_index], local_comboref.triggers[trigger_index+1]);
+											++trigger_index;
+											refresh_dlg();
+										}),
+									//
+									_d,
+									Label(text = "At Cursor"),
+									Label(text = "At End"),
+									_d,
+									_d,
+									_d,
+									//
+									Label(text = "Clipboard:"),
+									trigbtnPasteNewCursor = Button(text = "Paste New", // at cursor
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											add_combo_trigger(trigger_index+1, true);
+										}),
+									trigbtnPasteNewEnd = Button(text = "Paste New", // at end
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											add_combo_trigger(local_comboref.triggers.size(), true);
+										}),
+									trigbtnPaste = Button(text = "Paste",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if(trigger_index < 0) return;
+											if (optional<combo_trigger> from_clipboard = load_trigger_json_clipboard())
+											{
+												local_comboref.triggers[trigger_index] = *from_clipboard;
+												refresh_dlg();
+											}
+										}),
+									trigbtnCopy = Button(text = "Copy",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if (trigger_index < 0) return;
+											if (save_trigger_json_clipboard(local_comboref.triggers[trigger_index]))
+												refresh_dlg();
+										}),
+									Button(text = "Summarize",
+										fitParent = true,
+										prefheight = TRIG_BTN_HEI, padding = 0_px,
+										onPressFunc = [&]()
+										{
+											if (optional<combo_trigger> from_clipboard = load_trigger_json_clipboard())
+											{
+												string title = "Trigger Summary (Clipboard)";
+												if (!from_clipboard->label.empty())
+													title += fmt::format(" '{}'", from_clipboard->label);
+												InfoDialog(title, from_clipboard->summarize(local_comboref)).set_text_align(0).show();
+											}
+										})
+								)
 							)
 						)
 					)

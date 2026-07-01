@@ -11,6 +11,9 @@
 #include <string>
 #include <cstdlib>
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 #define FIX_NAN 0
 
@@ -222,6 +225,9 @@ public:
 		if (s[idx] == '.') --idx;
 		return s.substr(0, idx+1);
 	}
+	
+    friend void to_json(json& j, const zfix& z);
+    friend void from_json(const json& j, zfix& z);
 public:
 	
 	zfix() : val(0)											{}

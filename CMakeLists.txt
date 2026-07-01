@@ -566,7 +566,7 @@ if (EMSCRIPTEN)
 	list(APPEND base_sources src/base/emscripten_utils.cpp)
 endif()
 add_library(base STATIC ${base_sources})
-target_link_libraries(base PUBLIC fmt)
+target_link_libraries(base PUBLIC fmt nlohmann_json::nlohmann_json)
 target_include_directories(base PUBLIC src third_party/nonstd/include)
 if(CURL_FOUND)
 	target_sources(base PRIVATE src/base/http.cpp)
@@ -610,6 +610,7 @@ if(WANT_ZC_TESTS)
 		src/test_runner/test_runner.cpp
 		src/components/scc/scc_test.cpp
 		src/base/zc_math_test.cpp
+		src/base/containers_test.cpp
 	)
 	target_link_libraries(base_test_runner PRIVATE base scc)
 
@@ -833,7 +834,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE core zcsound zconsolelogger zcgui worker_pool websocket nlohmann_json::nlohmann_json poolSTL_tbb imgui_color_text_edit)
+target_link_libraries(zplayer PRIVATE core zcsound zconsolelogger zcgui worker_pool websocket poolSTL_tbb imgui_color_text_edit)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
@@ -942,7 +943,7 @@ endif()
 add_executable(zeditor ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 set_property(TARGET zeditor PROPERTY VS_DPI_AWARE "PerMonitor")
 
-target_link_libraries(zeditor PUBLIC core zconsolelogger zcgui zcsound zasm nlohmann_json::nlohmann_json)
+target_link_libraries(zeditor PUBLIC core zconsolelogger zcgui zcsound zasm)
 target_include_directories(zeditor PRIVATE src)
 
 if(MSVC)
@@ -986,7 +987,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
 	# TODO: do not link allegro w/ zscript compiler.
-	target_link_libraries(zscript PRIVATE base allegro_with_legacy zconsolelogger zasm ${ZSCRIPTLIBSEXTRA} nlohmann_json::nlohmann_json)
+	target_link_libraries(zscript PRIVATE base allegro_with_legacy zconsolelogger zasm ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -1038,7 +1039,7 @@ if(BUILD_ZUPDATER)
 
 	add_executable(zupdater src/zupdater/zupdater.cpp ${UPDATEREXTRASOURCES})
 	target_compile_definitions(zupdater PRIVATE ZUPDATER)
-	target_link_libraries(zupdater PRIVATE base allegro_with_legacy CURL::libcurl nlohmann_json::nlohmann_json)
+	target_link_libraries(zupdater PRIVATE base allegro_with_legacy CURL::libcurl)
 	target_include_directories(zupdater PRIVATE src)
 	if(WIN32)
 		target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")

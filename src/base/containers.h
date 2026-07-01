@@ -5,6 +5,9 @@
 #include <stdexcept>
 #include <type_traits>
 #include <concepts>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 template<typename T>
 concept uint_type = std::unsigned_integral<T>;
@@ -493,6 +496,9 @@ public:
 	bounded_vec<storage_t,byte>& inner() {return cont;}
 	bounded_vec<storage_t,byte> const& inner() const {return cont;}
 	bool operator==(bitstring const& other) const = default;
+	
+    friend void to_json(json& j, const bitstring& b);
+    friend void from_json(const json& j, bitstring& b);
 private:
 	bounded_vec<storage_t,byte> cont {max_bytes};
 };
