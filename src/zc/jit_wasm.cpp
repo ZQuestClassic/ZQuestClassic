@@ -839,7 +839,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				current_block_index += 1;
 			}
 
-#ifndef _NDEBUG
+#ifndef NDEBUG
 			wasm.emitI32Const(i);
 			wasm.emitDrop();
 #endif
