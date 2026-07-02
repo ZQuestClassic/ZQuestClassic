@@ -1722,24 +1722,27 @@ JittedScript* jit_compile_script(zasm_script* script)
 	if (script->size <= 1)
 		return nullptr;
 
-	// Bail to the interpreter for any chunk using STACKWRITEATVV_IF (not yet
-	// supported by the wasm codegen) or RUNGENFRZSCR. The RUNGENFRZSCR bail is a
-	// coarse workaround: any quest that uses generic frozen scripts compiles its
-	// whole @single chunk with it, and the wasm JIT still has a resume-codegen
-	// desync in that path (see terror_of_necromancy_demo6: rng desync at frame
-	// 9237, isolated to npc-6-Candlehead's WAITFRAME resume re-running its entry
-	// and leaking its stack frame). Run interpreted until that resume bug is
-	// fixed. (The separate nested-script crash it used to hit is fixed - see
-	// jit_can_start_script / em_create_wasm_handle.)
+	// STACKWRITEATVV_IF is not yet supported by the wasm codegen - always bail.
+	//
+	// RUNGENFRZSCR (generic frozen scripts) still has a resume-codegen desync on the
+	// wasm JIT (see terror_of_necromancy_demo6: rng desync at frame 9237, isolated to
+	// npc-6-Candlehead's WAITFRAME resume re-running its entry and leaking its stack
+	// frame), so bail on it for normal play - this is coarse, since any quest that
+	// uses generic frozen scripts compiles its whole @single chunk with it. The
+	// replay tests pass -no-jit-wasm-bail-on-frozen-generic so they actually exercise
+	// the wasm backend for that content. (The separate nested-script crash it used to
+	// hit is fixed - see jit_can_start_script / em_create_wasm_handle.)
+	static bool bail_on_frozen_generic = get_flag_bool("-jit-wasm-bail-on-frozen-generic").value_or(true);
 	for (size_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
-		if (command == RUNGENFRZSCR || command == STACKWRITEATVV_IF)
+		if (command == STACKWRITEATVV_IF)
 		{
-			if (command == STACKWRITEATVV_IF)
-				error(script, "STACKWRITEATVV_IF unsupported", true);
+			error(script, "STACKWRITEATVV_IF unsupported", true);
 			return nullptr;
 		}
+		if (command == RUNGENFRZSCR && bail_on_frozen_generic)
+			return nullptr;
 	}
 
 	auto structured_zasm = zasm_construct_structured(script);

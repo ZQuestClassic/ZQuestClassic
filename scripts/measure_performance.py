@@ -186,6 +186,12 @@ def build_flags(mode: dict, args) -> list:
         if mode['jit']
         else ['-no-jit']
     )
+    if mode['jit']:
+        # Without this, quests using generic frozen scripts (RUNGENFRZSCR, e.g.
+        # stellar_seas) silently run their main script chunk INTERPRETED on the
+        # wasm backend (see jit_compile_script's bail), making the "jit" mode a
+        # lie for them. The replay test harness passes it too.
+        flags += ['-no-jit-wasm-bail-on-frozen-generic']
     # Suppress script error logging so heavy per-frame errors (e.g. maths.zs's
     # every-frame divide-by-zero) don't dominate the timing.
     if args.disable_logging:

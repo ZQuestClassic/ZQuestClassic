@@ -567,6 +567,10 @@ class WebPlayerInterface:
             extra_args.append('-jit-log')
             extra_args.append('-jit-fatal-compile-errors')
             extra_args.append('-jit-precompile')
+            # Actually exercise the wasm JIT for generic frozen scripts. Normal
+            # play bails those to the interpreter (see jit_compile_script), but
+            # the tests should cover the real wasm codegen.
+            extra_args.append('-no-jit-wasm-bail-on-frozen-generic')
         else:
             extra_args.append('-no-jit')
 
