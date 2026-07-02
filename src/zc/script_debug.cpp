@@ -6,6 +6,8 @@
 #include "zc/replay.h"
 #include "components/zasm/table.h"
 #include "components/zasm/serialize.h"
+#include "components/zasm/debug_data.h"
+#include "core/qst.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -186,6 +188,21 @@ void ScriptDebugHandle::print_command(int i)
 	print("\n");
 }
 
+// Resolves a zasm pc to a "file.zs:line" source location (or "?" when there is
+// no debug info). Lets the runtime-debug output - and jit_runtime_debug.py's
+// diff - point at the ZScript source, which is far more stable and actionable
+// than a raw zasm pc that shifts whenever scripts are recompiled.
+static std::string script_debug_source_location(int pc)
+{
+	auto [source_file, line] = zasm_debug_data.resolveLocationSourceFile(pc);
+	if (!source_file)
+		return "?";
+	const std::string& path = source_file->path;
+	size_t slash = path.find_last_of("/\\");
+	std::string name = slash == std::string::npos ? path : path.substr(slash + 1);
+	return fmt::format("{}:{}", name, line);
+}
+
 void ScriptDebugHandle::pre_command()
 {
 	static int frame = get_flag_int("-script-runtime-debug-frame").value_or(-1);
@@ -210,7 +227,7 @@ void ScriptDebugHandle::pre_command()
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("pc: {} {} | {}", i, zasm_op_to_string(op), line));
+		replay_step_comment(fmt::format("{} pc: {} {} | {}", script_debug_source_location(i), i, zasm_op_to_string(op), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{

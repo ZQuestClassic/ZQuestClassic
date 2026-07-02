@@ -8,6 +8,7 @@ import argparse
 import dataclasses
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -331,6 +332,12 @@ for run in failing_runs:
     print(roundtrip_lines[bad_line_index - 1])
     but_was, shoulda_been = roundtrip_lines[bad_line_index - 0].split('«')
     print(f'shoulda been:\n\t{shoulda_been.strip()}\nbut was:\n\t{but_was.strip()}')
+
+    # Surface the ZScript source location of the miscompiled instruction.
+    source_match = re.search(r'(\S+\.z[sh]:\d+)', roundtrip_lines[bad_line_index])
+    if source_match:
+        print(f'\nmiscompiled instruction is at: {source_match.group(1)}')
+
     print('\ntip: copy/paste this in an editor with word wrap off')
     print()
     print(f'for more, see {roundtrip_path}')

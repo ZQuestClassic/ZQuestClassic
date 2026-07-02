@@ -169,6 +169,15 @@ class TestJIT(ZCTestCase):
             ].strip()
             + '\n'
         )
+        # Normalize the raw zasm pcs, which shift whenever scripts are
+        # recompiled; the ZScript source location and the register diff are the
+        # stable signal this test cares about.
+        output = re.sub(r'pc: \d+', 'pc: N', output)
+        output = re.sub(
+            r'\b(GOTO|GOTOCMP|GOTOTRUE|GOTOFALSE|GOTOMORE|GOTOLESS|GOTOR|CALLFUNC)(\s+)\d+',
+            r'\1\2N',
+            output,
+        )
         expected_path = expected_dir / 'jit_runtime_debug_test.txt'
         self.expect_snapshot(expected_path, output, args.update)
 
