@@ -108,7 +108,7 @@ static int em_compile_wasm(const char* name, void* ptr, size_t size)
 	return em_compile_wasm_(name, ptr, size);
 }
 
-EM_ASYNC_JS(int, em_create_wasm_handle_, (int module_id), {
+EM_JS(int, em_create_wasm_handle_, (int module_id), {
 	return ZC.createScriptWasmHandle(module_id);
 });
 static int em_create_wasm_handle(int module_id)
@@ -1722,10 +1722,15 @@ JittedScript* jit_compile_script(zasm_script* script)
 	if (script->size <= 1)
 		return nullptr;
 
-	// Bail to the interpreter for any chunk using STACKWRITEATVV_IF (not supported) or
-	// RUNGENFRZSCR. The RUNGENFRZSCR yield-point lowering works on the playground tests,
-	// but enabling it for real quests surfaced a pre-existing wasm-JIT memory-corruption
-	// bug that crashes them; until that's fixed, run generic-script content interpreted.
+	// Bail to the interpreter for any chunk using STACKWRITEATVV_IF (not yet
+	// supported by the wasm codegen) or RUNGENFRZSCR. The RUNGENFRZSCR bail is a
+	// coarse workaround: any quest that uses generic frozen scripts compiles its
+	// whole @single chunk with it, and the wasm JIT still has a resume-codegen
+	// desync in that path (see terror_of_necromancy_demo6: rng desync at frame
+	// 9237, isolated to npc-6-Candlehead's WAITFRAME resume re-running its entry
+	// and leaking its stack frame). Run interpreted until that resume bug is
+	// fixed. (The separate nested-script crash it used to hit is fixed - see
+	// jit_can_start_script / em_create_wasm_handle.)
 	for (size_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
@@ -2029,6 +2034,30 @@ void jit_profiler_increment_function_back_edge([[maybe_unused]] JittedScriptInst
 	// Not used - the wasm backend currently only supports precompiling scripts.
 }
 
+// Depth of the currently-executing jitted wasm script(s). A jitted script that
+// runs a nested script (e.g. an FFC that runs an enemy's script mid-frame) does
+// so while its own em_poll_wasm_handle call is still on the stack; asyncify can
+// only manage one script's unwind/rewind at a time, so the nested script must
+// run on the interpreter. run_script consults jit_can_start_script() for this.
+//
+// This is the general-case escape hatch; the RUNGENFRZSCR yield lowering is
+// the optimized protocol for the one command where nesting is the purpose.
+// RUNGENFRZSCR deterministically hands a whole engine frame to the engine and
+// has clean resume semantics (one result register, resume at the next pc), so
+// it earns a dispatch entry: the compiled script returns cleanly and the
+// run_script driver runs the frozen frame with NO script wasm on the stack -
+// depth 0, so scripts inside that frame may use the JIT. By contrast,
+// "commands whose engine side effects might start another script" (combo
+// triggers, enemy spawns, item pickups, ...) is a huge set that depends on
+// quest data, not opcodes - and those commands must complete synchronously,
+// mid-batch; the wasm can't return out of the middle of an em_do_commands
+// call. So their nested scripts run interpreted instead.
+static int jit_wasm_execution_depth = 0;
+bool jit_can_start_script()
+{
+	return jit_wasm_execution_depth == 0;
+}
+
 int jit_run_script(JittedScriptInstance* j_instance)
 {
 	extern int32_t(*stack)[MAX_STACK_SIZE];
@@ -2043,7 +2072,9 @@ int jit_run_script(JittedScriptInstance* j_instance)
 	ptr[6] = (uintptr_t)&j_instance->wait_index;
 	ptr[7] = j_instance->script->pc;
 
+	jit_wasm_execution_depth++;
 	int return_code = em_poll_wasm_handle(j_instance->handle_id, (uintptr_t)&ptr);
+	jit_wasm_execution_depth--;
 
 	return return_code;
 }

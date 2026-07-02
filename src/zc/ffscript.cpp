@@ -9175,12 +9175,28 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 
 	script_funcrun = false;
 
+	// -jit-run-lo / -jit-run-hi: bisect tool. Each run_script call gets a monotonic index; only
+	// calls with index in [lo, hi) are allowed to use the JIT, all others run interpreted. Because
+	// the full script state is checkpointed in the script engine data after every run_script, JIT
+	// and interpreter runs are freely interchangeable per call - so binary-searching this range
+	// isolates exactly which run_script invocation must be jitted to reproduce a crash. Default
+	// hi<0 disables the limit (normal behavior).
+	static long rs_call_index_counter = 0;
+	long rs_call_index = rs_call_index_counter++;
+	static int jit_run_lo = get_flag_int("-jit-run-lo").value_or(0);
+	static int jit_run_hi = get_flag_int("-jit-run-hi").value_or(-1);
+	bool jit_bisect_allows_this_call = jit_run_hi < 0 || (rs_call_index >= jit_run_lo && rs_call_index < jit_run_hi);
+
 	JittedScriptInstance* j_instance = nullptr;
 	// When the debugger is open, run scripts through the interpreter so every command passes through
 	// the per-instruction hook in run_script_int (zscript_debugger_exec). The JIT executes most
 	// commands as native code and only re-enters the interpreter for uncompiled commands, so
 	// breakpoints and line stepping would otherwise only land on those few PCs.
-	if (jit_is_enabled() && !zscript_debugger_is_open())
+	//
+	// jit_can_start_script() guards nested script runs: on the wasm backend a script that runs
+	// another script mid-execution (e.g. an FFC running an enemy's script) would need a second
+	// asyncify unwind on top of the outer script's, which traps. Nested scripts run interpreted.
+	if (jit_is_enabled() && !zscript_debugger_is_open() && jit_can_start_script() && jit_bisect_allows_this_call)
 	{
 		if (!data.j_instance)
 			data.j_instance = std::shared_ptr<JittedScriptInstance>(jit_create_script_instance(curscript, ri));
@@ -9236,6 +9252,15 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 			// here instead, flagged by frozen_dest_reg != -1. Run the frozen script,
 			// write its result to the destination register, then resume. (On other
 			// backends frozen_dest_reg stays -1 and this never runs.)
+			//
+			// runGenericFrozenEngine below runs a whole frozen game frame (it advances
+			// the frame and runs FFCs/enemies), so scripts run nested here - the path
+			// that exposed the web-JIT nested-script crash. To reach this loop:
+			//
+			// python tests/run_replay_tests.py --build_folder build_emscripten/Release --filter terror_of_necromancy_demo6_05_of_54.zplay
+			//
+			// Without jit_can_start_script() (nested scripts run interpreted) that run
+			// traps with "unreachable" around frame 7998.
 			while (result == RUNSCRIPT_OK && j_instance->frozen_dest_reg != -1)
 			{
 				int32_t dest_reg = j_instance->frozen_dest_reg;

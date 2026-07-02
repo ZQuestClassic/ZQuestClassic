@@ -2869,6 +2869,13 @@ static bool exec_script(JittedExecutionContext* ctx)
 	}
 }
 
+bool jit_can_start_script()
+{
+	// The x64 backend runs jitted scripts as ordinary native calls, so nested
+	// jitted script execution is fine.
+	return true;
+}
+
 int jit_run_script(JittedScriptInstance* j_instance)
 {
 	// Commit any recently compiled functions.

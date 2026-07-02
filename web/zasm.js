@@ -103,7 +103,11 @@ export async function compileScriptWasmModule(name, ptr, size) {
   }
 }
 
-export async function createScriptWasmHandle(moduleId) {
+// Synchronous: does no async work, and is called (via em_create_wasm_handle) from
+// C++ run_script which may run nested inside an already-executing JIT'd script.
+// Returning a Promise here (async) would force the C++ side to use asyncify,
+// which cannot unwind through the outer JIT'd wasm frame. See em_create_wasm_handle.
+export function createScriptWasmHandle(moduleId) {
   assertMainThread();
 
   const instance = wasmInstances.get(moduleId);

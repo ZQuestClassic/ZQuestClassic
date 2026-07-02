@@ -15,6 +15,11 @@ int jit_run_script([[maybe_unused]] JittedScriptInstance* j_instance)
 	return RUNSCRIPT_ERROR;
 }
 
+bool jit_can_start_script()
+{
+	return true;
+}
+
 JittedScriptInstance* jit_create_script_impl([[maybe_unused]] script_data *script, [[maybe_unused]] refInfo* ri, [[maybe_unused]] JittedScript* j_script)
 {
 	return nullptr;
