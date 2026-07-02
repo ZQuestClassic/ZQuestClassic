@@ -102,25 +102,6 @@ else:
 replay_path = Path(args.replay_path)
 
 
-def find_index_containing(lines, str):
-    for i, line in enumerate(lines):
-        if str in line:
-            return i
-
-    raise Exception(f'did not find {str}')
-
-
-def find_last_index_containing(lines, str, n):
-    count = 0
-    for i, line in reversed(list(enumerate(lines))):
-        if str in line:
-            if count == n:
-                return i
-            count += 1
-
-    raise Exception(f'did not find {str}')
-
-
 def clear_dir(dir: Path):
     if dir.exists():
         shutil.rmtree(dir)
@@ -163,184 +144,182 @@ def copy_and_trim_zplay(from_path: Path, to_path: Path, frame_limit: int):
     to_path.write_text('\n'.join(lines))
 
 
-# Get the roundtrip file, cut it at the first failure, then find the last line denoting a script starting.
-# Then find the previous time that script was started. That frame is what we want.
-def find_frame_where_script_broke(test_results_folder: Path):
-    test_results = load_test_results(test_results_folder / 'test_results.json')
-    test_run = test_results.runs[-1][0]
-    roundtrip_path = next(
-        (test_results_folder / test_run.directory).glob('*.roundtrip')
-    )
-    roundtrip_lines = roundtrip_path.read_text().splitlines()
-    first_failure_index = find_index_containing(roundtrip_lines, '«')
-    first_failure = roundtrip_lines[first_failure_index]
-    print('first failure:', first_failure)
-    if 'result:' in first_failure or 'trace:' in first_failure:
-        # If the result of a script was different than expected, then the issue is not a
-        # prior frame but instead in the same frame as the failure frame.
-        type, frame, data = first_failure.split(' ', 2)
-        return int(frame)
-
-    roundtrip_lines = roundtrip_lines[0:first_failure_index]
-    last_index = find_last_index_containing(
-        roundtrip_lines, '=== running script type', 0
-    )
-    needle = roundtrip_lines[last_index].split('===')[1]
-    second_last_index = find_last_index_containing(roundtrip_lines, needle, 1)
-    type, frame, data = roundtrip_lines[second_last_index].split(' ', 2)
-    return int(frame)
-
-
-extra_args = (
-    '-jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
-)
-if args.test_this_script:
-    extra_args += ' -jit-runtime-debug-test-force-bug'
-test_results_folder_0 = root_dir / '.tmp/jit_runtime_debug_test_results_0'
-clear_dir(test_results_folder_0)
-p = run_replay(
-    [
+def run_replay_folder(
+    folder: Path, build: Path, jit_flag: str, extra: str, replay: Path, update=False
+):
+    """Runs one replay and returns (returncode, its RunResult)."""
+    clear_dir(folder)
+    a = [
         '--test_results_folder',
-        test_results_folder_0,
+        folder,
         '--build_folder',
-        build_folder,
-        '--jit',
+        build,
+        jit_flag,
         '--extra_args',
-        extra_args,
-        replay_path,
+        extra,
     ]
+    if update:
+        a.append('--update')
+    a.append(replay)
+    p = run_replay(a)
+    run = load_test_results(folder / 'test_results.json').runs[-1][0]
+    return p.returncode, run
+
+
+force_bug = ' -jit-runtime-debug-test-force-bug' if args.test_this_script else ''
+tmp = root_dir / '.tmp/jit_runtime_debug'
+tmp.mkdir(parents=True, exist_ok=True)
+
+# 1. Reproduce the failure with the JIT on.
+rc, detect = run_replay_folder(
+    tmp / 'detect',
+    build_folder,
+    '--jit',
+    f'-jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant{force_bug}',
+    replay_path,
 )
-if p.returncode == 0:
+if rc == 0:
     print('replay passed with JIT, nothing to debug')
     exit(0)
 
-test_results = load_test_results(test_results_folder_0 / 'test_results.json')
-failing_runs = [r for r in test_results.runs[-1] if not r.success]
+# 2. Trim the replay to the failing frame - every subsequent run stops there.
+frame = next((f for f in [detect.failing_frame, detect.frame] if f), 0)
+if not frame:
+    # A hard crash (e.g. the renderer process died) reports no failing frame;
+    # trimming to frame 0 would leave nothing to bisect. This tool only handles
+    # value miscompiles, where the replay asserts at a recorded frame.
+    print('no failing frame was recorded (a hard crash, not a value divergence?)')
+    print('this tool needs a replay that fails an assert; cannot proceed')
+    exit(1)
+trimmed = tmp / 'trimmed.zplay'
+print(f'failed around frame {frame}, trimming replay there')
+copy_and_trim_zplay(Path(detect.path), trimmed, frame)
 
-for run in failing_runs:
-    print('processing', run.name)
-    frame = next((f for f in [run.failing_frame, run.frame] if f), 0)
 
-    # Copy the failing replay, and update it with script-level runtime debugging.
-    test_zplay_path = root_dir / '.tmp/jit_runtime_debug_test_replay.zplay'
-    print(f'failed at frame {frame}, so cutting replay there')
-    copy_and_trim_zplay(Path(run.path), test_zplay_path, frame)
+# 3. Bisect for the FIRST run_script call whose jitted execution differs from the
+# interpreter - not the first that trips a replay assert (a benign early divergence is
+# more useful to see than the later point it happens to break the replay).
+#
+# Record the interpreter's per-script state as the baseline, then ask, per candidate:
+# does jitting calls [0, hi) make any script's state diverge from it? -jit-run-hi H lets
+# calls [0, H) use the JIT and forces the rest to the interpreter (state is checkpointed
+# after every run_script, so this is a clean split), and the answer is monotonic in H, so
+# it bisects.
+rc, _ = run_replay_folder(
+    tmp / 'baseline_state',
+    baseline_build_folder,
+    '--no-jit',
+    '-script-runtime-debug 1',
+    trimmed,
+    update=True,
+)
+if rc:
+    print('replay unexpectedly failed without JIT, cannot collect baseline')
+    exit(1)
 
-    extra_args = '-script-runtime-debug 1'
-    test_results_folder_1 = root_dir / '.tmp/jit_runtime_debug_test_results_1'
-    clear_dir(test_results_folder_1)
-    p = run_replay(
-        [
-            '--test_results_folder',
-            test_results_folder_1,
-            '--build_folder',
-            baseline_build_folder,
-            '--no-jit',
-            '--extra_args',
-            extra_args,
-            '--update',
-            test_zplay_path,
-        ]
+
+def diverges_with_hi(hi: int) -> bool:
+    rc, run = run_replay_folder(
+        tmp / 'bisect',
+        build_folder,
+        '--jit',
+        f'-jit-precompile -script-runtime-debug 1 -jit-run-hi {hi}{force_bug}',
+        trimmed,
     )
-    if p.returncode:
-        print('replay unexpectedly failed without JIT, cannot collect baseline')
-        exit(1)
+    roundtrip = next((tmp / 'bisect' / run.directory).glob('*.roundtrip'), None)
+    if roundtrip is None:
+        # A .roundtrip is only written when an assert fails, so a clean pass
+        # has none. A FAILED run with none died before writing it - a hard
+        # crash under this JIT split is as diverging as a value mismatch, so
+        # bisect toward it instead of silently counting the crash as a match.
+        if rc != 0:
+            print(f'-jit-run-hi {hi} crashed without a roundtrip; treating as divergence')
+            return True
+        return False
+    return '«' in roundtrip.read_text()
 
-    # Get failing JIT
-    extra_args = '-script-runtime-debug 1 -jit-precompile -replay-save-result-every-frame -replay-fail-assert-instant'
-    if args.test_this_script:
-        extra_args += ' -jit-runtime-debug-test-force-bug'
-    test_results_folder_2 = root_dir / '.tmp/jit_runtime_debug_test_results_2'
-    clear_dir(test_results_folder_2)
-    p = run_replay(
-        [
-            '--test_results_folder',
-            test_results_folder_2,
-            '--build_folder',
-            build_folder,
-            '--jit',
-            '--frame',
-            str(frame),
-            '--extra_args',
-            extra_args,
-            test_zplay_path,
-        ]
-    )
 
-    # The script runtime state was bad at failing_frame, which means execution in some previous
-    # frame is where things broke. We need to find the last time the bad script ran.
-    frame = find_frame_where_script_broke(test_results_folder_2)
-    print(f'script seems to have broken at frame: {frame}')
+print('bisecting which run_script call first diverges from the interpreter when jitted')
+hi = 1
+while not diverges_with_hi(hi):
+    hi *= 2
+    if hi > (1 << 30):
+        raise Exception('could not isolate a diverging run_script call')
+lo = hi // 2  # the previous power of two matched the interpreter (lo=0 when hi==1)
+while hi - lo > 1:
+    mid = (lo + hi) // 2
+    if diverges_with_hi(mid):
+        hi = mid
+    else:
+        lo = mid
+failing_call = hi - 1
+print(f'run_script call #{failing_call} is the first to diverge from the interpreter')
 
-    # Update the replay again, but with instruction-level runtime debugging.
-    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame}'
-    test_results_folder_3 = root_dir / '.tmp/jit_runtime_debug_test_results_3'
-    clear_dir(test_results_folder_3)
-    p = run_replay(
-        [
-            '--test_results_folder',
-            test_results_folder_3,
-            '--build_folder',
-            baseline_build_folder,
-            '--no-jit',
-            '--extra_args',
-            extra_args,
-            '--update',
-            test_zplay_path,
-        ]
-    )
-    if p.returncode:
-        print('replay unexpectedly failed without JIT, cannot collect baseline')
-        exit(1)
 
-    # Get failing JIT
-    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame} -jit-precompile -replay-fail-assert-instant'
-    if args.test_this_script:
-        extra_args += ' -jit-runtime-debug-test-force-bug'
-    test_results_folder_4 = root_dir / '.tmp/jit_runtime_debug_test_results_4'
-    clear_dir(test_results_folder_4)
-    p = run_replay(
-        [
-            '--test_results_folder',
-            test_results_folder_4,
-            '--build_folder',
-            build_folder,
-            '--jit',
-            # '--frame', str(frame),
-            '--extra_args',
-            extra_args,
-            test_zplay_path,
-        ]
-    )
-
-    test_results = load_test_results(test_results_folder_4 / 'test_results.json')
-    test_run = test_results.runs[-1][0]
-    roundtrip_path = next(
-        (test_results_folder_4 / test_run.directory).glob('*.roundtrip')
-    )
-    roundtrip_lines = roundtrip_path.read_text().splitlines()
-    bad_line_index = None
-    for i, line in enumerate(roundtrip_lines):
-        if '«' in line:
-            bad_line_index = i
+# 4. Find the frame that call runs on, to scope the per-instruction debug to it.
+rc, run = run_replay_folder(
+    tmp / 'find_frame',
+    build_folder,
+    '--jit',
+    f'-jit-precompile -jit-run-hi {failing_call + 1} -jit-run-log-call {failing_call}{force_bug}',
+    trimmed,
+)
+call_frame = None
+for name in ['stdout.txt', 'stderr.txt', 'allegro.log']:
+    log = tmp / 'find_frame' / run.directory / name
+    if log.exists():
+        m = re.search(r'\[jit-run-call\] call=\d+ frame=(\d+)', log.read_text())
+        if m:
+            call_frame = int(m.group(1))
             break
-    if bad_line_index == None:
-        raise Exception('did not find marker: «')
+if call_frame is None:
+    raise Exception('could not determine the frame of the failing call')
+print(f'call #{failing_call} runs on frame {call_frame}')
 
-    print('found first bad script failure:\n')
-    print(roundtrip_lines[bad_line_index - 2])
-    print(roundtrip_lines[bad_line_index - 1])
-    but_was, shoulda_been = roundtrip_lines[bad_line_index - 0].split('«')
-    print(f'shoulda been:\n\t{shoulda_been.strip()}\nbut was:\n\t{but_was.strip()}')
 
-    # Surface the ZScript source location of the miscompiled instruction.
-    source_match = re.search(r'(\S+\.z[sh]:\d+)', roundtrip_lines[bad_line_index])
-    if source_match:
-        print(f'\nmiscompiled instruction is at: {source_match.group(1)}')
+# 5. Instruction-level diff, but only for that one call. The interpreter baseline
+# (--update) records the expected per-instruction state at that frame; the JIT run
+# repeats it with ONLY the diverging call jitted (-jit-run-lo/-jit-run-hi).
+debug = f'-script-runtime-debug 2 -script-runtime-debug-frame {call_frame}'
+rc, _ = run_replay_folder(
+    tmp / 'baseline', baseline_build_folder, '--no-jit', debug, trimmed, update=True
+)
+if rc:
+    print('replay unexpectedly failed without JIT, cannot collect baseline')
+    exit(1)
 
-    print('\ntip: copy/paste this in an editor with word wrap off')
-    print()
-    print(f'for more, see {roundtrip_path}')
+rc, run = run_replay_folder(
+    tmp / 'jit_debug',
+    build_folder,
+    '--jit',
+    f'{debug} -jit-precompile -replay-fail-assert-instant'
+    f' -jit-run-lo {failing_call} -jit-run-hi {failing_call + 1}{force_bug}',
+    trimmed,
+)
 
-    # Only bother showing one bad thing at a time.
-    break
+roundtrip_path = next((tmp / 'jit_debug' / run.directory).glob('*.roundtrip'), None)
+if roundtrip_path is None:
+    raise Exception(
+        f'the isolated run produced no .roundtrip (exit code {rc}); call'
+        f' #{failing_call} likely crashes instead of desyncing - check the logs'
+        f' in {tmp / "jit_debug" / run.directory}'
+    )
+roundtrip_lines = roundtrip_path.read_text().splitlines()
+bad_line_index = next((i for i, l in enumerate(roundtrip_lines) if '«' in l), None)
+if bad_line_index is None:
+    raise Exception('did not find marker: «')
+
+print('found first bad script failure:\n')
+print(roundtrip_lines[bad_line_index - 2])
+print(roundtrip_lines[bad_line_index - 1])
+but_was, shoulda_been = roundtrip_lines[bad_line_index].split('«')
+print(f'shoulda been:\n\t{shoulda_been.strip()}\nbut was:\n\t{but_was.strip()}')
+
+# Surface the ZScript source location of the miscompiled instruction.
+source_match = re.search(r'(\S+\.z[sh]:\d+)', roundtrip_lines[bad_line_index])
+if source_match:
+    print(f'\nmiscompiled instruction is at: {source_match.group(1)}')
+
+print('\ntip: copy/paste this in an editor with word wrap off')
+print()
+print(f'for more, see {roundtrip_path}')

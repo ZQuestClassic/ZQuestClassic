@@ -9187,6 +9187,17 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	static int jit_run_hi = get_flag_int("-jit-run-hi").value_or(-1);
 	bool jit_bisect_allows_this_call = jit_run_hi < 0 || (rs_call_index >= jit_run_lo && rs_call_index < jit_run_hi);
 
+	// -jit-run-log-call N: report the frame (and script) a given run_script call runs on.
+	// Lets jit_runtime_debug.py, after bisecting -jit-run-hi to the failing call, target the
+	// per-instruction debug at that call's frame.
+	static int jit_run_log_call = get_flag_int("-jit-run-log-call").value_or(-1);
+	if (jit_run_log_call >= 0 && rs_call_index == jit_run_log_call)
+	{
+		al_trace("[jit-run-call] call=%ld frame=%d script=%s\n", rs_call_index, replay_get_frame(),
+			curscript ? curscript->name().c_str() : "?");
+		fflush(stdout);
+	}
+
 	JittedScriptInstance* j_instance = nullptr;
 	// When the debugger is open, run scripts through the interpreter so every command passes through
 	// the per-instruction hook in run_script_int (zscript_debugger_exec). The JIT executes most
