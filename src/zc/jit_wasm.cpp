@@ -3104,15 +3104,16 @@ JittedScript* jit_compile_script(zasm_script* script)
 
 	// STACKWRITEATVV_IF is not yet supported by the wasm codegen - always bail.
 	//
-	// RUNGENFRZSCR (generic frozen scripts) still has a resume-codegen desync on the
-	// wasm JIT (see terror_of_necromancy_demo6: rng desync at frame 9237, isolated to
-	// npc-6-Candlehead's WAITFRAME resume re-running its entry and leaking its stack
-	// frame), so bail on it for normal play - this is coarse, since any quest that
-	// uses generic frozen scripts compiles its whole @single chunk with it. The
-	// replay tests pass -no-jit-wasm-bail-on-frozen-generic so they actually exercise
-	// the wasm backend for that content. (The separate nested-script crash it used to
-	// hit is fixed - see jit_can_start_script / em_create_wasm_handle.)
-	static bool bail_on_frozen_generic = get_flag_bool("-jit-wasm-bail-on-frozen-generic").value_or(true);
+	// RUNGENFRZSCR (generic frozen scripts) used to bail to the interpreter by
+	// default: quests using it hit a nested-script crash (fixed - see
+	// jit_can_start_script / em_create_wasm_handle) and then an rng desync in
+	// terror_of_necromancy_demo6 (fixed - a script that started on the interpreter
+	// was later adopted mid-run by the JIT, restarting it; see
+	// jit_create_script_impl). With both fixed the JIT handles this content, so
+	// the bail is off by default; -jit-wasm-bail-on-frozen-generic remains as an
+	// escape hatch. It is coarse: any quest using generic frozen scripts compiles
+	// its whole @single chunk with it.
+	static bool bail_on_frozen_generic = get_flag_bool("-jit-wasm-bail-on-frozen-generic").value_or(false);
 	for (size_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
