@@ -2222,6 +2222,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 
 	WasmAssembler wasm;
 	state.wasm = &wasm;
+	wasm.reserve((final_pc - start_pc + 1) * 24); // see compile_function
 
 	// Load sp into its local (see l_idx_sp_local).
 	emit_sp_reload(state);
@@ -2697,11 +2698,16 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
 
 	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
+	size_t num_instructions = 0;
 	for (auto fn_id : function_ids)
 	{
 		auto& fn = structured_zasm.functions[fn_id];
 		pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
+		num_instructions += fn.final_pc - fn.start_pc + 1;
 	}
+	// ~24 bytes of wasm per ZASM instruction (measured); over-reserving is fine,
+	// the buffer is freed right after the module is assembled.
+	wasm.reserve(num_instructions * 24);
 	auto cfg = zasm_construct_cfg(script, pc_ranges);
 
 	// Record where the yielder can be resumed, for adopting mid-run scripts

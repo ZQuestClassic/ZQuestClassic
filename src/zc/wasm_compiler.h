@@ -41,7 +41,10 @@ struct WasmFunc {
 struct WasmWriter {
   std::vector<uint8_t> code;
 
-  std::vector<uint8_t> finish() { return code; }
+  // Moves, not copies: the writer is dead after finish(), and these buffers
+  // can be megabytes (a whole @single chunk's yielder).
+  std::vector<uint8_t> finish() { return std::move(code); }
+  void reserve(size_t bytes) { code.reserve(bytes); }
   void emit(uint8_t byte) { code.push_back(byte); }
 
   void emitVarU32(uint32_t i) {
@@ -547,6 +550,10 @@ struct WasmModuleWriter : WasmWriter {
     emitSectionId(SectionId::Code);
     size_t patchLoc = emitPatchableVarU32();
     size_t start = code.size();
+    size_t total_bytes = 0;
+    for (const auto &func : funcs)
+      total_bytes += func.code.size() + 16;
+    code.reserve(code.size() + total_bytes);
     emitVarU32(funcs.size());
     for (const auto &func : funcs) {
       std::vector<uint8_t> locals = encodeLocals(func.locals);
