@@ -438,42 +438,42 @@ static bool command_is_compiled(int command)
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
-	// case ABS:
+	case ABS:
 	case ADDR:
 	case ADDV:
-	// case ANDR:
-	// case ANDV:
+	case ANDR:
+	case ANDV:
 	case CASTBOOLF:
 	case CASTBOOLI:
-	// case CEILING:
+	case CEILING:
 	case DIVR:
 	case DIVV:
-	// case FLOOR:
+	case FLOOR:
 	case LOAD:
 	case LOADD:
-	// case LOADI:
-	// case MAXR:
-	// case MAXV:
-	// case MINR:
-	// case MINV:
+	case LOADI:
+	case MAXR:
+	case MAXV:
+	case MINR:
+	case MINV:
 	case MODR:
 	case MODV:
 	case MULTR:
 	case MULTV:
 	case NOP:
-	// case ORR:
-	// case ORR32:
-	// case ORV:
-	// case ORV32:
+	case ORR:
+	case ORR32:
+	case ORV:
+	case ORV32:
 	case PEEK:
 	case SETR:
 	case SETV:
 	case STORE:
 	case STORED:
-	// case STOREI:
+	case STOREI:
 	case SUBR:
 	case SUBV:
-	// case SUBV2:
+	case SUBV2:
 	case BITNOT:
 	case BITNOT32:
 	case LSHIFTV:
@@ -751,6 +751,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
 
 	uint8_t l_idx_scratch = 0;
+	// Second scratch, for two-operand commands (MIN/MAX). Shares local 1 with
+	// compile_comparison's operand snapshot - never live at the same time, since
+	// a comparison's consumers immediately follow it.
+	uint8_t l_idx_scratch2 = 1;
 
 	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
 	for (auto fn_id : function_ids)
@@ -1471,6 +1475,170 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						wasm.emitI32Const(arg2);
 						wasm.emitI32Sub();
 					});
+				}
+				break;
+				case SUBV2:
+				{
+					// reg = arg1 - reg (note: the destination is arg2).
+					set_z_register(state, arg2, [&](){
+						wasm.emitI32Const(arg1);
+						get_z_register(state, arg2);
+						wasm.emitI32Sub();
+					});
+				}
+				break;
+
+				case ABS:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitLocalSet(l_idx_scratch);
+						// val < 0 ? -val : val
+						wasm.emitI32Const(0);
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitI32Sub();
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitI32Const(0);
+						wasm.emitI32LtS();
+						wasm.emitSelect();
+					});
+				}
+				break;
+
+				case MINR:
+				case MINV:
+				case MAXR:
+				case MAXV:
+				{
+					bool is_min = command == MINR || command == MINV;
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitLocalSet(l_idx_scratch);
+						if (command == MINR || command == MAXR)
+							get_z_register(state, arg2);
+						else
+							wasm.emitI32Const(arg2);
+						wasm.emitLocalSet(l_idx_scratch2);
+
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitLocalGet(l_idx_scratch2);
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitLocalGet(l_idx_scratch2);
+						if (is_min)
+							wasm.emitI32LtS();
+						else
+							wasm.emitI32GtS();
+						wasm.emitSelect();
+					});
+				}
+				break;
+
+				// AND/OR operate on the integer part: (a/10000 OP b/10000) * 10000.
+				case ANDR:
+				case ANDV:
+				case ORR:
+				case ORV:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						if (command == ANDR || command == ORR)
+						{
+							get_z_register(state, arg2);
+							wasm.emitI32Const(10000);
+							wasm.emitI32DivS();
+						}
+						else
+							wasm.emitI32Const(arg2 / 10000);
+						if (command == ANDR || command == ANDV)
+							wasm.emitI32And();
+						else
+							wasm.emitI32Or();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+				case ORR32:
+				case ORV32:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						if (command == ORR32)
+							get_z_register(state, arg2);
+						else
+							wasm.emitI32Const(arg2);
+						wasm.emitI32Or();
+					});
+				}
+				break;
+
+				// FLOOR/CEILING round the fixed-point value to a whole number
+				// (a multiple of 10000), toward -/+ infinity. Matches zfix
+				// getFloor/getCeil: q = val/10000 (truncating), then adjust q by
+				// one when there is a remainder in the rounding direction.
+				case FLOOR:
+				case CEILING:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitLocalTee(l_idx_scratch);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						// (val % 10000 != 0) & (val < 0 for floor / val > 0 for ceil)
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitI32Const(10000);
+						wasm.emitI32RemS();
+						wasm.emitI32Const(0);
+						wasm.emitI32Ne();
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitI32Const(0);
+						if (command == FLOOR)
+							wasm.emitI32LtS();
+						else
+							wasm.emitI32GtS();
+						wasm.emitI32And();
+						if (command == FLOOR)
+							wasm.emitI32Sub();
+						else
+							wasm.emitI32Add();
+						wasm.emitI32Const(10000);
+						wasm.emitI32Mul();
+					});
+				}
+				break;
+
+				case LOADI:
+				{
+					// Stack[reg[arg2] / 10000] -> Reg[arg1]
+					// Like the x64 JIT (but unlike the interpreter), no stack
+					// bounds check - same as the LOAD/STORE family above.
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg2);
+						wasm.emitI32Const(10000);
+						wasm.emitI32DivS();
+						wasm.emitI32Const(4);
+						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+						wasm.emitGlobalGet(g_idx_stack);
+						wasm.emitI32Add();
+						wasm.emitI32Load();
+					});
+				}
+				break;
+				case STOREI:
+				{
+					// Reg[arg1] -> Stack[reg[arg2] / 10000]
+					get_z_register(state, arg2);
+					wasm.emitI32Const(10000);
+					wasm.emitI32DivS();
+					wasm.emitI32Const(4);
+					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+					wasm.emitGlobalGet(g_idx_stack);
+					wasm.emitI32Add();
+					get_z_register(state, arg1);
+					wasm.emitI32Store();
 				}
 				break;
 
