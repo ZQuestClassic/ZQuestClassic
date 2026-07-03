@@ -43,8 +43,8 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <optional>
+#include <set>
 #include <stdint.h>
 
 #ifdef __EMSCRIPTEN__
@@ -415,7 +415,11 @@ static void get_z_register(CompilationState& state, int r)
 	}
 }
 
-static void set_z_register(CompilationState& state, int r, std::function<void()> fn)
+// fn is a template (not std::function) so the per-command capturing lambdas
+// don't heap-allocate - this is called for nearly every compiled instruction,
+// and the allocations dominated compile-time profiles.
+template <typename F>
+static void set_z_register(CompilationState& state, int r, F&& fn)
 {
 	if (r >= D(0) && r < D(INITIAL_D))
 	{
