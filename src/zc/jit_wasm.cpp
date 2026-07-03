@@ -2506,17 +2506,14 @@ static bool emit_yielder_region(CompilationState& state, const zasm_script* scri
 
 // Finds the yielder's eligible loops. Conservative by construction: anything
 // rejected simply stays on the loop-switch.
-static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
+// Dispatch entry points: blocks the yielder's br_table can be asked to land on
+// at runtime - function and script entries, wait/RUNGENFRZSCR resume points,
+// and the return continuations of calls to yielding functions. Yielder regions
+// must not absorb these (see detect_yielder_regions), and every pc the
+// interpreter can be resumed at maps to one, which is what lets a mid-run
+// script be adopted by the JIT (see jit_create_script_impl).
+static std::set<pc_t> compute_dispatch_entries(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
 {
-	pc_t num_blocks = cfg.block_starts.size();
-	auto block_final = [&](pc_t b) -> pc_t {
-		return b + 1 < num_blocks ? cfg.block_starts[b + 1] - 1 : cfg.final_pc;
-	};
-
-	// Dispatch entry points: blocks the br_table can be asked to land on at
-	// runtime. They must keep their scaffold frames, so no region may absorb
-	// them (a region may still *start* at one - dispatching to the header
-	// lands at the top of the structured loop).
 	std::set<pc_t> dispatch_entries;
 	for (auto [start_pc, final_pc] : pc_ranges)
 		dispatch_entries.insert(cfg.block_id_from_start_pc(start_pc));
@@ -2539,6 +2536,20 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 				dispatch_entries.insert(cfg.block_id_from_start_pc(i + 1));
 		}
 	}
+	return dispatch_entries;
+}
+
+static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
+{
+	pc_t num_blocks = cfg.block_starts.size();
+	auto block_final = [&](pc_t b) -> pc_t {
+		return b + 1 < num_blocks ? cfg.block_starts[b + 1] - 1 : cfg.final_pc;
+	};
+
+	// These must keep their scaffold frames, so no region may absorb them (a
+	// region may still *start* at one - dispatching to the header lands at the
+	// top of the structured loop).
+	std::set<pc_t> dispatch_entries = compute_dispatch_entries(script, structured_zasm, cfg, pc_ranges);
 
 	// Candidate loops: for each backward edge b -> h, take the largest such b
 	// per header h. Also record each block's predecessor bounds; the
@@ -2671,7 +2682,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 	return plans;
 }
 
-static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
+static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield, std::map<pc_t, uint32_t>* resume_dispatch_out = nullptr)
 {
 	WasmAssembler wasm;
 	state.wasm = &wasm;
@@ -2688,6 +2699,13 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 		pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
 	}
 	auto cfg = zasm_construct_cfg(script, pc_ranges);
+
+	// Record where the yielder can be resumed, for adopting mid-run scripts
+	// (see jit_create_script_impl). Dispatch values are (cfg block id + 1),
+	// matching what the wait/call codegen below stores.
+	if (may_yield && resume_dispatch_out)
+		for (pc_t b : compute_dispatch_entries(script, structured_zasm, cfg, pc_ranges))
+			(*resume_dispatch_out)[cfg.block_starts[b]] = b + 1;
 
 	// All control flow is converted to a simple, but slow, loop-switch construct: a giant switch case,
 	// implemented with "loop", "br_table", and a "block" for every block in the CFG.
@@ -3211,10 +3229,11 @@ JittedScript* jit_compile_script(zasm_script* script)
 
 	// First compile the "yielder" function, which inlines all the ZASM functions that may possibly yield.
 	// There may be no yielding function, in which case the script will run fully in a single execution.
+	std::map<pc_t, uint32_t> resume_dispatch;
 	if (!yielding_fns.empty())
 	{
 		bool may_yield = true;
-		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield);
+		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield, &resume_dispatch);
 		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
@@ -3391,12 +3410,67 @@ JittedScript* jit_compile_script(zasm_script* script)
 		return nullptr;
 	}
 
-	auto fn = new JittedScript(module_id);
+	auto fn = new JittedScript{module_id};
+	fn->resume_dispatch = std::move(resume_dispatch);
 	return fn;
 }
 
 JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script)
 {
+	// A fresh instance resumes from its own wait_index / call_stack_rets state,
+	// which points at the script's entry - correct only for a script that has not
+	// run yet. A script can also be mid-run here: it started on the interpreter,
+	// nested inside another executing jitted script (see jit_can_start_script),
+	// and this is a later slice. Adopting it with entry state would re-run the
+	// entry on top of the stack frame the interpreter already pushed, corrupting
+	// the script (this was the terror_of_necromancy rng desync). Instead,
+	// translate the interpreter's resume state: at a yield, ri->pc and every live
+	// ret_stack entry are wait/RUNGENFRZSCR resume points or yielding-call return
+	// continuations - all dispatchable yielder blocks (see
+	// compute_dispatch_entries). If anything doesn't map, decline and the script
+	// just finishes its run on the interpreter. (The x64 backend needs none of
+	// this: it dispatches on ri->pc and shares the interpreter's ret_stack.)
+	//
+	// ri->pc == script->pc exactly when the script has not run yet: it is set to
+	// the entry when the script instance is first initialized, and no later wait
+	// can yield with the pc back at the entry.
+	uint32_t adopted_wait_index = 0;
+	uint32_t adopted_ret_index = 0;
+	pc_t adopted_rets[MAX_CALL_FRAMES];
+	if (ri->pc != script->pc)
+	{
+		extern int32_t(*ret_stack)[MAX_CALL_FRAMES];
+
+		auto decline = [&](pc_t pc) -> JittedScriptInstance* {
+			// Should not happen (every interpreter yield point is a dispatch
+			// entry) - error so -jit-fatal-compile-errors runs (CI) fail hard.
+			// Log once per script: this is retried every slice for the rest of
+			// the run.
+			static std::set<std::string> logged;
+			if (logged.insert(script->name()).second)
+				error(script->zasm_script.get(), fmt::format("cannot adopt mid-run script (unmapped resume pc {}): {}", (int)pc, script->name()));
+			return nullptr;
+		};
+
+		auto it = j_script->resume_dispatch.find(ri->pc);
+		if (it == j_script->resume_dispatch.end())
+			return decline(ri->pc);
+		adopted_wait_index = it->second;
+
+		if (ri->retsp > MAX_CALL_FRAMES)
+			return decline(ri->pc);
+		for (; adopted_ret_index < ri->retsp; adopted_ret_index++)
+		{
+			pc_t ret_pc = (*ret_stack)[adopted_ret_index];
+			auto rit = j_script->resume_dispatch.find(ret_pc);
+			if (rit == j_script->resume_dispatch.end())
+				return decline(ret_pc);
+			adopted_rets[adopted_ret_index] = rit->second;
+		}
+
+		jit_printf("[jit] adopting mid-run script: %s pc: %d depth: %d\n", script->name().c_str(), (int)ri->pc, (int)ri->retsp);
+	}
+
 	int handle_id = em_create_wasm_handle(j_script->module_id);
 	if (!handle_id)
 	{
@@ -3404,12 +3478,17 @@ JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, J
 		return nullptr;
 	}
 
-	return new JittedScriptInstance{
+	auto j_instance = new JittedScriptInstance{
 		.j_script = j_script,
 		.script = script,
 		.ri = ri,
 		.handle_id = handle_id,
 	};
+	j_instance->wait_index = adopted_wait_index;
+	j_instance->call_stack_ret_index = adopted_ret_index;
+	for (uint32_t k = 0; k < adopted_ret_index; k++)
+		j_instance->call_stack_rets[k] = adopted_rets[k];
+	return j_instance;
 }
 
 void jit_profiler_increment_function_back_edge([[maybe_unused]] JittedScriptInstance* j_instance, [[maybe_unused]] pc_t pc)

@@ -4,10 +4,16 @@
 #include "core/zdefs.h"
 #include "components/zasm/pc.h"
 #include <cstdint>
+#include <map>
 
 struct JittedScript
 {
 	int module_id;
+	// pc -> the yielder's dispatch value (cfg block id + 1) for every block its
+	// br_table can be asked to land on at runtime (see compute_dispatch_entries).
+	// Used to adopt a script mid-run: the interpreter's resume pc and live
+	// ret_stack entries translate through this into wait_index/call_stack_rets.
+	std::map<pc_t, uint32_t> resume_dispatch;
 };
 
 struct JittedScriptInstance

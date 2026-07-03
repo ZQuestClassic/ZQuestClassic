@@ -9176,11 +9176,16 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	script_funcrun = false;
 
 	// -jit-run-lo / -jit-run-hi: bisect tool. Each run_script call gets a monotonic index; only
-	// calls with index in [lo, hi) are allowed to use the JIT, all others run interpreted. Because
-	// the full script state is checkpointed in the script engine data after every run_script, JIT
-	// and interpreter runs are freely interchangeable per call - so binary-searching this range
-	// isolates exactly which run_script invocation must be jitted to reproduce a crash. Default
-	// hi<0 disables the limit (normal behavior).
+	// calls with index in [lo, hi) are allowed to use the JIT, all others run interpreted.
+	// Binary-searching this range isolates which run_script invocation must be jitted to
+	// reproduce a JIT divergence. Default hi<0 disables the limit (normal behavior).
+	//
+	// A script is NOT freely interchangeable between backends mid-run: the wasm backend resumes
+	// from its own instance state, not ri->pc, so it refuses to adopt a script that already ran
+	// interpreter slices (see jit_create_script_impl) - with -jit-run-lo, such scripts simply
+	// finish their run interpreted. The reverse (a jitted script forced to the interpreter by
+	// -jit-run-hi) resumes from ri->pc, which is only fully correct when the script last yielded
+	// at its top level (the JIT does not maintain ri->retsp unless stack traces are on).
 	static long rs_call_index_counter = 0;
 	long rs_call_index = rs_call_index_counter++;
 	static int jit_run_lo = get_flag_int("-jit-run-lo").value_or(0);
