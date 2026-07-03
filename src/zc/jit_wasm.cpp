@@ -921,7 +921,9 @@ static pc_t compile_comparison(CompilationState& state, const zasm_script* scrip
 
 	for (pc_t cj : g.consumers)
 	{
-		if (cfg.contains_block_start(cj))
+		// O(1) equivalent of cfg.contains_block_start(cj): during block b's body
+		// current_block_index == b + 1 (see compile_function).
+		if (current_block_index < cfg.block_starts.size() && cfg.block_starts[current_block_index] == cj)
 		{
 			// Consumer blocks are never absorbed into a structured region
 			// (detect_yielder_regions drops any region a run leaks into), so
@@ -2842,13 +2844,21 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	// dispatch loop's branch depth from anywhere is num_frames - current_rank.
 	int current_rank = 0;
 
+	// During block b's body current_block_index == b + 1, so the next block
+	// start is always block_starts[current_block_index] - an O(1) check in this
+	// per-instruction loop, where contains_block_start's out-of-line binary
+	// search showed up in compile-time profiles.
+	auto next_block_start = [&]() -> pc_t {
+		return current_block_index < num_blocks ? cfg.block_starts[current_block_index] : (pc_t)-1;
+	};
+
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
 			state.pc = i;
 
-			if (cfg.contains_block_start(i))
+			if (i == next_block_start())
 			{
 				wasm.emitEnd();
 				current_block_index += 1;
@@ -2936,11 +2946,11 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				// Every command that is not compiled to WASM must go through the regular interpreter function.
 				// In order to reduce function call overhead, we call into the interpreter function in batches.
 				int uncompiled_command_count = 1;
-				for (int j = i + 1; j < script->size; j++)
+				for (pc_t j = i + 1; j < (pc_t)script->size; j++)
 				{
 					if (command_is_compiled(script->zasm[j].command))
 						break;
-					if (cfg.contains_block_start(j))
+					if (j == next_block_start()) // O(1) contains_block_start; see above
 						break;
 
 					uncompiled_command_count += 1;
