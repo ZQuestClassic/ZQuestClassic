@@ -110,6 +110,17 @@ async function runReplay(zplay) {
 
   await consoleListener.waitFor(/Replay is active/);
 
+  // PROFILE=1 records a V8 CPU profile of the replay (from this point, so
+  // load/compile time is excluded) and writes <output>/profile.cpuprofile.
+  // Wasm frames are named thanks to the script modules' name section.
+  let profilerSession;
+  if (process.env.PROFILE) {
+    profilerSession = await page.createCDPSession();
+    await profilerSession.send('Profiler.enable');
+    await profilerSession.send('Profiler.setSamplingInterval', { interval: 100 });
+    await profilerSession.send('Profiler.start');
+  }
+
   async function getResultFile() {
     const result = await page.evaluate((zplay) => {
       if (!FS.findObject(`${zplay}.result.txt`)) {
@@ -126,6 +137,13 @@ async function runReplay(zplay) {
     await getResultFile();
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
+
+  if (profilerSession) {
+    const { profile } = await profilerSession.send('Profiler.stop');
+    fs.writeFileSync(`${outputFolder}/profile.cpuprofile`, JSON.stringify(profile));
+    process.stderr.write(`wrote ${outputFolder}/profile.cpuprofile\n`);
+  }
+
   await new Promise(resolve => setTimeout(resolve, 1000));
   await getResultFile();
 
