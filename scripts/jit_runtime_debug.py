@@ -10,6 +10,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 
@@ -107,15 +108,49 @@ def clear_dir(dir: Path):
         shutil.rmtree(dir)
 
 
-def run_replay(args: list[str]):
-    return subprocess.run(
-        [
-            sys.executable,
-            root_dir / 'tests/run_replay_tests.py',
-            '--no_report_on_failure',
-            *args,
-        ]
-    )
+def run_replay(args: list[str], timeout_s=1200, attempts=2):
+    # A hung web run (the harness has been observed blocking forever after the
+    # engine exits) must not stall a whole bisect: kill the process group after
+    # a generous timeout and retry once.
+    cmd = [
+        sys.executable,
+        str(root_dir / 'tests/run_replay_tests.py'),
+        '--no_report_on_failure',
+        *[str(a) for a in args],
+    ]
+    for attempt in range(attempts):
+        p = subprocess.Popen(cmd, start_new_session=True)
+        try:
+            p.wait(timeout=timeout_s)
+            return p
+        except subprocess.TimeoutExpired:
+            print(f'replay run timed out after {timeout_s}s; killing (attempt {attempt + 1}/{attempts})')
+            try:
+                os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            p.wait()
+            kill_orphans()
+    raise Exception(f'replay run timed out {attempts} times')
+
+
+def kill_orphans():
+    # Clean up what the group kill can miss (detached browser, webserver holding
+    # port 8000) - but only processes actually orphaned by that kill (ppid 1), so
+    # a concurrent replay session or dev server on this machine is left alone.
+    ps = subprocess.run(
+        ['ps', '-eo', 'pid=,ppid=,command='], capture_output=True, text=True
+    ).stdout
+    for line in ps.splitlines():
+        parts = line.split(None, 2)
+        if len(parts) != 3:
+            continue
+        pid, ppid, command = parts
+        if ppid == '1' and ('Chrome for Testing' in command or 'webserver.mjs' in command):
+            try:
+                os.kill(int(pid), signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                pass
 
 
 def load_test_results(path: Path):

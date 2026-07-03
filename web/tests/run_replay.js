@@ -94,8 +94,11 @@ async function runReplay(zplay) {
       'Assert failed',
     ];
     if (bad.some(t => text.includes(t))) {
-      browser.close().catch(() => {});
-      process.exit(1);
+      // Close the browser BEFORE exiting: exiting immediately orphans Chrome,
+      // which keeps our inherited stdout pipe open forever - the parent test
+      // harness then blocks reading it until someone kills Chrome.
+      browser.close().catch(() => {}).finally(() => process.exit(1));
+      setTimeout(() => process.exit(1), 5000);
     }
   });
 
