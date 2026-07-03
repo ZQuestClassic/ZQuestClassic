@@ -32,7 +32,19 @@
 #include <cassert>
 #include <algorithm>
 
-enum class Term { Exit, Uncond, Cond };
+enum class Term {
+		Exit,
+		Uncond,
+		Cond,
+		// The block transfers to a target only reachable through an enclosing
+		// dispatch (loop-switch) that the structured region is nested inside - a
+		// suspension/return/cross-region edge. The structurer emits the body, then
+		// calls emit_dispatch(node, ctx_depth); the sink sets the dispatch target
+		// id and branches out of the region (ctx_depth = how many frames the
+		// structurer currently has open, so the sink can compute the total branch
+		// depth to the dispatch loop). Like Exit, it has no in-region successors.
+		Dispatch,
+};
 
 struct BlockInfo {
 		Term term = Term::Exit;
@@ -55,6 +67,9 @@ struct StructSink {
 		virtual void emit_i32_eqz()       = 0;    // wasm.emitI32Eqz()
 		virtual void emit_body(int block) = 0;    // your straight-line lowering
 		virtual void emit_cond(int block) = 0;    // your compare -> i32 on stack
+		// Term::Dispatch only: set the dispatch target and branch out of the
+		// region. ctx_depth = frames the structurer has open at this point.
+		virtual void emit_dispatch(int block, int ctx_depth) = 0;
 };
 
 class WasmStructurer {
@@ -100,9 +115,10 @@ private:
 
 		static std::vector<int> succs_of(const BlockInfo& b) {
 				switch (b.term) {
-						case Term::Exit:   return {};
-						case Term::Uncond: return {b.succ_true};
-						case Term::Cond:   return {b.succ_true, b.succ_false};
+						case Term::Exit:     return {};
+						case Term::Dispatch: return {};
+						case Term::Uncond:   return {b.succ_true};
+						case Term::Cond:     return {b.succ_true, b.succ_false};
 				}
 				return {};
 		}
@@ -289,6 +305,9 @@ private:
 				switch (bi.term) {
 						case Term::Exit:
 								// emit_body already emitted the trap/return.
+								break;
+						case Term::Dispatch:
+								sink.emit_dispatch(node, (int)ctx.size());
 								break;
 						case Term::Uncond:
 								do_branch(node, bi.succ_true);

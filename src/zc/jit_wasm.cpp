@@ -744,8 +744,10 @@ static void emit_cmp_goto_value(CompilationState& state, const zasm_script* scri
 // Compiles a comparison command at `i` together with every consumer, for the
 // loop-switch lowering. Returns the pc of the last command consumed (the
 // caller's loop advances past it); for a loose compare with no consumer,
-// returns `i`.
-static pc_t compile_comparison(CompilationState& state, const zasm_script* script, const ZasmCFG& cfg, pc_t num_blocks, pc_t& current_block_index, pc_t i)
+// returns `i`. num_frames/current_rank/current_block_index are the caller's
+// scaffold trackers (see compile_function); a consumer run may cross block
+// boundaries, which closes scaffold frames.
+static pc_t compile_comparison(CompilationState& state, const zasm_script* script, const ZasmCFG& cfg, int num_frames, int& current_rank, pc_t& current_block_index, pc_t i)
 {
 	WasmAssembler& wasm = *state.wasm;
 
@@ -762,8 +764,12 @@ static pc_t compile_comparison(CompilationState& state, const zasm_script* scrip
 	{
 		if (cfg.contains_block_start(cj))
 		{
+			// Consumer blocks are never absorbed into a structured region
+			// (detect_yielder_regions drops any region a run leaks into), so
+			// every one of these has a scaffold frame.
 			wasm.emitEnd();
 			current_block_index += 1;
+			current_rank += 1;
 		}
 
 		int cc = script->zasm[cj].command;
@@ -785,7 +791,7 @@ static pc_t compile_comparison(CompilationState& state, const zasm_script* scrip
 			size_t target_block_index = cfg.block_id_from_start_pc(script->zasm[cj].arg1) + 1;
 			wasm.emitI32Const(target_block_index);
 			wasm.emitGlobalSet(state.g_idx_target_block_id);
-			wasm.emitBrIf(num_blocks - current_block_index);
+			wasm.emitBrIf(num_frames - current_rank);
 		}
 		else
 		{
@@ -1681,9 +1687,31 @@ struct StructuredFnSink : StructSink
 	// init scripts have no QUIT) runs the script-end 0xFFFF handling.
 	bool ffff_tail;
 
+	// Term::Dispatch support, used only when this sink emits a structured
+	// region nested inside the yielder's loop-switch (see YielderRegionPlan).
+	// A dispatch terminator sets g_idx_target_block_id and branches out to the
+	// enclosing dispatch loop.
+	struct DispatchDesc
+	{
+		// The value stored into g_idx_target_block_id: global cfg block id + 1.
+		// Unused when is_return (RETURNFUNC computes the target at runtime).
+		int value = -1;
+		// The terminator instruction's pc, for the debug marker / trace call.
+		pc_t pc = 0;
+		bool is_return = false;
+		bool emit_debug = false;
+	};
+	// local block id -> descriptor. Null for non-yielder functions.
+	const std::map<int, DispatchDesc>* dispatches = nullptr;
+	// Depth of the enclosing dispatch loop from the region's scaffold position
+	// (the structurer's live frame count is added per-branch).
+	int dispatch_base_depth = 0;
+	// Blocks >= this are synthesized dispatch trampolines with no body.
+	int num_real_blocks = 0;
+
 	pc_t block_final(int b) const
 	{
-		return b + 1 < (int)starts->size() ? (*starts)[b + 1] - 1 : final_pc;
+		return b + 1 < (int)num_real_blocks ? (*starts)[b + 1] - 1 : final_pc;
 	}
 
 	void emit_block(int) override { state->wasm->emitBlock(); }
@@ -1698,6 +1726,10 @@ struct StructuredFnSink : StructSink
 	void emit_body(int b) override
 	{
 		WasmAssembler& wasm = *state->wasm;
+
+		// Synthesized dispatch trampolines have no body.
+		if (b >= num_real_blocks)
+			return;
 
 		for (int i = (*starts)[b]; i <= (*body_last)[b]; i++)
 		{
@@ -1818,6 +1850,68 @@ struct StructuredFnSink : StructSink
 		pc_t term_pc = block_final(b);
 		state->pc = term_pc;
 		emit_cmp_goto_value(*state, script, cmp_groups->at(consumer_to_cmp->at(term_pc)), term_pc);
+	}
+
+	void emit_dispatch(int b, int ctx_depth) override
+	{
+		// Only the yielder's structured regions use Term::Dispatch; a
+		// non-yielding function has no dispatch to branch to.
+		CHECK(dispatches);
+		WasmAssembler& wasm = *state->wasm;
+		const DispatchDesc& d = dispatches->at(b);
+
+		if (d.emit_debug)
+		{
+			state->pc = d.pc;
+#ifndef NDEBUG
+			wasm.emitI32Const(d.pc);
+			wasm.emitDrop();
+#endif
+			if (state->runtime_debugging)
+			{
+				wasm.emitI32Const(d.pc);
+				wasm.emitGlobalGet(state->g_idx_sp);
+				wasm.emitCall(state->f_idx_runtime_debug);
+			}
+		}
+
+		if (d.is_return)
+		{
+			// The yielder RETURNFUNC lowering (see compile_function): a return
+			// at the root call frame ends the script; otherwise pop the
+			// continuation block id from the return stack and dispatch to it.
+			wasm.emitGlobalGet(state->g_idx_ret_stack_index);
+			wasm.emitI32Eqz();
+			wasm.emitIf();
+			{
+				wasm.emitI32Const(RUNSCRIPT_JIT_QUIT);
+				wasm.emitCall(state->f_idx_set_return_value);
+				wasm.emitUnreachable();
+			}
+			wasm.emitEnd();
+
+			// g_idx_ret_stack_index -= 1
+			modify_global_idx(wasm, state->g_idx_ret_stack_index, -1);
+			emit_trace_call_stack_pop(*state);
+
+			// g_idx_ret_stack[g_idx_ret_stack_index]
+			wasm.emitGlobalGet(state->g_idx_ret_stack);
+			wasm.emitGlobalGet(state->g_idx_ret_stack_index);
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul();
+			wasm.emitI32Add();
+			wasm.emitI32Load(0);
+
+			wasm.emitGlobalSet(state->g_idx_target_block_id);
+		}
+		else
+		{
+			wasm.emitI32Const(d.value);
+			wasm.emitGlobalSet(state->g_idx_target_block_id);
+		}
+
+		// Branch out to the enclosing dispatch loop.
+		wasm.emitBr(dispatch_base_depth + ctx_depth);
 	}
 };
 
@@ -1976,6 +2070,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	sink.consumer_to_cmp = &consumer_to_cmp;
 	sink.final_pc = final_pc;
 	sink.ffff_tail = ffff_tail;
+	sink.num_real_blocks = n;
 
 	// Irreducibility is detected before anything is emitted.
 	WasmStructurer structurer(n, 0, infos, sink);
@@ -1985,6 +2080,419 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	wasm.emitEnd(); // Function end.
 
 	return wasm;
+}
+
+// Yielder loop structuring.
+//
+// The yielder must keep the loop-switch for its call/return/resume edges
+// (runtime-valued targets), but a natural loop whose body contains no
+// dispatch entry point - no wait, no call to a yielding function; a loop that
+// always runs to completion without suspending - can be compiled as a real
+// wasm loop nested inside the dispatch. The loop's interior blocks are
+// "absorbed": they lose their scaffold frames (their br_table entries go
+// dead - nothing dispatches to them at runtime), and the whole region is
+// emitted structured in the header's scaffold segment. Edges leaving the
+// region (breaks past the loop, returns) become Term::Dispatch: set
+// g_idx_target_block_id and branch out to the dispatch loop.
+
+struct YielderRegionPlan
+{
+	pc_t header_block; // global cfg block id; keeps its scaffold frame
+	pc_t tail_block;   // last global cfg block id absorbed into the region
+	pc_t start_pc;
+	pc_t final_pc;
+
+	// Local structured-region data, same shape compile_function_structured
+	// builds for a whole function. infos may have synthesized dispatch
+	// trampolines appended past starts.size().
+	std::vector<pc_t> starts;
+	std::vector<BlockInfo> infos;
+	std::vector<int> body_last;
+	std::vector<int> goto_debug_pc;
+	std::map<int, StructuredFnSink::DispatchDesc> dispatches;
+	std::map<pc_t, CmpGroup> cmp_groups;
+	std::map<pc_t, pc_t> consumer_to_cmp;
+};
+
+// Builds the local structured-region plan for candidate loop [header..tail]
+// (global cfg block ids). Returns nullopt for a shape the classifier doesn't
+// model; the caller then just leaves that loop on the dispatch.
+static std::optional<YielderRegionPlan> plan_yielder_region(const zasm_script* script, const ZasmCFG& cfg, pc_t header_block, pc_t tail_block)
+{
+	pc_t num_global_blocks = cfg.block_starts.size();
+
+	YielderRegionPlan plan{};
+	plan.header_block = header_block;
+	plan.tail_block = tail_block;
+	plan.start_pc = cfg.block_starts[header_block];
+	plan.final_pc = tail_block + 1 < num_global_blocks ? cfg.block_starts[tail_block + 1] - 1 : cfg.final_pc;
+
+	pc_t start_pc = plan.start_pc;
+	pc_t final_pc = plan.final_pc;
+
+	// Refined partition, exactly as in compile_function_structured: split
+	// after every control op so terminators are always block-final.
+	std::vector<pc_t>& starts = plan.starts;
+	for (pc_t b = header_block; b <= tail_block; b++)
+		starts.push_back(cfg.block_starts[b]);
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		bool is_control = command == GOTO || command_is_goto_consumer(command) ||
+						  command == QUIT || command == RETURNFUNC;
+		if (is_control && i + 1 <= final_pc)
+			starts.push_back(i + 1);
+	}
+	std::sort(starts.begin(), starts.end());
+	starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+
+	int n = starts.size();
+	auto block_id_of = [&](int pc) -> int {
+		auto it = std::lower_bound(starts.begin(), starts.end(), (pc_t)pc);
+		if (it == starts.end() || *it != (pc_t)pc)
+			return -1;
+		return it - starts.begin();
+	};
+	auto block_final = [&](int b) -> pc_t {
+		return b + 1 < n ? starts[b + 1] - 1 : final_pc;
+	};
+
+	// Comparison groups (the caller's eligibility scan already rejected runs
+	// escaping the region; re-check defensively).
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
+			continue;
+		CmpGroup g = analyze_comparison(script, i);
+		if (g.consumers.empty())
+			continue;
+		if (g.consumers.back() > final_pc)
+			return std::nullopt;
+		for (pc_t cj : g.consumers)
+			plan.consumer_to_cmp[cj] = i;
+		i = g.consumers.back();
+		plan.cmp_groups.emplace(g.cmp_pc, std::move(g));
+	}
+
+	// The dispatch value naming a global cfg block (same "+1" convention as
+	// the flat lowering; the br_table's entry list maps values to depths).
+	auto dispatch_value = [&](int target_pc) -> int {
+		return (int)cfg.block_id_from_start_pc(target_pc) + 1;
+	};
+
+	plan.infos.resize(n);
+	// Trampolines are appended during classification; reserve so BlockInfo
+	// writes through plan.infos[b] stay valid.
+	plan.infos.reserve(n * 3 + 2);
+	plan.body_last.resize(n);
+	plan.goto_debug_pc.assign(n, -1);
+
+	auto add_trampoline = [&](int value, pc_t pc) -> int {
+		int id = plan.infos.size();
+		plan.infos.push_back({Term::Dispatch, -1, -1});
+		plan.dispatches[id] = {value, pc, false, false};
+		return id;
+	};
+	// The region's fall-out target: the global block right after it.
+	auto fall_out_value = [&]() -> int {
+		if (final_pc + 1 >= (pc_t)script->size || !cfg.contains_block_start(final_pc + 1))
+			return -1;
+		return dispatch_value(final_pc + 1);
+	};
+
+	for (int b = 0; b < n; b++)
+	{
+		pc_t bfinal = block_final(b);
+		int command = script->zasm[bfinal].command;
+		int arg1 = script->zasm[bfinal].arg1;
+		plan.body_last[b] = bfinal;
+
+		if (command == GOTO)
+		{
+			if (arg1 >= (int)start_pc && arg1 <= (int)final_pc)
+			{
+				int target = block_id_of(arg1);
+				if (target < 0)
+					return std::nullopt;
+				plan.infos[b] = {Term::Uncond, target, -1};
+				plan.body_last[b] = (int)bfinal - 1;
+				plan.goto_debug_pc[b] = (int)bfinal;
+			}
+			else
+			{
+				// Leaves the region; the target is a block elsewhere in the
+				// yielder (cross-function GOTOs out of the yielder are
+				// rejected before compilation).
+				if (arg1 < 0 || !cfg.contains_block_start(arg1))
+					return std::nullopt;
+				plan.infos[b] = {Term::Dispatch, -1, -1};
+				plan.dispatches[b] = {dispatch_value(arg1), bfinal, false, true};
+				plan.body_last[b] = (int)bfinal - 1;
+			}
+		}
+		else if (command_is_goto_consumer(command))
+		{
+			if (!plan.consumer_to_cmp.contains(bfinal))
+				return std::nullopt; // a GOTOx with no reaching compare
+			int taken;
+			if (arg1 >= (int)start_pc && arg1 <= (int)final_pc)
+			{
+				taken = block_id_of(arg1);
+				if (taken < 0)
+					return std::nullopt;
+			}
+			else
+			{
+				if (arg1 < 0 || !cfg.contains_block_start(arg1))
+					return std::nullopt;
+				taken = add_trampoline(dispatch_value(arg1), bfinal);
+			}
+			int fall;
+			if (b + 1 < n)
+				fall = b + 1;
+			else
+			{
+				int value = fall_out_value();
+				if (value < 0)
+					return std::nullopt;
+				fall = add_trampoline(value, bfinal);
+			}
+			plan.infos[b] = {Term::Cond, taken, fall};
+			plan.body_last[b] = (int)bfinal - 1;
+		}
+		else if (command == QUIT)
+		{
+			plan.infos[b] = {Term::Exit, -1, -1}; // the body emits the trap
+		}
+		else if (command == RETURNFUNC)
+		{
+			// The continuation is popped from the return stack at runtime.
+			plan.infos[b] = {Term::Dispatch, -1, -1};
+			plan.dispatches[b] = {-1, bfinal, true, true};
+			plan.body_last[b] = (int)bfinal - 1;
+		}
+		else if (b + 1 < n)
+		{
+			plan.infos[b] = {Term::Uncond, b + 1, -1};
+		}
+		else
+		{
+			// Falls out of the region.
+			int value = fall_out_value();
+			if (value < 0)
+				return std::nullopt;
+			plan.infos[b] = {Term::Dispatch, -1, -1};
+			plan.dispatches[b] = {value, block_final(b), false, false};
+		}
+	}
+
+	return plan;
+}
+
+// Emits an accepted region as structured wasm at its scaffold position (or,
+// when dry_run is set, only checks that the region CFG is reducible).
+static bool emit_yielder_region(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const YielderRegionPlan& plan, int dispatch_base_depth, bool dry_run)
+{
+	if (dry_run)
+	{
+		struct NullSink : StructSink
+		{
+			void emit_block(int) override {}
+			void emit_loop(int) override {}
+			void emit_if() override {}
+			void emit_else() override {}
+			void emit_end() override {}
+			void emit_br(int, int) override {}
+			void emit_br_if(int, int) override {}
+			void emit_i32_eqz() override {}
+			void emit_body(int) override {}
+			void emit_cond(int) override {}
+			void emit_dispatch(int, int) override {}
+		};
+		NullSink null;
+		WasmStructurer structurer((int)plan.infos.size(), 0, plan.infos, null);
+		return structurer.run();
+	}
+
+	StructuredFnSink sink{};
+	sink.state = &state;
+	sink.script = script;
+	sink.structured_zasm = &structured_zasm;
+	sink.function_id_to_idx = &function_id_to_idx;
+	sink.starts = &plan.starts;
+	sink.body_last = &plan.body_last;
+	sink.goto_debug_pc = &plan.goto_debug_pc;
+	sink.cmp_groups = &plan.cmp_groups;
+	sink.consumer_to_cmp = &plan.consumer_to_cmp;
+	sink.final_pc = plan.final_pc;
+	sink.ffff_tail = false;
+	sink.dispatches = &plan.dispatches;
+	sink.dispatch_base_depth = dispatch_base_depth;
+	sink.num_real_blocks = (int)plan.starts.size();
+
+	WasmStructurer structurer((int)plan.infos.size(), 0, plan.infos, sink);
+	bool ok = structurer.run();
+	CHECK(ok); // the dry run already established reducibility
+	return ok;
+}
+
+// Finds the yielder's eligible loops. Conservative by construction: anything
+// rejected simply stays on the loop-switch.
+static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
+{
+	pc_t num_blocks = cfg.block_starts.size();
+	auto block_final = [&](pc_t b) -> pc_t {
+		return b + 1 < num_blocks ? cfg.block_starts[b + 1] - 1 : cfg.final_pc;
+	};
+
+	// Dispatch entry points: blocks the br_table can be asked to land on at
+	// runtime. They must keep their scaffold frames, so no region may absorb
+	// them (a region may still *start* at one - dispatching to the header
+	// lands at the top of the structured loop).
+	std::set<pc_t> dispatch_entries;
+	for (auto [start_pc, final_pc] : pc_ranges)
+		dispatch_entries.insert(cfg.block_id_from_start_pc(start_pc));
+	for (auto sd : script->script_datas)
+		if (cfg.contains_block_start(sd->pc))
+			dispatch_entries.insert(cfg.block_id_from_start_pc(sd->pc));
+	for (auto [start_pc, final_pc] : pc_ranges)
+	{
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			int command = script->zasm[i].command;
+			bool resume_after = command_is_wait(command) || command == RUNGENFRZSCR;
+			if (command == CALLFUNC)
+			{
+				auto it = structured_zasm.start_pc_to_function.find(script->zasm[i].arg1);
+				if (it != structured_zasm.start_pc_to_function.end() && structured_zasm.functions[it->second].may_yield)
+					resume_after = true; // the call's return continuation
+			}
+			if (resume_after && i + 1 <= final_pc && cfg.contains_block_start(i + 1))
+				dispatch_entries.insert(cfg.block_id_from_start_pc(i + 1));
+		}
+	}
+
+	// Candidate loops: for each backward edge b -> h, take the largest such b
+	// per header h.
+	std::map<pc_t, pc_t> header_to_tail;
+	for (pc_t b = 0; b < num_blocks; b++)
+		for (pc_t e : cfg.block_edges[b])
+			if (e <= b)
+				header_to_tail[e] = std::max(header_to_tail[e], b);
+
+	std::vector<YielderRegionPlan> plans;
+	for (auto [h, t] : header_to_tail)
+	{
+		// Overlapping an accepted region: it's an inner loop, and the region's
+		// own structurer already handles it.
+		if (!plans.empty() && h <= plans.back().tail_block)
+			continue;
+		// The last block of the yielder is excluded so the fall-off-the-end
+		// script exit (see the 0xFFFF handling below) stays reachable.
+		if (t + 1 >= num_blocks)
+			continue;
+
+		// Must lie within a single function's range.
+		pc_t h_pc = cfg.block_starts[h];
+		pc_t t_final = block_final(t);
+		bool same_range = false;
+		for (auto [start_pc, final_pc] : pc_ranges)
+			if (h_pc >= start_pc && t_final <= final_pc)
+				same_range = true;
+		if (!same_range)
+			continue;
+
+		// Interior blocks must not be dispatch entries.
+		bool ok = true;
+		for (pc_t x = h + 1; x <= t && ok; x++)
+			if (dispatch_entries.contains(x))
+				ok = false;
+
+		// The loop must run to completion without suspending: no waits, no
+		// frozen-script runs, no calls to yielding (or unknown) functions.
+		// Comparison-consumer runs must not escape the region.
+		for (pc_t i = h_pc; i <= t_final && ok; i++)
+		{
+			int command = script->zasm[i].command;
+			if (command_is_wait(command) || command == RUNGENFRZSCR)
+				ok = false;
+			else if (command == CALLFUNC)
+			{
+				auto it = structured_zasm.start_pc_to_function.find(script->zasm[i].arg1);
+				if (it == structured_zasm.start_pc_to_function.end() || structured_zasm.functions[it->second].may_yield)
+					ok = false;
+			}
+			else if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
+			{
+				CmpGroup g = analyze_comparison(script, i);
+				if (!g.consumers.empty())
+				{
+					if (g.consumers.back() > t_final)
+						ok = false;
+					else
+						i = g.consumers.back();
+				}
+			}
+		}
+
+		// Single-entry: no edges from outside the region into its interior.
+		for (pc_t b = 0; b < num_blocks && ok; b++)
+		{
+			if (b >= h && b <= t)
+				continue;
+			for (pc_t e : cfg.block_edges[b])
+				if (e > h && e <= t)
+					ok = false;
+		}
+		if (!ok)
+			continue;
+
+		auto plan = plan_yielder_region(script, cfg, h, t);
+		if (!plan)
+			continue;
+		if (!emit_yielder_region(state, script, structured_zasm, function_id_to_idx, *plan, 0, true))
+			continue; // irreducible
+
+		plans.push_back(std::move(*plan));
+	}
+
+	// A comparison outside every region must not have a consumer run leaking
+	// into one (the flat lowering would try to close absorbed frames). Drop
+	// any region a run reaches into.
+	std::set<size_t> dropped;
+	for (auto [start_pc, final_pc] : pc_ranges)
+	{
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			bool inside = false;
+			for (auto& p : plans)
+				if (i >= p.start_pc && i <= p.final_pc)
+					inside = true;
+			if (inside)
+				continue;
+			int command = script->zasm[i].command;
+			if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
+				continue;
+			CmpGroup g = analyze_comparison(script, i);
+			if (g.consumers.empty())
+				continue;
+			for (size_t r = 0; r < plans.size(); r++)
+				if (g.consumers.back() >= plans[r].start_pc && i < plans[r].start_pc)
+					dropped.insert(r);
+			i = g.consumers.back();
+		}
+	}
+	if (!dropped.empty())
+	{
+		std::vector<YielderRegionPlan> kept;
+		for (size_t r = 0; r < plans.size(); r++)
+			if (!dropped.contains(r))
+				kept.push_back(std::move(plans[r]));
+		plans = std::move(kept);
+	}
+
+	return plans;
 }
 
 static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
@@ -2013,10 +2521,43 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	//
 	// Non-yielding functions don't use this - they get real structured control flow via
 	// compile_function_structured (which falls back to this lowering for irreducible CFGs, and
-	// -no-jit-wasm-structured forces it everywhere). The yielder is here to stay on the dispatch for
-	// its call/return/resume edges, whose targets are runtime values; but its *static* stretches
-	// (loops between suspension points) could still be structured on top of a residual dispatch.
-	// If attempting that, this is gold: https://dl.acm.org/doi/pdf/10.1145/3547621
+	// -no-jit-wasm-structured forces it everywhere). The yielder must keep the dispatch for
+	// its call/return/resume edges, whose targets are runtime values; but its *static*
+	// non-suspending loops are compiled as real wasm loops nested inside the dispatch - see
+	// the region detection just below, and https://dl.acm.org/doi/pdf/10.1145/3547621 for
+	// the general technique.
+
+	// -jit-wasm-structured-yielder: compile the yielder's non-suspending loops
+	// as real wasm loops nested inside the dispatch (see YielderRegionPlan).
+	// With no accepted regions this lowering is identical to the flat one.
+	static bool yielder_structured = get_flag_bool("-jit-wasm-structured-yielder").value_or(true);
+	std::vector<YielderRegionPlan> regions;
+	if (may_yield && yielder_structured)
+		regions = detect_yielder_regions(state, script, structured_zasm, function_id_to_idx, cfg, pc_ranges);
+
+	pc_t num_blocks = cfg.block_starts.size();
+
+	// Interior blocks of accepted regions are absorbed: no scaffold frame, and
+	// their br_table entries go dead (nothing dispatches to them at runtime).
+	std::vector<uint8_t> absorbed(num_blocks, 0);
+	std::vector<pc_t> absorbed_header(num_blocks, 0);
+	std::map<pc_t, const YielderRegionPlan*> region_by_header;
+	for (auto& r : regions)
+	{
+		region_by_header[r.header_block] = &r;
+		for (pc_t b = r.header_block + 1; b <= r.tail_block; b++)
+		{
+			absorbed[b] = 1;
+			absorbed_header[b] = r.header_block;
+		}
+	}
+	// Scaffold rank of each non-absorbed block. In the flat case rank == id,
+	// and every depth/entry below reduces to the classic loop-switch values.
+	std::vector<int> rank(num_blocks, -1);
+	int num_frames = 0;
+	for (pc_t b = 0; b < num_blocks; b++)
+		if (!absorbed[b])
+			rank[b] = num_frames++;
 
 	// Handle jumping to the correct initial block when calling the entry function.
 	if (script->name == "@single")
@@ -2046,10 +2587,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	}
 
 	wasm.emitLoop();
-	pc_t num_blocks = cfg.block_starts.size();
-	for (int i = 0; i < num_blocks; i++)
+	for (pc_t i = 0; i < num_blocks; i++)
 	{
-		wasm.emitBlock();
+		if (!absorbed[i])
+			wasm.emitBlock();
 	}
 
 	// Jump to the next block.
@@ -2058,6 +2599,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	// For subsequent loop iterations in the same call to the script, it jumps to the block specified by the
 	// previous block. This is what handles branches (including if, calls, loops) in the CFG. If a block simply
 	// falls through to the next, it does so directly (no additional loop iteration).
+	//
+	// Dispatch values are (cfg block id + 1); the entry list maps each value to
+	// the branch depth landing at that block's code, which is (scaffold rank +
+	// 1) because frames close innermost-first while code advances forward.
 	wasm.emitBlock();
 	wasm.emitGlobalGet(g_idx_target_block_id);
 	wasm.emitBrTable();
@@ -2065,14 +2610,29 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	// the outer-most loop.
 	pc_t br_table_len = num_blocks + 2;
 	wasm.emitVarU32(br_table_len);
-	for (int i = 0; i < br_table_len; i++)
+	for (pc_t v = 0; v < br_table_len; v++)
 	{
-		wasm.emitVarU32(i);
+		if (v == 0)
+			wasm.emitVarU32(0);
+		else if (v == num_blocks + 1)
+			wasm.emitVarU32(num_frames + 1); // the dispatch loop itself
+		else
+		{
+			pc_t j = v - 1;
+			// Absorbed blocks are never dispatched to; route their dead
+			// entries at the region header, which is harmless and in range.
+			pc_t land = absorbed[j] ? absorbed_header[j] : j;
+			wasm.emitVarU32(rank[land] + 1);
+		}
 	}
 	wasm.emitVarU32(0);
 	wasm.emitEnd();
 
+	// (cfg block id of the current block) + 1 while emitting its code.
 	pc_t current_block_index = 0;
+	// (scaffold rank of the current block) + 1 while emitting its code. The
+	// dispatch loop's branch depth from anywhere is num_frames - current_rank.
+	int current_rank = 0;
 
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
@@ -2084,6 +2644,18 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 			{
 				wasm.emitEnd();
 				current_block_index += 1;
+				current_rank += 1;
+
+				// A structured region: emit the whole loop as real control
+				// flow in this scaffold segment, then continue after it.
+				if (auto it = region_by_header.find(current_block_index - 1); it != region_by_header.end())
+				{
+					const YielderRegionPlan& plan = *it->second;
+					emit_yielder_region(state, script, structured_zasm, function_id_to_idx, plan, num_frames - current_rank, false);
+					i = plan.final_pc; // the loop's ++ resumes right after the region
+					current_block_index = plan.tail_block + 1;
+					continue;
+				}
 			}
 
 #ifndef NDEBUG
@@ -2103,7 +2675,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 			{
-				i = compile_comparison(state, script, cfg, num_blocks, current_block_index, i);
+				i = compile_comparison(state, script, cfg, num_frames, current_rank, current_block_index, i);
 				continue;
 			}
 
@@ -2225,7 +2797,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					wasm.emitGlobalSet(g_idx_target_block_id);
 
 					// Branch by jumping to start of loop-switch.
-					wasm.emitBr(num_blocks - current_block_index);
+					wasm.emitBr(num_frames - current_rank);
 				}
 				break;
 
@@ -2274,7 +2846,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 						// Branch to callee by jumping to start of loop-switch.
 						wasm.emitGlobalSet(g_idx_target_block_id);
-						wasm.emitBr(num_blocks - current_block_index);
+						wasm.emitBr(num_frames - current_rank);
 					}
 					else
 					{

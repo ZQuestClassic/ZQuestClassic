@@ -47,6 +47,16 @@ struct MockSink : StructSink {
 	void emit_i32_eqz() override { line("i32.eqz"); }
 	void emit_body(int b) override { line(";; body B" + std::to_string(b)); }
 	void emit_cond(int b) override { line(";; cond B" + std::to_string(b)); }
+	void emit_dispatch(int b, int ctx_depth) override {
+		// The reported structurer depth must equal the mock's live frame count -
+		// this is what lets the real sink compute the total branch depth to an
+		// enclosing dispatch loop.
+		if (ctx_depth != (int)frames.size()) {
+			ok = false;
+			fmt::println("!! dispatch ctx_depth {} != live frames {}", ctx_depth, frames.size());
+		}
+		line(";; dispatch B" + std::to_string(b) + " (ctx_depth " + std::to_string(ctx_depth) + ")");
+	}
 
 	std::string label(int target, int depth) {
 		int idx = (int)frames.size() - 1 - depth;
@@ -175,6 +185,49 @@ static void test_unreachable_block()
 	}));
 }
 
+// Case 8: a loop whose break leaves the region through the dispatch (the
+// yielder's 80/20 cut: a structured loop nested inside the loop-switch, whose
+// exit edge targets another dispatch region). The dispatch's ctx_depth is
+// validated against the live frame stack inside the loop.
+//   0 -> 1 header; 1 -> (2 body, 3 dispatch-out); 2 -> 1 back-edge
+static void test_loop_with_dispatch_break()
+{
+	assertTrue(structure(4, 0, {
+		{Term::Uncond, 1, -1},     // B0
+		{Term::Cond, 2, 3},        // B1 header: body or leave
+		{Term::Uncond, 1, -1},     // B2 body -> back-edge
+		{Term::Dispatch, -1, -1},  // B3 leaves the region via the dispatch
+	}));
+}
+
+// Case 9: two branches dispatching to a shared trampoline (the merge-node
+// shape a Cond-with-out-of-region-taken-edge produces when both sides funnel
+// into one synthesized Dispatch block).
+//   0 -> (1, 2); 1 -> 3; 2 -> 3; 3 = shared dispatch trampoline
+static void test_shared_dispatch_trampoline()
+{
+	assertTrue(structure(4, 0, {
+		{Term::Cond, 1, 2},        // B0
+		{Term::Uncond, 3, -1},     // B1
+		{Term::Uncond, 3, -1},     // B2
+		{Term::Dispatch, -1, -1},  // B3 (merge) -> dispatch
+	}));
+}
+
+// Case 10: a suspension point inside a loop, as the 80/20 yielder cut lowers
+// it when the loop is NOT eligible for structuring: the region gets cut at the
+// suspension, leaving a straight-line region that ends in a Dispatch (the
+// resume point is a separate dispatch region, so the back-edge never appears
+// here). This documents that a suspending loop stays dispatch-driven.
+//   0 -> 1 -> Dispatch (the wait); loop closure lives in the dispatch, not here.
+static void test_suspending_loop_region()
+{
+	assertTrue(structure(2, 0, {
+		{Term::Uncond, 1, -1},     // B0 (loop header code)
+		{Term::Dispatch, -1, -1},  // B1 body up to the wait -> dispatch
+	}));
+}
+
 } // namespace
 
 TestResults test_wasm_structurer(bool verbose)
@@ -189,6 +242,9 @@ TestResults test_wasm_structurer(bool verbose)
 		{ "irreducible", test_irreducible },
 		{ "merge_loop_header", test_merge_loop_header },
 		{ "unreachable_block", test_unreachable_block },
+		{ "loop_with_dispatch_break", test_loop_with_dispatch_break },
+		{ "shared_dispatch_trampoline", test_shared_dispatch_trampoline },
+		{ "suspending_loop_region", test_suspending_loop_region },
 	};
 
 	for (auto& test : tests)
