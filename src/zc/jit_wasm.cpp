@@ -64,6 +64,9 @@ struct CompilationState
 	bool sp_local;
 	// Keep the stack/ri/global_d pointers in function-locals; see l_idx_*_local.
 	bool ptr_locals;
+	// Inline side-effect-free hot engine registers (SWITCHKEY, the
+	// GLOBALRAM/SCRIPTRAM array accessors) instead of calling get/set_register.
+	bool inline_regs;
 
 	pc_t pc;
 
@@ -358,6 +361,33 @@ static void get_z_register(CompilationState& state, int r)
 	{
 		emit_get_sp(state);
 	}
+	else if (r == SWITCHKEY && state.inline_regs)
+	{
+		// A plain refInfo field with no side effects (the x64 backend inlines
+		// it too); this is the hottest engine register in switch-heavy scripts.
+		emit_get_ri(state);
+		state.wasm->emitI32Load(offsetof(refInfo, switchkey));
+	}
+	else if ((r == GLOBALRAM || r == SCRIPTRAM || r == GLOBALRAMD || r == SCRIPTRAMD) && state.inline_regs)
+	{
+		// Old-style array reads (arrayptr in D0/rINDEX, element in D1/rINDEX2):
+		// go straight to pod_read - the same ArrayH::getElement the engine's
+		// get_register would reach, minus the giant register switch - with
+		// no_neg set, because these registers never allow negative indices
+		// (unlike the READPODARRAY family, which honors the QR).
+		get_z_register(state, rINDEX);
+		if (r == GLOBALRAMD || r == SCRIPTRAMD)
+			state.wasm->emitI32Const(0);
+		else
+		{
+			get_z_register(state, rINDEX2);
+			state.wasm->emitI32Const(10000);
+			state.wasm->emitI32DivS();
+		}
+		state.wasm->emitI32Const(state.pc);
+		state.wasm->emitI32Const(1); // no_neg
+		state.wasm->emitCall(state.f_idx_pod_read);
+	}
 	else
 	{
 		if (does_register_use_stack(r))
@@ -398,6 +428,32 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 		emit_get_global_d(state);
 		fn();
 		state.wasm->emitI32Store((r - GD(0)) * 4); // game->global_d[]
+	}
+	else if (r == SWITCHKEY && state.inline_regs)
+	{
+		emit_get_ri(state);
+		fn();
+		state.wasm->emitI32Store(offsetof(refInfo, switchkey));
+	}
+	else if ((r == GLOBALRAM || r == SCRIPTRAM || r == GLOBALRAMD || r == SCRIPTRAMD) && state.inline_regs)
+	{
+		// See the matching get_z_register branch. Writes through these
+		// registers hold plain values, never object references (type = none),
+		// matching the engine's set_register lowering.
+		get_z_register(state, rINDEX);
+		if (r == GLOBALRAMD || r == SCRIPTRAMD)
+			state.wasm->emitI32Const(0);
+		else
+		{
+			get_z_register(state, rINDEX2);
+			state.wasm->emitI32Const(10000);
+			state.wasm->emitI32DivS();
+		}
+		fn();
+		state.wasm->emitI32Const((int)script_object_type::none);
+		state.wasm->emitI32Const(state.pc);
+		state.wasm->emitI32Const(1); // no_neg
+		state.wasm->emitCall(state.f_idx_pod_write);
 	}
 	else
 	{
@@ -1688,6 +1744,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 					wasm.emitI32Const(arg2 / 10000);
 				}
 				wasm.emitI32Const(state.pc);
+				wasm.emitI32Const(0); // no_neg: honor the negative-index QR
 				wasm.emitCall(state.f_idx_pod_read);
 			});
 		}
@@ -1719,6 +1776,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				wasm.emitI32Const(arg2);
 			wasm.emitI32Const(script->zasm[i].arg3);
 			wasm.emitI32Const(state.pc);
+			wasm.emitI32Const(0); // no_neg: honor the negative-index QR
 			wasm.emitCall(state.f_idx_pod_write);
 		}
 		break;
@@ -3069,6 +3127,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	// l_idx_sp_local). The flag exists for A/B runs and bisection.
 	state.sp_local = get_flag_bool("-jit-wasm-sp-local").value_or(true);
 	state.ptr_locals = get_flag_bool("-jit-wasm-pointer-locals").value_or(true);
+	state.inline_regs = get_flag_bool("-jit-wasm-inline-regs").value_or(true);
 
 	state.f_idx_set_return_value = comp.builder.importFunction("set_return_value", 1, 0);
 	state.f_idx_do_commands = comp.builder.importFunction("do_commands", 4, 1);
@@ -3078,8 +3137,8 @@ JittedScript* jit_compile_script(zasm_script* script)
 	state.f_idx_set_guarded_register = comp.builder.importFunction("set_guarded_register", 3, 0);
 	state.f_idx_runtime_debug = comp.builder.importFunction("runtime_debug", 2, 0);
 	state.f_idx_log_error = comp.builder.importFunction("log_error", 1, 0);
-	state.f_idx_pod_read = comp.builder.importFunction("pod_read", 3, 1);
-	state.f_idx_pod_write = comp.builder.importFunction("pod_write", 5, 0);
+	state.f_idx_pod_read = comp.builder.importFunction("pod_read", 4, 1);
+	state.f_idx_pod_write = comp.builder.importFunction("pod_write", 6, 0);
 	state.f_idx_allocatemem = comp.builder.importFunction("allocatemem", 3, 1);
 	state.f_idx_writepodarr = comp.builder.importFunction("writepodarr", 2, 0);
 
@@ -3454,14 +3513,14 @@ extern "C" void em_log_error(int code)
 		scripting_log_error_with_context("Attempted to modulo by zero!");
 }
 
-extern "C" int em_pod_read(int arrayptr, int index, int pc)
+extern "C" int em_pod_read(int arrayptr, int index, int pc, int no_neg)
 {
-	return jit_pod_read(arrayptr, index, pc);
+	return jit_pod_read(arrayptr, index, pc, no_neg);
 }
 
-extern "C" void em_pod_write(int arrayptr, int index, int value, int type, int pc)
+extern "C" void em_pod_write(int arrayptr, int index, int value, int type, int pc, int no_neg)
 {
-	jit_pod_write(arrayptr, index, value, type, pc);
+	jit_pod_write(arrayptr, index, value, type, pc, no_neg);
 }
 
 extern "C" int em_allocatemem(int size, int object_type, int uid)

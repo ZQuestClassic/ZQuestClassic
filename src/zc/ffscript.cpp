@@ -8846,15 +8846,15 @@ void do_writepod(const bool v1, const bool v2)
 	ArrayH::setElement(GET_D(rINDEX), indx, val, can_neg_array, type);
 }
 
-int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc)
+int32_t jit_pod_read(int32_t arrayptr, int32_t index, int32_t pc, int32_t no_neg)
 {
 	ri->pc = pc;
-	return ArrayH::getElement(arrayptr, index, can_neg_array);
+	return ArrayH::getElement(arrayptr, index, no_neg ? false : can_neg_array);
 }
-void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc)
+void jit_pod_write(int32_t arrayptr, int32_t index, int32_t value, int32_t type, int32_t pc, int32_t no_neg)
 {
 	ri->pc = pc;
-	ArrayH::setElement(arrayptr, index, value, can_neg_array, (script_object_type)type);
+	ArrayH::setElement(arrayptr, index, value, no_neg ? false : can_neg_array, (script_object_type)type);
 }
 int32_t jit_allocatemem(int32_t size, int32_t object_type, int32_t pc)
 {
