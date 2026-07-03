@@ -7,10 +7,10 @@ Finished optimizing scripts:
 	[setr_pushr] saved 923 instr (1.8%)
 	[stack] saved 226 instr (0.4%)
 	[spurious_branches] saved 0 instr (0.0%)
-	[reduce_comparisons] saved 1614 instr (3.1%)
+	[reduce_comparisons] saved 1640 instr (3.2%)
 	[propagate_values] saved 1033 instr (2.0%)
 	[collapse_podarray] saved 0 instr (0.0%)
 	[strength_reduce] improved 73 instances
 	[unreachable_blocks_2] saved 109 instr (0.2%)
-	[dead_code] saved 978 instr (1.9%)
-	[total] saved 6072 instr (11.8%)
+	[dead_code] saved 979 instr (1.9%)
+	[total] saved 6099 instr (11.8%)

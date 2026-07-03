@@ -2374,12 +2374,22 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 	}
 
 	// Candidate loops: for each backward edge b -> h, take the largest such b
-	// per header h.
+	// per header h. Also record each block's predecessor bounds; the
+	// single-entry check below only needs "do all of an interior block's
+	// predecessors lie within the region", which min/max answer in O(1).
 	std::map<pc_t, pc_t> header_to_tail;
+	std::vector<pc_t> min_pred(num_blocks, (pc_t)-1);
+	std::vector<pc_t> max_pred(num_blocks, 0);
 	for (pc_t b = 0; b < num_blocks; b++)
+	{
 		for (pc_t e : cfg.block_edges[b])
+		{
 			if (e <= b)
 				header_to_tail[e] = std::max(header_to_tail[e], b);
+			min_pred[e] = std::min(min_pred[e], b);
+			max_pred[e] = std::max(max_pred[e], b);
+		}
+	}
 
 	std::vector<YielderRegionPlan> plans;
 	for (auto [h, t] : header_to_tail)
@@ -2437,14 +2447,10 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 		}
 
 		// Single-entry: no edges from outside the region into its interior.
-		for (pc_t b = 0; b < num_blocks && ok; b++)
-		{
-			if (b >= h && b <= t)
-				continue;
-			for (pc_t e : cfg.block_edges[b])
-				if (e > h && e <= t)
-					ok = false;
-		}
+		// (min_pred of (pc_t)-1 means "no predecessors" and passes trivially.)
+		for (pc_t x = h + 1; x <= t && ok; x++)
+			if (min_pred[x] < h || max_pred[x] > t)
+				ok = false;
 		if (!ok)
 			continue;
 
@@ -2459,27 +2465,30 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 
 	// A comparison outside every region must not have a consumer run leaking
 	// into one (the flat lowering would try to close absorbed frames). Drop
-	// any region a run reaches into.
+	// any region a run reaches into. plans is sorted by start_pc, so a single
+	// cursor tracks the region ahead of the scan position.
 	std::set<size_t> dropped;
+	size_t next_plan = 0;
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
-			bool inside = false;
-			for (auto& p : plans)
-				if (i >= p.start_pc && i <= p.final_pc)
-					inside = true;
-			if (inside)
+			while (next_plan < plans.size() && plans[next_plan].final_pc < i)
+				next_plan++;
+			if (next_plan < plans.size() && i >= plans[next_plan].start_pc)
+			{
+				// Inside a region; its own classification already vetted it.
+				i = plans[next_plan].final_pc;
 				continue;
+			}
 			int command = script->zasm[i].command;
 			if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
 				continue;
 			CmpGroup g = analyze_comparison(script, i);
 			if (g.consumers.empty())
 				continue;
-			for (size_t r = 0; r < plans.size(); r++)
-				if (g.consumers.back() >= plans[r].start_pc && i < plans[r].start_pc)
-					dropped.insert(r);
+			if (next_plan < plans.size() && g.consumers.back() >= plans[next_plan].start_pc)
+				dropped.insert(next_plan);
 			i = g.consumers.back();
 		}
 	}
