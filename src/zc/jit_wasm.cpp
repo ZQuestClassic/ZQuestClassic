@@ -60,6 +60,8 @@ struct CompilationState
 	// chain. Gated on stack traces being possible, to avoid the per-call cost
 	// otherwise.
 	bool maintain_call_stack;
+	// Keep sp in a function-local instead of the "sp" global; see l_idx_sp_local.
+	bool sp_local;
 
 	pc_t pc;
 
@@ -192,16 +194,64 @@ static void modify_global_idx(WasmAssembler& wasm, int idx, int delta)
 	wasm.emitGlobalSet(idx);
 }
 
+// The stack pointer local (see l_idx_sp below): with -jit-wasm-sp-local (the
+// default), sp lives in a function-local while inside compiled code - the
+// optimizing tier keeps it in a machine register, where the "sp" global would
+// be a memory access on every stack operation. The global remains the
+// interchange between functions and with the run wrapper: each function loads
+// it on entry (emit_sp_reload), and flushes it back before any point another
+// function can observe it - a call to a sibling wasm function or a return
+// (emit_sp_flush). Engine imports never read the global (they take sp as an
+// argument or via ri->sp), and trap bails don't need a flush (the run
+// wrapper's post-call code doesn't run after a trap).
+constexpr uint8_t l_idx_sp_local = 3;
+
+static void emit_get_sp(CompilationState& state)
+{
+	if (state.sp_local)
+		state.wasm->emitLocalGet(l_idx_sp_local);
+	else
+		state.wasm->emitGlobalGet(state.g_idx_sp);
+}
+
+// Pops the new sp value from the wasm operand stack.
+static void emit_set_sp(CompilationState& state)
+{
+	if (state.sp_local)
+		state.wasm->emitLocalSet(l_idx_sp_local);
+	else
+		state.wasm->emitGlobalSet(state.g_idx_sp);
+}
+
+static void emit_sp_flush(CompilationState& state)
+{
+	if (!state.sp_local)
+		return;
+	state.wasm->emitLocalGet(l_idx_sp_local);
+	state.wasm->emitGlobalSet(state.g_idx_sp);
+}
+
+static void emit_sp_reload(CompilationState& state)
+{
+	if (!state.sp_local)
+		return;
+	state.wasm->emitGlobalGet(state.g_idx_sp);
+	state.wasm->emitLocalSet(l_idx_sp_local);
+}
+
 static void add_sp(CompilationState& state, int delta)
 {
-	modify_global_idx(*state.wasm, state.g_idx_sp, delta);
+	emit_get_sp(state);
+	state.wasm->emitI32Const(delta);
+	state.wasm->emitI32Add();
+	emit_set_sp(state);
 }
 
 static void check_sp(CompilationState& state)
 {
 	auto& wasm = *state.wasm;
 
-	wasm.emitGlobalGet(state.g_idx_sp);
+	emit_get_sp(state);
 	wasm.emitI32Const(MAX_STACK_SIZE);
 	wasm.emitI32GeU();
 
@@ -252,21 +302,21 @@ static void get_z_register(CompilationState& state, int r)
 	}
 	else if (r == SP)
 	{
-		state.wasm->emitGlobalGet(state.g_idx_sp);
+		emit_get_sp(state);
 		state.wasm->emitI32Const(10000);
 		state.wasm->emitI32Mul();
 	}
 	else if (r == SP2)
 	{
-		state.wasm->emitGlobalGet(state.g_idx_sp);
+		emit_get_sp(state);
 	}
 	else
 	{
 		if (does_register_use_stack(r))
 		{
-			// ri->sp = g_idx_sp
+			// ri->sp = sp
 			state.wasm->emitGlobalGet(state.g_idx_ri);
-			state.wasm->emitGlobalGet(state.g_idx_sp);
+			emit_get_sp(state);
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
 
@@ -305,9 +355,9 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 	{
 		if (does_register_use_stack(r))
 		{
-			// ri->sp = g_idx_sp
+			// ri->sp = sp
 			state.wasm->emitGlobalGet(state.g_idx_ri);
-			state.wasm->emitGlobalGet(state.g_idx_sp);
+			emit_get_sp(state);
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
 
@@ -356,21 +406,22 @@ static void compile_command_interpreter(CompilationState& state, const zasm_scri
 	}
 	if (needs_sp)
 	{
-		// ri->sp = g_idx_sp
+		// ri->sp = sp
 		state.wasm->emitGlobalGet(state.g_idx_ri);
-		state.wasm->emitGlobalGet(state.g_idx_sp);
+		emit_get_sp(state);
 		state.wasm->emitI32Store(4*9); // ri->sp
 	}
 
 	state.wasm->emitGlobalGet(state.g_idx_j_instance);
 	state.wasm->emitI32Const(pc);
 	state.wasm->emitI32Const(count);
-	state.wasm->emitGlobalGet(state.g_idx_sp);
+	emit_get_sp(state);
 	state.wasm->emitCall(state.f_idx_do_commands);
 
 	if (is_wait)
 	{
 		state.wasm->emitIf();
+		emit_sp_flush(state); // the run wrapper reads the global after we return
 		state.wasm->emitReturn(); // End yielder function, return to run function.
 		state.wasm->emitEnd();
 		return;
@@ -556,10 +607,10 @@ static void emit_trace_call_stack_pop(CompilationState& state)
 }
 
 // Locals reserved for snapshotting the two comparison operands (see the
-// defineFunction calls that declare {I32, I32, I32}). Local 0 is the general
+// defineFunction calls that declare four I32 locals). Local 0 is the general
 // scratch; locals 1/2 double as the second scratch for two-operand commands
 // (never live at the same time as a comparison snapshot, since a comparison's
-// consumers immediately follow it).
+// consumers immediately follow it). Local 3 is the sp local (l_idx_sp_local).
 constexpr uint8_t l_idx_scratch = 0;
 constexpr uint8_t l_idx_scratch2 = 1;
 constexpr uint8_t l_idx_cmp1 = 1;
@@ -823,7 +874,9 @@ static void compile_callfunc_native(CompilationState& state, const StructuredZas
 	wasm.emitGlobalSet(state.g_idx_target_block_id);
 
 	pc_t fn_id = structured_zasm.start_pc_to_function.at(target_pc);
+	emit_sp_flush(state);
 	wasm.emitCall(function_id_to_idx.at(fn_id));
+	emit_sp_reload(state);
 
 	// g_idx_ret_stack_index -= 1
 	emit_trace_call_stack_pop(state);
@@ -852,9 +905,12 @@ static void compile_goto_tailcall(CompilationState& state, const StructuredZasm&
 	modify_global_idx(wasm, state.g_idx_ret_stack_index, 1);
 	wasm.emitI32Const(0);
 	wasm.emitGlobalSet(state.g_idx_target_block_id);
+	emit_sp_flush(state);
 	wasm.emitCall(function_id_to_idx.at(structured_zasm.start_pc_to_function.at(target_pc)));
+	emit_sp_reload(state);
 	modify_global_idx(wasm, state.g_idx_ret_stack_index, -1);
 	// The GOTO does not return here, so end this function once the callee does.
+	emit_sp_flush(state);
 	wasm.emitReturn();
 }
 
@@ -873,7 +929,6 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 {
 	WasmAssembler& wasm = *state.wasm;
 	uint8_t g_idx_stack = state.g_idx_stack;
-	uint8_t g_idx_sp = state.g_idx_sp;
 
 	int command = script->zasm[i].command;
 	int arg1 = script->zasm[i].arg1;
@@ -901,7 +956,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 			add_sp(state, -1);
 			check_sp(state);
 
-			wasm.emitGlobalGet(g_idx_sp);
+			emit_get_sp(state);
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 			wasm.emitGlobalGet(g_idx_stack);
@@ -926,7 +981,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				add_sp(state, -1);
 				check_sp(state);
 
-				wasm.emitGlobalGet(g_idx_sp);
+				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 				wasm.emitGlobalGet(g_idx_stack);
@@ -961,7 +1016,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 		case STACKWRITEATVV:
 		{
 			// Lit[arg1] -> Stack[arg2]
-			wasm.emitGlobalGet(g_idx_sp);
+			emit_get_sp(state);
 			wasm.emitI32Const(arg2);
 			wasm.emitI32Add();
 			wasm.emitI32Const(4);
@@ -1052,7 +1107,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 		case POP:
 		{
 			set_z_register(state, arg1, [&](){
-				wasm.emitGlobalGet(g_idx_sp);
+				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 				wasm.emitGlobalGet(g_idx_stack);
@@ -1070,7 +1125,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 
 			set_z_register(state, arg1, [&](){
 				// ri->sp - 1
-				wasm.emitGlobalGet(g_idx_sp);
+				emit_get_sp(state);
 				wasm.emitI32Const(1);
 				wasm.emitI32Sub();
 
@@ -1112,7 +1167,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 		case PEEK:
 		{
 			set_z_register(state, arg1, [&](){
-				wasm.emitGlobalGet(g_idx_sp);
+				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 				wasm.emitGlobalGet(g_idx_stack);
@@ -1744,7 +1799,7 @@ struct StructuredFnSink : StructSink
 			if (state->runtime_debugging && !command_uses_comparison_result(command))
 			{
 				wasm.emitI32Const(i);
-				wasm.emitGlobalGet(state->g_idx_sp);
+				emit_get_sp(*state);
 				wasm.emitCall(state->f_idx_runtime_debug);
 			}
 
@@ -1794,6 +1849,7 @@ struct StructuredFnSink : StructSink
 				case RETURNFUNC:
 					// Totally ignore the return pc on the data stack; the wasm
 					// call stack handles the return.
+					emit_sp_flush(*state);
 					wasm.emitReturn();
 					break;
 
@@ -1831,7 +1887,7 @@ struct StructuredFnSink : StructSink
 			if (state->runtime_debugging)
 			{
 				wasm.emitI32Const(gpc);
-				wasm.emitGlobalGet(state->g_idx_sp);
+				emit_get_sp(*state);
 				wasm.emitCall(state->f_idx_runtime_debug);
 			}
 		}
@@ -1870,7 +1926,7 @@ struct StructuredFnSink : StructSink
 			if (state->runtime_debugging)
 			{
 				wasm.emitI32Const(d.pc);
-				wasm.emitGlobalGet(state->g_idx_sp);
+				emit_get_sp(*state);
 				wasm.emitCall(state->f_idx_runtime_debug);
 			}
 		}
@@ -2058,6 +2114,9 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	WasmAssembler wasm;
 	state.wasm = &wasm;
 
+	// Load sp into its local (see l_idx_sp_local).
+	emit_sp_reload(state);
+
 	StructuredFnSink sink{};
 	sink.state = &state;
 	sink.script = script;
@@ -2077,6 +2136,8 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	if (!structurer.run())
 		return std::nullopt;
 
+	// An Exit block can fall off the function's end (an implicit return).
+	emit_sp_flush(state);
 	wasm.emitEnd(); // Function end.
 
 	return wasm;
@@ -2512,7 +2573,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	uint8_t g_idx_ret_stack = state.g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index = state.g_idx_ret_stack_index;
 	uint8_t g_idx_wait_index = state.g_idx_wait_index;
-	uint8_t g_idx_sp = state.g_idx_sp;
 	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
 
 	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
@@ -2567,6 +2627,10 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	for (pc_t b = 0; b < num_blocks; b++)
 		if (!absorbed[b])
 			rank[b] = num_frames++;
+
+	// Load sp into its local (see l_idx_sp_local); the caller/run wrapper keeps
+	// the global current across function boundaries.
+	emit_sp_reload(state);
 
 	// Handle jumping to the correct initial block when calling the entry function.
 	if (script->name == "@single")
@@ -2678,7 +2742,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 			if (state.runtime_debugging && !command_uses_comparison_result(command))
 			{
 				wasm.emitI32Const(i);
-				wasm.emitGlobalGet(g_idx_sp);
+				emit_get_sp(state);
 				wasm.emitCall(state.f_idx_runtime_debug);
 			}
 
@@ -2727,6 +2791,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				wasm.emitI32Const(current_block_index + 1);
 				wasm.emitI32Store();
 
+				emit_sp_flush(state); // run_script reads/writes sp around the frozen run
 				wasm.emitReturn();
 				continue;
 			}
@@ -2866,6 +2931,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 						}
 
 						// Call stack is implicitly handled by WASM.
+						emit_sp_flush(state);
 						wasm.emitReturn();
 					}
 				}
@@ -2950,6 +3016,9 @@ JittedScript* jit_compile_script(zasm_script* script)
 	// Maintain ri->pc and the pc call stack only when a stack trace could actually
 	// be produced (their only consumer), so non-tracing runs pay nothing per call.
 	state.maintain_call_stack = FFCore.should_display_stack_traces();
+	// -jit-wasm-sp-local: keep sp in a wasm local inside compiled code (see
+	// l_idx_sp_local). The flag exists for A/B runs and bisection.
+	state.sp_local = get_flag_bool("-jit-wasm-sp-local").value_or(true);
 
 	state.f_idx_set_return_value = comp.builder.importFunction("set_return_value", 1, 0);
 	state.f_idx_do_commands = comp.builder.importFunction("do_commands", 4, 1);
@@ -3037,7 +3106,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	{
 		bool may_yield = true;
 		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield);
-		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
+		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
 
@@ -3059,7 +3128,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 			wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
 		}
 		pc_t fidx = function_id_to_idx.at(fn.id);
-		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
+		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
 		// Note: fn.name() can't be used for the emptiness check - it returns the
 		// placeholder "<empty>" for unnamed functions, which used to end up as
 		// dozens of functions all literally named "<empty>" in the name section.
