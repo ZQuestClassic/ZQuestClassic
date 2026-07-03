@@ -611,6 +611,7 @@ if(WANT_ZC_TESTS)
 		src/components/scc/scc_test.cpp
 		src/base/zc_math_test.cpp
 		src/base/containers_test.cpp
+		src/zc/wasm_structurer_test.cpp
 	)
 	target_link_libraries(base_test_runner PRIVATE base scc)
 

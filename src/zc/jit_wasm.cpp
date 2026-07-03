@@ -35,6 +35,7 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
+#include "zc/wasm_structurer.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "components/zasm/serialize.h"
@@ -43,6 +44,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <optional>
 #include <stdint.h>
 
 #ifdef __EMSCRIPTEN__
@@ -553,71 +555,91 @@ static void emit_trace_call_stack_pop(CompilationState& state)
 	wasm.emitEnd();
 }
 
-// Compiles a comparison command (COMPARER/COMPAREV/COMPAREV2) at `i` together
-// with every command that consumes its result. A single comparison can feed
-// MULTIPLE consumers: the optimizer emits e.g. `COMPAREV D2 N; SETCMP D2;
-// GOTOCMP T`, where the boolean is both stored to a register AND branched on,
-// all from the one compare. Each consumer re-derives the comparison from the
-// operands; because a SETx consumer can overwrite an operand register, when
-// there is more than one consumer the operands are first snapshotted into two
-// reserved locals. Returns the pc of the last command consumed (the caller's
-// loop advances past it); for a loose compare with no consumer, returns `i`.
-static pc_t compile_comparison(CompilationState& state, const zasm_script* script, const ZasmCFG& cfg, pc_t num_blocks, pc_t& current_block_index, pc_t i)
+// Locals reserved for snapshotting the two comparison operands (see the
+// defineFunction calls that declare {I32, I32, I32}). Local 0 is the general
+// scratch; locals 1/2 double as the second scratch for two-operand commands
+// (never live at the same time as a comparison snapshot, since a comparison's
+// consumers immediately follow it).
+constexpr uint8_t l_idx_scratch = 0;
+constexpr uint8_t l_idx_scratch2 = 1;
+constexpr uint8_t l_idx_cmp1 = 1;
+constexpr uint8_t l_idx_cmp2 = 2;
+
+static bool command_is_goto_consumer(int command)
 {
-	WasmAssembler& wasm = *state.wasm;
-	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
-	// Locals reserved for snapshotting the two comparison operands (see the
-	// defineFunction calls that declare {I32, I32, I32}).
-	constexpr uint8_t l_idx_cmp1 = 1;
-	constexpr uint8_t l_idx_cmp2 = 2;
+	return command == GOTOCMP || command == GOTOTRUE || command == GOTOFALSE ||
+		   command == GOTOMORE || command == GOTOLESS;
+}
+
+// A comparison command (COMPARER/COMPAREV/COMPAREV2) is fused with the run of
+// commands that consume its result. A single comparison can feed MULTIPLE
+// consumers: the optimizer emits e.g. `COMPAREV D2 N; SETCMP D2; GOTOCMP T`,
+// where the boolean is both stored to a register AND branched on, all from the
+// one compare. Each consumer re-derives the comparison from the operands.
+struct CmpGroup
+{
+	pc_t cmp_pc;
+	bool arg1_is_imm;
+	bool arg2_is_imm;
+	// With more than one real consumer, snapshot the operand values into the
+	// reserved locals up-front, so a SETx consumer overwriting an operand
+	// register can't corrupt a later one.
+	bool capture;
+	std::vector<pc_t> consumers; // the NOP/SETx/GOTOx run following cmp_pc
+};
+
+static CmpGroup analyze_comparison(const zasm_script* script, pc_t i)
+{
+	CmpGroup g{};
+	g.cmp_pc = i;
 
 	int command = script->zasm[i].command;
-	int arg1 = script->zasm[i].arg1;
-	int arg2 = script->zasm[i].arg2;
-
-	bool arg1_is_imm = false;
-	bool arg2_is_imm = command != COMPARER;
+	g.arg1_is_imm = false;
+	g.arg2_is_imm = command != COMPARER;
 	if (command == COMPAREV2)
-		std::swap(arg1_is_imm, arg2_is_imm);
+		std::swap(g.arg1_is_imm, g.arg2_is_imm);
 
-	// Collect the run of consumers (NOP/SETx/GOTOx) that use this comparison.
-	std::vector<pc_t> consumers;
 	for (pc_t j = i + 1; j < (pc_t)script->size; j++)
 	{
 		int c = script->zasm[j].command;
 		if (c == NOP || command_uses_comparison_result(c))
-			consumers.push_back(j);
+			g.consumers.push_back(j);
 		else
 			break;
 	}
 
-	if (consumers.empty())
-	{
-		// A loose compare (e.g. the statement `x == 1;`). Ignore it.
-		return i;
-	}
-
 	int real_consumers = 0;
-	for (pc_t j : consumers)
+	for (pc_t j : g.consumers)
 		if (script->zasm[j].command != NOP)
 			real_consumers++;
+	g.capture = real_consumers > 1;
 
-	// With more than one consumer, snapshot the operand values up-front so a
-	// SETx consumer overwriting an operand register can't corrupt a later one.
-	bool capture = real_consumers > 1;
-	if (capture)
-	{
-		if (!arg1_is_imm) { get_z_register(state, arg1); wasm.emitLocalSet(l_idx_cmp1); }
-		if (!arg2_is_imm) { get_z_register(state, arg2); wasm.emitLocalSet(l_idx_cmp2); }
-	}
+	return g;
+}
 
-	auto push_operand = [&](int arg, bool is_imm, uint8_t local, bool cmp_bool){
+// Emits the operand snapshot for a capturing group; called once, at the compare.
+static void emit_cmp_capture(CompilationState& state, const zasm_script* script, const CmpGroup& g)
+{
+	if (!g.capture)
+		return;
+	WasmAssembler& wasm = *state.wasm;
+	int arg1 = script->zasm[g.cmp_pc].arg1;
+	int arg2 = script->zasm[g.cmp_pc].arg2;
+	if (!g.arg1_is_imm) { get_z_register(state, arg1); wasm.emitLocalSet(l_idx_cmp1); }
+	if (!g.arg2_is_imm) { get_z_register(state, arg2); wasm.emitLocalSet(l_idx_cmp2); }
+}
+
+// Pushes both comparison operands for one consumer.
+static void emit_cmp_operands(CompilationState& state, const zasm_script* script, const CmpGroup& g, bool cmp_bool)
+{
+	WasmAssembler& wasm = *state.wasm;
+	auto push_operand = [&](int arg, bool is_imm, uint8_t local){
 		if (is_imm)
 		{
 			wasm.emitI32Const(cmp_bool ? !!arg : arg);
 			return;
 		}
-		if (capture)
+		if (g.capture)
 			wasm.emitLocalGet(local);
 		else
 			get_z_register(state, arg);
@@ -627,8 +649,116 @@ static pc_t compile_comparison(CompilationState& state, const zasm_script* scrip
 			wasm.emitI32Ne();
 		}
 	};
+	push_operand(script->zasm[g.cmp_pc].arg1, g.arg1_is_imm, l_idx_cmp1);
+	push_operand(script->zasm[g.cmp_pc].arg2, g.arg2_is_imm, l_idx_cmp2);
+}
 
-	for (pc_t cj : consumers)
+// Consumes the two operands, leaving the boolean the CMP_FLAGS select.
+static void emit_cmp_flags_op(WasmAssembler& wasm, int flags)
+{
+	switch (flags & CMP_FLAGS)
+	{
+		default: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(0); break;
+		case CMP_GT: wasm.emitI32GtS(); break;
+		case CMP_GT|CMP_EQ: wasm.emitI32GeS(); break;
+		case CMP_LT: wasm.emitI32LtS(); break;
+		case CMP_LT|CMP_EQ: wasm.emitI32LeS(); break;
+		case CMP_EQ: wasm.emitI32Eq(); break;
+		case CMP_GT|CMP_LT: wasm.emitI32Ne(); break;
+		case CMP_GT|CMP_LT|CMP_EQ: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(1); break;
+	}
+}
+
+// Emits one SETx consumer at cj.
+static void emit_cmp_set_consumer(CompilationState& state, const zasm_script* script, const CmpGroup& g, pc_t cj)
+{
+	WasmAssembler& wasm = *state.wasm;
+	int cc = script->zasm[cj].command;
+	int c_arg1 = script->zasm[cj].arg1;
+	int c_arg2 = script->zasm[cj].arg2;
+	bool cmp_bool = c_arg2 & CMP_BOOL;
+
+	if (cc == SETCMP)
+	{
+		set_z_register(state, c_arg1, [&](){
+			emit_cmp_operands(state, script, g, cmp_bool);
+			emit_cmp_flags_op(wasm, c_arg2);
+			if (c_arg2 & CMP_SETI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+		});
+	}
+	else if (cc == SETLESSI || cc == SETLESS)
+	{
+		set_z_register(state, c_arg1, [&](){
+			emit_cmp_operands(state, script, g, cmp_bool); wasm.emitI32LeS();
+			if (cc == SETLESSI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+		});
+	}
+	else if (cc == SETMOREI || cc == SETMORE)
+	{
+		set_z_register(state, c_arg1, [&](){
+			emit_cmp_operands(state, script, g, cmp_bool); wasm.emitI32GeS();
+			if (cc == SETMOREI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+		});
+	}
+	else if (cc == SETFALSEI || cc == SETFALSE)
+	{
+		set_z_register(state, c_arg1, [&](){
+			emit_cmp_operands(state, script, g, cmp_bool); wasm.emitI32Ne();
+			if (cc == SETFALSEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+		});
+	}
+	else if (cc == SETTRUEI || cc == SETTRUE)
+	{
+		set_z_register(state, c_arg1, [&](){
+			emit_cmp_operands(state, script, g, cmp_bool); wasm.emitI32Eq();
+			if (cc == SETTRUEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
+		});
+	}
+	else
+	{
+		error(script, fmt::format("unexpected comparison consumer {} at index {}", zasm_op_to_string(cc).c_str(), (int)cj));
+		CHECK(false);
+	}
+}
+
+// Emits the take-branch value for one GOTOx consumer at cj: leaves an i32 on
+// the stack, nonzero meaning the branch to the goto target is taken.
+static void emit_cmp_goto_value(CompilationState& state, const zasm_script* script, const CmpGroup& g, pc_t cj)
+{
+	WasmAssembler& wasm = *state.wasm;
+	int cc = script->zasm[cj].command;
+	int c_arg2 = script->zasm[cj].arg2;
+	bool cmp_bool = c_arg2 & CMP_BOOL;
+
+	emit_cmp_operands(state, script, g, cmp_bool);
+	switch (cc)
+	{
+		case GOTOCMP: emit_cmp_flags_op(wasm, c_arg2); break;
+		case GOTOTRUE: wasm.emitI32Eq(); break;
+		case GOTOFALSE: wasm.emitI32Ne(); break;
+		case GOTOMORE: wasm.emitI32GeS(); break;
+		case GOTOLESS: wasm.emitI32LeS(); break;
+	}
+}
+
+// Compiles a comparison command at `i` together with every consumer, for the
+// loop-switch lowering. Returns the pc of the last command consumed (the
+// caller's loop advances past it); for a loose compare with no consumer,
+// returns `i`.
+static pc_t compile_comparison(CompilationState& state, const zasm_script* script, const ZasmCFG& cfg, pc_t num_blocks, pc_t& current_block_index, pc_t i)
+{
+	WasmAssembler& wasm = *state.wasm;
+
+	CmpGroup g = analyze_comparison(script, i);
+	if (g.consumers.empty())
+	{
+		// A loose compare (e.g. the statement `x == 1;`). Ignore it.
+		return i;
+	}
+
+	emit_cmp_capture(state, script, g);
+
+	for (pc_t cj : g.consumers)
 	{
 		if (cfg.contains_block_start(cj))
 		{
@@ -637,105 +767,1224 @@ static pc_t compile_comparison(CompilationState& state, const zasm_script* scrip
 		}
 
 		int cc = script->zasm[cj].command;
-		int c_arg1 = script->zasm[cj].arg1;
-		int c_arg2 = script->zasm[cj].arg2;
-		bool cmp_bool = c_arg2 & CMP_BOOL;
-
 		if (cc == NOP)
 		{
 			// The optimizer can turn a consumer into a NOP without removing
 			// the compare; nothing to emit.
+			//
+			// Example: hollow_forest.qst/zasm-global-1.txt
+			// 11911: COMPAREV        D2              0            
+			// 11912: GOTOTRUE        11913                        ---- turns into NOP
 			continue;
 		}
 
-		auto emit_operands = [&](){
-			push_operand(arg1, arg1_is_imm, l_idx_cmp1, cmp_bool);
-			push_operand(arg2, arg2_is_imm, l_idx_cmp2, cmp_bool);
-		};
+		if (command_is_goto_consumer(cc))
+		{
+			emit_cmp_goto_value(state, script, g, cj);
 
-		if (cc == SETCMP)
-		{
-			set_z_register(state, c_arg1, [&](){
-				emit_operands();
-				switch (c_arg2 & CMP_FLAGS)
-				{
-					default: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(0); break;
-					case CMP_GT: wasm.emitI32GtS(); break;
-					case CMP_GT|CMP_EQ: wasm.emitI32GeS(); break;
-					case CMP_LT: wasm.emitI32LtS(); break;
-					case CMP_LT|CMP_EQ: wasm.emitI32LeS(); break;
-					case CMP_EQ: wasm.emitI32Eq(); break;
-					case CMP_GT|CMP_LT: wasm.emitI32Ne(); break;
-					case CMP_GT|CMP_LT|CMP_EQ: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(1); break;
-				}
-				if (c_arg2 & CMP_SETI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
-			});
-		}
-		else if (cc == SETLESSI || cc == SETLESS)
-		{
-			set_z_register(state, c_arg1, [&](){
-				emit_operands(); wasm.emitI32LeS();
-				if (cc == SETLESSI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
-			});
-		}
-		else if (cc == SETMOREI || cc == SETMORE)
-		{
-			set_z_register(state, c_arg1, [&](){
-				emit_operands(); wasm.emitI32GeS();
-				if (cc == SETMOREI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
-			});
-		}
-		else if (cc == SETFALSEI || cc == SETFALSE)
-		{
-			set_z_register(state, c_arg1, [&](){
-				emit_operands(); wasm.emitI32Ne();
-				if (cc == SETFALSEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
-			});
-		}
-		else if (cc == SETTRUEI || cc == SETTRUE)
-		{
-			set_z_register(state, c_arg1, [&](){
-				emit_operands(); wasm.emitI32Eq();
-				if (cc == SETTRUEI) { wasm.emitI32Const(10000); wasm.emitI32Mul(); }
-			});
-		}
-		else if (cc == GOTOCMP || cc == GOTOTRUE || cc == GOTOFALSE || cc == GOTOMORE || cc == GOTOLESS)
-		{
-			emit_operands();
-			switch (cc)
-			{
-				case GOTOCMP:
-					switch (c_arg2 & CMP_FLAGS)
-					{
-						default: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(0); break;
-						case CMP_GT: wasm.emitI32GtS(); break;
-						case CMP_GT|CMP_EQ: wasm.emitI32GeS(); break;
-						case CMP_LT: wasm.emitI32LtS(); break;
-						case CMP_LT|CMP_EQ: wasm.emitI32LeS(); break;
-						case CMP_EQ: wasm.emitI32Eq(); break;
-						case CMP_GT|CMP_LT: wasm.emitI32Ne(); break;
-						case CMP_GT|CMP_LT|CMP_EQ: wasm.emitDrop(); wasm.emitDrop(); wasm.emitI32Const(1); break;
-					}
-					break;
-				case GOTOTRUE: wasm.emitI32Eq(); break;
-				case GOTOFALSE: wasm.emitI32Ne(); break;
-				case GOTOMORE: wasm.emitI32GeS(); break;
-				case GOTOLESS: wasm.emitI32LeS(); break;
-			}
-
-			size_t target_block_index = cfg.block_id_from_start_pc(c_arg1) + 1;
+			size_t target_block_index = cfg.block_id_from_start_pc(script->zasm[cj].arg1) + 1;
 			wasm.emitI32Const(target_block_index);
-			wasm.emitGlobalSet(g_idx_target_block_id);
+			wasm.emitGlobalSet(state.g_idx_target_block_id);
 			wasm.emitBrIf(num_blocks - current_block_index);
 		}
 		else
 		{
-			printf("unexpected comparison consumer %s at index %d\n", zasm_op_to_string(cc).c_str(), (int)cj);
-			CHECK(false);
+			emit_cmp_set_consumer(state, script, g, cj);
 		}
 	}
 
-	return consumers.back();
+	return g.consumers.back();
+}
+
+// A CALLFUNC lowered as a native wasm call, for a callee compiled as its own
+// (non-yielding) wasm function. The native call stack handles the return;
+// g_idx_ret_stack_index is still maintained so check_call_limit sees the true
+// depth.
+static void compile_callfunc_native(CompilationState& state, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, pc_t i, int target_pc)
+{
+	WasmAssembler& wasm = *state.wasm;
+
+	check_call_limit(state, target_pc);
+
+	// g_idx_ret_stack_index += 1
+	modify_global_idx(wasm, state.g_idx_ret_stack_index, 1);
+	emit_trace_call_stack_push(state, i);
+
+	// Set the initial block id to 0 so a loop-switch callee starts at its
+	// beginning. (A structured callee always starts at its entry and ignores
+	// this.)
+	wasm.emitI32Const(0);
+	wasm.emitGlobalSet(state.g_idx_target_block_id);
+
+	pc_t fn_id = structured_zasm.start_pc_to_function.at(target_pc);
+	wasm.emitCall(function_id_to_idx.at(fn_id));
+
+	// g_idx_ret_stack_index -= 1
+	emit_trace_call_stack_pop(state);
+	modify_global_idx(wasm, state.g_idx_ret_stack_index, -1);
+}
+
+// A GOTO whose target is the entry of a function in a *different* compile
+// unit. Each (non-yielding) function is compiled as its own WASM function, and
+// a branch can only reach code within the current function, so we cannot
+// branch there. Instead, lower the GOTO as a tail-call into the target
+// function.
+//
+// This is only expected for the "~Init" script of older (2.55-era) quests:
+// that script is assembled by inlining init function bodies and tail-jumping
+// over them (via GOTO) to the "run" continuation, rather than using a plain
+// CALLFUNC. Modern compiles don't produce cross-function GOTOs.
+// jit_compile_script validates the target is a separately-compiled,
+// non-yielding function's entry, so emitCall is sufficient.
+//
+// Example: .tmp/replay_uploads/EB5E2CFAE26A97BAA15637C0A60D557A/6940ead2-143f-45b9-a894-1bc05c81b9e0-updated-main.zplay
+static void compile_goto_tailcall(CompilationState& state, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, int target_pc)
+{
+	WasmAssembler& wasm = *state.wasm;
+
+	check_call_limit(state, target_pc);
+	modify_global_idx(wasm, state.g_idx_ret_stack_index, 1);
+	wasm.emitI32Const(0);
+	wasm.emitGlobalSet(state.g_idx_target_block_id);
+	wasm.emitCall(function_id_to_idx.at(structured_zasm.start_pc_to_function.at(target_pc)));
+	modify_global_idx(wasm, state.g_idx_ret_stack_index, -1);
+	// The GOTO does not return here, so end this function once the callee does.
+	wasm.emitReturn();
+}
+
+static void compile_quit(CompilationState& state, const zasm_script* script, pc_t i)
+{
+	compile_command_interpreter(state, script, i, 1);
+	state.wasm->emitI32Const(RUNSCRIPT_STOPPED);
+	state.wasm->emitCall(state.f_idx_set_return_value);
+	state.wasm->emitUnreachable(); // Bail.
+}
+
+// Emits one straight-line ("plain") compiled command - everything except
+// control flow, which each lowering (the loop-switch in compile_function, or
+// the structured path in compile_function_structured) handles itself.
+static void compile_plain_command(CompilationState& state, const zasm_script* script, pc_t i)
+{
+	WasmAssembler& wasm = *state.wasm;
+	uint8_t g_idx_stack = state.g_idx_stack;
+	uint8_t g_idx_sp = state.g_idx_sp;
+
+	int command = script->zasm[i].command;
+	int arg1 = script->zasm[i].arg1;
+	int arg2 = script->zasm[i].arg2;
+
+	// Every command here must be reflected in command_is_compiled!
+	switch (command)
+	{
+		case NOP: break;
+
+		case PUSHR:
+		case PUSHV:
+		{
+			// Evaluate the value to push BEFORE decrementing sp, matching the
+			// interpreter and x64 JIT. A stack-dependent register (e.g.
+			// SCREENDATAEXDOOR) read after add_sp would see the decremented sp
+			// and read the wrong stack slot. Capturing into a local also handles
+			// SP/SP2 (which read the current sp) without a special case.
+			if (command == PUSHR)
+				get_z_register(state, arg1);
+			else
+				wasm.emitI32Const(arg1);
+			wasm.emitLocalSet(l_idx_scratch);
+
+			add_sp(state, -1);
+			check_sp(state);
+
+			wasm.emitGlobalGet(g_idx_sp);
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+			wasm.emitGlobalGet(g_idx_stack);
+			wasm.emitI32Add(); // Add stack base offset.
+			wasm.emitLocalGet(l_idx_scratch);
+			wasm.emitI32Store();
+		}
+		break;
+
+		case PUSHARGSR:
+		case PUSHARGSV:
+		{
+			if (command == PUSHARGSR)
+			{
+				get_z_register(state, arg1);
+				wasm.emitLocalSet(l_idx_scratch);
+			}
+
+			// TODO: there's certainly a better way to do this.
+			for (int i = 0; i < arg2; i++)
+			{
+				add_sp(state, -1);
+				check_sp(state);
+
+				wasm.emitGlobalGet(g_idx_sp);
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add(); // Add stack base offset.
+				if (command == PUSHARGSR)
+					wasm.emitLocalGet(l_idx_scratch);
+				else
+					wasm.emitI32Const(arg1);
+				wasm.emitI32Store();
+			}
+		}
+		break;
+
+		case SETR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg2);
+			});
+		}
+		break;
+		case SETV:
+		{
+			// For test_jit_runtime_debug_test.
+			static bool jit_runtime_debug_test_force_bug = get_flag_bool("-jit-runtime-debug-test-force-bug").value_or(false);
+			if (jit_runtime_debug_test_force_bug) arg2++;
+
+			set_z_register(state, arg1, [&](){
+				wasm.emitI32Const(arg2);
+			});
+		}
+		break;
+		case STACKWRITEATVV:
+		{
+			// Lit[arg1] -> Stack[arg2]
+			wasm.emitGlobalGet(g_idx_sp);
+			wasm.emitI32Const(arg2);
+			wasm.emitI32Add();
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+			wasm.emitGlobalGet(g_idx_stack);
+			wasm.emitI32Add();
+			wasm.emitI32Const(arg1);
+			wasm.emitI32Store();
+		}
+		break;
+		case STORE:
+		{
+			// Reg[arg1] -> Stack[rSFRAME + arg2]
+			get_z_register(state, rSFRAME);
+			if (arg2)
+			{
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Add();
+			}
+
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+			wasm.emitGlobalGet(g_idx_stack);
+			wasm.emitI32Add();
+			get_z_register(state, arg1);
+			wasm.emitI32Store();
+		}
+		break;
+		case STORED:
+		{
+			// Reg[arg1] -> Stack[rSFRAME + arg2]
+			get_z_register(state, rSFRAME);
+			wasm.emitI32Const(10000);
+			wasm.emitI32DivU();
+			if (arg2)
+			{
+				wasm.emitI32Const(arg2 / 10000);
+				wasm.emitI32Add();
+			}
+
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+			wasm.emitGlobalGet(g_idx_stack);
+			wasm.emitI32Add();
+			get_z_register(state, arg1);
+			wasm.emitI32Store();
+		}
+		break;
+		case LOAD:
+		{
+			// Stack[rSFRAME + arg2] -> Reg[arg1]
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, rSFRAME);
+				if (arg2)
+				{
+					wasm.emitI32Const(arg2);
+					wasm.emitI32Add();
+				}
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add();
+				wasm.emitI32Load();
+			});
+		}
+		break;
+		case LOADD:
+		{
+			// Stack[rSFRAME + arg2] -> Reg[arg1]
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, rSFRAME);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivU();
+				if (arg2)
+				{
+					wasm.emitI32Const(arg2 / 10000);
+					wasm.emitI32Add();
+				}
+
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add();
+				wasm.emitI32Load();
+			});
+		}
+		break;
+		case POP:
+		{
+			set_z_register(state, arg1, [&](){
+				wasm.emitGlobalGet(g_idx_sp);
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add(); // Add stack base offset.
+				wasm.emitI32Load();
+
+				add_sp(state, 1);
+			});
+		}
+		break;
+
+		case POPARGS:
+		{
+			add_sp(state, arg2);
+
+			set_z_register(state, arg1, [&](){
+				// ri->sp - 1
+				wasm.emitGlobalGet(g_idx_sp);
+				wasm.emitI32Const(1);
+				wasm.emitI32Sub();
+
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul();
+
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add(); // Add stack base offset.
+				wasm.emitI32Load();
+			});
+		}
+		break;
+
+		case DIVR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg2);
+				wasm.emitLocalTee(l_idx_scratch);
+
+				wasm.emitIf(WasmSimpleBlockType::I32);
+				get_z_register(state, arg1);
+				wasm.emitI32ExtendS();
+				wasm.emitI64Const(10000);
+				wasm.emitI64Mul();
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32ExtendS();
+				wasm.emitI64DivS();
+				wasm.emitI64Wrap();
+
+				wasm.emitElse();
+				wasm.emitI32Const(0);
+				wasm.emitCall(state.f_idx_log_error);
+				wasm.emitI32Const(MAX_SIGNED_32);
+				wasm.emitEnd();
+			});
+		}
+		break;
+
+		case PEEK:
+		{
+			set_z_register(state, arg1, [&](){
+				wasm.emitGlobalGet(g_idx_sp);
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add(); // Add stack base offset.
+				wasm.emitI32Load();
+			});
+		}
+		break;
+
+		case DIVV:
+		{
+			set_z_register(state, arg1, [&](){
+				if (arg2 == 0)
+				{
+					wasm.emitI32Const(0);
+					wasm.emitCall(state.f_idx_log_error);
+					wasm.emitI32Const(MAX_SIGNED_32);
+					return;
+				}
+
+				get_z_register(state, arg1);
+				wasm.emitI32ExtendS();
+				wasm.emitI64Const(10000);
+				wasm.emitI64Mul();
+				wasm.emitI64Const(arg2);
+				wasm.emitI64DivS();
+				wasm.emitI64Wrap();
+			});
+		}
+		break;
+
+		case ADDR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				get_z_register(state, arg2);
+				wasm.emitI32Add();
+			});
+		}
+		break;
+		case ADDV:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Add();
+			});
+		}
+		break;
+
+		case CASTBOOLF:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(0);
+				wasm.emitI32Ne();
+			});
+		}
+		break;
+		case CASTBOOLI:
+		{
+			set_z_register(state, arg1, [&](){
+				wasm.emitI32Const(10000);
+				wasm.emitI32Const(0);
+				get_z_register(state, arg1);
+				wasm.emitSelect();
+			});
+		}
+		break;
+
+		case MODR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg2);
+				wasm.emitLocalTee(l_idx_scratch);
+
+				wasm.emitIf(WasmSimpleBlockType::I32);
+				get_z_register(state, arg1);
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32RemS();
+
+				wasm.emitElse();
+				wasm.emitI32Const(1);
+				wasm.emitCall(state.f_idx_log_error);
+				wasm.emitI32Const(0);
+				wasm.emitEnd();
+			});
+		}
+		break;
+		case MODV:
+		{
+			set_z_register(state, arg1, [&](){
+				if (arg2 == 0)
+				{
+					wasm.emitI32Const(1);
+					wasm.emitCall(state.f_idx_log_error);
+					wasm.emitI32Const(0);
+					return;
+				}
+
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2);
+				wasm.emitI32RemS();
+			});
+		}
+		break;
+
+		case MULTR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32ExtendS();
+				get_z_register(state, arg2);
+				wasm.emitI32ExtendS();
+				wasm.emitI64Mul();
+				wasm.emitI64Const(10000);
+				wasm.emitI64DivS();
+				wasm.emitI64Wrap();
+			});
+		}
+		break;
+		case MULTV:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32ExtendS();
+				wasm.emitI64Const(arg2);
+				wasm.emitI64Mul();
+				wasm.emitI64Const(10000);
+				wasm.emitI64DivS();
+				wasm.emitI64Wrap();
+			});
+		}
+		break;
+
+		case SUBR:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				get_z_register(state, arg2);
+				wasm.emitI32Sub();
+			});
+		}
+		break;
+		case SUBV:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Sub();
+			});
+		}
+		break;
+		case SUBV2:
+		{
+			// reg = arg1 - reg (note: the destination is arg2).
+			set_z_register(state, arg2, [&](){
+				wasm.emitI32Const(arg1);
+				get_z_register(state, arg2);
+				wasm.emitI32Sub();
+			});
+		}
+		break;
+
+		case ABS:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitLocalSet(l_idx_scratch);
+				// val < 0 ? -val : val
+				wasm.emitI32Const(0);
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32Sub();
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32Const(0);
+				wasm.emitI32LtS();
+				wasm.emitSelect();
+			});
+		}
+		break;
+
+		case MINR:
+		case MINV:
+		case MAXR:
+		case MAXV:
+		{
+			bool is_min = command == MINR || command == MINV;
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitLocalSet(l_idx_scratch);
+				if (command == MINR || command == MAXR)
+					get_z_register(state, arg2);
+				else
+					wasm.emitI32Const(arg2);
+				wasm.emitLocalSet(l_idx_scratch2);
+
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitLocalGet(l_idx_scratch2);
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitLocalGet(l_idx_scratch2);
+				if (is_min)
+					wasm.emitI32LtS();
+				else
+					wasm.emitI32GtS();
+				wasm.emitSelect();
+			});
+		}
+		break;
+
+		// AND/OR operate on the integer part: (a/10000 OP b/10000) * 10000.
+		case ANDR:
+		case ANDV:
+		case ORR:
+		case ORV:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				if (command == ANDR || command == ORR)
+				{
+					get_z_register(state, arg2);
+					wasm.emitI32Const(10000);
+					wasm.emitI32DivS();
+				}
+				else
+					wasm.emitI32Const(arg2 / 10000);
+				if (command == ANDR || command == ANDV)
+					wasm.emitI32And();
+				else
+					wasm.emitI32Or();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case ORR32:
+		case ORV32:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				if (command == ORR32)
+					get_z_register(state, arg2);
+				else
+					wasm.emitI32Const(arg2);
+				wasm.emitI32Or();
+			});
+		}
+		break;
+
+		// FLOOR/CEILING round the fixed-point value to a whole number
+		// (a multiple of 10000), toward -/+ infinity. Matches zfix
+		// getFloor/getCeil: q = val/10000 (truncating), then adjust q by
+		// one when there is a remainder in the rounding direction.
+		case FLOOR:
+		case CEILING:
+		{
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitLocalTee(l_idx_scratch);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				// (val % 10000 != 0) & (val < 0 for floor / val > 0 for ceil)
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32Const(10000);
+				wasm.emitI32RemS();
+				wasm.emitI32Const(0);
+				wasm.emitI32Ne();
+				wasm.emitLocalGet(l_idx_scratch);
+				wasm.emitI32Const(0);
+				if (command == FLOOR)
+					wasm.emitI32LtS();
+				else
+					wasm.emitI32GtS();
+				wasm.emitI32And();
+				if (command == FLOOR)
+					wasm.emitI32Sub();
+				else
+					wasm.emitI32Add();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+
+		case LOADI:
+		{
+			// Stack[reg[arg2] / 10000] -> Reg[arg1]
+			// Like the x64 JIT (but unlike the interpreter), no stack
+			// bounds check - same as the LOAD/STORE family above.
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg2);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				wasm.emitI32Const(4);
+				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+				wasm.emitGlobalGet(g_idx_stack);
+				wasm.emitI32Add();
+				wasm.emitI32Load();
+			});
+		}
+		break;
+		case STOREI:
+		{
+			// Reg[arg1] -> Stack[reg[arg2] / 10000]
+			get_z_register(state, arg2);
+			wasm.emitI32Const(10000);
+			wasm.emitI32DivS();
+			wasm.emitI32Const(4);
+			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+			wasm.emitGlobalGet(g_idx_stack);
+			wasm.emitI32Add();
+			get_z_register(state, arg1);
+			wasm.emitI32Store();
+		}
+		break;
+
+		case BITNOT:
+		{
+			// reg = (~(reg / 10000)) * 10000  (~x == x ^ -1)
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				wasm.emitI32Const(-1);
+				wasm.emitI32Xor();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case BITNOT32:
+		{
+			// reg = ~reg
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(-1);
+				wasm.emitI32Xor();
+			});
+		}
+		break;
+		case LSHIFTV:
+		case RSHIFTV:
+		{
+			// reg = ((reg / 10000) <</>> k) * 10000, k is a constant count.
+			// wasm masks the shift count to 5 bits, matching the interpreter
+			// (whose C++ shifts also lower to masked shifts); >> is arithmetic.
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				wasm.emitI32Const(arg2 / 10000);
+				if (command == LSHIFTV) wasm.emitI32Shl();
+				else wasm.emitI32ShrS();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case LSHIFTV32:
+		case RSHIFTV32:
+		{
+			// reg = reg <</>> k (raw, no fixed-point scaling on the value).
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2 / 10000);
+				if (command == LSHIFTV32) wasm.emitI32Shl();
+				else wasm.emitI32ShrS();
+			});
+		}
+		break;
+		case LSHIFTR:
+		case RSHIFTR:
+		{
+			// reg = ((reg / 10000) <</>> (count / 10000)) * 10000, count is a register.
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				get_z_register(state, arg2);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				if (command == LSHIFTR) wasm.emitI32Shl();
+				else wasm.emitI32ShrS();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case LSHIFTR32:
+		case RSHIFTR32:
+		{
+			// reg = reg <</>> (count / 10000) (raw value, count is a register).
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				get_z_register(state, arg2);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				if (command == LSHIFTR32) wasm.emitI32Shl();
+				else wasm.emitI32ShrS();
+			});
+		}
+		break;
+		case XORV:
+		{
+			// reg = ((reg / 10000) ^ (arg2 / 10000)) * 10000
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				wasm.emitI32Const(arg2 / 10000);
+				wasm.emitI32Xor();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case XORR:
+		{
+			// reg = ((reg / 10000) ^ (arg2reg / 10000)) * 10000
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				get_z_register(state, arg2);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+				wasm.emitI32Xor();
+				wasm.emitI32Const(10000);
+				wasm.emitI32Mul();
+			});
+		}
+		break;
+		case XORV32:
+		{
+			// reg = reg ^ arg2 (raw)
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				wasm.emitI32Const(arg2);
+				wasm.emitI32Xor();
+			});
+		}
+		break;
+		case XORR32:
+		{
+			// reg = reg ^ arg2reg (raw)
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, arg1);
+				get_z_register(state, arg2);
+				wasm.emitI32Xor();
+			});
+		}
+		break;
+
+		case READPODARRAYR:
+		case READPODARRAYV:
+		{
+			// reg[arg1] = array[rINDEX][index]. Calls a helper for the bounds-checked
+			// access (array pointer + index passed as args), so no register flush.
+			set_z_register(state, arg1, [&](){
+				get_z_register(state, rINDEX);
+				if (command == READPODARRAYR)
+				{
+					get_z_register(state, arg2);
+					wasm.emitI32Const(10000);
+					wasm.emitI32DivS();
+				}
+				else
+				{
+					wasm.emitI32Const(arg2 / 10000);
+				}
+				wasm.emitI32Const(state.pc);
+				wasm.emitCall(state.f_idx_pod_read);
+			});
+		}
+		break;
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+		{
+			// array[rINDEX][index] = value. First suffix letter is the index operand
+			// kind, second is the value operand kind (R=register, V=immediate).
+			bool index_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYRV;
+			bool value_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYVR;
+
+			get_z_register(state, rINDEX);
+			if (index_is_reg)
+			{
+				get_z_register(state, arg1);
+				wasm.emitI32Const(10000);
+				wasm.emitI32DivS();
+			}
+			else
+			{
+				wasm.emitI32Const(arg1 / 10000);
+			}
+			if (value_is_reg)
+				get_z_register(state, arg2);
+			else
+				wasm.emitI32Const(arg2);
+			wasm.emitI32Const(script->zasm[i].arg3);
+			wasm.emitI32Const(state.pc);
+			wasm.emitCall(state.f_idx_pod_write);
+		}
+		break;
+		case WRITEPODARRAY:
+		{
+			// Bulk-initialize array (reg arg1) from the instruction's constant vector.
+			get_z_register(state, arg1);
+			wasm.emitI32Const(state.pc);
+			wasm.emitCall(state.f_idx_writepodarr);
+		}
+		break;
+		case ALLOCATEMEMV:
+		{
+			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
+			set_z_register(state, arg1, [&](){
+				wasm.emitI32Const(arg2 / 10000);
+				wasm.emitI32Const(script->zasm[i].arg3);
+				wasm.emitI32Const(state.pc);
+				wasm.emitCall(state.f_idx_allocatemem);
+			});
+		}
+		break;
+
+		default:
+		{
+			printf("unexpected command %s at index %d\n", zasm_op_to_string(command).c_str(), (int)i);
+			CHECK(false);
+		}
+	}
+}
+
+// Structured ("relooped") compilation, for non-yielding functions.
+//
+// Instead of the loop-switch dispatch (see compile_function below), the
+// function's CFG is reconstructed into real wasm block/loop/if control flow
+// via WasmStructurer (Ramsey, "Beyond Relooper", ICFP 2022). Script loops
+// become real wasm loops - no global write + br_table dispatch per iteration,
+// and the browser's optimizing tier can see the loop nest.
+//
+// Only non-yielding functions qualify: the yielder's call/return/resume
+// targets are runtime values (a computed goto), which structured control flow
+// cannot express, so it stays on the loop-switch.
+//
+// compile_function_structured returns nullopt when the function can't be
+// structured - an irreducible CFG, or a control shape the classifier doesn't
+// model (e.g. a comparison-goto with no reaching compare) - and the caller
+// falls back to the loop-switch lowering.
+
+struct StructuredFnSink : StructSink
+{
+	CompilationState* state;
+	const zasm_script* script;
+	const StructuredZasm* structured_zasm;
+	const std::map<pc_t, pc_t>* function_id_to_idx;
+	const std::vector<pc_t>* starts;
+	// Last pc each block's body emits; the block's terminating branch (if any)
+	// is emitted by the structurer via BlockInfo / emit_cond instead.
+	const std::vector<int>* body_last;
+	// For a block terminated by an intra-function GOTO (emitted by the
+	// structurer as a bare branch), the GOTO's pc - so its debug marker and
+	// runtime_debug call still appear, matching the loop-switch lowering and
+	// the interpreter's trace. -1 otherwise.
+	const std::vector<int>* goto_debug_pc;
+	const std::map<pc_t, CmpGroup>* cmp_groups;
+	const std::map<pc_t, pc_t>* consumer_to_cmp;
+	pc_t final_pc;
+	// The entry function of a script that ends by falling off the end (global
+	// init scripts have no QUIT) runs the script-end 0xFFFF handling.
+	bool ffff_tail;
+
+	pc_t block_final(int b) const
+	{
+		return b + 1 < (int)starts->size() ? (*starts)[b + 1] - 1 : final_pc;
+	}
+
+	void emit_block(int) override { state->wasm->emitBlock(); }
+	void emit_loop(int) override { state->wasm->emitLoop(); }
+	void emit_if() override { state->wasm->emitIf(); }
+	void emit_else() override { state->wasm->emitElse(); }
+	void emit_end() override { state->wasm->emitEnd(); }
+	void emit_br(int depth, int) override { state->wasm->emitBr(depth); }
+	void emit_br_if(int depth, int) override { state->wasm->emitBrIf(depth); }
+	void emit_i32_eqz() override { state->wasm->emitI32Eqz(); }
+
+	void emit_body(int b) override
+	{
+		WasmAssembler& wasm = *state->wasm;
+
+		for (int i = (*starts)[b]; i <= (*body_last)[b]; i++)
+		{
+			state->pc = i;
+			int command = script->zasm[i].command;
+
+#ifndef NDEBUG
+			wasm.emitI32Const(i);
+			wasm.emitDrop();
+#endif
+
+			if (state->runtime_debugging && !command_uses_comparison_result(command))
+			{
+				wasm.emitI32Const(i);
+				wasm.emitGlobalGet(state->g_idx_sp);
+				wasm.emitCall(state->f_idx_runtime_debug);
+			}
+
+			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
+			{
+				// Emit the operand snapshot (if any); the consumers emit as
+				// they are reached - SETx below, a GOTOx terminator in
+				// emit_cond. A loose compare with no consumers emits nothing.
+				auto it = cmp_groups->find(i);
+				if (it != cmp_groups->end())
+					emit_cmp_capture(*state, script, it->second);
+				continue;
+			}
+
+			if (auto it = consumer_to_cmp->find(i); it != consumer_to_cmp->end())
+			{
+				if (command == NOP)
+					continue;
+				// GOTOx consumers are always block terminators (emit_cond).
+				CHECK(!command_is_goto_consumer(command));
+				emit_cmp_set_consumer(*state, script, cmp_groups->at(it->second), i);
+				continue;
+			}
+
+			switch (command)
+			{
+				case NOP:
+					break;
+
+				case CALLFUNC:
+					// In a non-yielder every callee is non-yielding (a yielding
+					// callee would make this function yield), so this is always
+					// a native call.
+					compile_callfunc_native(*state, *structured_zasm, *function_id_to_idx, i, script->zasm[i].arg1);
+					break;
+
+				case GOTO:
+					// Only the cross-function (tail-call) variant is body-emitted;
+					// intra-function GOTOs are handled by the structurer.
+					compile_goto_tailcall(*state, *structured_zasm, *function_id_to_idx, script->zasm[i].arg1);
+					break;
+
+				case QUIT:
+					compile_quit(*state, script, i);
+					break;
+
+				case RETURNFUNC:
+					// Totally ignore the return pc on the data stack; the wasm
+					// call stack handles the return.
+					wasm.emitReturn();
+					break;
+
+				default:
+				{
+					if (!command_is_compiled(command))
+					{
+						// Batch consecutive uncompiled commands into one
+						// interpreter call, up to the end of this block.
+						int count = 1;
+						for (int j = i + 1; j <= (*body_last)[b]; j++)
+						{
+							if (command_is_compiled(script->zasm[j].command))
+								break;
+							count += 1;
+						}
+						compile_command_interpreter(*state, script, i, count);
+						i += count - 1;
+						break;
+					}
+
+					compile_plain_command(*state, script, i);
+				}
+			}
+		}
+
+		int gpc = (*goto_debug_pc)[b];
+		if (gpc >= 0)
+		{
+			state->pc = gpc;
+#ifndef NDEBUG
+			wasm.emitI32Const(gpc);
+			wasm.emitDrop();
+#endif
+			if (state->runtime_debugging)
+			{
+				wasm.emitI32Const(gpc);
+				wasm.emitGlobalGet(state->g_idx_sp);
+				wasm.emitCall(state->f_idx_runtime_debug);
+			}
+		}
+
+		if (ffff_tail && b + 1 == (int)starts->size())
+		{
+			// This will run some 0xFFFF specific code, then trap.
+			compile_command_interpreter(*state, script, script->size - 1, 1);
+		}
+	}
+
+	void emit_cond(int b) override
+	{
+		// The block ends in a GOTOx comparison consumer; leave its take-branch
+		// value (an i32, nonzero => branch taken) on the stack.
+		pc_t term_pc = block_final(b);
+		state->pc = term_pc;
+		emit_cmp_goto_value(*state, script, cmp_groups->at(consumer_to_cmp->at(term_pc)), term_pc);
+	}
+};
+
+static std::optional<WasmAssembler> compile_function_structured(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, pc_t fn_id, const std::map<pc_t, pc_t>& function_id_to_idx)
+{
+	const auto& fn = structured_zasm.functions[fn_id];
+	pc_t start_pc = fn.start_pc;
+	pc_t final_pc = fn.final_pc;
+
+	// Refined block partition: the CFG's block starts, plus a split after every
+	// control op the CFG doesn't split on (QUIT/RETURNFUNC never split a block,
+	// and a branch to the function's own entry is treated as a recursive call
+	// by zasm_construct_cfg, so it doesn't split either). With the refinement,
+	// a control op is always the last instruction of its block.
+	auto cfg = zasm_construct_cfg(script, {{start_pc, final_pc}});
+	std::vector<pc_t> starts = cfg.block_starts;
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+
+		// A non-yielding function can't contain these; bail defensively.
+		if (command_is_wait(command) || command == RUNGENFRZSCR)
+			return std::nullopt;
+		// compile_callfunc_native requires a known function entry.
+		if (command == CALLFUNC && !structured_zasm.start_pc_to_function.contains(script->zasm[i].arg1))
+			return std::nullopt;
+
+		bool is_control = command == GOTO || command_is_goto_consumer(command) ||
+						  command == QUIT || command == RETURNFUNC;
+		if (is_control && i + 1 <= final_pc)
+			starts.push_back(i + 1);
+	}
+	std::sort(starts.begin(), starts.end());
+	starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+
+	int n = starts.size();
+	auto block_id_of = [&](int pc) -> int {
+		auto it = std::lower_bound(starts.begin(), starts.end(), (pc_t)pc);
+		if (it == starts.end() || *it != (pc_t)pc)
+			return -1;
+		return it - starts.begin();
+	};
+	auto block_final = [&](int b) -> pc_t {
+		return b + 1 < n ? starts[b + 1] - 1 : final_pc;
+	};
+
+	// Comparison groups: map each compare and each of its consumers, so SETx
+	// consumers emit in the body and a GOTOx terminator can re-derive its
+	// condition in emit_cond. A consumer run may span blocks (e.g. `COMPAREV;
+	// GOTOTRUE a; GOTOFALSE b`), which this per-pc map handles uniformly.
+	std::map<pc_t, CmpGroup> cmp_groups;
+	std::map<pc_t, pc_t> consumer_to_cmp;
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
+			continue;
+
+		CmpGroup g = analyze_comparison(script, i);
+		if (g.consumers.empty())
+			continue;
+
+		// A consumer run that leaves the function; shouldn't happen.
+		if (g.consumers.back() > final_pc)
+			return std::nullopt;
+
+		for (pc_t cj : g.consumers)
+			consumer_to_cmp[cj] = i;
+
+		i = g.consumers.back();
+		cmp_groups.emplace(g.cmp_pc, std::move(g));
+	}
+
+	// Classify each block's terminator (see wasm_structurer.h).
+	std::vector<BlockInfo> infos(n);
+	std::vector<int> body_last(n);
+	std::vector<int> goto_debug_pc(n, -1);
+	bool ffff_tail = false;
+	for (int b = 0; b < n; b++)
+	{
+		pc_t bfinal = block_final(b);
+		int command = script->zasm[bfinal].command;
+		int arg1 = script->zasm[bfinal].arg1;
+		BlockInfo& bi = infos[b];
+		body_last[b] = bfinal;
+
+		if (command == GOTO)
+		{
+			if (arg1 >= (int)start_pc && arg1 <= (int)final_pc)
+			{
+				int target = block_id_of(arg1);
+				if (target < 0)
+					return std::nullopt;
+
+				bi.term = Term::Uncond;
+				bi.succ_true = target;
+				body_last[b] = (int)bfinal - 1; // the structurer emits the branch
+				goto_debug_pc[b] = (int)bfinal;
+			}
+			else if (structured_zasm.start_pc_to_function.contains(arg1))
+			{
+				bi.term = Term::Exit; // the body emits the tail-call + return
+			}
+			else
+				return std::nullopt;
+		}
+		else if (command_is_goto_consumer(command))
+		{
+			if (!consumer_to_cmp.contains(bfinal))
+				return std::nullopt; // a GOTOx with no reaching compare
+
+			int target = arg1 >= (int)start_pc && arg1 <= (int)final_pc ? block_id_of(arg1) : -1;
+			if (target < 0 || b + 1 >= n)
+				return std::nullopt;
+
+			bi.term = Term::Cond;
+			bi.succ_true = target;
+			bi.succ_false = b + 1;
+			body_last[b] = (int)bfinal - 1; // emit_cond emits the condition
+		}
+		else if (command == QUIT || command == RETURNFUNC)
+		{
+			bi.term = Term::Exit; // the body emits the trap/return
+		}
+		else if (b + 1 < n)
+		{
+			// No control op; the block exists because the next pc is a branch
+			// target. Plain fall-through.
+			bi.term = Term::Uncond;
+			bi.succ_true = b + 1;
+		}
+		else
+		{
+			// Falls off the function's end. For the entry function of a script
+			// whose zasm ends right after (global init scripts have no QUIT),
+			// run the script-end 0xFFFF handling; otherwise this is simply an
+			// implicit return.
+			bi.term = Term::Exit;
+			if (fn_id == 0 && script->size - 1 == final_pc + 1 && script->zasm[script->size - 1].command == 0xFFFF)
+				ffff_tail = true;
+		}
+	}
+
+	WasmAssembler wasm;
+	state.wasm = &wasm;
+
+	StructuredFnSink sink{};
+	sink.state = &state;
+	sink.script = script;
+	sink.structured_zasm = &structured_zasm;
+	sink.function_id_to_idx = &function_id_to_idx;
+	sink.starts = &starts;
+	sink.body_last = &body_last;
+	sink.goto_debug_pc = &goto_debug_pc;
+	sink.cmp_groups = &cmp_groups;
+	sink.consumer_to_cmp = &consumer_to_cmp;
+	sink.final_pc = final_pc;
+	sink.ffff_tail = ffff_tail;
+
+	// Irreducibility is detected before anything is emitted.
+	WasmStructurer structurer(n, 0, infos, sink);
+	if (!structurer.run())
+		return std::nullopt;
+
+	wasm.emitEnd(); // Function end.
+
+	return wasm;
 }
 
 static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
@@ -743,18 +1992,11 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	WasmAssembler wasm;
 	state.wasm = &wasm;
 
-	uint8_t g_idx_stack = state.g_idx_stack;
 	uint8_t g_idx_ret_stack = state.g_idx_ret_stack;
 	uint8_t g_idx_ret_stack_index = state.g_idx_ret_stack_index;
 	uint8_t g_idx_wait_index = state.g_idx_wait_index;
 	uint8_t g_idx_sp = state.g_idx_sp;
 	uint8_t g_idx_target_block_id = state.g_idx_target_block_id;
-
-	uint8_t l_idx_scratch = 0;
-	// Second scratch, for two-operand commands (MIN/MAX). Shares local 1 with
-	// compile_comparison's operand snapshot - never live at the same time, since
-	// a comparison's consumers immediately follow it.
-	uint8_t l_idx_scratch2 = 1;
 
 	std::vector<std::pair<pc_t, pc_t>> pc_ranges;
 	for (auto fn_id : function_ids)
@@ -764,16 +2006,17 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	}
 	auto cfg = zasm_construct_cfg(script, pc_ranges);
 
-	// In this naive approach, all control flow is converted to a very simple, but slow, loop-switch construct.
-	// The main control flow construct is a giant switch case, implemented with "loop", "br_table", and a "block"
-	// for every block in the CFG.
+	// All control flow is converted to a simple, but slow, loop-switch construct: a giant switch case,
+	// implemented with "loop", "br_table", and a "block" for every block in the CFG.
 	//
 	// See: https://medium.com/leaningtech/solving-the-structured-control-flow-problem-once-and-for-all-5123117b1ee2#:~:text=A%20universal%20but%20inefficient%20solution
 	//
-	// TODO: reduce CFG
-	// 
-	// this is gold: https://dl.acm.org/doi/pdf/10.1145/3547621
-	// this may help too :https://dl.acm.org/doi/pdf/10.1145/512976.512979
+	// Non-yielding functions don't use this - they get real structured control flow via
+	// compile_function_structured (which falls back to this lowering for irreducible CFGs, and
+	// -no-jit-wasm-structured forces it everywhere). The yielder is here to stay on the dispatch for
+	// its call/return/resume edges, whose targets are runtime values; but its *static* stretches
+	// (loops between suspension points) could still be structured on top of a residual dispatch.
+	// If attempting that, this is gold: https://dl.acm.org/doi/pdf/10.1145/3547621
 
 	// Handle jumping to the correct initial block when calling the entry function.
 	if (script->name == "@single")
@@ -850,7 +2093,6 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 
 			int command = script->zasm[i].command;
 			int arg1 = script->zasm[i].arg1;
-			int arg2 = script->zasm[i].arg2;
 
 			if (state.runtime_debugging && !command_uses_comparison_result(command))
 			{
@@ -938,37 +2180,19 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				{
 					if (command == CALLFUNC)
 					{
-						// When calling functions that do not yield, we can use wasm.emitCall to use
-						// a native function call. This does not require g_idx_ret_stack_index.
-						// However, we still increment g_idx_ret_stack_index so we can check for the
-						// call limit.
-						check_call_limit(state, arg1);
-
 						pc_t fn_id = structured_zasm.start_pc_to_function.at(arg1);
 						if (!may_yield || !structured_zasm.functions[fn_id].may_yield)
 						{
-							// g_idx_ret_stack_index += 1
-							modify_global_idx(wasm, g_idx_ret_stack_index, 1);
-							emit_trace_call_stack_push(state, i);
-
-							// This is a function call, the function is compiled as a separate WASM function, so we can simply
-							// call it and be done with this instruction. Set the initial block id to 0 so the function starts
-							// at its beginning.
-							wasm.emitI32Const(0);
-							wasm.emitGlobalSet(state.g_idx_target_block_id);
-
-							pc_t fn_idx = function_id_to_idx.at(fn_id);
-							wasm.emitCall(fn_idx);
-
-							// g_idx_ret_stack_index -= 1
-							emit_trace_call_stack_pop(state);
-							modify_global_idx(wasm, g_idx_ret_stack_index, -1);
+							// The callee is compiled as a separate WASM function, so we can simply
+							// call it and be done with this instruction.
+							compile_callfunc_native(state, structured_zasm, function_id_to_idx, i, arg1);
 							continue;
 						}
 
 						// The function call is to some other may-yield function which is inlined in the yielder function.
 						// Before we "call" it, we need to remember where to return to. To do that, we push the index of the
 						// subsequent block to a return call stack. RETURNFUNC will later pop that block index.
+						check_call_limit(state, arg1);
 
 						// g_idx_ret_stack[g_idx_ret_stack_index] = return_block
 						{
@@ -988,28 +2212,8 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 					else if (structured_zasm.start_pc_to_function.contains(arg1) &&
 							 !function_ids.contains(structured_zasm.start_pc_to_function.at(arg1)))
 					{
-						// A GOTO whose target is the entry of a function in a *different* compile
-						// unit. Each (non-yielding) function is compiled as its own WASM function,
-						// and the loop-switch `br` can only reach blocks within the current function,
-						// so we cannot branch there. Instead, lower the GOTO as a tail-call into the
-						// target function.
-						//
-						// This is only expected for the "~Init" script of older (2.55-era) quests:
-						// that script is assembled by inlining init function bodies and tail-jumping
-						// over them (via GOTO) to the "run" continuation, rather than using a plain
-						// CALLFUNC. Modern compiles don't produce cross-function GOTOs.
-						// jit_compile_script validates the target is a separately-compiled,
-						// non-yielding function's entry, so emitCall is sufficient.
-						//
-						// Example: .tmp/replay_uploads/EB5E2CFAE26A97BAA15637C0A60D557A/6940ead2-143f-45b9-a894-1bc05c81b9e0-updated-main.zplay
-						check_call_limit(state, arg1);
-						modify_global_idx(wasm, g_idx_ret_stack_index, 1);
-						wasm.emitI32Const(0);
-						wasm.emitGlobalSet(g_idx_target_block_id);
-						wasm.emitCall(function_id_to_idx.at(structured_zasm.start_pc_to_function.at(arg1)));
-						modify_global_idx(wasm, g_idx_ret_stack_index, -1);
-						// The GOTO does not return here, so end this function once the callee does.
-						wasm.emitReturn();
+						// A cross-function GOTO; see compile_goto_tailcall.
+						compile_goto_tailcall(state, structured_zasm, function_id_to_idx, arg1);
 						continue;
 					}
 
@@ -1087,775 +2291,11 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				break;
 
 				case QUIT:
-				{
-					compile_command_interpreter(state, script, i, 1);
-					state.wasm->emitI32Const(RUNSCRIPT_STOPPED);
-					state.wasm->emitCall(state.f_idx_set_return_value);
-					state.wasm->emitUnreachable(); // Bail.
-				}
-				break;
-
-				case PUSHR:
-				case PUSHV:
-				{
-					// Evaluate the value to push BEFORE decrementing sp, matching the
-					// interpreter and x64 JIT. A stack-dependent register (e.g.
-					// SCREENDATAEXDOOR) read after add_sp would see the decremented sp
-					// and read the wrong stack slot. Capturing into a local also handles
-					// SP/SP2 (which read the current sp) without a special case.
-					if (command == PUSHR)
-						get_z_register(state, arg1);
-					else
-						wasm.emitI32Const(arg1);
-					wasm.emitLocalSet(l_idx_scratch);
-
-					add_sp(state, -1);
-					check_sp(state);
-
-					wasm.emitGlobalGet(g_idx_sp);
-					wasm.emitI32Const(4);
-					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-					wasm.emitGlobalGet(g_idx_stack);
-					wasm.emitI32Add(); // Add stack base offset.
-					wasm.emitLocalGet(l_idx_scratch);
-					wasm.emitI32Store();
-				}
-				break;
-
-				case PUSHARGSR:
-				case PUSHARGSV:
-				{
-					if (command == PUSHARGSR)
-					{
-						get_z_register(state, arg1);
-						wasm.emitLocalSet(l_idx_scratch);
-					}
-
-					// TODO: there's certainly a better way to do this.
-					for (int i = 0; i < arg2; i++)
-					{
-						add_sp(state, -1);
-						check_sp(state);
-
-						wasm.emitGlobalGet(g_idx_sp);
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add(); // Add stack base offset.
-						if (command == PUSHARGSR)
-							wasm.emitLocalGet(l_idx_scratch);
-						else
-							wasm.emitI32Const(arg1);
-						wasm.emitI32Store();
-					}
-				}
-				break;
-
-				case SETR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg2);
-					});
-				}
-				break;
-				case SETV:
-				{
-					// For test_jit_runtime_debug_test.
-					static bool jit_runtime_debug_test_force_bug = get_flag_bool("-jit-runtime-debug-test-force-bug").value_or(false);
-					if (jit_runtime_debug_test_force_bug) arg2++;
-
-					set_z_register(state, arg1, [&](){
-						wasm.emitI32Const(arg2);
-					});
-				}
-				break;
-				case STACKWRITEATVV:
-				{
-					// Lit[arg1] -> Stack[arg2]
-					wasm.emitGlobalGet(g_idx_sp);
-					wasm.emitI32Const(arg2);
-					wasm.emitI32Add();
-					wasm.emitI32Const(4);
-					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-					wasm.emitGlobalGet(g_idx_stack);
-					wasm.emitI32Add();
-					wasm.emitI32Const(arg1);
-					wasm.emitI32Store();
-				}
-				break;
-				case STORE:
-				{
-					// Reg[arg1] -> Stack[rSFRAME + arg2]
-					get_z_register(state, rSFRAME);
-					if (arg2)
-					{
-						wasm.emitI32Const(arg2);
-						wasm.emitI32Add();
-					}
-
-					wasm.emitI32Const(4);
-					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-					wasm.emitGlobalGet(g_idx_stack);
-					wasm.emitI32Add();
-					get_z_register(state, arg1);
-					wasm.emitI32Store();
-				}
-				break;
-				case STORED:
-				{
-					// Reg[arg1] -> Stack[rSFRAME + arg2]
-					get_z_register(state, rSFRAME);
-					wasm.emitI32Const(10000);
-					wasm.emitI32DivU();
-					if (arg2)
-					{
-						wasm.emitI32Const(arg2 / 10000);
-						wasm.emitI32Add();
-					}
-
-					wasm.emitI32Const(4);
-					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-					wasm.emitGlobalGet(g_idx_stack);
-					wasm.emitI32Add();
-					get_z_register(state, arg1);
-					wasm.emitI32Store();
-				}
-				break;
-				case LOAD:
-				{
-					// Stack[rSFRAME + arg2] -> Reg[arg1]
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, rSFRAME);
-						if (arg2)
-						{
-							wasm.emitI32Const(arg2);
-							wasm.emitI32Add();
-						}
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add();
-						wasm.emitI32Load();
-					});
-				}
-				break;
-				case LOADD:
-				{
-					// Stack[rSFRAME + arg2] -> Reg[arg1]
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, rSFRAME);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivU();
-						if (arg2)
-						{
-							wasm.emitI32Const(arg2 / 10000);
-							wasm.emitI32Add();
-						}
-
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add();
-						wasm.emitI32Load();
-					});
-				}
-				break;
-				case POP:
-				{
-					set_z_register(state, arg1, [&](){
-						wasm.emitGlobalGet(g_idx_sp);
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add(); // Add stack base offset.
-						wasm.emitI32Load();
-
-						add_sp(state, 1);
-					});
-				}
-				break;
-
-				case POPARGS:
-				{
-					add_sp(state, arg2);
-
-					set_z_register(state, arg1, [&](){
-						// ri->sp - 1
-						wasm.emitGlobalGet(g_idx_sp);
-						wasm.emitI32Const(1);
-						wasm.emitI32Sub();
-
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul();
-
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add(); // Add stack base offset.
-						wasm.emitI32Load();
-					});
-				}
-				break;
-
-				case DIVR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg2);
-						wasm.emitLocalTee(l_idx_scratch);
-
-						wasm.emitIf(WasmSimpleBlockType::I32);
-						get_z_register(state, arg1);
-						wasm.emitI32ExtendS();
-						wasm.emitI64Const(10000);
-						wasm.emitI64Mul();
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32ExtendS();
-						wasm.emitI64DivS();
-						wasm.emitI64Wrap();
-
-						wasm.emitElse();
-						wasm.emitI32Const(0);
-						wasm.emitCall(state.f_idx_log_error);
-						wasm.emitI32Const(MAX_SIGNED_32);
-						wasm.emitEnd();
-					});
-				}
-				break;
-
-				case PEEK:
-				{
-					set_z_register(state, arg1, [&](){
-						wasm.emitGlobalGet(g_idx_sp);
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add(); // Add stack base offset.
-						wasm.emitI32Load();
-					});
-				}
-				break;
-
-				case DIVV:
-				{
-					set_z_register(state, arg1, [&](){
-						if (arg2 == 0)
-						{
-							wasm.emitI32Const(0);
-							wasm.emitCall(state.f_idx_log_error);
-							wasm.emitI32Const(MAX_SIGNED_32);
-							return;
-						}
-						
-						get_z_register(state, arg1);
-						wasm.emitI32ExtendS();
-						wasm.emitI64Const(10000);
-						wasm.emitI64Mul();
-						wasm.emitI64Const(arg2);
-						wasm.emitI64DivS();
-						wasm.emitI64Wrap();
-					});
-				}
-				break;
-
-				case ADDR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						get_z_register(state, arg2);
-						wasm.emitI32Add();
-					});
-				}
-				break;
-				case ADDV:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(arg2);
-						wasm.emitI32Add();
-					});
-				}
-				break;
-
-				case CASTBOOLF:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(0);
-						wasm.emitI32Ne();
-					});
-				}
-				break;
-				case CASTBOOLI:
-				{
-					set_z_register(state, arg1, [&](){
-						wasm.emitI32Const(10000);
-						wasm.emitI32Const(0);
-						get_z_register(state, arg1);
-						wasm.emitSelect();
-					});
-				}
-				break;
-
-				case MODR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg2);
-						wasm.emitLocalTee(l_idx_scratch);
-
-						wasm.emitIf(WasmSimpleBlockType::I32);
-						get_z_register(state, arg1);
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32RemS();
-
-						wasm.emitElse();
-						wasm.emitI32Const(1);
-						wasm.emitCall(state.f_idx_log_error);
-						wasm.emitI32Const(0);
-						wasm.emitEnd();
-					});
-				}
-				break;
-				case MODV:
-				{
-					set_z_register(state, arg1, [&](){
-						if (arg2 == 0)
-						{
-							wasm.emitI32Const(1);
-							wasm.emitCall(state.f_idx_log_error);
-							wasm.emitI32Const(0);
-							return;
-						}
-
-						get_z_register(state, arg1);
-						wasm.emitI32Const(arg2);
-						wasm.emitI32RemS();
-					});
-				}
-				break;
-
-				case MULTR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32ExtendS();
-						get_z_register(state, arg2);
-						wasm.emitI32ExtendS();
-						wasm.emitI64Mul();
-						wasm.emitI64Const(10000);
-						wasm.emitI64DivS();
-						wasm.emitI64Wrap();
-					});
-				}
-				break;
-				case MULTV:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32ExtendS();
-						wasm.emitI64Const(arg2);
-						wasm.emitI64Mul();
-						wasm.emitI64Const(10000);
-						wasm.emitI64DivS();
-						wasm.emitI64Wrap();
-					});
-				}
-				break;
-
-				case SUBR:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						get_z_register(state, arg2);
-						wasm.emitI32Sub();
-					});
-				}
-				break;
-				case SUBV:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(arg2);
-						wasm.emitI32Sub();
-					});
-				}
-				break;
-				case SUBV2:
-				{
-					// reg = arg1 - reg (note: the destination is arg2).
-					set_z_register(state, arg2, [&](){
-						wasm.emitI32Const(arg1);
-						get_z_register(state, arg2);
-						wasm.emitI32Sub();
-					});
-				}
-				break;
-
-				case ABS:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitLocalSet(l_idx_scratch);
-						// val < 0 ? -val : val
-						wasm.emitI32Const(0);
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32Sub();
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32Const(0);
-						wasm.emitI32LtS();
-						wasm.emitSelect();
-					});
-				}
-				break;
-
-				case MINR:
-				case MINV:
-				case MAXR:
-				case MAXV:
-				{
-					bool is_min = command == MINR || command == MINV;
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitLocalSet(l_idx_scratch);
-						if (command == MINR || command == MAXR)
-							get_z_register(state, arg2);
-						else
-							wasm.emitI32Const(arg2);
-						wasm.emitLocalSet(l_idx_scratch2);
-
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitLocalGet(l_idx_scratch2);
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitLocalGet(l_idx_scratch2);
-						if (is_min)
-							wasm.emitI32LtS();
-						else
-							wasm.emitI32GtS();
-						wasm.emitSelect();
-					});
-				}
-				break;
-
-				// AND/OR operate on the integer part: (a/10000 OP b/10000) * 10000.
-				case ANDR:
-				case ANDV:
-				case ORR:
-				case ORV:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						if (command == ANDR || command == ORR)
-						{
-							get_z_register(state, arg2);
-							wasm.emitI32Const(10000);
-							wasm.emitI32DivS();
-						}
-						else
-							wasm.emitI32Const(arg2 / 10000);
-						if (command == ANDR || command == ANDV)
-							wasm.emitI32And();
-						else
-							wasm.emitI32Or();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case ORR32:
-				case ORV32:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						if (command == ORR32)
-							get_z_register(state, arg2);
-						else
-							wasm.emitI32Const(arg2);
-						wasm.emitI32Or();
-					});
-				}
-				break;
-
-				// FLOOR/CEILING round the fixed-point value to a whole number
-				// (a multiple of 10000), toward -/+ infinity. Matches zfix
-				// getFloor/getCeil: q = val/10000 (truncating), then adjust q by
-				// one when there is a remainder in the rounding direction.
-				case FLOOR:
-				case CEILING:
-				{
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitLocalTee(l_idx_scratch);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						// (val % 10000 != 0) & (val < 0 for floor / val > 0 for ceil)
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32Const(10000);
-						wasm.emitI32RemS();
-						wasm.emitI32Const(0);
-						wasm.emitI32Ne();
-						wasm.emitLocalGet(l_idx_scratch);
-						wasm.emitI32Const(0);
-						if (command == FLOOR)
-							wasm.emitI32LtS();
-						else
-							wasm.emitI32GtS();
-						wasm.emitI32And();
-						if (command == FLOOR)
-							wasm.emitI32Sub();
-						else
-							wasm.emitI32Add();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-
-				case LOADI:
-				{
-					// Stack[reg[arg2] / 10000] -> Reg[arg1]
-					// Like the x64 JIT (but unlike the interpreter), no stack
-					// bounds check - same as the LOAD/STORE family above.
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg2);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						wasm.emitI32Const(4);
-						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-						wasm.emitGlobalGet(g_idx_stack);
-						wasm.emitI32Add();
-						wasm.emitI32Load();
-					});
-				}
-				break;
-				case STOREI:
-				{
-					// Reg[arg1] -> Stack[reg[arg2] / 10000]
-					get_z_register(state, arg2);
-					wasm.emitI32Const(10000);
-					wasm.emitI32DivS();
-					wasm.emitI32Const(4);
-					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-					wasm.emitGlobalGet(g_idx_stack);
-					wasm.emitI32Add();
-					get_z_register(state, arg1);
-					wasm.emitI32Store();
-				}
-				break;
-
-				case BITNOT:
-				{
-					// reg = (~(reg / 10000)) * 10000  (~x == x ^ -1)
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						wasm.emitI32Const(-1);
-						wasm.emitI32Xor();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case BITNOT32:
-				{
-					// reg = ~reg
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(-1);
-						wasm.emitI32Xor();
-					});
-				}
-				break;
-				case LSHIFTV:
-				case RSHIFTV:
-				{
-					// reg = ((reg / 10000) <</>> k) * 10000, k is a constant count.
-					// wasm masks the shift count to 5 bits, matching the interpreter
-					// (whose C++ shifts also lower to masked shifts); >> is arithmetic.
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						wasm.emitI32Const(arg2 / 10000);
-						if (command == LSHIFTV) wasm.emitI32Shl();
-						else wasm.emitI32ShrS();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case LSHIFTV32:
-				case RSHIFTV32:
-				{
-					// reg = reg <</>> k (raw, no fixed-point scaling on the value).
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(arg2 / 10000);
-						if (command == LSHIFTV32) wasm.emitI32Shl();
-						else wasm.emitI32ShrS();
-					});
-				}
-				break;
-				case LSHIFTR:
-				case RSHIFTR:
-				{
-					// reg = ((reg / 10000) <</>> (count / 10000)) * 10000, count is a register.
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						get_z_register(state, arg2);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						if (command == LSHIFTR) wasm.emitI32Shl();
-						else wasm.emitI32ShrS();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case LSHIFTR32:
-				case RSHIFTR32:
-				{
-					// reg = reg <</>> (count / 10000) (raw value, count is a register).
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						get_z_register(state, arg2);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						if (command == LSHIFTR32) wasm.emitI32Shl();
-						else wasm.emitI32ShrS();
-					});
-				}
-				break;
-				case XORV:
-				{
-					// reg = ((reg / 10000) ^ (arg2 / 10000)) * 10000
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						wasm.emitI32Const(arg2 / 10000);
-						wasm.emitI32Xor();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case XORR:
-				{
-					// reg = ((reg / 10000) ^ (arg2reg / 10000)) * 10000
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						get_z_register(state, arg2);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-						wasm.emitI32Xor();
-						wasm.emitI32Const(10000);
-						wasm.emitI32Mul();
-					});
-				}
-				break;
-				case XORV32:
-				{
-					// reg = reg ^ arg2 (raw)
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						wasm.emitI32Const(arg2);
-						wasm.emitI32Xor();
-					});
-				}
-				break;
-				case XORR32:
-				{
-					// reg = reg ^ arg2reg (raw)
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, arg1);
-						get_z_register(state, arg2);
-						wasm.emitI32Xor();
-					});
-				}
-				break;
-
-				case READPODARRAYR:
-				case READPODARRAYV:
-				{
-					// reg[arg1] = array[rINDEX][index]. Calls a helper for the bounds-checked
-					// access (array pointer + index passed as args), so no register flush.
-					set_z_register(state, arg1, [&](){
-						get_z_register(state, rINDEX);
-						if (command == READPODARRAYR)
-						{
-							get_z_register(state, arg2);
-							wasm.emitI32Const(10000);
-							wasm.emitI32DivS();
-						}
-						else
-						{
-							wasm.emitI32Const(arg2 / 10000);
-						}
-						wasm.emitI32Const(state.pc);
-						wasm.emitCall(state.f_idx_pod_read);
-					});
-				}
-				break;
-				case WRITEPODARRAYRR:
-				case WRITEPODARRAYRV:
-				case WRITEPODARRAYVR:
-				case WRITEPODARRAYVV:
-				{
-					// array[rINDEX][index] = value. First suffix letter is the index operand
-					// kind, second is the value operand kind (R=register, V=immediate).
-					bool index_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYRV;
-					bool value_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYVR;
-
-					get_z_register(state, rINDEX);
-					if (index_is_reg)
-					{
-						get_z_register(state, arg1);
-						wasm.emitI32Const(10000);
-						wasm.emitI32DivS();
-					}
-					else
-					{
-						wasm.emitI32Const(arg1 / 10000);
-					}
-					if (value_is_reg)
-						get_z_register(state, arg2);
-					else
-						wasm.emitI32Const(arg2);
-					wasm.emitI32Const(script->zasm[i].arg3);
-					wasm.emitI32Const(state.pc);
-					wasm.emitCall(state.f_idx_pod_write);
-				}
-				break;
-				case WRITEPODARRAY:
-				{
-					// Bulk-initialize array (reg arg1) from the instruction's constant vector.
-					get_z_register(state, arg1);
-					wasm.emitI32Const(state.pc);
-					wasm.emitCall(state.f_idx_writepodarr);
-				}
-				break;
-				case ALLOCATEMEMV:
-				{
-					// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
-					set_z_register(state, arg1, [&](){
-						wasm.emitI32Const(arg2 / 10000);
-						wasm.emitI32Const(script->zasm[i].arg3);
-						wasm.emitI32Const(state.pc);
-						wasm.emitCall(state.f_idx_allocatemem);
-					});
-				}
-				break;
+					compile_quit(state, script, i);
+					break;
 
 				default:
-				{
-					printf("unexpected command %s at index %d\n", zasm_op_to_string(command).c_str(), i);
-					CHECK(false);
-				}
+					compile_plain_command(state, script, i);
 			}
 		}
 	}
@@ -2020,16 +2460,29 @@ JittedScript* jit_compile_script(zasm_script* script)
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
 
+	// -jit-wasm-structured: compile non-yielding functions with real structured
+	// control flow instead of the loop-switch. On by default; the flag exists to
+	// A/B and to bisect a suspected structuring bug.
+	static bool structure_enabled = get_flag_bool("-jit-wasm-structured").value_or(true);
 	for (const auto& fn : structured_zasm.functions)
 	{
 		if (yielding_fns.contains(fn.id))
 			continue;
 
-		bool may_yield = false;
-		auto wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
+		std::optional<WasmAssembler> wasm;
+		if (structure_enabled)
+			wasm = compile_function_structured(state, script, structured_zasm, fn.id, function_id_to_idx);
+		if (!wasm)
+		{
+			bool may_yield = false;
+			wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
+		}
 		pc_t fidx = function_id_to_idx.at(fn.id);
-		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
-		if (fn.name().empty())
+		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
+		// Note: fn.name() can't be used for the emptiness check - it returns the
+		// placeholder "<empty>" for unnamed functions, which used to end up as
+		// dozens of functions all literally named "<empty>" in the name section.
+		if (fn._name.empty())
 			comp.builder.setFunctionName(fidx, fmt::format("fn_{}", fn.id));
 		else
 			comp.builder.setFunctionName(fidx, fn.name());
