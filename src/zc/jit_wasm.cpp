@@ -62,6 +62,8 @@ struct CompilationState
 	bool maintain_call_stack;
 	// Keep sp in a function-local instead of the "sp" global; see l_idx_sp_local.
 	bool sp_local;
+	// Keep the stack/ri/global_d pointers in function-locals; see l_idx_*_local.
+	bool ptr_locals;
 
 	pc_t pc;
 
@@ -239,6 +241,52 @@ static void emit_sp_reload(CompilationState& state)
 	state.wasm->emitLocalSet(l_idx_sp_local);
 }
 
+// Read-only pointer locals: the stack base, ri, and global_d pointers are
+// loaded once per function (emit_ptr_locals_init) and never change inside
+// compiled code - only the run wrapper writes their globals, before any
+// function runs - so unlike sp there is nothing to flush. As locals the
+// optimizing tier keeps them in registers across the whole function body.
+// -jit-wasm-pointer-locals (default on) gates this for A/B runs.
+constexpr uint8_t l_idx_stack_local = 4;
+constexpr uint8_t l_idx_ri_local = 5;
+constexpr uint8_t l_idx_global_d_local = 6;
+
+static void emit_get_stack_base(CompilationState& state)
+{
+	if (state.ptr_locals)
+		state.wasm->emitLocalGet(l_idx_stack_local);
+	else
+		state.wasm->emitGlobalGet(state.g_idx_stack);
+}
+
+static void emit_get_ri(CompilationState& state)
+{
+	if (state.ptr_locals)
+		state.wasm->emitLocalGet(l_idx_ri_local);
+	else
+		state.wasm->emitGlobalGet(state.g_idx_ri);
+}
+
+static void emit_get_global_d(CompilationState& state)
+{
+	if (state.ptr_locals)
+		state.wasm->emitLocalGet(l_idx_global_d_local);
+	else
+		state.wasm->emitGlobalGet(state.g_idx_global_d);
+}
+
+static void emit_ptr_locals_init(CompilationState& state)
+{
+	if (!state.ptr_locals)
+		return;
+	state.wasm->emitGlobalGet(state.g_idx_stack);
+	state.wasm->emitLocalSet(l_idx_stack_local);
+	state.wasm->emitGlobalGet(state.g_idx_ri);
+	state.wasm->emitLocalSet(l_idx_ri_local);
+	state.wasm->emitGlobalGet(state.g_idx_global_d);
+	state.wasm->emitLocalSet(l_idx_global_d_local);
+}
+
 static void add_sp(CompilationState& state, int delta)
 {
 	emit_get_sp(state);
@@ -258,7 +306,7 @@ static void check_sp(CompilationState& state)
 	wasm.emitIf();
 	// ri->pc = state.pc, so the stack-overflow error's innermost stack frame is the
 	// command that overflowed (matching the interpreter), not a stale pc.
-	wasm.emitGlobalGet(state.g_idx_ri);
+	emit_get_ri(state);
 	wasm.emitI32Const(state.pc);
 	wasm.emitI32Store(0); // ri->pc
 	wasm.emitI32Const(RUNSCRIPT_JIT_STACK_OVERFLOW);
@@ -279,7 +327,7 @@ static void check_call_limit(CompilationState& state, pc_t target_pc)
 	// Match the interpreter: when the call limit trips, ri->pc points at the entry
 	// of the function being called, so the error's innermost stack frame is the
 	// recursing function rather than the call site.
-	wasm.emitGlobalGet(state.g_idx_ri);
+	emit_get_ri(state);
 	wasm.emitI32Const(target_pc);
 	wasm.emitI32Store(0); // ri->pc
 	wasm.emitI32Const(RUNSCRIPT_JIT_CALL_LIMIT);
@@ -292,12 +340,12 @@ static void get_z_register(CompilationState& state, int r)
 {
 	if (r >= D(0) && r < D(INITIAL_D))
 	{
-		state.wasm->emitGlobalGet(state.g_idx_ri);
+		emit_get_ri(state);
 		state.wasm->emitI32Load(4 + r*4);
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		state.wasm->emitGlobalGet(state.g_idx_global_d);
+		emit_get_global_d(state);
 		state.wasm->emitI32Load((r - GD(0)) * 4); // game->global_d[]
 	}
 	else if (r == SP)
@@ -315,7 +363,7 @@ static void get_z_register(CompilationState& state, int r)
 		if (does_register_use_stack(r))
 		{
 			// ri->sp = sp
-			state.wasm->emitGlobalGet(state.g_idx_ri);
+			emit_get_ri(state);
 			emit_get_sp(state);
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
@@ -327,7 +375,7 @@ static void get_z_register(CompilationState& state, int r)
 		// current, so a stale value here would be a web-only divergence).
 		if (state.maintain_call_stack || r == PC)
 		{
-			state.wasm->emitGlobalGet(state.g_idx_ri);
+			emit_get_ri(state);
 			state.wasm->emitI32Const(state.pc);
 			state.wasm->emitI32Store(0); // ri->pc
 		}
@@ -341,13 +389,13 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 {
 	if (r >= D(0) && r < D(INITIAL_D))
 	{
-		state.wasm->emitGlobalGet(state.g_idx_ri);
+		emit_get_ri(state);
 		fn();
 		state.wasm->emitI32Store(4 + r*4);
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		state.wasm->emitGlobalGet(state.g_idx_global_d);
+		emit_get_global_d(state);
 		fn();
 		state.wasm->emitI32Store((r - GD(0)) * 4); // game->global_d[]
 	}
@@ -356,7 +404,7 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 		if (does_register_use_stack(r))
 		{
 			// ri->sp = sp
-			state.wasm->emitGlobalGet(state.g_idx_ri);
+			emit_get_ri(state);
 			emit_get_sp(state);
 			state.wasm->emitI32Store(4*9); // ri->sp
 		}
@@ -366,7 +414,7 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 		// when stack traces won't be shown.
 		if (state.maintain_call_stack)
 		{
-			state.wasm->emitGlobalGet(state.g_idx_ri);
+			emit_get_ri(state);
 			state.wasm->emitI32Const(state.pc);
 			state.wasm->emitI32Store(0); // ri->pc
 		}
@@ -407,7 +455,7 @@ static void compile_command_interpreter(CompilationState& state, const zasm_scri
 	if (needs_sp)
 	{
 		// ri->sp = sp
-		state.wasm->emitGlobalGet(state.g_idx_ri);
+		emit_get_ri(state);
 		emit_get_sp(state);
 		state.wasm->emitI32Store(4*9); // ri->sp
 	}
@@ -569,7 +617,7 @@ static void emit_trace_call_stack_push(CompilationState& state, pc_t pc)
 	// ret_stack[ri->retsp] = pc + 1. The interpreter pushes ri->pc+1; create_stack_trace
 	// reads back (stored - 1), which maps to the CALLFUNC's call site.
 	wasm.emitGlobalGet(state.g_idx_ret_stack_pc);
-	wasm.emitGlobalGet(state.g_idx_ri);
+	emit_get_ri(state);
 	wasm.emitI32Load(4 * 10); // ri->retsp
 	wasm.emitI32Const(4);
 	wasm.emitI32Mul();
@@ -577,8 +625,8 @@ static void emit_trace_call_stack_push(CompilationState& state, pc_t pc)
 	wasm.emitI32Const(pc + 1);
 	wasm.emitI32Store(0);
 	// ri->retsp += 1
-	wasm.emitGlobalGet(state.g_idx_ri);
-	wasm.emitGlobalGet(state.g_idx_ri);
+	emit_get_ri(state);
+	emit_get_ri(state);
 	wasm.emitI32Load(4 * 10);
 	wasm.emitI32Const(1);
 	wasm.emitI32Add();
@@ -592,12 +640,12 @@ static void emit_trace_call_stack_pop(CompilationState& state)
 	auto& wasm = *state.wasm;
 	// if (ri->retsp) ri->retsp -= 1;  - mirrors retstack_pop, which no-ops at the
 	// root frame (the entry function's top-level RETURN was never pushed).
-	wasm.emitGlobalGet(state.g_idx_ri);
+	emit_get_ri(state);
 	wasm.emitI32Load(4 * 10); // ri->retsp
 	wasm.emitIf();
 	{
-		wasm.emitGlobalGet(state.g_idx_ri);
-		wasm.emitGlobalGet(state.g_idx_ri);
+		emit_get_ri(state);
+		emit_get_ri(state);
 		wasm.emitI32Load(4 * 10);
 		wasm.emitI32Const(1);
 		wasm.emitI32Sub();
@@ -607,7 +655,7 @@ static void emit_trace_call_stack_pop(CompilationState& state)
 }
 
 // Locals reserved for snapshotting the two comparison operands (see the
-// defineFunction calls that declare four I32 locals). Local 0 is the general
+// defineFunction calls that declare seven I32 locals). Local 0 is the general
 // scratch; locals 1/2 double as the second scratch for two-operand commands
 // (never live at the same time as a comparison snapshot, since a comparison's
 // consumers immediately follow it). Local 3 is the sp local (l_idx_sp_local).
@@ -928,7 +976,6 @@ static void compile_quit(CompilationState& state, const zasm_script* script, pc_
 static void compile_plain_command(CompilationState& state, const zasm_script* script, pc_t i)
 {
 	WasmAssembler& wasm = *state.wasm;
-	uint8_t g_idx_stack = state.g_idx_stack;
 
 	int command = script->zasm[i].command;
 	int arg1 = script->zasm[i].arg1;
@@ -959,7 +1006,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 			emit_get_sp(state);
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-			wasm.emitGlobalGet(g_idx_stack);
+			emit_get_stack_base(state);
 			wasm.emitI32Add(); // Add stack base offset.
 			wasm.emitLocalGet(l_idx_scratch);
 			wasm.emitI32Store();
@@ -984,7 +1031,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add(); // Add stack base offset.
 				if (command == PUSHARGSR)
 					wasm.emitLocalGet(l_idx_scratch);
@@ -1021,7 +1068,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 			wasm.emitI32Add();
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-			wasm.emitGlobalGet(g_idx_stack);
+			emit_get_stack_base(state);
 			wasm.emitI32Add();
 			wasm.emitI32Const(arg1);
 			wasm.emitI32Store();
@@ -1039,7 +1086,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-			wasm.emitGlobalGet(g_idx_stack);
+			emit_get_stack_base(state);
 			wasm.emitI32Add();
 			get_z_register(state, arg1);
 			wasm.emitI32Store();
@@ -1059,7 +1106,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-			wasm.emitGlobalGet(g_idx_stack);
+			emit_get_stack_base(state);
 			wasm.emitI32Add();
 			get_z_register(state, arg1);
 			wasm.emitI32Store();
@@ -1077,7 +1124,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				}
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add();
 				wasm.emitI32Load();
 			});
@@ -1098,7 +1145,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add();
 				wasm.emitI32Load();
 			});
@@ -1110,7 +1157,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add(); // Add stack base offset.
 				wasm.emitI32Load();
 
@@ -1132,7 +1179,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul();
 
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add(); // Add stack base offset.
 				wasm.emitI32Load();
 			});
@@ -1170,7 +1217,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				emit_get_sp(state);
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add(); // Add stack base offset.
 				wasm.emitI32Load();
 			});
@@ -1465,7 +1512,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 				wasm.emitI32DivS();
 				wasm.emitI32Const(4);
 				wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-				wasm.emitGlobalGet(g_idx_stack);
+				emit_get_stack_base(state);
 				wasm.emitI32Add();
 				wasm.emitI32Load();
 			});
@@ -1479,7 +1526,7 @@ static void compile_plain_command(CompilationState& state, const zasm_script* sc
 			wasm.emitI32DivS();
 			wasm.emitI32Const(4);
 			wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
-			wasm.emitGlobalGet(g_idx_stack);
+			emit_get_stack_base(state);
 			wasm.emitI32Add();
 			get_z_register(state, arg1);
 			wasm.emitI32Store();
@@ -2116,6 +2163,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 
 	// Load sp into its local (see l_idx_sp_local).
 	emit_sp_reload(state);
+	emit_ptr_locals_init(state);
 
 	StructuredFnSink sink{};
 	sink.state = &state;
@@ -2631,6 +2679,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	// Load sp into its local (see l_idx_sp_local); the caller/run wrapper keeps
 	// the global current across function boundaries.
 	emit_sp_reload(state);
+	emit_ptr_locals_init(state);
 
 	// Handle jumping to the correct initial block when calling the entry function.
 	if (script->name == "@single")
@@ -3019,6 +3068,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	// -jit-wasm-sp-local: keep sp in a wasm local inside compiled code (see
 	// l_idx_sp_local). The flag exists for A/B runs and bisection.
 	state.sp_local = get_flag_bool("-jit-wasm-sp-local").value_or(true);
+	state.ptr_locals = get_flag_bool("-jit-wasm-pointer-locals").value_or(true);
 
 	state.f_idx_set_return_value = comp.builder.importFunction("set_return_value", 1, 0);
 	state.f_idx_do_commands = comp.builder.importFunction("do_commands", 4, 1);
@@ -3106,7 +3156,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 	{
 		bool may_yield = true;
 		auto wasm = compile_function(state, script, structured_zasm, yielding_fns, function_id_to_idx, may_yield);
-		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
+		comp.builder.defineFunction(fn_yielder_idx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm.finish());
 		comp.builder.setFunctionName(fn_yielder_idx, "yielder");
 	}
 
@@ -3128,7 +3178,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 			wasm = compile_function(state, script, structured_zasm, {fn.id}, function_id_to_idx, may_yield);
 		}
 		pc_t fidx = function_id_to_idx.at(fn.id);
-		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
+		comp.builder.defineFunction(fidx, {WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32, WasmValType::I32}, wasm->finish());
 		// Note: fn.name() can't be used for the emptiness check - it returns the
 		// placeholder "<empty>" for unnamed functions, which used to end up as
 		// dozens of functions all literally named "<empty>" in the name section.
