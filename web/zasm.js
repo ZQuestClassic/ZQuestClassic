@@ -50,23 +50,52 @@ function onSetReturnValue(value) {
   currentReturnValue = value;
 }
 
+// Returns the engine's raw wasm export for an exported C function, so it can be
+// bound as a script-module import and called wasm->wasm with no JS frame. These
+// imports are on the script hot path (get/set_register per engine-register
+// access, do_commands per uncompiled-op batch), and going through JS was a
+// dominant cost for engine-heavy scripts.
+//
+// With ASYNCIFY, `Module._name` is not the raw function: the glue wraps every
+// wasm export in a JS bookkeeping wrapper (Asyncify.instrumentFunction), and the
+// raw exports are only reachable under minified names. But the glue records
+// original -> wrapper in Asyncify.funcWrappers, so invert that to recover the
+// raw function. Bypassing the wrapper is safe for these imports: script wasm
+// only executes while Asyncify is in the Normal state, and the sync engine
+// callbacks never unwind (RUNGENFRZSCR - the one command that suspends the
+// script - yields back to run_script instead; see jit_wasm.cpp).
+function rawEngineExport(name) {
+  const wrapped = Module['_' + name];
+  assert(wrapped, `no such engine export: ${name}`);
+  const asyncify = globalThis.Asyncify;
+  if (asyncify?.funcWrappers) {
+    for (const [original, wrapper] of asyncify.funcWrappers) {
+      if (wrapper === wrapped) return original;
+    }
+  }
+  // Emscripten internals moved - the instrumented export still works (and still
+  // skips cwrap's per-call argument marshaling), it just pays a JS frame.
+  console.warn(`could not resolve raw wasm export for ${name}; script->engine calls will go through JS`);
+  return wrapped;
+}
+
 export async function compileScriptWasmModule(name, ptr, size) {
   // TODO  support compiling in workers.
   assertMainThread();
 
   if (!emFunctions.doCommands) {
-    emFunctions.doCommands = Module.cwrap('em_do_commands', 'int', ['int', 'int', 'int']);
+    emFunctions.doCommands = rawEngineExport('em_do_commands');
     // Some commands may temporarily control the game loop (ex: RUNGENFRZSCR), so they need to be done async.
     emFunctions.doCommandsAsync = Module.cwrap('em_do_commands', 'int', ['int', 'int', 'int'], {async: true});
-    emFunctions.getRegister = Module.cwrap('em_get_register', 'int', ['int']);
-    emFunctions.setRegister = Module.cwrap('em_set_register', 'void', ['int', 'int']);
-    emFunctions.setGuardedRegister = Module.cwrap('em_set_guarded_register', 'void', ['int', 'int', 'int']);
-    emFunctions.runtimeDebug = Module.cwrap('em_runtime_script_debug', 'void', ['int', 'int']);
-    emFunctions.logError = Module.cwrap('em_log_error', 'void', ['int']);
-    emFunctions.podRead = Module.cwrap('em_pod_read', 'int', ['int', 'int', 'int']);
-    emFunctions.podWrite = Module.cwrap('em_pod_write', 'void', ['int', 'int', 'int', 'int', 'int']);
-    emFunctions.allocatemem = Module.cwrap('em_allocatemem', 'int', ['int', 'int', 'int']);
-    emFunctions.writepodarr = Module.cwrap('em_writepodarr', 'void', ['int', 'int']);
+    emFunctions.getRegister = rawEngineExport('em_get_register');
+    emFunctions.setRegister = rawEngineExport('em_set_register');
+    emFunctions.setGuardedRegister = rawEngineExport('em_set_guarded_register');
+    emFunctions.runtimeDebug = rawEngineExport('em_runtime_script_debug');
+    emFunctions.logError = rawEngineExport('em_log_error');
+    emFunctions.podRead = rawEngineExport('em_pod_read');
+    emFunctions.podWrite = rawEngineExport('em_pod_write');
+    emFunctions.allocatemem = rawEngineExport('em_allocatemem');
+    emFunctions.writepodarr = rawEngineExport('em_writepodarr');
   }
 
   console.log(`compiling ${name}, ${size} len`);
