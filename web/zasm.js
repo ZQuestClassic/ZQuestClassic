@@ -226,3 +226,12 @@ export async function destroyAllScriptWasmHandles() {
     await destroyScriptWasmHandle(handleId);
   }
 }
+
+// Called (via em_destroy_wasm_module) when compiled scripts are released, e.g.
+// loading a different quest in the same session.
+export function destroyScriptWasmModule(moduleId) {
+  assertMainThread();
+
+  wasmModuleNames.delete(moduleId);
+  return wasmInstances.delete(moduleId);
+}

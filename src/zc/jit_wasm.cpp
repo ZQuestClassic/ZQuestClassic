@@ -158,7 +158,7 @@ bool em_destroy_wasm_handle(int id)
 	return em_destroy_wasm_handle_(id);
 }
 
-EM_ASYNC_JS(bool, em_destroy_wasm_module_, (int id), {
+EM_JS(bool, em_destroy_wasm_module_, (int id), {
 	return ZC.destroyScriptWasmModule(id);
 });
 static bool em_destroy_wasm_module(int id)
