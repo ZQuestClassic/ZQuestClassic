@@ -13,11 +13,18 @@ set(package_web_resources_gen_files
     ${BUILD_FOLDER}/zplayer.data
     ${BUILD_FOLDER}/zeditor.data
 )
+# package.py reads the entire resources/ tree, so every file in it is an input.
+# qrs.zh is excluded: it is the OUTPUT of gen_zscript_qr_enum, and depending on it
+# here would make packaging trigger that generator (which runs zeditor).
+get_filename_component(zc_resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/../resources ABSOLUTE)
+file(GLOB_RECURSE package_web_resources_input_files CONFIGURE_DEPENDS ${zc_resources_dir}/*)
+list(REMOVE_ITEM package_web_resources_input_files ${zc_resources_dir}/include/bindings/qrs.zh)
 add_custom_command(
     OUTPUT ${package_web_resources_gen_files}
     COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/package.py --build_folder "${BUILD_FOLDER}" --cfg_os web
     DEPENDS
         ../scripts/package.py
+        ${package_web_resources_input_files}
     VERBATIM
 )
 add_custom_target(package_web_resources DEPENDS ${package_web_resources_gen_files})
