@@ -612,6 +612,7 @@ if(WANT_ZC_TESTS)
 		src/base/zc_math_test.cpp
 		src/base/containers_test.cpp
 		src/zc/wasm_structurer_test.cpp
+		src/zc/wasm_structurer.cpp
 	)
 	target_link_libraries(base_test_runner PRIVATE base scc)
 
@@ -887,7 +888,7 @@ elseif(JIT_BACKEND STREQUAL "x64")
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
 	set_target_properties(asmjit PROPERTIES COMPILE_OPTIONS "${asm_compile_options}")
 elseif(JIT_BACKEND STREQUAL "wasm")
-	target_sources(zplayer PUBLIC src/zc/jit_wasm.cpp)
+	target_sources(zplayer PUBLIC src/zc/jit_wasm.cpp src/zc/wasm_structurer.cpp)
 	target_compile_definitions(base PUBLIC ZC_JIT_BACKEND=2)
 else()
 	message(FATAL_ERROR "Invalid value for JIT_BACKEND")

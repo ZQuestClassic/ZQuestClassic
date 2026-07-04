@@ -1,13 +1,30 @@
-// wasm_structurer.h
+// ZASM has goto; WebAssembly doesn't. Wasm only has structured control flow
+// - nested block/loop/if constructs - and `br N`, which jumps to the Nth
+// enclosing construct: a br to a `block` jumps forward to its end (break), a
+// br to a `loop` jumps back to its start (continue). This file rebuilds a
+// ZASM control-flow graph as nested constructs so every original jump lands
+// on a construct it is nested inside, replacing the loop-switch (br_table
+// dispatch) trampoline.
 //
-// Reconstructs structured WebAssembly control flow (block / loop / if / br)
-// from a reducible ZASM control-flow graph, replacing the loop-switch
-// (br_table dispatch) trampoline.
+// Algorithm: dominator-tree-guided recursive translation, following Norman
+// Ramsey, "Beyond Relooper" (ICFP 2022). Code is laid out along the
+// dominator tree, and two kinds of blocks earn a wrapper construct:
 //
-// Algorithm: dominator-tree-guided recursive translation, following
-// Norman Ramsey, "Beyond Relooper" (ICFP 2022). Handles any *reducible*
-// CFG; irreducible CFGs are detected up front (run() returns false) so the
-// caller can fall back to the loop-switch for that one function.
+//   - a loop header (back-edge target) is wrapped in `loop`, so jumps back
+//     to it are brs to that loop;
+//   - a merge node (>= 2 forward predecessors) gets a `block` opened inside
+//     its immediate dominator, so every path that joins there brs forward to
+//     the block's end, where the merge node's own code is emitted.
+//
+// Everything else is reached from exactly one place and is simply inlined.
+//
+// Handles any *reducible* CFG - every loop entered only through its header -
+// which is what guarantees those two wrappers always suffice. Irreducible
+// CFGs (e.g. a jump into the middle of a loop) are detected by analyze()
+// (returns false) so the caller can fall back to the loop-switch for that
+// one function. Analysis and emission are separate steps: callers can probe
+// reducibility without a sink, and emit later from the same analysis (see
+// detect_yielder_regions).
 //
 // You bind two things:
 //   1. StructSink  -- structural WASM emission (block/loop/if/br/...). In the
@@ -29,8 +46,7 @@
 #pragma once
 #include <vector>
 #include <cstdint>
-#include <cassert>
-#include <algorithm>
+#include <utility>
 
 enum class Term {
 		Exit,
@@ -74,30 +90,24 @@ struct StructSink {
 
 class WasmStructurer {
 public:
-		WasmStructurer(int num_blocks, int entry, const std::vector<BlockInfo>& blocks, StructSink& sink)
-				: n(num_blocks), entry(entry), blocks(blocks), sink(sink) {}
+		// Copies `blocks` so the structurer can be kept (e.g. cached in a plan)
+		// independently of the caller's vector.
+		WasmStructurer(int num_blocks, int entry, std::vector<BlockInfo> blocks)
+				: n(num_blocks), entry(entry), blocks(std::move(blocks)) {}
 
-		// Returns false if the CFG is irreducible (caller should fall back to the
-		// loop-switch). On true, structural control flow has been emitted.
-		bool run() {
-				build_succs_preds();
-				compute_rpo();
-				if ((int)rpo.size() != reachable_count) {
-						// Unreachable blocks exist; they are simply never emitted. Fine.
-				}
-				compute_idom();
-				classify();
-				if (!reducible) return false;
-				build_merge_children();
-				placed.assign(n, false);
-				do_tree(entry);
-				return true;
-		}
+		// Returns false if the CFG is irreducible (caller should fall back to
+		// the loop-switch). Emits nothing. Unreachable blocks are fine; they
+		// are simply never emitted.
+		bool analyze();
+
+		// Emits structural control flow through `out`. Requires a successful
+		// analyze(); call at most once.
+		void emit(StructSink& out);
 
 private:
 		int n, entry;
-		const std::vector<BlockInfo>& blocks;
-		StructSink& sink;
+		std::vector<BlockInfo> blocks;
+		StructSink* sink = nullptr;
 
 		std::vector<std::vector<int>> succ, pred;
 		std::vector<int> rpo;            // blocks in reverse postorder
@@ -107,243 +117,32 @@ private:
 		std::vector<uint8_t> is_merge;   // >= 2 forward predecessors
 		std::vector<std::vector<int>> merge_children; // dom children that are merge nodes, sorted
 		std::vector<uint8_t> placed;
-		int reachable_count = 0;
 		bool reducible = true;
+		bool analyzed = false;
 
 		// set of retreating edges found in DFS, as (from,to) pairs flattened
 		std::vector<std::pair<int,int>> retreating;
 
-		static std::vector<int> succs_of(const BlockInfo& b) {
-				switch (b.term) {
-						case Term::Exit:     return {};
-						case Term::Dispatch: return {};
-						case Term::Uncond:   return {b.succ_true};
-						case Term::Cond:     return {b.succ_true, b.succ_false};
-				}
-				return {};
-		}
-
-		void build_succs_preds() {
-				succ.assign(n, {});
-				pred.assign(n, {});
-				for (int b = 0; b < n; b++) {
-						for (int s : succs_of(blocks[b])) {
-								assert(s >= 0 && s < n);
-								succ[b].push_back(s);
-								pred[s].push_back(b);
-						}
-				}
-		}
-
-		// Iterative DFS producing postorder, then reverse it for RPO. Also records
-		// retreating edges (target currently on the DFS stack = "gray").
-		void compute_rpo() {
-				rpo_num.assign(n, -1);
-				std::vector<uint8_t> state(n, 0); // 0=white,1=gray,2=black
-				std::vector<int> post;
-				// explicit stack of (node, next-successor-index)
-				std::vector<std::pair<int,int>> st;
-				st.push_back({entry, 0});
-				state[entry] = 1;
-				while (!st.empty()) {
-						auto& [u, i] = st.back();
-						if (i < (int)succ[u].size()) {
-								int v = succ[u][i++];
-								if (state[v] == 0) { state[v] = 1; st.push_back({v, 0}); }
-								else if (state[v] == 1) { retreating.push_back({u, v}); } // gray => retreating
-						} else {
-								state[u] = 2;
-								post.push_back(u);
-								st.pop_back();
-						}
-				}
-				reachable_count = (int)post.size();
-				rpo.assign(post.rbegin(), post.rend());
-				for (int i = 0; i < (int)rpo.size(); i++) rpo_num[rpo[i]] = i;
-		}
-
-		// Cooper–Harvey–Kennedy "A Simple, Fast Dominance Algorithm".
-		void compute_idom() {
-				idom.assign(n, -1);
-				idom[entry] = entry;
-				bool changed = true;
-				while (changed) {
-						changed = false;
-						for (int b : rpo) {
-								if (b == entry) continue;
-								int new_idom = -1;
-								for (int p : pred[b]) {
-										if (rpo_num[p] == -1) continue;   // unreachable pred
-										if (idom[p] == -1) continue;      // not processed yet
-										new_idom = (new_idom == -1) ? p : intersect(p, new_idom);
-								}
-								if (new_idom != -1 && idom[b] != new_idom) { idom[b] = new_idom; changed = true; }
-						}
-				}
-		}
-
-		int intersect(int a, int b) const {
-				while (a != b) {
-						while (rpo_num[a] > rpo_num[b]) a = idom[a];
-						while (rpo_num[b] > rpo_num[a]) b = idom[b];
-				}
-				return a;
-		}
-
-		bool dominates(int a, int b) const {
-				// a dominates b iff a is on b's idom chain.
-				if (rpo_num[a] == -1 || rpo_num[b] == -1) return false;
-				while (true) {
-						if (b == a) return true;
-						if (b == entry) return false;
-						b = idom[b];
-				}
-		}
-
-		void classify() {
-				is_backedge_target.assign(n, 0);
-				is_merge.assign(n, 0);
-
-				// Reducibility: every retreating edge's head must dominate its tail.
-				for (auto& [u, v] : retreating) {
-						if (!dominates(v, u)) { reducible = false; return; }
-						is_backedge_target[v] = 1; // v is a loop header
-				}
-
-				// Merge node = >= 2 forward (non-back) predecessors.
-				for (int b = 0; b < n; b++) {
-						if (rpo_num[b] == -1) continue;
-						int fwd = 0;
-						for (int p : pred[b]) {
-								if (rpo_num[p] == -1) continue;
-								if (is_backedge(p, b)) continue;
-								fwd++;
-						}
-						if (fwd >= 2) is_merge[b] = 1;
-				}
-		}
-
-		bool is_backedge(int from, int to) const {
-				// In a reducible CFG this is exactly: `to` dominates `from`.
-				return dominates(to, from);
-		}
-
-		void build_merge_children() {
-				merge_children.assign(n, {});
-				for (int b : rpo) {
-						if (b == entry) continue;
-						if (is_merge[b]) merge_children[idom[b]].push_back(b);
-				}
-				// Nest so the *largest* RPO merge child is the OUTERMOST block (its code
-				// is laid out last); this keeps every forward branch reaching a scope
-				// that is still open. Sort descending by rpo_num.
-				for (auto& v : merge_children)
-						std::sort(v.begin(), v.end(),
-											[&](int x, int y){ return rpo_num[x] > rpo_num[y]; });
-		}
-
-		// ---- context stack ----
+		// Context stack of currently-open wasm frames, for resolving br depths.
 		struct Frame { enum Kind { LOOP, BLOCK, IF } kind; int node; };
 		std::vector<Frame> ctx;
 
-		int depth_to_block(int target) const {
-				for (int i = (int)ctx.size() - 1, d = 0; i >= 0; --i, ++d)
-						if (ctx[i].kind == Frame::BLOCK && ctx[i].node == target) return d;
-				assert(false && "block target not in context"); return -1;
-		}
-		int depth_to_loop(int target) const {
-				for (int i = (int)ctx.size() - 1, d = 0; i >= 0; --i, ++d)
-						if (ctx[i].kind == Frame::LOOP && ctx[i].node == target) return d;
-				assert(false && "loop target not in context"); return -1;
-		}
-
-		bool is_br_target(int from, int to) const {
-				return is_merge[to] || is_backedge(from, to);
-		}
-		// Emit an unconditional edge transfer that is known to be a br target.
-		void emit_edge_br(int from, int to) {
-				if (is_backedge(from, to)) sink.emit_br(depth_to_loop(to), to);
-				else                        sink.emit_br(depth_to_block(to), to);
-		}
-		void emit_edge_br_if(int from, int to) {
-				if (is_backedge(from, to)) sink.emit_br_if(depth_to_loop(to), to);
-				else                        sink.emit_br_if(depth_to_block(to), to);
-		}
-
-		// ---- recursive translation ----
-		void do_tree(int node) {
-				assert(!placed[node] && "node placed twice");
-				placed[node] = true;
-
-				if (is_backedge_target[node]) {
-						sink.emit_loop(node);
-						ctx.push_back({Frame::LOOP, node});
-						node_within(node);
-						ctx.pop_back();
-						sink.emit_end();
-				} else {
-						node_within(node);
-				}
-		}
-
-		void node_within(int node) {
-				const auto& ms = merge_children[node]; // sorted desc by rpo
-				for (int m : ms) { sink.emit_block(m); ctx.push_back({Frame::BLOCK, m}); }
-
-				emit_block_and_terminator(node);
-
-				for (auto it = ms.rbegin(); it != ms.rend(); ++it) {
-						ctx.pop_back();
-						sink.emit_end();
-						do_tree(*it);
-				}
-		}
-
-		void emit_block_and_terminator(int node) {
-				sink.emit_body(node);
-				const BlockInfo& bi = blocks[node];
-				switch (bi.term) {
-						case Term::Exit:
-								// emit_body already emitted the trap/return.
-								break;
-						case Term::Dispatch:
-								sink.emit_dispatch(node, (int)ctx.size());
-								break;
-						case Term::Uncond:
-								do_branch(node, bi.succ_true);
-								break;
-						case Term::Cond: {
-								int t = bi.succ_true, f = bi.succ_false;
-								bool t_br = is_br_target(node, t);
-								bool f_br = is_br_target(node, f);
-								sink.emit_cond(node); // leaves i32; nonzero => take t
-								if (t_br && !f_br) {
-										emit_edge_br_if(node, t);   // branch if true
-										do_branch(node, f);         // inline the fall-through
-								} else if (!t_br && f_br) {
-										sink.emit_i32_eqz();        // invert
-										emit_edge_br_if(node, f);   // branch if false
-										do_branch(node, t);         // inline the taken side
-								} else if (t_br && f_br) {
-										emit_edge_br_if(node, t);
-										emit_edge_br(node, f);
-								} else {
-										// both sides inline: a genuine if/else diamond.
-										sink.emit_if();
-										ctx.push_back({Frame::IF, -1});
-										do_branch(node, t);
-										sink.emit_else();
-										do_branch(node, f);
-										ctx.pop_back();
-										sink.emit_end();
-								}
-								break;
-						}
-				}
-		}
-
-		void do_branch(int from, int to) {
-				if (is_br_target(from, to)) emit_edge_br(from, to);
-				else                        do_tree(to); // dominated solely here => inline
-		}
+		static std::vector<int> succs_of(const BlockInfo& b);
+		void build_succs_preds();
+		void compute_rpo();
+		void compute_idom();
+		int intersect(int a, int b) const;
+		bool dominates(int a, int b) const;
+		void classify();
+		bool is_backedge(int from, int to) const;
+		void build_merge_children();
+		int depth_to_block(int target) const;
+		int depth_to_loop(int target) const;
+		bool is_br_target(int from, int to) const;
+		void emit_edge_br(int from, int to);
+		void emit_edge_br_if(int from, int to);
+		void do_tree(int node);
+		void node_within(int node);
+		void emit_block_and_terminator(int node);
+		void do_branch(int from, int to);
 };

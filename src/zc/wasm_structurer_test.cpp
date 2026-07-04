@@ -86,8 +86,10 @@ bool g_verbose;
 static bool structure(int nblocks, int entry, std::vector<BlockInfo> blocks)
 {
 	MockSink sink;
-	WasmStructurer s(nblocks, entry, blocks, sink);
-	bool reducible = s.run();
+	WasmStructurer s(nblocks, entry, std::move(blocks));
+	bool reducible = s.analyze();
+	if (reducible)
+		s.emit(sink);
 	if (g_verbose && reducible)
 		fmt::print("{}", sink.out);
 	if (reducible)

@@ -47,6 +47,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <set>
 #include <stdint.h>
@@ -2266,9 +2267,10 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	sink.num_real_blocks = n;
 
 	// Irreducibility is detected before anything is emitted.
-	WasmStructurer structurer(n, 0, infos, sink);
-	if (!structurer.run())
+	WasmStructurer structurer(n, 0, infos);
+	if (!structurer.analyze())
 		return std::nullopt;
+	structurer.emit(sink);
 
 	// An Exit block can fall off the function's end (an implicit return).
 	emit_sp_flush(state);
@@ -2307,6 +2309,10 @@ struct YielderRegionPlan
 	std::map<int, StructuredFnSink::DispatchDesc> dispatches;
 	std::map<pc_t, CmpGroup> cmp_groups;
 	std::map<pc_t, pc_t> consumer_to_cmp;
+
+	// Analyzed by detect_yielder_regions (whose reducibility check accepts the
+	// region); emit_yielder_region reuses it instead of re-analyzing.
+	std::unique_ptr<WasmStructurer> structurer;
 };
 
 // Builds the local structured-region plan for candidate loop [header..tail]
@@ -2485,31 +2491,9 @@ static std::optional<YielderRegionPlan> plan_yielder_region(const zasm_script* s
 	return plan;
 }
 
-// Emits an accepted region as structured wasm at its scaffold position (or,
-// when dry_run is set, only checks that the region CFG is reducible).
-static bool emit_yielder_region(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const YielderRegionPlan& plan, int dispatch_base_depth, bool dry_run)
+// Emits an accepted region as structured wasm at its scaffold position.
+static void emit_yielder_region(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const YielderRegionPlan& plan, int dispatch_base_depth)
 {
-	if (dry_run)
-	{
-		struct NullSink : StructSink
-		{
-			void emit_block(int) override {}
-			void emit_loop(int) override {}
-			void emit_if() override {}
-			void emit_else() override {}
-			void emit_end() override {}
-			void emit_br(int, int) override {}
-			void emit_br_if(int, int) override {}
-			void emit_i32_eqz() override {}
-			void emit_body(int) override {}
-			void emit_cond(int) override {}
-			void emit_dispatch(int, int) override {}
-		};
-		NullSink null;
-		WasmStructurer structurer((int)plan.infos.size(), 0, plan.infos, null);
-		return structurer.run();
-	}
-
 	StructuredFnSink sink{};
 	sink.state = &state;
 	sink.script = script;
@@ -2526,10 +2510,7 @@ static bool emit_yielder_region(CompilationState& state, const zasm_script* scri
 	sink.dispatch_base_depth = dispatch_base_depth;
 	sink.num_real_blocks = (int)plan.starts.size();
 
-	WasmStructurer structurer((int)plan.infos.size(), 0, plan.infos, sink);
-	bool ok = structurer.run();
-	CHECK(ok); // the dry run already established reducibility
-	return ok;
+	plan.structurer->emit(sink);
 }
 
 // Finds the yielder's eligible loops. Conservative by construction: anything
@@ -2567,7 +2548,7 @@ static std::set<pc_t> compute_dispatch_entries(const zasm_script* script, const 
 	return dispatch_entries;
 }
 
-static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, const std::map<pc_t, pc_t>& function_id_to_idx, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
+static std::vector<YielderRegionPlan> detect_yielder_regions(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, const std::vector<std::pair<pc_t, pc_t>>& pc_ranges)
 {
 	pc_t num_blocks = cfg.block_starts.size();
 	auto block_final = [&](pc_t b) -> pc_t {
@@ -2663,7 +2644,8 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 		auto plan = plan_yielder_region(script, cfg, h, t);
 		if (!plan)
 			continue;
-		if (!emit_yielder_region(state, script, structured_zasm, function_id_to_idx, *plan, 0, true))
+		plan->structurer = std::make_unique<WasmStructurer>((int)plan->infos.size(), 0, plan->infos);
+		if (!plan->structurer->analyze())
 			continue; // irreducible
 
 		plans.push_back(std::move(*plan));
@@ -2759,7 +2741,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 	static bool yielder_structured = get_flag_bool("-jit-wasm-structured-yielder").value_or(true);
 	std::vector<YielderRegionPlan> regions;
 	if (may_yield && yielder_structured)
-		regions = detect_yielder_regions(state, script, structured_zasm, function_id_to_idx, cfg, pc_ranges);
+		regions = detect_yielder_regions(script, structured_zasm, cfg, pc_ranges);
 
 	pc_t num_blocks = cfg.block_starts.size();
 
@@ -2890,7 +2872,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				if (auto it = region_by_header.find(current_block_index - 1); it != region_by_header.end())
 				{
 					const YielderRegionPlan& plan = *it->second;
-					emit_yielder_region(state, script, structured_zasm, function_id_to_idx, plan, num_frames - current_rank, false);
+					emit_yielder_region(state, script, structured_zasm, function_id_to_idx, plan, num_frames - current_rank);
 					i = plan.final_pc; // the loop's ++ resumes right after the region
 					current_block_index = plan.tail_block + 1;
 					continue;
