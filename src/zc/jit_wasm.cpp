@@ -1,3 +1,5 @@
+// See docs/jit.md for implementation details.
+
 // Many useful resources
 // https://webassembly.github.io/spec/core/binary/modules.html
 // https://pengowray.github.io/wasm-ops/
