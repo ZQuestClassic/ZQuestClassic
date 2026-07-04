@@ -53,8 +53,20 @@ float GetDebuggerDpiScale([[maybe_unused]] ALLEGRO_DISPLAY* display)
 	                      : zalleg_osx_get_main_screen_scale_factor();
 	return scale > 0.f ? scale : 1.0f;
 #elif defined(_WIN32)
-	UINT dpi = display ? GetDpiForWindow(al_get_win_window_handle(display))
-	                   : GetDpiForSystem();
+	// GetDpiForWindow/GetDpiForSystem only exist on Windows 10 1607+, and
+	// importing them directly makes the exe fail to load on Windows 7 (which we
+	// still support). Resolve them from user32 at runtime; where they don't
+	// exist, don't scale.
+	typedef UINT(WINAPI* GetDpiForWindowProc)(HWND);
+	typedef UINT(WINAPI* GetDpiForSystemProc)(void);
+	static auto get_dpi_for_window = reinterpret_cast<GetDpiForWindowProc>(
+		(void*)GetProcAddress(GetModuleHandleA("user32.dll"), "GetDpiForWindow"));
+	static auto get_dpi_for_system = reinterpret_cast<GetDpiForSystemProc>(
+		(void*)GetProcAddress(GetModuleHandleA("user32.dll"), "GetDpiForSystem"));
+	if (!get_dpi_for_window || !get_dpi_for_system)
+		return 1.0f;
+	UINT dpi = display ? get_dpi_for_window(al_get_win_window_handle(display))
+	                   : get_dpi_for_system();
 	return dpi ? dpi / 96.0f : 1.0f;
 #else // X11: derived from EDID, often unreliable, so round to a whole step.
 	int dpi = al_get_monitor_dpi(0);
