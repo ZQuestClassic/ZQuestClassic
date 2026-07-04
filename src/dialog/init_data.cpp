@@ -381,7 +381,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_zinit.counter[crLIFE] = val*HEART_FACTOR;
+								local_zinit.counter[crLIFE] = std::min(65535, val*HEART_FACTOR);
 							}
 						),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
@@ -389,7 +389,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_zinit.mcounter[crLIFE] = val*HEART_FACTOR;
+								local_zinit.mcounter[crLIFE] = std::min(65535, val*HEART_FACTOR);
 							}
 						),
 						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
@@ -397,7 +397,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							fitParent = true,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_zinit.cont_heart = val*HEART_FACTOR2;
+								local_zinit.cont_heart = std::min(65535, val*HEART_FACTOR2);
 							}
 						),
 						Button(text = "HP Per Heart", colSpan = 2, maxheight = 1.5_em, fitParent = true,
