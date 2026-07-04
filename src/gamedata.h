@@ -234,8 +234,8 @@ struct gamedata
 	byte get_hcp_per_hc();
 	void set_hcp_per_hc(byte val);
 	
-	byte get_cont_hearts();
-	void set_cont_hearts(byte val);
+	word get_cont_hearts();
+	void set_cont_hearts(word val);
 	
 	bool get_cont_percent();
 	void set_cont_percent(bool ispercent);

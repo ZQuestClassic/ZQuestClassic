@@ -681,12 +681,12 @@ void gamedata::set_hcp_per_hc(byte val)
     set_generic(val, 4);
 }
 
-byte gamedata::get_cont_hearts()
+word gamedata::get_cont_hearts()
 {
     return get_generic(5);
 }
 
-void gamedata::set_cont_hearts(byte val)
+void gamedata::set_cont_hearts(word val)
 {
     set_generic(val, 5);
 }
