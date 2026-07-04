@@ -4496,7 +4496,7 @@ void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 // Walkflags L4 cheat
 void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 {
-	if (!show_walkflags)
+	if (!show_walkflags || !info_bmp_enabled())
 		return;
 
 	start_info_bmp();
@@ -4510,7 +4510,7 @@ void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 
 void do_walkflags(int32_t x, int32_t y)
 {
-	if (!show_walkflags)
+	if (!show_walkflags || !info_bmp_enabled())
 		return;
 
 	x += -viewport.x;
@@ -4528,7 +4528,7 @@ void do_walkflags(int32_t x, int32_t y)
 // Effectflags L4 cheat
 void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 {
-	if(show_effectflags)
+	if(show_effectflags && info_bmp_enabled())
 	{
 		start_info_bmp();
 		

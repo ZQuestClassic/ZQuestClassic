@@ -1512,6 +1512,7 @@ void sprite::draw_hitbox()
 {
 	if(hide_hitbox) return;
 #ifdef IS_PLAYER
+	if(!info_bmp_enabled()) return;
 	start_info_bmp();
 	int x0 = x + hxofs - viewport.x;
 	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;

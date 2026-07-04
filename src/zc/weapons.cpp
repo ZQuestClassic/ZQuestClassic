@@ -7689,6 +7689,7 @@ void weapon::draw_hitbox()
 	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 #ifndef IS_EDITOR
+		if(!info_bmp_enabled()) return;
 		start_info_bmp();
 		auto radius = 0;
 		if (valid_item_id(parentitem))

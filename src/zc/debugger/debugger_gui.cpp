@@ -1731,7 +1731,7 @@ bool zscript_debugger_gui_update(Debugger* debugger)
 	al_flip_display();
 	al_set_target_backbuffer(all_get_display());
 
-	if (debugger->state == Debugger::State::Paused)
+	if (debugger->state == Debugger::State::Paused && info_bmp_enabled())
 	{
 		clear_info_bmp();
 		if (debugger->highlight_sprite_id)

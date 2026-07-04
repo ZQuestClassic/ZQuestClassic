@@ -6116,7 +6116,7 @@ ALLEGRO_COLOR HeroClass::hitboxColor(byte opacity) const
 void HeroClass::draw_hitbox()
 {
 	sprite::draw_hitbox();
-	if (!get_qr(qr_OLD_ITEM_HITBOXES))
+	if (!get_qr(qr_OLD_ITEM_HITBOXES) && info_bmp_enabled())
 	{
 		// Draw the new 'itembox'
 		start_info_bmp();

@@ -278,6 +278,21 @@ void clear_info_bmp()
 #endif
 }
 
+// Overlay drawers (walkflags/effectflags cheats, hitboxes, the debugger's
+// sprite highlight) must check this and skip their draws entirely when false:
+// start_info_bmp is a no-op on the web build, so their allegro5 primitives
+// would otherwise land on whatever target happens to be current - or abort in
+// allegro's no-current-display assert (this crashed web replays that toggled
+// the walkflags cheat).
+bool info_bmp_enabled()
+{
+#ifdef __EMSCRIPTEN__
+	return false;
+#else
+	return true;
+#endif
+}
+
 static ALLEGRO_STATE infobmp_old_state;
 void start_info_bmp()
 {
