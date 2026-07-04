@@ -2104,30 +2104,17 @@ struct StructuredFnSink : StructSink
 	}
 };
 
-static std::optional<WasmAssembler> compile_function_structured(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, pc_t fn_id, const std::map<pc_t, pc_t>& function_id_to_idx)
+// Refine a block partition so a control op is always the last instruction of
+// its block: add a split after every control op the CFG doesn't split on
+// (QUIT/RETURNFUNC never split a block, and a branch to a function's own
+// entry is treated as a recursive call by zasm_construct_cfg, so it doesn't
+// split either). `starts` holds the CFG's block starts on entry; sorted and
+// unique on return.
+static void refine_block_partition(const zasm_script* script, pc_t start_pc, pc_t final_pc, std::vector<pc_t>& starts)
 {
-	const auto& fn = structured_zasm.functions[fn_id];
-	pc_t start_pc = fn.start_pc;
-	pc_t final_pc = fn.final_pc;
-
-	// Refined block partition: the CFG's block starts, plus a split after every
-	// control op the CFG doesn't split on (QUIT/RETURNFUNC never split a block,
-	// and a branch to the function's own entry is treated as a recursive call
-	// by zasm_construct_cfg, so it doesn't split either). With the refinement,
-	// a control op is always the last instruction of its block.
-	auto cfg = zasm_construct_cfg(script, {{start_pc, final_pc}});
-	std::vector<pc_t> starts = cfg.block_starts;
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		int command = script->zasm[i].command;
-
-		// A non-yielding function can't contain these; bail defensively.
-		if (command_is_suspend(command))
-			return std::nullopt;
-		// compile_callfunc_native requires a known function entry.
-		if (command == CALLFUNC && !structured_zasm.start_pc_to_function.contains(script->zasm[i].arg1))
-			return std::nullopt;
-
 		bool is_control = command == GOTO || command_is_goto_consumer(command) ||
 						  command == QUIT || command == RETURNFUNC;
 		if (is_control && i + 1 <= final_pc)
@@ -2135,24 +2122,28 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 	}
 	std::sort(starts.begin(), starts.end());
 	starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+}
 
-	int n = starts.size();
-	auto block_id_of = [&](int pc) -> int {
-		auto it = std::lower_bound(starts.begin(), starts.end(), (pc_t)pc);
-		if (it == starts.end() || *it != (pc_t)pc)
-			return -1;
-		return it - starts.begin();
-	};
-	auto block_final = [&](int b) -> pc_t {
-		return b + 1 < n ? starts[b + 1] - 1 : final_pc;
-	};
+static int partition_block_id(const std::vector<pc_t>& starts, int pc)
+{
+	auto it = std::lower_bound(starts.begin(), starts.end(), (pc_t)pc);
+	if (it == starts.end() || *it != (pc_t)pc)
+		return -1;
+	return it - starts.begin();
+}
 
-	// Comparison groups: map each compare and each of its consumers, so SETx
-	// consumers emit in the body and a GOTOx terminator can re-derive its
-	// condition in emit_cond. A consumer run may span blocks (e.g. `COMPAREV;
-	// GOTOTRUE a; GOTOFALSE b`), which this per-pc map handles uniformly.
-	std::map<pc_t, CmpGroup> cmp_groups;
-	std::map<pc_t, pc_t> consumer_to_cmp;
+static pc_t partition_block_final(const std::vector<pc_t>& starts, pc_t final_pc, int b)
+{
+	return b + 1 < (int)starts.size() ? starts[b + 1] - 1 : final_pc;
+}
+
+// Comparison groups: map each compare and each of its consumers in
+// [start_pc, final_pc], so SETx consumers emit in the body and a GOTOx
+// terminator can re-derive its condition in emit_cond. A consumer run may
+// span blocks (e.g. `COMPAREV; GOTOTRUE a; GOTOFALSE b`), which the per-pc
+// map handles uniformly. Returns false if a run escapes the range.
+static bool collect_cmp_groups(const zasm_script* script, pc_t start_pc, pc_t final_pc, std::map<pc_t, CmpGroup>& cmp_groups, std::map<pc_t, pc_t>& consumer_to_cmp)
+{
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		int command = script->zasm[i].command;
@@ -2163,9 +2154,8 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 		if (g.consumers.empty())
 			continue;
 
-		// A consumer run that leaves the function; shouldn't happen.
 		if (g.consumers.back() > final_pc)
-			return std::nullopt;
+			return false;
 
 		for (pc_t cj : g.consumers)
 			consumer_to_cmp[cj] = i;
@@ -2173,6 +2163,41 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 		i = g.consumers.back();
 		cmp_groups.emplace(g.cmp_pc, std::move(g));
 	}
+
+	return true;
+}
+
+static std::optional<WasmAssembler> compile_function_structured(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, pc_t fn_id, const std::map<pc_t, pc_t>& function_id_to_idx)
+{
+	const auto& fn = structured_zasm.functions[fn_id];
+	pc_t start_pc = fn.start_pc;
+	pc_t final_pc = fn.final_pc;
+
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+
+		// A non-yielding function can't contain these; bail defensively.
+		if (command_is_suspend(command))
+			return std::nullopt;
+		// compile_callfunc_native requires a known function entry.
+		if (command == CALLFUNC && !structured_zasm.start_pc_to_function.contains(script->zasm[i].arg1))
+			return std::nullopt;
+	}
+
+	auto cfg = zasm_construct_cfg(script, {{start_pc, final_pc}});
+	std::vector<pc_t> starts = cfg.block_starts;
+	refine_block_partition(script, start_pc, final_pc, starts);
+
+	int n = starts.size();
+	auto block_id_of = [&](int pc) { return partition_block_id(starts, pc); };
+	auto block_final = [&](int b) { return partition_block_final(starts, final_pc, b); };
+
+	std::map<pc_t, CmpGroup> cmp_groups;
+	std::map<pc_t, pc_t> consumer_to_cmp;
+	// A consumer run that leaves the function; shouldn't happen.
+	if (!collect_cmp_groups(script, start_pc, final_pc, cmp_groups, consumer_to_cmp))
+		return std::nullopt;
 
 	// Classify each block's terminator (see wasm_structurer.h).
 	std::vector<BlockInfo> infos(n);
@@ -2331,50 +2356,20 @@ static std::optional<YielderRegionPlan> plan_yielder_region(const zasm_script* s
 	pc_t start_pc = plan.start_pc;
 	pc_t final_pc = plan.final_pc;
 
-	// Refined partition, exactly as in compile_function_structured: split
-	// after every control op so terminators are always block-final.
+	// Refined partition, same as compile_function_structured's.
 	std::vector<pc_t>& starts = plan.starts;
 	for (pc_t b = header_block; b <= tail_block; b++)
 		starts.push_back(cfg.block_starts[b]);
-	for (pc_t i = start_pc; i <= final_pc; i++)
-	{
-		int command = script->zasm[i].command;
-		bool is_control = command == GOTO || command_is_goto_consumer(command) ||
-						  command == QUIT || command == RETURNFUNC;
-		if (is_control && i + 1 <= final_pc)
-			starts.push_back(i + 1);
-	}
-	std::sort(starts.begin(), starts.end());
-	starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+	refine_block_partition(script, start_pc, final_pc, starts);
 
 	int n = starts.size();
-	auto block_id_of = [&](int pc) -> int {
-		auto it = std::lower_bound(starts.begin(), starts.end(), (pc_t)pc);
-		if (it == starts.end() || *it != (pc_t)pc)
-			return -1;
-		return it - starts.begin();
-	};
-	auto block_final = [&](int b) -> pc_t {
-		return b + 1 < n ? starts[b + 1] - 1 : final_pc;
-	};
+	auto block_id_of = [&](int pc) { return partition_block_id(starts, pc); };
+	auto block_final = [&](int b) { return partition_block_final(starts, final_pc, b); };
 
-	// Comparison groups (the caller's eligibility scan already rejected runs
-	// escaping the region; re-check defensively).
-	for (pc_t i = start_pc; i <= final_pc; i++)
-	{
-		int command = script->zasm[i].command;
-		if (command != COMPARER && command != COMPAREV && command != COMPAREV2)
-			continue;
-		CmpGroup g = analyze_comparison(script, i);
-		if (g.consumers.empty())
-			continue;
-		if (g.consumers.back() > final_pc)
-			return std::nullopt;
-		for (pc_t cj : g.consumers)
-			plan.consumer_to_cmp[cj] = i;
-		i = g.consumers.back();
-		plan.cmp_groups.emplace(g.cmp_pc, std::move(g));
-	}
+	// The caller's eligibility scan already rejected runs escaping the
+	// region; re-check defensively.
+	if (!collect_cmp_groups(script, start_pc, final_pc, plan.cmp_groups, plan.consumer_to_cmp))
+		return std::nullopt;
 
 	// The dispatch value naming a global cfg block (same "+1" convention as
 	// the flat lowering; the br_table's entry list maps values to depths).
