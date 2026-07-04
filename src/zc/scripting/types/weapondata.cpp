@@ -328,7 +328,7 @@ static ArrayRegistrar WEAPDATA_BURN_LIGHTOFFSET_registrar(WEAPDATA_BURN_LIGHTOFF
 
 static ArrayRegistrar WEAPDATA_INITD_registrar(WEAPDATA_INITD, []{
 	static ScriptingArray_ObjectMemberCArray<weapon_data, &weapon_data::initd> impl;
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	return &impl;
 }());
 
