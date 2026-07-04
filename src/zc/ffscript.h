@@ -961,7 +961,21 @@ struct triangle3Dstruct
     int32_t size[2], color[3];
 };
 
-bool command_is_wait(int command);
+// Inline: called per-instruction in several JIT compile passes, where the
+// out-of-line call showed up in compile-time profiles.
+inline bool command_is_wait(int command)
+{
+	switch (command)
+	{
+	case WAITFRAME:
+	case WAITDRAW:
+	case WAITTO:
+	case WAITEVENT:
+	case WAITFRAMESR:
+		return true;
+	}
+	return false;
+}
 bool command_is_goto(int command);
 bool command_uses_comparison_result(int command);
 bool command_writes_comparison_result(int command);

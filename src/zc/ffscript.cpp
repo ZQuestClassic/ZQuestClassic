@@ -16758,20 +16758,6 @@ int32_t FFScript::LongDistance(double x1, double y1, double x2, double y2, int32
 	return (FFCore.LongDistance(x1, y1, x3, y3)*scale);
 }
 
-bool command_is_wait(int command)
-{
-	switch (command)
-	{
-	case WAITFRAME:
-	case WAITDRAW:
-	case WAITTO:
-	case WAITEVENT:
-	case WAITFRAMESR:
-		return true;
-	}
-	return false;
-}
-
 bool command_is_goto(int command)
 {
 	// GOTOR/return ops left out on purpose.
