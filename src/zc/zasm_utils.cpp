@@ -332,10 +332,8 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 	{
 		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
 		{
-			// RUNGENFRZSCR yields back to the engine (like a wait) in the wasm JIT,
-			// so a function containing it must be compiled with suspend/resume support.
 			int command = script->zasm[i].command;
-			if (command_is_wait(command) || command == RUNGENFRZSCR)
+			if (command_is_suspend(command))
 			{
 				yielding_function_ids.insert(fn.id);
 				break;
@@ -443,11 +441,10 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}
-			else if (command_is_wait(command) || command == RUNGENFRZSCR)
+			else if (command_is_suspend(command))
 			{
-				// RUNGENFRZSCR is a yield point in the wasm JIT (see jit_wasm.cpp):
-				// like a wait, it ends its block so execution can resume at the next
-				// instruction.
+				// A suspend point ends its block so execution can resume at the
+				// next instruction.
 				if (i + 1 <= final_pc)
 					block_starts.push_back(i + 1);
 			}

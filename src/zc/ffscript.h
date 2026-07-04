@@ -976,6 +976,16 @@ inline bool command_is_wait(int command)
 	}
 	return false;
 }
+// Waits, plus RUNGENFRZSCR: commands that suspend the script and yield
+// control back to the engine (RUNGENFRZSCR runs nested engine frames, which
+// can't execute inside a jitted wasm frame - see jit_wasm.cpp). Correct resume
+// depends on every consult site - CFG block splits, dispatch entries,
+// yielding-function detection, region eligibility - agreeing on this set, so
+// it lives here rather than being spelled out at each site.
+inline bool command_is_suspend(int command)
+{
+	return command_is_wait(command) || command == RUNGENFRZSCR;
+}
 bool command_is_goto(int command);
 bool command_uses_comparison_result(int command);
 bool command_writes_comparison_result(int command);

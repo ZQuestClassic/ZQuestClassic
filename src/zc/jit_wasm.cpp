@@ -2121,7 +2121,7 @@ static std::optional<WasmAssembler> compile_function_structured(CompilationState
 		int command = script->zasm[i].command;
 
 		// A non-yielding function can't contain these; bail defensively.
-		if (command_is_wait(command) || command == RUNGENFRZSCR)
+		if (command_is_suspend(command))
 			return std::nullopt;
 		// compile_callfunc_native requires a known function entry.
 		if (command == CALLFUNC && !structured_zasm.start_pc_to_function.contains(script->zasm[i].arg1))
@@ -2553,7 +2553,7 @@ static std::set<pc_t> compute_dispatch_entries(const zasm_script* script, const 
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
 			int command = script->zasm[i].command;
-			bool resume_after = command_is_wait(command) || command == RUNGENFRZSCR;
+			bool resume_after = command_is_suspend(command);
 			if (command == CALLFUNC)
 			{
 				auto it = structured_zasm.start_pc_to_function.find(script->zasm[i].arg1);
@@ -2631,7 +2631,7 @@ static std::vector<YielderRegionPlan> detect_yielder_regions(CompilationState& s
 		for (pc_t i = h_pc; i <= t_final && ok; i++)
 		{
 			int command = script->zasm[i].command;
-			if (command_is_wait(command) || command == RUNGENFRZSCR)
+			if (command_is_suspend(command))
 				ok = false;
 			else if (command == CALLFUNC)
 			{
