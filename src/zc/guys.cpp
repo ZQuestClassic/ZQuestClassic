@@ -21123,6 +21123,8 @@ bool parsemsgcode()
 				Z_error("SCC 134: Flag %d is invalid\n", flag);
 				return true;
 			}
+			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
+				--map; // 0-index
 			bool state = bool(grab_next_argument());
 			if(state)
 				setmapflag(mapind(map,scrid),1<<flag);

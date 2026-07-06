@@ -1029,6 +1029,9 @@ static GUI::ListData compatRulesList
 		"When enabled, the code used for ffc 'platform's in sideview uses broken collision checks,"
 		" and player ceiling / floor collision will not properly account for off-grid solidity, possibly"
 		" clipping the player into solid ffcs." },
+	{ "Broken SCC Map Args", qr_BROKEN_SCC_MAP_ARGS,
+		"When enabled, some SCCs checking or setting states on other screens will use"
+		" the wrong Map, off-by-1 from the specified map."},
 };
 
 static GUI::ListData enemiesRulesList
