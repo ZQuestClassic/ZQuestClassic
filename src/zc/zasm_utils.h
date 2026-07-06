@@ -127,7 +127,13 @@ std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, Structure
 // https://www2.cs.arizona.edu/~collberg/Teaching/453/2009/Handouts/Handout-15.pdf
 ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges);
 
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg);
+// When suspend_uses_all_registers is set, a suspend point (WaitX/RUNGENFRZSCR) is treated as
+// reading every D register, keeping them live on all paths to the suspend. The JIT needs this
+// because a suspend serializes the whole register file to ri->d[]; the optimizer does not. When
+// structured_zasm is also given, a CALLFUNC into a function that may_yield is likewise treated
+// as reading every register - the callee observes the caller's register file at its suspend - so
+// those values stay live up to the call (its may_yield flag must already be populated).
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers = false, const struct StructuredZasm* structured_zasm = nullptr);
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 

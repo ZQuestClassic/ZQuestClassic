@@ -2333,7 +2333,22 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 		}
 		else if (command_is_goto(command) || command == CALLFUNC || command == RETURNFUNC)
 		{
-			if (j_script->cfg.contains_block_start(i + 1))
+			// A CALLFUNC into a function that can suspend (a WaitX/RUNGENFRZSCR reached
+			// transitively) needs the caller's whole modified register state in memory: at the
+			// callee's suspend the full D-register file is serialized to ri->d[] and restored
+			// on resume, and this caller's intra-procedural liveness cannot see that its
+			// registers are observed there. So flush every dirty register (skip the dead-drop)
+			// before such a call. A CALLFUNC ends a block, so the cache holds a single-path
+			// value here - flushing it is always correct (unlike a merge block start).
+			bool callee_may_yield = false;
+			if (command == CALLFUNC)
+			{
+				auto it = j_script->structured_zasm.start_pc_to_function.find(op.arg1);
+				callee_may_yield = it != j_script->structured_zasm.start_pc_to_function.end() &&
+					j_script->structured_zasm.functions[it->second].may_yield;
+			}
+
+			if (!callee_may_yield && j_script->cfg.contains_block_start(i + 1))
 			{
 				uint8_t out = j_script->liveness[current_block_id].out;
 				for (auto& [r, cached_reg] : state.cached_d_regs)
@@ -2716,7 +2731,18 @@ static JittedScript* init_jitted_script(zasm_script* script)
 		.cfg = zasm_construct_cfg(script, pc_ranges),
 	};
 
-	j_script->liveness = zasm_run_liveness_analysis(script, j_script->cfg);
+	// Populate ZasmFunction::may_yield so the register-cache flush at a CALLFUNC knows whether
+	// the callee can suspend (see the CALLFUNC handling in compile_function).
+	zasm_find_yielding_functions(script, j_script->structured_zasm);
+
+	// Pass suspend_uses_all_registers: a suspend point (WaitX/RUNGENFRZSCR) serializes the
+	// whole D-register file to ri->d[] and restores it on resume, so every register live at
+	// a suspend must be in memory there. Modeling the suspend as reading all registers keeps
+	// them live-out on all paths to it, so the register-cache flush never drops a pending
+	// write-back that the suspend would then read stale. (The optimizer uses its own call
+	// with this off, so its behavior is unchanged.) This handles registers observed at a
+	// suspend within the same function; the CALLFUNC handling covers the cross-function case.
+	j_script->liveness = zasm_run_liveness_analysis(script, j_script->cfg, true, &j_script->structured_zasm);
 
 	j_script->block_predecessors.resize(j_script->cfg.block_starts.size());
 	for (pc_t i = 0; i < j_script->block_predecessors.size(); i++)

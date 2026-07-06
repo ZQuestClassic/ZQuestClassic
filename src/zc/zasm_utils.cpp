@@ -495,7 +495,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
-ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg)
+ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG& cfg, bool suspend_uses_all_registers, const StructuredZasm* structured_zasm)
 {
 	#define C(i) (script->zasm[i])
 	#define E(i) (cfg.block_edges[i])
@@ -531,12 +531,30 @@ ZasmLiveness zasm_run_liveness_analysis(const zasm_script* script, const ZasmCFG
 			auto& instr = C(i);
 			if (instr.command == CALLFUNC)
 			{
+				// A call into a function that can suspend observes the caller's whole register
+				// file at the callee's suspend point, so those values are live up to the call
+				// (matching the JIT's flush before such a call). Record that as a read before
+				// the call clobbers everything.
+				if (suspend_uses_all_registers && structured_zasm)
+				{
+					auto it = structured_zasm->start_pc_to_function.find(instr.arg1);
+					if (it != structured_zasm->start_pc_to_function.end() &&
+						structured_zasm->functions[it->second].may_yield)
+						gen |= (0xFF & ~kill);
+				}
 				kill = 0xFF;
 				continue;
 			}
 
 			if (instr.command == RETURNFUNC)
 				returns = true;
+
+			// A suspend serializes the whole D-register file to ri->d[] and restores it on
+			// resume, so it effectively reads every register live at that point. Treat it as
+			// reading all registers not already redefined in this block; the values defined
+			// earlier in the block are still live and get flushed as usual.
+			if (suspend_uses_all_registers && command_is_suspend(instr.command))
+				gen |= (0xFF & ~kill);
 
 			auto& meta = command_meta_cache[instr.command];
 			gen |= (meta.implicit_read_mask & ~kill);
