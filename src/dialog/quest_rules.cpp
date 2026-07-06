@@ -1143,6 +1143,9 @@ static GUI::ListData compatRulesList
 		" will always add 20 to their starting tile when they randomly start 'faster'."
 		"\nIf disabled, these enemies will instead add a multiple of 20 large enough"
 		" to be on a tile not in a row already used by the animation."},
+	{ "Broken SCC Map Args", qr_BROKEN_SCC_MAP_ARGS,
+		"When enabled, some SCCs checking or setting states on other screens will use"
+		" the wrong Map, off-by-1 from the specified map."},
 };
 
 static GUI::ListData enemiesRulesList
