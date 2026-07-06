@@ -20315,6 +20315,8 @@ static bool parsemsgcode(const StringCommand& command)
 				Z_error("SCC: Screen %d is invalid\n", screen);
 				return true;
 			}
+			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
+				--map; // 0-index
 
 			int mi = mapind(map, screen);
 			bool state = (game->maps.get(mi) & (1<<flag)) != 0;
@@ -20372,6 +20374,8 @@ static bool parsemsgcode(const StringCommand& command)
 				Z_error("SCC: Screen %d is invalid\n", screen);
 				return true;
 			}
+			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
+				--map; // 0-index
 
 			bool state = getxmapflag(mapind(map, screen), 1<<flag);
 			if (state == value)
@@ -20762,11 +20766,14 @@ static bool parsemsgcode(const StringCommand& command)
 				Z_error("SCC 134: State %d is invalid\n", flag);
 				return true;
 			}
+			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
+				--map; // 0-index
 			bool state = args[3];
+			auto mi = mapind(map, scrid);
 			if(state)
-				setmapflag_mi(msgscr, mapind(map,scrid),1<<flag);
+				setmapflag_mi(msgscr, mi, 1<<flag);
 			else
-				unsetmapflag_mi(msgscr, mapind(map,scrid),1<<flag,true);
+				unsetmapflag_mi(msgscr, mi, 1<<flag, true);
 			return true;
 		}
 
@@ -20793,12 +20800,15 @@ static bool parsemsgcode(const StringCommand& command)
 				Z_error("SCC: Screen %d is invalid\n", screen);
 				return true;
 			}
+			if (!get_qr(qr_BROKEN_SCC_MAP_ARGS))
+				--map; // 0-index
 
 			bool state = args[3];
+			auto mi = mapind(map, screen);
 			if(state)
-				setxmapflag(mapind(map, screen), 1<<flag);
+				setxmapflag(mi, 1<<flag);
 			else
-				unsetxmapflag(mapind(map, screen), 1<<flag);
+				unsetxmapflag(mi, 1<<flag);
 			return true;
 		}
 

@@ -923,6 +923,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
 		if (compatrule_version < 107)
 			set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
+		if (compatrule_version < 118)
+			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
 	}
 	else
 	{
@@ -981,6 +983,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_BROKEN_0_DAMAGE_BRANG_HSHOT, 1);
 			set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
 			set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
+		}
+
+		// Older than 2.55.15?
+		if (tempheader.compareVer(2, 55, 15) < 0)
+		{
+			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
 		}
 	}
 
