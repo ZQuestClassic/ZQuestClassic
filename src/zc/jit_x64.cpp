@@ -2348,7 +2348,16 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 					j_script->structured_zasm.functions[it->second].may_yield;
 			}
 
-			if (!callee_may_yield && j_script->cfg.contains_block_start(i + 1))
+			// A RETURNFUNC hands control back to the caller, whose successors this function's
+			// intra-procedural liveness cannot see. ZASM D-registers are global, so every
+			// register this function wrote (dirty in the cache) is observed by the caller once
+			// it resumes - exactly as the interpreter leaves them in ri->d[]. The block's own
+			// .out for a returns-block is only D2 (the return-value convention), so the dead-drop
+			// would strand any other register written here (e.g. a POP D3 that a setter helper
+			// does before returning). Skip the dead-drop and flush every dirty register.
+			bool is_returnfunc = command == RETURNFUNC;
+
+			if (!is_returnfunc && !callee_may_yield && j_script->cfg.contains_block_start(i + 1))
 			{
 				uint8_t out = j_script->liveness[current_block_id].out;
 
