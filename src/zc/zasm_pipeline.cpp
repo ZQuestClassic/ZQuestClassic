@@ -15,18 +15,27 @@ static void zasm_pipeline_trace(fmt::format_string<Args...> s, Args&&... args)
 	al_trace("[zasm-pipeline] %s\n", text.c_str());
 }
 
-static int get_worker_thread_count()
+int jit_requested_threads(int min_threads)
 {
-	if (is_web())
-		return 0;
-
 	int num_threads = get_flag_int("-jit-threads").value_or(zc_get_config("ZSCRIPT", "jit_threads", -2));
+	if (num_threads == 0)
+		return 0;
 
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
-		num_threads = std::max(0, (int)processor_count / -num_threads);
+		num_threads = std::max(min_threads, (int)processor_count / -num_threads);
 
-	return std::min(MAX_THREADS, num_threads);
+	return num_threads;
+}
+
+static int get_worker_thread_count()
+{
+	// No engine worker pool on web; the wasm backend threads its own
+	// precompile (see jit_precompile_scripts_impl).
+	if (is_web())
+		return 0;
+
+	return std::min(MAX_THREADS, jit_requested_threads(0));
 }
 
 static void init_worker_pool(int num_threads)

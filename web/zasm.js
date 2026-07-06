@@ -79,25 +79,24 @@ function rawEngineExport(name) {
   return wrapped;
 }
 
-export async function compileScriptWasmModule(name, ptr, size) {
-  // TODO  support compiling in workers.
-  assertMainThread();
+function ensureEmFunctions() {
+  if (emFunctions.doCommands) return;
 
-  if (!emFunctions.doCommands) {
-    emFunctions.doCommands = rawEngineExport('em_do_commands');
-    // Some commands may temporarily control the game loop (ex: RUNGENFRZSCR), so they need to be done async.
-    emFunctions.doCommandsAsync = Module.cwrap('em_do_commands', 'int', ['int', 'int', 'int'], {async: true});
-    emFunctions.getRegister = rawEngineExport('em_get_register');
-    emFunctions.setRegister = rawEngineExport('em_set_register');
-    emFunctions.setGuardedRegister = rawEngineExport('em_set_guarded_register');
-    emFunctions.runtimeDebug = rawEngineExport('em_runtime_script_debug');
-    emFunctions.logError = rawEngineExport('em_log_error');
-    emFunctions.podRead = rawEngineExport('em_pod_read');
-    emFunctions.podWrite = rawEngineExport('em_pod_write');
-    emFunctions.allocatemem = rawEngineExport('em_allocatemem');
-    emFunctions.writepodarr = rawEngineExport('em_writepodarr');
-  }
+  emFunctions.doCommands = rawEngineExport('em_do_commands');
+  // Some commands may temporarily control the game loop (ex: RUNGENFRZSCR), so they need to be done async.
+  emFunctions.doCommandsAsync = Module.cwrap('em_do_commands', 'int', ['int', 'int', 'int'], {async: true});
+  emFunctions.getRegister = rawEngineExport('em_get_register');
+  emFunctions.setRegister = rawEngineExport('em_set_register');
+  emFunctions.setGuardedRegister = rawEngineExport('em_set_guarded_register');
+  emFunctions.runtimeDebug = rawEngineExport('em_runtime_script_debug');
+  emFunctions.logError = rawEngineExport('em_log_error');
+  emFunctions.podRead = rawEngineExport('em_pod_read');
+  emFunctions.podWrite = rawEngineExport('em_pod_write');
+  emFunctions.allocatemem = rawEngineExport('em_allocatemem');
+  emFunctions.writepodarr = rawEngineExport('em_writepodarr');
+}
 
+async function compileOneModule(name, ptr, size) {
   console.log(`compiling ${name}, ${size} len`);
   try {
     const buffer = new Uint8Array(Module.HEAPU8.buffer, ptr, size);
@@ -129,6 +128,35 @@ export async function compileScriptWasmModule(name, ptr, size) {
   } catch (err) {
     console.error(`error compiling ${name}`, err);
     return 0;
+  }
+}
+
+export async function compileScriptWasmModule(name, ptr, size) {
+  // TODO  support compiling in workers.
+  assertMainThread();
+  ensureEmFunctions();
+  return compileOneModule(name, ptr, size);
+}
+
+// Compiles many modules concurrently - the browser compiles WebAssembly on an
+// internal thread pool, so this runs in the time of the largest module rather
+// than the sum, and the (expensive) asyncify round-trip of the caller is paid
+// once instead of per module. The names/ptrs/sizes arguments point at C arrays
+// of length count; a module id (0 on failure) is written per entry to outIds.
+export async function compileScriptWasmModuleBatch(count, namesPtr, ptrsPtr, sizesPtr, outIdsPtr) {
+  assertMainThread();
+  ensureEmFunctions();
+
+  const jobs = [];
+  for (let i = 0; i < count; i++) {
+    const name = Module.UTF8ToString(Module.HEAPU32[namesPtr / 4 + i]);
+    const ptr = Module.HEAPU32[ptrsPtr / 4 + i];
+    const size = Module.HEAPU32[sizesPtr / 4 + i];
+    jobs.push(compileOneModule(name, ptr, size));
+  }
+  const ids = await Promise.all(jobs);
+  for (let i = 0; i < count; i++) {
+    Module.HEAP32[outIdsPtr / 4 + i] = ids[i];
   }
 }
 

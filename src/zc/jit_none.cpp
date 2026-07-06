@@ -10,6 +10,11 @@ JittedScript* jit_compile_script([[maybe_unused]] zasm_script* script)
 	return nullptr;
 }
 
+bool jit_precompile_scripts_impl([[maybe_unused]] const std::vector<zasm_script*>& scripts, [[maybe_unused]] const std::function<void(zasm_script*, JittedScript*)>& on_compiled)
+{
+	return false;
+}
+
 int jit_run_script([[maybe_unused]] JittedScriptInstance* j_instance)
 {
 	return RUNSCRIPT_ERROR;

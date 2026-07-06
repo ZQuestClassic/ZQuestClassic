@@ -4,6 +4,8 @@
 #include "base/compiler.h"
 #include "core/zdefs.h"
 #include "components/zasm/pc.h"
+#include <functional>
+#include <vector>
 
 #define JIT_NONE 0
 #define JIT_X64 1
@@ -35,6 +37,14 @@ void jit_shutdown();
 
 void jit_startup_impl();
 JittedScript* jit_compile_script(zasm_script* script);
+// Precompile every script, using backend-managed threading. Returns false if
+// the backend has no such support (the caller then compiles serially or via
+// the engine worker pool). The wasm backend implements this for the web build,
+// where the engine worker pool is unavailable but raw threads work: codegen
+// (the dominant cost) runs on threads while the browser-compile step - which
+// must happen on the main thread - is drained there. on_compiled is called on
+// the calling thread for every script, in no particular order.
+bool jit_precompile_scripts_impl(const std::vector<zasm_script*>& scripts, const std::function<void(zasm_script*, JittedScript*)>& on_compiled);
 JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script);
 int jit_run_script(JittedScriptInstance* j_instance);
 // Whether it is safe to start a (possibly nested) jitted script right now. The

@@ -254,9 +254,18 @@ void jit_startup(bool precompile)
 		// Handle special case where there are no worker threads.
 		if (!worker_pool)
 		{
-			for (auto script : scripts)
+			// The backend may still manage its own threading (the wasm backend
+			// does on the web build, where the engine worker pool is
+			// unavailable); otherwise compile serially.
+			bool compiled = jit_precompile_scripts_impl(scripts, [](zasm_script* script, JittedScript* j_script){
+				compiled_scripts[script->id] = j_script;
+			});
+			if (!compiled)
 			{
-				compiled_scripts[script->id] = jit_compile_script(script);
+				for (auto script : scripts)
+				{
+					compiled_scripts[script->id] = jit_compile_script(script);
+				}
 			}
 		}
 		else

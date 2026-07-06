@@ -2878,6 +2878,12 @@ bool jit_can_start_script()
 	return true;
 }
 
+bool jit_precompile_scripts_impl([[maybe_unused]] const std::vector<zasm_script*>& scripts, [[maybe_unused]] const std::function<void(zasm_script*, JittedScript*)>& on_compiled)
+{
+	// This backend precompiles via the engine worker pool.
+	return false;
+}
+
 int jit_run_script(JittedScriptInstance* j_instance)
 {
 	// Commit any recently compiled functions.

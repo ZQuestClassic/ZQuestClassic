@@ -36,9 +36,11 @@
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
 #include "zc/wasm_structurer.h"
+#include "zc/zasm_pipeline.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "components/zasm/serialize.h"
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -46,6 +48,7 @@
 #include <optional>
 #include <set>
 #include <stdint.h>
+#include <thread>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -117,6 +120,18 @@ static int em_compile_wasm(const char* name, void* ptr, size_t size)
 	return em_compile_wasm_(name, ptr, size);
 }
 
+// Compile many modules in ONE asyncify round-trip: the browser compiles them
+// in parallel on its internal thread pool, and the per-module cost of
+// unwinding/rewinding the whole C++ stack (which dominated serial precompile)
+// is paid once. Writes a module id (0 = failure) per entry to out_ids.
+EM_ASYNC_JS(void, em_compile_wasm_batch_, (int count, uintptr_t names, uintptr_t ptrs, uintptr_t sizes, uintptr_t out_ids), {
+	await ZC.compileScriptWasmModuleBatch(count, names, ptrs, sizes, out_ids);
+});
+static void em_compile_wasm_batch(int count, const char** names, void** ptrs, uint32_t* sizes, int* out_ids)
+{
+	em_compile_wasm_batch_(count, (uintptr_t)names, (uintptr_t)ptrs, (uintptr_t)sizes, (uintptr_t)out_ids);
+}
+
 EM_JS(int, em_create_wasm_handle_, (int module_id), {
 	return ZC.createScriptWasmHandle(module_id);
 });
@@ -154,6 +169,10 @@ static bool em_destroy_wasm_module(int id)
 static int em_compile_wasm([[maybe_unused]] const char* name, [[maybe_unused]] void* ptr, [[maybe_unused]] size_t size)
 {
 	return 0;
+}
+
+static void em_compile_wasm_batch([[maybe_unused]] int count, [[maybe_unused]] const char** names, [[maybe_unused]] void** ptrs, [[maybe_unused]] uint32_t* sizes, [[maybe_unused]] int* out_ids)
+{
 }
 
 static int em_create_wasm_handle([[maybe_unused]] int module_id)
@@ -3117,10 +3136,21 @@ void jit_startup_impl()
 {
 }
 
-JittedScript* jit_compile_script(zasm_script* script)
+// The thread-safe half of compiling a chunk: everything up to (but not
+// including) handing the module bytes to the browser. Touches only the script
+// and local state, so it can run on any thread (see
+// jit_precompile_scripts_impl); em_compile_wasm must stay on the main thread.
+struct WasmCodegenResult
+{
+	std::string module_name;
+	WasmModule wm;
+	std::map<pc_t, uint32_t> resume_dispatch;
+};
+
+static bool wasm_codegen(zasm_script* script, WasmCodegenResult& out)
 {
 	if (script->size <= 1)
-		return nullptr;
+		return false;
 
 	// STACKWRITEATVV_IF is not yet supported by the wasm codegen - always bail.
 	//
@@ -3140,17 +3170,17 @@ JittedScript* jit_compile_script(zasm_script* script)
 		if (command == STACKWRITEATVV_IF)
 		{
 			error(script, "STACKWRITEATVV_IF unsupported", true);
-			return nullptr;
+			return false;
 		}
 		if (command == RUNGENFRZSCR && bail_on_frozen_generic)
-			return nullptr;
+			return false;
 	}
 
 	auto structured_zasm = zasm_construct_structured(script);
 	if (!structured_zasm.is_modern_function_calling())
 	{
 		al_trace("[jit] NOT compiling zasm chunk (unexpected function call mode): %s id: %d size: %zu\n", script->name.c_str(), script->id, script->size);
-		return nullptr;
+		return false;
 	}
 
 	al_trace("[jit] compiling script: %s id: %d\n", script->name.c_str(), script->id);
@@ -3234,7 +3264,7 @@ JittedScript* jit_compile_script(zasm_script* script)
 			if (!tgt_is_entry || yielding_fns.contains(fn.id) || yielding_fns.contains(tgt_fn))
 			{
 				error(script, fmt::format("unsupported cross-function GOTO at pc {} -> {}", (int)i, (int)tgt), true);
-				return nullptr;
+				return false;
 			}
 		}
 	}
@@ -3418,11 +3448,15 @@ JittedScript* jit_compile_script(zasm_script* script)
 		outfile.write(reinterpret_cast<const char*>(wm.data.data()), wm.data.size());
 	}
 
-#ifndef __EMSCRIPTEN__
-	if (script) return nullptr;
-#endif
+	out.module_name = comp.builder.moduleName;
+	out.wm = std::move(wm);
+	out.resume_dispatch = std::move(resume_dispatch);
+	return true;
+}
 
-	int module_id = em_compile_wasm(comp.builder.moduleName.c_str(), wm.data.data(), wm.data.size());
+// Wraps a browser-compiled module id (0 = the browser failed to compile).
+static JittedScript* wasm_wrap_module(zasm_script* script, WasmCodegenResult&& r, int module_id)
+{
 	printf("success: %s\n", module_id ? "YES" : "NO");
 	if (!module_id)
 	{
@@ -3432,8 +3466,110 @@ JittedScript* jit_compile_script(zasm_script* script)
 	}
 
 	auto fn = new JittedScript{module_id};
-	fn->resume_dispatch = std::move(resume_dispatch);
+	fn->resume_dispatch = std::move(r.resume_dispatch);
 	return fn;
+}
+
+// The main-thread half: hand the module bytes to the browser to compile.
+static JittedScript* wasm_finalize(zasm_script* script, WasmCodegenResult&& r)
+{
+#ifndef __EMSCRIPTEN__
+	// Native builds can only generate the module (e.g. for -jit-save-wasm
+	// validation), not run it.
+	if (script) return nullptr;
+#endif
+
+	int module_id = em_compile_wasm(r.module_name.c_str(), r.wm.data.data(), r.wm.data.size());
+	return wasm_wrap_module(script, std::move(r), module_id);
+}
+
+JittedScript* jit_compile_script(zasm_script* script)
+{
+	WasmCodegenResult r;
+	if (!wasm_codegen(script, r))
+		return nullptr;
+	return wasm_finalize(script, std::move(r));
+}
+
+// Precompile with backend-managed threading. Only used on the web build: the
+// engine worker pool is unavailable there (see get_worker_thread_count), but
+// raw pthreads work (the runtime preallocates a pool). Two serial costs are
+// attacked: codegen runs on worker threads, and the browser-compile step -
+// which must be issued from the main thread, and whose per-module asyncify
+// round-trip dominated serial precompile - is issued as ONE batch
+// (em_compile_wasm_batch), letting the browser compile every module in
+// parallel on its own pool.
+bool jit_precompile_scripts_impl([[maybe_unused]] const std::vector<zasm_script*>& scripts, [[maybe_unused]] const std::function<void(zasm_script*, JittedScript*)>& on_compiled)
+{
+#ifndef __EMSCRIPTEN__
+	// Native builds precompile via the engine worker pool (or serially).
+	return false;
+#else
+	// 0 forces synchronous compilation (debugging); see jit_requested_threads
+	// for the shared -jit-threads semantics.
+	int num_threads = jit_requested_threads(1);
+	if (num_threads == 0)
+		return false;
+	num_threads = std::min({num_threads, (int)scripts.size(), 8});
+	if (num_threads < 1)
+		num_threads = 1;
+
+	struct Item
+	{
+		bool compiled;
+		WasmCodegenResult result;
+	};
+	std::vector<Item> items(scripts.size());
+	std::atomic<size_t> next_index{0};
+	std::atomic<size_t> num_done{0};
+
+	auto worker = [&](){
+		while (true)
+		{
+			size_t i = next_index.fetch_add(1);
+			if (i >= scripts.size())
+				break;
+			items[i].compiled = wasm_codegen(scripts[i], items[i].result);
+			num_done.fetch_add(1);
+		}
+	};
+	std::vector<std::thread> threads;
+	for (int t = 0; t < num_threads; t++)
+		threads.emplace_back(worker);
+
+	// The sleep yields to the browser, which is also what lets queued worker
+	// threads spawn.
+	while (num_done.load() < scripts.size())
+		emscripten_sleep(1);
+	for (auto& t : threads)
+		t.join();
+
+	std::vector<size_t> indices;
+	std::vector<const char*> names;
+	std::vector<void*> ptrs;
+	std::vector<uint32_t> sizes;
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		if (!items[i].compiled)
+			continue;
+		indices.push_back(i);
+		names.push_back(items[i].result.module_name.c_str());
+		ptrs.push_back(items[i].result.wm.data.data());
+		sizes.push_back(items[i].result.wm.data.size());
+	}
+	std::vector<int> module_ids(indices.size());
+	em_compile_wasm_batch(indices.size(), names.data(), ptrs.data(), sizes.data(), module_ids.data());
+
+	std::vector<JittedScript*> compiled(scripts.size());
+	for (size_t k = 0; k < indices.size(); k++)
+	{
+		size_t i = indices[k];
+		compiled[i] = wasm_wrap_module(scripts[i], std::move(items[i].result), module_ids[k]);
+	}
+	for (size_t i = 0; i < scripts.size(); i++)
+		on_compiled(scripts[i], compiled[i]);
+	return true;
+#endif
 }
 
 JittedScriptInstance* jit_create_script_impl(script_data* script, refInfo* ri, JittedScript* j_script)
