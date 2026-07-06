@@ -8292,7 +8292,10 @@ heroanimate_skip_liftwpn:;
 			if (last_rocs.flags & item_flag6)
 			{
 				int32_t jump_loss = last_rocs.misc6 / 100;
-				fall = zc_min(0_zf, fall + jump_loss);
+				if (jump_loss) // lose this much
+					fall = zc_min(0_zf, fall + jump_loss);
+				else // lose entire jump
+					fall = 0;
 			}
 			if (fall >= 0)
 				try_hover();
