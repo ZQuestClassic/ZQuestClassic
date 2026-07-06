@@ -44525,7 +44525,7 @@ void FFScript::do_strcmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
+	set_register(sarg1, (vbound(strcmp(strA.c_str(), strB.c_str()), -1, 1) * 10000));
 }
 
 void FFScript::do_stricmp()
@@ -44536,7 +44536,7 @@ void FFScript::do_stricmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	set_register(sarg1, (stricmp(strA.c_str(), strB.c_str()) * 10000));
+	set_register(sarg1, (vbound(stricmp(strA.c_str(), strB.c_str()), -1, 1) * 10000));
 }
 
 void FFScript::do_LowerToUpper(const bool v)
@@ -45148,7 +45148,7 @@ void FFScript::do_strncmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	set_register(sarg1, (strncmp(strA.c_str(), strB.c_str(), len) * 10000));
+	set_register(sarg1, (vbound(strncmp(strA.c_str(), strB.c_str(), len), -1, 1) * 10000));
 }
 
 void FFScript::do_strnicmp()
@@ -45160,7 +45160,7 @@ void FFScript::do_strnicmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	set_register(sarg1, (ustrnicmp(strA.c_str(), strB.c_str(), len) * 10000));
+	set_register(sarg1, (vbound(ustrnicmp(strA.c_str(), strB.c_str(), len), -1, 1) * 10000));
 }
 
 void FFScript::do_npc_canmove(const bool v)
