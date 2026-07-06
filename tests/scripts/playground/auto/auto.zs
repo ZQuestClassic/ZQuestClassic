@@ -5,6 +5,7 @@
 #include "auto/bug_script_draw_error_logging.zs"
 #include "auto/bug_unused_var_bad_opt.zs"
 #include "auto/classes.zs"
+#include "auto/combo_script_owned_clear.zs"
 #include "auto/ffc_script_runner.zs"
 #include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
