@@ -2351,6 +2351,16 @@ static std::optional<JittedFunction> compile_function(zasm_script* script, Jitte
 			if (!callee_may_yield && j_script->cfg.contains_block_start(i + 1))
 			{
 				uint8_t out = j_script->liveness[current_block_id].out;
+
+				// For a CALLFUNC the block's own .out is the callee's live-in (the CFG edge
+				// goes to the callee), which does not capture what the caller needs once the
+				// call returns. Execution resumes at i+1, and a register live there must
+				// survive the call: the callee is not required to write every register, so a
+				// value it leaves untouched has to already be in ri->d[] (e.g. a loop/array
+				// index kept in a register across a helper call). Keep those too.
+				if (command == CALLFUNC)
+					out |= j_script->liveness[j_script->cfg.block_id_from_start_pc(i + 1)].in;
+
 				for (auto& [r, cached_reg] : state.cached_d_regs)
 				{
 					if (!(out & (1 << r)))
