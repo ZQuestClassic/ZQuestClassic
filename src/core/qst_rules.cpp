@@ -839,18 +839,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ITEMS_HARDCODED_SIDEVIEW_HITBOX, 1);
 		set_qr(qr_WEAPONS_HARDCODED_SIDEVIEW_HITBOX, 1);
 	}
-	if (compatrule_version < 109)
-		set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
 	if (compatrule_version < 110)
 	{
 		set_qr(qr_OLD_LAYER_DRAW_ORDER, get_qr(qr_CLASSIC_DRAWING_ORDER));
 		set_qr(qr_MAP_SPOILS_DARKROOMS, 1);
-		set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
 	}
-	if (compatrule_version < 111)
-		set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
-	if (compatrule_version < 112)
-		set_qr(qr_BROKEN_PLAYER_SOLIDPUSH, 1);
 	if (compatrule_version < 113)
 	{
 		set_qr(qr_OLD_BRIDGE_COMBO_COVER, 1);
@@ -863,11 +856,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LENS_HINTS_SECRETS, 1);
 	}
 	if (compatrule_version < 115)
-	{
 		set_qr(qr_CHESTS_SIGNS_LOCKBLOCKS_ABOVE_2, 1);
-		set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
-		set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
-	}
 	if (compatrule_version < 116)
 		set_qr(qr_OLD_SUMMONER_COUNTS, 1);
 	if (compatrule_version < 117)
@@ -923,6 +912,19 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			set_qr(qr_BROKEN_SPINTILE_COMBO_CHANGE, 1);
 		if (compatrule_version < 107)
 			set_qr(qr_LIGHT_RADIUS_IGNORE_HIT_OFFSETS, 1);
+		if (compatrule_version < 109)
+			set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
+		if (compatrule_version < 110)
+			set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
+		if (compatrule_version < 111)
+			set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
+		if (compatrule_version < 112)
+			set_qr(qr_BROKEN_PLAYER_SOLIDPUSH, 1);
+		if (compatrule_version < 115)
+		{
+			set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
+			set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
+		}
 		if (compatrule_version < 118)
 			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
 	}
@@ -988,6 +990,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		// Older than 2.55.15?
 		if (tempheader.compareVer(2, 55, 15) < 0)
 		{
+			set_qr(qr_BROKEN_PUSHBLOCK_TRIGGER_GROUPS, 1);
+			set_qr(qr_BS_OW_IGNORES_MAP_ITEM, 1);
+			set_qr(qr_BROKEN_ENEMY_SIDEVIEW_PLATFORM_HITBOX, 1);
+			set_qr(qr_BROKEN_PLAYER_SOLIDPUSH, 1);
+			set_qr(qr_KNOCKBACK_THROUGH_PLATFORMS, 1);
+			set_qr(qr_BROKEN_SIDEVIEW_SOLID_FFC_COLLISION, 1);
 			set_qr(qr_BROKEN_SCC_MAP_ARGS, 1);
 		}
 	}
