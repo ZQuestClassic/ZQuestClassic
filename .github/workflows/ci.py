@@ -363,8 +363,8 @@ def build(ctx: CiContext, args):
     ]
     if ctx.is_windows:
         cmake_config_cmd.append("-DCMAKE_WIN32_EXECUTABLE=1")
-    if ctx.is_linux:
-        # Enable DCHECK in CI on Linux, even in Release builds.
+    if ctx.is_linux and not args.official:
+        # Enable DCHECK in CI on Linux for testing.
         cmake_config_cmd.append("-DCMAKE_CXX_FLAGS=-DDCHECK_IS_ON")
     if cmake_toolchain:
         cmake_config_cmd.append(f"-DCMAKE_TOOLCHAIN_FILE={cmake_toolchain}")
