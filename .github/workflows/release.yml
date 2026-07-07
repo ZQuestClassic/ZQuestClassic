@@ -115,8 +115,18 @@ jobs:
         with:
           path: release-packages
 
-      - name: Generate changelog
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
+      - name: Validate release
+        run: python scripts/validate_release.py --version ${{ needs.create-tag.outputs.release-tag }}
+
+      - name: Find changelog
+        id: changelog
+        run: |
+          changelog=$(ls changelogs/*-${{ needs.create-tag.outputs.release-tag }}.txt)
+          if [ ! -f "$changelog" ]; then
+            echo "no changelog found for ${{ needs.create-tag.outputs.release-tag }}"
+            exit 1
+          fi
+          echo "path=$changelog" >> "$GITHUB_OUTPUT"
 
       - name: Release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
@@ -128,7 +138,7 @@ jobs:
           prerelease: ${{ !inputs.full_release }}
           fail_on_unmatched_files: true
           generate_release_notes: false
-          body_path: new_changelog.md
+          body_path: ${{ steps.changelog.outputs.path }}
 
       - name: Setup Sentry CLI
         if: inputs.sentry
@@ -151,12 +161,6 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: 'ZQuestClassic',
               repo: 'zquestclassic.com',
-              workflow_id: 'deploy.yml',
-              ref: 'main',
-            })
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'ZQuestClassic',
-              repo: 'web.zquestclassic.com',
               workflow_id: 'deploy.yml',
               ref: 'main',
             })
