@@ -1,0 +1,381 @@
+https://zquestclassic.com/releases/2.55.15
+
+# Features
+
+Respawn Point Half-Gridlock
+  New QR allows the new respawn points to lock the respawn check to the
+  nearest half-grid (8px) position. This places you slightly further from
+  some unsafe obstacles, and helps in certain edge-cases.
+
+new qr Rerolled Drops Always Roll 'Nothing'
+  This works alongside the other smart drops qrs to help rebalance dropsets.
+  If set, any drops that would be 'rerolled' always roll 'Nothing' instead,
+  keeping the odds of each drop the same under all circumstances.
+  This allows simply removing drops from the pool when they are unneeded,
+  instead of requiring them to be rerolled into other drops.
+
+Byrna invincibility
+Both invincibility-granting magic items can now prevent knockback
+  If knockback is prevented, the player can ex. walk over spikes without being
+  stopped / hit back.
+
+zc: water/pitfall attributes for IFrames and Stun Frames
+  - Allows customizing InvFrames after falling / drowning
+  - Allows stunning the player (to prevent them from ex. walking directly
+    back into the water/pitfall) after falling / drowning
+
+zq: improve some tile editor shortcuts
+  - Ctrl+Arrows no longer prevent changing pages
+  - Holding Shift makes the Alt+Arrows shortcut move in increments of 8px
+    instead of 1px
+
+zq: improve tile editor quarter-tile draw modes
+  "Diag Flip" was implemented wrong, acting exactly the same as 180 rotation-
+  it has been replaced with "+Diag Flip" and "-Diag Flip" which properly flip
+  across the positive and negative diagonal lines respectively.
+  
+  "Translate" has also been added, drawing at the same position in each of
+  the 4 quarters of the tile, useful for minitile-drawing ex. for life meters.
+
+zq: show combo label on favorite combo tooltip
+zq: Item Wizard for Stomp Boots
+zq: subscreen 'hint' draws
+  Some things that would normally be invisible will have a 'hint' draw to
+  indicate where and what it is in the editor (ex. Button Items, Text with
+  empty string, etc).
+
+
+# Bug Fixes
+
+AltGr key combinations
+ditherblit ignoring clipping rectangles
+
+add runtime SSE2/SSSE3 detection and fallbacks
+  2.55.12 added fast-path code for some tile draws, which required CPUs
+  made in at least 2007 or later. Older CPUs would crash when executing
+  these unknown instructions. Now, the tile drawing code checks if the CPU
+  supports these instructions, and if not uses the slower drawing code.
+
+preserve scroll position in new listers
+  Discord: https://discord.com/channels/876899628556091432/1497521931979853854
+
+Switchhook Block combo attributes overlapping
+  The 'Item/Dropset' attribute was in the same spot as the 'Break SFX'
+  attribute! The 'Item/Dropset' attribute has been moved to fix this.
+  If you were using 'Item/Dropset' before, you'll want to update your
+  Switchhook Block combos.
+
+continue hearts being improperly bounded
+  This led to high continue heart values wrapping around to lower values.
+  
+  Regressed in 2.55-alpha-120 (acb7c84).
+
+prevent out-of-bounds write when loading a quest with an invalid combo count
+  A crafted quest file could declare a combo count larger than the maximum
+  number of combos, causing writes past the end of the combo buffer.
+
+prevent out-of-bounds write when loading a quest with too many counters
+  A crafted quest file could declare a counter count larger than the maximum,
+  causing writes past the end of the counter arrays in the init data.
+
+prevent out-of-bounds read from invalid DMap subscreen script index
+  A crafted quest file could set a DMap's active/passive subscreen script index
+  beyond the script table, causing an out-of-bounds read and dereference of an
+  invalid script pointer when the quest is loaded or run.
+
+avoid out-of-bounds read on unterminated enemy name in quest file
+  A crafted quest file could supply a 64-byte enemy name with no terminator,
+  causing a string length scan to read past the end of the buffer.
+
+avoid out-of-bounds read from invalid FFC combo index during quest load
+  A crafted quest file could give a freeform combo a combo index past the end
+  of the combo buffer, causing an out-of-bounds read while fixing up old quests.
+
+avoid out-of-bounds read from legacy secret-combo template index
+  Loading a crafted old-format quest could use a secret-combo value as an index
+  past the end of the template screen's combo arrays, reading out of bounds.
+
+prevent out-of-bounds write from invalid combo pool/autocombo counts
+  A crafted quest file could declare more combo pools or autocombos than the
+  engine supports, causing writes past the end of those fixed arrays.
+
+prevent out-of-bounds write from invalid favorite combo data
+  A crafted quest file could declare too many favorite combos or an invalid
+  per-row value, causing writes past the favorite-combo arrays (or a divide by
+  zero from a zero per-row value).
+
+qr for chests/signs/lockblocks working above layer 2
+[mac] size default window using the screen's usable area
+  The default window size on macOS subtracted a hardcoded guess for the
+  menu bar and ignored the dock, so the window could end up larger than
+  the available space. It now uses the screen's actual usable area, which
+  excludes both the menu bar and the dock, and reserves the window title
+  bar at the correct size on high-DPI displays.
+
+zc: sideview drowning softlocking the player forever sometimes
+zc: Hero->Immortal not clearing on quest load
+zc: per-quest controls resetting wrongly on Continue
+zc: pitfalls not resetting attack timer
+  this allowed the player to be in the attacking animation instead
+  of the falling animation in some situations.
+
+zc: ffc solid pushing of the player stopping too soon
+  incorrect hitbox check was being used
+
+zc: lens hints showing during player death animation
+zc: softlock with `No Scrolling Screen While Carrying` QR in NES dungeons
+  This QR wasn't preventing the "suck" of bombed doors and walk-through
+  walls from trying to scroll. This resulted in softlocking the player
+  because they were being permanently sucked into the scroll, while the
+  scroll was being prevented by the carried object.
+
+zc: standing state not checking properly for ffc platforms
+  this made it hard to jump when riding a downwards-moving ffc platform
+
+zc: wrong offset being used for solid object pushing
+  These offsets would commonly be the same value, so, unlikely this
+  actually caused any issues yet.
+
+zc: fix ePatra firing too early when ENEMY_FLAG7 is set
+  When the "don't fire while looping" flag was set, ePatra could still
+  fire in certain attack modes (dmisc20==4 and default) regardless of
+  whether it was mid-loop. Now all modes correctly wait until the loop
+  finishes before allowing fire.
+
+zc: New/Newer Hero Movement inconsistencies
+  Some spots were only checking for New movement which should've checked
+  for either, causing inconsistencies between enabling both and just
+  enabling newer movement.
+
+zc: allow "255"/"0xFF" as transparent for more subscreen colors
+  Setting the `BS Dark` color to 0xFF in misc colors makes its minimap
+  look more similar to Dungeon/Interior minimaps.
+  
+  Some colors already handled this, but it was missing from places that
+  could really use it.
+
+zc: sideview drowning sprites being broken
+zc: sideview ground checks ignoring enemies' 'ignore solidity' flag
+  The code for "is the enemy standing on a solid" was using entirely
+  different code that didn't check this flag. Now it checks it when
+  "Use 'Scripted Movement' for engine movement" is enabled.
+
+zc: chests not checking all layers for Armos/Chest->Item
+  this caused chests placed on layers > 2 to open without giving you anything
+
+zc: enemy bombs disappearing due to negative fuse timer
+zc: bombs not resetting Timeout when exploding
+  Timeout is meant to function as an alternate fuse for these, but if
+  it explodes before the timeout runs out, the timeout was leaking over
+  to the explosion and killing it mid-boom.
+
+zc: light beams not working properly during stepforward
+zc: item sounds sometimes being wrongly killed
+  The hookshot resetting code was killing the sound of the currently in-use
+  item, without regard for if that item was a hookshot or not.
+
+zc: Pushblocks not properly counting towards trigger groups
+zc: BS Overworld not respecting having the Map item or not
+zc: enemy bad hitboxes for standing on the ground in sideview
+  Enemies with weird hitboxes may still have other problems, such as
+  walking sideways through walls, because enemy movement code is super
+  jank- though the `Use 'Scripted Movement' for engine movement` enemy
+  movement flag seems to help with those issues.
+
+zc: new respawn points not counting damage combos or slidey ice
+zc: solid moving objects interacting poorly with water/pits
+  they now can push the player into pits, and no longer push the player
+  while the player is already falling/drowning
+
+zc: prevent infinite loop in trig_trigger_groups
+zc: combo general loop sfx cutting out when looping
+zc: knockback through sideview platforms
+zc: buggy solid platform sideview ffc collision
+  When moving at angles the collision for riding the platform was getting
+  confused with the collision for solid objects pushing the player,
+  knocking the player off the platform weirdly.
+
+zc: shooter/crumble combos ticking when screen is 'frozen'
+zc: prevent rng desync when manually ending replay
+  When playing a replay file, selecting Quit in the menu caused an rng
+  desync dialog to appear. Now, the program actually closes.
+
+zc: deterministic high-precision math for gameplay and replays
+  While recording a replay, trig (Sin/Cos/Tan) switched to a low-precision
+  lookup table, so simply having a replay enabled could change gameplay.
+  Separately, ArcSin/ArcCos/ArcTan and Ln/Log10/Pow always used the
+  system math library, whose results vary across platforms and compilers -
+  a source of cross-platform replay desyncs. All of this math is now both
+  high-precision and bit-identical on every platform and compiler:
+  recording a replay never changes behavior, and replays cannot desync
+  across machines due to math differences.
+  
+  As an example of how the old trig error presented: in Stellar Seas, a
+  boss laser derives its collision geometry from trig, and the recording-
+  mode error (up to ~0.001) was amplified by the script into "phantom
+  hitboxes" - hits landing tens of pixels away from the visible attack,
+  only while a replay was recording.
+  
+  Other user-facing effects:
+  
+  - Pow(2, n) and Pow(10, n) are exact, and Log10 of a power of ten
+    returns an exact integer, so digit-counting scripts behave reliably.
+  - Replays recorded before this version still play back with the old
+    math, bit for bit.
+
+zc: walking/standing combo effects not blocked by bridges
+  this includes the general tab sfx/sprites
+
+zc: Stomp Boots block flags being backwards
+  Regressed in 2.55.0 (de1cb2b).
+
+zc: frozen scripts wrongly having draws stopped by running strings
+zc: SCC setting screen state of non-current screen using wrong map
+zc: bottom 8px bad collision using 4-way newer hero movement
+zc: stop triforce pickup softlocking with low MP/HP counter settings
+  Picking up a triforce would freeze the game when MP per Block was set
+  to 1-3 (or HP per Heart to 1). The refill animation never finished, so
+  the pickup cutscene looped forever and quitting crashed.
+
+zc: 1-wide gaps being hard to fall through in sideview
+zc: handle replay load failures gracefully with a GUI error
+  Loading an invalid replay could crash the program. Now, an error dialog
+  is displayed when a replay fails to load.
+
+zc: prevent previous qst misc data leaking to next
+zc: hammer triggering combos outside its hitbox
+  The hammer could trigger combos and secret flags above and behind the
+  player, outside the area its hitbox was drawn. It was most obvious with
+  the "don't trigger while the hammer is in the air" item flag enabled: on
+  the first frame the hammer became active on the ground, it triggered
+  combos where it had been a frame earlier, while still raised.
+
+zc: armos combos with custom enemies not clearing the combo
+zc: large armos bad tile offset
+zc: Auto Sidewarp combos not using the assigned Warp SFX
+zq: remove unused wand attributes/flags from item editor
+zq: tile editor rotations sometimes undone
+  Caused by a bug in tile caching code.
+  
+  
+  Discord: https://discord.com/channels/876899628556091432/1497685063649726545
+
+zq: preview mode combo cycling using bad colors for Ignore CSet
+zq: water/shallow water combo wizard not setting levels properly
+  If you didn't edit the `Req Item Level`/`Flippers Level` fields, they would
+  stay at value 0, despite showing as value 1 in the GUI. For req item level,
+  this could completely disable the passive hp mod.
+
+zq: don't show confirmation on exit in new quest wizard
+zq: 'block' missing from 'Mirror (Custom)' attribute help
+zq: typo in ffc editor 'Swap' flags' info
+zq: avoid potential crash when drawing doors
+zq: clean up the string editor / add infobuttons
+zq: respect "New Darkness Trans Layer Stacking" QR in editor
+zq: clean up 'Button Counter' subscreen widget '?' buttons
+std_zh: CenterY for an item returned an X-based coordinate
+  CenterY(item, false) used the item's X coordinate instead of its Y in the
+  sprite-center branch, returning a wrong value. It now uses Y, matching the
+  hitbox branch and every other CenterY overload.
+
+zscript: show correct code location for script drawing errors
+zscript: prevent dmap and hero scripts running twice on init
+  The first frame of these scripts were incorrectly running twice. The
+  exact behavior depended on whether these QRs are enabled:
+  
+  - "Scripts Draw During Warps"
+  - "Passive Subscreen Script runs during wipes/refills"
+  
+  This bug only occurred if one of these QRs was enabled.
+  
+  Discord: https://discord.com/channels/876899628556091432/1494501078564339911
+
+zscript: prevent crash from out-of-bounds sprite script IDs
+zscript: use proper gfx for script created sword beams
+  This regressed in 9ca67c7b0 (2.55-alpha-120).
+
+zscript: `Game->CurrentItemID()` using a bad default value for bitflags
+zscript: strcmp-family functions now always return -1, 0, or 1
+  strcmp(), stricmp(), strncmp(), and strnicmp() returned the raw C
+  library comparison result, which is only guaranteed to be negative,
+  zero, or positive - the exact value varies by platform and compiler.
+  Scripts comparing the result against exactly -1 or 1 could behave
+  differently across builds. These functions now always return -1, 0,
+  or 1.
+
+zscript: free script-owned objects when a script's state is cleared
+  Resetting or clearing a script's engine data did not reliably release
+  the script objects that the script had taken ownership of. Several
+  script types that run in less common ways (like active subscreen
+  scripts) could therefore leak these until the engine eventually ran out
+  of slots.
+  
+  Releasing owned objects is now an inseparable part of resetting or
+  clearing a script's engine data, so it can no longer be skipped.
+
+zscript: prevent crash when taking the modulo of the minimum integer by -1
+  Computing the remainder of the smallest representable integer modulo -1
+  crashed the game, in both the interpreter and the JIT. The result is now
+  0, the same as any value modulo -1.
+
+zscript: remove unimplemented Audio->PauseCurMIDI() and ResumeCurMIDI()
+zscript: free objects owned by dmap and subscreen scripts
+  Objects and arrays that a DMap, OnMap, or active/passive subscreen
+  script took ownership of were not released when the script's state was
+  cleared, leaking them until the engine ran out of object slots.
+
+zconsole: [win] prevent debug console from freezing
+  The named-pipe connection was treated as a hard failure when it didn't
+  complete instantly, popping a modal dialog that could hide behind the
+  game window (appearing as a frozen black screen) and orphaning the
+  helper console in an endless retry loop. Connect now waits with a
+  bounded timeout so a slow-to-start console attaches normally, and any
+  setup failure quietly disables the console instead of blocking the app.
+  
+  
+  Discord: https://discord.com/channels/876899628556091432/1466588316492234815
+
+
+# Refactors
+
+zc: copy cpos_update optimization from combos to ffcs
+
+zc: greatly speed up refresh_rgb_tables using last key cache
+  This greatly speeds up the program within fade effects. For
+  terror_of_necromancy_demo6_32_of_54.zplay it reduced the total CPU time
+  being spent in `refresh_rgb_tables` from 60% to 0.3%.
+  
+  
+  Discord: https://discord.com/channels/876899628556091432/1507587209308409996
+
+zc: optimize code for common dithering args
+  This speeds up dithering by a lot - between 3x and 25x depending on the
+  platform.
+
+zc: [win] remove obsolete vsync workaround (use_dwm_flush)
+  Remove a Windows-only screen-tearing workaround from the Vista/Win7
+  era, along with its hidden use_dwm_flush config option, which is now
+  ignored if set. It was off by default and is redundant now: the
+  display backend owns frame presentation, and desktop composition is
+  always on in modern Windows.
+
+zc: greatly speed up dithercircfill
+  Discord: https://discord.com/channels/876899628556091432/1498203179395842058
+
+zq: improve FFC hover tooltips
+
+# CI
+
+upgrade actions due to node 20 deprecation
+
+# Misc.
+
+update rulesets
+
+zq: Remove darkness dithered corner by default
+  Etc->Options->Toggles->Show Darkness Corner Dither toggles this Darkness
+  now shows a line in Screen Info, to less obtrusively indicate dark
+  screens.
+
+zq: improve infotext for string editor 'Layer'
+
