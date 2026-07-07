@@ -71,6 +71,7 @@
 #include <cstring>
 #include <ctype.h>
 #include <filesystem>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -3883,15 +3884,46 @@ int32_t isFullScreen()
 static bool load_replay_file_deffered_called = false;
 static std::string load_replay_file_filename;
 static ReplayMode load_replay_file_mode;
+static int load_replay_file_frame = -1;
 // Because using "Load Replay" GUI menu can happen while another replay is
 // within an inner game-loop (like scrollscr), which can bleed the old replay
 // into the new one if `replay_start` is called from the GUI control code.
 // Instead, save the information needed to call load_replay_file later.
-void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file, int frame)
 {
 	load_replay_file_deffered_called = true;
 	load_replay_file_mode = mode;
 	load_replay_file_filename = replay_file;
+	load_replay_file_frame = frame;
+}
+
+// State for -replay-batch: a list of replays run sequentially in one process. Each entry
+// may carry its own frame limit (-1 = run to completion), so per-replay -frame / max
+// duration limits are honored in batch mode.
+struct ReplayBatchEntry
+{
+	std::string path;
+	int frame;
+};
+static std::vector<ReplayBatchEntry> replay_batch_queue;
+static size_t replay_batch_pos = 0;
+static bool replay_batch_initialized = false;
+static ReplayMode replay_batch_mode = ReplayMode::Assert;
+
+bool replay_batch_load_next()
+{
+	if (replay_batch_queue.empty())
+		return false;
+	if (++replay_batch_pos >= replay_batch_queue.size())
+		return false;
+
+	// Reuse the same mechanism the GUI "Load Replay" uses to swap replays mid-session:
+	// defer the load to the safe point at the top of the main loop, and break out of the
+	// current game loop with qRESET.
+	const ReplayBatchEntry& entry = replay_batch_queue[replay_batch_pos];
+	load_replay_file_deferred(replay_batch_mode, entry.path, entry.frame);
+	Quit = qRESET;
+	return true;
 }
 
 static bool current_session_is_replay = false;
@@ -3903,9 +3935,13 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		// replay_start leaves replay mode Off on failure, so no replay_quit() is needed.
 		Z_error("Failed to load replay file: %s\n", replay_file.c_str());
 
-		enter_sys_pal();
-		InfoDialog("Error loading replay", fmt::format("Could not load replay file:\n{}", replay_file)).show();
-		exit_sys_pal();
+		// A modal dialog would block forever in headless runs (e.g. -replay-batch).
+		if (!is_headless())
+		{
+			enter_sys_pal();
+			InfoDialog("Error loading replay", fmt::format("Could not load replay file:\n{}", replay_file)).show();
+			exit_sys_pal();
+		}
 
 		testingqst_name = "";
 
@@ -3953,9 +3989,13 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	{
 		Z_error("File not found: %s\n", testingqst_name.c_str());
 
-		enter_sys_pal();
-		InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
-		exit_sys_pal();
+		// A modal dialog would block forever in headless runs (e.g. -replay-batch).
+		if (!is_headless())
+		{
+			enter_sys_pal();
+			InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
+			exit_sys_pal();
+		}
 
 		replay_quit();
 		testingqst_name = "";
@@ -4504,6 +4544,10 @@ reload_for_replay_file:
 	int assert_arg = used_switch(argc, argv, "-assert");
 	int update_arg = used_switch(argc, argv, "-update");
 	int frame_arg = used_switch(argc, argv, "-frame");
+	int replay_batch_arg = used_switch(argc, argv, "-replay-batch");
+	// In batch mode the -replay/-assert/-update switches select the mode for the whole
+	// batch (used as bare flags), rather than naming a single replay file to load.
+	bool is_replay_batch = replay_batch_arg > 0;
 
 	int frame = -1;
 	if (frame_arg > 0)
@@ -4515,7 +4559,15 @@ reload_for_replay_file:
 	if (replay_output_dir_arg > 0)
 		replay_set_output_dir(argv[replay_output_dir_arg + 1]);
 
-	if (replay_arg > 0)
+	int state_hash_log_arg = used_switch(argc, argv, "-state-hash-log");
+	if (state_hash_log_arg > 0)
+		set_state_hash_log(argv[state_hash_log_arg + 1]);
+
+	if (is_replay_batch)
+	{
+		// Handled below; the mode switches are bare flags, not single-file loads.
+	}
+	else if (replay_arg > 0)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1], frame);
 	}
@@ -4548,6 +4600,66 @@ reload_for_replay_file:
 	}
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
+
+	// -replay-batch <listfile>: run every replay listed in the file back-to-back in this
+	// single process. Each line is "<path> [frame]" ('#' comments and blank lines ignored);
+	// the optional trailing integer is a per-replay frame limit (as if -frame were passed).
+	// The mode defaults to assert; pass a bare -replay or -update alongside to choose another.
+	// Initialized only once; the CLI block above re-runs on every reload_for_replay_file,
+	// and subsequent replays are loaded by replay_batch_load_next via the deferred mechanism.
+	if (is_replay_batch && !replay_batch_initialized)
+	{
+		replay_batch_initialized = true;
+
+		if (replay_arg > 0)
+			replay_batch_mode = ReplayMode::Replay;
+		else if (update_arg > 0)
+			replay_batch_mode = ReplayMode::Update;
+		else
+			replay_batch_mode = ReplayMode::Assert;
+
+		const char* listfile_path = argv[replay_batch_arg + 1];
+		std::ifstream listfile(listfile_path);
+		if (!listfile.is_open())
+			Z_error_fatal("could not open -replay-batch list file: %s\n", listfile_path);
+
+		std::string line;
+		while (std::getline(listfile, line))
+		{
+			auto start = line.find_first_not_of(" \t\r\n");
+			if (start == std::string::npos)
+				continue;
+			auto end = line.find_last_not_of(" \t\r\n");
+			line = line.substr(start, end - start + 1);
+			if (line.empty() || line[0] == '#')
+				continue;
+
+			// Split off an optional trailing integer frame limit. Replay paths end in
+			// ".zplay", so a trailing all-digits token is unambiguously a frame, even for
+			// quest/replay paths that contain spaces.
+			int frame = -1;
+			auto sep = line.find_last_of(" \t");
+			if (sep != std::string::npos)
+			{
+				std::string tail = line.substr(sep + 1);
+				if (!tail.empty() &&
+					tail.find_first_not_of("0123456789") == std::string::npos)
+				{
+					frame = std::stoi(tail);
+					line = line.substr(0, line.find_last_not_of(" \t", sep) + 1);
+				}
+			}
+
+			replay_batch_queue.push_back({line, frame});
+		}
+
+		if (replay_batch_queue.empty())
+			Z_error_fatal("-replay-batch list file is empty: %s\n", listfile_path);
+
+		replay_enable_batch_when_done();
+		load_replay_file_deferred(replay_batch_mode, replay_batch_queue[0].path,
+			replay_batch_queue[0].frame);
+	}
 
 	saves_init();
 
@@ -4632,9 +4744,20 @@ reload_for_replay_file:
 	
 	if (load_replay_file_deffered_called)
 	{
-		load_replay_file(load_replay_file_mode, load_replay_file_filename, -1);
+		load_replay_file(load_replay_file_mode, load_replay_file_filename, load_replay_file_frame);
 		load_replay_file_deffered_called = false;
 		saves_init();
+	}
+
+	// If a -replay-batch entry failed to load (missing file or quest), the replay won't be
+	// active. Record the failure and advance to the next entry rather than falling through
+	// to the title screen, which would hang a headless run.
+	if (replay_batch_initialized && !replay_is_active())
+	{
+		replay_batch_note_failure();
+		if (replay_batch_load_next())
+			goto reload_for_replay_file;
+		replay_batch_exit();
 	}
 
 	current_session_is_replay = replay_is_active();
@@ -5246,3 +5369,4 @@ ffcdata* slopes_getFFC(int id)
 {
 	return &get_scr_for_region_index_offset(id / MAXFFCS)->getFFC(id % MAXFFCS);
 }
+

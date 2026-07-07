@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import platform
+import random
 import shutil
 import subprocess
 import sys
@@ -1036,6 +1037,331 @@ def run_replays(
         for file in test_results_dir.rglob('*.zplay.roundtrip'):
             file.unlink()
 
+    (test_results_dir / 'test_results.json').write_text(test_results.to_json())
+    return test_results
+
+
+def make_replay_batches(
+    replays: list[Replay], seed: int, batch_size: int
+) -> list[list[Replay]]:
+    """Deterministically (given `seed`) shuffle `replays` and partition into batches of up
+    to `batch_size`. Replays with a duplicate basename are never placed in the same batch,
+    since batched replays in one process share an output dir and the .result.txt files are
+    keyed by filename."""
+    rng = random.Random(seed)
+    shuffled = replays[:]
+    rng.shuffle(shuffled)
+
+    batches: list[list[Replay]] = []
+    current: list[Replay] = []
+    current_basenames: set[str] = set()
+    for replay in shuffled:
+        basename = replay.path.name
+        if len(current) >= batch_size or basename in current_basenames:
+            batches.append(current)
+            current = []
+            current_basenames = set()
+        current.append(replay)
+        current_basenames.add(basename)
+    if current:
+        batches.append(current)
+    return batches
+
+
+def _build_batch_command(
+    exe_path: Path,
+    batch_file: Path,
+    output_dir: Path,
+    mode: str,
+    jit: bool,
+    optimize_zasm: bool,
+    headless: bool,
+    extra_args: list[str],
+) -> list[str]:
+    args = [
+        str(exe_path.absolute()),
+        '-replay-batch',
+        str(batch_file),
+        '-replay-output-dir',
+        str(output_dir),
+        '-script-runtime-debug-folder',
+        str(output_dir / 'zscript-debug'),
+    ]
+    if optimize_zasm:
+        args += ['-optimize-zasm', '-optimize-zasm-experimental']
+    else:
+        args.append('-no-optimize-zasm')
+    # The batch mode flag is a bare switch; assert is the default.
+    if mode == 'replay':
+        args.append('-replay')
+    elif mode == 'update':
+        args.append('-update')
+    if jit:
+        args += ['-jit', '-jit-log', '-jit-fatal-compile-errors', '-jit-precompile']
+    else:
+        args.append('-no-jit')
+    if headless:
+        args.append('-headless')
+    if extra_args:
+        args += extra_args
+    return args
+
+
+def _apply_parsed_result(result: RunResult, parsed: dict):
+    """Populate a RunResult from a parsed .result.txt dict (which may be from a still-running
+    replay, so only finished/failed fields are filled when stopped)."""
+    result.duration = parsed.get('duration')
+    if 'fps' in parsed:
+        result.fps = int(parsed['fps'])
+    result.frame = parsed.get('frame')
+    if 'replay_log_frames' in parsed:
+        result.num_frames = int(parsed['replay_log_frames'])
+    result.stopped = parsed.get('stopped', False)
+    result.success = parsed.get('stopped', False) and parsed.get('success', False)
+    result.rng_desync = parsed.get('rng_desync', False)
+    if result.stopped and not result.success:
+        result.failing_frame = parsed.get('failing_frame')
+        result.unexpected_gfx_frames = parsed.get('unexpected_gfx_frames')
+        result.unexpected_gfx_segments = parsed.get('unexpected_gfx_segments')
+        result.unexpected_gfx_segments_limited = parsed.get(
+            'unexpected_gfx_segments_limited'
+        )
+
+
+def _no_result_failure(
+    replay: Replay, directory: str, batch: list[Replay], index: int, exit_code
+) -> RunResult:
+    """A replay in a finished batch that never produced a result: the batch process
+    crashed/hung/exited before reaching it. Record what ran before it, to help reproduce.
+    """
+    result = RunResult(
+        name=replay.name, directory=directory, path=replay.path.as_posix()
+    )
+    result.exit_code = exit_code
+    preceded_by = ', '.join(p.name for p in batch[:index]) or '(none)'
+    result.exceptions.append(
+        f'no result produced (batch exited with code {exit_code}); '
+        f'preceded in this batch by: {preceded_by}'
+    )
+    return result
+
+
+def run_replay_batches(
+    replays: list[Replay],
+    mode: str,
+    runs_on: str,
+    arch: str,
+    test_results_dir: Path,
+    build_folder: Path,
+    extra_args: list[str],
+    seed: int,
+    batch_size: int,
+    headless=True,
+    jit=True,
+    optimize_zasm=True,
+    concurrency: Optional[int | bool] = True,
+    timeout=True,
+    on_update=None,
+    explicit_batches: Optional[list[list[Replay]]] = None,
+) -> ReplayTestResults:
+    """Run replays back-to-back in shared processes (via the engine's -replay-batch flag),
+    grouped and ordered deterministically from `seed`. This exercises in-process quest/game
+    transitions, surfacing global state that isn't reset between replays as desyncs.
+
+    Pass `explicit_batches` to run exactly those batches in the given order (e.g. re-running a
+    single saved failing batch) instead of shuffling/partitioning by `seed`."""
+    test_results = ReplayTestResults(
+        runs_on=runs_on,
+        arch=arch,
+        ci=is_ci,
+        git_ref=os.environ.get('GITHUB_REF') if is_ci else None,
+        workflow_run_id=os.environ.get('GITHUB_RUN_ID') if is_ci else None,
+        zc_version='unknown',
+        time=datetime.now(timezone.utc).isoformat(),
+        runs=[],
+    )
+    if type(concurrency) == bool and concurrency:
+        concurrency = os.cpu_count() - 4
+    if concurrency < 1:
+        concurrency = 1
+
+    if test_results_dir.exists():
+        shutil.rmtree(test_results_dir)
+    test_results_dir.mkdir(parents=True)
+    runs_dir = test_results_dir / '0'
+
+    ext = '.exe' if os.name == 'nt' else ''
+    exe_path = next(
+        (
+            p
+            for c in [f'zplayer{ext}', f'zelda{ext}']
+            if (p := build_folder / c).exists()
+        ),
+        None,
+    )
+    if not exe_path:
+        raise Exception(f'could not find zplayer executable in {build_folder}')
+
+    batches = (
+        explicit_batches
+        if explicit_batches is not None
+        else make_replay_batches(replays, seed, batch_size)
+    )
+    num_failing_batches = 0
+
+    @dataclass
+    class _BatchJob:
+        index: int
+        batch: list[Replay]
+        output_dir: Path
+        proc: subprocess.Popen
+        start: float
+        timeout: Optional[float]
+
+    pending = list(enumerate(batches))
+    active: list[_BatchJob] = []
+    # Terminal results by replay name, plus a cache of the last successfully-parsed live
+    # result per replay (result files can be read mid-write, so tolerate parse failures).
+    finished: dict[str, RunResult] = {}
+    live_cache: dict[str, dict] = {}
+
+    def start_batch(index: int, batch: list[Replay]) -> _BatchJob:
+        output_dir = runs_dir / f'batch_{index}'
+        output_dir.mkdir(parents=True, exist_ok=True)
+        batch_file = output_dir / 'list.txt'
+        # Each line is "<path> [frame]"; the optional trailing frame limit honors
+        # --frame / --max_duration per replay (the engine parses a trailing integer).
+        lines = []
+        for r in batch:
+            if r.frame_arg is not None:
+                lines.append(f'{r.path.absolute()} {int(r.frame_arg)}')
+            else:
+                lines.append(str(r.path.absolute()))
+        batch_file.write_text('\n'.join(lines) + '\n')
+        cmd = _build_batch_command(
+            exe_path,
+            batch_file,
+            output_dir,
+            mode,
+            jit,
+            optimize_zasm,
+            headless,
+            extra_args,
+        )
+        est = sum(r.estimated_duration() for r in batch)
+        batch_timeout = (est * 3 + 60) if timeout else None
+        proc = subprocess.Popen(
+            cmd,
+            cwd=build_folder,
+            env={
+                **os.environ,
+                'ALLEGRO_LEGACY_TRACE': str(output_dir / 'allegro.log'),
+                'BUILD_FOLDER': str(build_folder.absolute()),
+            },
+            stdout=open(output_dir / 'stdout.txt', 'w'),
+            stderr=open(output_dir / 'stderr.txt', 'w'),
+        )
+        return _BatchJob(index, batch, output_dir, proc, timer(), batch_timeout)
+
+    def parse_live(output_dir: Path, replay: Replay):
+        path = output_dir / f'{replay.path.name}.result.txt'
+        if path.exists():
+            try:
+                parsed = parse_result_txt_file(path)
+                if parsed:
+                    live_cache[replay.name] = parsed
+            except Exception:
+                pass
+        return live_cache.get(replay.name)
+
+    def emit_progress(active_results, status, num_done_batches):
+        if not on_update:
+            return
+        results = list(finished.values())
+        active_now = [r for r in active_results if r.name not in finished]
+        active_names = {r.name for r in active_now}
+        pending_replays = [
+            r for r in replays if r.name not in finished and r.name not in active_names
+        ]
+        num_failing = len([r for r in results if not r.success])
+        summary = ' | '.join(
+            [
+                f'{len(results)}/{len(replays)}',
+                f'{num_failing} failing' if num_failing else 'OK',
+                f'{num_done_batches}/{len(batches)} batches',
+            ]
+        )
+        on_update(
+            RunReplayTestsProgress(
+                test_results, results, active_now, pending_replays, status, '', summary
+            )
+        )
+
+    num_done_batches = 0
+    while pending or active:
+        while pending and len(active) < concurrency:
+            index, batch = pending.pop(0)
+            active.append(start_batch(index, batch))
+
+        active_results: list[RunResult] = []
+        status: dict[str, str] = {}
+        still_active: list[_BatchJob] = []
+        for job in active:
+            directory = job.output_dir.relative_to(test_results_dir).as_posix()
+            rc = job.proc.poll()
+            timed_out = job.timeout is not None and (timer() - job.start) > job.timeout
+
+            # Pick up the live/finished state of each replay from its result file.
+            for replay in job.batch:
+                if replay.name in finished:
+                    continue
+                parsed = parse_live(job.output_dir, replay)
+                if not parsed:
+                    continue
+                result = RunResult(
+                    name=replay.name,
+                    directory=directory,
+                    path=replay.path.as_posix(),
+                )
+                _apply_parsed_result(result, parsed)
+                if parsed.get('stopped'):
+                    result.exit_code = rc
+                    finished[replay.name] = result
+                    status[replay.name] = 'finish'
+                else:
+                    active_results.append(result)
+                    status[replay.name] = 'status'
+
+            if rc is None and not timed_out:
+                still_active.append(job)
+                continue
+            if rc is None and timed_out:
+                job.proc.kill()
+                job.proc.wait()
+                rc = job.proc.returncode
+
+            # Batch ended: any replay without a finished result never completed.
+            for i, replay in enumerate(job.batch):
+                if replay.name not in finished:
+                    finished[replay.name] = _no_result_failure(
+                        replay, directory, job.batch, i, rc
+                    )
+                    status[replay.name] = 'finish'
+            num_done_batches += 1
+
+            # Save the exact batch file (paths + frame limits, in order) for any batch that
+            # had a failure, so it can be re-run on its own with --replay-batch.
+            if any(not finished[r.name].success for r in job.batch):
+                num_failing_batches += 1
+                dest = test_results_dir / f'failing_batch_{num_failing_batches:02d}.txt'
+                shutil.copyfile(job.output_dir / 'list.txt', dest)
+
+        active = still_active
+        emit_progress(active_results, status, num_done_batches)
+        sleep(1)
+
+    results = list(finished.values())
+    test_results.runs.append(results)
     (test_results_dir / 'test_results.json').write_text(test_results.to_json())
     return test_results
 

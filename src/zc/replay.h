@@ -88,6 +88,16 @@ void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
 bool replay_is_recording();
 void replay_enable_exit_when_done();
+// Batch mode: when a replay finishes, instead of exiting the process, ask the host
+// (via replay_batch_load_next) to load the next replay in the batch. The process only
+// exits once the batch is exhausted. Used to run many replays back-to-back in one
+// process, to catch global state that isn't reset between quests/games.
+void replay_enable_batch_when_done();
+bool replay_batch_any_failed();
+// Record that a batch replay failed without producing a normal result (e.g. it could not
+// be loaded), and exit the process with the batch's aggregate status.
+void replay_batch_note_failure();
+void replay_batch_exit();
 
 size_t replay_register_rng(zc_randgen *rng);
 void replay_set_rng_seed(zc_randgen *rng, int seed);

@@ -7,6 +7,7 @@ import sys
 import time
 import unittest
 
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from lib.replay_helpers import read_replay_meta
@@ -304,6 +305,75 @@ class TestReplays(unittest.TestCase):
             snapshots,
             ['0/failing/failing.zplay.1-unexpected.png'],
         )
+
+    # Regression for global/static state that wasn't reset between in-process games.
+    # Each file in tests/replay_batches runs several replays back-to-back in
+    # one process (paths relative to the repo root).
+    def test_batches(self):
+        if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
+            raise unittest.SkipTest('skipping test because gcc')
+
+        batches_dir = root_dir / 'tests/replay_batches'
+        batch_files = sorted(batches_dir.glob('*.txt'))
+        self.assertTrue(batch_files, f'no replay batches in {batches_dir}')
+
+        batches_tmp_dir = tmp_dir / 'replay_batches'
+        batches_tmp_dir.mkdir(parents=True, exist_ok=True)
+
+        def run_batch(batch_file):
+            # The engine needs absolute replay paths; rewrite the committed
+            # relative-path batch_file into a temp one.
+            abs_lines = []
+            for line in batch_file.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                parts = line.rsplit(' ', 1)
+                if len(parts) == 2 and parts[1].isdigit():
+                    abs_lines.append(f'{root_dir / parts[0]} {parts[1]}')
+                else:
+                    abs_lines.append(str(root_dir / line))
+            abs_batch_file = batches_tmp_dir / batch_file.name
+            abs_batch_file.write_text('\n'.join(abs_lines) + '\n')
+
+            batch_output = batches_tmp_dir / f'{batch_file.stem}_output'
+            shutil.rmtree(batch_output, ignore_errors=True)
+            output = subprocess.run(
+                [
+                    sys.executable,
+                    root_dir / 'tests/run_replay_tests.py',
+                    '--build_folder',
+                    run_target.get_build_folder(),
+                    '--test_results',
+                    batch_output,
+                    '--replay-batch',
+                    abs_batch_file,
+                ],
+                stdout=subprocess.PIPE,
+                encoding='utf-8',
+            )
+            results_path = batch_output / 'test_results.json'
+            if not results_path.exists():
+                return None, output.stdout
+
+            results = ReplayTestResults(**json.loads(results_path.read_text('utf-8')))
+            runs = results.runs[-1]
+            failed = [r.name for r in runs if not r.success]
+            return failed, output.stdout
+
+        # Each batch runs in its own process, so run them concurrently.
+        with ThreadPoolExecutor(max_workers=len(batch_files)) as executor:
+            batch_results = dict(zip(batch_files, executor.map(run_batch, batch_files)))
+
+        for batch_file in batch_files:
+            with self.subTest(batch=batch_file.name):
+                failed, stdout = batch_results[batch_file]
+                if failed is None:
+                    print(stdout)
+                    raise Exception('could not find test_results.json')
+                self.assertEqual(
+                    failed, [], f'{batch_file.name} failures: {failed}\n{stdout}'
+                )
 
     def test_recording(self):
         if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':

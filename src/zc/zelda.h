@@ -162,8 +162,16 @@ void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);
 void doTint(int32_t _r, int32_t _g, int32_t _b);
 
 void runDrunkRNG();
-void load_replay_file_deferred(ReplayMode mode, std::string replay_file);
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file, int frame = -1);
+// Loads the next replay in a -replay-batch run (via the deferred mechanism) and returns
+// true, or returns false if the batch is exhausted. Called by the replay system when a
+// replay finishes in batch mode.
+bool replay_batch_load_next();
 void zc_game_srand(int seed, zc_randgen* rng = nullptr);
+
+// Debug instrumentation: see -state-hash-log handling in state_hash.cpp.
+void set_state_hash_log(const std::string& path);
+void dump_state_hashes();
 
 //Save screen settings. 
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	

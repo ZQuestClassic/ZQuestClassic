@@ -1,0 +1,7 @@
+# Guards: the testingqst_init_data global (an init-data delta from a replay's
+# test_mode "init_data" meta) leaking between in-process replays. classic_1st_init_data
+# sets a delta (items[0]=8 items[4]=16 counter[2]=7); stellar_seas_intro has no test_mode,
+# so the stale delta used to be applied to its zinit at game start, granting the wrong
+# starting items (got "Bomb" instead of "Candle 1") and desyncing at frame 0.
+tests/replays/classic_1st/classic_1st_init_data.zplay 1000
+tests/replays/stellar_seas/stellar_seas_intro.zplay 1000

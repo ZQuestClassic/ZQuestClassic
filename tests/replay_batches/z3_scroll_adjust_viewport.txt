@@ -1,0 +1,4 @@
+# Guards: in-process leaks surfaced when z3_scroll_adjust_viewport runs after
+# hero_of_dreams.
+tests/replays/hero_of_dreams/hero_of_dreams_2_of_8.zplay 1000
+tests/replays/z3/z3_scroll_adjust_viewport.zplay 120

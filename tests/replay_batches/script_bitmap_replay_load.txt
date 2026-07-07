@@ -1,0 +1,7 @@
+# Guards: the script-object id index leaking between in-process games. shutdown()
+# cleared the script-object map but not its id index, so loading a replay over a game
+# that left a script-drawn bitmap allocated crashed the next game's bitmap update with
+# std::out_of_range (map::at). stellar_seas_intro leaves a HUD bitmap allocated; circle
+# is just the following game whose init used to abort.
+tests/replays/stellar_seas/stellar_seas_intro.zplay 800
+tests/replays/playground/circle.zplay

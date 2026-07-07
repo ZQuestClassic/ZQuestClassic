@@ -1,0 +1,6 @@
+# Guards: the hero's tile size (txsz/tysz) leaking between in-process games.
+# auto_sprites resizes the hero via script; the Hero object persists, so without
+# resetting it the next game's camera centered on the leftover size and panned
+# early, desyncing terror_48 (viewport diverged at frame 163).
+tests/replays/playground/auto_sprites.zplay 1000
+tests/replays/terror_of_necromancy_demo6/terror_of_necromancy_demo6_48_of_54.zplay 200

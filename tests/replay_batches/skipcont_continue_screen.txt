@@ -1,0 +1,7 @@
+# Guards: the skipcont ("skip the continue/game-over screen") global leaking between in-process
+# games. terror_27 sets skipcont=1 (via script) and is frame-limited before the quit handler
+# clears it, so the next in-process game inherited it and skipped its own continue screen,
+# jumping straight to init_game and desyncing (hero_of_dreams at frame 1024; dinus likewise at
+# 2049). Reset skipcont on game start in init_game_vars.
+tests/replays/terror_of_necromancy_demo6/terror_of_necromancy_demo6_27_of_54.zplay 5000
+tests/replays/hero_of_dreams/hero_of_dreams_2_of_8.zplay 1100

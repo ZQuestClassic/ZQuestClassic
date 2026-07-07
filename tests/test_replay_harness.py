@@ -8,7 +8,11 @@ from pathlib import Path
 import pytest
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
 sys.path.insert(0, str(script_dir))
+sys.path.insert(0, str((root_dir / 'scripts').absolute()))
+
+import run_target
 
 from lib.replay_helpers import (
     parse_result_txt_file,
@@ -25,8 +29,12 @@ from replays import (
     get_shards,
     group_arg,
     load_replays,
+    make_replay_batches,
     time_format,
 )
+
+playground_dir = script_dir / 'replays/playground'
+playground_qst = playground_dir / 'playground.qst'
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -538,3 +546,207 @@ def test_replay_test_results_missing_path_defaults_empty():
     }
     results = ReplayTestResults(**raw)
     assert results.runs[0][0].path == ''
+
+
+# ---------------------------------------------------------------------------
+# make_replay_batches (seeded batching for --batch)
+# ---------------------------------------------------------------------------
+
+
+def _batch_replays(n: int, prefix='r') -> list[Replay]:
+    return [make_replay(f'{prefix}{i}.zplay') for i in range(n)]
+
+
+def _batch_names(batches):
+    return [[r.name for r in g] for g in batches]
+
+
+def test_make_replay_batches_is_deterministic_for_same_seed():
+    replays = _batch_replays(20)
+    a = make_replay_batches(replays, seed=42, batch_size=5)
+    b = make_replay_batches(replays, seed=42, batch_size=5)
+    assert _batch_names(a) == _batch_names(b)
+
+
+def test_make_replay_batches_different_seed_changes_order():
+    replays = _batch_replays(20)
+    a = make_replay_batches(replays, seed=1, batch_size=5)
+    b = make_replay_batches(replays, seed=2, batch_size=5)
+    # Two distinct seeds producing an identical order over 20 replays is astronomically
+    # unlikely; this guards against the seed being ignored.
+    assert _batch_names(a) != _batch_names(b)
+
+
+def test_make_replay_batches_respects_size_and_covers_all():
+    replays = _batch_replays(23)
+    batches = make_replay_batches(replays, seed=7, batch_size=5)
+    assert all(len(g) <= 5 for g in batches)
+    got = sorted(r.name for g in batches for r in g)
+    assert got == sorted(r.name for r in replays)
+
+
+def test_make_replay_batches_unique_basenames_per_batch():
+    # Batched replays share an output dir and .result.txt files are keyed by filename, so
+    # two replays with the same basename must never land in the same batch.
+    replays = [
+        make_replay('a/dup.zplay'),
+        make_replay('b/dup.zplay'),
+        make_replay('c/other.zplay'),
+    ]
+    batches = make_replay_batches(replays, seed=3, batch_size=8)
+    for g in batches:
+        basenames = [r.path.name for r in g]
+        assert len(basenames) == len(set(basenames))
+
+
+# ---------------------------------------------------------------------------
+# -replay-batch engine integration (requires a build)
+# ---------------------------------------------------------------------------
+
+ASSERT_FAILED_EXIT_CODE = 120
+
+# Small playground replays (66 frames each) used as known-good batch members.
+GOOD_REPLAYS = [
+    'auto_init_scripts',
+    'auto_bug_convert_rgb',
+    'auto_bug_empty_constructor',
+]
+
+
+@pytest.fixture
+def build_folder():
+    try:
+        return run_target.get_build_folder()
+    except Exception as e:
+        pytest.skip(f'no build available: {e}')
+
+
+def _write_batch_file(path: Path, entries):
+    """entries: a path, or a (path, frame) tuple for a per-replay frame limit."""
+    lines = []
+    for entry in entries:
+        if isinstance(entry, tuple):
+            lines.append(f'{entry[0]} {entry[1]}')
+        else:
+            lines.append(str(entry))
+    path.write_text('\n'.join(lines) + '\n')
+
+
+def _run_batch(batch_file: Path, output_dir: Path, build_folder, extra=None):
+    args = [
+        '-replay-batch',
+        str(batch_file),
+        '-replay-output-dir',
+        str(output_dir),
+        '-headless',
+        '-s',
+        '-v0',
+    ]
+    if extra:
+        args += extra
+    # The timeout turns a regression that hangs the batch (e.g. a modal dialog) into a
+    # failed test rather than a hung run.
+    return run_target.run('zplayer', args, build_folder=build_folder, timeout=180)
+
+
+def _batch_result(output_dir: Path, name: str):
+    return parse_result_txt_file(output_dir / f'{name}.zplay.result.txt')
+
+
+def _make_corrupt_copy(name: str, dst: Path) -> Path:
+    """Copy a playground replay, repoint its quest to an absolute path (so it loads from any
+    directory) and append a bogus trailing step. The extra step makes the replay log longer
+    than what the engine records, a deterministic assert failure."""
+    lines = (playground_dir / f'{name}.zplay').read_text().splitlines()
+    out_lines = []
+    last_frame = 0
+    for line in lines:
+        if line.startswith('M qst '):
+            line = f'M qst {playground_qst.absolute()}'
+        out_lines.append(line)
+        parts = line.split(' ')
+        if (
+            len(parts) > 1
+            and parts[0] in 'CRKDUSVQXY'
+            and parts[1].lstrip('-').isdigit()
+        ):
+            last_frame = max(last_frame, int(parts[1]))
+    out_lines.append(f'C {last_frame + 1} bogus_step')
+    dst.write_text('\n'.join(out_lines) + '\n')
+    return dst
+
+
+def test_batch_runs_all_replays_in_one_process(tmp_path, build_folder):
+    out = tmp_path / 'out'
+    out.mkdir()
+    batch_file = tmp_path / 'list.txt'
+    _write_batch_file(batch_file, [playground_dir / f'{n}.zplay' for n in GOOD_REPLAYS])
+
+    p = _run_batch(batch_file, out, build_folder)
+
+    assert p.returncode == 0, p.stdout + p.stderr
+    for name in GOOD_REPLAYS:
+        result = _batch_result(out, name)
+        assert result['stopped'], name
+        assert result['success'], name
+
+
+def test_batch_continues_and_reports_after_a_failure(tmp_path, build_folder):
+    bad = _make_corrupt_copy('auto_bug_convert_rgb', tmp_path / 'bad.zplay')
+    out = tmp_path / 'out'
+    out.mkdir()
+    batch_file = tmp_path / 'list.txt'
+    _write_batch_file(
+        batch_file,
+        [
+            playground_dir / 'auto_init_scripts.zplay',
+            bad,
+            playground_dir / 'auto_bug_empty_constructor.zplay',
+        ],
+    )
+
+    p = _run_batch(batch_file, out, build_folder)
+
+    # The batch had a failure, so it exits with the assert-failed code...
+    assert p.returncode == ASSERT_FAILED_EXIT_CODE, p.stdout + p.stderr
+    # ...but the replays before and after the bad one still ran and passed.
+    assert _batch_result(out, 'auto_init_scripts')['success']
+    assert _batch_result(out, 'auto_bug_empty_constructor')['success']
+    assert _batch_result(out, 'bad')['success'] is False
+
+
+def test_batch_skips_missing_replay_without_hanging(tmp_path, build_folder):
+    out = tmp_path / 'out'
+    out.mkdir()
+    batch_file = tmp_path / 'list.txt'
+    _write_batch_file(
+        batch_file,
+        [
+            playground_dir / 'auto_init_scripts.zplay',
+            tmp_path / 'does_not_exist.zplay',
+            playground_dir / 'auto_bug_empty_constructor.zplay',
+        ],
+    )
+
+    p = _run_batch(batch_file, out, build_folder)
+
+    assert p.returncode == ASSERT_FAILED_EXIT_CODE, p.stdout + p.stderr
+    # The missing entry produces no result file, but the others still ran.
+    assert not (out / 'does_not_exist.zplay.result.txt').exists()
+    assert _batch_result(out, 'auto_init_scripts')['success']
+    assert _batch_result(out, 'auto_bug_empty_constructor')['success']
+
+
+def test_batch_honors_per_replay_frame_limit(tmp_path, build_folder):
+    out = tmp_path / 'out'
+    out.mkdir()
+    batch_file = tmp_path / 'list.txt'
+    # auto_init_scripts is 66 frames; cap it at 20.
+    _write_batch_file(batch_file, [(playground_dir / 'auto_init_scripts.zplay', 20)])
+
+    p = _run_batch(batch_file, out, build_folder)
+
+    assert p.returncode == 0, p.stdout + p.stderr
+    result = _batch_result(out, 'auto_init_scripts')
+    assert result['success']
+    assert result['frame'] <= 20

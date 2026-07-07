@@ -1,0 +1,6 @@
+# Guards: sprite UID counter (next_uid) and hero collision step statics
+# (hero_newstep / hero_newstep_diag) leaking between in-process games.
+# first_quest_layered spawns sprites and clamps movement; ghost_armos then
+# desynced (frame 68 sprite uid, then frame 158 hero Y) before the fixes.
+tests/replays/first_quest_layered/first_quest_layered_13_of_18.zplay 1000
+tests/replays/playground/ghost_armos.zplay 200

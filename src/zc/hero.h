@@ -183,8 +183,14 @@ class HeroClass : public sprite
 	};
 	
 	void execute(WalkflagInfo info);
-	
+
 public:
+	// Debug-only: FNV-1a hash of movement/position state (including private fields like
+	// platform_ffc) for the -state-hash-log leak hunt. See dump_state_hashes().
+	uint64_t debug_state_hash() const;
+	// Debug-only: the same fields as name=value pairs, to identify which one differs.
+	std::string debug_state_string() const;
+
 	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;
 	rpos_t stepnext,    // location of step->next just triggered (don't repeatedly trigger it)

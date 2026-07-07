@@ -3929,6 +3929,8 @@ void process_enqueued_qr_changes()
 
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
+	dump_state_hashes(); // no-op unless -state-hash-log is set
+
 	if(zcmusic!=NULL)
 	{
 		zcmusic_poll();

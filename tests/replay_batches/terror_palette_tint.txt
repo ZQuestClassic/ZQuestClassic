@@ -1,0 +1,7 @@
+# Guards: script palette tint (palette_user_tinted) leaking between in-process
+# games. enigma applies a script tint; without resetting it, terror's palette
+# load routed into tempgreypal and blacked RAMpal, desyncing the recorded gfx
+# hash (visible in the map viewer) from frame 1.
+tests/replays/classic_1st/classic_1st_lvl1.zplay 1000
+tests/replays/enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay 1000
+tests/replays/terror_of_necromancy_demo6/terror_of_necromancy_demo6_34_of_54.zplay 1000

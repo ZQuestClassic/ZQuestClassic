@@ -278,6 +278,79 @@ void HeroClass::clear_platform_ffc()
 	platform_ffc = nullptr;
 }
 
+uint64_t HeroClass::debug_state_hash() const
+{
+	uint64_t h = 1469598103934665603ULL;
+	auto mix = [&h](int64_t v)
+	{
+		const uint8_t* p = reinterpret_cast<const uint8_t*>(&v);
+		for (size_t i = 0; i < sizeof(v); i++) { h ^= p[i]; h *= 1099511628211ULL; }
+	};
+
+	// position + base-sprite movement
+	mix(x.getZLong()); mix(y.getZLong()); mix(z.getZLong());
+	mix(fall.getZLong()); mix(fakefall.getZLong());
+	mix(xofs.getZLong()); mix(yofs.getZLong()); mix(dir);
+
+	// hero movement/state (incl. private platform_ffc, hashed as just its null-ness since a
+	// raw pointer value isn't comparable across processes)
+	mix(platform_ffc != nullptr);
+	mix(pushing); mix(jumping); mix(charging); mix(spins);
+	mix(hopclk); mix(hopdir); mix(holddir); mix(shiftdir);
+	mix(sdir); mix(sideswimdir); mix(landswim); mix(ilswim); mix(walkable);
+	mix(justmoved); mix((int)action); mix((int)tempaction);
+	mix(diagonalMovement); mix(steprate); mix(tmp_step_boost);
+	mix(shove_offset.getZLong()); mix(convey_forcex.getZLong()); mix(convey_forcey.getZLong());
+	mix(conveyor_flags); mix(raftclk); mix(falling_oldy.getZLong());
+	mix(climb_cover_x.getZLong()); mix(climb_cover_y.getZLong());
+	mix(ladderx); mix(laddery); mix(ladderdir); mix(ladderstart);
+	mix(skipstep); mix(lstep); mix(attackclk); mix(attack);
+	mix(inair); mix(tapping); mix(stomping); mix(autostep); mix(is_warping);
+	mix(hclk); mix(hitdir); mix(hoverclk); mix(diveclk); mix(whirlwind);
+	// warp/step-out/misc movement-affecting fields
+	mix(warpx); mix(warpy); mix(raftwarpx); mix(raftwarpy);
+	mix(stepoutindex); mix(stepoutwr); mix(stepoutdmap); mix(stepoutscreen);
+	mix(lastdir[0]); mix(lastdir[1]); mix(lastdir[2]); mix(lastdir[3]);
+	mix(specialcave); mix(bigHitbox); mix(inlikelike); mix(lsave); mix(immortal);
+	mix(swimuprate); mix(swimsiderate); mix(swimdownrate); mix(swimjump);
+	mix(lstunclock); mix(lbunnyclock); mix(refilling); mix(blowcnt); mix(didstuff);
+	mix(holdclk); mix(holditem);
+
+	return h;
+}
+
+std::string HeroClass::debug_state_string() const
+{
+	std::string s;
+	auto add = [&s](const char* n, int64_t v) { s += fmt::format("{}={} ", n, v); };
+	add("x", x.getZLong()); add("y", y.getZLong()); add("z", z.getZLong());
+	add("fall", fall.getZLong()); add("fakefall", fakefall.getZLong());
+	add("xofs", xofs.getZLong()); add("yofs", yofs.getZLong()); add("dir", dir);
+	add("platform_ffc", platform_ffc != nullptr);
+	add("pushing", pushing); add("jumping", jumping); add("charging", charging); add("spins", spins);
+	add("hopclk", hopclk); add("hopdir", hopdir); add("holddir", holddir); add("shiftdir", shiftdir);
+	add("sdir", sdir); add("sideswimdir", sideswimdir); add("landswim", landswim);
+	add("ilswim", ilswim); add("walkable", walkable);
+	add("justmoved", justmoved); add("action", (int)action); add("tempaction", (int)tempaction);
+	add("diagonalMovement", diagonalMovement); add("steprate", steprate); add("tmp_step_boost", tmp_step_boost);
+	add("shove_offset", shove_offset.getZLong());
+	add("convey_forcex", convey_forcex.getZLong()); add("convey_forcey", convey_forcey.getZLong());
+	add("conveyor_flags", conveyor_flags); add("raftclk", raftclk); add("falling_oldy", falling_oldy.getZLong());
+	add("climb_cover_x", climb_cover_x.getZLong()); add("climb_cover_y", climb_cover_y.getZLong());
+	add("ladderx", ladderx); add("laddery", laddery); add("ladderdir", ladderdir); add("ladderstart", ladderstart);
+	add("skipstep", skipstep); add("lstep", lstep); add("attackclk", attackclk); add("attack", attack);
+	add("inair", inair); add("tapping", tapping); add("stomping", stomping); add("autostep", autostep); add("is_warping", is_warping);
+	add("hclk", hclk); add("hitdir", hitdir); add("hoverclk", hoverclk); add("diveclk", diveclk); add("whirlwind", whirlwind);
+	add("warpx", warpx); add("warpy", warpy); add("raftwarpx", raftwarpx); add("raftwarpy", raftwarpy);
+	add("stepoutindex", stepoutindex); add("stepoutwr", stepoutwr); add("stepoutdmap", stepoutdmap); add("stepoutscreen", stepoutscreen);
+	add("lastdir0", lastdir[0]); add("lastdir1", lastdir[1]); add("lastdir2", lastdir[2]); add("lastdir3", lastdir[3]);
+	add("specialcave", specialcave); add("bigHitbox", bigHitbox); add("inlikelike", inlikelike); add("lsave", lsave); add("immortal", immortal);
+	add("swimuprate", swimuprate); add("swimsiderate", swimsiderate); add("swimdownrate", swimdownrate); add("swimjump", swimjump);
+	add("lstunclock", lstunclock); add("lbunnyclock", lbunnyclock); add("refilling", refilling); add("blowcnt", blowcnt); add("didstuff", didstuff);
+	add("holdclk", holdclk); add("holditem", holditem);
+	return s;
+}
+
 void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false, true) < 0)

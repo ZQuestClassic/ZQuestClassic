@@ -1,0 +1,7 @@
+# Guards: Hero.swordclk (the sword charge/jinx clock) leaking between in-process games.
+# hero_of_dreams ends mid-sword-charge (swordclk > 0). On the next game's start,
+# init_game_vars -> ALLOFF -> Hero.resetflags() runs verifyAWpn() whenever swordclk > 0,
+# before the item cache/subscreen are ready, which cleared terror_of_necromancy_demo6's
+# A-button selection (game->awpn -> 0xFF, sword unequipped) and desynced it at frame 32.
+tests/replays/hero_of_dreams/hero_of_dreams_2_of_8.zplay 5000
+tests/replays/terror_of_necromancy_demo6/terror_of_necromancy_demo6_07_of_54.zplay 5000

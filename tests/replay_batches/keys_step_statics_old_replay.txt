@@ -1,0 +1,8 @@
+# Guards: hero collision step statics (hero_newstep / hero_newstep_diag / z3step)
+# leaking between in-process games for PRE-v12 replays. init()'s reset is gated
+# behind replay_version_check(12), so the unconditional reset in init_game_vars()
+# is what covers old replays. first_quest_layered clamps the step amount; keys_v8
+# (replay version 8) then started with a shortened first move and desynced at
+# frame 68 (hero X 0.5px short) before the init_game_vars() reset.
+tests/replays/first_quest_layered/first_quest_layered_03_of_18.zplay 1000
+tests/replays/misc/keys_v8.zplay

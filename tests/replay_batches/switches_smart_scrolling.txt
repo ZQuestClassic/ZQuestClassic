@@ -1,0 +1,4 @@
+# Guards: in-process leaks surfaced when switches_smart_scrolling runs after
+# enigma (notably the palette tint leak, which made it desync at frame 0).
+tests/replays/enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay 1000
+tests/replays/playground/switches_smart_scrolling.zplay 120

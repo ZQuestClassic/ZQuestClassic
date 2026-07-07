@@ -57,6 +57,8 @@ static const char TypeState = 'S';
 // replays), so they live outside ReplayState and survive its reset.
 static bool snapshot_all_frames;
 static bool exit_when_done;
+static bool batch_when_done;
+static bool batch_any_failed;
 static std::filesystem::path output_dir;
 
 // Parse an entire string as a base-10 int. Leaves |out| unchanged and returns false
@@ -1516,13 +1518,16 @@ void replay_poll()
     {
         if (rs.mode != ReplayMode::Assert)
         {
-            Throttlefps = true;
-            Paused = true;
             replay_forget_input();
             replay_stop();
-            enter_sys_pal();
-            InfoDialog("Recording", "Replaying stopped at requested frame").show();
-            exit_sys_pal();
+            if (!is_headless())
+            {
+                Throttlefps = true;
+                Paused = true;
+                enter_sys_pal();
+                InfoDialog("Recording", "Replaying stopped at requested frame").show();
+                exit_sys_pal();
+            }
         }
     }
 
@@ -1570,13 +1575,16 @@ void replay_poll()
         {
             if (rs.mode == ReplayMode::Record) replay_save();
 
-            Throttlefps = true;
-            Paused = true;
             replay_forget_input();
             replay_stop();
-            enter_sys_pal();
-            InfoDialog(replay_mode_to_string(rs.mode), "Stopped at requested frame").show();
-            exit_sys_pal();
+            if (!is_headless())
+            {
+                Throttlefps = true;
+                Paused = true;
+                enter_sys_pal();
+                InfoDialog(replay_mode_to_string(rs.mode), "Stopped at requested frame").show();
+                exit_sys_pal();
+            }
             return;
         }
     }
@@ -1819,7 +1827,7 @@ void replay_stop(bool aborted)
 			rs.mode = ReplayMode::Off;
 			zc_exit(rs.has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
-        else if (rs.has_assert_failed)
+        else if (rs.has_assert_failed && !batch_when_done)
         {
             enter_sys_pal();
             InfoDialog("Assert", "Replay has stopped, and the assert failed.").show();
@@ -1902,6 +1910,12 @@ void replay_stop(bool aborted)
 	if (exit_when_done)
 	{
 		zc_exit(rs.has_rng_desynced ? 1 : 0);
+	}
+	else if (batch_when_done && !aborted)
+	{
+		batch_any_failed |= rs.has_assert_failed || rs.has_rng_desynced;
+		if (!replay_batch_load_next())
+			replay_batch_exit();
 	}
 }
 
@@ -2280,6 +2294,26 @@ bool replay_is_recording()
 void replay_enable_exit_when_done()
 {
 	exit_when_done = true;
+}
+
+void replay_enable_batch_when_done()
+{
+	batch_when_done = true;
+}
+
+bool replay_batch_any_failed()
+{
+	return batch_any_failed;
+}
+
+void replay_batch_note_failure()
+{
+	batch_any_failed = true;
+}
+
+void replay_batch_exit()
+{
+	zc_exit(batch_any_failed ? ASSERT_FAILED_EXIT_CODE : 0);
 }
 
 size_t replay_register_rng(zc_randgen *rng)

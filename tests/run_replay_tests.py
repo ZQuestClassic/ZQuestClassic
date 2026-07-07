@@ -49,6 +49,7 @@ import argparse
 import atexit
 import os
 import platform
+import random
 import shutil
 import subprocess
 import sys
@@ -80,6 +81,8 @@ from replays import (
     get_shards,
     group_arg,
     load_replays,
+    make_replay_batches,
+    run_replay_batches,
     run_replays,
 )
 from run_test_workflow import (
@@ -202,6 +205,35 @@ parser.add_argument(
 parser.add_argument('--not_interactive', action='store_true', default=is_agent or is_ci)
 parser.add_argument('--extra_args')
 parser.add_argument(
+    '--batch',
+    dest='batch',
+    action='store_true',
+    help='Run replays back-to-back in shared processes (grouped/ordered by --seed) instead '
+    'of one process per replay. Surfaces global state not reset between quests/games as '
+    'desyncs.',
+)
+parser.add_argument(
+    '--seed',
+    type=int,
+    default=None,
+    help='Seed for --batch shuffling and ordering. Random (and printed) if omitted.',
+)
+parser.add_argument(
+    '--batch-size',
+    dest='batch_size',
+    type=int,
+    default=8,
+    help='Max replays per in-process batch (default 8).',
+)
+parser.add_argument(
+    '--replay-batch',
+    dest='replay_batch',
+    metavar='BATCH',
+    help='Run exactly the replays listed in this file (one "<path> [frame]" per line, in '
+    'order) as a single in-process batch. Useful for re-running a saved failing batch '
+    '(failing_batch_NN.txt).',
+)
+parser.add_argument(
     '--for_dev_server', action=argparse.BooleanOptionalAction, default=False
 )
 
@@ -254,7 +286,33 @@ if args.show:
     args.headless = False
     args.throttle_fps = True
 
-if args.replays:
+
+def parse_batch_file(path):
+    """Parse a -replay-batch style batch file: one '<path> [frame]' per line, in order;
+    '#' comments and blank lines ignored. Returns [(Path, Optional[int])]."""
+    entries = []
+    for line in Path(path).read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        parts = line.rsplit(' ', 1)
+        if len(parts) == 2 and parts[1].isdigit():
+            entries.append((Path(parts[0]), int(parts[1])))
+        else:
+            entries.append((Path(line), None))
+    return entries
+
+
+# Per-replay frame limits, when running an explicit batch file.
+batch_file_frames = {}
+
+if args.replay_batch:
+    tests = []
+    for path, frame in parse_batch_file(args.replay_batch):
+        tests.append(path)
+        if frame is not None:
+            batch_file_frames[path] = frame
+elif args.replays:
     tests = [Path(x) for x in args.replays]
     if args.root_replays_folder:
         replays_dir = args.root_replays_folder
@@ -398,7 +456,9 @@ if platform.system() == 'Windows' and mode == 'update':
 # TODO: weird failures in CI starting in https://github.com/ZQuestClassic/ZQuestClassic/pull/1137
 if is_web:
     skip_tests.append('garbage_collection.zplay')
-tests = [t for t in tests if t.name not in skip_tests]
+# When re-running an explicit batch file, run exactly what's listed.
+if not args.replay_batch:
+    tests = [t for t in tests if t.name not in skip_tests]
 
 if args.shard:
     shard_index, num_shards = (int(s) for s in args.shard.split('/'))
@@ -422,8 +482,13 @@ estimated_durations = {}
 configure_estimate_multiplier(args.build_folder, args.build_type)
 replays = load_replays(tests, replays_dir)
 
+# When re-running a saved batch file, honor its per-replay frame limits.
 for replay in replays:
-    frames = replay.frames
+    if replay.path in batch_file_frames:
+        replay.frame_arg = batch_file_frames[replay.path]
+
+for replay in replays:
+    frames = replay.frames_limited()
     frame_arg = get_arg_for_replay(replay.path, grouped_frame_arg, is_int=True)
     if frame_arg and frame_arg < replay.frames:
         frames = replay.frame_arg = frame_arg
@@ -442,7 +507,10 @@ for replay in replays:
     if snapshot_arg:
         replay.snapshot_arg = snapshot_arg
 
-replays.sort(key=lambda replay: -estimated_durations[replay.name])
+# Preserve the batch file's order when re-running an explicit batch; otherwise sort by
+# estimated duration for better packing.
+if not args.replay_batch:
+    replays.sort(key=lambda replay: -estimated_durations[replay.name])
 
 
 if args.shard and args.print_shards:
@@ -896,6 +964,34 @@ if sys.stdout.isatty() and not is_ci and interactive:
             print(
                 'for a better experience, install the "windows-curses" package via pip'
             )
+# Cap the duration in CI, in case it somehow never ends.
+timeout = is_ci
+# ...but not for Coverage/Asan, which is unpredictably slow.
+if is_coverage or is_asan:
+    timeout = False
+
+# in-process batch mode covers both seeded batching and re-running an explicit batch file.
+batch_mode = args.batch or bool(args.replay_batch)
+
+# Resolve the seed and print the batch-mode intro BEFORE creating the ProgressDisplay:
+# curses.initscr() puts the terminal in raw mode, where later print()s render staircased.
+batch_seed = None
+explicit_batches = None
+if args.replay_batch:
+    explicit_batches = [replays]
+    print(f'replay batch: {args.replay_batch} ' f'({len(replays)} replays, in order)')
+elif args.batch:
+    batch_seed = args.seed if args.seed is not None else random.randrange(1_000_000)
+    num_batches = len(make_replay_batches(replays, batch_seed, args.batch_size))
+    print(f'in-process batch mode: seed={batch_seed}')
+    print(
+        f'running {len(replays)} replays in {num_batches} batches '
+        f'(batch size {args.batch_size}, concurrency {concurrency})'
+    )
+    print(
+        f'(reproduce with: --batch --seed {batch_seed} --batch-size {args.batch_size})'
+    )
+
 display = ProgressDisplay(replays, use_curses, print_emoji)
 
 
@@ -913,30 +1009,44 @@ def on_update(progress: RunReplayTestsProgress):
     display.on_update(progress)
 
 
-# Cap the duration in CI, in case it somehow never ends.
-timeout = is_ci
-# ...but not for Coverage/Asan, which is unpredictably slow.
-if is_coverage or is_asan:
-    timeout = False
-
-test_results = run_replays(
-    replays,
-    mode=mode,
-    runs_on=runs_on,
-    arch=arch,
-    build_folder=args.build_folder,
-    test_results_dir=test_results_dir,
-    extra_args=extra_args,
-    debugger=args.debugger,
-    headless=args.headless,
-    jit=args.jit,
-    optimize_zasm=args.optimize_zasm,
-    concurrency=concurrency,
-    prune_test_results=args.prune_test_results,
-    timeout=timeout,
-    retries=args.retries,
-    on_update=on_update,
-)
+if batch_mode:
+    test_results = run_replay_batches(
+        replays,
+        mode=mode,
+        runs_on=runs_on,
+        arch=arch,
+        build_folder=args.build_folder,
+        test_results_dir=test_results_dir,
+        extra_args=extra_args,
+        seed=batch_seed if batch_seed is not None else 0,
+        batch_size=args.batch_size,
+        headless=args.headless,
+        jit=args.jit,
+        optimize_zasm=args.optimize_zasm,
+        concurrency=concurrency,
+        timeout=timeout,
+        on_update=on_update,
+        explicit_batches=explicit_batches,
+    )
+else:
+    test_results = run_replays(
+        replays,
+        mode=mode,
+        runs_on=runs_on,
+        arch=arch,
+        build_folder=args.build_folder,
+        test_results_dir=test_results_dir,
+        extra_args=extra_args,
+        debugger=args.debugger,
+        headless=args.headless,
+        jit=args.jit,
+        optimize_zasm=args.optimize_zasm,
+        concurrency=concurrency,
+        prune_test_results=args.prune_test_results,
+        timeout=timeout,
+        retries=args.retries,
+        on_update=on_update,
+    )
 del display
 
 print(f'test results: {test_results_dir}')
@@ -984,6 +1094,15 @@ for result in test_results.runs[-1]:
 
 if is_web:
     webserver_p.kill()
+
+# In batch mode, each failing batch's exact batch file was saved; print commands to re-run
+# just those batches on their own.
+if batch_mode:
+    failing_batch_files = sorted(test_results_dir.glob('failing_batch_*.txt'))
+    if failing_batch_files:
+        print('\nre-run a failing batch on its own with:')
+        for f in failing_batch_files:
+            print(f'  python tests/run_replay_tests.py --replay-batch {f}')
 
 failing_replays = [r.name for r in test_results.runs[-1] if should_consider_failure(r)]
 if mode == 'assert':
