@@ -202,6 +202,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
+//Don't ever update these for releases/2.55.
 #define V_HEADER           8
 #define V_RULES           17
 #define V_STRINGS         10
@@ -231,8 +232,39 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        4
 
 #define V_COMPATRULE       65 // Do NOT ever update this in 2.55 branch!
-static_assert(V_COMPATRULE == 65);
 #define V_ZINFO            3
+
+// Never change these in this branch (unless bumped in the main branch at the same time for the same change).
+static_assert(V_HEADER == 8);
+static_assert(V_RULES == 17);
+static_assert(V_STRINGS == 10);
+static_assert(V_MISC == 16);
+static_assert(V_TILES == 3);
+static_assert(V_COMBOS == 45);
+static_assert(V_CSETS == 5);
+static_assert(V_MAPS == 30);
+static_assert(V_DMAPS == 21);
+static_assert(V_DOORS == 1);
+static_assert(V_ITEMS == 59);
+static_assert(V_WEAPONS == 8);
+static_assert(V_COLORS == 4);
+static_assert(V_ICONS == 10);
+static_assert(V_GRAPHICSPACK == 1);
+static_assert(V_INITDATA == 38);
+static_assert(V_GUYS == 48);
+static_assert(V_MIDIS == 4);
+static_assert(V_CHEATS == 1);
+static_assert(V_SAVEGAME == 40);
+static_assert(V_COMBOALIASES == 5);
+static_assert(V_HEROSPRITES == 16);
+static_assert(V_SUBSCREEN == 12);
+static_assert(V_ITEMDROPSETS == 2);
+static_assert(V_FFSCRIPT == 22);
+static_assert(V_SFX == 8);
+static_assert(V_FAVORITES == 4);
+static_assert(V_COMPATRULE == 65);
+static_assert(V_COMPATRULE == 65);
+static_assert(V_ZINFO == 3);
 
 //= V_SHOPS is under V_MISC
 
