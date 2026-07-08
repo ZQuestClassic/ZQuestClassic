@@ -293,6 +293,56 @@ bool info_bmp_enabled()
 #endif
 }
 
+// Backing store for save_info_bmp/restore_info_bmp.
+static ALLEGRO_BITMAP* infobmp_backup = nullptr;
+
+void save_info_bmp()
+{
+#ifndef __EMSCRIPTEN__
+	ALLEGRO_BITMAP* src = rti_infolayer.bitmap;
+	if (!src)
+		return;
+
+	int w = al_get_bitmap_width(src);
+	int h = al_get_bitmap_height(src);
+	if (infobmp_backup && (al_get_bitmap_width(infobmp_backup) != w || al_get_bitmap_height(infobmp_backup) != h))
+	{
+		al_destroy_bitmap(infobmp_backup);
+		infobmp_backup = nullptr;
+	}
+	if (!infobmp_backup)
+		infobmp_backup = create_a5_bitmap(w, h);
+
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+	al_set_target_bitmap(infobmp_backup);
+	al_clear_to_color(AL5_INVIS);
+	// Straight copy: overwrite the destination pixels rather than alpha-blend.
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+	al_draw_bitmap(src, 0, 0, 0);
+	al_restore_state(&old_state);
+#endif
+}
+
+void restore_info_bmp()
+{
+#ifndef __EMSCRIPTEN__
+	if (!infobmp_backup)
+	{
+		clear_info_bmp();
+		return;
+	}
+
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+	al_set_target_bitmap(rti_infolayer.bitmap);
+	al_clear_to_color(AL5_INVIS);
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+	al_draw_bitmap(infobmp_backup, 0, 0, 0);
+	al_restore_state(&old_state);
+#endif
+}
+
 static ALLEGRO_STATE infobmp_old_state;
 void start_info_bmp()
 {

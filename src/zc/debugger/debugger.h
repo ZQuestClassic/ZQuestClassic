@@ -129,6 +129,9 @@ struct Debugger
 	int selected_stack_frame_index = 0;
 	const DebugScope* selected_scope = nullptr;
 	int highlight_sprite_id = 0;
+	// True once the info-layer cheat overlays have been snapshotted for the current
+	// pause. Reset when the debugger resumes. See zscript_debugger_gui_update.
+	bool info_bmp_saved = false;
 	std::deque<ConsoleMessage> console_logs;
 	std::vector<std::string> console_command_history;
     int history_pos = -1; // -1 indicates "new expression" (bottom of history).

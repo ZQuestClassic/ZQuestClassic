@@ -1733,7 +1733,21 @@ bool zscript_debugger_gui_update(Debugger* debugger)
 
 	if (debugger->state == Debugger::State::Paused && info_bmp_enabled())
 	{
-		clear_info_bmp();
+		// The info layer holds the walkability/hitbox cheat overlays drawn during the
+		// last game frame. The game isn't redrawing while paused, so snapshot those
+		// overlays on the first paused frame and restore them each frame afterwards.
+		// This lets us composite the transient sprite highlight on top without
+		// permanently erasing the cheat overlays (which made them vanish when paused).
+		if (!debugger->info_bmp_saved)
+		{
+			save_info_bmp();
+			debugger->info_bmp_saved = true;
+		}
+		else
+		{
+			restore_info_bmp();
+		}
+
 		if (debugger->highlight_sprite_id)
 		{
 			if (sprite* spr = sprite::getByUID(debugger->highlight_sprite_id))
@@ -1750,6 +1764,10 @@ bool zscript_debugger_gui_update(Debugger* debugger)
 
 			debugger->highlight_sprite_id = 0;
 		}
+	}
+	else
+	{
+		debugger->info_bmp_saved = false;
 	}
 
 	return running;
