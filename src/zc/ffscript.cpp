@@ -2998,7 +2998,6 @@ void do_push_vargs(const bool v)
 	if(sarg2 < 1) return;
 	const int value = SH::get_arg(sarg1, v);
 	zs_vargs.insert(zs_vargs.end(), sarg2, value);
-	zs_vargs.push_back(value);
 }
 
 void do_pop()
