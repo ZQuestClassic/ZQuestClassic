@@ -107,7 +107,8 @@ do { \
 BuildOpcodes::BuildOpcodes(Program& program)
 	: RecursiveVisitor(program), returnlabelid(-1), continuelabelids(),
 	  breaklabelids(), breakScopes(), break_to_counts(),
-	  cur_scopes(), break_depth(0), continue_depth(0)
+	  cur_scopes(), varg_depth(0), varg_push_depth(0),
+	  break_depth(0), continue_depth(0)
 {
 	opcodeTargets.push_back(&result);
 }
@@ -2032,6 +2033,20 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
 	auto targ_sz = commentTarget();
 	bool never_ret = func.getFlag(FUNCFLAG_NEVER_RETURN);
+	bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+	bool internal_or_binding = func.isInternal() || func.isBinding();
+	
+	// prevent clobbering vargs when calling a function inside varg parameter resolution
+	// nil functions, and internal non-vargs functions, should be safe- skip those as an optimization
+	// non-nil user functions may call vargs functions inside them even if they aren't vargs functions
+	bool varg_push = varg_depth > varg_push_depth && !func.isNil() && (vargs || !internal_or_binding);
+	
+	if (varg_push)
+	{
+		++varg_push_depth;
+		addOpcode(new OPushVargStack());
+	}
+	
 	if(func.isNil()) //Prototype/Nil function
 	{
 		//Visit each parameter for side-effects only
@@ -2053,10 +2068,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack(fmt::format("Proto{} Default RetVal",func_comment));
 		}
 	}
-	else if(func.getFlag(FUNCFLAG_INLINE) && (func.isInternal() || func.isBinding())) //Inline function
+	else if(func.getFlag(FUNCFLAG_INLINE) && internal_or_binding) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
 		size_t num_used_params = host.parameters.size();
 		
@@ -2085,7 +2099,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && !func.isBinding() && func.paramDatum[param_indx]->is_erased();
+			bool unused = !internal_or_binding && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2104,6 +2118,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		if(vargcount)
 		{
+			++varg_depth;
 			//push the vargs, in forward order
 			for (; param_indx < host.parameters.size(); ++param_indx)
 			{
@@ -2116,7 +2131,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
+				auto* rtype = arg->getReadType(scope, this);
+				if (rtype && rtype->isObject())
+					addOpcode(new OMarkTypeVarg(new TypeArgument(rtype)));
 			}
+			--varg_depth;
 		}
 
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
@@ -2193,7 +2212,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	{
 		int32_t funclabel = func.getLabel();
 		
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		auto num_used_params = host.parameters.size();
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
 		int v = num_used_params-num_actual_params;
@@ -2236,6 +2254,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			auto array_type = dynamic_cast<const DataTypeArray*>(func.paramTypes.back());
 			int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
 
+			++varg_depth;
+			
 			//push the vargs, in forward order
 			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
 			{
@@ -2248,7 +2268,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
+				auto* rtype = arg->getReadType(scope, this);
+				if (rtype && rtype->isObject())
+					addOpcode(new OMarkTypeVarg(new TypeArgument(rtype)));
 			}
+			--varg_depth;
 			addOpcode(new OMakeVargArray(new LiteralArgument(element_script_object_type_id)));
 			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -2293,10 +2317,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else
 	{
-		const string comment_pref = func.isInternal() || func.isBinding() ? "Int." : "Usr";
+		const string comment_pref = internal_or_binding ? "Int." : "Usr";
 		int32_t funclabel = func.getLabel();
 		
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		bool user_vargs = vargs && !func.isInternal();
 		auto num_used_params = host.parameters.size();
 		auto num_actual_params = func.paramTypes.size() - (user_vargs ? 1 : 0);
@@ -2319,7 +2342,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && !func.isBinding() && func.paramDatum.size() > param_indx && func.paramDatum[param_indx]->is_erased();
+			bool unused = !internal_or_binding && func.paramDatum.size() > param_indx && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2336,12 +2359,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				push_param();
 			}
 		}
-
+		
 		if(user_vargs)
 		{
 			auto array_type = dynamic_cast<const DataTypeArray*>(func.paramTypes.back());
 			int element_script_object_type_id = (int)array_type->getElementType().getScriptObjectTypeId();
-
+			
+			++varg_depth;
+			
 			//push the vargs, in forward order
 			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
 			{
@@ -2354,7 +2379,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
+				auto* rtype = arg->getReadType(scope, this);
+				if (rtype && rtype->isObject())
+					addOpcode(new OMarkTypeVarg(new TypeArgument(rtype)));
 			}
+			--varg_depth;
 			addOpcode(new OMakeVargArray(new LiteralArgument(element_script_object_type_id)));
 			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -2363,6 +2392,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 		if(vargs && vargcount && !user_vargs)
 		{
+			++varg_depth;
 			//push the vargs, in forward order
 			for (; param_indx < host.parameters.size(); ++param_indx)
 			{
@@ -2375,7 +2405,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
+				auto* rtype = arg->getReadType(scope, this);
+				if (rtype && rtype->isObject())
+					addOpcode(new OMarkTypeVarg(new TypeArgument(rtype)));
 			}
+			--varg_depth;
 		}
 
 		commentStartEnd(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
@@ -2413,6 +2447,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 		}
+	}
+	
+	if (varg_push)
+	{
+		--varg_push_depth;
+		if (!func.getFlag(FUNCFLAG_NEVER_RETURN))
+			addOpcode(new OPopVargStack());
 	}
 	
 	//Allocate string/array literals retroactively

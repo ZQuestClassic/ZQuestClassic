@@ -632,7 +632,6 @@ refInfo *ri;
 script_data *curscript;
 int32_t(*stack)[MAX_STACK_SIZE];
 int32_t(*ret_stack)[MAX_CALL_FRAMES];
-vector<int32_t> zs_vargs;
 ScriptType curScriptType;
 word curScriptNum;
 int32_t curScriptIndex;
@@ -2123,6 +2122,33 @@ void FFScript::destroySprite(sprite* sprite)
 	FFCore.clear_script_engine_data(scriptType, uid);
 }
 
+vector<int> clear_vargs_back()
+{
+	// Return a copy of the vargs vector
+	vector<int> vargs = ri->zs_vargs_stack.back();
+	
+	// Add any objects in the vargs to the autorelease pool, in case they are
+	// returned from the function (ex. `Choose(obj1, obj2)`)
+	// Decrement the refcount if it went down
+	//   if adding to autorelease, count goes down and up by 1 for net 0
+	//   if already in autorelease, count goes down by 1 for removal from vargs
+	for (auto pos : ri->zs_vargs_pos_is_object.back())
+	{
+		uint32_t id = ri->zs_vargs_stack.back().at(pos);
+		if (util::contains(script_object_autorelease_pool, id))
+			script_object_ref_dec(id);
+		else
+			script_object_autorelease_pool.push_back(id);
+	}
+	
+	// now that we've handled copying and refcounting, clear the back vargs vectors
+	ri->zs_vargs_stack.back().clear();
+	ri->zs_vargs_pos_is_object.back().clear();
+	
+	// and finally return the copied vargs
+	return vargs;
+}
+
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID)
 {
 	std::vector<uint32_t> ids_to_clear;
@@ -2144,6 +2170,11 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 			ids_to_clear.push_back(id);
 		}
 		data.ref.stack_pos_is_object.clear();
+		for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+			for (int i : data.ref.zs_vargs_pos_is_object[q])
+				ids_to_clear.push_back(data.ref.zs_vargs_stack.at(q).at(i));
+		data.ref.zs_vargs_stack = {{}};
+		data.ref.zs_vargs_pos_is_object = {{}};
 	}
 
 	if (ZScriptVersion::gc())
@@ -2192,6 +2223,11 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 				ids_to_clear.push_back(id);
 			}
 			data.ref.stack_pos_is_object.clear();
+			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+				for (int i : data.ref.zs_vargs_pos_is_object[q])
+					ids_to_clear.push_back(data.ref.zs_vargs_stack.at(q).at(i));
+			data.ref.zs_vargs_stack = {{}};
+			data.ref.zs_vargs_pos_is_object = {{}};
 		}
 
 		for (auto id : ids_to_clear)
@@ -2256,6 +2292,14 @@ void FFScript::deallocateAllScriptOwnedCont()
 				ids_to_clear.push_back(id);
 			}
 			data.ref.stack_pos_is_object.clear();
+			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+				for (int i : data.ref.zs_vargs_pos_is_object[q])
+				{
+					uint32_t id = data.ref.zs_vargs_stack.at(q).at(i);
+					ids_to_clear.push_back(id);
+				}
+			data.ref.zs_vargs_stack = {{}};
+			data.ref.zs_vargs_pos_is_object = {{}};
 		}
 
 		for (auto id : ids_to_clear)
@@ -2990,14 +3034,15 @@ void do_push(const bool v)
 void do_push_varg(const bool v)
 {
 	const int32_t value = SH::get_arg(sarg1, v);
-	zs_vargs.push_back(value);
+	ri->zs_vargs_stack.back().push_back(value);
 }
 
 void do_push_vargs(const bool v)
 {
 	if(sarg2 < 1) return;
 	const int value = SH::get_arg(sarg1, v);
-	zs_vargs.insert(zs_vargs.end(), sarg2, value);
+	auto& vec = ri->zs_vargs_stack.back();
+	vec.insert(vec.end(), sarg2, value);
 }
 
 void do_pop()
@@ -9413,7 +9458,6 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			--ri->waitframes;
 			return RUNSCRIPT_OK;
 		}
-		zs_vargs.clear();
 		
 	#ifdef _FFDISSASSEMBLY
 		
@@ -10391,6 +10435,24 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				break;
 			case PUSHVARGSR:
 				do_push_vargs(false);
+				break;
+			case PUSHVARGSTACK:
+				if (ri->zs_vargs_stack.size() >= 128)
+				{
+					scripting_log_error_with_context("vargs stack overflow!");
+					break;
+				}
+				ri->zs_vargs_stack.emplace_back();
+				ri->zs_vargs_pos_is_object.emplace_back();
+				break;
+			case POPVARGSTACK:
+				if (ri->zs_vargs_stack.size() < 2)
+				{
+					scripting_log_error_with_context("vargs stack underflow!");
+					break;
+				}
+				ri->zs_vargs_stack.pop_back();
+				ri->zs_vargs_pos_is_object.pop_back();
 				break;
 				
 			case RNDR:
@@ -13133,6 +13195,24 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case MARK_TYPE_REG:
 			{
 				markRegisterType(sarg1, sarg2);
+				break;
+			}
+			case MARK_TYPE_VARG:
+			{
+				auto& vec = ri->zs_vargs_stack.back();
+				auto& obj_set = ri->zs_vargs_pos_is_object.back();
+				auto offset = vec.size()-1;
+				bool already_obj = obj_set.contains(offset);
+				if (sarg1)
+					obj_set.insert(offset);
+				else
+					obj_set.erase(offset);
+				
+				auto id = vec.at(offset);
+				if (already_obj && !sarg1)
+					script_object_ref_dec(id);
+				else if (sarg1 && !already_obj)
+					script_object_ref_inc(id);
 				break;
 			}
 			case REF_REMOVE:
@@ -16010,7 +16090,7 @@ void FFScript::do_tracestring()
 
 static int32_t zspr_varg_getter(int32_t,int32_t next_arg)
 {
-	return zs_vargs.at(next_arg);
+	return ri->zs_vargs_stack.back().at(next_arg);
 }
 static int32_t zspr_stack_getter(int32_t num_args, int32_t next_arg)
 {
@@ -16022,7 +16102,7 @@ void FFScript::do_printf(const bool v, const bool varg)
 	int32_t num_args, format_arrayptr;
 	if(varg)
 	{
-		num_args = zs_vargs.size();
+		num_args = ri->zs_vargs_stack.back().size();
 		format_arrayptr = SH::read_stack(ri->sp);
 	}
 	else
@@ -16038,7 +16118,7 @@ void FFScript::do_printf(const bool v, const bool varg)
 		handle_trace(zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter));
 	}
 	if(varg)
-		zs_vargs.clear();
+		clear_vargs_back();
 }
 
 void FFScript::do_printfarr()
@@ -16062,48 +16142,47 @@ void FFScript::do_printfarr()
 
 void FFScript::do_varg_max()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = std::numeric_limits<int32_t>::min();
 	if (num_args > 0)
-		val = zs_vargs.at(0);
+		val = vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = zs_vargs.at(q);
+		int32_t tval = vargs.at(q);
 		if(tval > val) val = tval;
 	}
-	zs_vargs.clear();
 	SET_D(rEXP1, val);
 }
 void FFScript::do_varg_min()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = std::numeric_limits<int32_t>::max();
 	if (num_args > 0)
-		val = zs_vargs.at(0);
+		val = vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = zs_vargs.at(q);
+		int32_t tval = vargs.at(q);
 		if(tval < val) val = tval;
 	}
-	zs_vargs.clear();
 	SET_D(rEXP1, val);
 }
 void FFScript::do_varg_choose()
 {
-	int32_t num_args = zs_vargs.size();
+	auto vargs = clear_vargs_back();
+	int32_t num_args = vargs.size();
 	int32_t val = 0;
 	if(num_args > 0)
 	{
 		int32_t choice = zc_rand(num_args-1);
-		val = zs_vargs.at(choice);
+		val = vargs.at(choice);
 	}
-	zs_vargs.clear();
 	SET_D(rEXP1, val);
 }
 void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_object_type object_type)
 {
-	auto vargs = zs_vargs;
-	zs_vargs.clear();
+	auto vargs = clear_vargs_back();
 
 	size_t size = vargs.size();
 	SET_D(rEXP1, 0);

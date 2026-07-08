@@ -10,7 +10,8 @@ extern refInfo *ri;
 extern int32_t sarg1;
 extern int32_t sarg2;
 extern int32_t sarg3;
-extern std::vector<int32_t> zs_vargs;
+
+vector<int> clear_vargs_back();
 
 namespace {
 
@@ -28,7 +29,7 @@ bool is_valid_format(char c)
 
 int32_t zspr_varg_getter(int32_t,int32_t next_arg)
 {
-	return zs_vargs.at(next_arg);
+	return ri->zs_vargs_stack.back().at(next_arg);
 }
 
 int32_t zspr_stack_getter(int32_t num_args, int32_t next_arg)
@@ -342,7 +343,7 @@ void do_sprintf(const bool v, const bool varg)
 	int32_t num_args, dest_arrayptr, format_arrayptr;
 	if(varg)
 	{
-		num_args = zs_vargs.size();
+		num_args = ri->zs_vargs_stack.back().size();
 		dest_arrayptr = SH::read_stack(ri->sp + 1);
 		format_arrayptr = SH::read_stack(ri->sp);
 	}
@@ -370,7 +371,7 @@ void do_sprintf(const bool v, const bool varg)
 		else SET_D(rEXP1, output.size());
 	}
 	if(varg)
-		zs_vargs.clear();
+		clear_vargs_back();
 }
 
 void do_sprintfarr()

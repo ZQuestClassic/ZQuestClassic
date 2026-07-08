@@ -1298,6 +1298,9 @@ public:
 	optional<int32_t> cmp_strcache;
 	std::set<uint32_t> stack_pos_is_object;
 	bool overflow;
+	
+	vector<vector<int32_t>> zs_vargs_stack {1};
+	vector<std::set<int32_t>> zs_vargs_pos_is_object {1};
 
 	void Clear()
 	{
