@@ -11,7 +11,7 @@ is_valid = True
 
 log = ''
 
-if commit_msg.startswith('fixup!'):
+if commit_msg.startswith('fixup!') or commit_msg.startswith('amend!'):
     exit(0)
 
 
