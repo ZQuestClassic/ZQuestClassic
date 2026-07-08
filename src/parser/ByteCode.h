@@ -43,6 +43,8 @@ namespace ZScript {
 
 	typedef Opcode0<QUIT> OQuit;
 	typedef Opcode0<RETURNFUNC> OReturnFunc;
+	typedef Opcode0<PUSHVARGSTACK> OPushVargStack;
+	typedef Opcode0<POPVARGSTACK> OPopVargStack;
 	
 	typedef Opcode1<ABS, VarArgument> OAbsRegister;
 	typedef Opcode1<ARRAYSIZE, VarArgument> OArraySize;
@@ -74,6 +76,7 @@ namespace ZScript {
 	typedef Opcode1<TRUNCATE, VarArgument> OTruncate;
 	typedef Opcode1<ZCLASS_FREE, VarArgument> OFreeObject;
 	typedef Opcode1<ZCLASS_MARK_TYPE, VectorArgument> OMarkTypeClass;
+	typedef Opcode1<MARK_TYPE_VARG, TypeArgument> OMarkTypeVarg;
 
 	typedef Opcode2<ADDR, VarArgument, VarArgument> OAddRegister;
 	typedef Opcode2<ADDV, VarArgument, LiteralArgument> OAddImmediate;

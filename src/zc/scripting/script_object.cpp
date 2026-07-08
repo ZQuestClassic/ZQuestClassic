@@ -424,6 +424,9 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		{
 			for (int i : data.ref.stack_pos_is_object)
 				live_object_ids.insert(data.stack[i]);
+			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+				for (int i : data.ref.zs_vargs_pos_is_object[q])
+					live_object_ids.insert(data.ref.zs_vargs_stack.at(q).at(i));
 		}
 		for (auto id : script_object_autorelease_pool)
 			live_object_ids.insert(id);

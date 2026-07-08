@@ -147,6 +147,8 @@ namespace ZScript
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
 		
+		uint varg_depth, varg_push_depth;
+		
 		uint break_depth, continue_depth;
 		void inc_break(uint count = 1)
 		{

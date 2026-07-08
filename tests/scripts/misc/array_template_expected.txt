@@ -65,7 +65,7 @@ STORE_OBJECT D2 0.0009
 PUSHR D4
 LOAD D2 0.0009; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0274; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 3 0.0009
 PUSHR D2
@@ -96,7 +96,7 @@ STORE_OBJECT D2 0.0008
 PUSHR D4
 LOAD D2 0.0008; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0274; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 0 0
 STORE_OBJECT D2 0.0007
@@ -161,7 +161,7 @@ CALLFUNC 0.0244; UsrFunc[void append(int[][], int[])] Call
 PEEK D4
 LOAD D2 0.0009; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0273; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0274; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 3 0
 PUSHR D2
@@ -292,7 +292,8 @@ ALLOCATEMEMV D2 12 0; InlineFunc[void printf(char32[], ...untyped[])] Params Sta
 WRITEPODSTRING D2 "Arr[]: %ad\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0
@@ -305,7 +306,8 @@ ALLOCATEMEMV D2 15 0; InlineFunc[void printf(char32[], ...untyped[])] Params Sta
 WRITEPODSTRING D2 "Arr[][]: %aad\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 REF_REMOVE 0

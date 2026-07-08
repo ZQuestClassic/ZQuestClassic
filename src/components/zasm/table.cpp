@@ -197,6 +197,8 @@ static constexpr script_command command_list[]=
 	{ "ARCCOSR", ARCCOSR, 2, { REG_W, REG_R }, 0, 0 },
 	{ "GAMEEND", GAMEEND, 0, {}, 0, 0 },
 	{ "GAMEEXIT", GAMEEXIT, 0, {}, 0, 0 },
+	{ "PUSHVARGSTACK", PUSHVARGSTACK, 0, {}, 0, 0 },
+	{ "POPVARGSTACK", POPVARGSTACK, 0, {}, 0, 0 },
 	{ "DRAWINTR", DRAWINTR, 0, {}, 0, 0 },
 	{ "SETTRUE", SETTRUE, 1, { REG_W }, 0, CMPUSED },
 	{ "SETFALSE", SETFALSE, 1, { REG_W }, 0, CMPUSED },
@@ -896,6 +898,7 @@ static constexpr script_command command_list[]=
 	{ "CREATEWEAPDATA", CREATEWEAPDATA, 0, { }, 0, 0 },
 	{ "WEAPDATA_COPY", WEAPDATA_COPY, 1, { REG_R }, 0, 0 },
 	{ "WEAPDATA_APPLY", WEAPDATA_APPLY, 1, { REG_R }, 0, 0 },
+	{ "MARK_TYPE_VARG", MARK_TYPE_VARG, 1, { NUM }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

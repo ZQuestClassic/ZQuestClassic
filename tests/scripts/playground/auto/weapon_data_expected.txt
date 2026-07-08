@@ -38,7 +38,8 @@ ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Sta
 WRITEPODSTRING D2 "[Test] Running %s\n"
 PUSHR D2
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
@@ -48,7 +49,7 @@ LOAD D2 0.0001; if() #389 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 30 ==; Test 'if'
+GOTOCMP 31 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #389 Body Start
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
@@ -75,17 +76,17 @@ PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
 COMPAREV D2 0
-GOTOCMP 53 ==; Test 'while'
+GOTOCMP 54 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body
-GOTO 45; while() #2 End
-CALLFUNC 0.0672; UsrFunc[void End()] Call AND [Opt:NeverRet]
+GOTO 46; while() #2 End
+CALLFUNC 0.0673; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0016
 SETR D4 SP2
 PUSHR D4
 PUSHV 0; UsrFunc[void Init(int)] Params
-CALLFUNC 0.0650; UsrFunc[void Init(int)] Call
+CALLFUNC 0.0651; UsrFunc[void Init(int)] Call
 POP D4
 CREATEWEAPDATA; InlineFunc[weapondata weapondata::weapondata()] Body
 STORE_OBJECT D2 0.0015
@@ -97,7 +98,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 24 0
 WRITEPODSTRING D2 "new weapondata is valid"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 12
 PUSHR D2
@@ -180,7 +181,7 @@ PUSHV 12
 ALLOCATEMEMV D2 9 0
 WRITEPODSTRING D2 "HitWidth"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -190,7 +191,7 @@ PUSHV 13
 ALLOCATEMEMV D2 10 0
 WRITEPODSTRING D2 "HitHeight"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -200,7 +201,7 @@ PUSHV 14
 ALLOCATEMEMV D2 11 0
 WRITEPODSTRING D2 "HitZHeight"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -210,7 +211,7 @@ PUSHV 99
 ALLOCATEMEMV D2 8 0
 WRITEPODSTRING D2 "Timeout"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -220,7 +221,7 @@ PUSHV 4
 ALLOCATEMEMV D2 12 0
 WRITEPODSTRING D2 "PierceCount"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -230,7 +231,7 @@ PUSHV 3
 ALLOCATEMEMV D2 10 0
 WRITEPODSTRING D2 "LiftLevel"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -240,7 +241,7 @@ PUSHV 250
 ALLOCATEMEMV D2 5 0
 WRITEPODSTRING D2 "Step"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -250,7 +251,7 @@ PUSHV 80
 ALLOCATEMEMV D2 21 0
 WRITEPODSTRING D2 "ViewportDespawnRange"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 4242
 PUSHR D2
@@ -276,7 +277,7 @@ PUSHV 4242
 ALLOCATEMEMV D2 9 0
 WRITEPODSTRING D2 "InitD[2]"
 PUSHR D2; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -313,7 +314,7 @@ PUSHR WEAPDATA_WEAP_FLAGS
 ALLOCATEMEMV D2 28 0
 WRITEPODSTRING D2 "Flags[WFLAG_UPDATE_BURNSPR]"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -325,7 +326,7 @@ PUSHR WEAPDATA_WEAP_FLAGS
 ALLOCATEMEMV D2 29 0
 WRITEPODSTRING D2 "Flags[WFLAG_BREAKS_ON_SOLID]"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0015; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -340,7 +341,7 @@ PUSHR D2
 ALLOCATEMEMV D2 35 0
 WRITEPODSTRING D2 "Flags[WFLAG_PICKUP_ITEMS] is unset"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 CREATEWEAPDATA; InlineFunc[weapondata weapondata::weapondata()] Body
 STORE_OBJECT D2 0.0014
@@ -358,7 +359,7 @@ PUSHV 12
 ALLOCATEMEMV D2 16 0
 WRITEPODSTRING D2 "CopyTo HitWidth"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 PEEK D4
 LOAD D2 0.0014; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params Start
 PUSHR D2
@@ -371,7 +372,7 @@ PUSHV 4242
 ALLOCATEMEMV D2 16 0
 WRITEPODSTRING D2 "CopyTo InitD[2]"
 PUSHR D2; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Params End
-CALLFUNC 0.0706; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
+CALLFUNC 0.0708; UsrFunc[void AssertEqual(untyped, untyped, char32[])] Call
 PEEK D4
 LOAD D2 0.0014; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -383,7 +384,7 @@ PUSHR WEAPDATA_WEAP_FLAGS
 ALLOCATEMEMV D2 13 0
 WRITEPODSTRING D2 "CopyTo Flags"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 1
 PUSHR D2
@@ -403,7 +404,7 @@ PUSHV 12
 ALLOCATEMEMV D2 32 0
 WRITEPODSTRING D2 "CopyTo is independent of source"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 8; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params
 CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
@@ -423,7 +424,7 @@ PUSHV 3
 ALLOCATEMEMV D2 18 0
 WRITEPODSTRING D2 "ApplyTo LiftLevel"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 LOAD D2 0.0013; InlineFunc[void lweapon::Remove()] Params Start
 SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
@@ -445,7 +446,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 26 0
 WRITEPODSTRING D2 "itemdata WeaponData valid"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 55
 PUSHR D2
@@ -470,7 +471,7 @@ PUSHV 55
 ALLOCATEMEMV D2 49 0
 WRITEPODSTRING D2 "itemdata WeaponData write persists to the source"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 1; InlineFunc[combodata Game::LoadComboData(int)] Params
 LOADCOMBODATAR D2; InlineFunc[combodata Game::LoadComboData(int)] Body Start
@@ -487,7 +488,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "combodata MiscWeaponData valid"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0010; UsrFunc[void Assert(bool, char32[])] Params Start
 PUSHR D2
@@ -499,7 +500,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 31 0
 WRITEPODSTRING D2 "combodata LiftWeaponData valid"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 13; InlineFunc[itemdata Game::LoadItemData(int)] Params
 LOADITEMDATAR D2; InlineFunc[itemdata Game::LoadItemData(int)] Body Start
@@ -523,7 +524,7 @@ PUSHR D2
 ALLOCATEMEMV D2 35 0
 WRITEPODSTRING D2 "same source yields the same handle"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 7
 PUSHR D2
@@ -543,7 +544,7 @@ PUSHV 7
 ALLOCATEMEMV D2 46 0
 WRITEPODSTRING D2 "write through one handle is seen by the other"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 CREATEWEAPDATA; InlineFunc[weapondata weapondata::weapondata()] Body
 STORE_OBJECT D2 0.0006
@@ -560,7 +561,7 @@ PUSHR D2
 ALLOCATEMEMV D2 41 0
 WRITEPODSTRING D2 "each new weapondata is a distinct object"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 42; InlineFunc[npc screendata::CreateNPC(int)] Params
 CREATENPCR D2; InlineFunc[npc screendata::CreateNPC(int)] Body Start
@@ -579,7 +580,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 43 0
 WRITEPODSTRING D2 "npc WeaponData valid while the enemy lives"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 LOAD D2 0.0004; InlineFunc[void npc::Remove()] Params Start
 SETR REFNPC D2; InlineFunc[void npc::Remove()] Params End
@@ -596,7 +597,7 @@ PUSHR D2
 ALLOCATEMEMV D2 50 0
 WRITEPODSTRING D2 "npc WeaponData invalid after the enemy is removed"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[void AssertEqual(int, int, char32[])] Params Start
 PUSHR D2
@@ -606,7 +607,7 @@ PUSHV 0
 ALLOCATEMEMV D2 39 0
 WRITEPODSTRING D2 "field read on invalid handle returns 0"
 PUSHR D2; UsrFunc[void AssertEqual(int, int, char32[])] Params End
-CALLFUNC 0.0679; UsrFunc[void AssertEqual(int, int, char32[])] Call
+CALLFUNC 0.0680; UsrFunc[void AssertEqual(int, int, char32[])] Call
 POP D4
 SETV D2 42; InlineFunc[npc screendata::CreateNPC(int)] Params
 CREATENPCR D2; InlineFunc[npc screendata::CreateNPC(int)] Body Start
@@ -625,7 +626,7 @@ PUSHR WEAPDATA_VALID
 ALLOCATEMEMV D2 42 0
 WRITEPODSTRING D2 "npc WeaponData valid before screen change"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0733; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0736; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
 SETV D2 5; InlineFunc[dmapdata Game::LoadDMapData(int)] Params
 LOADDMAPDATAR D2; InlineFunc[dmapdata Game::LoadDMapData(int)] Body Start
@@ -663,9 +664,9 @@ PUSHR D2
 ALLOCATEMEMV D2 43 0
 WRITEPODSTRING D2 "npc WeaponData invalid after screen change"
 PUSHR D2; UsrFunc[void Assert(bool, char32[])] Params End
-CALLFUNC 0.0746; UsrFunc[void Assert(bool, char32[])] Call
+CALLFUNC 0.0749; UsrFunc[void Assert(bool, char32[])] Call
 POP D4
-CALLFUNC 0.0672; UsrFunc[void End()] Call AND [Opt:NeverRet]
+CALLFUNC 0.0673; UsrFunc[void End()] Call AND [Opt:NeverRet]
 REF_REMOVE 0.0008
 REF_REMOVE 0.0007
 REF_REMOVE 0.0006
@@ -688,7 +689,7 @@ LOAD D2 0; if() #388 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 669 ==; Test 'if'
+GOTOCMP 670 ==; Test 'if'
 PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #388 Body Start
 LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
@@ -714,7 +715,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 702 ==; Test 'if'
+GOTOCMP 704 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #392 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -723,7 +724,8 @@ PUSHVARGR D2
 LOAD D2 0.0002
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #392 Body End
@@ -741,7 +743,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 729 ==; Test 'if'
+GOTOCMP 732 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #393 Body Start
 WRITEPODSTRING D2 "[Test] failed assertion: expected %d but got %d. %s\n"
 PUSHR D2
@@ -750,7 +752,8 @@ PUSHVARGR D2
 LOAD D2 0.0002
 PUSHVARGR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #393 Body End
@@ -763,10 +766,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #390 Test
 COMPAREV D2 0
-GOTOCMP 742 !=; Test 'unless'
+GOTOCMP 745 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #390 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0759; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #390 Body End
+CALLFUNC 0.0762; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #390 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -776,10 +779,10 @@ MARK_TYPE_STACK 0.0009 0
 REF_INC 0
 LOAD D2 0.0001; unless() #391 Test
 COMPAREV D2 0
-GOTOCMP 755 !=; Test 'unless'
+GOTOCMP 758 !=; Test 'unless'
 LOAD D2 0; UsrFunc[void Fail(char32[])] Params Start AND unless() #391 Body Start
 PUSHR D2; UsrFunc[void Fail(char32[])] Params End
-CALLFUNC 0.0759; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
+CALLFUNC 0.0762; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND unless() #391 Body End
 NOP
 REF_REMOVE 0
 POPARGS D5 0.0002
@@ -793,15 +796,16 @@ STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 777 ==; Test 'if'
+GOTOCMP 781 ==; Test 'if'
 ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Body Start
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 PUSHR D2
 LOAD D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
 POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
-GOTO 782; if() #109 Body End
+GOTO 786; if() #109 Body End
 ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #109 Else Start
 WRITEPODSTRING D2 "[Test] failed test\n"
 PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
