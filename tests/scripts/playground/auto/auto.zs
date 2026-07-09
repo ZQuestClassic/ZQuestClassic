@@ -20,6 +20,7 @@
 #include "auto/ffc_script_runner.zs"
 #include "auto/garbage_collection.zs"
 #include "auto/garbage_collection_continue.zs"
+#include "auto/garbage_collection_save_load.zs"
 #include "auto/global_objects.zs"
 #include "auto/init_scripts.zs"
 #include "auto/instant_reload_on_death.zs"
