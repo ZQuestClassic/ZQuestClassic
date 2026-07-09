@@ -1,4 +1,27 @@
+#include "std.zh"
 #include "auto/test_runner.zs"
+
+int widget_count = 0;
+
+class Widget
+{
+	Widget() { widget_count++; }
+	~Widget() { widget_count--; }
+}
+
+// A user-defined varargs function whose element type is an object. The vargs
+// are materialized into a script array via do_varg_makearray.
+Widget[] collect(...Widget[] items)
+{
+	return items;
+}
+
+// Same, but the element type is untyped: the materialized array holds a mix of
+// objects and plain ints, and must retain only the object elements.
+untyped[] collectUntyped(...untyped[] items)
+{
+	return items;
+}
 
 int sum(...int[] args)
 {
@@ -80,8 +103,63 @@ generic script varargs
 		Test::AssertEqual(Max(5, 1, Min(100, 99), 3), 99);
 		
 		nest();
+		objectVargs();
+		untypedVargs();
 
 		Test::End();
+	}
+	// Object-typed varargs are materialized into a script array. That array must
+	// retain its object elements, so they survive after every other reference
+	// (the local variable and the autorelease pool) is gone.
+	void objectVargs()
+	{
+		Waitframe();
+
+		{
+			Widget[] arr;
+			{
+				Widget w = new Widget();
+				arr = collect(w);
+				Test::AssertEqual(widget_count, 1, "alive right after collect");
+				Test::AssertEqual(SizeOfArray(arr), 1, "array size");
+			}
+			// `w` is out of scope now. Drain the autorelease pool.
+			Waitframe();
+			// Only `arr` should be keeping the element alive.
+			Test::AssertEqual(widget_count, 1, "array must retain its element");
+			Test::AssertEqual(RefCount(arr[0]), 1L, "element retained solely by array");
+		}
+
+		// `arr` is gone; the element should now be freed exactly once.
+		Waitframe();
+		Test::AssertEqual(widget_count, 0, "cleaned up with no double-free");
+	}
+	// Untyped varargs materialize into an `untyped[]` array holding a mix of
+	// objects and plain ints. The array must retain only its object elements
+	// (tracked per-position), not the ints.
+	void untypedVargs()
+	{
+		Waitframe();
+
+		{
+			untyped[] arr;
+			{
+				Widget w = new Widget();
+				arr = collectUntyped(w, 42);
+				Test::AssertEqual(widget_count, 1, "alive right after collectUntyped");
+				Test::AssertEqual(SizeOfArray(arr), 2, "array size");
+			}
+			// `w` is out of scope now. Drain the autorelease pool.
+			Waitframe();
+			// Only `arr` should be keeping the object element alive.
+			Test::AssertEqual(widget_count, 1, "untyped array must retain its object element");
+			Test::AssertEqual(RefCount(arr[0]), 1L, "object element retained solely by array");
+			Test::AssertEqual(arr[1], 42, "int element preserved");
+		}
+
+		// `arr` is gone; the element should now be freed exactly once.
+		Waitframe();
+		Test::AssertEqual(widget_count, 0, "cleaned up with no double-free");
 	}
 	void nest()
 	{

@@ -2127,11 +2127,19 @@ vector<int> clear_vargs_back()
 	// Return a copy of the vargs vector
 	vector<int> vargs = ri->zs_vargs_stack.back();
 	
-	// Add any objects in the vargs to the autorelease pool, in case they are
-	// returned from the function (ex. `Choose(obj1, obj2)`)
-	// Decrement the refcount if it went down
-	//   if adding to autorelease, count goes down and up by 1 for net 0
-	//   if already in autorelease, count goes down by 1 for removal from vargs
+	// Release the vargs' object references, but keep every object alive via the
+	// autorelease pool, in case it is used after this (ex. returned by
+	// `Choose(obj1, obj2)`, or retained by the array `do_varg_makearray` builds).
+	//
+	// Each marked position holds one counted reference (see MARK_TYPE_VARG), and
+	// membership in the autorelease pool also corresponds to one counted reference.
+	// So per position:
+	//   if not in the pool, transfer the varg's reference to the pool (net 0)
+	//   if already in the pool, drop the varg's reference outright
+	// Note the ref_dec here can never delete the object, even if callers only
+	// retain it later (as do_varg_makearray does): it only runs when the object is
+	// in the pool, and the pool's reference - a GC root, only drained after
+	// run_script returns - outlives this function.
 	for (auto pos : ri->zs_vargs_pos_is_object.back())
 	{
 		uint32_t id = ri->zs_vargs_stack.back().at(pos);
@@ -16182,6 +16190,9 @@ void FFScript::do_varg_choose()
 }
 void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_object_type object_type)
 {
+	// Which varg positions hold objects, captured before clear_vargs_back()
+	// wipes it. Needed for untyped arrays, where only some elements are objects.
+	auto obj_positions = ri->zs_vargs_pos_is_object.back();
 	auto vargs = clear_vargs_back();
 
 	size_t size = vargs.size();
@@ -16200,6 +16211,28 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID, script_obj
 
 		for(size_t j = 0; j < size; ++j)
 			a[j] = vargs[j]; //initialize array
+
+		// The array must retain its object elements, mirroring the ref_inc done
+		// by the normal array-write paths (ArrayManager::push, etc.).
+		if (a.HoldsObjects())
+		{
+			// Typed object array: every element is an object.
+			for (size_t j = 0; j < size; ++j)
+				script_object_ref_inc(vargs[j]);
+		}
+		else if (a.MaybeHoldsObjects())
+		{
+			// Untyped array: only some positions hold objects.
+			for (int pos : obj_positions)
+			{
+				if (pos < 0 || (size_t)pos >= size)
+					continue;
+				uint32_t id = vargs[pos];
+				script_object_ref_inc(id);
+				if (auto obj = get_script_object(id))
+					array->set_type_in_untyped_array(pos, obj->type);
+			}
+		}
 
 		SET_D(rEXP1, array->id);
 
