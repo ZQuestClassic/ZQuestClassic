@@ -3216,6 +3216,20 @@ void do_resize_array()
 
 void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 {
+	// Since 3.0, arrays are script objects: ownership adds a reference that is
+	// released when the owning script ends, like every other Own() function.
+	if (ZScriptVersion::gc_arrays())
+	{
+		if (auto* array = checkArray(arrindx))
+		{
+			if (array->internal_id.has_value())
+				Z_scripterrlog_force_trace("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
+			else
+				own_script_object(array, scriptType, UID);
+		}
+		return;
+	}
+
 	ArrayManager am(arrindx);
 	
 	if(am.internal())
@@ -3242,6 +3256,19 @@ void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 
 void do_own_array(int arrindx, sprite* spr)
 {
+	// See the note in the ScriptType overload above.
+	if (ZScriptVersion::gc_arrays())
+	{
+		if (auto* array = checkArray(arrindx))
+		{
+			if (array->internal_id.has_value())
+				Z_scripterrlog_force_trace("Cannot 'OwnArray()' an internal array '%d'\n", arrindx);
+			else
+				own_script_object(array, spr);
+		}
+		return;
+	}
+
 	ArrayManager am(arrindx);
 	
 	if(am.internal())

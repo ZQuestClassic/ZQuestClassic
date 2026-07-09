@@ -1276,6 +1276,16 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - OwnArray retains arrays === \n", ++tests);
+		{
+			// OwnArray used to silently do nothing for GC-managed arrays, so an array
+			// kept alive only by script ownership was deleted.
+			makeOwnedArray();
+			yield(); // Drain the autorelease pool; only the ownership reference remains.
+			check("RefCount(ownedArrayPtr)", RefCount(ownedArrayPtr), 1L);
+			check("SizeOfArray(ownedArrayPtr)", SizeOfArray(<int[]>ownedArrayPtr), 3);
+		}
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
@@ -1432,6 +1442,13 @@ generic script garbage_collection
 		else return NULL;
 	}
 
+	void makeOwnedArray()
+	{
+		int arr[] = {1, 2, 3};
+		OwnArray(arr);
+		ownedArrayPtr = <int>arr;
+	}
+
 	void storeVarargs(...int[] varargs)
 	{
 		check("RefCount(varargs)", RefCount(varargs), 1L);
@@ -1467,3 +1484,4 @@ generic script garbage_collection
 }
 
 int[] storedVarargs = NULL;
+int ownedArrayPtr;
