@@ -878,6 +878,24 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		}
 		host.param_template = host.parameters; //copy the pre-initialized params
 	}
+
+	// Member functions of a templated class implicitly take the class's template
+	// types. They are bound from the receiver's type at each call site, rather
+	// than inferred from arguments (see lookupClassFuncs).
+	if (ClassScope* c_scope = scope->getClass())
+	{
+		UserClass& containing_class = c_scope->user_class;
+		if (!containing_class.template_types.empty())
+		{
+			if (templated)
+			{
+				handleError(CompileError::BadInternal(&host, "Functions of a template class cannot have their own template parameters"));
+				return;
+			}
+			if (host.template_types.empty())
+				host.template_types = containing_class.template_types;
+		}
+	}
 	
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
@@ -1050,6 +1068,23 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		}
 	}
 	
+	// Register class template parameters, if registration didn't already.
+	// (See the matching block in RegistrationVisitor::caseClass.)
+	if (!host.templates.empty() && user_class.template_types.empty())
+	{
+		if (user_class.internalRefVarString.empty())
+		{
+			handleError(CompileError::BadInternal(&host, "Class template parameters are only supported for internal classes"));
+			return;
+		}
+
+		for (size_t q = 0; q < host.templates.size(); ++q)
+		{
+			string const& templ_name = host.templates[q]->getValue();
+			user_class.template_types.emplace_back(DataTypeTemplate::create(templ_name));
+			user_class.getScope().addDataType(templ_name, user_class.template_types.back().get(), nullptr);
+		}
+	}
 
 	// Recurse on user_class elements with its scope.
 	{
@@ -1494,6 +1529,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		return; //already resolved
 
 	UserClass* user_class = nullptr;
+	DataType const* receiver_type = nullptr;
 	// Gather parameter types.
 	vector<DataType const*> parameterTypes;
 	if (arrow)
@@ -1501,7 +1537,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		DataType const* arrtype = arrow->left->getReadType(scope, this);
 		assert(arrtype);
 		if((user_class = arrtype->getUsrClass()))
-			;
+			receiver_type = arrtype;
 		else parameterTypes.push_back(arrtype);
 	}
 	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
@@ -1520,7 +1556,24 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::NoClass(&host, identifier->asString()));
 				return;
 			}
-			functions = lookupConstructors(*user_class, parameterTypes, scope);
+			// An explicit template argument, ex `new stack<int>()`.
+			if (host.ctor_type_arg)
+			{
+				if (user_class->template_types.empty())
+				{
+					handleError(CompileError::BadInternal(&host, fmt::format("Class \"{}\" is not a template class", identifier->asString())));
+					return;
+				}
+				DataType const& arg = host.ctor_type_arg->resolve(*scope, this);
+				if (breakRecursion(*host.ctor_type_arg)) return;
+				if (!arg.isResolved())
+				{
+					handleError(CompileError::UnresolvedType(&host, arg.getName()));
+					return;
+				}
+				receiver_type = user_class->getTemplateInstance(arg.isConstant() ? arg.getMutType() : &arg);
+			}
+			functions = lookupConstructors(*user_class, parameterTypes, scope, receiver_type);
 		}
 		else
 		{
@@ -1538,7 +1591,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope, false, receiver_type);
 	}
 	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
@@ -1772,6 +1825,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	
 	host.binding = bestFunctions.front();
+	// `new stack<int>()` yields the instantiated type, not the base class type.
+	if (host.isConstructor() && host.ctor_type_arg && receiver_type)
+		host.binding->returnType = receiver_type;
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));

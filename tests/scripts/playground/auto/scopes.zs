@@ -296,6 +296,12 @@ void DebugInternalObjects()
 	Test::Assert(n);
 	const randgen rng = new randgen();
 	untyped[] arr_rng = {rng};
+	stack<int> stk_i = new stack<int>();
+	stk_i->PushBack(42);
+	const stack<bitmap> stk_b = new stack<bitmap>();
+	stk_b->PushBack(b);
+	stack stk_u = new stack();
+	stk_u->PushBack(1337);
 	Test::Assert(b); // end of DebugInternalObjects
 }
 

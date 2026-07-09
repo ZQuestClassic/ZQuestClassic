@@ -175,7 +175,8 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 }
 
 %glr-parser
-%expect 6
+%expect 7
+%expect-rr 1
 %define parse.error verbose
 %start Init
 %parse-param {std::shared_ptr<ZScript::ASTFile>& root}
@@ -607,6 +608,15 @@ DataType_Base :
 			datatype->doc_comment = std::move(comment);
 			$$ = datatype;
 			}
+	//Class template types (ex: `stack<int>`)
+	| Identifier_List LT DataType GT {
+			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+			ASTDataType* type_arg = (ASTDataType*)$3;
+			std::string comment = std::move(iden->doc_comment);
+			ASTDataType* datatype = new ASTDataType(new DataTypeUnresolved(iden, type_arg), @$);
+			datatype->doc_comment = std::move(comment);
+			$$ = datatype;
+			}
 	;
 
 ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
@@ -899,6 +909,16 @@ Class :
 		ASTClass* user_class = (ASTClass*)$3;
 		user_class->location = name->location;
 		user_class->identifier = name;
+		user_class->doc_comment = std::move(name->doc_comment);
+		if (!first_identifier_for_line) first_identifier_for_line = user_class;
+		$$ = user_class;}
+	| ZCLASS Class_Ident LT IDENTIFIER GT Class_Block {
+		ASTString* name = (ASTString*)$2;
+		ASTString* templ_name = (ASTString*)$4;
+		ASTClass* user_class = (ASTClass*)$6;
+		user_class->location = name->location;
+		user_class->identifier = name;
+		user_class->templates.push_back(templ_name);
 		user_class->doc_comment = std::move(name->doc_comment);
 		if (!first_identifier_for_line) first_identifier_for_line = user_class;
 		$$ = user_class;}
@@ -1402,12 +1422,15 @@ Block_Statement :
 
 Statement :
 	// Declarations
-	Data SEMICOLON {$$ = $1;}
+	// The %dprec prefers the declaration parse when a statement is ambiguous with
+	// an expression, which happens for class template types (ex: `stack<TPerson> sp = ...`
+	// also parses as nested comparisons).
+	Data SEMICOLON %dprec 2 {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
-	| Statement_Expression SEMICOLON {$$ = $1;}
+	| Statement_Expression SEMICOLON %dprec 1 {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
@@ -1435,11 +1458,11 @@ Statement :
 
 Statement_NoSemicolon:
 	// Declarations
-	Data {$$ = $1;}
+	Data %dprec 2 {$$ = $1;}
 	| DataTypeDef {$$ = $1;}
 	| Annotated_Enum {$$ = $1;}
 	// Normal Statements
-	| Statement_Expression {$$ = $1;}
+	| Statement_Expression %dprec 1 {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
@@ -2102,6 +2125,22 @@ Function_Call :
 	| NEW Identifier_List LPAREN Function_Call_Parameters RPAREN {
 		ASTExprCall* call = (ASTExprCall*)$4;
 		call->setConstructor(true);
+		ASTExpr* left = (ASTExpr*)$2;
+		call->left = left;
+		call->location = @$;
+		$$ = call;}
+	| NEW Identifier_List LT DataType GT LPAREN RPAREN {
+		ASTExprCall* call = new ASTExprCall(@$);
+		call->setConstructor(true);
+		call->ctor_type_arg = (ASTDataType*)$4;
+		ASTExpr* left = (ASTExpr*)$2;
+		call->left = left;
+		call->location = @$;
+		$$ = call;}
+	| NEW Identifier_List LT DataType GT LPAREN Function_Call_Parameters RPAREN {
+		ASTExprCall* call = (ASTExprCall*)$7;
+		call->setConstructor(true);
+		call->ctor_type_arg = (ASTDataType*)$4;
 		ASTExpr* left = (ASTExpr*)$2;
 		call->left = left;
 		call->location = @$;

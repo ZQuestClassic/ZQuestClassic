@@ -868,6 +868,10 @@ namespace ZScript
 		owning_ptr<ASTFuncDecl> destructor;
 		
 		owning_ptr<ASTDataType> type;
+
+		// Class template parameters (ex: `class stack<T>`). The template type is
+		// implicitly `untyped` when unbound (so plain `stack` is `stack<untyped>`).
+		owning_vector<ASTString> templates;
 		
 		UserClass* user_class;
 	};
@@ -1481,6 +1485,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
 		owning_vector<ASTDataDecl> inlineParams;
+		// The template type argument for constructor calls (ex: `new stack<int>()`).
+		owning_ptr<ASTDataType> ctor_type_arg;
 		bool _constructor;
 		
 		Function* binding;

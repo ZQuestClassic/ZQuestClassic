@@ -520,6 +520,16 @@ static TestTask run_scopes_replay_coroutine()
 
 	verify_variable(debugger, "b", "bitmap");
 
+	// Typed stacks (`stack<int>` etc.) record as the plain `stack` class in the
+	// debug data, and evaluate like any stack.
+	verify_variable(debugger, "stk_i", "stack");
+	verify_variable(debugger, "stk_b", "stack");
+	verify_variable(debugger, "stk_u", "stack");
+	verify_expression(debugger, "stk_i", "stack {Full = false, Size = 1L}");
+	verify_expression(debugger, "stk_i->Size", "1L");
+	verify_expression(debugger, "stk_b->Full", "false");
+	verify_expression(debugger, "RefCount(stk_i)", "1L");
+
 	verify_expression(debugger, "Enum_B", "(Enum) Enum_B");
 	verify_expression(debugger, "MIDI_OVERWORLD", "-2.0000"); // anonymous enums are same as constants
 	verify_expression(debugger, "BITDX_TRANS", "(BlitModeBitflags) BITDX_TRANS");

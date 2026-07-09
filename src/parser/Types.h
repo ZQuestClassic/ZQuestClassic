@@ -24,6 +24,7 @@ namespace ZScript
 	class CompileErrorHandler;
 	//AST
 	class ASTExprIdentifier;
+	class ASTDataType;
 
 	typedef int32_t DataTypeId;
 
@@ -310,7 +311,7 @@ namespace ZScript
 	class DataTypeUnresolved : public DataType
 	{
 	public:
-		DataTypeUnresolved(ASTExprIdentifier* iden);
+		DataTypeUnresolved(ASTExprIdentifier* iden, ASTDataType* type_arg = nullptr);
 		~DataTypeUnresolved();
 		DataTypeUnresolved* clone() const;
 		int unique_type_id() const { return 1; }
@@ -326,6 +327,8 @@ namespace ZScript
 
 	private:
 		ASTExprIdentifier* iden;
+		// The template type argument, for class template types (ex: `stack<int>`). Owned.
+		ASTDataType* type_arg;
 		std::string name;
 
 		int32_t selfCompare(DataType const& rhs) const;
@@ -432,6 +435,9 @@ namespace ZScript
 		virtual script_object_type getScriptObjectTypeId() const {
 			if (isUntyped()) return script_object_type::untyped;
 
+			// Template instantiations (ex: `stack<int>`) act as their base type.
+			if (base_template) return base_template->getScriptObjectTypeId();
+
 			std::string name = getName();
 			if (name == "bitmap") return script_object_type::bitmap;
 			if (name == "directory") return script_object_type::dir;
@@ -453,12 +459,23 @@ namespace ZScript
 
 		void setSource(AST* source_) {source = source_;}
 		const AST* getSource() const {return source;}
+
+		// For class template instantiations (ex: `stack<int>`).
+		void setTemplateInstance(DataTypeCustom* base, DataType const* bound)
+		{
+			base_template = base;
+			bound_type = bound;
+		}
+		DataTypeCustom* getBaseTemplate() const {return base_template;}
+		DataType const* getBoundType() const {return bound_type;}
 		
 	protected:
 		int32_t id;
 		std::string name;
 		UserClass* user_class;
 		AST* source;
+		DataTypeCustom* base_template = nullptr;
+		DataType const* bound_type = nullptr;
 
 		int32_t selfCompare(DataType const& other) const;
 	};

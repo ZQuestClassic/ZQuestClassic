@@ -200,6 +200,15 @@ namespace ZScript
 		std::string internalRefVarString;
 		int internalRefVar;
 		std::vector<int32_t> members;
+
+		// Class template support (ex: `class stack<T>`). The template type binds
+		// implicitly to `untyped` when the receiver's type carries no argument, so
+		// plain `stack` means `stack<untyped>`.
+		std::vector<std::shared_ptr<DataTypeTemplate>> template_types;
+		// Returns the canonical type for this class bound with the given template
+		// argument, creating it if needed. An `untyped` argument yields the base
+		// class type itself. Returns null if this class is not a template.
+		DataTypeCustom* getTemplateInstance(DataType const* arg);
 	protected:
 		UserClass(Program& program, ASTClass& node, UserClass* base_class);
 		DataType* classType;
@@ -208,6 +217,20 @@ namespace ZScript
 		ASTClass& node;
 		ClassScope* scope;
 		UserClass* baseClass;
+		// Compares types by value: the same written type (ex `int`) is not always
+		// the same DataType instance.
+		struct DataTypeValueLess
+		{
+			bool operator()(DataType const* a, DataType const* b) const
+			{
+				return a->compare(*b) < 0;
+			}
+		};
+		std::map<DataType const*, DataTypeCustom*, DataTypeValueLess> templ_instantiations;
+		// Clones of the bound argument types, owned here: the types passed to
+		// getTemplateInstance may be owned by AST nodes that get freed during
+		// resolution.
+		std::vector<std::unique_ptr<DataType const>> owned_bound_types;
 	};
 
 	UserClass* createClass(Program&, Scope&, ASTClass&, UserClass*, CompileErrorHandler* = NULL);

@@ -715,16 +715,49 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 	return nullptr;
 }
 
-vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes, Scope const* scope)
+// For a templated class (ex: `class stack<T>`), returns the type its member
+// function signatures should bind T to: the receiver type's bound template
+// argument, or `untyped` (so plain `stack` behaves as `stack<untyped>`).
+static DataType const* classTemplateBoundType(DataType const* receiver_type)
+{
+	if (receiver_type)
+	{
+		DataType const* mut = receiver_type->isConstant() ? receiver_type->getMutType() : receiver_type;
+		if (auto custom = dynamic_cast<DataTypeCustom const*>(mut))
+			if (auto bound = custom->getBoundType())
+				return bound;
+	}
+	return &DataType::UNTYPED;
+}
+
+// Instantiates the signatures of a templated class's member functions, binding the
+// class's template types from the receiver's type (see classTemplateBoundType).
+static void applyClassTemplates(UserClass const& user_class, vector<Function*>& functions, DataType const* receiver_type)
+{
+	if (user_class.template_types.empty())
+		return;
+
+	DataType const* bound = classTemplateBoundType(receiver_type);
+	vector<DataType const*> bound_ts = {bound};
+	for (auto& function : functions)
+	{
+		if (function->node && !function->node->template_types.empty() && function->node->templates.empty())
+			function = function->apply_templ_func(bound_ts);
+	}
+}
+
+vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes, Scope const* scope, DataType const* receiver_type)
 {
 	vector<Function*> functions = user_class.getScope().getConstructors();
+	applyClassTemplates(user_class, functions, receiver_type);
 	trimBadFunctions(functions, parameterTypes, scope, false);
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams, DataType const* receiver_type)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
+	applyClassTemplates(user_class, functions, receiver_type);
 	if (!ignoreParams)
 		trimBadFunctions(functions, parameterTypes, scope, false);
 	for (vector<Function*>::iterator it = functions.begin();

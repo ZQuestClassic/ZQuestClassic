@@ -33,6 +33,7 @@
 #include "auto/script_drawing.zs"
 #include "auto/sprites.zs"
 #include "auto/stack_limit.zs"
+#include "auto/stack_typed.zs"
 #include "auto/std_unit.zs"
 #include "auto/subscreen_owned_clear.zs"
 #include "auto/tango.zs"

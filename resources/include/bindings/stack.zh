@@ -1,5 +1,5 @@
 // @zasm_ref REFSTACK
-class stack {
+class stack<T> {
 	// @zasm
 	//   LOADSTACK
 	internal stack();
@@ -51,7 +51,7 @@ class stack {
 	//   POP D2
 	//   POP REFSTACK
 	//   STACKPUSHBACK D2 0 ; Set to script object type in compiler
-	internal void PushBack(untyped val);
+	internal void PushBack(T val);
 
 	// Pushes the given value to the back or front of the stack.
 	//
@@ -61,7 +61,7 @@ class stack {
 	//   POP D2
 	//   POP REFSTACK
 	//   STACKPUSHFRONT D2 0 ; Set to script object type in compiler
-	internal void PushFront(untyped val);
+	internal void PushFront(T val);
 
 	// Removes the back or front element of the stack, and returns it.
 	//
@@ -70,7 +70,7 @@ class stack {
 	// @zasm
 	//   POP REFSTACK
 	//   STACKPOPBACK D2
-	internal untyped PopBack();
+	internal T PopBack();
 
 	// Removes the back or front element of the stack, and returns it.
 	//
@@ -79,7 +79,7 @@ class stack {
 	// @zasm
 	//   POP REFSTACK
 	//   STACKPOPFRONT D2
-	internal untyped PopFront();
+	internal T PopFront();
 
 	// Returns the back or front element of the stack, without removing it.
 	//
@@ -88,7 +88,7 @@ class stack {
 	// @zasm
 	//   POP REFSTACK
 	//   STACKPEEKBACK D2
-	internal untyped PeekBack();
+	internal T PeekBack();
 
 	// Returns the back or front element of the stack, without removing it.
 	//
@@ -97,7 +97,7 @@ class stack {
 	// @zasm
 	//   POP REFSTACK
 	//   STACKPEEKFRONT D2
-	internal untyped PeekFront();
+	internal T PeekFront();
 
 	// Returns the element at the index 'ind', which is a LONG value. This means
 	// that `0L` is the first element, `1L` is the second, etc.
@@ -106,7 +106,7 @@ class stack {
 	//   POP D2
 	//   POP REFSTACK
 	//   STACKGET D2
-	internal untyped Get(long ind);
+	internal T Get(long ind);
 
 	// Overwrites the element at the index 'ind' (which is a LONG value) with
 	// 'val'. This means that `0L` is the first element, `1L` is the second,
@@ -117,5 +117,5 @@ class stack {
 	//   POP D2
 	//   POP REFSTACK
 	//   STACKSET D2 D3 0 ; Set to script object type in compiler
-	internal void Set(long ind, untyped val);
+	internal void Set(long ind, T val);
 }

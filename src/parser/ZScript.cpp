@@ -171,6 +171,38 @@ UserClass::UserClass(Program& program, ASTClass& node, UserClass* base_class)
 UserClass::~UserClass()
 {}
 
+DataTypeCustom* UserClass::getTemplateInstance(DataType const* arg)
+{
+	if (template_types.empty() || !arg)
+		return nullptr;
+
+	if (arg->isConstant())
+		arg = arg->getMutType();
+
+	// An `untyped` argument is just the base class type (so plain `stack` and
+	// `stack<untyped>` are the same type).
+	if (*arg == DataType::UNTYPED)
+		return static_cast<DataTypeCustom*>(classType);
+
+	if (auto it = templ_instantiations.find(arg); it != templ_instantiations.end())
+		return it->second;
+
+	// Keep our own copy of the argument type: `arg` may be owned by an AST node
+	// that is freed during type resolution.
+	DataType const* bound = arg->clone();
+	owned_bound_types.emplace_back(bound);
+
+	std::string name = fmt::format("{}<{}>", getName(), bound->getName());
+	DataTypeCustomConst* constType = new DataTypeCustomConst("const " + name, this);
+	DataTypeCustom* type = new DataTypeCustom(name, constType, this, constType->getCustomId());
+	DataType::addCustom(type);
+	auto base = static_cast<DataTypeCustom*>(classType);
+	type->setTemplateInstance(base, bound);
+	constType->setTemplateInstance(base, bound);
+	templ_instantiations[bound] = type;
+	return type;
+}
+
 UserClass* ZScript::createClass(
 		Program& program, Scope& parentScope, ASTClass& node, UserClass* baseClass,
 		CompileErrorHandler* errorHandler)

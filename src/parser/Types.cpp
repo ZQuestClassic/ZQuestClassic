@@ -206,8 +206,8 @@ int32_t ZScript::getArrayDepth(DataType const& type)
 ////////////////////////////////////////////////////////////////
 // DataTypeUnresolved
 
-DataTypeUnresolved::DataTypeUnresolved(ASTExprIdentifier* iden)
-	: DataType(NULL), iden(iden)
+DataTypeUnresolved::DataTypeUnresolved(ASTExprIdentifier* iden, ASTDataType* type_arg)
+	: DataType(NULL), iden(iden), type_arg(type_arg)
 {
 	name = iden->components.back();
 }
@@ -215,20 +215,43 @@ DataTypeUnresolved::DataTypeUnresolved(ASTExprIdentifier* iden)
 DataTypeUnresolved::~DataTypeUnresolved()
 {
 	delete iden;
+	delete type_arg;
 }
 
 DataTypeUnresolved* DataTypeUnresolved::clone() const
 {
 	DataTypeUnresolved* copy = new DataTypeUnresolved(*this);
 	copy->iden = iden->clone();
+	if (type_arg)
+		copy->type_arg = type_arg->clone();
 	return copy;
 }
 
 DataType const* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
-	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
-		return type;
-	return this;
+	DataType const* type = lookupDataType(scope, *iden, errorHandler);
+	if (!type)
+		return this;
+
+	if (type_arg)
+	{
+		// A class template type, ex `stack<int>`.
+		auto custom = dynamic_cast<DataTypeCustom const*>(type->getMutType());
+		UserClass* user_class = custom ? custom->getUsrClass() : nullptr;
+		if (!user_class || user_class->template_types.empty())
+			return this;
+
+		DataType const& arg = type_arg->resolve(scope, errorHandler);
+		if (!arg.isResolved())
+			return this;
+
+		DataType const* instance = user_class->getTemplateInstance(&arg);
+		if (!instance)
+			return this;
+		return instance;
+	}
+
+	return type;
 }
 DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
