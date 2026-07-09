@@ -469,6 +469,26 @@ bool ArrayManager::holds_object(int indx)
 	return false;
 }
 
+// Returns the object type of the element at the given index, or none if that element
+// does not hold an object.
+script_object_type ArrayManager::get_object_type(int indx) const
+{
+	if (_invalid)
+		return script_object_type::none;
+
+	if (aptr && aptr->HoldsObjects())
+		return aptr->ObjectType();
+
+	if (aptr && script_array_object && aptr->MaybeHoldsObjects())
+		return script_array_object->get_type_in_untyped_array(indx);
+
+	// Internal untyped arrays (ex. npc->Misc).
+	if (!aptr && script_array_object && script_array_object->internal_id.has_value() && script_array_object->arr.MaybeHoldsObjects())
+		return script_array_object->get_type_in_untyped_array(indx);
+
+	return script_object_type::none;
+}
+
 bool ArrayManager::can_resize()
 {
 	if(_invalid || !aptr)

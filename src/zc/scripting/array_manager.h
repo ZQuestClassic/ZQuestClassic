@@ -24,6 +24,7 @@ public:
 	bool resize(size_t newsize);
 	bool resize_min(size_t minsz);
 	bool holds_object(int indx);
+	script_object_type get_object_type(int indx) const;
 	bool can_resize();
 	bool push(int32_t val, int indx = -1, script_object_type type = script_object_type::none);
 	int32_t pop(int indx = -1);

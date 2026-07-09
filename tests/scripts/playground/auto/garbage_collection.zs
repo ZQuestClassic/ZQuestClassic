@@ -1203,6 +1203,34 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - ArrayCopy retains objects === \n", ++tests);
+		{
+			Person a = new Person();
+			untyped src[2];
+			src[0] = a;
+			src[1] = 42;
+			untyped dst[2];
+			// ArrayCopy used to copy object elements into untyped arrays without
+			// retaining them (or marking the elements as objects).
+			ArrayCopy(dst, src);
+			check("RefCount(a) (1)", RefCount(a), 3L);
+			check("dst[1]", <int>dst[1], 42);
+			a = NULL;
+			src[0] = 0;
+			check("count (1)", count, 1);
+			GC();
+			check("count (2)", count, 1);
+			check("RefCount(dst[0])", RefCount(dst[0]), 1L);
+			dst[0] = 0;
+			check("count (3)", count, 0);
+
+			// Copying from a typed object array into an untyped array also retains.
+			Person arr[] = {new Person()};
+			ArrayCopy(dst, arr);
+			check("RefCount(arr[0])", RefCount(arr[0]), 2L);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is

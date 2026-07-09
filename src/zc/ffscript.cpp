@@ -2026,7 +2026,9 @@ void ArrayH::copyValues(const int32_t ptr, const int32_t ptr2)
 	int sz = std::min(am1.size(),am2.size());
 	for (int i = 0; i < sz; i++)
 	{
-		am1.set(i,am2.get(i));
+		// Pass along the source element's object type, so a destination untyped
+		// array retains copied objects.
+		am1.set(i,am2.get(i),am2.get_object_type(i));
 	}
 }
 //Get element from array
