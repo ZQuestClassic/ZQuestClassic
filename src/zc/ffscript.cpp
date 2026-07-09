@@ -2281,6 +2281,14 @@ void FFScript::deallocateAllScriptOwnedCont()
 	{
 		for (auto& [key, data] : scriptEngineDatas)
 		{
+			// Generic scripts may survive the continue with their engine data intact
+			// (see clear_script_engine_data_for_continue), in which case their stacks
+			// keep referencing objects. Generic scripts that instead exit or relaunch
+			// release their references in user_genscript::quit, via
+			// reset_script_engine_data.
+			if (key.first == ScriptType::Generic)
+				continue;
+
 			for (uint32_t offset : data.ref.stack_pos_is_object)
 			{
 				uint32_t id = data.stack[offset];
