@@ -18,6 +18,21 @@ user_stack *checkStack(uint32_t id, bool skipError)
 	return user_stacks.check(id, skipError);
 }
 
+void register_existing_user_stack(user_stack* stack)
+{
+	user_stacks.register_existing(stack);
+}
+
+std::vector<user_stack*> get_user_stacks()
+{
+	std::vector<user_stack*> result;
+	for (auto id : script_object_ids_by_type[user_stacks.type])
+	{
+		result.push_back(&user_stacks[id]);
+	}
+	return result;
+}
+
 int32_t stack_get_register(int32_t reg)
 {
 	int32_t ret = 0;

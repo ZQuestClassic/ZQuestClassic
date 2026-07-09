@@ -54,9 +54,6 @@ premature deletion. If you must store objects like that for some reason, call |O
 so its reference count is always greater than zero (as long as that script is alive), or
 globalize it via |GlobalObject|.
 
-.. caution::
-	Currently objects in a :ref:`stack<classes_stack>` do not count as a reference.
-
 Objects made global with |GlobalObject| are never deleted by the garbage collector.
 
 To tie an object to at least the lifetime of the currently running script, use |OwnObject|.

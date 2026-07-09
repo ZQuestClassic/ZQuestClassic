@@ -117,6 +117,7 @@ struct gamedata
 
 	std::vector<user_object> script_objects;
 	std::vector<script_array> script_arrays;
+	std::vector<user_stack> script_stacks;
 	std::vector<savedportal> user_portals;
 
 	// Replaced by script_arrays for newer saves.

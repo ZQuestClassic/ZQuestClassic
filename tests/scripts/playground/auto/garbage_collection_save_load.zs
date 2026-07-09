@@ -3,8 +3,9 @@
 
 // Tests that saving and reloading (Game->Save + Game->Reload) correctly
 // restores script objects: identity, cycles, untyped-array object tracking,
-// reconstructed reference counts, global-flagged objects with zero references,
-// and the zeroing of non-restorable object types (bitmap, randgen, etc).
+// stacks (values and object elements), reconstructed reference counts,
+// global-flagged objects with zero references, and the zeroing of
+// non-restorable object types (bitmap, randgen, etc).
 
 class GCSLNode
 {
@@ -27,6 +28,7 @@ randgen gcsl_rng;
 GCSLBox gcsl_box;
 int[][] gcsl_nested;
 int gcsl_launder;
+stack gcsl_stack;
 int gcsl_phase = 0;
 
 generic script garbage_collection_save_load
@@ -60,6 +62,13 @@ generic script garbage_collection_save_load
 			floater->tag = 9;
 			gcsl_launder = <int>floater;
 			GlobalObject(floater);
+			// A stack holding: a shared node, a node only it references, and an int.
+			gcsl_stack = new stack();
+			gcsl_stack->PushBack(a);
+			GCSLNode stackOnly = new GCSLNode();
+			stackOnly->tag = 11;
+			gcsl_stack->PushBack(stackOnly);
+			gcsl_stack->PushBack(123);
 
 			gcsl_phase = 1;
 			Game->Save();
@@ -78,9 +87,19 @@ generic script garbage_collection_save_load
 			Test::AssertEqual(<int>gcsl_mixed[1], 42, "gcsl_mixed[1]");
 			Test::Assert(gcsl_mixed2[1] == gcsl_a, "gcsl_mixed2[1] identity");
 
+			// Stacks are restored, including which elements are objects.
+			Test::Assert(gcsl_stack != NULL, "stack restored");
+			Test::AssertEqual(gcsl_stack->Size, 3L, "stack size");
+			Test::Assert(<GCSLNode>(gcsl_stack->Get(0L)) == gcsl_a, "stack[0] identity");
+			GCSLNode stackOnly = <GCSLNode>(gcsl_stack->Get(1L));
+			Test::AssertEqual(stackOnly->tag, 11, "stack-held node tag");
+			Test::AssertEqual(RefCount(stackOnly), 2L, "RefCount(stack-held node)"); // stack + local
+			Test::AssertEqual(<int>(gcsl_stack->Get(2L)), 123, "stack int value");
+			Test::AssertEqual(RefCount(gcsl_stack), 1L, "RefCount(stack)");
+
 			// Reference counts, reconstructed on load.
-			// a: gcsl_a global + b->next member + gcsl_arr[0] + gcsl_mixed2[1]
-			Test::AssertEqual(RefCount(gcsl_a), 4L, "RefCount(a)");
+			// a: gcsl_a global + b->next member + gcsl_arr[0] + gcsl_mixed2[1] + gcsl_stack[0]
+			Test::AssertEqual(RefCount(gcsl_a), 5L, "RefCount(a)");
 			// b: a->next member + gcsl_arr[1] + gcsl_mixed[0]
 			Test::AssertEqual(RefCount(gcsl_a->next), 3L, "RefCount(b)");
 			Test::AssertEqual(RefCount(gcsl_arr), 1L, "RefCount(gcsl_arr)");
@@ -108,6 +127,7 @@ generic script garbage_collection_save_load
 			Test::AssertEqual(gcsl_a->tag, 7, "post-GC gcsl_a->tag");
 			Test::AssertEqual(gcsl_a->next->tag, 8, "post-GC b tag");
 			Test::AssertEqual((<GCSLNode>gcsl_launder)->tag, 9, "post-GC floater tag");
+			Test::AssertEqual((<GCSLNode>(gcsl_stack->Get(1L)))->tag, 11, "post-GC stack-held node tag");
 
 			Test::End();
 		}

@@ -1224,7 +1224,40 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			if(!p_getbmap(&game.ffcpos_states,f))
 				return 122;
 		}
-		
+
+		if (section_version > 50)
+		{
+			if(!p_igetl(&tempdword, f))
+				return 123;
+
+			game.script_stacks.resize(tempdword);
+
+			for(dword j = 0; j < game.script_stacks.size(); j++)
+			{
+				auto& st = game.script_stacks[j];
+
+				if(!p_igetl(&st.id, f))
+					return 124;
+
+				if(!p_getc(&tempbyte,f))
+					return 125;
+				st.global = tempbyte!=0;
+
+				std::vector<int32_t> values;
+				if(!p_getlvec(&values, f))
+					return 126;
+				st.theStack.assign(values.begin(), values.end());
+
+				std::vector<byte> types;
+				if (!p_getlvec(&types, f))
+					return 128;
+				for (auto type : types)
+					st.object_types.push_back((script_object_type)type);
+				// Keep the type bookkeeping aligned with the values.
+				st.object_types.resize(st.theStack.size(), script_object_type::none);
+			}
+		}
+
 		game.normalize();
 	}
 	
@@ -1639,6 +1672,27 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 120;
 	if(!p_putbmap(game.ffcpos_states,f))
 		return 121;
+
+	if(!p_iputl(game.script_stacks.size(), f))
+		return 122;
+
+	for (auto const& st : game.script_stacks)
+	{
+		if(!p_iputl(st.id, f))
+			return 123;
+		if(!p_putc(st.global ? 1 : 0, f))
+			return 124;
+
+		std::vector<int32_t> values(st.theStack.begin(), st.theStack.end());
+		if(!p_putlvec(values, f))
+			return 125;
+
+		std::vector<byte> types(st.object_types.size());
+		for (size_t k = 0; k < st.object_types.size(); k++)
+			types[k] = (byte)st.object_types[k];
+		if(!p_putlvec(types, f))
+			return 127;
+	}
 
 	return 0;
 }

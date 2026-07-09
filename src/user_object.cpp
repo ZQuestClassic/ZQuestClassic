@@ -25,7 +25,7 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
 bool can_restore_object_type(script_object_type type)
 {
-	return type == script_object_type::object || type == script_object_type::array;
+	return type == script_object_type::object || type == script_object_type::array || type == script_object_type::stack;
 }
 
 // About object ownership.
@@ -257,6 +257,25 @@ void script_array::restore_references()
 		}
 	}
 }
+
+#ifdef IS_PLAYER
+void user_stack::restore_references()
+{
+	for (size_t i = 0; i < theStack.size(); i++)
+	{
+		if (object_types[i] == script_object_type::none)
+			continue;
+
+		if (can_restore_object_type(object_types[i]) && script_objects.contains(theStack[i]))
+			script_object_ref_inc(theStack[i]);
+		else
+		{
+			theStack[i] = 0;
+			object_types[i] = script_object_type::none;
+		}
+	}
+}
+#endif
 
 bool script_array::holds_untyped_object(int index) const
 {

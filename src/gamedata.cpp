@@ -12,6 +12,7 @@
 #include "core/dmap.h"
 #include "core/initdata.h"
 #include "zc/scripting/script_object.h"
+#include "zc/scripting/types/stack.h"
 #include "zc/scripting/types/user_object.h"
 
 using namespace util;
@@ -44,6 +45,7 @@ void gamedata::save_objects(bool gc_array)
 	compat_saved_user_objects.clear();
 	script_objects.clear();
 	script_arrays.clear();
+	script_stacks.clear();
 
 	if (gc_array) save_script_objects();
 	else save_user_objects();
@@ -112,6 +114,16 @@ void gamedata::save_script_objects()
 			script_arrays.push_back(std::move(saved_obj));
 		}
 	}
+
+	for (auto obj : get_user_stacks())
+	{
+		if (obj->global || reachable_ids.contains(obj->id))
+		{
+			user_stack saved_obj = *obj;
+			saved_obj.ref_count = 0;
+			script_stacks.push_back(std::move(saved_obj));
+		}
+	}
 #endif
 }
 
@@ -120,6 +132,7 @@ void gamedata::load_script_objects()
 #ifndef IS_EDITOR
 	FFCore.user_objects_init();
 	FFCore.script_arrays_init();
+	FFCore.user_stacks_init();
 
 	for (const auto& obj : script_objects)
 	{
@@ -131,6 +144,12 @@ void gamedata::load_script_objects()
 	{
 		auto array = new script_array{obj};
 		register_existing_script_array(array);
+	}
+
+	for (const auto& obj : script_stacks)
+	{
+		auto stack = new user_stack{obj};
+		register_existing_user_stack(stack);
 	}
 #endif
 }
