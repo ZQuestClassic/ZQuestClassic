@@ -1082,6 +1082,27 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - untyped arrays: shrinking releases object elements === \n", ++tests);
+		{
+			Person a = new Person();
+			untyped arr[2];
+			arr[0] = 1;
+			arr[1] = a;
+			check("RefCount(a) (1)", RefCount(a), 2L);
+			// Shrinking used to leak the array's reference, keeping the object
+			// alive until the next full GC.
+			ResizeArray(arr, 1);
+			check("RefCount(a) (2)", RefCount(a), 1L);
+			a = NULL;
+			check("count", count, 0);
+
+			// Regrowing gives fresh, non-object elements.
+			ResizeArray(arr, 2);
+			arr[1] = 5;
+			check("arr[1]", <int>arr[1], 5);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is

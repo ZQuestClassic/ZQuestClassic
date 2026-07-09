@@ -106,6 +106,7 @@ struct script_array : public script_object_base
 	void set_type_in_untyped_array(int index, script_object_type type);
 	void insert_type_in_untyped_array(int index);
 	void remove_type_in_untyped_array(int index);
+	void truncate_types_in_untyped_array(size_t size);
 #endif
 };
 

@@ -432,6 +432,15 @@ bool ArrayManager::resize(size_t newsize)
 			script_object_ref_dec(id);
 		}
 	}
+	else if (aptr->MaybeHoldsObjects() && script_array_object)
+	{
+		for (int i = newsize; i < aptr->Size(); i++)
+		{
+			if (script_array_object->holds_untyped_object(i))
+				script_object_ref_dec((*aptr)[i]);
+		}
+		script_array_object->truncate_types_in_untyped_array(newsize);
+	}
 	aptr->Resize(newsize);
 	return true;
 }

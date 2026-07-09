@@ -295,6 +295,14 @@ void script_array::remove_type_in_untyped_array(int index)
 		untyped_array_types.erase(untyped_array_types.begin() + index);
 }
 
+// Drops the positional type bookkeeping beyond the array's new size, so that
+// growing the array later doesn't treat fresh elements as stale objects.
+void script_array::truncate_types_in_untyped_array(size_t size)
+{
+	if (untyped_array_types.size() > size)
+		untyped_array_types.resize(size);
+}
+
 void scr_func_exec::clear()
 {
 	pc = i = 0;
