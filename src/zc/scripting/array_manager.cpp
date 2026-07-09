@@ -500,7 +500,26 @@ int32_t ArrayManager::pop(int indx)
 
 	int32_t val = aptr->Pop(indx);
 	if (aptr->HoldsObjects())
-		script_object_ref_dec(val);
+	{
+		if (ZScriptVersion::gc_arrays())
+		{
+			// Transfer the array's reference to the autorelease pool (instead of releasing it
+			// outright), so that popping the last reference doesn't delete the object before
+			// the caller has a chance to retain it.
+			uint32_t id = val;
+			if (id && !util::contains(script_object_autorelease_pool, id))
+				script_object_autorelease_pool.push_back(id);
+			else
+				script_object_ref_dec(id);
+		}
+		else
+		{
+			// Quests compiled before ZScript version 28 keep the old behavior (and its
+			// bug: popping the last reference returns an already-deleted object), since
+			// their replays were recorded against the old deletion timing.
+			script_object_ref_dec(val);
+		}
+	}
 	return val;
 }
 

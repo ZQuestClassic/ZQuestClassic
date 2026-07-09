@@ -538,7 +538,10 @@ generic script garbage_collection
 			a = NULL;
 			check("RefCount(b)", RefCount(b), 2L);
 			ArrayPopBack(people);
-			check("RefCount(b)", RefCount(b), 1L);
+			// Popping transfers the array's reference to the autorelease pool.
+			check("RefCount(b)", RefCount(b), 2L);
+			yield();
+			check("RefCount(b) after yield", RefCount(b), 1L);
 		}
 		checkCountWithGC(0);
 
@@ -1013,6 +1016,37 @@ generic script garbage_collection
 			list->owner = list->owner;
 			check("count", count, 1);
 			check("RefCount(list->owner) (2)", RefCount(list->owner), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - pop the last reference to an object === \n", ++tests);
+		{
+			Person arr[] = {new Person()};
+			yield(); // Drain the autorelease pool, so the array holds the only reference.
+			check("count (1)", count, 1);
+			// This used to delete the Person before the caller could retain it: the
+			// array's reference was released as part of the pop. Now the reference is
+			// transferred to the autorelease pool.
+			Person p = ArrayPopBack(arr);
+			check("count (2)", count, 1);
+			// Storing to `p` retained the object and removed it from the autorelease pool.
+			check("RefCount(p)", RefCount(p), 1L);
+			yield();
+			check("RefCount(p) after yield", RefCount(p), 1L);
+			check("count (3)", count, 1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - pop object without retaining the result === \n", ++tests);
+		{
+			Person arr[] = {new Person()};
+			yield();
+			check("count (1)", count, 1);
+			ArrayPopBack(arr);
+			// The popped object is kept alive by the autorelease pool until the next yield.
+			check("count (2)", count, 1);
+			yield();
+			check("count (3)", count, 0);
 		}
 		checkCountWithGC(0);
 
