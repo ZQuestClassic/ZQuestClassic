@@ -21,6 +21,11 @@ std::vector<uint32_t> untyped_internal_arrays_retaining_references;
 static int allocations_since_last_gc;
 static int deallocations_since_last_gc;
 
+// Objects whose ZScript destructor is currently executing. They (and their
+// destructors' local stacks, see active_object_dtor_script_datas) are GC roots,
+// and must never be deleted re-entrantly.
+static std::vector<uint32_t> objects_being_destructed;
+
 static bool is_reserved_bitmap_id(uint32_t id)
 {
 	// Used by internal bitmaps (see do_loadbitmapid).
@@ -97,6 +102,7 @@ void init_script_objects()
 	script_objects.clear();
 	script_object_ids_by_type.clear();
 	script_object_autorelease_pool.clear();
+	objects_being_destructed.clear();
 	allocations_since_last_gc = 0;
 	deallocations_since_last_gc = 0;
 
@@ -273,13 +279,26 @@ void delete_script_object(uint32_t id, bool remove_refs)
 		}
 	}
 
+	// An object whose destructor is currently running must not be deleted out
+	// from under it (for example, by a GC run triggered within the destructor).
+	if (util::contains(objects_being_destructed, id))
+		return;
+
 	// Artificially bump the reference count to prevent re-entrant deletion.
 	// When the ZScript destructor runs, temporary engine stack references
 	// will increment/decrement this safely without hitting 0 again.
 	object->ref_count++;
 
 	if (auto usr_object = dynamic_cast<user_object*>(object))
-		usr_object->destruct.execute();
+	{
+		// Clear the destructor before running it, so that no re-entrant path can
+		// ever run it a second time.
+		auto exec = usr_object->destruct;
+		usr_object->destruct.pc = 0;
+		objects_being_destructed.push_back(id);
+		exec.execute();
+		objects_being_destructed.pop_back();
+	}
 
 	if (remove_refs)
 	{
@@ -430,6 +449,20 @@ static auto run_mark_and_sweep(bool only_include_global_roots)
 		}
 		for (auto id : script_object_autorelease_pool)
 			live_object_ids.insert(id);
+		// Objects currently running their destructor, and the local stacks of those
+		// destructors, are roots too - otherwise a GC triggered from within a
+		// destructor could delete objects the destructor is still using.
+		for (auto id : objects_being_destructed)
+			live_object_ids.insert(id);
+		for (auto* named_data : active_object_dtor_script_datas)
+		{
+			auto& data = *named_data->data;
+			for (int i : data.ref.stack_pos_is_object)
+				live_object_ids.insert(data.stack[i]);
+			for (size_t q = 0; q < data.ref.zs_vargs_stack.size(); ++q)
+				for (int i : data.ref.zs_vargs_pos_is_object[q])
+					live_object_ids.insert(data.ref.zs_vargs_stack.at(q).at(i));
+		}
 	}
 
 	// Insert all root objects into worklist.

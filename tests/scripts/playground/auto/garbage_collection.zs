@@ -84,6 +84,22 @@ class List
 	Person owner;
 }
 
+int dtor_gc_count = 0;
+
+class DtorRunsGC
+{
+	~DtorRunsGC()
+	{
+		Person p = new Person();
+		// A GC during a destructor used to delete the object being destructed
+		// (re-entering the destructor endlessly), and delete objects referenced
+		// only from the destructor's local stack.
+		GC();
+		Test::AssertEqual(RefCount(p), 1L, "RefCount(p) in ~DtorRunsGC");
+		dtor_gc_count++;
+	}
+}
+
 generic script garbage_collection
 {
 	Person people[10];
@@ -1100,6 +1116,14 @@ generic script garbage_collection
 			ResizeArray(arr, 2);
 			arr[1] = 5;
 			check("arr[1]", <int>arr[1], 5);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - GC during a destructor === \n", ++tests);
+		{
+			new DtorRunsGC();
+			yield(); // Drain the autorelease pool, which runs the destructor.
+			check("dtor_gc_count", dtor_gc_count, 1);
 		}
 		checkCountWithGC(0);
 
