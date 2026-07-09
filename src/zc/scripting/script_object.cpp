@@ -245,6 +245,21 @@ void script_object_ref_dec(uint32_t id)
 		script_object_ref_dec(object);
 }
 
+// Transfers a counted reference into the autorelease pool: the object stays alive
+// (with no net reference count change) until the pool next drains. If the object is
+// already in the pool, the reference is released outright. Use this when removing
+// the last reference to an object that is about to be returned to a script.
+void script_object_transfer_ref_to_autorelease_pool(uint32_t id)
+{
+	if (!id)
+		return;
+
+	if (!util::contains(script_object_autorelease_pool, id))
+		script_object_autorelease_pool.push_back(id);
+	else
+		script_object_ref_dec(id);
+}
+
 script_object_base* get_script_object(uint32_t id)
 {
 	auto it = script_objects.find(id);

@@ -669,13 +669,16 @@ static constexpr script_command command_list[]=
 	{ "STACKFREE", STACKFREE, 0, {}, 0, 0 },
 	{ "STACKOWN", STACKOWN, 0, {}, 0, 0 },
 	{ "STACKGET", STACKGET, 1, { REG_RW }, 0, 0 },
-	{ "STACKSET", STACKSET, 2, { REG_R, REG_R }, 0, 0 },
+	// The final NUM arg of STACKSET/STACKPUSHBACK/STACKPUSHFRONT is the script_object_type
+	// of the written value (0/none when not an object). Quests compiled before this
+	// argument existed always serialized 0 here.
+	{ "STACKSET", STACKSET, 3, { REG_R, REG_R, NUM }, 0, 0 },
 	{ "STACKPOPBACK", STACKPOPBACK, 1, { REG_W }, 0, 0 },
 	{ "STACKPOPFRONT", STACKPOPFRONT, 1, { REG_W }, 0, 0 },
 	{ "STACKPEEKBACK", STACKPEEKBACK, 1, { REG_W }, 0, 0 },
 	{ "STACKPEEKFRONT", STACKPEEKFRONT, 1, { REG_W }, 0, 0 },
-	{ "STACKPUSHBACK", STACKPUSHBACK, 1, { REG_R }, 0, 0 },
-	{ "STACKPUSHFRONT", STACKPUSHFRONT, 1, { REG_R }, 0, 0 },
+	{ "STACKPUSHBACK", STACKPUSHBACK, 2, { REG_R, NUM }, 0, 0 },
+	{ "STACKPUSHFRONT", STACKPUSHFRONT, 2, { REG_R, NUM }, 0, 0 },
 	{ "LOADSTACK", LOADSTACK, 0, {}, 0, 0 },
 	{ "STACKCLEAR", STACKCLEAR, 0, {}, 0, 0 },
 	{ "POWERV2", POWERV2, 2, { NUM, REG_RW }, 0, 0 },

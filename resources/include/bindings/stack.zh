@@ -50,7 +50,7 @@ class stack {
 	// @zasm
 	//   POP D2
 	//   POP REFSTACK
-	//   STACKPUSHBACK D2
+	//   STACKPUSHBACK D2 0 ; Set to script object type in compiler
 	internal void PushBack(untyped val);
 
 	// Pushes the given value to the back or front of the stack.
@@ -60,7 +60,7 @@ class stack {
 	// @zasm
 	//   POP D2
 	//   POP REFSTACK
-	//   STACKPUSHFRONT D2
+	//   STACKPUSHFRONT D2 0 ; Set to script object type in compiler
 	internal void PushFront(untyped val);
 
 	// Removes the back or front element of the stack, and returns it.
@@ -116,6 +116,6 @@ class stack {
 	//   POP D3
 	//   POP D2
 	//   POP REFSTACK
-	//   STACKSET D2 D3
+	//   STACKSET D2 D3 0 ; Set to script object type in compiler
 	internal void Set(long ind, untyped val);
 }

@@ -220,10 +220,17 @@ enum //ScrollingData indexes
 struct user_stack : public script_object_base
 {
 	std::deque<int32_t> theStack;
+	// Aligned with theStack: which entries hold script objects, and their type.
+	// Reference counts are managed by the opcode handlers (see STACKPUSHBACK etc).
+	std::deque<script_object_type> object_types;
 
-	// TODO: support retaining objects.
-	void get_retained_ids([[maybe_unused]] std::vector<uint32_t>& ids) {}
-	
+	void get_retained_ids(std::vector<uint32_t>& ids)
+	{
+		for (size_t i = 0; i < theStack.size(); i++)
+			if (object_types[i] != script_object_type::none)
+				ids.push_back(theStack[i]);
+	}
+
 	int32_t size()
 	{
 		return theStack.size();
@@ -232,31 +239,42 @@ struct user_stack : public script_object_base
 	{
 		return theStack.size() == USERSTACK_MAX_SIZE;
 	}
+	bool holds_object(int32_t index)
+	{
+		return unsigned(index) < object_types.size() && object_types[index] != script_object_type::none;
+	}
 	int32_t get(int32_t index)
 	{
 		if(unsigned(index) >= theStack.size()) return 0;
 		return theStack[index];
 	}
-	void set(int32_t index, int32_t val)
+	bool set(int32_t index, int32_t val, script_object_type type)
 	{
-		if(unsigned(index) >= theStack.size()) return;
+		if(unsigned(index) >= theStack.size()) return false;
 		theStack[index] = val;
+		object_types[index] = type;
+		return true;
 	}
-	void push_back(int32_t val)
+	bool push_back(int32_t val, script_object_type type)
 	{
-		if(full()) return;
+		if(full()) return false;
 		theStack.push_back(val);
+		object_types.push_back(type);
+		return true;
 	}
-	void push_front(int32_t val)
+	bool push_front(int32_t val, script_object_type type)
 	{
-		if(full()) return;
+		if(full()) return false;
 		theStack.push_front(val);
+		object_types.push_front(type);
+		return true;
 	}
 	int32_t pop_back()
 	{
 		if(theStack.empty()) return 0;
 		int32_t val = theStack.back();
 		theStack.pop_back();
+		object_types.pop_back();
 		return val;
 	}
 	int32_t pop_front()
@@ -264,6 +282,7 @@ struct user_stack : public script_object_base
 		if(theStack.empty()) return 0;
 		int32_t val = theStack.front();
 		theStack.pop_front();
+		object_types.pop_front();
 		return val;
 	}
 	int32_t peek_back()
@@ -280,6 +299,8 @@ struct user_stack : public script_object_base
 	{
 		theStack.clear();
 		theStack.shrink_to_fit();
+		object_types.clear();
+		object_types.shrink_to_fit();
 	}
 };
 

@@ -19,6 +19,7 @@ void init_script_objects();
 void register_script_object(script_object_base* object, script_object_type type, uint32_t id = -1);
 void script_object_ref_inc(uint32_t id);
 void script_object_ref_dec(uint32_t id);
+void script_object_transfer_ref_to_autorelease_pool(uint32_t id);
 script_object_base* get_script_object(uint32_t id);
 script_object_base* get_script_object_checked(uint32_t id);
 const std::map<uint32_t, std::unique_ptr<script_object_base>>& get_script_objects();

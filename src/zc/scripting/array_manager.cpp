@@ -554,11 +554,7 @@ int32_t ArrayManager::pop(int indx)
 			// Transfer the array's reference to the autorelease pool (instead of releasing it
 			// outright), so that popping the last reference doesn't delete the object before
 			// the caller has a chance to retain it.
-			uint32_t id = val;
-			if (id && !util::contains(script_object_autorelease_pool, id))
-				script_object_autorelease_pool.push_back(id);
-			else
-				script_object_ref_dec(id);
+			script_object_transfer_ref_to_autorelease_pool(val);
 		}
 		else
 		{

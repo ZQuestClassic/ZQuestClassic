@@ -2132,24 +2132,9 @@ vector<int> clear_vargs_back()
 	// Release the vargs' object references, but keep every object alive via the
 	// autorelease pool, in case it is used after this (ex. returned by
 	// `Choose(obj1, obj2)`, or retained by the array `do_varg_makearray` builds).
-	//
-	// Each marked position holds one counted reference (see MARK_TYPE_VARG), and
-	// membership in the autorelease pool also corresponds to one counted reference.
-	// So per position:
-	//   if not in the pool, transfer the varg's reference to the pool (net 0)
-	//   if already in the pool, drop the varg's reference outright
-	// Note the ref_dec here can never delete the object, even if callers only
-	// retain it later (as do_varg_makearray does): it only runs when the object is
-	// in the pool, and the pool's reference - a GC root, only drained after
-	// run_script returns - outlives this function.
+	// Each marked position holds one counted reference (see MARK_TYPE_VARG).
 	for (auto pos : ri->zs_vargs_pos_is_object.back())
-	{
-		uint32_t id = ri->zs_vargs_stack.back().at(pos);
-		if (util::contains(script_object_autorelease_pool, id))
-			script_object_ref_dec(id);
-		else
-			script_object_autorelease_pool.push_back(id);
-	}
+		script_object_transfer_ref_to_autorelease_pool(ri->zs_vargs_stack.back().at(pos));
 	
 	// now that we've handled copying and refcounting, clear the back vargs vectors
 	ri->zs_vargs_stack.back().clear();
@@ -9447,6 +9432,15 @@ bool script_is_within_debugger_vm;
 bool suppress_script_error_logging;
 bool disable_script_error_logs;
 
+// Reads a script_object_type from an opcode argument, tolerating invalid values
+// (quests compiled before these arguments existed always serialized 0/none).
+static script_object_type get_object_type_from_sarg(int32_t arg)
+{
+	if (arg > 0 && arg <= (int)script_object_type::last)
+		return (script_object_type)arg;
+	return script_object_type::none;
+}
+
 // When j_instance is null, that means the interperter is fully in charge.
 // Otherwise, the JIT may still call this function for the many commands that are not compiled, or
 // during the period before a function is "hot" enough to have been compiled.
@@ -10738,8 +10732,7 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				auto indx = SH::read_stack(ri->sp + 0) / 10000;
 				// The compiler provides the pushed value's object type, so untyped arrays
 				// can retain objects. Old quests always serialized 0 (none) here.
-				auto type = (sarg1 > 0 && sarg1 <= (int)script_object_type::last)
-					? (script_object_type)sarg1 : script_object_type::none;
+				auto type = get_object_type_from_sarg(sarg1);
 				ArrayManager am(ptr);
 				SET_D(rEXP1, am.push(val,indx,type) ? 10000 : 0);
 				break;
@@ -12581,7 +12574,14 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if(user_stack* st = checkStack(GET_REF(stackref)))
 				{
+					std::vector<uint32_t> ids;
+					st->get_retained_ids(ids);
+					// Empty the stack before releasing: a release can run a ZScript
+					// destructor that touches this same stack, and it must not see (and
+					// re-release) the entries this snapshot already accounts for.
 					st->clearStack();
+					for (uint32_t id : ids)
+						script_object_ref_dec(id);
 				}
 				break;
 			}
@@ -12601,7 +12601,19 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				{
 					int32_t indx = get_register(sarg1); //NOT /10000
 					int32_t val = get_register(sarg2); //NOT /10000
-					st->set(indx, val); //NOT *10000
+					// The compiler provides the written value's object type, so stacks can
+					// retain objects. Old quests always serialized 0 (none) here.
+					auto type = get_object_type_from_sarg(sarg3);
+					bool old_is_object = st->holds_object(indx);
+					int32_t old_val = st->get(indx);
+					if (st->set(indx, val, type)) //NOT *10000
+					{
+						// Increase, then decrease, to handle self-assignment of a last reference.
+						if (type != script_object_type::none)
+							script_object_ref_inc(val);
+						if (old_is_object)
+							script_object_ref_dec(old_val);
+					}
 				}
 				break;
 			}
@@ -12609,7 +12621,13 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if(user_stack* st = checkStack(GET_REF(stackref), true))
 				{
-					set_register(sarg1, st->pop_back()); //NOT *10000
+					bool was_object = st->holds_object(st->size() - 1);
+					int32_t val = st->pop_back();
+					// Transfer the stack's reference to the autorelease pool, so that popping
+					// the last reference doesn't return an already-deleted object.
+					if (was_object)
+						script_object_transfer_ref_to_autorelease_pool(val);
+					set_register(sarg1, val); //NOT *10000
 				}
 				else set_register(sarg1, 0L);
 				break;
@@ -12618,7 +12636,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			{
 				if(user_stack* st = checkStack(GET_REF(stackref), true))
 				{
-					set_register(sarg1, st->pop_front()); //NOT *10000
+					bool was_object = st->holds_object(0);
+					int32_t val = st->pop_front();
+					// See STACKPOPBACK.
+					if (was_object)
+						script_object_transfer_ref_to_autorelease_pool(val);
+					set_register(sarg1, val); //NOT *10000
 				}
 				else set_register(sarg1, 0L);
 				break;
@@ -12646,7 +12669,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(user_stack* st = checkStack(GET_REF(stackref), true))
 				{
 					int32_t val = get_register(sarg1); //NOT /10000
-					st->push_back(val);
+					// See STACKSET.
+					auto type = get_object_type_from_sarg(sarg2);
+					if (st->push_back(val, type) && type != script_object_type::none)
+						script_object_ref_inc(val);
 				}
 				break;
 			}
@@ -12655,7 +12681,10 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				if(user_stack* st = checkStack(GET_REF(stackref), true))
 				{
 					int32_t val = get_register(sarg1); //NOT /10000
-					st->push_front(val);
+					// See STACKSET.
+					auto type = get_object_type_from_sarg(sarg2);
+					if (st->push_front(val, type) && type != script_object_type::none)
+						script_object_ref_inc(val);
 				}
 				break;
 			}

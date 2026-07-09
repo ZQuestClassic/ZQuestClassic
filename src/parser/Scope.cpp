@@ -196,10 +196,17 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
 		if (sc->command == POP)
 			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
+		// For the following commands, the final argument (the written value's
+		// script_object_type) is filled in at each call site (see caseExprCall),
+		// since only there is the value's type known.
 		else if (sc->command == ARRAYPUSH)
-			// The argument (the pushed value's script_object_type) is filled in at each
-			// call site (see caseExprCall), since only there is the value's type known.
 			addOpcode2(code, new OArrayPush(new LiteralArgument(0)));
+		else if (sc->command == STACKPUSHBACK)
+			addOpcode2(code, new OStackPushBack(new VarArgument(StringToVar(tokens[1])), new LiteralArgument(0)));
+		else if (sc->command == STACKPUSHFRONT)
+			addOpcode2(code, new OStackPushFront(new VarArgument(StringToVar(tokens[1])), new LiteralArgument(0)));
+		else if (sc->command == STACKSET)
+			addOpcode2(code, new OStackSet(new VarArgument(StringToVar(tokens[1])), new VarArgument(StringToVar(tokens[2])), new LiteralArgument(0)));
 		else if (sc->command == PUSHR)
 			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (sc->command == PUSHV)

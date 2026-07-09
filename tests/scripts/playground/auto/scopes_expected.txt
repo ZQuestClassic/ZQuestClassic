@@ -4274,11 +4274,11 @@ STACKCLEAR                                                                      
 RETURNFUNC; Func[void stack::Clear()] Body End                                  | 4245 resources/include/bindings/stack.zh:44
 POP D2; Func[void stack::PushBack(untyped)] Body Start                          | 4246 resources/include/bindings/stack.zh:54
 POP REFSTACK                                                                    | 4247 resources/include/bindings/stack.zh:54
-STACKPUSHBACK D2                                                                | 4248 resources/include/bindings/stack.zh:54
+STACKPUSHBACK D2 0                                                              | 4248 resources/include/bindings/stack.zh:54
 RETURNFUNC; Func[void stack::PushBack(untyped)] Body End                        | 4249 resources/include/bindings/stack.zh:54
 POP D2; Func[void stack::PushFront(untyped)] Body Start                         | 4250 resources/include/bindings/stack.zh:64
 POP REFSTACK                                                                    | 4251 resources/include/bindings/stack.zh:64
-STACKPUSHFRONT D2                                                               | 4252 resources/include/bindings/stack.zh:64
+STACKPUSHFRONT D2 0                                                             | 4252 resources/include/bindings/stack.zh:64
 RETURNFUNC; Func[void stack::PushFront(untyped)] Body End                       | 4253 resources/include/bindings/stack.zh:64
 POP REFSTACK; Func[untyped stack::PopBack()] Body Start                         | 4254 resources/include/bindings/stack.zh:73
 STACKPOPBACK D2                                                                 | 4255 resources/include/bindings/stack.zh:73
@@ -4299,7 +4299,7 @@ RETURNFUNC; Func[untyped stack::Get(long)] Body End                             
 POP D3; Func[void stack::Set(long, untyped)] Body Start                         | 4270 resources/include/bindings/stack.zh:120
 POP D2                                                                          | 4271 resources/include/bindings/stack.zh:120
 POP REFSTACK                                                                    | 4272 resources/include/bindings/stack.zh:120
-STACKSET D2 D3                                                                  | 4273 resources/include/bindings/stack.zh:120
+STACKSET D2 D3 0                                                                | 4273 resources/include/bindings/stack.zh:120
 RETURNFUNC; Func[void stack::Set(long, untyped)] Body End                       | 4274 resources/include/bindings/stack.zh:120
 POP D2; Func[void subscreendata::GetName(char32[])] Body Start                  | 4275 resources/include/bindings/subscreendata.zh:693
 POP REFSUBSCREENDATA                                                            | 4276 resources/include/bindings/subscreendata.zh:693

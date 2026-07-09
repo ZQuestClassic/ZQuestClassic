@@ -2181,15 +2181,15 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for(;it != funcCode.end(); ++it)
 		{
 			Opcode* op = (*it)->makeClone(false);
-			// ARRAYPUSH must know whether the pushed value is an object, so that untyped
-			// arrays can retain it. Only the call site knows the value's static type, so
-			// fill in the opcode's type argument here. Every binding using ARRAYPUSH
-			// (ArrayPushBack/Front/At) takes the value as its second parameter.
-			if (auto* push = dynamic_cast<OArrayPush*>(op); push && host.parameters.size() >= 2)
+			// These opcodes write a value into an object-capable container, and must
+			// know whether that value is an object so it can be retained. Only the call
+			// site knows the value's static type, so fill in the type argument here.
+			if (auto* cw = dynamic_cast<ContainerWriteOpcode*>(op);
+				cw && cw->value_param_index < host.parameters.size())
 			{
-				auto* rtype = host.parameters.at(1)->getReadType(scope, this);
+				auto* rtype = host.parameters.at(cw->value_param_index)->getReadType(scope, this);
 				if (rtype && rtype->isObject())
-					push->getArgument()->value = (int)rtype->getScriptObjectTypeId();
+					cw->getObjectTypeArgument()->value = (int)rtype->getScriptObjectTypeId();
 			}
 			addOpcode(op);
 		}

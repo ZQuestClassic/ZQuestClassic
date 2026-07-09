@@ -59,7 +59,6 @@ namespace ZScript {
 	typedef Opcode1<GOTOMORE, LabelArgument> OGotoMoreImmediate;
 	typedef Opcode1<GOTOR, LabelArgument> OGotoRegister;
 	typedef Opcode1<GOTOTRUE, LabelArgument> OGotoTrueImmediate;
-	typedef Opcode1<ARRAYPUSH, LiteralArgument> OArrayPush;
 	typedef Opcode1<MAKEVARGARRAY, LiteralArgument> OMakeVargArray;
 	typedef Opcode1<PEEK, VarArgument> OPeek;
 	typedef Opcode1<POP, VarArgument> OPopRegister;
@@ -159,6 +158,64 @@ namespace ZScript {
 	typedef Opcode3<STACKWRITEATVV_IF, LiteralArgument, LiteralArgument, CompareArgument> OStackWriteAtVV_If;
 	typedef Opcode3<WRITEPODARRAYRR, VarArgument, VarArgument, TypeArgument> OWritePODArrayRR;
 	typedef Opcode3<WRITEPODARRAYVR, LiteralArgument, VarArgument, TypeArgument> OWritePODArrayIR;
+
+	// Opcodes that write a value into an object-capable container (untyped
+	// arrays, stacks). Their final argument is the written value's
+	// script_object_type: the binding parser emits 0 (none), and each inlined
+	// call site overwrites it with the value's static type so the runtime can
+	// retain object elements (see BuildOpcodes::caseExprCall). New container
+	// bindings only need to construct one of these classes (or add a new one);
+	// the call-site patch picks them up through this interface.
+	class ContainerWriteOpcode
+	{
+	public:
+		// value_param_index: index of the written value within the binding's
+		// ZScript parameters.
+		ContainerWriteOpcode(size_t value_param_index) : value_param_index(value_param_index) {}
+		virtual ~ContainerWriteOpcode() = default;
+		virtual LiteralArgument* getObjectTypeArgument() = 0;
+		const size_t value_param_index;
+	};
+
+	class OArrayPush : public Opcode1<ARRAYPUSH, LiteralArgument>, public ContainerWriteOpcode
+	{
+	public:
+		// ArrayPushBack/Front/At(arr, val, ...)
+		OArrayPush(LiteralArgument* type) : Opcode1(type), ContainerWriteOpcode(1) {}
+		LiteralArgument* getObjectTypeArgument() {return getArgument();}
+	protected:
+		Opcode* clone() const {return new OArrayPush(getArgument()->clone());}
+	};
+
+	class OStackPushBack : public Opcode2<STACKPUSHBACK, VarArgument, LiteralArgument>, public ContainerWriteOpcode
+	{
+	public:
+		// stack->PushBack(val)
+		OStackPushBack(VarArgument* stk, LiteralArgument* type) : Opcode2(stk, type), ContainerWriteOpcode(0) {}
+		LiteralArgument* getObjectTypeArgument() {return getSecondArgument();}
+	protected:
+		Opcode* clone() const {return new OStackPushBack(getFirstArgument()->clone(), getSecondArgument()->clone());}
+	};
+
+	class OStackPushFront : public Opcode2<STACKPUSHFRONT, VarArgument, LiteralArgument>, public ContainerWriteOpcode
+	{
+	public:
+		// stack->PushFront(val)
+		OStackPushFront(VarArgument* stk, LiteralArgument* type) : Opcode2(stk, type), ContainerWriteOpcode(0) {}
+		LiteralArgument* getObjectTypeArgument() {return getSecondArgument();}
+	protected:
+		Opcode* clone() const {return new OStackPushFront(getFirstArgument()->clone(), getSecondArgument()->clone());}
+	};
+
+	class OStackSet : public Opcode3<STACKSET, VarArgument, VarArgument, LiteralArgument>, public ContainerWriteOpcode
+	{
+	public:
+		// stack->Set(ind, val)
+		OStackSet(VarArgument* stk, VarArgument* ind, LiteralArgument* type) : Opcode3(stk, ind, type), ContainerWriteOpcode(1) {}
+		LiteralArgument* getObjectTypeArgument() {return getThirdArgument();}
+	protected:
+		Opcode* clone() const {return new OStackSet(getFirstArgument()->clone(), getSecondArgument()->clone(), getThirdArgument()->clone());}
+	};
 }
 
 #endif

@@ -1231,6 +1231,51 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - stacks retain objects === \n", ++tests);
+		{
+			stack s = new stack();
+			Person a = new Person();
+			// Stacks used to not track objects at all: an object could be deleted
+			// while still on a stack.
+			s->PushBack(a);
+			check("RefCount(a)", RefCount(a), 2L);
+			a = NULL;
+			check("count (1)", count, 1);
+			GC();
+			check("count (2)", count, 1);
+
+			// Popping transfers the stack's reference to the autorelease pool.
+			Person p = s->PopBack();
+			check("RefCount(p)", RefCount(p), 1L);
+			check("count (3)", count, 1);
+			p = NULL;
+			yield();
+			check("count (4)", count, 0);
+
+			// Set() retains the new element and releases the old one.
+			s->PushBack(0);
+			s->Set(0L, new Person());
+			yield();
+			check("count (5)", count, 1);
+			s->Set(0L, 0);
+			check("count (6)", count, 0);
+
+			// Clear() releases object elements.
+			s->PushFront(new Person());
+			yield();
+			check("count (7)", count, 1);
+			s->Clear();
+			check("count (8)", count, 0);
+
+			// Deleting the stack releases object elements.
+			s->PushBack(new Person());
+			yield();
+			check("count (9)", count, 1);
+			s = NULL;
+			check("count (10)", count, 0);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is
