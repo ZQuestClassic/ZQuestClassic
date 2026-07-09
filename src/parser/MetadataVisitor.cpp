@@ -235,6 +235,10 @@ static std::string getComment(const AST* node)
 			continue;
 		if (k == "zasm_var")
 			continue;
+		if (k == "zasm_read")
+			continue;
+		if (k == "zasm_write")
+			continue;
 
 		s << "\n\n**@" << k << "**";
 		if (!v.empty())
