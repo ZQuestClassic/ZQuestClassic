@@ -62,20 +62,32 @@ public:
 		_data.resize(size);
     }
 
+	// Where Push(val, indx) will insert: negative or past-the-end appends.
+	int32_t ResolvePushIndex(int32_t indx) const
+	{
+		if (indx < 0 || indx > (int32_t)_data.size())
+			return _data.size();
+		return indx;
+	}
+
 	void Push(int32_t val, int indx = -1)
 	{
-		if (indx < 0 || indx > _data.size())
-			indx = _data.size();
-		auto it = _data.begin() + indx;
+		auto it = _data.begin() + ResolvePushIndex(indx);
     	_data.insert(it, val);
+	}
+
+	// Which element Pop(indx) will remove: negative or out-of-range pops the back.
+	int32_t ResolvePopIndex(int32_t indx) const
+	{
+		if (indx < 0 || indx >= (int32_t)_data.size())
+			return _data.size() - 1;
+		return indx;
 	}
 
 	int32_t Pop(int indx = -1)
 	{
-		if (indx < 0 || indx >= _data.size())
-			indx = _data.size() - 1;
 		auto it = _data.begin();
-		std::advance(it, indx);
+		std::advance(it, ResolvePopIndex(indx));
 		int32_t ret = *it;
 		_data.erase(it);
 		return ret;

@@ -1050,6 +1050,38 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - untyped arrays: push/pop keep object positions aligned === \n", ++tests);
+		{
+			Person a = new Person();
+			untyped arr[1];
+			arr[0] = a;
+			check("RefCount(a) (1)", RefCount(a), 2L);
+
+			// Inserting at the front shifts the object to index 1. The engine must
+			// shift its internal "which elements are objects" bookkeeping too. It used
+			// to not, which made the GC believe the array held no object - deleting it.
+			ArrayPushFront(arr, 42);
+			check("arr[0]", <int>arr[0], 42);
+			a = NULL;
+			check("count (1)", count, 1);
+			GC();
+			check("count (2)", count, 1);
+			check("RefCount(arr[1])", RefCount(arr[1]), 1L);
+
+			// Popping the int at the front shifts the object back to index 0.
+			ArrayPopFront(arr);
+			GC();
+			check("count (3)", count, 1);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+
+			// Popping the object transfers its reference to the autorelease pool.
+			ArrayPopBack(arr);
+			check("count (4)", count, 1);
+			yield();
+			check("count (5)", count, 0);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is

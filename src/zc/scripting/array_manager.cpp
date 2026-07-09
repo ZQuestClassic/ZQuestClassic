@@ -477,9 +477,12 @@ bool ArrayManager::push(int32_t val, int indx)
 	}
 	if(aptr->Size() == MAX_ZC_ARRAY_SIZE)
 		return false;
+	int32_t resolved_index = aptr->ResolvePushIndex(indx);
 	aptr->Push(val,indx);
 	if (aptr->HoldsObjects())
 		script_object_ref_inc(val);
+	else if (aptr->MaybeHoldsObjects() && script_array_object)
+		script_array_object->insert_type_in_untyped_array(resolved_index);
 	return true;
 }
 
@@ -498,8 +501,15 @@ int32_t ArrayManager::pop(int indx)
 		return -10000;
 	}
 
+	int32_t resolved_index = aptr->ResolvePopIndex(indx);
+	bool popped_object = aptr->HoldsObjects() ||
+		(aptr->MaybeHoldsObjects() && script_array_object && script_array_object->holds_untyped_object(resolved_index));
+
 	int32_t val = aptr->Pop(indx);
-	if (aptr->HoldsObjects())
+	if (aptr->MaybeHoldsObjects() && script_array_object)
+		script_array_object->remove_type_in_untyped_array(resolved_index);
+
+	if (popped_object)
 	{
 		if (ZScriptVersion::gc_arrays())
 		{

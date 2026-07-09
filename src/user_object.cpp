@@ -281,6 +281,20 @@ void script_array::set_type_in_untyped_array(int index, script_object_type type)
 	untyped_array_types[index] = type;
 }
 
+// Keeps the positional type bookkeeping aligned when an element is inserted.
+void script_array::insert_type_in_untyped_array(int index)
+{
+	if (index >= 0 && index < untyped_array_types.size())
+		untyped_array_types.insert(untyped_array_types.begin() + index, script_object_type::none);
+}
+
+// Keeps the positional type bookkeeping aligned when an element is removed.
+void script_array::remove_type_in_untyped_array(int index)
+{
+	if (index >= 0 && index < untyped_array_types.size())
+		untyped_array_types.erase(untyped_array_types.begin() + index);
+}
+
 void scr_func_exec::clear()
 {
 	pc = i = 0;

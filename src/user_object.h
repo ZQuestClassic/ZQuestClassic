@@ -104,6 +104,8 @@ struct script_array : public script_object_base
 	bool holds_untyped_object(int index) const;
 	script_object_type get_type_in_untyped_array(int index) const;
 	void set_type_in_untyped_array(int index, script_object_type type);
+	void insert_type_in_untyped_array(int index);
+	void remove_type_in_untyped_array(int index);
 #endif
 };
 
