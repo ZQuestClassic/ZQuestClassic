@@ -1002,6 +1002,20 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - member self-assignment of last reference === \n", ++tests);
+		{
+			List list = new List();
+			list->owner = new Person();
+			yield(); // Drain the autorelease pool, so the member holds the only reference.
+			check("RefCount(list->owner) (1)", RefCount(list->owner), 1L);
+			// This used to delete the Person: the old value was released before the
+			// new value was retained.
+			list->owner = list->owner;
+			check("count", count, 1);
+			check("RefCount(list->owner) (2)", RefCount(list->owner), 1L);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is

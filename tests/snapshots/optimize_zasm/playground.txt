@@ -3,7 +3,7 @@ Finished optimizing scripts:
 	[unreachable_blocks] saved 114 instr (0.2%)
 	[conseq_additive] saved 3 instr (0.0%)
 	[load_store] saved 0 instr (0.0%)
-	[setv_pushr] saved 1070 instr (2.1%)
+	[setv_pushr] saved 1070 instr (2.0%)
 	[setr_pushr] saved 924 instr (1.8%)
 	[stack] saved 228 instr (0.4%)
 	[spurious_branches] saved 0 instr (0.0%)

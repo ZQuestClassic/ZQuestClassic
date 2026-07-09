@@ -141,12 +141,14 @@ static void do_writeclass()
 		}
 		else
 		{
+			// Increase, then decrease, to handle the case where a member (holding the only
+			// reference to an object) is assigned to itself.
 			bool is_object = obj->isMemberObjectType(ind);
+			if (is_object)
+				script_object_ref_inc(data);
 			if (is_object)
 				script_object_ref_dec(obj->data[ind]);
 			obj->data[ind] = data;
-			if (is_object)
-				script_object_ref_inc(obj->data[ind]);
 		}
 	}
 }
