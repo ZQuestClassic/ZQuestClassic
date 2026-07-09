@@ -3219,14 +3219,14 @@ RETURNFUNC; Func[T Min(...T[])] Body End                                        
 CHOOSEVARG; Func[T Choose(...T[])] Body Start                                   | 3190 resources/include/bindings/global.zh:832
 RETURNFUNC; Func[T Choose(...T[])] Body End                                     | 3191 resources/include/bindings/global.zh:832
 PUSHV -1; Func[bool ArrayPushBack(T[], T)] Body Start                           | 3192 resources/include/bindings/global.zh:841
-ARRAYPUSH                                                                       | 3193 resources/include/bindings/global.zh:841
+ARRAYPUSH 0                                                                     | 3193 resources/include/bindings/global.zh:841
 POPARGS D5 0.0003                                                               | 3194 resources/include/bindings/global.zh:841
 RETURNFUNC; Func[bool ArrayPushBack(T[], T)] Body End                           | 3195 resources/include/bindings/global.zh:841
 PUSHV 0; Func[bool ArrayPushFront(T[], T)] Body Start                           | 3196 resources/include/bindings/global.zh:850
-ARRAYPUSH                                                                       | 3197 resources/include/bindings/global.zh:850
+ARRAYPUSH 0                                                                     | 3197 resources/include/bindings/global.zh:850
 POPARGS D5 0.0003                                                               | 3198 resources/include/bindings/global.zh:850
 RETURNFUNC; Func[bool ArrayPushFront(T[], T)] Body End                          | 3199 resources/include/bindings/global.zh:850
-ARRAYPUSH; Func[bool ArrayPushAt(T[], T, int)] Body Start                       | 3200 resources/include/bindings/global.zh:859
+ARRAYPUSH 0; Func[bool ArrayPushAt(T[], T, int)] Body Start                     | 3200 resources/include/bindings/global.zh:859
 POPARGS D5 0.0003                                                               | 3201 resources/include/bindings/global.zh:859
 RETURNFUNC; Func[bool ArrayPushAt(T[], T, int)] Body End                        | 3202 resources/include/bindings/global.zh:859
 PUSHV -1; Func[T ArrayPopBack(T[])] Body Start                                  | 3203 resources/include/bindings/global.zh:868

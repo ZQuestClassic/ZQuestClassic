@@ -777,7 +777,9 @@ static constexpr script_command command_list[]=
 	{ "PRINTFA", PRINTFA, 0, {}, 0, 0 },
 	{ "SPRINTFA", SPRINTFA, 0, {}, 0, 0 },
 	{ "CURRENTITEMID", CURRENTITEMID, 0, {}, 0, 0 },
-	{ "ARRAYPUSH", ARRAYPUSH, 0, {}, 0, 0 },
+	// arg1 is the script_object_type of the pushed value (0/none when not an object).
+	// Quests compiled before this argument existed always serialized 0 here.
+	{ "ARRAYPUSH", ARRAYPUSH, 1, { NUM }, 0, 0 },
 	{ "ARRAYPOP", ARRAYPOP, 0, {}, 0, 0 },
 	{ "LOADSUBDATARV", LOADSUBDATARV, 2, { REG_R, NUM }, 0, 0 },
 	{ "SWAPSUBSCREENV", SWAPSUBSCREENV, 1, { NUM }, 0, 0 },

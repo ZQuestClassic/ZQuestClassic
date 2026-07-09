@@ -59,6 +59,7 @@ namespace ZScript {
 	typedef Opcode1<GOTOMORE, LabelArgument> OGotoMoreImmediate;
 	typedef Opcode1<GOTOR, LabelArgument> OGotoRegister;
 	typedef Opcode1<GOTOTRUE, LabelArgument> OGotoTrueImmediate;
+	typedef Opcode1<ARRAYPUSH, LiteralArgument> OArrayPush;
 	typedef Opcode1<MAKEVARGARRAY, LiteralArgument> OMakeVargArray;
 	typedef Opcode1<PEEK, VarArgument> OPeek;
 	typedef Opcode1<POP, VarArgument> OPopRegister;

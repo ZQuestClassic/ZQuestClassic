@@ -264,7 +264,7 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; InlineFunc[bool ArrayPushBack(int[], int)] Params End
 PUSHV -1; InlineFunc[bool ArrayPushBack(int[], int)] Body Start
-ARRAYPUSH
+ARRAYPUSH 0
 POPARGS D5 0.0003; InlineFunc[bool ArrayPushBack(int[], int)] Body End
 REF_REMOVE 0.0001
 POPARGS D5 0.0002
@@ -279,7 +279,7 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; InlineFunc[bool ArrayPushBack(int[][], int[])] Params End
 PUSHV -1; InlineFunc[bool ArrayPushBack(int[][], int[])] Body Start
-ARRAYPUSH
+ARRAYPUSH 0.0009
 POPARGS D5 0.0003; InlineFunc[bool ArrayPushBack(int[][], int[])] Body End
 REF_REMOVE 0.0001
 REF_REMOVE 0

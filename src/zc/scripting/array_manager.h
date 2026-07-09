@@ -25,7 +25,7 @@ public:
 	bool resize_min(size_t minsz);
 	bool holds_object(int indx);
 	bool can_resize();
-	bool push(int32_t val, int indx = -1);
+	bool push(int32_t val, int indx = -1, script_object_type type = script_object_type::none);
 	int32_t pop(int indx = -1);
 	
 	bool invalid() const {return _invalid;}

@@ -836,7 +836,7 @@ internal T Choose<T>(...T[] values);
 //
 // @zasm
 //   PUSHV -1
-//   ARRAYPUSH
+//   ARRAYPUSH 0 ; Set to script object type in compiler
 //   POPARGS D5 0.0003
 internal bool ArrayPushBack<T>(T[] arr, T val);
 
@@ -845,7 +845,7 @@ internal bool ArrayPushBack<T>(T[] arr, T val);
 //
 // @zasm
 //   PUSHV 0
-//   ARRAYPUSH
+//   ARRAYPUSH 0 ; Set to script object type in compiler
 //   POPARGS D5 0.0003
 internal bool ArrayPushFront<T>(T[] arr, T val);
 
@@ -854,7 +854,7 @@ internal bool ArrayPushFront<T>(T[] arr, T val);
 // back of the array will be targetted.
 //
 // @zasm
-//   ARRAYPUSH
+//   ARRAYPUSH 0 ; Set to script object type in compiler
 //   POPARGS D5 0.0003
 internal bool ArrayPushAt<T>(T[] arr, T val, int index);
 

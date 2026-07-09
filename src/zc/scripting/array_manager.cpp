@@ -476,7 +476,7 @@ bool ArrayManager::can_resize()
 	return true;
 }
 
-bool ArrayManager::push(int32_t val, int indx)
+bool ArrayManager::push(int32_t val, int indx, script_object_type type)
 {
 	if(_invalid) return false;
 	if(!aptr)
@@ -491,7 +491,16 @@ bool ArrayManager::push(int32_t val, int indx)
 	if (aptr->HoldsObjects())
 		script_object_ref_inc(val);
 	else if (aptr->MaybeHoldsObjects() && script_array_object)
+	{
+		// Keep the positional bookkeeping aligned, then retain the value if the
+		// compiler said it is an object - mirroring ArrayManager::set.
 		script_array_object->insert_type_in_untyped_array(resolved_index);
+		if (type != script_object_type::none)
+		{
+			script_object_ref_inc(val);
+			script_array_object->set_type_in_untyped_array(resolved_index, type);
+		}
+	}
 	return true;
 }
 

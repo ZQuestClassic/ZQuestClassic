@@ -10734,8 +10734,12 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 				auto ptr = SH::read_stack(ri->sp + 2);
 				auto val = SH::read_stack(ri->sp + 1);
 				auto indx = SH::read_stack(ri->sp + 0) / 10000;
+				// The compiler provides the pushed value's object type, so untyped arrays
+				// can retain objects. Old quests always serialized 0 (none) here.
+				auto type = (sarg1 > 0 && sarg1 <= (int)script_object_type::last)
+					? (script_object_type)sarg1 : script_object_type::none;
 				ArrayManager am(ptr);
-				SET_D(rEXP1, am.push(val,indx) ? 10000 : 0);
+				SET_D(rEXP1, am.push(val,indx,type) ? 10000 : 0);
 				break;
 			}
 			case ARRAYPOP:

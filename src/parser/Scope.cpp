@@ -95,6 +95,11 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	std::vector<std::shared_ptr<Opcode>> code;
 	for (auto& op_string : zasm_lines)
 	{
+		// Everything after `;` is a comment.
+		if (auto comment_start = op_string.find(';'); comment_start != std::string::npos)
+			op_string.erase(comment_start);
+		util::trimstr(op_string);
+
 		if (op_string.empty())
 			continue;
 
@@ -191,6 +196,10 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
 		if (sc->command == POP)
 			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (sc->command == ARRAYPUSH)
+			// The argument (the pushed value's script_object_type) is filled in at each
+			// call site (see caseExprCall), since only there is the value's type known.
+			addOpcode2(code, new OArrayPush(new LiteralArgument(0)));
 		else if (sc->command == PUSHR)
 			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (sc->command == PUSHV)

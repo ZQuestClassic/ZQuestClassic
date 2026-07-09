@@ -1156,6 +1156,53 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - untyped arrays: push retains objects === \n", ++tests);
+		{
+			Person a = new Person();
+			untyped arr[0];
+			ArrayPushBack(arr, a);
+			check("RefCount(a)", RefCount(a), 2L);
+			a = NULL;
+			// The array keeps the object alive, even through a GC.
+			check("count (1)", count, 1);
+			GC();
+			check("count (2)", count, 1);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+			// Overwriting the element releases it.
+			arr[0] = 0;
+			check("count (3)", count, 0);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - untyped arrays: push at the front retains and aligns === \n", ++tests);
+		{
+			untyped arr[1];
+			arr[0] = 1;
+			ArrayPushFront(arr, new Person());
+			yield(); // Drain the autorelease pool; only the array retains the Person now.
+			check("count (1)", count, 1);
+			check("RefCount(arr[0])", RefCount(arr[0]), 1L);
+			check("arr[1]", <int>arr[1], 1);
+			// Popping the object transfers its reference to the autorelease pool.
+			ArrayPopFront(arr);
+			check("count (2)", count, 1);
+			yield();
+			check("count (3)", count, 0);
+		}
+		checkCountWithGC(0);
+
+		// Values laundered through an untyped variable still don't retain: the
+		// compiler only knows the static type at the push call site.
+		printf("=== Test %d - untyped arrays: push of untyped value does not retain === \n", ++tests);
+		{
+			Person a = new Person();
+			untyped u = a;
+			untyped arr[0];
+			ArrayPushBack(arr, u);
+			check("RefCount(a)", RefCount(a), 1L);
+		}
+		checkCountWithGC(0);
+
 		// Global objects are never collected by the GC. It's up to the programmer
 		// to not "lose" them. For example, the following test does not
 		// save `a` anywhere recoverable from a new session, so this is

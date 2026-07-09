@@ -2180,7 +2180,18 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		targ_sz = commentTarget();
 		for(;it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone(false));
+			Opcode* op = (*it)->makeClone(false);
+			// ARRAYPUSH must know whether the pushed value is an object, so that untyped
+			// arrays can retain it. Only the call site knows the value's static type, so
+			// fill in the opcode's type argument here. Every binding using ARRAYPUSH
+			// (ArrayPushBack/Front/At) takes the value as its second parameter.
+			if (auto* push = dynamic_cast<OArrayPush*>(op); push && host.parameters.size() >= 2)
+			{
+				auto* rtype = host.parameters.at(1)->getReadType(scope, this);
+				if (rtype && rtype->isObject())
+					push->getArgument()->value = (int)rtype->getScriptObjectTypeId();
+			}
+			addOpcode(op);
 		}
 		commentStartEnd(targ_sz, fmt::format("Inline{} Body",func_comment));
 	
