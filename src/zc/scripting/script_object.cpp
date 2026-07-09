@@ -26,6 +26,13 @@ static int deallocations_since_last_gc;
 // and must never be deleted re-entrantly.
 static std::vector<uint32_t> objects_being_destructed;
 
+// While run_gc iterates its unreachable-id lists, ids freed along the way (by
+// destructors releasing references) must not be handed out to new allocations:
+// a reused id would make those lists point at fresh, live objects. Freed ids
+// are parked here until the GC finishes.
+static bool gc_in_progress;
+static std::vector<uint32_t> ids_freed_during_gc;
+
 static bool is_reserved_bitmap_id(uint32_t id)
 {
 	// Used by internal bitmaps (see do_loadbitmapid).
@@ -68,7 +75,8 @@ static uint32_t get_next_script_object_id()
 
 		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
 		{
-			if (!script_objects.contains(id) && !is_reserved_object_id(id))
+			if (!script_objects.contains(id) && !is_reserved_object_id(id) &&
+			    !(gc_in_progress && util::contains(ids_freed_during_gc, id)))
 				next_script_object_id_freelist.push_back(id);
 
 			id++;
@@ -103,6 +111,8 @@ void init_script_objects()
 	script_object_ids_by_type.clear();
 	script_object_autorelease_pool.clear();
 	objects_being_destructed.clear();
+	gc_in_progress = false;
+	ids_freed_during_gc.clear();
 	allocations_since_last_gc = 0;
 	deallocations_since_last_gc = 0;
 
@@ -259,6 +269,28 @@ const std::map<uint32_t, std::unique_ptr<script_object_base>>& get_script_object
 	return script_objects;
 }
 
+// Runs the object's ZScript destructor, at most once ever. The object is kept
+// alive (and guarded against re-entrant deletion) while it runs.
+static bool run_destructor(script_object_base* object)
+{
+	auto usr_object = dynamic_cast<user_object*>(object);
+	if (!usr_object || !usr_object->destruct.pc)
+		return false;
+
+	// Bump the reference count so temporary references created while the
+	// destructor runs can't hit 0 and delete the object re-entrantly.
+	object->ref_count++;
+	// Clear the destructor before running it, so that no re-entrant path can
+	// ever run it a second time.
+	auto exec = usr_object->destruct;
+	usr_object->destruct.pc = 0;
+	objects_being_destructed.push_back(object->id);
+	exec.execute();
+	objects_being_destructed.pop_back();
+	object->ref_count--;
+	return true;
+}
+
 void delete_script_object(uint32_t id, bool remove_refs)
 {
 	auto it = script_objects.find(id);
@@ -289,16 +321,7 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	// will increment/decrement this safely without hitting 0 again.
 	object->ref_count++;
 
-	if (auto usr_object = dynamic_cast<user_object*>(object))
-	{
-		// Clear the destructor before running it, so that no re-entrant path can
-		// ever run it a second time.
-		auto exec = usr_object->destruct;
-		usr_object->destruct.pc = 0;
-		objects_being_destructed.push_back(id);
-		exec.execute();
-		objects_being_destructed.pop_back();
-	}
+	run_destructor(object);
 
 	if (remove_refs)
 	{
@@ -329,7 +352,9 @@ void delete_script_object(uint32_t id, bool remove_refs)
 	script_objects.erase(it);
 	deallocations_since_last_gc++;
 
-	if (next_script_object_id_freelist.size() < 10000)
+	if (gc_in_progress)
+		ids_freed_during_gc.push_back(id);
+	else if (next_script_object_id_freelist.size() < 10000)
 		next_script_object_id_freelist.push_back(id);
 }
 
@@ -519,29 +544,85 @@ std::set<uint32_t> find_script_objects_reachable_from_global_roots()
 // (when ref_count is zero in script_object_ref_dec).
 void run_gc()
 {
+	// Park ids freed during the collection (a nested run_gc, triggered by an
+	// allocating destructor, keeps the outer collection's parking in effect).
+	bool was_gc_in_progress = gc_in_progress;
+	gc_in_progress = true;
+
 	auto [live_object_ids, all_objects] = run_mark_and_sweep(false);
 
-	// Delete unreachable objects.
+	// Collect ids rather than using the object pointers directly: the destructors
+	// below run script code that can delete other unreachable objects.
+	std::vector<uint32_t> unreachable_ids;
 	for (auto& object : all_objects)
 	{
-		if (live_object_ids.contains(object->id))
+		if (!live_object_ids.contains(object->id))
+			unreachable_ids.push_back(object->id);
+	}
+
+	// Run destructors first. They execute script code that can write to object
+	// members, and those writes modify reference counts. That must settle before
+	// the references retained by unreachable objects are released below, or a
+	// destructor clearing a member would release the same reference twice -
+	// possibly deleting a still-reachable object.
+	bool any_destructor_ran = false;
+	for (auto id : unreachable_ids)
+	{
+		auto object = get_script_object(id);
+		if (!object)
 			continue;
 
-		// We're about to delete an unreachable object, but it's possible that
-		// it is retaining an object that is reachable. It's important to release
-		// those references now.
+		if (run_destructor(object))
+			any_destructor_ran = true;
+	}
+
+	if (any_destructor_ran)
+	{
+		// The destructors ran script code, which may have changed what is reachable
+		// (or deleted some of these objects outright, allowing their ids to be
+		// reused by new allocations). Recompute, and only delete what is still
+		// unreachable.
+		auto [live_object_ids2, _] = run_mark_and_sweep(false);
+		std::erase_if(unreachable_ids, [&](uint32_t id) {
+			return live_object_ids2.contains(id) || !script_objects.contains(id);
+		});
+	}
+
+	// We're about to delete unreachable objects, but it's possible that they
+	// retain objects that are reachable. It's important to release those
+	// references now.
+	for (auto id : unreachable_ids)
+	{
+		auto object = get_script_object(id);
+		if (!object)
+			continue;
+
 		std::vector<uint32_t> retained_ids;
 		object->get_retained_ids(retained_ids);
-		for (auto id : retained_ids)
+		for (auto retained_id : retained_ids)
 		{
-			// The child may have been unreachable too, and thus will be deleted
-			// when the outer loops reaches it. So just update ref_count.
-			auto child = get_script_object(id);
+			// The child may be unreachable too, and thus will be deleted when the
+			// loop below reaches it. So just update ref_count.
+			auto child = get_script_object(retained_id);
 			if (child) child->ref_count--;
 		}
+	}
 
+	for (auto id : unreachable_ids)
+	{
 		bool remove_refs = false;
-		delete_script_object(object->id, remove_refs);
+		delete_script_object(id, remove_refs);
+	}
+
+	gc_in_progress = was_gc_in_progress;
+	if (!gc_in_progress)
+	{
+		for (auto id : ids_freed_during_gc)
+		{
+			if (next_script_object_id_freelist.size() < 10000)
+				next_script_object_id_freelist.push_back(id);
+		}
+		ids_freed_during_gc.clear();
 	}
 
 	allocations_since_last_gc = 0;

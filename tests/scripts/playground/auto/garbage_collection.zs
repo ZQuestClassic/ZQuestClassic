@@ -84,6 +84,18 @@ class List
 	Person owner;
 }
 
+class CyclerWithDtor
+{
+	CyclerWithDtor self;
+	Person friend;
+
+	~CyclerWithDtor()
+	{
+		// Releases the reference this object holds on `friend`.
+		this->friend = NULL;
+	}
+}
+
 int dtor_gc_count = 0;
 
 class DtorRunsGC
@@ -1124,6 +1136,23 @@ generic script garbage_collection
 			new DtorRunsGC();
 			yield(); // Drain the autorelease pool, which runs the destructor.
 			check("dtor_gc_count", dtor_gc_count, 1);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - destructor clearing a member during GC === \n", ++tests);
+		{
+			Person keep = new Person();
+			CyclerWithDtor c = new CyclerWithDtor();
+			c->self = c; // Makes the object an unreachable cycle once `c` is cleared.
+			c->friend = keep;
+			check("RefCount(keep) (1)", RefCount(keep), 2L);
+			c = NULL;
+			// The GC deletes the cycle. Its destructor clears `friend`, which releases
+			// that reference - the GC must not release it a second time. It used to,
+			// deleting `keep` while still referenced by a live variable.
+			GC();
+			check("count", count, 1);
+			check("RefCount(keep) (2)", RefCount(keep), 1L);
 		}
 		checkCountWithGC(0);
 
