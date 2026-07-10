@@ -12,8 +12,18 @@
 
 extern std::map<uint32_t, std::unique_ptr<script_object_base>> script_objects;
 extern std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
-extern std::vector<uint32_t> script_object_autorelease_pool;
 extern std::vector<uint32_t> next_script_object_id_freelist;
+
+// The autorelease pool. Mutate only via the functions below, which keep an
+// O(1) membership index in sync (opcode handlers query membership per object
+// push/pop, so a linear scan of the pool would make N pops cost O(N^2)).
+extern std::vector<uint32_t> script_object_autorelease_pool;
+void script_object_autorelease_pool_add(uint32_t id);
+bool script_object_autorelease_pool_remove(uint32_t id);
+bool script_object_autorelease_pool_contains(uint32_t id);
+// Empties the pool (and its membership index), returning the ids in insertion
+// order for draining.
+std::vector<uint32_t> script_object_autorelease_pool_take();
 
 void init_script_objects();
 void register_script_object(script_object_base* object, script_object_type type, uint32_t id = -1);

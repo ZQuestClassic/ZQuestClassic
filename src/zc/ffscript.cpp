@@ -3156,7 +3156,7 @@ void script_store_object(uint32_t offset, uint32_t new_id)
 
 	SH::write_stack(offset, new_id);
 
-	if (util::remove_if_exists(script_object_autorelease_pool, new_id))
+	if (script_object_autorelease_pool_remove(new_id))
 		script_object_ref_dec(new_id);
 }
 
@@ -9393,9 +9393,9 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	if (ZScriptVersion::gc())
 	{
 		// Drain the autorelease pool.
-		// Move the vector, since destructors can possibly
+		// Take the ids by value, since destructors can possibly
 		// create objects and modify `script_object_autorelease_pool`.
-		auto ids = std::move(script_object_autorelease_pool);
+		auto ids = script_object_autorelease_pool_take();
 		for (auto id : ids)
 			script_object_ref_dec(id);
 
@@ -13233,9 +13233,9 @@ int32_t run_script_int(JittedScriptInstance* j_instance)
 			case REF_AUTORELEASE:
 			{
 				uint32_t id = get_register(sarg1);
-				if (id && !util::contains(script_object_autorelease_pool, id))
+				if (id && !script_object_autorelease_pool_contains(id))
 				{
-					script_object_autorelease_pool.push_back(id);
+					script_object_autorelease_pool_add(id);
 					if (auto object = get_script_object_checked(id))
 						object->ref_count++;
 				}

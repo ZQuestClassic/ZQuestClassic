@@ -20,7 +20,7 @@ user_websocket::~user_websocket()
 	if (message_array_id)
 	{
 		if (ZScriptVersion::gc_arrays())
-			script_object_autorelease_pool.push_back(message_array_id);
+			script_object_transfer_ref_to_autorelease_pool(message_array_id);
 		else
 			FFScript::deallocateArray(message_array_id);
 	}

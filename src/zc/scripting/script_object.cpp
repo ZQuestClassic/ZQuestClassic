@@ -9,6 +9,7 @@
 #include "zc/zscriptversion.h"
 
 #include <ranges>
+#include <unordered_set>
 #include <utility>
 
 // TODO: make these static.
@@ -17,6 +18,35 @@ std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
 std::vector<uint32_t> script_object_autorelease_pool;
 std::vector<uint32_t> next_script_object_id_freelist;
 std::vector<uint32_t> untyped_internal_arrays_retaining_references;
+
+// O(1) membership index for script_object_autorelease_pool. Only the functions
+// below touch either container, keeping them in sync.
+static std::unordered_set<uint32_t> script_object_autorelease_pool_index;
+
+void script_object_autorelease_pool_add(uint32_t id)
+{
+	if (script_object_autorelease_pool_index.insert(id).second)
+		script_object_autorelease_pool.push_back(id);
+}
+
+bool script_object_autorelease_pool_remove(uint32_t id)
+{
+	if (!script_object_autorelease_pool_index.erase(id))
+		return false;
+	util::remove_if_exists(script_object_autorelease_pool, id);
+	return true;
+}
+
+bool script_object_autorelease_pool_contains(uint32_t id)
+{
+	return script_object_autorelease_pool_index.contains(id);
+}
+
+std::vector<uint32_t> script_object_autorelease_pool_take()
+{
+	script_object_autorelease_pool_index.clear();
+	return std::move(script_object_autorelease_pool);
+}
 
 static int allocations_since_last_gc;
 static int deallocations_since_last_gc;
@@ -110,6 +140,7 @@ void init_script_objects()
 	script_objects.clear();
 	script_object_ids_by_type.clear();
 	script_object_autorelease_pool.clear();
+	script_object_autorelease_pool_index.clear();
 	objects_being_destructed.clear();
 	gc_in_progress = false;
 	ids_freed_during_gc.clear();
@@ -193,7 +224,7 @@ void register_script_object(script_object_base* object, script_object_type type,
 
 	allocations_since_last_gc++;
 	object->ref_count = 1;
-	script_object_autorelease_pool.push_back(id);
+	script_object_autorelease_pool_add(id);
 }
 
 static void script_object_ref_inc(script_object_base* object)
@@ -201,7 +232,7 @@ static void script_object_ref_inc(script_object_base* object)
 	object->ref_count++;
 
 	// Remove the autorelease pool when an object gets its first explicit retaining reference.
-	if (object->ref_count == 2 && util::remove_if_exists(script_object_autorelease_pool, object->id))
+	if (object->ref_count == 2 && script_object_autorelease_pool_remove(object->id))
 		script_object_ref_dec(object->id);
 }
 
@@ -254,8 +285,8 @@ void script_object_transfer_ref_to_autorelease_pool(uint32_t id)
 	if (!id)
 		return;
 
-	if (!util::contains(script_object_autorelease_pool, id))
-		script_object_autorelease_pool.push_back(id);
+	if (!script_object_autorelease_pool_contains(id))
+		script_object_autorelease_pool_add(id);
 	else
 		script_object_ref_dec(id);
 }
