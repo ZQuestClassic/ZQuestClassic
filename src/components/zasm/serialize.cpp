@@ -148,6 +148,11 @@ std::optional<int> parse_zasm_compare_arg(char const* buf)
 
 static std::optional<int> parse_zasm_numerical_arg(const std::vector<std::string>& tokens, int& token_index, ARGTY type)
 {
+	// Text written before a command grew a new argument has fewer tokens than
+	// the command table now expects.
+	if (token_index >= (int)tokens.size())
+		return std::nullopt;
+
 	switch (type)
 	{
 		case ARGTY::READ_REG:
@@ -194,9 +199,10 @@ ffscript parse_zasm_op(std::string op_str)
 	ffscript result{};
 
 	auto tokens = util::split_args(op_str);
-	assert(tokens.size() > 0);
+	CHECK(tokens.size() >= 2);
 
 	auto sc = get_script_command(tokens[1]);
+	CHECK(sc);
 	result.command = sc->command;
 
 	int token_index = 2;
