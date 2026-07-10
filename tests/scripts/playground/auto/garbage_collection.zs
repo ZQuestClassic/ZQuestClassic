@@ -112,6 +112,51 @@ class DtorRunsGC
 	}
 }
 
+int reuse_probe_dtor_runs = 0;
+
+class IdReuseProbe
+{
+	~IdReuseProbe()
+	{
+		reuse_probe_dtor_runs++;
+	}
+}
+
+IdReuseProbe gc_reuse_survivor;
+
+class IdReuseVictim
+{
+	IdReuseVictim self;
+	Empty prey;
+
+	~IdReuseVictim()
+	{
+		// Only the chosen victim (the one given a prey) runs the scenario.
+		if (this->prey == NULL)
+			return;
+
+		// Deleting `prey` frees its id; the allocation right after used to be
+		// handed that same id while the GC was still iterating a list
+		// containing it.
+		this->prey = NULL;
+		gc_reuse_survivor = new IdReuseProbe();
+	}
+}
+
+int reentrant_clear_dtor_runs = 0;
+
+class StackClearer
+{
+	~StackClearer()
+	{
+		reentrant_clear_dtor_runs++;
+		// Re-enters the stack that is being cleared.
+		reentrant_clear_stack->Clear();
+	}
+}
+
+stack reentrant_clear_stack;
+
 generic script garbage_collection
 {
 	Person people[10];
@@ -1156,6 +1201,57 @@ generic script garbage_collection
 		}
 		checkCountWithGC(0);
 
+		printf("=== Test %d - destructor freeing and reallocating during GC === \n", ++tests);
+		{
+			// The GC visits unreachable objects in ascending id order, and this
+			// scenario needs the prey visited after the victim. Ids are recycled
+			// in no particular order, so allocate a few of each and pick a pair
+			// where the victim's id is the smaller one.
+			IdReuseVictim victims[4];
+			Empty empties[4];
+			for (int i = 0; i < 4; i++)
+			{
+				victims[i] = new IdReuseVictim();
+				empties[i] = new Empty();
+			}
+			IdReuseVictim v = NULL;
+			Empty prey = NULL;
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 4; j++)
+				{
+					untyped uv = victims[i];
+					untyped ue = empties[j];
+					if (v == NULL && <long>uv < <long>ue)
+					{
+						v = victims[i];
+						prey = empties[j];
+					}
+				}
+			}
+			check("found an ordered pair", v != NULL ? 1 : 0, 1);
+			v->self = v; // Makes the object an unreachable cycle once cleared.
+			v->prey = prey;
+			yield(); // Drain the autorelease pool.
+			prey = NULL;
+			for (int i = 0; i < 4; i++)
+			{
+				victims[i] = NULL;
+				empties[i] = NULL;
+			}
+			v = NULL;
+			// The GC runs the victim's destructor, which deletes `prey` (freeing its
+			// id) and then allocates a new object. The new object used to be handed
+			// the just-freed id - an id still on the GC's unreachable list - so the
+			// GC ran the new object's destructor while it was alive and reachable.
+			GC();
+			check("survivor dtor not run", reuse_probe_dtor_runs, 0);
+			gc_reuse_survivor = NULL;
+			check("survivor dtor runs at death", reuse_probe_dtor_runs, 1);
+			reuse_probe_dtor_runs = 0;
+		}
+		checkCountWithGC(0);
+
 		printf("=== Test %d - untyped arrays: push retains objects === \n", ++tests);
 		{
 			Person a = new Person();
@@ -1273,6 +1369,28 @@ generic script garbage_collection
 			check("count (9)", count, 1);
 			s = NULL;
 			check("count (10)", count, 0);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d - Clear() with a destructor that re-enters the stack === \n", ++tests);
+		{
+			reentrant_clear_stack = new stack();
+			reentrant_clear_stack->PushBack(new StackClearer());
+			reentrant_clear_stack->PushBack(new Person());
+			Person keep = new Person();
+			reentrant_clear_stack->PushBack(keep);
+			yield(); // Drain the autorelease pool.
+			check("count (1)", count, 2);
+			// Clearing releases the StackClearer, whose destructor clears the same
+			// stack mid-release. The entries the outer Clear() had yet to release
+			// used to be released a second time, deleting `keep` while still
+			// referenced by a live variable.
+			reentrant_clear_stack->Clear();
+			check("clearer dtor runs", reentrant_clear_dtor_runs, 1);
+			check("count (2)", count, 1);
+			check("RefCount(keep)", RefCount(keep), 1L);
+			reentrant_clear_stack = NULL;
+			reentrant_clear_dtor_runs = 0;
 		}
 		checkCountWithGC(0);
 
