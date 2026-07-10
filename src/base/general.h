@@ -298,7 +298,7 @@ enum class script_object_type : byte
 	array,
 	untyped,
 	weapondata,
-	last = untyped,
+	last = weapondata,
 };
 
 enum // used for gamedata ITEMS

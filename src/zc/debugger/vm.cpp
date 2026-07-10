@@ -66,6 +66,7 @@ const DebugType* getDebugTypeOfUntypedArrayElement(script_object_type engine_typ
 			case script_object_type::rng: name = "randgen"; break;
 			case script_object_type::stack: name = "stack"; break;
 			case script_object_type::websocket: name = "websocket"; break;
+			case script_object_type::weapondata: name = "weapondata"; break;
 			default: return &BasicTypes[TYPE_UNTYPED];
 		}
 
@@ -95,6 +96,7 @@ const script_object_type getEngineTypeForDebugType(const DebugType* type)
 	if (name == "randgen") return script_object_type::rng;
 	if (name == "stack") return script_object_type::stack;
 	if (name == "websocket") return script_object_type::websocket;
+	if (name == "weapondata") return script_object_type::weapondata;
 
 	return script_object_type::none;
 }

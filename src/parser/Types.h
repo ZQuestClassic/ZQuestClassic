@@ -446,6 +446,7 @@ namespace ZScript
 			if (name == "randgen") return script_object_type::rng;
 			if (name == "stack") return script_object_type::stack;
 			if (name == "websocket") return script_object_type::websocket;
+			if (name == "weapondata") return script_object_type::weapondata;
 			if (canHoldObject())
 				return script_object_type::object;
 			return script_object_type::none;
