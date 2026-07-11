@@ -27,6 +27,9 @@ img {
     overflow-x: auto;
     white-space: nowrap;
     scrollbar-width: none;
+    /* Keep the tracks at their natural height so content below (stderr /
+       roundtrip) doesn't squish them into a vertical scroll container. */
+    flex-shrink: 0;
 }
 
 .snapshot-tracks::-webkit-scrollbar {
