@@ -60,6 +60,37 @@ img {
     color: #f0c14b;
 }
 
+.stderr-section {
+    margin: 8px;
+    max-width: 1200px;
+    white-space: normal;
+}
+
+.stderr-heading {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.stderr-source {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #bbb;
+}
+
+.stderr-output {
+    margin: 2px 0 0;
+    padding: 8px 10px;
+    max-height: 300px;
+    overflow: auto;
+    background-color: #111;
+    border: 1px solid #333;
+    color: #ddd;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .track-frame-container {
     display: inline-flex;
     flex-direction: column;
