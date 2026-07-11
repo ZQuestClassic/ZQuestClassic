@@ -109,6 +109,13 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
     for run in fake_single_run:
         if run.snapshots is None:
             run.snapshots = []
+        # Load the run's stderr for display in the report (e.g. an assertion
+        # message). Read from disk here rather than embedding it in
+        # test_results.json.
+        stderr_path = directory / run.directory / 'stderr.txt'
+        if stderr_path.exists():
+            stderr = stderr_path.read_text('utf-8', errors='replace').strip()
+            run.stderr = stderr or None
     test_results.runs = [fake_single_run]
 
     return test_results

@@ -267,13 +267,18 @@ function renderTracks(options) {
     // or a crash). There's no frame to render for it, so pull these out and
     // surface them as a note above the tracks instead of crashing the
     // frame-by-frame logic below.
-    for (const el of findAll('.non-graphical-failure')) el.remove();
+    for (const el of findAll('.non-graphical-failure, .stderr-section')) el.remove();
+    const allRuns = tracks;
     const nonGraphicalFailures = tracks.filter(t => !(t.snapshots && t.snapshots.length) && !t.success);
     tracks = tracks.filter(t => t.snapshots && t.snapshots.length > 0);
     if (nonGraphicalFailures.length) {
         const noteEl = createNonGraphicalFailureNote(nonGraphicalFailures);
         tracksEl.parentElement.insertBefore(noteEl, tracksEl);
     }
+
+    // Show each run's stderr (e.g. an assertion message) below the tracks.
+    const stderrEl = createStderrSection(allRuns);
+    if (stderrEl) tracksEl.parentElement.insertBefore(stderrEl, tracksEl.nextSibling);
 
     if (tracks.length === 0) {
         // No graphical tracks to compare. The note above (if any) explains why.
@@ -496,6 +501,47 @@ function createNonGraphicalFailureNote(failures) {
     return el;
 }
 
+/**
+ * Builds a section showing each run's stderr (loaded from disk into the report),
+ * or null if no run has any.
+ * @param {Array<RunResult & {source: string}>} runs
+ * @return {HTMLElement|null}
+ */
+function createStderrSection(runs) {
+    const seen = new Set();
+    const entries = [];
+    for (const run of runs) {
+        if (!run.stderr) continue;
+        const key = `${run.source} ${run.stderr}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        entries.push(run);
+    }
+    if (!entries.length) return null;
+
+    const section = document.createElement('div');
+    section.className = 'stderr-section';
+
+    const heading = document.createElement('div');
+    heading.className = 'stderr-heading';
+    heading.textContent = 'stderr';
+    section.append(heading);
+
+    for (const run of entries) {
+        const label = document.createElement('div');
+        label.className = 'stderr-source';
+        label.textContent = run.source;
+        section.append(label);
+
+        const pre = document.createElement('pre');
+        pre.className = 'stderr-output';
+        pre.textContent = run.stderr;
+        section.append(pre);
+    }
+
+    return section;
+}
+
 function scrollToSegment(index) {
     const selectedSegmentFrame = trackFrames[segments[index].start].frame;
     find(`.track-frame-container[data-frame="${selectedSegmentFrame}"]`).scrollIntoView({inline: 'start'});
@@ -582,7 +628,7 @@ async function showFrameView(frameIndex, trackIndex, options) {
 
     if (selectedImg) frameViewEl.append(selectedImg);
     tracksEl.classList.add('hidden');
-    for (const el of findAll('.non-graphical-failure')) el.classList.add('hidden');
+    for (const el of findAll('.non-graphical-failure, .stderr-section')) el.classList.add('hidden');
     frameViewEl.classList.remove('hidden');
 
     const parts = [
@@ -622,7 +668,7 @@ async function showFrameView(frameIndex, trackIndex, options) {
 
 async function hideFrameView() {
     tracksEl.classList.remove('hidden');
-    for (const el of findAll('.non-graphical-failure')) el.classList.remove('hidden');
+    for (const el of findAll('.non-graphical-failure, .stderr-section')) el.classList.remove('hidden');
     frameViewEl.classList.add('hidden');
     frameViewFrameIndex = -1;
     frameViewTrackIndex = -1;

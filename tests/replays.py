@@ -97,8 +97,10 @@ class RunResult:
     unexpected_gfx_segments: list[tuple[int, int]] = None
     unexpected_gfx_segments_limited: list[tuple[int, int]] = None
     exceptions: list[str] = field(default_factory=list)
-    # Only for compare report.
+    # Only for compare report. Populated by compare_replays.py from the run's
+    # stderr.txt on disk, not written during a normal test run.
     snapshots: list[Any] = None
+    stderr: str = None
 
 
 @dataclass
