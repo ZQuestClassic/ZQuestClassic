@@ -4721,23 +4721,12 @@ static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, cons
 
 static void draw_msgstr(byte layer, BITMAP* dest = nullptr)
 {
-	if(layer != msgstr_layer) return;
-	if(!dest) dest = framebuf;
+	if (layer != msgstr::layer)
+		return;
+	if (!dest)
+		dest = framebuf;
 
-	if(!(msg_bg_display_buf->clip))
-	{
-		blit_msgstr_bg(dest,0,0,0,playing_field_offset,dest->w,dest->h);
-	}
-	
-	if(!(msg_portrait_display_buf->clip))
-	{
-		blit_msgstr_prt(dest,0,0,0,playing_field_offset,dest->w,dest->h);
-	}
-	
-	if(!(msg_txt_display_buf->clip))
-	{
-		blit_msgstr_fg(dest,0,0,0,playing_field_offset,dest->w,dest->h);
-	}
+	msgstr::blit_str(dest, 0, 0, 0, playing_field_offset, dest->w, dest->h);
 }
 
 static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, int32_t x, int32_t y);
@@ -6619,7 +6608,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	Hero.clear_platform_ffc();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();
-	msgscr = nullptr;
+	msgstr::scr = nullptr;
 
 	for (word x=0; x<animated_combos; x++)
 	{

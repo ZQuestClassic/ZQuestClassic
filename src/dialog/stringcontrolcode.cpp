@@ -167,12 +167,12 @@ void SCCDialog::default_args()
 	args[MSGC_GOTOIFBOTTLE][0] = 1;
 	args[MSGC_CHANGEBOTTLE][0] = 1;
 	
-	args[MSGC_CHANGEPORTRAIT][0] = refstr->portrait_tile;
-	args[MSGC_CHANGEPORTRAIT][1] = refstr->portrait_cset;
-	args[MSGC_CHANGEPORTRAIT][2] = refstr->portrait_x;
-	args[MSGC_CHANGEPORTRAIT][3] = refstr->portrait_y;
-	args[MSGC_CHANGEPORTRAIT][4] = refstr->portrait_tw;
-	args[MSGC_CHANGEPORTRAIT][5] = refstr->portrait_th;
+	args[MSGC_CHANGEPORTRAIT][0] = refstr->portrait.tile;
+	args[MSGC_CHANGEPORTRAIT][1] = refstr->portrait.cset;
+	args[MSGC_CHANGEPORTRAIT][2] = refstr->portrait.x;
+	args[MSGC_CHANGEPORTRAIT][3] = refstr->portrait.y;
+	args[MSGC_CHANGEPORTRAIT][4] = refstr->portrait.tw;
+	args[MSGC_CHANGEPORTRAIT][5] = refstr->portrait.th;
 
 	warp_xy_toggle = true;
 }

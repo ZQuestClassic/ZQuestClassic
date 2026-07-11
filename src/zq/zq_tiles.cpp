@@ -6897,7 +6897,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			bool fulltile = str.stringflags & STRINGFLAG_FULLTILE;
 			movelist->add_tile(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
 				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(text,100)));
-			movelist->add_tile(&str.portrait_tile, str.portrait_tw, str.portrait_th,
+			movelist->add_tile(&str.portrait.tile, str.portrait.tw, str.portrait.th,
 				fmt::format("{} (Port.): '{}'", q, util::snip(text,100)));
 		}
 		if(!every_proc && !movelist->check_prot())

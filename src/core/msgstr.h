@@ -35,6 +35,14 @@ enum
 	STR_ADVP_SZ
 };
 
+struct message_portrait
+{
+	int tile = 0;
+	byte cset = 0, x = 0, y = 0, tw = 1, th = 1;
+	
+	void clear();
+};
+
 struct MsgStr
 {
 	enum class EncodingType {Binary, Ascii};
@@ -61,12 +69,7 @@ struct MsgStr
 	byte hspace;
 	byte stringflags;
 	int16_t margins[4];
-	int32_t portrait_tile;
-	byte portrait_cset;
-	byte portrait_x;
-	byte portrait_y;
-	byte portrait_tw;
-	byte portrait_th;
+	message_portrait portrait;
 	byte shadow_type;
 	byte shadow_color;
 	byte drawlayer;

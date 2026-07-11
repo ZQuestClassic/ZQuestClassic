@@ -33,6 +33,7 @@ src/zc/saves.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/zc/commands.cpp
+src/zc/message_string.cpp
 src/music_playback.cpp
 src/advanced_music.cpp
 src/zcsfx.cpp

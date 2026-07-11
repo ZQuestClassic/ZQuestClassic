@@ -4064,7 +4064,7 @@ bool HeroClass::checkstab()
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(item_scr, pstr);
+								msgstr::do_new(item_scr, pstr);
 								break;
 							}
 						}
@@ -12102,7 +12102,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				return item_error();
 			}
-			if(!msg_active)
+			if(!msgstr::active)
 			{
 				if(play_combo_string(itm.misc1, current_screen))
 				{
@@ -12569,7 +12569,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				items.add(new item((zfix)wx,(zfix)wy,(zfix)0,itemid,ipDUMMY+ipFADE,0));
 				fadeclk=66;
-				dismissmsg();
+				msgstr::dismiss();
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
 				setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
@@ -22164,7 +22164,7 @@ void HeroClass::checkgenpush()
 void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(walk_through_walls || z>0 || fakez>0) return;
-	if(msg_active || (msg_onscreen && get_qr(qr_MSGDISAPPEAR)))
+	if(msgstr::active || (msgstr::on_screen && get_qr(qr_MSGDISAPPEAR)))
 		return; //Don't overwrite a message waiting to be dismissed
 	zfix bx, by;
 	zfix bx2, by2;
@@ -24504,12 +24504,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// Special case for step combos; otherwise, they act oddly in some cases
 	if((types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])||(types[1]==cSTEP&&types[3]==cSTEP))
 	{
-		if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_qr(qr_MSGFREEZE)))
+		if(action!=freeze&&action!=sideswimfreeze&&(!msgstr::active || !get_qr(qr_MSGFREEZE)))
 			type = types[1];
 	}
 	
 	//Generic Step
-	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_qr(qr_MSGFREEZE)))
+	if(action!=freeze&&action!=sideswimfreeze&&(!msgstr::active || !get_qr(qr_MSGFREEZE)))
 	{
 		auto stepRposes = getRposes(tx+4, ty+4, tx+11, ty+11);
 		auto sensRposes = getRposes(tx, ty+(bigHitbox?0:8), tx+15, ty+15);
@@ -24727,7 +24727,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
-		if(action!=freeze&&action!=sideswimfreeze&& (!msg_active || !get_qr(qr_MSGFREEZE)))
+		if(action!=freeze&&action!=sideswimfreeze&& (!msgstr::active || !get_qr(qr_MSGFREEZE)))
 			type = cPIT;
 			
 	//
@@ -29709,12 +29709,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	if (draw_dark && !replay_is_active())
 		clear_darkroom_bitmaps();
 
-	clear_bitmap(msg_txt_display_buf);
-	set_clip_state(msg_txt_display_buf, 1);
-	clear_bitmap(msg_bg_display_buf);
-	set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-	set_clip_state(msg_portrait_display_buf, 1);
+	msgstr::clear_display_bmps();
 
 	viewport = new_viewport;
 	playing_field_offset = new_playing_field_offset;
@@ -30388,9 +30383,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
 		 game->change_drupy(0);   
 	    }
         }
-        rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
-        rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
-        donewmsg(scr, QMisc.info[scr->catchall].str[priceindex]);
+        msgstr::do_new(scr, QMisc.info[scr->catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -30477,7 +30470,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
         
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
-        dismissmsg();
+        msgstr::dismiss();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         verifyBothWeapons();
@@ -30510,7 +30503,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
-        dismissmsg();
+        msgstr::dismiss();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         verifyBothWeapons();
@@ -30540,7 +30533,7 @@ void dospecialmoney(mapscr* scr, int32_t index)
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
-        dismissmsg();
+        msgstr::dismiss();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         break;
@@ -31018,7 +31011,7 @@ bool HeroClass::checkitems(int32_t index)
 				// done.
 				// I tried applying this check for even non-forcegrab items, but it didn't work out:
 				// https://discord.com/channels/876899628556091432/1277878877057978460/1435172573611561083
-				if ((itm->pickup & ipHOLDUP) && (is_holding_item() || linkedmsgclk))
+				if ((itm->pickup & ipHOLDUP) && (is_holding_item() || msgstr::linked_clk))
 					continue;
 
 				if (checkitems(i))
@@ -31196,7 +31189,7 @@ bool HeroClass::checkitems(int32_t index)
 				break;
 				
 			case rP_SHOP:                                         // potion shop
-				if(msg_active)
+				if(msgstr::active)
 					return false;
 				[[fallthrough]];
 			case rSHOP:                                           // shop
@@ -31304,10 +31297,8 @@ bool HeroClass::checkitems(int32_t index)
 		if(action!=swimming && !IsSideSwim())
 			reset_hookshot();
 			
-		if(msg_onscreen)
-		{
-			dismissmsg();
-		}
+		if (msgstr::on_screen)
+			msgstr::dismiss();
 		
 		clear_bitmap(pricesdisplaybuf);
 		
@@ -31380,12 +31371,12 @@ bool HeroClass::checkitems(int32_t index)
 				else pstr = 0;
 				if(shop_pstr)
 				{
-					donewmsg(item_scr, shop_pstr);
-					enqueued_str = pstr;
+					msgstr::do_new(item_scr, shop_pstr);
+					msgstr::queue_string(pstr);
 				}
 				else if(pstr)
 				{
-					donewmsg(item_scr, pstr);
+					msgstr::do_new(item_scr, pstr);
 				}
 			}
 			
@@ -31440,10 +31431,8 @@ bool HeroClass::checkitems(int32_t index)
 				}
 			}
 			
-			if(msg_onscreen)
-			{
-				dismissmsg();
-			}
+			if (msgstr::on_screen)
+				msgstr::dismiss();
 			
 			clear_bitmap(pricesdisplaybuf);
 			set_clip_state(pricesdisplaybuf, 1);
@@ -31470,10 +31459,8 @@ bool HeroClass::checkitems(int32_t index)
 			}
 		}
 		
-		if(msg_onscreen)
-		{
-			dismissmsg();
-		}
+		if (msgstr::on_screen)
+			msgstr::dismiss();
 	
 		//general item pickup message
 		//show the info string
@@ -31488,12 +31475,12 @@ bool HeroClass::checkitems(int32_t index)
 			else pstr = 0;
 			if(shop_pstr)
 			{
-				donewmsg(item_scr, shop_pstr);
-				enqueued_str = pstr;
+				msgstr::do_new(item_scr, shop_pstr);
+				msgstr::queue_string(pstr);
 			}
 			else if(pstr)
 			{
-				donewmsg(item_scr, pstr);
+				msgstr::do_new(item_scr, pstr);
 			}
 		}
 		

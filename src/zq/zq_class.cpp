@@ -9422,22 +9422,22 @@ int32_t writestrings(PACKFILE *f)
 				if(!p_putc(MsgStrings[i].margins[q],f))
 					return qe_invalid;
 			
-			if(!p_iputl(MsgStrings[i].portrait_tile,f))
+			if(!p_iputl(MsgStrings[i].portrait.tile,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].portrait_cset,f))
+			if(!p_putc(MsgStrings[i].portrait.cset,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].portrait_x,f))
+			if(!p_putc(MsgStrings[i].portrait.x,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].portrait_y,f))
+			if(!p_putc(MsgStrings[i].portrait.y,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].portrait_tw,f))
+			if(!p_putc(MsgStrings[i].portrait.tw,f))
 				return qe_invalid;
 			
-			if(!p_putc(MsgStrings[i].portrait_th,f))
+			if(!p_putc(MsgStrings[i].portrait.th,f))
 				return qe_invalid;
 			
 			if(!p_putc(MsgStrings[i].shadow_type,f))
@@ -9547,12 +9547,12 @@ int32_t writestrings_tsv(PACKFILE *f)
 		{ "hspace", [](auto& msg){ return std::to_string(msg.hspace); } },
 		{ "flags", [](auto& msg){ return std::to_string(msg.stringflags); } },
 		{ "margin", [](auto& msg){ return fmt::format("{} {} {} {}", msg.margins[0], msg.margins[3], msg.margins[1], msg.margins[2]); } },
-		{ "portrait_tile", [](auto& msg){ return std::to_string(msg.portrait_tile); } },
-		{ "portrait_cset", [](auto& msg){ return std::to_string(msg.portrait_cset); } },
-		{ "portrait_x", [](auto& msg){ return std::to_string(msg.portrait_x); } },
-		{ "portrait_y", [](auto& msg){ return std::to_string(msg.portrait_y); } },
-		{ "portrait_tw", [](auto& msg){ return std::to_string(msg.portrait_tw); } },
-		{ "portrait_th", [](auto& msg){ return std::to_string(msg.portrait_th); } },
+		{ "portrait_tile", [](auto& msg){ return std::to_string(msg.portrait.tile); } },
+		{ "portrait_cset", [](auto& msg){ return std::to_string(msg.portrait.cset); } },
+		{ "portrait_x", [](auto& msg){ return std::to_string(msg.portrait.x); } },
+		{ "portrait_y", [](auto& msg){ return std::to_string(msg.portrait.y); } },
+		{ "portrait_tw", [](auto& msg){ return std::to_string(msg.portrait.tw); } },
+		{ "portrait_th", [](auto& msg){ return std::to_string(msg.portrait.th); } },
 		{ "shadow_type", [](auto& msg){ return std::to_string(msg.shadow_type); } },
 		{ "shadow_color", [](auto& msg){ return std::to_string(msg.shadow_color); } },
 		{ "drawlayer", [](auto& msg){ return std::to_string(msg.drawlayer); } },
@@ -9621,12 +9621,12 @@ void parse_strings_tsv(std::string tsv)
 			msg.margins[2] = std::stoi(strs[2]);
 			msg.margins[3] = std::stoi(strs[3]);
 		} },
-		{ "portrait_tile", [](auto& msg, auto& text){ msg.portrait_tile = std::stoi(text); } },
-		{ "portrait_cset", [](auto& msg, auto& text){ msg.portrait_cset = std::stoi(text); } },
-		{ "portrait_x", [](auto& msg, auto& text){ msg.portrait_x = std::stoi(text); } },
-		{ "portrait_y", [](auto& msg, auto& text){ msg.portrait_y = std::stoi(text); } },
-		{ "portrait_tw", [](auto& msg, auto& text){ msg.portrait_tw = std::stoi(text); } },
-		{ "portrait_th", [](auto& msg, auto& text){ msg.portrait_th = std::stoi(text); } },
+		{ "portrait_tile", [](auto& msg, auto& text){ msg.portrait.tile = std::stoi(text); } },
+		{ "portrait_cset", [](auto& msg, auto& text){ msg.portrait.cset = std::stoi(text); } },
+		{ "portrait_x", [](auto& msg, auto& text){ msg.portrait.x = std::stoi(text); } },
+		{ "portrait_y", [](auto& msg, auto& text){ msg.portrait.y = std::stoi(text); } },
+		{ "portrait_tw", [](auto& msg, auto& text){ msg.portrait.tw = std::stoi(text); } },
+		{ "portrait_th", [](auto& msg, auto& text){ msg.portrait.th = std::stoi(text); } },
 		{ "shadow_type", [](auto& msg, auto& text){ msg.shadow_type = std::stoi(text); } },
 		{ "shadow_color", [](auto& msg, auto& text){ msg.shadow_color = std::stoi(text); } },
 		{ "drawlayer", [](auto& msg, auto& text){ msg.drawlayer = std::stoi(text); } },

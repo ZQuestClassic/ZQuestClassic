@@ -252,8 +252,7 @@ void ending()
 		if(Quit) return;
 	}
 	
-	clear_bitmap(msg_txt_display_buf);
-	clear_bitmap(msg_bg_display_buf);
+	msgstr::clear_display_bmps();
 	draw_screen();
 	advanceframe(true);
 	
@@ -621,9 +620,7 @@ void ending_scripted()
 	chainlinks.clear();
 	decorations.clear();
 	kill_subscr_items();
-	clear_bitmap(msg_txt_display_buf);
-	clear_bitmap(msg_bg_display_buf);
-	dismissmsg();
+	msgstr::dismiss();
 	ALLOFF(true, true);
     
 	//music_stop();
@@ -651,8 +648,7 @@ void ending_scripted()
 		if(Quit) return;
 	}
     
-	clear_bitmap(msg_txt_display_buf);
-	clear_bitmap(msg_bg_display_buf);
+	msgstr::clear_display_bmps();
 	draw_screen();
 	advanceframe(true);
     

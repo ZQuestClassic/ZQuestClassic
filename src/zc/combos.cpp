@@ -988,7 +988,7 @@ bool play_combo_string(int str, optional<int> screen)
 	if(!str || unsigned(str) >= MAXMSGS)
 		return false;
 
-	donewmsg(scr, str);
+	msgstr::do_new(scr, str);
 	return true;
 }
 
