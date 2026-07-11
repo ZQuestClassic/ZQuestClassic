@@ -497,11 +497,11 @@ static ArrayRegistrar MESSAGEDATAFLAGSARR_registrar(MESSAGEDATAFLAGSARR, []{
 
 static ArrayRegistrar MESSAGEDATASEGMENTS_registrar(MESSAGEDATASEGMENTS, []{
 	static ScriptingArray_ObjectComputed<MsgStr, int32_t> impl(
-		[](MsgStr* msg){ return msg->segmentsAsIntArray().size(); },
-		[](MsgStr* msg, int index){ return msg->segmentsAsIntArray()[index]; },
+		[](MsgStr* msg){ return msg->segmentsAsZFixArray().size(); },
+		[](MsgStr* msg, int index){ return msg->segmentsAsZFixArray()[index].getZLong(); },
 		[](MsgStr*, int, int){}
 	);
-	impl.setMul10000(true);
+	impl.setMul10000(false);
 	impl.setReadOnly();
 	return &impl;
 }());

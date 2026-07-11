@@ -11,7 +11,7 @@ struct ExpectedCommand
 {
 	int code;
 	int num_args;
-	std::vector<int> args;
+	std::vector<zfix> args;
 };
 
 struct AsciiParserTestCase
@@ -422,18 +422,18 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 		},
 		TC{
 			"Variable args: some optional args",
-			R"(\RunFrozenGenericScript\5\0\11\22\)",
+			R"(\RunFrozenGenericScript\5\0\11.250\22\)",
 			/*segments*/ {Command},
 			/*literals*/ {},
-			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 4, {5, 0, 11, 22}}},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 4, {5, 0, 11.25_zf, 22}}},
 			/*warnings*/ {}
 		},
 		TC{
 			"Variable args: max optional args",
-			R"(\RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\)",
+			R"(\RunFrozenGenericScript\1\0\2\3\4.1\5\6\7\8\9\)",
 			/*segments*/ {Command},
 			/*literals*/ {},
-			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 10, {1, 0, 2, 3, 4, 5, 6, 7, 8, 9}}},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 10, {1, 0, 2, 3, 4.1_zf, 5, 6, 7, 8, 9}}},
 			/*warnings*/ {}
 		},
 		TC{
@@ -451,6 +451,14 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*literals*/ {R"(\RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\10\)"},
 			/*commands*/ {},
 			/*warnings*/ {R"(Expected between 2 and 10 args, but got 11 for command: \RunFrozenGenericScript\1\0\2\3\4\5\6\7\8\9\10\)"}
+		},
+		TC{
+			"Decimal args: negative testing",
+			R"(\RunFrozenGenericScript\5\0\-1.5\-0.5\-214748.3648\214748.3647\)",
+			/*segments*/ {Command},
+			/*literals*/ {},
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 6, {5, 0, -1.5_zf, -0.5_zf, MIN_SCC_ARG, MAX_SCC_ARG}}},
+			/*warnings*/ {}
 		},
 		TC{
 			"Trailing \\",
@@ -477,12 +485,28 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*warnings*/ {R"(Ignoring unknown command: \-214749)" }
 		},
 		TC{
+			"Command decimal invalid",
+			R"(\130.25\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\130.25\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Expected integer command, found 130.25 instead)"}
+		},
+		TC{
+			"Command decimal invalid (warning preserves source text)",
+			R"(\1.0\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\1.0\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Expected integer command, found 1.0 instead)"}
+		},
+		TC{
 			"Argument overflow",
 			R"(\129\214749\2\3\4\5\)",
 			/*segments*/ {Invalid},
 			/*literals*/ {R"(\129\214749\2\3\4\5\)"},
 			/*commands*/ {},
-			/*warnings*/ {R"(Found argument that was too big for command: \129\214749\2\3\4\5\ (max value is 214748))"}
+			/*warnings*/ {R"(Found argument that was too big for command: \129\214749\2\3\4\5\ (max value is 214748.3647))"}
 		},
 		TC{
 			"Argument underflow",
@@ -490,7 +514,87 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 			/*segments*/ {Invalid},
 			/*literals*/ {R"(\129\-214749\2\3\4\5\)",},
 			/*commands*/ {},
-			/*warnings*/ {R"(Found argument that was too small for command: \129\-214749\2\3\4\5\ (min value is -214748))"}
+			/*warnings*/ {R"(Found argument that was too small for command: \129\-214749\2\3\4\5\ (min value is -214748.3648))"}
+		},
+		TC{
+			"Argument decimal overflow",
+			R"(\136\1\0\214748.3648\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\214748.3648\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument that was too big for command: \136\1\0\214748.3648\ (max value is 214748.3647))"}
+		},
+		TC{
+			"Argument decimal underflow",
+			R"(\136\1\0\-214748.3649\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\-214748.3649\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument that was too small for command: \136\1\0\-214748.3649\ (min value is -214748.3648))"}
+		},
+		TC{
+			"Argument decimal overflow, largest decimal part",
+			R"(\136\1\0\214748.9999\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\214748.9999\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument that was too big for command: \136\1\0\214748.9999\ (max value is 214748.3647))"}
+		},
+		TC{
+			"Argument decimal underflow, largest decimal part",
+			R"(\136\1\0\-214748.9999\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\-214748.9999\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument that was too small for command: \136\1\0\-214748.9999\ (min value is -214748.3648))"}
+		},
+		TC{
+			"Argument hanging decimal",
+			R"(\136\1\0\50.\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\50.\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument with hanging decimal place: \136\1\0\50.\ (at least 1 digit after the decimal is required))"}
+		},
+		TC{
+			"Argument too many decimal places",
+			R"(\136\1\0\-123.123456789\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\-123.123456789\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument with too many decimal places for command: \136\1\0\-123.123456789\ (max is 4 decimal places))"}
+		},
+		TC{
+			"Argument double decimal",
+			R"(\136\1\0\1.00.2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\1.00.2\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found non-numeric argument for command: \136\1\0\1.00.2\)"}
+		},
+		TC{
+			"Argument double decimal (hanging)",
+			R"(\136\1\0\50..2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\136\1\0\50..2\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found non-numeric argument for command: \136\1\0\50..2\)"}
+		},
+		TC{
+			"Argument invalid decimal",
+			R"(\1\1.1\2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\1\1.1\2\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found argument with decimal places that does not allow decimal places: \1\1.1\2\ (argument #0))"}
+		},
+		TC{
+			"Arguments invalid decimal",
+			R"(\1\1.1\2.2\)",
+			/*segments*/ {Invalid},
+			/*literals*/ {R"(\1\1.1\2.2\)",},
+			/*commands*/ {},
+			/*warnings*/ {R"(Found arguments with decimal places that do not allow decimal places: \1\1.1\2.2\ (arguments #0, #1))"}
 		},
 		TC{
 			"Crazy string from tests/replays/misc/pkmn.qst",
@@ -576,7 +680,7 @@ void print_cmd(const StringCommand& cmd) {
 			<< ", num_args: " << (int)cmd.num_args 
 			<< ", args: [ ";
 	for (int i = 0; i < cmd.num_args; ++i) {
-		cur << cmd.args[i] << (i == cmd.num_args - 1 ? "" : ", ");
+		cur << cmd.args[i].str_trim() << (i == cmd.num_args - 1 ? "" : ", ");
 	}
 	cur << " ] }";
 }
@@ -586,7 +690,7 @@ void print_cmd(const ExpectedCommand& cmd) {
 			<< ", num_args: " << (int)cmd.num_args 
 			<< ", args: [ ";
 	for (size_t i = 0; i < cmd.args.size(); ++i) {
-		cur << cmd.args[i] << (i == cmd.args.size() - 1 ? "" : ", ");
+		cur << cmd.args[i].str_trim() << (i == cmd.args.size() - 1 ? "" : ", ");
 	}
 	cur << " ] }";
 }

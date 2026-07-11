@@ -240,8 +240,30 @@ bool bottom_margin_clip()
 
 bool parsemsgcode(const StringCommand& command)
 {
-	auto& args = command.args;
+	auto args = command.args;
 	int last_arg = 0;
+	
+	if (get_qr(qr_OLD_LONG_SCC_ARGS))
+	{
+		int idx = -1;
+		switch (command.code)
+		{
+			case MSGC_GOTOIFSCREEND:
+				idx = 1;
+				break;
+			case MSGC_SETSCREEND:
+				idx = 3;
+				break;
+			case MSGC_SETCURRENTSCREEND:
+				idx = 1;
+				break;
+			case MSGC_GOTOIFCREEND:
+				idx = 3;
+				break;
+		}
+		if (idx > -1)
+			args[idx] = zslongToFix(args[idx].getTrunc());
+	}
 
 	switch (command.code)
 	{
@@ -379,7 +401,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t dmap =     args[0];
 			int32_t screen =     args[1];
 			int32_t reg =     args[2];
-			int32_t val =     args[3];
+			int32_t val =     args[3].getZLong();
 			FFCore.set_screen_d(screen + dmap*128, reg, val);
 			return true;
 		}
@@ -388,7 +410,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t dmap =    cur_dmap;
 			int32_t screen =  cur_screen;
 			int32_t reg =     args[0];
-			int32_t val =     args[1];
+			int32_t val =     args[1].getZLong();
 			FFCore.set_screen_d(screen + dmap*128, reg, val);
 			return true;
 		}
@@ -488,7 +510,7 @@ bool parsemsgcode(const StringCommand& command)
 			{
 				int32_t init_data[8] = {0};
 				for(int q = 0; q < 8 && q + 2 < command.num_args; ++q)
-					init_data[q] = 10000 * args[q + 2];
+					init_data[q] = args[q + 2].getZLong();
 				FFCore.runGenericFrozenEngine(scr_id, init_data);
 			}
 			else FFCore.runGenericFrozenEngine(scr_id);
@@ -535,7 +557,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t arg = args[0];
 			int32_t d = zc_min(7,arg);
 			int32_t s = ((get_currdmap())<<7) + scr->screen-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			arg = args[1];
+			arg = args[1].getZLong();
 
 			if(game->screen_d.get(s).get(d) >= arg)
 			{
@@ -841,7 +863,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t dmap =     (args[0]<<7); //dmap and screen may be transposed here.
 			int32_t screen =     args[1];
 			int32_t reg =     args[2];
-			int32_t val =     args[3];
+			int32_t val =     args[3].getZLong();
 			if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
 			{
 				last_arg = 4;

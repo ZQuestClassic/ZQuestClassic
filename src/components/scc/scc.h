@@ -7,8 +7,13 @@
 #include <vector>
 #include <string_view>
 
-#define MIN_SCC_ARG (-214748)
-#define MAX_SCC_ARG 214748
+#define MIN_SCC_INT (-214748)
+#define MAX_SCC_INT 214748
+
+// Not written as (-214748.3648_zf): the positive literal wraps to INT32_MIN, and
+// negating that is signed overflow (UB) - gcc drops the sign in str().
+#define MIN_SCC_ARG (zfix(-214748, -3648))
+#define MAX_SCC_ARG 214748.3647_zf
 
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
 #define MSGC_COLOUR                1    // 2 args (cset,swatch)
@@ -79,7 +84,11 @@
 #define MSGC_MUSIC_REFRESH         160  // 1 arg (music refresh)
 #define MSGC_SETCURRENTSCREEND     161  // 2 args (reg, value)
 
+#define MSGC_MAX                   162
+
 #define MAX_SCC_ARG_COUNT 10
+
+typedef std::array<zfix, MAX_SCC_ARG_COUNT> scc_arg_array;
 
 struct StringCommand
 {
@@ -87,7 +96,7 @@ struct StringCommand
 	byte length; // length in source string
 	byte code;
 	byte num_args;
-	int32_t args[MAX_SCC_ARG_COUNT];
+	scc_arg_array args;
 };
 
 // `segment_types` is the order of each part of the strings. `literals` and `commands` should be

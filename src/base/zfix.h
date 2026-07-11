@@ -466,8 +466,10 @@ inline zfix atozfix(char const* val)
 		while(poses-- > 0)
 			dpart *= 10;
 	}
+	// Negate the parts rather than the result: for "-214748.3648" the positive
+	// value wraps to INT32_MIN, and negating that is signed overflow (UB).
 	if(neg)
-		return -zfix(ipart,dpart);
+		return zfix(-ipart,-dpart);
 	return zfix(ipart,dpart);
 }
 inline zfix operator ""_zf(unsigned long long int val)

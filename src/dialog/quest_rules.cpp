@@ -1146,6 +1146,8 @@ static GUI::ListData compatRulesList
 	{ "Broken SCC Map Args", qr_BROKEN_SCC_MAP_ARGS,
 		"When enabled, some SCCs checking or setting states on other screens will use"
 		" the wrong Map, off-by-1 from the specified map."},
+	{ "Old Long SCC Args", qr_OLD_LONG_SCC_ARGS,
+		"When enabled, some SCCs will divide certain args by 10000."},
 };
 
 static GUI::ListData enemiesRulesList

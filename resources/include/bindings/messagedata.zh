@@ -188,6 +188,9 @@ class messagedata {
 	// 2. 7 numbers: [MSG_SEGMENT_TYPE_COMMAND] 6 12 1 2 1 2 (`\TextColor\1\2\<space>`)
 	// 3. 3 numbers: [MSG_SEGMENT_TYPE_LITERAL] 18 5 (`"World"`)
 	//
+	// Command args are returned at full precision: for the few commands that accept them,
+	// args may have decimal places (e.g. `\SetCurrentScreenD\0\26.5\` returns an arg of `26.5`).
+	//
 	// @versionadded 3.0
 	// @zasm_var MESSAGEDATASEGMENTS
 	internal const int[] Segments;
