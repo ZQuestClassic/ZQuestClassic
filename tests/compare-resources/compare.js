@@ -340,6 +340,20 @@ function renderTracks(options) {
         });
     }
 
+    // Nothing to show (e.g. the replay only differs by comment/step metadata, which
+    // produces no unexpected graphical frames). Show a message instead of crashing on
+    // the empty-segments logic below.
+    if (trackFrames.length === 0) {
+        segments = [];
+        tracksEl.textContent = '';
+        const messageEl = document.createElement('div');
+        messageEl.className = 'no-differences';
+        messageEl.textContent = 'No graphical differences for this replay - check for comment differences';
+        tracksEl.append(messageEl);
+        find('.select__segments select').innerHTML = '';
+        return;
+    }
+
     segments = [];
     let startSegment = true;
 

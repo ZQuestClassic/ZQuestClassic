@@ -35,6 +35,12 @@ img {
     height: 0;
 }
 
+.no-differences {
+    padding: 20px;
+    font-style: italic;
+    white-space: normal;
+}
+
 .track-frame-container {
     display: inline-flex;
     flex-direction: column;
