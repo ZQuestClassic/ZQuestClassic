@@ -25,7 +25,6 @@
 #ifdef IS_PLAYER
 #include "zc/hero.h"
 extern sprite_list Lwpns;
-extern bool msg_onscreen;
 void verifyBothWeapons();
 bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false, zq_hint_draws = false;
@@ -1448,7 +1447,7 @@ void SubscrWidget::draw([[maybe_unused]] BITMAP* dest, [[maybe_unused]] int32_t 
 bool SubscrWidget::visible(byte pos, [[maybe_unused]] bool showtime) const
 {
 	#ifdef IS_PLAYER
-	if(msg_onscreen && (posflags&sspNOMSGSTR))
+	if(msgstr::on_screen && (posflags&sspNOMSGSTR))
 		return false;
 	#endif
 	if(!check_conditions())

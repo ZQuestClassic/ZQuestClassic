@@ -5,6 +5,11 @@
 
 MsgStr *MsgStrings;
 
+void message_portrait::clear()
+{
+	*this = message_portrait();
+}
+
 // Copy everything except listpos
 MsgStr& MsgStr::operator=(MsgStr const& other)
 {
@@ -42,12 +47,7 @@ void MsgStr::copyStyle(MsgStr const& other)
 	{
 		margins[q] = other.margins[q];
 	}
-	portrait_tile=other.portrait_tile;
-	portrait_cset=other.portrait_cset;
-	portrait_x=other.portrait_x;
-	portrait_y=other.portrait_y;
-	portrait_tw=other.portrait_tw;
-	portrait_th=other.portrait_th;
+	portrait = other.portrait;
 	shadow_type=other.shadow_type;
 	shadow_color=other.shadow_color;
 	drawlayer=other.drawlayer;
@@ -79,12 +79,7 @@ void MsgStr::advpaste(MsgStr const& other, bitstring const& flags)
 	}
 	if(flags.get(STR_ADVP_PORTRAIT))
 	{
-		portrait_tile = other.portrait_tile;
-		portrait_cset = other.portrait_cset;
-		portrait_x = other.portrait_x;
-		portrait_y = other.portrait_y;
-		portrait_tw = other.portrait_tw;
-		portrait_th = other.portrait_th;
+		portrait = other.portrait;
 	}
 	if(flags.get(STR_ADVP_BACKGROUND))
 	{
@@ -138,12 +133,7 @@ void MsgStr::clear()
 	{
 		margins[q] = 0;
 	}
-	portrait_tile=0;
-	portrait_cset=0;
-	portrait_x=0;
-	portrait_y=0;
-	portrait_tw=0;
-	portrait_th=0;
+	portrait.clear();
 	shadow_type=0;
 	shadow_color=0;
 	listpos=0;

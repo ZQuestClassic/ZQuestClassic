@@ -6961,13 +6961,12 @@ void do_message(const bool v)
 		
 	if(ID == 0)
 	{
-		dismissmsg();
-		msgfont = get_zc_font(font_zfont);
+		msgstr::dismiss();
 		blockpath = false;
 		Hero.finishedmsg();
 	}
 	else
-		donewmsg(get_scr(GET_REF(screenref)), ID);
+		msgstr::do_new(get_scr(GET_REF(screenref)), ID);
 }
 
 INLINE void set_drawing_command_args(const int32_t j, const word numargs)
@@ -7806,13 +7805,7 @@ void do_get_sfx_completion()
 
 void FFScript::AlloffLimited(int32_t flagset)
 {
-	clear_bitmap(msg_txt_display_buf);
-	clear_bitmap(msg_bg_display_buf);
-	clear_bitmap(msg_portrait_display_buf);
-	set_clip_state(msg_txt_display_buf, 1);
-	set_clip_state(msg_bg_display_buf, 1);
-	set_clip_state(msg_portrait_display_buf, 1);
-	
+	msgstr::clear_display_bmps();
 	
 	clear_bitmap(pricesdisplaybuf);
 	set_clip_state(pricesdisplaybuf, 1);

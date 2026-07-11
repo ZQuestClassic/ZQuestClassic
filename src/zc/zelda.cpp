@@ -206,7 +206,6 @@ int32_t d_dropdmaplist_proc(int32_t ,DIALOG *,int32_t)
 int32_t curr_tb_page=0;
 
 BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
-           *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP* framebuf_no_passive_subscreen;
@@ -222,33 +221,13 @@ char       palnames[MAXLEVELS][PALNAMESIZE];
 
 bool ewind_restart=false;
 
-word     msgclk = 0, msgstr = 0, enqueued_str = 0,
-         msgcolour = 0,	// colour to use for the displayed text.
-         msgspeed = 0,	// delay between each character (5 = default).
-         msg_w = 0,
-         msg_h = 0,
-         msg_count = 0,
-         cursor_x = 0,
-         cursor_y = 0,
-         msg_xpos=0,
-         msg_ypos=0,
-         msgorig=0;
-std::optional<MsgStr::iterator> msg_it;
-mapscr* msgscr;
-int16_t msg_margins[4] = {0};
-byte msgstr_layer = 6;
-bool msgstr_nofreeze = false;
-int32_t prt_tile=0;
-byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
-bool msg_onscreen = false, msg_active = false, msgspace = false;
-BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL, *msg_menu_bmp_buf = NULL;
 BITMAP   *darkscr_bmp = NULL,
          *darkscr_bmp_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
 bool lightbeam_present;
-FONT	 *msgfont;
 word     door_combo_set_count;
-word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
+word     introclk  = 0, intropos = 0, dmapmsgclk = 0;
+word msg_count = 0;
 int16_t    lensclk = 0;
 int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
 // Temporary storage for "has hero interacted with this position recently". Used for slash triggering, wands, hammer pounds, etc.
@@ -695,172 +674,9 @@ zctune tunes[MAXMIDIS] =
 	{ "Engine - Triforce",    0,  -1,  -1,  0,  168 },
 };
 
-FONT *setmsgfont()
-{
-	return get_zc_font(MsgStrings[msgstr].font);
-}
-
-void setmsg(int str)
-{
-	msgstr = str;
-	msg_it = MsgStrings[msgstr].create_iterator();
-	msgfont = setmsgfont();
-}
-
-void msg_bg(MsgStr const& msg)
-{
-	if(msg.tile == 0) return;
-	if(msg.stringflags & STRINGFLAG_FULLTILE)
-	{
-		draw_block_flip(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
-			(int32_t)ceil(msg.w/16.0),(int32_t)ceil(msg.h/16.0),0,true,false);
-	}
-	else
-	{
-		int32_t add = (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
-		frame2x2(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
-                 (msg.w>>3)+add,(msg.h>>3)+add,0,true,0);
-	}
-}
-void msg_prt()
-{
-	clear_bitmap(msg_portrait_bmp_buf);
-	if(prt_tile > 0 && prt_th > 0 && prt_tw > 0)
-	{
-		draw_block_flip(msg_portrait_bmp_buf,0,0,prt_tile,prt_cset,
-			prt_tw, prt_th, 0, true, false);
-	}
-}
-void blit_msgstr_bg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
-{
-	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_BG)
-	{
-		BITMAP* subbmp = create_bitmap_ex(8,w,h);
-		if(subbmp)
-		{
-			color_map = trans_table2;
-			clear_bitmap(subbmp);
-			masked_blit(msg_bg_display_buf, subbmp, sx, sy, 0, 0, w, h);
-			draw_trans_sprite(dest, subbmp, dx, dy);
-			destroy_bitmap(subbmp);
-			color_map = trans_table;
-		}
-	}
-	else
-	{
-		masked_blit(msg_bg_display_buf, dest, sx, sy, dx, dy, w, h);
-	}
-}
-void blit_msgstr_fg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
-{
-	if(MsgStrings[msgstr].stringflags & STRINGFLAG_TRANS_FG)
-	{
-		BITMAP* subbmp = create_bitmap_ex(8,w,h);
-		if(subbmp)
-		{
-			color_map = trans_table2;
-			clear_bitmap(subbmp);
-			masked_blit(msg_txt_display_buf, subbmp, sx, sy, 0, 0, w, h);
-			draw_trans_sprite(dest, subbmp, dx, dy);
-			destroy_bitmap(subbmp);
-			color_map = trans_table;
-		}
-	}
-	else
-	{
-		masked_blit(msg_txt_display_buf, dest, sx, sy, dx, dy, w, h);
-	}
-}
-void blit_msgstr_prt(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
-{
-	masked_blit(msg_portrait_display_buf, dest, sx, sy, dx, dy, w, h);
-}
-
 void clearmsgnext(int32_t str)
 {
 	MsgStrings[str].nextstring = 0;
-}
-
-void clr_msg_data();
-void donewmsg(mapscr* scr, int32_t str)
-{
-	if(msg_onscreen || msg_active)
-		dismissmsg();
-	clr_msg_data();
-        
-    linkedmsgclk=0;
-    msg_active = true;
-    // Don't set msg_onscreen - not onscreen just yet
-	setmsg(str);
-	msgscr = scr;
-    msgorig = msgstr;
-    msgcolour=QMisc.colors.msgtext;
-    msgspeed=zinit.msg_speed;
-	auto& msgstring = MsgStrings[msgstr];
-	msgstr_layer=msgstring.drawlayer;
-	msgstr_nofreeze = msgstring.stringflags & STRINGFLAG_NOFREEZE;
-    
-    if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-	{
-        clear_bitmap(msg_bg_display_buf);
-        clear_bitmap(msg_txt_display_buf);
-	}
-        
-    clear_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-    clear_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    clear_bitmap(msg_txt_bmp_buf);
-    clear_bitmap(msg_menu_bmp_buf);
-    clear_bitmap(msg_bg_bmp_buf);
-    clear_bitmap(msg_portrait_bmp_buf);
-    msgclk=0;
-    msgspace=true;
-	msg_w=msgstring.w;
-	msg_h=msgstring.h;
-	msg_xpos=msgstring.x;
-	msg_ypos=msgstring.y;
-	prt_tile=msgstring.portrait_tile;
-	prt_cset=msgstring.portrait_cset;
-	prt_x=msgstring.portrait_x;
-	prt_y=msgstring.portrait_y;
-	prt_tw=msgstring.portrait_tw;
-	prt_th=msgstring.portrait_th;
-	msg_shdtype=msgstring.shadow_type;
-	msg_shdcol=msgstring.shadow_color;
-    
-	msg_bg(msgstring);
-    msg_prt();
-    
-	int16_t old_margins[4] = {8,0,8,-8};
-	int16_t const* copy_from = get_qr(qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : msgstring.margins;
-	for(auto q = 0; q < 4; ++q)
-		msg_margins[q] = copy_from[q];
-    cursor_x=msg_margins[left];
-    cursor_y=msg_margins[up];
-}
-
-// Called to make a message disappear
-void dismissmsg()
-{
-    linkedmsgclk=0;
-    msgstr = msgclk=0;
-    msg_it.reset();
-    cursor_x=0;
-    cursor_y=0;
-	prt_tile=0;
-    msg_onscreen = msg_active = false;
-	msgstr_nofreeze = false;
-    //Hero.finishedmsg(); //Not possible?
-    clear_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_bg_display_buf, 1);
-    clear_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    clear_bitmap(msg_portrait_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-	clr_msg_data();
 }
 
 void dointro()
@@ -876,7 +692,7 @@ void dointro()
 		else
 		{
 			if(DMaps[cur_dmap].intro_string_id)
-				donewmsg(hero_scr, DMaps[cur_dmap].intro_string_id);
+				msgstr::do_new(hero_scr, DMaps[cur_dmap].intro_string_id);
 			game->visited[cur_dmap] = 1;
 		}
     }
@@ -1020,12 +836,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 {
     if(messagesToo)
     {
-        clear_bitmap(msg_bg_display_buf);
-        set_clip_state(msg_bg_display_buf, 1);
-        clear_bitmap(msg_txt_display_buf);
-        set_clip_state(msg_txt_display_buf, 1);
-        clear_bitmap(msg_portrait_display_buf);
-        set_clip_state(msg_portrait_display_buf, 1);
+        msgstr::clear_display_bmps();
     }
     
     clear_bitmap(pricesdisplaybuf);
@@ -1057,7 +868,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
     Hero.resetflags(false);
     Hero.reset_hookshot();
-    linkedmsgclk=0;
+    msgstr::linked_clk = 0;
     add_asparkle=0;
     add_bsparkle=0;
     add_df1asparkle=false;
@@ -1067,7 +878,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
     mblock2.clk=0;
-    dismissmsg();
+    msgstr::dismiss();
     fadeclk=-1;
     introclk=intropos=72;
     
@@ -1628,7 +1439,6 @@ void init_game_vars(bool is_cont_game = false)
 	scrolling_region = {};
 	skipcont = 0;
 	isUserTinted(false);
-	linkedmsgclk=0;
 	mblock2.clear();
 	clear_screen_states();
 	add_asparkle=0;
@@ -1652,7 +1462,6 @@ void init_game_vars(bool is_cont_game = false)
 	hs_switcher = false;
 	is_conveyor_stunned = 0;
 	is_on_conveyor = 0;
-	msg_it.reset();
 	pull_hero = false;
 	switchhook_cost_item = -1;
 	wavy=quakeclk=0;
@@ -1677,7 +1486,6 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_items=true;
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	msgscr=nullptr;
 	maps_init_game_vars();
 	guys_init_game_vars();
 	combos_init_game_vars();
@@ -1694,16 +1502,6 @@ void init_game_vars(bool is_cont_game = false)
 	db = 0;
 	idle_count = 0;
 	active_count = 0;
-	msg_onscreen = msg_active = false;
-	msgstr_nofreeze = false;
-	prt_tile = 0;
-	prt_cset = 0;
-	prt_x = 0;
-	prt_y = 0;
-	prt_tw = 0;
-	prt_th = 0;
-	msg_shdtype = 0;
-	msg_shdcol = 0;
 	strike_hint_counter = 0;
 	strike_hint_timer = 0;
 	strike_hint = 0;
@@ -1728,6 +1526,7 @@ void init_game_vars(bool is_cont_game = false)
 	onload_gswitch_timers();
 	refresh_subscr_buttonitems();
 	kill_subscr_items();
+	msgstr::dismiss();
 }
 
 int32_t init_game()
@@ -2594,63 +2393,6 @@ void restart_level()
 	}
 }
 
-
-void putintro()
-{
-	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
-		return;
-
-    if(!stricmp("                                                                        ", DMaps[cur_dmap].intro))
-    {
-        introclk=intropos=72;
-        return;
-    }
-    
-    if(getInput(btnB) && get_qr(qr_ALLOWMSGBYPASS))
-    {
-        //finish writing out the string
-        for(; intropos<72; ++intropos)
-        {
-            textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                          "%c",DMaps[cur_dmap].intro[intropos]);
-        }
-    }
-    
-    if(intropos>=72)
-    {
-        if(dmapmsgclk >= 51)
-            dmapmsgclk=50;
-            
-        return;
-    }
-    
-    if(((introclk++) % 6 < 5) && (!getInput(btnA) || !get_qr(qr_ALLOWFASTMSG)))
-        return;
-        
-    dmapmsgclk=51;
-    
-    if(intropos == 0)
-    {
-        while(DMaps[cur_dmap].intro[intropos]==' ')
-            ++intropos;
-    }
-    
-    sfx(WAV_MSG); //actual message display
-    
-    
-    //using the clip value to indicate the bitmap is "dirty"
-    //rather than add yet another global variable
-    set_clip_state(msg_txt_display_buf, 0);
-    textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                  "%c",DMaps[cur_dmap].intro[intropos]);
-                  
-    ++intropos;
-    
-    if(DMaps[cur_dmap].intro[intropos]==' ' && DMaps[cur_dmap].intro[intropos+1]==' ')
-        while(DMaps[cur_dmap].intro[intropos]==' ')
-            ++intropos;
-}
-
 void show_ffscript_names()
 {
 	int32_t ypos = 8;
@@ -3191,28 +2933,6 @@ void do_dcounters()
     }
 }
 
-void update_msgstr()
-{
-	if(!msgstr) return;
-	
-	set_clip_state(msg_bg_display_buf, 0);
-	blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-	set_clip_state(msg_txt_display_buf, 0);
-	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0)
-	{
-		blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-	}
-	else
-	{
-		blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-	}
-	set_clip_state(msg_portrait_display_buf, 0);
-	blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
-}
-
-extern bool do_end_str;
 #define F7 46+7
 void game_loop()
 {
@@ -3245,7 +2965,7 @@ void game_loop()
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
 		freeze_message = get_qr(qr_MSGFREEZE)
 			&& ((intropos && intropos<72)
-				|| (!msgstr_nofreeze && (msg_active || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))));
+				|| (!msgstr::nofreeze && (msgstr::active || (msgstr::linked_clk && get_qr(qr_MSGDISAPPEAR)))));
 		if (!get_qr(qr_SCRIPTDRAWSFROZENMSG))
 			FFCore.skipscriptdraws = freeze_message;
 		if(!freeze_message || get_qr(qr_SCRIPTDRAWSFROZENMSG))
@@ -3540,27 +3260,23 @@ void game_loop()
 		}
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 
-		if(linkedmsgclk==1 && !do_end_str)
+		if (msgstr::show_more())
 		{
-			if(sprite_data_buf.get(iwMore).tile!=0)
+			auto [more_x, more_y] = msgstr::more_xy();
+			if (drawPassiveSubscreenSeparate)
 			{
-				if (drawPassiveSubscreenSeparate)
-				{
-					// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
-					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-					draw_lens_hint_sprite(framebuf_no_passive_subscreen, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-				}
-				else
-				{
-					draw_lens_hint_sprite(framebuf, zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-				}
+				// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
+				draw_lens_hint_sprite(framebuf, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
+				draw_lens_hint_sprite(framebuf_no_passive_subscreen, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
+			}
+			else
+			{
+				draw_lens_hint_sprite(framebuf, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
 			}
 		}
 		
 		if(!freeze_general)
-		{
-			putintro();
-		}
+			msgstr::run_intro();
 		
 		if(dmapmsgclk>0)
 		{
@@ -3577,12 +3293,7 @@ void game_loop()
 			Hero.finishedmsg();
 			dmapmsgclk=0;
 			introclk=72;
-			clear_bitmap(msg_bg_display_buf);
-			set_clip_state(msg_bg_display_buf, 1);
-			clear_bitmap(msg_txt_display_buf);
-			set_clip_state(msg_txt_display_buf, 1);
-			clear_bitmap(msg_portrait_display_buf);
-			set_clip_state(msg_portrait_display_buf, 1);
+			msgstr::clear_display_bmps();
 			//    clear_bitmap(pricesdisplaybuf);
 		}
 		
@@ -3592,9 +3303,7 @@ void game_loop()
 		{
 			if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
 			{
-				putmsg();
-				
-				update_msgstr();
+				msgstr::run();
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
 			do_dcounters();
@@ -4152,19 +3861,12 @@ static void init_bitmaps()
 	tmp_scr   = create_bitmap_ex(8,320,240);
 	tmp_bmp   = create_bitmap_ex(8,32,32);
 	prim_bmp  = create_bitmap_ex(8,512,512);
-	msg_bg_display_buf = create_bitmap_ex(8,256, 224);
-	msg_txt_display_buf = create_bitmap_ex(8,256, 224);
-	msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_menu_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
-	msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
-	msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
 	pricesdisplaybuf = create_bitmap_ex(8,256, 224);
 	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
 	
-	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
-			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
-			|| !script_menu_buf || !f6_menu_buf)
+	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr || !screen2
+		|| !pricesdisplaybuf || !script_menu_buf || !f6_menu_buf
+		|| !msgstr::allocate_bmps())
 	{
 		Z_error_fatal("Error");
 	}
@@ -4172,12 +3874,7 @@ static void init_bitmaps()
 	clear_bitmap(lightbeam_bmp);
 	clear_bitmap(scrollbuf);
 	clear_bitmap(framebuf);
-	clear_bitmap(msg_bg_display_buf);
-	set_clip_state(msg_bg_display_buf, 1);
-	clear_bitmap(msg_txt_display_buf);
-	set_clip_state(msg_txt_display_buf, 1);
-	clear_bitmap(msg_portrait_display_buf);
-	set_clip_state(msg_portrait_display_buf, 1);
+	msgstr::clear_bmps();
 	clear_bitmap(pricesdisplaybuf);
 	set_clip_state(pricesdisplaybuf, 1);
 }
@@ -5116,16 +4813,7 @@ void quit_game()
 	destroy_bitmap(screen2);
 	destroy_bitmap(tmp_bmp);
 	destroy_bitmap(prim_bmp);
-	set_clip_state(msg_bg_display_buf, 1);
-	destroy_bitmap(msg_bg_display_buf);
-	set_clip_state(msg_txt_display_buf, 1);
-	destroy_bitmap(msg_txt_display_buf);
-	set_clip_state(msg_portrait_display_buf, 1);
-	destroy_bitmap(msg_portrait_display_buf);
-	destroy_bitmap(msg_txt_bmp_buf);
-	destroy_bitmap(msg_menu_bmp_buf);
-	destroy_bitmap(msg_bg_bmp_buf);
-	destroy_bitmap(msg_portrait_bmp_buf);
+	msgstr::cleanup_bmps();
 	set_clip_state(pricesdisplaybuf, 1);
 	destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);

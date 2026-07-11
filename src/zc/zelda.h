@@ -21,6 +21,7 @@
 #include "zc/replay.h"
 #include "zc/script_drawing.h"
 #include "zc/zc_sys.h"
+#include "zc/message_string.h"
 
 #include <map>
 #include <optional>
@@ -123,13 +124,6 @@ void do_dcounters();
 void game_loop();
 
 void clearmsgnext(int32_t str);
-void donewmsg(mapscr* scr, int32_t str);
-void msg_bg(MsgStr const& msg);
-void msg_prt();
-void blit_msgstr_bg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
-void blit_msgstr_fg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
-void blit_msgstr_prt(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
-void dismissmsg();
 void dointro();
 void init_dmap();
 int32_t  init_game();
@@ -213,8 +207,7 @@ extern int32_t strike_hint;
 extern signed char pause_in_background_menu_init;
 
 extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
-                *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
-				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
+                *pricesdisplaybuf, *tb_page[3],
 				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
 // The portion of the framebuf without the passive subscreen. Only used in extended height mode.
@@ -255,24 +248,9 @@ extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of bla
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 */
 extern bool ewind_restart;
-extern word     msgclk, msgstr, enqueued_str, msg_count, msgcolour, msgspeed,msg_w,
-       msg_h,
-       msg_count,
-       msgorig,
-       msg_xpos,
-       msg_ypos,
-       cursor_x,
-       cursor_y;
-extern std::optional<MsgStr::iterator> msg_it;
-extern mapscr* msgscr;
-extern int16_t msg_margins[4];
-extern int32_t prt_tile;
-extern byte msgstr_layer;
-extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th, msg_shdtype, msg_shdcol;
-extern bool msg_onscreen, msg_active,msgspace;
-extern FONT	*msgfont;
 extern word     door_combo_set_count;
-extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
+extern word     introclk, intropos, dmapmsgclk;
+extern word msg_count;
 extern int16_t    lensclk;
 extern int32_t     lensid;
 extern byte screengrid[22];

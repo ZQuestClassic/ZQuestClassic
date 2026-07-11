@@ -893,10 +893,6 @@ void loadenemies();
 void moneysign();
 void putprices(bool sign);
 void setupscreen();
-FONT *setmsgfont();
-void setmsg(int str);
-void putmsg();
-int32_t message_more_y();
 
 /***  Collision detection & handling  ***/
 

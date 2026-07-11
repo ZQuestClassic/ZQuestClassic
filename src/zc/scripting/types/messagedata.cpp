@@ -118,7 +118,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_cset) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.cset) * 10000;
 			break;
 		}
 		case MESSAGEDATAPORTHEI: //BYTE
@@ -128,7 +128,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_th) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.th) * 10000;
 			break;
 		}
 		case MESSAGEDATAPORTTILE: //INT
@@ -138,7 +138,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_tile) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.tile) * 10000;
 			break;
 		}
 		case MESSAGEDATAPORTWID: //BYTE
@@ -148,7 +148,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_tw) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.tw) * 10000;
 			break;
 		}
 		case MESSAGEDATAPORTX: //BYTE
@@ -158,7 +158,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_x) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.x) * 10000;
 			break;
 		}
 		case MESSAGEDATAPORTY: //BYTE
@@ -168,7 +168,7 @@ int32_t messagedata_get_register(int32_t reg)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((int32_t)MsgStrings[ID].portrait_y) * 10000;
+				ret = ((int32_t)MsgStrings[ID].portrait.y) * 10000;
 			break;
 		}
 		case MESSAGEDATASFX: //BYTE
@@ -350,7 +350,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_cset = ((byte)vbound((value/10000), 0, 15));
+				MsgStrings[ID].portrait.cset = ((byte)vbound((value/10000), 0, 15));
 			break;
 		}
 		case MESSAGEDATAPORTHEI: //BYTE
@@ -360,7 +360,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_th = ((byte)vbound((value/10000), 0, 14));
+				MsgStrings[ID].portrait.th = ((byte)vbound((value/10000), 0, 14));
 			break;
 		}
 		case MESSAGEDATAPORTTILE: //INT
@@ -370,7 +370,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_tile = vbound((value/10000), 0, (NEWMAXTILES));
+				MsgStrings[ID].portrait.tile = vbound((value/10000), 0, (NEWMAXTILES));
 			break;
 		}
 		case MESSAGEDATAPORTWID: //BYTE
@@ -380,7 +380,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_tw = ((byte)vbound((value/10000), 0, 16));
+				MsgStrings[ID].portrait.tw = ((byte)vbound((value/10000), 0, 16));
 			break;
 		}
 		case MESSAGEDATAPORTX: //BYTE
@@ -390,7 +390,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_x = ((byte)vbound((value/10000), 0, 255));
+				MsgStrings[ID].portrait.x = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}
 		case MESSAGEDATAPORTY: //BYTE
@@ -400,7 +400,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].portrait_y = ((byte)vbound((value/10000), 0, 255));
+				MsgStrings[ID].portrait.y = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}
 		case MESSAGEDATASFX: //BYTE

@@ -27,7 +27,7 @@ int32_t screendata_get_register(int32_t reg)
 			return 0;
 		}
 		case SHOWNMSG:
-			return ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
+			return ((msgstr::active || msgstr::on_screen) ? msgstr::active_str : 0) * 10000L;
 		case WAVY:
 			return wavy*10000;
 	}

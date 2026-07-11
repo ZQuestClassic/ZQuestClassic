@@ -3229,15 +3229,8 @@ void updatescr(bool allowwavy)
 	if(Playing && !Paused)
 		++light_wave_clk;
 	
-	if(Playing && msg_active && !screenscrolling)
-	{
-		if(!(msg_bg_display_buf->clip))
-			blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
-		if(!(msg_portrait_display_buf->clip))
-			blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
-		if(!(msg_txt_display_buf->clip))
-			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
-	}
+	if (Playing && msgstr::active && !screenscrolling)
+		msgstr::blit_str(framebuf, 0, 0, 0, playing_field_offset, 256, 176);
 	
 	bool nosubscr = GameLoaded && no_subscreen() && !(hero_scr->flags3&fNOSUBSCROFFSET);
 	

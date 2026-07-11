@@ -372,17 +372,17 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 		TabRef(name = "Portrait", Column(
 			Rows_Columns<2, 2>(
 				Label(text = "X:", hAlign = 1.0),
-				NUM_FIELD(portrait_x,0,255),
+				NUM_FIELD(portrait.x,0,255),
 				Label(text = "Y:", hAlign = 1.0),
-				NUM_FIELD(portrait_y,0,255),
+				NUM_FIELD(portrait.y,0,255),
 				Label(text = "Tile Width:", hAlign = 1.0),
-				NUM_FIELD(portrait_tw,0,16),
+				NUM_FIELD(portrait.tw,0,16),
 				Label(text = "Tile Height:", hAlign = 1.0),
-				NUM_FIELD(portrait_th,0,14)
+				NUM_FIELD(portrait.th,0,14)
 			),
 			Row(
 				Label(text = "Portrait Tile:", hAlign = 1.0),
-				TILE_FIELD(portrait_tile, portrait_cset)
+				TILE_FIELD(portrait.tile, portrait.cset)
 			)
 		))
 	);

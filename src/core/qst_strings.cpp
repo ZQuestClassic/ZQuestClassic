@@ -26,12 +26,7 @@ void init_msgstr(MsgStr *str)
 	str->margins[down] = 0;
 	str->margins[left] = 8;
 	str->margins[right] = 8;
-	str->portrait_tile = 0;
-	str->portrait_cset = 0;
-	str->portrait_x = 0;
-	str->portrait_y = 0;
-	str->portrait_tw = 1;
-	str->portrait_th = 1;
+	str->portrait.clear();
 	str->shadow_type = 0;
 	str->shadow_color = 0;
 	str->drawlayer = 6;
@@ -301,22 +296,22 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 							return qe_invalid;
 					}
 					
-					if(!p_igetl(&tempMsgString.portrait_tile,f))
+					if(!p_igetl(&tempMsgString.portrait.tile,f))
 						return qe_invalid;
 					
-					if(!p_getc(&tempMsgString.portrait_cset,f))
+					if(!p_getc(&tempMsgString.portrait.cset,f))
 						return qe_invalid;
 					
-					if(!p_getc(&tempMsgString.portrait_x,f))
+					if(!p_getc(&tempMsgString.portrait.x,f))
 						return qe_invalid;
 					
-					if(!p_getc(&tempMsgString.portrait_y,f))
+					if(!p_getc(&tempMsgString.portrait.y,f))
 						return qe_invalid;
 					
-					if(!p_getc(&tempMsgString.portrait_tw,f))
+					if(!p_getc(&tempMsgString.portrait.tw,f))
 						return qe_invalid;
 					
-					if(!p_getc(&tempMsgString.portrait_th,f))
+					if(!p_getc(&tempMsgString.portrait.th,f))
 						return qe_invalid;
 				}
 				

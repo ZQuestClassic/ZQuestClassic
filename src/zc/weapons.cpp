@@ -3654,7 +3654,7 @@ bool weapon::animate([[maybe_unused]] int32_t index)
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(item_scr, pstr);
+								msgstr::do_new(item_scr, pstr);
 								break;
 							}
 						}
