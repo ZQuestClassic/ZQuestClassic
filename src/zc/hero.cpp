@@ -23973,6 +23973,9 @@ static std::map<rpos_t, int> getRposes(int32_t x1, int32_t y1, int32_t x2, int32
 		for (auto y : ys)
 		{
 			auto tmp = COMBOPOS_REGION_B(x, y);
+			if (tmp == rpos_t::None)
+				continue;
+
 			int lyr = 6;
 			if (rposes.contains(tmp))
 				lyr = rposes[tmp];
@@ -24105,8 +24108,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 				return;
 			}
 			
-			rpos_t rpos = COMBOPOS_REGION(x+j, y+i);
-			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=rpos)
+			rpos_t rpos = COMBOPOS_REGION_B(x+j, y+i);
+			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=rpos && rpos != rpos_t::None)
 			{
 				auto rpos_handle = get_rpos_handle(rpos, 0);
 				
@@ -24227,7 +24230,15 @@ void HeroClass::checkspecial2(int32_t *ls)
 		for (int q = 0; q < 4; ++q)
 		{
 			bool bridge_covered = false;
-			rposes[q] = COMBOPOS_REGION(xs[q], ys[q]);
+			rposes[q] = COMBOPOS_REGION_B(xs[q], ys[q]);
+			if (rposes[q] == rpos_t::None)
+			{
+				types[q] = cNONE;
+				sflags[q] = mfNONE;
+				cflags[q] = mfNONE;
+				continue;
+			}
+
 			if (!get_qr(qr_OLD_BRIDGE_COMBO_COVER) && has_bridge_above(xs[q], ys[q], 0))
 				bridge_covered = true;
 			rpos_handles[q] = get_rpos_handle(rposes[q], 0);
@@ -24597,7 +24608,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 
 	if(isDiving()) //Dive-> triggerflag
 	{
-		rpos_t crpos = COMBOPOS_REGION(x+8,y+8);
+		rpos_t crpos = COMBOPOS_REGION_B(x+8,y+8);
 		int x1=x,x2=x+15,y1=y+(bigHitbox?0:8),y2=y+15;
 		int xposes[] = {x1,x1,x2,x2};
 		int yposes[] = {y1,y2,y1,y2};
@@ -24606,8 +24617,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
 			auto rpos_handle = get_rpos_handle(crpos, lyr);
-			auto& cmb = rpos_handle.combo();
-			auto cid = rpos_handle.data();
 			if (!hit_center_bridge)
 			{
 				bool didtrig = trig_each_combo_trigger(rpos_handle, [&](combo_trigger const& trig){
