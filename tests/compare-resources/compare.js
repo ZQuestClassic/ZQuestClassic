@@ -486,7 +486,7 @@ function createNonGraphicalFailureNote(failures) {
     const list = document.createElement('ul');
     const seen = new Set();
     for (const failure of failures) {
-        const key = `${failure.source} ${failure.failing_frame}`;
+        const key = `${failure.source} :: ${failure.failing_frame}`;
         if (seen.has(key)) continue;
         seen.add(key);
 
@@ -508,38 +508,44 @@ function createNonGraphicalFailureNote(failures) {
  * @return {HTMLElement|null}
  */
 function createStderrSection(runs) {
-    const seen = new Set();
-    const entries = [];
-    for (const run of runs) {
-        if (!run.stderr) continue;
-        const key = `${run.source} ${run.stderr}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        entries.push(run);
-    }
-    if (!entries.length) return null;
-
     const section = document.createElement('div');
     section.className = 'stderr-section';
+    let any = false;
 
-    const heading = document.createElement('div');
-    heading.className = 'stderr-heading';
-    heading.textContent = 'stderr';
-    section.append(heading);
+    function addGroup(heading, field) {
+        const seen = new Set();
+        const entries = runs.filter(run => {
+            if (!run[field]) return false;
+            const key = `${run.source} :: ${run[field]}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+        if (!entries.length) return;
+        any = true;
 
-    for (const run of entries) {
-        const label = document.createElement('div');
-        label.className = 'stderr-source';
-        label.textContent = run.source;
-        section.append(label);
+        const headingEl = document.createElement('div');
+        headingEl.className = 'stderr-heading';
+        headingEl.textContent = heading;
+        section.append(headingEl);
 
-        const pre = document.createElement('pre');
-        pre.className = 'stderr-output';
-        pre.textContent = run.stderr;
-        section.append(pre);
+        for (const run of entries) {
+            const label = document.createElement('div');
+            label.className = 'stderr-source';
+            label.textContent = run.source;
+            section.append(label);
+
+            const pre = document.createElement('pre');
+            pre.className = 'stderr-output';
+            pre.textContent = run[field];
+            section.append(pre);
+        }
     }
 
-    return section;
+    addGroup('stderr', 'stderr');
+    addGroup('roundtrip', 'roundtrip');
+
+    return any ? section : null;
 }
 
 function scrollToSegment(index) {

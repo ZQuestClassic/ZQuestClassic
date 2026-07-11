@@ -3,6 +3,7 @@
 # presenting the snapshots frame-by-frame, and their differences.
 
 import argparse
+import bisect
 import hashlib
 import io
 import json
@@ -109,13 +110,27 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
     for run in fake_single_run:
         if run.snapshots is None:
             run.snapshots = []
+        run_dir = directory / run.directory
         # Load the run's stderr for display in the report (e.g. an assertion
         # message). Read from disk here rather than embedding it in
         # test_results.json.
-        stderr_path = directory / run.directory / 'stderr.txt'
+        stderr_path = run_dir / 'stderr.txt'
         if stderr_path.exists():
             stderr = stderr_path.read_text('utf-8', errors='replace').strip()
             run.stderr = stderr or None
+        # Load and trim the run's roundtrip (re-serialized replay) file. These
+        # can be many MB, so trim to the interesting steps around each failure.
+        roundtrip_path = run_dir / f'{Path(run.name).name}.roundtrip'
+        if roundtrip_path.exists():
+            failure_frames = set()
+            if run.failing_frame is not None:
+                failure_frames.add(run.failing_frame)
+            for segment in run.unexpected_gfx_segments or []:
+                failure_frames.add(segment[0])
+            run.roundtrip = trim_roundtrip(
+                roundtrip_path.read_text('utf-8', errors='replace'),
+                sorted(failure_frames),
+            )
     test_results.runs = [fake_single_run]
 
     return test_results
@@ -164,6 +179,59 @@ def collect_many_test_results_from_ci(
 ) -> list[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
     return collect_many_test_results_from_dir(workflow_dir)
+
+
+def trim_roundtrip(
+    content: str, failure_frames: list[int], head: int = 100, context: int = 50
+) -> str:
+    """Trim a roundtrip replay to keep it small enough for the report.
+
+    Keeps all leading `M` metadata fields, the first `head` steps, and
+    `context` steps on either side of each failure frame.
+    """
+    lines = content.split('\n')
+    if lines and lines[-1] == '':
+        lines.pop()
+
+    meta = []
+    steps = []
+    for line in lines:
+        if not steps and line.startswith('M '):
+            meta.append(line)
+        else:
+            steps.append(line)
+
+    if not steps:
+        return '\n'.join(meta) + '\n'
+
+    # Steps are in frame order; carry the last frame forward for any line
+    # without a parseable frame so the list stays sorted for bisect.
+    frames = []
+    last_frame = 0
+    for step in steps:
+        parts = step.split()
+        if len(parts) >= 2:
+            try:
+                last_frame = int(parts[1])
+            except ValueError:
+                pass
+        frames.append(last_frame)
+
+    keep = set(range(min(head, len(steps))))
+    for frame in failure_frames:
+        idx = bisect.bisect_left(frames, frame)
+        keep.update(range(max(0, idx - context), min(len(steps), idx + context)))
+
+    out = list(meta)
+    prev = -1
+    for i in sorted(keep):
+        if i != prev + 1:
+            out.append(f'...{i - prev - 1} steps elided...')
+        out.append(steps[i])
+        prev = i
+    if prev != len(steps) - 1:
+        out.append(f'...{len(steps) - 1 - prev} steps elided...')
+    return '\n'.join(out) + '\n'
 
 
 def create_compare_report(
@@ -299,7 +367,9 @@ def create_compare_report(
                     shutil.copy2(snapshot['path'].absolute(), dest)
                 snapshot['path'] = str(dest.relative_to(out_dir))
 
-    html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
+    index_content = Path(f'{script_dir}/compare-resources/compare.html').read_text(
+        'utf-8'
+    )
     css = Path(f'{script_dir}/compare-resources/compare.css').read_text('utf-8')
     js = Path(f'{script_dir}/compare-resources/compare.js').read_text('utf-8')
     deps = Path(f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
@@ -314,7 +384,15 @@ def create_compare_report(
 
     test_runs_as_json = ',\n'.join(test_run.to_json(indent=0) for test_run in test_runs)
     test_runs_as_json = '[\n' + test_runs_as_json + '\n]'
-    js = f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}'
+    # Escape '<' so arbitrary embedded text (stderr, roundtrip) can't terminate
+    # the inline <script> block, e.g. a stray '</script>' in crash output.
+    test_runs_as_json = test_runs_as_json.replace('<', '\\u003c')
+    js = '\n'.join(
+        [
+            f'const __TEST_RUNS__ = {test_runs_as_json};',
+            js,
+        ]
+    )
 
     if did_prune:
         run_ids = list(dict.fromkeys(t.workflow_run_id for t in test_runs))
@@ -323,9 +401,12 @@ def create_compare_report(
         msg = f'The full report was too large to upload, so it has been reduced. To see the full report run this command locally:\\n\\t{cmd}'
         js += f'\nconsole.log("{msg}")'
 
-    result = html.replace('// JAVASCRIPT', js)
-    result = result.replace('// DEPS', deps)
+    # Inject the templates first and the JS (which carries the arbitrary
+    # embedded stderr/roundtrip text) last, so a later replace can't corrupt
+    # that text if it happens to contain '// DEPS' or '/* CSS */'.
+    result = index_content.replace('// DEPS', deps)
     result = result.replace('/* CSS */', css)
+    result = result.replace('// JAVASCRIPT', js)
     out_path = Path(f'{out_dir}/index.html')
     out_path.write_text(result)
     print(f'report written to {out_path}')

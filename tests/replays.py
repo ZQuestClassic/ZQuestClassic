@@ -97,10 +97,11 @@ class RunResult:
     unexpected_gfx_segments: list[tuple[int, int]] = None
     unexpected_gfx_segments_limited: list[tuple[int, int]] = None
     exceptions: list[str] = field(default_factory=list)
-    # Only for compare report. Populated by compare_replays.py from the run's
-    # stderr.txt on disk, not written during a normal test run.
+    # Only for compare report. Populated by compare_replays.py from files on
+    # disk (stderr.txt, the .roundtrip file), not written during a normal run.
     snapshots: list[Any] = None
     stderr: str = None
+    roundtrip: str = None
 
 
 @dataclass
@@ -1034,10 +1035,6 @@ def run_replays(
                     shutil.rmtree(test_results_dir / run.directory, ignore_errors=True)
 
         test_results.runs = [replay_runs]
-
-        # These are huge and not necessary for the compare report.
-        for file in test_results_dir.rglob('*.zplay.roundtrip'):
-            file.unlink()
 
     (test_results_dir / 'test_results.json').write_text(test_results.to_json())
     return test_results
