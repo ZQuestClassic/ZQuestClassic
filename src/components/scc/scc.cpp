@@ -1,7 +1,10 @@
 #include "components/scc/scc.h"
+#include "core/flags.h"
 #include "base/check.h"
 #include "base/util.h"
-#include "fmt/format.h"
+#include "base/containers.h"
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #include <map>
 #include <optional>
@@ -147,12 +150,24 @@ std::optional<int> get_scc_command_max_args(int code)
 	return it->second.max_args;
 }
 
+namespace flags
+{
+enum numparse_err_flags : uint8_t
+{
+	NPR_ERR_OVERFLOW       = 0x01,
+	NPR_ERR_UNDERFLOW      = 0x02,
+	NPR_ERR_TOO_MANY_DEC   = 0x04, // 1.00001
+	NPR_ERR_TOO_FEW_DEC    = 0x08, // 1.
+};
+}
+
 struct NumberParseResult
 {
-	int32_t value;
+	zfix value;
 	// The index after the last digit of the number.
 	size_t next_index;
-	bool overflow;
+	bool has_decimal;
+	numparse_err_flags errs;
 };
 
 /**
@@ -181,48 +196,96 @@ std::optional<NumberParseResult> parse_ascii_number(const std::string& str, size
 	if (i >= str.size() || !std::isdigit(static_cast<unsigned char>(str[i])))
 		return std::nullopt; // No number found (e.g., "\-", "\F", "\")
 
-	int val = 0;
-	int max_int = MAX_SCC_ARG;
-	int min_int = MIN_SCC_ARG;
-	bool overflow = false;
+	int ipart = 0, dpart = 0;
+	int max_int = MAX_SCC_INT;
+	int min_int = MIN_SCC_INT;
+	numparse_err_flags errs{};
+	bool has_decimal = false;
 
 	while (i < str.size() && std::isdigit(static_cast<unsigned char>(str[i])))
 	{
 		int digit = (str[i] - '0');
-		if (!overflow)
+		if (!errs)
 		{
 			if (is_negative)
 			{
 				// Check for underflow before multiplying
-				if (val < min_int / 10 || (val == min_int / 10 && -digit < min_int % 10))
+				if (ipart < min_int / 10 || (ipart == min_int / 10 && -digit < min_int % 10))
 				{
-					overflow = true;
-					val = min_int;
+					errs |= NPR_ERR_UNDERFLOW;
+					ipart = min_int;
 				}
 				else
 				{
-					val = val * 10 - digit;
+					ipart = ipart * 10 - digit;
 				}
 			}
 			else
 			{
 				// Check for overflow before multiplying
-				if (val > max_int / 10 || (val == max_int / 10 && digit > max_int % 10))
+				if (ipart > max_int / 10 || (ipart == max_int / 10 && digit > max_int % 10))
 				{
-					overflow = true;
-					val = max_int;
+					errs |= NPR_ERR_OVERFLOW;
+					ipart = max_int;
 				}
 				else
 				{
-					val = val * 10 + digit;
+					ipart = ipart * 10 + digit;
 				}
 			}
 		}
 
 		i++;
 	}
-
-	return {{static_cast<int32_t>(val), i, overflow}};
+	if (i < str.size() && str[i] == '.')
+	{
+		has_decimal = true;
+		++i;
+		int i2 = 1000;
+		int max_dpart = 9999;
+		if (ipart == MAX_SCC_INT)
+			max_dpart = 3647;
+		else if (ipart == MIN_SCC_INT)
+			max_dpart = 3648;
+		if (errs & (NPR_ERR_OVERFLOW|NPR_ERR_UNDERFLOW))
+			dpart = max_dpart;
+		if (i >= str.size() || !std::isdigit(static_cast<unsigned char>(str[i])))
+		{
+			errs |= NPR_ERR_TOO_FEW_DEC;
+		}
+		else
+		{
+			while (i < str.size() && i2 && std::isdigit(static_cast<unsigned char>(str[i])))
+			{
+				int digit = (str[i] - '0');
+				
+				if (!errs)
+				{
+					dpart += i2 * digit;
+					if (dpart > max_dpart)
+					{
+						if (is_negative)
+							errs |= NPR_ERR_UNDERFLOW;
+						else
+							errs |= NPR_ERR_OVERFLOW;
+						// Unclamped, e.g. zfix(214748, 3648) overflows int32.
+						dpart = max_dpart;
+					}
+				}
+				
+				++i;
+				i2 /= 10;
+			}
+			if (i < str.size() && !i2 && std::isdigit(static_cast<unsigned char>(str[i])))
+			{
+				errs |= NPR_ERR_TOO_MANY_DEC;
+				// step past all the excess digits
+				while (i < str.size() && std::isdigit(static_cast<unsigned char>(str[i])))
+					++i;
+			}
+		}
+	}
+	return {{zfix(ipart, is_negative ? -dpart : dpart), i, has_decimal, errs}};
 }
 
 static bool compareStringsCaseIns(const std::string& str1, const std::string& str2)
@@ -273,6 +336,8 @@ static bool parse_ascii_scc_command(
 
 	// Parse command code
 	std::optional<int> code;
+	// The source text of the command code, if it erroneously contained a decimal point.
+	std::optional<std::string> decimal_command;
 
 	if (isalpha(str[cur]))
 	{
@@ -282,8 +347,14 @@ static bool parse_ascii_scc_command(
 	else if (auto num_res_opt = parse_ascii_number(str, cur))
 	{
 		auto num_res = *num_res_opt;
-		code = num_res.overflow ? 0 : num_res.value;
+
+		// over/underflow are ignored, handled by 'unknown command'
+		// decimal too few/many errors are ignored, as decimal existing at all
+		//  is considered an error here:
+		if (num_res.has_decimal)
+			decimal_command = str.substr(cur, num_res.next_index - cur);
 		cur = num_res.next_index;
+		code = num_res.value.getTrunc();
 	}
 
 	if (!code)
@@ -295,12 +366,33 @@ static bool parse_ascii_scc_command(
 	int min_args = is_unknown_command ? 0 : defn_it->second.min_args;
 	int max_args = is_unknown_command ? 0 : defn_it->second.max_args;
 	int found_num_args = 0;
+	
+	bitstring can_decimal;
+	switch (cmd.code)
+	{
+		case MSGC_GOTOIFSCREEND:
+			can_decimal.set(1, true);
+			break;
+		case MSGC_SETSCREEND:
+			can_decimal.set(3, true);
+			break;
+		case MSGC_SETCURRENTSCREEND:
+			can_decimal.set(1, true);
+			break;
+		case MSGC_GOTOIFCREEND:
+			can_decimal.set(3, true);
+			break;
+		case MSGC_RUN_FRZ_GENSCR:
+			for (int idx = 2; idx < 10; ++idx)
+				can_decimal.set(idx, true);
+			break;
+	}
 
 	// Parse arguments.
-	bool found_overflowed_argument = false;
-	bool found_underflowed_argument = false;
+	numparse_err_flags arg_errors{};
 	bool found_non_numeric_argument = false;
 	bool found_double_slash = false;
+	std::set<int> invalid_decimal_args;
 	while (cur < str.size())
 	{
 		if (cur >= last || str[cur] != '\\')
@@ -320,27 +412,35 @@ static bool parse_ascii_scc_command(
 			break;
 		}
 
-		int32_t value = 0;
+		zfix value = 0;
 
-		auto arg_res_opt = parse_ascii_number(str, cur);
-		if (arg_res_opt)
-		{
-			auto arg_res = *arg_res_opt;
-			if (arg_res.overflow)
-			{
-				if (arg_res.value > 0)
-					found_overflowed_argument = true;
-				else
-					found_underflowed_argument = true;
-			}
-
-			value = arg_res.value;
-			cur = arg_res.next_index;
-		}
-		else
+		auto arg_res = parse_ascii_number(str, cur);
+		if (!arg_res)
 		{
 			found_non_numeric_argument = true;
 			consume_until_slash(str, cur);
+		}
+		else if (arg_res->next_index < str.size() && str[arg_res->next_index] == '.')
+		{
+			// A parsed number immediately followed by another '.' (e.g. "1.00.2") is one
+			// malformed number, not a valid arg plus a bad terminator.
+			found_non_numeric_argument = true;
+			cur = arg_res->next_index;
+			consume_until_slash(str, cur);
+		}
+		else
+		{
+			if (arg_res->has_decimal && !can_decimal.get(found_num_args))
+			{
+				invalid_decimal_args.insert(found_num_args);
+				arg_res->value.doTrunc();
+				// let the invalid decimal error swallow these errors
+				arg_res->errs &= ~(NPR_ERR_TOO_FEW_DEC|NPR_ERR_TOO_MANY_DEC);
+			}
+
+			arg_errors |= arg_res->errs;
+			value = arg_res->value;
+			cur = arg_res->next_index;
 		}
 
 		if (found_num_args < MAX_SCC_ARG_COUNT)
@@ -356,33 +456,44 @@ static bool parse_ascii_scc_command(
 	bool missing_slash = cur == last || str[cur] != '\\';
 	if (!missing_slash) cur++; // Skip terminator '\'
 
-	bool overflowed = found_underflowed_argument || found_overflowed_argument;
 	bool wrong_arg_count = found_num_args < min_args || found_num_args > max_args;
-	bool is_valid_command = cmd.code != 0 && !missing_slash && !is_unknown_command && !wrong_arg_count && !overflowed && !found_non_numeric_argument && !found_double_slash;
-
-	if (is_unknown_command)
-	{
-		warnings.push_back(fmt::format("Ignoring unknown command: {}", str.substr(start_index, cur - start_index)));
-	}
+	bool is_valid_command = cmd.code != 0 && !missing_slash && !is_unknown_command && !wrong_arg_count && !arg_errors && !found_non_numeric_argument && !found_double_slash && invalid_decimal_args.empty() && !decimal_command;
+	
+	auto command_str = str.substr(start_index, cur - start_index);
+	if (decimal_command)
+		warnings.push_back(fmt::format("Expected integer command, found {} instead", *decimal_command));
+	else if (is_unknown_command)
+		warnings.push_back(fmt::format("Ignoring unknown command: {}", command_str));
 	else if (missing_slash || found_double_slash)
-	{
-		warnings.push_back(fmt::format("Expected slash (followed by either space or end of string) at end of command: {}", str.substr(start_index, cur - start_index)));
-	}
+		warnings.push_back(fmt::format("Expected slash (followed by either space or end of string) at end of command: {}", command_str));
 	else
 	{
 		if (wrong_arg_count)
 		{
 			if (min_args == max_args)
-				warnings.push_back(fmt::format("Expected {} args, but got {} for command: {}", min_args, found_num_args, str.substr(start_index, cur - start_index)));
+				warnings.push_back(fmt::format("Expected {} args, but got {} for command: {}", min_args, found_num_args, command_str));
 			else
-				warnings.push_back(fmt::format("Expected between {} and {} args, but got {} for command: {}", min_args, max_args, found_num_args, str.substr(start_index, cur - start_index)));
+				warnings.push_back(fmt::format("Expected between {} and {} args, but got {} for command: {}", min_args, max_args, found_num_args, command_str));
 		}
+		
 		if (found_non_numeric_argument)
-			warnings.push_back(fmt::format("Found non-numeric argument for command: {}", str.substr(start_index, cur - start_index)));
-		if (found_overflowed_argument)
-			warnings.push_back(fmt::format("Found argument that was too big for command: {} (max value is {})", str.substr(start_index, cur - start_index), MAX_SCC_ARG));
-		else if (found_underflowed_argument)
-			warnings.push_back(fmt::format("Found argument that was too small for command: {} (min value is {})", str.substr(start_index, cur - start_index), MIN_SCC_ARG));
+			warnings.push_back(fmt::format("Found non-numeric argument for command: {}", command_str));
+		
+		if (!invalid_decimal_args.empty())
+		{
+			if (invalid_decimal_args.size() == 1)
+				warnings.push_back(fmt::format("Found argument with decimal places that does not allow decimal places: {} (argument #{})", command_str, *invalid_decimal_args.begin()));
+			else
+				warnings.push_back(fmt::format("Found arguments with decimal places that do not allow decimal places: {} (arguments #{})", command_str, fmt::join(invalid_decimal_args, ", #")));
+		}
+		if (arg_errors & NPR_ERR_OVERFLOW)
+			warnings.push_back(fmt::format("Found argument that was too big for command: {} (max value is {})", command_str, MAX_SCC_ARG.str()));
+		if (arg_errors & NPR_ERR_UNDERFLOW)
+			warnings.push_back(fmt::format("Found argument that was too small for command: {} (min value is {})", command_str, MIN_SCC_ARG.str()));
+		if (arg_errors & NPR_ERR_TOO_FEW_DEC)
+			warnings.push_back(fmt::format("Found argument with hanging decimal place: {} (at least 1 digit after the decimal is required)", command_str));
+		if (arg_errors & NPR_ERR_TOO_MANY_DEC)
+			warnings.push_back(fmt::format("Found argument with too many decimal places for command: {} (max is 4 decimal places)", command_str));
 	}
 
 	// At end of string. This is a valid terminator.
@@ -678,7 +789,7 @@ std::string ParsedMsgStr::serialize() const
 			auto& command = commands[command_index++];
 			result += fmt::format("\\{}", get_scc_command_name(command.code).value_or(""));
 			for (int j = 0; j < command.num_args; j++)
-				result += fmt::format("\\{}", command.args[j]);
+				result += fmt::format("\\{}", command.args[j].str_trim());
 			if (i == segment_types.size() - 1)
 				result += "\\";
 			else

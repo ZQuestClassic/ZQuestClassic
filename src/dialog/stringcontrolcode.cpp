@@ -34,7 +34,7 @@ std::string run_scc_dlg(MsgStr const* ref, int current_scc_index)
 	return retstr;
 }
 
-std::string calc_retstr(byte scc, int32_t* args)
+std::string calc_retstr(byte scc, scc_arg_array const& args)
 {
 	if(!is_msgc(scc))
 		return "";
@@ -52,7 +52,7 @@ std::string calc_retstr(byte scc, int32_t* args)
 	}
 	for(int q = 0; q < count; ++q)
 	{
-		oss << "\\" << args[q];
+		oss << "\\" << args[q].str_trim();
 	}
 	oss << "\\ ";
 	return oss.str();
@@ -143,39 +143,17 @@ const GUI::ListData SCCListData()
 	return ld;
 }
 
-void SCCDialog::default_args()
-{
-	args[MSGC_COLOUR][0] = QMisc.colors.msgtext >> 4;
-	args[MSGC_COLOUR][1] = QMisc.colors.msgtext & 0xF;
-	args[MSGC_SPEED][0] = zinit.msg_speed;
-	args[MSGC_GOTOIFRAND][0] = 2;
-	
-	args[MSGC_SHDCOLOR][0] = refstr->shadow_color;
-	args[MSGC_SHDTYPE][0] = refstr->shadow_type;
-	args[MSGC_FONT][0] = refstr->font;
-	
-	args[MSGC_TRIG_CMB_COPYCAT][0] = 1;
-
-	args[MSGC_DELAY][0] = 1;
-	args[MSGC_FORCE_DELAY][0] = 1;
-
-	args[MSGC_GOTOIFLEVELITEM][0] = -1;
-	args[MSGC_GOTOIFLEVELSTATE][0] = -1;
-	args[MSGC_SETLEVELITEM][0] = -1;
-	args[MSGC_SETLEVELSTATE][0] = -1;
-	
-	args[MSGC_GOTOIFBOTTLE][0] = 1;
-	args[MSGC_CHANGEBOTTLE][0] = 1;
-	
-	args[MSGC_CHANGEPORTRAIT][0] = refstr->portrait.tile;
-	args[MSGC_CHANGEPORTRAIT][1] = refstr->portrait.cset;
-	args[MSGC_CHANGEPORTRAIT][2] = refstr->portrait.x;
-	args[MSGC_CHANGEPORTRAIT][3] = refstr->portrait.y;
-	args[MSGC_CHANGEPORTRAIT][4] = refstr->portrait.tw;
-	args[MSGC_CHANGEPORTRAIT][5] = refstr->portrait.th;
-
-	warp_xy_toggle = true;
-}
+#define FIX_FIELD(v,_min,_max) \
+TextField( \
+	fitParent = true, width = 4.5_em, \
+	maxheight = 24_px, \
+	type = GUI::TextField::type::SWAP_ZSINT, \
+	swap_type = nswapDEC, \
+	low = zfix(_min).getZLong(), high = zfix(_max).getZLong(), val = v.getZLong(), \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		v = zslongToFix(val); \
+	})
 
 #define NUM_FIELD(v,_min,_max) \
 TextField( \
@@ -183,10 +161,10 @@ TextField( \
 	maxheight = 24_px, \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
 	swap_type = nswapDEC, \
-	low = _min, high = _max, val = v, \
+	low = _min, high = _max, val = v.getTrunc(), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
-		v = val; \
+		v = zfix(val); \
 	})
 
 #define HEX_FIELD(v,_min,_max) \
@@ -195,10 +173,10 @@ TextField( \
 	maxheight = 24_px, \
 	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
 	swap_type = nswapHEX, \
-	low = _min, high = _max, val = v, \
+	low = _min, high = _max, val = v.getTrunc(), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
-		v = val; \
+		v = zfix(val); \
 	})
 
 #define DDL(v,lister) \
@@ -225,6 +203,7 @@ Label(text = txt, hAlign = 1.0)
 
 GUI::ListData createShadowTypesListData();
 SCCDialog::SCCDialog() :
+	curscc(MSGC_COLOUR), args({MSGC_MAX, {}}),
 	list_sccs(SCCListData()),
 	list_shtype(createShadowTypesListData()),
 	list_strings(GUI::ZCListData::strings()),
@@ -241,21 +220,43 @@ SCCDialog::SCCDialog() :
 	list_genscr(GUI::ZCListData::generic_script()),
 	list_bottletypes(GUI::ZCListData::bottletype())
 {
-	memset(args, 0, sizeof(args));
-
-	if (command_index == -1)
+	// default args
 	{
-		curscc = MSGC_COLOUR;
-		default_args();
+		args[MSGC_COLOUR] = {QMisc.colors.msgtext >> 4, QMisc.colors.msgtext & 0xF};
+		args[MSGC_SPEED] = {zinit.msg_speed};
+		args[MSGC_GOTOIFRAND] = {2};
+		
+		args[MSGC_SHDCOLOR] = {refstr->shadow_color};
+		args[MSGC_SHDTYPE] = {refstr->shadow_type};
+		args[MSGC_FONT] = {refstr->font};
+		
+		args[MSGC_TRIG_CMB_COPYCAT] = {1};
+
+		args[MSGC_DELAY] = {1};
+		args[MSGC_FORCE_DELAY] = {1};
+
+		args[MSGC_GOTOIFLEVELITEM] = {-1};
+		args[MSGC_GOTOIFLEVELSTATE] = {-1};
+		args[MSGC_SETLEVELITEM] = {-1};
+		args[MSGC_SETLEVELSTATE] = {-1};
+		
+		args[MSGC_GOTOIFBOTTLE] = {1};
+		args[MSGC_CHANGEBOTTLE] = {1};
+		
+		args[MSGC_CHANGEPORTRAIT] = {
+			refstr->portrait.tile, refstr->portrait.cset,
+			refstr->portrait.x, refstr->portrait.y,
+			refstr->portrait.tw, refstr->portrait.th
+		};
 	}
-	else
+
+	if (command_index != -1) // edit existing scc args
 	{
 		auto& command = refstr->parsed_msg_str.commands[command_index];
 		curscc = command.code;
-		for (int i = 0; i < command.num_args; i++) args[command.code][i] = command.args[i];
+		args[command.code] = command.args;
 	}
 
-	cur_args = nullptr;
 	if(!refstr)
 	{
 		refstr = &def_refstr;
@@ -438,7 +439,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			)
 		)
 	);
-	cur_args = args[curscc];
+	auto& cur_args = args[curscc];
 	meta.zero();
 	switch(curscc)
 	{
@@ -446,7 +447,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		{
 			sgrid = Row(padding = 0_px, vAlign = 0.0,
 				TXT("New Color:"),
-				ColorSel(val = (cur_args[0]<<4)|(cur_args[1]),
+				ColorSel(val = ((cur_args[0].getTrunc() & 0xF)<<4)|(cur_args[1].getTrunc() & 0xF),
 					onValChangedFunc = [&](byte val)
 					{
 						cur_args[0] = val>>4;
@@ -494,8 +495,10 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					NUM_FIELD(cur_args[0],0,7),
 					INFOBTN("Index of current screen's 'Screen->D[]' to check"),
 					TXT("Min Value:"),
-					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
-					INFOBTN("Value to check against 'Screen->D[]' (This is a 'long' value, so '1' here represents '0.0001' in zscript)")
+					FIX_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
+					INFOBTN("Value to check against 'Screen->D[]'."
+						" If 'Old Long SCC Args' is enabled, this value will be"
+						" divided by 10000." + QRHINT({qr_OLD_LONG_SCC_ARGS}))
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("String:"),
@@ -768,7 +771,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		}
 		case MSGC_WARP:
 		{
-			if(warp_xy_toggle)
+			if(cur_args[2] >= 0)
 			{
 				sgrid = Column(padding = 0_px, vAlign = 0.0,
 					Row(padding = 0_px, hAlign = 1.0,
@@ -787,7 +790,6 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 							maxheight = 1.5_em,
 							onPressFunc = [&]()
 							{
-								warp_xy_toggle = false;
 								cur_args[2] = -1;
 								cur_args[3] = 0;
 							}
@@ -833,7 +835,6 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 							maxheight = 1.5_em,
 							onPressFunc = [&]()
 							{
-								warp_xy_toggle = true;
 								cur_args[2] = 0;
 								cur_args[3] = 0;
 							}
@@ -880,8 +881,10 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
-					NUM_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
-					INFOBTN("Value to assign to register")
+					FIX_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
+					INFOBTN("Value to assign to register."
+						" If 'Old Long SCC Args' is enabled, this value will be"
+						" divided by 10000." + QRHINT({qr_OLD_LONG_SCC_ARGS}))
 				)
 			);
 			break;
@@ -896,8 +899,10 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
-					NUM_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
-					INFOBTN("Value to assign to register")
+					FIX_FIELD(cur_args[1],MIN_SCC_ARG,MAX_SCC_ARG),
+					INFOBTN("Value to assign to register."
+						" If 'Old Long SCC Args' is enabled, this value will be"
+						" divided by 10000." + QRHINT({qr_OLD_LONG_SCC_ARGS}))
 				)
 			);
 			break;
@@ -1284,8 +1289,10 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
-					NUM_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
-					INFOBTN("Value to check against 'Screen->D[]' (This is a 'long' value, so '1' here represents '0.0001' in zscript)")
+					FIX_FIELD(cur_args[3],MIN_SCC_ARG,MAX_SCC_ARG),
+					INFOBTN("Value to check against 'Screen->D[]'."
+						" If 'Old Long SCC Args' is enabled, this value will be"
+						" divided by 10000." + QRHINT({qr_OLD_LONG_SCC_ARGS}))
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("String:"),
@@ -1678,9 +1685,11 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			// Optional InitD arguments, driven by the selected script's metadata.
 			// These are stored after the two required args (script num, redraw).
 			if (cur_args[0])
-				meta = genericscripts[cur_args[0]]->meta;
+				meta = genericscripts[cur_args[0].getTrunc()]->meta;
 			auto row = Rows<3>();
-			tabs->add(TabRef(name = "Args", row));
+			tabs->add(TabRef(name = "Args",
+				row
+			));
 			for (int ind = 0; ind < 8; ++ind)
 			{
 				std::string lbl = meta.initd[ind];
@@ -1697,13 +1706,13 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					}));
 				row->add(TextField(
 					fitParent = true, minwidth = 8_em,
-					type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-					low = MIN_SCC_ARG, high = MAX_SCC_ARG,
-					val = cur_args[2+ind],
+					type = GUI::TextField::type::SWAP_ZSINT,
+					low = MIN_SCC_ARG.getZLong(), high = MAX_SCC_ARG.getZLong(),
+					val = cur_args[2+ind].getZLong(),
 					swap_type = meta.initd_type[ind],
 					onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 					{
-						cur_args[2+ind] = val;
+						cur_args[2+ind] = zslongToFix(val);
 					}));
 			}
 			break;
@@ -1749,14 +1758,6 @@ bool SCCDialog::load_scc_str(std::string const& str)
 
 	for (int i = 0; i < cmd.num_args; i++)
 		args[scc][i] = cmd.args[i];
-
-	switch (scc)
-	{
-		case MSGC_WARP:
-		{
-			warp_xy_toggle = cmd.args[2] >= MIN_SCC_ARG && cmd.args[2] <= MAX_SCC_ARG;
-		}
-	}
 
 	return true;
 }

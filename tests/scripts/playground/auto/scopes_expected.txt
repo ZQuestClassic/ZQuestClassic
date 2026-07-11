@@ -3944,14 +3944,14 @@ PEEKATV REFMAPDATA 0.0002                                                       
 SETR MAPDATAEXDOOR D2                                                           | 3915 resources/include/bindings/mapdata.zh:979
 POPARGS D5 0.0003                                                               | 3916 resources/include/bindings/mapdata.zh:979
 RETURNFUNC; Func[void mapdata::SetExDoor(int, int, bool)] Body End              | 3917 resources/include/bindings/mapdata.zh:979
-POP D3; Func[void messagedata::Get(char32[])] Body Start                        | 3918 resources/include/bindings/messagedata.zh:201
-POP REFMSGDATA                                                                  | 3919 resources/include/bindings/messagedata.zh:201
-MESSAGEDATAGETSTRINGR D3                                                        | 3920 resources/include/bindings/messagedata.zh:201
-RETURNFUNC; Func[void messagedata::Get(char32[])] Body End                      | 3921 resources/include/bindings/messagedata.zh:201
-POP D3; Func[void messagedata::Set(char32[])] Body Start                        | 3922 resources/include/bindings/messagedata.zh:209
-POP REFMSGDATA                                                                  | 3923 resources/include/bindings/messagedata.zh:209
-MESSAGEDATASETSTRINGR D3                                                        | 3924 resources/include/bindings/messagedata.zh:209
-RETURNFUNC; Func[void messagedata::Set(char32[])] Body End                      | 3925 resources/include/bindings/messagedata.zh:209
+POP D3; Func[void messagedata::Get(char32[])] Body Start                        | 3918 resources/include/bindings/messagedata.zh:204
+POP REFMSGDATA                                                                  | 3919 resources/include/bindings/messagedata.zh:204
+MESSAGEDATAGETSTRINGR D3                                                        | 3920 resources/include/bindings/messagedata.zh:204
+RETURNFUNC; Func[void messagedata::Get(char32[])] Body End                      | 3921 resources/include/bindings/messagedata.zh:204
+POP D3; Func[void messagedata::Set(char32[])] Body Start                        | 3922 resources/include/bindings/messagedata.zh:212
+POP REFMSGDATA                                                                  | 3923 resources/include/bindings/messagedata.zh:212
+MESSAGEDATASETSTRINGR D3                                                        | 3924 resources/include/bindings/messagedata.zh:212
+RETURNFUNC; Func[void messagedata::Set(char32[])] Body End                      | 3925 resources/include/bindings/messagedata.zh:212
 POP D2; Func[void musicdata::GetPath(char32[])] Body Start                      | 3926 resources/include/bindings/musicdata.zh:71
 POP REFMUSIC                                                                    | 3927 resources/include/bindings/musicdata.zh:71
 MUSICDATA_GETPATH D2                                                            | 3928 resources/include/bindings/musicdata.zh:71

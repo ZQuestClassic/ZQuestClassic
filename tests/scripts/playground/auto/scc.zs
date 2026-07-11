@@ -147,6 +147,23 @@ generic script scc
 			Test::AssertEqual(d7, 0);
 		}
 
+		// Segments exposes the parsed structure of the string: for each segment its
+		// type, then (start, length) for literals, or (start, length, code, # of args,
+		// ...args) for commands. Command args are returned at full precision, so the
+		// few args that allow decimal places round trip exactly.
+		{
+			messagedata msg = setMessage(1, "Hi \\SetCurrentScreenD\\0\\26.5\\ Bye");
+			int expected[] = {
+				MSG_SEGMENT_TYPE_LITERAL, 0, 3,   // "Hi "
+				MSG_SEGMENT_TYPE_COMMAND, 3, 27,  // \SetCurrentScreenD\0\26.5\<space>
+					161, 2, 0, 26.5,              // code, # of args, register, value
+				MSG_SEGMENT_TYPE_LITERAL, 30, 3,  // "Bye"
+			};
+			Test::AssertEqual(SizeOfArray(msg->Segments), SizeOfArray(expected));
+			for (int i = 0; i < SizeOfArray(expected); i++)
+				Test::AssertEqual(msg->Segments[i], expected[i]);
+		}
+
 		Test::End();
 	}
 }

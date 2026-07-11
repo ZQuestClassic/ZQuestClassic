@@ -115,7 +115,7 @@ void MsgStr::clear()
 	s.shrink_to_fit();
 	encoding_type = EncodingType::Binary;
 	parsed_msg_str = {};
-	segments_as_int_array.clear();
+	segments_as_zfix_array.clear();
 	nextstring = 0;
 	tile=0;
 	cset=0;
@@ -172,7 +172,7 @@ warnings MsgStr::parse() const
 	}
 
 	this->parsed_msg_str = std::move(parsed_msg_str);
-	segments_as_int_array.clear();
+	segments_as_zfix_array.clear();
 	return warnings;
 }
 
@@ -199,11 +199,11 @@ void MsgStr::ensureLegacyEncoding()
 				if (command.args[j] >= 254)
 				{
 					binary += (char)0xff;
-					binary += (char)(command.args[j] + 1);
+					binary += (char)(command.args[j].getTrunc() + 1);
 				}
 				else
 				{
-					binary += (char)(command.args[j] + 1);
+					binary += (char)(command.args[j].getTrunc() + 1);
 				}
 			}
 		}
@@ -237,42 +237,42 @@ std::string MsgStr::serialize() const
 	return parsed_msg_str.serialize();
 }
 
-const std::vector<int32_t>& MsgStr::segmentsAsIntArray() const
+const std::vector<zfix>& MsgStr::segmentsAsZFixArray() const
 {
 	if (parsed_msg_str.literals.empty() && parsed_msg_str.commands.empty())
 		parse();
 
-	if (segments_as_int_array.empty())
+	if (segments_as_zfix_array.empty())
 	{
 		size_t literals = 0;
 		size_t commands = 0;
 		for (int i = 0; i < parsed_msg_str.segment_types.size(); i++)
 		{
 			auto type = parsed_msg_str.segment_types[i];
-			segments_as_int_array.push_back((int)type);
+			segments_as_zfix_array.push_back((int)type);
 
 			if (type == ParsedMsgStr::SegmentType::Command)
 			{
 				auto& cmd = parsed_msg_str.commands[commands++];
 
-				segments_as_int_array.push_back(cmd.start); // source start
-				segments_as_int_array.push_back(cmd.length); // source length
-				segments_as_int_array.push_back(cmd.code);
-				segments_as_int_array.push_back(cmd.num_args);
+				segments_as_zfix_array.push_back(cmd.start); // source start
+				segments_as_zfix_array.push_back(cmd.length); // source length
+				segments_as_zfix_array.push_back(cmd.code);
+				segments_as_zfix_array.push_back(cmd.num_args);
 				for (int j = 0; j < cmd.num_args; j++)
-					segments_as_int_array.push_back(cmd.args[j]);
+					segments_as_zfix_array.push_back(cmd.args[j]);
 			}
 			else
 			{
 				auto& literal = parsed_msg_str.literals[literals++];
 				size_t offset = literal.data() - s.data();
-				segments_as_int_array.push_back(offset); // source start
-				segments_as_int_array.push_back(literal.size()); // source length
+				segments_as_zfix_array.push_back(int(offset)); // source start
+				segments_as_zfix_array.push_back(int(literal.size())); // source length
 			}
 		}
 	}
 
-	return segments_as_int_array;
+	return segments_as_zfix_array;
 }
 
 MsgStr::iterator MsgStr::create_iterator() const

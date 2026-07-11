@@ -31,17 +31,14 @@ public:
 private:
 	std::shared_ptr<GUI::Window> window;
 	byte curscc;
-	int32_t args[256][MAX_SCC_ARG_COUNT];
+	bounded_map<word, scc_arg_array> args;
 	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
 		list_weffect, list_sfx, list_midi, list_screenstate, list_level_items, list_font, list_font_order,
 		list_genscr, list_bottletypes, list_music;
 	std::shared_ptr<GUI::DropDownList> fontlist;
-	int32_t* cur_args;
-	bool warp_xy_toggle;
 	zasm_meta meta;
 	
 	void refresh_music_list();
-	void default_args();
 	bool load_scc_str(std::string const& str);
 };
 
