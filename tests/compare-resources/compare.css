@@ -41,6 +41,25 @@ img {
     white-space: normal;
 }
 
+.non-graphical-failure {
+    margin: 8px;
+    padding: 10px 14px;
+    max-width: 900px;
+    background-color: #3a2f1a;
+    border-left: 4px solid #d9a300;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.non-graphical-failure ul {
+    margin: 6px 0 0;
+    padding-left: 20px;
+}
+
+.non-graphical-failure strong {
+    color: #f0c14b;
+}
+
 .track-frame-container {
     display: inline-flex;
     flex-direction: column;

@@ -257,17 +257,43 @@ function renderTracks(options) {
     }
     console.log({ tracks });
 
+    tracksEl.textContent = '';
+    tracksEl.classList.remove('hidden');
+    frameViewEl.classList.add('hidden');
+    setTitle(options.replay);
+
+    // A run that failed without producing any snapshots failed on something
+    // other than a graphics check (e.g. a non-graphical step/comment assertion,
+    // or a crash). There's no frame to render for it, so pull these out and
+    // surface them as a note above the tracks instead of crashing the
+    // frame-by-frame logic below.
+    for (const el of findAll('.non-graphical-failure')) el.remove();
+    const nonGraphicalFailures = tracks.filter(t => !(t.snapshots && t.snapshots.length) && !t.success);
+    tracks = tracks.filter(t => t.snapshots && t.snapshots.length > 0);
+    if (nonGraphicalFailures.length) {
+        const noteEl = createNonGraphicalFailureNote(nonGraphicalFailures);
+        tracksEl.parentElement.insertBefore(noteEl, tracksEl);
+    }
+
+    if (tracks.length === 0) {
+        // No graphical tracks to compare. The note above (if any) explains why.
+        segments = [];
+        if (!nonGraphicalFailures.length) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'no-differences';
+            messageEl.textContent = 'No graphical differences for this replay - check for comment differences';
+            tracksEl.append(messageEl);
+        }
+        find('.select__segments select').innerHTML = '';
+        return;
+    }
+
     let minFrame = tracks[0].snapshots[0].frame;
     let maxFrame = tracks[0].snapshots[0].frame;
     for (const track of tracks) {
         minFrame = Math.min(minFrame, track.snapshots[track.snapshots.length - 1].frame);
         maxFrame = Math.max(maxFrame, track.snapshots[track.snapshots.length - 1].frame);
     }
-
-    tracksEl.textContent = '';
-    tracksEl.classList.remove('hidden');
-    frameViewEl.classList.add('hidden');
-    setTitle(options.replay);
 
     const trackIndicies = [];
     for (const _ of tracks) {
@@ -434,6 +460,42 @@ function renderTracks(options) {
     segmentsEl.value = options.segment;
 }
 
+/**
+ * Builds a note describing runs that failed without producing any frames to
+ * compare (a non-graphical step assertion, or a crash).
+ * @param {Array<RunResult & {source: string}>} failures
+ * @return {HTMLElement}
+ */
+function createNonGraphicalFailureNote(failures) {
+    const el = document.createElement('div');
+    el.className = 'non-graphical-failure';
+
+    const title = document.createElement('strong');
+    title.textContent = '⚠ Failed without a graphical difference to show';
+    el.append(title);
+
+    const desc = document.createElement('div');
+    desc.textContent = 'These runs failed a non-graphical check (e.g. a comment/step assertion) or crashed, so there are no frames to compare. The difference, if any, is in the replay step log - not the rendered image.';
+    el.append(desc);
+
+    const list = document.createElement('ul');
+    const seen = new Set();
+    for (const failure of failures) {
+        const key = `${failure.source} ${failure.failing_frame}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const item = document.createElement('li');
+        item.textContent = failure.failing_frame != null ?
+            `${failure.source} - frame ${failure.failing_frame}` :
+            `${failure.source} - no failing frame (possible crash)`;
+        list.append(item);
+    }
+    el.append(list);
+
+    return el;
+}
+
 function scrollToSegment(index) {
     const selectedSegmentFrame = trackFrames[segments[index].start].frame;
     find(`.track-frame-container[data-frame="${selectedSegmentFrame}"]`).scrollIntoView({inline: 'start'});
@@ -520,6 +582,7 @@ async function showFrameView(frameIndex, trackIndex, options) {
 
     if (selectedImg) frameViewEl.append(selectedImg);
     tracksEl.classList.add('hidden');
+    for (const el of findAll('.non-graphical-failure')) el.classList.add('hidden');
     frameViewEl.classList.remove('hidden');
 
     const parts = [
@@ -559,6 +622,7 @@ async function showFrameView(frameIndex, trackIndex, options) {
 
 async function hideFrameView() {
     tracksEl.classList.remove('hidden');
+    for (const el of findAll('.non-graphical-failure')) el.classList.remove('hidden');
     frameViewEl.classList.add('hidden');
     frameViewFrameIndex = -1;
     frameViewTrackIndex = -1;

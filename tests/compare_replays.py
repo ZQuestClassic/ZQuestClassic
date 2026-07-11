@@ -99,7 +99,16 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
         snapshots.sort(key=lambda s: s['frame'])
         run.snapshots = snapshots
 
-    fake_single_run = [run for run in replay_runs if run.snapshots]
+    # Keep runs that produced snapshots, plus failed runs that produced none.
+    # A failure without snapshots isn't a graphics regression (e.g. a
+    # non-graphical step/comment assertion, or a crash); the report surfaces
+    # these as a note rather than dropping them silently.
+    fake_single_run = [
+        run for run in replay_runs if run.snapshots or not run.success
+    ]
+    for run in fake_single_run:
+        if run.snapshots is None:
+            run.snapshots = []
     test_results.runs = [fake_single_run]
 
     return test_results
