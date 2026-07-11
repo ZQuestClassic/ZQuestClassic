@@ -129,7 +129,16 @@ def collect_many_test_results_from_dir(directory: Path) -> list[ReplayTestResult
             runs_by_platform[key] = test_results
             continue
 
-        runs_by_platform[key].runs[0].extend(test_results.runs[0])
+        # A platform can produce more than one test_results.json (e.g. from
+        # sharding or a retry pass). Merge them, but skip runs already present
+        # so the same replay doesn't show up as duplicate identical tracks.
+        existing = runs_by_platform[key].runs[0]
+        seen = {(run.name, run.directory) for run in existing}
+        for run in test_results.runs[0]:
+            if (run.name, run.directory) in seen:
+                continue
+            seen.add((run.name, run.directory))
+            existing.append(run)
 
     return runs_by_platform.values()
 
