@@ -1240,7 +1240,7 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		{
 			bool one_frame_command_delay = !replay_version_check(41);
 			std::string text = parsemsgcode2(cur_iterator->command);
-			if (wait_advance)
+			if (wait_advance || do_end_str)
 				break;
 			if (do_run_menu)
 			{
@@ -1339,6 +1339,8 @@ void msg_tick_end(bool disappear)
 			while (cur_iterator->state == MsgStr::iterator::COMMAND)
 			{
 				parsemsgcode2(cur_iterator->command);
+				if (do_end_str)
+					break;
 				cur_iterator->next();
 			}
 		}
