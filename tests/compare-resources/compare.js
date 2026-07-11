@@ -327,6 +327,17 @@ function renderTracks(options) {
             el = document.createElement('div');
             el.className = 'track-frame track-frame--source';
             el.innerHTML = track.source.split(' ').join('<br>');
+            // A run that reported a failing frame yet still succeeded was
+            // allowlisted as a known failure (see _is_known_failure_test). Its
+            // "unexpected" frames are a sanctioned difference, not a regression,
+            // so mark it clearly to avoid it reading as a real failure.
+            if (track.success && track.failing_frame != null) {
+                const badge = document.createElement('div');
+                badge.className = 'known-failure-badge';
+                badge.textContent = '⚠ known failure (passed)';
+                badge.title = 'This run reported graphics failures but is allowlisted as a known failure, so it passed. Its frames are flagged unexpected but are not a regression, and it has no baseline to compare against.';
+                el.append(badge);
+            }
             containerEl.append(el);
         }
     }
