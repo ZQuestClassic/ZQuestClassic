@@ -1,0 +1,15 @@
+; Like comparisons_reduce_always_false, but the comparison result register D2
+; is read (live-out) in both successors. The chain folds to the constant 0, so
+; a naive reduction would drop the "D2 = 0" write and leave successors reading a
+; stale D2. Regression test for the stale-D2 bug in optimize_reduce_comparisons.
+Function run_none-0
+    0: SETR            D2               SPRITE_TILE [Block 0 -> 1, 2]
+    1: COMPAREV        D2               0
+    2: SETCMP          D2               I==
+    3: COMPAREV        D2               1823720000
+    4: SETCMP          D2               BI==
+    5: COMPAREV        D2               1
+    6: GOTOCMP         9                ==
+    7: TRACER          D2                           [Block 1 -> ]
+    8: QUIT
+    9: TRACER          D2                           [Block 2 -> ]

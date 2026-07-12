@@ -1800,13 +1800,24 @@ static bool optimize_reduce_comparisons(OptContext& ctx)
 			if (writes_comparison_result_to_d2)
 				successor_uses_d2 = ctx.liveness_vars.at(block_index).out & (1 << D(2));
 
-			if (successor_uses_d2 && state.d[2].is_expression())
+			if (successor_uses_d2)
 			{
-				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
-				if (is_web())
-					break;
+				if (state.d[2].is_expression())
+				{
+					// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
+					if (is_web())
+						break;
 
-				expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), state.d[2].data});
+					expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), state.d[2].data});
+				}
+				else
+				{
+					// The comparison result written to D2 folded to a constant (or is
+					// otherwise not a re-materializable expression), but D2 is live-out.
+					// Reducing the block here would drop the D2 write and leave a stale
+					// value for successor blocks, so bail on this reduction.
+					break;
+				}
 			}
 
 			std::copy(expression_zasm.begin(), expression_zasm.end(), &C(j));
