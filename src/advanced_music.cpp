@@ -393,9 +393,9 @@ void delete_quest_music(std::function<bool(AdvancedMusic const&)> proc)
 		}
 		else
 		{
-			++it;
 			if (del_count)
 				changes[q] = (it->id = q - del_count);
+			++it;
 		}
 	}
 	update_quest_music(changes);
@@ -415,9 +415,9 @@ void delete_quest_music(size_t idx)
 		}
 		else
 		{
-			++it;
 			if (q > idx)
 				changes[q] = (it->id = q - 1);
+			++it;
 		}
 	}
 	update_quest_music(changes);
