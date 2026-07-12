@@ -16714,6 +16714,7 @@ bool can_kill_em_all()
 		
 		if((e->flags & guy_doesnt_count) && !(e->type == eeGHINI && e->dmisc1 == 1)) continue;
 		if(e->superman) continue;
+		if(e->flags & guy_ignore_kill_all) continue; // kickbucket() won't kill these
 		return true;
 	}
 	return false;
