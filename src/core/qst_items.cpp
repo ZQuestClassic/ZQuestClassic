@@ -730,8 +730,11 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 		}
 		if(!p_igetw(&tempitem.pickup_litem_level,f))
 			return qe_invalid;
+		// Older editors allowed saving one past the last valid level, which
+		// crashes the level-item grant on pickup.
+		tempitem.pickup_litem_level = vbound((int)tempitem.pickup_litem_level, -1, MAXLEVELS-1);
 	}
-	
+
 	if ( s_version >= 62 )
 	{
 		if (!p_igetl(&tempitem.moveflags, f))
@@ -3050,7 +3053,10 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 		return qe_invalid;
 	if(!p_igetw(&item_ref.pickup_litem_level,f))
 		return qe_invalid;
-	
+	// Older editors allowed saving one past the last valid level, which
+	// crashes the level-item grant on pickup.
+	item_ref.pickup_litem_level = vbound((int)item_ref.pickup_litem_level, -1, MAXLEVELS-1);
+
 	if (!p_igetl(&item_ref.moveflags, f))
 		return qe_invalid;
 
