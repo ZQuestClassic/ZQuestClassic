@@ -1497,7 +1497,8 @@ static void apply_cooldown_ring(cooldown_data& data)
 	zfix max_cd = data.max_cooldown;
 	max_cd += cdring.misc1;
 	max_cd *= cdring.misc2;
-	max_cd /= cdring.misc3;
+	if (cdring.misc3) // a Divide of 0 is treated as 1 (see item editor)
+		max_cd /= cdring.misc3;
 	max_cd.doMax(0); // no negatives
 	max_cd += cdring.misc4;
 	
