@@ -183,34 +183,12 @@ void MsgStr::ensureLegacyEncoding()
 
 	parse();
 
-	std::string binary;
-	size_t literal_index = 0;
-	size_t command_index = 0;
-	for (int i = 0; i < parsed_msg_str.segment_types.size(); i++)
+	auto [binary, warnings] = parsed_msg_str.serialize_legacy();
+	if (warnings.size())
 	{
-		if (parsed_msg_str.segment_types[i] == ParsedMsgStr::SegmentType::Command)
-		{
-			auto& command = parsed_msg_str.commands[command_index++];
-
-			binary += (char)((command.code % 254) + 1);
-
-			for (int j = 0; j < command.num_args; j++)
-			{
-				if (command.args[j] >= 254)
-				{
-					binary += (char)0xff;
-					binary += (char)(command.args[j].getTrunc() + 1);
-				}
-				else
-				{
-					binary += (char)(command.args[j].getTrunc() + 1);
-				}
-			}
-		}
-		else
-		{
-			binary += parsed_msg_str.literals[literal_index++];
-		}
+		al_trace("Warning: lossy conversion of message string to the legacy encoding: %s\n", s.c_str());
+		for (auto& warning : warnings)
+			al_trace("\t%s\n", warning.c_str());
 	}
 
 	s = std::move(binary);

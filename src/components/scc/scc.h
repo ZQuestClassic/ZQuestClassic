@@ -116,6 +116,10 @@ struct ParsedMsgStr
 	std::vector<SegmentType> segment_types;
 
 	std::string serialize() const;
+	// Serializes to the legacy binary encoding, which parse_legacy_binary_msg_str can decode.
+	// The conversion is lossy: values outside what that encoding can represent are clamped,
+	// and optional trailing arguments are dropped. Warnings describe anything that changed.
+	value_and_warnings<std::string> serialize_legacy() const;
 };
 
 std::optional<const char*> get_scc_command_name(int code);
