@@ -2648,7 +2648,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
 					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 					bool solid = basescr->ffcs[i].flags&ffc_solid;
-					if (!solid && (cmb.walk & 0xF) && (basescr->ffcs[i].flags&ffc_cmb_solid))
+					bool cmb_solid = (cmb.walk & 0xF) && (basescr->ffcs[i].flags&ffc_cmb_solid);
+					if (solid || cmb_solid)
 					{
 						rectfill(dest, tx, ty, tx + basescr->ffEffectWidth(i) - 1, ty + basescr->ffEffectHeight(i) - 1, COLOR_SOLID);
 					}
