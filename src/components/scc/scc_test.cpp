@@ -661,6 +661,87 @@ std::vector<AsciiParserTestCase> get_ascii_parser_test_cases()
 
 static std::stringstream cur;
 
+struct LegacyRoundTripTestCase
+{
+	std::string description;
+	// The ascii encoding to parse, convert to the legacy binary encoding, and parse again.
+	std::string input;
+
+	// Expected after the round trip (values the legacy encoding cannot represent are lossy).
+	std::vector<ExpectedCommand> expected_commands;
+	// Expected from serialize_legacy. Parsing (in both encodings) must not warn.
+	std::vector<std::string> expected_serialize_warnings;
+};
+
+std::vector<LegacyRoundTripTestCase> get_legacy_round_trip_test_cases()
+{
+	using TC = LegacyRoundTripTestCase;
+	using Cmd = ExpectedCommand;
+
+	return {
+		TC{
+			"Single-byte args",
+			R"(\18\1\2\3\4\5\6\)",
+			/*commands*/ {Cmd{MSGC_WARP, 6, {1, 2, 3, 4, 5, 6}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Args at the one-byte/three-byte encoding boundary",
+			R"(\Speed\253\ \Speed\254\)",
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {253}}, Cmd{MSGC_SPEED, 1, {254}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Three-byte arg",
+			R"(\Speed\300\)",
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {300}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Largest arg the legacy encoding can represent",
+			R"(\Speed\65023\)",
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {65023}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Arg too big for the legacy encoding",
+			R"(\Speed\65024\)",
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {65023}}},
+			/*warnings*/ {"Clamped argument 65024 of command Speed to 65023, the largest value the legacy encoding can represent"}
+		},
+		TC{
+			"Arg at MAX_SCC_ARG",
+			R"(\CounterSet\1\214748\)",
+			/*commands*/ {Cmd{MSGC_CTRSET, 2, {1, 65023}}},
+			/*warnings*/ {"Clamped argument 214748 of command CounterSet to 65023, the largest value the legacy encoding can represent"}
+		},
+		TC{
+			"Negative arg",
+			R"(\CounterAdd\1\-5\)",
+			/*commands*/ {Cmd{MSGC_CTRUP, 2, {1, 65023}}},
+			/*warnings*/ {"Clamped argument -5 of command CounterAdd to 65023, the largest value the legacy encoding can represent"}
+		},
+		TC{
+			"Optional trailing args are dropped",
+			R"(\RunFrozenGenericScript\5\1\2\3\)",
+			/*commands*/ {Cmd{MSGC_RUN_FRZ_GENSCR, 2, {5, 1}}},
+			/*warnings*/ {"Dropped 2 optional trailing argument(s) of command RunFrozenGenericScript, which the legacy encoding cannot represent"}
+		},
+		TC{
+			"Command mixed with literals",
+			R"(Hi \Speed\300\ there)",
+			/*commands*/ {Cmd{MSGC_SPEED, 1, {300}}},
+			/*warnings*/ {}
+		},
+		TC{
+			"Decimal args lose their decimal places",
+			R"(\SetCurrentScreenD\0\26.5\)",
+			/*commands*/ {Cmd{MSGC_SETCURRENTSCREEND, 2, {0, 26}}},
+			/*warnings*/ {"Dropped the decimal places of argument 26.5 of command SetCurrentScreenD, which the legacy encoding cannot represent"}
+		},
+	};
+}
+
 template <typename T>
 void print_vec(const std::vector<T>& vec) {
 	cur << "{ ";
@@ -785,6 +866,73 @@ static bool assert_expectations(const AsciiParserTestCase& tc, const value_and_w
 	return passed;
 }
 
+static bool assert_commands(const std::vector<ExpectedCommand>& expected, const std::vector<StringCommand>& actual, std::string context)
+{
+	bool passed = true;
+
+	if (actual.size() != expected.size()) {
+		passed = false;
+		cur << RED << "  [FAIL] " << RESET << context << "Command count mismatch.\n";
+		cur << "    Expected: " << expected.size() << "\n";
+		cur << "    Actual  : " << actual.size() << "\n";
+		return passed;
+	}
+
+	for (size_t i = 0; i < actual.size(); ++i) {
+		const auto& actual_cmd = actual[i];
+		const auto& expected_cmd = expected[i];
+		bool cmd_ok = actual_cmd.code == expected_cmd.code &&
+			actual_cmd.num_args == expected_cmd.num_args &&
+			static_cast<size_t>(actual_cmd.num_args) == expected_cmd.args.size();
+
+		if (cmd_ok) {
+			for (int j = 0; j < actual_cmd.num_args; ++j) {
+				if (actual_cmd.args[j] != expected_cmd.args[j]) {
+					cmd_ok = false;
+					break;
+				}
+			}
+		}
+
+		if (!cmd_ok) {
+			passed = false;
+			cur << RED << "  [FAIL] " << RESET << context << "Command " << i << " mismatch.\n";
+			cur << "    Expected: "; print_cmd(expected_cmd); cur << "\n";
+			cur << "    Actual  : "; print_cmd(actual_cmd); cur << "\n";
+		}
+	}
+
+	return passed;
+}
+
+static bool assert_warnings(const std::vector<std::string>& expected, const std::vector<std::string>& actual, std::string context)
+{
+	if (actual == expected)
+		return true;
+
+	cur << RED << "  [FAIL] " << RESET << context << "warnings mismatch.\n";
+	cur << "    Expected: "; print_vec(expected); cur << "\n";
+	cur << "    Actual  : "; print_vec(actual); cur << "\n";
+	return false;
+}
+
+static bool run_legacy_round_trip_test_case(const LegacyRoundTripTestCase& tc)
+{
+	bool passed = true;
+
+	auto [parsed, parse_warnings] = parse_ascii_msg_str(tc.input);
+	passed &= assert_warnings({}, parse_warnings, "(parse ascii) ");
+
+	auto [binary, serialize_warnings] = parsed.serialize_legacy();
+	passed &= assert_warnings(tc.expected_serialize_warnings, serialize_warnings, "(serialize legacy) ");
+
+	auto [reparsed, reparse_warnings] = parse_legacy_binary_msg_str(binary);
+	passed &= assert_warnings({}, reparse_warnings, "(parse legacy) ");
+	passed &= assert_commands(tc.expected_commands, reparsed.commands, "(round trip) ");
+
+	return passed;
+}
+
 TestResults test_scc(bool verbose)
 {
 	auto all_test_cases = get_ascii_parser_test_cases();
@@ -839,7 +987,44 @@ TestResults test_scc(bool verbose)
 		test_num++;
 	}
 
-	return TestResults{tests_failed, (int)all_test_cases.size()};
+	auto legacy_test_cases = get_legacy_round_trip_test_cases();
+	for (const auto& tc : legacy_test_cases)
+	{
+		if (verbose)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+		}
+
+		cur.clear();
+
+		bool test_passed = run_legacy_round_trip_test_case(tc);
+		if (!test_passed)
+			tests_failed++;
+
+		if (verbose)
+		{
+			std::cerr << cur.str();
+
+			if (test_passed) {
+				std::cerr << GREEN << "  [PASS]" << RESET << "\n";
+			} else {
+				std::cerr << "--- End of Test " << test_num << " ---\n";
+			}
+			std::cerr << std::endl;
+		}
+		else if (!test_passed)
+		{
+			std::cerr << "--- Test " << std::setw(2) << test_num << ": "
+					<< tc.description << " ---" << std::endl;
+			std::cerr << cur.str();
+			std::cerr << std::endl;
+		}
+
+		test_num++;
+	}
+
+	return TestResults{tests_failed, (int)(all_test_cases.size() + legacy_test_cases.size())};
 }
 
 // TODO: make this not needed to compile...

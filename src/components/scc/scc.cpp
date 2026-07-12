@@ -675,6 +675,72 @@ value_and_warnings<ParsedMsgStr> parse_ascii_msg_str(const std::string& str)
 	return result;
 }
 
+// Generates a string that should roundtrip back into an equivalent ParsedMsgStr via
+// parse_legacy_binary_msg_str.
+//
+// The legacy binary encoding stores each argument as either one byte (value + 1, for values
+// 0-253) or three bytes: (value % 254) + 1, then a 255 marker byte, then value / 254. See
+// parse_legacy_binary_argument. Values outside 0-65023 cannot be represented and are clamped
+// to 65023 (matching the 2.55 editor, which encoded negative numbers as 65023 - a value some
+// commands, like Warp, treat as -1). Optional trailing arguments are dropped, since the legacy
+// decoder always reads exactly the required argument count.
+value_and_warnings<std::string> ParsedMsgStr::serialize_legacy() const
+{
+	constexpr int32_t MAX_LEGACY_ARG = 65023; // 253 + 254*255
+
+	value_and_warnings<std::string> result;
+	auto& [binary, warnings] = result;
+
+	size_t literal_index = 0;
+	size_t command_index = 0;
+	for (int i = 0; i < segment_types.size(); i++)
+	{
+		if (segment_types[i] != SegmentType::Command)
+		{
+			binary += literals[literal_index++];
+			continue;
+		}
+
+		auto& command = commands[command_index++];
+		const char* name = get_scc_command_name(command.code).value_or("?");
+
+		binary += (char)((command.code % 254) + 1);
+
+		int num_args = get_scc_command_num_args(command.code).value_or(command.num_args);
+		if (num_args < command.num_args)
+			warnings.push_back(fmt::format(
+				"Dropped {} optional trailing argument(s) of command {}, which the legacy encoding cannot represent",
+				command.num_args - num_args, name));
+		else
+			num_args = command.num_args;
+
+		for (int j = 0; j < num_args; j++)
+		{
+			int32_t arg = command.args[j].getTrunc();
+			if (command.args[j] != arg)
+				warnings.push_back(fmt::format(
+					"Dropped the decimal places of argument {} of command {}, which the legacy encoding cannot represent",
+					command.args[j].str_trim(), name));
+			if (arg < 0 || arg > MAX_LEGACY_ARG)
+			{
+				warnings.push_back(fmt::format(
+					"Clamped argument {} of command {} to {}, the largest value the legacy encoding can represent",
+					arg, name, MAX_LEGACY_ARG));
+				arg = MAX_LEGACY_ARG;
+			}
+
+			binary += (char)((arg % 254) + 1);
+			if (arg >= 254)
+			{
+				binary += (char)0xff;
+				binary += (char)(arg / 254);
+			}
+		}
+	}
+
+	return result;
+}
+
 // Parses a "legacy" encoding of a msg str mixed with plain ascii and binary-encoded string commands.
 // A msg str is a mix of string literals and commands. The string literals are limited to the 32-126
 // ascii values.
