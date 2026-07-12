@@ -167,4 +167,4 @@ jobs:
 
       - name: Upload debugging symbols
         if: inputs.sentry
-        run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-version }}' --include-sources --wait build
+        run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-version }}' --include-sources --wait build/${{ inputs.config }}
