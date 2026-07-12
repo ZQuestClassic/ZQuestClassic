@@ -2583,7 +2583,15 @@ int scripting_read_pal_color(int c)
 
 int scripting_write_pal_color(int c)
 {
-	return scripting_use_8bit_colors ? c : _rgb_scale_6[c];
+	if (scripting_use_8bit_colors)
+		return c;
+
+	// Tint values can be negative; _rgb_scale_6 only has indices 0..63, so scale
+	// the magnitude and reapply the sign instead of indexing with a negative.
+	int a = abs(c);
+	if (a > 63) a = 63;
+	int scaled = _rgb_scale_6[a];
+	return c < 0 ? -scaled : scaled;
 }
 
 void apply_qr_rule(int qr_id)
