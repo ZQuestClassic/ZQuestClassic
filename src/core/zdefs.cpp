@@ -1632,11 +1632,14 @@ zctune::zctune(zctune const& other)
 
 zctune::zctune(zctune&& other)
 {
-	*this = other;
+	*this = std::move(other);
 }
 
 zctune& zctune::operator=(zctune const& other)
 {
+	if (this == &other)
+		return *this;
+
 	start = other.start;
 	loop_start = other.loop_start;
 	loop_end = other.loop_end;
@@ -1644,14 +1647,19 @@ zctune& zctune::operator=(zctune const& other)
 	flags = other.flags;
 	volume = other.volume;
 	song_title = other.song_title;
-	
-	// create a full copy
+
+	// create a full copy, freeing any MIDI this slot already owned
+	if (data)
+		destroy_midi(data);
 	data = copy_midi(other.data);
-	
+
 	return *this;
 }
 zctune& zctune::operator=(zctune&& other)
 {
+	if (this == &other)
+		return *this;
+
 	start = other.start;
 	loop_start = other.loop_start;
 	loop_end = other.loop_end;
@@ -1659,11 +1667,13 @@ zctune& zctune::operator=(zctune&& other)
 	flags = other.flags;
 	volume = other.volume;
 	song_title = other.song_title;
-	
-	// move ownership
+
+	// move ownership, freeing any MIDI this slot already owned
+	if (data)
+		destroy_midi(data);
 	data = other.data;
 	other.data = nullptr;
-	
+
 	return *this;
 }
 
@@ -1679,8 +1689,7 @@ void zctune::clear()
 
 void zctune::reset()
 {
-	if (data)
-		destroy_midi(data);
+	// move-assignment frees any MIDI this slot owns
 	*this = zctune();
 }
 
