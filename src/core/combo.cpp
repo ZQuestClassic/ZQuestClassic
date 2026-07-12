@@ -27,6 +27,41 @@ static string get_sign(combo_trigger const& trig, size_t flag_le, size_t flag_ge
 	return "";
 }
 
+// Safe accessors for summarize(): trigger fields can hold out-of-range values
+// (e.g. a trigger pasted from the clipboard as JSON, or read from a hand-edited
+// quest), and summarize() must never index past the end of a lookup table.
+static const char* safe_dirstr(int dir)
+{
+	if (dir < 0 || dir >= (int)(sizeof(dirstr_proper) / sizeof(dirstr_proper[0])))
+		return "?";
+	return dirstr_proper[dir];
+}
+
+static string safe_sfx_name(int sfx)
+{
+	int idx = sfx - 1;
+	if (idx < 0 || idx >= (int)quest_sounds.size())
+		return "?";
+	return quest_sounds[idx].sfx_name;
+}
+
+static const char* safe_ctr_name(int ctr)
+{
+	if (ctr < 0 || ctr >= MAX_COUNTERS)
+		return "?";
+	return ZI.getCtrName(ctr);
+}
+
+static const char* safe_neg_ctr_name(int ctr)
+{
+	// icounter_str2 has no name for the sscNONE (-1) slot, so its final entry
+	// is a null pointer; treat it as out-of-range too.
+	int idx = ctr + -(sscMIN + 1);
+	if (idx < 0 || idx >= (int)(-(sscMIN + 1)) || !icounter_str2[idx])
+		return "?";
+	return icounter_str2[idx];
+}
+
 std::string combo_trigger::summarize(newcombo const& cmb) const
 {
 #define TRIM_TRAILING_CHARS(val) val = val.substr(0, val.find_last_not_of(", \n")+1)
@@ -262,7 +297,7 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		}
 		if (cause_ex2)
 		{
-			causes << (first ? indent : ", ") << fmt::format("ExDoor {} {}", dirstr_proper[exdoor_dir], exdoor_ind);
+			causes << (first ? indent : ", ") << fmt::format("ExDoor {} {}", safe_dirstr(exdoor_dir), exdoor_ind);
 			first = false;
 		}
 		if (cause_ex3)
@@ -456,9 +491,9 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 	{
 		string ctr_name;
 		if (trigctr >= 0)
-			ctr_name = ZI.getCtrName(trigctr);
-		else if (trigctr >= sscMIN)
-			ctr_name = icounter_str2[trigctr + -(sscMIN + 1)];
+			ctr_name = safe_ctr_name(trigctr);
+		else if (trigctr > sscMIN)
+			ctr_name = safe_neg_ctr_name(trigctr);
 		ctr_str = fmt::format("{}{} {}", trigctramnt, ctr_perc ? "%" : "", ctr_name);
 		if (ctr_discounted)
 			ctr_str += fmt::format(" (discounted by {})", ZI.getItemClassName(itype_wealthmedal));
@@ -846,11 +881,11 @@ std::string combo_trigger::summarize(newcombo const& cmb) const
 		{
 			if (trigger_flags.get(TRIGFLAG_SFX_KILL))
 			{
-				effects << indent << fmt::format("Kill SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
+				effects << indent << fmt::format("Kill SFX #{} ({})\n", trigsfx, safe_sfx_name(trigsfx));
 			}
 			else
 			{
-				effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, quest_sounds[trigsfx-1].sfx_name);
+				effects << indent << fmt::format("Play SFX #{} ({})\n", trigsfx, safe_sfx_name(trigsfx));
 				if (sfx_pan > -1)
 					effects << indent << indent << "Pan " << sfx_pan << " / 255\n";
 				if (sfx_volume != 100)
@@ -950,7 +985,7 @@ if (var > -2) \
 			effects << indent << fmt::format("Add {} to player Z\n", dest_player_z);
 
 		if (dest_player_dir > -1)
-			effects << indent << fmt::format("Force player to face {}\n", dirstr_proper[dest_player_dir]);
+			effects << indent << fmt::format("Force player to face {}\n", safe_dirstr(dest_player_dir));
 
 		if (player_bounce)
 			effects << indent << fmt::format("Set player Jump to {}\n", player_bounce);
@@ -1012,9 +1047,9 @@ if (var > -2) \
 		if (exdoor_dir > -1)
 		{
 			if (trigger_flags.get(TRIGFLAG_UNSETEXDOOR))
-				effects << indent << fmt::format("Unsets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
+				effects << indent << fmt::format("Unsets ExDoor {} {}\n", safe_dirstr(exdoor_dir), exdoor_ind);
 			else
-				effects << indent << fmt::format("Sets ExDoor {} {}\n", dirstr_proper[exdoor_dir], exdoor_ind);
+				effects << indent << fmt::format("Sets ExDoor {} {}\n", safe_dirstr(exdoor_dir), exdoor_ind);
 		}
 		{
 			bool do_set = trigger_flags.get(TRIGFLAG_COMBOPOSSTATE_SET);
