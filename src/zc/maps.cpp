@@ -6594,11 +6594,12 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		replay_sync_rng();
 	}
 
+	clear_camera_effect();
+
 	if (viewport_mode != ViewportMode::CenterAndBound || get_viewport_sprite() != &Hero)
 	{
 		set_viewport_sprite(&Hero);
 		viewport_mode = ViewportMode::CenterAndBound;
-		clear_camera_effect();
 		update_viewport();
 	}
 
