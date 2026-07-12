@@ -17,11 +17,13 @@ int32_t main(int32_t argc, char* argv[])
 
 	extern TestResults test_scc(bool);
 	extern TestResults test_zc_math(bool);
+	extern TestResults test_zfix(bool);
 	extern TestResults test_containers(bool);
 	extern TestResults test_wasm_structurer(bool);
 
 	success = run_tests(test_scc, "test_scc", verbose);
 	success &= run_tests(test_zc_math, "test_zc_math", verbose);
+	success &= run_tests(test_zfix, "test_zfix", verbose);
 	success &= run_tests(test_containers, "test_containers", verbose);
 	success &= run_tests(test_wasm_structurer, "test_wasm_structurer", verbose);
 

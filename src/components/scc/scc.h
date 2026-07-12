@@ -10,9 +10,8 @@
 #define MIN_SCC_INT (-214748)
 #define MAX_SCC_INT 214748
 
-// Not written as (-214748.3648_zf): the positive literal wraps to INT32_MIN, and
-// negating that is signed overflow (UB) - gcc drops the sign in str().
-#define MIN_SCC_ARG (zfix(-214748, -3648))
+// The positive literal wraps to INT32_MIN, which zfix::operator-() negates to itself.
+#define MIN_SCC_ARG (-214748.3648_zf)
 #define MAX_SCC_ARG 214748.3647_zf
 
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */

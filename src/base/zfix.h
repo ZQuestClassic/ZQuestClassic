@@ -144,7 +144,9 @@ public:
 	
 	zfix& doAbs()
 	{
-		val = abs(val);
+		// abs(INT32_MIN) is signed overflow (UB). This wraps it to itself (still negative).
+		if (val < 0)
+			val = int32_t(0u - uint32_t(val));
 		return *this;
 	}
 	zfix getAbs() const
@@ -306,7 +308,8 @@ public:
 	zfix operator ++ (int32_t)				{ zfix t = copy(); val += 10000; return t; }
 	zfix operator -- (int32_t)				{ zfix t = copy(); val -= 10000; return t; }
 	
-	zfix operator - () const			{ zfix t; t.val = -val; return t; }
+	// Unsigned negation: -INT32_MIN is signed overflow (UB). This wraps it to itself.
+	zfix operator - () const			{ zfix t; t.val = int32_t(0u - uint32_t(val)); return t; }
 	
 	inline friend zfix operator +  (const zfix fx, const zfix fx2);
 	inline friend zfix operator +  (const zfix fx, const int32_t v);

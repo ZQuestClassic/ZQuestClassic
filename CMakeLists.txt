@@ -610,6 +610,7 @@ if(WANT_ZC_TESTS)
 		src/test_runner/test_runner.cpp
 		src/components/scc/scc_test.cpp
 		src/base/zc_math_test.cpp
+		src/base/zfix_test.cpp
 		src/base/containers_test.cpp
 		src/zc/wasm_structurer_test.cpp
 		src/zc/wasm_structurer.cpp
