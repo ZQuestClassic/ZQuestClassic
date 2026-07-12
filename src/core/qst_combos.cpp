@@ -755,6 +755,9 @@ int32_t readcombo_triggers_loop(PACKFILE* f, word s_version, combo_trigger& temp
 		}
 		if(!p_igetw(&temp_trigger.trigdmlevel,f))
 			return qe_invalid;
+		// Older editors allowed saving one past the last valid level, which
+		// crashes the level-state checks when the trigger is evaluated.
+		temp_trigger.trigdmlevel = vbound((int)temp_trigger.trigdmlevel, -1, MAXLEVELS-1);
 		if(s_version >= 48)
 		{
 			for(int q = 0; q < 3; ++q)
