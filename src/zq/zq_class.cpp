@@ -8193,6 +8193,10 @@ int32_t write_single_item(PACKFILE *f, word index)
 		return ret;
 	if (!p_iputl(item_ref.cooldown, f))
 		new_return(98);
+	if (!p_iputl(item_ref.viewport_suspend_range, f))
+		new_return(99);
+	if (!p_iputl(item_ref.viewport_despawn_range, f))
+		new_return(100);
 	return 0;
 }
 

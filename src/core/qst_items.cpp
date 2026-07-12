@@ -799,14 +799,6 @@ int32_t read_single_item_old(PACKFILE *f, word s_version, word index, word versi
 			return qe_invalid;
 	}
 	
-	if (s_version >= 69)
-	{
-		if (!p_igetl(&tempitem.viewport_suspend_range, f))
-			return qe_invalid;
-		if (!p_igetl(&tempitem.viewport_despawn_range, f))
-			return qe_invalid;
-	}
-	
 	if (!should_skip)
 	{
 		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -3067,6 +3059,14 @@ int32_t read_single_item(PACKFILE *f, word s_version, word index, word version, 
 	
 	if (!p_igetl(&item_ref.cooldown, f))
 		return qe_invalid;
+
+	if (s_version >= 70)
+	{
+		if (!p_igetl(&item_ref.viewport_suspend_range, f))
+			return qe_invalid;
+		if (!p_igetl(&item_ref.viewport_despawn_range, f))
+			return qe_invalid;
+	}
 
 	if (!should_skip)
 	{
