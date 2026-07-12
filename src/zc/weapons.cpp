@@ -393,8 +393,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 			ffc_handle.set_data(ffc_handle.scr->secretcombo[ft]);
 			ffc->cset = ffc_handle.scr->secretcset[ft];
 			screen_combo_modify_postroutine(ffc_handle);
-			if ( combobuf[cid].c_attributes[2].getTrunc() > 0 )
-				sfx(combobuf[cid].c_attributes[2].getTrunc(),pan(ffc->x));
+			if ( combobuf[cid].c_attributes[10].getTrunc() > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(ffc->x));
 		}
 		
 		//loop next combo
@@ -420,8 +420,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				if (combobuf[cid].usrflags&cflag5) cid = ffc_handle.data(); //cid needs to be set to data so continuous combos work
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
-			if ( (combobuf[cid].c_attributes[2].getTrunc()) > 0 )
-				sfx(combobuf[cid].c_attributes[2].getTrunc(),pan(ffc->x));
+			if ( (combobuf[cid].c_attributes[10].getTrunc()) > 0 )
+				sfx(combobuf[cid].c_attributes[10].getTrunc(),pan(ffc->x));
 		}
 
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
