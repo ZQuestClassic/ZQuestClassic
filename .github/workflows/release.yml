@@ -118,15 +118,15 @@ jobs:
       - name: Validate release
         run: python scripts/validate_release.py --version ${{ needs.create-tag.outputs.release-tag }}
 
-      - name: Find changelog
+      - name: Generate changelog
         id: changelog
         run: |
-          changelog=$(ls changelogs/*-${{ needs.create-tag.outputs.release-tag }}.txt)
-          if [ ! -f "$changelog" ]; then
-            echo "no changelog found for ${{ needs.create-tag.outputs.release-tag }}"
-            exit 1
-          fi
-          echo "path=$changelog" >> "$GITHUB_OUTPUT"
+          python scripts/generate_changelog.py \
+            --from ${{ needs.create-tag.outputs.previous-release-tag }} \
+            --to ${{ needs.create-tag.outputs.release-tag }} \
+            --to-ref ${{ github.sha }} \
+            --format markdown > changelog.md
+          echo "path=changelog.md" >> "$GITHUB_OUTPUT"
 
       - name: Release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3

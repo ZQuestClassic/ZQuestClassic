@@ -37,6 +37,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--format', choices=['plaintext', 'markdown'], default='plaintext')
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
+parser.add_argument(
+    '--to-ref',
+    help='Git ref to use as the range endpoint, if different from --to '
+    '(which is still used for the displayed version/URLs). Useful when the '
+    'release tag does not exist yet.',
+)
 parser.add_argument('--for-nightly', type=str2bool, default=False)
 
 args = parser.parse_args()
@@ -264,7 +270,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
 
 
 def stringify_changelog(
-    commits_by_type: Dict[str, List[Commit]], format: str, to_sha: str
+    commits_by_type: Dict[str, List[Commit]], format: str, from_sha: str, to_sha: str
 ) -> str:
     lines = []
     oneliner = release_oneliners.get(to_sha, None)
@@ -275,7 +281,10 @@ def stringify_changelog(
             lines.append(f'{oneliner}\n')
         if is_release:
             lines.append(
-                f'[View release notes and find downloads on the website](https://zquestclassic.com/releases/{to_sha})\n'
+                f'# [Download from the website](https://zquestclassic.com/releases/{to_sha}), or at the bottom of this page.\n'
+            )
+            lines.append(
+                f'**Full Changelog:** https://github.com/ZQuestClassic/ZQuestClassic/compare/{from_sha}...{to_sha}\n'
             )
 
         for type, commits in commits_by_type.items():
@@ -371,9 +380,10 @@ def stringify_changelog(
     return '\n'.join(lines)
 
 
-def generate_changelog(from_sha: str, to_sha: str) -> str:
+def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
+    to_ref = to_ref or to_sha
     commits_text = subprocess.check_output(
-        f'git log {from_sha}...{to_sha} --reverse --format="%h %H %s"',
+        f'git log {from_sha}...{to_ref} --reverse --format="%h %H %s"',
         shell=True,
         encoding='utf-8',
     ).strip()
@@ -488,7 +498,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     for key in to_remove:
         del commits_by_type[key]
 
-    return stringify_changelog(commits_by_type, args.format, to_sha)
+    return stringify_changelog(commits_by_type, args.format, from_sha, to_sha)
 
 
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
@@ -505,7 +515,7 @@ else:
 
 if args.for_nightly:
     print(f'The following are the changes since {branch}:\n\n')
-    print(generate_changelog(branch, args.to))
+    print(generate_changelog(branch, args.to, args.to_ref))
 
     previous_full_release_tag = subprocess.check_output(
         'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8'
@@ -514,7 +524,7 @@ if args.for_nightly:
         print('-------')
         print(f'The following are the changes since {previous_full_release_tag}:\n\n')
         print('<details>\n<summary>Expand changelog</summary>\n')
-        print(generate_changelog(previous_full_release_tag, args.to))
+        print(generate_changelog(previous_full_release_tag, args.to, args.to_ref))
         print('\n</details>')
 else:
-    print(generate_changelog(branch, args.to))
+    print(generate_changelog(branch, args.to, args.to_ref))
