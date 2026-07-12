@@ -7,6 +7,7 @@
 #include "components/zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"
+#include "zc/maps.h"
 #include "hero_tiles.h"
 #include "zc/scripting/arrays.h"
 
@@ -451,7 +452,17 @@ void sprite_set_register(int32_t reg, int32_t value)
 				break;
 
 			if (s)
-				s->screen_spawned = value / 10000;
+			{
+				// screen_spawned is dereferenced via get_scr() by many consumers,
+				// which require the screen to exist. Only accept a screen in the
+				// current region; reject out-of-range/unloaded values instead of
+				// storing them (which previously caused OOB reads and crashes).
+				int scr = value / 10000;
+				if (is_in_current_region(scr))
+					s->screen_spawned = scr;
+				else
+					scripting_log_error_with_context("Invalid SpawnScreen {}: screen is not in the current region", scr);
+			}
 			break;
 		}
 		case SPRITE_X:
