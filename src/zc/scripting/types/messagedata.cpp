@@ -39,73 +39,73 @@ int32_t messagedata_get_register(int32_t reg)
 	{
 		case MESSAGEDATACSET: //b
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].cset) * 10000;
 			break;
 		}	
 		case MESSAGEDATAFLAGS: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].stringflags) * 10000;
 			break;
 		}
 		case MESSAGEDATAFONT: //B
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = (int32_t)MsgStrings[ID].font * 10000;
 			break;
 		}	
 		case MESSAGEDATAH: //UNSIGNED SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].h) * 10000;
 			break;
 		}	
 		case MESSAGEDATAHSPACE: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].hspace) * 10000;
 			break;
 		}	
 		case MESSAGEDATALISTPOS: //WORD
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].listpos) * 10000;
 			break;
 		}	
 		case MESSAGEDATANEXT: //W
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 			{
 				ret = -10000; break;
 			}
-			else 
+			else
 			{
 				ret = ((int32_t)MsgStrings[ID].nextstring) * 10000;
 				break;
@@ -173,11 +173,11 @@ int32_t messagedata_get_register(int32_t reg)
 		}
 		case MESSAGEDATASFX: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].sfx) * 10000;
 			break;
 		}	
@@ -203,61 +203,61 @@ int32_t messagedata_get_register(int32_t reg)
 		}
 		case MESSAGEDATATILE: //W
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].tile) * 10000;
 			break;
 		}	
 		case MESSAGEDATATRANS: //BOOL
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((MsgStrings[ID].trans)?10000:0);
 			break;
 		}	
 		case MESSAGEDATAVSPACE: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].vspace) * 10000;
 			break;
 		}	
 		case MESSAGEDATAW: //UNSIGNED SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].w) * 10000;
 			break;
 		}	
 		case MESSAGEDATAX: //SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].x) * 10000;
 			break;
 		}	
 		case MESSAGEDATAY: //SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				ret = -10000;
-			else 
+			else
 				ret = ((int32_t)MsgStrings[ID].y) * 10000;
 			break;
 		}
@@ -275,71 +275,71 @@ void messagedata_set_register(int32_t reg, int32_t value)
 	{
 		case MESSAGEDATACSET: //b
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].cset = ((byte)vbound((value/10000), 0, 15));
 			break;
 		}	
 		case MESSAGEDATAFLAGS: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].stringflags = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}
 		case MESSAGEDATAFONT: //B
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].font = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}	
 		case MESSAGEDATAH: //UNSIGNED SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].h = ((uint16_t)vbound((value/10000), 0, USHRT_MAX));
 			break;
 		}	
 		case MESSAGEDATAHSPACE: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].hspace = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}	
 		case MESSAGEDATALISTPOS: //WORD
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].listpos = vbound((value/10000), 1, (msg_count-1));
 			break;
 		}	
 		case MESSAGEDATANEXT: //W
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].nextstring = vbound((value/10000), 0, (msg_count-1));
 			break;
 		}	
@@ -405,71 +405,71 @@ void messagedata_set_register(int32_t reg, int32_t value)
 		}
 		case MESSAGEDATASFX: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, MAX_SFX));
 			break;
 		}	
 		case MESSAGEDATATILE: //W
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].tile = vbound((value/10000), 0, (NEWMAXTILES));
 			break;
 		}	
 		case MESSAGEDATATRANS: //BOOL
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				(MsgStrings[ID].trans) = ((value)?true:false);
 			break;
 		}	
 		case MESSAGEDATAVSPACE: //BYTE
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].vspace = ((byte)vbound((value/10000), 0, 255));
 			break;
 		}	
 		case MESSAGEDATAW: //UNSIGNED SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].w = ((uint16_t)vbound((value/10000), 0, USHRT_MAX));
 			break;
 		}	
 		case MESSAGEDATAX: //SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].x = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
 			break;
 		}	
 		case MESSAGEDATAY: //SHORT
 		{
-			int32_t ID = GET_REF(msgdataref);	
+			int32_t ID = GET_REF(msgdataref);
 
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
-			else 
+			else
 				MsgStrings[ID].y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
 			break;
 		}
