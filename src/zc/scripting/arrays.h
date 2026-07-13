@@ -326,9 +326,10 @@ protected:
 			}
 			else
 			{
-				// Wrap around from the end.
-				auto new_index = (std::ptrdiff_t)size + index;
-				if (new_index > 0)
+				// Wrap around from the end. For a 1-indexed array (valid 1..size),
+				// -1 maps to size (the last element) and -size maps to 1.
+				auto new_index = (std::ptrdiff_t)size + index + 1;
+				if (new_index >= 1)
 					return new_index;
 			}
 
