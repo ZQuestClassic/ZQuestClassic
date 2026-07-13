@@ -311,7 +311,7 @@ if args.replay_batch:
     for path, frame in parse_batch_file(args.replay_batch):
         tests.append(path)
         if frame is not None:
-            batch_file_frames[path] = frame
+            batch_file_frames[path.resolve()] = frame
 elif args.replays:
     tests = [Path(x) for x in args.replays]
     if args.root_replays_folder:
