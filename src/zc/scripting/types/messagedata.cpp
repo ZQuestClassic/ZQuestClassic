@@ -261,6 +261,66 @@ int32_t messagedata_get_register(int32_t reg)
 				ret = ((int32_t)MsgStrings[ID].y) * 10000;
 			break;
 		}
+		case MESSAGEDATA_SHADOW_TYPE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].shadow_type;
+			break;
+		}
+		case MESSAGEDATA_SHADOW_COLOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].shadow_color;
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_more.sprite;
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * int(MsgStrings[ID].icon_more.anchor);
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_more.x;
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_more.y;
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -473,7 +533,66 @@ void messagedata_set_register(int32_t reg, int32_t value)
 				MsgStrings[ID].y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
 			break;
 		}
+		case MESSAGEDATA_SHADOW_TYPE:
+		{
+			int32_t ID = GET_REF(msgdataref);
 
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].shadow_type = ((byte)vbound((value/10000), 0, sstsMAX-1));
+			break;
+		}
+		case MESSAGEDATA_SHADOW_COLOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].shadow_color = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_more.sprite = ((word)vbound((value/10000), 0, MAXSPRITES-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_more.anchor = ((message_anchor)vbound((value/10000), 0, int(message_anchor::max_anchor)-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_more.x = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
+		case MESSAGEDATA_ICON_MORE_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_more.y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
 		default:
 			NOTREACHED();
 	}

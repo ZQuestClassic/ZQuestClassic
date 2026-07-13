@@ -9458,6 +9458,21 @@ int32_t writestrings(PACKFILE *f)
 			
 			if(!p_iputw(MsgStrings[i].listpos,f))
 				return qe_invalid;
+			
+			message_icon const* icons[] = {
+				&MsgStrings[i].icon_more,
+			};
+			for (auto* icon : icons)
+			{
+				if (!p_iputw(icon->sprite, f))
+					return qe_invalid;
+				if (!p_putc(byte(icon->anchor), f))
+					return qe_invalid;
+				if (!p_iputw(icon->x, f))
+					return qe_invalid;
+				if (!p_iputw(icon->y, f))
+					return qe_invalid;
+			}
 		}
 		
 		if(writecycle==0)
@@ -9560,6 +9575,10 @@ int32_t writestrings_tsv(PACKFILE *f)
 		{ "shadow_type", [](auto& msg){ return std::to_string(msg.shadow_type); } },
 		{ "shadow_color", [](auto& msg){ return std::to_string(msg.shadow_color); } },
 		{ "drawlayer", [](auto& msg){ return std::to_string(msg.drawlayer); } },
+		{ "i_more_sprite", [](auto& msg){ return std::to_string(msg.icon_more.sprite); } },
+		{ "i_more_anchor", [](auto& msg){ return std::to_string(int(msg.icon_more.anchor)); } },
+		{ "i_more_x", [](auto& msg){ return std::to_string(msg.icon_more.x); } },
+		{ "i_more_y", [](auto& msg){ return std::to_string(msg.icon_more.y); } },
 	};
 
 	for (auto& [name, fn] : fields)
@@ -9634,6 +9653,15 @@ void parse_strings_tsv(std::string tsv)
 		{ "shadow_type", [](auto& msg, auto& text){ msg.shadow_type = std::stoi(text); } },
 		{ "shadow_color", [](auto& msg, auto& text){ msg.shadow_color = std::stoi(text); } },
 		{ "drawlayer", [](auto& msg, auto& text){ msg.drawlayer = std::stoi(text); } },
+		{ "i_more_sprite", [](auto& msg, auto& text){ msg.icon_more.sprite = std::stoi(text); } },
+		{ "i_more_anchor", [](auto& msg, auto& text){
+			int anchor = std::stoi(text);
+			if (unsigned(anchor) >= uint(message_anchor::max_anchor))
+				throw std::runtime_error("i_more_anchor field must be a valid anchor value!");
+			msg.icon_more.anchor = message_anchor(anchor);
+		} },
+		{ "i_more_x", [](auto& msg, auto& text){ msg.icon_more.x = std::stoi(text); } },
+		{ "i_more_y", [](auto& msg, auto& text){ msg.icon_more.y = std::stoi(text); } },
 	};
 
 	std::vector<std::string> rows;
@@ -13052,12 +13080,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(37);
 		if(!p_putc(zinit.last_screen,f))
 			new_return(38);
-		if(!p_putc(zinit.msg_more_x,f))
-			new_return(39);
-		if(!p_putc(zinit.msg_more_y,f))
-			new_return(40);
-		if(!p_putc(zinit.msg_more_is_offset,f))
-			new_return(41);
 		if(!p_putc(zinit.msg_speed,f))
 			new_return(42);
 		if(!p_iputl(zinit.gravity,f))

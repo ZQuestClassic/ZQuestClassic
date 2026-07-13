@@ -1773,7 +1773,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					
 				case pDIVINEFIREROCKETTRAIL:
 				case pDIVINEFIREROCKETTRAILRETURN:
-				case pMESSAGEMORE:
 				default:
 					break;
 			}
@@ -2644,7 +2643,6 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 		}
 		case wPhantom:
 		{
-			bool kill_flash = false;
 			if(spr)
 				ret = *spr;
 			else
@@ -2671,12 +2669,6 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 						ret = parent.wpn_sprites[3];
 						break;
 						
-					case pMESSAGEMORE:
-						ret = iwMore;
-						if (get_qr(qr_NO_FLASHING_MSG_MORE))
-							kill_flash = true;
-						break;
-						
 					case pDIVINEPROTECTIONROCKET2:
 						ret = parent.wpn_sprites[5];
 						break;
@@ -2701,7 +2693,7 @@ optional<word> weapon::_handle_loadsprite(optional<word> spr, bool isDummy, bool
 			}
 			if(ret)
 				LOADGFX(*ret);
-			if (kill_flash)
+			if (level == pMESSAGEMORE && get_qr(qr_NO_FLASHING_MSG_MORE))
 				flash = 0;
 			break;
 		}

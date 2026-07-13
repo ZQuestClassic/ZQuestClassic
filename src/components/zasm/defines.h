@@ -3465,8 +3465,14 @@ enum ASM_DEFINE
 #define COMBODATA_MISC_WEAPONDATA         0x16F8
 #define COMBODATA_LIFT_WEAPONDATA         0x16F9
 #define WEAPDATA_VALID                    0x16FA
+#define MESSAGEDATA_SHADOW_TYPE           0x16FB
+#define MESSAGEDATA_SHADOW_COLOR          0x16FC
+#define MESSAGEDATA_ICON_MORE_SPRITE          0x16FD
+#define MESSAGEDATA_ICON_MORE_ANCHOR          0x16FE
+#define MESSAGEDATA_ICON_MORE_X               0x16FF
+#define MESSAGEDATA_ICON_MORE_Y               0x1700
 
-#define NUMVARIABLES         0x16FB
+#define NUMVARIABLES         0x1701
 
 //} End variables
 

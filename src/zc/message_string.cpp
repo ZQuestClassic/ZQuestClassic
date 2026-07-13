@@ -9,6 +9,7 @@
 #include "zc/hero.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"
+#include "items.h"
 
 using namespace msgstr;
 
@@ -1561,6 +1562,72 @@ breakout:
 	msg_tick_end();
 }
 
+void draw_icon(message_icon icon, int type, bool drawPassiveSubscreenSeparate)
+{
+	if (!icon.sprite || !sprite_data_buf.get(icon.sprite).tile)
+		return;
+	int x = icon.x, y = icon.y;
+	auto& msgstring = get_str();
+	switch (icon.anchor) // x anchor
+	{
+		case message_anchor::screen:
+			break;
+		case message_anchor::screen_y_offset:
+			break;
+		case message_anchor::l_up:
+		case message_anchor::left:
+		case message_anchor::l_down:
+			x += msgstring.x;
+			break;
+		case message_anchor::up:
+		case message_anchor::center:
+		case message_anchor::down:
+			x += msgstring.x + msgstring.w / 2;
+			break;
+		case message_anchor::r_up:
+		case message_anchor::right:
+		case message_anchor::r_down:
+			x += msgstring.x + msgstring.w;
+			break;
+	}
+	switch (icon.anchor) // y anchor
+	{
+		case message_anchor::screen:
+			break;
+		case message_anchor::screen_y_offset:
+			y += msgstring.y;
+			break;
+		case message_anchor::l_up:
+		case message_anchor::up:
+		case message_anchor::r_up:
+			y += msgstring.y;
+			break;
+		case message_anchor::left:
+		case message_anchor::center:
+		case message_anchor::right:
+			y += msgstring.y + msgstring.h / 2;
+			break;
+		case message_anchor::l_down:
+		case message_anchor::down:
+		case message_anchor::r_down:
+			y += msgstring.y + msgstring.h;
+			break;
+	}
+	
+	y += playing_field_offset;
+	
+	if (drawPassiveSubscreenSeparate)
+	{
+		// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
+		draw_lens_hint_sprite(framebuf, x + viewport.x, y + viewport.y, wPhantom, type, up, -1, icon.sprite);
+		draw_lens_hint_sprite(framebuf_no_passive_subscreen, x + viewport.x, y + viewport.y, wPhantom, type, up, -1, icon.sprite);
+	}
+	else
+	{
+		draw_lens_hint_sprite(framebuf, x + viewport.x, y + viewport.y, wPhantom, type, up, -1, icon.sprite);
+	}
+}
+
 }
 
 namespace msgstr
@@ -1695,19 +1762,12 @@ void dismiss()
 		margins[q] = old_margins[q];
 }
 
-bool show_more()
+void draw_icons(bool drawPassiveSubscreenSeparate)
 {
-	return linked_clk == 1 && !do_end_str && sprite_data_buf.get(iwMore).tile != 0;
-}
-//!TODO offer better user positioning options (ex. relative to bottom-left corner of string box)
-std::pair<int,int> more_xy()
-{
-	int msgy = zc_min(160, (zinit.msg_more_is_offset==0)
-		? zinit.msg_more_y
-		: zinit.msg_more_y + get_str().y);
-	msgy += playing_field_offset;
-	
-	return {zinit.msg_more_x, msgy};
+	if (!active_str) return;
+	auto& msgstring = get_str();
+	if (linked_clk == 1 && !do_end_str)
+		draw_icon(msgstring.icon_more, pMESSAGEMORE, drawPassiveSubscreenSeparate);
 }
 
 MsgStr const& get_str()

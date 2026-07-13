@@ -3259,20 +3259,7 @@ void game_loop()
 		}
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 
-		if (msgstr::show_more())
-		{
-			auto [more_x, more_y] = msgstr::more_xy();
-			if (drawPassiveSubscreenSeparate)
-			{
-				// Need to draw to two bitmaps. 'peek = true' for first call to not increment clks.
-				draw_lens_hint_sprite(framebuf, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-				draw_lens_hint_sprite(framebuf_no_passive_subscreen, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-			}
-			else
-			{
-				draw_lens_hint_sprite(framebuf, more_x + viewport.x, more_y + viewport.y, wPhantom, pMESSAGEMORE, up, -1);
-			}
-		}
+		msgstr::draw_icons(drawPassiveSubscreenSeparate);
 		
 		if(!freeze_general)
 			msgstr::run_intro();

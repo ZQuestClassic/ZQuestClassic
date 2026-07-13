@@ -28,8 +28,7 @@ namespace msgstr
 	
 	void dismiss();
 	
-	bool show_more();
-	std::pair<int,int> more_xy();
+	void draw_icons(bool drawPassiveSubscreenSeparate);
 	
 	MsgStr const& get_str();
 	

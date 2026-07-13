@@ -191,9 +191,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(light_wave_size) \
 	PROP(magic_per_block) \
 	PROP(magicdrainrate) \
-	PROP(msg_more_is_offset) \
-	PROP(msg_more_x) \
-	PROP(msg_more_y) \
 	PROP(msg_speed) \
 	PROP(region_mapping) \
 	ZFIXPROP(shove_offset) \

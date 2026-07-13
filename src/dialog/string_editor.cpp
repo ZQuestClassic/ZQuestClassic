@@ -44,6 +44,21 @@ GUI::ListData createShadowTypesListData()
 	return GUI::ListData(strings);
 }
 
+static const GUI::ListData list_icon_anchors
+{
+	{ "Center-Top", int(message_anchor::up), "Relative to the Center-Top of the message box." },
+	{ "Center-Bottom", int(message_anchor::down), "Relative to the Center-Bottom of the message box." },
+	{ "Left-Center", int(message_anchor::left), "Relative to the Left-Center of the message box." },
+	{ "Right-Center", int(message_anchor::right), "Relative to the Right-Center of the message box." },
+	{ "Left-Top", int(message_anchor::l_up), "Relative to the Left-Top of the message box." },
+	{ "Right-Top", int(message_anchor::r_up), "Relative to the Right-Top of the message box." },
+	{ "Left-Bottom", int(message_anchor::l_down), "Relative to the Left-Bottom of the message box." },
+	{ "Right-Bottom", int(message_anchor::r_down), "Relative to the Right-Bottom of the message box." },
+	{ "Center", int(message_anchor::center), "Relative to the Center of the message box." },
+	{ "Screen", int(message_anchor::screen), "Relative to the top-left of the screen." },
+	{ "Screen Y-Offset", int(message_anchor::screen_y_offset), "X is relative to the left of the screen, Y is relative to the top of the message box." },
+};
+
 StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter)
 	: strIndex(ind), addAfter(addAfter),
 	tmpMsgStr(MsgStrings[ind]),
@@ -51,6 +66,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_sprites(GUI::ZCListData::miscsprites()),
 	list_shtype(createShadowTypesListData())
 {
 	if(ind == msg_count) //new str
@@ -69,6 +85,14 @@ TextField( \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		tmpMsgStr.member = val; \
+	})
+#define NUM_FIELD_V(member,_min,_max) \
+TextField( \
+	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	low = _min, high = _max, val = member, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		member = val; \
 	})
 
 #define CHECKB(member, bit, txt) \
@@ -158,6 +182,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	std::string str = tmpMsgStr.serialize();
 	const char* start_text = str.c_str();
 
+	std::shared_ptr<GUI::Grid> gfx_column;
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &stred_tab_1,
 		TabRef(name = "String", Column(
 			str_field = TextField(fitParent = true,
@@ -369,23 +394,97 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 				)
 			)
 		)),
-		TabRef(name = "Portrait", Column(
-			Rows_Columns<2, 2>(
-				Label(text = "X:", hAlign = 1.0),
-				NUM_FIELD(portrait.x,0,255),
-				Label(text = "Y:", hAlign = 1.0),
-				NUM_FIELD(portrait.y,0,255),
-				Label(text = "Tile Width:", hAlign = 1.0),
-				NUM_FIELD(portrait.tw,0,16),
-				Label(text = "Tile Height:", hAlign = 1.0),
-				NUM_FIELD(portrait.th,0,14)
+		TabRef(name = "Graphics", Row(
+			Frame(title = "Portrait",
+				Column(
+					Rows_Columns<2, 2>(padding = 0_px,
+						Label(text = "X:", hAlign = 1.0),
+						NUM_FIELD(portrait.x,0,255),
+						Label(text = "Y:", hAlign = 1.0),
+						NUM_FIELD(portrait.y,0,255),
+						Label(text = "Tile Width:", hAlign = 1.0),
+						NUM_FIELD(portrait.tw,0,16),
+						Label(text = "Tile Height:", hAlign = 1.0),
+						NUM_FIELD(portrait.th,0,14)
+					),
+					Row(padding = 0_px,
+						Label(text = "Portrait Tile:", hAlign = 1.0),
+						TILE_FIELD(portrait.tile, portrait.cset)
+					)
+				)
 			),
-			Row(
-				Label(text = "Portrait Tile:", hAlign = 1.0),
-				TILE_FIELD(portrait.tile, portrait.cset)
-			)
+			gfx_column = Column(padding = 0_px)
 		))
 	);
+	
+	std::map<string, std::pair<message_icon*, string>> icon_map = {
+		{ "More", { &tmpMsgStr.icon_more, "Displayed when the player needs to press a button to advance the text." } },
+	};
+	for (auto& [str, pair] : icon_map)
+	{
+		auto& [icon, helpstr] = pair;
+		gfx_column->add(
+			Frame(title = fmt::format("Icon: {}", str),
+				info = helpstr,
+				Column(
+					Rows<3>(padding = 0_px,
+						Label(text = "Sprite", hAlign = 1.0),
+						DropDownList(data = list_sprites,
+							fitParent = true, maxwidth = 200_px,
+							selectedValue = icon->sprite,
+							onSelectFunc = [&, icon](int32_t val)
+							{
+								icon->sprite = val;
+							}
+						),
+						INFOBTN("The sprite to draw for this icon."),
+						//
+						Label(text = "Anchor Point", hAlign = 1.0),
+						DropDownList(data = list_icon_anchors,
+							fitParent = true, maxwidth = 200_px,
+							selectedValue = int(icon->anchor),
+							onSelectFunc = [&, icon](int32_t val)
+							{
+								icon->anchor = message_anchor(val);
+							}
+						),
+						Button(forceFitH = true, text = "?",
+							onClick = message::REFR_INFO,
+							onPressFunc = [&, icon]()
+							{
+								InfoDialog("Info",
+									fmt::format(
+										"What point the X/Y position is relative to.\n\n{}: {}",
+										list_icon_anchors.findText(int(icon->anchor)),
+										list_icon_anchors.findInfo(int(icon->anchor))
+									)).show();
+							})
+					),
+					Row(padding = 0_px,
+						Label(text = "X:"),
+						TextField(
+							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+							low = -32768, high = 32767, val = icon->x,
+							onValChangedFunc = [&, icon](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								icon->x = val;
+							}),
+						INFOBTN("The X position to draw the icon at, relative to the anchor point."),
+						Label(text = "Y:"),
+						TextField(
+							type = GUI::TextField::type::INT_DECIMAL, fitParent = true,
+							low = -32768, high = 32767, val = icon->y,
+							onValChangedFunc = [&, icon](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								icon->y = val;
+							}),
+						INFOBTN("The Y position to draw the icon at, relative to the anchor point.")
+					)
+				)
+			)
+		);
+	}
+	
 	window = Window(
 		title = "String Editor ("+std::to_string(strIndex)+")",
 		onClose = message::CANCEL,

@@ -22,6 +22,24 @@ enum MessageSegmentType
 	MSG_SEGMENT_TYPE_COMMAND,
 };
 
+// Anchor positions relative to message boxes, used for icons
+// ([messagedata::MoreIconAnchor], [messagedata::ScrollUpIconAnchor], [messagedata::ScrollDownIconAnchor])
+// @versionadded 3.0
+enum MessageAnchor
+{
+	MSG_ANCH_TOP,
+	MSG_ANCH_BOTTOM,
+	MSG_ANCH_LEFT,
+	MSG_ANCH_RIGHT,
+	MSG_ANCH_TOPLEFT,
+	MSG_ANCH_TOPRIGHT,
+	MSG_ANCH_BOTTOMLEFT,
+	MSG_ANCH_BOTTOMRIGHT,
+	MSG_ANCH_CENTER,
+	MSG_ANCH_SCREEN,
+	MSG_ANCH_SCREEN_YOFFSET,
+};
+
 // For accessing and editing message strings (`Quests > Strings`).
 // 
 // Load with [Game->LoadMessageData].
@@ -194,6 +212,42 @@ class messagedata {
 	// @versionadded 3.0
 	// @zasm_var MESSAGEDATASEGMENTS
 	internal const int[] Segments;
+	
+	// The type of shadow to use on the text.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_SHADOW_TYPE
+	internal ShadowType ShadowType;
+	
+	// The color of shadow to use on the text.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_SHADOW_COLOR
+	internal int ShadowColor;
+	
+	// The sprite to use for the 'More Icon'.
+	// The 'More Icon' is displayed when the user needs to press A/B to see more.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_MORE_SPRITE
+	internal int MoreIconSprite;
+	
+	// The anchor to use for the 'More Icon'. This determines what part of the message box
+	// the [MoreIconX]/[MoreIconY] are relative to.
+	// The 'More Icon' is displayed when the user needs to press A/B to see more.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_MORE_ANCHOR
+	internal MessageAnchor MoreIconAnchor;
+	
+	// The X (relative to the [MoreIconAnchor]) to draw the 'More Icon' at.
+	// The 'More Icon' is displayed when the user needs to press A/B to see more.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_MORE_X
+	internal int MoreIconX;
+	
+	// The Y (relative to the [MoreIconAnchor]) to draw the 'More Icon' at.
+	// The 'More Icon' is displayed when the user needs to press A/B to see more.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_MORE_Y
+	internal int MoreIconY;
 
 	// Loads the raw message data into the provided string buffer.
 	//
