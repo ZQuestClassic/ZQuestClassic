@@ -1309,19 +1309,17 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 			return msg_tick_exit;
 		}
 	}
-
+	
 	if (do_run_menu)
 	{
-		if (runMenuCursor())
+		if (!runMenuCursor())
+			return msg_tick_break;
+		do_run_menu = false;
+		if (!burst_mode && replay_version_check(0, 62))
 		{
-			do_run_menu = false;
-			if (!burst_mode)
-			{
-				cur_iterator->next();
-				return msg_tick(play_sfx, burst_mode);
-			}
+			cur_iterator->next();
+			return msg_tick(play_sfx, burst_mode);
 		}
-		else return msg_tick_break;
 	}
 
 	cur_iterator->next();
