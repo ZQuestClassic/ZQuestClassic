@@ -321,6 +321,106 @@ int32_t messagedata_get_register(int32_t reg)
 				ret = 10000 * MsgStrings[ID].icon_more.y;
 			break;
 		}
+		case MESSAGEDATA_ICON_SCROLLUP_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_up.sprite;
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * int(MsgStrings[ID].icon_scroll_up.anchor);
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_up.x;
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_up.y;
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_down.sprite;
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * int(MsgStrings[ID].icon_scroll_down.anchor);
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_down.x;
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].icon_scroll_down.y;
+			break;
+		}
+		case MESSAGEDATA_SCROLL_SPEED_ACTIVE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].active_scroll_speed;
+			break;
+		}
+		case MESSAGEDATA_SCROLL_SPEED_PASSIVE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = 10000 * MsgStrings[ID].passive_scroll_speed;
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -560,7 +660,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			if(BC::checkMessage(ID) != SH::_NoError)
 				break;
 			else
-				MsgStrings[ID].icon_more.sprite = ((word)vbound((value/10000), 0, MAXSPRITES-1));
+				MsgStrings[ID].icon_more.sprite = ((word)vbound((value/10000), -1, MAXSPRITES-1));
 			break;
 		}
 		case MESSAGEDATA_ICON_MORE_ANCHOR:
@@ -593,6 +693,107 @@ void messagedata_set_register(int32_t reg, int32_t value)
 				MsgStrings[ID].icon_more.y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
 			break;
 		}
+		case MESSAGEDATA_ICON_SCROLLUP_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_up.sprite = ((word)vbound((value/10000), -1, MAXSPRITES-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_up.anchor = ((message_anchor)vbound((value/10000), 0, int(message_anchor::max_anchor)-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_up.x = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLUP_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_up.y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_SPRITE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_down.sprite = ((word)vbound((value/10000), -1, MAXSPRITES-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_ANCHOR:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_down.anchor = ((message_anchor)vbound((value/10000), 0, int(message_anchor::max_anchor)-1));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_X:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_down.x = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
+		case MESSAGEDATA_ICON_SCROLLDOWN_Y:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].icon_scroll_down.y = ((int16_t)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+			break;
+		}
+		case MESSAGEDATA_SCROLL_SPEED_ACTIVE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].active_scroll_speed = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATA_SCROLL_SPEED_PASSIVE:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].passive_scroll_speed = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		
 		default:
 			NOTREACHED();
 	}

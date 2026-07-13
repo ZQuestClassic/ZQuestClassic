@@ -9,9 +9,6 @@
 
 using json = nlohmann::json;
 
-template<typename T>
-concept uint_type = std::unsigned_integral<T>;
-
 template <typename ContType>
 concept is_gettable_container = requires(const ContType& cont, size_t idx)
 {

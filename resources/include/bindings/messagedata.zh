@@ -248,6 +248,70 @@ class messagedata {
 	// @versionadded 3.0
 	// @zasm_var MESSAGEDATA_ICON_MORE_Y
 	internal int MoreIconY;
+	
+	// The sprite to use for the 'Scroll Up Icon'.
+	// The 'Scroll Up Icon' is displayed when the user can press Up to scroll up.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLUP_SPRITE
+	internal int ScrollUpIconSprite;
+	
+	// The anchor to use for the 'Scroll Up Icon'. This determines what part of the message box
+	// the [ScrollUpIconX]/[ScrollUpIconY] are relative to.
+	// The 'Scroll Up Icon' is displayed when the user can press Up to scroll up.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLUP_ANCHOR
+	internal MessageAnchor ScrollUpIconAnchor;
+	
+	// The X (relative to the [ScrollUpIconAnchor]) to draw the 'Scroll Up Icon' at.
+	// The 'Scroll Up Icon' is displayed when the user can press Up to scroll up.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLUP_X
+	internal int ScrollUpIconX;
+	
+	// The Y (relative to the [ScrollUpIconAnchor]) to draw the 'Scroll Up Icon' at.
+	// The 'Scroll Up Icon' is displayed when the user can press Up to scroll up.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLUP_Y
+	internal int ScrollUpIconY;
+	
+	// The sprite to use for the 'Scroll Down Icon'.
+	// The 'Scroll Down Icon' is displayed when the user can press Down to scroll down.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLDOWN_SPRITE
+	internal int ScrollDownIconSprite;
+	
+	// The anchor to use for the 'Scroll Down Icon'. This determines what part of the message box
+	// the [ScrollDownIconX]/[ScrollDownIconY] are relative to.
+	// The 'Scroll Down Icon' is displayed when the user can press Down to scroll down.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLDOWN_ANCHOR
+	internal MessageAnchor ScrollDownIconAnchor;
+	
+	// The X (relative to the [ScrollDownIconAnchor]) to draw the 'Scroll Down Icon' at.
+	// The 'Scroll Down Icon' is displayed when the user can press Down to scroll down.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLDOWN_X
+	internal int ScrollDownIconX;
+	
+	// The Y (relative to the [ScrollDownIconAnchor]) to draw the 'Scroll Down Icon' at.
+	// The 'Scroll Down Icon' is displayed when the user can press Down to scroll down.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ICON_SCROLLDOWN_Y
+	internal int ScrollDownIconY;
+	
+	// The speed in pixels/frame that the string scrolls when the player is scrolling
+	// manually using the up/down buttons.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_SCROLL_SPEED_ACTIVE
+	internal int ScrollSpeedActive;
+	
+	// The speed in pixels/frame that the string scrolls when scrolling to fit new text
+	// on screen, or to scroll a selected menu choice into view.
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_SCROLL_SPEED_PASSIVE
+	internal int ScrollSpeedPassive;
 
 	// Loads the raw message data into the provided string buffer.
 	//

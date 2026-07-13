@@ -19,4 +19,13 @@ using std::shared_ptr;
 using std::map;
 using std::to_string;
 
+template<typename T>
+concept uint_type = std::unsigned_integral<T>;
+
+template<typename T>
+concept sint_type = std::signed_integral<T>;
+
+template<typename T>
+concept int_type = std::integral<T>;
+
 #endif

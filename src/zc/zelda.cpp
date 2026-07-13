@@ -1525,7 +1525,7 @@ void init_game_vars(bool is_cont_game = false)
 	onload_gswitch_timers();
 	refresh_subscr_buttonitems();
 	kill_subscr_items();
-	msgstr::dismiss();
+	msgstr::init_string_vars();
 }
 
 int32_t init_game()

@@ -66,7 +66,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_sprites(GUI::ZCListData::miscsprites()),
+	list_sprites(GUI::ZCListData::miscsprites(false)),
 	list_shtype(createShadowTypesListData())
 {
 	if(ind == msg_count) //new str
@@ -313,46 +313,62 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			)
 		)),
 		TabRef(name = "Attributes", Column(
-			Rows_Columns<3, 4>(
-				//Col 1
-				Label(text = "X:", hAlign = 1.0),
-				NUM_FIELD(x,-512,512),
-				INFOBTN("The left X position of the textbox"),
-				Label(text = "Y:", hAlign = 1.0),
-				NUM_FIELD(y,-512,512),
-				INFOBTN("The top Y position of the textbox"),
-				Label(text = "Layer:", hAlign = 1.0),
-				NUM_FIELD(drawlayer,0,7),
-				INFOBTN("The layer to draw the textbox on. 0 <= layer <= 7."),
-				DummyWidget(),
-				DummyWidget(),
-				DummyWidget(),
-				//Col 2
-				Label(text = "Width:", hAlign = 1.0),
-				NUM_FIELD(w,8,512),
-				INFOBTN("The width of the textbox in pixels"),
-				Label(text = "Height:", hAlign = 1.0),
-				NUM_FIELD(h,8,512),
-				INFOBTN("The height of the textbox in pixels"),
-				Label(text = "HSpace:", hAlign = 1.0),
-				NUM_FIELD(hspace,0,128),
-				INFOBTN("The extra space between letters, in pixels"),
-				Label(text = "VSpace:", hAlign = 1.0),
-				NUM_FIELD(vspace,0,128),
-				INFOBTN("The extra space between lines, in pixels"),
-				//Col 3
-				Label(text = "Top Margin:", hAlign = 1.0),
-				NUM_FIELD(margins[0],0,255),
-				INFOBTN("The extra space between the top of the textbox and the text, in pixels"),
-				Label(text = "Bottom Margin:", hAlign = 1.0),
-				NUM_FIELD(margins[1],0,255),
-				INFOBTN("The extra space between the bottom of the textbox and the text, in pixels"),
-				Label(text = "Left Margin:", hAlign = 1.0),
-				NUM_FIELD(margins[2],0,255),
-				INFOBTN("The extra space between the left of the textbox and the text, in pixels"),
-				Label(text = "Right Margin:", hAlign = 1.0),
-				NUM_FIELD(margins[3],0,255),
-				INFOBTN("The extra space between the right of the textbox and the text, in pixels")
+			Column(
+				Rows_Columns<3, 4>(padding = 0_px,
+					//Col 1
+					Label(text = "X:", hAlign = 1.0),
+					NUM_FIELD(x,-512,512),
+					INFOBTN("The left X position of the textbox"),
+					Label(text = "Y:", hAlign = 1.0),
+					NUM_FIELD(y,-512,512),
+					INFOBTN("The top Y position of the textbox"),
+					Label(text = "Layer:", hAlign = 1.0),
+					NUM_FIELD(drawlayer,0,7),
+					INFOBTN("The layer to draw the textbox on. 0 <= layer <= 7."),
+					DummyWidget(),
+					DummyWidget(),
+					DummyWidget(),
+					//Col 2
+					Label(text = "Width:", hAlign = 1.0),
+					NUM_FIELD(w,8,512),
+					INFOBTN("The width of the textbox in pixels"),
+					Label(text = "Height:", hAlign = 1.0),
+					NUM_FIELD(h,8,512),
+					INFOBTN("The height of the textbox in pixels"),
+					Label(text = "HSpace:", hAlign = 1.0),
+					NUM_FIELD(hspace,0,128),
+					INFOBTN("The extra space between letters, in pixels"),
+					Label(text = "VSpace:", hAlign = 1.0),
+					NUM_FIELD(vspace,0,128),
+					INFOBTN("The extra space between lines, in pixels"),
+					//Col 3
+					Label(text = "Top Margin:", hAlign = 1.0),
+					NUM_FIELD(margins[0],0,255),
+					INFOBTN("The extra space between the top of the textbox and the text, in pixels"),
+					Label(text = "Bottom Margin:", hAlign = 1.0),
+					NUM_FIELD(margins[1],0,255),
+					INFOBTN("The extra space between the bottom of the textbox and the text, in pixels"),
+					Label(text = "Left Margin:", hAlign = 1.0),
+					NUM_FIELD(margins[2],0,255),
+					INFOBTN("The extra space between the left of the textbox and the text, in pixels"),
+					Label(text = "Right Margin:", hAlign = 1.0),
+					NUM_FIELD(margins[3],0,255),
+					INFOBTN("The extra space between the right of the textbox and the text, in pixels")
+				),
+				Rows<3>(hAlign = 1.0, padding = 0_px,
+					Label(text = "Active Scroll Speed:", hAlign = 1.0),
+					NUM_FIELD(active_scroll_speed,0,255),
+					INFOBTN("How fast the string scrolls when the user is scrolling"
+						" with the up/down buttons."
+						"\nSpeed in pixels/frame, 0 disables manual scrolling."),
+					Label(text = "Passive Scroll Speed:", hAlign = 1.0),
+					NUM_FIELD(passive_scroll_speed,0,255),
+					INFOBTN("How fast the string scrolls when it is scrolling not"
+						" via the up/down buttons (ex. scrolling as new text appears,"
+						" scrolling to make a selected menu choice be visible)."
+						"\nSpeed in pixels/frame, speed of 0 means it instantly scrolls"
+						" to the destination.")
+				)
 			),
 			Rows<3>(
 				Label(text = "SFX:", hAlign = 1.0),
@@ -417,12 +433,13 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 		))
 	);
 	
-	std::map<string, std::pair<message_icon*, string>> icon_map = {
-		{ "More", { &tmpMsgStr.icon_more, "Displayed when the player needs to press a button to advance the text." } },
+	std::vector<std::tuple<string, message_icon*, string>> icon_list = {
+		{ "More", &tmpMsgStr.icon_more, "Displayed when the player needs to press a button to advance the text." },
+		{ "Scroll Up", &tmpMsgStr.icon_scroll_up, "Displayed when the player can scroll the text up." },
+		{ "Scroll Down", &tmpMsgStr.icon_scroll_down, "Displayed when the player can scroll the text down." },
 	};
-	for (auto& [str, pair] : icon_map)
+	for (auto& [str, icon, helpstr] : icon_list)
 	{
-		auto& [icon, helpstr] = pair;
 		gfx_column->add(
 			Frame(title = fmt::format("Icon: {}", str),
 				info = helpstr,
