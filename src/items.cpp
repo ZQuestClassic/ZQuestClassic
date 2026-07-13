@@ -826,7 +826,7 @@ struct LensOffsetData
 };
 
 bounded_map<dword, LensHintData> lens_hint_item {MAXITEMS, {}};
-bounded_map<dword, LensHintData> lens_hint_sprite {MAXSPRITES, {}};
+bounded_map<dword, LensHintData> lens_hint_sprite {MAX_DWORD, {}};
 bounded_map<dword, LensOffsetData> lens_hint_weapon_offsets {wMax, {}};
 void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, int32_t flash)
 {
@@ -926,7 +926,8 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 {
 	if (x < 0 && y < 0) return;
 #ifdef IS_PLAYER
-	LensHintData data = lens_hint_sprite.get(sprite_id);
+	dword data_index = (sprite_id & 0xFFFF) | (type << 16);
+	LensHintData data = lens_hint_sprite.get(data_index);
 	if (weapon_id > -1)
 	{
 		auto const& offset = lens_hint_weapon_offsets.get(weapon_id);
@@ -947,10 +948,11 @@ void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id
 	else if(!get_qr(qr_OLD_WEAPON_DRAW_ANIMATE_TIMING))
 		temp.animate_graphics();
 	
-	temp.draw(dest);
+	if (dest)
+		temp.draw(dest);
 	data.update(temp.clk2, temp.aframe, temp.csclk);
 	
-	lens_hint_sprite[sprite_id] = data;
+	lens_hint_sprite[data_index] = data;
 #else
 	(void)dest;
 	(void)x;
@@ -968,6 +970,11 @@ void reset_lens_hints()
 	lens_hint_item.clear();
 	lens_hint_sprite.clear();
 	lens_hint_weapon_offsets.clear();
+}
+void reset_hint_sprite(int id, int type)
+{
+	dword data_index = (id & 0xFFFF) | (type << 16);
+	lens_hint_sprite.erase(data_index);
 }
 
 void dummyitem_animate(item* dummy, int32_t clk)

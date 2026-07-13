@@ -40,11 +40,14 @@ struct menu_choice
 int msg_menu_data[MNU_DATA_MAX];
 BITMAP *txt_bmp_buf = nullptr, *bg_bmp_buf = nullptr, *portrait_bmp_buf = nullptr, *menu_bmp_buf = nullptr;
 BITMAP *txt_display_buf = nullptr, *bg_display_buf = nullptr, *portrait_display_buf = nullptr;
-bool do_run_menu = false;
-bool do_end_str = false;
-bool wait_advance = false;
+bool do_run_menu = false,
+	just_confirmed_menu = false,
+	do_end_str = false,
+	wait_advance = false,
+	wait_advance_unprocessed_iter = false;
 std::map<int, menu_choice> menu_options;
 word xpos = 0, ypos = 0, cursor_x = 0, cursor_y = 0, width = 0, height = 0;
+int body_height = 1;
 word enqueued_str = 0;
 word speed = 0;
 int used_height = -1, used_height_buf = -1;
@@ -53,6 +56,14 @@ FONT *msg_font;
 optional<MsgStr::iterator> cur_iterator;
 message_portrait portrait;
 int16_t margins[4] = {0};
+
+bool can_scroll = false, segmented_scroll = false, is_active_target_scrolling = false;
+int scroll_pos = 0;
+int target_scroll_pos = 0;
+int max_visible_pos = 0;
+int active_scroll_speed = 1, passive_scroll_speed = 1;
+int txt_bmp_height = 0;
+const int txt_bmp_width = 512+16;
 
 void setmsg(int str)
 {
@@ -83,6 +94,85 @@ void draw_prt()
 	{
 		draw_block_flip(portrait_bmp_buf, 0, 0, portrait.tile, portrait.cset,
 			portrait.tw, portrait.th, 0, true, false);
+	}
+}
+
+inline int cur_scroll()
+{
+	return can_scroll ? scroll_pos : 0;
+}
+inline int max_scroll()
+{
+	if (!can_scroll)
+		return 0;
+	if (max_visible_pos <= body_height)
+		return 0;
+	return zc_max(0, max_visible_pos - body_height);
+}
+inline int scroll_bound(int v)
+{
+	return vbound(v, 0, max_scroll());
+}
+
+void ensure_txt_bmp_height(int new_height)
+{
+	new_height += margins[down]; // account for bottom margin as extra
+	if (txt_bmp_height >= new_height)
+		return;
+	
+	// resize, preserving content
+	// to prevent constant resizing, over-allocate a bit of size
+	new_height += 64;
+	
+	BITMAP *tmp_txt = txt_bmp_buf;
+	BITMAP *tmp_menu = menu_bmp_buf;
+	
+	txt_bmp_buf = create_bitmap_ex(8, txt_bmp_width, new_height);
+	menu_bmp_buf = create_bitmap_ex(8, txt_bmp_width, new_height);
+	clear_bitmap(txt_bmp_buf);
+	clear_bitmap(menu_bmp_buf);
+	
+	blit(tmp_txt, txt_bmp_buf, 0, 0, 0, 0, txt_bmp_width, txt_bmp_height);
+	blit(tmp_menu, menu_bmp_buf, 0, 0, 0, 0, txt_bmp_width, txt_bmp_height);
+	
+	destroy_bitmap(tmp_txt);
+	destroy_bitmap(tmp_menu);
+	
+	txt_bmp_height = new_height;
+}
+
+void update_max_scroll(int pos)
+{
+	if (segmented_scroll && (pos % body_height))
+	{
+		// round up to next multiple of body_height
+		pos += body_height - (pos % body_height);
+	}
+	
+	if (pos > max_visible_pos)
+	{
+		max_visible_pos = pos;
+		ensure_txt_bmp_height(max_visible_pos + margins[up] + margins[down]);
+	}
+}
+
+void ensure_scrolled_to(int pos, int h)
+{
+	int epos = pos + h;
+	
+	update_max_scroll(epos);
+	
+	if (target_scroll_pos + body_height < epos)
+	{
+		if (segmented_scroll)
+			target_scroll_pos = pos - (pos % body_height);
+		else target_scroll_pos = epos - body_height;
+	}
+	else if (target_scroll_pos > pos)
+	{
+		if (segmented_scroll)
+			target_scroll_pos = pos - (pos % body_height);
+		else target_scroll_pos = pos;
 	}
 }
 
@@ -148,8 +238,9 @@ void update()
 	}
 	else
 	{
-		blit(txt_bmp_buf, txt_display_buf, margins[left], margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
-		masked_blit(menu_bmp_buf, txt_display_buf, margins[left], margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
+		int ty = cur_scroll();
+		blit(txt_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
+		masked_blit(menu_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
 	}
 	set_clip_state(portrait_display_buf, 0);
 	blit(portrait_bmp_buf, portrait_display_buf, 0, 0, portrait.x, portrait.y, portrait.tw*16, portrait.th*16);
@@ -204,14 +295,6 @@ bool runMenuCursor()
 	if((pressed || held) && pos != msg_menu_data[MNU_CHOSEN])
 		sfx(get_str().sfx);
 	
-	ch = &menu_options[pos];
-	overtileblock16(menu_bmp_buf, msg_menu_data[MNU_CURSOR_TILE],
-		ch->x, ch->y, (int32_t)ceil(msg_menu_data[MNU_CURSOR_WID]/16.0),
-		(int32_t)ceil(msg_menu_data[MNU_CURSOR_HEI]/16.0),
-		msg_menu_data[MNU_CURSOR_CSET], msg_menu_data[MNU_CURSOR_FLIP]);
-	
-	msg_menu_data[MNU_CHOSEN] = pos;
-	
 	if(!msg_menu_data[MNU_CAN_CONFIRM]) //Prevent instantly accepting when holding A
 	{
 		getInput(btnA, INPUT_PRESS); //Eat
@@ -226,8 +309,27 @@ bool runMenuCursor()
 	getInput(btnRight, INPUT_PRESS);
 	getInput(btnA, INPUT_PRESS);
 	
+	ch = &menu_options[pos];
+	ensure_scrolled_to(ch->y - margins[up], msg_menu_data[MNU_CURSOR_HEI]);
+	
+	overtileblock16(menu_bmp_buf, msg_menu_data[MNU_CURSOR_TILE],
+		ch->x, ch->y, (int32_t)ceil(msg_menu_data[MNU_CURSOR_WID]/16.0),
+		(int32_t)ceil(msg_menu_data[MNU_CURSOR_HEI]/16.0),
+		msg_menu_data[MNU_CURSOR_CSET], msg_menu_data[MNU_CURSOR_FLIP]);
+	
+	msg_menu_data[MNU_CHOSEN] = pos;
+	
 	if(ret)
+	{
+		 // imprint the final cursor on the txt_bmp_buf, to stay visible for scrolling and such
+		overtileblock16(txt_bmp_buf, msg_menu_data[MNU_CURSOR_TILE],
+			ch->x, ch->y, (int32_t)ceil(msg_menu_data[MNU_CURSOR_WID]/16.0),
+			(int32_t)ceil(msg_menu_data[MNU_CURSOR_HEI]/16.0),
+			msg_menu_data[MNU_CURSOR_CSET], msg_menu_data[MNU_CURSOR_FLIP]);
+		
 		menu_options.clear();
+		just_confirmed_menu = true;
+	}
 	
 	return ret;
 	//false if pos changed this frame; no confirming while moving the cursor!
@@ -235,7 +337,7 @@ bool runMenuCursor()
 
 bool bottom_margin_clip()
 {
-	return !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+	return !can_scroll && !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
 		&& cursor_y >= (height + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - margins[down]);
 }
 
@@ -247,10 +349,42 @@ void wait_to_advance(bool next_string = false)
 	}
 	else
 	{
-		if (!next_string)
-			wait_advance = true;
-		linked_clk = 1 + zinit.msg_advance_delay;
+		wait_advance = !next_string;
+		if (just_confirmed_menu)
+			linked_clk = 1;
+		else
+			linked_clk = 1 + zinit.msg_advance_delay;
 	}
+	// handle max_visible_pos for segmented mode properly
+	if (segmented)
+	{
+		if (target_scroll_pos / body_height != (cursor_y - margins[up] + used_height_buf - 1) / body_height)
+			max_visible_pos = target_scroll_pos - (target_scroll_pos % body_height) + body_height;
+	}
+}
+
+bool next_line()
+{
+	used_height = used_height_buf;
+	int32_t thei = zc_max(used_height, text_height(msg_font));
+	used_height_buf = text_height(msg_font);
+	auto ty = cursor_y - margins[up];
+	cursor_y += thei + get_str().vspace;
+	if (bottom_margin_clip())
+		return false;
+	cursor_x = margins[left];
+	if (segmented_scroll)
+	{
+		auto ty2 = cursor_y - margins[up] + used_height_buf;
+		if (ty / body_height != (ty2-1) / body_height)
+		{
+			max_visible_pos = ty - (ty % body_height) + body_height;
+			cursor_y = max_visible_pos + margins[up];
+			if (menu_options.empty()) // don't pause if menu options are being processed
+				wait_to_advance();
+		}
+	}
+	return true;
 }
 
 bool parsemsgcode(const StringCommand& command)
@@ -284,11 +418,10 @@ bool parsemsgcode(const StringCommand& command)
 	{
 		case MSGC_NEWLINE:
 		{
-			used_height = used_height_buf;
-			int32_t thei = zc_max(used_height, text_height(msg_font));
-			used_height_buf = -1;
-			cursor_y += thei + get_str().vspace;
-			cursor_x = margins[left];
+			next_line();
+			if (wait_advance)
+				return true; // not wait_advance_unprocessed_iter, as the newline would be double-applied
+			ensure_scrolled_to(cursor_y - margins[up], used_height_buf);
 			return true;
 		}	
 		
@@ -512,6 +645,7 @@ bool parsemsgcode(const StringCommand& command)
 		}
 		case MSGC_RUN_FRZ_GENSCR:
 		{
+			just_confirmed_menu = false;
 			word scr_id = args[0];
 			bool force_redraw = args[1]!=0;
 			if(force_redraw)
@@ -542,16 +676,19 @@ bool parsemsgcode(const StringCommand& command)
 			
 			if(cursor_x+msgstring.hspace + t_wid > width-margins[right])
 			{
-				used_height = used_height_buf;
-				int32_t thei = zc_max(used_height, text_height(msg_font));
-				used_height_buf = -1;
-				cursor_y += thei + msgstring.vspace;
-				if(bottom_margin_clip()) return true;
-				cursor_x=margins[left];
+				if (!next_line())
+					return true;
+				if (wait_advance)
+				{
+					wait_advance_unprocessed_iter = true;
+					return true;
+				}
 			}
+			just_confirmed_menu = false;
 			
-			overtileblock16(txt_bmp_buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
 			used_height_buf = zc_max(used_height_buf, t_hei);
+			ensure_scrolled_to(cursor_y - margins[up], used_height_buf);
+			overtileblock16(txt_bmp_buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
 			cursor_x += msgstring.hspace + t_wid;
 			return true;
 		}
@@ -992,6 +1129,7 @@ bool parsemsgcode(const StringCommand& command)
 		
 		case MSGC_MENUCHOICE:
 		{
+			just_confirmed_menu = false;
 			int32_t pos = args[0];
 			int32_t upos = args[1];
 			int32_t dpos = args[2];
@@ -1000,24 +1138,27 @@ bool parsemsgcode(const StringCommand& command)
 			auto const& msgstring = get_str();
 			if(cursor_x+msgstring.hspace + msg_menu_data[MNU_CURSOR_WID] > width-margins[right])
 			{
-				used_height = used_height_buf;
-				int32_t thei = zc_max(used_height, text_height(msg_font));
-				used_height_buf = -1;
-				cursor_y += thei + msgstring.vspace;
-				if(bottom_margin_clip()) break;
-				cursor_x=margins[left];
+				if (!next_line())
+					return true;
+				if (wait_advance)
+				{
+					wait_advance_unprocessed_iter = true;
+					return true;
+				}
 			}
 			
+			used_height_buf = zc_max(used_height_buf, msg_menu_data[MNU_CURSOR_HEI]);
+			ensure_scrolled_to(cursor_y - margins[up], used_height_buf);
 			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
 				upos, dpos, lpos, rpos);
 			
-			used_height_buf = zc_max(used_height_buf, msg_menu_data[MNU_CURSOR_HEI]);
 			cursor_x += msgstring.hspace + msg_menu_data[MNU_CURSOR_WID];
 			return true;
 		}
 		
 		case MSGC_RUNMENU:
 		{
+			just_confirmed_menu = false;
 			msg_menu_data[MNU_CHOSEN] = 0;
 			msg_menu_data[MNU_CAN_CONFIRM] = 0;
 			if(menu_options.size() < 1)
@@ -1057,6 +1198,7 @@ bool parsemsgcode(const StringCommand& command)
 		case MSGC_DELAY:
 		case MSGC_FORCE_DELAY:
 		{
+			just_confirmed_menu = false;
 			int frames = args[0];
 			if (frames <= 0)
 			{
@@ -1191,8 +1333,9 @@ switched:
 		else
 		{
 			do_new(scr, lev);
-			used_height_buf = -1;
+			used_height_buf = text_height(msg_font);
 		}
+		just_confirmed_menu = false;
 		putprices(false);
 		return true;
 	}
@@ -1238,14 +1381,16 @@ bool putmsgchar(bool play_sfx)
 	if (cursor_x+tlength > (width-margins[right]) &&
 		((cursor_x > (width-margins[right]) || !(msgstring.stringflags & STRINGFLAG_WRAP)) ? true : strcmp(rem_word," ")!=0))
 	{
-		used_height = used_height_buf;
-		int32_t thei = zc_max(used_height, text_height(msg_font));
-		used_height_buf = -1;
-		cursor_y += thei + msgstring.vspace;
-		if (bottom_margin_clip()) return false;
-
-		cursor_x = margins[left];
+		if (!next_line())
+			return false;
+		if (wait_advance)
+		{
+			wait_advance_unprocessed_iter = true;
+			return false;
+		}
 	}
+	ensure_scrolled_to(cursor_y - margins[up], used_height_buf);
+	just_confirmed_menu = false;
 
 	if (play_sfx)
 		sfx(msgstring.sfx);
@@ -1306,19 +1451,13 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		}
 	}
 
-	bool wait_advance_check_early = !burst_mode;
+	bool check_early = !burst_mode;
 
-	if (wait_advance_check_early)
+	if (check_early)
 	{
 		if (do_end_str)
 		{
 			msg_tick_end();
-			return msg_tick_exit;
-		}
-
-		if (wait_advance)
-		{
-			cur_iterator->next();
 			return msg_tick_exit;
 		}
 	}
@@ -1327,6 +1466,7 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 	{
 		if (!runMenuCursor())
 			return msg_tick_break;
+		target_scroll_pos = max_scroll();
 		do_run_menu = false;
 		if (!burst_mode && replay_version_check(0, 62))
 		{
@@ -1335,18 +1475,16 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		}
 	}
 
-	cur_iterator->next();
+	if (!(wait_advance && wait_advance_unprocessed_iter))
+		cur_iterator->next();
 
-	if (!wait_advance_check_early)
+	if (!check_early)
 	{
 		if (do_end_str)
 		{
 			msg_tick_end();
 			return msg_tick_exit;
 		}
-
-		if (wait_advance)
-			return msg_tick_exit;
 	}
 
 	if (cur_iterator->done())
@@ -1355,6 +1493,9 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 		if (nextstr && MsgStrings[nextstr].stringflags & STRINGFLAG_CONT)
 			setmsg(nextstr);
 	}
+	
+	if (wait_advance)
+		return msg_tick_break;
 
 	return msg_tick_continue;
 }
@@ -1364,11 +1505,14 @@ void msg_tick_end(bool disappear)
 	int nextstr = 0;
 	if (disappear)
 		goto disappear;
-
+	
 	// Done printing the string
-	if (do_end_str || (!do_run_menu && (cur_iterator->done() || bottom_margin_clip()) && !linked_clk))
+	if (do_end_str || (!do_run_menu && (cur_iterator->done() || bottom_margin_clip()) && (wait_advance || !linked_clk)))
 	{
-		if(!do_end_str)
+		if (do_end_str)
+			just_confirmed_menu = false;
+		
+		if(!do_end_str && !wait_advance)
 		{
 			while (cur_iterator->state == MsgStr::iterator::COMMAND)
 			{
@@ -1384,7 +1528,7 @@ void msg_tick_end(bool disappear)
 		if (nextstr || get_qr(qr_MSGDISAPPEAR) || enqueued_str)
 			wait_to_advance(true);
 		
-		if (!nextstr)
+		if (!nextstr && !wait_advance)
 		{
 			if(!get_qr(qr_MSGDISAPPEAR))
 			{
@@ -1449,23 +1593,67 @@ void tick_message()
 {
 	if (wait_advance && linked_clk < 1)
 		linked_clk = 1;
+	if (can_scroll && scroll_pos != target_scroll_pos)
+	{
+		uint spd = is_active_target_scrolling ? active_scroll_speed : passive_scroll_speed;
+		if (!spd)
+			scroll_pos = target_scroll_pos;
+		else
+			scroll_pos = util::move_towards(scroll_pos, target_scroll_pos, spd);
+		if (scroll_pos == target_scroll_pos)
+			is_active_target_scrolling = false;
+	}
 	if (linked_clk > 0)
 	{
 		if (linked_clk == 1)
 		{
-			if (do_end_str || getInput(btnA) || getInput(btnB))
+			if (can_scroll && !do_end_str && scroll_pos == target_scroll_pos)
 			{
-				do_end_str = false;
+				bool up = getInput(btnUp, segmented_scroll ? INPUT_PRESS : 0), down = getInput(btnDown, segmented_scroll ? INPUT_PRESS : 0);
+				if (up != down)
+				{
+					if (down ? scroll_pos >= max_scroll() : scroll_pos <= 0)
+						; // invalid scroll direction
+					else if (segmented_scroll)
+					{
+						is_active_target_scrolling = true;
+						if (down)
+							target_scroll_pos = scroll_bound(target_scroll_pos + body_height);
+						else // if (up)
+							target_scroll_pos = scroll_bound(target_scroll_pos - body_height);
+					}
+					else
+					{
+						if (down)
+							scroll_pos = scroll_bound(scroll_pos + active_scroll_speed);
+						else // if (up)
+							scroll_pos = scroll_bound(scroll_pos - active_scroll_speed);
+						target_scroll_pos = scroll_pos;
+					}
+				}
+			}
+			bool advance = do_end_str;
+			if (!advance && just_confirmed_menu)
+			{
+				target_scroll_pos = max_scroll();
+				advance = true;
+			}
+			if (!advance && cur_scroll() == max_scroll())
+				advance = getInput(btnA) || getInput(btnB);
+				
+			if (advance)
+			{
+				do_end_str = just_confirmed_menu = false;
 				linked_clk = 0;
 				if(wait_advance)
 				{
-					wait_advance = false;
+					wait_advance = wait_advance_unprocessed_iter = false;
 				}
 				else
 				{
 					if (!scr) scr = hero_scr;
 					active_str = get_str().nextstring;
-					used_height_buf = -1;
+					used_height_buf = text_height(msg_font);
 					if (!active_str && enqueued_str)
 					{
 						active_str = enqueued_str;
@@ -1552,7 +1740,7 @@ breakout:
 	// Process the next msg tick.
 	// This will either print a single character, or process a single string command (with one
 	// exception).
-	if (!cur_iterator->done() && !bottom_margin_clip())
+	if (!cur_iterator->done() && !bottom_margin_clip() && !wait_advance)
 	{
 		// This may run an additional tick in the case of a string menu finishing: the first
 		// tick wraps up the menu, and then a second tick processes the next character or command.
@@ -1573,9 +1761,9 @@ breakout:
 	msg_tick_end();
 }
 
-void draw_icon(message_icon icon, int type, bool drawPassiveSubscreenSeparate)
+void draw_icon(message_icon const& icon, int type, bool drawPassiveSubscreenSeparate)
 {
-	if (!icon.sprite || !sprite_data_buf.get(icon.sprite).tile)
+	if (icon.sprite < 0 || !sprite_data_buf.get(icon.sprite).tile)
 		return;
 	int x = icon.x, y = icon.y;
 	auto& msgstring = get_str();
@@ -1638,7 +1826,19 @@ void draw_icon(message_icon icon, int type, bool drawPassiveSubscreenSeparate)
 		draw_lens_hint_sprite(framebuf, x + viewport.x, y + viewport.y, wPhantom, type, up, -1, icon.sprite);
 	}
 }
-
+void dummy_animate_icon(message_icon const& icon, int type)
+{
+	if (icon.sprite < 0 || !sprite_data_buf.get(icon.sprite).tile)
+		return;
+	draw_lens_hint_sprite(nullptr, 0, 0, wPhantom, type, up, -1, icon.sprite);
+}
+void reset_hint_icons()
+{
+	if (replay_version_check(62))
+		reset_hint_sprite(wPhantom, pMESSAGEMORE);
+	reset_hint_sprite(wPhantom, pMESSAGESCROLLUP);
+	reset_hint_sprite(wPhantom, pMESSAGESCROLLDOWN);
+}
 }
 
 namespace msgstr
@@ -1655,10 +1855,11 @@ word clk = 0, linked_clk = 0;
 
 bool allocate_bmps()
 {
-	txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	txt_bmp_height = 512+16;
+	txt_bmp_buf = create_bitmap_ex(8, txt_bmp_width, txt_bmp_height);
 	bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
 	portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
-	menu_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	menu_bmp_buf = create_bitmap_ex(8, txt_bmp_width, txt_bmp_height);
 	
 	txt_display_buf = create_bitmap_ex(8,256, 224);
 	bg_display_buf = create_bitmap_ex(8,256, 224);
@@ -1722,6 +1923,14 @@ void do_new(mapscr* new_scr, int str)
 	auto const& msgstring = get_str();
 	layer = msgstring.drawlayer;
 	nofreeze = msgstring.stringflags & STRINGFLAG_NOFREEZE;
+	can_scroll = !get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS);
+	segmented_scroll = can_scroll && get_qr(qr_STRING_SEGMENTED_SCROLL);
+	is_active_target_scrolling = false;
+	used_height_buf = text_height(msg_font);
+	scroll_pos = target_scroll_pos = max_visible_pos = 0;
+	passive_scroll_speed = msgstring.passive_scroll_speed;
+	active_scroll_speed = msgstring.active_scroll_speed;
+	reset_hint_icons();
 	
 	clear_bmps();
 	
@@ -1742,6 +1951,7 @@ void do_new(mapscr* new_scr, int str)
 		margins[q] = copy_from[q];
 	cursor_x = margins[left];
 	cursor_y = margins[up];
+	body_height = zc_max(1, int(height) - margins[up] - margins[down]);
 }
 
 // Called to make a message disappear
@@ -1759,7 +1969,8 @@ void dismiss()
 	msg_font = get_zc_font(font_zfont);
 	clear_display_bmps();
 	do_end_str = false;
-	wait_advance = false;
+	wait_advance = wait_advance_unprocessed_iter = false;
+	just_confirmed_menu = false;
 	do_run_menu = false;
 	menu_options.clear();
 	memset(msg_menu_data, 0, sizeof(msg_menu_data));
@@ -1771,14 +1982,57 @@ void dismiss()
 	speed = zinit.msg_speed;
 	for(auto q = 0; q < 4; ++q)
 		margins[q] = old_margins[q];
+	can_scroll = segmented_scroll = is_active_target_scrolling = false;
+	scroll_pos = target_scroll_pos = max_visible_pos = 0;
+	active_scroll_speed = 1;
+	passive_scroll_speed = 1;
+	reset_hint_icons();
+}
+void init_string_vars()
+{
+	dismiss();
+	if (txt_bmp_height != 512+16)
+	{
+		txt_bmp_height = 512 + 16;
+		destroy_bitmap(txt_bmp_buf);
+		txt_bmp_buf = create_bitmap_ex(8, txt_bmp_width, txt_bmp_height);
+		destroy_bitmap(menu_bmp_buf);
+		menu_bmp_buf = create_bitmap_ex(8, txt_bmp_width, txt_bmp_height);
+	}
 }
 
 void draw_icons(bool drawPassiveSubscreenSeparate)
 {
-	if (!active_str) return;
+	if (!active_str)
+		return;
+	if (linked_clk != 1 || do_end_str)
+		return;
 	auto& msgstring = get_str();
-	if (linked_clk == 1 && !do_end_str)
+	
+	bool draw_more = false, draw_scr_up = false, draw_scr_down = false;
+	
+	if (!can_scroll || cur_scroll() == max_scroll())
+		draw_more = true;
+	if (can_scroll && active_scroll_speed)
+	{
+		draw_scr_up = cur_scroll();
+		draw_scr_down = cur_scroll() < max_scroll();
+	}
+	
+	if (draw_more)
 		draw_icon(msgstring.icon_more, pMESSAGEMORE, drawPassiveSubscreenSeparate);
+	else
+		dummy_animate_icon(msgstring.icon_more, pMESSAGEMORE);
+	
+	if (draw_scr_up)
+		draw_icon(msgstring.icon_scroll_up, pMESSAGESCROLLUP, drawPassiveSubscreenSeparate);
+	else
+		dummy_animate_icon(msgstring.icon_scroll_up, pMESSAGESCROLLUP);
+	
+	if (draw_scr_down)
+		draw_icon(msgstring.icon_scroll_down, pMESSAGESCROLLDOWN, drawPassiveSubscreenSeparate);
+	else
+		dummy_animate_icon(msgstring.icon_scroll_down, pMESSAGESCROLLDOWN);
 }
 
 MsgStr const& get_str()

@@ -9461,6 +9461,8 @@ int32_t writestrings(PACKFILE *f)
 			
 			message_icon const* icons[] = {
 				&MsgStrings[i].icon_more,
+				&MsgStrings[i].icon_scroll_up,
+				&MsgStrings[i].icon_scroll_down,
 			};
 			for (auto* icon : icons)
 			{
@@ -9473,6 +9475,11 @@ int32_t writestrings(PACKFILE *f)
 				if (!p_iputw(icon->y, f))
 					return qe_invalid;
 			}
+			
+			if (!p_putc(MsgStrings[i].active_scroll_speed, f))
+				return qe_invalid;
+			if (!p_putc(MsgStrings[i].passive_scroll_speed, f))
+				return qe_invalid;
 		}
 		
 		if(writecycle==0)
@@ -9579,6 +9586,16 @@ int32_t writestrings_tsv(PACKFILE *f)
 		{ "i_more_anchor", [](auto& msg){ return std::to_string(int(msg.icon_more.anchor)); } },
 		{ "i_more_x", [](auto& msg){ return std::to_string(msg.icon_more.x); } },
 		{ "i_more_y", [](auto& msg){ return std::to_string(msg.icon_more.y); } },
+		{ "i_scroll_up_sprite", [](auto& msg){ return std::to_string(msg.icon_scroll_up.sprite); } },
+		{ "i_scroll_up_anchor", [](auto& msg){ return std::to_string(int(msg.icon_scroll_up.anchor)); } },
+		{ "i_scroll_up_x", [](auto& msg){ return std::to_string(msg.icon_scroll_up.x); } },
+		{ "i_scroll_up_y", [](auto& msg){ return std::to_string(msg.icon_scroll_up.y); } },
+		{ "i_scroll_down_sprite", [](auto& msg){ return std::to_string(msg.icon_scroll_down.sprite); } },
+		{ "i_scroll_down_anchor", [](auto& msg){ return std::to_string(int(msg.icon_scroll_down.anchor)); } },
+		{ "i_scroll_down_x", [](auto& msg){ return std::to_string(msg.icon_scroll_down.x); } },
+		{ "i_scroll_down_y", [](auto& msg){ return std::to_string(msg.icon_scroll_down.y); } },
+		{ "active_scroll_speed", [](auto& msg){ return std::to_string(msg.active_scroll_speed); } },
+		{ "passive_scroll_speed", [](auto& msg){ return std::to_string(msg.passive_scroll_speed); } },
 	};
 
 	for (auto& [name, fn] : fields)
@@ -9662,6 +9679,26 @@ void parse_strings_tsv(std::string tsv)
 		} },
 		{ "i_more_x", [](auto& msg, auto& text){ msg.icon_more.x = std::stoi(text); } },
 		{ "i_more_y", [](auto& msg, auto& text){ msg.icon_more.y = std::stoi(text); } },
+		{ "i_scroll_up_sprite", [](auto& msg, auto& text){ msg.icon_scroll_up.sprite = std::stoi(text); } },
+		{ "i_scroll_up_anchor", [](auto& msg, auto& text){
+			int anchor = std::stoi(text);
+			if (unsigned(anchor) >= uint(message_anchor::max_anchor))
+				throw std::runtime_error("i_scroll_up_anchor field must be a valid anchor value!");
+			msg.icon_scroll_up.anchor = message_anchor(anchor);
+		} },
+		{ "i_scroll_up_x", [](auto& msg, auto& text){ msg.icon_scroll_up.x = std::stoi(text); } },
+		{ "i_scroll_up_y", [](auto& msg, auto& text){ msg.icon_scroll_up.y = std::stoi(text); } },
+		{ "i_scroll_down_sprite", [](auto& msg, auto& text){ msg.icon_scroll_down.sprite = std::stoi(text); } },
+		{ "i_scroll_down_anchor", [](auto& msg, auto& text){
+			int anchor = std::stoi(text);
+			if (unsigned(anchor) >= uint(message_anchor::max_anchor))
+				throw std::runtime_error("i_scroll_down_anchor field must be a valid anchor value!");
+			msg.icon_scroll_down.anchor = message_anchor(anchor);
+		} },
+		{ "i_scroll_down_x", [](auto& msg, auto& text){ msg.icon_scroll_down.x = std::stoi(text); } },
+		{ "i_scroll_down_y", [](auto& msg, auto& text){ msg.icon_scroll_down.y = std::stoi(text); } },
+		{ "active_scroll_speed", [](auto& msg, auto& text){ msg.active_scroll_speed = std::stoi(text); } },
+		{ "passive_scroll_speed", [](auto& msg, auto& text){ msg.passive_scroll_speed = std::stoi(text); } },
 	};
 
 	std::vector<std::string> rows;

@@ -7,6 +7,7 @@ extern const byte* legacy_skip_flags;
 
 void init_msgstr(MsgStr *str)
 {
+	str->clear();
 	str->setFromLegacyEncoding("");
 	str->nextstring=0;
     str->tile=0;
@@ -286,6 +287,11 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 					
 					if(!p_getc(&tempMsgString.stringflags,f))
 						return qe_invalid;
+					if (s_version < 13)
+					{
+						// previously defined but unused/invalid flags
+						tempMsgString.stringflags &= ~(0x04 | 0x08);
+					}
 				}
 				
 				if(s_version >= 7)
@@ -350,6 +356,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				{
 					message_icon* icons[] = {
 						&tempMsgString.icon_more,
+						&tempMsgString.icon_scroll_up,
+						&tempMsgString.icon_scroll_down,
 					};
 					for (message_icon* icon : icons)
 					{
@@ -362,6 +370,10 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 						if (!p_igetw(&icon->y, f))
 							return qe_invalid;
 					}
+					if (!p_getc(&tempMsgString.active_scroll_speed, f))
+						return qe_invalid;
+					if (!p_getc(&tempMsgString.passive_scroll_speed, f))
+						return qe_invalid;
 				}
 			}
 

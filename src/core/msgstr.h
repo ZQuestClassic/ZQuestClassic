@@ -12,8 +12,8 @@
 
 #define STRINGFLAG_WRAP             0x01
 #define STRINGFLAG_CONT             0x02
-#define STRINGFLAG_CENTER           0x04
-#define STRINGFLAG_RIGHT            0x08
+//0x04
+//0x08
 #define STRINGFLAG_FULLTILE         0x10
 #define STRINGFLAG_TRANS_BG         0x20
 #define STRINGFLAG_TRANS_FG         0x40
@@ -33,6 +33,9 @@ enum
 	STR_ADVP_LAYER,
 	STR_ADVP_FLAGS,
 	STR_ADVP_ICON_MORE,
+	STR_ADVP_ICON_SCROLL_UP,
+	STR_ADVP_ICON_SCROLL_DOWN,
+	STR_ADVP_SCROLL_SPEEDS,
 	STR_ADVP_SZ
 };
 
@@ -60,7 +63,7 @@ enum class message_anchor : uint8_t
 };
 struct message_icon
 {
-	word sprite = 0;
+	int16_t sprite = -1;
 	message_anchor anchor = message_anchor::r_down;
 	int16_t x = 0, y = 0;
 };
@@ -95,7 +98,8 @@ struct MsgStr
 	byte shadow_type;
 	byte shadow_color;
 	byte drawlayer;
-	message_icon icon_more;
+	message_icon icon_more, icon_scroll_up, icon_scroll_down;
+	byte active_scroll_speed, passive_scroll_speed;
 	
 	// Copy everything except listpos
 	MsgStr& operator=(MsgStr const& other);

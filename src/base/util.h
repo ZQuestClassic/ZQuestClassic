@@ -5,6 +5,7 @@
 #define UTIL_H_
 
 #include "base/zfix.h"
+#include "base/headers.h"
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
@@ -66,6 +67,25 @@ namespace util
 			ss << std::setw(2) << static_cast<int>(*first++);
 		}
 		return ss.str();
+	}
+
+	template<int_type T, uint_type T2>
+	T move_towards(T val, T dest, T2 by)
+	{
+		T ret = val;
+		if (ret < dest)
+		{
+			ret += by;
+			if (ret > dest || ret < val)
+				return dest;
+		}
+		else if (ret > dest)
+		{
+			ret -= by;
+			if (ret < dest || ret > val)
+				return dest;
+		}
+		return ret;
 	}
 
 	std::string snip(std::string const& str, size_t length, std::string trail = "...");

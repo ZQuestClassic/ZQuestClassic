@@ -131,6 +131,7 @@ void draw_lens_hint_item(BITMAP *dest, int32_t x, int32_t y, int32_t item_id, in
 void update_lens_hint_weapon(int weapon_id);
 void draw_lens_hint_sprite(BITMAP *dest, int32_t x, int32_t y, int32_t sprite_id, int type, int dir, int parentid, optional<word> force_spr = nullopt, int weapon_id = -1);
 void reset_lens_hints();
+void reset_hint_sprite(int id, int type);
 
 void dummyitem_animate(item* dummy, int32_t clk);
 bool handle_ambush_item(int id, int screen, zfix x, zfix y);

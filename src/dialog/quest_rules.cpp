@@ -1148,6 +1148,9 @@ static GUI::ListData compatRulesList
 		" the wrong Map, off-by-1 from the specified map."},
 	{ "Old Long SCC Args", qr_OLD_LONG_SCC_ARGS,
 		"When enabled, some SCCs will divide certain args by 10000."},
+	{ "Strings Don't Scroll", qr_STRINGS_DONT_SCROLL,
+		"When enabled, strings will cut off when they reach their bottom margin, rather than scrolling."
+		"\n'Old String Margins' being enabled takes priority over this setting." + QRHINT({qr_OLD_STRING_EDITOR_MARGINS})},
 };
 
 static GUI::ListData enemiesRulesList
@@ -1365,6 +1368,11 @@ static GUI::ListData miscRulesList
 		" Note that while picking up an item removes the string, it may not remove the Guy Barrier"
 		" depending on whether or not 'Items Disappear During Hold-Up' is checked and depending on"
 		" whether or not picking up an item is what solves the Guy Room."},
+	{ "Messages Scroll In Segments", qr_STRING_SEGMENTED_SCROLL,
+		"If enabled, messages that are larger than their message box will be separated into segments,"
+		" such that each segment is the full height of the message box, and scrolling will always show a full segment at a time."
+		" Each segment will wait for the player to press to advance before continuing to the next."
+		+ QRHINT({qr_STRINGS_DONT_SCROLL,qr_OLD_STRING_EDITOR_MARGINS})},
 	{ "Goto SCCs respect 'continuation' flag", qr_SCC_GOTO_RESPECTS_CONTFLAG,
 		"If enabled, a 'Goto' type String Control Code that switches to a string with the"
 		" 'Is continuation of previous string' flag set will respect this, displaying"

@@ -53,6 +53,10 @@ void MsgStr::copyStyle(MsgStr const& other)
 	drawlayer=other.drawlayer;
 	
 	icon_more = other.icon_more;
+	icon_scroll_up = other.icon_scroll_up;
+	icon_scroll_down = other.icon_scroll_down;
+	active_scroll_speed = other.active_scroll_speed;
+	passive_scroll_speed = other.passive_scroll_speed;
 }
 
 void MsgStr::copyAll(MsgStr const& other)
@@ -110,8 +114,18 @@ void MsgStr::advpaste(MsgStr const& other, bitstring const& flags)
 	if(flags.get(STR_ADVP_FLAGS))
 		stringflags = other.stringflags;
 	
-	if(flags.get(STR_ADVP_ICON_MORE))
+	if (flags.get(STR_ADVP_ICON_MORE))
 		icon_more = other.icon_more;
+	if (flags.get(STR_ADVP_ICON_SCROLL_UP))
+		icon_scroll_up = other.icon_scroll_up;
+	if (flags.get(STR_ADVP_ICON_SCROLL_DOWN))
+		icon_scroll_down = other.icon_scroll_down;
+	if (flags.get(STR_ADVP_SCROLL_SPEEDS))
+	{
+		active_scroll_speed = other.active_scroll_speed;
+		passive_scroll_speed = other.passive_scroll_speed;
+	}
+	
 }
 
 void MsgStr::clear()
@@ -143,6 +157,11 @@ void MsgStr::clear()
 	shadow_color=0;
 	listpos=0;
 	drawlayer=6;
+	icon_more = message_icon();
+	icon_scroll_up = message_icon();
+	icon_scroll_down = message_icon();
+	active_scroll_speed = 1;
+	passive_scroll_speed = 1;
 }
 
 warnings MsgStr::setFromAsciiEncoding(std::string text)

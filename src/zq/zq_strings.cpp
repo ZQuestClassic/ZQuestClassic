@@ -128,6 +128,7 @@ static bool string_advpaste(int indx)
 		{ "Icon: More" },
 		{ "Icon: Scroll Up" },
 		{ "Icon: Scroll Down" },
+		{ "Scroll Speeds" },
 	};
 	static const string title = "Advanced Paste";
 	static const string title_all = "Advanced Paste to All";

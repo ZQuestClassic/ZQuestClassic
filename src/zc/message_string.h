@@ -27,6 +27,7 @@ namespace msgstr
 	void do_new(mapscr* scr, int str);
 	
 	void dismiss();
+	void init_string_vars();
 	
 	void draw_icons(bool drawPassiveSubscreenSeparate);
 	
