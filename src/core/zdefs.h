@@ -137,7 +137,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           9
 #define V_RULES           17
-#define V_STRINGS         12
+#define V_STRINGS         13
 #define V_MISC            21
 #define V_TILES            4 //3 added blank tile optimization and 4-bit packing; 4 used by .ztileset
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
@@ -151,7 +151,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        48
+#define V_INITDATA        49
 #define V_GUYS            58
 #define V_GUYS_ZNPC_MIN   57 // .znpc files before this used a different field ordering
 #define V_MIDIS            5

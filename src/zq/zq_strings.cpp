@@ -68,35 +68,37 @@ static TABPANEL editmsg_tabs[] =
 DIALOG strlist_dlg[] =
 {
 	// (dialog proc)       (x)     (y)      (w)     (h)     (fg)    (bg) (key)  (flags)    (d1)            (d2)        (dp)
-	{ jwin_win_proc,        20,      0, 200+72, 148+76,  vc(14),  vc(1),    0,  D_EXIT,       0,             0, (void *) "Edit Message Strings", NULL, NULL },
+	{ jwin_win_proc,        20,      0, 200+72, 148+54,  vc(14),  vc(1),    0,  D_EXIT,       0,             0, (void *) "Edit Message Strings", NULL, NULL },
 	{ d_timer_proc,          0,      0,      0,      0,       0,      0,    0,       0,       0,             0,       NULL, NULL, NULL },
 	{ jwin_list_proc,       34,   21+8, 176+49,  131+3,jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG],0,D_EXIT|(D_USER<<1),0,     0, (void *)&strlist_dlg_list, NULL, (void *) &strlist_rclick_func },
-	{ jwin_button_proc,     40, 163+36,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Edit", NULL, NULL },
-	{ jwin_button_proc,    200, 163+36,     71,     21,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "Done", NULL, NULL },
+	{ jwin_button_proc,     40, 163+18,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Edit", NULL, NULL },
+	{ jwin_button_proc,    200, 163+18,     71,     21,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "Done", NULL, NULL },
 	{ d_keyboard_proc,       0,      0,      0,      0,       0,     0,     0,       0, KEY_DEL,             0, (void *) strlist_del, NULL, NULL },
 	
-	{ jwin_text_proc,       32,  165+4,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Message More X, Y: ", NULL, NULL },
-	{ jwin_edit_proc,      128,    165,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      158,    165,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,       32, 165+22,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Default Text Speed: ", NULL, NULL },
-	{ jwin_edit_proc,      128, 165+18,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
+	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+	{ jwin_text_proc,       38,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Default Text Speed: ", NULL, NULL },
+	{ jwin_edit_proc,       90,    166,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
 	
 	{ jwin_iconbutton_proc,266,     74,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_UP,    0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,266,     99,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_DOWN,  0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,266,     44,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_UP,    0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,266,    129,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_DOWN,  0, NULL, NULL, NULL },
 	//15
-	{ jwin_check_proc,     188,    168,     0,      9,   vc(14),  vc(1),   0,       0,        1,             0, (void *) "Y is Offset", NULL, NULL },
-	{ jwin_button_proc,    120, 163+36,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Add New Here", NULL, NULL },
+	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+	{ jwin_button_proc,    120, 163+18,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Add New Here", NULL, NULL },
 	//17
 	{ jwin_droplist_proc,  34,   16,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],0,D_EXIT,0,       0, (void *) &stringcat_dlg_list, NULL, NULL },
 	{ jwin_button_proc,    34+161+2,   18,     12,     12,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
 	{ d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'c',      0,       0,             0, (void *) close_dlg, NULL, NULL },
 	{ d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'v',      0,       0,             0, (void *) close_dlg, NULL, NULL },
 	//21
-	{ jwin_text_proc,      158, 165+22,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
-	{ jwin_edit_proc,      204, 165+18,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,      130,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
+	{ jwin_edit_proc,      158,    166,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
 	{ jwin_check_proc,     213,     18,      0,      9,   vc(14),  vc(1),   0,  D_EXIT,       1,             0, (void *) "Sort Numerically", NULL, NULL },
+	{ jwin_button_proc,    116,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
+	{ jwin_button_proc,    194,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
@@ -118,6 +120,9 @@ static bool string_advpaste(int indx)
 		{ "Shadow" },
 		{ "Layer" },
 		{ "Flags" },
+		{ "Icon: More" },
+		{ "Icon: Scroll Up" },
+		{ "Icon: Scroll Down" },
 	};
 	static const string title = "Advanced Paste";
 	static const string title_all = "Advanced Paste to All";
@@ -409,12 +414,8 @@ int32_t onStrings()
 	
 	strlist_dlg[0].dp2=get_zc_font(font_lfont);
 	int32_t index=0;
-	char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[5], template_string[6];
-	int32_t morex=zinit.msg_more_x;
-	int32_t morey=zinit.msg_more_y;
+	char msgspeed_string[5], template_string[6];
 	int32_t msgspeed = zinit.msg_speed;
-	snprintf(msgmore_xstring, sizeof(msgmore_xstring), "%d", zinit.msg_more_x);
-	snprintf(msgmore_ystring, sizeof(msgmore_ystring), "%d", zinit.msg_more_y);
 	snprintf(msgspeed_string, sizeof(msgspeed_string), "%d", zinit.msg_speed);
 	static int32_t tid = 0;
 	snprintf(template_string, sizeof(template_string), "%d", tid);
@@ -425,7 +426,6 @@ int32_t onStrings()
 	strlist_dlg[17].d1=0;
 	build_bistringcat_list();
 	//Message more is offset
-	strlist_dlg[15].flags=(zinit.msg_more_is_offset!=0)?D_SELECTED:0;
 	SETFLAG(strlist_dlg[23].flags, D_SELECTED, strlist_numerical_sort);
 	SETFLAG(strlist_dlg[11].flags, D_DISABLED, strlist_numerical_sort);
 	SETFLAG(strlist_dlg[12].flags, D_DISABLED, strlist_numerical_sort);
@@ -461,8 +461,6 @@ int32_t onStrings()
 			MsgStrings[msg_count++].setFromAsciiEncoding("<New String>");
 		}
 		
-		strlist_dlg[7].dp=msgmore_xstring;
-		strlist_dlg[8].dp=msgmore_ystring;
 		strlist_dlg[10].dp=msgspeed_string;
 		strlist_dlg[22].dp=template_string;
 		
@@ -478,6 +476,17 @@ int32_t onStrings()
 		
 		switch(ret)
 		{
+			case 24:
+				InfoDialog("Default Text Speed", "This speed will be used for all strings unless SCCs"
+					" are used to change the speed. Lower speed is faster; speed represents number"
+					" of frames between each character being parsed. Speed of 0"
+					" represents 'instant', parsing the entire string out at once.").show();
+				break;
+			case 25:
+				InfoDialog("Template", "Type the number of a string to use as a template,"
+					" having all of it's style settings used for any <New String>s edited.").show();
+				break;
+			
 			case 18:
 				InfoDialog("String Index","Create a string beginning with two hyphens '--'"
 					" and it will be listed in this index, serving as a"
@@ -621,15 +630,10 @@ int32_t onStrings()
 			case 4:
 			
 				index=-1;
-				zinit.msg_more_x=atoi(msgmore_xstring);
-				zinit.msg_more_y=atoi(msgmore_ystring);
 				zinit.msg_speed=atoi(msgspeed_string);
-				zinit.msg_more_is_offset=(strlist_dlg[15].flags&D_SELECTED)?1:0;
 				
-				if(morex!=zinit.msg_more_x||morey!=zinit.msg_more_y||msgspeed!=zinit.msg_speed)
-				{
+				if (msgspeed != zinit.msg_speed)
 					mark_save_dirty();
-				}
 				
 				break;
 				

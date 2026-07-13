@@ -51,6 +51,8 @@ void MsgStr::copyStyle(MsgStr const& other)
 	shadow_type=other.shadow_type;
 	shadow_color=other.shadow_color;
 	drawlayer=other.drawlayer;
+	
+	icon_more = other.icon_more;
 }
 
 void MsgStr::copyAll(MsgStr const& other)
@@ -107,6 +109,9 @@ void MsgStr::advpaste(MsgStr const& other, bitstring const& flags)
 		drawlayer = other.drawlayer;
 	if(flags.get(STR_ADVP_FLAGS))
 		stringflags = other.stringflags;
+	
+	if(flags.get(STR_ADVP_ICON_MORE))
+		icon_more = other.icon_more;
 }
 
 void MsgStr::clear()

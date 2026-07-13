@@ -11,7 +11,7 @@ extern bool fixpolsvoice;
 
 namespace {
 
-static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zinitdata& temp_zinit)
+static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, zinitdata& temp_zinit, message_icon& msg_more)
 {
 	byte padding, tempbyte;
 	
@@ -619,15 +619,13 @@ static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_versio
 			}
 		}
 		
-		if(!p_getc(&temp_zinit.msg_more_x,f))
-		{
+		if(!p_getc(&tempbyte, f))
 			return qe_invalid;
-		}
+		msg_more.x = tempbyte;
 		
-		if(!p_getc(&temp_zinit.msg_more_y,f))
-		{
+		if(!p_getc(&tempbyte, f))
 			return qe_invalid;
-		}
+		msg_more.y = zc_min(160, tempbyte);
 		
 		if(!p_getc(&subscr_mode,f))
 			return qe_invalid;
@@ -908,10 +906,10 @@ static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_versio
 		
 		if(s_version>17)
 		{
-			if(!p_getc(&temp_zinit.msg_more_is_offset,f))
-			{
+			if(!p_getc(&tempbyte,f))
 				return qe_invalid;
-			}
+			if (tempbyte)
+				msg_more.anchor = message_anchor::screen_y_offset;
 		}
 		
 		//expaned init data for larger values in 2.55
@@ -1065,8 +1063,8 @@ static int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_versio
 		
 		set_qr(qr_HIDECARRIEDITEMS,0);
 		hookshot_links=100;
-		temp_zinit.msg_more_x=224;
-		temp_zinit.msg_more_y=64;
+		msg_more.x = 224;
+		msg_more.y = 64;
 	}
 	
 	// Okay,  let's put these legacy values into itemsbuf.
@@ -1419,9 +1417,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 	}
 	
+	message_icon msg_more{};
+	msg_more.sprite = iwMore;
+	msg_more.anchor = message_anchor::screen;
 	if(s_version < 37)
 	{
-		if(auto ret = readinitdata_old(f,Header,s_version,temp_zinit))
+		if(auto ret = readinitdata_old(f,Header,s_version,temp_zinit,msg_more))
 			return ret;
 	}
 	else
@@ -1546,12 +1547,19 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.last_screen,f))
 			return qe_invalid;
-		if(!p_getc(&temp_zinit.msg_more_x,f))
-			return qe_invalid;
-		if(!p_getc(&temp_zinit.msg_more_y,f))
-			return qe_invalid;
-		if(!p_getc(&temp_zinit.msg_more_is_offset,f))
-			return qe_invalid;
+		if (s_version < 49)
+		{
+			if(!p_getc(&padding,f))
+				return qe_invalid;
+			msg_more.x = padding;
+			if(!p_getc(&padding,f))
+				return qe_invalid;
+			msg_more.y = zc_min(160, padding);
+			if(!p_getc(&padding,f))
+				return qe_invalid;
+			if (padding)
+				msg_more.anchor = message_anchor::screen_y_offset;
+		}
 		if(!p_getc(&temp_zinit.msg_speed,f))
 			return qe_invalid;
 		if(!p_igetl(&temp_zinit.gravity,f))
@@ -1702,6 +1710,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	
 	if (should_skip)
 		return 0;
+	if (s_version < 49)
+	{
+		for (int q = 0; q < msg_count; ++q)
+			MsgStrings[q].icon_more = msg_more;
+	}
 
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
 	{

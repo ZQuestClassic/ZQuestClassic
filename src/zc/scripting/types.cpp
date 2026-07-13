@@ -889,6 +889,12 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case MESSAGEDATAW:
 		case MESSAGEDATAX:
 		case MESSAGEDATAY:
+		case MESSAGEDATA_SHADOW_TYPE:
+		case MESSAGEDATA_SHADOW_COLOR:
+		case MESSAGEDATA_ICON_MORE_SPRITE:
+		case MESSAGEDATA_ICON_MORE_ANCHOR:
+		case MESSAGEDATA_ICON_MORE_X:
+		case MESSAGEDATA_ICON_MORE_Y:
 			return EngineSubsystem::messagedata;
 
 		case CLASS_THISKEY:

@@ -32,6 +32,7 @@ enum
 	STR_ADVP_SHADOW,
 	STR_ADVP_LAYER,
 	STR_ADVP_FLAGS,
+	STR_ADVP_ICON_MORE,
 	STR_ADVP_SZ
 };
 
@@ -41,6 +42,27 @@ struct message_portrait
 	byte cset = 0, x = 0, y = 0, tw = 1, th = 1;
 	
 	void clear();
+};
+
+enum class message_anchor : uint8_t
+{
+	// anchor to 8-dir sides of the messagebox
+	up, down, left, right, l_up, r_up, l_down, r_down,
+	// anchor centered
+	center,
+	// anchor to the screen
+	screen,
+	// anchor x to screen + y to up
+	screen_y_offset,
+	
+	//
+	max_anchor
+};
+struct message_icon
+{
+	word sprite = 0;
+	message_anchor anchor = message_anchor::r_down;
+	int16_t x = 0, y = 0;
 };
 
 struct MsgStr
@@ -73,6 +95,7 @@ struct MsgStr
 	byte shadow_type;
 	byte shadow_color;
 	byte drawlayer;
+	message_icon icon_more;
 	
 	// Copy everything except listpos
 	MsgStr& operator=(MsgStr const& other);

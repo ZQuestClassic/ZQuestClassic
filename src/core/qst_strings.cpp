@@ -345,6 +345,24 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				if(s_version>3)
 					if(!p_igetw(&tempMsgString.listpos,f))
 						return qe_invalid;
+				
+				if (s_version >= 13)
+				{
+					message_icon* icons[] = {
+						&tempMsgString.icon_more,
+					};
+					for (message_icon* icon : icons)
+					{
+						if (!p_igetw(&icon->sprite, f))
+							return qe_invalid;
+						if (!p_getc(&icon->anchor, f))
+							return qe_invalid;
+						if (!p_igetw(&icon->x, f))
+							return qe_invalid;
+						if (!p_igetw(&icon->y, f))
+							return qe_invalid;
+					}
+				}
 			}
 
 			if (!should_skip)
