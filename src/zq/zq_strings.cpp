@@ -480,8 +480,8 @@ int32_t onStrings()
 		{
 			case 18:
 				InfoDialog("String Index","Create a string beginning with two hyphens '--'"
-					"and it will be listed in this index, serving as a"
-					"shortcut to a location in your string list.").show();
+					" and it will be listed in this index, serving as a"
+					" shortcut to a location in your string list.").show();
 				break;
 				
 			case 17: // Go to category
