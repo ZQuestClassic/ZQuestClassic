@@ -59,7 +59,7 @@ struct zinitdata
 	bitstring flags;
 	
 	byte last_map, last_screen; //last editor map/screen
-	byte msg_speed = 5;
+	byte msg_speed = 5, msg_advance_delay = 50;
 	
 	int32_t gravity = 1600, swimgravity = 5;
 	word terminalv = 320;

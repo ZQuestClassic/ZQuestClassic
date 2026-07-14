@@ -78,8 +78,8 @@ DIALOG strlist_dlg[] =
 	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
 	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
 	{ d_dummy_proc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
-	{ jwin_text_proc,       38,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Default Text Speed: ", NULL, NULL },
-	{ jwin_edit_proc,       90,    166,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,       33,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Default Text Speed: ", NULL, NULL },
+	{ jwin_edit_proc,       85,    166,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
 	
 	{ jwin_iconbutton_proc,266,     74,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_UP,    0, NULL, NULL, NULL },
 	{ jwin_iconbutton_proc,266,     99,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_DOWN,  0, NULL, NULL, NULL },
@@ -94,11 +94,16 @@ DIALOG strlist_dlg[] =
 	{ d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'c',      0,       0,             0, (void *) close_dlg, NULL, NULL },
 	{ d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'v',      0,       0,             0, (void *) close_dlg, NULL, NULL },
 	//21
-	{ jwin_text_proc,      130,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
-	{ jwin_edit_proc,      158,    166,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,      125,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
+	{ jwin_edit_proc,      153,    166,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
 	{ jwin_check_proc,     213,     18,      0,      9,   vc(14),  vc(1),   0,  D_EXIT,       1,             0, (void *) "Sort Numerically", NULL, NULL },
-	{ jwin_button_proc,    116,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
-	{ jwin_button_proc,    194,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
+	{ jwin_button_proc,    111,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
+	// 25
+	{ jwin_button_proc,    189,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
+	{ jwin_text_proc,      203,  166+2,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Advance Delay: ", NULL, NULL },
+	{ jwin_edit_proc,      245,    166,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
+	{ jwin_button_proc,    271,    166,     16,     16,   vc(14),  vc(1),  13,     D_EXIT, 0,             0, (void *) "?", NULL, NULL },
+	
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
@@ -414,9 +419,11 @@ int32_t onStrings()
 	
 	strlist_dlg[0].dp2=get_zc_font(font_lfont);
 	int32_t index=0;
-	char msgspeed_string[5], template_string[6];
+	char msgspeed_string[5], msgadvdelay_string[5], template_string[6];
 	int32_t msgspeed = zinit.msg_speed;
 	snprintf(msgspeed_string, sizeof(msgspeed_string), "%d", zinit.msg_speed);
+	int32_t msgadvdelay = zinit.msg_advance_delay;
+	snprintf(msgadvdelay_string, sizeof(msgadvdelay_string), "%d", zinit.msg_advance_delay);
 	static int32_t tid = 0;
 	snprintf(template_string, sizeof(template_string), "%d", tid);
 
@@ -463,6 +470,7 @@ int32_t onStrings()
 		
 		strlist_dlg[10].dp=msgspeed_string;
 		strlist_dlg[22].dp=template_string;
+		strlist_dlg[27].dp=msgadvdelay_string;
 		
 		int32_t ret=do_zqdialog(strlist_dlg,2);
 		int32_t pos = strlist_dlg[2].d1;
@@ -485,6 +493,11 @@ int32_t onStrings()
 			case 25:
 				InfoDialog("Template", "Type the number of a string to use as a template,"
 					" having all of it's style settings used for any <New String>s edited.").show();
+				break;
+			case 28:
+				InfoDialog("Advance Delay",
+					"Wait this many frames after text is done typing before"
+					" allowing the player to scroll / press to advance.").show();
 				break;
 			
 			case 18:
@@ -631,8 +644,9 @@ int32_t onStrings()
 			
 				index=-1;
 				zinit.msg_speed=atoi(msgspeed_string);
+				zinit.msg_advance_delay=atoi(msgadvdelay_string);
 				
-				if (msgspeed != zinit.msg_speed)
+				if (msgspeed != zinit.msg_speed || msgadvdelay != zinit.msg_advance_delay)
 					mark_save_dirty();
 				
 				break;

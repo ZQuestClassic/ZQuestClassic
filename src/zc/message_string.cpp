@@ -239,6 +239,20 @@ bool bottom_margin_clip()
 		&& cursor_y >= (height + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - margins[down]);
 }
 
+void wait_to_advance(bool next_string = false)
+{
+	if (do_end_str)
+	{
+		linked_clk = 1;
+	}
+	else
+	{
+		if (!next_string)
+			wait_advance = true;
+		linked_clk = 1 + zinit.msg_advance_delay;
+	}
+}
+
 bool parsemsgcode(const StringCommand& command)
 {
 	auto args = command.args;
@@ -1037,8 +1051,7 @@ bool parsemsgcode(const StringCommand& command)
 		}
 		case MSGC_WAIT_ADVANCE:
 		{
-			wait_advance = true;
-			linked_clk = 51;
+			wait_to_advance();
 			return true;
 		}
 		case MSGC_DELAY:
@@ -1369,7 +1382,7 @@ void msg_tick_end(bool disappear)
 		// Go to next string, or make it disappear by going to string 0.
 		nextstr = get_str().nextstring;
 		if (nextstr || get_qr(qr_MSGDISAPPEAR) || enqueued_str)
-			linked_clk = do_end_str ? 1 : 51;
+			wait_to_advance(true);
 		
 		if (!nextstr)
 		{

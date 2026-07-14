@@ -1562,6 +1562,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		}
 		if(!p_getc(&temp_zinit.msg_speed,f))
 			return qe_invalid;
+		if (s_version >= 49)
+		{
+			if(!p_getc(&temp_zinit.msg_advance_delay,f))
+				return qe_invalid;
+		}
 		if(!p_igetl(&temp_zinit.gravity,f))
 			return qe_invalid;
 		if(!p_igetl(&temp_zinit.swimgravity,f))
