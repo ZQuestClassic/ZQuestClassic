@@ -284,7 +284,8 @@ void draw_arrow_button_horiz(BITMAP *dest, int32_t x, int32_t y, int32_t w, int3
 
 void dotted_rect(BITMAP *dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int32_t bg);
 void _jwin_draw_scrollable_frame(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt);
+bool _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, int32_t height);
+bool _handle_jwin_scrollable_scroll_click_font(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);

@@ -473,7 +473,7 @@ int32_t onStrings()
 		strlist_dlg[22].dp=template_string;
 		strlist_dlg[27].dp=msgadvdelay_string;
 		
-		int32_t ret=do_zqdialog(strlist_dlg,2);
+		int32_t ret=do_zqdialog(strlist_dlg,2,true);
 		int32_t pos = strlist_dlg[2].d1;
 		auto res = msglistcache.find(pos);
 		if(res == msglistcache.end())
@@ -640,6 +640,7 @@ int32_t onStrings()
 				doedit=true;
 				break;
 				
+			case -1:
 			case 0: // ???
 			case 4:
 			

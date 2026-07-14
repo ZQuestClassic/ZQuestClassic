@@ -646,7 +646,6 @@ ZCGUI_BUILDER_FUNCTION(PaletteFrame, PaletteFrame, makePaletteFrame)
 ZCGUI_BUILDER_START(MsgPreview)
 	ZCGUI_ACCEPT_PROP(data, setData, MsgStr const*)
 	ZCGUI_ACCEPT_PROP(indx, setIndex, int32_t)
-	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MsgPreview, MsgPreview, makeMsgPreview)
 
