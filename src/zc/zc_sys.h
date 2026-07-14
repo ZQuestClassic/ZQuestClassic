@@ -145,6 +145,8 @@ int32_t get_zcmusiclen();
 void set_zcmusicloop(double start, double end);
 void jukebox(int32_t index);
 void jukebox(int32_t index,int32_t loop);
+int resolve_screen_music(int dmap, int screen);
+bool screen_music_is_playing(int dmap, int screen);
 void playLevelMusic();
 void music_pause();
 void music_resume();
