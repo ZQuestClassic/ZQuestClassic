@@ -13081,6 +13081,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		if(!p_putc(zinit.last_screen,f))
 			new_return(38);
 		if(!p_putc(zinit.msg_speed,f))
+			new_return(41);
+		if(!p_putc(zinit.msg_advance_delay,f))
 			new_return(42);
 		if(!p_iputl(zinit.gravity,f))
 			new_return(43);

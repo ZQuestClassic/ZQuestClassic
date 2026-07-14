@@ -192,6 +192,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(magic_per_block) \
 	PROP(magicdrainrate) \
 	PROP(msg_speed) \
+	PROP(msg_advance_delay) \
 	PROP(region_mapping) \
 	ZFIXPROP(shove_offset) \
 	PROP(ss_bbox_1_color) \
