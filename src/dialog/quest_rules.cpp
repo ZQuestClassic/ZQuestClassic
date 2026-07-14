@@ -1148,6 +1148,13 @@ static GUI::ListData compatRulesList
 		" the wrong Map, off-by-1 from the specified map."},
 	{ "Old Long SCC Args", qr_OLD_LONG_SCC_ARGS,
 		"When enabled, some SCCs will divide certain args by 10000."},
+	{ "Broken 'Big + Firing' Fire Frames", qr_BROKEN_BIG_ENEMY_FIRE_ANIM,
+		"When enabled, the 'Big + Firing' enemy animation styles place their fire/attack"
+		" frames 2 rows ('8-Dir Big + Firing': 4 rows) below the walking tiles, overlapping"
+		" the walking frames of other directions."
+		"\nIf disabled, the fire frames are placed past all walking tiles: 4 rows below the"
+		" starting tile for '4-Frame 4-Dir Big + Firing' and 8 rows below for"
+		" '4-Frame 8-Dir Big + Firing', with the firing frames an equal distance below that."},
 };
 
 static GUI::ListData enemiesRulesList

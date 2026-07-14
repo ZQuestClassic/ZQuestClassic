@@ -863,6 +863,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LARGE_ARMOS_ANIM, 1);
 	if (compatrule_version < 119)
 		set_qr(qr_OLD_LONG_SCC_ARGS, 1);
+	if (compatrule_version < 120)
+		set_qr(qr_BROKEN_BIG_ENEMY_FIRE_ANIM, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
