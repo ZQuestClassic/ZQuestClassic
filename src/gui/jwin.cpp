@@ -4697,12 +4697,11 @@ void _calc_scroll_bar(int32_t h, int32_t height, int32_t listsize, int32_t offse
   *  Helper to process a click on a scrollable object.
   */
 
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt)
+bool _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, int32_t height)
 {
     enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
     
     int32_t xx, yy;
-    int32_t height = (d->h-3) / (fnt ? text_height(fnt) : 1);
     int32_t hh = d->h - 32;
     int32_t obj = bar;
     int32_t bh, len, pos;
@@ -4735,6 +4734,9 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
             obj = bottom_bar;
     }
     
+	if (!gui_mouse_b())
+		return false;
+	
     while(gui_mouse_b())
     {
         _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
@@ -4827,22 +4829,15 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                 if(yy < 0)
                     yy = 0;
                 
-                bool should_redraw = false;
                 if(yy != *offset)
                 {
                     *offset = yy;
                     d->proc(MSG_DRAW, d, 0);
-                    should_redraw = true;
                 }
                 
                 /* let other objects continue to animate */
-                int r = broadcast_dialog_message(MSG_IDLE, 0);
-                if (r & D_REDRAWME) should_redraw = true;
-
-                if (should_redraw)
-                {
-                    update_hw_screen();
-                }
+                broadcast_dialog_message(MSG_IDLE, 0);
+				update_hw_screen();
             }
             
             break;
@@ -4860,6 +4855,13 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
     {
         draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, 0);
     }
+	return true;
+}
+
+bool _handle_jwin_scrollable_scroll_click_font(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt)
+{
+	int32_t height = (d->h-3) / (fnt ? text_height(fnt) : 1);
+	return _handle_jwin_scrollable_scroll_click(d, listsize, offset, height);
 }
 
 /* _handle_scrollable_scroll:
@@ -5318,7 +5320,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
         }
         else
         {
-            _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+            _handle_jwin_scrollable_scroll_click_font(d, listsize, &d->d2, *data->font);
         }
         
         break;
@@ -5575,7 +5577,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else
 			{
-				_handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
+				_handle_jwin_scrollable_scroll_click_font(d, listsize, &d->d2, *data->font);
 			}
 		}
         break;
@@ -6037,7 +6039,7 @@ int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c)
         else
         {
             /* clicked on the scroll area */
-            _handle_jwin_scrollable_scroll_click(d, d->d1, &d->d2, font);
+            _handle_jwin_scrollable_scroll_click_font(d, d->d1, &d->d2, font);
         }
         
         break;

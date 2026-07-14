@@ -13,15 +13,10 @@ class MsgPreview: public Widget
 {
 public:
 	MsgPreview();
+	virtual ~MsgPreview();
 	
-	void setText(std::string newText);
 	void setIndex(int32_t ind);
 	void setData(MsgStr const* data);
-	
-	std::string const& getText()
-	{
-		return text;
-	}
 	
 	int32_t getIndex() const
 	{
@@ -33,15 +28,28 @@ public:
 		return str_data;
 	}
 private:
-	std::string text;
 	DialogRef alDialog;
 	MsgStr const* str_data;
 	int32_t index;
+	BITMAP *bg_buf, *fg_buf;
+	
+	bool can_scroll, segmented_scroll;
+	int scroll_pos, body_height, max_visible_pos;
+	int fg_bmp_height;
+	int target_scroll_pos;
+	int16_t msg_margins[4];
+	
+	int tmp_scroll;
+	bool is_tmp_scrolling;
+	
+	int max_scroll_pos() const;
+	void update_string();
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
+	friend int32_t d_newmsg_preview_proc(int32_t msg,DIALOG *d,int32_t);
 };
 
 }

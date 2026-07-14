@@ -193,7 +193,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 				{
 					std::string foo;
 					foo.assign(v);
-					// preview->setText(foo); // I think this is not used...
 					onTextUpdated(std::move(foo));
 				},
 				onCursorChangedFunc = [&](GUI::TextField::type, int32_t start, int32_t end)
@@ -201,7 +200,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					updateCurrentSCC(start, end);
 				}
 			),
-			preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text),
+			preview = MsgPreview(data = &tmpMsgStr, indx = strIndex),
 			Row(padding = 0_px,
 				Label(text = "Hero Name Preview:"),
 				TextField(
@@ -256,7 +255,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 
 						str_field->setText(outstr);
 						str_field->setFocused(true);
-						preview->setText(outstr);
 						onTextUpdated(std::move(outstr));
 						updateCurrentSCC(str_field->get_str_selected_pos(), -1);
 					}),
@@ -264,7 +262,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					forceFitH = true,
 					onPressFunc = [&]()
 					{
-						set_al_clipboard(preview->getText());
+						set_al_clipboard(tmpMsgStr.s);
 					}),
 				Button(text = "Paste Text",
 					forceFitH = true,
@@ -273,7 +271,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						std::string tmp;
 						if(get_al_clipboard(tmp))
 						{
-							preview->setText(tmp);
 							str_field->setText(tmp);
 							onTextUpdated(std::move(tmp));
 						}
@@ -516,6 +513,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	window = Window(
 		title = "String Editor ("+std::to_string(strIndex)+")",
 		onClose = message::CANCEL,
+		use_vsync = true,
 		Column(
 			tpan,
 			Row(
