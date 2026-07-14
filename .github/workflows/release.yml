@@ -118,7 +118,7 @@ jobs:
           path: release-packages
 
       - name: Generate changelog
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
+        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --to ${{ needs.create-tag.outputs.release-version }} --to-ref ${{ github.sha }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} > new_changelog.md
 
       - name: Release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3

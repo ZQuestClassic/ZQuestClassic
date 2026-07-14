@@ -38,6 +38,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--format', choices=['plaintext', 'markdown'], default='plaintext')
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
+parser.add_argument(
+    '--to-ref',
+    help='Git ref to use as the range endpoint, if different from --to '
+    '(which is still used for the displayed version/URLs). Useful when the '
+    'release tag does not exist yet.',
+)
 parser.add_argument('--for-nightly', type=str2bool, default=False)
 parser.add_argument('--version')
 parser.add_argument('--generate-all', action='store_true')
@@ -590,7 +596,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> list[str]:
 
 
 def stringify_changelog(
-    commits_by_type: dict[str, list[Commit]], format: str, to_sha: str
+    commits_by_type: dict[str, list[Commit]], format: str, from_sha: str, to_sha: str
 ) -> str:
     lines = []
     oneliner = release_oneliners.get(to_sha, None)
@@ -601,7 +607,10 @@ def stringify_changelog(
             lines.append(f'{oneliner}\n')
         if is_release:
             lines.append(
-                f'[View release notes and find downloads on the website](https://zquestclassic.com/releases/{to_sha})\n'
+                f'# [Download from the website](https://zquestclassic.com/releases/{to_sha}), or at the bottom of this page.\n'
+            )
+            lines.append(
+                f'**Full Changelog:** https://github.com/ZQuestClassic/ZQuestClassic/compare/{from_sha}...{to_sha}\n'
             )
 
         for type, commits in commits_by_type.items():
@@ -714,9 +723,13 @@ def stringify_changelog(
     return '\n'.join(lines)
 
 
-def generate_changelog(from_sha: str, to_sha: str) -> str:
+def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
+    # to_sha names the release (used for the displayed version/URLs); to_ref is
+    # the actual git range endpoint, which may differ when the tag doesn't exist
+    # yet (ex: during a release, where to_ref is the built commit).
+    to_ref = to_ref or to_sha
     commits_text = subprocess.check_output(
-        f'git log {from_sha}..{to_sha} --reverse --format="%h %H %s"',
+        f'git log {from_sha}..{to_ref} --reverse --format="%h %H %s"',
         shell=True,
         encoding='utf-8',
     ).strip()
@@ -866,7 +879,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     for key in to_remove:
         del commits_by_type[key]
 
-    changelog = stringify_changelog(commits_by_type, args.format, to_sha)
+    changelog = stringify_changelog(commits_by_type, args.format, from_sha, to_sha)
     # 125k is the maximum length for the api call to update the body. Give a 2k buffer.
     if len(changelog) > 123000:
         print(
@@ -1069,4 +1082,4 @@ if args.version:
     else:
         print(f'https://zquestclassic.com/releases/{args.version}/\n')
 
-print(generate_changelog(branch, args.to))
+print(generate_changelog(branch, args.to, args.to_ref))
