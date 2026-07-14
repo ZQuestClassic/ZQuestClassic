@@ -4834,7 +4834,7 @@ void FFScript::do_load_map_subscreendata(const bool v)
 	
 	if(ID == -1 || (unsigned(ID) < subscreens_map.size() && unsigned(ID) < 256))
 	{
-		ri->subscreendataref = get_subref(ID, sstACTIVE);
+		ri->subscreendataref = get_subref(ID, sstMAP);
 	}
 	else
 	{
