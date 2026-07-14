@@ -307,6 +307,110 @@ def parse_override_file(file: Path):
         file.write_text(''.join(new_lines))
 
 
+# Trailing "Key: Value" lines with one of these keys are metadata tags, not part
+# of the changelog body. Any other "Key: Value" line (ex: a prose "Affected: ..."
+# or "NOTE: ...") is left in the body.
+tag_keys = frozenset(
+    {'Discord', 'Context', 'See', 'Co-authored-by', 'Signed-off-by', 'Agent'}
+)
+
+
+def parse_for_tags(body: str) -> tuple[dict[str, str], str]:
+    """
+    Extract trailing metadata-tag lines from a commit body.
+
+    Tags are a contiguous block of "Key: Value" lines at the very end of the
+    body whose key is one of `tag_keys` (ex: "Discord: ...", "Co-authored-by:
+    ..."). Scanning upward from the bottom, the first line that isn't such a tag
+    marks the end of the block. Returns a (tags, remaining_body) tuple; the tags
+    are stripped out of the returned body so they aren't rendered in the
+    changelog.
+    """
+    tag_pattern = re.compile(r'^([A-Za-z][\w-]*): (.+)$')
+
+    lines = body.splitlines()
+    first_tag = len(lines)
+    for i in range(len(lines) - 1, -1, -1):
+        match = tag_pattern.match(lines[i])
+        if match and match.group(1) in tag_keys:
+            first_tag = i
+        else:
+            break
+
+    tags: dict[str, str] = {}
+    for line in lines[first_tag:]:
+        key, value = tag_pattern.match(line).groups()
+        tags[key] = value
+
+    remaining = '\n'.join(lines[:first_tag]).strip()
+    return tags, remaining
+
+
+# A link to the discord channel where a change was discussed. Historically shared
+# a few different ways: a "Discord:"/"Context:"/"See:" tag, or a trailing prose
+# "See <url>." sentence.
+discord_url_pattern = r'https://discord\.com/\S+'
+
+
+def extract_discord_link(tags: dict[str, str], body: str) -> tuple[str | None, str]:
+    """
+    Find the Discord discussion link for a commit, if any, and return it along
+    with the body (with any trailing prose reference removed). Handles both the
+    "Key: <url>" tag forms (already pulled out into `tags`) and an older prose
+    "See <url>." / "Context <url>." sentence at the end of the body.
+    """
+    for key in ('Discord', 'Context', 'See'):
+        value = tags.get(key)
+        if value and re.match(f'{discord_url_pattern}$', value):
+            return value, body
+
+    match = re.search(
+        rf'(?:^|\n)[ \t]*(?:See|Context)\s+({discord_url_pattern}?)\.?\s*\Z',
+        body,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        return match.group(1).rstrip('.'), body[: match.start()].rstrip()
+
+    return None, body
+
+
+_sha_is_commit_cache: dict[str, bool] = {}
+
+
+def is_commit_sha(token: str) -> bool:
+    """Return True if `token` resolves to a real commit in this repo."""
+    if token not in _sha_is_commit_cache:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--verify', '--quiet', f'{token}^{{commit}}'],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        _sha_is_commit_cache[token] = result.returncode == 0
+    return _sha_is_commit_cache[token]
+
+
+def linkify_commit_shas(text: str) -> str:
+    """
+    Turn bare git SHA references into links to the commit on GitHub.
+
+    Ex: "Regressed in 2.55-alpha-120 (acb7c84)." links the "acb7c84" part.
+    Only hex tokens that resolve to an actual commit are linked; text inside a
+    URL or an inline `code` span is left untouched.
+    """
+    pattern = re.compile(r'(`[^`]*`|https?://[^\s)]+)|\b([0-9a-f]{7,40})\b')
+
+    def replacer(match):
+        if match.group(1):
+            return match.group(1)  # Inline `code` or a URL; leave it alone.
+        token = match.group(2)
+        if is_commit_sha(token):
+            return f'[{token}]({commit_url_prefix}/{token})'
+        return token
+
+    return pattern.sub(replacer, text)
+
+
 @dataclass
 class Commit:
     type: str
@@ -316,6 +420,7 @@ class Commit:
     subject: str
     oneline: str
     body: str
+    discord: str | None = None
     squashed_commits: list['Commit'] = field(default_factory=lambda: [])
 
     def scope_and_oneline(self):
@@ -529,15 +634,19 @@ def stringify_changelog(
                     label = get_scope_label(scope)
                     lines.append(f'### {label}\n')
                 for c in commits:
+                    discord_link = f' [Discord]({c.discord})' if c.discord else ''
                     if c.squashed_commits:
-                        lines.append(f'- {c.oneline}')
+                        lines.append(f'- {c.oneline}{discord_link}')
                     else:
                         link = f'[`{c.short_hash}`]({commit_url_prefix}/{c.hash})'
-                        lines.append(f'- {c.oneline} {link}')
+                        lines.append(f'- {c.oneline} {link}{discord_link}')
                     if c.body:
                         lines.append('   &nbsp;')
                         for l in split_text_into_logical_markdown_chunks(c.body):
                             if l:
+                                # Don't linkify SHAs inside fenced code blocks.
+                                if not l.lstrip().startswith('```'):
+                                    l = linkify_commit_shas(l)
                                 for l2 in l.splitlines():
                                     lines.append(f'   >{l2}')
                                 lines.append(f'   >')
@@ -591,6 +700,13 @@ def stringify_changelog(
                     for squashed in c.squashed_commits:
                         # TODO: also show body?
                         lines.append('    ' + squashed.subject)
+
+                if c.discord:
+                    # Set off the tag with a blank line before and after, matching
+                    # how a body renders. The trailing '\n' supplies the "after".
+                    if lines[-1] != '' and not lines[-1].endswith('\n'):
+                        lines.append('')
+                    lines.append(f'  Discord: {c.discord}\n')
             lines.append('')
 
     if lines[-1] != '':
@@ -620,12 +736,27 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         m = re.search(r'end changelog', body, re.IGNORECASE)
         if m:
             body = body[0 : m.start()].strip()
-        body = re.sub(r'^Co-authored-by: .+', '', body, flags=re.MULTILINE).strip()
-        body = re.sub(r'^Signed-off-by: .+', '', body, flags=re.MULTILINE).strip()
-        body = re.sub(r'^Agent: .+', '', body, flags=re.MULTILINE).strip()
+        # Drop the cherry-pick trailer first: it isn't a "Key: Value" tag, so it
+        # would otherwise block parse_for_tags from reaching the tags above it.
         body = re.sub(
             r'^\(cherry picked from commit .+\)$', '', body, flags=re.MULTILINE
         ).strip()
+        # Pull out trailing tags (Discord, Co-authored-by, Signed-off-by, Agent,
+        # etc.) so they don't render in the changelog body.
+        tags, body = parse_for_tags(body)
+        discord, body = extract_discord_link(tags, body)
+        # A trailing "See:"/"Context:" that doesn't point at Discord (ex: a
+        # GitHub link) is still a useful reference, so keep it visible in the
+        # body rather than dropping it as a metadata tag.
+        kept_tags = [
+            f'{key}: {value}'
+            for key, value in tags.items()
+            if key in ('See', 'Context')
+            and not re.match(f'{discord_url_pattern}$', value)
+        ]
+        if kept_tags:
+            body = f'{body}\n\n' + '\n'.join(kept_tags)
+            body = body.strip()
 
         # Check if the subject is being overridden before testing for drops.
         subject_to_parse = subject
@@ -647,7 +778,9 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
             oneline = normalize_oneline(oneline)
         body = normalize_text(body)
 
-        commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
+        commits.append(
+            Commit(type, scope, short_hash, hash, subject, oneline, body, discord)
+        )
 
     # Replace commit messages with overrides.
     manual_squashes = dict()

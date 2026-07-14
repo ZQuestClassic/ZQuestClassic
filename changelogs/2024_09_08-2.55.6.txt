@@ -56,7 +56,8 @@ zc: Draw decorations correctly during scrolling
   removed.
 
 zc: Lockblocks on layer 0 no longer ignored in cave dmaps if locked door present
-  Context: https://discord.com/channels/876899628556091432/1278165595321405554
+
+  Discord: https://discord.com/channels/876899628556091432/1278165595321405554
 
 zc: Pause music when opening player data with cheat shortcut
 zc: Avoid crash in Go To cheat by checking destination is valid

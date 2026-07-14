@@ -66,8 +66,8 @@ Actually fix loading tile data for old 1.90 quests
   to the classic quest. This commit fixes the path, but uses a new qst
   file with only the tile data (since classic_1st.qst is going to be
   removed).
-  
-  See: https://discord.com/channels/876899628556091432/1289597114594103378
+
+  Discord: https://discord.com/channels/876899628556091432/1289597114594103378
 
 zc: 'Platform' ffcs teleporting the player as the screen loads
 zc: Game time shows in-game, even when you've 'cheated'

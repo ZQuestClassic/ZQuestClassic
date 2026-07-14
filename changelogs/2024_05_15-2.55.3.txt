@@ -10,8 +10,8 @@ zc: Active shields interacting with light beams while inactive
 zc: Reset playing_field_offset at beginning of scroll
   This prevents the draw offset from a quake from persisting during a
   scroll.
-  
-  See https://discord.com/channels/876899628556091432/1238226802867048529
+
+  Discord: https://discord.com/channels/876899628556091432/1238226802867048529
 
 zq: "Used Tiles" completely failing to calculate
 zscript: TraceS parameter not compiling correctly
