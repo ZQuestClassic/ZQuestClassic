@@ -63,6 +63,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     if (event.mouse.display != all_get_display()) break;
 
                     _mouse_on = -1;
+                    break;
                 }
                 case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
                 {
