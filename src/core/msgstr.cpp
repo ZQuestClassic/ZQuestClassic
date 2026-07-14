@@ -39,7 +39,10 @@ void MsgStr::copyStyle(MsgStr const& other)
 	y=other.y;
 	w=other.w;
 	h=other.h;
-	sfx=other.sfx;
+	sfx = other.sfx;
+	adv_sfx = other.adv_sfx;
+	menu_move_sfx = other.menu_move_sfx;
+	menu_close_sfx = other.menu_close_sfx;
 	vspace=other.vspace;
 	hspace=other.hspace;
 	stringflags=other.stringflags;
@@ -94,8 +97,13 @@ void MsgStr::advpaste(MsgStr const& other, bitstring const& flags)
 	}
 	if(flags.get(STR_ADVP_FONT))
 		font = other.font;
-	if(flags.get(STR_ADVP_SFX))
+	if (flags.get(STR_ADVP_SFX))
+	{
 		sfx = other.sfx;
+		adv_sfx = other.adv_sfx;
+		menu_move_sfx = other.menu_move_sfx;
+		menu_close_sfx = other.menu_close_sfx;
+	}
 	if(flags.get(STR_ADVP_SPACING))
 	{
 		hspace = other.hspace;
@@ -144,7 +152,7 @@ void MsgStr::clear()
 	y=0;
 	w=0;
 	h=0;
-	sfx=0;
+	sfx = adv_sfx = menu_move_sfx = menu_close_sfx = 0;
 	vspace=0;
 	hspace=0;
 	stringflags=0;

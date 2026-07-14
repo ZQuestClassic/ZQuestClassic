@@ -98,6 +98,24 @@ class messagedata {
 	// @zasm_var MESSAGEDATASFX
 	internal int Sound;
 
+	// The SFX to play when player input advances the text.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_ADVSFX
+	internal int SoundAdvance;
+
+	// The SFX to play when player input changes the selected menu option.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_MENUMOVE_SFX
+	internal int SoundMenuMove;
+
+	// The SFX to play when player input closes a menu.
+	//
+	// @versionadded 3.0
+	// @zasm_var MESSAGEDATA_MENUCLOSE_SFX
+	internal int SoundMenuClose;
+
 	// The list position of the messagedata as it is displayed in ZQ.
 	//
 	// @zasm_var MESSAGEDATALISTPOS

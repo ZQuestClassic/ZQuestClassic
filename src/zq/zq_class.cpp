@@ -9480,6 +9480,13 @@ int32_t writestrings(PACKFILE *f)
 				return qe_invalid;
 			if (!p_putc(MsgStrings[i].passive_scroll_speed, f))
 				return qe_invalid;
+			
+			if(!p_iputw(MsgStrings[i].adv_sfx,f))
+				return qe_invalid;
+			if(!p_iputw(MsgStrings[i].menu_move_sfx,f))
+				return qe_invalid;
+			if(!p_iputw(MsgStrings[i].menu_close_sfx,f))
+				return qe_invalid;
 		}
 		
 		if(writecycle==0)
@@ -9568,6 +9575,9 @@ int32_t writestrings_tsv(PACKFILE *f)
 		{ "w", [](auto& msg){ return std::to_string(msg.w); } },
 		{ "h", [](auto& msg){ return std::to_string(msg.h); } },
 		{ "sfx", [](auto& msg){ return std::to_string(msg.sfx); } },
+		{ "adv_sfx", [](auto& msg){ return std::to_string(msg.adv_sfx); } },
+		{ "menu_move_sfx", [](auto& msg){ return std::to_string(msg.menu_move_sfx); } },
+		{ "menu_close_sfx", [](auto& msg){ return std::to_string(msg.menu_close_sfx); } },
 		{ "pos", [](auto& msg){ return std::to_string(msg.listpos); } },
 		{ "vspace", [](auto& msg){ return std::to_string(msg.vspace); } },
 		{ "hspace", [](auto& msg){ return std::to_string(msg.hspace); } },
@@ -9647,6 +9657,9 @@ void parse_strings_tsv(std::string tsv)
 		{ "w", [](auto& msg, auto& text){ msg.w = std::stoi(text); } },
 		{ "h", [](auto& msg, auto& text){ msg.h = std::stoi(text); } },
 		{ "sfx", [](auto& msg, auto& text){ msg.sfx = std::stoi(text); } },
+		{ "adv_sfx", [](auto& msg, auto& text){ msg.adv_sfx = std::stoi(text); } },
+		{ "menu_move_sfx", [](auto& msg, auto& text){ msg.menu_move_sfx = std::stoi(text); } },
+		{ "menu_close_sfx", [](auto& msg, auto& text){ msg.menu_close_sfx = std::stoi(text); } },
 		{ "pos", [](auto& msg, auto& text){ msg.listpos = std::stoi(text); } },
 		{ "vspace", [](auto& msg, auto& text){ msg.vspace = std::stoi(text); } },
 		{ "hspace", [](auto& msg, auto& text){ msg.hspace = std::stoi(text); } },

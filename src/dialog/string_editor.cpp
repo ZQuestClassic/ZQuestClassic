@@ -370,11 +370,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						" to the destination.")
 				)
 			),
-			Rows<3>(
-				Label(text = "SFX:", hAlign = 1.0),
-				DDL(sfx, list_sfx, 500_px),
-				INFOBTN("This SFX plays as the message is typed out")
-			),
 			Row(
 				Rows<2>(
 					INFOBTN("This string is typed out in the same textbox as the"
@@ -408,6 +403,22 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					Label(text = "Background:", hAlign = 1.0),
 					TILE_FIELD(tile, cset)
 				)
+			)
+		)),
+		TabRef(name = "SFX", Column(
+			Rows<3>(
+				Label(text = "SFX:", hAlign = 1.0),
+				DDL(sfx, list_sfx, 500_px),
+				INFOBTN("This SFX plays as the message is typed out"),
+				Label(text = "Advance SFX:", hAlign = 1.0),
+				DDL(adv_sfx, list_sfx, 500_px),
+				INFOBTN("This SFX plays when player input advances the text."),
+				Label(text = "Menu Move SFX:", hAlign = 1.0),
+				DDL(menu_move_sfx, list_sfx, 500_px),
+				INFOBTN("This SFX plays when player input changes the selected menu option."),
+				Label(text = "Menu Close SFX:", hAlign = 1.0),
+				DDL(menu_close_sfx, list_sfx, 500_px),
+				INFOBTN("This SFX plays when player input closes an open menu.")
 			)
 		)),
 		TabRef(name = "Graphics", Row(

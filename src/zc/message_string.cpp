@@ -293,7 +293,7 @@ bool runMenuCursor()
 			++pos;
 	}
 	if((pressed || held) && pos != msg_menu_data[MNU_CHOSEN])
-		sfx(get_str().sfx);
+		sfx(get_str().menu_move_sfx);
 	
 	if(!msg_menu_data[MNU_CAN_CONFIRM]) //Prevent instantly accepting when holding A
 	{
@@ -329,6 +329,7 @@ bool runMenuCursor()
 		
 		menu_options.clear();
 		just_confirmed_menu = true;
+		sfx(get_str().menu_close_sfx);
 	}
 	
 	return ret;
@@ -1643,6 +1644,8 @@ void tick_message()
 				
 			if (advance)
 			{
+				if (!(do_end_str || just_confirmed_menu))
+					sfx(get_str().adv_sfx);
 				do_end_str = just_confirmed_menu = false;
 				linked_clk = 0;
 				if(wait_advance)

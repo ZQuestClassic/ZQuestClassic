@@ -180,7 +180,7 @@ int32_t messagedata_get_register(int32_t reg)
 			else
 				ret = ((int32_t)MsgStrings[ID].sfx) * 10000;
 			break;
-		}	
+		}
 		case MESSAGEDATATEXTHEI:
 		{
 			ret = do_msgheight(GET_REF(msgdataref))*10000;
@@ -421,6 +421,36 @@ int32_t messagedata_get_register(int32_t reg)
 				ret = 10000 * MsgStrings[ID].passive_scroll_speed;
 			break;
 		}
+		case MESSAGEDATA_ADVSFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int32_t)MsgStrings[ID].adv_sfx) * 10000;
+			break;
+		}
+		case MESSAGEDATA_MENUMOVE_SFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int32_t)MsgStrings[ID].menu_move_sfx) * 10000;
+			break;
+		}
+		case MESSAGEDATA_MENUCLOSE_SFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((int32_t)MsgStrings[ID].menu_close_sfx) * 10000;
+			break;
+		}
 
 		default:
 			NOTREACHED();
@@ -572,7 +602,7 @@ void messagedata_set_register(int32_t reg, int32_t value)
 			else
 				MsgStrings[ID].sfx = ((word)vbound((value/10000), 0, MAX_SFX));
 			break;
-		}	
+		}
 		case MESSAGEDATATILE: //W
 		{
 			int32_t ID = GET_REF(msgdataref);
@@ -791,6 +821,36 @@ void messagedata_set_register(int32_t reg, int32_t value)
 				break;
 			else
 				MsgStrings[ID].passive_scroll_speed = ((byte)vbound((value/10000), 0, 255));
+			break;
+		}
+		case MESSAGEDATA_ADVSFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].adv_sfx = ((word)vbound((value/10000), 0, MAX_SFX));
+			break;
+		}
+		case MESSAGEDATA_MENUMOVE_SFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].menu_move_sfx = ((word)vbound((value/10000), 0, MAX_SFX));
+			break;
+		}
+		case MESSAGEDATA_MENUCLOSE_SFX:
+		{
+			int32_t ID = GET_REF(msgdataref);
+
+			if(BC::checkMessage(ID) != SH::_NoError)
+				break;
+			else
+				MsgStrings[ID].menu_close_sfx = ((word)vbound((value/10000), 0, MAX_SFX));
 			break;
 		}
 		
