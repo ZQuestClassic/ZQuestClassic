@@ -25471,7 +25471,19 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool updatemusic = FFCore.can_dmap_change_music(wdmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
-	
+
+	// True if the destination screen would keep playing the music that's
+	// already playing. Warps that cut to silence before replaying (Entrance/
+	// Exit, Cave) must skip stopping the music in that case, otherwise the
+	// identical track audibly restarts. Mirrors the guard in checkspecial2().
+	auto dest_music_still_playing = [&](int dmap, int screen_index) -> bool {
+		if (zcmusic != NULL)
+			return strcmp(zcmusic->filename, DMaps[dmap].tmusic) == 0 &&
+				!(zcmusic->type == ZCMF_GME && zcmusic->track != DMaps[dmap].tmusictrack);
+		return DMaps[dmap].midi == (currmidi - ZC_MIDI_COUNT + 4) ||
+			TheMaps[DMaps[dmap].map * MAPSCRS + screen_index].screen_midi == (currmidi - ZC_MIDI_COUNT + 4);
+	};
+
 	switch(wtype)
 	{
 	case wtCAVE:
@@ -25483,16 +25495,19 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
 		{
-			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
-				music_stop();
-			kill_sfx();
-			
 			if(tmpscr->room==rWARP)
 			{
 				currscr=0x81;
 				specialcave = STAIRCAVE;
 			}
 			else specialcave = GUYCAVE;
+
+			// Only the cave's own screen music matters when SCREEN80_OWN_MUSIC is
+			// set; skip the stop when it's the same track already playing.
+			bool keep_music = get_qr(qr_SCREEN80_OWN_MUSIC) && dest_music_still_playing(wdmap, currscr);
+			if ((updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC)) && !keep_music)
+				music_stop();
+			kill_sfx();
 			
 			//lighting(2,dir);
 			lighting(false, true);
@@ -25695,7 +25710,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	{
 		lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 		ALLOFF();
-		if(updatemusic||!musicnocut)
+		if((updatemusic||!musicnocut) && !dest_music_still_playing(wdmap, wscr + DMaps[wdmap].xoff))
 			music_stop();
 		kill_sfx();
 		blackscr(30,false);
