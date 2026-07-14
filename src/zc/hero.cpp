@@ -25181,14 +25181,10 @@ RaftingStuff:
 		{
 			if (FFCore.can_dmap_change_music(tdm))
 			{
-				int amusic = get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->music;
-				if (amusic == -1)
-					amusic = DMaps[tdm].music;
-				if (unsigned(amusic - 1) < quest_music.size())
-				{
-					if (!quest_music[amusic-1].is_playing(true))
-						music_stop();
-				}
+				// Invalid music is left for playLevelMusic() to stop later.
+				int amusic = resolve_screen_music(tdm, base_scr->tilewarpscr[index] + DMaps[tdm].xoff);
+				if (unsigned(amusic - 1) < quest_music.size() && !quest_music[amusic-1].is_playing(true))
+					music_stop();
 			}
 		}
 		
@@ -25558,7 +25554,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	bool updatemusic = FFCore.can_dmap_change_music(wdmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
-	
+
 	switch(wtype)
 	{
 	case wtCAVE:
@@ -25568,10 +25564,6 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		if(DMaps[cur_dmap].flags&dmfCAVES)                                         // cave
 		{
-			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
-				music_stop();
-			kill_sfx();
-
 			int destscr = 0x80;
 			if(scr->room==rWARP)
 			{
@@ -25579,6 +25571,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				specialcave = STAIRCAVE;
 			}
 			else specialcave = GUYCAVE;
+
+			// Only the cave's own screen music matters when SCREEN80_OWN_MUSIC is
+			// set; skip the stop when it's the same track already playing.
+			bool keep_music = get_qr(qr_SCREEN80_OWN_MUSIC) && screen_music_is_playing(wdmap, destscr);
+			if ((updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC)) && !keep_music)
+				music_stop();
+			kill_sfx();
 			
 			//lighting(2,dir);
 			lighting(false, true);
@@ -25762,7 +25761,9 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	{
 		lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 		ALLOFF();
-		if(updatemusic||!musicnocut)
+		// Skip the stop when the destination screen keeps the same track
+		// playing, otherwise it would audibly restart.
+		if((updatemusic||!musicnocut) && !screen_music_is_playing(wdmap, wscr + DMaps[wdmap].xoff))
 			music_stop();
 		kill_sfx();
 		blackscr(30,false);

@@ -6010,6 +6010,22 @@ void jukebox(int index)
 	jukebox(index, loop);
 }
 
+// The music a screen resolves to in playLevelMusic(): the screen's own
+// Screen Data music, falling back to the dmap's when unset.
+int resolve_screen_music(int dmap, int screen)
+{
+	int music = get_canonical_scr(DMaps[dmap].map, screen)->music;
+	if (music == -1)
+		music = DMaps[dmap].music;
+	return music;
+}
+
+bool screen_music_is_playing(int dmap, int screen)
+{
+	int music = resolve_screen_music(dmap, screen);
+	return unsigned(music - 1) < quest_music.size() && quest_music[music - 1].is_playing(true);
+}
+
 void playLevelMusic()
 {
 	if (is_headless())
