@@ -1423,8 +1423,8 @@ void init_game_vars(bool is_cont_game = false)
 	clear_camera_effect();
 	screenscrolling = false;
 	scrolling_using_new_region_coords = false;
-	new_sub_indexes[sstACTIVE] = -1;
-	new_sub_indexes[sstMAP] = -1;
+	for (int i = 0; i < sstMAX; i++)
+		new_sub_indexes[i] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -1466,7 +1466,6 @@ void init_game_vars(bool is_cont_game = false)
 	switchhook_cost_item = -1;
 	wavy=quakeclk=0;
 	if (zscriptDrawingRenderTarget) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1);
-	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = new_sub_indexes[sstMAP] -1;
 	script_hero_sprite = 0; 
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
