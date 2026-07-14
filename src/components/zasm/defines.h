@@ -3481,8 +3481,11 @@ enum ASM_DEFINE
 #define MESSAGEDATA_ICON_SCROLLDOWN_Y         0x1708
 #define MESSAGEDATA_SCROLL_SPEED_ACTIVE       0x1709
 #define MESSAGEDATA_SCROLL_SPEED_PASSIVE      0x170A
+#define MESSAGEDATA_ADVSFX                    0x170B
+#define MESSAGEDATA_MENUMOVE_SFX              0x170C
+#define MESSAGEDATA_MENUCLOSE_SFX             0x170D
 
-#define NUMVARIABLES         0x170B
+#define NUMVARIABLES         0x170E
 
 //} End variables
 

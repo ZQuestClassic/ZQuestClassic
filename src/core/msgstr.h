@@ -88,7 +88,7 @@ struct MsgStr
 	int16_t y;
 	uint16_t w;
 	uint16_t h;
-	word sfx;
+	word sfx, adv_sfx, menu_move_sfx, menu_close_sfx;
 	word listpos;
 	byte vspace;
 	byte hspace;

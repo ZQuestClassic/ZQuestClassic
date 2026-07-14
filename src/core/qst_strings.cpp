@@ -15,7 +15,7 @@ void init_msgstr(MsgStr *str)
     str->trans=false;
     str->font=font_zfont;
     str->y=32;
-    str->sfx=18;
+    str->sfx = str->menu_move_sfx = 18;
     str->listpos=0;
     str->x=24;
 	str->w=get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
@@ -374,6 +374,19 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 						return qe_invalid;
 					if (!p_getc(&tempMsgString.passive_scroll_speed, f))
 						return qe_invalid;
+					
+					if(!p_igetw(&tempMsgString.adv_sfx,f))
+						return qe_invalid;
+					if(!p_igetw(&tempMsgString.menu_move_sfx,f))
+						return qe_invalid;
+					if(!p_igetw(&tempMsgString.menu_close_sfx,f))
+						return qe_invalid;
+				}
+				else
+				{
+					tempMsgString.adv_sfx = 0;
+					tempMsgString.menu_move_sfx = tempMsgString.sfx;
+					tempMsgString.menu_close_sfx = 0;
 				}
 			}
 

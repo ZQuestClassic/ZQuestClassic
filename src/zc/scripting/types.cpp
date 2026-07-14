@@ -905,6 +905,9 @@ constexpr EngineSubsystem getEngineSubsystemForRegister(int reg)
 		case MESSAGEDATA_ICON_SCROLLDOWN_Y:
 		case MESSAGEDATA_SCROLL_SPEED_ACTIVE:
 		case MESSAGEDATA_SCROLL_SPEED_PASSIVE:
+		case MESSAGEDATA_ADVSFX:
+		case MESSAGEDATA_MENUMOVE_SFX:
+		case MESSAGEDATA_MENUCLOSE_SFX:
 			return EngineSubsystem::messagedata;
 
 		case CLASS_THISKEY:
