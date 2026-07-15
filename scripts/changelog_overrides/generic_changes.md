@@ -123,11 +123,17 @@ drop 32996be02bd5d7eee2de4b86de266d00487b1692 fix(zscript): crash in UserDataCon
 drop f98c49c6966990aa76cb43a0f993634caa17fe19 fix(zc): websockets reading wrong pointer
 drop a2801b774c7ec896b83cd0a623ef4aafca9952df build: fix websocket cmake project from breaking CMAKE_CONFIGURATION_TYPES
 drop 26c78ebec25fcaab7db36521f0e4f3a894e9a8a0 fix(zscript): '@AlwaysRunEndpoint("off")' erroring despite being valid
-drop 5c0ac01fe97010564142b34f3ce68351a191ade4 fix(zq): Rename `Under Combo` -> `Undercombo` in many places for consistency
 drop a12dbe335c222b47601737b9e9b06051c35fa2f1 docs(zscript): update webdocs
 drop f17fa5f6a1b5eae327e003b0e44bef0aac767c83 docs(zscript): use .. version*:: admonitions for '@version' docs
 drop 33effdbf0d5b560b1758767ea27d246f6cdb4475 docs(zscript): add examples using `Screen->DrawOrigin`
 drop 52d0aa35ad1087803e2250ed80d7ebf3a88ebdf5 misc(zc): temporarily disable compare zasm opt as I improve in a branch
+
+drop ab128735140decc4e634aef7fd0732c9fd837bbc fix(zscript): prevent compiler crash when parsing long decimals
+drop f318313547d88c43bf347afb31d39f6e4c76a709 fix(zq): visual bug with Lister dialog preview size
+drop 5abdbac9d734fea41b50df77a1894484c0ccda3b fix(zq): Map Styles dialog not counting as a "change" that needs saving
+drop a6d3ae9701173dd3b046d381832735539d54939e fix(zc): Heart Container / Magic Container cheats using outdated values
+drop 9d50f2f92f34391f4cc4f1bd517a8205beaf2fa1 fix: prevent out-of-bounds write from invalid save menu count
+drop 9ea87637b022559078de9b42e0a4f1222e4ebc05 fix(zc): harden replay assert against source dimension changes
 
 # ! vs code extension
 
@@ -163,18 +169,6 @@ reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: Add many new SCCs
 - SetAnyScreenExState
 
 See https://docs.zquestclassic.com/tutorials/message_strings for details.
-=end
-
-reword a1002f4173b36ecdf8cc0386ac14a8c13cc02444 feat(zq): improve quest auto-backup and timed auto-saves
-
-* Enable auto-backup by default.
-* Save all backups and auto-saves to a backups folder - on Windows,
-  it is `backups.YourQuest.qst/`, otherwise it is
-  `YourQuest.qst.backups/`.
-* Include timestamps and ZC version numbers in backup filenames for
-  easier identification and recovery.
-* Implement read-only protection to prevent accidentally saving over
-  files loaded from a backup folder.
 =end
 
 # ! drop CI stuff

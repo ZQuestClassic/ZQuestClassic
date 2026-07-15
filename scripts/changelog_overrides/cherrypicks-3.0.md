@@ -2,6 +2,180 @@
 # ! These are all the commits in the main branch that were cherry-picked to 2.55.x, and then a 2.55.x release was first to have them in an official release
 
 # ! cherry-pick -x
+drop aa672717dc94577be87e060270e51a4e9b80ae7e fix(zc): Auto Sidewarp combos not using the assigned Warp SFX
+drop 4f7adab43ade17b03986ef2a70b5f93d76f35e30 fix(zq)!: clean up 'Button Counter' subscreen widget '?' buttons
+drop b0addbe5395c29c16fb3f47802b2f75e624e2994 fix(zscript)!: free objects owned by dmap and subscreen scripts
+drop b8a56512ae6f2a38fd512de120318254b52e53be refactor(zc): greatly speed up dithercircfill
+drop 2dfe60b70541860876ba7a3744db9326f3c4de9f fix(zscript): remove unimplemented Audio->PauseCurMIDI() and ResumeCurMIDI()
+drop f4e0b0bd49d278098f0b7656a8a1d858411725d4 fix(zscript): prevent crash when taking the modulo of the minimum integer by -1
+drop 3ef5f56103186c033a113d2142a3bd27b1643753 test!: add replay test for subscreen script object cleanup
+drop 7a11d0c790b77167087caa341863347a5743e934 fix(zscript): free script-owned objects when a script's state is cleared
+drop f26f5e5799d894cf521c980faf0c6cb9063bfdc0 misc(zscript): cleanup/clarify string related functions
+drop b718a4a3e575415a15665ec9d10b96e1336e5039 refactor(zc): [win] remove obsolete vsync workaround (use_dwm_flush)
+drop 57349fe4da88a185a6f9463e341c6960b3cdb6db fix: [mac] size default window using the screen's usable area
+drop 7a4e628a1bc064c6b7673408c6d774b920c3adbb fix(zc): large armos bad tile offset
+drop fb7462bcd93deea1aa601a7a0f8e472c4eaef5d1 fix(zc): armos combos with custom enemies not clearing the combo
+drop 676ea94bf46632ad0d7aaef48d892bcdfa33aa48 fix(zc): hammer triggering combos outside its hitbox
+drop 939542852b23c7ac8dc0f193e73155a9d6acf501 fix(zc): prevent previous qst misc data leaking to next
+drop 9bc986246288712dba4cd052e818aca2bdd9de30 fix(zc): handle replay load failures gracefully with a GUI error
+drop 863bf0ddfe59513108e4b1c4d363463f0e173466 fix(zc)!: 1-wide gaps being hard to fall through in sideview
+drop f49d409e2b8169cc23017afc59da21ce366d4fc5 misc: update rulesets
+drop a677f2914018b6f8efcaba0c915b693d9f203d6a fix: qr for chests/signs/lockblocks working above layer 2
+drop 677429d689de75b66be2c926b45f115acab3c0f5 fix(zscript): `Game->CurrentItemID()` using a bad default value for bitflags
+drop e29f2f00753b6de73338dd7dfd6822dd7d605a12 refactor(zc): optimize code for common dithering args
+drop e842b7e02fbe1993f987afa7830eafc010ed566d test!: make replay harness CLI robust to cwd and folder-only runs
+drop d4e96aab88d2d513a8d9c9171bbfeb8a9722ed5e fix: prevent out-of-bounds write from invalid favorite combo data
+drop 11238e724ec644e80912ca1b0520af3e2d85d4b6 fix: prevent out-of-bounds write from invalid combo pool/autocombo counts
+drop 96dfec8251a5154df76e92e6c5498e355ff10fcb fix: avoid out-of-bounds read from legacy secret-combo template index
+drop 75d82a2132dbc9614a58bf11efe495d1cc3b242f fix: avoid out-of-bounds read from invalid FFC combo index during quest load
+drop 7181a5d740d70ee3d47cd0399b98af826a65560c fix: avoid out-of-bounds read on unterminated enemy name in quest file
+drop 53e286745dff5719f505de6d7789a3d5461d2c64 fix: prevent out-of-bounds read from invalid DMap subscreen script index
+drop 9f2e9a23fde3f3707b498566adac0a44f5282e21 fix: prevent out-of-bounds write when loading a quest with too many counters
+drop 8a8aad80536e62418778985c76ef399db24c814b fix: prevent out-of-bounds write when loading a quest with an invalid combo count
+drop bcdba6aeb46be1f0cfd0187ccc7b70d6ed2766e7 test!: guard against zero total frames in replay summary
+drop 6c3d25daf39ad87d49bdeea0f93aaa870b2006c2 fix: continue hearts being improperly bounded
+drop 654296e5bc9463fbe7982740fb1edcd26822d3ef test!: print test results folder in run_replay_tests.py
+drop b5aabd34a92b9e9a7e167189ede0824f618de421 fix(zc): stop triforce pickup softlocking with low MP/HP counter settings
+drop 58e4202a320ef0067b94c87de54160d611132547 fix(zc)!: skip building A5 fonts in headless mode
+drop 112b84d1521e27154d5b1db2299ee0a6e15d947f test!: print full path, not just name, when replay fails
+drop bd62b500d2fdb5a21721319a836adb478e01ac28 test(zc)!: auto-extend grown auto replays in update_auto_script_tests.py
+drop 67782360ec762512ff10277fb3477732274bad9b test!: print number of frames and gameplay time when running replays
+drop f511cdb316b3d6c238ae9009a9b78b316623d7c9 fix(zc): bottom 8px bad collision using 4-way newer hero movement
+drop ce2b83382aed33089156018ebc5816e5dddd743e fix(zc): SCCs targetting other screens using the wrong map
+drop d7d543ac0f9936e341145bb3158a07f3565f315f fix: Switchhook Block combo attributes overlapping
+drop f0f80f2416a9df16a1cfe7c4b48a4b2d7741f711 feat: Both invincibility-granting magic items can now prevent knockback
+drop 7cd86df0de9976b57613cf3aecb0c5ed8afa79e5 refactor(zq)!: deduplicate some on-hit code for the player
+drop e9e00f57bf32259a98dd32c90c972ead0c791871 feat(zq): subscreen 'hint' draws
+drop f1406a442aa1a88010311be437fe165263a466f3 fix(zc): frozen scripts wrongly having draws stopped by running strings
+drop 648a2c4d83935cd4194368ff7c3494f3cdf20cb3 feat(zq): Item Wizard for Stomp Boots
+drop 991d3b983170be31115ce937b88df4a831e4c749 fix(zc): Stomp Boots block flags being backwards
+drop 0947381b59e891cbbc506f49ef902da4461f7c17 fix(zq): respect "New Darkness Trans Layer Stacking" QR in editor
+drop 624a236d28c60faf73e65f1ca406149890761ed8 misc(zq)!: improve infotext for string editor 'Layer'
+drop 8797a32f538e56a94d83b7cd2313fc5fe873f8e1 fix(zc): landing/walking/standing combo effects not blocked by bridges
+drop fe7537c8469ef1e9fed8abe9db1d159646edef5c fix: preserve scroll position in listers
+drop 6f5498d4f4e75fa351fdd1b83235a2df597294c6 refactor!: greatly speed up refresh_rgb_tables using last key cache
+drop 03a999ccb46c84a7a8ec2b0fc3f763dc67bfad31 fix(zc): deterministic high-precision math for gameplay and replays
+drop 36b6c483faaee30ea649a5b871420c83f6cca069 fix(zc): prevent rng desync when manually ending replay
+drop 12a3676f383500f779c96df3ff3cd83f9e7c803d fix(zconsole): [win] prevent debug console from freezing
+drop 8f6c934bb375bf884898e707a759e34a02973991 fix(zc): shooter/crumble combos ticking when screen is 'frozen'
+drop 87a84351e386f6c4daab745e977f145170d01dc0 fix: buggy solid platform sideview ffc collision
+drop a3fd427575e032e31414d88aa9e4838a439d8257 fix(zc): knockback through sideview platforms
+drop 152e59265ac92c5d357e488f6e1771c693d53f41 fix(zc): combo general loop sfx cutting out when looping
+drop 60e417fa3ba0bc4b4d64b482c7135c82026e07fa fix(zc)!: resolve performance regression in trig_trigger_groups
+drop 9d742eafe281e4435f83cd86941e926e006c0594 fix(zc): prevent infinite loop in trig_trigger_groups
+drop ac50ce6a54a57d2b3559633eb9ef337ef4197f0e fix(zc): solid moving objects interacting poorly with water/pits
+drop 2db5d9158ade88517587879694d2b02a3a1a04dd fix(zc): new respawn points not counting damage combos or slidey ice
+drop 475426ce79a269c4fb09101c2dd1f6e7e5d1f793 fix(zc): enemy bad hitboxes for standing on the ground in sideview
+drop 0ef779588489dbd595b02f0d8991e6cf21751aab fix(zc): BS Overworld not respecting having the Map item or not
+drop eb908008737ff2a44aebf1fd6ecf73683bba5af6 fix(zc): Pushblocks not properly counting towards trigger groups
+drop 00df15948b847c0dcbfa4042d4fde32a249e2bf6 fix(zc): item sounds sometimes being wrongly killed
+drop eeedc7ecd11f2aca166a2507a1c4a25e7d349467 fix(zc): light beams not working properly during stepforward
+drop 3ff41cb594caeac683f540b655f351deb08841c0 fix(zc): bombs not resetting Timeout when exploding
+drop 4f1aca1bcc045e3246dd317d23e1d82ff09b2f2e fix(zc): enemy bombs disappearing due to negative fuse timer
+drop e4f19501618e368049d9ace81a5815ab4c7dfc58 misc(zq): Remove darkness dithered corner by default
+drop f0db911dac0affc4dd786f1842197c5277e6e254 fix(zc): chests not checking all layers for Armos/Chest->Item
+drop 04fbcee20acdbf79a1d8a04ad49979c4e04e0e47 fix(zc): enemies that "ignore solidity" not working below them in sideview
+drop 77dd74570a25866358e275367b1ece03630253c1 feat: new qr Rerolled Drops Always Roll 'Nothing'
+drop da16b97cc91209b2ca43d9e7ea4835acf3389fe6 fix(zq): avoid potential crash when drawing doors
+drop f857f3c7f9afc91d422c855c41fae90da6c40b05 feat: Respawn Point Half-Gridlock
+drop f9709e869baaa482f5fa2ac01e68da1d14f9b925 feat(zc): water/pitfall attributes for IFrames and Stun Frames
+drop 67489e7fa09f880d4a2278639d1f832a5b428ffc fix: add runtime SSE2/SSSE3 detection and fallbacks
+drop 00a963d0e99d018c55e8aad4f012217fd524adb0 fix(zc): sideview drowning sprites being broken
+drop 98f2b5f5f7422d908c9cab69e5c8f8e9d29948a0 fix(zq): typo in ffc editor 'Swap' flags' info
+drop 7146001ebd7ee62425bcbd3190820178e1bbfa12 fix!: ditherblit ignoring clipping rectangles
+drop 8d04a515f0969d84030a8318adfa0cf6085037ff fix(zscript): use proper gfx for script created sword beams
+drop cc693f8cfe30b606f277161ee0db743a41b7c806 refactor(zq): improve FFC hover tooltips
+drop c9cf78c66fde5487df57a79d960e6fc6ea729738 fix(zc): allow "255"/"0xFF" as transparent for more subscreen colors
+drop d6afd03c570c58e3c4a9f6653261056e51414d3c fix(zscript): prevent crash from out-of-bounds sprite script IDs
+drop 1c1bd44938a6b3a2dc76f532a3b7967011b588bb fix(zc): New/Newer Hero Movement inconsistencies
+drop 84b6fa389098d15e21e015165fa33342fc2dc238 fix(zq): 'block' missing from 'Mirror (Custom)' attribute help
+drop a94d6a7f64b5c623afa786ece7b781b755645f8a fix(zq): don't show confirmation on exit in new quest wizard
+drop c50251cf981f6e253b4a6d9a3ae38e0d99af635d fix(zq): water/shallow water combo wizard not setting levels properly
+drop 5e458ccbf75f1dd0f35a32243dc50010e5a2b937 fix(zc): fix ePatra firing too early when ENEMY_FLAG7 is set
+drop 7275eb2f5519ac3c5da46359131f196deaeb2704 fix: wrong offset being used for solid object pushing
+drop 57efb0e5f46251f16a510c4436648cd7c6f59579 fix(zc): standing state not checking properly for ffc platforms
+drop 195a72bf84aadb3bad726b665183892fe106ae3d fix(zc): softlock with `No Scrolling Screen While Carrying` qr in nes dungeons
+drop 95652b0030b1f4fedc762ee1f4d857a1ddabdbb1 fix(zq): preview mode combo cycling using bad colors for Ignore CSet
+drop 2873955634a1f3aec9ae05b1ed936af0277a6233 chore!: don't open console in headless mode
+drop dbe28256af5537f1e8699934ef1f0e695d9ec783 fix(zc): lens hints showing during player death animation
+drop 41a221191db27b303cffdec9fcd2122c28b96a70 test!: add rng_desync to test_results.json
+drop 4392a48577af62c377a1116b44c93338f27ef2aa test!: only print last 50 lines of files on replay failure
+drop 198f9088038d7522d2b61fe2595d769b09f74d7c misc!: copy cpos_update optimization from combos to ffcs
+drop 48079312a45a2628e4866f9447961028f11fb683 feat(zq): show combo label on favorite combo tooltip
+drop 7d7fcf52463d5174eeb24535d77ec2ef155b01c5 fix(zscript): prevent dmap and hero scripts running twice on init
+drop 39d08115826eca44110447bb933d7d8e12c9d48f fix(zq): tile editor rotations sometimes undone b/c of bad cache
+drop 8955bf8c3e3fbb697ef3bc6ebd176e3c58a48b8b fix: AltGr key combinations
+drop f08695922852c6cd197524c7ac2918318e04b51d fix(zc): ffc solid pushing of the player stopping too soon
+drop a151361fb14425aeb9c9609e16defff968f4b427 fix(zc): pitfalls not resetting attack timer
+drop 9e5d9a08ef0d2391f7e121397e9db7736f054bb5 fix!: (maybe) support empty drop down lists
+drop e5732d1b1c4eaf658d54249364753e34f76544a8 fix(zc): per-quest controls resetting wrongly on Continue
+drop 2d66914a7ca7a5047a243d2cbfc273ee220118b9 fix(zc): Hero->Immortal not clearing on quest load
+drop 379a0d4d2d7a7eaa42cef12d5053670b3e864b3d fix(zc): sideview drowning softlocking the player forever sometimes
+drop ab6431d38374b35d96327e1d41a31b16615aaa01 fix(zq): remove unused wand attributes/flags from item editor
+drop 8081f05074cda5aa4276d03c8ff774201d54b837 feat(zq): improve tile editor quarter-tile draw modes
+drop 2d680874b8f9320a0a5a1897c2e604db5af18ad9 feat(zq): improve some tile editor shortcuts
+drop 959fd983ab85da730683a0c57ce0518a81f2f5c1 misc!: ensure uploaded replays run in debug mode
+drop b626406121c358fc96119444073597b31f066a63 misc!: remove debug info from changelog
+drop 7965b2e3b1341a4c194a069b9680d9311ccc392a fix(zscript): show correct code location for script drawing errors
+drop e9a3d4197141b2de9c2d70a90bf3b3b57307dae1 build!: retry more aggressively when hdiutil fails
+drop 93e16b8d3ddfa0cda0d971e68ec3c8ed452f573d refactor(zscript): increase ZASM hang threshold
+drop de854f2a5502d34bc76fd06faabb478e716463e0 fix(zscript): add getters for ffc::LastChangerX and ffc::LastChangerY
+drop 44b0af48f2992a0bb126585017ac6753760dc8f3 fix(zscript)!: 'Region->OriginScreenIndex' being `long` instead of `int`
+drop 4a7e6da5892e84023f406282ba88b9d0f1cc180b fix(zc): prevent soft-lock in whirlwind over water
+drop 42fd2966078c09ac4dc3b9b35dec56831c32a863 fix(zc): Sprite light radius ignoring hit offsets
+drop 4a03ce9b260502370c0e9df8748085802122329c fix(zc): statue shooters / spintiles / etc not working properly with triggers
+drop df08eff634033e2aedf378ecc2e81de8e31c665f fix(zc): Spinning Tiles not becoming the next combo
+drop 6faeae348fe7fd9dfec464241dbb8447c05b2709 feat(zq): typable searchbar in some old lister dialogs (ex. level palettes)
+drop ec25c1647f4ae0e65ab54560c6cfec42cddc82b4 fix(zc)!: use shorter text on click for layers/bookmarks
+drop a2ea6e441afef19ca02eec12145b0a26816c2d08 fix: compat issues with quests before 2.53 related to owning mcguffin items
+drop 9eaa5f46c370173ac1f64cdd29ad27039c06a39e fix(zc): 0-damage brang/hshot items not obeying script-changed damage values
+drop dc8ee68c9ce55e27bd348d0c3873d389b41038fa fix(zscript): add newlines missing in some error messages
+drop 4a1cacf4a3627981699bef21f704eebd98af5220 fix(zc): Newer Hero Movement buggy collision re: damage combos along the top of the screen
+drop 93f6ace5a7ba90c9a7a984590fc8a2eba5711b18 fix(zscript): some included headers using bad DrawCombo frame parameter
+drop fc19bb7b6791cbd44ab1e2296a6be6c9cb0682a0 fix(zc): Hero sometimes drowning when drown qr is off
+drop 6c94c88acd5aa0920fa60291a785fea06ee313a2 fix(zc): 'slashable' combos (tall grass, etc) wrongly 'cutting' via triggers tab (#1072)
+drop 8dba8da5b160b99ba890ef4308ec724465703020 feat(zc): update replay versions on save load
+drop 45ac1ee7199cd115762727b5f49e34d3c4cd30ec fix(zq): show correct combos from adjacent screens
+drop 927154ee3421b79c2b5dd5e76fc1ceaaf7ae4ed2 fix(zc): graphical errors in older quests
+drop 79b59ca0f80d2aaf0bc74730f8c63ce15b57cb2d fix(zq): don't show compat QR confirmation when creating new quest
+drop c2d9abba292779e2d448119f7be96da08620fc2c ci!: upgrade crazy-max/ghaction-chocolatey action
+drop 9c7185b098a46b485c7a95f87dd8f24b04d0f33c fix(zc): melee weapon hitboxes lingering forever based on 'Live One Extra Frame' rule (#1276)
+drop 10e215978f085c0a60a6055ed7c3f0ae230d05c9 fix!: [mac] prevent crash from deeply nested dialogs
+drop 5c0ac01fe97010564142b34f3ce68351a191ade4 fix(zq): Rename `Under Combo` -> `Undercombo` in many places for consistency
+drop bbf9ecb0cb58d9c241f05da86e3d3ac529cbc8bf fix(zc): prevent crash when combos trigger
+drop 8629e181d7708699b3227d97171f98f620313c80 refactor(zc): turn off replay_debug by default
+drop f62d6f9231a1f44ae19eb240454bf48e2b02fbb1 feat(zc): gzip compress uploaded replays
+drop ec323637f7ba1cc5238f3ccf19934ca7acebaa8b refactor: speed up subscreen draws by simplifying string operations
+drop ef572931248cf0eeb5950bec323ef56db3673fe4 fix(zq)!: create backup folder correctly on windows
+drop 4c455c935a8241e9c7dd6bd44a14d57c1c034d64 feat(zq)!: use 'backups.*' for backup folder on windows
+drop adbdeeabe7597e1e000468562c9cce6062e769e9 feat(zq)!: open quests in database folder as read-only
+drop b47bbca1ced28320779fa0ae052bcc85d5f65274 chore!: add .backups to gitignore
+drop a1002f4173b36ecdf8cc0386ac14a8c13cc02444 feat(zq): improve quest auto-backup and timed auto-saves
+drop ab607a9fe2f61a79fcbcc75d17d6e9d2034256b6 fix(zq): prevent screen palette truncating to byte (0xFF)
+drop dcefa20238f70aca986bcc0404d49cbe426b1d5f fix(zq)!: use shorter text for screen bookmark
+drop f3ddd68ade18c71624a34ff2b2b7f16ac85f7bff feat(zq): show screen state carryovers in 'What Links Here' tool
+drop d653e722b486265541bd61762fa7b194f2fdef14 refactor(zq): format map, screen locations more consistently
+drop 3bfeb0a4ad72ec8e8201a2e050f025d2aed5e1bf fix(zq)!: delete invalid navigation/command history
+drop c3c6ac9384d835aa1e6fb7b68d94d3f3489a2f96 fix(zc): show cheat hitboxes for invisible enemies
+drop 17d76f12b61e23e3e18a33b2bdcccbdc1820069d refactor: [mac] unify F-keys for reset/quit
+drop 60645cedc1dcd521ff23930af306bfef352fda6c fix(std_zh): set `MAX_DEFENSE` to correct value
+drop 33c22418fc0e47054cfb8289f6126c8a523ff66f fix(zscript): class destructors failing to run fully when calling user functions
+drop cb6a74092ab2cdfefb6d1a695790ae2c5f615ec2 fix(zc): 'Show Hitbox' cheat hitboxes being slightly misaligned
+drop 5a186fb2a991daac62ed8aad7db02ea832e3a197 fix(zq): prevent long label from visually breaking combo editor
+drop 73b815842c97639d509a12f8e9df6b55b5f3dd83 refactor!: load utf8 path in open_native_dialog_impl
+drop c6bf33d53031efdfd5de661931c772dafb603b6f fix: prevent crash when loading music with non-ascii filenames
+drop 853a6748107a4c1817bc1e4456db8456ee0fa953 fix: prevent crash from listers using too much memory
+drop 8f7241dc0c8b62f531d1c00b6d75aa26aac32c4a fix(zscript)!: prevent potential crash from modifying prvalue
+drop bcc5d2d7d7eddb1620c681695e686f7359c0907c misc!: remove scripts/database
+drop dcdbf7231a9d493a87e2d9aba6757cc7d2a601af feat(zc): improved grid name entry mode
+drop 925b393b070d9948626f27b35d33aa24f7d82d5c feat(zc): press B to backspace in name entry grid mode
+drop e1431cdf8b854114c68946385730e92a4b830aa3 feat(zq): "DMap Levels" quest report, lists which dmaps are tied to each level
+drop 3d76567f9688da7962eadba400108776654ae934 feat(zq): Add 'Select' to combo page RClick menu
+drop 9c87349db4c7e2b71618c7da4b5bac6ebc0705ee feat(zq): add 'Open Tile Page' to RClick menu of Combo Pages
+drop d12c12c5fc18fe4e372685da5c3e8891eb754a0c fix(zscript)!: subscreenpage->SwapWidgets confusing error message
+drop f29661a1bcb59e2442b757238797186a2d3e9b28 fix(zc)!: minor index logic error related to subscreens
+drop 6db84e95dc700528761961bf424b2074b2c88120 refactor(zupdater): disable on mac, linux. remove python dependency
+drop 4541c666fa80b63fafe9c16a1f363d9054019216 fix(zscript): npcdata->InitD[] / WeaponInitD[] being *10000 (#1280)
 drop cc4edaa409a2f8308bd7257fd1e1bbf8f374af22 fix(zq)!: minor visual error on undercombo dialog
 drop 3a56e7b463ffc03aac85ebd153b227e661a6dd0d fix(zq): Under Combo dialog broken for layers
 drop d620bffe6ece125dd605f55d7f082d4d02a15736 refactor!: clean up undercombo dialog re: feedback
@@ -726,6 +900,7 @@ drop 9dfd04a559b316734ef871c88e18739d9a2b2b88 misc!: add 2.55.9 changelog
 drop af1586ae0987360a7cffe8897c47c8c6425411ae fix(zc)!: remove incorrect ASSERT for whistle item with no sound
 drop ab62458e24bbc374c4c6a271728cb82012a5869f chore!: add 2.55.10 changelog
 drop 6020153e20556e077a62dfc3c0234d6defa7da2a misc!: add 2.55.12 changelog
+drop c30b7362ce10ca576215659277edbef164b3a31d misc!: add 2.55.14 changelog
 
 # ! same subject
 drop 58abb5008f1c0c3c7b7177818e9967afbd84ba99 fix(zscript): properly allocate file list to prevent `FileSystem->LoadDirectory()` crash

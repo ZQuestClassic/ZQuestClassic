@@ -997,6 +997,8 @@ if args.generate_cherrypicks:
     shas = re.findall(r'cherry picked from commit ([a-zA-Z0-9]+)', output)
     commits_cherry_picked = []
     for sha in shas:
+        if sha == '3dbae6acb1da74dbf649f2f15213855c104e04e6':
+            sha = '4541c666fa80b63fafe9c16a1f363d9054019216'
         if sha in shas_seen:
             continue
 
