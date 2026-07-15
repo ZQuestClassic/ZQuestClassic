@@ -903,6 +903,43 @@ drop 6020153e20556e077a62dfc3c0234d6defa7da2a misc!: add 2.55.12 changelog
 drop c30b7362ce10ca576215659277edbef164b3a31d misc!: add 2.55.14 changelog
 
 # ! same subject
+drop ac1a221929c90f864cee6e0c048201da7caae211 chore!: update replay_uploads_known_good_replays.json
+drop c8cf9d40e8a65088833bd56705264a760b03b650 chore!: update replay_uploads_known_good_replays.json
+drop 2cc6dedce8955ec0896c626422f8a4081603d4bf chore!: update replay_uploads_known_good_replays.json
+drop 75dd2e580d2a5fe45c09ece656a0beb21260acbe chore!: update replay_uploads_known_good_replays.json
+drop 10121d0be3b0125f7bbcc62ebf766d1a4ab74227 test!: enable non-interactive mode for run_replays_tests.py if agent
+drop e61924f3c808c7f0df040d91d3b15d5dfb1c5655 chore!: update replay_uploads_known_good_replays.json
+drop 8352d382ce112ab00dc35224722ca3c8b89c0c5f chore!: update replay_uploads_known_good_replays.json
+drop a4ddfee906632475a68ecfd16a0d42561284a72c chore!: update replay_uploads_known_good_replays.json
+drop a817ef1dda69f92aef16b03c51b0cd0a7b92422d chore!: update replay_uploads_known_good_replays.json
+drop ebf0c0d9a748af7c081b8978093f549b482b3608 ci: upgrade actions due to node 20 deprecation
+drop e6dcc168225d88bee03c076b484f7353cbab2662 ci!: fix missing timezone data on windows
+drop 51d2b67596166244833344743f8ddbc14b7bbb0f chore!: update replay_uploads_known_good_replays.json
+drop bea6f93872a28a04f61b35d650e81169c099333c chore!: update replay_uploads_known_good_replays.json
+drop 323e01dba0c5ec5de1c84dff097160b467f194a5 chore!: update replay_uploads_known_good_replays.json
+drop c66e4e1c04f0f72b499f5a97fdf401f5049c6d51 ci!: update gha action action-cached-lfs-checkout
+drop 162860fe1b534c3fafff35ed3182e7f685ca2cb1 chore!: update replay_uploads_known_good_replays.json
+drop 2d92c3ddf96bd8d29d90cc4fa24e316441afd4ea chore!: update replay_uploads_known_good_replays.json
+drop baa2c7b24e5cc60c5450e82c5f11b175134c29d7 chore!: update replay_uploads_known_good_replays.json
+drop eb2bbba861021113b56d4a54092c4532608623b7 chore!: update replay_uploads_known_good_replays.json
+drop fb3d293c143b9b52c81c10594fd2ebca2c85242a chore!: update replay_uploads_known_good_replays.json
+drop 3404f3f32c8ffc58888a47941460a51b22f203ad refactor(zc)!: move some replay compat checks to separate file
+drop b7fa6c9163d9bf56526099b5f9f07dbe8371636c chore!: update replay_uploads_known_good_replays.json
+drop 97dc7f54e6cee27c312ed17450889c70920d683d chore!: update replay_uploads_known_good_replays.json
+drop 379623a481b4db63dd4daa48ff189b5960ae6957 chore!: update replay_uploads_known_good_replays.json
+drop 837cc29874c50817b3499993bb0ddff061d4fef9 chore!: update replay_uploads_known_good_replays.json
+drop 25ce313ab27572c47334c37a557438eff511e8b2 chore!: update replay_uploads_known_good_replays.json
+drop 7d00a310ce5a27d29ef8d7cf9a5cae2fbc8c0eb5 chore!: update replay_uploads_known_good_replays.json
+drop fa1e20b9539560081c65c3ab0af62461bbd3a465 chore!: update replay_uploads_known_good_replays.json
+drop d02d69c2f92af73757eb6653223a8778e83df6c5 chore!: update replay_uploads_known_good_replays.json
+drop 5ada205147807784a89ace123fc5d5cfb1bae3f5 chore!: update replay_uploads_known_good_replays.json
+drop 94665940cebe37fc5bdafa69b01da3337c87ec0c chore!: update replay_uploads_known_good_replays.json
+drop 07151107a683a4b0d23914d94c43ef8af5e38ebe chore!: update replay_uploads_known_good_replays.json
+drop 6406f4745d9317efa80d8fafce24b3ba84c3cae1 fix(zq): update Cambria tileset
+drop ca846de53dca7814a112b604d34bc4f9df721a06 fix(zq): Update cambria tileset
+drop 01614ff3cb14ec4005d999aab44f81c4151ba409 fix(zc): Game time shows in-game, even when you've 'cheated'
+drop 364a014f7f164c17d482c994acd69bb75d055ff3 fix(zc): 'Platform' ffcs teleporting the player as the screen loads
+drop c8fdd74dbd7c6e3574e4b6f863a97bd00910184c misc!: add 2.55.8 changelog
 drop 58abb5008f1c0c3c7b7177818e9967afbd84ba99 fix(zscript): properly allocate file list to prevent `FileSystem->LoadDirectory()` crash
 drop 27f0df54111ba3b09763cafed5726ce47601bd2a fix(zq)!: clear scripts and header from tileset when using File>New
 drop 36d7e97b5f60325a25d26bdbcac32342f99f8047 fix(zq)!: cambria.qst tileset not loading
@@ -1005,4 +1042,50 @@ drop ee3e6e7c3ec52a99ff8288c7766791638d3c412a test: add enigma_of_basilischi_isl
 drop 9268cc100509b8eda56eee57e65275800d985304 test: add the_deep.zplay
 drop 4f739c9d7024da29977867f10a7ebf28192b01b8 test: fix hash for compare replay image dedupe
 drop 6f33284ea3c8809a71fd1d12c49d46b95175db72 test: include palette in gfx frame hash
+drop e26e02c9e6cfd161b4fbff6e2da89e4d64f964bf fix(zq): handle error instead of crashing if package export fails
+drop b093e59c685d2ee65bcacbd231eaf56875874ceb test: use original qst for combo rotator replay
+drop 13e56e789f80d33e566f799408cd71e00c12126c feat(zq): export/import strings to .tsv text file
+drop 3314b4ef0b0c3fa889cd86df3836a5cedd06272d test: make the editor File->New test do what it says it does
+drop 0586712dffad38c01d5dad5ab2ca8876082e470f fix(zc): load default quest for sfx when loading replay
+drop e91c347a89746c7a3aaf546efb22909c212c0f32 fix(zc): save select screen not showing new hp after save->reset
+drop a93568375aeb1340cd58ac2be855d565d06a39c0 fix(zc): various slope improvements, like fixing ffc slopes
+drop d53db7b6f147ad31228c8cd0f1b5e70a3756909b build: add default file for compiler "signature"
 drop 27384fe4c4262fb5ac2177eb34c1af0ff482e267 build: update GME, which should resolve the final gcc build issue
+drop f87c20d08af0f81e417d97ad6e2b10f2a46ce0a9 misc(zscript): add Region in anticipation of z3 scrolling
+drop ad7995cf15251f80bf8fa4661efdda072c292919 fix(zc): do not stretch GUI
+drop 572f445148528947079d145ba281d856d759991d refactor(zc): remove music buffer setting
+drop 7ce5862b67d76b8544530488a64aefa15eebd574 fix: changer ffcs counting for trigger groups and similar effects (they shouldn't)
+drop 75f9d356a19b9335950536561ff985ff99efb02c refactor: remove scary and now pointless warnings when toggling fullscreen
+drop 9d50c5687969fa0574eee77ac2e8a20994ca919a feat(zc): option to show game time in the corner, for all those speedrunners out there
+drop 11b09ef8c7c6a1d1aa45f0908f5964a6a2b12d2c fix(zq): handle quest path/title with spaces in package export
+drop 1a1bd37ac769db838a390e88b6fef03288576b01 fix: changer ffcs counting for trigger groups and similar effects (they shouldn't)
+drop b05607e2e3cc872858ea4e5f5f158f4f51248353 fix(zc): remember last save slot position when returning to save select screen
+drop 6319e54acc0841de586327b2644165685be0ec95 misc: remove noisy allocation logs
+drop e2922a7d3b00e7087791f15233f8facd98b27c25 fix(zc): prevent failing to save after continue
+drop a00fc3bd480bf6028de5b724bda544ddbafdb6fb misc!: some minor qr stuff
+drop e3b23aa7da01ff25a100fa10b99201f903bc6810 feat: LW_REFARROW, LW_REFFIRE, LW_REFFIRE2 (reflected arrows, fire, fire2)
+drop f30dd709545450b49320aaea071bcba9490acf8f feat(zq): Item Wizard (Shields)
+drop 949bb6abeecff5ea7c45a2f270613f5249427462 fix(zc): not showing error dialogs in title screen, and unbreak -only switch
+drop beb76711296148efd5fba5760a2930fabec24003 misc(zscript): internal label errors now prevent compile
+drop 3c80d2439486a4a8b75bce53910c35990cdcca65 test: use "latest" version for all playground.qst replays
+drop 2ebfaeffcf7b3118ba7e2efa6c17d6d127ac49ea ci: set correct test results folder for web replays for upload
+drop dcaf7f925eae3739d3994f8b650229d37b522678 misc(zc): support "latest" for version field in zplay
+drop 93e77ddf79e209fe0c2732c5d3ffade33e68c373 test: add "frames" and "length" meta fields to zplay
+drop 6fc179786fa1abee377ff4ef51f438697ea0f36b fix(zc): prevent calling dmap script twice in scrolling dmap warp
+drop bafc72ebae8235c6e3d4ff6e9e7a1c0b85afc222 test: stop on fatal errors in run_web_version.js
+drop 2b643c358e929a0a1414371a9e7e0a37e75b75e1 test: fail on abort in web replay tests
+drop 17ba9ef42e22c875e7823d041609b07aad3e72bc fix(zc): only assign save path just before actually writing to disk
+drop 6cc9ab347a718ff846a9e839993d3dea3d103b72 feat: add burn-based light radii for items, to change the glow radius when lit on fire.
+drop 1bf248ab2ae0c44f1744d1eb5453d8240790be78 test: fail replay test if jit cannot compile a script
+drop ea1be60e0e2a43e2fe1827b1dea470437a76cd3c fix: fairy npc not despawning when picked up
+drop 4c9ace43bfefc45bde7c1a4758a71ad4c2d3643c fix(zc): use more performant throttleFPS instead of rest in system menu
+drop 584bea1321be7d230f6fe9a56457d5609271222f refactor(zscript): clean up ScriptEngineData for all script types
+drop 9bf0e2a7b595a5ad81cadb4ef8c1107dddb48496 misc: Remove whistle delay for new replays
+drop 742115e11333df188997ce1dcf962246d1047d36 fix(zc): use correct sav path for -standalone mode
+drop 0964f74814cc42fb26e8e995180ded7ee2a94efe refactor: load text files more efficiently
+drop 2637fc6aceb942f133878d20623428c4857003a0 refactor(zq): Clean up Tile/Side/Ring warp dialogs
+drop b0db6567a3357b845cf773f44141c317f78af2fb fix(zc): cheats menu being greyed out when it shouldn't be
+drop 03339654bbe98f3769a55b81960fa7fdc619681f refactor: Menus (new sleeker look, much cleaner backend)
+drop 919bda1567879a5450a41445945da8dda0f766da feat(launcher): add options for window size, and cap max default window size
+drop cb2e4b0d3731209a912c0fc6be51aa669e20a47e test: save replay result file when starting replay
+drop 47617f7ad488a44847b954d93cce56ac42f67063 feat(zq): Merge 'Favorite Command' and 'Hotkey' systems

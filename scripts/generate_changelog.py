@@ -1034,7 +1034,23 @@ if args.generate_cherrypicks:
     commits_3 = get_commits(
         '2.55.0', 'main'
     )  # TODO: eventually, change 'main' here to '3.0.0'
-    commits_255_subjects = [s[1] for s in get_commits('2.55.0', '2.55.8')]
+    # Compare against everything shipped on the release branch: start from the
+    # point where releases/2.55 diverged from main (commits cherry-picked into
+    # 2.55.0 itself would otherwise be missed), and end at the latest released
+    # 2.55.x tag.
+    release_branch_point = subprocess.check_output(
+        'git merge-base main releases/2.55',
+        shell=True,
+        encoding='utf-8',
+    ).strip()
+    latest_255_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0 releases/2.55',
+        shell=True,
+        encoding='utf-8',
+    ).strip()
+    commits_255_subjects = [
+        s[1] for s in get_commits(release_branch_point, latest_255_tag)
+    ]
 
     commits_same_subject = []
     for sha, subject in commits_3:

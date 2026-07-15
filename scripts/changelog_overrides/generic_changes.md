@@ -10,8 +10,7 @@ subject dabe7c091b89fa2e09217dfb63c652184b78f65e feat(vscode): create VS Code ex
 subject 6ecf0775afeac108bb4f806b76f9c1835c0a98d1 feat(vscode): update vscode extension keywords
 subject d82a0d8458b3029283385db04f1d935fd0dbce48 misc: add 'std_zh' scope to changelog generation
 subject f7228536ad55c2fb4bb20d00bba8b8c06d7e67c2 feat(std_zh): add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
-subject 20e5b2415ba90cb1f172e408d1703b8ffa1ee800 eweapon Rocks no longer hardcoded to die on solids
-subject 742115e11333df188997ce1dcf962246d1047d36 Use correct .sav path for -standalone mode
+subject 20e5b2415ba90cb1f172e408d1703b8ffa1ee800 fix: eweapon Rocks no longer hardcoded to die on solids
 subject 383b5d34a6d33963e0a0caef3f6ff2c1c49d920b refactor(zq): Upgrade sprite data list dialog
 subject c4a6d8b720e294688fa688828f276e2caf5c1584 refactor(zq): Clean up `Quest->Audio->MIDIs` lister
 subject ec60344a6bbe40e152d15bd316d35c0426da1315 fix(zscript): Make `npcdata->Flags` a bool array, remove `->Flags2`
@@ -57,8 +56,6 @@ Example usage: ./zeditor.exe -smart-assign your_quest.qst
 subject 86b88dff9c410348fc888a312d68745bda857b2e feat(zc): Show bottom 8 pixels by default for most quests made prior to 2.55.9
 subject cf2769fe95ae01ba07d2a028c803e284fdecc6a8 feat(zscript): Arrays now are separately typed from non-arrays
 
-drop ca846de53dca7814a112b604d34bc4f9df721a06 fix(zq): Update cambria tileset
-drop 6406f4745d9317efa80d8fafce24b3ba84c3cae1 fix(zq): update Cambria tileset
 drop 99fedb984d3bbb1b2e49bdd968e873712e78285d fix(zq)<: Update cambria tileset
 
 # ! trigger examples
@@ -145,7 +142,6 @@ drop 87e68c33c1b34fe8970415c8be595edea9b78545 misc(vscode): publish 1.0.12
 
 # ! reverted
 drop 636cd693ebcc1cbec50ced5af8ece8be31f04f64 fix(zc): only grab one held item at a time
-drop 1a1bd37ac769db838a390e88b6fef03288576b01 fix: changer ffcs counting for trigger groups and similar effects (they shouldn't)
 
 reword c4ff8de1a0e9aa5f2c9aeb7ebfef556d8ffc20d2 feat: Add many new SCCs
 - CollectItem
@@ -177,10 +173,230 @@ drop 1a8cbf99daded2c578e1163a853831e0e92bbb9b ci: reset cache for web builds
 drop 16ce632d59cc0e38f7ee2e6a397ddbb95a56a2c1 ci: for web tests, build for RelWithDebInfo
 drop c0e0151c499e52c41af50a84f2c517971a1ddc4b ci: include coverage for all apps, not just zplayer
 drop 75da202d66b1f3d3e1ad37ca44a6374756ad0a6e ci: bump build cache so 2.55 branch doesn't conflict
-drop 2ebfaeffcf7b3118ba7e2efa6c17d6d127ac49ea ci: set correct test results folder for web replays for upload
 drop 15b7ff4aa5da3829107662191d7444126e4040e8 ci: get database update cron working again
 drop ec499225b80237aeeaa055ab0043e5229577c69b ci: fix type in download-artifact v4 action
 drop e272d0914fd05db5944f2477cff73d66c33f8804 ci: fix another typo in download-artifact v4 action
 drop bfd9daa06a00e56f506e14ed67087d3ffc9f90c1 ci: set test results folder names for jit/non-jit replay runs
 drop bbb53680f956136f2c1417b4b1d5aff042ccd58b ci: fix replay report generation for forks
 drop 12b1fa6541c20cea165e22259cb10d142721013d ci: upgrade to python 3.12.8
+
+# ! 3.0 changelog audit: drop fixes for behavior/features that were themselves introduced after 2.55.0
+
+# ! misc internal stuff
+
+drop ec0a84ab43e2d231f8065593309e49a8b6dcf675 refactor(zc): add null jit backend
+drop 847ab88e9674e3393291add66bf205b93def4b16 refactor(zc): move debug zasm writing to new -extract-zasm command
+drop 67be7ecd1115c0415e90345638d0cda768c03f12 ci: cover wasm JIT frozen-generic scripts and mid-run adoption on web  
+
+# ! fixes to the ZASM optimizer (new in this range)
+drop f55cf241f42a32ee96437be006fcebfa4175052c fix(zc): re-optimize when jit reuses scripts from last load
+drop d482c135b98ba01ed043d2109f1a2af9384d6bb7 fix(zc): invalid optimization on broken SDDDD register
+drop cca0aaf0d657b2409a9183771f017254514ee2be fix(zc): disable propagate_values and dead_code passes for now
+drop a3d768e8f335093bd7a025761fd8c3b0edb63475 fix(zc): inline function optimization handles PEEK correctly
+drop 47ca63d081ae4509f45d80497fc5292a6cd058d5 fix(zc): various fixes to optimizer that broke crucible quest
+drop ffd3fe1fec0ad60cecf5e33076801826665dd251 fix(zc): inline function optimization handles PUSHARGSR correctly
+drop 2ed2cd56dc507f6a2186071547a3fdc910b670b2 fix(zc): bug in dead code optimizer when register is both read and written to
+drop 0c8cc86242f8d6dce7aef1bec240f39be6d9a918 fix(zc): inline function optimization handles LOAD correctly
+drop 694d589f6feb31bd29ce4269b38ed7e0ea01b676 fix(zscript): use correct config section for optimize_zasm
+
+# ! fixes to structured-ZASM utilities (new in this range, added with the wasm JIT work)
+drop 68259bbf46ba0e56f3da4b31aa9c7bfc16f05aec fix(zc): improve function breakdown in structured zasm
+drop 69bbf846a21ba1cae2fc14e65f937541ca16a67c fix(zc): handle first command being function call for structured zasm
+drop 1649a62e1251a3b616e166f3bdff40b0c96cb7bc fix(zc): handle recursive function calls in ZASM cfg creation
+drop 08e17d01de2d6632f7824788faf7e3137a890e5c fix(zc): detect dtors as separate functions in structured zasm
+drop c45c5f5e7db4ad6896d429e6ee4694b3d779c9e4 fix(zscript): consider PEEK when finding function calls for structured zasm
+drop 6c4d774c56b8630d4afa36bfb17eac256140313c fix(zc): check for null when printing ZASM command string arg
+
+# ! fixes to compiler passes/optimizations that are new in this range
+drop 8d2ddc6f90aefb09846da5c15c6447aa08fc4ef7 fix(zscript): missed handling arrays for unused var trimming
+drop d8123f886f6c689316006a14ab6898be2b0edd78 fix(zscript): invalid compiler output from removing unused variables
+drop 978ab1b634fa6026f471c2afc60e31e3a09ed5a2 fix(zscript): parser bad optimization edge-case
+drop b000fc9e2f02dded946b8fa1dd81477b4a8d0797 fix(zscript): bad optimization causing global vars to sometimes read incorrectly
+drop 36be5897a91ea8307bb6ccf6aeac580c3173c6ae fix(zscript): vargs functions wrongly pushing extra values
+drop ccf9959570c054ff916ff6b15daf6ac44c18e913 fix(zscript): errors related to breaks in infinite loops
+drop 8721621154b44903003c90b1ea1bf1a4f718d1e0 fix(zscript): issue with global variables sometimes not initializing properly
+drop bfef7fd4456308e0c301bf0b7443546aaf0a18db fix(zscript): label error bug with 'while(true)' and 'break;'
+drop b3fb9bc30868cae9c3e518d738c8c478df1d1a3f fix(zscript): case-range backwards check
+drop b93b1e22495390c241d0993725878c45029d7a3e fix(zscript): parser failing to properly initialize some variables
+drop 5f8f9d1246030f4212e1ec33ccfa5f651cc90412 fix(zscript): x64 jit compiles STACKWRITEAT correctly
+
+# ! fixes to editor metadata generation (new in this range, powers the VS Code extension)
+drop 54cb5c3ac694eb2e3b7a834f0fa9a09fc5a829a4 fix(zscript): crash from metadata of var inside if statement
+drop 235ad808bfd12dcb49fa8e59c708e6aaf5a39a71 fix(zscript): prevent crash when processing for-loop metadata
+drop 3d5912f157235ee210658281b5876d9f2b3bb8cb fix(zscript): continue generating editor metadata after (most) compile errors
+drop 8defe2955b2fbe690ce56ade344e32f81981fa82 fix(zscript): generate metadata for code even if optimized away
+drop 68a5f70c82dd870ee7813e9e971f182751040803 fix(zscript): 'loop()'s not having location metadata associated with their identifier
+
+# ! fixes to ZScript language features that are new in this range (GC/objects, bindings, templates, range loops, websockets)
+drop 4f80edc073629fa60d7c557fb7f352bfd5e86ae3 fix(zscript): `Game->GameOverScreen[]`/`Gam->GameOverStrings[]` not compiling in 3.0
+drop 12e3b9a92a4983f051d85772a0ab2216aa667a4a fix(zscript): socket arrays sometimes going invalid?
+drop 08756b8cb16576d985678188a9eeb782d7c31c4d fix(zscript): allow simple types to match a template array type, for now
+drop 7feb9afdda39fe7e8ef6a7713eade772c4171ccc fix(zscript): object fields not being available in dtor
+drop b00f59aadb09ab987829d549b71c5bf9e032d8ee fix(zscript): compiler crashing on for-each loops
+drop 975cf9c6048c42e24e14780f2c0d79e6c1d8e683 fix(zscript): some bindings ZASM using wrong literal values
+drop 21336156492fd46a2222476f379e45935eac45d7 fix(zscript): code gen for range loop using wrong op
+drop dc6c35037ef26c418299a7159064891a1108bc07 fix(zscript): stack offset issue when 'return'ing inside a 'loop()'
+drop f93172d335fb280606c8586e73bdf648e43eac44 fix(zscript): handle non-global objects correctly when reloading game
+drop 4bd0e5412578d4d040cb2659f9c96f951098b3f0 fix(zscript): not correctly removing stale pointers on reload
+drop 2413e5ed842c64f4b775eb27c5de1b85f20afb1c fix(zscript): code blocks sometimes not removing object references
+drop 4a89897b67196d9d39e4cfc2d8fb67a7db225be7 fix(zscript): deprecation warnings for functions not giving 'INFO:' text
+drop 4ce3a218621e6d125b1c5251ec3ddc5c3e994b99 fix(zscript): 'hero' and 'link' script types not compiling
+drop 7787176771150d77dcc25ec1e973cb12ae66e17f fix(zscript): internal bitmaps from `Game->LoadBitmapID()` now work with Blit
+drop 2a11ad2f783ed78359d5be8df8a0a0ecfd614ea4 fix(zscript): Game->LoadMSubData loaded active subscreen data
+
+# ! fixes to the wasm JIT / web features that are new in this range
+drop eb3dc8a7a0d9e65bf9167ea15f10f3a71e0af496 fix(web): handle reaching end of script in wasm jit
+drop 35fc59b6b3a8eb7e95fcebd1b1bb9792cf4890d8 fix(web): handle CMP_BOOL in jit wasm
+drop 5f74b174a61d23f18a5d72091e32713097e16800 fix(web): prevent WASM JIT hanging on some older quests
+drop 2e6d369c748dd1d178c9103724bac4ee2fbc8378 fix(web): handle a comparison feeding multiple commands
+drop 8699ead6e70ed939be3e9a85046160cb1ef218d1 fix(web): finish a non-yielding script that returns
+drop d3fe23be98b9c1518482440d8eb1fa8d289e7bb2 fix(web): evaluate a pushed operand before decrementing sp
+drop 27096a5825fa1affd099ea102652c11ec61aa710 fix(web): stop a JIT crash when one script runs another mid-frame
+drop 3a007147c40d37bebfe4b06bfcfcca02247480a6 fix(web): stop a JIT crash when one script runs another mid-frame
+drop 43d53f4e83641e81358130f96ff782620c402a56 fix(web): scripts started during another script no longer restart
+drop 431730fd3d07a6311296ef2f8b17ea4db7d381f7 fix(web): don't crash when loading a second quest in the same session
+drop cc0518ae6d05df6f769f622afd4e8ea7acbec49d fix(web): disable broken parallel processing for zasm opt
+drop bb92a873970441b064023c28935ae7ba01509fe9 fix(web): stop cheat overlays from crashing
+
+# ! fixes to player features that are new in this range (titlescreen, regions, 8-bit palette, new widgets/flags)
+drop a5a9bc81d1b232b14ddf223ae0fb30626fb7e92f fix: zscript docs were not being generated for release package
+drop 8f50a32f5a85b3717494065106ff2e0a1c074e94 fix: 'Screen->Lit' not compiling; now properly returns (and sets) screen's lit state
+drop 1d08708c9cc262ce57f17ceb92afd953d919893a fix: initial path not being set for file dialog
+drop 94f39f26e2246469b9549cc751f056f681335706 fix(zc): skip title screen if specific save slot is given
+drop c3f7ec46fd72b3cf3f712528cd2ec0df231cd25e fix(zc): actually stop mp3/ogg, and explicitly stop title music
+drop 3967f0ebfc80c010c5df8b2bd11368ba672e97a1 fix(zc): apply switch state when checking bordering screens
+drop 226cc65c8ff6017608b55acea62afb212ffab9d4 fix(zc): Subscreen 'Sys Colors' displaying entirely wrongly
+drop f564449997ee3030af96116ba2129a73476e293a fix(zc): Stunned hero no longer stops dead in his tracks on ice
+drop 35095ceae9f2792274a0a2def614137d4b79b6fb fix(zc): Bottle flag 'Cure Shield Jinx' not working when used manually
+drop caa206e9b8a2a9024d54dac0a20e6c5e10549d21 fix: the counter percentage bar widget was drawing completely wrong rectangles
+drop b300fcd8212cafa82a3e4215e578fbfd0689be77 fix(zc): issues with sideview "gravity falling" pushblocks
+drop f3e92ba962f4e710b38fe233b82dc919bdc9d56e fix(zc): 'large' armos not detecting proper positions to change statues of
+drop e8c221c605350ba94fdfcdae6c8c6553992253ad fix(zc): strings parsing after being told to close
+
+# ! fixes to editor features that are new in this range (zoom out, move-code upgrade, notes, new dialogs)
+drop c599dfc30d948228a5915e7c3b33f08b9489f90b fix(zq): test init data not being applied correctly
+drop 5c338087d82dde4f93a1a96658b63723a951fb0e fix(zq): 'Notes' and 'Browse Notes' not having menu buttons
+drop 80af019ef4835ae40dce4db8f3f1ecebe89f1f14 fix(zq): crash on moving combos in quests with many maps/screens
+drop 4efe6b07dff7f9a504fd20f877bd92abf66ae758 fix(zq): Improve efficiency of combo moving + fix crash + fix 'undo' combo move
+drop 7b26369e090ecb09a7beee13542a06d6a6f4f570 fix(zq): Improve efficiency of tile moving + fix 'undo' tile move
+drop 3c72e37128477a3cfae9e533f81c6966373ac2dc fix(zq): memory issue when moving/inserting tiles/combos
+drop 143e6836c638f96ef791fa73c8f35c2b2694dc98 fix(zq): prevent crash when assigning global scripts
+drop aa28815b4e1006a989f5d00c2b089a5b80ea6db2 fix(zq): prevent another crash when assigning global init script
+drop dc8d75038c0d325d53b23f14b7fb9665f87fcbb1 fix(zq): combo editor triggers -> Level Palette now has hex/decimal swapping button
+drop 83d31d5a54d6dd69ed0c772286e143188f468696 fix(zq): aliases with layers set not placing correctly when zoomed out
+drop c8eeddfdf496f7c2cded75f20155d9accaf08868 fix(zq): Subscreen TileBlock Wizard not saving Width/Height values properly
+drop 0eb511287d5b75da7ffc0d87792182c5212c2b79 fix(zq): Naming of tile variables in enemy lister info
+
+# ! fixes to VS Code extension features that are new in this range
+drop b5b8ef720c981532c5524f7827778d815b609f5c fix(vscode): 'AlwaysRunEndpoint' annotation missing syntax highlighting
+drop 179d55946cf29d5917def708e35095be36922e3d fix(vscode): invalid uri on windows for links in hover tooltip
+drop 2d876df1a2fa94d1cf26d148d3f874e3ade7e89e fix(vscode): correctly highlight half-open ranges
+
+# ! superseded by 6c30566233 (kept), which reworked bridge coverage within this range
+drop 2fb6d62fd1ed20bd4c1fa4d4a669d72311c7f265 fix: more bridge problems
+
+# ! 3.0 changelog audit: typos and unclear language
+
+subject efe6125234813ea0759a43b5fb22c75da59753b6 fix: Modulo operator on decimal values being entirely wrong
+subject e92a4899f8f5ff8d93639f9a31c4c70de3638ae0 feat: Allow 'walk on top' for all combos, not just Switch Block combos
+subject 284fc7567d8846ab3867235de14995dd5906a599 refactor(zc): use translucency table cache for all fade/lighting
+subject ded10db593addd24f95fd8d8b0b3696fe52da658 feat(zscript)<: range loops have '@NoOverflow()' annotation, docs
+
+reword d460b968dd4833de21fb8d627ab85286a5d5c5c6 feat: FFC Flag for solidity based on the combo being solid or not
+The whole ffc will be either solid or not, based on if the combo has at least some solidity.
+Useful for FFCs changing via triggers.
+=end
+
+reword 7aabd9078292894758a7ddbad582ff51d134271b refactor(zscript): simplify ltou, utol and convcase
+These functions returned false if the string given is empty. That's not useful, so now they no longer return anything.
+=end
+
+reword a959db9840b491d89eb8c1f4e029e622094e3ac6 feat: Summoner Improvements
+Enemies that Summon:
+
+- now have consistent configurations for summon count between Walking and Wizzrobe types
+- now allow configuring max enemy count
+- now count specifically enemies that they have summoned when checking against max enemy count
+- have a new flag to kill summoned enemies when they die (targeted ringleader effect)
+
+Scripts now have '->SummonMinion()' and '->SummonMinionFromLayer()' to make an enemy summon other enemies. Scripts also have '->ParentSummoner' to set which enemy is considered the summoner of other enemies.
+=end
+
+reword 960e00c524fc13dfd40b792e3a878671f16b5e52 feat: Gravity Boots
+Coming in 3 varieties, these boots alter the Player's gravity and terminal velocity!
+
+- 'Gravity Boots' just change them passively (can optionally be sideview-only)
+- 'Gravity Up Boots' change it when holding 'Up' in sideview
+- 'Gravity Down Boots' change it when holding 'Down' in sideview
+=end
+
+reword 88ca703ab061b564c996a26a4ac99e564b7fb858 feat: remove combo 'attribytes' and 'attrishorts', expand 'attributes'
+- attribytes 0-7 are now attributes 8-15
+- attrishorts 0-7 are now attributes 16-23
+- attributes 0-3 are still 0-3, 4-7 are new
+
+This will allow larger / negative / including-decimal-part values in some cases that would not allow them before.
+=end
+
+reword 80d0b60228a626548a1508868ecad4116cd71104 feat: `Partial Consume` combo trigger for counters
+Allows the `Consume Amount` to occur even if you don't have enough of it. Useful with `...Is Percent` for ex. `Consume 100%` to empty a counter.
+=end
+
+reword c832de843fdddc821a653f798b99b9bdf14fd3bb feat: 'Chance' trigger condition
+Set a combo to have an N in M chance of its trigger actually happening. Useful to actually have randomness in trigger setups!
+=end
+
+reword cd73a160707c7c441e8045b11ce5f698b6c88ff3 feat(zc): "Temp Ignore Solids" weapon flag
+Causes a weapon to ignore solids for the 'Break on Solid' / 'Stop on Solid' flags. Un-sets itself as soon as the weapon is NOT touching a solid. Using this flag on a solid shooter combo will prevent the shooter itself from killing its shots.
+=end
+
+reword 3643d5c2619e08b457c0540297a1a2333b06373c feat: per-position states
+This allows specific combo positions to remember changes between screen transitions. Each combo position and each ffc gets 8 states (0-7). The memory usage of this feature may add up if used excessively.
+=end
+
+reword 99a548a5248fa316803c81fc351adb7a2f55d894 fix(zscript): produce correct codegen for objects with default constructors
+Creating a custom object inside another's constructor generated incorrect code when the second class has a default (or empty) constructor.
+
+For example, this code would error and not set the `b` variable on `f`.
+
+```
+class foo
+{
+    bar b;
+    foo()
+    {
+        b = new bar();
+    }
+}
+
+class bar
+{
+    bar()
+    {
+    }
+}
+
+foo f = new foo();
+```
+=end
+
+reword 6c305662335b84bc5f82b27c00aea9cb1e59308e fix(zc): various fixes for Bridge combos
+Bridges previously were not covering some things they should - this fixes many of them. Notably:
+
+- Warp, Save, Step, Reset Room combos
+- Win Game, Fairy Ring, Weapon-based placed/inherent flags
+- Bridges above layer 2 for most things
+
+Also made the code for handling bridge combos MUCH cleaner.
+=end
+
+reword 56e9081285590f7494d1c37787b71ef515509dee feat: multiple triggers per combo
+- Each combo can have anywhere between 0-255 combo triggers. Only the used triggers take up space (in memory or qst).
+- The triggers are checked in order, so if the same combo has multiple triggers with the same cause, they will run in the specified order.
+- If in such a case, the combo is changed while there are still triggers remaining, the extra triggers will NOT be executed - the execution halts when the combo is altered.
+- Editable string Label for each trigger, used in the display name in the combo editor list
+- Script access. The old access should all still work, accessing the combo's *first trigger*. Access for new triggers uses the new `combotrigger` datatype.
+  - `Screen->TriggerCombo()` can specify trigger index
+- The 'Only Gen Triggers' flag is now part of combos instead of triggers, so has separate access (`combodata->OnlyGenTriggers`)
+- `combodata->GetTrigger()` to get a specific trigger by its label (invalid names safely return a null value)
+=end
