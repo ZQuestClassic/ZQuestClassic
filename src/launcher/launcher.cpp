@@ -71,7 +71,7 @@ int32_t main(int32_t argc, char* argv[])
 		printf("%s\n", output.c_str());
 		set_is_exiting();
 		allegro_exit();
-		exit(success ? 0 : 1);
+		zapp_exit(success ? 0 : 1);
 	}
 
 	if (!render_timer_start())

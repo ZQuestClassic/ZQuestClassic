@@ -42,5 +42,6 @@ void zapp_reporting_set_tag(const char* key, int value);
 
 bool is_exiting();
 void set_is_exiting();
+void zapp_exit(int code);
 
 #endif

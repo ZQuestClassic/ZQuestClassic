@@ -161,7 +161,7 @@ void zc_exit(int code)
 	Z_message("ZQuest Classic docs: https://docs.zquestclassic.com\n");
 
 	allegro_exit();
-	exit(code);
+	zapp_exit(code);
 }
 
 bool flash_reduction_enabled(bool check_qr)

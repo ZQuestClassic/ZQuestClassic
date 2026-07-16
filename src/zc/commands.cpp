@@ -19,7 +19,7 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
 	if (ret)
-		exit(ret);
+		zapp_exit(ret);
 
 	strcpy(qstpath, quest_path);
 	printf("Hash: %s\n", QHeader.hash().c_str());
@@ -28,8 +28,7 @@ void do_load_and_quit_command(const char* quest_path, bool jit_precompile)
 		jit_set_enabled(true);
 	zasm_pipeline_init(true);
 
-	set_is_exiting();
-	exit(0);
+	zapp_exit(0);
 }
 
 void do_extract_zasm_command(const char* quest_path)
@@ -37,7 +36,7 @@ void do_extract_zasm_command(const char* quest_path)
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
 	if (ret)
-		exit(ret);
+		zapp_exit(ret);
 
 	DEBUG_PRINT_TO_FILE = true;
 	strcpy(qstpath, quest_path);
@@ -64,8 +63,7 @@ void do_extract_zasm_command(const char* quest_path)
 		}
 	}
 
-	set_is_exiting();
-	exit(0);
+	zapp_exit(0);
 }
 
 void zplayer_handle_commands()
@@ -98,19 +96,16 @@ void zplayer_handle_commands()
 		else
 			printf("tests failed\n");
 
-		set_is_exiting();
-		exit(success ? 0 : 1);
+		zapp_exit(success ? 0 : 1);
 	}
 
 	if (zapp_check_switch("-upload-replays"))
 	{
 #ifdef HAS_CURL
 		replay_upload();
-		set_is_exiting();
-		exit(0);
+		zapp_exit(0);
 #else
-		set_is_exiting();
-		exit(1);
+		zapp_exit(1);
 #endif
 	}
 
@@ -130,8 +125,7 @@ void zplayer_handle_commands()
 	{
 		std::string path = zapp_get_arg_string(test_opt_zasm_arg + 1);
 		zasm_optimize_run_for_file(path);
-		set_is_exiting();
-		exit(0);
+		zapp_exit(0);
 	}
 
 	int load_and_quit_arg = zapp_check_switch("-load-and-quit", {"qst"});
@@ -168,8 +162,7 @@ void zplayer_handle_commands()
 		if (auto r = saves_create_slot(new_game); !r)
 			Z_error_fatal("failed to create save file: %s\n", r.error().c_str());
 
-		set_is_exiting();
-		exit(0);
+		zapp_exit(0);
 	}
 
 	if (zapp_check_switch("-no_console"))
