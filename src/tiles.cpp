@@ -1,7 +1,22 @@
 #include "zalleg/zalleg.h"
 #include <cstring>
+
+// The fast tile blitters below have SSE2/SSSE3 and NEON implementations.
+// MSVC permits SSE intrinsics on any x86 target; GCC/Clang require -mssse3,
+// which CMakeLists adds for x86 (and which defines __SSSE3__). NEON is
+// baseline on arm64, but MSVC defines _M_ARM64 rather than __ARM_NEON there.
+// Other targets use only the scalar fallbacks.
+#if defined(_M_IX86) || defined(_M_X64) || defined(__SSSE3__)
+#define TILES_HAS_SSE2 1
 #include <emmintrin.h>
 #include <tmmintrin.h>
+#elif defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(_M_ARM64)
+#define TILES_HAS_NEON 1
+#include <arm_neon.h>
+#endif
+#if defined(TILES_HAS_SSE2) || defined(TILES_HAS_NEON)
+#define TILES_HAS_SIMD 1
+#endif
 
 #include "base/zc_math.h"
 #include "core/zdefs.h"
@@ -35,15 +50,28 @@ static byte *unpack_oldnewtilebuf = nullptr;
 
 byte unpackbuf[256];
 
-static bool can_use_sse2()
+#ifdef TILES_HAS_SIMD
+// On x86, SSE2/SSSE3 support must be checked at runtime for the benefit of
+// ancient CPUs (the tile8 h-flip needs SSSE3 for _mm_shuffle_epi8). NEON is
+// always available on arm64.
+static bool can_use_simd()
 {
+#ifdef TILES_HAS_SSE2
 	return (cpu_capabilities & CPU_SSE2) != 0;
+#else
+	return true;
+#endif
 }
 
-static bool can_use_ssse3()
+static bool can_use_simd_shuffle()
 {
+#ifdef TILES_HAS_SSE2
 	return (cpu_capabilities & CPU_SSSE3) != 0;
+#else
+	return true;
+#endif
 }
+#endif
 
 extern bool is_in_scrolling_region();
 
@@ -835,25 +863,7 @@ byte rotate_walk(byte v)
 }
 
 
-// A (slow) function to handle any tile8 draw.
-static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
-{
-    for (int32_t dy = 0; dy < 8; ++dy)
-    {
-        for (int32_t dx = 0; dx < 8; ++dx)
-        {
-            int destx = x + (flip&1 ? 7 - dx : dx);
-            int desty = y + (flip&2 ? 7 - dy : dy);
-            if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
-            {
-                if (!transparency || *si) dest->line[desty][destx] = *si + cset;
-            }
-            si++;
-        }
-        si += 8;
-    }
-}
-
+#if defined(TILES_HAS_SSE2)
 static void draw_tile8_transparent_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
 {
 	bool h_flip = flip & 1;
@@ -923,6 +933,52 @@ static void draw_tile8_transparent_fast(BITMAP* dest, const byte* __restrict si,
 		src_row += 16;
 	}
 }
+#elif defined(TILES_HAS_NEON)
+static void draw_tile8_transparent_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+{
+	bool h_flip = flip & 1;
+	bool v_flip = flip & 2;
+
+	// cset is added to every pixel. Broadcast it to all bytes in a register.
+	uint8x8_t v_cset = vdup_n_u8((uint8_t)cset);
+
+	// Vertical flip.
+	int start_dy = 0, end_dy = 8, step_dy = 1;
+	if (v_flip)
+	{
+		start_dy = 7;
+		end_dy = -1;
+		step_dy = -1;
+	}
+
+	const byte* __restrict src_row = si;
+
+	for (int dy = start_dy; dy != end_dy; dy += step_dy)
+	{
+		// Load 8 pixels from source.
+		uint8x8_t src_pixels = vld1_u8(src_row);
+
+		// Horizontal flip.
+		if (h_flip)
+			src_pixels = vrev64_u8(src_pixels);
+
+		// Transparency mask: 0xFF where source is transparent (0), 0x00 where opaque.
+		uint8x8_t v_trans_mask = vceq_u8(src_pixels, vdup_n_u8(0));
+
+		// Add cset offset to source pixels.
+		// The add wraps around, which matches the (byte)(*si + cset) behavior.
+		src_pixels = vadd_u8(src_pixels, v_cset);
+
+		byte* dest_addr = dest->line[y + dy] + x;
+		uint8x8_t dest_pixels = vld1_u8(dest_addr);
+
+		// Blend: select dest where transparent, source where opaque.
+		vst1_u8(dest_addr, vbsl_u8(v_trans_mask, dest_pixels, src_pixels));
+
+		src_row += 16;
+	}
+}
+#endif
 
 // A (slow) function to handle any transparent tile8 draw.
 static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
@@ -1000,6 +1056,7 @@ static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, con
 // Fast drawing for 16x16 tiles, given:
 // - Tile is fully on screen (no clipping needed)
 // - No transparency
+#if defined(TILES_HAS_SSE2)
 static void draw_tile16_opaque_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
 {
 	__m128i cset_vec = _mm_set1_epi8((char)cset);
@@ -1040,6 +1097,27 @@ static void draw_tile16_opaque_fast(BITMAP* dest, const byte* __restrict si, int
 		}
 	}
 }
+#elif defined(TILES_HAS_NEON)
+static void draw_tile16_opaque_fast(BITMAP* dest, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+{
+	uint8x16_t cset_vec = vdupq_n_u8((uint8_t)cset);
+
+	const uint8_t* __restrict src_ptr = si;
+	bool v_flip = (flip & 2);
+
+	for (int dy = 0; dy < 16; ++dy)
+	{
+		uint8_t* __restrict d_ptr = dest->line[y + (v_flip ? 15 - dy : dy)] + x;
+
+		// Load 16 pixels from source, add CSet to each, store to destination.
+		uint8x16_t pixels = vld1q_u8(src_ptr);
+		pixels = vaddq_u8(pixels, cset_vec);
+		vst1q_u8(d_ptr, pixels);
+
+		src_ptr += 16;
+	}
+}
+#endif
 
 static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte* __restrict si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
 {
@@ -1698,18 +1776,18 @@ void overtilecloaked16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t fli
 void draw_cloaked_sprite(BITMAP* dest,BITMAP* src,int32_t x,int32_t y)
 {
 	int32_t w = src->w, h = src->h;
-    if(x+w<0 || y+h<0)
-        return;
-        
-    if(y > dest->h)
-        return;
-        
-    if(y == dest->h && x > dest->w)
-        return;
-    
+	if(x+w<0 || y+h<0)
+		return;
+
+	if(y > dest->h)
+		return;
+
+	if(y == dest->h && x > dest->w)
+		return;
+
 	int32_t sx = 0, sy = 0;
-    byte *di;
-    
+	byte *di;
+
 	if(y<0)
 		sy+=(0-y);
 		
@@ -2328,12 +2406,16 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 	const byte *bytes = get_tile_bytes(tile>>2, 0);
 	const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
 
-	bool can_draw_fast = (flip & 1) ? can_use_ssse3() : can_use_sse2();
+#ifdef TILES_HAS_SIMD
+	bool can_draw_fast = (flip & 1) ? can_use_simd_shuffle() : can_use_simd();
 	bool use_fast_draw = can_draw_fast && (x >= cl) && (y >= ct) && (x + w <= cr) && (y + w <= cb);
 	if (use_fast_draw)
+	{
 		draw_tile8_transparent_fast(dest, si, x, y, cset, flip);
-	else
-		draw_tile8_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip);
+		return;
+	}
+#endif
+	draw_tile8_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip);
 }
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
@@ -2374,15 +2456,15 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     const byte *bytes = get_tile_bytes(tile, flip&5);
 
-    bool use_fast_draw = can_use_sse2() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+#ifdef TILES_HAS_SIMD
+	bool use_fast_draw = can_use_simd() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
 	if (use_fast_draw)
 	{
 		draw_tile16_opaque_fast(dest, bytes, x, y, cset, flip);
+		return;
 	}
-	else
-	{
-		draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
-	}
+#endif
+	draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
 }
 
 void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
@@ -2598,6 +2680,7 @@ void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset
 	masked_stretch_blit(tmp,dest,0,0,16,16,x,y,dw,dh);
 }
 
+#if defined(TILES_HAS_SSE2)
 static void draw_tile16_cs2_fast(BITMAP *dest, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
 {
 	// Vertical flip.
@@ -2666,6 +2749,53 @@ static void draw_tile16_cs2_fast(BITMAP *dest, const byte *si, int32_t x, int32_
 		src_ptr += 16;
 	}
 }
+#elif defined(TILES_HAS_NEON)
+static void draw_tile16_cs2_fast(BITMAP *dest, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
+{
+	// Vertical flip.
+	bool v_flip = (flip & 2);
+	int i_first = v_flip ? 2 : 0; // Index for the first 8 rows processed
+	int i_last  = v_flip ? 0 : 2; // Index for the last 8 rows processed
+
+	// We need to combine two 8-byte colors into one 16-byte register.
+	// Low 64 bits = Left 8 pixels, High 64 bits = Right 8 pixels.
+	uint8x16_t top_colors = vcombine_u8(vdup_n_u8((uint8_t)cset[i_first]), vdup_n_u8((uint8_t)cset[i_first + 1]));
+	uint8x16_t bot_colors = vcombine_u8(vdup_n_u8((uint8_t)cset[i_last]), vdup_n_u8((uint8_t)cset[i_last + 1]));
+
+	const uint8_t* src_ptr = si;
+
+	for (int dy = 0; dy < 16; ++dy)
+	{
+		// Calculate destination pointer
+		// If vertical flip: Map source row 0 to dest row 15.
+		int dest_y_offset = v_flip ? (15 - dy) : dy;
+		uint8_t* d_ptr = dest->line[y + dest_y_offset] + x;
+
+		// Select the correct color set for this row.
+		// Rows 0-7 use top_colors, Rows 8-15 use bot_colors.
+		uint8x16_t color_vec = (dy < 8) ? top_colors : bot_colors;
+
+		// Load source pixels and apply colors.
+		uint8x16_t src_pixels = vld1q_u8(src_ptr);
+		uint8x16_t out_pixels = vaddq_u8(src_pixels, color_vec);
+
+		if (over)
+		{
+			// Transparency: keep the background where the source is zero.
+			uint8x16_t is_zero = vceqq_u8(src_pixels, vdupq_n_u8(0));
+			uint8x16_t bg_pixels = vld1q_u8(d_ptr);
+			vst1q_u8(d_ptr, vbslq_u8(is_zero, bg_pixels, out_pixels));
+		}
+		else
+		{
+			// Opaque (simply overwrite).
+			vst1q_u8(d_ptr, out_pixels);
+		}
+
+		src_ptr += 16;
+	}
+}
+#endif
 
 static void draw_tile16_cs2_safe(BITMAP *dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset[], int32_t flip, bool over)
 {
@@ -2765,11 +2895,15 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 
 	const byte* si = get_tile_bytes(tile, flip&5);
 
-	bool use_fast_draw = can_use_sse2() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
+#ifdef TILES_HAS_SIMD
+	bool use_fast_draw = can_use_simd() && (x >= cl) && (y >= ct) && (x + 16 <= cr) && (y + 16 <= cb);
 	if (use_fast_draw)
+	{
 		draw_tile16_cs2_fast(dest, si, x, y, cset, flip, over);
-	else
-		draw_tile16_cs2_safe(dest, cl, ct, cr, cb, si, x, y, cset, flip, over);
+		return;
+	}
+#endif
+	draw_tile16_cs2_safe(dest, cl, ct, cr, cb, si, x, y, cset, flip, over);
 }
 
 //  cid: fffffsss cccccccc

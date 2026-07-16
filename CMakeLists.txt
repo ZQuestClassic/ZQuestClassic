@@ -495,7 +495,34 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Cl
 	add_compile_options(-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+# The processor being targeted. CMAKE_SYSTEM_PROCESSOR reports the host when
+# CMAKE_OSX_ARCHITECTURES is used to cross-compile on macs (e.g. building for
+# x86_64 from an arm64 mac to run under Rosetta), so prefer that when set.
+if(APPLE AND CMAKE_OSX_ARCHITECTURES)
+	set(ZC_TARGET_PROCESSOR "${CMAKE_OSX_ARCHITECTURES}")
+else()
+	set(ZC_TARGET_PROCESSOR "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+# Universal (multi-arch) mac binaries are not supported: every decision below
+# that branches on ZC_TARGET_PROCESSOR can only pick one answer, which would
+# misconfigure at least one slice of a fat build. To support them:
+#   1. Apply x86-only flags per-slice with -Xarch, e.g.
+#      add_compile_options(-Xarch_x86_64 -mssse3). The SIMD dispatch in
+#      tiles.cpp is preprocessor-based (__SSSE3__ / __ARM_NEON), so it is
+#      already per-slice correct.
+#   2. Move the JIT backend selection out of CMake and into the preprocessor:
+#      always compile every native backend file, guard each with its arch
+#      macro (__x86_64__ / __aarch64__), and define ZC_JIT_BACKEND in a header
+#      from those same macros so each slice self-selects its backend.
+#   3. Build the third-party dependencies as universal too.
+list(LENGTH ZC_TARGET_PROCESSOR zc_num_target_processors)
+if(zc_num_target_processors GREATER 1)
+	message(FATAL_ERROR "Universal binaries (multiple archs in CMAKE_OSX_ARCHITECTURES) are not supported yet - build each arch separately.")
+endif()
+
+if((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		AND ZC_TARGET_PROCESSOR MATCHES "x86_64|AMD64|amd64|i.86")
 	add_compile_options(-mssse3)
 endif()
 
@@ -858,9 +885,11 @@ target_link_libraries(zplayer PRIVATE imgui)
 if(JIT_BACKEND STREQUAL "default")
 	if(EMSCRIPTEN)
 		set(JIT_BACKEND "wasm")
-	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8 AND ZC_TARGET_PROCESSOR MATCHES "x86_64|AMD64|amd64")
 		set(JIT_BACKEND "x64")
 	else()
+		# The x64 JIT backend emits x86-64 machine code, so it is useless on
+		# other 64-bit architectures (e.g. arm64 macs).
 		set(JIT_BACKEND "none")
 	endif()
 endif()
