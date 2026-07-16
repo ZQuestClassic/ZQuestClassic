@@ -1010,7 +1010,10 @@ int32_t get_qst_buffers()
 		MsgStrings[q].clear();
 	}   
     
-    if((DMaps=new dmap[MAXDMAPS])==NULL)
+    // The () value-initializes: dmap has no member initializers, and readdmaps
+    // only clears the entries present in the quest file, so without this the
+    // tail of the array is uninitialized garbage.
+    if((DMaps=new dmap[MAXDMAPS]())==NULL)
         return 0;
 
     
@@ -1812,8 +1815,10 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	// Quests prior to 2.55.9 with a scripted subscreen?
 	for (int i = 0; i < MAXDMAPS; i++)
 	{
+		// The bounds check guards the dmapscripts read against dmaps the
+		// current quest didn't define.
 		int script = DMaps[i].active_sub_script;
-		if (script && dmapscripts[script] && dmapscripts[script]->valid())
+		if (script > 0 && script < NUMSCRIPTSDMAP && dmapscripts[script] && dmapscripts[script]->valid())
 			return true;
 	}
 
