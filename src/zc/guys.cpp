@@ -15436,15 +15436,31 @@ bool ePatra::animate(int32_t index)
 		else
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-			double a2 = (clk2-pos2*(double)basesize/(dmisc1 == 0 ? 1 : dmisc1))*PI/halfsize;
-			
+			// The volatile temps pin each operation's rounding so this computes
+			// identically on every architecture under -ffp-model=fast. In
+			// particular PI/halfsize must round before the multiply: that is
+			// what x86 has always computed (it hoists the loop-invariant
+			// division), while arm64 evaluated (...*PI)/halfsize, which lands
+			// on the other side of an ulp and desyncs replays.
+			volatile double a2_frac = pos2*(double)basesize/(dmisc1 == 0 ? 1 : dmisc1);
+			volatile double a2_diff = clk2 - a2_frac;
+			volatile double a2_scale = PI/halfsize;
+			double a2 = a2_diff*a2_scale;
+
 			if(!dmisc4) //Big Ring
 			{
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc31) - zc::math::Sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
-					guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc31) + zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					// The volatile temps pin each product's rounding, so arm64
+					// doesn't fuse them into fmas and place the ring a pixel
+					// off from x86. See scale_by_percent() in drawing.cpp.
+					volatile double base_x =  zc::math::Cos(a2+PI/2)*abs(dmisc31);
+					volatile double base_y = -zc::math::Sin(a2+PI/2)*abs(dmisc31);
+					volatile double ring_x = zc::math::Sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					volatile double ring_y = zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->x = base_x - ring_x;
+					guys.spr(i)->y = base_y + ring_y;
 				}
 				else
 				{
@@ -15691,14 +15707,23 @@ bool ePatra::animate(int32_t index)
 			else
 			{
 				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-				double a2 = ((clk2-pos2*basesize/(dmisc2==0 ? 1 : dmisc2))*PI/(halfsize));
+				// Same volatile pinning as the outer ring above.
+				volatile double a2_frac = pos2*basesize/(dmisc2==0 ? 1 : dmisc2);
+				volatile double a2_diff = clk2 - a2_frac;
+				volatile double a2_scale = PI/halfsize;
+				double a2 = a2_diff*a2_scale;
 				
 				if(dmisc4==0)
 				{
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc32) - zc::math::Sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
-						guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc32) + zc::math::Cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						// Same volatile pinning as the outer ring above.
+						volatile double base_x =  zc::math::Cos(a2+PI/2)*abs(dmisc32);
+						volatile double base_y = -zc::math::Sin(a2+PI/2)*abs(dmisc32);
+						volatile double ring_x = zc::math::Sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						volatile double ring_y = zc::math::Cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->x = base_x - ring_x;
+						guys.spr(i)->y = base_y + ring_y;
 					}
 					else
 					{
