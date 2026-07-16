@@ -27,7 +27,6 @@ namespace AutoPattern
 		void resize_connected(int32_t exscreen, int32_t expos, int32_t max, int32_t newsize);
 	private:
 		byte height;
-		bool flip;
 	};
 
 }

@@ -41,8 +41,6 @@ private:
 	int32_t mapslot;
 	bool region_valid;
 	map_info local_info;
-	word autolayers[6];
-	word palette;
 	regions_data* the_regions_data;
 	regions_data local_regions_data;
 	

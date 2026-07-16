@@ -46,7 +46,6 @@ private:
 	std::string thelp, tyname;
 
 	int32_t &basex, &basey;
-	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];

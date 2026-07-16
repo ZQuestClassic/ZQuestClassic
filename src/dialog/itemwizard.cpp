@@ -42,7 +42,6 @@ void call_item_wizard(ItemEditorDialog& dlg)
 
 ItemWizardDialog::ItemWizardDialog(ItemEditorDialog& parent) : local_ref(parent.local_itemref),
 	dest_ref(parent.local_itemref), src_ref(parent.local_itemref),
-	parent(parent), flags(0),
 	list_sfx(GUI::ZCListData::sfxnames(true))
 {
 	memset(rs_sz, 0, sizeof(rs_sz));

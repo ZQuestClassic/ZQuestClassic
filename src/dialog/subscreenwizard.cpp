@@ -45,7 +45,7 @@ static bool cbvals[NUM_SUBWIZARD_TYPES][2];
 static size_t rs_sel[NUM_SUBWIZARD_TYPES][1];
 static size_t rs_sz[NUM_SUBWIZARD_TYPES][1];
 SubscreenWizardDialog::SubscreenWizardDialog(subwizardtype stype, int32_t& x, int32_t& y)
-	: wizard_type(stype), wizard_index(size_t(stype)), basex(x), basey(y), flags(0),
+	: wizard_type(stype), wizard_index(size_t(stype)), basex(x), basey(y),
 	list_font(GUI::ZCListData::fonts(false, true, true)),
 	list_shadtype(GUI::ZCListData::shadow_types())
 {
