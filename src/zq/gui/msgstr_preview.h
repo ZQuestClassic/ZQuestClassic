@@ -2,6 +2,7 @@
 #define ZC_GUI_MSGSTR_PREVIEW_H_
 
 #include "core/msgstr.h"
+#include "core/msg_scroll.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
 #include <string>
@@ -33,16 +34,13 @@ private:
 	int32_t index;
 	BITMAP *bg_buf, *fg_buf;
 	
-	bool can_scroll, segmented_scroll;
-	int scroll_pos, body_height, max_visible_pos;
+	MsgScrollState scroll;
 	int fg_bmp_height;
-	int target_scroll_pos;
 	int16_t msg_margins[4];
-	
+
 	int tmp_scroll;
 	bool is_tmp_scrolling;
-	
-	int max_scroll_pos() const;
+
 	void update_string();
 	
 	void applyVisibility(bool visible) override;

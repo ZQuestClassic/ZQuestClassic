@@ -1,5 +1,6 @@
 #include "zc/message_string.h"
 #include "subscr.h"
+#include "core/msg_scroll.h"
 #include "core/zdefs.h"
 #include "core/qrs.h"
 #include "core/fonts.h"
@@ -47,7 +48,6 @@ bool do_run_menu = false,
 	wait_advance_unprocessed_iter = false;
 std::map<int, menu_choice> menu_options;
 word xpos = 0, ypos = 0, cursor_x = 0, cursor_y = 0, width = 0, height = 0;
-int body_height = 1;
 word enqueued_str = 0;
 word speed = 0;
 int used_height = -1, used_height_buf = -1;
@@ -57,11 +57,7 @@ optional<MsgStr::iterator> cur_iterator;
 message_portrait portrait;
 int16_t margins[4] = {0};
 
-bool can_scroll = false, segmented_scroll = false, is_active_target_scrolling = false;
-int scroll_pos = 0;
-int target_scroll_pos = 0;
-int max_visible_pos = 0;
-int active_scroll_speed = 1, passive_scroll_speed = 1;
+MsgScrollState scroll;
 int txt_bmp_height = 0;
 const int txt_bmp_width = 512+16;
 
@@ -97,23 +93,6 @@ void draw_prt()
 	}
 }
 
-inline int cur_scroll()
-{
-	return can_scroll ? scroll_pos : 0;
-}
-inline int max_scroll()
-{
-	if (!can_scroll)
-		return 0;
-	if (max_visible_pos <= body_height)
-		return 0;
-	return zc_max(0, max_visible_pos - body_height);
-}
-inline int scroll_bound(int v)
-{
-	return vbound(v, 0, max_scroll());
-}
-
 void ensure_txt_bmp_height(int new_height)
 {
 	new_height += margins[down]; // account for bottom margin as extra
@@ -143,37 +122,14 @@ void ensure_txt_bmp_height(int new_height)
 
 void update_max_scroll(int pos)
 {
-	if (segmented_scroll && (pos % body_height))
-	{
-		// round up to next multiple of body_height
-		pos += body_height - (pos % body_height);
-	}
-	
-	if (pos > max_visible_pos)
-	{
-		max_visible_pos = pos;
-		ensure_txt_bmp_height(max_visible_pos + margins[up] + margins[down]);
-	}
+	if (scroll.update_max_scroll(pos))
+		ensure_txt_bmp_height(scroll.max_visible_pos + margins[up] + margins[down]);
 }
 
 void ensure_scrolled_to(int pos, int h)
 {
-	int epos = pos + h;
-	
-	update_max_scroll(epos);
-	
-	if (target_scroll_pos + body_height < epos)
-	{
-		if (segmented_scroll)
-			target_scroll_pos = pos - (pos % body_height);
-		else target_scroll_pos = epos - body_height;
-	}
-	else if (target_scroll_pos > pos)
-	{
-		if (segmented_scroll)
-			target_scroll_pos = pos - (pos % body_height);
-		else target_scroll_pos = pos;
-	}
+	if (scroll.ensure_scrolled_to(pos, h))
+		ensure_txt_bmp_height(scroll.max_visible_pos + margins[up] + margins[down]);
 }
 
 void blit_bg(BITMAP* dest, int sx, int sy, int dx, int dy, int w, int h)
@@ -238,7 +194,7 @@ void update()
 	}
 	else
 	{
-		int ty = cur_scroll();
+		int ty = scroll.cur_scroll();
 		blit(txt_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
 		masked_blit(menu_bmp_buf, txt_display_buf, margins[left], ty+margins[up], xpos+margins[left], ypos+margins[up], width-margins[left]-margins[right], height-margins[up]-margins[down]);
 	}
@@ -338,7 +294,7 @@ bool runMenuCursor()
 
 bool bottom_margin_clip()
 {
-	return !can_scroll && !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+	return !scroll.can_scroll && !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
 		&& cursor_y >= (height + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - margins[down]);
 }
 
@@ -357,11 +313,7 @@ void wait_to_advance(bool next_string = false)
 			linked_clk = 1 + zinit.msg_advance_delay;
 	}
 	// handle max_visible_pos for segmented mode properly
-	if (segmented)
-	{
-		if (target_scroll_pos / body_height != (cursor_y - margins[up] + used_height_buf - 1) / body_height)
-			max_visible_pos = target_scroll_pos - (target_scroll_pos % body_height) + body_height;
-	}
+	scroll.segment_crossed(scroll.target_scroll_pos, cursor_y - margins[up] + used_height_buf);
 }
 
 bool next_line()
@@ -374,16 +326,11 @@ bool next_line()
 	if (bottom_margin_clip())
 		return false;
 	cursor_x = margins[left];
-	if (segmented_scroll)
+	if (auto seg_row = scroll.segment_crossed(ty, cursor_y - margins[up] + used_height_buf))
 	{
-		auto ty2 = cursor_y - margins[up] + used_height_buf;
-		if (ty / body_height != (ty2-1) / body_height)
-		{
-			max_visible_pos = ty - (ty % body_height) + body_height;
-			cursor_y = max_visible_pos + margins[up];
-			if (menu_options.empty()) // don't pause if menu options are being processed
-				wait_to_advance();
-		}
+		cursor_y = *seg_row + margins[up];
+		if (menu_options.empty()) // don't pause if menu options are being processed
+			wait_to_advance();
 	}
 	return true;
 }
@@ -1467,7 +1414,7 @@ msg_tick_result msg_tick(bool play_sfx, bool burst_mode)
 	{
 		if (!runMenuCursor())
 			return msg_tick_break;
-		target_scroll_pos = max_scroll();
+		scroll.target_scroll_pos = scroll.max_scroll();
 		do_run_menu = false;
 		if (!burst_mode && replay_version_check(0, 62))
 		{
@@ -1594,52 +1541,23 @@ void tick_message()
 {
 	if (wait_advance && linked_clk < 1)
 		linked_clk = 1;
-	if (can_scroll && scroll_pos != target_scroll_pos)
-	{
-		uint spd = is_active_target_scrolling ? active_scroll_speed : passive_scroll_speed;
-		if (!spd)
-			scroll_pos = target_scroll_pos;
-		else
-			scroll_pos = util::move_towards(scroll_pos, target_scroll_pos, spd);
-		if (scroll_pos == target_scroll_pos)
-			is_active_target_scrolling = false;
-	}
+	scroll.tick();
 	if (linked_clk > 0)
 	{
 		if (linked_clk == 1)
 		{
-			if (can_scroll && !do_end_str && scroll_pos == target_scroll_pos)
+			if (scroll.can_scroll && !do_end_str && scroll.scroll_pos == scroll.target_scroll_pos)
 			{
-				bool up = getInput(btnUp, segmented_scroll ? INPUT_PRESS : 0), down = getInput(btnDown, segmented_scroll ? INPUT_PRESS : 0);
-				if (up != down)
-				{
-					if (down ? scroll_pos >= max_scroll() : scroll_pos <= 0)
-						; // invalid scroll direction
-					else if (segmented_scroll)
-					{
-						is_active_target_scrolling = true;
-						if (down)
-							target_scroll_pos = scroll_bound(target_scroll_pos + body_height);
-						else // if (up)
-							target_scroll_pos = scroll_bound(target_scroll_pos - body_height);
-					}
-					else
-					{
-						if (down)
-							scroll_pos = scroll_bound(scroll_pos + active_scroll_speed);
-						else // if (up)
-							scroll_pos = scroll_bound(scroll_pos - active_scroll_speed);
-						target_scroll_pos = scroll_pos;
-					}
-				}
+				bool up = getInput(btnUp, scroll.segmented ? INPUT_PRESS : 0), down = getInput(btnDown, scroll.segmented ? INPUT_PRESS : 0);
+				scroll.scroll_input(up, down);
 			}
 			bool advance = do_end_str;
 			if (!advance && just_confirmed_menu)
 			{
-				target_scroll_pos = max_scroll();
+				scroll.target_scroll_pos = scroll.max_scroll();
 				advance = true;
 			}
-			if (!advance && cur_scroll() == max_scroll())
+			if (!advance && scroll.at_max())
 				advance = getInput(btnA) || getInput(btnB);
 				
 			if (advance)
@@ -1926,13 +1844,13 @@ void do_new(mapscr* new_scr, int str)
 	auto const& msgstring = get_str();
 	layer = msgstring.drawlayer;
 	nofreeze = msgstring.stringflags & STRINGFLAG_NOFREEZE;
-	can_scroll = !get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS);
-	segmented_scroll = can_scroll && get_qr(qr_STRING_SEGMENTED_SCROLL);
-	is_active_target_scrolling = false;
+	scroll.can_scroll = !get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS);
+	scroll.segmented = scroll.can_scroll && get_qr(qr_STRING_SEGMENTED_SCROLL);
+	scroll.active_scrolling = false;
 	used_height_buf = text_height(msg_font);
-	scroll_pos = target_scroll_pos = max_visible_pos = 0;
-	passive_scroll_speed = msgstring.passive_scroll_speed;
-	active_scroll_speed = msgstring.active_scroll_speed;
+	scroll.scroll_pos = scroll.target_scroll_pos = scroll.max_visible_pos = 0;
+	scroll.passive_speed = msgstring.passive_scroll_speed;
+	scroll.active_speed = msgstring.active_scroll_speed;
 	reset_hint_icons();
 	
 	clear_bmps();
@@ -1954,7 +1872,7 @@ void do_new(mapscr* new_scr, int str)
 		margins[q] = copy_from[q];
 	cursor_x = margins[left];
 	cursor_y = margins[up];
-	body_height = zc_max(1, int(height) - margins[up] - margins[down]);
+	scroll.set_body_height(height, margins[up], margins[down]);
 }
 
 // Called to make a message disappear
@@ -1985,10 +1903,7 @@ void dismiss()
 	speed = zinit.msg_speed;
 	for(auto q = 0; q < 4; ++q)
 		margins[q] = old_margins[q];
-	can_scroll = segmented_scroll = is_active_target_scrolling = false;
-	scroll_pos = target_scroll_pos = max_visible_pos = 0;
-	active_scroll_speed = 1;
-	passive_scroll_speed = 1;
+	scroll.clear();
 	reset_hint_icons();
 }
 void init_string_vars()
@@ -2014,12 +1929,12 @@ void draw_icons(bool drawPassiveSubscreenSeparate)
 	
 	bool draw_more = false, draw_scr_up = false, draw_scr_down = false;
 	
-	if (!can_scroll || cur_scroll() == max_scroll())
+	if (!scroll.can_scroll || scroll.at_max())
 		draw_more = true;
-	if (can_scroll && active_scroll_speed)
+	if (scroll.can_scroll && scroll.active_speed)
 	{
-		draw_scr_up = cur_scroll();
-		draw_scr_down = cur_scroll() < max_scroll();
+		draw_scr_up = scroll.cur_scroll();
+		draw_scr_down = scroll.cur_scroll() < scroll.max_scroll();
 	}
 	
 	if (draw_more)
