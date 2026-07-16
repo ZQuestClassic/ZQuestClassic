@@ -44,4 +44,20 @@ struct MsgScrollState
 	std::optional<int> segment_crossed(int ty, int ty2);
 };
 
+// Line-layout predicates shared between the player and the editor's string
+// preview, so text flows the same way in both.
+namespace msg_layout
+{
+	// A line at `cursor_y` has run past the bottom margin (only possible
+	// when not scrolling).
+	bool bottom_margin_clip(int cursor_y, int height, int margin_down,
+		bool can_scroll, bool old_margins_qr, bool old_frame_qr);
+	// A tile/menu-cursor of width `advance_w` doesn't fit on the current line.
+	bool wrap_needed(int cursor_x, int hspace, int advance_w, int width,
+		int margin_right);
+	// The next word/character doesn't fit on the current line.
+	bool char_wrap_needed(int cursor_x, int tlength, int width,
+		int margin_right, bool wrap_flag, bool rem_word_is_space);
+}
+
 #endif

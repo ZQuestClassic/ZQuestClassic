@@ -134,3 +134,31 @@ std::optional<int> MsgScrollState::segment_crossed(int ty, int ty2)
 	max_visible_pos = ty - (ty % body_height) + body_height;
 	return max_visible_pos;
 }
+
+namespace msg_layout
+{
+
+bool bottom_margin_clip(int cursor_y, int height, int margin_down,
+	bool can_scroll, bool old_margins_qr, bool old_frame_qr)
+{
+	return !can_scroll && !old_margins_qr
+		&& cursor_y >= (height + (old_frame_qr?16:0) - margin_down);
+}
+
+bool wrap_needed(int cursor_x, int hspace, int advance_w, int width,
+	int margin_right)
+{
+	return cursor_x + hspace + advance_w > width - margin_right;
+}
+
+bool char_wrap_needed(int cursor_x, int tlength, int width,
+	int margin_right, bool wrap_flag, bool rem_word_is_space)
+{
+	if (cursor_x + tlength <= width - margin_right)
+		return false;
+	if (cursor_x > width - margin_right || !wrap_flag)
+		return true;
+	return !rem_word_is_space;
+}
+
+}
