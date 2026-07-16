@@ -613,9 +613,12 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Save Window Position",App::zelda,"zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zelda,"zeldadx","scaling_force_integer",1,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
-						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
+						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text.")
+#ifdef ZC_JIT
+						,
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only"),
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT precompile",App::zelda,"ZSCRIPT","jit_precompile",0,"Do all JIT compilation upfront on quest load. Can take a couple minutes, but will avoid random pauses during play.")
+#endif
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
@@ -628,7 +631,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
 						JOYDRIVER_DROPDOWN_I("Joystick Driver:", App::zelda, "joystick", "driver", 0, joystickDriverList,"Which backend reads gamepads. SDL is the default: it supports the most controllers (triggers, PlayStation/Switch pads, Bluetooth), keeps working while Steam is running, and understands the community controller database. The native options are the drivers older versions used; try them only if a device misbehaves with SDL."),
+#ifdef ZC_JIT
 						CONFIG_DROPDOWN_I("(EXPERIMENTAL) JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation"),
+#endif
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Select Save Folder", onPressFunc = [&]()
