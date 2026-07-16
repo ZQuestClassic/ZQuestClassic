@@ -174,10 +174,8 @@ void MsgPreview::update_string()
 	
 	auto bottom_margin_clip = [&]()
 	{
-		if (!get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS))
-			return false; // don't clip in scrolling mode
-		return !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
-			&& cursor_y >= (h + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
+		return msg_layout::bottom_margin_clip(cursor_y, h, msg_margins[down], scroll.can_scroll,
+			get_qr(qr_OLD_STRING_EDITOR_MARGINS), get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT));
 	};
 	auto update_max_scroll = [&](int pos)
 	{
@@ -195,6 +193,20 @@ void MsgPreview::update_string()
 		blit(tmp, fg_buf, 0, 0, 0, 0, 256, fg_bmp_height);
 		destroy_bitmap(tmp);
 		fg_bmp_height = new_height;
+	};
+	// Mirrors the player's next_line() (zc/message_string.cpp).
+	auto next_line = [&]()
+	{
+		int32_t thei = ssc_tile_hei;
+		ssc_tile_hei = text_height(workfont);
+		int ty = cursor_y - msg_margins[up];
+		cursor_y += thei + str->vspace;
+		if (bottom_margin_clip())
+			return false;
+		cursor_x = msg_margins[left];
+		if (auto seg_row = scroll.segment_crossed(ty, cursor_y - msg_margins[up] + ssc_tile_hei))
+			cursor_y = *seg_row + msg_margins[up];
+		return true;
 	};
 	
 	clear_bitmap(bg_buf);
@@ -257,10 +269,8 @@ void MsgPreview::update_string()
 					{
 						if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 						{
-							int32_t thei = ssc_tile_hei;
-							ssc_tile_hei = text_height(workfont);
-							cursor_y += thei + str->vspace;
-							cursor_x=msg_margins[left];
+							if (!next_line())
+								break;
 						}
 						update_max_scroll(cursor_y - msg_margins[up] + ssc_tile_hei);
 						break;
@@ -319,13 +329,10 @@ void MsgPreview::update_string()
 						int32_t t_hei = args[3];
 						int32_t fl = args[4];
 						
-						if(cursor_x+str->hspace + t_wid > w-msg_margins[right])
+						if (msg_layout::wrap_needed(cursor_x, str->hspace, t_wid, w, msg_margins[right]))
 						{
-							int32_t thei = ssc_tile_hei;
-							ssc_tile_hei = text_height(workfont);
-							cursor_y += thei + str->vspace;
-							if(bottom_margin_clip()) break;
-							cursor_x=msg_margins[left];
+							if (!next_line())
+								break;
 						}
 						
 						if(t_hei > ssc_tile_hei)
@@ -347,13 +354,10 @@ void MsgPreview::update_string()
 					}
 					case MSGC_MENUCHOICE:
 					{
-						if(cursor_x+str->hspace + _menu_t_wid > w-msg_margins[right])
+						if (msg_layout::wrap_needed(cursor_x, str->hspace, _menu_t_wid, w, msg_margins[right]))
 						{
-							int32_t thei = ssc_tile_hei;
-							ssc_tile_hei = text_height(workfont);
-							cursor_y += thei + str->vspace;
-							if(bottom_margin_clip()) break;
-							cursor_x=msg_margins[left];
+							if (!next_line())
+								break;
 						}
 						
 						if(_menu_t_hei > ssc_tile_hei)
@@ -371,15 +375,11 @@ void MsgPreview::update_string()
 					continue;
 			}
 
-			if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
-			   && ((cursor_x > (w-msg_margins[right]) || !(str->stringflags & STRINGFLAG_WRAP))
-					? 1 : strcmp(rem_word," ")!=0))
+			if (msg_layout::char_wrap_needed(cursor_x, tlength + hjump, w, msg_margins[right],
+				str->stringflags & STRINGFLAG_WRAP, strcmp(rem_word," ")==0))
 			{
-				int32_t thei = ssc_tile_hei;
-				ssc_tile_hei = text_height(workfont);
-				cursor_y += thei + str->vspace;
-				if(bottom_margin_clip()) break;
-				cursor_x=msg_margins[left];
+				if (!next_line())
+					break;
 			}
 			update_max_scroll(cursor_y - msg_margins[up] + ssc_tile_hei);
 

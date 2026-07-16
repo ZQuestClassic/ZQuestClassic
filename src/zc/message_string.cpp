@@ -294,8 +294,8 @@ bool runMenuCursor()
 
 bool bottom_margin_clip()
 {
-	return !scroll.can_scroll && !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
-		&& cursor_y >= (height + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - margins[down]);
+	return msg_layout::bottom_margin_clip(cursor_y, height, margins[down], scroll.can_scroll,
+		get_qr(qr_OLD_STRING_EDITOR_MARGINS), get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT));
 }
 
 void wait_to_advance(bool next_string = false)
@@ -622,7 +622,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t fl = args[4];
 			auto const& msgstring = get_str();
 			
-			if(cursor_x+msgstring.hspace + t_wid > width-margins[right])
+			if (msg_layout::wrap_needed(cursor_x, msgstring.hspace, t_wid, width, margins[right]))
 			{
 				if (!next_line())
 					return true;
@@ -1084,7 +1084,7 @@ bool parsemsgcode(const StringCommand& command)
 			int32_t lpos = args[3];
 			int32_t rpos = args[4];
 			auto const& msgstring = get_str();
-			if(cursor_x+msgstring.hspace + msg_menu_data[MNU_CURSOR_WID] > width-margins[right])
+			if (msg_layout::wrap_needed(cursor_x, msgstring.hspace, msg_menu_data[MNU_CURSOR_WID], width, margins[right]))
 			{
 				if (!next_line())
 					return true;
@@ -1326,8 +1326,8 @@ bool putmsgchar(bool play_sfx)
 	// If the current word would overflow the margins, increment cursor to the next line.
 	const char* rem_word = cur_iterator->remaining_word();
 	int tlength = text_length(msg_font, rem_word) + ((int32_t)strlen(rem_word)*msgstring.hspace);
-	if (cursor_x+tlength > (width-margins[right]) &&
-		((cursor_x > (width-margins[right]) || !(msgstring.stringflags & STRINGFLAG_WRAP)) ? true : strcmp(rem_word," ")!=0))
+	if (msg_layout::char_wrap_needed(cursor_x, tlength, width, margins[right],
+		msgstring.stringflags & STRINGFLAG_WRAP, strcmp(rem_word," ")==0))
 	{
 		if (!next_line())
 			return false;
