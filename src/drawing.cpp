@@ -43,6 +43,17 @@ extern dword light_wave_clk;
 #define LIGHT_WAVE_CLK 0
 #endif
 
+// Scales val by perc/100, truncating like the original double math. The
+// volatile temp forces the product to round to a double before truncation,
+// so the result doesn't depend on per-target fusion/reassociation choices
+// made under -ffp-model=fast. Without it, light radii computed here differ
+// by a pixel between x86 and arm64, breaking cross-platform replays.
+static int32_t scale_by_percent(int32_t val, int perc)
+{
+	volatile double prod = val * (perc/(double)100.0);
+	return (int32_t)prod;
+}
+
 static word calc_wave_rad(word rad, word rate, word size)
 {
 	// non-positive rate and 0 size mean no change
@@ -50,12 +61,15 @@ static word calc_wave_rad(word rad, word rate, word size)
 	if(rate <= 0 || !size || !clk)
 		return rad;
 	clk %= rate*2; // fit within one period of the wave
-	
+
 	// clk is now in the range 0=..rate*2
 	// convert to floating point, and convert to range 0=..2pi
-	double factor = (clk / double(rate*2)) * 2 * PI;
+	// The volatile temps pin each operation's rounding (see scale_by_percent).
+	volatile double turns_frac = clk / double(rate*2);
+	volatile double factor = turns_frac * (2*PI);
 	// now add the size, scaled by the sin wave
-	int offset = zc::math::Round(size * zc::math::Sin(factor));
+	volatile double scaled = size * zc::math::Sin(factor);
+	int offset = zc::math::Round(scaled);
 	return (word)vbound(rad + offset, 0, 65535);
 }
 
@@ -81,8 +95,8 @@ void doDarkroomCircle(int32_t cx, int32_t cy, word glowRad,BITMAP* dest, BITMAP*
 	if(!wave_size) wave_size = LIGHT_WAVE_SIZE;
 	glowRad = calc_wave_rad(glowRad, *wave_rate, *wave_size);
 	
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
+	int32_t ditherRad = glowRad + scale_by_percent(glowRad, dith_perc);
+	int32_t transRad = glowRad + scale_by_percent(glowRad, trans_perc);
 	auto maxRad = zc_max(glowRad,transRad);
 
 	int offx = 0;
@@ -125,8 +139,8 @@ void doDarkroomCone(int32_t sx, int32_t sy, word glowRad, int32_t dir, BITMAP* d
 	if(!wave_size) wave_size = LIGHT_WAVE_SIZE;
 	glowRad = calc_wave_rad(glowRad, *wave_rate, *wave_size);
 	
-	int32_t ditherDiff = (int32_t)(glowRad * (dith_perc/(double)100.0));
-	int32_t transDiff = (int32_t)(glowRad * (trans_perc/(double)100.0));
+	int32_t ditherDiff = scale_by_percent(glowRad, dith_perc);
+	int32_t transDiff = scale_by_percent(glowRad, trans_perc);
 	
 	int32_t ditherRad = glowRad + 2*ditherDiff;
 	int32_t transRad = glowRad + 2*transDiff;

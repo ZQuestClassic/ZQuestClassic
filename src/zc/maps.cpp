@@ -8014,6 +8014,18 @@ bool displayOnMap(int32_t x, int32_t y)
         return true;
 }
 
+// Computes int32_t(span + pos*scale)/2 identically on every platform. With
+// -ffp-model=fast the arm64 backend fuses the multiply+add into an fma, which
+// skips rounding the product to a double and can land the truncation on the
+// other side of an integer than x86 does — shifting the map view by a pixel
+// at some zoom levels and breaking cross-platform replays. The volatile temp
+// forces the product to round before the add on every compiler.
+static int32_t map_view_coord(int32_t span, int64_t pos, double scale)
+{
+	volatile double prod = pos*scale;
+	return int32_t(span+prod)/2;
+}
+
 void ViewMap()
 {
 	ViewingMap = true;
@@ -8452,15 +8464,15 @@ void ViewMap()
 		{
 			clear_to_color(framebuf,BLACK);
 			stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
-						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
+						 map_view_coord(256,int64_t(px)-mappic->w,scale),map_view_coord(224,int64_t(py)-mappic->h,scale),
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
 			blit(framebuf,scrollbuf_old,0,0,256,0,256,232);
 			redraw=false;
 		}
 		
-		int32_t x = int32_t(256+(px-((2048-int64_t(lx))*2))*scale)/2;
-		int32_t y = int32_t(224+(py-((704-int64_t(ly))*2))*scale)/2;
+		int32_t x = map_view_coord(256,px-((2048-int64_t(lx))*2),scale);
+		int32_t y = map_view_coord(224,py-((704-int64_t(ly))*2),scale);
 		
 		if(view_map_show_mode&1)
 		{
