@@ -36,6 +36,17 @@ extern BITMAP *darkscr_bmp_curscr, *darkscr_bmp_curscr_trans, *darkscr_bmp_scrol
 
 extern COLOR_MAP trans_table2;
 
+// Scales val by perc/100, truncating like the original double math. The
+// volatile temp forces the product to round to a double before truncation,
+// so the result doesn't depend on per-target fusion/reassociation choices
+// made under -ffp-model=fast. Without it, light radii computed here differ
+// by a pixel between x86 and arm64, breaking cross-platform replays.
+static int32_t scale_by_percent(int32_t val, int perc)
+{
+	volatile double prod = val * (perc/(double)100.0);
+	return (int32_t)prod;
+}
+
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
 {
 	if(!glowRad) return;
@@ -50,8 +61,8 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
+	int32_t ditherRad = glowRad + scale_by_percent(glowRad, dith_perc);
+	int32_t transRad = glowRad + scale_by_percent(glowRad, trans_perc);
 	auto maxRad = zc_max(glowRad,transRad);
 	if(dest)
 	{
@@ -79,8 +90,8 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
-	int32_t ditherDiff = (int32_t)(glowRad * (dith_perc/(double)100.0));
-	int32_t transDiff = (int32_t)(glowRad * (trans_perc/(double)100.0));
+	int32_t ditherDiff = scale_by_percent(glowRad, dith_perc);
+	int32_t transDiff = scale_by_percent(glowRad, trans_perc);
 	
 	int32_t ditherRad = glowRad + 2*ditherDiff;
 	int32_t transRad = glowRad + 2*transDiff;
@@ -127,8 +138,8 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
+	int32_t ditherRad = glowRad + scale_by_percent(glowRad, dith_perc);
+	int32_t transRad = glowRad + scale_by_percent(glowRad, trans_perc);
 	auto mrad = zc_max(glowRad,transRad);
 	if(dest)
 	{
