@@ -120,7 +120,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 }
 
 FFCDialog::FFCDialog(mapscr* scr, int32_t screen, int32_t ffind) :
-	thescr(scr), screen(screen), ffind(ffind),
+	screen(screen), ffind(ffind),
 	list_link(GUI::ListData::numbers(true, 1, MAXFFCS)),
 	list_ffcscript(GUI::ZCListData::ffc_script())
 {

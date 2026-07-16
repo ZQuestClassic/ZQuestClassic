@@ -24,10 +24,8 @@ private:
 	itemdata local_ref;
 	itemdata& dest_ref;
 	itemdata const& src_ref;
-	ItemEditorDialog const& parent;
 	std::string thelp, ityname;
-	
-	int32_t flags;
+
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TabPanel> tpan[10];
 	std::shared_ptr<GUI::Button> btns[10];

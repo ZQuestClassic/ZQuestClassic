@@ -848,7 +848,7 @@ namespace AutoPattern
 	}
 
 	dor_face::dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte nheight) :
-		valid(true), facing_dir(0), scan_dir(0), height(nheight), side_length(0), special_corner(false), steep(false), pattern(npattern)
+		valid(true), facing_dir(0), scan_dir(0), height(nheight), side_length(0), special_corner(false), steep(false)
 	{
 		byte vertexfacing = 255;
 		byte scan = 255;
@@ -898,8 +898,8 @@ namespace AutoPattern
 			}
 		}
 	}
-	dor_face::dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte ndir, byte nheight) :
-		valid(true), facing_dir(ndir), scan_dir(0), height(nheight), side_length(0), special_corner(true), steep(false), pattern(npattern)
+	dor_face::dor_face(apcombo* firstvertex, [[maybe_unused]] autopattern_dormtn* npattern, byte ndir, byte nheight) :
+		valid(true), facing_dir(ndir), scan_dir(0), height(nheight), side_length(0), special_corner(true), steep(false)
 	{
 		if (firstvertex)
 		{

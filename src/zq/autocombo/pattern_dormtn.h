@@ -69,8 +69,6 @@ namespace AutoPattern
 		dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte nheight);
 		dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte ndir, byte nheight);
 		void get_vertex_dir(apcombo* v, byte& facing, byte& vertexfacing, byte& scan, bool first);
-	private:
-		autopattern_dormtn* pattern;
 	};
 
 }

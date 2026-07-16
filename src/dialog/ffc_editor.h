@@ -72,7 +72,6 @@ private:
 	std::shared_ptr<GUI::Grid> cmb_container;
 	
 	ffdata ffc;
-	mapscr* thescr;
 	int32_t screen;
 	int32_t ffind;
 	
