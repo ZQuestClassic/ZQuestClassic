@@ -850,7 +850,7 @@ class ProgressDisplay:
         if result.frame:
             parts.append(time_format(result.duration).rjust(7, ' '))
             if result.fps != None:
-                parts.append(f'{result.fps} fps  '.rjust(10, ' '))
+                parts.append(f'{result.fps} fps  '.rjust(11, ' '))
             if not finished:
                 last_frame = result.frame
                 num_frames = result.num_frames
