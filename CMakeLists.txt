@@ -635,6 +635,7 @@ set(core_sources
 	src/core/jwinfsel.cpp
 	src/core/mapscr.cpp
 	src/core/misctypes.cpp
+	src/core/msg_scroll.cpp
 	src/core/msgstr.cpp
 	src/core/qrs.cpp
 	src/core/qst_advmusic.cpp

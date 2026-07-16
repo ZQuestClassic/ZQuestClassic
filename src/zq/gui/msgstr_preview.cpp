@@ -40,87 +40,51 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 	DCHECK(s);
 	if (!s) return D_O_K;
 	auto ret = D_O_K;
-	int max = prv->max_scroll_pos();
+	int max = prv->scroll.max_scroll();
 	if (prv->is_tmp_scrolling)
 	{
-		if (prv->segmented_scroll)
-			prv->target_scroll_pos = prv->scroll_pos = prv->tmp_scroll * prv->body_height;
+		if (prv->scroll.segmented)
+			prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll * prv->scroll.body_height;
 		else
-			prv->target_scroll_pos = prv->scroll_pos = prv->tmp_scroll;
+			prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll;
 	}
-	prv->scroll_pos = vbound(prv->scroll_pos, 0, max);
-	prv->target_scroll_pos = vbound(prv->target_scroll_pos, 0, max);
+	prv->scroll.clamp();
 	switch (msg)
 	{
 		case MSG_WHEEL:
 		{
-			if (!c)
-				break;
-			if (!prv->can_scroll)
-				break;
-			c = -c;
-			if (prv->segmented_scroll)
-			{
-				if (prv->scroll_pos != prv->target_scroll_pos)
-					break; // only segmented scroll from still
-				if (prv->target_scroll_pos % prv->body_height)
-					prv->target_scroll_pos -= (prv->target_scroll_pos % prv->body_height);
-				if (c > 0 && prv->target_scroll_pos < max)
-					prv->target_scroll_pos += prv->body_height;
-				else if (c < 0 && prv->target_scroll_pos > 0)
-					prv->target_scroll_pos -= prv->body_height;
-			}
-			else
-			{
-				prv->target_scroll_pos = vbound(prv->target_scroll_pos + 4*c, 0, max);
-			}
+			prv->scroll.wheel(-c);
 			break;
 		}
 		case MSG_VSYNC:
 		{
-			if (prv->scroll_pos == prv->target_scroll_pos)
-				break;
-			int spd = s->passive_scroll_speed;
-			if (!spd)
-				prv->scroll_pos = prv->target_scroll_pos;
-			else if (prv->scroll_pos < prv->target_scroll_pos)
-			{
-				prv->scroll_pos += spd;
-				if (prv->scroll_pos > prv->target_scroll_pos)
-					prv->scroll_pos = prv->target_scroll_pos;
-			}
-			else if (prv->scroll_pos > prv->target_scroll_pos)
-			{
-				prv->scroll_pos -= spd;
-				if (prv->scroll_pos < prv->target_scroll_pos)
-					prv->scroll_pos = prv->target_scroll_pos;
-			}
-			ret = D_REDRAWME;
+			if (prv->scroll.tick())
+				ret = D_REDRAWME;
 			break;
 		}
 		case MSG_DRAW:
 		{
 			prv->update_string();
-			max = prv->max_scroll_pos();
+			max = prv->scroll.max_scroll();
 			
 			const int prev_w = 256*2, prev_h = 168*2;
 			rectfill(screen, d->x, d->y, d->x+prev_w, d->y+prev_h, 0);
 			jwin_draw_frame(screen, d->x, d->y, prev_w, prev_h, FR_DEEP);
-			if (prv->can_scroll && max > 0)
+			if (prv->scroll.can_scroll && max > 0)
 			{
-				int cur = prv->scroll_pos;
-				int h = prv->body_height;
-				if (prv->segmented_scroll && prv->is_tmp_scrolling)
+				int cur = prv->scroll.scroll_pos;
+				int h = prv->scroll.body_height;
+				if (prv->scroll.segmented && prv->is_tmp_scrolling)
 				{
-					cur /= prv->body_height;
-					max /= prv->body_height;
+					cur /= prv->scroll.body_height;
+					max /= prv->scroll.body_height;
 					h = 1;
 				}
 				_jwin_draw_scrollable_frame(d, max+h, cur, h, 0);
 			}
 			BITMAP* buf = create_bitmap_ex(8, 256, 168);
 			clear_bitmap(buf);
-			auto scrollpos = vbound(prv->scroll_pos, 0, prv->max_scroll_pos());
+			auto scrollpos = prv->scroll.bound(prv->scroll.scroll_pos);
 			masked_blit(prv->bg_buf, buf, 0, 0, 0, 0, 256, 168);
 			int mu = prv->msg_margins[up], md = prv->msg_margins[down], ml = prv->msg_margins[left], mr = prv->msg_margins[right];
 			masked_blit(prv->fg_buf, buf, ml, mu+scrollpos, ml+s->x, mu+s->y, s->w-ml-mr, s->h-mu-md);
@@ -132,22 +96,22 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 		case MSG_CLICK:
 		{
-			if (prv->can_scroll && max > 0 && (gui_mouse_x() > d->x + d->w - 18) && !prv->is_tmp_scrolling)
+			if (prv->scroll.can_scroll && max > 0 && (gui_mouse_x() > d->x + d->w - 18) && !prv->is_tmp_scrolling)
 			{
 				prv->is_tmp_scrolling = true;
-				prv->tmp_scroll = prv->scroll_pos;
-				int h = prv->body_height;
-				if (prv->segmented_scroll)
+				prv->tmp_scroll = prv->scroll.scroll_pos;
+				int h = prv->scroll.body_height;
+				if (prv->scroll.segmented)
 				{
-					prv->tmp_scroll /= prv->body_height;
-					max /= prv->body_height;
+					prv->tmp_scroll /= prv->scroll.body_height;
+					max /= prv->scroll.body_height;
 					h = 1;
 				}
 				if (_handle_jwin_scrollable_scroll_click(d, max+h, &prv->tmp_scroll, h))
 				{
-					if (prv->segmented_scroll)
-						prv->tmp_scroll *= prv->body_height;
-					prv->target_scroll_pos = prv->scroll_pos = prv->tmp_scroll;
+					if (prv->scroll.segmented)
+						prv->tmp_scroll *= prv->scroll.body_height;
+					prv->scroll.target_scroll_pos = prv->scroll.scroll_pos = prv->tmp_scroll;
 				}
 				prv->is_tmp_scrolling = false;
 			}
@@ -159,18 +123,17 @@ int32_t d_newmsg_preview_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 
 MsgPreview::MsgPreview(): str_data(nullptr), index(-1),
-	scroll_pos(0), body_height(1), max_visible_pos(0), target_scroll_pos(0),
 	tmp_scroll(0), is_tmp_scrolling(false)
 {
-	can_scroll = !get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS);
-	setPreferredWidth(256_px*2+4_px + (can_scroll ? 18_px : 0_px));
+	scroll.can_scroll = !get_qr(qr_STRINGS_DONT_SCROLL) && !get_qr(qr_OLD_STRING_EDITOR_MARGINS);
+	scroll.segmented = scroll.can_scroll && get_qr(qr_STRING_SEGMENTED_SCROLL);
+	setPreferredWidth(256_px*2+4_px + (scroll.can_scroll ? 18_px : 0_px));
 	setPreferredHeight(168_px*2+4_px);
 	bg_buf = create_bitmap_ex(8, 256, 168);
 	fg_buf = create_bitmap_ex(8, 256, 512);
 	clear_bitmap(bg_buf);
 	clear_bitmap(fg_buf);
 	fg_bmp_height = 512;
-	segmented_scroll = can_scroll && get_qr(qr_STRING_SEGMENTED_SCROLL);
 	memset(msg_margins, 0, sizeof(msg_margins));
 }
 MsgPreview::~MsgPreview()
@@ -183,7 +146,7 @@ void MsgPreview::update_string()
 {
 	MsgStr const* str = str_data;
 	
-	max_visible_pos = 0;
+	scroll.max_visible_pos = 0;
 	int32_t w = str->w; //8-256
 	int32_t h = str->h; //8-168
 	int32_t nextstring = str->nextstring;
@@ -205,7 +168,9 @@ void MsgPreview::update_string()
 	int workfont_id = str->font;
 	FONT *workfont = get_zc_font(workfont_id);
 	int32_t ssc_tile_hei = text_height(workfont);
-	body_height = zc_max(1, h - msg_margins[up] - msg_margins[down]);
+	scroll.set_body_height(h, msg_margins[up], msg_margins[down]);
+	scroll.passive_speed = str->passive_scroll_speed;
+	scroll.active_speed = str->active_scroll_speed;
 	
 	auto bottom_margin_clip = [&]()
 	{
@@ -216,16 +181,10 @@ void MsgPreview::update_string()
 	};
 	auto update_max_scroll = [&](int pos)
 	{
-		if (segmented_scroll && (pos % body_height))
-		{
-			// round up to next multiple of body_height
-			pos += body_height - (pos % body_height);
-		}
+		if (!scroll.update_max_scroll(pos))
+			return;
 		
-		if (pos > max_visible_pos)
-			max_visible_pos = pos;
-		
-		int new_height = max_visible_pos + msg_margins[down];
+		int new_height = scroll.max_visible_pos + msg_margins[up] + msg_margins[down];
 		if (fg_bmp_height >= new_height)
 			return;
 		
@@ -448,17 +407,7 @@ void MsgPreview::update_string()
 			break;
 		}
 	}
-	scroll_pos = vbound(scroll_pos, 0, max_scroll_pos());
-	target_scroll_pos = vbound(target_scroll_pos, 0, max_scroll_pos());
-}
-
-int MsgPreview::max_scroll_pos() const
-{
-	if (!can_scroll)
-		return 0;
-	if (max_visible_pos < body_height)
-		return 0;
-	return zc_max(0, max_visible_pos - body_height);
+	scroll.clamp();
 }
 void MsgPreview::setData(MsgStr const* data)
 {
