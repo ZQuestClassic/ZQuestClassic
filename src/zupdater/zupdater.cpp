@@ -61,7 +61,7 @@ std::ofstream out("updater.log", std::ios::binary);
 
 	out << "[fatal] " << msg.c_str() << '\n';
 	out.close();
-	exit(1);
+	zapp_exit(1);
 }
 
 [[noreturn]] static void done(std::string msg)
@@ -73,7 +73,7 @@ std::ofstream out("updater.log", std::ios::binary);
 
 	out << "[done] " << msg.c_str() << '\n';
 	out.close();
-	exit(0);
+	zapp_exit(0);
 }
 
 static bool prompt(std::string msg)
@@ -311,7 +311,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		printf("tag_name %s\n", new_version.c_str());
 		printf("asset_url %s\n", asset_url.c_str());
-		exit(0);
+		zapp_exit(0);
 	}
 
 	if (current_version == new_version)

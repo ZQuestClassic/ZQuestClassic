@@ -328,7 +328,7 @@ int32_t main(int32_t argc, char **argv)
 		else
 			printf("tests failed\n");
 
-		exit(success ? 0 : 1);
+		zapp_exit(success ? 0 : 1);
 	}
 
 	if (used_switch(argc, argv, "-print-zasm-commands"))
@@ -491,11 +491,11 @@ int32_t main(int32_t argc, char **argv)
 	{
 		auto root(ZScript::parseFile(script_path));
 		if (zscript_error_out)
-			exit(1);
+			zapp_exit(1);
 		if (!root.get())
 			log_error(ZScript::CompileError::CantOpenSource(NULL));
 		fmt::println("ok");
-		exit(0);
+		zapp_exit(0);
 	}
 
 	bool do_json_output = used_switch(argc, argv, "-json") > 0;
@@ -531,7 +531,7 @@ int32_t main(int32_t argc, char **argv)
 	if (result && !result->docs.empty())
 	{
 		printf("%s\n", result->docs.c_str());
-		exit(0);
+		zapp_exit(0);
 	}
 
 	if(linked)

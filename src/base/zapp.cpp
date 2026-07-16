@@ -104,19 +104,19 @@ void common_main_setup(App id, int argc_, char **argv_)
 	if (used_switch(argc, argv, "-version"))
 	{
 		printf("version %s\n", getVersionString());
-		exit(0);
+		zapp_exit(0);
 	}
 
 	if (used_switch(argc, argv, "-channel"))
 	{
 		printf("channel %s\n", getReleaseChannel());
-		exit(0);
+		zapp_exit(0);
 	}
 
 	if (used_switch(argc, argv, "-repo"))
 	{
 		printf("repo %s\n", getRepo());
-		exit(0);
+		zapp_exit(0);
 	}
 
 	bool disable_chdir = std::getenv("ZC_DISABLE_OSX_CHDIR") != nullptr || std::getenv("ZC_DISABLE_CHDIR") != nullptr;
@@ -240,7 +240,7 @@ int32_t zapp_check_switch(const char *s, std::vector<const char*> arg_names)
 		if (bad_args)
 		{
 			printf("%s\n", fmt::format("expected switch {} to have {} args: {}", s, num_args, fmt::join(arg_names, ", ")).c_str());
-			exit(1);
+			zapp_exit(1);
 		}
 	}
 
@@ -375,4 +375,10 @@ bool is_exiting()
 void set_is_exiting()
 {
 	g_is_exiting = true;
+}
+
+void zapp_exit(int code)
+{
+	set_is_exiting();
+	exit(code);
 }

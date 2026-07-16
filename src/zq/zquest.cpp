@@ -19889,7 +19889,7 @@ int32_t main(int32_t argc,char **argv)
 			if (onNew() == D_CLOSE)
 			{
 				Z_message("User canceled creating new quest, closing.\n");
-				exit(0);
+				zapp_exit(0);
 			}
 
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
@@ -20054,7 +20054,7 @@ void zq_exit(int code)
 	
 	quit_game();
 	allegro_exit();
-	exit(code);
+	zapp_exit(code);
 }
 
 void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
