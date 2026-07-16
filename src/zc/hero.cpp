@@ -31746,7 +31746,15 @@ void red_shift()
         for(int32_t x=0; x<framebuf->w; x++)
         {
             int32_t c = framebuf->line[y+playing_field_offset][x];
-            int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
+			// The volatile temp pins the product's rounding, keeping this
+			// identical on every architecture under -ffp-model=fast. This
+			// factoring with a separately rounded product is exactly what
+			// x86 has always computed here; arm64 fused the multiply+add
+			// into an fma that rounds differently, breaking cross-platform
+			// replays. See also scale_by_percent() in drawing.cpp.
+			volatile double sum = (RAMpal[c].r + RAMpal[c].b) * 0.4;
+			sum = sum + RAMpal[c].g * 0.6;
+			int32_t r = zc_min(int32_t(sum)>>1,31);
             framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
         }
     }
