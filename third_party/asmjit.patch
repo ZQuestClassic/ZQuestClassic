@@ -44,6 +44,134 @@ index b97f259..c0b0784 100644
            }
          }
        }
+diff --git a/src/asmjit/core/ralocal.cpp b/src/asmjit/core/ralocal.cpp
+index 16f11a8..1cb0a6e 100644
+--- a/src/asmjit/core/ralocal.cpp
++++ b/src/asmjit/core/ralocal.cpp
+@@ -1017,38 +1017,97 @@ Error RALocalAllocator::allocBranch(InstNode* node, RABlock* target, RABlock* co
+   ASMJIT_PROPAGATE(spillRegsBeforeEntry(target));
+ 
+   if (target->hasEntryAssignment()) {
+-    BaseNode* injectionPoint = _pass->extraBlock()->prev();
+-    BaseNode* prevCursor = _cc->setCursor(injectionPoint);
+-
+-    _tmpAssignment.copyFrom(_curAssignment);
+-    ASMJIT_PROPAGATE(switchToAssignment(target->entryPhysToWorkMap(), target->liveIn(), target->isAllocated(), false));
+-
+-    BaseNode* curCursor = _cc->cursor();
+-    if (curCursor != injectionPoint) {
+-      // Additional instructions emitted to switch from the current state to the `target` state. This means
+-      // that we have to move these instructions into an independent code block and patch the jump location.
+-      Operand& targetOp = node->op(node->opCount() - 1);
+-      if (ASMJIT_UNLIKELY(!targetOp.isLabel()))
+-        return DebugUtils::errored(kErrorInvalidState);
++    // (zc patch) On AArch64 the trampoline is placed right after the branch
++    // instead of at the extra block (the end of the function). A conditional
++    // branch (b.cond) only reaches +/-1 MB; in a function that emits more
++    // code than that, retargeting it to an end-of-function trampoline makes
++    // the branch unencodable (InvalidDisplacement at label bind). Layout:
++    //
++    //     b.cond trampoline      ; 8 bytes away - always encodable
++    //     b      skipLabel       ; fall-through path jumps over the fixups
++    //   trampoline:
++    //     <register-state fixup moves>
++    //     b      savedTarget     ; +/-128 MB - reaches anywhere
++    //   skipLabel:
++    //     <original fall-through>
++    //
++    // This costs the fall-through path one unconditional branch whenever the
++    // edge needs fixups, which x86 avoids with the end-of-function placement,
++    // so that path is kept for x86 (jcc reaches +/-2 GB there).
++    //
++    // Inserted nodes are not re-visited: the caller captured node->next()
++    // before calling allocBranch, and the consecutive-block fixups emitted
++    // after this returns use afterLast->prev() as the cursor, which is now
++    // skipLabel - i.e. still on the fall-through path, where they belong.
++    if (Environment::isFamilyAArch64(_cc->arch())) {
++      BaseNode* prevCursor = _cc->setCursor(node);
++
++      _tmpAssignment.copyFrom(_curAssignment);
++      ASMJIT_PROPAGATE(switchToAssignment(target->entryPhysToWorkMap(), target->liveIn(), target->isAllocated(), false));
++
++      BaseNode* afterMoves = _cc->cursor();
++      if (afterMoves != node) {
++        // Fixup moves were emitted (they now sit right after the branch);
++        // wrap them in the trampoline layout described above.
++        Operand& targetOp = node->op(node->opCount() - 1);
++        if (ASMJIT_UNLIKELY(!targetOp.isLabel()))
++          return DebugUtils::errored(kErrorInvalidState);
++
++        Label trampoline = _cc->newLabel();
++        Label skipLabel = _cc->newLabel();
++        Label savedTarget = targetOp.as<Label>();
+ 
+-      Label trampoline = _cc->newLabel();
+-      Label savedTarget = targetOp.as<Label>();
++        // Patch `target` to point to the `trampoline`.
++        targetOp = trampoline;
+ 
+-      // Patch `target` to point to the `trampoline` we just created.
+-      targetOp = trampoline;
++        // After the moves: jump to the original target, then bind the label
++        // the fall-through path jumps to.
++        ASMJIT_PROPAGATE(_pass->emitJump(savedTarget));
++        _cc->bind(skipLabel);
+ 
+-      // Clear a possible SHORT form as we have no clue now if the SHORT form would be encodable after patching
+-      // the target to `trampoline` (X86 specific).
+-      node->clearOptions(InstOptions::kShortForm);
++        // Before the moves: the fall-through jump, then the trampoline entry.
++        _cc->_setCursor(node);
++        ASMJIT_PROPAGATE(_pass->emitJump(skipLabel));
++        _cc->bind(trampoline);
++      }
+ 
+-      // Finalize the switch assignment sequence.
+-      ASMJIT_PROPAGATE(_pass->emitJump(savedTarget));
+-      _cc->_setCursor(injectionPoint);
+-      _cc->bind(trampoline);
++      _cc->_setCursor(prevCursor);
++      _curAssignment.swap(_tmpAssignment);
+     }
++    else {
++      BaseNode* injectionPoint = _pass->extraBlock()->prev();
++      BaseNode* prevCursor = _cc->setCursor(injectionPoint);
++
++      _tmpAssignment.copyFrom(_curAssignment);
++      ASMJIT_PROPAGATE(switchToAssignment(target->entryPhysToWorkMap(), target->liveIn(), target->isAllocated(), false));
++
++      BaseNode* curCursor = _cc->cursor();
++      if (curCursor != injectionPoint) {
++        // Additional instructions emitted to switch from the current state to the `target` state. This means
++        // that we have to move these instructions into an independent code block and patch the jump location.
++        Operand& targetOp = node->op(node->opCount() - 1);
++        if (ASMJIT_UNLIKELY(!targetOp.isLabel()))
++          return DebugUtils::errored(kErrorInvalidState);
++
++        Label trampoline = _cc->newLabel();
++        Label savedTarget = targetOp.as<Label>();
++
++        // Patch `target` to point to the `trampoline` we just created.
++        targetOp = trampoline;
++
++        // Clear a possible SHORT form as we have no clue now if the SHORT form would be encodable after patching
++        // the target to `trampoline` (X86 specific).
++        node->clearOptions(InstOptions::kShortForm);
+ 
+-    _cc->_setCursor(prevCursor);
+-    _curAssignment.swap(_tmpAssignment);
++        // Finalize the switch assignment sequence.
++        ASMJIT_PROPAGATE(_pass->emitJump(savedTarget));
++        _cc->_setCursor(injectionPoint);
++        _cc->bind(trampoline);
++      }
++
++      _cc->_setCursor(prevCursor);
++      _curAssignment.swap(_tmpAssignment);
++    }
+   }
+   else {
+     ASMJIT_PROPAGATE(_pass->setBlockEntryAssignment(target, block(), _curAssignment));
 diff --git a/src/asmjit/core/rapass.cpp b/src/asmjit/core/rapass.cpp
 index e1d7331..db80fe3 100644
 --- a/src/asmjit/core/rapass.cpp
