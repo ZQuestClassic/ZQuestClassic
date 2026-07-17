@@ -45,7 +45,7 @@ set(WANT_VENDORED_IMGUI TRUE CACHE BOOL "Build the vendored library at third_par
 set(WANT_VENDORED_JSON TRUE CACHE BOOL "Build the vendored library at third_party/json")
 set(WANT_VENDORED_LIBOGG TRUE CACHE BOOL "Build the vendored library at third_party/libogg")
 set(WANT_VENDORED_LIBVORBIS TRUE CACHE BOOL "Build the vendored library at third_party/libvorbis")
-set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, wasm, none")
+set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, a64, wasm, none")
 set(ZC_VERSION "" CACHE STRING "Version string")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
 set(WANT_ERROR_CHECKING TRUE CACHE BOOL "")
@@ -887,9 +887,9 @@ if(JIT_BACKEND STREQUAL "default")
 		set(JIT_BACKEND "wasm")
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8 AND ZC_TARGET_PROCESSOR MATCHES "x86_64|AMD64|amd64")
 		set(JIT_BACKEND "x64")
+	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8 AND ZC_TARGET_PROCESSOR MATCHES "arm64|aarch64|ARM64")
+		set(JIT_BACKEND "a64")
 	else()
-		# The x64 JIT backend emits x86-64 machine code, so it is useless on
-		# other 64-bit architectures (e.g. arm64 macs).
 		set(JIT_BACKEND "none")
 	endif()
 endif()
@@ -899,9 +899,17 @@ if(JIT_BACKEND STREQUAL "none")
 	# This is defined on base b/c currently qst.cpp relies on ffscript.h
 	# TODO: refactor qst.cpp / FFCore.
 	target_compile_definitions(base PUBLIC ZC_JIT_BACKEND=0)
-elseif(JIT_BACKEND STREQUAL "x64")
-	target_sources(zplayer PUBLIC src/zc/jit_x64.cpp)
-	target_compile_definitions(base PUBLIC ZC_JIT_BACKEND=1)
+elseif(JIT_BACKEND STREQUAL "x64" OR JIT_BACKEND STREQUAL "a64")
+	# The native backends share an architecture-neutral driver (jit_shared.cpp)
+	# and provide only code generation (jit_x64.cpp / jit_a64.cpp).
+	target_sources(zplayer PUBLIC src/zc/jit_shared.cpp)
+	if(JIT_BACKEND STREQUAL "x64")
+		target_sources(zplayer PUBLIC src/zc/jit_x64.cpp)
+		target_compile_definitions(base PUBLIC ZC_JIT_BACKEND=1)
+	else()
+		target_sources(zplayer PUBLIC src/zc/jit_a64.cpp)
+		target_compile_definitions(base PUBLIC ZC_JIT_BACKEND=3)
+	endif()
 
 	FetchContent_Declare(
 		asmjit
@@ -909,6 +917,10 @@ elseif(JIT_BACKEND STREQUAL "x64")
 			https://github.com/connorjclark/asmjit.git
 		GIT_TAG
 			9e9494808f1d9101e71e75046d75e762b5ece21c
+		# Two separate COMMANDs: patch commands are not run through a shell, so
+		# `&&` would be passed to git as a literal argument under CMake's
+		# direct-populate mode (CMP0168).
+		PATCH_COMMAND git restore . COMMAND git apply ${CMAKE_SOURCE_DIR}/third_party/asmjit.patch
 		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(asmjit)

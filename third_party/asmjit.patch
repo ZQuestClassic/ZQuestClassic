@@ -1,0 +1,70 @@
+diff --git a/src/asmjit/arm/a64rapass.cpp b/src/asmjit/arm/a64rapass.cpp
+index b97f259..c0b0784 100644
+--- a/src/asmjit/arm/a64rapass.cpp
++++ b/src/asmjit/arm/a64rapass.cpp
+@@ -620,6 +620,10 @@ void ARMRAPass::onInit() noexcept {
+   makeUnavailable(RegGroup::kGp, Gp::kIdSp);
+   makeUnavailable(RegGroup::kGp, Gp::kIdOs); // OS-specific use, usually TLS.
+ 
++  // (zc patch) x28 is reserved as a scratch register for addressing spill
++  // slots that are out of range of a scaled load/store; see _rewrite().
++  makeUnavailable(RegGroup::kGp, 28);
++
+   _sp = sp;
+   _fp = x29;
+ }
+@@ -713,9 +717,27 @@ ASMJIT_FAVOR_SPEED Error ARMRAPass::_rewrite(BaseNode* first, BaseNode* stop) no
+             RAStackSlot* slot = workReg->stackSlot();
+             int32_t offset = slot->offset();
+ 
+-            mem._setBase(_sp.type(), slot->baseRegId());
+-            mem.clearRegHome();
+-            mem.addOffsetLo32(offset);
++            // (zc patch) A scaled 32-bit load/store can only address
++            // [sp, 0..16380]; larger spill frames previously failed with
++            // InvalidDisplacement at encode time. For offsets beyond the
++            // always-safe range, materialize the offset into x28 (reserved in
++            // onInit, never allocated) and use register-offset addressing.
++            if (uint32_t(offset) > 16380u) {
++              BaseNode* prevCursor = cc()->setCursor(node->prev());
++              Error err = cc()->as<Compiler>()->mov(GpX(28), offset);
++              cc()->_setCursor(prevCursor);
++              if (ASMJIT_UNLIKELY(err))
++                return err;
++
++              mem._setBase(_sp.type(), slot->baseRegId());
++              mem.clearRegHome();
++              mem.as<Mem>().setIndex(GpX(28));
++            }
++            else {
++              mem._setBase(_sp.type(), slot->baseRegId());
++              mem.clearRegHome();
++              mem.addOffsetLo32(offset);
++            }
+           }
+         }
+       }
+diff --git a/src/asmjit/core/rapass.cpp b/src/asmjit/core/rapass.cpp
+index e1d7331..db80fe3 100644
+--- a/src/asmjit/core/rapass.cpp
++++ b/src/asmjit/core/rapass.cpp
+@@ -176,10 +176,15 @@ Error BaseRAPass::runOnFunction(Zone* zone, Logger* logger, FuncNode* func) {
+ }
+ 
+ Error BaseRAPass::onPerformAllSteps() noexcept {
+-  makeUnavailable(RegGroup::kGp, 3);
+-  makeUnavailable(RegGroup::kGp, 13);
+-  makeUnavailable(RegGroup::kGp, 14);
+-  makeUnavailable(RegGroup::kGp, 15);
++  // These exist for zc's x64 JIT backend, which pins rbx/r13/r14/r15 as
++  // physical registers outside the allocator's knowledge. The AArch64 backend
++  // pins nothing, so don't waste 4 allocatable registers there.
++  if (cc()->arch() == Arch::kX64) {
++    makeUnavailable(RegGroup::kGp, 3);
++    makeUnavailable(RegGroup::kGp, 13);
++    makeUnavailable(RegGroup::kGp, 14);
++    makeUnavailable(RegGroup::kGp, 15);
++  }
+ 
+   ASMJIT_PROPAGATE(buildCFG());
+   ASMJIT_PROPAGATE(buildCFGViews());

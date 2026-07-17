@@ -1,0 +1,2178 @@
+// AArch64 JIT backend.
+//
+// Ported from jit_x64.cpp. The overall structure (function-at-a-time
+// compilation, interpreter fallback for uncompiled commands, resume labels for
+// waits/calls, hot-function profiling) is identical; only the emitted
+// instructions differ. Differences from the x64 backend:
+//
+// - Division by constants uses sdiv: AArch64 sdiv rounds toward zero, exactly
+//   matching C semantics and the x64 backend's magic-multiply sequences.
+// - No SSE4.1 gate for CEILING/FLOOR: frintp/frintm are baseline.
+//
+// The register cache (use_cached_regs) is not yet ported; see jit_x64.cpp.
+
+#include "zc/jit_a64.h"
+#include "zc/jit_shared.h"
+#include "base/general.h"
+#include "core/qrs.h"
+#include "base/util.h"
+#include "core/zdefs.h"
+#include "components/zasm/defines.h"
+#include "components/zasm/pc.h"
+#include "components/zasm/table.h"
+#include "zc/jit.h"
+#include "zc/ffscript.h"
+#include "zc/script_debug.h"
+#include "zc/zasm_pipeline.h"
+#include "zc/zasm_utils.h"
+#include "components/zasm/serialize.h"
+#include "zconsole/ConsoleLogger.h"
+#include <cstdint>
+#include <fmt/format.h>
+#include <memory>
+#include <chrono>
+#include <optional>
+#include <asmjit/a64.h>
+
+using namespace asmjit;
+
+static JitRuntime rt;
+
+struct CompilationState
+{
+	zasm_script* script;
+	JittedScript* j_script;
+	pc_t pc;
+	pc_t start_pc;
+	pc_t final_pc;
+	CallConvId calling_convention;
+	Label L_End;
+	a64::Gp vResult;
+	a64::Gp vSp;
+	a64::Gp vSwitchKey;
+	a64::Gp ptrCtx;
+	a64::Gp ptrRegisters;
+	a64::Gp ptrStackBase;
+	std::map<int, Label> goto_labels;
+	// Labels for both function calls and wait frame commands.
+	std::map<int, Label> resume_labels;
+	// When to end the "lookahead" for stack pointer bounds checking (and start checking again).
+	pc_t num_push_commands_in_row_end_pc;
+	bool modified_stack;
+	bool runtime_debugging;
+};
+
+extern ScriptDebugHandle* runtime_script_debug_handle;
+
+static void debug_pre_command(int32_t pc, uint32_t sp)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	ri->sp = sp;
+	if (runtime_script_debug_handle)
+		runtime_script_debug_handle->pre_command();
+}
+
+class MyErrorHandler : public ErrorHandler
+{
+public:
+	// Set if any error occurred during emission; the emitted code is broken and
+	// the function must be discarded (it runs in the interpreter instead, which
+	// is always correct - just slower for that one function).
+	bool had_error = false;
+	// A function whose spill frame outgrows the range a scaled load/store can
+	// address fails with InvalidDisplacement. That is an expected capacity
+	// limit for very register-heavy functions, not a codegen bug, so it is
+	// tracked separately and doesn't trip -jit-fatal-compile-errors.
+	bool only_capacity_errors = true;
+
+	void handleError(Error err, const char *message, BaseEmitter*) override
+	{
+		had_error = true;
+		if (err != kErrorInvalidDisplacement)
+			only_capacity_errors = false;
+		al_trace("[jit ERROR] AsmJit error: %s\n", message);
+	}
+};
+
+// AArch64 str needs the value in a register; this materializes an immediate.
+static a64::Gp imm_to_reg(a64::Compiler& cc, int32_t value)
+{
+	a64::Gp reg = cc.newInt32();
+	cc.mov(reg, value);
+	return reg;
+}
+
+// AArch64 has no call-to-immediate-address instruction (x64 `call imm64`), so
+// the target must be materialized into a register before cc.invoke.
+template <typename Fn>
+static void invoke(a64::Compiler& cc, InvokeNode** invokeNode, Fn* fn, const FuncSignature& signature)
+{
+	a64::Gp target = cc.newIntPtr();
+	cc.mov(target, (uint64_t)fn);
+	cc.invoke(invokeNode, target, signature);
+}
+
+template <typename T>
+static void set_ctx_pc(CompilationState& state, a64::Compiler& cc, T pc)
+{
+	if constexpr (std::is_integral_v<T>)
+		cc.str(imm_to_reg(cc, pc), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, pc)));
+	else
+		cc.str(pc, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, pc)));
+}
+
+static void set_ctx_call_pc(CompilationState& state, a64::Compiler& cc, pc_t call_pc)
+{
+	cc.str(imm_to_reg(cc, call_pc), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, call_pc)));
+}
+
+template <typename T>
+static void set_ctx_sp(CompilationState& state, a64::Compiler& cc, T sp)
+{
+	if constexpr (std::is_integral_v<T>)
+		cc.str(imm_to_reg(cc, sp), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
+	else
+		cc.str(sp, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
+}
+
+template <typename T>
+static void set_ctx_ret_code(CompilationState& state, a64::Compiler& cc, T ret_code)
+{
+	if constexpr (std::is_integral_v<T>)
+		cc.str(imm_to_reg(cc, ret_code), a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, ret_code)));
+	else
+		cc.str(ret_code, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, ret_code)));
+}
+
+// Adds a constant to a register in place. AArch64 add/sub immediates are
+// limited to 12 bits, so larger values are materialized first.
+static void add_constant(a64::Compiler& cc, a64::Gp reg, int value)
+{
+	if (value == 0)
+		return;
+
+	int abs_value = value < 0 ? -value : value;
+	if (abs_value < (1 << 12))
+	{
+		if (value > 0)
+			cc.add(reg, reg, value);
+		else
+			cc.sub(reg, reg, abs_value);
+	}
+	else
+	{
+		a64::Gp tmp = cc.newInt32();
+		cc.mov(tmp, value);
+		cc.add(reg, reg, tmp);
+	}
+}
+
+static a64::Gp immutable_add_constant(a64::Compiler& cc, a64::Gp reg, int value)
+{
+	if (value == 0)
+		return reg;
+
+	a64::Gp r = cc.newInt32();
+	cc.mov(r, reg);
+	add_constant(cc, r, value);
+	return r;
+}
+
+// Compares a register to a constant, guarding the 12-bit immediate limit.
+static void cmp_constant(a64::Compiler& cc, a64::Gp reg, int value)
+{
+	if (value >= 0 && value < (1 << 12))
+	{
+		cc.cmp(reg, value);
+	}
+	else
+	{
+		a64::Gp tmp = cc.newInt32();
+		cc.mov(tmp, value);
+		cc.cmp(reg, tmp);
+	}
+}
+
+// Returns a memory operand for the stack slot `index + offset_words`, where
+// index is a uint32 word index into stack_base (equivalent to the x64
+// backend's [stack_base + index*4 + offset_words*4] addressing).
+static a64::Mem stack_mem(CompilationState& state, a64::Compiler& cc, a64::Gp index, int offset_words = 0)
+{
+	if (offset_words == 0)
+		return a64::ptr(state.ptrStackBase, index, a64::uxtw(2));
+
+	a64::Gp adjusted = immutable_add_constant(cc, index, offset_words);
+	return a64::ptr(state.ptrStackBase, adjusted, a64::uxtw(2));
+}
+
+static void modify_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackIndex, int delta)
+{
+	add_constant(cc, vStackIndex, delta);
+	state.modified_stack = true;
+}
+
+static void check_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackIndex, int offset = 0)
+{
+	if (offset == 0)
+	{
+		cmp_constant(cc, vStackIndex, MAX_STACK_SIZE);
+	}
+	else
+	{
+		a64::Gp val = cc.newUInt32();
+		cc.mov(val, vStackIndex);
+		add_constant(cc, val, offset);
+		cmp_constant(cc, val, MAX_STACK_SIZE);
+	}
+
+	Label label = cc.newLabel();
+	cc.b_lo(label); // unsigned <, same as x64's jb
+	set_ctx_ret_code(state, cc, RUNSCRIPT_JIT_STACK_OVERFLOW);
+	cc.mov(state.vResult, EXEC_RESULT_EXIT);
+	// Route through the single L_End epilog rather than emitting a mid-function
+	// ret. asmjit's AArch64 Compiler miscompiles a cc.ret() that is immediately
+	// followed by a bound label which is an indirect-branch (JumpAnnotation)
+	// target - it emits a branch-to-self instead of the return - so all exits
+	// funnel through one ret at L_End.
+	cc.b(state.L_End);
+	cc.bind(label);
+}
+
+static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	ri->sp = sp;
+	return get_register(arg);
+}
+
+static int32_t get_register_jit(int32_t arg, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	return get_register(arg);
+}
+
+static void set_register_and_restore_sp(int32_t arg, int32_t value, uint32_t sp, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	ri->sp = sp;
+	set_register(arg, value);
+}
+
+static void set_register_jit(int32_t arg, int32_t value, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	set_register(arg, value);
+}
+
+static void set_guarded_register(int32_t arg, int32_t value, pc_t pc)
+{
+	extern refInfo *ri;
+
+	ri->pc = pc;
+	do_set(arg, value);
+}
+
+// Must use virtual register to pass as function argument via cc.invoke.
+static a64::Gp get_tmp_sp(CompilationState& state, a64::Compiler& cc)
+{
+	a64::Gp sp = cc.newInt32();
+	cc.mov(sp, state.vSp);
+	return sp;
+}
+
+// Divides in place by 10000, rounding toward zero (C semantics). sdiv rounds
+// toward zero, so this matches the x64 backend's magic-multiply sequences
+// bit-for-bit for both 32-bit and 64-bit operands.
+static void div_10000(a64::Compiler& cc, a64::Gp dividend)
+{
+	if (dividend.isGpX())
+	{
+		a64::Gp divisor = cc.newInt64();
+		cc.mov(divisor, 10000);
+		cc.sdiv(dividend, dividend, divisor);
+	}
+	else
+	{
+		a64::Gp divisor = cc.newInt32();
+		cc.mov(divisor, 10000);
+		cc.sdiv(dividend, dividend, divisor);
+	}
+}
+
+static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
+{
+	a64::Gp val = cc.newInt32();
+	if (r >= D(0) && r < D(INITIAL_D))
+	{
+		cc.ldr(val, a64::ptr(state.ptrRegisters, r * 4));
+	}
+	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		a64::Gp address = cc.newIntPtr();
+		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
+		cc.ldr(val, a64::ptr(address, (r - GD(0)) * 4));
+	}
+	else if (r == SP)
+	{
+		cc.mov(val, state.vSp);
+		a64::Gp ten_k = imm_to_reg(cc, 10000);
+		cc.mul(val, val, ten_k);
+	}
+	else if (r == SP2)
+	{
+		cc.mov(val, state.vSp);
+	}
+	else if (r == SWITCHKEY)
+	{
+		cc.mov(val, state.vSwitchKey);
+	}
+	else if (does_register_use_stack(r))
+	{
+		a64::Gp stackIndex = get_tmp_sp(state, cc);
+
+		// Call external get_register_and_restore_sp.
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, get_register_and_restore_sp, FuncSignature::build<int32_t, int32_t, uint32_t, pc_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, stackIndex);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
+		invokeNode->setRet(0, val);
+	}
+	else
+	{
+		// Call external get_register_jit.
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, get_register_jit, FuncSignature::build<int32_t, int32_t, pc_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, state.pc); // Needed for accurate stack trace should an error occur.
+		invokeNode->setRet(0, val);
+	}
+	return val;
+}
+
+static a64::Gp get_z_register_64(CompilationState& state, a64::Compiler& cc, int r)
+{
+	a64::Gp val32 = get_z_register(state, cc, r);
+	a64::Gp val = cc.newInt64();
+	cc.sxtw(val, val32);
+	return val;
+}
+
+template <typename T>
+static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T val)
+{
+	a64::Gp val_reg;
+	if constexpr (std::is_integral_v<T>)
+		val_reg = imm_to_reg(cc, val);
+	else
+		val_reg = val;
+
+	if (r >= D(0) && r < D(INITIAL_D))
+	{
+		cc.str(val_reg, a64::ptr(state.ptrRegisters, r * 4));
+	}
+	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		a64::Gp address = cc.newIntPtr();
+		cc.mov(address, (uint64_t)&game->global_d); // Note: this is only OK b/c the `game` global pointer is never reassigned.
+		cc.str(val_reg, a64::ptr(address, (r - GD(0)) * 4));
+	}
+	else if (r == SP || r == SP2)
+	{
+		// TODO
+		Z_error_fatal("Unimplemented: set SP");
+	}
+	else if (r == SWITCHKEY)
+	{
+		state.vSwitchKey = cc.newInt32();
+		cc.mov(state.vSwitchKey, val_reg);
+	}
+	else if (does_register_use_stack(r))
+	{
+		a64::Gp stackIndex = get_tmp_sp(state, cc);
+
+		// Call external set_register_and_restore_sp.
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, set_register_and_restore_sp, FuncSignature::build<void, int32_t, int32_t, uint32_t, pc_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, val_reg);
+		invokeNode->setArg(2, stackIndex);
+		invokeNode->setArg(3, state.pc); // Needed for accurate stack trace should an error occur.
+	}
+	else if (is_guarded_script_register(r))
+	{
+		// Some registers have an extra check when writing to them.
+		// Call external set_guarded_register.
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, set_guarded_register, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, val_reg);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
+	}
+	else
+	{
+		// Call external set_register_jit.
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, set_register_jit, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
+		invokeNode->setArg(0, r);
+		invokeNode->setArg(1, val_reg);
+		invokeNode->setArg(2, state.pc); // Needed for accurate stack trace should an error occur.
+	}
+}
+
+static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, a64::Mem mem)
+{
+	a64::Gp val = cc.newInt32();
+	cc.ldr(val, mem);
+	set_z_register(state, cc, r, val);
+}
+
+static a64::Gp get_ctx_script_instance(CompilationState& state, a64::Compiler& cc)
+{
+	a64::Gp ptr = cc.newIntPtr();
+	cc.ldr(ptr, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, j_instance)));
+	return ptr;
+}
+
+// Sets reg to 0/1 based on whether it was zero (x64 cast_bool equivalent).
+static void cast_bool(a64::Compiler& cc, a64::Gp reg)
+{
+	cc.cmp(reg, 0);
+	cc.cset(reg, a64::CondCode::kNE);
+}
+
+static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int command, int arg1, int arg2, int arg3)
+{
+	auto& goto_labels = state.goto_labels;
+
+	if(command == GOTOCMP)
+	{
+		auto lbl = goto_labels[arg1];
+		switch(arg2 & CMP_FLAGS)
+		{
+			default:
+				break;
+			case CMP_GT:
+				cc.b_gt(lbl);
+				break;
+			case CMP_GT|CMP_EQ:
+				cc.b_ge(lbl);
+				break;
+			case CMP_LT:
+				cc.b_lt(lbl);
+				break;
+			case CMP_LT|CMP_EQ:
+				cc.b_le(lbl);
+				break;
+			case CMP_EQ:
+				cc.b_eq(lbl);
+				break;
+			case CMP_GT|CMP_LT:
+				cc.b_ne(lbl);
+				break;
+			case CMP_GT|CMP_LT|CMP_EQ:
+				cc.b(lbl);
+				break;
+		}
+	}
+	else if (command == GOTOTRUE)
+	{
+		cc.b_eq(goto_labels[arg1]);
+	}
+	else if (command == GOTOFALSE)
+	{
+		cc.b_ne(goto_labels[arg1]);
+	}
+	else if (command == GOTOMORE)
+	{
+		cc.b_ge(goto_labels[arg1]);
+	}
+	else if (command == GOTOLESS)
+	{
+		if (get_qr(qr_GOTOLESSNOTEQUAL))
+			cc.b_le(goto_labels[arg1]);
+		else
+			cc.b_lt(goto_labels[arg1]);
+	}
+	else
+	{
+		Z_error_fatal("Unimplemented: %s", zasm_op_to_string(command, arg1, arg2, arg3, nullptr, nullptr).c_str());
+	}
+}
+
+// Emits `dest = cond ? value : dest` using the current flags (cmov equivalent).
+static void csel_constant(a64::Compiler& cc, a64::Gp dest, a64::Gp value, a64::CondCode cond)
+{
+	cc.csel(dest, value, dest, cond);
+}
+
+static void compile_compare(CompilationState& state, a64::Compiler& cc, int command, int arg1, int arg2, int arg3)
+{
+	if (command_is_goto(command))
+	{
+		compile_compare_goto(state, cc, command, arg1, arg2, arg3);
+		return;
+	}
+
+	a64::Gp val = cc.newInt32();
+
+	if (command == SETCMP)
+	{
+		bool i10k = (arg2 & CMP_SETI);
+		a64::Gp val2;
+		cc.mov(val, 0);
+		if(i10k)
+		{
+			val2 = cc.newInt32();
+			cc.mov(val2, 10000);
+		}
+		switch(arg2 & CMP_FLAGS)
+		{
+			default:
+				break;
+			case CMP_GT:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kGT);
+				else cc.cset(val, a64::CondCode::kGT);
+				break;
+			case CMP_GT|CMP_EQ:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kGE);
+				else cc.cset(val, a64::CondCode::kGE);
+				break;
+			case CMP_LT:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kLT);
+				else cc.cset(val, a64::CondCode::kLT);
+				break;
+			case CMP_LT|CMP_EQ:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kLE);
+				else cc.cset(val, a64::CondCode::kLE);
+				break;
+			case CMP_EQ:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kEQ);
+				else cc.cset(val, a64::CondCode::kEQ);
+				break;
+			case CMP_GT|CMP_LT:
+				if(i10k)
+					csel_constant(cc, val, val2, a64::CondCode::kNE);
+				else cc.cset(val, a64::CondCode::kNE);
+				break;
+			case CMP_GT|CMP_LT|CMP_EQ:
+				if(i10k)
+					cc.mov(val, 10000);
+				else cc.mov(val, 1);
+				break;
+		}
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETTRUE)
+	{
+		cc.mov(val, 0);
+		cc.cset(val, a64::CondCode::kEQ);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETTRUEI)
+	{
+		cc.mov(val, 0);
+		a64::Gp val2 = imm_to_reg(cc, 10000);
+		csel_constant(cc, val, val2, a64::CondCode::kEQ);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETFALSE)
+	{
+		cc.mov(val, 0);
+		cc.cset(val, a64::CondCode::kNE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETFALSEI)
+	{
+		cc.mov(val, 0);
+		a64::Gp val2 = imm_to_reg(cc, 10000);
+		csel_constant(cc, val, val2, a64::CondCode::kNE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETMOREI)
+	{
+		cc.mov(val, 0);
+		a64::Gp val2 = imm_to_reg(cc, 10000);
+		csel_constant(cc, val, val2, a64::CondCode::kGE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETLESSI)
+	{
+		cc.mov(val, 0);
+		a64::Gp val2 = imm_to_reg(cc, 10000);
+		csel_constant(cc, val, val2, a64::CondCode::kLE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETMORE)
+	{
+		cc.mov(val, 0);
+		cc.cset(val, a64::CondCode::kGE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == SETLESS)
+	{
+		cc.mov(val, 0);
+		cc.cset(val, a64::CondCode::kLE);
+		set_z_register(state, cc, arg1, val);
+	}
+	else if (command == STACKWRITEATVV_IF)
+	{
+		// TODO: needs to check for stack overflow.
+		// Write directly value on the stack (arg1 to offset arg2)
+		auto cmp = arg3 & CMP_FLAGS;
+		switch(cmp) //but only conditionally
+		{
+			case 0:
+				break;
+			case CMP_GT|CMP_LT|CMP_EQ:
+			{
+				a64::Gp value = imm_to_reg(cc, arg1);
+				cc.str(value, stack_mem(state, cc, state.vSp, arg2));
+				break;
+			}
+			default:
+			{
+				// Note: the loads/stores here must not disturb the comparison
+				// flags; ldr/str/mov do not affect NZCV.
+				a64::Mem mem = stack_mem(state, cc, state.vSp, arg2);
+				a64::Gp tmp = cc.newInt32();
+				a64::Gp value = cc.newInt32();
+				cc.ldr(tmp, mem);
+				cc.mov(value, arg1);
+				switch(cmp)
+				{
+					case CMP_GT:
+						csel_constant(cc, tmp, value, a64::CondCode::kGT);
+						break;
+					case CMP_GT|CMP_EQ:
+						csel_constant(cc, tmp, value, a64::CondCode::kGE);
+						break;
+					case CMP_LT:
+						csel_constant(cc, tmp, value, a64::CondCode::kLT);
+						break;
+					case CMP_LT|CMP_EQ:
+						csel_constant(cc, tmp, value, a64::CondCode::kLE);
+						break;
+					case CMP_EQ:
+						csel_constant(cc, tmp, value, a64::CondCode::kEQ);
+						break;
+					case CMP_GT|CMP_LT:
+						csel_constant(cc, tmp, value, a64::CondCode::kNE);
+						break;
+					default:
+						assert(false);
+				}
+				cc.str(tmp, mem);
+			}
+		}
+	}
+	else
+	{
+		Z_error_fatal("[jit ERROR] Unimplemented command: %s", zasm_op_to_string(command, arg1, arg2, arg3, nullptr, nullptr).c_str());
+	}
+}
+
+static void ret_if_not_ok(CompilationState& state, a64::Compiler& cc, a64::Gp reg)
+{
+	Label L_noret = cc.newLabel();
+	cmp_constant(cc, reg, RUNSCRIPT_OK);
+	cc.b_eq(L_noret);
+
+	set_ctx_ret_code(state, cc, reg);
+	cc.b(state.L_End);
+
+	cc.bind(L_noret);
+}
+
+// Defer to the ZASM command interpreter for 1+ commands.
+static void compile_command_interpreter(CompilationState& state, a64::Compiler& cc, zasm_script *script, int count, bool is_wait = false)
+{
+	a64::Gp scriptInstancePtr = get_ctx_script_instance(state, cc);
+	a64::Gp stackIndex = get_tmp_sp(state, cc);
+
+	InvokeNode *invokeNode;
+	if (count == 1)
+	{
+		invoke(cc, &invokeNode, run_script_jit_one, FuncSignature::build<int32_t, JittedScriptInstance*, pc_t, uint32_t>(state.calling_convention));
+		invokeNode->setArg(0, scriptInstancePtr);
+		invokeNode->setArg(1, state.pc);
+		invokeNode->setArg(2, stackIndex);
+	}
+	else
+	{
+		invoke(cc, &invokeNode, run_script_jit_sequence, FuncSignature::build<int32_t, JittedScriptInstance*, pc_t, uint32_t, int32_t>(state.calling_convention));
+		invokeNode->setArg(0, scriptInstancePtr);
+		invokeNode->setArg(1, state.pc);
+		invokeNode->setArg(2, stackIndex);
+		invokeNode->setArg(3, count);
+	}
+
+	if (is_wait)
+	{
+		set_ctx_pc(state, cc, state.pc + 1);
+
+		a64::Gp retVal = cc.newInt32();
+		invokeNode->setRet(0, retVal);
+		cc.mov(state.vResult, EXEC_RESULT_EXIT);
+		// Only wait if the return value is RUNSCRIPT_STOPPED (this supports conditional waits).
+		cmp_constant(cc, retVal, RUNSCRIPT_STOPPED);
+		// If actually waiting, the return value will be RUNSCRIPT_OK. set_ctx_ret_code isn't called
+		// here because RUNSCRIPT_OK is the default value.
+		cc.b_eq(state.L_End);
+
+		cc.bind(state.resume_labels[state.pc]);
+		return;
+	}
+
+	bool could_return_not_ok = false;
+	for (int j = 0; j < count; j++)
+	{
+		int index = state.pc + j;
+		if (command_could_return_not_ok(script->zasm[index].command))
+		{
+			could_return_not_ok = true;
+			break;
+		}
+	}
+
+	if (could_return_not_ok)
+	{
+		a64::Gp retVal = cc.newInt32();
+		invokeNode->setRet(0, retVal);
+		cc.mov(state.vResult, EXEC_RESULT_EXIT);
+		ret_if_not_ok(state, cc, retVal);
+	}
+}
+
+static bool command_is_compiled(int command)
+{
+	if (command_is_wait(command))
+		return true;
+
+	if (command_uses_comparison_result(command))
+		return true;
+
+	switch (command)
+	{
+	// These commands are critical to control flow.
+	case COMPARER:
+	case COMPAREV:
+	case COMPAREV2:
+	case GOTO:
+	case QUIT:
+	case CALLFUNC:
+	case RETURNFUNC:
+
+	// These commands modify the stack pointer, which is just a local copy. If these commands
+	// were not compiled, then vStackIndex would have to be restored after compile_command_interpreter.
+	case POP:
+	case POPARGS:
+	case PUSHR:
+	case PUSHV:
+	case PUSHARGSR:
+	case PUSHARGSV:
+
+	// These can be commented out to instead run interpreted. Useful for
+	// singling out problematic commands.
+	case ABS:
+	case ADDR:
+	case ADDV:
+	case ANDR:
+	case ANDV:
+	case CASTBOOLF:
+	case CASTBOOLI:
+	case DIVR:
+	case DIVV:
+	case LOAD:
+	case LOADD:
+	case LOADI:
+	case MAXR:
+	case MAXV:
+	case MINR:
+	case MINV:
+	case MODR:
+	case MODV:
+	case MULTR:
+	case MULTV:
+	case NOP:
+	case ORR:
+	case ORR32:
+	case ORV:
+	case ORV32:
+	case PEEK:
+	case REF_REMOVE:
+	case SETR:
+	case SETV:
+	case STACKWRITEATVV:
+	case STORE_OBJECT:
+	case STORE:
+	case STORED:
+	case STOREDV:
+	case STOREI:
+	case STOREV:
+	case SUBR:
+	case SUBV:
+	case SUBV2:
+	case BITNOT:
+	case BITNOT32:
+	case LSHIFTV:
+	case LSHIFTV32:
+	case RSHIFTV:
+	case RSHIFTV32:
+	case LSHIFTR:
+	case LSHIFTR32:
+	case RSHIFTR:
+	case RSHIFTR32:
+	case XORR:
+	case XORV:
+	case XORR32:
+	case XORV32:
+	case READPODARRAYR:
+	case READPODARRAYV:
+	case WRITEPODARRAYRR:
+	case WRITEPODARRAYRV:
+	case WRITEPODARRAYVR:
+	case WRITEPODARRAYVV:
+	case WRITEPODARRAY:
+	case ALLOCATEMEMV:
+
+	// Unlike the x64 backend, no CPU feature gate needed: frintp/frintm are
+	// baseline AArch64.
+	case CEILING:
+	case FLOOR:
+		return true;
+	}
+
+	return false;
+}
+
+// Check for stack overflows, but only once per contiguous series of PUSH (or POP) commands.
+static void handle_check_sp_push(CompilationState& state, a64::Compiler& cc, const zasm_script* script)
+{
+	if (state.pc >= state.num_push_commands_in_row_end_pc)
+	{
+		int stack_delta = 1;
+		int max_stack_delta = 1;
+
+		int j = state.pc + 1;
+		for (; j < script->size; j++)
+		{
+			const auto& op = script->zasm[j];
+			if (op.command == PUSHV || op.command == PUSHR)
+			{
+				stack_delta++;
+				max_stack_delta = std::max(max_stack_delta, stack_delta);
+			}
+			else if (op.command == PUSHARGSV || op.command == PUSHARGSR)
+			{
+				stack_delta += op.arg2;
+				max_stack_delta = std::max(max_stack_delta, stack_delta);
+			}
+			else if (op.command == POP)
+			{
+				stack_delta -= 1;
+			}
+			else if (op.command == POPARGS)
+			{
+				stack_delta -= op.arg2;
+			}
+			else if (op.command == NOP)
+			{
+				continue;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		check_sp(state, cc, state.vSp, -max_stack_delta);
+		state.num_push_commands_in_row_end_pc = j;
+	}
+}
+
+// Pushes val onto the stack [amount] times; vSp has already been decremented,
+// so slots [vSp + offset - amount + 1, vSp + offset] are written.
+static void do_stack_push_many(CompilationState& state, a64::Compiler& cc, int offset, int amount, a64::Gp val)
+{
+	if (amount < 8)
+	{
+		for (int i = 0; i < amount; i++)
+			cc.str(val, stack_mem(state, cc, state.vSp, offset - i));
+	}
+	else
+	{
+		// Loop, storing ascending from the lowest slot. The index must be an
+		// unconditional copy: immutable_add_constant would return vSp itself
+		// for a zero adjustment, and the loop mutates the index in place.
+		a64::Gp index = cc.newUInt32();
+		cc.mov(index, state.vSp);
+		add_constant(cc, index, offset - amount + 1);
+		a64::Gp count = imm_to_reg(cc, amount);
+		Label L_loop = cc.newLabel();
+		cc.bind(L_loop);
+		cc.str(val, a64::ptr(state.ptrStackBase, index, a64::uxtw(2)));
+		cc.add(index, index, 1);
+		cc.sub(count, count, 1);
+		cc.cbnz(count, L_loop);
+	}
+}
+
+static void log_error_div_0()
+{
+	scripting_log_error_with_context("Attempted to divide by zero!");
+}
+
+static void log_error_mod_0()
+{
+	scripting_log_error_with_context("Attempted to modulo by zero!");
+}
+
+static a64::Gp compile_modv(CompilationState& state, a64::Compiler& cc, a64::Gp arg1, int arg2)
+{
+	if (arg2 == 0)
+	{
+		a64::Gp val = imm_to_reg(cc, 0);
+
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, log_error_mod_0, FuncSignature::build<void>(state.calling_convention));
+		return val;
+	}
+
+	if (arg2 == -1)
+	{
+		// x % -1 is always 0.
+		return imm_to_reg(cc, 0);
+	}
+
+	if (arg2 == 1)
+	{
+		// x % 1 masks to 0 (see power-of-2 case below); a zero mask is not an
+		// encodable AArch64 logical immediate, so produce the 0 directly.
+		return imm_to_reg(cc, 0);
+	}
+
+	if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
+	{
+		// Power of 2. Same masking behavior as the x64 backend (which differs
+		// from C % for negative dividends; kept for parity - fixed-point
+		// values mean this is essentially never hit).
+		cc.and_(arg1, arg1, arg2 - 1);
+		return arg1;
+	}
+	else
+	{
+		// rem = arg1 - (arg1 / divisor) * divisor. sdiv rounds toward zero,
+		// so this matches C (and x86 idiv) remainder semantics.
+		a64::Gp divisor = imm_to_reg(cc, arg2);
+		a64::Gp quot = cc.newInt32();
+		a64::Gp rem = cc.newInt32();
+		cc.sdiv(quot, arg1, divisor);
+		cc.msub(rem, quot, divisor, arg1);
+		return rem;
+	}
+}
+
+// Computes (base + value) / 10000 into a fresh register for a stack offset.
+// div_10000 mutates its operand in place and `base` may be shared (e.g. a
+// register from get_z_register), so it is always copied first.
+static a64::Gp compute_stack_offset(a64::Compiler& cc, a64::Gp base, int value)
+{
+	a64::Gp offset = cc.newInt32();
+	cc.mov(offset, base);
+	add_constant(cc, offset, value);
+	div_10000(cc, offset);
+	return offset;
+}
+
+// Every command here must be reflected in command_is_compiled!
+static void compile_single_command(CompilationState& state, a64::Compiler& cc, const ffscript& instr, zasm_script *script)
+{
+	int command = instr.command;
+	int arg1 = instr.arg1;
+	int arg2 = instr.arg2;
+
+	switch (command)
+	{
+		case NOP:
+			break;
+		case QUIT:
+		{
+			compile_command_interpreter(state, cc, script, 1);
+			cc.mov(state.vResult, EXEC_RESULT_EXIT);
+			set_ctx_ret_code(state, cc, RUNSCRIPT_STOPPED);
+			cc.b(state.L_End);
+		}
+		break;
+		case GOTO:
+		{
+			if (arg1 >= (int)state.start_pc && arg1 <= (int)state.final_pc)
+			{
+				cc.b(state.goto_labels[arg1]);
+			}
+			else
+			{
+				// Mostly all GOTOs should be within the same function. The only exception is the
+				// end of the compiler-generated Init script (the part that sets up globals). When
+				// that section ends, it unconditionally jumps to the user-defined init script.
+				set_ctx_pc(state, cc, arg1);
+				cc.mov(state.vResult, EXEC_RESULT_CONTINUE);
+				cc.b(state.L_End);
+			}
+		}
+		break;
+		case CALLFUNC:
+		{
+			set_ctx_pc(state, cc, state.pc);
+			set_ctx_call_pc(state, cc, arg1);
+			if (state.modified_stack)
+				set_ctx_sp(state, cc, state.vSp);
+			cc.mov(state.vResult, EXEC_RESULT_CALL);
+			cc.b(state.L_End);
+			if (state.pc != state.final_pc)
+				cc.bind(state.resume_labels[state.pc]);
+		}
+		break;
+		case RETURNFUNC:
+		{
+			if (state.modified_stack)
+				set_ctx_sp(state, cc, state.vSp);
+			cc.mov(state.vResult, EXEC_RESULT_RETURN);
+			cc.b(state.L_End);
+		}
+		break;
+		case PUSHV:
+		{
+			handle_check_sp_push(state, cc, script);
+
+			modify_sp(state, cc, state.vSp, -1);
+			a64::Gp val = imm_to_reg(cc, arg1);
+			cc.str(val, stack_mem(state, cc, state.vSp));
+		}
+		break;
+		case PUSHR:
+		{
+			handle_check_sp_push(state, cc, script);
+
+			// Grab value from register and push onto stack.
+			a64::Gp val = get_z_register(state, cc, arg1);
+			modify_sp(state, cc, state.vSp, -1);
+			cc.str(val, stack_mem(state, cc, state.vSp));
+		}
+		break;
+		case PUSHARGSR:
+		{
+			handle_check_sp_push(state, cc, script);
+
+			if(arg2 < 1) break; //do nothing
+
+			a64::Gp val = get_z_register(state, cc, arg1);
+			modify_sp(state, cc, state.vSp, -arg2);
+			do_stack_push_many(state, cc, arg2 - 1, arg2, val);
+		}
+		break;
+		case PUSHARGSV:
+		{
+			handle_check_sp_push(state, cc, script);
+
+			if(arg2 < 1) break; //do nothing
+
+			a64::Gp val = imm_to_reg(cc, arg1);
+			modify_sp(state, cc, state.vSp, -arg2);
+			do_stack_push_many(state, cc, arg2 - 1, arg2, val);
+		}
+		break;
+		case POP:
+		{
+			a64::Gp val = cc.newInt32();
+			cc.ldr(val, stack_mem(state, cc, state.vSp));
+			modify_sp(state, cc, state.vSp, 1);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		// Note: I'm pretty sure this always POPs to D5, which is the null register and can be
+		// ignored.
+		case POPARGS:
+		{
+			// int32_t num = sarg2;
+			// ri->sp += num;
+			modify_sp(state, cc, state.vSp, arg2);
+
+			// word read = ri->sp - 1;
+			a64::Gp read = cc.newUInt32();
+			cc.mov(read, state.vSp);
+			cc.sub(read, read, 1);
+
+			check_sp(state, cc, read);
+
+			// int32_t value = SH::read_stack(read);
+			// set_register(sarg1, value);
+			if (arg1 != D(5) || state.runtime_debugging) // Skip setting the "null" register (unless runtime debugging).
+			{
+				a64::Gp val = cc.newInt32();
+				cc.ldr(val, stack_mem(state, cc, read));
+				set_z_register(state, cc, arg1, val);
+			}
+		}
+		break;
+		case STACKWRITEATVV:
+		{
+			// TODO: needs to check for stack overflow.
+			// Write directly value on the stack (arg1 to offset arg2)
+			a64::Gp value = imm_to_reg(cc, arg1);
+			cc.str(value, stack_mem(state, cc, state.vSp, arg2));
+		}
+		break;
+		case SETV:
+		{
+			// For test_jit_runtime_debug_test.
+			static bool jit_runtime_debug_test_force_bug = get_flag_bool("-jit-runtime-debug-test-force-bug").value_or(false);
+			if (jit_runtime_debug_test_force_bug) arg2++;
+
+			// Set register to immediate value.
+			set_z_register(state, cc, arg1, arg2);
+		}
+		break;
+		case SETR:
+		{
+			// Set register arg1 to value of register arg2.
+			a64::Gp val = get_z_register(state, cc, arg2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LOAD:
+		{
+			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp sframe = get_z_register(state, cc, rSFRAME);
+			set_z_register(state, cc, arg1, stack_mem(state, cc, sframe, arg2));
+		}
+		break;
+		case LOADD:
+		{
+			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			set_z_register(state, cc, arg1, stack_mem(state, cc, offset));
+		}
+		break;
+		case LOADI:
+		{
+			// Set register to a value on the stack (offset is register at arg2).
+			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
+			set_z_register(state, cc, arg1, stack_mem(state, cc, offset));
+		}
+		break;
+		case REF_REMOVE:
+		{
+			a64::Gp sframe = get_z_register(state, cc, rSFRAME);
+			a64::Gp offset = immutable_add_constant(cc, sframe, arg1);
+
+			InvokeNode *invokeNode;
+			void script_remove_object_ref(int32_t offset);
+			invoke(cc, &invokeNode, script_remove_object_ref, FuncSignature::build<void, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+		}
+		break;
+		case STORE:
+		{
+			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp sframe = get_z_register(state, cc, rSFRAME);
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cc.str(val, stack_mem(state, cc, sframe, arg2));
+		}
+		break;
+		case STORE_OBJECT:
+		{
+			// Same as STORE, but for a ref-counted object.
+			a64::Gp sframe = get_z_register(state, cc, rSFRAME);
+			a64::Gp offset = immutable_add_constant(cc, sframe, arg2);
+
+			a64::Gp val = get_z_register(state, cc, arg1);
+
+			InvokeNode *invokeNode;
+			void script_store_object(uint32_t offset, uint32_t new_id);
+			invoke(cc, &invokeNode, script_store_object, FuncSignature::build<void, uint32_t, uint32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+			invokeNode->setArg(1, val);
+		}
+		break;
+		case STOREV:
+		{
+			// Write directly value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp sframe = get_z_register(state, cc, rSFRAME);
+			a64::Gp val = imm_to_reg(cc, arg1);
+			cc.str(val, stack_mem(state, cc, sframe, arg2));
+		}
+		break;
+		case STORED:
+		{
+			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cc.str(val, stack_mem(state, cc, offset));
+		}
+		break;
+		case STOREDV:
+		{
+			// Write directly value on the stack (offset is arg2 + rSFRAME register).
+			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			a64::Gp val = imm_to_reg(cc, arg1);
+			cc.str(val, stack_mem(state, cc, offset));
+		}
+		break;
+		case STOREI:
+		{
+			// Write from register to a value on the stack (offset is register at arg2).
+			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cc.str(val, stack_mem(state, cc, offset));
+		}
+		break;
+		case PEEK:
+		{
+			a64::Gp val = cc.newInt32();
+			cc.ldr(val, stack_mem(state, cc, state.vSp));
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ABS:
+		{
+			// Wraps for INT_MIN, same as the x64 backend's sar/xor/sub sequence.
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cc.cmp(val, 0);
+			cc.cneg(val, val, a64::CondCode::kLT);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case CASTBOOLI:
+		{
+			// val = val ? 10000 : 0
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			cc.cmp(val, 0);
+			cc.csel(val, ten_k, a64::wzr, a64::CondCode::kNE);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case CASTBOOLF:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cast_bool(cc, val);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ADDV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			add_constant(cc, val, arg2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ADDR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.add(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case MAXR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.cmp(val2, val);
+			cc.csel(val, val2, val, a64::CondCode::kGE);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case MAXV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2);
+			cc.cmp(val2, val);
+			cc.csel(val, val2, val, a64::CondCode::kGE);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case MINR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.cmp(val, val2);
+			cc.csel(val, val2, val, a64::CondCode::kGE);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case MINV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2);
+			cc.cmp(val, val2);
+			cc.csel(val, val2, val, a64::CondCode::kGE);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case SUBV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			add_constant(cc, val, -arg2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case SUBR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.sub(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case SUBV2:
+		{
+			a64::Gp val = get_z_register(state, cc, arg2);
+			a64::Gp result = imm_to_reg(cc, arg1);
+			cc.sub(result, result, val);
+			set_z_register(state, cc, arg2, result);
+		}
+		break;
+		case ANDV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			cc.and_(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ANDR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			div_10000(cc, val2);
+			cc.and_(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			cc.orr(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			div_10000(cc, val2);
+			cc.orr(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORR32:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.orr(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case ORV32:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2);
+			cc.orr(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORV:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			cc.eor(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORR:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+
+			div_10000(cc, val);
+			div_10000(cc, val2);
+			cc.eor(val, val, val2);
+			cc.mul(val, val, ten_k);
+
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORR32:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+			cc.eor(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case XORV32:
+		{
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp val2 = imm_to_reg(cc, arg2);
+			cc.eor(val, val, val2);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case BITNOT:
+		{
+			// reg = (~(reg / 10000)) * 10000
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			div_10000(cc, val);
+			cc.mvn(val, val);
+			cc.mul(val, val, ten_k);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case BITNOT32:
+		{
+			// reg = ~reg
+			a64::Gp val = get_z_register(state, cc, arg1);
+			cc.mvn(val, val);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTV:
+		case RSHIFTV:
+		{
+			// reg = ((reg / 10000) <</>> k) * 10000, where k is the shift count.
+			// The interpreter's `<<`/`>>` compile to shifts that mask the count
+			// to 5 bits on both x86 and AArch64 (for 32-bit operands), so the
+			// mask here matches; `>>` on a signed int is arithmetic.
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			div_10000(cc, val);
+			int k = (arg2 / 10000) & 31;
+			if (k)
+			{
+				if (command == LSHIFTV) cc.lsl(val, val, k);
+				else cc.asr(val, val, k);
+			}
+			cc.mul(val, val, ten_k);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTV32:
+		case RSHIFTV32:
+		{
+			// reg = reg <</>> k (raw, no fixed-point scaling on the value).
+			a64::Gp val = get_z_register(state, cc, arg1);
+			int k = (arg2 / 10000) & 31;
+			if (k)
+			{
+				if (command == LSHIFTV32) cc.lsl(val, val, k);
+				else cc.asr(val, val, k);
+			}
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTR:
+		case RSHIFTR:
+		{
+			// reg = ((reg / 10000) <</>> (count / 10000)) * 10000, count is a register.
+			// AArch64 register shifts on 32-bit operands use count mod 32, same
+			// as x86's 5-bit CL mask, so behavior matches the x64 backend.
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp count = get_z_register(state, cc, arg2);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			div_10000(cc, val);
+			div_10000(cc, count);
+			if (command == LSHIFTR) cc.lsl(val, val, count);
+			else cc.asr(val, val, count);
+			cc.mul(val, val, ten_k);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case LSHIFTR32:
+		case RSHIFTR32:
+		{
+			// reg = reg <</>> (count / 10000) (raw value, count is a register).
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp count = get_z_register(state, cc, arg2);
+			div_10000(cc, count);
+			if (command == LSHIFTR32) cc.lsl(val, val, count);
+			else cc.asr(val, val, count);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case MODV:
+		{
+			a64::Gp result = compile_modv(state, cc, get_z_register(state, cc, arg1), arg2);
+			set_z_register(state, cc, arg1, result);
+		}
+		break;
+		case MODR:
+		{
+			a64::Gp dividend = get_z_register(state, cc, arg1);
+			a64::Gp divisor = get_z_register(state, cc, arg2);
+
+			Label do_modulo = cc.newLabel();
+			Label do_set_register = cc.newLabel();
+
+			a64::Gp rem = imm_to_reg(cc, 0);
+
+			cc.cbnz(divisor, do_modulo);
+
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, log_error_mod_0, FuncSignature::build<void>(state.calling_convention));
+			cc.b(do_set_register);
+
+			cc.bind(do_modulo);
+			// x % -1 is always 0 (rem is already 0). On AArch64 sdiv+msub would
+			// compute 0 for INT_MIN % -1 anyway, but branch like the x64
+			// backend for identical structure. cmp_constant handles -1, which
+			// is not a valid bare cmp immediate on AArch64.
+			cmp_constant(cc, divisor, -1);
+			cc.b_eq(do_set_register);
+			a64::Gp quot = cc.newInt32();
+			cc.sdiv(quot, dividend, divisor);
+			cc.msub(rem, quot, divisor, dividend);
+
+			cc.bind(do_set_register);
+			set_z_register(state, cc, arg1, rem);
+		}
+		break;
+		case MULTV:
+		{
+			a64::Gp val = get_z_register_64(state, cc, arg1);
+			a64::Gp val2 = cc.newInt64();
+			cc.mov(val2, arg2);
+			cc.mul(val, val, val2);
+			div_10000(cc, val);
+			set_z_register(state, cc, arg1, val.w());
+		}
+		break;
+		case MULTR:
+		{
+			a64::Gp val = get_z_register_64(state, cc, arg1);
+			a64::Gp val2 = get_z_register_64(state, cc, arg2);
+			cc.mul(val, val, val2);
+			div_10000(cc, val);
+			set_z_register(state, cc, arg1, val.w());
+		}
+		break;
+		case DIVV:
+		{
+			// Note: like the x64 backend, no zero guard for a constant divisor
+			// (the compiler never emits DIVV 0).
+			a64::Gp dividend = get_z_register_64(state, cc, arg1);
+			a64::Gp ten_k = cc.newInt64();
+			cc.mov(ten_k, 10000);
+			cc.mul(dividend, dividend, ten_k);
+			a64::Gp divisor = cc.newInt64();
+			cc.mov(divisor, arg2);
+			cc.sdiv(dividend, dividend, divisor);
+			set_z_register(state, cc, arg1, dividend.w());
+		}
+		break;
+		case DIVR:
+		{
+			a64::Gp dividend = get_z_register_64(state, cc, arg1);
+			a64::Gp divisor = get_z_register_64(state, cc, arg2);
+
+			Label do_division = cc.newLabel();
+			Label do_set_register = cc.newLabel();
+
+			cc.cbnz(divisor, do_division);
+
+			// Division by zero: log an error and produce sign(dividend) * MAX_SIGNED_32,
+			// exactly like the x64 backend and the interpreter.
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, log_error_div_0, FuncSignature::build<void>(state.calling_convention));
+
+			a64::Gp sign = cc.newInt64();
+			cc.asr(sign, dividend, 63);
+			a64::Gp one = cc.newInt64();
+			cc.mov(one, 1);
+			cc.orr(sign, sign, one);
+			a64::Gp max_signed = imm_to_reg(cc, MAX_SIGNED_32);
+			cc.mul(dividend.w(), sign.w(), max_signed);
+			cc.b(do_set_register);
+
+			// Else do the actual division.
+			cc.bind(do_division);
+			a64::Gp ten_k = cc.newInt64();
+			cc.mov(ten_k, 10000);
+			cc.mul(dividend, dividend, ten_k);
+			cc.sdiv(dividend, dividend, divisor);
+
+			cc.bind(do_set_register);
+			set_z_register(state, cc, arg1, dividend.w());
+		}
+		break;
+		case READPODARRAYR:
+		case READPODARRAYV:
+		{
+			// reg[arg1] = array[rINDEX][index]. Calls a helper for the bounds-checked
+			// access; the array pointer (rINDEX) and index are passed as arguments.
+			a64::Gp arrayptr = get_z_register(state, cc, rINDEX);
+			a64::Gp index;
+			if (command == READPODARRAYR)
+			{
+				// Copy before div_10000 so the source register isn't corrupted.
+				index = cc.newInt32();
+				cc.mov(index, get_z_register(state, cc, arg2));
+				div_10000(cc, index);
+			}
+
+			a64::Gp result = cc.newInt32();
+			InvokeNode* node;
+			invoke(cc, &node, jit_pod_read, FuncSignature::build<int32_t, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arrayptr);
+			if (command == READPODARRAYR)
+				node->setArg(1, index);
+			else
+				node->setArg(1, arg2 / 10000);
+			node->setArg(2, state.pc);
+			node->setArg(3, 0); // no_neg: honor the negative-index QR
+			node->setRet(0, result);
+			set_z_register(state, cc, arg1, result);
+		}
+		break;
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+		{
+			// array[rINDEX][index] = value. First letter of the suffix is the index
+			// operand kind, second is the value operand kind (R=register, V=immediate).
+			bool index_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYRV;
+			bool value_is_reg = command == WRITEPODARRAYRR || command == WRITEPODARRAYVR;
+
+			a64::Gp arrayptr = get_z_register(state, cc, rINDEX);
+			a64::Gp index;
+			if (index_is_reg)
+			{
+				// Copy before div_10000 so the source register isn't corrupted.
+				index = cc.newInt32();
+				cc.mov(index, get_z_register(state, cc, arg1));
+				div_10000(cc, index);
+			}
+			a64::Gp value;
+			if (value_is_reg)
+				value = get_z_register(state, cc, arg2);
+
+			InvokeNode* node;
+			invoke(cc, &node, jit_pod_write, FuncSignature::build<void, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arrayptr);
+			if (index_is_reg) node->setArg(1, index); else node->setArg(1, arg1 / 10000);
+			if (value_is_reg) node->setArg(2, value); else node->setArg(2, arg2);
+			node->setArg(3, instr.arg3);
+			node->setArg(4, state.pc);
+			node->setArg(5, 0); // no_neg: honor the negative-index QR
+		}
+		break;
+		case WRITEPODARRAY:
+		{
+			// Bulk-initialize array (reg arg1) from the instruction's constant vector.
+			a64::Gp id = get_z_register(state, cc, arg1);
+			InvokeNode* node;
+			invoke(cc, &node, jit_writepodarr, FuncSignature::build<void, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, id);
+			node->setArg(1, state.pc);
+		}
+		break;
+		case ALLOCATEMEMV:
+		{
+			// reg[arg1] = allocate(size=arg2/10000, object_type=arg3).
+			a64::Gp result = cc.newInt32();
+			InvokeNode* node;
+			invoke(cc, &node, jit_allocatemem, FuncSignature::build<int32_t, int32_t, int32_t, int32_t>(state.calling_convention));
+			node->setArg(0, arg2 / 10000);
+			node->setArg(1, instr.arg3);
+			node->setArg(2, state.pc);
+			node->setRet(0, result);
+			set_z_register(state, cc, arg1, result);
+		}
+		break;
+		case FLOOR:
+		case CEILING:
+		{
+			// reg = round(reg * 1e-4) * 10000, rounding toward -inf (FLOOR) or
+			// +inf (CEILING). Same operations as the x64 backend (cvtsi2sd /
+			// mulsd / roundsd / cvttsd2si): every step is IEEE-identical, and
+			// the truncating final conversion is exact because the value is
+			// already integral after frintm/frintp.
+			a64::Gp val = get_z_register(state, cc, arg1);
+			a64::Gp bits = cc.newInt64();
+			cc.mov(bits, (int64_t)4547007122018943789LL); // 1e-4
+			a64::Vec scale = cc.newVecD();
+			cc.fmov(scale, bits);
+			a64::Vec y = cc.newVecD();
+			cc.scvtf(y, val);
+			cc.fmul(y, y, scale);
+			if (command == FLOOR)
+				cc.frintm(y, y);
+			else
+				cc.frintp(y, y);
+			cc.fcvtzs(val, y);
+			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			cc.mul(val, val, ten_k);
+			set_z_register(state, cc, arg1, val);
+		}
+		break;
+		case COMPAREV:
+		{
+			int val = arg2;
+			a64::Gp val2 = get_z_register(state, cc, arg1);
+
+			if (script->zasm[state.pc + 1].command == GOTOCMP || script->zasm[state.pc + 1].command == SETCMP)
+			{
+				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
+			cmp_constant(cc, val2, val);
+		}
+		break;
+		case COMPAREV2:
+		{
+			int val = arg1;
+			a64::Gp val2 = get_z_register(state, cc, arg2);
+
+			if (script->zasm[state.pc + 1].command == GOTOCMP || script->zasm[state.pc + 1].command == SETCMP)
+			{
+				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
+			// This is a little silly. Could instead do `cmp(val2, val)`, but would have to teach
+			// compile_compare to invert the conditional instruction it emits.
+			a64::Gp val1 = imm_to_reg(cc, val);
+			cc.cmp(val1, val2);
+		}
+		break;
+		case COMPARER:
+		{
+			a64::Gp val = get_z_register(state, cc, arg2);
+			a64::Gp val2 = get_z_register(state, cc, arg1);
+
+			if (script->zasm[state.pc + 1].command == GOTOCMP || script->zasm[state.pc + 1].command == SETCMP)
+			{
+				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
+				{
+					cast_bool(cc, val);
+					cast_bool(cc, val2);
+				}
+			}
+
+			cc.cmp(val2, val);
+		}
+		break;
+		default:
+		{
+			Z_error_fatal("[jit ERROR] Unimplemented command: %s", zasm_op_to_string(command, arg1, arg2, instr.arg3, nullptr, nullptr).c_str());
+		}
+	}
+}
+
+std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn)
+{
+	pc_t start_pc = fn.start_pc;
+	pc_t final_pc = fn.final_pc;
+
+	size_t size_no_nops = 0;
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		if (script->zasm[i].command != NOP)
+			size_no_nops += 1;
+	}
+
+	// ~170k is the largest function I've seen (from Yuurand, but if optimizer is on that script is ~100k).
+	if (size_no_nops > 150000)
+	{
+		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+		return std::nullopt;
+	}
+
+	std::chrono::steady_clock::time_point start_time, end_time;
+	start_time = std::chrono::steady_clock::now();
+
+	bool runtime_debugging = script_debug_is_runtime_debugging() == 2;
+
+	CompilationState state{
+		.script = script,
+		.j_script = j_script,
+		.start_pc = start_pc,
+		.final_pc = final_pc,
+		.runtime_debugging = runtime_debugging,
+	};
+
+	CodeHolder code;
+	JittedFunctionImpl compiled_fn;
+
+	static bool jit_env_test = get_flag_bool("-jit-env-test").value_or(false);
+	state.calling_convention = CallConvId::kHost;
+	if (jit_env_test)
+	{
+		// This is only for testing purposes, to ensure the same output regardless of
+		// the host machine. Used by test_jit.py
+		Environment env{};
+		env._arch = Arch::kAArch64;
+		env._platform = Platform::kOSX;
+		env._platformABI = PlatformABI::kGNU;
+		env._objectFormat = ObjectFormat::kJIT;
+		code.init(env);
+		state.calling_convention = CallConvId::kCDecl;
+	}
+	else
+	{
+		code.init(rt.environment());
+	}
+
+	MyErrorHandler myErrorHandler;
+	code.setErrorHandler(&myErrorHandler);
+
+	StringLogger logger;
+	if (DEBUG_JIT_PRINT_ASM)
+		code.setLogger(&logger);
+
+	jit_printf("[jit] compile function start (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+
+	a64::Compiler cc(&code);
+
+	// Create control flow labels.
+	for (size_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		if (command_is_goto(command))
+		{
+			int pc = script->zasm[i].arg1;
+			if (pc >= (int)start_pc && pc <= (int)final_pc)
+				state.goto_labels[pc] = cc.newLabel();
+		}
+		else if (command == CALLFUNC)
+		{
+			// If the last command in a function, it will never return.
+			if (i != final_pc)
+				state.resume_labels[i] = cc.newLabel();
+		}
+		else if (command_is_wait(command))
+		{
+			state.resume_labels[i] = cc.newLabel();
+		}
+	}
+
+	auto fnNode = cc.addFunc(FuncSignature::build<int, JittedExecutionContext*>(state.calling_convention));
+	state.ptrCtx = cc.newIntPtr("ctx");
+	fnNode->setArg(0, state.ptrCtx);
+
+	// These are plain virtual registers; asmjit's allocator handles them across
+	// the whole function. (An earlier version pinned physical callee-saved
+	// registers to survive an indirect-branch resume edge, but the resume
+	// dispatch is now ordinary pc-comparison branches, so the allocator can
+	// reconcile virtual registers across it normally.)
+	state.ptrRegisters = cc.newIntPtr("registers");
+	cc.ldr(state.ptrRegisters, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, registers)));
+
+	state.ptrStackBase = cc.newIntPtr("stack_base");
+	cc.ldr(state.ptrStackBase, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, stack_base)));
+
+	state.vSp = cc.newUInt32("sp");
+	cc.ldr(state.vSp, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, sp)));
+
+	// A SWITCHKEY read can occur linearly before any write (e.g. a branch
+	// target that saves the outer switch's key). The x64 backend gets away
+	// with an uninitialized virtual register there; the a64 emitter rejects
+	// the invalid operand, so give it a defined start value.
+	state.vSwitchKey = cc.newInt32("switch_key");
+	cc.mov(state.vSwitchKey, 0);
+
+	state.vResult = cc.newUInt32("result");
+	state.L_End = cc.newLabel();
+
+	// If resuming after a call or wait, dispatch to the resume label. The x64
+	// backend uses an indirect branch through a JumpAnnotation
+	// (ctx->resume_address holds the native address); asmjit's AArch64 Compiler
+	// miscompiles that pattern (the control flow around the annotation targets
+	// collapses to a branch-to-self), so instead compare ctx->pc against each
+	// resume point directly. A resume label bound at the command with pc K is
+	// entered when execution resumes at K+1 (the interpreter sets ctx->pc there
+	// after the call/wait completes). These direct branches also keep the
+	// resume blocks reachable, so no annotation is needed.
+	if (!state.resume_labels.empty())
+	{
+		a64::Gp pc_reg = cc.newInt32("resume_pc");
+		cc.ldr(pc_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, pc)));
+		for (auto& [k, label] : state.resume_labels)
+		{
+			cmp_constant(cc, pc_reg, k + 1);
+			cc.b_eq(label);
+		}
+	}
+
+	// cc.setInlineComment does not make a copy of the string, so we need to keep
+	// comment strings around a bit longer than the invocation.
+	std::string comment;
+	std::map<int, int> uncompiled_command_counts;
+
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		state.pc = i;
+
+		const auto& op = script->zasm[i];
+		int command = op.command;
+
+		if (state.goto_labels.contains(i))
+		{
+			cc.bind(state.goto_labels[i]);
+		}
+
+		if (DEBUG_JIT_PRINT_ASM && j_script->structured_zasm.start_pc_to_function.contains(i))
+		{
+			cc.setInlineComment((comment = fmt::format("function {}", j_script->structured_zasm.start_pc_to_function[i])).c_str());
+			cc.nop();
+		}
+
+		if (DEBUG_JIT_PRINT_ASM)
+		{
+			cc.setInlineComment((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
+			cc.nop();
+		}
+
+		// Debugging tool used by scripts/jit_runtime_debug.py.
+		//
+		// We can't invoke functions between COMPARE and the instructions that use the comparison result,
+		// because that would destroy NZCV. So we must skip the debug printout for these instructions,
+		// which results in them being grouped together in the output and the stack/register trace being
+		// printed just once for the entire group of instructions.
+		if (runtime_debugging && !command_uses_comparison_result(command))
+		{
+			a64::Gp sp = get_tmp_sp(state, cc);
+
+			InvokeNode *invokeNode;
+			invoke(cc, &invokeNode, debug_pre_command, FuncSignature::build<void, int32_t, uint32_t>(state.calling_convention));
+			invokeNode->setArg(0, i);
+			invokeNode->setArg(1, sp);
+		}
+
+		if (command_uses_comparison_result(command))
+		{
+			compile_compare(state, cc, command, op.arg1, op.arg2, op.arg3);
+			continue;
+		}
+
+		if (command_is_wait(command))
+		{
+			// This returns only if actually waiting (some wait commands may be deemed invalid and
+			// ignored, so waiting is conditional).
+			compile_command_interpreter(state, cc, script, 1, true);
+			continue;
+		}
+
+		if (!command_is_compiled(command))
+		{
+			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
+				uncompiled_command_counts[command]++;
+
+			// Every command that is not compiled to assembly must go through the regular interpreter function.
+			// In order to reduce function call overhead, we call into the interpreter function in batches.
+			int uncompiled_command_count = 1;
+			for (pc_t j = i + 1; j <= final_pc; j++)
+			{
+				if (command_is_compiled(script->zasm[j].command))
+					break;
+				if (state.goto_labels.contains(j))
+					break;
+
+				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
+					uncompiled_command_counts[script->zasm[j].command]++;
+
+				uncompiled_command_count += 1;
+				if (DEBUG_JIT_PRINT_ASM)
+				{
+					const auto& op = script->zasm[j];
+					std::string op_str = zasm_op_to_string(op);
+					cc.setInlineComment((comment = fmt::format("{} {}", j, op_str)).c_str());
+					cc.nop();
+				}
+			}
+
+			compile_command_interpreter(state, cc, script, uncompiled_command_count);
+			i += uncompiled_command_count - 1;
+			continue;
+		}
+
+		compile_single_command(state, cc, op, script);
+	}
+
+	if (DEBUG_JIT_PRINT_ASM)
+	{
+		cc.setInlineComment("fall-thru");
+		cc.nop();
+	}
+
+	if (fn.id == j_script->structured_zasm.functions.back().id)
+	{
+		// The last command for the last function is 0xFFFF. But, it's not included as part of the
+		// function bounds (final_pc will be the one just before it–see zasm_construct_structured).
+		// Global init scripts rely on this to actually end the script.
+		set_ctx_ret_code(state, cc, RUNSCRIPT_STOPPED);
+		cc.mov(state.vResult, EXEC_RESULT_EXIT);
+	}
+	else
+	{
+		cc.mov(state.vResult, EXEC_RESULT_UNKNOWN);
+	}
+
+	// The single function epilog. All exits (QUIT, CALLFUNC, RETURNFUNC, stack
+	// overflow, fall-through) branch here so there is exactly one ret; asmjit
+	// restores callee-saved registers as part of the return.
+	cc.bind(state.L_End);
+
+	if (state.modified_stack)
+		set_ctx_sp(state, cc, state.vSp);
+
+	cc.ret(state.vResult);
+
+	// Gate on the virtual register count, bailing to the interpreter for
+	// extremely register-heavy functions before finalize. This is not needed
+	// for correctness: when a function's spill frame outgrows what AArch64
+	// load/store offsets can encode, emission reports InvalidDisplacement and
+	// the had_error check below discards the function (functions up to ~8500
+	// registers have been verified to compile and run correctly). The gate just
+	// skips the wasted compile time for far larger functions, which risk
+	// outgrowing the encodable spill-frame range and being discarded anyway
+	// (observed with a ~67k register function).
+	static size_t max_virt_regs = get_flag_int("-jit-a64-max-vregs").value_or(10000);
+	if (cc.virtRegs().size() > max_virt_regs)
+	{
+		jit_printf("[jit] not compiling function, too many registers (name: %s, start: %d, regs: %u)\n", fn.name().c_str(), start_pc, cc.virtRegs().size());
+		return std::nullopt;
+	}
+
+	cc.endFunc();
+	cc.finalize();
+
+	if (myErrorHandler.had_error)
+	{
+		// Emission hit an error; the generated code is unusable, so fall back
+		// to the interpreter. A spill frame too large to encode is an expected
+		// capacity limit and stays quiet; anything else is a codegen bug, and
+		// jit_error makes it abort under -jit-fatal-compile-errors (CI).
+		if (myErrorHandler.only_capacity_errors)
+			jit_printf("[jit] not compiling function, spill frame too large (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+		else
+			jit_error("[jit ERROR] discarding function due to emit error (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+		return std::nullopt;
+	}
+
+	Error err = rt.add(&compiled_fn, &code);
+	if (err)
+	{
+		jit_error("[jit ERROR] compile function failed: %s (name: %s, start: %d)\n", asmjit::DebugUtils::errorAsString(err), fn.name().c_str(), start_pc);
+		return std::nullopt;
+	}
+	else if (jit_env_test)
+	{
+		jit_printf("discarding compiled function because of -jit-env-test\n");
+		return std::nullopt;
+	}
+
+	uintptr_t base = code.baseAddress();
+
+	std::map<pc_t, uintptr_t> pc_to_resume_address;
+	for (const auto& it : state.resume_labels)
+	{
+		pc_to_resume_address[it.first] = base + code.labelOffsetFromBase(it.second);
+	}
+
+	end_time = std::chrono::steady_clock::now();
+	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+
+	jit_printf("[jit] compile function end   (name: %s, start: %d, len: %zu, ms: %d)\n", fn.name().c_str(), start_pc, size_no_nops, compile_ms);
+
+	if (auto debug_handle = j_script->debug_handle.get())
+	{
+		debug_handle->printf("function:           %s\n", fn.name().c_str());
+		debug_handle->printf("start pc:           %d\n", start_pc);
+		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
+		debug_handle->printf("Code size:          %.1f kb\n", code.codeSize() / 1024.0);
+		debug_handle->printf("ZASM instructions:  %zu\n", size_no_nops);
+		debug_handle->print("\n");
+
+		if (!uncompiled_command_counts.empty())
+		{
+			debug_handle->print("=== uncompiled commands:\n");
+			for (auto &it : uncompiled_command_counts)
+			{
+				debug_handle->printf("%s: %d\n", zasm_op_to_string(it.first).c_str(), it.second);
+			}
+			debug_handle->print("\n");
+		}
+
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			"\nasmjit log / assembly:\n\n");
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			logger.data());
+		debug_handle->print("\n");
+
+		debug_handle->update_file();
+	}
+
+	JittedFunction j_fn{
+		.exec = compiled_fn,
+		.id = fn.id,
+		.pc_to_resume_address = std::move(pc_to_resume_address),
+	};
+	return j_fn;
+}
