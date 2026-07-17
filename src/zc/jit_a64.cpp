@@ -1924,6 +1924,47 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 	}
 }
 
+// Hooks for the shared emit loop (jit_emit_function_body in
+// jit_native_shared.h).
+struct LoopOps
+{
+	CompilationState& state;
+	a64::Compiler& cc;
+	zasm_script* script;
+	JittedScript* j_script;
+
+	void set_pc(pc_t i) { state.pc = i; }
+	void cache_flush_policy(pc_t i, pc_t block_id, bool is_block_start)
+	{
+		// All emission in the policy is str only, so a comparison result in
+		// NZCV survives it.
+		CacheOps ops{state, cc};
+		jit_reg_cache_flush_policy(ops, state.dreg_cache, j_script, script, i, block_id, is_block_start);
+	}
+	void loop_extras([[maybe_unused]] int command) {}
+	bool has_goto_label(pc_t i) { return state.goto_labels.contains(i); }
+	void bind_goto_label(pc_t i) { cc.bind(state.goto_labels[i]); }
+	void emit_comment_nop(const char* text)
+	{
+		cc.setInlineComment(text);
+		cc.nop();
+	}
+	void emit_debug_pre_command(pc_t i)
+	{
+		a64::Gp sp = get_tmp_sp(state, cc);
+
+		InvokeNode *invokeNode;
+		invoke(cc, &invokeNode, debug_pre_command, FuncSignature::build<void, int32_t, uint32_t>(state.calling_convention));
+		invokeNode->setArg(0, i);
+		invokeNode->setArg(1, sp);
+	}
+	bool is_command_compiled(int command) { return command_is_compiled(command); }
+	void compile_compare(const ffscript& op) { ::compile_compare(state, cc, op.command, op.arg1, op.arg2, op.arg3); }
+	void compile_wait() { compile_command_interpreter(state, cc, script, 1, true); }
+	void compile_uncompiled_batch(int count) { compile_command_interpreter(state, cc, script, count); }
+	void compile_command(const ffscript& op) { compile_single_command(state, cc, op, script); }
+};
+
 std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, JittedScript* j_script, const ZasmFunction& fn)
 {
 	pc_t start_pc = fn.start_pc;
@@ -2076,118 +2117,8 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	state.use_cached_regs = jit_is_use_cached_regs_enabled() && !runtime_debugging;
 
-	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
-
-	for (pc_t i = start_pc; i <= final_pc; i++)
-	{
-		state.pc = i;
-
-		const auto& op = script->zasm[i];
-		int command = op.command;
-
-		bool is_block_start;
-		if (i == start_pc)
-		{
-			is_block_start = true;
-		}
-		else
-		{
-			is_block_start = state.j_script->cfg.contains_block_start(i);
-			if (is_block_start)
-				current_block_id++;
-		}
-
-		// D-register cache flush/invalidation points; the policy (including
-		// the liveness dead-drop rules) is shared with the x64 backend in
-		// jit_native_shared.h. All emission is str only, so a comparison
-		// result in NZCV survives it.
-		{
-			CacheOps cache_ops{state, cc};
-			jit_reg_cache_flush_policy(cache_ops, state.dreg_cache, j_script, script, i, current_block_id, is_block_start);
-		}
-
-		if (state.goto_labels.contains(i))
-		{
-			cc.bind(state.goto_labels[i]);
-		}
-
-		if (DEBUG_JIT_PRINT_ASM && j_script->structured_zasm.start_pc_to_function.contains(i))
-		{
-			cc.setInlineComment((comment = fmt::format("function {}", j_script->structured_zasm.start_pc_to_function[i])).c_str());
-			cc.nop();
-		}
-
-		if (DEBUG_JIT_PRINT_ASM)
-		{
-			cc.setInlineComment((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
-			cc.nop();
-		}
-
-		// Debugging tool used by scripts/jit_runtime_debug.py.
-		//
-		// We can't invoke functions between COMPARE and the instructions that use the comparison result,
-		// because that would destroy NZCV. So we must skip the debug printout for these instructions,
-		// which results in them being grouped together in the output and the stack/register trace being
-		// printed just once for the entire group of instructions.
-		if (runtime_debugging && !command_uses_comparison_result(command))
-		{
-			a64::Gp sp = get_tmp_sp(state, cc);
-
-			InvokeNode *invokeNode;
-			invoke(cc, &invokeNode, debug_pre_command, FuncSignature::build<void, int32_t, uint32_t>(state.calling_convention));
-			invokeNode->setArg(0, i);
-			invokeNode->setArg(1, sp);
-		}
-
-		if (command_uses_comparison_result(command))
-		{
-			compile_compare(state, cc, command, op.arg1, op.arg2, op.arg3);
-			continue;
-		}
-
-		if (command_is_wait(command))
-		{
-			// This returns only if actually waiting (some wait commands may be deemed invalid and
-			// ignored, so waiting is conditional).
-			compile_command_interpreter(state, cc, script, 1, true);
-			continue;
-		}
-
-		if (!command_is_compiled(command))
-		{
-			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
-				uncompiled_command_counts[command]++;
-
-			// Every command that is not compiled to assembly must go through the regular interpreter function.
-			// In order to reduce function call overhead, we call into the interpreter function in batches.
-			int uncompiled_command_count = 1;
-			for (pc_t j = i + 1; j <= final_pc; j++)
-			{
-				if (command_is_compiled(script->zasm[j].command))
-					break;
-				if (state.goto_labels.contains(j))
-					break;
-
-				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
-					uncompiled_command_counts[script->zasm[j].command]++;
-
-				uncompiled_command_count += 1;
-				if (DEBUG_JIT_PRINT_ASM)
-				{
-					const auto& op = script->zasm[j];
-					std::string op_str = zasm_op_to_string(op);
-					cc.setInlineComment((comment = fmt::format("{} {}", j, op_str)).c_str());
-					cc.nop();
-				}
-			}
-
-			compile_command_interpreter(state, cc, script, uncompiled_command_count);
-			i += uncompiled_command_count - 1;
-			continue;
-		}
-
-		compile_single_command(state, cc, op, script);
-	}
+	LoopOps loop_ops{state, cc, script, j_script};
+	jit_emit_function_body(loop_ops, script, j_script, start_pc, final_pc, runtime_debugging, comment, uncompiled_command_counts);
 
 	if (DEBUG_JIT_PRINT_ASM)
 	{

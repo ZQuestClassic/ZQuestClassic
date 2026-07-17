@@ -24,12 +24,19 @@
 
 #include "base/util.h"
 #include "components/zasm/defines.h"
+#include "components/zasm/serialize.h"
 #include "components/zasm/table.h"
 #include "zc/ffscript.h"
 #include "zc/jit_shared.h"
 
 #include <cstdint>
+#include <fmt/format.h>
 #include <map>
+#include <string>
+
+// From zc/script_debug.h, which cannot be included here (it lacks an include
+// guard and the backends include it themselves).
+extern bool DEBUG_JIT_PRINT_ASM;
 
 // Caches D0..D7 in host registers between flush points instead of loading and
 // storing ri->d[] at every access. A register returned by get() may be shared
@@ -227,6 +234,123 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 
 			ops.flush_cache();
 		}
+	}
+}
+
+// Drives the per-command emission for one function: block tracking, the
+// cache flush policy, label binding, dispatch to the compare/wait/uncompiled/
+// compiled paths (with uncompiled commands batched into single interpreter
+// calls), and the debug annotations. The loop structure and its ordering are
+// load-bearing (labels must bind after the flush policy so every jump lands
+// on a consistent, empty cache state) and identical between the backends, so
+// they live here; the backend supplies the emission hooks:
+//
+//   void set_pc(pc_t i);
+//   void cache_flush_policy(pc_t i, pc_t block_id, bool is_block_start);
+//   void loop_extras(int command);      // backend-specific per-command prep
+//   bool has_goto_label(pc_t i);
+//   void bind_goto_label(pc_t i);
+//   void emit_comment_nop(const char* text);
+//   void emit_debug_pre_command(pc_t i);
+//   bool is_command_compiled(int command);
+//   void compile_compare(const ffscript& op);
+//   void compile_wait();
+//   void compile_uncompiled_batch(int count);
+//   void compile_command(const ffscript& op);
+//
+// `comment` must outlive finalize (asmjit keeps the inline-comment pointer
+// for the logger), so the caller owns it.
+template <typename Backend>
+void jit_emit_function_body(Backend& b, zasm_script* script, JittedScript* j_script,
+	pc_t start_pc, pc_t final_pc, bool runtime_debugging,
+	std::string& comment, std::map<int, int>& uncompiled_command_counts)
+{
+	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
+
+	for (pc_t i = start_pc; i <= final_pc; i++)
+	{
+		b.set_pc(i);
+
+		const auto& op = script->zasm[i];
+		int command = op.command;
+
+		bool is_block_start;
+		if (i == start_pc)
+		{
+			is_block_start = true;
+		}
+		else
+		{
+			is_block_start = j_script->cfg.contains_block_start(i);
+			if (is_block_start)
+				current_block_id++;
+		}
+
+		b.cache_flush_policy(i, current_block_id, is_block_start);
+		b.loop_extras(command);
+
+		if (b.has_goto_label(i))
+			b.bind_goto_label(i);
+
+		if (DEBUG_JIT_PRINT_ASM && j_script->structured_zasm.start_pc_to_function.contains(i))
+			b.emit_comment_nop((comment = fmt::format("function {}", j_script->structured_zasm.start_pc_to_function[i])).c_str());
+
+		if (DEBUG_JIT_PRINT_ASM)
+			b.emit_comment_nop((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
+
+		// Debugging tool used by scripts/jit_runtime_debug.py.
+		//
+		// We can't invoke functions between COMPARE and the instructions that use the comparison
+		// result, because that would destroy the flags. So we must skip the debug printout for
+		// these instructions, which results in them being grouped together in the output and the
+		// stack/register trace being printed just once for the entire group of instructions.
+		if (runtime_debugging && !command_uses_comparison_result(command))
+			b.emit_debug_pre_command(i);
+
+		if (command_uses_comparison_result(command))
+		{
+			b.compile_compare(op);
+			continue;
+		}
+
+		if (command_is_wait(command))
+		{
+			// This returns only if actually waiting (some wait commands may be deemed invalid and
+			// ignored, so waiting is conditional).
+			b.compile_wait();
+			continue;
+		}
+
+		if (!b.is_command_compiled(command))
+		{
+			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
+				uncompiled_command_counts[command]++;
+
+			// Every command that is not compiled to assembly must go through the regular
+			// interpreter function. In order to reduce function call overhead, we call into the
+			// interpreter function in batches.
+			int uncompiled_command_count = 1;
+			for (pc_t j = i + 1; j <= final_pc; j++)
+			{
+				if (b.is_command_compiled(script->zasm[j].command))
+					break;
+				if (b.has_goto_label(j))
+					break;
+
+				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
+					uncompiled_command_counts[script->zasm[j].command]++;
+
+				uncompiled_command_count += 1;
+				if (DEBUG_JIT_PRINT_ASM)
+					b.emit_comment_nop((comment = fmt::format("{} {}", j, zasm_op_to_string(script->zasm[j]))).c_str());
+			}
+
+			b.compile_uncompiled_batch(uncompiled_command_count);
+			i += uncompiled_command_count - 1;
+			continue;
+		}
+
+		b.compile_command(op);
 	}
 }
 
