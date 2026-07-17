@@ -561,37 +561,39 @@ static x86::Gp get_ctx_script_instance(CompilationState& state, x86::Compiler& c
 	return ptr;
 }
 
-static void div_10000(x86::Compiler& cc, x86::Gp dividend)
+// Returns src / 10000 in a FRESH register (division by invariant
+// multiplication, https://clang.godbolt.org/z/c4qG3s9nW). Never mutates src:
+// it is frequently a cached D register (from get_z_register) or a stack-cache
+// entry, and the previous in-place version corrupted the cached value of any
+// operand that wasn't written back (e.g. the second operand of ANDR, or a
+// LSHIFTR shift count).
+static x86::Gp div_10000(x86::Compiler& cc, x86::Gp src)
 {
-	// Perform division by invariant multiplication.
-	// https://clang.godbolt.org/z/c4qG3s9nW
-	if (dividend.isType(RegType::kGp64))
+	if (src.isType(RegType::kGp64))
 	{
-		x86::Gp input = cc.newInt64();
-		cc.mov(input, dividend);
-
 		x86::Gp r = cc.newInt64();
 		cc.movabs(r, 3777893186295716171);
-		cc.imul(r, r, dividend);
+		cc.imul(r, r, src);
 		cc.sar(r, 11);
 
 		x86::Gp b = cc.newInt64();
-		cc.mov(b, input);
+		cc.mov(b, src);
 		cc.sar(b, 63);
 		cc.sub(r, b);
-
-		cc.mov(dividend, r);
+		return r;
 	}
-	else if (dividend.isType(RegType::kGp32))
+	else if (src.isType(RegType::kGp32))
 	{
 		x86::Gp r = cc.newInt64();
-		cc.movsxd(r, dividend);
-		cc.sar(dividend, 31);
+		cc.movsxd(r, src);
 		cc.imul(r, r, 1759218605);
 		cc.sar(r, 44);
 
-		cc.sub(r.r32(), dividend);
-		cc.mov(dividend, r.r32());
+		x86::Gp b = cc.newInt32();
+		cc.mov(b, src);
+		cc.sar(b, 31);
+		cc.sub(r.r32(), b);
+		return r.r32();
 	}
 	else
 	{
@@ -630,24 +632,25 @@ static x86::Gp immutable_add_constant(x86::Compiler& cc, x86::Gp reg, int value)
 }
 
 // Computes (base + value) / 10000 into a fresh register for a stack offset.
-// div_10000 mutates its operand in place, and `base` is typically a cached
-// register (rSFRAME, or a D-register from get_z_register), so it must be copied
-// first -- otherwise the cached value is corrupted (immutable_add_constant
-// returns `base` unchanged when value is 0, which would alias it).
+// `base` may be a cached register (rSFRAME, or a D-register from
+// get_z_register) and is never mutated: immutable_add_constant copies (or
+// passes through for 0) and div_10000 writes a fresh register.
 static x86::Gp compute_stack_offset(x86::Compiler& cc, x86::Gp base, int value)
 {
-	x86::Gp offset = cc.newInt32();
-	cc.mov(offset, base);
-	add_constant(cc, offset, value);
-	div_10000(cc, offset);
-	return offset;
+	x86::Gp sum = immutable_add_constant(cc, base, value);
+	return div_10000(cc, sum);
 }
 
-static void cast_bool(x86::Compiler& cc, x86::Gp reg)
+// Returns 0/1 based on whether reg is nonzero, in a FRESH register - reg is
+// often a cached D register that must not be mutated (the previous in-place
+// version corrupted the cached values of CMP_BOOL comparison operands).
+static x86::Gp immutable_cast_bool(x86::Compiler& cc, x86::Gp reg)
 {
+	x86::Gp out = cc.newInt32();
 	cc.test(reg, reg);
-	cc.mov(reg, 0);
-	cc.setne(reg.r8());
+	cc.mov(out, 0);
+	cc.setne(out.r8());
+	return out;
 }
 
 static void compile_compare_goto(CompilationState& state, x86::Compiler& cc, int command, int arg1, int arg2, int arg3)
@@ -1453,10 +1456,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp index;
 			if (command == READPODARRAYR)
 			{
-				// Copy before div_10000 so the cached source register isn't corrupted.
-				index = cc.newInt32();
-				cc.mov(index, get_z_register(state, cc, arg2));
-				div_10000(cc, index);
+				index = div_10000(cc, get_z_register(state, cc, arg2));
 			}
 
 			x86::Gp result = cc.newInt32();
@@ -1487,10 +1487,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp index;
 			if (index_is_reg)
 			{
-				// Copy before div_10000 so the cached source register isn't corrupted.
-				index = cc.newInt32();
-				cc.mov(index, get_z_register(state, cc, arg1));
-				div_10000(cc, index);
+				index = div_10000(cc, get_z_register(state, cc, arg1));
 			}
 			x86::Gp value;
 			if (value_is_reg)
@@ -1623,7 +1620,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		case CASTBOOLF:
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
-			cast_bool(cc, val);
+			val = immutable_cast_bool(cc, val);
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1646,7 +1643,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
 
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			cc.and_(val, arg2 / 10000);
 			cc.imul(val, 10000);
 
@@ -1658,8 +1655,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp val = get_z_register(state, cc, arg1);
 			x86::Gp val2 = get_z_register(state, cc, arg2);
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			val = div_10000(cc, val);
+			val2 = div_10000(cc, val2);
 			cc.and_(val, val2);
 			cc.imul(val, 10000);
 
@@ -1670,7 +1667,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
 
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			cc.or_(val, arg2 / 10000);
 			cc.imul(val, 10000);
 
@@ -1682,8 +1679,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp val = get_z_register(state, cc, arg1);
 			x86::Gp val2 = get_z_register(state, cc, arg2);
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			val = div_10000(cc, val);
+			val2 = div_10000(cc, val2);
 			cc.or_(val, val2);
 			cc.imul(val, 10000);
 
@@ -1713,7 +1710,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			x86::Gp val = get_z_register(state, cc, arg1);
 
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			cc.xor_(val, arg2 / 10000);
 			cc.imul(val, 10000);
 
@@ -1725,8 +1722,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp val = get_z_register(state, cc, arg1);
 			x86::Gp val2 = get_z_register(state, cc, arg2);
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			val = div_10000(cc, val);
+			val2 = div_10000(cc, val2);
 			cc.xor_(val, val2);
 			cc.imul(val, 10000);
 
@@ -1853,7 +1850,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			// reg = (~(reg / 10000)) * 10000
 			x86::Gp val = get_z_register(state, cc, arg1);
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			cc.not_(val);
 			cc.imul(val, val, 10000);
 			set_z_register(state, cc, arg1, val);
@@ -1874,7 +1871,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// x86 masks the shift count to 5 bits, matching the interpreter (whose
 			// `<<`/`>>` also lower to x86 shifts); `>>` on a signed int is arithmetic.
 			x86::Gp val = get_z_register(state, cc, arg1);
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			int k = (arg2 / 10000) & 31;
 			if (k)
 			{
@@ -1907,8 +1904,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// `<<`/`>>` also lower to x86 shifts); `>>` on a signed int is arithmetic.
 			x86::Gp val = get_z_register(state, cc, arg1);
 			x86::Gp count = get_z_register(state, cc, arg2);
-			div_10000(cc, val);
-			div_10000(cc, count);
+			val = div_10000(cc, val);
+			count = div_10000(cc, count);
 			if (command == LSHIFTR) cc.shl(val, count.r8());
 			else cc.sar(val, count.r8());
 			cc.imul(val, val, 10000);
@@ -1921,7 +1918,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			// reg = reg <</>> (count / 10000) (raw value, count is a register).
 			x86::Gp val = get_z_register(state, cc, arg1);
 			x86::Gp count = get_z_register(state, cc, arg2);
-			div_10000(cc, count);
+			count = div_10000(cc, count);
 			if (command == LSHIFTR32) cc.shl(val, count.r8());
 			else cc.sar(val, count.r8());
 			set_z_register(state, cc, arg1, val);
@@ -1931,7 +1928,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 		{
 			x86::Gp val = get_z_register_64(state, cc, arg1);
 			cc.imul(val, arg2);
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			set_z_register(state, cc, arg1, val.r32());
 		}
 		break;
@@ -1940,7 +1937,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			x86::Gp val = get_z_register_64(state, cc, arg1);
 			x86::Gp val2 = get_z_register_64(state, cc, arg2);
 			cc.imul(val, val2);
-			div_10000(cc, val);
+			val = div_10000(cc, val);
 			set_z_register(state, cc, arg1, val.r32());
 		}
 		break;
@@ -2005,7 +2002,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
 					val = val ? 1 : 0;
-					cast_bool(cc, val2);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
@@ -2022,7 +2019,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
 					val = val ? 1 : 0;
-					cast_bool(cc, val2);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
@@ -2042,8 +2039,8 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 			{
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
-					cast_bool(cc, val);
-					cast_bool(cc, val2);
+					val = immutable_cast_bool(cc, val);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
