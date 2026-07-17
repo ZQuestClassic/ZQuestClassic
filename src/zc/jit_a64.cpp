@@ -65,6 +65,9 @@ struct CompilationState
 	pc_t num_push_commands_in_row_end_pc;
 	bool modified_stack;
 	bool runtime_debugging;
+	// AArch64 conditional branches only reach +/-1 MB, which very large
+	// functions exceed; see emit_cond_branch.
+	bool far_branches;
 };
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
@@ -448,6 +451,37 @@ static void cast_bool(a64::Compiler& cc, a64::Gp reg)
 	cc.cset(reg, a64::CondCode::kNE);
 }
 
+// Emits a conditional branch that can reach any label in the function. A bare
+// b.cond only reaches +/-1 MB of code, which the largest functions exceed
+// (the failure shows up as InvalidDisplacement when the label is bound), so
+// in far mode branch over an unconditional b, which reaches +/-128 MB. Only
+// used for branches whose target can be arbitrarily far away (script GOTOs,
+// the resume dispatch, waits); short local branches stay bare.
+//
+// Do not "optimize" this by keeping the bare b.cond when the ZASM pc distance
+// to the target is small - it was tried and it compiles *fewer* functions.
+// The branch's own displacement isn't the only range hazard: when a
+// conditional branch's target block needs register-state fixup moves, asmjit
+// redirects the b.cond to a trampoline it emits at the *end* of the function
+// (RALocalAllocator::allocBranch), which in a multi-MB function is out of
+// range no matter how near the original target was. An unconditional b gets
+// those fixups inlined instead, so the far form dodges that failure too
+// (measured on Yuurand: distance-based selection discarded 16 functions vs
+// 11 with the unconditional far form).
+static void emit_cond_branch(CompilationState& state, a64::Compiler& cc, a64::CondCode cond, const Label& target)
+{
+	if (!state.far_branches)
+	{
+		cc.b(cond, target);
+		return;
+	}
+
+	Label skip = cc.newLabel();
+	cc.b(a64::negateCond(cond), skip);
+	cc.b(target);
+	cc.bind(skip);
+}
+
 static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int command, int arg1, int arg2, int arg3)
 {
 	auto& goto_labels = state.goto_labels;
@@ -460,22 +494,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 			default:
 				break;
 			case CMP_GT:
-				cc.b_gt(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kGT, lbl);
 				break;
 			case CMP_GT|CMP_EQ:
-				cc.b_ge(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kGE, lbl);
 				break;
 			case CMP_LT:
-				cc.b_lt(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kLT, lbl);
 				break;
 			case CMP_LT|CMP_EQ:
-				cc.b_le(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kLE, lbl);
 				break;
 			case CMP_EQ:
-				cc.b_eq(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kEQ, lbl);
 				break;
 			case CMP_GT|CMP_LT:
-				cc.b_ne(lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kNE, lbl);
 				break;
 			case CMP_GT|CMP_LT|CMP_EQ:
 				cc.b(lbl);
@@ -484,22 +518,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 	}
 	else if (command == GOTOTRUE)
 	{
-		cc.b_eq(goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kEQ, goto_labels[arg1]);
 	}
 	else if (command == GOTOFALSE)
 	{
-		cc.b_ne(goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kNE, goto_labels[arg1]);
 	}
 	else if (command == GOTOMORE)
 	{
-		cc.b_ge(goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kGE, goto_labels[arg1]);
 	}
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			cc.b_le(goto_labels[arg1]);
+			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_labels[arg1]);
 		else
-			cc.b_lt(goto_labels[arg1]);
+			emit_cond_branch(state, cc, a64::CondCode::kLT, goto_labels[arg1]);
 	}
 	else
 	{
@@ -729,7 +763,7 @@ static void compile_command_interpreter(CompilationState& state, a64::Compiler& 
 		cmp_constant(cc, retVal, RUNSCRIPT_STOPPED);
 		// If actually waiting, the return value will be RUNSCRIPT_OK. set_ctx_ret_code isn't called
 		// here because RUNSCRIPT_OK is the default value.
-		cc.b_eq(state.L_End);
+		emit_cond_branch(state, cc, a64::CondCode::kEQ, state.L_End);
 
 		cc.bind(state.resume_labels[state.pc]);
 		return;
@@ -1849,6 +1883,11 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		.start_pc = start_pc,
 		.final_pc = final_pc,
 		.runtime_debugging = runtime_debugging,
+		// Emitted code averages well under 100 bytes per ZASM instruction, so
+		// this keeps every possibly-far branch comfortably within b.cond's
+		// +/-1 MB reach; bigger functions pay one extra unconditional branch
+		// per taken-away conditional (see emit_cond_branch).
+		.far_branches = size_no_nops > 8000,
 	};
 
 	CodeHolder code;
@@ -1955,7 +1994,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		for (auto& [k, label] : state.resume_labels)
 		{
 			cmp_constant(cc, pc_reg, k + 1);
-			cc.b_eq(label);
+			emit_cond_branch(state, cc, a64::CondCode::kEQ, label);
 		}
 	}
 
@@ -2083,16 +2122,16 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	cc.ret(state.vResult);
 
-	// Gate on the virtual register count, bailing to the interpreter for
-	// extremely register-heavy functions before finalize. This is not needed
-	// for correctness: when a function's spill frame outgrows what AArch64
-	// load/store offsets can encode, emission reports InvalidDisplacement and
-	// the had_error check below discards the function (functions up to ~8500
-	// registers have been verified to compile and run correctly). The gate just
-	// skips the wasted compile time for far larger functions, which risk
-	// outgrowing the encodable spill-frame range and being discarded anyway
-	// (observed with a ~67k register function).
-	static size_t max_virt_regs = get_flag_int("-jit-a64-max-vregs").value_or(10000);
+	// Optional gate on the virtual register count, bailing to the interpreter
+	// before finalize. Off by default: the failure modes that once made
+	// register-heavy functions unsafe or uncompilable are handled (emit errors
+	// discard the function; spill slots and far branches encode at any size),
+	// and functions up to ~155k registers compile and run correctly. A few
+	// giants still fail at label-bind time when asmjit places a branch fixup
+	// trampoline out of b.cond range - that is not predictable from the
+	// register count, and the discard below handles it. The flag remains as a
+	// bisection/debugging knob.
+	static size_t max_virt_regs = get_flag_int("-jit-a64-max-vregs").value_or(SIZE_MAX);
 	if (cc.virtRegs().size() > max_virt_regs)
 	{
 		jit_printf("[jit] not compiling function, too many registers (name: %s, start: %d, regs: %u)\n", fn.name().c_str(), start_pc, cc.virtRegs().size());
