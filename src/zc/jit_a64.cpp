@@ -870,104 +870,12 @@ static void compile_command_interpreter(CompilationState& state, a64::Compiler& 
 
 static bool command_is_compiled(int command)
 {
-	if (command_is_wait(command))
-		return true;
-
-	if (command_uses_comparison_result(command))
-		return true;
-
-	switch (command)
-	{
-	// These commands are critical to control flow.
-	case COMPARER:
-	case COMPAREV:
-	case COMPAREV2:
-	case GOTO:
-	case QUIT:
-	case CALLFUNC:
-	case RETURNFUNC:
-
-	// These commands modify the stack pointer, which is just a local copy. If these commands
-	// were not compiled, then vStackIndex would have to be restored after compile_command_interpreter.
-	case POP:
-	case POPARGS:
-	case PUSHR:
-	case PUSHV:
-	case PUSHARGSR:
-	case PUSHARGSV:
-
-	// These can be commented out to instead run interpreted. Useful for
-	// singling out problematic commands.
-	case ABS:
-	case ADDR:
-	case ADDV:
-	case ANDR:
-	case ANDV:
-	case CASTBOOLF:
-	case CASTBOOLI:
-	case DIVR:
-	case DIVV:
-	case LOAD:
-	case LOADD:
-	case LOADI:
-	case MAXR:
-	case MAXV:
-	case MINR:
-	case MINV:
-	case MODR:
-	case MODV:
-	case MULTR:
-	case MULTV:
-	case NOP:
-	case ORR:
-	case ORR32:
-	case ORV:
-	case ORV32:
-	case PEEK:
-	case REF_REMOVE:
-	case SETR:
-	case SETV:
-	case STACKWRITEATVV:
-	case STORE_OBJECT:
-	case STORE:
-	case STORED:
-	case STOREDV:
-	case STOREI:
-	case STOREV:
-	case SUBR:
-	case SUBV:
-	case SUBV2:
-	case BITNOT:
-	case BITNOT32:
-	case LSHIFTV:
-	case LSHIFTV32:
-	case RSHIFTV:
-	case RSHIFTV32:
-	case LSHIFTR:
-	case LSHIFTR32:
-	case RSHIFTR:
-	case RSHIFTR32:
-	case XORR:
-	case XORV:
-	case XORR32:
-	case XORV32:
-	case READPODARRAYR:
-	case READPODARRAYV:
-	case WRITEPODARRAYRR:
-	case WRITEPODARRAYRV:
-	case WRITEPODARRAYVR:
-	case WRITEPODARRAYVV:
-	case WRITEPODARRAY:
-	case ALLOCATEMEMV:
-
 	// Unlike the x64 backend, no CPU feature gate needed: frintp/frintm are
 	// baseline AArch64.
-	case CEILING:
-	case FLOOR:
+	if (command == FLOOR || command == CEILING)
 		return true;
-	}
 
-	return false;
+	return jit_command_is_compiled_shared(command);
 }
 
 // Check for stack overflows, but only once per contiguous series of PUSH (or POP) commands.
