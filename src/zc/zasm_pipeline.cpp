@@ -1,5 +1,5 @@
 #include "zc/zasm_pipeline.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include <thread>

@@ -29,7 +29,7 @@
 #include "parser/parserDefs.h"
 #include "components/zasm/pc.h"
 #include "zc/ffscript.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/parallel.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_utils.h"

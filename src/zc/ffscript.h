@@ -14,7 +14,7 @@
 #include "components/zasm/pc.h"
 #include "zc/scripting/array_manager.h"
 #include "zc/scripting/context_strings.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"
 #include "sprite_data.h"

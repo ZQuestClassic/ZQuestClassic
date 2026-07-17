@@ -3,14 +3,14 @@
 // backends (jit_x64.cpp, jit_a64.cpp) provide code generation via
 // jit_backend_compile_function; everything here is shared between them.
 
-#include "zc/jit_shared.h"
+#include "zc/scripting/jit/jit_shared.h"
 #include "base/general.h"
 #include "base/util.h"
 #include "core/zdefs.h"
 #include "components/zasm/defines.h"
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_pipeline.h"

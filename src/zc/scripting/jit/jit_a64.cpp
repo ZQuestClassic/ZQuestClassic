@@ -14,9 +14,9 @@
 //   since b.cond only reaches +/-1 MB.
 // - The constant 10000 is kept in a function-wide register (vTenK).
 
-#include "zc/jit_a64.h"
-#include "zc/jit_codegen_shared.h"
-#include "zc/jit_shared.h"
+#include "zc/scripting/jit/jit_a64.h"
+#include "zc/scripting/jit/jit_codegen_shared.h"
+#include "zc/scripting/jit/jit_shared.h"
 #include "base/general.h"
 #include "core/qrs.h"
 #include "base/util.h"
@@ -24,7 +24,7 @@
 #include "components/zasm/defines.h"
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_pipeline.h"

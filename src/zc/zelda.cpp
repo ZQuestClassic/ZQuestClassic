@@ -44,7 +44,7 @@
 #include "zc/ffscript.h"
 #include "zc/frame_timings.h"
 #include "zc/script_timings.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/matrix.h"
 #include "zc/render.h"
 #include "zc/rendertarget.h"

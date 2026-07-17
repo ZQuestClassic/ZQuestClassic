@@ -41,7 +41,7 @@
 #include "components/zasm/serialize.h"
 #include "components/zasm/table.h"
 #include "zc/ffscript.h"
-#include "zc/jit_shared.h"
+#include "zc/scripting/jit/jit_shared.h"
 #include "zconsole/ConsoleLogger.h"
 
 #include <algorithm>

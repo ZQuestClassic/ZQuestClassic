@@ -8,7 +8,7 @@ src/sprite.cpp
 src/zc/zscriptversion.cpp
 src/zc/ffscript.cpp
 src/zc/script_debug.cpp
-src/zc/jit.cpp
+src/zc/scripting/jit/jit.cpp
 src/gamedata.cpp
 src/zc/zelda.cpp
 src/defdata.cpp

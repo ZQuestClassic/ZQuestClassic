@@ -3,7 +3,7 @@
 // Opportunities for improvement:
 // * Compile: LSHIFTR RSHIFTR
 
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "components/worker_pool/worker_pool.h"
 #include "base/zapp.h"
 #include "core/zdefs.h"

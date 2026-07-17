@@ -1,4 +1,4 @@
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "components/zasm/pc.h"
 
 void jit_startup_impl()

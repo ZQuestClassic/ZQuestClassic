@@ -23,7 +23,7 @@
 	wasm2wat build/Debug/wasm/playground.qst/ffc-5-Maths.wasm --enable-threads --generate-names
 */
 
-#include "zc/jit_wasm.h"
+#include "zc/scripting/jit/jit_wasm.h"
 
 #include "allegro/debug.h"
 #include "allegro/file.h"
@@ -34,7 +34,7 @@
 #include "components/zasm/pc.h"
 #include "components/zasm/table.h"
 #include "zc/ffscript.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
 #include "zc/wasm_structurer.h"

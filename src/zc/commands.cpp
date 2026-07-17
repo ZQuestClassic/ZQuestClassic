@@ -3,7 +3,7 @@
 #include "core/qst.h"
 #include "base/zapp.h"
 #include "test_runner/test_runner.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/replay_upload.h"
 #include "zc/saves.h"
 #include "zc/script_debug.h"

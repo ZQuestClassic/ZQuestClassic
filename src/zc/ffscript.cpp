@@ -49,7 +49,7 @@
 #include "zc/scripting/types/subscreenwidget.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
-#include "zc/jit.h"
+#include "zc/scripting/jit/jit.h"
 #include "zc/script_debug.h"
 #include "zc/script_timings.h"
 #include "zalleg/zalleg.h"
