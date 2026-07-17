@@ -16,8 +16,116 @@ ERROR: Bad Annotation Key: 'Authors'
 
  7    }
  8    
- 9    @Authors("asd")
+ 9    @Authors("asd"),
       ^~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @Author expects parameter 0 to be type 'String', not type 'Number'
+
+
+ 8    
+ 9    @Authors("asd"),
+10    @Author(1),
+      ^~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD0 expects parameter 0 to be type 'String', not type 'Number'
+
+
+ 9    @Authors("asd"),
+10    @Author(1),
+11    @ExportInitD0(2),
+      ^~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD1 expects parameter 1 to be type 'String', not type 'Number'
+
+
+10    @Author(1),
+11    @ExportInitD0(2),
+12    @ExportInitD1("Foo", 3),
+      ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD2 expects parameter 2 to be type 'String', not type 'Number'
+
+
+11    @ExportInitD0(2),
+12    @ExportInitD1("Foo", 3),
+13    @ExportInitD2("Bar", "Error", 4),
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD3 expects parameter 1 to be type 'String', not type 'Number'
+
+
+12    @ExportInitD1("Foo", 3),
+13    @ExportInitD2("Bar", "Error", 4),
+14    @ExportInitD3("FooBar", 5, 6),
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD4 expects parameter 0 to be type 'String', not type 'Number'
+
+
+13    @ExportInitD2("Bar", "Error", 4),
+14    @ExportInitD3("FooBar", 5, 6),
+15    @ExportInitD4(7, 8, 9),
+      ^~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD5 expects at least 1 parameter, not 0 parameters!
+
+
+14    @ExportInitD3("FooBar", 5, 6),
+15    @ExportInitD4(7, 8, 9),
+16    @ExportInitD5(),
+      ^~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @ExportInitD6 expects at most 3 parameters, not 7 parameters!
+
+
+15    @ExportInitD4(7, 8, 9),
+16    @ExportInitD5(),
+17    @ExportInitD6(1, 2, 3, 4, 5, 6, 7),
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: '@ExportInitD7' parameter 2 must be exactly 'D','H','LD','LH','B', or '-1' NOT 'Some Random Value'.
+
+
+16    @ExportInitD5(),
+17    @ExportInitD6(1, 2, 3, 4, 5, 6, 7),
+18    @ExportInitD7("Error", "Test", "Some Random Value"),
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Value: @Author expects exactly 1 parameter, not 0 parameters!
+
+
+17    @ExportInitD6(1, 2, 3, 4, 5, 6, 7),
+18    @ExportInitD7("Error", "Test", "Some Random Value"),
+19    @Author(),
+      ^~~~~~~~~
+
+
+ERROR: Annotation '@InitD0' not compatible with '@ExportInitD0'
+
+
+18    @ExportInitD7("Error", "Test", "Some Random Value"),
+19    @Author(),
+20    @InitD0("Overlap"),
+      ^~~~~~~~~~~~~~~~~~
+
+
+ERROR: Bad Annotation Key: 'ExportInitD8'
+
+
+20    @InitD0("Overlap"),
+21    @ExportInitD0("Overlap"),
+22    @ExportInitD8("Doesn't Exist")
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -56,6 +164,174 @@ stdout:
       },
       "severity": 1,
       "message": "ERROR: Bad Annotation Key: 'Authors'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 0
+        },
+        "end": {
+          "line": 9,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @Author expects parameter 0 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 0
+        },
+        "end": {
+          "line": 10,
+          "character": 16
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD0 expects parameter 0 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 0
+        },
+        "end": {
+          "line": 11,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD1 expects parameter 1 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 0
+        },
+        "end": {
+          "line": 12,
+          "character": 32
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD2 expects parameter 2 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 0
+        },
+        "end": {
+          "line": 13,
+          "character": 29
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD3 expects parameter 1 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 0
+        },
+        "end": {
+          "line": 14,
+          "character": 22
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD4 expects parameter 0 to be type 'String', not type 'Number'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 0
+        },
+        "end": {
+          "line": 15,
+          "character": 15
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD5 expects at least 1 parameter, not 0 parameters!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 0
+        },
+        "end": {
+          "line": 16,
+          "character": 34
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @ExportInitD6 expects at most 3 parameters, not 7 parameters!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 0
+        },
+        "end": {
+          "line": 17,
+          "character": 51
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: '@ExportInitD7' parameter 2 must be exactly 'D','H','LD','LH','B', or '-1' NOT 'Some Random Value'."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 0
+        },
+        "end": {
+          "line": 18,
+          "character": 9
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Value: @Author expects exactly 1 parameter, not 0 parameters!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 0
+        },
+        "end": {
+          "line": 19,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Annotation '@InitD0' not compatible with '@ExportInitD0'"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 0
+        },
+        "end": {
+          "line": 21,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Bad Annotation Key: 'ExportInitD8'"
     }
   ]
 }

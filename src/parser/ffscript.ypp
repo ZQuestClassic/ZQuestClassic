@@ -91,7 +91,7 @@ static void annot_trunc_str(string& str, size_t size)
 static optional<int8_t> annot_param_check_swaptype(AnnotData& data, size_t param_idx)
 {
 	auto& pdata = data.params[param_idx];
-	assert(pdata.type == ANNTY_STR);
+	CHECK(pdata.type == ANNTY_STR);
 	if (pdata.val == "-1")
 		return -1;
 	util::upperstr(pdata.val);
@@ -128,11 +128,11 @@ static bool annot_sig_check(AnnotData const& data, vector<vector<AnnotationParam
 		auto& sigvec = signature[idx];
 		if (util::contains(sigvec, ANNTY_NONE)) // optional
 		{
-			assert(min == idx+1); // can't have a required after an optional!
+			CHECK(min == idx+1); // can't have a required after an optional!
 			--min;
 			util::remove_if_exists(sigvec, ANNTY_NONE);
 		}
-		assert(!sigvec.empty());
+		CHECK(!sigvec.empty());
 	}
 	
 	auto sz = data.params.size();
@@ -151,7 +151,7 @@ static bool annot_sig_check(AnnotData const& data, vector<vector<AnnotationParam
 		}
 		else
 		{
-			assert(min < max);
+			CHECK(min < max);
 			if (sz < min)
 			{
 				err_word = "at least";
@@ -231,7 +231,7 @@ static void handle_annotations(ASTAnnotationList* list, std::function<bool(Annot
 				pdata.type = ANNTY_INT;
 				pdata.intval = zslongToFix(param.intval->getValue());
 			}
-			else assert(false);
+			else CHECK(false);
 			
 			pdata.val = "";
 			pdata.unescaped_val = "";
@@ -272,7 +272,7 @@ static void handle_annotations(ASTAnnotationList* list, std::function<bool(Annot
 			vector<string> bad_keys;
 			for (auto& bad_key : excl_keys[data.key])
 				bad_keys.push_back(fmt::format("'@{}'", bad_key));
-			annot_errstr(fmt::format("ERROR: Annotation '@{}' not compatible with '@{}'", data.key, fmt::join(bad_keys, ", ")), data.location);
+			annot_errstr(fmt::format("ERROR: Annotation '@{}' not compatible with {}", data.key, fmt::join(bad_keys, ", ")), data.location);
 			continue;
 		}
 		if(!fn(data, excl_keys))
@@ -1362,7 +1362,7 @@ Annotated_Script :
 								script->metadata.initd_help[c] = param.val;
 							}
 							
-							// if (sz >= 1)
+							if (sz >= 1)
 							{
 								auto& param = data.params[0];
 								annot_trunc_str(param.unescaped_val, 255);
