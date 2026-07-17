@@ -2071,7 +2071,14 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	state.vResult = cc.newUInt32("result");
 	state.L_End = cc.newLabel();
 
-	// If needed, jump to the resume address.
+	// If needed, jump to the resume address. The indirect branch is a good
+	// fit here because this backend keeps its critical cross-resume state
+	// (ctx/registers/stack pointers) in manually pinned physical registers,
+	// which are consistent at every resume label without the register
+	// allocator's help. The a64 backend uses pure virtual registers instead,
+	// where an indirect edge (which cannot carry per-edge register fixups)
+	// measured ~10% slower than its pc-comparison dispatch - see the resume
+	// dispatch in jit_a64.cpp before porting either form to the other side.
 	{
 		Label L_normal_entry = cc.newLabel();
 

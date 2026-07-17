@@ -251,10 +251,14 @@ static void check_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackI
 	set_ctx_ret_code(state, cc, RUNSCRIPT_JIT_STACK_OVERFLOW);
 	cc.mov(state.vResult, EXEC_RESULT_EXIT);
 	// Route through the single L_End epilog rather than emitting a mid-function
-	// ret. asmjit's AArch64 Compiler miscompiles a cc.ret() that is immediately
-	// followed by a bound label which is an indirect-branch (JumpAnnotation)
-	// target - it emits a branch-to-self instead of the return - so all exits
-	// funnel through one ret at L_End.
+	// ret: every exit shares one ret (and L_End's set_ctx_sp write-back), and
+	// asmjit would otherwise expand a full epilog at each overflow check. An
+	// early version of this backend also miscompiled a mid-function cc.ret()
+	// here (branch-to-self); like the annotated-resume miscompile documented
+	// in compile_function, that was an artifact of two since-removed
+	// conditions and no longer reproduces (full replay suites pass with a
+	// mid-function ret emitted here - though measured no faster, so the
+	// single epilog stays).
 	cc.b(state.L_End);
 	cc.bind(label);
 }
@@ -1935,16 +1939,42 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	state.vResult = cc.newUInt32("result");
 	state.L_End = cc.newLabel();
 
-	// If resuming after a call or wait, dispatch to the resume label. The x64
-	// backend uses an indirect branch through a JumpAnnotation
-	// (ctx->resume_address holds the native address); asmjit's AArch64 Compiler
-	// miscompiles that pattern (the control flow around the annotation targets
-	// collapses to a branch-to-self), so instead compare ctx->pc against each
-	// resume point directly. A resume label bound at the command with pc K is
-	// entered when execution resumes at K+1 (the interpreter sets ctx->pc there
-	// after the call/wait completes). These direct branches also keep the
-	// resume blocks reachable, so no annotation is needed.
-	if (!state.resume_labels.empty())
+	// If resuming after a call or wait, dispatch to the resume label by
+	// comparing ctx->pc against each resume point. A resume label bound at
+	// the command with pc K is entered when execution resumes at K+1 (the
+	// interpreter sets ctx->pc there after the call/wait completes). These
+	// direct branches also keep the resume blocks reachable, so no
+	// annotation is needed.
+	//
+	// A/B knob: resume after a call/wait via an annotated indirect branch,
+	// like the x64 backend (ctx->resume_address holds the resume label's
+	// native address). This works correctly - an early version of this
+	// backend saw asmjit miscompile the pattern (control flow around the
+	// annotation targets collapsed to a branch-to-self), but that was an
+	// artifact of two since-removed conditions (manually pinned physical
+	// callee-saved registers, and the asmjit fork reserving x3/x13-x15 on
+	// AArch64, now scoped to x64 by third_party/asmjit.patch). It is however
+	// ~10% SLOWER on script-heavy quests: an indirect edge cannot carry
+	// per-edge register fixup moves, so the allocator must keep the register
+	// state consistent at every resume label at once, pessimizing the whole
+	// function body. The default pc-comparison dispatch below costs one
+	// compare per resume point at entry but lets every resume edge get its
+	// own fixups, which wins decisively.
+	static bool annotated_resume = get_flag_bool("-jit-a64-annotated-resume").value_or(false);
+	if (annotated_resume && !state.resume_labels.empty())
+	{
+		JumpAnnotation* annotation = cc.newJumpAnnotation();
+		for (auto& [k, label] : state.resume_labels)
+			annotation->addLabel(label);
+
+		Label L_normal_entry = cc.newLabel();
+		a64::Gp resume_addr_reg = cc.newIntPtr("resume_address");
+		cc.ldr(resume_addr_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, resume_address)));
+		cc.cbz(resume_addr_reg, L_normal_entry); // If it's zero, this is a normal function start.
+		cc.br(resume_addr_reg, annotation);
+		cc.bind(L_normal_entry);
+	}
+	else if (!state.resume_labels.empty())
 	{
 		a64::Gp pc_reg = cc.newInt32("resume_pc");
 		cc.ldr(pc_reg, a64::ptr(state.ptrCtx, offsetof(JittedExecutionContext, pc)));

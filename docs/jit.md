@@ -1,6 +1,8 @@
 # JIT
 
-`zplayer` executes a quest's ZASM scripts typically by running them in our ZASM interpreter. To speed things up significantly, we can compile ZASM scripts to native machine code using the JIT (just-in-time) compiler. This runs in `zplayer`, not in the `zscript` compiler. There are two backends for the JIT: `jit_x64.cpp`, and `jit_wasm.cpp` (for the browser build). JIT is not supported for 32-bit.
+`zplayer` executes a quest's ZASM scripts typically by running them in our ZASM interpreter. To speed things up significantly, we can compile ZASM scripts to native machine code using the JIT (just-in-time) compiler. This runs in `zplayer`, not in the `zscript` compiler. There are three backends, all under `src/zc/scripting/jit/`: `jit_x64.cpp` (x86-64), `jit_a64.cpp` (AArch64, e.g. Apple Silicon), and `jit_wasm.cpp` (the browser build). JIT is not supported for 32-bit.
+
+The two native backends share everything except instruction selection: `jit_shared.{h,cpp}` is the runtime driver (compilation pipeline, script/instance lifecycle, hot-function profiling, the run loop) and `jit_codegen_shared.h` is the codegen policy they must apply identically (the D-register cache and its liveness-based flush rules, the per-command emit loop, the compiled-command list).
 
 JIT compilation is on by default on desktop; the shipped web config still disables it (`jit = 1 #? web = 0` in `base_config/zc.cfg`), so browser builds only use it when opted in. It can be toggled with the `[ZSCRIPT] jit` config option, found in the launcher. There is also the `-jit` / `-no-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
@@ -65,18 +67,25 @@ mov dword ptr [rbp+8], ecx
 
 Not only is this far fewer ops, but there are no jumps. For example, the intrepreter has to jump in a big switch block to know to call `do_add`, which likely makes the CPU's instruction cache less effective.
 
+The native backends also cache `D0`..`D7` in host registers between flush points (the D-register cache in `jit_codegen_shared.h`), so runs of instructions like the above usually don't even touch memory - dirty values are written back at waits, branches, and calls into the engine, with a liveness analysis skipping writes no later instruction can observe.
+
 This can result in ~20x better performance for scripts that are just pure math. In practice, quests with large amounts of scripting should see a 5-10x improvement.
 
 `SWITCHKEY` is another z-register that is greatly optimized.
 
 `GOTO` commands will emit a `jmp` to a label that is placed at the correct place in the generated assembly.
 
-The two backends differ in what unit they compile and when:
+The backends differ in what unit they compile and when:
 
-- **x64 (`jit_x64.cpp`):** scripts are compiled **per-function**. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function. If precompiling is enabled, all functions are compiled on quest load, before the game starts.
+- **Native (`jit_x64.cpp` / `jit_a64.cpp`):** scripts are compiled **per-function**. Once a function is run enough (lots of calls to it, or it loops a lot internally), it will be compiled. Compilation happens in a worker pool – the main thread does not wait for it to be compiled. Once the worker pool compiles a function, the main thread can then run it when executing that function. Until then, the interpreter handles executing that function. If precompiling is enabled, all functions are compiled on quest load, before the game starts.
 - **wasm (`jit_wasm.cpp`, browser build):** the **entire script chunk** (e.g. `@single`, which contains all of a quest's generic/ffc scripts and their functions) is compiled to a single wasm module at once. Only precompiling is supported - there is no hot-threshold path (so the `jit_hot_function_*` settings below don't apply to the browser build). See the [WASM backend](#wasm-backend) section for how it works.
 
-When a `WaitX` command is hit, the compiled function saves where to resume and returns; the next time it is called it picks up at the instruction after that `WaitX`. On x64 this resume point is tracked via `JittedScript::pc_to_resume_address`; on the wasm backend it is a saved block index (`wait_index`) that the function's loop-switch dispatches on when re-entered.
+When a `WaitX` command is hit, the compiled function saves where to resume and returns; the next time it is called it picks up at the instruction after that `WaitX`. The native backends track resume points via `JittedScript::pc_to_resume_address` (x64 jumps straight to the saved native address through an annotated indirect branch; a64 re-enters the function, which dispatches by comparing `ctx->pc` against its resume points - the indirect-branch form works on AArch64 too, but measures ~10% slower on script-heavy quests because an indirect edge can't carry per-edge register fixups, so it's kept only behind `-jit-a64-annotated-resume`). On the wasm backend it is a saved block index (`wait_index`) that the function's loop-switch dispatches on when re-entered.
+
+A few AArch64-specific notes (`jit_a64.cpp`):
+
+- If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A spill frame too large for AArch64's load/store offsets (InvalidDisplacement) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with). `-jit-a64-max-vregs` (default 10000) additionally skips compiling functions so register-heavy they'd likely be discarded anyway.
+- Conditional branches (`b.cond`) only reach ±1 MB, which the largest functions exceed; branches that may reach far are emitted via `emit_cond_branch`, and register-allocator fixup trampolines are placed inline by a patch to our asmjit fork (`third_party/asmjit.patch`, which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register).
 
 ## Configuration
 
@@ -105,7 +114,7 @@ jit_precompile = 0
 
 These are useful config options:
 
-- `[ZSCRIPT] jit_print_asm = 1`: for each script, write a file to `zscript-debug/zasm` printing the x64 assembly
+- `[ZSCRIPT] jit_print_asm = 1`: for each script, write a file to `zscript-debug/zasm` printing the emitted assembly (x64 or a64)
 - `[ZSCRIPT] jit_fatal_compile_errors = 1`: exit program if JIT fails to compile any script
 
 And some CLI options:
