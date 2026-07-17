@@ -50,6 +50,11 @@ struct CompilationState
 	a64::Gp vResult;
 	a64::Gp vSp;
 	a64::Gp vSwitchKey;
+	// Holds the constant 10000 for the whole function (read-only). Fixed-point
+	// ZASM multiplies/divides by it constantly, and AArch64 has no ALU or mul
+	// immediates that fit it, so sharing one register avoids materializing it
+	// at every use (and avoids the extra virtual registers that implies).
+	a64::Gp vTenK;
 	a64::Gp ptrCtx;
 	a64::Gp ptrRegisters;
 	a64::Gp ptrStackBase;
@@ -293,20 +298,12 @@ static a64::Gp get_tmp_sp(CompilationState& state, a64::Compiler& cc)
 // Divides in place by 10000, rounding toward zero (C semantics). sdiv rounds
 // toward zero, so this matches the x64 backend's magic-multiply sequences
 // bit-for-bit for both 32-bit and 64-bit operands.
-static void div_10000(a64::Compiler& cc, a64::Gp dividend)
+static void div_10000(CompilationState& state, a64::Compiler& cc, a64::Gp dividend)
 {
 	if (dividend.isGpX())
-	{
-		a64::Gp divisor = cc.newInt64();
-		cc.mov(divisor, 10000);
-		cc.sdiv(dividend, dividend, divisor);
-	}
+		cc.sdiv(dividend, dividend, state.vTenK);
 	else
-	{
-		a64::Gp divisor = cc.newInt32();
-		cc.mov(divisor, 10000);
-		cc.sdiv(dividend, dividend, divisor);
-	}
+		cc.sdiv(dividend, dividend, state.vTenK.w());
 }
 
 static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
@@ -325,7 +322,7 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 	else if (r == SP)
 	{
 		cc.mov(val, state.vSp);
-		a64::Gp ten_k = imm_to_reg(cc, 10000);
+		a64::Gp ten_k = state.vTenK.w();
 		cc.mul(val, val, ten_k);
 	}
 	else if (r == SP2)
@@ -533,8 +530,7 @@ static void compile_compare(CompilationState& state, a64::Compiler& cc, int comm
 		cc.mov(val, 0);
 		if(i10k)
 		{
-			val2 = cc.newInt32();
-			cc.mov(val2, 10000);
+			val2 = state.vTenK.w();
 		}
 		switch(arg2 & CMP_FLAGS)
 		{
@@ -587,7 +583,7 @@ static void compile_compare(CompilationState& state, a64::Compiler& cc, int comm
 	else if (command == SETTRUEI)
 	{
 		cc.mov(val, 0);
-		a64::Gp val2 = imm_to_reg(cc, 10000);
+		a64::Gp val2 = state.vTenK.w();
 		csel_constant(cc, val, val2, a64::CondCode::kEQ);
 		set_z_register(state, cc, arg1, val);
 	}
@@ -600,21 +596,21 @@ static void compile_compare(CompilationState& state, a64::Compiler& cc, int comm
 	else if (command == SETFALSEI)
 	{
 		cc.mov(val, 0);
-		a64::Gp val2 = imm_to_reg(cc, 10000);
+		a64::Gp val2 = state.vTenK.w();
 		csel_constant(cc, val, val2, a64::CondCode::kNE);
 		set_z_register(state, cc, arg1, val);
 	}
 	else if (command == SETMOREI)
 	{
 		cc.mov(val, 0);
-		a64::Gp val2 = imm_to_reg(cc, 10000);
+		a64::Gp val2 = state.vTenK.w();
 		csel_constant(cc, val, val2, a64::CondCode::kGE);
 		set_z_register(state, cc, arg1, val);
 	}
 	else if (command == SETLESSI)
 	{
 		cc.mov(val, 0);
-		a64::Gp val2 = imm_to_reg(cc, 10000);
+		a64::Gp val2 = state.vTenK.w();
 		csel_constant(cc, val, val2, a64::CondCode::kLE);
 		set_z_register(state, cc, arg1, val);
 	}
@@ -917,19 +913,26 @@ static void do_stack_push_many(CompilationState& state, a64::Compiler& cc, int o
 	}
 	else
 	{
-		// Loop, storing ascending from the lowest slot. The index must be an
-		// unconditional copy: immutable_add_constant would return vSp itself
-		// for a zero adjustment, and the loop mutates the index in place.
+		// Loop, storing ascending from the lowest slot two words at a time
+		// with a post-indexed store-pair (there is no bulk store like x64's
+		// rep stos). The address must be a fresh register: the loop mutates
+		// it in place via the write-back.
 		a64::Gp index = cc.newUInt32();
 		cc.mov(index, state.vSp);
 		add_constant(cc, index, offset - amount + 1);
-		a64::Gp count = imm_to_reg(cc, amount);
+		// Writes to a w register zero the upper bits, so the x view of index
+		// is the zero-extended word index.
+		a64::Gp addr = cc.newIntPtr();
+		cc.lsl(addr, index.x(), 2);
+		cc.add(addr, addr, state.ptrStackBase);
+		a64::Gp count = imm_to_reg(cc, amount / 2);
 		Label L_loop = cc.newLabel();
 		cc.bind(L_loop);
-		cc.str(val, a64::ptr(state.ptrStackBase, index, a64::uxtw(2)));
-		cc.add(index, index, 1);
+		cc.stp(val, val, a64::ptr_post(addr, 8));
 		cc.sub(count, count, 1);
 		cc.cbnz(count, L_loop);
+		if (amount & 1)
+			cc.str(val, a64::ptr(addr));
 	}
 }
 
@@ -991,12 +994,12 @@ static a64::Gp compile_modv(CompilationState& state, a64::Compiler& cc, a64::Gp 
 // Computes (base + value) / 10000 into a fresh register for a stack offset.
 // div_10000 mutates its operand in place and `base` may be shared (e.g. a
 // register from get_z_register), so it is always copied first.
-static a64::Gp compute_stack_offset(a64::Compiler& cc, a64::Gp base, int value)
+static a64::Gp compute_stack_offset(CompilationState& state, a64::Compiler& cc, a64::Gp base, int value)
 {
 	a64::Gp offset = cc.newInt32();
 	cc.mov(offset, base);
 	add_constant(cc, offset, value);
-	div_10000(cc, offset);
+	div_10000(state, cc, offset);
 	return offset;
 }
 
@@ -1165,14 +1168,14 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case LOADD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
-			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			a64::Gp offset = compute_stack_offset(state, cc, get_z_register(state, cc, rSFRAME), arg2);
 			set_z_register(state, cc, arg1, stack_mem(state, cc, offset));
 		}
 		break;
 		case LOADI:
 		{
 			// Set register to a value on the stack (offset is register at arg2).
-			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
+			a64::Gp offset = compute_stack_offset(state, cc, get_z_register(state, cc, arg2), 0);
 			set_z_register(state, cc, arg1, stack_mem(state, cc, offset));
 		}
 		break;
@@ -1221,7 +1224,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case STORED:
 		{
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
-			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			a64::Gp offset = compute_stack_offset(state, cc, get_z_register(state, cc, rSFRAME), arg2);
 			a64::Gp val = get_z_register(state, cc, arg1);
 			cc.str(val, stack_mem(state, cc, offset));
 		}
@@ -1229,7 +1232,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case STOREDV:
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
-			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, rSFRAME), arg2);
+			a64::Gp offset = compute_stack_offset(state, cc, get_z_register(state, cc, rSFRAME), arg2);
 			a64::Gp val = imm_to_reg(cc, arg1);
 			cc.str(val, stack_mem(state, cc, offset));
 		}
@@ -1237,7 +1240,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case STOREI:
 		{
 			// Write from register to a value on the stack (offset is register at arg2).
-			a64::Gp offset = compute_stack_offset(cc, get_z_register(state, cc, arg2), 0);
+			a64::Gp offset = compute_stack_offset(state, cc, get_z_register(state, cc, arg2), 0);
 			a64::Gp val = get_z_register(state, cc, arg1);
 			cc.str(val, stack_mem(state, cc, offset));
 		}
@@ -1262,7 +1265,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			// val = val ? 10000 : 0
 			a64::Gp val = get_z_register(state, cc, arg1);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 			cc.cmp(val, 0);
 			cc.csel(val, ten_k, a64::wzr, a64::CondCode::kNE);
 			set_z_register(state, cc, arg1, val);
@@ -1353,9 +1356,9 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
+			div_10000(state, cc, val);
 			cc.and_(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1366,10 +1369,10 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = get_z_register(state, cc, arg2);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			div_10000(state, cc, val);
+			div_10000(state, cc, val2);
 			cc.and_(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1380,9 +1383,9 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
+			div_10000(state, cc, val);
 			cc.orr(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1393,10 +1396,10 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = get_z_register(state, cc, arg2);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			div_10000(state, cc, val);
+			div_10000(state, cc, val2);
 			cc.orr(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1423,9 +1426,9 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
+			div_10000(state, cc, val);
 			cc.eor(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1436,10 +1439,10 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp val2 = get_z_register(state, cc, arg2);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
+			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(cc, val);
-			div_10000(cc, val2);
+			div_10000(state, cc, val);
+			div_10000(state, cc, val2);
 			cc.eor(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1466,8 +1469,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		{
 			// reg = (~(reg / 10000)) * 10000
 			a64::Gp val = get_z_register(state, cc, arg1);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
-			div_10000(cc, val);
+			a64::Gp ten_k = state.vTenK.w();
+			div_10000(state, cc, val);
 			cc.mvn(val, val);
 			cc.mul(val, val, ten_k);
 			set_z_register(state, cc, arg1, val);
@@ -1489,8 +1492,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// to 5 bits on both x86 and AArch64 (for 32-bit operands), so the
 			// mask here matches; `>>` on a signed int is arithmetic.
 			a64::Gp val = get_z_register(state, cc, arg1);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
-			div_10000(cc, val);
+			a64::Gp ten_k = state.vTenK.w();
+			div_10000(state, cc, val);
 			int k = (arg2 / 10000) & 31;
 			if (k)
 			{
@@ -1523,9 +1526,9 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// as x86's 5-bit CL mask, so behavior matches the x64 backend.
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp count = get_z_register(state, cc, arg2);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
-			div_10000(cc, val);
-			div_10000(cc, count);
+			a64::Gp ten_k = state.vTenK.w();
+			div_10000(state, cc, val);
+			div_10000(state, cc, count);
 			if (command == LSHIFTR) cc.lsl(val, val, count);
 			else cc.asr(val, val, count);
 			cc.mul(val, val, ten_k);
@@ -1538,7 +1541,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// reg = reg <</>> (count / 10000) (raw value, count is a register).
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp count = get_z_register(state, cc, arg2);
-			div_10000(cc, count);
+			div_10000(state, cc, count);
 			if (command == LSHIFTR32) cc.lsl(val, val, count);
 			else cc.asr(val, val, count);
 			set_z_register(state, cc, arg1, val);
@@ -1587,7 +1590,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = cc.newInt64();
 			cc.mov(val2, arg2);
 			cc.mul(val, val, val2);
-			div_10000(cc, val);
+			div_10000(state, cc, val);
 			set_z_register(state, cc, arg1, val.w());
 		}
 		break;
@@ -1596,7 +1599,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val = get_z_register_64(state, cc, arg1);
 			a64::Gp val2 = get_z_register_64(state, cc, arg2);
 			cc.mul(val, val, val2);
-			div_10000(cc, val);
+			div_10000(state, cc, val);
 			set_z_register(state, cc, arg1, val.w());
 		}
 		break;
@@ -1605,9 +1608,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// Note: like the x64 backend, no zero guard for a constant divisor
 			// (the compiler never emits DIVV 0).
 			a64::Gp dividend = get_z_register_64(state, cc, arg1);
-			a64::Gp ten_k = cc.newInt64();
-			cc.mov(ten_k, 10000);
-			cc.mul(dividend, dividend, ten_k);
+			cc.mul(dividend, dividend, state.vTenK);
 			a64::Gp divisor = cc.newInt64();
 			cc.mov(divisor, arg2);
 			cc.sdiv(dividend, dividend, divisor);
@@ -1640,9 +1641,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 
 			// Else do the actual division.
 			cc.bind(do_division);
-			a64::Gp ten_k = cc.newInt64();
-			cc.mov(ten_k, 10000);
-			cc.mul(dividend, dividend, ten_k);
+			cc.mul(dividend, dividend, state.vTenK);
 			cc.sdiv(dividend, dividend, divisor);
 
 			cc.bind(do_set_register);
@@ -1661,7 +1660,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				// Copy before div_10000 so the source register isn't corrupted.
 				index = cc.newInt32();
 				cc.mov(index, get_z_register(state, cc, arg2));
-				div_10000(cc, index);
+				div_10000(state, cc, index);
 			}
 
 			a64::Gp result = cc.newInt32();
@@ -1695,7 +1694,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				// Copy before div_10000 so the source register isn't corrupted.
 				index = cc.newInt32();
 				cc.mov(index, get_z_register(state, cc, arg1));
-				div_10000(cc, index);
+				div_10000(state, cc, index);
 			}
 			a64::Gp value;
 			if (value_is_reg)
@@ -1738,10 +1737,11 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case CEILING:
 		{
 			// reg = round(reg * 1e-4) * 10000, rounding toward -inf (FLOOR) or
-			// +inf (CEILING). Same operations as the x64 backend (cvtsi2sd /
-			// mulsd / roundsd / cvttsd2si): every step is IEEE-identical, and
-			// the truncating final conversion is exact because the value is
-			// already integral after frintm/frintp.
+			// +inf (CEILING). Matches the x64 backend (cvtsi2sd / mulsd /
+			// roundsd / cvttsd2si): the convert and multiply are
+			// IEEE-identical, and fcvtms/fcvtps converts to integer rounding
+			// toward -inf/+inf in one step, which equals x64's round-then-
+			// truncate because the rounded value is integral.
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp bits = cc.newInt64();
 			cc.mov(bits, (int64_t)4547007122018943789LL); // 1e-4
@@ -1751,12 +1751,10 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			cc.scvtf(y, val);
 			cc.fmul(y, y, scale);
 			if (command == FLOOR)
-				cc.frintm(y, y);
+				cc.fcvtms(val, y);
 			else
-				cc.frintp(y, y);
-			cc.fcvtzs(val, y);
-			a64::Gp ten_k = imm_to_reg(cc, 10000);
-			cc.mul(val, val, ten_k);
+				cc.fcvtps(val, y);
+			cc.mul(val, val, state.vTenK.w());
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1932,6 +1930,11 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	// the invalid operand, so give it a defined start value.
 	state.vSwitchKey = cc.newInt32("switch_key");
 	cc.mov(state.vSwitchKey, 0);
+
+	// Initialized once in the entry block so it dominates every use, including
+	// blocks entered via the resume dispatch below. Read-only after this.
+	state.vTenK = cc.newInt64("ten_k");
+	cc.mov(state.vTenK, 10000);
 
 	state.vResult = cc.newUInt32("result");
 	state.L_End = cc.newLabel();
