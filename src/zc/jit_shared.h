@@ -7,6 +7,11 @@
 // and the run loop are architecture independent and live in jit_shared.cpp.
 // The per-architecture backends (jit_x64.cpp, jit_a64.cpp) provide only the
 // code generation, exposed through jit_backend_compile_function.
+//
+// This is the runtime layer, included engine-wide via jit.h - keep it to
+// plain types and declarations. The codegen policy the two backends share
+// while *emitting* code (register cache, emit loop, etc.) lives in
+// jit_codegen_shared.h, which only the backend translation units include.
 
 #include "core/zdefs.h"
 #include "components/zasm/pc.h"

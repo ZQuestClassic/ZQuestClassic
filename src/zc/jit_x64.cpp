@@ -1,5 +1,5 @@
 #include "zc/jit_x64.h"
-#include "zc/jit_native_shared.h"
+#include "zc/jit_codegen_shared.h"
 #include "zc/jit_shared.h"
 #include "asmjit/x86/x86operand.h"
 #include "base/general.h"
@@ -48,7 +48,7 @@ struct CompilationState
 	x86::Gp vSp;
 	x86::Gp vSwitchKey;
 	// D-register cache; the caching/flush/dead-drop logic is shared with the
-	// a64 backend (jit_native_shared.h). A register returned by
+	// a64 backend (jit_codegen_shared.h). A register returned by
 	// get_z_register may be a cache entry - treat it as READ-ONLY unless the
 	// mutated value is immediately set_z_register'd back to the same D
 	// register.
@@ -222,7 +222,7 @@ static void flush_stack_cache(CompilationState& state, x86::Compiler& cc)
 
 static bool command_is_compiled(int command);
 
-// Adapter giving the shared D-register cache (jit_native_shared.h) its
+// Adapter giving the shared D-register cache (jit_codegen_shared.h) its
 // primitive emissions. flush_cache also flushes the stack-value cache, which
 // only this backend has.
 struct CacheOps
@@ -930,43 +930,9 @@ static void handle_check_sp_push(CompilationState& state, x86::Compiler& cc, con
 {
 	if (state.pc >= state.num_push_commands_in_row_end_pc)
 	{
-		int stack_delta = 1;
-		int max_stack_delta = 1;
-
-		int j = state.pc + 1;
-		for (; j < script->size; j++)
-		{
-			const auto& op = script->zasm[j];
-			if (op.command == PUSHV || op.command == PUSHR)
-			{
-				stack_delta++;
-				max_stack_delta = std::max(max_stack_delta, stack_delta);
-			}
-			else if (op.command == PUSHARGSV || op.command == PUSHARGSR)
-			{
-				stack_delta += op.arg2;
-				max_stack_delta = std::max(max_stack_delta, stack_delta);
-			}
-			else if (op.command == POP)
-			{
-				stack_delta -= 1;
-			}
-			else if (op.command == POPARGS)
-			{
-				stack_delta -= op.arg2;
-			}
-			else if (op.command == NOP)
-			{
-				continue;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		check_sp(state, cc, state.vSp, -max_stack_delta);
-		state.num_push_commands_in_row_end_pc = j;
+		auto scan = jit_scan_push_run(script, state.pc);
+		check_sp(state, cc, state.vSp, -scan.max_stack_delta);
+		state.num_push_commands_in_row_end_pc = scan.end_pc;
 	}
 }
 
@@ -1942,7 +1908,7 @@ static void compile_single_command(CompilationState& state, x86::Compiler& cc, c
 }
 
 // Hooks for the shared emit loop (jit_emit_function_body in
-// jit_native_shared.h).
+// jit_codegen_shared.h).
 struct LoopOps
 {
 	CompilationState& state;
@@ -2002,19 +1968,10 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	pc_t start_pc = fn.start_pc;
 	pc_t final_pc = fn.final_pc;
 
-	size_t size_no_nops = 0;
-	for (int i = start_pc; i <= final_pc; i++)
-	{
-		if (script->zasm[i].command != NOP)
-			size_no_nops += 1;
-	}
-
-	// ~170k is the largest function I've seen (from Yuurand, but if optimizer is on that script is ~100k).
-	if (size_no_nops > 150000)
-	{
-		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), start_pc, size_no_nops);
+	auto size_no_nops_opt = jit_function_size_within_cap(script, fn);
+	if (!size_no_nops_opt)
 		return std::nullopt;
-	}
+	size_t size_no_nops = *size_no_nops_opt;
 
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
@@ -2062,28 +2019,8 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 
 	x86::Compiler cc(&code);
 
-	// Create control flow labels.
 	JumpAnnotation* resume_annotation = cc.newJumpAnnotation();
-	for (size_t i = start_pc; i <= final_pc; i++)
-	{
-		int command = script->zasm[i].command;
-		if (command_is_goto(command))
-		{
-			int pc = script->zasm[i].arg1;
-			if (pc >= start_pc && pc <= final_pc)
-				state.goto_labels[pc] = cc.newLabel();
-		}
-		else if (command == CALLFUNC)
-		{
-			// If the last command in a function, it will never return.
-			if (i != final_pc)
-				state.resume_labels[i] = cc.newLabel();
-		}
-		else if (command_is_wait(command))
-		{
-			state.resume_labels[i] = cc.newLabel();
-		}
-	}
+	jit_create_labels(state, cc, script, start_pc, final_pc);
 
 	for (auto& [pc, label] : state.resume_labels)
 		resume_annotation->addLabel(label);
@@ -2198,13 +2135,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		return std::nullopt;
 	}
 
-	uintptr_t base = code.baseAddress();
-
-	std::map<pc_t, uintptr_t> pc_to_resume_address;
-	for (const auto& it : state.resume_labels)
-	{
-		pc_to_resume_address[it.first] = base + code.labelOffsetFromBase(it.second);
-	}
+	std::map<pc_t, uintptr_t> pc_to_resume_address = jit_extract_resume_addresses(state.resume_labels, code);
 
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
@@ -2212,36 +2143,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	jit_printf("[jit] compile function end   (name: %s, start: %d, len: %zu, ms: %d)\n", fn.name().c_str(), start_pc, size_no_nops, compile_ms);
 
 	if (auto debug_handle = j_script->debug_handle.get())
-	{
-		debug_handle->printf("function:           %s\n", fn.name().c_str());
-		debug_handle->printf("start pc:           %d\n", start_pc);
-		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
-		debug_handle->printf("Code size:          %.1f kb\n", code.codeSize() / 1024.0);
-		debug_handle->printf("ZASM instructions:  %zu\n", size_no_nops);
-		debug_handle->print("\n");
-
-		if (!uncompiled_command_counts.empty())
-		{
-			debug_handle->print("=== uncompiled commands:\n");
-			for (auto &it : uncompiled_command_counts)
-			{
-				debug_handle->printf("%s: %d\n", zasm_op_to_string(it.first).c_str(), it.second);
-			}
-			debug_handle->print("\n");
-		}
-
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\nasmjit log / assembly:\n\n");
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			logger.data());
-		debug_handle->print("\n");
-
-		debug_handle->update_file();
-	}
+		jit_print_compile_debug_dump(debug_handle, fn.name(), start_pc, compile_ms, code.codeSize(), size_no_nops, uncompiled_command_counts, logger.data());
 
 	JittedFunction j_fn{
 		.exec = compiled_fn,

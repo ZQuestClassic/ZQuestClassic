@@ -1,14 +1,28 @@
-#ifndef ZC_JIT_NATIVE_SHARED_H_
-#define ZC_JIT_NATIVE_SHARED_H_
+#ifndef ZC_JIT_CODEGEN_SHARED_H_
+#define ZC_JIT_CODEGEN_SHARED_H_
 
-// Logic shared between the two native JIT backends (jit_x64.cpp, jit_a64.cpp)
-// that must stay semantically identical even though the backends emit through
-// different asmjit compilers. The *decisions* - what to cache, what to flush,
-// when a dead register's write can be dropped - are single-sourced here; the
-// backends supply only the primitive emissions through a small adapter.
+// Code-generation logic shared between the two native JIT backends
+// (jit_x64.cpp, jit_a64.cpp) that must stay semantically identical even
+// though the backends emit through different asmjit compilers. The
+// *decisions* - what to cache, what to flush, when a dead register's write
+// can be dropped, how the emit loop is ordered - are single-sourced here;
+// the backends supply only the primitive emissions through small adapters.
 //
-// This header is included only by the backend translation units. Everything
-// is templated on the adapter ("Ops"), which must provide:
+// This header is included ONLY by the two backend translation units, is
+// header-only by necessity (templates over two asmjit compiler types), and
+// is free to have heavy includes. It is one of two shared JIT layers:
+//
+//   jit_shared.{h,cpp}    - the runtime layer: plain data types the whole
+//                           engine sees (via jit.h) and the driver .cpp
+//                           (compile pipeline, run loop, lifecycle).
+//   jit_codegen_shared.h  - this file: compile-time codegen policy that only
+//                           the backends instantiate.
+//
+// Rule of thumb: something the engine or driver needs goes in jit_shared;
+// something both backends need while emitting code goes here; something only
+// one backend needs stays in that backend.
+//
+// The cache adapter ("Ops") must provide:
 //
 //   using Reg = <asmjit 32-bit GP virtual register type>;
 //   Reg  new_reg32();                  // fresh virtual register
@@ -28,7 +42,9 @@
 #include "components/zasm/table.h"
 #include "zc/ffscript.h"
 #include "zc/jit_shared.h"
+#include "zconsole/ConsoleLogger.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <fmt/format.h>
 #include <map>
@@ -158,8 +174,13 @@ private:
 // The D-register cache flush/invalidation points, applied before the command
 // at pc `i` is compiled. This logic is subtle and has a history of dead-drop
 // bugs (see the suspend-aware liveness work) - it must stay identical between
-// the backends, which is why it lives here. All emission goes through stores
-// only, so a comparison result in flags survives it.
+// the backends, which is why it lives here.
+//
+// This can run between a comparison and its consumer (e.g. at a GOTOCMP), so
+// everything emitted here must leave the flags untouched. DRegCache emits
+// only stores; the x64 adapter's chained stack-cache flush would emit a
+// bounds-check cmp, but its loop_extras hook drains the stack cache before
+// every compare precisely so that it is empty by the time this runs.
 template <typename Ops, typename Reg>
 void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j_script,
 	zasm_script* script, pc_t i, pc_t current_block_id, bool is_block_start)
@@ -235,6 +256,157 @@ void jit_reg_cache_flush_policy(Ops& ops, DRegCache<Reg>& cache, JittedScript* j
 			ops.flush_cache();
 		}
 	}
+}
+
+// Counts a function's non-NOP instructions and rejects functions too large to
+// be worth compiling. Returns std::nullopt if the function should stay
+// interpreted.
+inline std::optional<size_t> jit_function_size_within_cap(zasm_script* script, const ZasmFunction& fn)
+{
+	size_t size_no_nops = 0;
+	for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+	{
+		if (script->zasm[i].command != NOP)
+			size_no_nops += 1;
+	}
+
+	// ~170k is the largest function I've seen (from Yuurand, but if optimizer is on that script is ~100k).
+	if (size_no_nops > 150000)
+	{
+		al_trace("[jit] not compiling function because it is too big (name: %s, start: %d, len: %zu)\n", fn.name().c_str(), fn.start_pc, size_no_nops);
+		return std::nullopt;
+	}
+
+	return size_no_nops;
+}
+
+// Creates the control flow labels: one per in-function GOTO target, and one
+// resume label per call/wait (where execution re-enters the function).
+template <typename State, typename Compiler>
+void jit_create_labels(State& state, Compiler& cc, zasm_script* script, pc_t start_pc, pc_t final_pc)
+{
+	for (size_t i = start_pc; i <= final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		if (command_is_goto(command))
+		{
+			int pc = script->zasm[i].arg1;
+			if (pc >= (int)start_pc && pc <= (int)final_pc)
+				state.goto_labels[pc] = cc.newLabel();
+		}
+		else if (command == CALLFUNC)
+		{
+			// If the last command in a function, it will never return.
+			if (i != final_pc)
+				state.resume_labels[i] = cc.newLabel();
+		}
+		else if (command_is_wait(command))
+		{
+			state.resume_labels[i] = cc.newLabel();
+		}
+	}
+}
+
+// Scans the contiguous run of PUSH/POP commands starting at pc, returning the
+// largest stack growth within it and where the run ends - so the backend can
+// bounds-check the stack pointer once per run instead of at every push.
+struct JitPushRunScan
+{
+	int max_stack_delta;
+	pc_t end_pc;
+};
+
+inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc)
+{
+	int stack_delta = 1;
+	int max_stack_delta = 1;
+
+	pc_t j = pc + 1;
+	for (; j < script->size; j++)
+	{
+		const auto& op = script->zasm[j];
+		if (op.command == PUSHV || op.command == PUSHR)
+		{
+			stack_delta++;
+			max_stack_delta = std::max(max_stack_delta, stack_delta);
+		}
+		else if (op.command == PUSHARGSV || op.command == PUSHARGSR)
+		{
+			stack_delta += op.arg2;
+			max_stack_delta = std::max(max_stack_delta, stack_delta);
+		}
+		else if (op.command == POP)
+		{
+			stack_delta -= 1;
+		}
+		else if (op.command == POPARGS)
+		{
+			stack_delta -= op.arg2;
+		}
+		else if (op.command == NOP)
+		{
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return {max_stack_delta, j};
+}
+
+// Maps each resume point to the native address of its label, for re-entering
+// the compiled function after a call or wait. `code` is the finalized asmjit
+// CodeHolder (templated to avoid naming asmjit types here).
+template <typename Labels, typename CodeHolderT>
+std::map<pc_t, uintptr_t> jit_extract_resume_addresses(const Labels& resume_labels, CodeHolderT& code)
+{
+	uintptr_t base = code.baseAddress();
+
+	std::map<pc_t, uintptr_t> pc_to_resume_address;
+	for (const auto& it : resume_labels)
+	{
+		pc_to_resume_address[it.first] = base + code.labelOffsetFromBase(it.second);
+	}
+	return pc_to_resume_address;
+}
+
+// Writes the per-function compile report (stats, uncompiled command counts,
+// and the asmjit log/assembly) to the script debug file.
+template <typename DebugHandle>
+void jit_print_compile_debug_dump(DebugHandle* debug_handle, const std::string& fn_name,
+	pc_t start_pc, int32_t compile_ms, size_t code_size_bytes, size_t size_no_nops,
+	const std::map<int, int>& uncompiled_command_counts, const char* logger_data)
+{
+	debug_handle->printf("function:           %s\n", fn_name.c_str());
+	debug_handle->printf("start pc:           %d\n", start_pc);
+	debug_handle->printf("time to compile:    %d ms\n", compile_ms);
+	debug_handle->printf("Code size:          %.1f kb\n", code_size_bytes / 1024.0);
+	debug_handle->printf("ZASM instructions:  %zu\n", size_no_nops);
+	debug_handle->print("\n");
+
+	if (!uncompiled_command_counts.empty())
+	{
+		debug_handle->print("=== uncompiled commands:\n");
+		for (auto &it : uncompiled_command_counts)
+		{
+			debug_handle->printf("%s: %d\n", zasm_op_to_string(it.first).c_str(), it.second);
+		}
+		debug_handle->print("\n");
+	}
+
+	debug_handle->print(
+		CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+		"\nasmjit log / assembly:\n\n");
+	debug_handle->print(
+		CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+		logger_data);
+	debug_handle->print("\n");
+
+	debug_handle->update_file();
 }
 
 // Drives the per-command emission for one function: block tracking, the
