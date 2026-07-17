@@ -8,8 +8,11 @@
 // - Division by constants uses sdiv: AArch64 sdiv rounds toward zero, exactly
 //   matching C semantics and the x64 backend's magic-multiply sequences.
 // - No SSE4.1 gate for CEILING/FLOOR: frintp/frintm are baseline.
-//
-// The register cache (use_cached_regs) is not yet ported; see jit_x64.cpp.
+// - Resume after a call/wait is a pc-comparison dispatch at entry rather than
+//   x64's indirect branch (see the comment at the dispatch).
+// - Conditional branches in very large functions go through emit_cond_branch,
+//   since b.cond only reaches +/-1 MB.
+// - The constant 10000 is kept in a function-wide register (vTenK).
 
 #include "zc/jit_a64.h"
 #include "zc/jit_shared.h"
@@ -38,6 +41,12 @@ using namespace asmjit;
 
 static JitRuntime rt;
 
+struct CachedRegister
+{
+	a64::Gp reg;
+	bool dirty;
+};
+
 struct CompilationState
 {
 	zasm_script* script;
@@ -55,6 +64,16 @@ struct CompilationState
 	// immediates that fit it, so sharing one register avoids materializing it
 	// at every use (and avoids the extra virtual registers that implies).
 	a64::Gp vTenK;
+	// D-register cache: D0..D7 live in host registers between flush points
+	// instead of being loaded/stored from ri->d[] at every access. A register
+	// returned by get_z_register may be a cache entry - treat it as READ-ONLY
+	// unless the mutated value is immediately set_z_register'd back to the
+	// same D register. Flush/invalidation points mirror the x64 backend:
+	// waits, uncompiled-command batches (the interpreter reads and writes
+	// ri->d[] directly), branches and block boundaries (with a liveness-based
+	// dead-drop), and helper calls that depend on D registers.
+	bool use_cached_regs;
+	std::map<int, CachedRegister> cached_d_regs;
 	a64::Gp ptrCtx;
 	a64::Gp ptrRegisters;
 	a64::Gp ptrStackBase;
@@ -248,6 +267,48 @@ static void check_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackI
 	cc.bind(label);
 }
 
+// Writes every dirty cached D register back to ri->d[] and empties the cache.
+// Uses only str, so it is safe to emit between a cmp and its consumer.
+static void flush_cache(CompilationState& state, a64::Compiler& cc)
+{
+	if (state.cached_d_regs.empty())
+		return;
+
+	if (DEBUG_JIT_PRINT_ASM)
+		cc.setInlineComment("flush cached registers");
+
+	for (auto& [r, cached_reg] : state.cached_d_regs)
+	{
+		if (cached_reg.dirty)
+			cc.str(cached_reg.reg, a64::ptr(state.ptrRegisters, r * 4));
+	}
+	state.cached_d_regs.clear();
+}
+
+// Some non-D registers are computed from D registers when read through the
+// C++ helpers (get_register/set_register), so those helpers must see current
+// values in ri->d[] for the D registers they depend on.
+static void flush_cache_for_dependent_registers(CompilationState& state, a64::Compiler& cc, int r)
+{
+	if (state.cached_d_regs.empty())
+		return;
+
+	auto dep_regs = get_register_dependencies(r);
+	if (dep_regs.empty())
+		return;
+
+	std::erase_if(state.cached_d_regs, [&](const auto& pair){
+		if (util::contains(dep_regs, pair.first))
+		{
+			if (pair.second.dirty)
+				cc.str(pair.second.reg, a64::ptr(state.ptrRegisters, pair.first * 4));
+			return true;
+		}
+
+		return false;
+	});
+}
+
 static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp, pc_t pc)
 {
 	extern refInfo *ri;
@@ -298,19 +359,41 @@ static a64::Gp get_tmp_sp(CompilationState& state, a64::Compiler& cc)
 	return sp;
 }
 
-// Divides in place by 10000, rounding toward zero (C semantics). sdiv rounds
-// toward zero, so this matches the x64 backend's magic-multiply sequences
-// bit-for-bit for both 32-bit and 64-bit operands.
-static void div_10000(CompilationState& state, a64::Compiler& cc, a64::Gp dividend)
+// Returns src / 10000 in a FRESH register, rounding toward zero (C
+// semantics); sdiv matches the x64 backend's magic-multiply sequences
+// bit-for-bit for both 32-bit and 64-bit operands. Never mutates src: sdiv is
+// 3-operand, so writing to a fresh register is free, and src is frequently a
+// cached D register that must not change (the in-place x64 equivalent is a
+// recurring source of register-cache corruption).
+static a64::Gp div_10000(CompilationState& state, a64::Compiler& cc, a64::Gp src)
 {
-	if (dividend.isGpX())
-		cc.sdiv(dividend, dividend, state.vTenK);
-	else
-		cc.sdiv(dividend, dividend, state.vTenK.w());
+	if (src.isGpX())
+	{
+		a64::Gp out = cc.newInt64();
+		cc.sdiv(out, src, state.vTenK);
+		return out;
+	}
+
+	a64::Gp out = cc.newInt32();
+	cc.sdiv(out, src, state.vTenK.w());
+	return out;
 }
 
 static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 {
+	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
+	{
+		if (!state.cached_d_regs.contains(r))
+		{
+			a64::Gp val = cc.newInt32();
+			cc.ldr(val, a64::ptr(state.ptrRegisters, r * 4));
+			state.cached_d_regs[r] = {.reg=val};
+			return val;
+		}
+
+		return state.cached_d_regs[r].reg;
+	}
+
 	a64::Gp val = cc.newInt32();
 	if (r >= D(0) && r < D(INITIAL_D))
 	{
@@ -338,6 +421,7 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 	}
 	else if (does_register_use_stack(r))
 	{
+		flush_cache_for_dependent_registers(state, cc, r);
 		a64::Gp stackIndex = get_tmp_sp(state, cc);
 
 		// Call external get_register_and_restore_sp.
@@ -350,6 +434,8 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 	}
 	else
 	{
+		flush_cache_for_dependent_registers(state, cc, r);
+
 		// Call external get_register_jit.
 		InvokeNode *invokeNode;
 		invoke(cc, &invokeNode, get_register_jit, FuncSignature::build<int32_t, int32_t, pc_t>(state.calling_convention));
@@ -371,6 +457,23 @@ static a64::Gp get_z_register_64(CompilationState& state, a64::Compiler& cc, int
 template <typename T>
 static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T val)
 {
+	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
+	{
+		if (state.cached_d_regs.contains(r))
+		{
+			auto& cached_reg = state.cached_d_regs[r];
+			cc.mov(cached_reg.reg, val);
+			cached_reg.dirty = true;
+		}
+		else
+		{
+			a64::Gp reg = cc.newInt32();
+			state.cached_d_regs[r] = {.reg = reg, .dirty = true};
+			cc.mov(reg, val);
+		}
+		return;
+	}
+
 	a64::Gp val_reg;
 	if constexpr (std::is_integral_v<T>)
 		val_reg = imm_to_reg(cc, val);
@@ -399,6 +502,7 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	}
 	else if (does_register_use_stack(r))
 	{
+		flush_cache_for_dependent_registers(state, cc, r);
 		a64::Gp stackIndex = get_tmp_sp(state, cc);
 
 		// Call external set_register_and_restore_sp.
@@ -412,6 +516,8 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	else if (is_guarded_script_register(r))
 	{
 		// Some registers have an extra check when writing to them.
+		flush_cache_for_dependent_registers(state, cc, r);
+
 		// Call external set_guarded_register.
 		InvokeNode *invokeNode;
 		invoke(cc, &invokeNode, set_guarded_register, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
@@ -421,6 +527,8 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 	}
 	else
 	{
+		flush_cache_for_dependent_registers(state, cc, r);
+
 		// Call external set_register_jit.
 		InvokeNode *invokeNode;
 		invoke(cc, &invokeNode, set_register_jit, FuncSignature::build<void, int32_t, int32_t, pc_t>(state.calling_convention));
@@ -444,11 +552,14 @@ static a64::Gp get_ctx_script_instance(CompilationState& state, a64::Compiler& c
 	return ptr;
 }
 
-// Sets reg to 0/1 based on whether it was zero (x64 cast_bool equivalent).
-static void cast_bool(a64::Compiler& cc, a64::Gp reg)
+// Returns 0/1 based on whether reg is nonzero, in a FRESH register - reg is
+// often a cached D register that must not be mutated.
+static a64::Gp immutable_cast_bool(a64::Compiler& cc, a64::Gp reg)
 {
+	a64::Gp out = cc.newInt32();
 	cc.cmp(reg, 0);
-	cc.cset(reg, a64::CondCode::kNE);
+	cc.cset(out, a64::CondCode::kNE);
+	return out;
 }
 
 // Emits a conditional branch that can reach any label in the function. A bare
@@ -1026,15 +1137,13 @@ static a64::Gp compile_modv(CompilationState& state, a64::Compiler& cc, a64::Gp 
 }
 
 // Computes (base + value) / 10000 into a fresh register for a stack offset.
-// div_10000 mutates its operand in place and `base` may be shared (e.g. a
-// register from get_z_register), so it is always copied first.
+// `base` may be shared (e.g. a cached register from get_z_register) and is
+// never mutated: immutable_add_constant copies (or passes through for 0) and
+// div_10000 writes a fresh register.
 static a64::Gp compute_stack_offset(CompilationState& state, a64::Compiler& cc, a64::Gp base, int value)
 {
-	a64::Gp offset = cc.newInt32();
-	cc.mov(offset, base);
-	add_constant(cc, offset, value);
-	div_10000(state, cc, offset);
-	return offset;
+	a64::Gp sum = immutable_add_constant(cc, base, value);
+	return div_10000(state, cc, sum);
 }
 
 // Every command here must be reflected in command_is_compiled!
@@ -1308,7 +1417,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 		case CASTBOOLF:
 		{
 			a64::Gp val = get_z_register(state, cc, arg1);
-			cast_bool(cc, val);
+			val = immutable_cast_bool(cc, val);
 			set_z_register(state, cc, arg1, val);
 		}
 		break;
@@ -1392,7 +1501,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			cc.and_(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1405,8 +1514,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = get_z_register(state, cc, arg2);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
-			div_10000(state, cc, val2);
+			val = div_10000(state, cc, val);
+			val2 = div_10000(state, cc, val2);
 			cc.and_(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1419,7 +1528,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			cc.orr(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1432,8 +1541,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = get_z_register(state, cc, arg2);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
-			div_10000(state, cc, val2);
+			val = div_10000(state, cc, val);
+			val2 = div_10000(state, cc, val2);
 			cc.orr(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1462,7 +1571,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = imm_to_reg(cc, arg2 / 10000);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			cc.eor(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1475,8 +1584,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = get_z_register(state, cc, arg2);
 			a64::Gp ten_k = state.vTenK.w();
 
-			div_10000(state, cc, val);
-			div_10000(state, cc, val2);
+			val = div_10000(state, cc, val);
+			val2 = div_10000(state, cc, val2);
 			cc.eor(val, val, val2);
 			cc.mul(val, val, ten_k);
 
@@ -1504,7 +1613,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// reg = (~(reg / 10000)) * 10000
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp ten_k = state.vTenK.w();
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			cc.mvn(val, val);
 			cc.mul(val, val, ten_k);
 			set_z_register(state, cc, arg1, val);
@@ -1527,7 +1636,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// mask here matches; `>>` on a signed int is arithmetic.
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp ten_k = state.vTenK.w();
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			int k = (arg2 / 10000) & 31;
 			if (k)
 			{
@@ -1561,8 +1670,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp count = get_z_register(state, cc, arg2);
 			a64::Gp ten_k = state.vTenK.w();
-			div_10000(state, cc, val);
-			div_10000(state, cc, count);
+			val = div_10000(state, cc, val);
+			count = div_10000(state, cc, count);
 			if (command == LSHIFTR) cc.lsl(val, val, count);
 			else cc.asr(val, val, count);
 			cc.mul(val, val, ten_k);
@@ -1575,7 +1684,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			// reg = reg <</>> (count / 10000) (raw value, count is a register).
 			a64::Gp val = get_z_register(state, cc, arg1);
 			a64::Gp count = get_z_register(state, cc, arg2);
-			div_10000(state, cc, count);
+			count = div_10000(state, cc, count);
 			if (command == LSHIFTR32) cc.lsl(val, val, count);
 			else cc.asr(val, val, count);
 			set_z_register(state, cc, arg1, val);
@@ -1624,7 +1733,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val2 = cc.newInt64();
 			cc.mov(val2, arg2);
 			cc.mul(val, val, val2);
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			set_z_register(state, cc, arg1, val.w());
 		}
 		break;
@@ -1633,7 +1742,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp val = get_z_register_64(state, cc, arg1);
 			a64::Gp val2 = get_z_register_64(state, cc, arg2);
 			cc.mul(val, val, val2);
-			div_10000(state, cc, val);
+			val = div_10000(state, cc, val);
 			set_z_register(state, cc, arg1, val.w());
 		}
 		break;
@@ -1691,10 +1800,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp index;
 			if (command == READPODARRAYR)
 			{
-				// Copy before div_10000 so the source register isn't corrupted.
-				index = cc.newInt32();
-				cc.mov(index, get_z_register(state, cc, arg2));
-				div_10000(state, cc, index);
+				index = div_10000(state, cc, get_z_register(state, cc, arg2));
 			}
 
 			a64::Gp result = cc.newInt32();
@@ -1725,10 +1831,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			a64::Gp index;
 			if (index_is_reg)
 			{
-				// Copy before div_10000 so the source register isn't corrupted.
-				index = cc.newInt32();
-				cc.mov(index, get_z_register(state, cc, arg1));
-				div_10000(state, cc, index);
+				index = div_10000(state, cc, get_z_register(state, cc, arg1));
 			}
 			a64::Gp value;
 			if (value_is_reg)
@@ -1802,7 +1905,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
 					val = val ? 1 : 0;
-					cast_bool(cc, val2);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
@@ -1819,7 +1922,7 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
 					val = val ? 1 : 0;
-					cast_bool(cc, val2);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
@@ -1838,8 +1941,8 @@ static void compile_single_command(CompilationState& state, a64::Compiler& cc, c
 			{
 				if (script->zasm[state.pc + 1].arg2 & CMP_BOOL)
 				{
-					cast_bool(cc, val);
-					cast_bool(cc, val2);
+					val = immutable_cast_bool(cc, val);
+					val2 = immutable_cast_bool(cc, val2);
 				}
 			}
 
@@ -2003,12 +2106,113 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 	std::string comment;
 	std::map<int, int> uncompiled_command_counts;
 
+	state.use_cached_regs = jit_is_use_cached_regs_enabled() && !runtime_debugging;
+
+	pc_t current_block_id = j_script->cfg.block_id_from_start_pc(start_pc);
+
 	for (pc_t i = start_pc; i <= final_pc; i++)
 	{
 		state.pc = i;
 
 		const auto& op = script->zasm[i];
 		int command = op.command;
+
+		bool is_block_start;
+		if (i == start_pc)
+		{
+			is_block_start = true;
+		}
+		else
+		{
+			is_block_start = state.j_script->cfg.contains_block_start(i);
+			if (is_block_start)
+				current_block_id++;
+		}
+
+		// D-register cache flush/invalidation points. This mirrors the x64
+		// backend exactly, including its liveness dead-drop rules; see that
+		// file for the full reasoning behind each case. All emission here is
+		// ldr/str/mov only, so a comparison result in NZCV survives it.
+		if (command_is_wait(command))
+		{
+			flush_cache(state, cc);
+		}
+		else if (!command_is_compiled(command))
+		{
+			// The interpreter reads and writes ri->d[] directly.
+			flush_cache(state, cc);
+		}
+		else if (command_is_goto(command) || command == CALLFUNC || command == RETURNFUNC)
+		{
+			// A CALLFUNC into a function that can suspend (a WaitX/RUNGENFRZSCR reached
+			// transitively) needs the caller's whole modified register state in memory: at the
+			// callee's suspend the full D-register file is serialized to ri->d[] and restored
+			// on resume, and this caller's intra-procedural liveness cannot see that its
+			// registers are observed there. So flush every dirty register (skip the dead-drop)
+			// before such a call. A CALLFUNC ends a block, so the cache holds a single-path
+			// value here - flushing it is always correct (unlike a merge block start).
+			bool callee_may_yield = false;
+			if (command == CALLFUNC)
+			{
+				auto it = j_script->structured_zasm.start_pc_to_function.find(op.arg1);
+				callee_may_yield = it != j_script->structured_zasm.start_pc_to_function.end() &&
+					j_script->structured_zasm.functions[it->second].may_yield;
+			}
+
+			// A RETURNFUNC hands control back to the caller, whose successors this function's
+			// intra-procedural liveness cannot see. ZASM D-registers are global, so every
+			// register this function wrote (dirty in the cache) is observed by the caller once
+			// it resumes - exactly as the interpreter leaves them in ri->d[]. The block's own
+			// .out for a returns-block is only D2 (the return-value convention), so the dead-drop
+			// would strand any other register written here (e.g. a POP D3 that a setter helper
+			// does before returning). Skip the dead-drop and flush every dirty register.
+			bool is_returnfunc = command == RETURNFUNC;
+
+			if (!is_returnfunc && !callee_may_yield && j_script->cfg.contains_block_start(i + 1))
+			{
+				uint8_t out = j_script->liveness[current_block_id].out;
+
+				// For a CALLFUNC the block's own .out is the callee's live-in (the CFG edge
+				// goes to the callee), which does not capture what the caller needs once the
+				// call returns. Execution resumes at i+1, and a register live there must
+				// survive the call: the callee is not required to write every register, so a
+				// value it leaves untouched has to already be in ri->d[] (e.g. a loop/array
+				// index kept in a register across a helper call). Keep those too.
+				if (command == CALLFUNC)
+					out |= j_script->liveness[j_script->cfg.block_id_from_start_pc(i + 1)].in;
+
+				for (auto& [r, cached_reg] : state.cached_d_regs)
+				{
+					if (!(out & (1 << r)))
+						cached_reg.dirty = false;
+				}
+			}
+
+			flush_cache(state, cc);
+		}
+		else if (is_block_start)
+		{
+			pc_t block_id = current_block_id;
+			bool is_linear_flow =
+				block_id > 0 &&
+				j_script->cfg.block_edges[block_id - 1].size() == 1 &&
+				j_script->cfg.block_edges[block_id - 1][0] == block_id &&
+				j_script->block_predecessors[block_id].size() == 1;
+			if (!is_linear_flow)
+			{
+				if (current_block_id > 0)
+				{
+					uint8_t out = j_script->liveness[current_block_id - 1].out;
+					for (auto& [r, cached_reg] : state.cached_d_regs)
+					{
+						if (!(out & (1 << r)))
+							cached_reg.dirty = false;
+					}
+				}
+
+				flush_cache(state, cc);
+			}
+		}
 
 		if (state.goto_labels.contains(i))
 		{
