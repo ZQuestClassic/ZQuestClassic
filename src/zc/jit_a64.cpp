@@ -565,23 +565,25 @@ static a64::Gp immutable_cast_bool(a64::Compiler& cc, a64::Gp reg)
 // Emits a conditional branch that can reach any label in the function. A bare
 // b.cond only reaches +/-1 MB of code, which the largest functions exceed
 // (the failure shows up as InvalidDisplacement when the label is bound), so
-// in far mode branch over an unconditional b, which reaches +/-128 MB. Only
-// used for branches whose target can be arbitrarily far away (script GOTOs,
-// the resume dispatch, waits); short local branches stay bare.
+// far branches go over an unconditional b, which reaches +/-128 MB. Only used
+// for branches whose target can be arbitrarily far away (script GOTOs, the
+// resume dispatch, waits); short local branches stay bare.
 //
-// Do not "optimize" this by keeping the bare b.cond when the ZASM pc distance
-// to the target is small - it was tried and it compiles *fewer* functions.
-// The branch's own displacement isn't the only range hazard: when a
-// conditional branch's target block needs register-state fixup moves, asmjit
-// redirects the b.cond to a trampoline it emits at the *end* of the function
-// (RALocalAllocator::allocBranch), which in a multi-MB function is out of
-// range no matter how near the original target was. An unconditional b gets
-// those fixups inlined instead, so the far form dodges that failure too
-// (measured on Yuurand: distance-based selection discarded 16 functions vs
-// 11 with the unconditional far form).
-static void emit_cond_branch(CompilationState& state, a64::Compiler& cc, a64::CondCode cond, const Label& target)
+// pc_distance is how many ZASM instructions sit between the branch and its
+// target; the far form is only needed when that distance could plausibly
+// exceed b.cond's reach. Emitted code averages well under 100 bytes per ZASM
+// instruction (including register-allocator spill code), so 4000 instructions
+// leaves a 250 bytes/instruction margin against the +/-1 MB limit.
+//
+// Distance-based selection is only sound because third_party/asmjit.patch
+// places register-state fixup trampolines inline (right after the branch)
+// on AArch64. With upstream asmjit's end-of-function trampoline placement,
+// a b.cond retargeted to a fixup trampoline goes out of range in a multi-MB
+// function no matter how near its original target was - that variant was
+// measured to compile fewer functions (16 discarded vs 11 on Yuurand).
+static void emit_cond_branch(CompilationState& state, a64::Compiler& cc, a64::CondCode cond, const Label& target, pc_t pc_distance)
 {
-	if (!state.far_branches)
+	if (!state.far_branches || pc_distance <= 4000)
 	{
 		cc.b(cond, target);
 		return;
@@ -591,6 +593,12 @@ static void emit_cond_branch(CompilationState& state, a64::Compiler& cc, a64::Co
 	cc.b(a64::negateCond(cond), skip);
 	cc.b(target);
 	cc.bind(skip);
+}
+
+// pc distance from the current command to a GOTO target.
+static pc_t goto_distance(CompilationState& state, int target_pc)
+{
+	return (pc_t)(target_pc > (int)state.pc ? target_pc - (int)state.pc : (int)state.pc - target_pc);
 }
 
 static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int command, int arg1, int arg2, int arg3)
@@ -605,22 +613,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 			default:
 				break;
 			case CMP_GT:
-				emit_cond_branch(state, cc, a64::CondCode::kGT, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kGT, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_GT|CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kGE, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kGE, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_LT:
-				emit_cond_branch(state, cc, a64::CondCode::kLT, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kLT, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_LT|CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kLE, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kLE, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_EQ:
-				emit_cond_branch(state, cc, a64::CondCode::kEQ, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kEQ, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_GT|CMP_LT:
-				emit_cond_branch(state, cc, a64::CondCode::kNE, lbl);
+				emit_cond_branch(state, cc, a64::CondCode::kNE, lbl, goto_distance(state, arg1));
 				break;
 			case CMP_GT|CMP_LT|CMP_EQ:
 				cc.b(lbl);
@@ -629,22 +637,22 @@ static void compile_compare_goto(CompilationState& state, a64::Compiler& cc, int
 	}
 	else if (command == GOTOTRUE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kEQ, goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kEQ, goto_labels[arg1], goto_distance(state, arg1));
 	}
 	else if (command == GOTOFALSE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kNE, goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kNE, goto_labels[arg1], goto_distance(state, arg1));
 	}
 	else if (command == GOTOMORE)
 	{
-		emit_cond_branch(state, cc, a64::CondCode::kGE, goto_labels[arg1]);
+		emit_cond_branch(state, cc, a64::CondCode::kGE, goto_labels[arg1], goto_distance(state, arg1));
 	}
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_labels[arg1]);
+			emit_cond_branch(state, cc, a64::CondCode::kLE, goto_labels[arg1], goto_distance(state, arg1));
 		else
-			emit_cond_branch(state, cc, a64::CondCode::kLT, goto_labels[arg1]);
+			emit_cond_branch(state, cc, a64::CondCode::kLT, goto_labels[arg1], goto_distance(state, arg1));
 	}
 	else
 	{
@@ -874,7 +882,7 @@ static void compile_command_interpreter(CompilationState& state, a64::Compiler& 
 		cmp_constant(cc, retVal, RUNSCRIPT_STOPPED);
 		// If actually waiting, the return value will be RUNSCRIPT_OK. set_ctx_ret_code isn't called
 		// here because RUNSCRIPT_OK is the default value.
-		emit_cond_branch(state, cc, a64::CondCode::kEQ, state.L_End);
+		emit_cond_branch(state, cc, a64::CondCode::kEQ, state.L_End, state.final_pc - state.pc);
 
 		cc.bind(state.resume_labels[state.pc]);
 		return;
@@ -2097,7 +2105,7 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 		for (auto& [k, label] : state.resume_labels)
 		{
 			cmp_constant(cc, pc_reg, k + 1);
-			emit_cond_branch(state, cc, a64::CondCode::kEQ, label);
+			emit_cond_branch(state, cc, a64::CondCode::kEQ, label, k + 1 - start_pc);
 		}
 	}
 
