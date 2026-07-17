@@ -1,0 +1,38 @@
+stderr:
+
+Compiling 'annotations.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 2,
+    "symbols": 2,
+    "identifiers": 2,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body
+PUSHR D0; void run(int, int, int, int) Params
+PUSHR D1
+PUSHR D2
+PUSHR D3
+PUSHR REFFFC; void run(int, int, int, int) Body Start
+SETR D4 SP2
+NOP
+POPARGS D5 0.0005
+RETURNFUNC; void run(int, int, int, int) Body End

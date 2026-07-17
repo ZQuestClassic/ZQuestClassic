@@ -28,6 +28,8 @@ Scripts are capable of being targetted with a number of :ref:`annotations<annota
 
 For `String` values, the number in parentheses is the maximum length, in characters.
 
+These annotations take a single value:
+
 .. table::
 	:widths: auto
 	
@@ -44,20 +46,20 @@ For `String` values, the number in parentheses is the maximum length, in charact
 	+-----------------------------------------+-----------------+-----------------------------------------------+
 	| `@FlagHelp0` - `@FlagHelp15`            | String (65535)  | Sets help text in the Combo / Item editors.   |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@Attribyte0` - `@Attribyte8`           | String (256)    | Sets labels in the Combo editor.              |
+	| `@Attribyte0` - `@Attribyte7`           | String (256)    | Sets labels in the Combo editor.              |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@AttribyteHelp0` - `@AttribyteHelp8`   | String (65535)  | Sets help text in the Combo editor.           |
+	| `@AttribyteHelp0` - `@AttribyteHelp7`   | String (65535)  | Sets help text in the Combo editor.           |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@Attrishort0` - `@Attrishort8`         | String (256)    | Sets labels in the Combo editor.              |
+	| `@Attrishort0` - `@Attrishort7`         | String (256)    | Sets labels in the Combo editor.              |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@AttrishortHelp0` - `@AttrishortHelp8` | String (65535)  | Sets help text in the Combo editor.           |
+	| `@AttrishortHelp0` - `@AttrishortHelp7` | String (65535)  | Sets help text in the Combo editor.           |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@InitD0` - `@InitD8`                   | String (256)    | Sets labels for the `void run` parameters.    |
+	| `@InitD0` - `@InitD7`                   | String (256)    | Sets labels for the `void run` parameters.    |
 	|                                         |                 | Defaults to the parameter names.              |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@InitDHelp0` - `@InitDHelp8`           | String (65535)  | Sets help text for the `void run` parameters. |
+	| `@InitDHelp0` - `@InitDHelp7`           | String (65535)  | Sets help text for the `void run` parameters. |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
-	| `@InitDType0` - `@InitDType8`           | "D", "H", "LD", | Sets the input field type of the textbox for  |
+	| `@InitDType0` - `@InitDType7`           | "D", "H", "LD", | Sets the input field type of the textbox for  |
 	|                                         | "LH", "B", "-1" | inputting the `void run` parameters. Default  |
 	|                                         |                 | based on `void run` parameter type, as:       |
 	|                                         |                 |                                               |
@@ -83,3 +85,26 @@ For `String` values, the number in parentheses is the maximum length, in charact
 	|                                         |                 | value if this annotation is not provided.     |
 	+-----------------------------------------+-----------------+-----------------------------------------------+
 
+These annotations take a varying amount of values.
+A value in [square brackets] indicates an 'optional' value.
+
+.. table::
+	:widths: auto
+	
+	+-----------------------------------------+-----------------------------------------------+-----------------------------------------------+
+	| Annotation Name                         | Values                                        | Purpose                                       |
+	+=========================================+===============================================+===============================================+
+	| `@ExportInitD0` - `@ExportInitD7`       | | Name: String (256)                          | Sets the labels, helptext, and input field    |
+	|                                         | | Help Text: [String (65535)]                 | type of the textbox for the specified         |
+	|                                         | | Type: ["D", "H", "LD", "LH", "B", "-1"]     | `void run` parameters.                        |
+	|                                         |                                               |                                               |
+	|                                         |                                               | Name defaults to the variable name, help text |
+	|                                         |                                               | defaults to blank, and type defaults based on |
+	|                                         |                                               | variable type, as:                            |
+	|                                         |                                               |                                               |
+	|                                         |                                               | | `int`, `float`, `untyped` -> "D"            |
+	|                                         |                                               | | `long` -> "LD"                              |
+	|                                         |                                               | | `bool` -> "B"                               |
+	|                                         |                                               | | `rgb` -> "LH"                               |
+	|                                         |                                               | | else -> "-1"                                |
+	+-----------------------------------------+-----------------------------------------------+-----------------------------------------------+

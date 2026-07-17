@@ -2,7 +2,7 @@ stderr:
 
 Compiling 'errors_8.zs'
 Pass 1: Parsing
-ERROR: Bad Annotation Value: @Author expects a String, not a Number
+ERROR: Bad Annotation Value: @Author expects parameter 0 to be type 'String', not type 'Number'
 
 
 13    
@@ -32,7 +32,7 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "ERROR: Bad Annotation Value: @Author expects a String, not a Number"
+      "message": "ERROR: Bad Annotation Value: @Author expects parameter 0 to be type 'String', not type 'Number'"
     }
   ]
 }
