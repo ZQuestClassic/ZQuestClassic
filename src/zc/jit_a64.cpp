@@ -15,6 +15,7 @@
 // - The constant 10000 is kept in a function-wide register (vTenK).
 
 #include "zc/jit_a64.h"
+#include "zc/jit_native_shared.h"
 #include "zc/jit_shared.h"
 #include "base/general.h"
 #include "core/qrs.h"
@@ -41,12 +42,6 @@ using namespace asmjit;
 
 static JitRuntime rt;
 
-struct CachedRegister
-{
-	a64::Gp reg;
-	bool dirty;
-};
-
 struct CompilationState
 {
 	zasm_script* script;
@@ -64,16 +59,13 @@ struct CompilationState
 	// immediates that fit it, so sharing one register avoids materializing it
 	// at every use (and avoids the extra virtual registers that implies).
 	a64::Gp vTenK;
-	// D-register cache: D0..D7 live in host registers between flush points
-	// instead of being loaded/stored from ri->d[] at every access. A register
-	// returned by get_z_register may be a cache entry - treat it as READ-ONLY
-	// unless the mutated value is immediately set_z_register'd back to the
-	// same D register. Flush/invalidation points mirror the x64 backend:
-	// waits, uncompiled-command batches (the interpreter reads and writes
-	// ri->d[] directly), branches and block boundaries (with a liveness-based
-	// dead-drop), and helper calls that depend on D registers.
+	// D-register cache; the caching/flush/dead-drop logic is shared with the
+	// x64 backend (jit_native_shared.h). A register returned by
+	// get_z_register may be a cache entry - treat it as READ-ONLY unless the
+	// mutated value is immediately set_z_register'd back to the same D
+	// register.
 	bool use_cached_regs;
-	std::map<int, CachedRegister> cached_d_regs;
+	DRegCache<a64::Gp> dreg_cache;
 	a64::Gp ptrCtx;
 	a64::Gp ptrRegisters;
 	a64::Gp ptrStackBase;
@@ -267,46 +259,31 @@ static void check_sp(CompilationState& state, a64::Compiler& cc, a64::Gp vStackI
 	cc.bind(label);
 }
 
-// Writes every dirty cached D register back to ri->d[] and empties the cache.
-// Uses only str, so it is safe to emit between a cmp and its consumer.
-static void flush_cache(CompilationState& state, a64::Compiler& cc)
+static bool command_is_compiled(int command);
+
+// Adapter giving the shared D-register cache (jit_native_shared.h) its
+// primitive emissions.
+struct CacheOps
 {
-	if (state.cached_d_regs.empty())
-		return;
+	using Reg = a64::Gp;
 
-	if (DEBUG_JIT_PRINT_ASM)
-		cc.setInlineComment("flush cached registers");
+	CompilationState& state;
+	a64::Compiler& cc;
 
-	for (auto& [r, cached_reg] : state.cached_d_regs)
-	{
-		if (cached_reg.dirty)
-			cc.str(cached_reg.reg, a64::ptr(state.ptrRegisters, r * 4));
-	}
-	state.cached_d_regs.clear();
-}
+	Reg new_reg32() { return cc.newInt32(); }
+	void emit_load_d(Reg dst, int r) { cc.ldr(dst, a64::ptr(state.ptrRegisters, r * 4)); }
+	void emit_store_d(Reg src, int r) { cc.str(src, a64::ptr(state.ptrRegisters, r * 4)); }
+	void emit_mov(Reg dst, Reg src) { cc.mov(dst, src); }
+	void emit_mov(Reg dst, int32_t imm) { cc.mov(dst, imm); }
+	void annotate(const char* text) { if (DEBUG_JIT_PRINT_ASM) cc.setInlineComment(text); }
+	void flush_cache() { state.dreg_cache.flush(*this); }
+	bool is_command_compiled(int command) { return command_is_compiled(command); }
+};
 
-// Some non-D registers are computed from D registers when read through the
-// C++ helpers (get_register/set_register), so those helpers must see current
-// values in ri->d[] for the D registers they depend on.
 static void flush_cache_for_dependent_registers(CompilationState& state, a64::Compiler& cc, int r)
 {
-	if (state.cached_d_regs.empty())
-		return;
-
-	auto dep_regs = get_register_dependencies(r);
-	if (dep_regs.empty())
-		return;
-
-	std::erase_if(state.cached_d_regs, [&](const auto& pair){
-		if (util::contains(dep_regs, pair.first))
-		{
-			if (pair.second.dirty)
-				cc.str(pair.second.reg, a64::ptr(state.ptrRegisters, pair.first * 4));
-			return true;
-		}
-
-		return false;
-	});
+	CacheOps ops{state, cc};
+	state.dreg_cache.flush_dependents(ops, r);
 }
 
 static int32_t get_register_and_restore_sp(int32_t arg, uint32_t sp, pc_t pc)
@@ -383,15 +360,8 @@ static a64::Gp get_z_register(CompilationState& state, a64::Compiler& cc, int r)
 {
 	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
 	{
-		if (!state.cached_d_regs.contains(r))
-		{
-			a64::Gp val = cc.newInt32();
-			cc.ldr(val, a64::ptr(state.ptrRegisters, r * 4));
-			state.cached_d_regs[r] = {.reg=val};
-			return val;
-		}
-
-		return state.cached_d_regs[r].reg;
+		CacheOps ops{state, cc};
+		return state.dreg_cache.get(ops, r);
 	}
 
 	a64::Gp val = cc.newInt32();
@@ -459,18 +429,8 @@ static void set_z_register(CompilationState& state, a64::Compiler& cc, int r, T 
 {
 	if (state.use_cached_regs && r >= D(0) && r < D(INITIAL_D))
 	{
-		if (state.cached_d_regs.contains(r))
-		{
-			auto& cached_reg = state.cached_d_regs[r];
-			cc.mov(cached_reg.reg, val);
-			cached_reg.dirty = true;
-		}
-		else
-		{
-			a64::Gp reg = cc.newInt32();
-			state.cached_d_regs[r] = {.reg = reg, .dirty = true};
-			cc.mov(reg, val);
-		}
+		CacheOps ops{state, cc};
+		state.dreg_cache.set(ops, r, val);
 		return;
 	}
 
@@ -2137,89 +2097,13 @@ std::optional<JittedFunction> jit_backend_compile_function(zasm_script* script, 
 				current_block_id++;
 		}
 
-		// D-register cache flush/invalidation points. This mirrors the x64
-		// backend exactly, including its liveness dead-drop rules; see that
-		// file for the full reasoning behind each case. All emission here is
-		// ldr/str/mov only, so a comparison result in NZCV survives it.
-		if (command_is_wait(command))
+		// D-register cache flush/invalidation points; the policy (including
+		// the liveness dead-drop rules) is shared with the x64 backend in
+		// jit_native_shared.h. All emission is str only, so a comparison
+		// result in NZCV survives it.
 		{
-			flush_cache(state, cc);
-		}
-		else if (!command_is_compiled(command))
-		{
-			// The interpreter reads and writes ri->d[] directly.
-			flush_cache(state, cc);
-		}
-		else if (command_is_goto(command) || command == CALLFUNC || command == RETURNFUNC)
-		{
-			// A CALLFUNC into a function that can suspend (a WaitX/RUNGENFRZSCR reached
-			// transitively) needs the caller's whole modified register state in memory: at the
-			// callee's suspend the full D-register file is serialized to ri->d[] and restored
-			// on resume, and this caller's intra-procedural liveness cannot see that its
-			// registers are observed there. So flush every dirty register (skip the dead-drop)
-			// before such a call. A CALLFUNC ends a block, so the cache holds a single-path
-			// value here - flushing it is always correct (unlike a merge block start).
-			bool callee_may_yield = false;
-			if (command == CALLFUNC)
-			{
-				auto it = j_script->structured_zasm.start_pc_to_function.find(op.arg1);
-				callee_may_yield = it != j_script->structured_zasm.start_pc_to_function.end() &&
-					j_script->structured_zasm.functions[it->second].may_yield;
-			}
-
-			// A RETURNFUNC hands control back to the caller, whose successors this function's
-			// intra-procedural liveness cannot see. ZASM D-registers are global, so every
-			// register this function wrote (dirty in the cache) is observed by the caller once
-			// it resumes - exactly as the interpreter leaves them in ri->d[]. The block's own
-			// .out for a returns-block is only D2 (the return-value convention), so the dead-drop
-			// would strand any other register written here (e.g. a POP D3 that a setter helper
-			// does before returning). Skip the dead-drop and flush every dirty register.
-			bool is_returnfunc = command == RETURNFUNC;
-
-			if (!is_returnfunc && !callee_may_yield && j_script->cfg.contains_block_start(i + 1))
-			{
-				uint8_t out = j_script->liveness[current_block_id].out;
-
-				// For a CALLFUNC the block's own .out is the callee's live-in (the CFG edge
-				// goes to the callee), which does not capture what the caller needs once the
-				// call returns. Execution resumes at i+1, and a register live there must
-				// survive the call: the callee is not required to write every register, so a
-				// value it leaves untouched has to already be in ri->d[] (e.g. a loop/array
-				// index kept in a register across a helper call). Keep those too.
-				if (command == CALLFUNC)
-					out |= j_script->liveness[j_script->cfg.block_id_from_start_pc(i + 1)].in;
-
-				for (auto& [r, cached_reg] : state.cached_d_regs)
-				{
-					if (!(out & (1 << r)))
-						cached_reg.dirty = false;
-				}
-			}
-
-			flush_cache(state, cc);
-		}
-		else if (is_block_start)
-		{
-			pc_t block_id = current_block_id;
-			bool is_linear_flow =
-				block_id > 0 &&
-				j_script->cfg.block_edges[block_id - 1].size() == 1 &&
-				j_script->cfg.block_edges[block_id - 1][0] == block_id &&
-				j_script->block_predecessors[block_id].size() == 1;
-			if (!is_linear_flow)
-			{
-				if (current_block_id > 0)
-				{
-					uint8_t out = j_script->liveness[current_block_id - 1].out;
-					for (auto& [r, cached_reg] : state.cached_d_regs)
-					{
-						if (!(out & (1 << r)))
-							cached_reg.dirty = false;
-					}
-				}
-
-				flush_cache(state, cc);
-			}
+			CacheOps cache_ops{state, cc};
+			jit_reg_cache_flush_policy(cache_ops, state.dreg_cache, j_script, script, i, current_block_id, is_block_start);
 		}
 
 		if (state.goto_labels.contains(i))
