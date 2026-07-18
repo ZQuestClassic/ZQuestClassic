@@ -911,8 +911,7 @@ void weapon::cleanup_sfx()
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
 	int32_t use_sfx = 0;
 	auto const& itm = get_item_data(parentitem);
-	if (valid_item_id(parentitem) &&
-		(itm.type != itype_whistle || id != wWind))
+	if (valid_item_id(parentitem) && id != wWind)
 	{
 		use_sfx = itm.usesound;
 	}
