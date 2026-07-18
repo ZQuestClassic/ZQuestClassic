@@ -124,7 +124,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '--build_type',
-    default='Release',
+    default=os.environ.get('BUILD_TYPE', 'Release'),
     help='How to treat the build, for purposes of timeouts and duration estimates',
 )
 parser.add_argument(

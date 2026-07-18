@@ -603,6 +603,10 @@ def unit_tests(ctx: CiContext, args):
 
     env = os.environ.copy()
     env['BUILD_FOLDER'] = str(ctx.get_binary_dir())
+    # Tests that shell out to run_replay_tests.py need this to pick the right
+    # timeouts and duration estimates (the build folder name alone doesn't
+    # reveal the config in CI).
+    env['BUILD_TYPE'] = ctx.config
     env['CXX'] = ctx.compiler
 
     if ctx.config != 'Coverage':
