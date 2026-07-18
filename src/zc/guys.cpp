@@ -7405,17 +7405,20 @@ waves2:
 		tile+=2*f4;
 		if(clk2>0 && anim == a4FRM8DIRFB)                         //stopped to fire
 		{
-			tile+=80;
-			
+			// The 8 walking directions of a big enemy span 8 tile rows
+			// (160 tiles); the fire tiles are offset past all of them.
+			int32_t fire_off = get_qr(qr_BROKEN_BIG_ENEMY_FIRE_ANIM) ? 80 : 160;
+			tile+=fire_off;
+
 			if(clk2<17)                                           //firing
 			{
-				tile+=80;
+				tile+=fire_off;
 			}
 		}
 		ignore_extend = true;
 	}
 	break;
-	
+
 	case a4FRM4DIRB:
 	case a4FRM4DIRFB:
 	{
@@ -7424,11 +7427,14 @@ waves2:
 		tile+=2*f4;
 		if(clk2>0 && anim == a4FRM4DIRFB)                         //stopped to fire
 		{
-			tile+=40;
-			
+			// The 4 walking directions of a big enemy span 4 tile rows
+			// (80 tiles); the fire tiles are offset past all of them.
+			int32_t fire_off = get_qr(qr_BROKEN_BIG_ENEMY_FIRE_ANIM) ? 40 : 80;
+			tile+=fire_off;
+
 			if(clk2<17)                                           //firing
 			{
-				tile+=40;
+				tile+=fire_off;
 			}
 		}
 		ignore_extend = true;
