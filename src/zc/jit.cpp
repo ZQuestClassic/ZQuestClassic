@@ -146,12 +146,24 @@ static std::vector<zasm_script*> collect_scripts()
 
 bool jit_is_enabled()
 {
+#if ZC_JIT_BACKEND == JIT_NONE
+	// Some features (like the ZASM debugger) only activate when the JIT is
+	// disabled, so never claim to be enabled when there is no backend.
+	return false;
+#else
 	return is_enabled;
+#endif
 }
 
 void jit_set_enabled(bool enabled)
 {
+#if ZC_JIT_BACKEND == JIT_NONE
+	if (enabled)
+		al_trace("[jit] this build has no JIT backend, so the jit setting is ignored\n");
+	is_enabled = false;
+#else
 	is_enabled = enabled;
+#endif
 }
 
 bool jit_log_is_enabled()
