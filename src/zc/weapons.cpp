@@ -1093,7 +1093,7 @@ void weapon::cleanup_sfx()
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
 	int32_t use_sfx = 0;
-	if(parentitem >= 0 && (itemsbuf[parentitem].family != itype_whistle || id != wWind)) use_sfx = itemsbuf[parentitem].usesound;
+	if(parentitem >= 0 && id != wWind) use_sfx = itemsbuf[parentitem].usesound;
 	else switch(id)
 	{
 		case ewBrang:
