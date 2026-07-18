@@ -11207,7 +11207,8 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	
 	if(!standing)
 	{
-		++extra_jump_count;
+		if (!coyotejump)
+			++extra_jump_count;
 		fall = 0;
 		fakefall = 0;
 		if(hoverclk > 0)
