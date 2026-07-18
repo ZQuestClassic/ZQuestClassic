@@ -242,7 +242,6 @@ drop 2413e5ed842c64f4b775eb27c5de1b85f20afb1c fix(zscript): code blocks sometime
 drop 4a89897b67196d9d39e4cfc2d8fb67a7db225be7 fix(zscript): deprecation warnings for functions not giving 'INFO:' text
 drop 4ce3a218621e6d125b1c5251ec3ddc5c3e994b99 fix(zscript): 'hero' and 'link' script types not compiling
 drop 7787176771150d77dcc25ec1e973cb12ae66e17f fix(zscript): internal bitmaps from `Game->LoadBitmapID()` now work with Blit
-drop 2a11ad2f783ed78359d5be8df8a0a0ecfd614ea4 fix(zscript): Game->LoadMSubData loaded active subscreen data
 
 # ! fixes to the wasm JIT / web features that are new in this range
 drop eb3dc8a7a0d9e65bf9167ea15f10f3a71e0af496 fix(web): handle reaching end of script in wasm jit

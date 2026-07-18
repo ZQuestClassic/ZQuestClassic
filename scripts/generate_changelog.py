@@ -889,6 +889,20 @@ def generate_changelog(from_sha: str, to_sha: str, to_ref: str = None) -> str:
     return changelog
 
 
+# Stale hashes in the override files (from amending/rebasing a commit after
+# writing its override) keep working locally, where the old object still
+# exists, but break in a fresh clone. Run the reachability test here for local
+# dev.
+if 'CI' not in os.environ:
+    test_result = subprocess.run(
+        [sys.executable, str(root_dir / 'tests' / 'test_changelog.py')],
+        capture_output=True,
+        text=True,
+    )
+    if test_result.returncode != 0:
+        print(test_result.stderr, file=sys.stderr)
+        sys.exit(1)
+
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
     if path.name == 'cherrypicks-3.0.md' and args.for_nightly:
         continue
