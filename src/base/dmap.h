@@ -9,7 +9,7 @@ struct dmap
 {
 	byte map;
 	word level;
-	char xoff;
+	int8_t xoff; // can be negative; plain char is unsigned on some targets
 	byte compass;
 	word color;
 	byte midi;
