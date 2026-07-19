@@ -1257,6 +1257,12 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				st.object_types.resize(st.theStack.size(), script_object_type::none);
 			}
 		}
+		
+		if (section_version > 51)
+		{
+			if (!p_getbmap(&game.gen_inst_init, f))
+				return 129;
+		}
 
 		game.normalize();
 	}
@@ -1693,6 +1699,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_putlvec(types, f))
 			return 127;
 	}
+	if(!p_putbmap(game.gen_inst_init,f))
+		return 128;
 
 	return 0;
 }

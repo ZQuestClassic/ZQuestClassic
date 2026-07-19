@@ -13169,6 +13169,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(85);
 		if (!p_putc(zinit.hero_itembox_height, f))
 			new_return(86);
+		if(!p_putbmap(zinit.gen_inst_init, f))
+			new_return(87);
 
 		if(writecycle==0)
 		{

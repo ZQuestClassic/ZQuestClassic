@@ -14,8 +14,6 @@
 extern bool sorted_fontdd;
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
-void call_geninit_wzrd(zinitdata& start, size_t index);
-
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
 static int command_index = -1;

@@ -563,6 +563,17 @@ inline bool p_putvar(vector<T> const& ptr, PACKFILE *f)
 	return p_putlvec(ptr,f);
 }
 
+template<typename K, typename V>
+inline bool p_getvar(map<K, V>* ptr, PACKFILE *f)
+{
+	return p_getlmap(ptr,f);
+}
+template<typename K, typename V>
+inline bool p_putvar(map<K, V> const& ptr, PACKFILE *f)
+{
+	return p_putlmap(ptr,f);
+}
+
 inline bool p_getvar(string* ptr, PACKFILE *f)
 {
 	return p_getlstr(ptr,f);

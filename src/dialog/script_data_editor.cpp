@@ -26,59 +26,61 @@ std::shared_ptr<GUI::Widget> ScriptDataDialog::view()
 	auto initd_grid = Rows<3>(spacing = 2_px, topPadding = 10_px);
 	auto instvar_grid = Rows<4>(spacing = 2_px, padding = 0_px);
 	
+	auto main_column = Column(spacing = 0_px);
+	if (!list_scriptchoices.empty())
+		main_column->add(Rows<2>(
+			// Changing script refreshes the entire dialog
+			// This changes the index used for `init_args`, leaving the old args stored until the dialog
+			//   closes in case you change back. Only the active args are saved when closing.
+			Label(text = "Script:"),
+			DropDownList(
+				fitParent = true, minwidth = 200_px,
+				data = list_scriptchoices,
+				selectedValue = local_ref.script,
+				onSelectFunc = [&](int32_t val)
+				{
+					local_ref.script = val;
+					refresh_dlg();
+				}
+			)
+		));
+	main_column->add(TabPanel(ptr = &tab_pos,
+		TabRef(name = "InitD[]",
+			Frame(info = "These values represent the up to 8 parameters of the script's `Run` function."
+				" Modifying them will configure script-specific behaviors."
+				"\n\nUsing '@ExportInitD0()' through '@ExportInitD7()' in scripts allows specifying custom"
+				" help text for the '?' buttons of each option, as well as customizing the name and default"
+				" input state of the field.",
+				fitParent = true,
+				initd_grid
+			)
+		),
+		TabRef(name = "Exports",
+			Frame(info = "These variables are specific to the currently-selected script,"
+				" and configure script-specific behaviors."
+				"\nThe value will be the 'script default' value, unless you modify it here."
+				" Values that have been modified will have a reset button to their right to"
+				" set them back to default. (Modified values will not change even if the script"
+				" is edited to change a value)"
+				"\n\nUsing '@Export()' allows adding a script-scope variable to this list."
+				" Using '@ExportRange()' on an already exported variable allows setting a min/max value"
+				" for the field.",
+				fitParent = true,
+				ScrollingPane(
+					ptr_y = &scroll_pos,
+					fitParent = true,
+					padding = 0_px, topPadding = 10_px,
+					instvar_grid
+				)
+			)
+		)
+	));
+	
 	window = Window(
 		title = title_str,
 		onClose = message::CANCEL,
 		Column(
-			Column(spacing = 0_px,
-				Rows<2>(
-					// Changing script refreshes the entire dialog
-					// This changes the index used for `init_args`, leaving the old args stored until the dialog
-					//   closes in case you change back. Only the active args are saved when closing.
-					Label(text = "Script:"),
-					DropDownList(
-						fitParent = true, minwidth = 200_px,
-						data = list_scriptchoices,
-						selectedValue = local_ref.script,
-						onSelectFunc = [&](int32_t val)
-						{
-							local_ref.script = val;
-							refresh_dlg();
-						}
-					)
-				),
-				TabPanel(ptr = &tab_pos,
-					TabRef(name = "InitD[]",
-						Frame(info = "These values represent the up to 8 parameters of the script's `Run` function."
-							" Modifying them will configure script-specific behaviors."
-							"\n\nUsing '@ExportInitD0()' through '@ExportInitD7()' in scripts allows specifying custom"
-							" help text for the '?' buttons of each option, as well as customizing the name and default"
-							" input state of the field.",
-							fitParent = true,
-							initd_grid
-						)
-					),
-					TabRef(name = "Exports",
-						Frame(info = "These variables are specific to the currently-selected script,"
-							" and configure script-specific behaviors."
-							"\nThe value will be the 'script default' value, unless you modify it here."
-							" Values that have been modified will have a reset button to their right to"
-							" set them back to default. (Modified values will not change even if the script"
-							" is edited to change a value)"
-							"\n\nUsing '@Export()' allows adding a script-scope variable to this list."
-							" Using '@ExportRange()' on an already exported variable allows setting a min/max value"
-							" for the field.",
-							fitParent = true,
-							ScrollingPane(
-								ptr_y = &scroll_pos,
-								fitParent = true,
-								padding = 0_px, topPadding = 10_px,
-								instvar_grid
-							)
-						)
-					)
-				)
-			),
+			main_column,
 			Row(
 				topPadding = 0.5_em,
 				vAlign = 1.0,

@@ -1580,8 +1580,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if(!data.initialized)
 			{
 				got_initialized = true;
-				scr.initd.copy_to(ri->d, 8);
-				reset_script_variables();
+				reset_script_variables(scr.scrconfig);
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
@@ -1595,8 +1594,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if(!data.initialized)
 			{
 				got_initialized = true;
-				scr.initd.copy_to(ri->d, 8);
-				reset_script_variables();
+				reset_script_variables(scr.scrconfig);
 				data.initialized = true;
 			}
 			ri->genericdataref = script;
@@ -1818,8 +1816,11 @@ void load_genscript(const gamedata& gd)
 		gen.exitState = gd.gen_exitState.get(q);
 		gen.reloadState = gd.gen_reloadState.get(q);
 		gen.eventstate = gd.gen_eventstate.get(q);
-		gen.initd = gd.gen_initd.get(q);
 		gen.data = gd.gen_data.get(q);
+		auto const& run_args = gd.gen_initd.get(q);
+		for (int q = 0; q < 8; ++q)
+			gen.scrconfig.run_args[q] = run_args.get(q);
+		gen.scrconfig.inst_init = gd.gen_inst_init.get(q);
 	}
 }
 void load_genscript(const zinitdata& zd)
@@ -1832,8 +1833,11 @@ void load_genscript(const zinitdata& zd)
 		gen.exitState = zd.gen_exitState.get(q);
 		gen.reloadState = zd.gen_reloadState.get(q);
 		gen.eventstate = zd.gen_eventstate.get(q);
-		gen.initd = zd.gen_initd.get(q);
 		gen.data = zd.gen_data.get(q);
+		auto const& run_args = zd.gen_initd.get(q);
+		for (int q = 0; q < 8; ++q)
+			gen.scrconfig.run_args[q] = run_args.get(q);
+		gen.scrconfig.inst_init = zd.gen_inst_init.get(q);
 	}
 }
 
@@ -1846,8 +1850,17 @@ void save_genscript(gamedata& gd)
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
 		gd.gen_eventstate[q] = gen.eventstate;
-		gd.gen_initd[q] = gen.initd;
 		gd.gen_data[q] = gen.data;
+		
+		bounded_vec<byte,int32_t> run_args {8};
+		for (int q = 0; q < 8; ++q)
+		{
+			if (int v = gen.scrconfig.run_args[q])
+				run_args[q] = v;
+		}
+		gd.gen_initd[q] = run_args;
+		
+		gd.gen_inst_init[q] = gen.scrconfig.inst_init;
 	}
 }
 
@@ -14833,7 +14846,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	if(init_data)
 	{
 		for(int q = 0; q < 8; ++q)
-			scr.initd[q] = init_data[q];
+			scr.scrconfig.run_args[q] = init_data[q];
 	}
 	if(!genericscripts[script]->valid()) return false; //No script to run
 	
