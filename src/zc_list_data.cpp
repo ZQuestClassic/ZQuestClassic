@@ -779,7 +779,9 @@ GUI::ListData GUI::ZCListData::lpals()
 	char buf[50];
 	for (int q = 0; q < 0x1FF; ++q)
 	{
-		snprintf(buf, sizeof(buf), "%.3X - %s", q, palnames[q]);
+		// %.16s: palnames entries are char[17]; the precision keeps gcc's
+		// -Wformat-truncation from assuming an unterminated string.
+		snprintf(buf, sizeof(buf), "%.3X - %.16s", q, palnames[q]);
 		ls.add(buf, q);
 	}
 	return ls;
