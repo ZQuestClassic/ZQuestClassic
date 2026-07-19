@@ -9532,7 +9532,7 @@ heroanimate_skip_liftwpn:;
 					word toFill[3] = { 0 };
 					for(size_t q = 0; q < 3; ++q)
 					{
-						char c = bt->counter[q];
+						int8_t c = bt->counter[q];
 						if(c > -1)
 						{
 							if(bt->flags & (1<<q))
@@ -11769,7 +11769,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				word toFill[3] = { 0 };
 				for(size_t q = 0; q < 3; ++q)
 				{
-					char c = bt->counter[q];
+					int8_t c = bt->counter[q];
 					if(c > -1)
 					{
 						if(bt->flags & (1<<q))

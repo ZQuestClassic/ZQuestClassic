@@ -2432,7 +2432,7 @@ void do_ex_trigger_ffc(int32_t pos)
 	}
 }
 
-bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
+bool force_ex_trigger(int32_t lyr, int32_t pos, int8_t xstate)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
@@ -2447,7 +2447,7 @@ bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 	}
 	return false;
 }
-bool force_ex_trigger_ffc(int32_t pos, char xstate)
+bool force_ex_trigger_ffc(int32_t pos, int8_t xstate)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
