@@ -297,9 +297,9 @@ void dosubscr()
 							| ((use_x && (!can_unequip || Xwpn != data)) ? INT_BTN_X : 0)
 							| ((use_y && (!can_unequip || Ywpn != data)) ? INT_BTN_Y : 0);
 					}
-					if(widg->generic_script && (bpress&widg->gen_script_btns))
+					if(widg->generic_scrconfig.script && (bpress&widg->gen_script_btns))
 					{
-						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
+						FFCore.runGenericFrozenEngine(widg->generic_scrconfig);
 						data = widg->getItemVal(); //update incase script changed
 						if(must_equip) //update values depending on data.id
 						{

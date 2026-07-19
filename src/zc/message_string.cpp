@@ -605,10 +605,11 @@ bool parsemsgcode(const StringCommand& command)
 			// script's InitD. Any unspecified trailing InitD slots default to 0.
 			if(command.num_args > 2)
 			{
-				int32_t init_data[8] = {0};
+				script_config scrconfig;
+				scrconfig.script = scr_id;
 				for(int q = 0; q < 8 && q + 2 < command.num_args; ++q)
-					init_data[q] = args[q + 2].getZLong();
-				FFCore.runGenericFrozenEngine(scr_id, init_data);
+					scrconfig.run_args[q] = args[q + 2].getZLong();
+				FFCore.runGenericFrozenEngine(scrconfig);
 			}
 			else FFCore.runGenericFrozenEngine(scr_id);
 			return true;

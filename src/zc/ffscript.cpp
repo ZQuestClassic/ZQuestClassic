@@ -14826,15 +14826,10 @@ void FFScript::runOnLaunchEngine()
 	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
-bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_data)
+bool FFScript::runGenericFrozenEngine(const word script)
 {
-	user_genscript& scr = user_genscript::get(script);
-	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
-	if(init_data)
-	{
-		for(int q = 0; q < 8; ++q)
-			scr.scrconfig.run_args[q] = init_data[q];
-	}
+	if(script < 1 || script >= NUMSCRIPTSGENERIC)
+		return false;
 	if(!genericscripts[script]->valid()) return false; //No script to run
 	
 	if(gen_frozen_index >= 400) // Experimentally tested to crash (stack overflow) at 500 for me -Em
@@ -14887,6 +14882,15 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	//Restore script refinfo
 	pop_ri();
 	return true;
+}
+bool FFScript::runGenericFrozenEngine(script_config const& scrconfig)
+{
+	const auto script = scrconfig.script;
+	if(script < 1 || script >= NUMSCRIPTSGENERIC)
+		return false;
+	user_genscript& scr = user_genscript::get(script);
+	scr.scrconfig = scrconfig; // assign run_args / inst_init
+	return runGenericFrozenEngine(script);
 }
 
 bool FFScript::runScriptedActiveSubscreen()

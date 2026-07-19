@@ -16,6 +16,7 @@
 #include "items.h"
 #include "zinfo.h"
 #include "sprite_data.h"
+#include "script_data_editor.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
@@ -260,34 +261,6 @@ char* repl_escchar(char* buf, char const* ptr, bool compact)
 		strcpy(buf, str.c_str());
 		return buf;
 	}
-}
-
-#define INITD_LAB_WIDTH 12_em
-std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-	std::string lbl = local_gen_meta.initd_label[ind];
-	if(lbl.empty())
-		lbl = "InitD["+std::to_string(ind)+"]:";
-	return Row(padding = 0_px, hAlign = 1.0,
-		geninitd_lbl[ind] = Label(minwidth = INITD_LAB_WIDTH, text = lbl, textAlign = 2),
-		geninitd_btn[ind] = Button(forceFitH = true, text = "?",
-			hPadding = 0_px,
-			disabled = local_gen_meta.initd_help[ind].empty(),
-			onPressFunc = [&, ind]()
-			{
-				InfoDialog("InitD Info",local_gen_meta.initd_help[ind]).show();
-			}),
-		TextField(
-			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_subref->generic_initd[ind], swap_type = local_gen_meta.initd_type[ind],
-			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_subref->generic_initd[ind] = val;
-			})
-	);
 }
 
 enum
@@ -1830,7 +1803,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								_EX_RBOX,onToggle = message::REFR_SELECTABLE),
 							INFOBTN("Change the selector while over this widget")
 						),
-						selgs[3] = Row(
+						selgs[1] = Row(
 							Frame(title = "Dimensions", fitParent = true,
 								Rows<3>(
 									Label(text = "Selector X", hAlign = 1.0),
@@ -1871,28 +1844,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					info = "Run a Generic Frozen Script when a button is pressed."
 						"\nThe script will run before any other effects that occur from"
 						" pressing the button (such as equipping an item to a button).",
-					Row(
-						selgs[1] = Column(padding = 0_px,
-							GEN_INITD(0),
-							GEN_INITD(1),
-							GEN_INITD(2),
-							GEN_INITD(3),
-							GEN_INITD(4),
-							GEN_INITD(5),
-							GEN_INITD(6),
-							GEN_INITD(7)
-						),
-						Column(
-							Label(text = "Script:", hAlign = 0.0),
-							DropDownList(data = list_genscr,
-								vPadding = 0_px,
-								fitParent = true, selectedValue = local_subref->generic_script,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_subref->generic_script = val;
-									updateSelectable();
-								}),
-							selgs[2] = INTBTN_PANEL2(local_subref->gen_script_btns,"Run Button:")
+					Column(
+						INTBTN_PANEL2(local_subref->gen_script_btns,"Run Button:"),
+						Button(
+							text = "Script Setup",
+							height = 2_em,
+							onPressFunc = [&]()
+							{
+								ScriptDataDialog("Widget Generic Script Setup",
+									local_subref->generic_scrconfig, list_genscr, genericscripts).show();
+							}
 						)
 					)
 				)
@@ -2596,7 +2557,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 void SubscrPropDialog::updateSelectable()
 {
 	bool seldis = !(local_subref->genflags & SUBSCRFLAG_SELECTABLE);
-	bool scrdis = seldis || !local_subref->generic_script;
 	bool selovdis = seldis || !(local_subref->genflags & SUBSCRFLAG_SELOVERRIDE);
 	bool pgdis = seldis || !local_subref->pg_mode;
 	selgs[0]->setDisabled(seldis);
@@ -2604,25 +2564,9 @@ void SubscrPropDialog::updateSelectable()
 	selframes[1]->setDisabled(seldis);
 	selframes[2]->setDisabled(seldis);
 	seltabs[0]->setDisabled(seldis);
-	selgs[1]->setDisabled(scrdis);
-	selgs[2]->setDisabled(scrdis);
-	selgs[3]->setDisabled(selovdis);
+	selgs[1]->setDisabled(selovdis);
 	seltfs[0]->setDisabled(pgdis || local_subref->pg_mode != PGGOTO_TRG);
 	selbtns[0]->setDisabled(pgdis);
-	
-	
-	if(local_subref->generic_script)
-		local_gen_meta = genericscripts[local_subref->generic_script]->meta;
-	else local_gen_meta.zero();
-	
-	for(int q = 0; q < 8; ++q)
-	{
-		std::string lbl = local_gen_meta.initd_label[q];
-		if(lbl.empty())
-			lbl = "InitD["+std::to_string(q)+"]";
-		geninitd_lbl[q]->setText(lbl);
-		geninitd_btn[q]->setDisabled(local_gen_meta.initd_help[q].empty());
-	}
 }
 void SubscrPropDialog::updateAttr()
 {

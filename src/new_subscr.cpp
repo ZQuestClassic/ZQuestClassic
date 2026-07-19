@@ -1497,9 +1497,7 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 		pos_right = src->pos_right;
 		override_text = src->override_text;
 		gen_script_btns = src->gen_script_btns;
-		generic_script = src->generic_script;
-		for(int q = 0; q < 8; ++q)
-			generic_initd[q] = src->generic_initd[q];
+		generic_scrconfig = src->generic_scrconfig;
 		type = src->type;
 		pg_btns = src->pg_btns;
 		pg_mode = src->pg_mode;
@@ -1565,15 +1563,25 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		if(genflags & SUBSCRFLAG_SELOVERRIDE)
 			if(auto ret = selector_override.read(f,s_version))
 				return ret;
-		if(!p_igetw(&generic_script,f))
-			return qe_invalid;
-		if(generic_script)
+		if (s_version >= 21)
 		{
 			if(!p_getc(&gen_script_btns,f))
 				return qe_invalid;
-			for(int q = 0; q < 8; ++q)
-				if(!p_igetl(&generic_initd[q],f))
+			if(!p_getvar(&generic_scrconfig,f))
+				return qe_invalid;
+		}
+		else
+		{
+			if(!p_igetw(&generic_scrconfig.script,f))
+				return qe_invalid;
+			if(generic_scrconfig.script)
+			{
+				if(!p_getc(&gen_script_btns,f))
 					return qe_invalid;
+				for(int q = 0; q < 8; ++q)
+					if(!p_igetl(&generic_scrconfig.run_args[q],f))
+						return qe_invalid;
+			}
 		}
 		if(!p_getc(&pg_mode,f))
 			return qe_invalid;
@@ -1685,10 +1693,8 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 	
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 	{
-		generic_script = 0;
 		gen_script_btns = 0;
-		for(int q = 0; q < 8; ++q)
-			generic_initd[q] = 0;
+		generic_scrconfig.clear();
 	}
 	return 0;
 }
@@ -1733,16 +1739,10 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		if(genflags & SUBSCRFLAG_SELOVERRIDE)
 			if(auto ret = selector_override.write(f))
 				return ret;
-		if(!p_iputw(generic_script,f))
+		if(!p_putc(gen_script_btns,f))
 			new_return(1);
-		if(generic_script)
-		{
-			if(!p_putc(gen_script_btns,f))
-				new_return(1);
-			for(int q = 0; q < 8; ++q)
-				if(!p_iputl(generic_initd[q],f))
-					new_return(1);
-		}
+		if(!p_putvar(generic_scrconfig,f))
+			new_return(1);
 		if(!p_putc(pg_mode,f))
 			new_return(1);
 		if(pg_mode)
