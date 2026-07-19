@@ -238,6 +238,10 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_timer", allegro_error);
 	}
 	
+	// Don't drive physical keyboard LEDs when headless: allegro's LED updates
+	// go through X11 and crash without a usable display.
+	if (is_headless())
+		key_led_flag = FALSE;
 	if(install_keyboard() < 0)
 	{
 		Z_error_fatal("Failed to init allegro: %s\n%s\n", "install_keyboard", allegro_error);
