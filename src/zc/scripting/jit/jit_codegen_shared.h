@@ -318,8 +318,15 @@ struct JitPushRunScan
 
 inline JitPushRunScan jit_scan_push_run(const zasm_script* script, pc_t pc)
 {
-	int stack_delta = 1;
-	int max_stack_delta = 1;
+	// The first command may itself be a multi-slot PUSHARGS (the optimizer's
+	// push-combining makes that the common case). Counting it as 1 understated
+	// the run's depth by arg2-1 slots, so a script within that many slots of
+	// the limit would write out of bounds instead of exiting with
+	// RUNSCRIPT_JIT_STACK_OVERFLOW.
+	const auto& op0 = script->zasm[pc];
+	bool starts_with_pushargs = op0.command == PUSHARGSV || op0.command == PUSHARGSR;
+	int stack_delta = starts_with_pushargs ? std::max(1, op0.arg2) : 1;
+	int max_stack_delta = stack_delta;
 
 	pc_t j = pc + 1;
 	for (; j < script->size; j++)

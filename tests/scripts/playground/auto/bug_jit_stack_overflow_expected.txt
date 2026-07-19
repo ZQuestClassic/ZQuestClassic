@@ -1,0 +1,693 @@
+stderr:
+
+Compiling 'bug_jit_stack_overflow.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 105,
+    "symbols": 111,
+    "identifiers": 219,
+    "elided": true
+  }
+}
+
+zasm:
+
+SETV GD1 0; void run() Body Start
+QUIT; void run() Body End
+PUSHR REFDMAPDATA; void run() Body Start
+PUSHARGSV 0 0.0003
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] Running %s\n"
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0.0002; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0001
+LOAD D2 0.0001; if() #11 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 32 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #11 Body Start
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #11 Body End
+NOP
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0
+SETV D2 1
+PUSHR D2
+LOAD D2 0
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 55 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 47; while() #1 End
+CALLFUNC 0.0633; UsrFunc[void End()] Call AND [Opt:NeverRet]
+REF_REMOVE 0.0002; [Opt:NeverRet] AND void run() Body End
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHV 0
+SETR D4 SP2
+PUSHR D4
+PUSHV 0; UsrFunc[void Init(int)] Params
+CALLFUNC 0.0611; UsrFunc[void Init(int)] Call
+POP D4
+STOREV 0 0; for() #5 setup
+LOAD D2 0; for() #5 LoopTest
+COMPAREV D2 15
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 79 ==; for() #5 TestFail?
+PUSHR D4; for() #5 Body Start
+PUSHV 1; UsrFunc[void recurse(int)] Params
+CALLFUNC 0.0088; UsrFunc[void recurse(int)] Call
+POP D4
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #5 Body End
+LOAD D2 0; for() #5 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 65; for() #5 End
+NOP
+PUSHR D4
+PUSHV 10000; UsrFunc[void recurse(int)] Params
+CALLFUNC 0.0088; UsrFunc[void recurse(int)] Call
+POP D4
+ALLOCATEMEMV D2 24 0; UsrFunc[void Fail(char32[])] Params Start
+WRITEPODSTRING D2 "expected stack overflow"
+PUSHR D2; UsrFunc[void Fail(char32[])] Params End
+CALLFUNC 0.0640; UsrFunc[void Fail(char32[])] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+PUSHARGSV 0 0.0100; Func[void recurse(int)] Body Start
+SETR D4 SP2
+STOREV 0 0.0099
+STOREV 0 0.0098
+STOREV 0 0.0097
+STOREV 0 0.0096
+STOREV 0 0.0095
+STOREV 0 0.0094
+STOREV 0 0.0093
+STOREV 0 0.0092
+STOREV 0 0.0091
+STOREV 0 0.0090
+STOREV 0 0.0089
+STOREV 0 0.0088
+STOREV 0 0.0087
+STOREV 0 0.0086
+STOREV 0 0.0085
+STOREV 0 0.0084
+STOREV 0 0.0083
+STOREV 0 0.0082
+STOREV 0 0.0081
+STOREV 0 0.0080
+STOREV 0 0.0079
+STOREV 0 0.0078
+STOREV 0 0.0077
+STOREV 0 0.0076
+STOREV 0 0.0075
+STOREV 0 0.0074
+STOREV 0 0.0073
+STOREV 0 0.0072
+STOREV 0 0.0071
+STOREV 0 0.0070
+STOREV 0 0.0069
+STOREV 0 0.0068
+STOREV 0 0.0067
+STOREV 0 0.0066
+STOREV 0 0.0065
+STOREV 0 0.0064
+STOREV 0 0.0063
+STOREV 0 0.0062
+STOREV 0 0.0061
+STOREV 0 0.0060
+STOREV 0 0.0059
+STOREV 0 0.0058
+STOREV 0 0.0057
+STOREV 0 0.0056
+STOREV 0 0.0055
+STOREV 0 0.0054
+STOREV 0 0.0053
+STOREV 0 0.0052
+STOREV 0 0.0051
+STOREV 0 0.0050
+STOREV 0 0.0049
+STOREV 0 0.0048
+STOREV 0 0.0047
+STOREV 0 0.0046
+STOREV 0 0.0045
+STOREV 0 0.0044
+STOREV 0 0.0043
+STOREV 0 0.0042
+STOREV 0 0.0041
+STOREV 0 0.0040
+STOREV 0 0.0039
+STOREV 0 0.0038
+STOREV 0 0.0037
+STOREV 0 0.0036
+STOREV 0 0.0035
+STOREV 0 0.0034
+STOREV 0 0.0033
+STOREV 0 0.0032
+STOREV 0 0.0031
+STOREV 0 0.0030
+STOREV 0 0.0029
+STOREV 0 0.0028
+STOREV 0 0.0027
+STOREV 0 0.0026
+STOREV 0 0.0025
+STOREV 0 0.0024
+STOREV 0 0.0023
+STOREV 0 0.0022
+STOREV 0 0.0021
+STOREV 0 0.0020
+STOREV 0 0.0019
+STOREV 0 0.0018
+STOREV 0 0.0017
+STOREV 0 0.0016
+STOREV 0 0.0015
+STOREV 0 0.0014
+STOREV 0 0.0013
+STOREV 0 0.0012
+STOREV 0 0.0011
+STOREV 0 0.0010
+STOREV 0 0.0009
+STOREV 0 0.0008
+STOREV 0 0.0007
+STOREV 0 0.0006
+STOREV 0 0.0005
+STOREV 0 0.0004
+STOREV 0 0.0003
+STOREV 0 0.0002
+STOREV 0 0.0001
+STOREV 0 0
+SETR D2 GD1
+ADDV D2 1
+SETR GD1 D2
+LOAD D2 0.0100; if() #1 Test
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 204 ==; Test 'if'
+PUSHR D4; if() #1 Body Start
+LOAD D2 0.0100; UsrFunc[void recurse(int)] Params Start
+SUBV D2 1
+PUSHR D2; UsrFunc[void recurse(int)] Params End
+CALLFUNC 0.0088; UsrFunc[void recurse(int)] Call
+POP D4; if() #1 Body End
+NOP
+SETR D2 GD1; if() #2 Test
+COMPAREV D2 0
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 608 ==; Test 'if'
+LOAD D2 0.0099; InlineFunc[void Trace(untyped)] Params Start AND if() #2 Body Start
+PUSHR D2
+LOAD D2 0.0098
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0097
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0096
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0095
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0094
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0093
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0092
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0091
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0090
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0089
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0088
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0087
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0086
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0085
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0084
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0083
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0082
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0081
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0080
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0079
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0078
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0077
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0076
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0075
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0074
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0073
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0072
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0071
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0070
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0069
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0068
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0067
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0066
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0065
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0064
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0063
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0062
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0061
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0060
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0059
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0058
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0057
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0056
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0055
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0054
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0053
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0052
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0051
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0050
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0049
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0048
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0047
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0046
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0045
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0044
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0043
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0042
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0041
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0040
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0039
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0038
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0037
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0036
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0035
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0034
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0033
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0032
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0031
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0030
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0029
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0028
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0027
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0026
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0025
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0024
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0023
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0022
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0021
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0020
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0019
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0018
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0017
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0016
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0015
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0014
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0013
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0012
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0011
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0010
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0009
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0008
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0007
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0006
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0005
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0004
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0003
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0
+POP D3
+ADDR D2 D3; InlineFunc[void Trace(untyped)] Params End
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND if() #2 Body End
+NOP
+POPARGS D5 0.0101
+RETURNFUNC; Func[void recurse(int)] Body End
+SETR D4 SP2; Func[void Init(int)] Body Start
+ALLOCATEMEMV D2 35 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+PUSHR D2
+PUSHVARGV 5
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+LOAD D2 0; if() #10 Test
+COMPAREV D2 0
+SETCMP D2 I!=
+COMPAREV D2 0
+GOTOCMP 630 ==; Test 'if'
+PUSHV 5; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #10 Body Start
+LOAD D2 0; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #10 Body End
+NOP
+POP D5
+RETURNFUNC; Func[void Init(int)] Body End
+SETR D4 SP2; Func[void End()] Body Start
+ALLOCATEMEMV D2 13 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start
+WRITEPODSTRING D2 "[Test] done\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
+SETR D4 SP2; Func[void Fail(char32[])] Body Start
+MARK_TYPE_STACK 0.0009 0
+REF_INC 0
+LOAD D2 0; InlineFunc[int strlen(char32[])] Params Start AND if() #1 Test
+SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
+STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
+COMPAREV D2 0
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 659 ==; Test 'if'
+ALLOCATEMEMV D2 24 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Body Start
+WRITEPODSTRING D2 "[Test] failed test: %s\n"
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2
+MARK_TYPE_VARG 0.0009; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End
+GOTO 664; if() #1 Body End
+ALLOCATEMEMV D2 20 0; InlineFunc[void printf(char32[], ...untyped[])] Params Start AND if() #1 Else Start
+WRITEPODSTRING D2 "[Test] failed test\n"
+PUSHR D2; InlineFunc[void printf(char32[], ...untyped[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[], ...untyped[])] Body Start
+POP D5; InlineFunc[void printf(char32[], ...untyped[])] Body End AND if() #1 Else End
+NOP
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End

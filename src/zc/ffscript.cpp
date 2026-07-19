@@ -9356,6 +9356,11 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 			if (result == RUNSCRIPT_JIT_STACK_OVERFLOW || result == RUNSCRIPT_JIT_CALL_LIMIT)
 			{
 				ri->overflow = true;
+				// The overflow was detected by compiled code, so current_zasm_command
+				// holds whatever the interpreter last ran (e.g. a stale Waitframe).
+				// Clear it so the error logs without a misleading context prefix,
+				// matching the interpreter's own overflow checks.
+				current_zasm_command = (ASM_DEFINE)0;
 				if (result == RUNSCRIPT_JIT_STACK_OVERFLOW)
 					log_stack_overflow_error();
 				else
