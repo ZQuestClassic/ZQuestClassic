@@ -4,6 +4,10 @@ import { getDocUri, activate, setTestContent, executeDocumentSymbolProvider, exe
 import { before } from 'mocha';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
+// Tests against historical builds only run where those x64 builds can run;
+// runTest.ts omits their paths on hosts that can't (e.g. Linux arm CI).
+const testHistorical = process.env.ZC_PATH_255 ? test : test.skip;
+
 function range(sLine: number, sChar: number, eLine: number, eChar: number) {
 	const start = new vscode.Position(sLine, sChar);
 	const end = new vscode.Position(eLine, eChar);
@@ -56,14 +60,14 @@ suite('ZScript extension', function () {
 	suite('Diagnoses errors and warnings', () => {
 		const uri = getDocUri('diagnostics.zs');
 
-		test('2.55', async () => {
+		testHistorical('2.55', async () => {
 			await activate('2.55', uri);
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'Screen->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
 			]);
 		});
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'screendata->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
@@ -88,14 +92,14 @@ suite('ZScript extension', function () {
 			await setTestContent(uri, '#option WARN_DEPRECATED warn\n\nimport "std.zh"\n\nvoid fn() {\n\tScreen->HasItem;\n}\n');
 		}
 
-		test('2.55', async () => {
+		testHistorical('2.55', async () => {
 			await setup('2.55');
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'Screen->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
 			]);
 		});
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await setup('3-no-json');
 			await testDiagnostics(uri, [
 				{ message: `Warning S094: Variable 'screendata->HasItem' is deprecated, and should not be used.`, range: range(5, 1, 5, 16), severity: vscode.DiagnosticSeverity.Warning },
@@ -113,7 +117,7 @@ suite('ZScript extension', function () {
 	suite('Diagnoses parser errors', () => {
 		const uri = getDocUri('parser_errors.zs');
 
-		test('2.55', async () => {
+		testHistorical('2.55', async () => {
 			await activate('2.55', uri);
 			await testDiagnostics(uri, [
 				{ message: `unexpected LBRACE`, range: range(2, 22, 2, 23), severity: vscode.DiagnosticSeverity.Error },
@@ -121,7 +125,7 @@ suite('ZScript extension', function () {
 			]);
 		});
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			await testDiagnostics(uri, [
 				{ message: `unexpected LBRACE`, range: range(2, 22, 2, 23), severity: vscode.DiagnosticSeverity.Error },
@@ -145,12 +149,12 @@ suite('ZScript extension', function () {
 			await config.update('defaultIncludeFiles', ['std.zh'], vscode.ConfigurationTarget.Global);
 		});
 
-		test('2.55', async () => {
+		testHistorical('2.55', async () => {
 			await activate('2.55', uri);
 			await testDiagnostics(uri, []);
 		});
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			await testDiagnostics(uri, []);
 		});
@@ -191,7 +195,7 @@ suite('ZScript extension', function () {
 
 		// Not supported in 2.55.
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			const hovers = await getHovers('3-no-json');
 			expect(hovers).toMatchSnapshot();
@@ -221,7 +225,7 @@ suite('ZScript extension', function () {
 
 		// Not supported in 2.55.
 
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			expect(await getSymbols()).toMatchSnapshot();
 		});
@@ -286,14 +290,14 @@ suite('ZScript extension', function () {
 		};
 
 		// Doesn't work, but shouldn't error.
-		test('2.55', async () => {
+		testHistorical('2.55', async () => {
 			await activate('2.55', uri);
 			const completions = await getCompletions();
 			expect(completions).toHaveLength(0);
 		});
 
 		// Doesn't work, but shouldn't error.
-		test('3-no-json', async () => {
+		testHistorical('3-no-json', async () => {
 			await activate('3-no-json', uri);
 			const completions = await getCompletions();
 			expect(completions).toHaveLength(0);

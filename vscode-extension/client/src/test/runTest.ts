@@ -34,10 +34,16 @@ async function main() {
 		const extensionTestsPath = path.resolve(__dirname, './index');
 
 		const extensionTestsEnv: Record<string, string> = {
-			ZC_PATH_255: getZcPath('2.55.7'),
-			ZC_PATH_3_NO_JSON: getZcPath('3.0.0-prerelease.60+2024-08-04'),
 			ZC_PATH_LATEST: findZcPath([process.env.BUILD_FOLDER, `${ROOT}/build/Release`, `${ROOT}/build/RelWithDebInfo`]),
 		};
+
+		// Historical builds are x64-only. Macs run them via Rosetta, but Linux
+		// arm hosts can't run them at all, so those tests are skipped there.
+		const canRunHistoricalBuilds = !(process.platform === 'linux' && process.arch === 'arm64');
+		if (canRunHistoricalBuilds) {
+			extensionTestsEnv.ZC_PATH_255 = getZcPath('2.55.7');
+			extensionTestsEnv.ZC_PATH_3_NO_JSON = getZcPath('3.0.0-prerelease.60+2024-08-04');
+		}
 		console.log('Using these binaries for extension test:', extensionTestsEnv);
 
 		extensionTestsEnv.TEST_ZSCRIPT = '1';
