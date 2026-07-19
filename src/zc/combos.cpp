@@ -2164,7 +2164,7 @@ void do_ex_trigger(const combined_handle_t& handle, size_t idx)
 		trig_copycat(cid, handle, trig.trigcopycat);
 }
 
-bool force_ex_trigger(const combined_handle_t& handle, size_t idx, char xstate)
+bool force_ex_trigger(const combined_handle_t& handle, size_t idx, int8_t xstate)
 {
 	auto& cmb = handle.combo();
 	if (cmb.triggers.size() <= idx) return false;
@@ -2182,7 +2182,7 @@ bool force_ex_trigger(const combined_handle_t& handle, size_t idx, char xstate)
 	return false;
 }
 
-bool force_ex_trigger_any(const combined_handle_t& handle, char xstate)
+bool force_ex_trigger_any(const combined_handle_t& handle, int8_t xstate)
 {
 	auto cid = handle.data();
 	auto& cmb = handle.combo();

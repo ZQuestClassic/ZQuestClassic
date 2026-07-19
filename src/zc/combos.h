@@ -53,8 +53,8 @@ void trigger_save(newcombo const& cmb, mapscr* scr);
 void trig_copycat(byte copyid);
 
 void do_ex_trigger(const combined_handle_t& handle, size_t idx);
-bool force_ex_trigger(const combined_handle_t& handle, size_t idx, char xstate = -1);
-bool force_ex_trigger_any(const combined_handle_t& handle, char xstate = -1);
+bool force_ex_trigger(const combined_handle_t& handle, size_t idx, int8_t xstate = -1);
+bool force_ex_trigger_any(const combined_handle_t& handle, int8_t xstate = -1);
 bool force_ex_door_trigger(const combined_handle_t& handle, size_t idx, int dir = -1, uint ind = 0);
 bool force_ex_door_trigger_any(const combined_handle_t& handle, int dir = -1, uint ind = 0);
 bool force_combopos_trigger(const combined_handle_t& handle, size_t idx, int mi = -1);

@@ -71,7 +71,7 @@ struct bottleshoptype
 struct bottletype
 {
 	char name[33];
-	char counter[3];
+	int8_t counter[3]; // -1 = none; plain char is unsigned on some targets
 	word amount[3];
 	byte flags;
 	byte next_type;
