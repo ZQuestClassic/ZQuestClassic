@@ -177,7 +177,9 @@ struct itemdata
     int32_t power;             // Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     item_flags flags;
     word script;
-    char count = crNONE;       // which counter is gained on picking up the item
+    // int8_t, not char: holds crNONE (-1), and plain char is unsigned on
+    // some targets (Linux AArch64).
+    int8_t count = crNONE;     // which counter is gained on picking up the item
     word amount;
     int16_t setmax;
     word max;
@@ -221,7 +223,7 @@ struct itemdata
     
     int32_t wpnsprite; //enemy weapon sprite. 
     int32_t magiccosttimer[2]; 
-    char cost_counter[2];
+    int8_t cost_counter[2];    // can hold crNONE (-1); see `count`
     
     char initD_label[8][65];
     char sprite_initD_label[8][65];

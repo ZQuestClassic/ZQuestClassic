@@ -634,8 +634,8 @@ void ChangeSubscreenText(int32_t index, const char *f)
 }
 
 
-const char startguy[8] = {-13,-13,-13,-14,-15,-18,-21,-40};
-const char gambledat[12*6] =
+const int8_t startguy[8] = {-13,-13,-13,-14,-15,-18,-21,-40};
+const int8_t gambledat[12*6] =
 {
     20,-10,-10, 20,-10,-10, 20,-40,-10, 20,-10,-40,
     50,-10,-10, 50,-10,-10, 50,-40,-10, 50,-10,-40,
