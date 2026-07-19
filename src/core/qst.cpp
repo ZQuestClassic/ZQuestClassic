@@ -1817,7 +1817,7 @@ static bool compat_qr_hide_bottom_pixels(const zquestheader& header)
 	// Quests prior to 2.55.9 with a scripted subscreen?
 	for (int i = 0; i < MAXDMAPS; i++)
 	{
-		int script = DMaps[i].active_sub_script;
+		int script = DMaps[i].active_sub_scrconfig.script;
 		if (script && dmapscripts[script] && dmapscripts[script]->valid())
 			return true;
 	}

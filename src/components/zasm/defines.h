@@ -3487,6 +3487,7 @@ enum ASM_DEFINE
 
 #define IDATACOLLECTINITD                     0x170E
 #define IDATASPRITEINITD                      0x170F
+#define DMAPDATAPSUBINITD                     0x1710
 
 // fill in gap here
 

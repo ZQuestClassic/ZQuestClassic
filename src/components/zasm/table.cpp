@@ -2807,6 +2807,7 @@ static constexpr script_variable variable_list[]=
 	{ "MESSAGEDATA_MENUCLOSE_SFX", MESSAGEDATA_MENUCLOSE_SFX, 0 },
 	{ "IDATACOLLECTINITD", IDATACOLLECTINITD, 0 },
 	{ "IDATASPRITEINITD", IDATASPRITEINITD, 0 },
+	{ "DMAPDATAPSUBINITD", DMAPDATAPSUBINITD, 0 },
 	{"", -1},
 };
 
@@ -3218,6 +3219,7 @@ static std::vector<int> _get_register_dependencies(int reg)
 		case DMAPDATAMINIMAPCSET:
 		case DMAPDATAMINIMAPTILE:
 		case DMAPDATASUBINITD:
+		case DMAPDATAPSUBINITD:
 		case DMAPFLAGSD:
 		case DMAPINITD:
 		case DMAPLEVELD:
@@ -3827,6 +3829,7 @@ std::optional<int> get_register_ref_dependency(int reg)
 		case DMAPDATAPSUBSCRIPT:
 		case DMAPDATASIDEVIEW:
 		case DMAPDATASUBINITD:
+		case DMAPDATAPSUBINITD:
 		case DMAPDATASUBSCRA:
 		case DMAPDATASUBSCRM:
 		case DMAPDATASUBSCRO:

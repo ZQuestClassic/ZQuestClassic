@@ -258,10 +258,16 @@ class dmapdata {
 	// @zasm_var DMAPDATAPSUBSCRIPT
 	internal int PSubScript;
 
-	// The 8 InitD values shared by the Active and Passive Subscreen Scripts.
+	// The 8 InitD values used by the Active Subscreen Script.
+	// [qr_SCRIPTS_SHARE_INITD] makes changing this array also change [PassiveSubInitD].
 	//
 	// @zasm_var DMAPDATASUBINITD
 	internal untyped SubInitD[];
+
+	// The 8 InitD values used by the Passive Subscreen Script.
+	//
+	// @zasm_var DMAPDATAPSUBINITD
+	internal untyped PassiveSubInitD[];
 
 	// Which dmapdata script to use as a replacement for the engine fullscreen
 	// map (0 for none).

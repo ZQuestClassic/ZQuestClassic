@@ -1621,9 +1621,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if ( !data.initialized )
 			{
 				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = DMaps[ri->dmapdataref].initD[q];// * 10000;
-				reset_script_variables();
+				reset_script_variables(DMaps[index].active_scrconfig);
 				data.initialized = true;
 			}
 			ri->script_d[0] = ri->dmapdataref;
@@ -1636,9 +1634,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = DMaps[ri->dmapdataref].onmap_initD[q];
-				reset_script_variables();
+				reset_script_variables(DMaps[index].onmap_scrconfig);
 				data.initialized = true;
 			}
 			ri->script_d[0] = ri->dmapdataref;
@@ -1651,9 +1647,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = DMaps[ri->dmapdataref].sub_initD[q];
-				reset_script_variables();
+				reset_script_variables(DMaps[index].active_sub_scrconfig);
 				data.initialized = true;
 			}
 			ri->script_d[0] = ri->dmapdataref;
@@ -1666,9 +1660,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = DMaps[ri->dmapdataref].sub_initD[q];
-				reset_script_variables();
+				reset_script_variables(DMaps[index].passive_sub_scrconfig);
 				data.initialized = true;
 			}
 			ri->script_d[0] = ri->dmapdataref;
@@ -14608,11 +14600,11 @@ void FFScript::warpScriptCheck()
 	}
 	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::ScriptedPassiveSubscreen))
 	{
-		if(DMaps[cur_dmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
-		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
+		if(DMaps[cur_dmap].passive_sub_scrconfig.script != 0)
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script, cur_dmap);
+		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_scrconfig.script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script, cur_dmap);
 			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
 	}
@@ -14638,12 +14630,12 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
@@ -14674,11 +14666,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].active_scrconfig.script,cur_dmap);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_scrconfig.script,cur_dmap);
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
@@ -14899,10 +14891,10 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 
 bool FFScript::runScriptedActiveSubscreen()
 {
-	word activesubscript = DMaps[cur_dmap].active_sub_script;
+	word activesubscript = DMaps[cur_dmap].active_sub_scrconfig.script;
 	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run
-	word passivesubscript = DMaps[cur_dmap].passive_sub_script;
-	word dmapactivescript = DMaps[cur_dmap].script;
+	word passivesubscript = DMaps[cur_dmap].passive_sub_scrconfig.script;
+	word dmapactivescript = DMaps[cur_dmap].active_scrconfig.script;
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	initZScriptScriptedActiveSubscreen();
@@ -14918,21 +14910,21 @@ bool FFScript::runScriptedActiveSubscreen()
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		if(get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap))
+		if(get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].active_scrconfig.script != 0 && doscript(ScriptType::DMap))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 		}
-		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_scrconfig.script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
 		}
 		ZScriptVersion::RunScript(ScriptType::ScriptedActiveSubscreen, activesubscript, script_dmap);
-		if(waitdraw(ScriptType::DMap) && (get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
+		if(waitdraw(ScriptType::DMap) && (get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].active_scrconfig.script != 0 && doscript(ScriptType::DMap)))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 			waitdraw(ScriptType::DMap) = false;
 		}
-		if(waitdraw(ScriptType::ScriptedPassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen)))
+		if(waitdraw(ScriptType::ScriptedPassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_scrconfig.script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen)))
 		{
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
 			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
@@ -14951,10 +14943,10 @@ bool FFScript::runScriptedActiveSubscreen()
 		//Handle warps; run game_loop once!
 		if(cur_dmap != script_dmap)
 		{
-			activesubscript = DMaps[cur_dmap].active_sub_script;
+			activesubscript = DMaps[cur_dmap].active_sub_scrconfig.script;
 			if(!activesubscript || !dmapscripts[activesubscript]->valid()) return true; //No script to run
-			passivesubscript = DMaps[cur_dmap].passive_sub_script;
-			dmapactivescript = DMaps[cur_dmap].script;
+			passivesubscript = DMaps[cur_dmap].passive_sub_scrconfig.script;
+			dmapactivescript = DMaps[cur_dmap].active_scrconfig.script;
 			script_dmap = cur_dmap;
 			//Reset the background image
 			game_loop();
@@ -14973,7 +14965,7 @@ bool FFScript::runScriptedActiveSubscreen()
 }
 bool FFScript::runOnMapScriptEngine()
 {
-	word onmap_script = DMaps[cur_dmap].onmap_script;
+	word onmap_script = DMaps[cur_dmap].onmap_scrconfig.script;
 	if(!onmap_script || !dmapscripts[onmap_script]->valid()) return false; //No script to run
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, framebuf->w, framebuf->h);
@@ -15006,7 +14998,7 @@ bool FFScript::runOnMapScriptEngine()
 		//Handle warps; run game_loop once!
 		if(cur_dmap != script_dmap)
 		{
-			onmap_script = DMaps[cur_dmap].onmap_script;
+			onmap_script = DMaps[cur_dmap].onmap_scrconfig.script;
 			if(!onmap_script || !dmapscripts[onmap_script]->valid()) return true; //No script to run
 			script_dmap = cur_dmap;
 			//Reset the background image

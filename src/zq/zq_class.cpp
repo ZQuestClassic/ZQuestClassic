@@ -7279,35 +7279,14 @@ int32_t write_one_dmap(PACKFILE* f, int index)
 		new_return(29);
 	if(!p_putc(DMaps[index].sideview,f))
 		new_return(30);
-	if(!p_iputw(DMaps[index].script,f))
+	if (!p_putvar(DMaps[index].active_scrconfig, f))
 		new_return(31);
-	for ( int32_t q = 0; q < 8; q++ )
-		if(!p_iputl(DMaps[index].initD[q],f))
-			new_return(32);
-	for ( int32_t q = 0; q < 8; q++ )
-		for ( int32_t w = 0; w < 65; w++ )
-			if (!p_putc(DMaps[index].initD_label[q][w],f))
-				new_return(33);
-	if(!p_iputw(DMaps[index].active_sub_script,f))
+	if (!p_putvar(DMaps[index].active_sub_scrconfig, f))
+		new_return(32);
+	if (!p_putvar(DMaps[index].passive_sub_scrconfig, f))
+		new_return(33);
+	if (!p_putvar(DMaps[index].onmap_scrconfig, f))
 		new_return(34);
-	if(!p_iputw(DMaps[index].passive_sub_script,f))
-		new_return(35);
-	for(int32_t q = 0; q < 8; ++q)
-		if(!p_iputl(DMaps[index].sub_initD[q],f))
-			new_return(36);
-	for(int32_t q = 0; q < 8; ++q)
-		for(int32_t w = 0; w < 65; ++w)
-			if(!p_putc(DMaps[index].sub_initD_label[q][w],f))
-				new_return(37);
-	if(!p_iputw(DMaps[index].onmap_script,f))
-		new_return(38);
-	for(int32_t q = 0; q < 8; ++q)
-		if(!p_iputl(DMaps[index].onmap_initD[q],f))
-			new_return(39);
-	for(int32_t q = 0; q < 8; ++q)
-		for(int32_t w = 0; w < 65; ++w)
-			if(!p_putc(DMaps[index].onmap_initD_label[q][w],f))
-				new_return(40);
 	if(!p_iputw(DMaps[index].mirrorDMap,f))
 		new_return(41);
 	if(!p_putc(DMaps[index].overlay_subscreen, f))

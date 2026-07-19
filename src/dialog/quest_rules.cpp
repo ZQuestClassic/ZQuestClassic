@@ -1895,7 +1895,7 @@ GUI::ListData instructionRulesList
 		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)" },
 	{ "Writing to some ->InitD[] affects others", qr_SCRIPTS_SHARE_INITD,
 		"If checked, writes to 'itemdata->InitD[]' also modify 'itemdata->PickupInitD[]' and"
-		" 'itemdata->SpriteInitD[]'." }
+		" 'itemdata->SpriteInitD[]', and writes to 'dmapdata->SubInitD[]' also modify 'dmapdata->PassiveSubInitD[]'." }
 	
 };
 
