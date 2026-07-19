@@ -6980,9 +6980,7 @@ void ZCSubscreen::copy_settings(const ZCSubscreen& src, bool all)
 			pages[q].force_update();
 		}
 	}
-	script = src.script;
-	for(int q = 0; q < 8; ++q)
-		initd[q] = src.initd[q];
+	scrconfig = src.scrconfig;
 	btn_left = src.btn_left;
 	btn_right = src.btn_right;
 	flags = src.flags;
@@ -7104,13 +7102,21 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 			return ret;
 		if(auto ret = trans_right.read(f, s_version))
 			return ret;
-		if(!p_igetw(&script,f))
-			return qe_invalid;
-		if(script)
+		if (s_version >= 21)
 		{
-			for(int q = 0; q < 8; ++q)
-				if(!p_igetl(&initd[q],f))
-					return qe_invalid;
+			if (!p_getvar(&scrconfig, f))
+				return qe_invalid;
+		}
+		else
+		{
+			if (!p_igetw(&scrconfig.script,f))
+				return qe_invalid;
+			if (scrconfig.script)
+			{
+				for (int q = 0; q < 8; ++q)
+					if (!p_igetl(&scrconfig.run_args[q],f))
+						return qe_invalid;
+			}
 		}
 	}
 	byte pagecnt;
@@ -7130,11 +7136,7 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 		if((def_btns[q] & 0xFF) >= pagecnt)
 			def_btns[q] = 0xFF;
 	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
-	{
-		script = 0;
-		for(int q = 0; q < 8; ++q)
-			initd[q] = 0;
-	}
+		scrconfig.clear();
 	return 0;
 }
 int32_t ZCSubscreen::write(PACKFILE *f) const
@@ -7168,14 +7170,8 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 			return ret;
 		if(auto ret = trans_right.write(f))
 			return ret;
-		if(!p_iputw(script,f))
+		if (!p_putvar(scrconfig, f))
 			new_return(1);
-		if(script)
-		{
-			for(int q = 0; q < 8; ++q)
-				if(!p_iputl(initd[q],f))
-					new_return(1);
-		}
 	}
 	if(pagecnt && !active)
 		pagecnt = 1;

@@ -1250,8 +1250,7 @@ struct ZCSubscreen
 	
 	SubscrSelectorInfo selector_setting;
 	
-	word script;
-	int32_t initd[8];
+	script_config scrconfig;
 	
 	SubscrPage& cur_page();
 	SubscrPage* get_page(byte ind);

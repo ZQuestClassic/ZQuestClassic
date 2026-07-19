@@ -1682,9 +1682,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (ptr && !data.initialized)
 			{
 				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-					ri->d[q] = ptr->initd[q];
-				reset_script_variables();
+				reset_script_variables(ptr->scrconfig);
 				data.initialized = true;
 			}
 			ri->script_d[0] = ri->subscreendataref;

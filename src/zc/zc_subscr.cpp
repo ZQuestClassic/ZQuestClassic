@@ -57,18 +57,18 @@ void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 
 bool run_active_subscript(bool waitdraw)
 {
-	if (new_subscreen_active && new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
+	if (new_subscreen_active && new_subscreen_active->scrconfig.script && FFCore.doscript(ScriptType::EngineSubscreen, sstACTIVE)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE)))
 	{
-		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, sstACTIVE);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->scrconfig.script, sstACTIVE);
 		if (ret == RUNSCRIPT_SELFDELETE)
 			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstACTIVE) = false;
 	}
-	if (new_subscreen_map && new_subscreen_map->script && FFCore.doscript(ScriptType::EngineSubscreen, sstMAP)
+	if (new_subscreen_map && new_subscreen_map->scrconfig.script && FFCore.doscript(ScriptType::EngineSubscreen, sstMAP)
 		&& (!waitdraw || FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP)))
 	{
-		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->script, sstMAP);
+		auto ret = ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_map->scrconfig.script, sstMAP);
 		if (ret == RUNSCRIPT_SELFDELETE)
 			return true;
 		if (waitdraw) FFCore.waitdraw(ScriptType::EngineSubscreen, sstMAP) = false;
