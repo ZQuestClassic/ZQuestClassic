@@ -165,7 +165,10 @@ suite('ZScript extension', function () {
 		});
 	});
 
-	suite('Hover tooltips', () => {
+	suite('Hover tooltips', function () {
+		// See 'Document symbol outline' for why snapshot suites don't retry.
+		this.retries(0);
+
 		const uri = getDocUri('symbols.zs');
 
 		const getHovers = async (version: string) => {
@@ -208,8 +211,24 @@ suite('ZScript extension', function () {
 		});
 	});
 
-	suite('Document symbol outline', () => {
+	suite('Document symbol outline', function () {
+		// No retries for snapshot tests: a failed attempt advances the
+		// snapshot counter, so a retry can only fail with "snapshot not
+		// written" instead of a useful diff.
+		this.retries(0);
+
 		const uri = getDocUri('symbols.zs');
+		let touchCounter = 0;
+
+		// VSCode serves document symbols from a cache keyed by the document
+		// version, and changing zscript.installationFolder does not bump it.
+		// Without a real edit, a query here would return symbols produced by
+		// whichever compiler version was active at the last query.
+		const activateFresh = async (version: string) => {
+			const { doc } = await activate(version, uri);
+			await setTestContent(uri, doc.getText().replace(/\n+$/, '\n') + '\n'.repeat(++touchCounter));
+			await sleep(500);
+		};
 
 		const getSymbols = async () => {
 			const symbols = await executeDocumentSymbolProvider(uri);
@@ -226,12 +245,12 @@ suite('ZScript extension', function () {
 		// Not supported in 2.55.
 
 		testHistorical('3-no-json', async () => {
-			await activate('3-no-json', uri);
+			await activateFresh('3-no-json');
 			expect(await getSymbols()).toMatchSnapshot();
 		});
 
 		test('latest', async () => {
-			await activate('latest', uri);
+			await activateFresh('latest');
 			expect(await getSymbols()).toMatchSnapshot();
 		});
 	});
@@ -265,7 +284,10 @@ suite('ZScript extension', function () {
 		expect(highlights.some(h => h.range.start.line === 2)).toBe(true);
 	});
 
-	suite('Autocomplete global constants', () => {
+	suite('Autocomplete global constants', function () {
+		// See 'Document symbol outline' for why snapshot suites don't retry.
+		this.retries(0);
+
 		const uri = getDocUri('empty.zs');
 
 		const getCompletions = async () => {
