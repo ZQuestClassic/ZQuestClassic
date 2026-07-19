@@ -53,6 +53,10 @@ jobs:
             arch: x64
             compiler: clang
             config: RelWithDebInfo
+          - runs-on: ubuntu-22.04-arm
+            arch: aarch64
+            compiler: clang
+            config: RelWithDebInfo
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: gcc

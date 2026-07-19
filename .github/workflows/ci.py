@@ -267,8 +267,6 @@ def install_deps(ctx: CiContext, args):
             "ccache",
             "ninja-build",
             "build-essential",
-            "gcc-multilib",
-            "g++-multilib",
             "libx11-dev",
             "libglu1-mesa-dev",
             "freeglut3-dev",
@@ -284,6 +282,9 @@ def install_deps(ctx: CiContext, args):
             "libpulse-dev",
             "libfreetype6-dev",
         ]
+        # multilib is x86-only; these packages don't exist on arm64 Ubuntu.
+        if platform.machine() in ('x86_64', 'AMD64'):
+            packages += ["gcc-multilib", "g++-multilib"]
         packages_str = " ".join(packages)
         run_cmd(f"sudo apt-get install -y {packages_str}")
 
@@ -775,7 +776,9 @@ def main():
 
     # Global/Shared arguments for all subparsers
     parent = argparse.ArgumentParser(add_help=False)
-    parent.add_argument("--arch", default="x64", help="Architecture (x64, win32)")
+    parent.add_argument(
+        "--arch", default="x64", help="Architecture (x64, win32, intel, aarch64)"
+    )
     parent.add_argument("--compiler", default="gcc", help="Compiler (gcc, clang, msvc)")
     parent.add_argument(
         "--config", default="Release", help="Release, RelWithDebInfo, etc."
