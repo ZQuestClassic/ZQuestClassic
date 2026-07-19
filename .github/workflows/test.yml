@@ -98,7 +98,7 @@ jobs:
 
       - name: Install Linux Test Dependencies
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0
+        run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libpulse0 xvfb
 
       - run: mkdir -p .tmp
 
@@ -197,12 +197,20 @@ jobs:
 
       - name: Run unit tests
         if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
-        run: >
-          bash .github/workflows/run_python.sh .github/workflows/ci.py unit-tests
-          --repo ${{ github.repository }}
-          --compiler ${{ inputs.compiler }}
-          --config ${{ inputs.config }}
-          --build-folder zc-extracted
+        shell: bash
+        # xvfb provides a real X display on Linux; some test binaries touch X
+        # (e.g. keyboard setup) and the runner images vary in DISPLAY setup.
+        run: |
+          CMD="bash .github/workflows/run_python.sh .github/workflows/ci.py unit-tests
+            --repo ${{ github.repository }}
+            --compiler ${{ inputs.compiler }}
+            --config ${{ inputs.config }}
+            --build-folder zc-extracted"
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            xvfb-run --auto-servernum $CMD
+          else
+            $CMD
+          fi
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
