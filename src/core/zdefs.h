@@ -138,7 +138,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           9
 #define V_RULES           18
 #define V_STRINGS         13
-#define V_MISC            21
+#define V_MISC            22
 #define V_TILES            4 //3 added blank tile optimization and 4-bit packing; 4 used by .ztileset
 #define V_TILES_ZTILESET_MIN 4 // .ztileset files before this used a different per-tile encoding
 #define V_COMBOS          72

@@ -7957,7 +7957,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 				if (!p_iputl(opt.font, f))
 					new_return(55);
 				
-				if (!p_iputw(opt.gen_script, f))
+				if (!p_putvar(opt.gen_scrconfig, f))
 					new_return(56);
 			}
 		}
