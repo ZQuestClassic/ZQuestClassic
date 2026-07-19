@@ -146,7 +146,9 @@ struct itemdata
 #define ITEM_FLIP_JINX          0x20000000
 #define ITEM_BURNING_SPRITES    0x40000000
     word script;												// Which script the item is using
-    char count;
+    // int8_t, not char: holds crNONE (-1), and plain char is unsigned on
+    // some targets (Linux AArch64).
+    int8_t count;
     word amount;
     int16_t setmax;
     word max;
@@ -228,7 +230,7 @@ struct itemdata
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int32_t wpnsprite; //enemy weapon sprite. 
     int32_t magiccosttimer[2]; 
-    char cost_counter[2];
+    int8_t cost_counter[2];    // can hold crNONE (-1); see `count`
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
