@@ -1714,10 +1714,7 @@ static void set_current_script_engine_data(ScriptEngineData& data, ScriptType ty
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				memset(ri->d, 0, 8 * sizeof(int32_t));
-				for ( int32_t q = 0; q < 8; q++ )
-					ri->d[q] = combobuf[id].initd[q];
-				reset_script_variables();
+				reset_script_variables(combobuf[id].scrconfig);
 				data.initialized = true;
 			}
 

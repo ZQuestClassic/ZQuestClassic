@@ -231,7 +231,7 @@ namespace combo_caches
 		minicombo_script() = default;
 		minicombo_script(const newcombo& combo)
 		{
-			script = combo.script;
+			script = combo.scrconfig.script;
 		}
 	};
 	extern combo_cache<minicombo_script> script;

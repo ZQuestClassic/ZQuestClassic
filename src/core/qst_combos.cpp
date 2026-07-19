@@ -307,10 +307,10 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *Header, 
 			//combo scripts
 			if(section_version>=14) 
 			{
-				if(!p_igetw(&temp_combo.script,f))
+				if(!p_igetw(&temp_combo.scrconfig.script,f))
 					return qe_invalid;
 				for ( int32_t q = 0; q < 2; q++ )
-					if(!p_igetl(&temp_combo.initd[q],f))
+					if(!p_igetl(&temp_combo.scrconfig.run_args[q],f))
 						return qe_invalid;
 			}
 			if(section_version>=15)
@@ -488,11 +488,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *Header, 
 		if(i>=start_combo && !should_skip)
 		{
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
-			{
-				temp_combo.script = 0;
-				for(int q = 0; q < 8; ++q)
-					temp_combo.initd[q] = 0;
-			}
+				temp_combo.scrconfig.clear();
 			combobuf[i] = temp_combo;
 		}
 	}
@@ -996,7 +992,8 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 		{
 			if (s_version>=41)
 			{
-				p_getcstr(&temp_combo.label, f);
+				if (!p_getcstr(&temp_combo.label, f))
+					return qe_invalid;
 			}
 			else
 			{
@@ -1007,12 +1004,21 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo, zquest
 						return qe_invalid;
 				temp_combo.label = label;
 			}
-
-			if(!p_igetw(&temp_combo.script,f)) return qe_invalid;
-			auto initd_count = s_version >= 43 ? 8 : 2;
-			for ( int32_t q = 0; q < initd_count; q++ )
-				if(!p_igetl(&temp_combo.initd[q],f))
+			
+			if (s_version >= 72)
+			{
+				if(!p_getvar(&temp_combo.scrconfig,f))
 					return qe_invalid;
+			}
+			else
+			{
+				if(!p_igetw(&temp_combo.scrconfig.script,f))
+					return qe_invalid;
+				auto initd_count = s_version >= 43 ? 8 : 2;
+				for ( int32_t q = 0; q < initd_count; q++ )
+					if(!p_igetl(&temp_combo.scrconfig.run_args[q],f))
+						return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_ANIM)
 		{
@@ -1426,11 +1432,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			if(i>=start_combo)
 			{
 				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
-				{
-					temp_combo.script = 0;
-					for(int q = 0; q < 8; ++q)
-						temp_combo.initd[q] = 0;
-				}
+					temp_combo.scrconfig.clear();
 				combobuf[i] = temp_combo;
 			}
 		}
@@ -1737,16 +1739,8 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 		|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
 		|| tmp_cmb.animflags)
 		combo_has_flags |= CHAS_ANIM;
-	if(tmp_cmb.script || tmp_cmb.label.size())
+	if (!tmp_cmb.scrconfig.empty() || tmp_cmb.label.size())
 		combo_has_flags |= CHAS_SCRIPT;
-	else for(auto q = 0; q < 8; ++q)
-	{
-		if(tmp_cmb.initd[q])
-		{
-			combo_has_flags |= CHAS_SCRIPT;
-			break;
-		}
-	}
 	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
 		|| tmp_cmb.type || tmp_cmb.csets)
 		combo_has_flags |= CHAS_BASIC;
@@ -1795,13 +1789,11 @@ int32_t writecombo_loop(PACKFILE *f, newcombo const& tmp_cmb)
 	}
 	if(combo_has_flags&CHAS_SCRIPT)
 	{
-		p_putcstr(tmp_cmb.label, f);
-
-		if(!p_iputw(tmp_cmb.script,f))
+		if (!p_putcstr(tmp_cmb.label, f))
 			return 26;
-		for ( int32_t q = 0; q < 8; q++ )
-			if(!p_iputl(tmp_cmb.initd[q],f))
-				return 27;
+
+		if (!p_putvar(tmp_cmb.scrconfig,f))
+			return 27;
 	}
 	if(combo_has_flags&CHAS_ANIM)
 	{

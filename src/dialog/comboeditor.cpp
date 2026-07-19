@@ -14,6 +14,7 @@
 #include "zinfo.h"
 #include "core/combo.h"
 #include "weap_data_editor.h"
+#include "script_data_editor.h"
 
 void mark_save_dirty();
 extern int32_t CSet;
@@ -798,47 +799,6 @@ static bool validate_label(std::shared_ptr<GUI::Label> const& lbl)
 	return lbl->getWidth() >= text_length(lbl->getFont(), lbl->getText().c_str());
 }
 //Load all the info for the combo type and checked flags
-void ComboEditorDialog::refreshScript()
-{
-	loadComboType();
-	int32_t sw_initd[8];
-	for(auto q = 0; q < 8; ++q)
-	{
-		l_initd[q] = "InitD["+to_string(q)+"]:";
-		h_initd[q].clear();
-		sw_initd[q] = -1;
-	}
-	if(local_comboref.script)
-	{
-		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
-		for(auto q = 0; q < 8; ++q)
-		{
-			if(unsigned(meta.initd_type[q]) < nswapMAX)
-				sw_initd[q] = meta.initd_type[q];
-			if(meta.initd_label[q].size())
-				l_initd[q] = meta.initd_label[q];
-			if(meta.initd_help[q].size())
-				h_initd[q] = meta.initd_help[q];
-		}
-	}
-	else
-	{
-		for(auto q = 0; q < 8; ++q)
-			sw_initd[q] = nswapDEC;
-	}
-	bool is_soft_refresh = runner.isConstructed();
-	bool clean = is_soft_refresh;
-	for(auto q = 0; q < 8; ++q)
-	{
-		ib_initds[q]->setDisabled(h_initd[q].empty());
-		l_initds[q]->setText(l_initd[q]);
-		if (clean && !validate_label(l_initds[q]))
-			clean = false;
-		if(sw_initd[q] > -1)
-			tf_initd[q]->setSwapType(sw_initd[q]);
-	}
-	if (is_soft_refresh && !clean) refresh_dlg();
-}
 void ComboEditorDialog::loadComboType()
 {
 	#define FL(fl) (local_comboref.usrflags & (fl))
@@ -2162,9 +2122,9 @@ void ComboEditorDialog::loadComboType()
 			break;
 		}
 	}
-	if(local_comboref.script && combo_use_script_data)
+	if(local_comboref.scrconfig.script && combo_use_script_data)
 	{
-		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		zasm_meta const& meta = comboscripts[local_comboref.scrconfig.script]->meta;
 		for(size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 		{
 			if(meta.attributes[q].size())
@@ -2433,25 +2393,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				loadComboType();
 			}
 		));
-	}
-	shared_ptr<GUI::Grid> initd_grid = Rows<3>();
-	for (size_t q = 0; q < 8; ++q)
-	{
-		initd_grid->add(l_initds[q] = Label(hAlign = 1.0, textAlign = 2, fitParent = true));
-		initd_grid->add(ib_initds[q] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, q]()
-			{
-				InfoDialog("InitD Info",h_initd[q]).show();
-			}));
-		initd_grid->add(tf_initd[q] = TextField(
-			fitParent = true, width = 9_em,
-			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_comboref.initd[q],
-			onValChangedFunc = [&, q](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				local_comboref.initd[q] = val;
-			}));
 	}
 	shared_ptr<GUI::Grid> attrib_grid = Rows_Columns<3, 8>(hPadding = 0.5_em);
 	for (size_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
@@ -3510,22 +3451,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Script", Row(
-					initd_grid,
-					Column(vAlign = 0.0,
-						Row(
-							padding = 0_px,
-							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
-						),
-						Checkbox(text = "Show Script Attrib Metadata",
-							checked = combo_use_script_data,
-							onToggleFunc = [&](bool state)
-							{
-								combo_use_script_data = state;
-								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
-								loadComboType();
-							})
-					)
+				TabRef(name = "Script", Column(
+					Button(
+						text = "Script Setup",
+						height = 2_em,
+						onPressFunc = [&]()
+						{
+							string lbl = local_comboref.label.empty() ? "" : fmt::format("'{}' ", local_comboref.label);
+							ScriptDataDialog(fmt::format("Combo {}#{} Script Setup", lbl, index),
+								local_comboref.scrconfig, list_combscript, comboscripts).show();
+						}
+					),
+					Checkbox(text = "Show Script Attrib Metadata",
+						checked = combo_use_script_data,
+						onToggleFunc = [&](bool state)
+						{
+							combo_use_script_data = state;
+							zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
+							loadComboType();
+						})
 				))
 			),
 			Row(
@@ -3556,7 +3500,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 		)
 	);
 	
-	refreshScript();
+	loadComboType();
 	updateAnimation();
 	updateWarnings();
 	updateTriggerIndex();
