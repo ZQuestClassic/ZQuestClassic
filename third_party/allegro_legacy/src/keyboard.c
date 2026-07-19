@@ -711,7 +711,10 @@ int install_keyboard(void)
 
    keyboard_polled = (keyboard_driver->poll) ? TRUE : FALSE;
 
-   set_leds(-1);
+   // local edit - respect key_led_flag: driving physical keyboard LEDs can
+   // crash in X11 when there is no usable display (headless CI).
+   if (key_led_flag)
+      set_leds(-1);
 
    _add_exit_func(remove_keyboard, "remove_keyboard");
    _keyboard_installed = TRUE;
@@ -735,7 +738,9 @@ void remove_keyboard(void)
    if (!keyboard_driver)
       return;
 
-   set_leds(-1);
+   // local edit - see install_keyboard.
+   if (key_led_flag)
+      set_leds(-1);
 
    if (rate_changed) {
       set_keyboard_rate(250, 33);
