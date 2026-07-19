@@ -444,8 +444,8 @@ extern byte                *quest_file;
 /*********** Misc Data ************/
 /**********************************/
 
-extern const char startguy[8];
-extern const char gambledat[12*6];
+extern const int8_t startguy[8];
+extern const int8_t gambledat[12*6];
 extern const byte stx[4][9];
 extern const byte sty[4][9];
 extern const byte ten_rupies_x[10];
