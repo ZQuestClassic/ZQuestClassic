@@ -96,6 +96,9 @@ void zplayer_handle_commands()
 		else
 			printf("tests failed\n");
 
+		// Stop the JIT worker threads before exit handlers run.
+		zasm_pipeline_shutdown();
+
 		zapp_exit(success ? 0 : 1);
 	}
 

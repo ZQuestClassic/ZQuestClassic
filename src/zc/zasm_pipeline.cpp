@@ -5,7 +5,11 @@
 #include <thread>
 #include <fmt/format.h>
 
-static std::unique_ptr<WorkerPool> worker_pool;
+// Raw pointer on purpose: if an exit path forgets zasm_pipeline_shutdown, a
+// static unique_ptr would join the worker threads during static destruction,
+// racing threads that touch already-destroyed statics. Leaking is safe - the
+// threads die with the process.
+static WorkerPool* worker_pool;
 static const int MAX_THREADS = 16;
 
 template <typename... Args>
@@ -42,7 +46,7 @@ static void init_worker_pool(int num_threads)
 {
 	if (num_threads > 0)
 	{
-		worker_pool = std::make_unique<WorkerPool>(num_threads);
+		worker_pool = new WorkerPool(num_threads);
 		zasm_pipeline_trace("created worker pool with {} threads", num_threads);
 	}
 }
@@ -119,7 +123,8 @@ void zasm_pipeline_shutdown()
 	if (worker_pool)
 	{
 		worker_pool->terminate();
-		worker_pool.reset();
+		delete worker_pool;
+		worker_pool = nullptr;
 	}
 
 	pipeline_initialized = false;
@@ -127,5 +132,5 @@ void zasm_pipeline_shutdown()
 
 WorkerPool* zasm_pipeline_worker_pool()
 {
-	return worker_pool.get();
+	return worker_pool;
 }
