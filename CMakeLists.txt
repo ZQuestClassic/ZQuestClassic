@@ -916,11 +916,7 @@ elseif(JIT_BACKEND STREQUAL "x64" OR JIT_BACKEND STREQUAL "a64")
 		GIT_REPOSITORY
 			https://github.com/connorjclark/asmjit.git
 		GIT_TAG
-			9e9494808f1d9101e71e75046d75e762b5ece21c
-		# Two separate COMMANDs: patch commands are not run through a shell, so
-		# `&&` would be passed to git as a literal argument under CMake's
-		# direct-populate mode (CMP0168).
-		PATCH_COMMAND git restore . COMMAND git apply ${CMAKE_SOURCE_DIR}/third_party/asmjit.patch
+			a6231cbcf125f4c7795066ddc3d2746c827f79ae
 		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(asmjit)

@@ -85,7 +85,7 @@ When a `WaitX` command is hit, the compiled function saves where to resume and r
 A few AArch64-specific notes (`jit_a64.cpp`):
 
 - If emitting a function reports an asmjit error, the function is discarded and stays interpreted (always correct, just slower for that one function). A spill frame too large for AArch64's load/store offsets (InvalidDisplacement) is treated as an expected capacity limit; any other emit error is a codegen bug and aborts under `jit_fatal_compile_errors` (which CI runs with). `-jit-a64-max-vregs` (default 10000) additionally skips compiling functions so register-heavy they'd likely be discarded anyway.
-- Conditional branches (`b.cond`) only reach ±1 MB, which the largest functions exceed; branches that may reach far are emitted via `emit_cond_branch`, and register-allocator fixup trampolines are placed inline by a patch to our asmjit fork (`third_party/asmjit.patch`, which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register).
+- Conditional branches (`b.cond`) only reach ±1 MB, which the largest functions exceed; branches that may reach far are emitted via `emit_cond_branch`, and register-allocator fixup trampolines are placed inline by commits in our asmjit fork (which also extends spill addressing past the ~16 KB encodable range via a reserved scratch register).
 
 ## Configuration
 
